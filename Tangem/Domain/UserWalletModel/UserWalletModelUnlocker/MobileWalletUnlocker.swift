@@ -13,14 +13,9 @@ import TangemMobileWalletSdk
 class MobileWalletUnlocker: UserWalletModelUnlocker {
     let canUnlockAutomatically: Bool
     let canShowUnlockUIAutomatically: Bool
+    let analyticsSignInType: Analytics.SignInType
 
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
-
-    private lazy var unlockUtil = MobileUnlockUtil(
-        userWalletId: userWalletId,
-        config: config,
-        biometricsProvider: UserWalletBiometricsUnlocker()
-    )
 
     private let userWalletId: UserWalletId
     private let config: UserWalletConfig
@@ -30,6 +25,7 @@ class MobileWalletUnlocker: UserWalletModelUnlocker {
         self.config = config
         canUnlockAutomatically = !info.isAccessCodeSet
         canShowUnlockUIAutomatically = info.isAccessCodeSet
+        analyticsSignInType = info.isAccessCodeSet ? .accessCode : .noSecurity
     }
 
     func unlock() async -> UserWalletModelUnlockerResult {
@@ -38,13 +34,32 @@ class MobileWalletUnlocker: UserWalletModelUnlocker {
                 let context = try mobileWalletSdk.validate(auth: .none, for: userWalletId)
                 return try makeSuccessResult(context: context)
             } else {
-                let unlockResult = try await unlockUtil.unlock()
-                return try map(result: unlockResult)
+                return try await unlockWithFallback()
             }
         } catch {
             AppLogger.error("MobileWallet unlock failed:", error: error)
             return .error(error)
         }
+    }
+}
+
+// MARK: - Unlocking
+
+private extension MobileWalletUnlocker {
+    func unlockWithFallback() async throws -> UserWalletModelUnlockerResult {
+        let accessCodeManager = await CommonMobileAccessCodeManager(
+            userWalletId: userWalletId,
+            configuration: .default,
+            storageManager: CommonMobileAccessCodeStorageManager()
+        )
+        let unlockUtil = MobileUnlockUtil(
+            userWalletId: userWalletId,
+            config: config,
+            biometricsProvider: UserWalletBiometricsUnlocker(),
+            accessCodeManager: accessCodeManager
+        )
+        let unlockResult = try await unlockUtil.unlock()
+        return try map(result: unlockResult)
     }
 }
 

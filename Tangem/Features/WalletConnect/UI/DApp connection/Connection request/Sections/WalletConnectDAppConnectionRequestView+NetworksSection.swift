@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 extension WalletConnectDAppConnectionRequestView {
     struct NetworksSection: View {
@@ -29,6 +30,7 @@ extension WalletConnectDAppConnectionRequestView {
 
                     Text(viewModel.label)
                         .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.networksLabel)
 
                     Spacer(minLength: .zero)
 
