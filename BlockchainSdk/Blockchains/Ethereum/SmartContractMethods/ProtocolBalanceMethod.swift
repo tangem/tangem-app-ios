@@ -10,14 +10,7 @@ public struct ProtocolBalanceMethod {
     let yieldTokenAddress: String
 }
 
-extension ProtocolBalanceMethod: SmartContractMethod {
+extension ProtocolBalanceMethod: YieldSmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `protocolBalance(address)` method.
     public var methodId: String { "0x4bd22a1b" }
-
-    public var data: Data {
-        let methodId = Data(hex: methodId)
-        let yieldTokenAddress = Data(hexString: yieldTokenAddress).leadingZeroPadding(toLength: 32)
-
-        return methodId + yieldTokenAddress
-    }
 }
