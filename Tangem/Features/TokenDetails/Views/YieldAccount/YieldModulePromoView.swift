@@ -1,5 +1,5 @@
 //
-//  YieldAccountPromoView.swift
+//  YieldModulePromoView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,10 +11,10 @@ import TangemAssets
 import TangemLocalization
 
 /// YIELD [REDACTED_TODO_COMMENT]
-struct YieldAccountPromoView: View {
+struct YieldModulePromoView: View {
     // MARK: - Properties
 
-    let viewModel: YieldAccountPromoViewModel
+    let viewModel: YieldModulePromoViewModel
 
     // MARK: - Sub Views
 
@@ -28,7 +28,7 @@ struct YieldAccountPromoView: View {
                 .foregroundStyle(Colors.Icon.accent.opacity(0.1))
                 .frame(size: .init(bothDimensions: 72))
 
-            Assets.YieldAccount.yieldPromoTopLogo.image
+            Assets.YieldModule.yieldPromoTopLogo.image
                 .resizable()
                 .renderingMode(.template)
                 .frame(size: .init(bothDimensions: 34))
@@ -37,13 +37,14 @@ struct YieldAccountPromoView: View {
     }
 
     private var title: some View {
-        Text("Earn \(viewModel.annualYield)% yearly").style(Fonts.Bold.title1, color: Colors.Text.primary1)
+        Text(Localization.yieldModulePromoScreenTitle(viewModel.annualYield))
+            .style(Fonts.Bold.title1, color: Colors.Text.primary1)
     }
 
     private var pillInfoButton: some View {
         Button(action: { viewModel.openInterestRateInfo() }) {
             HStack(spacing: 4) {
-                Text("Aave • Variable Interest Rate").style(Fonts.Bold.caption1, color: Colors.Text.secondary)
+                Text(Localization.yieldModulePromoScreenVariableRateInfo).style(Fonts.Bold.caption1, color: Colors.Text.secondary)
 
                 Image(systemName: "info.circle")
                     .resizable()
@@ -60,40 +61,46 @@ struct YieldAccountPromoView: View {
     private var benefitsStack: some View {
         VStack(spacing: 24) {
             BenefitRow(
-                icon: Assets.YieldAccount.yieldPromoLightning.image,
-                title: "Cash out instantly",
-                subtitle: "Send, swap, or sell your funds instantly, anytime you want."
+                icon: Assets.YieldModule.yieldPromoLightning.image,
+                title: Localization.yieldModulePromoScreenCashOutTitle,
+                subtitle: Localization.yieldModulePromoScreenCashOutSubtitle
             )
 
             BenefitRow(
-                icon: Assets.YieldAccount.yieldPromoSync.image,
-                title: "Your balance works automatically",
-                subtitle: "Every top‑up of your account will be lended to Aave automatically."
+                icon: Assets.YieldModule.yieldPromoSync.image,
+                title: Localization.yieldModulePromoScreenAutoBalanceTitle,
+                subtitle: Localization.yieldModulePromoScreenAutoBalanceSubtitle
             )
 
             BenefitRow(
-                icon: Assets.YieldAccount.yieldPromoGuard.image,
-                title: "Decentralized and self-custodial",
-                subtitle: "Aave is trusted by millions worldwide. Total lended value is $10.4B."
+                icon: Assets.YieldModule.yieldPromoGuard.image,
+                title: Localization.yieldModulePromoScreenSelfCustodialTitle,
+                subtitle: Localization.yieldModulePromoScreenSelfCustodialSubtitle
             )
         }
     }
 
     private var tosAndPrivacy: some View {
         VStack(spacing: 2) {
-            Text("By using service, you agree with provider")
+            Text(Localization.yieldModulePromoScreenTermsDisclaimer)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
             HStack(spacing: 4) {
-                Text(.init("[Terms of Use](https://www.google.es/)"))
+                Text(Localization.commonTermsOfUse)
                     .font(Fonts.Regular.footnote)
                     .tint(Colors.Text.accent)
+                    .onTapGesture {
+                        viewModel.onOpenTosTap()
+                    }
 
-                Text("and").style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                Text(Localization.commonAnd).style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
-                Text(.init("[Privacy Policy](https://www.bbc.com/)"))
+                Text(Localization.commonPrivacyPolicy)
                     .font(Fonts.Regular.footnote)
                     .tint(Colors.Text.accent)
+                    .onTapGesture {
+                        viewModel.onOpenPrivacyPolicyTap()
+                    }
             }
         }
     }
@@ -134,14 +141,16 @@ struct YieldAccountPromoView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("How It Works?") {}
-                    .foregroundColor(Colors.Text.primary1)
+                Button(Localization.yieldModulePromoScreenHowItWorksButtonTitle) {
+                    viewModel.onHowItWorksTap()
+                }
+                .foregroundColor(Colors.Text.primary1)
             }
         }
     }
 }
 
-private extension YieldAccountPromoView {
+private extension YieldModulePromoView {
     struct BenefitRow: View {
         let icon: Image
         let title: String
