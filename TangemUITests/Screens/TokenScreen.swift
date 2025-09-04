@@ -13,6 +13,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     enum TokenAction: String {
         case buy = "Buy"
         case swap = "Swap"
+        case send = "Send"
     }
 
     private lazy var moreButton = otherElement(.moreButton)
@@ -52,6 +53,11 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     func tapSwapButton() -> SwapStoriesScreen {
         tapActionButton(.swap)
         return SwapStoriesScreen(app)
+    }
+
+    func tapSendButton() -> SendScreen {
+        tapActionButton(.send)
+        return SendScreen(app)
     }
 
     func openStakeDetails() -> StakingDetailsScreen {
