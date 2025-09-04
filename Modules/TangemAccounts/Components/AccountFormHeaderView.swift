@@ -10,15 +10,27 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 
-struct AccountFormHeaderView: View {
+public struct AccountFormHeaderView: View {
     @Binding var accountName: String
     @State private var originalTextFieldHeight: CGFloat = 0
 
-    let placeholderText: String
-    let color: Color
-    let previewType: AccountFormHeaderType
+    private let placeholderText: String
+    private let color: Color
+    private let previewType: AccountFormHeaderType
 
-    var body: some View {
+    public init(
+        accountName: Binding<String>,
+        placeholderText: String,
+        color: Color,
+        previewType: AccountFormHeaderType
+    ) {
+        _accountName = accountName
+        self.placeholderText = placeholderText
+        self.color = color
+        self.previewType = previewType
+    }
+
+    public var body: some View {
         VStack(alignment: .center, spacing: 0) {
             colorWithPreview
                 .padding(.bottom, 34)
@@ -41,7 +53,10 @@ struct AccountFormHeaderView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 24)
                         .fill(color)
+                        .animation(.default, value: color)
                 )
+                .animation(.default, value: previewType)
+
             Spacer()
         }
     }
@@ -53,11 +68,12 @@ struct AccountFormHeaderView: View {
             Text(letter)
                 .style(Fonts.Bold.largeTitle, color: Colors.Text.constantWhite)
 
-        case .image(let image):
+        case .image(let image, let config):
             image
                 .renderingMode(.template)
                 .resizable()
                 .foregroundStyle(Colors.Text.constantWhite)
+                .opacity(config.opacity)
         }
     }
 
@@ -79,9 +95,21 @@ struct AccountFormHeaderView: View {
     }
 }
 
-enum AccountFormHeaderType {
+public enum AccountFormHeaderType: Equatable {
     case letter(String)
-    case image(Image)
+    case image(Image, config: ImageConfig = .default)
+}
+
+public extension AccountFormHeaderType {
+    struct ImageConfig: Equatable {
+        let opacity: Double
+
+        public init(opacity: Double = 1) {
+            self.opacity = opacity
+        }
+
+        public static let `default`: Self = ImageConfig()
+    }
 }
 
 #if DEBUG
