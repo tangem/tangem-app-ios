@@ -16,7 +16,7 @@ struct SelectorReceiveAssetsDomainItemView: View {
     @ObservedObject private(set) var viewModel: SelectorReceiveAssetsDomainItemViewModel
 
     var body: some View {
-        Button(action: viewModel.itemButtonDidTap) {
+        VStack(alignment: .leading, spacing: .zero) {
             HStack(spacing: Layout.Container.contentSpacing) {
                 addressIconView(with: viewModel.address)
 
@@ -26,10 +26,8 @@ struct SelectorReceiveAssetsDomainItemView: View {
 
                 buttonView
             }
-            .padding(.vertical, Layout.Container.padding)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .padding(.vertical, Layout.Container.padding)
     }
 
     // MARK: - Private Implementation
