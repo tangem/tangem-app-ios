@@ -18,19 +18,18 @@ final class YieldPromoBottomSheetViewModel: ObservableObject, FloatingSheetConte
 
     // MARK: - View State
 
-    @Published var state: ViewState
+    @Published var flow: Flow {
+        didSet {
+            previousFlow = oldValue
+        }
+    }
 
-    private(set) var tokenImage: Image
-    private(set) var networkFee: String
-    private(set) var maximumFee: String
+    private var previousFlow: Flow?
 
     // MARK: - Init
 
-    init(state: ViewState, tokenImage: Image, networkFee: String, maximumFee: String) {
-        self.tokenImage = tokenImage
-        self.networkFee = networkFee
-        self.maximumFee = maximumFee
-        self.state = state
+    init(flow: Flow) {
+        self.flow = flow
     }
 
     // MARK: - Public Implementation
@@ -41,29 +40,68 @@ final class YieldPromoBottomSheetViewModel: ObservableObject, FloatingSheetConte
         }
     }
 
-    func onShowFeePolicy() {
-        state = .feePolicy
+    func onShowFeePolicy(params: FeePolicyParams) {
+        flow = .feePolicy(params: params)
     }
 
-    func onShowStartEarning() {
-        state = .startYearing
+    func onBackAction() {
+        previousFlow.map { flow = $0 }
     }
 }
 
 extension YieldPromoBottomSheetViewModel {
-    enum ViewState: Identifiable, Equatable {
-        case feePolicy
-        case startYearing
+    enum Flow: Identifiable, Equatable {
+        case rateInfo(params: RateInfoParams)
+        case feePolicy(params: FeePolicyParams)
+        case startYearing(params: StartEarningParams)
+        case approve(params: ApproveParams)
+        case stopEarning(params: StopEarningParams)
 
         // MARK: - Identifiable
 
         var id: String {
             switch self {
+            case .rateInfo:
+                "rateInfo"
             case .feePolicy:
                 "feePolicy"
             case .startYearing:
                 "startYearing"
+            case .approve:
+                "approve"
+            case .stopEarning:
+                "stopEarning"
             }
         }
+    }
+}
+
+extension YieldPromoBottomSheetViewModel {
+    struct StartEarningParams: Equatable {
+        let tokenName: String
+        let tokenIcon: Image
+        let networkFee: String
+        let maximumFee: String
+        let blockchainName: String
+    }
+
+    struct RateInfoParams: Equatable {
+        let lastYearReturns: [String: Double]
+    }
+
+    struct FeePolicyParams: Equatable {
+        let currentFee: String
+        let maximumFee: String
+        let tokenName: String
+        let blockchainName: String
+    }
+
+    struct ApproveParams: Equatable {
+        let networkFee: String
+    }
+
+    struct StopEarningParams: Equatable {
+        let tokenName: String
+        let networkFee: String
     }
 }
