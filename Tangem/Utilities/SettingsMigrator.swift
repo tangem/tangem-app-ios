@@ -11,6 +11,8 @@ import TangemSdk
 
 enum SettingsMigrator {
     static func migrateIfNeeded() {
+        cleanStorageIfNeeded()
+
         guard FeatureProvider.isAvailable(.mobileWallet) else {
             return
         }
@@ -37,5 +39,15 @@ enum SettingsMigrator {
         }
 
         AppSettings.shared.saveUserWallets = true
+    }
+
+
+    private static func cleanStorageIfNeeded() {
+        guard !AppSettings.shared.saveUserWallets else {
+            return
+        }
+
+        let storage = UserWalletDataStorage()
+        storage.clear()
     }
 }
