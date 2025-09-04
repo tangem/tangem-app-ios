@@ -297,7 +297,7 @@ extension TokenDetailsViewModel {
     }
 
     private func requestPermissions(
-        activeState: YieldBalanceInfo.ActiveStateInfo,
+        activeState: YieldTokenState.ActiveStateInfo,
         approveData: ApproveTransactionData
     ) async throws -> String {
         let transaction = try await walletModel.transactionCreator.buildTransaction(
@@ -386,7 +386,7 @@ extension TokenDetailsViewModel {
     }
 
     private func enter(
-        activeState: YieldBalanceInfo.ActiveStateInfo,
+        activeState: YieldTokenState.ActiveStateInfo,
         contractAddress: String
     ) async throws -> String {
         let amount = Amount(with: walletModel.tokenItem.blockchain, type: .coin, value: 0)
@@ -422,7 +422,7 @@ extension TokenDetailsViewModel {
     }
 
     private func exit(
-        activeState: YieldBalanceInfo.ActiveStateInfo,
+        activeState: YieldTokenState.ActiveStateInfo,
         contractAddress: String
     ) async throws -> String {
         let amount = Amount(with: walletModel.tokenItem.blockchain, type: .coin, value: 0)
