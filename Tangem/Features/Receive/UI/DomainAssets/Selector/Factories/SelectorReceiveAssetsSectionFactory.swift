@@ -7,12 +7,13 @@
 //
 
 import Foundation
+import TangemLocalization
 
 protocol SelectorReceiveAssetsSectionFactory {
     var analyticsLogger: ReceiveAnalyticsLogger { get }
 
     func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection]
-    func makeHeaderItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String
+    func makeTitleItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String
 }
 
 extension SelectorReceiveAssetsSectionFactory {
@@ -20,7 +21,7 @@ extension SelectorReceiveAssetsSectionFactory {
         switch asset {
         case .address(let addressInfo):
             let viewModel = SelectorReceiveAssetsAddressItemViewModel(
-                header: makeHeaderItemStateView(tokenItem: tokenItem, addressInfo: addressInfo),
+                title: makeTitleItemStateView(tokenItem: tokenItem, addressInfo: addressInfo),
                 addressInfo: addressInfo,
                 coordinator: coordinator
             )
@@ -36,12 +37,8 @@ extension SelectorReceiveAssetsSectionFactory {
         }
     }
 
-    func makeHeaderItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String {
-        if tokenItem.isToken, let tokenTypeName = tokenItem.blockchain.tokenTypeName {
-            return "\(tokenItem.name.capitalizingFirstLetter()) • \(tokenTypeName)"
-        } else {
-            return "\(tokenItem.name.capitalizingFirstLetter())"
-        }
+    func makeTitleItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String {
+        Localization.domainReceiveAssetsOnboardingNetworkName(tokenItem.name.capitalizingFirstLetter())
     }
 }
 
