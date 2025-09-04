@@ -35,6 +35,7 @@
 "account_form_title_create" = "Add account";
 "account_form_title_edit" = "Edit account";
 "account_label_tokens_info" = "%1$@ in %2$@";
+"account_main_account_title" = "Main account";
 "account_recover_success_message" = "Account recovered";
 "account_reorder_description" = "Long tap on an account to reorder accounts";
 "account_unsaved_dialog_action_first" = "Keep Editing";
@@ -263,7 +264,7 @@
 "common_origin_ring" = "Основне кільце";
 "common_passphrase" = "Парольна фраза";
 "common_paste" = "Вставити";
-"common_privacy_policy" = "Політикою конфіденційності";
+"common_privacy_policy" = "Політикою конфіденційності";
 "common_range_with_space" = "%1$@ — %2$@";
 "common_range" = "%1$@-%2$@";
 "common_read_more" = "Детальніше";
@@ -303,7 +304,7 @@
 "common_tangem_wallet" = "Tangem Wallet";
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "умови участі";
-"common_terms_of_use" = "Умовами використання";
+"common_terms_of_use" = "Умовами використання";
 "common_today" = "Сьогодні";
 "common_transaction_failed" = "Помилка транзакції";
 "common_transaction_status" = "Статус транзакції";
@@ -809,6 +810,7 @@
 "onboarding_wallet_info_title_fourth" = "Відновлення коду доступу";
 "onboarding_wallet_info_title_second" = "Ідентичні картки";
 "onboarding_wallet_info_title_third" = "Код доступу";
+"onramp_all_offers_button_title" = "All offers";
 "onramp_avaiable_with_payment_methods" = "Доступно з %@";
 "onramp_choose_provider_title_hint" = "Tangem забезпечує доступ к покупці через сторонніх провайдерів згідно з їхніми умовами";
 "onramp_country_search" = "Пошук за країною";
@@ -816,13 +818,20 @@
 "onramp_currency_other" = "Інші валюти";
 "onramp_currency_popular" = "Популярні фіати";
 "onramp_currency_search" = "Пошук по валюті";
+"onramp_instant_status" = "Instant";
 "onramp_legal" = "Використовуючи сервіс покупки, ви погоджуєтесь з %1$@ та %2$@";
 "onramp_max_amount_restriction" = "Сума покупки не може бути більше ніж %@";
 "onramp_min_amount_restriction" = "Сума покупки повинна бути не менше %@";
 "onramp_no_available_providers" = "Для данної валюти немає доступних провайдерів";
+"onramp_offer_type_fastet" = "Fastest";
 "onramp_pay_with" = "Оплата з";
+"onramp_payment_method_subtitle" = "Payment method";
 "onramp_provider_max_amount" = "Доступно до %@";
 "onramp_provider_min_amount" = "Доступно від %@";
+"onramp_providers_count" = "%d providers";
+"onramp_providers_subtitle" = "Providers";
+"onramp_recently_used_title" = "Recently used";
+"onramp_recommended_title" = "Recommended";
 "onramp_redirecting_to_provider_subtitle" = "Ви зможете завершити транзакцію у стороннього постачальника, %@";
 "onramp_redirecting_to_provider_title" = "Перенаправлення на %@...";
 "onramp_residency_bottomsheet_country_not_supported" = "Наші сервіси недоступні в цій країні";
@@ -831,6 +840,8 @@
 "onramp_settings_residence" = "Країна проживання";
 "onramp_settings_title" = "Параметри";
 "onramp_statuses_view_footer" = "Ви можете закрити цей екран і перевірити статус транзакції на екрані деталей токена.";
+"onramp_timing_minutes" = "%@ min";
+"onramp_title_you_get" = "You get";
 "onramp_transaction_status_footer_text" = "Ви можете перевірити статус транзакції на сторінці токена";
 "onramp_via" = "Через";
 "onramp_you_will_pay_title" = "You will pay";
@@ -1658,6 +1669,7 @@
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";
 "yield_module_rate_info_sheet_chart_title" = "Last year returns";
 "yield_module_rate_info_sheet_description" = "Current interest rate is always variable and automatically computed by AAVE on-chain smart-contract based on real-time supply and demand.";
+"yield_module_rate_info_sheet_powered_by" = "Powered by";
 "yield_module_rate_info_sheet_title" = "Interest rate is variable";
 "yield_module_receive_sheet_description" = "When you top up, your funds will be automatically sent to Aave to start earning interest. A small fee equal to %@ will be deducted to cover the transaction.";
 "yield_module_start_earning_sheet_bottom_button_title" = "Start earning";
