@@ -30,6 +30,10 @@ extension CommonAllowanceService: AllowanceService {
     }
 
     func allowanceState(amount: Decimal, spender: String, approvePolicy: ApprovePolicy) async throws -> AllowanceState {
+        guard isSupportAllowance else {
+            return .unsupported
+        }
+
         let isPermissionRequired = try await allowanceChecker.isPermissionRequired(amount: amount, spender: spender)
 
         guard isPermissionRequired else {

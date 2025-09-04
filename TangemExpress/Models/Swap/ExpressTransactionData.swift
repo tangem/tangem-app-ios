@@ -29,7 +29,7 @@ public struct ExpressTransactionData {
     public let extraDestinationId: String?
 
     /// The value which should be in tx value
-    public let txValue: Decimal
+    public let txValue: Decimal?
 
     /// The value which should be in tx data. EVM-like blockchains
     public let txData: String?
@@ -54,7 +54,7 @@ public struct ExpressTransactionData {
         sourceAddress: String?,
         destinationAddress: String,
         extraDestinationId: String?,
-        txValue: Decimal,
+        txValue: Decimal?,
         txData: String?,
         otherNativeFee: Decimal?,
         estimatedGasLimit: Int?,
