@@ -35,6 +35,7 @@
 "account_form_title_create" = "Konto hinzufügen";
 "account_form_title_edit" = "Konto bearbeiten";
 "account_label_tokens_info" = "%1$@ in %2$@";
+"account_main_account_title" = "Main account";
 "account_recover_success_message" = "Konto wiederhergestellt";
 "account_reorder_description" = "Tippe lange auf ein Konto, um die Konten neu anzuordnen";
 "account_unsaved_dialog_action_first" = "Weiter bearbeiten";
@@ -809,6 +810,7 @@
 "onboarding_wallet_info_title_fourth" = "Zugangscode wiederherstellen";
 "onboarding_wallet_info_title_second" = "Identische Karten oder Ring";
 "onboarding_wallet_info_title_third" = "Zugangscode";
+"onramp_all_offers_button_title" = "All offers";
 "onramp_avaiable_with_payment_methods" = "Verfügbar mit %@";
 "onramp_choose_provider_title_hint" = "Anbieter erleichtern Transaktionen";
 "onramp_country_search" = "Suche nach Land";
@@ -816,13 +818,20 @@
 "onramp_currency_other" = "Andere Währungen";
 "onramp_currency_popular" = "Beliebte Fiats";
 "onramp_currency_search" = "Suche nach Währung";
+"onramp_instant_status" = "Instant";
 "onramp_legal" = "Durch die Nutzung der Onramp-Funktionalität stimmst Du den %1$@ und %2$@ des Anbieters zu.";
 "onramp_max_amount_restriction" = "Der Kaufbetrag sollte nicht höher sein als %@";
 "onramp_min_amount_restriction" = "Der zu kaufende Betrag muss mindestens %@ betragen";
 "onramp_no_available_providers" = "Keine verfügbaren Anbieter für diese Währung";
+"onramp_offer_type_fastet" = "Fastest";
 "onramp_pay_with" = "Bezahlen mit";
+"onramp_payment_method_subtitle" = "Payment method";
 "onramp_provider_max_amount" = "Verfügbar bis zu %@";
 "onramp_provider_min_amount" = "Erhältlich bei %@";
+"onramp_providers_count" = "%d providers";
+"onramp_providers_subtitle" = "Providers";
+"onramp_recently_used_title" = "Recently used";
+"onramp_recommended_title" = "Recommended";
 "onramp_redirecting_to_provider_subtitle" = "Du kannst Deine Transaktion beim Drittanbieter %@ abschließen.";
 "onramp_redirecting_to_provider_title" = "Umleitung auf %@…";
 "onramp_residency_bottomsheet_country_not_supported" = "Unsere Dienstleistungen sind in diesem Land nicht verfügbar";
@@ -831,6 +840,8 @@
 "onramp_settings_residence" = "Residenz";
 "onramp_settings_title" = "Einstellungen";
 "onramp_statuses_view_footer" = "Du kannst diesen Bildschirm schließen und den Transaktionsstatus auf dem Bildschirm mit den Token-Details überprüfen.";
+"onramp_timing_minutes" = "%@ min";
+"onramp_title_you_get" = "You get";
 "onramp_transaction_status_footer_text" = "Du kannst diesen Bildschirm schließen und den Transaktionsstatus auf dem Bildschirm mit den Token-Details überprüfen.";
 "onramp_via" = "Über";
 "onramp_you_will_pay_title" = "Du zahlst";
@@ -1658,6 +1669,7 @@
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";
 "yield_module_rate_info_sheet_chart_title" = "Last year returns";
 "yield_module_rate_info_sheet_description" = "Current interest rate is always variable and automatically computed by AAVE on-chain smart-contract based on real-time supply and demand.";
+"yield_module_rate_info_sheet_powered_by" = "Powered by";
 "yield_module_rate_info_sheet_title" = "Interest rate is variable";
 "yield_module_receive_sheet_description" = "When you top up, your funds will be automatically sent to Aave to start earning interest. A small fee equal to %@ will be deducted to cover the transaction.";
 "yield_module_start_earning_sheet_bottom_button_title" = "Start earning";

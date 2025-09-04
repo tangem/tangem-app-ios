@@ -35,6 +35,7 @@
 "account_form_title_create" = "Add account";
 "account_form_title_edit" = "Edit account";
 "account_label_tokens_info" = "%1$@ in %2$@";
+"account_main_account_title" = "Main account";
 "account_recover_success_message" = "Account recovered";
 "account_reorder_description" = "Long tap on an account to reorder accounts";
 "account_unsaved_dialog_action_first" = "Keep Editing";
@@ -263,7 +264,7 @@
 "common_origin_ring" = "Primary ring";
 "common_passphrase" = "Passphrase";
 "common_paste" = "Paste";
-"common_privacy_policy" = "Privacy Policy";
+"common_privacy_policy" = "Privacy Policy";
 "common_range_with_space" = "%1$@ — %2$@";
 "common_range" = "%1$@-%2$@";
 "common_read_more" = "Read more";
@@ -303,7 +304,7 @@
 "common_tangem_wallet" = "Tangem Wallet";
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "條款和條件";
-"common_terms_of_use" = "Terms of Use";
+"common_terms_of_use" = "Terms of Use";
 "common_today" = "Today";
 "common_transaction_failed" = "Transaction failed";
 "common_transaction_status" = "Transaction status";
@@ -809,6 +810,7 @@
 "onboarding_wallet_info_title_fourth" = "訪問密碼還原";
 "onboarding_wallet_info_title_second" = "相同的卡片";
 "onboarding_wallet_info_title_third" = "訪問密碼";
+"onramp_all_offers_button_title" = "All offers";
 "onramp_avaiable_with_payment_methods" = "Available with %@";
 "onramp_choose_provider_title_hint" = "Providers facilitate transactions";
 "onramp_country_search" = "Search by country";
@@ -816,13 +818,20 @@
 "onramp_currency_other" = "Other currencies";
 "onramp_currency_popular" = "Popular Fiats";
 "onramp_currency_search" = "Search by currency";
+"onramp_instant_status" = "Instant";
 "onramp_legal" = "By using onramp functionality, you agree with provider’s %1$@ and %2$@";
 "onramp_max_amount_restriction" = "The purchase amount should be no more than %@";
 "onramp_min_amount_restriction" = "The amount to buy must be at least %@";
 "onramp_no_available_providers" = "No available providers for this currency";
+"onramp_offer_type_fastet" = "Fastest";
 "onramp_pay_with" = "Pay with";
+"onramp_payment_method_subtitle" = "Payment method";
 "onramp_provider_max_amount" = "Available up to %@";
 "onramp_provider_min_amount" = "Available from %@";
+"onramp_providers_count" = "%d providers";
+"onramp_providers_subtitle" = "Providers";
+"onramp_recently_used_title" = "Recently used";
+"onramp_recommended_title" = "Recommended";
 "onramp_redirecting_to_provider_subtitle" = "You will be able to complete your transaction on the third-party provider, %@";
 "onramp_redirecting_to_provider_title" = "Redirecting to %@...";
 "onramp_residency_bottomsheet_country_not_supported" = "Our services are not available in this country";
@@ -831,6 +840,8 @@
 "onramp_settings_residence" = "Residence";
 "onramp_settings_title" = "Settings";
 "onramp_statuses_view_footer" = "You can close this screen and check the transaction status on the token details screen.";
+"onramp_timing_minutes" = "%@ min";
+"onramp_title_you_get" = "You get";
 "onramp_transaction_status_footer_text" = "You can close this screen and check the transaction status on the token details screen.";
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "You will pay";
@@ -1658,6 +1669,7 @@
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";
 "yield_module_rate_info_sheet_chart_title" = "Last year returns";
 "yield_module_rate_info_sheet_description" = "Current interest rate is always variable and automatically computed by AAVE on-chain smart-contract based on real-time supply and demand.";
+"yield_module_rate_info_sheet_powered_by" = "Powered by";
 "yield_module_rate_info_sheet_title" = "Interest rate is variable";
 "yield_module_receive_sheet_description" = "When you top up, your funds will be automatically sent to Aave to start earning interest. A small fee equal to %@ will be deducted to cover the transaction.";
 "yield_module_start_earning_sheet_bottom_button_title" = "Start earning";
