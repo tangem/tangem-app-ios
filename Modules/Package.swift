@@ -34,7 +34,7 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.19")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", revision: "874ead183dce9fc2c8a5f069444d5fa5198d64df"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", revision: "b9b875e1d995cda7c334ec339e7a4c3336b2aeb6"), // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]
         // BSDK only deps:
         // AnyCodable
@@ -42,8 +42,8 @@ let package = Package(
         .package(url: "https://github.com/jedisct1/swift-sodium.git", exact: "0.9.1"),
         // CombineExt
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", exact: "1.8.4"),
-        .package(url: "git@github.com:tangem-developments/hedera-sdk-swift.git", branch: "feature/[REDACTED_INFO]_migrate_bsdk_to_spm"),
-        .package(url: "git@github.com:tangem-developments/IcpKit.git", branch: "feature/[REDACTED_INFO]_migrate_bsdk_to_spm"),
+        .package(url: "git@github.com:tangem-developments/hedera-sdk-swift.git", revision: "3ee56218fe70fcef39ec8f2284711bf44c420a1e"), // [REDACTED_TODO_COMMENT]
+        .package(url: "git@github.com:tangem-developments/IcpKit.git", revision: "0e19de6d0cdbd1f8f464556d20d2feebfce9970c"), // [REDACTED_TODO_COMMENT]
         // Moya
         .package(url: "https://github.com/outfoxx/PotentCodables.git", .upToNextMajor(from: "3.2.0")),
         .package(url: "https://github.com/tesseract-one/ScaleCodec.swift", exact: "0.3.1"),
