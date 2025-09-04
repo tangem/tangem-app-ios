@@ -14,12 +14,7 @@ public struct ServiceFeeRateMethod {
 
 // MARK: - SmartContractMethod
 
-extension ServiceFeeRateMethod: SmartContractMethod {
+extension ServiceFeeRateMethod: YieldSmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `serviceFeeRate()` method.
     public var methodId: String { "0x61d1bc94" }
-
-    public var data: Data {
-        // No inputs, so just the methodId
-        return Data(hex: methodId)
-    }
 }
