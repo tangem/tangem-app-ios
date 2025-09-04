@@ -206,77 +206,55 @@ extension TokenDetailsViewModel {
         Task {
             do {
                 let state = try await yieldService.getYieldTokenState(for: walletModel.defaultAddressString, contractAddress: token.contractAddress)
+                let result: String
                 switch state {
                 case .notDeployed:
-                    do {
-                        let result = try await deploy(token: token, contractAddress: token.contractAddress)
-                        print(result)
-                    } catch {
-                        print(error)
-                    }
-                case .notInitialized(let yieldToken):
-                    do {
-                        let result = try await initToken(token: token, yieldToken: yieldToken)
-                        print(result)
-                    } catch {
-                        print(error)
-                    }
-                case .initialized(.notActive):
-                    // reactivate
-                    break
-                case .initialized(.active(let activeState)):
-                    let balances = try await yieldService.getYieldBalances(for: activeState.yieldToken, contractAddress: token.contractAddress)
+                    result = try await deploy(token: token, contractAddress: token.contractAddress)
+                case .deployed(let deployed):
+                    switch deployed.initializationState {
+                    case .notInitialized:
+                        result = try await initToken(token: token, yieldToken: deployed.yieldToken)
+                    case .initialized(.notActive):
+                        result = try await reactivate(yieldToken: deployed.yieldToken, contractAddress: token.contractAddress)
+                    case .initialized(.active):
+                        let balances = try await yieldService.getYieldBalances(for: deployed.yieldToken, contractAddress: token.contractAddress)
 
-                    if balances.protocol > 0 {
-                        do {
-                            let result = try await exit(activeState: activeState, contractAddress: token.contractAddress)
-                            print(result)
-                        } catch {
-                            print(error)
-                        }
-                    } else {
-                        let allowanceChecker = AllowanceChecker(
-                            blockchain: blockchain,
-                            amountType: walletModel.tokenItem.amountType,
-                            walletAddress: walletModel.defaultAddressString,
-                            ethereumNetworkProvider: walletModel.ethereumNetworkProvider,
-                            ethereumTransactionDataBuilder: walletModel.ethereumTransactionDataBuilder
-                        )
+                        if balances.protocol > 0 {
+                            result = try await exit(yieldToken: deployed.yieldToken, contractAddress: token.contractAddress)
+                        } else {
+                            let allowanceChecker = AllowanceChecker(
+                                blockchain: blockchain,
+                                amountType: walletModel.tokenItem.amountType,
+                                walletAddress: walletModel.defaultAddressString,
+                                ethereumNetworkProvider: walletModel.ethereumNetworkProvider,
+                                ethereumTransactionDataBuilder: walletModel.ethereumTransactionDataBuilder
+                            )
 
-                        let isPermissionRequired = try await allowanceChecker.isPermissionRequired(
-                            amount: balance * token.decimalValue,
-                            spender: activeState.yieldToken
-                        )
+                            let isPermissionRequired = try await allowanceChecker.isPermissionRequired(
+                                amount: balance * token.decimalValue,
+                                spender: deployed.yieldToken
+                            )
 
-                        if isPermissionRequired {
-                            do {
+                            if isPermissionRequired {
                                 let approveData = try await allowanceChecker.makeApproveData(
-                                    spender: activeState.yieldToken,
+                                    spender: deployed.yieldToken,
                                     amount: .greatestFiniteMagnitude,
                                     policy: .unlimited
                                 )
 
-                                let approve = try await requestPermissions(
-                                    activeState: activeState,
+                                result = try await requestPermissions(
                                     approveData: approveData
                                 )
-                                print(approve)
-                            } catch {
-                                print(error)
+                            } else {
+                                result = try await enter(
+                                    yieldToken: deployed.yieldToken,
+                                    contractAddress: token.contractAddress
+                                )
                             }
-                        }
-                        do {
-                            let result = try await enter(
-                                activeState: activeState,
-                                contractAddress: token.contractAddress
-                            )
-                            print(result)
-                        } catch {
-                            print(error)
                         }
                     }
                 }
-                print(state)
+                print(result)
             } catch {
                 print(error)
             }
@@ -297,7 +275,6 @@ extension TokenDetailsViewModel {
     }
 
     private func requestPermissions(
-        activeState: YieldTokenState.ActiveStateInfo,
         approveData: ApproveTransactionData
     ) async throws -> String {
         let transaction = try await walletModel.transactionCreator.buildTransaction(
@@ -317,124 +294,63 @@ extension TokenDetailsViewModel {
     }
 
     private func initToken(token: Token, yieldToken: String) async throws -> String {
-        let amount = Amount(with: walletModel.tokenItem.blockchain, type: .coin, value: 0)
-
         let smartContract = InitYieldTokenMethod(
             yieldTokenAddress: token.contractAddress,
             maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * walletModel.tokenItem.blockchain.decimalValue)!
         )
 
-        let fees = try await walletModel.ethereumNetworkProvider?.getFee(
-            destination: yieldToken,
-            value: amount.encodedForSend,
-            data: smartContract.data
-        ).async()
-
-        guard let fee = fees?.first else {
-            throw BlockchainSdkError.networkUnavailable
-        }
-
-        let transaction = try await walletModel.transactionCreator.buildTransaction(
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
-            amount: 0,
-            fee: fee,
-            destination: .contractCall(contract: yieldToken, data: smartContract.data)
-        )
-
-        let transactionDispatcher = TransactionDispatcherFactory(
-            walletModel: walletModel,
-            signer: userWalletModel.signer
-        ).makeSendDispatcher()
-
-        return try await transactionDispatcher.send(transaction: .transfer(transaction)).hash
+        return try await execute(yieldModule: yieldToken, yieldMethod: smartContract)
     }
 
     private func deploy(token: Token, contractAddress: String) async throws -> String {
-        let amount = Amount(with: walletModel.tokenItem.blockchain, type: .coin, value: 0)
-
-        let smartContract = DeployYieldModuleMethod(
+        let deployAction = DeployYieldModuleMethod(
             sourceAddress: walletModel.defaultAddressString,
             tokenAddress: contractAddress,
             maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * walletModel.tokenItem.blockchain.decimalValue)!
         )
 
-        let fees = try await walletModel.ethereumNetworkProvider?.getFee(
-            destination: YieldConstants.yieldModuleFactoryContractAddress,
-            value: amount.encodedForSend,
-            data: smartContract.data
-        ).async()
-
-        guard let fee = fees?.first else {
-            throw BlockchainSdkError.networkUnavailable
-        }
-
-        let transaction = try await walletModel.transactionCreator.buildTransaction(
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
-            amount: 0,
-            fee: fee,
-            destination: .contractCall(contract: YieldConstants.yieldModuleFactoryContractAddress, data: smartContract.data)
-        )
-
-        let transactionDispatcher = TransactionDispatcherFactory(
-            walletModel: walletModel,
-            signer: userWalletModel.signer
-        ).makeSendDispatcher()
-
-        return try await transactionDispatcher.send(transaction: .transfer(transaction)).hash
+        return try await execute(yieldModule: YieldConstants.yieldModuleFactoryContractAddress, yieldMethod: deployAction)
     }
 
     private func enter(
-        activeState: YieldTokenState.ActiveStateInfo,
+        yieldToken: String,
         contractAddress: String
     ) async throws -> String {
-        let amount = Amount(with: walletModel.tokenItem.blockchain, type: .coin, value: 0)
-
         let enterAction = EnterProtocolMethod(
             yieldTokenAddress: contractAddress
         )
 
-        let fees = try await walletModel.ethereumNetworkProvider?.getFee(
-            destination: activeState.yieldToken,
-            value: amount.encodedForSend,
-            data: enterAction.data
-        ).async()
-
-        guard let fee = fees?.first else {
-            throw BlockchainSdkError.networkUnavailable
-        }
-
-        let transaction = try await walletModel.transactionCreator.buildTransaction(
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
-            amount: 0,
-            fee: fee,
-            destination: .contractCall(contract: activeState.yieldToken, data: enterAction.data)
-        )
-
-        let transactionDispatcher = TransactionDispatcherFactory(
-            walletModel: walletModel,
-            signer: userWalletModel.signer
-        ).makeSendDispatcher()
-
-        return try await transactionDispatcher.send(transaction: .transfer(transaction)).hash
+        return try await execute(yieldModule: yieldToken, yieldMethod: enterAction)
     }
 
     private func exit(
-        activeState: YieldTokenState.ActiveStateInfo,
+        yieldToken: String,
         contractAddress: String
     ) async throws -> String {
-        let amount = Amount(with: walletModel.tokenItem.blockchain, type: .coin, value: 0)
-
-        let enterAction = WithdrawAndDeactivateMethod(
+        let exitAction = WithdrawAndDeactivateMethod(
             yieldTokenAddress: contractAddress
         )
 
+        return try await execute(yieldModule: yieldToken, yieldMethod: exitAction)
+    }
+
+    private func reactivate(
+        yieldToken: String,
+        contractAddress: String
+    ) async throws -> String {
+        let reactivateAction = ReactivateTokenMethod(
+            contractAddress: contractAddress
+        )
+
+        return try await execute(yieldModule: yieldToken, yieldMethod: reactivateAction)
+    }
+
+    private func execute(yieldModule: String, yieldMethod: YieldSmartContractMethod) async throws -> String {
+        let amount = Amount(with: walletModel.tokenItem.blockchain, type: .coin, value: 0)
         let fees = try await walletModel.ethereumNetworkProvider?.getFee(
-            destination: activeState.yieldToken,
+            destination: yieldModule,
             value: amount.encodedForSend,
-            data: enterAction.data
+            data: yieldMethod.data
         ).async()
 
         guard let fee = fees?.first else {
@@ -446,7 +362,7 @@ extension TokenDetailsViewModel {
             feeTokenItem: walletModel.feeTokenItem,
             amount: 0,
             fee: fee,
-            destination: .contractCall(contract: activeState.yieldToken, data: enterAction.data)
+            destination: .contractCall(contract: yieldModule, data: yieldMethod.data)
         )
 
         let transactionDispatcher = TransactionDispatcherFactory(
