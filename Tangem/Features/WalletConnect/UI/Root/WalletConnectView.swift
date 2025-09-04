@@ -11,6 +11,7 @@ import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WalletConnectView: View {
     @ObservedObject var viewModel: WalletConnectViewModel
@@ -68,6 +69,7 @@ struct WalletConnectView: View {
                 viewModel.handle(viewEvent: .newConnectionButtonTapped)
             }
         )
+        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.newConnectionButton)
         .background {
             if !viewModel.state.contentState.isEmpty {
                 ListFooterOverlayShadowView(
@@ -117,9 +119,11 @@ struct WalletConnectView: View {
             VStack(spacing: 8) {
                 Text(emptyContentState.title)
                     .style(Fonts.Regular.title3.weight(.semibold), color: Colors.Text.primary1)
+                    .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.noSessionsTitle)
 
                 Text(emptyContentState.subtitle)
                     .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                    .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.noSessionsDescription)
             }
         }
         .frame(maxWidth: .infinity)
@@ -218,6 +222,7 @@ struct WalletConnectView: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.dAppRow)
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 
