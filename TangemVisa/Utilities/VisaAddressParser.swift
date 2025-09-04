@@ -17,8 +17,7 @@ struct AddressParser {
     private var addressService: AddressService
 
     init(isTestnet: Bool) {
-        let blockchain = VisaUtilities(isTestnet: isTestnet).visaBlockchain
-        addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
+        addressService = VisaUtilities.makeAddressService(isTestnet: isTestnet)
     }
 
     func parseAddressResponse(_ response: String) throws(VisaParserError) -> String {

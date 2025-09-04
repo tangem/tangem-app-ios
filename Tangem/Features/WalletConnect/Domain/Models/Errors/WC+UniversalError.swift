@@ -125,6 +125,26 @@ extension WalletConnectTransactionRequestProcessingError: UniversalError {
             107009005
         case .userWalletNotFound:
             107009006
+        case .missingBlockchains:
+            107009007
+        case .unsupportedMethod:
+            107009008
+        case .notEnoughDataInRequest:
+            107009009
+        case .dataInWrongFormat:
+            107009010
+        case .missingTransaction:
+            107009011
+        case .walletModelNotFound:
+            107009012
+        case .wrongCardSelected:
+            107009013
+        case .userWalletRepositoryIsLocked:
+            107009014
+        case .missingActiveUserWalletModel:
+            107009015
+        case .userWalletIsLocked:
+            107009016
         }
     }
 }
