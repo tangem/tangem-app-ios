@@ -13,7 +13,16 @@ import TangemMobileWalletSdk
 import class TangemSdk.BiometricsUtil
 
 final class MobileAuthUtil {
+    @Injected(\.sessionMobileAccessCodeStorageManager)
+    private var accessCodeStorageManager: MobileAccessCodeStorageManager
+
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
+
+    private lazy var accessCodeManager = SessionMobileAccessCodeManager(
+        userWalletId: userWalletId,
+        configuration: .default,
+        storageManager: accessCodeStorageManager
+    )
 
     private var isAccessCodeSet: Bool {
         !config.hasFeature(.userWalletAccessCode)
@@ -29,20 +38,18 @@ final class MobileAuthUtil {
             mobileWalletSdk.isBiometricsEnabled(for: userWalletId)
     }
 
-    private lazy var unlockUtil = MobileUnlockUtil(
-        userWalletId: userWalletId,
-        config: config,
-        biometricsProvider: biometricsProvider
-    )
-
     private let userWalletId: UserWalletId
     private let config: UserWalletConfig
+    private let biometricsProvider: UserWalletBiometricsProvider
 
-    private let biometricsProvider: UserWalletBiometricsProvider = CommonUserWalletBiometricsProvider()
-
-    init(userWalletId: UserWalletId, config: UserWalletConfig) {
+    init(
+        userWalletId: UserWalletId,
+        config: UserWalletConfig,
+        biometricsProvider: UserWalletBiometricsProvider
+    ) {
         self.userWalletId = userWalletId
         self.config = config
+        self.biometricsProvider = biometricsProvider
     }
 }
 
@@ -87,6 +94,12 @@ private extension MobileAuthUtil {
     }
 
     func unlockWithFallback() async throws -> Result {
+        let unlockUtil = MobileUnlockUtil(
+            userWalletId: userWalletId,
+            config: config,
+            biometricsProvider: biometricsProvider,
+            accessCodeManager: accessCodeManager
+        )
         let unlockResult = try await unlockUtil.unlock()
         return try map(result: unlockResult)
     }
@@ -97,6 +110,7 @@ private extension MobileAuthUtil {
 private extension MobileAuthUtil {
     func handleBiometrics(laContext: LAContext) throws -> Result {
         let context = try mobileWalletSdk.validate(auth: .biometrics(context: laContext), for: userWalletId)
+        accessCodeManager.cleanWrongAccessCodes()
         return .successful(context)
     }
 

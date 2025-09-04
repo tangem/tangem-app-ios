@@ -8,12 +8,15 @@
 
 import Foundation
 import Combine
+import UIKit
 import TangemFoundation
 import TangemLocalization
 import TangemMobileWalletSdk
+import struct TangemUIUtils.AlertBinder
 
 final class MobileOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
     @Published var state: State?
+    @Published var alert: AlertBinder?
 
     let continueButtonTitle = Localization.commonContinue
     let responsibilityDescription = Localization.backupSeedResponsibility
@@ -23,14 +26,21 @@ final class MobileOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
     private let userWalletId: UserWalletId
     private weak var delegate: MobileOnboardingSeedPhraseRecoveryDelegate?
 
+    var bag: Set<AnyCancellable> = []
+
     init(userWalletId: UserWalletId, delegate: MobileOnboardingSeedPhraseRecoveryDelegate) {
         self.userWalletId = userWalletId
         self.delegate = delegate
+        bind()
         setup()
     }
 }
 
 extension MobileOnboardingSeedPhraseRecoveryViewModel {
+    func onAppear() {
+        Analytics.log(.backupSeedPhraseInfo)
+    }
+
     func onContinueTap() {
         delegate?.seedPhraseRecoveryContinue()
     }
@@ -39,6 +49,16 @@ extension MobileOnboardingSeedPhraseRecoveryViewModel {
 // MARK: - Private methods
 
 private extension MobileOnboardingSeedPhraseRecoveryViewModel {
+    func bind() {
+        NotificationCenter.default.publisher(for: UIApplication.userDidTakeScreenshotNotification)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingSeedScreenshotAlert)
+                Analytics.log(.onboardingSeedScreenCapture)
+            }
+            .store(in: &bag)
+    }
+
     func setup() {
         runTask(in: self) { viewModel in
             do {
