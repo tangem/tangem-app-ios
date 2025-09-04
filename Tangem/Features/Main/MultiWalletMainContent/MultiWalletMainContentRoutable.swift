@@ -18,4 +18,5 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openReferral(input: ReferralInputModel)
     func openMobileFinishActivation(userWalletModel: UserWalletModel)
     func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext)
+    func openMobileBackupOnboarding(userWalletModel: UserWalletModel)
 }

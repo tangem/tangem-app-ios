@@ -95,6 +95,7 @@ enum EmailCollectedDataType {
     case separator(SeparatorType)
     case token(TokenData)
     case visaDisputeTransaction(VisaDisputeTransactionData)
+    case mobileWallet(MobileWalletData)
 
     enum CardData: String {
         case cardId = "Card ID"
@@ -169,6 +170,11 @@ enum EmailCollectedDataType {
         case requests = "Blockchain requests"
     }
 
+    enum MobileWalletData: String {
+        case hasBackup = "Mobile Wallet is backed up"
+        case hasAccessCode = "Mobile Wallet has access code"
+    }
+
     var title: String {
         switch self {
         case .logs: return "Logs: "
@@ -180,6 +186,7 @@ enum EmailCollectedDataType {
         case .error: return "Error: "
         case .separator(let type): return type.rawValue
         case .visaDisputeTransaction(let data): return data.rawValue + ": "
+        case .mobileWallet(let data): return data.rawValue + ": "
         }
     }
 }
