@@ -1,0 +1,80 @@
+{
+    "cardId": "CB37000000000002",
+    "isPasscodeSet": false,
+    "wallets": [
+        {
+            "chainCode": "28B5F94F998EA087C81591C03A9178D0BC7554B204A7CAA4E9F01D05E531AB0F",
+            "settings": {
+                "isPermanent": false
+            },
+            "curve": "secp256k1",
+            "publicKey": "027145A57C26832421FF8D7BB34F248DF1231462E9EA16D7643FB22DC041C86C50",
+            "index": 0,
+            "totalSignedHashes": 0,
+            "isImported": false,
+            "hasBackup": true,
+            "derivedKeys": {
+                "m/0'/1": {
+                    "publicKey": "037B710002048D83A9EE80546EC773EF1E297740106FD4B0F60196BE03D0EF7C39",
+                    "chainCode": "A3814F2174AFBE16B0E0F124AE95B8D1F540D4E1FD78D50E84CB228E2E5C40A7",
+                    "depth": 0,
+                    "parentFingerprint": "00000000",
+                    "childNumber": 0
+                }
+            }
+        }
+    ],
+    "cardPublicKey": "04F677BF5F922C39904D4965F15B7CB54D8A530A2C6D3396295E1DD13A66406147583867EEEA866F406FA347AC3170DB95976D83460536CAA5E38D9A88FB1CCB4A",
+    "attestation": {
+        "firmwareAttestation": "skipped",
+        "walletKeysAttestation": "skipped",
+        "cardKeyAttestation": "failed",
+        "cardUniquenessAttestation": "skipped"
+    },
+    "linkedTerminalStatus": "none",
+    "batchId": "0045",
+    "settings": {
+        "isSettingPasscodeAllowed": true,
+        "isRemovingUserCodesAllowed": true,
+        "isBackupAllowed": false,
+        "isSettingAccessCodeAllowed": false,
+        "maxWalletsCount": 1,
+        "isLinkedTerminalEnabled": true,
+        "isFilesAllowed": true,
+        "isKeysImportAllowed": false,
+        "securityDelay": 15000,
+        "supportedEncryptionModes": [
+            "strong",
+            "fast",
+            "none"
+        ],
+        "isHDWalletAllowed": false,
+        "isPermanentWallet": false,
+        "isOverwritingIssuerExtraDataRestricted" : false,
+        "isIssuerDataProtectedAgainstReplay": true,
+        "isSelectBlockchainAllowed": true
+    },
+    "firmwareVersion": {
+        "stringValue": "3.05d SDK",
+        "type": "d SDK",
+        "major": 3,
+        "patch": 0,
+        "minor": 5
+    },
+    "isAccessCodeSet": false,
+    "manufacturer": {
+        "name": "TANGEM",
+        "manufactureDate": "2020-01-14",
+        "signature": "129B894B520447D3044A934464303152230D23D50E85F1F3A27AF80CB7CC301070291134CD267B3261E0F44C9A1DD97E3741FBFFE0E4F6DF4D69E85DE249B352"
+    },
+    "supportedCurves": [
+        "secp256k1"
+    ],
+    "issuer": {
+        "name": "TANGEM SDK",
+        "publicKey": "045F16BD1D2EAFE463E62A335A09E6B2BBCBD04452526885CB679FC4D27AF1BD22F553C7DEEFB54FD3D4F361D14E6DC3F11B7D4EA183250A60720EBDF9E110CD26"
+    },
+    "userSettings": {
+        "isUserCodeRecoveryAllowed": false
+    }
+}
