@@ -1,5 +1,5 @@
 //
-//  YieldAccountPromoCoordinator.swift
+//  YieldModulePromoCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-final class YieldAccountPromoCoordinator: CoordinatorObject {
+final class YieldModulePromoCoordinator: CoordinatorObject {
     // MARK: - Injected
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
@@ -18,7 +18,7 @@ final class YieldAccountPromoCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
-    @Published var rootViewModel: YieldAccountPromoViewModel? = nil
+    @Published var rootViewModel: YieldModulePromoViewModel? = nil
 
     // MARK: - Init
 
@@ -31,39 +31,40 @@ final class YieldAccountPromoCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         rootViewModel = .init(
+            tokenName: options.tokenName,
             annualYield: options.annualYield.formatted(),
             lastYearReturns: options.lastYearReturns,
             tokenImage: options.tokenImage,
             networkFee: options.currentFee,
             maximumFee: options.maxFee,
+            blockchainName: options.blockchainName,
             coordinator: self
         )
     }
 
-    func openInterestRateInfo(lastYearReturns: [String: Double]) {
+    func openRateInfoSheet(params: YieldPromoBottomSheetViewModel.RateInfoParams) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldInterestRateSheetViewModel(lastYearReturns: lastYearReturns))
+            floatingSheetPresenter.enqueue(sheet: YieldPromoBottomSheetViewModel(flow: .rateInfo(params: params)))
         }
     }
 
-    func openStartEarningSheet(networkFee: String, tokenImage: Image, maximumFee: String) {
+    func openStartEarningSheet(params: YieldPromoBottomSheetViewModel.StartEarningParams) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(
-                sheet: YieldPromoBottomSheetViewModel(state: .startYearing, tokenImage: tokenImage, networkFee: networkFee, maximumFee: maximumFee)
-            )
+            floatingSheetPresenter.enqueue(sheet: YieldPromoBottomSheetViewModel(flow: .startYearing(params: params)))
         }
     }
 }
 
 // MARK: - Options
 
-extension YieldAccountPromoCoordinator {
+extension YieldModulePromoCoordinator {
     struct Options {
+        let tokenName: String
         let startEarningAction: () -> Void
         let annualYield: Double
         let currentFee: Double
         let maxFee: Double
-        let networkName: String
+        let blockchainName: String
         let lastYearReturns: [String: Double]
         let tokenImage: Image
     }
