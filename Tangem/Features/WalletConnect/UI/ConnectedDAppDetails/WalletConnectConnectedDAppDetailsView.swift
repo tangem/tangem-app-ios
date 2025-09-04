@@ -11,6 +11,7 @@ import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WalletConnectConnectedDAppDetailsView: View {
     @ObservedObject var viewModel: WalletConnectConnectedDAppDetailsViewModel
@@ -224,6 +225,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
                 viewModel.handle(viewEvent: .disconnectButtonTapped)
             }
         )
+        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.disconnectButton)
         .padding(16)
     }
 
