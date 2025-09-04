@@ -10,10 +10,12 @@ import Foundation
 import SwiftUI
 import Combine
 import CombineExt
+import TangemFoundation
 import TangemStaking
 import TangemNFT
 import TangemLocalization
 import TangemUI
+import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 
 final class MultiWalletMainContentViewModel: ObservableObject {
@@ -460,8 +462,29 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openReferral(input: input)
     }
 
-    private func openMobileFinishActivation() {
-        coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
+    private func openMobileFinishActivation(needsAttention: Bool) {
+        Analytics.log(.mainButtonFinishNow)
+        if needsAttention {
+            coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
+        } else {
+            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        }
+    }
+
+    private func openMobileUpgrade() {
+        runTask(in: self) { viewModel in
+            do {
+                let context = try await viewModel.unlock()
+                viewModel.coordinator?.openMobileUpgrade(userWalletModel: viewModel.userWalletModel, context: context)
+            } catch where error.isCancellationError {
+                AppLogger.error("Unlock is canceled", error: error)
+            } catch {
+                AppLogger.error("Unlock failed:", error: error)
+                await runOnMain {
+                    viewModel.error = error.alertBinder
+                }
+            }
+        }
     }
 }
 
@@ -507,8 +530,10 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openReferralProgram:
             openReferralProgram()
-        case .openMobileFinishActivation:
-            openMobileFinishActivation()
+        case .openMobileFinishActivation(let needsAttention):
+            openMobileFinishActivation(needsAttention: needsAttention)
+        case .openMobileUpgrade:
+            openMobileUpgrade()
         default:
             break
         }
@@ -627,5 +652,30 @@ private extension MultiWalletMainContentViewModel {
             expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
             userWalletModel: userWalletModel
         )
+    }
+}
+
+// MARK: - Unlocking
+
+private extension MultiWalletMainContentViewModel {
+    func unlock() async throws -> MobileWalletContext {
+        let authUtil = MobileAuthUtil(
+            userWalletId: userWalletModel.userWalletId,
+            config: userWalletModel.config,
+            biometricsProvider: CommonUserWalletBiometricsProvider()
+        )
+
+        let result = try await authUtil.unlock()
+
+        switch result {
+        case .successful(let context):
+            return context
+
+        case .canceled:
+            throw CancellationError()
+
+        case .userWalletNeedsToDelete:
+            throw CancellationError()
+        }
     }
 }

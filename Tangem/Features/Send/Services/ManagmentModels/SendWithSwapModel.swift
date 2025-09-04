@@ -226,9 +226,7 @@ private extension SendWithSwapModel {
         case .success(.feeWasIncreased):
             throw TransactionDispatcherResult.Error.informationRelevanceServiceFeeWasIncreased
         case .success(.ok):
-            // Uncomment it when HighPriceImpactWarningBottomSheet will be available
-            // return try await sendIfHighPriceImpactWarningChecking()
-            return try await send()
+            return try await sendIfHighPriceImpactWarningChecking()
         }
     }
 
@@ -794,7 +792,8 @@ extension SendWithSwapModel: NotificationTapDelegate {
              .openReferralProgram,
              .unlock,
              .addTokenTrustline,
-             .openMobileFinishActivation:
+             .openMobileFinishActivation,
+             .openMobileUpgrade:
             assertionFailure("Notification tap not handled")
         }
     }
