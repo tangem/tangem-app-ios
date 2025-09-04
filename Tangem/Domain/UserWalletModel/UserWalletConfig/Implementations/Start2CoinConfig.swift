@@ -70,7 +70,7 @@ extension Start2CoinConfig: UserWalletConfig {
     }
 
     var emailData: [EmailCollectedData] {
-        CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
+        EmailDataFactory().makeEmailData(for: card, walletData: walletData)
     }
 
     var userWalletIdSeed: Data? {
@@ -153,6 +153,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .hidden
         case .userWalletUpgrade:
             return .hidden
+        case .cardSettings:
+            return .available
         }
     }
 

@@ -52,11 +52,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         return numberOfTokens >= requiredNumberOfTokens
     }
 
-    // MARK: - Injections
-
-    @Injected(\.sessionMobileAccessCodeStorageManager)
-    private var accessCodeStorageManager: MobileAccessCodeStorageManager
-
     // MARK: - Dependencies
 
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
@@ -467,9 +462,13 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openReferral(input: input)
     }
 
-    private func openMobileFinishActivation() {
+    private func openMobileFinishActivation(needsAttention: Bool) {
         Analytics.log(.mainButtonFinishNow)
-        coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
+        if needsAttention {
+            coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
+        } else {
+            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        }
     }
 
     private func openMobileUpgrade() {
@@ -531,8 +530,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openReferralProgram:
             openReferralProgram()
-        case .openMobileFinishActivation:
-            openMobileFinishActivation()
+        case .openMobileFinishActivation(let needsAttention):
+            openMobileFinishActivation(needsAttention: needsAttention)
         case .openMobileUpgrade:
             openMobileUpgrade()
         default:
@@ -660,17 +659,10 @@ private extension MultiWalletMainContentViewModel {
 
 private extension MultiWalletMainContentViewModel {
     func unlock() async throws -> MobileWalletContext {
-        let accessCodeManager = SessionMobileAccessCodeManager(
-            userWalletId: userWalletModel.userWalletId,
-            configuration: .default,
-            storageManager: accessCodeStorageManager
-        )
-
         let authUtil = MobileAuthUtil(
             userWalletId: userWalletModel.userWalletId,
             config: userWalletModel.config,
-            biometricsProvider: CommonUserWalletBiometricsProvider(),
-            accessCodeManager: accessCodeManager
+            biometricsProvider: CommonUserWalletBiometricsProvider()
         )
 
         let result = try await authUtil.unlock()
