@@ -11,6 +11,7 @@ import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WalletConnectDAppConnectionRequestView: View {
     @ObservedObject var viewModel: WalletConnectDAppConnectionRequestViewModel
@@ -102,6 +103,7 @@ struct WalletConnectDAppConnectionRequestView: View {
 
                 Text(viewModel.state.walletSection.label)
                     .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.walletLabel)
 
                 Spacer(minLength: .zero)
 
