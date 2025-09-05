@@ -842,6 +842,7 @@
 "onramp_timing_minutes" = "%@ min";
 "onramp_title_you_get" = "You get";
 "onramp_transaction_status_footer_text" = "Du kannst diesen Bildschirm schließen und den Transaktionsstatus auf dem Bildschirm mit den Token-Details überprüfen.";
+"onramp_up_to_rate" = "Up to";
 "onramp_via" = "Über";
 "onramp_you_will_pay_title" = "Du zahlst";
 "organize_tokens_group" = "Gruppe erstellen";

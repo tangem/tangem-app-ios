@@ -61,7 +61,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             isUserWalletLocked: model.isUserWalletLocked,
             supplementInfoProvider: model,
             subtitleProvider: subtitleProvider,
-            balanceProvider: balanceProvider
+            balanceProvider: balanceProvider,
+            updatePublisher: model.updatePublisher
         )
 
         let rateAppController = CommonRateAppController(
@@ -197,7 +198,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
             supplementInfoProvider: visaUserWalletModel,
             subtitleProvider: subtitleProvider,
-            balanceProvider: visaUserWalletModel
+            balanceProvider: visaUserWalletModel,
+            updatePublisher: visaUserWalletModel.updatePublisher
         )
 
         let viewModel = VisaWalletMainContentViewModel(

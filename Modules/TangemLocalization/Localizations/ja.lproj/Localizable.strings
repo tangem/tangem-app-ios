@@ -842,6 +842,7 @@
 "onramp_timing_minutes" = "%@ min";
 "onramp_title_you_get" = "You get";
 "onramp_transaction_status_footer_text" = "この画面を閉じて、トークンの詳細画面で取引状況を確認できます。";
+"onramp_up_to_rate" = "Up to";
 "onramp_via" = "経由";
 "onramp_you_will_pay_title" = "支払い";
 "organize_tokens_group" = "グループ";
