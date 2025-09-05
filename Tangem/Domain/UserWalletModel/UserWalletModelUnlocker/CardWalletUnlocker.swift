@@ -21,7 +21,7 @@ class CardWalletUnlocker: UserWalletModelUnlocker {
         let scanParameters = CardScannerParameters(
             shouldAskForAccessCodes: false,
             performDerivations: false,
-            sessionFilter: config.cardSessionFilter
+            sessionFilter: nil
         )
 
         let cardScanner = CardScannerFactory().makeScanner(
