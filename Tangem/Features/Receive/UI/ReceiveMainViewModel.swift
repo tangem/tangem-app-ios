@@ -8,11 +8,13 @@
 
 import UIKit
 import Foundation
+import SwiftUI
 import Combine
 import TangemFoundation
 import TangemUI
 import BlockchainSdk
 import TangemLocalization
+import TangemAssets
 
 class ReceiveMainViewModel: ObservableObject {
     // MARK: - Injected
@@ -146,6 +148,15 @@ extension ReceiveMainViewModel {
                 "qrCode"
             case .tokenAlert:
                 "tokenAlert"
+            }
+        }
+
+        var backgroundColor: Color {
+            switch self {
+            case .selector, .tokenAlert:
+                return Colors.Background.tertiary
+            case .qrCode:
+                return Colors.Background.primary
             }
         }
 
