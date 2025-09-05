@@ -206,9 +206,29 @@ extension XRPWalletManager: TransactionSender {
         return networkService
             .getSequence(account: decodeAddress(address: transaction.sourceAddress))
             .withWeakCaptureOf(self)
-            .tryMap { manager, sequence in
+            .flatMap { manager, sequence in
+                if case .token(let token) = transaction.amount.type {
+                    do {
+                        let issuer = try XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress).1
+
+                        return manager.networkService
+                            .shouldAllowPartialPayment(for: issuer)
+                            .map { hasFee in (sequence, hasFee) }
+                            .eraseToAnyPublisher()
+                    } catch {
+                        return Fail(error: error).eraseToAnyPublisher()
+                    }
+                } else {
+                    return Just((sequence, false))
+                        .setFailureType(to: Error.self)
+                        .eraseToAnyPublisher()
+                }
+            }
+            .withWeakCaptureOf(self)
+            .tryMap { manager, result in
+                let (sequence, hasTransferFee) = result
                 let enrichedTx = manager.enrichTransaction(transaction, withSequence: sequence)
-                let txBuiltForSign = try manager.txBuilder.buildForSign(transaction: enrichedTx)
+                let txBuiltForSign = try manager.txBuilder.buildForSign(transaction: enrichedTx, partialPaymentAllowed: hasTransferFee)
                 return txBuiltForSign
             }
             .mapSendTxError()
