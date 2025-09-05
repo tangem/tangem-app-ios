@@ -91,6 +91,7 @@ extension WalletConnectQRScanViewModel {
             let qrURI = try uriParser.parse(uriString: rawQRCode)
             coordinator.dismiss(with: .fromQRCode(qrURI))
         } catch {
+            WalletConnectUIFeedbackGenerator().errorNotificationOccurred()
             coordinator.display(error: error)
         }
     }
@@ -102,6 +103,7 @@ extension WalletConnectQRScanViewModel {
             let clipboardURI = try uriParser.parse(uriString: rawClipboardString)
             coordinator.dismiss(with: .fromClipboard(clipboardURI))
         } catch {
+            WalletConnectUIFeedbackGenerator().errorNotificationOccurred()
             coordinator.display(error: error)
         }
     }

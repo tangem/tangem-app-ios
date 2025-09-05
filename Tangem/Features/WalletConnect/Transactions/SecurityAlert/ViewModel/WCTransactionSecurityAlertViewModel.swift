@@ -8,7 +8,8 @@
 
 import Foundation
 
-final class WCTransactionSecurityAlertViewModel: ObservableObject {
+final class WCTransactionSecurityAlertViewModel: ObservableObject, Identifiable {
+    let id = UUID()
     @Published private(set) var state: WCTransactionSecurityAlertState
 
     private let primaryAction: () -> Void

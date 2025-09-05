@@ -81,7 +81,7 @@ struct WalletConnectView: View {
                 .transition(.opacity)
             }
         }
-        .padding(.horizontal, viewModel.state.contentState.isEmpty ? 80 : 16)
+        .padding(.horizontal, !viewModel.state.contentState.isContent ? 80 : 16)
         .padding(.bottom, UIDevice.current.hasHomeScreenIndicator ? .zero : 8)
         .offset(y: newConnectionButtonYOffset(proxy))
         .animation(.easeInOut(duration: 0.2), value: viewModel.state.contentState.isEmpty)
@@ -94,7 +94,7 @@ struct WalletConnectView: View {
             emptyStateView(emptyContentState)
                 .padding(.top, -geometryProxy.safeAreaInsets.top)
                 .frame(height: geometryProxy.size.height - geometryProxy.safeAreaInsets.top)
-                .transition(.slideToTopWithFade)
+                .transition(.opacity)
 
         case .loading(let loadingContentState):
             loadingStateView(loadingContentState)
@@ -265,7 +265,7 @@ struct WalletConnectView: View {
     }
 
     private func newConnectionButtonYOffset(_ proxy: GeometryProxy) -> CGFloat {
-        guard viewModel.state.contentState.isEmpty else {
+        guard !viewModel.state.contentState.isContent else {
             return .zero
         }
 
