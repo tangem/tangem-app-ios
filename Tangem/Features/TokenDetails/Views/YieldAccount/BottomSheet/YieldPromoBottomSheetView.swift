@@ -42,7 +42,16 @@ struct YieldPromoBottomSheetView: View {
         }
     }
 
-    private var title: String {
+    private var horizontalPadding: Int {
+        switch viewModel.flow {
+        case .earnInfo:
+            8
+        default:
+            16
+        }
+    }
+
+    private var title: String? {
         switch viewModel.flow {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetTitle
@@ -54,10 +63,12 @@ struct YieldPromoBottomSheetView: View {
             Localization.yieldModuleApproveSheetTitle
         case .stopEarning:
             Localization.yieldModuleStopEarningSheetTitle
+        case .earnInfo:
+            nil
         }
     }
 
-    private var subtitle: String {
+    private var subtitle: String? {
         switch viewModel.flow {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetDescription
@@ -69,6 +80,8 @@ struct YieldPromoBottomSheetView: View {
             Localization.yieldModuleApproveSheetSubtitle
         case .stopEarning(let params):
             Localization.yieldModuleStopEarningSheetDescription(params.tokenName)
+        case .earnInfo:
+            nil
         }
     }
 
@@ -77,7 +90,7 @@ struct YieldPromoBottomSheetView: View {
         switch viewModel.flow {
         case .rateInfo:
             rateInfoSubtitleFooter
-        case .feePolicy, .startYearing, .approve, .stopEarning:
+        case .feePolicy, .startYearing, .approve, .stopEarning, .earnInfo:
             EmptyView()
         }
     }
@@ -104,17 +117,39 @@ struct YieldPromoBottomSheetView: View {
             .blackWithTangemIcon(title: Localization.commonConfirm)
         case .stopEarning:
             .blackWithTangemIcon(title: Localization.commonConfirm)
+        case .earnInfo:
+            .gray(title: Localization.yieldModuleStopEarningSheetTitle)
         }
     }
 
+    @ViewBuilder
     private var toolBarTitle: some View {
-        EmptyView()
+        switch viewModel.flow {
+        case .earnInfo(let params):
+            earnInfoToolbarTitleView(status: params.status)
+        case .approve, .stopEarning, .startYearing, .feePolicy, .rateInfo:
+            EmptyView()
+        }
+    }
+
+    private func earnInfoToolbarTitleView(status: String) -> some View {
+        VStack(spacing: .zero) {
+            Text(Localization.yieldModuleEarnSheetTitle).style(Fonts.Bold.headline, color: Colors.Text.primary1)
+
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(Colors.Icon.accent)
+                    .frame(size: .init(bothDimensions: 8))
+
+                Text(status).style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            }
+        }
     }
 
     @ViewBuilder
     private var topContent: some View {
         switch viewModel.flow {
-        case .rateInfo, .feePolicy:
+        case .rateInfo, .feePolicy, .earnInfo:
             EmptyView()
         case .startYearing(let params):
             startEarningTopContent(icon: params.tokenIcon)
@@ -147,19 +182,32 @@ struct YieldPromoBottomSheetView: View {
             )
 
         case .feePolicy(let params):
-            FeePolicyView(currentFee: params.currentFee, maximumFee: params.maximumFee, blockchainName: params.blockchainName)
+            FeePolicyView(
+                currentFee: params.currentFee,
+                maximumFee: params.maximumFee,
+                blockchainName: params.blockchainName
+            )
 
         case .approve(let params):
             ApproveView(fee: params.networkFee, readMoreAction: {})
 
         case .stopEarning(let params):
             StopEarningView(fee: params.networkFee, readMoreAction: {})
+
+        case .earnInfo(let params):
+            EarnInfoView(
+                status: params.status,
+                chartData: params.chartData,
+                availableFunds: .init(availableBalance: params.availableFunds),
+                transferMode: "Automatic",
+                tokenName: params.tokenName
+            )
         }
     }
 
     private var closeAction: (() -> Void)? {
         switch viewModel.flow {
-        case .rateInfo, .startYearing:
+        case .rateInfo, .startYearing, .earnInfo:
             viewModel.onCloseTapAction
         case .feePolicy, .stopEarning, .approve:
             nil
@@ -168,7 +216,7 @@ struct YieldPromoBottomSheetView: View {
 
     private var backAction: (() -> Void)? {
         switch viewModel.flow {
-        case .rateInfo, .startYearing:
+        case .rateInfo, .startYearing, .earnInfo:
             nil
         case .feePolicy, .stopEarning, .approve:
             viewModel.onBackAction
@@ -181,6 +229,8 @@ struct YieldPromoBottomSheetView: View {
             viewModel.onCloseTapAction
         case .feePolicy, .stopEarning, .approve:
             viewModel.onBackAction
+        case .earnInfo:
+            viewModel.onShowStopEarningSheet
         }
     }
 }

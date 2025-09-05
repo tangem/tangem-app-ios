@@ -15,8 +15,8 @@ extension YieldPromoBottomSheetView {
         // MARK: - Slots
 
         private let topContent: () -> TopContent
-        private let title: String
-        private let subtitle: String
+        private let title: String?
+        private let subtitle: String?
         private let subtitleFooter: () -> SubtitleFooter
         private let content: () -> BodyContent
         private let toolBarTitle: () -> ToolBarTitle
@@ -31,8 +31,8 @@ extension YieldPromoBottomSheetView {
         // MARK: - Init
 
         public init(
-            title: String,
-            subtitle: String,
+            title: String? = nil,
+            subtitle: String? = nil,
             buttonStyle: CallToActionButtonStyle,
             @ViewBuilder toolBarTitle: @escaping () -> ToolBarTitle = { EmptyView() },
             @ViewBuilder topContent: @escaping () -> TopContent = { EmptyView() },
@@ -84,14 +84,20 @@ extension YieldPromoBottomSheetView {
 
         // MARK: - Sub Views
 
+        @ViewBuilder
         private var titleView: some View {
-            Text(title).style(Fonts.Bold.title2, color: Colors.Text.primary1)
+            if let title {
+                Text(title).style(Fonts.Bold.title2, color: Colors.Text.primary1)
+            }
         }
 
+        @ViewBuilder
         private var subtitleView: some View {
-            Text(subtitle)
-                .multilineTextAlignment(.center)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+            if let subtitle {
+                Text(subtitle)
+                    .multilineTextAlignment(.center)
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+            }
         }
 
         private var toolBar: some View {

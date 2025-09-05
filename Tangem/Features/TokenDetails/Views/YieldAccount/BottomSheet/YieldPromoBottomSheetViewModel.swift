@@ -47,6 +47,14 @@ final class YieldPromoBottomSheetViewModel: ObservableObject, FloatingSheetConte
     func onBackAction() {
         previousFlow.map { flow = $0 }
     }
+
+    func onShowStopEarningSheet() {
+        if case .earnInfo(let params) = flow {
+            flow = .stopEarning(params: .init(tokenName: params.blockchainName, networkFee: params.networkFee))
+        } else {
+            onCloseTapAction()
+        }
+    }
 }
 
 extension YieldPromoBottomSheetViewModel {
@@ -56,6 +64,7 @@ extension YieldPromoBottomSheetViewModel {
         case startYearing(params: StartEarningParams)
         case approve(params: ApproveParams)
         case stopEarning(params: StopEarningParams)
+        case earnInfo(params: EarnInfoParams)
 
         // MARK: - Identifiable
 
@@ -71,6 +80,8 @@ extension YieldPromoBottomSheetViewModel {
                 "approve"
             case .stopEarning:
                 "stopEarning"
+            case .earnInfo:
+                "earnInfo"
             }
         }
     }
@@ -103,5 +114,15 @@ extension YieldPromoBottomSheetViewModel {
     struct StopEarningParams: Equatable {
         let tokenName: String
         let networkFee: String
+    }
+
+    struct EarnInfoParams: Equatable {
+        let availableFunds: String
+        let chartData: YieldModuleChartData
+        let transferMode: String
+        let status: String
+        let blockchainName: String
+        let networkFee: String
+        let tokenName: String
     }
 }
