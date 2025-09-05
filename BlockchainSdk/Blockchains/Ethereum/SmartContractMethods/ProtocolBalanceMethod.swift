@@ -1,5 +1,5 @@
 //
-//  ProtocolBalanceMethod 2.swift
+//  ProtocolBalanceMethod.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]

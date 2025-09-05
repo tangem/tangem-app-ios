@@ -9,8 +9,8 @@
 import Foundation
 import BigInt
 
-public enum YieldResponseMapper {
-    public static func mapFeeRate(_ result: String) throws -> Decimal {
+enum YieldResponseMapper {
+    static func mapFeeRate(_ result: String) throws -> Decimal {
         let hexString = result.removeHexPrefix()
 
         let data = Data(hex: hexString)
@@ -25,7 +25,7 @@ public enum YieldResponseMapper {
         return (feeRateDecimal * Constants.decimalBasisPoint) / Constants.decimalPercent
     }
 
-    public static func mapTokenData(_ result: String) throws -> YieldTokenData {
+    static func mapTokenData(_ result: String) throws -> YieldTokenData {
         let hexString = result.removeHexPrefix()
 
         let data = Data(hexString: hexString)
@@ -49,7 +49,7 @@ public enum YieldResponseMapper {
         )
     }
 
-    public static func mapAPY(_ result: String) throws -> Decimal {
+    static func mapAPY(_ result: String) throws -> Decimal {
         let hexString = result.removeHexPrefix()
 
         let data = Data(hexString: hexString)
@@ -69,7 +69,7 @@ public enum YieldResponseMapper {
         return (apr.exp() - Constants.decimalOne) * Constants.decimalPercent
     }
 
-    public static func mapBalances(protocolBalance: String, effectiveBalance: String) -> YieldBalances {
+    static func mapBalances(protocolBalance: String, effectiveBalance: String) -> YieldBalances {
         let effectiveBalanceValue = BigUInt(Data(hexString: effectiveBalance))
         let protocolBalanceValue = BigUInt(Data(hexString: protocolBalance))
 

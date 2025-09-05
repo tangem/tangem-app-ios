@@ -1,5 +1,5 @@
 //
-//  YieldTokenInfo.swift
+//  YieldTokenData.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import BigInt
 
-public struct YieldTokenData {
+struct YieldTokenData {
     let initialized: Bool
     let active: Bool
     let maxNetworkFee: BigUInt
