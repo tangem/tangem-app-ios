@@ -90,7 +90,7 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
     }
 
-    var didChangePublisher: any Publisher<Void, Never> {
+    var didChangePublisher: AnyPublisher<Void, Never> {
         didChangeSubject.eraseToAnyPublisher()
     }
 
