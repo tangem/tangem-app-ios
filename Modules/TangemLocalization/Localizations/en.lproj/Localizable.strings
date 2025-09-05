@@ -842,6 +842,7 @@
 "onramp_timing_minutes" = "%@ min";
 "onramp_title_you_get" = "You get";
 "onramp_transaction_status_footer_text" = "You can close this screen and check the transaction status on the token details screen.";
+"onramp_up_to_rate" = "Up to";
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "You will pay";
 "organize_tokens_group" = "Group";
@@ -1018,7 +1019,7 @@
 "send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "To recipient";
 "send_with_swap_recipient_amount_title" = "Amount to receive";
-"send_with_swap_recipient_get_amount" = "Recipient get %@";
+"send_with_swap_recipient_get_amount" = "Recipient gets %@";
 "send_with_swap_remove_convert_alert_message" = "Are you sure you want to cancel the conversion? Your previous data will be cleared.";
 "send_with_swap_remove_convert_alert_title" = "Remove Conversion";
 "send_with_swap_title" = "Send with swap";

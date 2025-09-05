@@ -842,6 +842,7 @@
 "onramp_timing_minutes" = "%@ min";
 "onramp_title_you_get" = "You get";
 "onramp_transaction_status_footer_text" = "Puede comprobar el estado de la transacción desde la página detallada del token";
+"onramp_up_to_rate" = "Up to";
 "onramp_via" = "Vía";
 "onramp_you_will_pay_title" = "You will pay";
 "organize_tokens_group" = "Agrupar";
@@ -1007,8 +1008,8 @@
 "send_tron_account_activation_error" = "%1$@  es un activo en la red Tron. Para calcular la tarifa y realizar una transacción, deba depositar algo de Tron (TRX) en su cuenta.";
 "send_validation_destination_tag_required_description" = "Es necesario una etiqueta de destino (memo) para completar esta transacción para la dirección especificada.";
 "send_validation_destination_tag_required_title" = "Etiqueta de destino obligatoria";
-"send_with_swap_change_token_alert_message" = "Are you sure you want to change the receiving token? This will reset your previously entered data.";
-"send_with_swap_change_token_alert_title" = "Changing token";
+"send_with_swap_change_token_alert_message" = "¿Está seguro que desea cambiar el token a recibir? Esto restablecerá los datos introducidos previamente.";
+"send_with_swap_change_token_alert_title" = "Cambio de token";
 "send_with_swap_confirm_title" = "Intercambiar y enviar";
 "send_with_swap_convert_token_alert_message" = "¿Continuar con la conversión? Esto borrará sus datos anteriores.";
 "send_with_swap_convert_token_alert_title" = "Confirmar Conversión";
@@ -1020,7 +1021,7 @@
 "send_with_swap_recipient_amount_title" = "Cantidad a recibir";
 "send_with_swap_recipient_get_amount" = "El destinatario recibe %@";
 "send_with_swap_remove_convert_alert_message" = "¿Seguro que desea cancelar la conversión? Se borrarán sus datos anteriores.";
-"send_with_swap_remove_convert_alert_title" = "Remove Conversion";
+"send_with_swap_remove_convert_alert_title" = "Eliminar conversión";
 "send_with_swap_title" = "Enviar con swap";
 "sent_transaction_sent_title" = "Transacción enviada";
 "settings_card_settings_footer" = "Escanee la tarjeta/anillo que quiere configurar";
