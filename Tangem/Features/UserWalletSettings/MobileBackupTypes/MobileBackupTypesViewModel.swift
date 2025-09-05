@@ -15,23 +15,14 @@ import TangemMobileWalletSdk
 import class TangemSdk.BiometricsUtil
 
 final class MobileBackupTypesViewModel: ObservableObject {
-    @Published var backupItems: [BackupItem] = []
+    @Published var sections: [Section] = []
     @Published var alert: AlertBinder?
 
     let navTitle = Localization.commonBackup
 
-    @Injected(\.sessionMobileAccessCodeStorageManager)
-    private var accessCodeStorageManager: MobileAccessCodeStorageManager
-
     private var isBackupNeeded: Bool {
         userWalletModel.config.hasFeature(.mnemonicBackup)
     }
-
-    private lazy var accessCodeManager = SessionMobileAccessCodeManager(
-        userWalletId: userWalletModel.userWalletId,
-        configuration: .default,
-        storageManager: accessCodeStorageManager
-    )
 
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
@@ -52,7 +43,7 @@ final class MobileBackupTypesViewModel: ObservableObject {
 
 private extension MobileBackupTypesViewModel {
     func setup() {
-        backupItems = makeBackupItems()
+        sections = makeSections()
     }
 
     func bind() {
@@ -77,11 +68,21 @@ private extension MobileBackupTypesViewModel {
 // MARK: - Helpers
 
 private extension MobileBackupTypesViewModel {
-    func makeBackupItems() -> [BackupItem] {
-        [makeSeedPhraseBackupItem(), makeICloudBackupItem()]
+    func makeSections() -> [Section] {
+        let commonSection = Section(title: nil, items: makeCommonItems())
+        let recommendedSection = Section(title: Localization.expressProviderRecommended, items: makeRecommendedItems())
+        return [commonSection, recommendedSection]
     }
 
-    func makeSeedPhraseBackupItem() -> BackupItem {
+    func makeCommonItems() -> [Item] {
+        [makeSeedPhraseItem(), makeICloudItem()]
+    }
+
+    func makeRecommendedItems() -> [Item] {
+        [makeHardwareItem()]
+    }
+
+    func makeSeedPhraseItem() -> Item {
         let badge: BadgeView.Item = if isBackupNeeded {
             .noBackup
         } else {
@@ -90,7 +91,7 @@ private extension MobileBackupTypesViewModel {
 
         let action = weakify(self, forFunction: MobileBackupTypesViewModel.onSeedPhraseBackupTap)
 
-        return BackupItem(
+        return Item(
             title: Localization.hwBackupSeedTitle,
             description: Localization.hwBackupSeedDescription,
             badge: badge,
@@ -99,9 +100,20 @@ private extension MobileBackupTypesViewModel {
         )
     }
 
-    func makeICloudBackupItem() -> BackupItem {
+    func makeHardwareItem() -> Item {
+        let action = weakify(self, forFunction: MobileBackupTypesViewModel.onHardwareBackupTap)
+        return Item(
+            title: Localization.hwBackupHardwareTitle,
+            description: Localization.hwBackupHardwareDescription,
+            badge: nil,
+            isEnabled: true,
+            action: action
+        )
+    }
+
+    func makeICloudItem() -> Item {
         let badge = BadgeView.Item(title: Localization.commonComingSoon, style: .secondary)
-        return BackupItem(
+        return Item(
             title: Localization.hwBackupIcloudTitle,
             description: Localization.hwBackupIcloudDescription,
             badge: badge,
@@ -115,7 +127,33 @@ private extension MobileBackupTypesViewModel {
             openSeedPhraseBackup()
         } else {
             runTask(in: self) { viewModel in
-                await viewModel.unlock()
+                do {
+                    let context = try await viewModel.unlock()
+                    await viewModel.openSeedPhraseReveal(context: context)
+                } catch where error.isCancellationError {
+                    AppLogger.error("Unlock is canceled", error: error)
+                } catch {
+                    AppLogger.error("Unlock failed:", error: error)
+                    await runOnMain {
+                        viewModel.alert = error.alertBinder
+                    }
+                }
+            }
+        }
+    }
+
+    func onHardwareBackupTap() {
+        runTask(in: self) { viewModel in
+            do {
+                let context = try await viewModel.unlock()
+                await viewModel.openUpgrade(context: context)
+            } catch where error.isCancellationError {
+                AppLogger.error("Unlock is canceled", error: error)
+            } catch {
+                AppLogger.error("Unlock failed:", error: error)
+                await runOnMain {
+                    viewModel.alert = error.alertBinder
+                }
             }
         }
     }
@@ -124,46 +162,25 @@ private extension MobileBackupTypesViewModel {
 // MARK: - Unlocking
 
 private extension MobileBackupTypesViewModel {
-    func unlock() async {
-        do {
-            let authUtil = MobileAuthUtil(
-                userWalletId: userWalletModel.userWalletId,
-                config: userWalletModel.config,
-                biometricsProvider: CommonUserWalletBiometricsProvider(),
-                accessCodeManager: accessCodeManager
-            )
-            let result = try await authUtil.unlock()
+    func unlock() async throws -> MobileWalletContext {
+        let authUtil = MobileAuthUtil(
+            userWalletId: userWalletModel.userWalletId,
+            config: userWalletModel.config,
+            biometricsProvider: CommonUserWalletBiometricsProvider()
+        )
+        let result = try await authUtil.unlock()
 
-            switch result {
-            case .successful(let context):
-                try await handleAccessCodeUnlockResult(context: context)
+        switch result {
+        case .successful(let context):
+            return context
 
-            case .canceled:
-                return
+        case .canceled:
+            throw CancellationError()
 
-            case .userWalletNeedsToDelete:
-                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
-                return
-            }
-        } catch {
-            AppLogger.error("Unlock with AccessCode failed:", error: error)
-            await runOnMain {
-                alert = error.alertBinder
-            }
+        case .userWalletNeedsToDelete:
+            assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
+            throw CancellationError()
         }
-    }
-
-    func handleAccessCodeUnlockResult(context: MobileWalletContext) async throws {
-        let encryptionKey = try mobileWalletSdk.userWalletEncryptionKey(context: context)
-
-        guard
-            let configEncryptionKey = UserWalletEncryptionKey(config: userWalletModel.config),
-            encryptionKey.symmetricKey == configEncryptionKey.symmetricKey
-        else {
-            throw MobileWalletError.encryptionKeyMismatched
-        }
-
-        await openSeedPhraseReveal(context: context)
     }
 }
 
@@ -172,24 +189,35 @@ private extension MobileBackupTypesViewModel {
 private extension MobileBackupTypesViewModel {
     func openSeedPhraseBackup() {
         let input = MobileOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel))
-        routable?.openOnboarding(input: input)
+        routable?.openMobileOnboarding(input: input)
     }
 
     @MainActor
     func openSeedPhraseReveal(context: MobileWalletContext) {
         let input = MobileOnboardingInput(flow: .seedPhraseReveal(context: context))
-        routable?.openOnboarding(input: input)
+        routable?.openMobileOnboarding(input: input)
+    }
+
+    @MainActor
+    func openUpgrade(context: MobileWalletContext) {
+        routable?.openMobileUpgrade(userWalletModel: userWalletModel, context: context)
     }
 }
 
 // MARK: - Types
 
 extension MobileBackupTypesViewModel {
-    struct BackupItem: Identifiable {
+    struct Section: Identifiable {
+        let id = UUID()
+        let title: String?
+        let items: [Item]
+    }
+
+    struct Item: Identifiable {
         let id = UUID()
         let title: String
         let description: String
-        let badge: BadgeView.Item
+        let badge: BadgeView.Item?
         let isEnabled: Bool
         let action: () -> Void
     }
