@@ -9,7 +9,7 @@
 import Foundation
 import TangemLocalization
 
-struct BitcoinSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFactory {
+struct AnySelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFactory {
     let analyticsLogger: ReceiveAnalyticsLogger
 
     // MARK: - Private Properties
