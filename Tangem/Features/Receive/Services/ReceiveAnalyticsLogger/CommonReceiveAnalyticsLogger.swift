@@ -82,6 +82,14 @@ extension CommonReceiveAnalyticsLogger: QRCodeReceiveAssetsAnalyticsLogger {
 // MARK: - ItemSelectorReceiveAssetsAnalyticsLogger
 
 extension CommonReceiveAnalyticsLogger: ItemSelectorReceiveAssetsAnalyticsLogger {
+    func logCopyAddressButtonTapped() {
+        Analytics.log(event: .buttonCopyAddress, params: [
+            .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
+            .source: Analytics.ParameterValue.receive.rawValue,
+        ])
+    }
+
     func logCopyDomainNameAddressButtonTapped() {
         Analytics.log(event: .buttonENS, params: [
             .token: tokenItem.currencySymbol,
