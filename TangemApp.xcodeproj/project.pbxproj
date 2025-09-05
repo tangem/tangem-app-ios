@@ -2104,9 +2104,9 @@
 		B660157D2C7F3A3A0013D92D /* MarketsHistoryChartYAxisValueFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B660157C2C7F3A3A0013D92D /* MarketsHistoryChartYAxisValueFormatter.swift */; };
 		B660E23D2E1431060069A5E8 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = B660E23C2E1431060069A5E8 /* ZIPFoundation */; };
 		B6654ACC2B5EB73200249008 /* CommonRateAppController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6654ACB2B5EB73200249008 /* CommonRateAppController.swift */; };
-		B665F6752E665E3600A0A9BF /* CryptoAccountsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6742E665E3600A0A9BF /* CryptoAccountsService.swift */; };
-		B665F6772E665EB800A0A9BF /* CryptoAccountsServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6762E665EB800A0A9BF /* CryptoAccountsServiceError.swift */; };
-		B665F6792E66E9D600A0A9BF /* CommonCryptoAccountsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6782E66E9D600A0A9BF /* CommonCryptoAccountsService.swift */; };
+		B665F6752E665E3600A0A9BF /* CryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6742E665E3600A0A9BF /* CryptoAccountsNetworkService.swift */; };
+		B665F6772E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6762E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift */; };
+		B665F6792E66E9D600A0A9BF /* CommonCryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6782E66E9D600A0A9BF /* CommonCryptoAccountsNetworkService.swift */; };
 		B66655712C6EC901001E2C68 /* UIView.AnimationCurve+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66655702C6EC901001E2C68 /* UIView.AnimationCurve+.swift */; };
 		B66771E92DE3C7CA007563D0 /* CachesDirectoryStorage.File+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66771E72DE3C7CA007563D0 /* CachesDirectoryStorage.File+.swift */; };
 		B66913642C4179400016B0EE /* OverlayContentContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66913632C4179400016B0EE /* OverlayContentContainer.swift */; };
@@ -6252,9 +6252,9 @@
 		B65E1F082A94CFB000A58DDE /* OrganizeTokensDragAndDropActionsCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensDragAndDropActionsCache.swift; sourceTree = "<group>"; };
 		B660157C2C7F3A3A0013D92D /* MarketsHistoryChartYAxisValueFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsHistoryChartYAxisValueFormatter.swift; sourceTree = "<group>"; };
 		B6654ACB2B5EB73200249008 /* CommonRateAppController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonRateAppController.swift; sourceTree = "<group>"; };
-		B665F6742E665E3600A0A9BF /* CryptoAccountsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsService.swift; sourceTree = "<group>"; };
-		B665F6762E665EB800A0A9BF /* CryptoAccountsServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsServiceError.swift; sourceTree = "<group>"; };
-		B665F6782E66E9D600A0A9BF /* CommonCryptoAccountsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCryptoAccountsService.swift; sourceTree = "<group>"; };
+		B665F6742E665E3600A0A9BF /* CryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
+		B665F6762E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkServiceError.swift; sourceTree = "<group>"; };
+		B665F6782E66E9D600A0A9BF /* CommonCryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
 		B66655702C6EC901001E2C68 /* UIView.AnimationCurve+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView.AnimationCurve+.swift"; sourceTree = "<group>"; };
 		B66771E72DE3C7CA007563D0 /* CachesDirectoryStorage.File+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CachesDirectoryStorage.File+.swift"; sourceTree = "<group>"; };
 		B66913632C4179400016B0EE /* OverlayContentContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentContainer.swift; sourceTree = "<group>"; };
@@ -14904,9 +14904,9 @@
 		B665F6732E665E0900A0A9BF /* Network */ = {
 			isa = PBXGroup;
 			children = (
-				B665F6742E665E3600A0A9BF /* CryptoAccountsService.swift */,
-				B665F6762E665EB800A0A9BF /* CryptoAccountsServiceError.swift */,
-				B665F6782E66E9D600A0A9BF /* CommonCryptoAccountsService.swift */,
+				B665F6742E665E3600A0A9BF /* CryptoAccountsNetworkService.swift */,
+				B665F6762E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift */,
+				B665F6782E66E9D600A0A9BF /* CommonCryptoAccountsNetworkService.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -22869,7 +22869,7 @@
 				EFD678352E27D0120065AD50 /* CommonOnrampSendAnalyticsLogger.swift in Sources */,
 				B6FCEE712C40E14300CA9252 /* UIScrollView+.swift in Sources */,
 				EFF7325B2DE9C1FA0070A8FF /* SendNewDestinationCompactViewModel.swift in Sources */,
-				B665F6772E665EB800A0A9BF /* CryptoAccountsServiceError.swift in Sources */,
+				B665F6772E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift in Sources */,
 				DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */,
 				DCE2F7CE2CE34A5900BDE145 /* SellActionButtonViewModel.swift in Sources */,
 				EF29E8A02DF9BFA400859AC7 /* SendNewAmountCompactViewModel.swift in Sources */,
@@ -23480,7 +23480,7 @@
 				B0DCC81B2A8A1B4900D85E53 /* NotificationsFactory.swift in Sources */,
 				B0625A2529CB3D2700EDD245 /* OnboardingSeedPhraseImportViewModel.swift in Sources */,
 				2DC5677D2B0E047700B0244F /* MainBottomSheetHeaderView.swift in Sources */,
-				B665F6752E665E3600A0A9BF /* CryptoAccountsService.swift in Sources */,
+				B665F6752E665E3600A0A9BF /* CryptoAccountsNetworkService.swift in Sources */,
 				EF7672F12E0D747900A8900E /* SendSwapProvidersSelectorProviderView.swift in Sources */,
 				0FB935AD2E4C8D5F00DAB673 /* MobileAuthUtil.swift in Sources */,
 				0FC609152DF344FB0033B946 /* MobileOnboardingCreateWalletDelegate.swift in Sources */,
@@ -23610,7 +23610,7 @@
 				EFC7AD6F2DD7889400AE78E1 /* SendNewDestinationView.swift in Sources */,
 				EF9E38002B73FCAC004B694C /* BannerNotificationFactory.swift in Sources */,
 				DA91770E2A25DD3F006CD67B /* OneInchGradientViews.swift in Sources */,
-				B665F6792E66E9D600A0A9BF /* CommonCryptoAccountsService.swift in Sources */,
+				B665F6792E66E9D600A0A9BF /* CommonCryptoAccountsNetworkService.swift in Sources */,
 				DC9113632D6FAE7B002E17C5 /* AssetRequirementsAlertBuilder.swift in Sources */,
 				DA8C673E2B0B455700E1C9B8 /* DefaultTextWithTitleRowView.swift in Sources */,
 				B09536FE26D3D2460040A90D /* TOSView.swift in Sources */,
