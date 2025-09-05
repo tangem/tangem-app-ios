@@ -11,7 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-extension YieldPromoBottomSheetView {
+extension YieldModuleBottomSheetView {
     struct EarnInfoView: View {
         let status: String
         let chartData: YieldModuleChartData
@@ -82,7 +82,7 @@ extension YieldPromoBottomSheetView {
     }
 }
 
-private extension YieldPromoBottomSheetView.EarnInfoView {
+private extension YieldModuleBottomSheetView.EarnInfoView {
     private func row(title: String, trailing: String,) -> some View {
         VStack(spacing: 10) {
             Divider().overlay(Colors.Stroke.primary)
@@ -104,7 +104,7 @@ private extension YieldPromoBottomSheetView.EarnInfoView {
     }
 }
 
-extension YieldPromoBottomSheetView.EarnInfoView {
+extension YieldModuleBottomSheetView.EarnInfoView {
     struct AvailableFundsData: Identifiable {
         let availableBalance: String
 

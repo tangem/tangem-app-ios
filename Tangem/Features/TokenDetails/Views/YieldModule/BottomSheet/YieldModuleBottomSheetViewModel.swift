@@ -1,5 +1,5 @@
 //
-//  YieldPromoBottomSheetViewModel.swift
+//  YieldModuleBottomSheetViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import TangemUI
 import SwiftUI
 
 @MainActor
-final class YieldPromoBottomSheetViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetContentViewModel {
     // MARK: - Injected
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
@@ -57,7 +57,7 @@ final class YieldPromoBottomSheetViewModel: ObservableObject, FloatingSheetConte
     }
 }
 
-extension YieldPromoBottomSheetViewModel {
+extension YieldModuleBottomSheetViewModel {
     enum Flow: Identifiable, Equatable {
         case rateInfo(params: RateInfoParams)
         case feePolicy(params: FeePolicyParams)
@@ -87,7 +87,7 @@ extension YieldPromoBottomSheetViewModel {
     }
 }
 
-extension YieldPromoBottomSheetViewModel {
+extension YieldModuleBottomSheetViewModel {
     struct StartEarningParams: Equatable {
         let tokenName: String
         let tokenIcon: Image
