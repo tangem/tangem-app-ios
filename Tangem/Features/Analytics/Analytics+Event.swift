@@ -93,6 +93,7 @@ extension Analytics {
         case buttonUnderstand = "[Token] Button - Understand"
         case tokenBought = "[Token] Token Bought"
         case receiveScreenOpened = "[Token / Receive] Receive Screen Opened"
+        case qrScreenOpened = "[Token / Receive] QR Screen Opened"
         case buttonCopyAddress = "[Token / Receive] Button - Copy Address"
         case buttonShareAddress = "[Token / Receive] Button - Share Address"
         case buttonENS = "[Token / Receive] Button - ENS"
@@ -194,8 +195,6 @@ extension Analytics {
         case walletConnectDAppSessionProposalReceived = "[Wallet Connect] dApp Connection Requested"
         case walletConnectDAppConnectionRequestConnectButtonTapped = "[Wallet Connect] Button - Connect"
         case walletConnectCancelButtonTapped = "[Wallet Connect] Button - Cancel"
-
-        case walletConnectSecurityAlertShown = "[Wallet Connect] Notice - Security Alert"
 
         case walletConnectDAppConnected = "[Wallet Connect] dApp Connected"
         case walletConnectDAppConnectionFailed = "[Wallet Connect] dApp Connection Failed"
