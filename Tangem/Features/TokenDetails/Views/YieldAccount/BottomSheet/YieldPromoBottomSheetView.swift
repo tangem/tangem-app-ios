@@ -34,7 +34,8 @@ struct YieldPromoBottomSheetView: View {
             content: { mainContent },
             closeAction: closeAction,
             backAction: backAction,
-            buttonAction: ctaButtonAction
+            buttonAction: ctaButtonAction,
+            horizontalPadding: horizontalPadding
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
@@ -42,10 +43,10 @@ struct YieldPromoBottomSheetView: View {
         }
     }
 
-    private var horizontalPadding: Int {
+    private var horizontalPadding: CGFloat {
         switch viewModel.flow {
         case .earnInfo:
-            8
+            0
         default:
             16
         }
