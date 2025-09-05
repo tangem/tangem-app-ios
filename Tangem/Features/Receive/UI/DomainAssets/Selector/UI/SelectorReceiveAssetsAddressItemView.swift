@@ -54,30 +54,11 @@ struct SelectorReceiveAssetsAddressItemView: View {
     private var buttonView: some View {
         HStack(spacing: Layout.ButtomView.horizontalSpacing) {
             Button(action: viewModel.qrCodeButtonDidTap) {
-                Assets.qrNew.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(size: .init(bothDimensions: 20))
-                    .foregroundStyle(Colors.Icon.informative)
-                    .padding(Layout.ButtomView.paddingIcon)
-                    .background(
-                        Circle()
-                            .fill(Colors.Button.secondary)
-                    )
-                    .padding(Layout.ButtomView.paddingIconCircle)
+                SelectorReceiveRoundButtonView(actionType: .qr)
             }
 
             Button(action: viewModel.copyAddressButtonDidTap) {
-                Assets.copyNew.image
-                    .renderingMode(.template)
-                    .frame(size: .init(bothDimensions: 20))
-                    .foregroundStyle(Colors.Icon.informative)
-                    .padding(Layout.ButtomView.paddingIcon)
-                    .background(
-                        Circle()
-                            .fill(Colors.Button.secondary)
-                    )
-                    .padding(Layout.ButtomView.paddingIconCircle)
+                SelectorReceiveRoundButtonView(actionType: .copy)
             }
         }
     }
@@ -98,8 +79,6 @@ private extension SelectorReceiveAssetsAddressItemView {
 
         enum ButtomView {
             static let horizontalSpacing: CGFloat = 8
-            static let paddingIcon: CGFloat = 8
-            static let paddingIconCircle: CGFloat = 2
         }
 
         enum AddressIcon {
