@@ -14,6 +14,7 @@ public enum IconViewSizeSettings {
     case tokenDetails
     case tokenDetailsToolbar
     case receive
+    case receiveAlert
 
     public var iconSize: CGSize {
         switch self {
@@ -21,6 +22,7 @@ public enum IconViewSizeSettings {
         case .tokenDetails: return .init(bothDimensions: 48)
         case .tokenDetailsToolbar: return .init(bothDimensions: 24)
         case .receive: return .init(width: 80, height: 80)
+        case .receiveAlert: return .init(width: 56, height: 56)
         }
     }
 
@@ -29,6 +31,7 @@ public enum IconViewSizeSettings {
         case .tokenItem: return .init(width: 16, height: 16)
         case .tokenDetails, .tokenDetailsToolbar: return .zero
         case .receive: return .init(width: 32, height: 32)
+        case .receiveAlert: return .init(width: 20, height: 20)
         }
     }
 
@@ -37,13 +40,14 @@ public enum IconViewSizeSettings {
         case .tokenItem: return 2
         case .tokenDetails, .tokenDetailsToolbar: return 0
         case .receive: return 4
+        case .receiveAlert: return 2
         }
     }
 
     public var networkIconOffset: CGSize {
         switch self {
         case .tokenItem: return .init(width: 4, height: -4)
-        case .tokenDetails, .tokenDetailsToolbar: return .zero
+        case .tokenDetails, .tokenDetailsToolbar, .receiveAlert: return .zero
         case .receive: return .init(width: 9, height: -9)
         }
     }
