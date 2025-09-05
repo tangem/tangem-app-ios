@@ -11,18 +11,37 @@ import TangemAssets
 import TangemUIUtils
 import TangemFoundation
 
-struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>: View {
+public struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>: View {
     @Binding var selectedItem: Item
 
-    let items: [Item]
-    let content: (Item, Bool) -> Content
+    private let items: [Item]
+    private let content: (Item, Bool) -> Content
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: interitemPadding),
         count: 6
     )
 
-    var body: some View {
+    private static var interitemPadding: CGFloat {
+        switch IPhoneModel() {
+        case .iPhoneSE:
+            8
+        default:
+            16
+        }
+    }
+
+    public init(
+        selectedItem: Binding<Item>,
+        items: [Item],
+        content: @escaping (Item, Bool) -> Content
+    ) {
+        _selectedItem = selectedItem
+        self.items = items
+        self.content = content
+    }
+
+    public var body: some View {
         LazyVGrid(columns: columns, spacing: Self.interitemPadding) {
             ForEach(items) { item in
                 let isSelected = item == selectedItem
@@ -34,21 +53,16 @@ struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>: View 
             }
         }
         .roundedBackground(
-            with: Colors.Background.action,
+            with: AccountFormGridViewConstants.backgroundColor,
             verticalPadding: 16,
             horizontalPadding: 20,
             radius: 14
         )
     }
+}
 
-    private static var interitemPadding: CGFloat {
-        switch IPhoneModel() {
-        case .iPhoneSE:
-            8
-        default:
-            16
-        }
-    }
+public enum AccountFormGridViewConstants {
+    public static let backgroundColor: Color = Colors.Background.action
 }
 
 #if DEBUG
