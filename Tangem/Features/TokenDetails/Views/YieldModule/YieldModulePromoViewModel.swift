@@ -67,15 +67,6 @@ final class YieldModulePromoViewModel {
                 )
             )
 
-//        coordinator?.openStartEarningSheet(
-//            params: .init(
-//                tokenName: tokenName,
-//                tokenIcon: tokenImage,
-//                networkFee: networkFee.formatted(),
-//                maximumFee: maximumFee.formatted(),
-//                blockchainName: blockchainName
-//            )
-//        )
     }
 
     func onHowItWorksTap() {
