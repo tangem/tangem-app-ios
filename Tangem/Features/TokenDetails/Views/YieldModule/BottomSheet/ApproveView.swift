@@ -1,5 +1,5 @@
 //
-//  StopEarningView.swift
+//  ApproveView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,8 +11,8 @@ import TangemAssets
 import TangemUI
 import TangemLocalization
 
-extension YieldPromoBottomSheetView {
-    struct StopEarningView: View {
+extension YieldModuleBottomSheetView {
+    struct ApproveView: View {
         // MARK: - Properties
 
         let fee: String
@@ -27,7 +27,7 @@ extension YieldPromoBottomSheetView {
         // MARK: - Sub Views
 
         private var feePolicyText: some View {
-            var attr = AttributedString(Localization.yieldModuleStopEarningSheetFeeNote)
+            var attr = AttributedString(Localization.yieldModuleApproveSheetFeeNote)
             attr.font = Fonts.Regular.footnote
             attr.foregroundColor = Colors.Text.tertiary
 
@@ -44,11 +44,7 @@ extension YieldPromoBottomSheetView {
 
         private var networkFee: some View {
             GroupedSection(FeeModel(fee: fee)) { fee in
-                DefaultRowView(viewModel: .init(
-                    title: Localization.yieldModuleStartEarningSheetNetworkFeeTitle,
-                    detailsType: .text(fee.fee)
-                )
-                )
+                DefaultRowView(viewModel: .init(title: Localization.yieldModuleStartEarningSheetNetworkFeeTitle, detailsType: .text(fee.fee)))
             } footer: {
                 feePolicyText
             }

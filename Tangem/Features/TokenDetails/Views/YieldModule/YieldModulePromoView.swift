@@ -10,7 +10,6 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 
-/// YIELD [REDACTED_TODO_COMMENT]
 struct YieldModulePromoView: View {
     // MARK: - Properties
 

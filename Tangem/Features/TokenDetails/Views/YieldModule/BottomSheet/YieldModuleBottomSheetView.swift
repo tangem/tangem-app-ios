@@ -1,5 +1,5 @@
 //
-//  YieldPromoBottomSheetView.swift
+//  YieldModuleBottomSheetView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,8 +11,8 @@ import TangemUI
 import TangemLocalization
 import TangemAssets
 
-struct YieldPromoBottomSheetView: View {
-    @ObservedObject var viewModel: YieldPromoBottomSheetViewModel
+struct YieldModuleBottomSheetView: View {
+    @ObservedObject var viewModel: YieldModuleBottomSheetViewModel
 
     // MARK: - View Body
 
@@ -236,7 +236,7 @@ struct YieldPromoBottomSheetView: View {
     }
 }
 
-private extension YieldPromoBottomSheetView {
+private extension YieldModuleBottomSheetView {
     private var approveTopContent: some View {
         ZStack {
             Circle()
