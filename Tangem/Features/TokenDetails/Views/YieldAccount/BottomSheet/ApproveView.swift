@@ -35,7 +35,7 @@ extension YieldPromoBottomSheetView {
             linkPart.font = Fonts.Regular.footnote
             linkPart.foregroundColor = Colors.Text.accent
 
-            attr.append(linkPart)
+            attr.append(" " + linkPart)
 
             return Text(attr)
                 .onTapGesture { readMoreAction() }
