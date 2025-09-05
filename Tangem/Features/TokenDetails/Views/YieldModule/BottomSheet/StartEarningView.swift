@@ -11,7 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemLocalization
 
-extension YieldPromoBottomSheetView {
+extension YieldModuleBottomSheetView {
     struct StartEarningView: View {
         // MARK: - Properties
 
