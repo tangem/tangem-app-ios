@@ -55,6 +55,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case unlock
     case openReferralProgram
     case openMobileFinishActivation(needsAttention: Bool)
+    case openMobileUpgrade
 
     var id: Int { hashValue }
 
@@ -116,6 +117,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.warningTokenTrustlineButtonTitle
         case .openMobileFinishActivation:
             return Localization.hwActivationNeedFinish
+        case .openMobileUpgrade:
+            return .empty
         }
     }
 
@@ -150,7 +153,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupport2No,
              .openReferralProgram,
              .addTokenTrustline,
-             .openMobileFinishActivation:
+             .openMobileFinishActivation,
+             .openMobileUpgrade:
             return nil
         }
     }
@@ -161,7 +165,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .openLink,
              .openAppStoreReview,
              .empty,
-             .unlock:
+             .unlock,
+             .openMobileUpgrade:
             return .primary
         case .backupCard,
              .buyCrypto,
