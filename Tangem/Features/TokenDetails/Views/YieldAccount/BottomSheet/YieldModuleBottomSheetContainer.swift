@@ -27,6 +27,7 @@ extension YieldPromoBottomSheetView {
         private let closeAction: (() -> Void)?
         private let backAction: (() -> Void)?
         private let buttonAction: () -> Void
+        private let horizontalPadding: CGFloat
 
         // MARK: - Init
 
@@ -40,7 +41,8 @@ extension YieldPromoBottomSheetView {
             @ViewBuilder content: @escaping () -> BodyContent = { EmptyView() },
             closeAction: (() -> Void)? = nil,
             backAction: (() -> Void)? = nil,
-            buttonAction: @escaping () -> Void
+            buttonAction: @escaping () -> Void,
+            horizontalPadding: CGFloat
         ) {
             self.topContent = topContent
             self.title = title
@@ -52,6 +54,7 @@ extension YieldPromoBottomSheetView {
             self.closeAction = closeAction
             self.backAction = backAction
             self.buttonAction = buttonAction
+            self.horizontalPadding = horizontalPadding
         }
 
         // MARK: - View Body
