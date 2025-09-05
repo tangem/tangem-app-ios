@@ -1,5 +1,5 @@
 //
-//  FakeYieldAccountNotificationManager.swift
+//  FakeWalletYieldNotificationManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Combine
 
-final class FakeYieldAccountNotificationManager: NotificationManager {
+final class FakeWalletYieldNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
         notificationSubject.value
     }
