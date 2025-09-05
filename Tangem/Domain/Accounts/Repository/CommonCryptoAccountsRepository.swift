@@ -13,7 +13,7 @@ import TangemFoundation
 
 final class CommonCryptoAccountsRepository {
     private let tokenItemsRepository: TokenItemsRepository
-    private let networkService: CryptoAccountsService
+    private let networkService: CryptoAccountsNetworkService
     private let storage: CryptoAccountsPersistentStorage
     private let storageDidUpdateSubject: StorageDidUpdateSubject
 
@@ -25,7 +25,7 @@ final class CommonCryptoAccountsRepository {
 
     init(
         tokenItemsRepository: TokenItemsRepository,
-        networkService: CryptoAccountsService,
+        networkService: CryptoAccountsNetworkService,
         storage: CryptoAccountsPersistentStorage
     ) {
         let storageDidUpdateSubject = StorageDidUpdateSubject()
