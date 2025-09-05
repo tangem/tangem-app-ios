@@ -11,7 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-extension YieldPromoBottomSheetView {
+extension YieldModuleBottomSheetView {
     struct InterestRateInfo: View {
         let lastYearReturns: [String: Double]
 
