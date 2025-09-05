@@ -1019,7 +1019,7 @@
 "send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "To recipient";
 "send_with_swap_recipient_amount_title" = "Amount to receive";
-"send_with_swap_recipient_get_amount" = "Recipient get %@";
+"send_with_swap_recipient_get_amount" = "Recipient gets %@";
 "send_with_swap_remove_convert_alert_message" = "Are you sure you want to cancel the conversion? Your previous data will be cleared.";
 "send_with_swap_remove_convert_alert_title" = "Remove Conversion";
 "send_with_swap_title" = "Send with swap";
