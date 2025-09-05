@@ -57,7 +57,7 @@ extension CryptoAccountModelMock {
 // MARK: - CryptoAccountModel protocol conformance
 
 extension CryptoAccountModelMock: CryptoAccountModel {
-    var didChangePublisher: any Publisher<Void, Never> {
+    var didChangePublisher: AnyPublisher<Void, Never> {
         didChangeSubject.eraseToAnyPublisher()
     }
 
