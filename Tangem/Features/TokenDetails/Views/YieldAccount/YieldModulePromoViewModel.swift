@@ -54,15 +54,28 @@ final class YieldModulePromoViewModel {
     }
 
     func onContinueButtonTapped() {
-        coordinator?.openStartEarningSheet(
-            params: .init(
-                tokenName: tokenName,
-                tokenIcon: tokenImage,
-                networkFee: networkFee.formatted(),
-                maximumFee: maximumFee.formatted(),
-                blockchainName: blockchainName
+        coordinator?
+            .openEarnInfoSheet(
+                params: .init(
+                    availableFunds: "3.343535",
+                    chartData: .init(annualEarnings: [:]),
+                    transferMode: "Automatic",
+                    status: "Active",
+                    blockchainName: blockchainName,
+                    networkFee: networkFee.formatted(),
+                    tokenName: tokenName
+                )
             )
-        )
+
+//        coordinator?.openStartEarningSheet(
+//            params: .init(
+//                tokenName: tokenName,
+//                tokenIcon: tokenImage,
+//                networkFee: networkFee.formatted(),
+//                maximumFee: maximumFee.formatted(),
+//                blockchainName: blockchainName
+//            )
+//        )
     }
 
     func onHowItWorksTap() {
