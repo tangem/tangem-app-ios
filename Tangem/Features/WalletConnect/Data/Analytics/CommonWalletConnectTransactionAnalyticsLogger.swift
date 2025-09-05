@@ -55,6 +55,7 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
             .walletConnectBlockchain: transactionData.blockchain.displayName,
             .errorCode: "\(error.universalErrorCode)",
+            .errorDescription: error.localizedDescription
         ]
 
         Analytics.log(event: event, params: params)
