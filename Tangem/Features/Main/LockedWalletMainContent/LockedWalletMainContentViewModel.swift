@@ -17,7 +17,7 @@ class LockedWalletMainContentViewModel: ObservableObject {
         let factory = NotificationsFactory()
         let event: GeneralNotificationEvent = .walletLocked
         return .init(
-            style: .tappable { [weak self] _ in
+            style: .tappable(hasChevron: true) { [weak self] _ in
                 self?.onLockedWalletNotificationTap()
             },
             severity: event.severity,
