@@ -22,10 +22,11 @@ extension YieldPromoBottomSheetView {
         // MARK: - View Body
 
         var body: some View {
-            GroupedScrollView(spacing: 8) {
+            GroupedScrollView(spacing: 8, showsIndicators: false) {
                 chartSection
                 myFundsSection
             }
+            .padding(.horizontal, -16)
         }
 
         // MARK: - Sub Views
@@ -76,7 +77,6 @@ extension YieldPromoBottomSheetView {
 
                     row(title: Localization.yieldModuleEarnSheetAvailableTitle, trailing: model.availableBalance)
                 }
-                .padding(.horizontal, 16)
             }
         }
     }
@@ -98,6 +98,7 @@ private extension YieldPromoBottomSheetView.EarnInfoView {
                     .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                     .lineLimit(1)
             }
+            .padding(.horizontal, 4)
         }
         .padding(.bottom, 12)
     }
