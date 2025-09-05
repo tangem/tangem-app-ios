@@ -594,7 +594,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
     func logContextTap(action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {
         let tokenItem = tokenItemViewModel.tokenItem
         let event: Analytics.Event
-        
+
         var analyticsParams: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol.uppercased(),
             .blockchain: tokenItem.blockchain.displayName,
