@@ -27,20 +27,12 @@ struct WCRequestDetailsView: View {
     }
 
     private var requestDataContent: some View {
-        ZStack(alignment: .bottom) {
+        ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 12) {
-                requestDataHeader
-
-                ScrollView(showsIndicators: false) {
-                    ForEach(viewModel.requestDetails) {
-                        requestDataSection($0)
-                    }
+                ForEach(viewModel.requestDetails, content: requestDataSection)
                     .padding(.horizontal, 16)
-                    .padding(.bottom, viewModel.isCopyButtonVisible ? 80 : 16)
-                }
-                .scrollBounceBehaviorBackport(.basedOnSize)
             }
-            copyButton
+            .scrollBounceBehaviorBackport(.basedOnSize)
         }
     }
 
@@ -72,26 +64,6 @@ struct WCRequestDetailsView: View {
             Text(item.value)
                 .style(Fonts.Regular.callout, color: Colors.Text.primary1)
         }
-    }
-
-    private var requestDataHeader: some View {
-        WalletConnectNavigationBarView(
-            title: Localization.wcTransactionRequestTitle,
-            backButtonAction: { viewModel.handleViewAction(.returnTransactionDetails) }
-        )
-    }
-
-    @ViewBuilder
-    private var copyButton: some View {
-        MainButton(
-            title: Localization.wcCopyDataButtonText,
-            icon: .trailing(Assets.Glyphs.copy),
-            style: .primary,
-            size: .default,
-            action: {
-                viewModel.handleViewAction(.copy)
-            }
-        )
-        .padding(16)
+        .frame(maxHeight: .infinity)
     }
 }
