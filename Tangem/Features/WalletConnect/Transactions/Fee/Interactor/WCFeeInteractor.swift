@@ -132,27 +132,9 @@ final class WCFeeInteractor: WCFeeInteractorType {
         let currentSelectedFee = selectedFeeSubject.value
 
         if case .loading = currentSelectedFee.value {
-            if let networkFee = getFeeForOption(currentSelectedFee.option, from: fees) {
+            if let networkFee = fees.first(where: { $0.option == currentSelectedFee.option }) {
                 selectedFeeSubject.send(networkFee)
             }
-        }
-    }
-
-    private func getFeeForOption(_ option: FeeOption, from fees: [WCFee]) -> WCFee? {
-        switch option {
-        case .suggestedByDApp:
-            return fees.count > 3 ? fees[0] : nil
-        case .slow:
-            let slowIndex = fees.count > 3 ? 1 : 0
-            return fees.indices.contains(slowIndex) ? fees[slowIndex] : fees.first
-        case .market:
-            let marketIndex = fees.count > 3 ? 2 : 1
-            return fees.indices.contains(marketIndex) ? fees[marketIndex] : fees.first
-        case .fast:
-            let fastIndex = fees.count > 3 ? 3 : 2
-            return fees.indices.contains(fastIndex) ? fees[fastIndex] : fees.last
-        case .custom:
-            return nil
         }
     }
 
@@ -374,8 +356,8 @@ extension WCFeeInteractor: FeeSelectorContentViewModelInput {
 }
 
 extension WCFeeInteractor: FeeSelectorContentViewModelOutput {
-    func update(selectedSelectorFee: FeeSelectorFee) {
-        guard let wcFee = fees.first(where: { $0.option == selectedSelectorFee.option }) else {
+    func update(selectedFeeOption: FeeOption) {
+        guard let wcFee = fees.first(where: { $0.option == selectedFeeOption }) else {
             return
         }
 
