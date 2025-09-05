@@ -14,6 +14,7 @@ import TangemVisa
 import TangemSdk
 import TangemNFT
 import TangemFoundation
+import TangemMobileWalletSdk
 
 class CommonUserWalletModel {
     // MARK: Services
@@ -28,7 +29,7 @@ class CommonUserWalletModel {
     let keysRepository: KeysRepository
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
-    let walletImageProvider: WalletImageProviding
+
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
@@ -44,6 +45,8 @@ class CommonUserWalletModel {
     var config: UserWalletConfig
 
     private(set) var name: String
+
+    private var _walletImageProvider: WalletImageProviding?
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
@@ -78,7 +81,6 @@ class CommonUserWalletModel {
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
-        walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: walletInfo)
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
         appendPersistentBlockchains()
@@ -116,7 +118,7 @@ class CommonUserWalletModel {
     private func updateConfiguration(walletInfo: WalletInfo) {
         self.walletInfo = walletInfo
         config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
-        userWalletRepository.savePublicData()
+        userWalletRepository.save(userWalletModel: self)
         _updatePublisher.send(.configurationChanged(model: self))
     }
 }
@@ -160,6 +162,15 @@ extension CommonUserWalletModel: UserWalletModel {
 
     var cardSetLabel: String {
         config.cardSetLabel
+    }
+
+    var walletImageProvider: WalletImageProviding {
+        if let _walletImageProvider {
+            return _walletImageProvider
+        }
+        let walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: walletInfo)
+        _walletImageProvider = walletImageProvider
+        return walletImageProvider
     }
 
     var emailData: [EmailCollectedData] {
@@ -226,8 +237,10 @@ extension CommonUserWalletModel: UserWalletModel {
                     }
                 }
 
-                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo))
+                _walletImageProvider = nil
+                updateConfiguration(walletInfo: WalletInfo.cardWallet(mutableCardInfo))
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
+                cleanMobileWallet()
             }
 
         case .accessCodeDidSet:
@@ -384,6 +397,19 @@ extension CommonUserWalletModel: AssociatedCardIdsProvider {
             return cardInfo.associatedCardIds
         case .mobileWallet:
             return []
+        }
+    }
+}
+
+// MARK: - Private methods
+
+private extension CommonUserWalletModel {
+    func cleanMobileWallet() {
+        let mobileSdk = CommonMobileWalletSdk()
+        do {
+            try mobileSdk.delete(walletIDs: [userWalletId])
+        } catch {
+            AppLogger.error("Failed to delete mobile wallet after upgrade:", error: error)
         }
     }
 }
