@@ -22,11 +22,9 @@ class UserWalletDataStorage {
     private lazy var userWalletDirectoryUrl: URL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
         .appendingPathComponent("user_wallets", isDirectory: true)
 
-    // MARK: - Common
-
     // MARK: - Clear
 
-    func clear(userWalletIds: [UserWalletId]) {
+    func clear() {
         do {
             try secureStorage.delete(Constants.publicDataEncryptionKeyStorageKey)
 
