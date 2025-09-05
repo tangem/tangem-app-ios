@@ -14921,7 +14921,6 @@
 			children = (
 				B6DC54B62E4E8F7F005C8EB9 /* Common */,
 				B63F2B3F2E4E3F6800AFC60C /* Interop */,
-				B665F6732E665E0900A0A9BF /* Network */,
 				B6CAC2192E46C5FD002DFA82 /* Repository */,
 				B6B436932E3C2A3500006FA7 /* AccountModelsManager */,
 				B6B436942E3C2A3500006FA7 /* AccountModel */,
@@ -15358,6 +15357,7 @@
 			isa = PBXGroup;
 			children = (
 				B6CAC21E2E46C9E1002DFA82 /* StoredCryptoAccount.swift */,
+				B665F6732E665E0900A0A9BF /* Network */,
 				B61A018B2E6A6AF000A82ECB /* CryptoAccountPersistentConfig.swift */,
 				B6CAC21A2E46C66D002DFA82 /* CryptoAccountsRepository.swift */,
 				B6CAC21C2E46C673002DFA82 /* CommonCryptoAccountsRepository.swift */,
