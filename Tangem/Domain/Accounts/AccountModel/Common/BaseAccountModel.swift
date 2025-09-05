@@ -13,7 +13,7 @@ import Combine
 protocol BaseAccountModel: Identifiable where ID: AccountModelPersistentIdentifierConvertible {
     var name: String { get }
     var icon: AccountModel.Icon { get }
-    var didChangePublisher: any Publisher<Void, Never> { get }
+    var didChangePublisher: AnyPublisher<Void, Never> { get }
 
     func setName(_ name: String) async throws
     func setIcon(_ icon: AccountModel.Icon) async throws
