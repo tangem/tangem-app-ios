@@ -28,11 +28,11 @@ final class CommonCryptoAccountsRepository {
         networkService: CryptoAccountsNetworkService,
         storage: CryptoAccountsPersistentStorage
     ) {
-        let storageDidUpdateSubject = StorageDidUpdateSubject()
-        self.storageDidUpdateSubject = storageDidUpdateSubject
+        storageDidUpdateSubject = StorageDidUpdateSubject()
         self.tokenItemsRepository = tokenItemsRepository
         self.networkService = networkService
         self.storage = storage
+        storage.bind(to: storageDidUpdateSubject)
     }
 }
 

@@ -187,7 +187,8 @@ extension CommonAccountModelsManager: AccountModelsManager {
             iconName: icon.name.rawValue,
             iconColor: icon.color.rawValue
         )
-        cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: []) // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
+        cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: [])
     }
 
     func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws {
