@@ -19,6 +19,7 @@ class SelectorReceiveAssetsAddressItemViewModel: Identifiable, ObservableObject 
     // MARK: - Private Properties
 
     private let addressInfo: ReceiveAddressInfo
+    private let analyticsLogger: ItemSelectorReceiveAssetsAnalyticsLogger
     private weak var coordinator: SelectorReceiveAssetItemRoutable?
 
     // MARK: - Init
@@ -26,10 +27,12 @@ class SelectorReceiveAssetsAddressItemViewModel: Identifiable, ObservableObject 
     init(
         title: String,
         addressInfo: ReceiveAddressInfo,
+        analyticsLogger: ItemSelectorReceiveAssetsAnalyticsLogger,
         coordinator: SelectorReceiveAssetItemRoutable?
     ) {
         self.title = title
         self.addressInfo = addressInfo
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
     }
 
@@ -44,6 +47,7 @@ class SelectorReceiveAssetsAddressItemViewModel: Identifiable, ObservableObject 
     }
 
     func copyAddressButtonDidTap() {
+        analyticsLogger.logCopyAddressButtonTapped()
         coordinator?.copyToClipboard(with: addressInfo.address)
     }
 }
