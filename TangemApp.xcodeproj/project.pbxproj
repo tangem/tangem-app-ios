@@ -617,7 +617,6 @@
 		5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3951662559A87E002CC452 /* CurrencySelectViewModel.swift */; };
 		5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77C524BF56D800E8695B /* AppDelegate.swift */; };
 		5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77CE24BF56DC00E8695B /* Preview Assets.xcassets */; };
-		5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */; };
 		5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D43E2D62514D5B700697E5B /* CardOperationView.swift */; };
 		5D49035227BE9D550072C642 /* Data+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D49035127BE9D550072C642 /* Data+.swift */; };
 		5D4B8BB927EDB327002CE87C /* ArrowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BB827EDB327002CE87C /* ArrowView.swift */; };
@@ -3058,6 +3057,8 @@
 		DCA54D8F2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */; };
 		DCA70E492DE8AD2B004EEC0A /* WCEthSignTypedDataDetailsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA70E482DE8AD1F004EEC0A /* WCEthSignTypedDataDetailsModel.swift */; };
 		DCA70E4B2DE9A6CC004EEC0A /* WCRequestDetailsEIP712Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA70E4A2DE9A6A9004EEC0A /* WCRequestDetailsEIP712Parser.swift */; };
+		DCA766B12E686B6F008122FF /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DCA766B02E686B6F008122FF /* Launch Screen.storyboard */; };
+		DCA766B72E687A72008122FF /* launchScreenAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DCA766B62E687A72008122FF /* launchScreenAssets.xcassets */; };
 		DCA8CDFE2E055B2A00C034C3 /* WCEthTransactionDetailsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA8CDFD2E055B2A00C034C3 /* WCEthTransactionDetailsModel.swift */; };
 		DCA8CE002E055BFE00C034C3 /* WCRequestDetailsEthTransactionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA8CDFF2E055BFE00C034C3 /* WCRequestDetailsEthTransactionParser.swift */; };
 		DCB14AE32DC615C60075F340 /* WalletConnectViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB14ADD2DC615C60075F340 /* WalletConnectViewModel.swift */; };
@@ -4776,7 +4777,6 @@
 		5D74F718262722FF00B03897 /* Publisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+.swift"; sourceTree = "<group>"; };
 		5D78D117261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurgeWalletsAndReadResponse.swift; sourceTree = "<group>"; };
 		5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateMultiWalletTask.swift; sourceTree = "<group>"; };
-		5D84352725B84E8C0085C9D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = "en.lproj/LaunchScreen 2.storyboard"; sourceTree = "<group>"; };
 		5D84DBEC270E26B90013A813 /* WelcomeBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeBackgroundView.swift; sourceTree = "<group>"; };
 		5D84DBEE270EEADA0013A813 /* TwinIntroBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinIntroBackgroundView.swift; sourceTree = "<group>"; };
 		5D96BD2727F60AC5000AA797 /* BlockchainNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainNetwork.swift; sourceTree = "<group>"; };
@@ -7164,6 +7164,8 @@
 		DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceChangeFormatterTests.swift; sourceTree = "<group>"; };
 		DCA70E482DE8AD1F004EEC0A /* WCEthSignTypedDataDetailsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCEthSignTypedDataDetailsModel.swift; sourceTree = "<group>"; };
 		DCA70E4A2DE9A6A9004EEC0A /* WCRequestDetailsEIP712Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestDetailsEIP712Parser.swift; sourceTree = "<group>"; };
+		DCA766B02E686B6F008122FF /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		DCA766B62E687A72008122FF /* launchScreenAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = launchScreenAssets.xcassets; sourceTree = "<group>"; };
 		DCA8CDFD2E055B2A00C034C3 /* WCEthTransactionDetailsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCEthTransactionDetailsModel.swift; sourceTree = "<group>"; };
 		DCA8CDFF2E055BFE00C034C3 /* WCRequestDetailsEthTransactionParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestDetailsEthTransactionParser.swift; sourceTree = "<group>"; };
 		DCB14AD22DC615C60075F340 /* WalletConnectConnectedDAppDetailsViewEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectedDAppDetailsViewEvent.swift; sourceTree = "<group>"; };
@@ -9889,7 +9891,7 @@
 				5D958E1224F513C1006BD932 /* UILegacy */,
 				B068A7E525678A6E00D28CD2 /* Utilities */,
 				DC751ADB2ABB750A0039A4D2 /* Tangem-Bridging-Header.h */,
-				5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */,
+				DCA766B02E686B6F008122FF /* Launch Screen.storyboard */,
 			);
 			path = Tangem;
 			sourceTree = "<group>";
@@ -11745,6 +11747,7 @@
 				B03662672B63D7510064E073 /* ISO4217 */,
 				5DE552F527B418B400D7ADCD /* testnet_tokens.json */,
 				EF39A6552AD5A90300AAB518 /* contract_methods.json */,
+				DCA766B62E687A72008122FF /* launchScreenAssets.xcassets */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -22174,6 +22177,7 @@
 			files = (
 				DC44C58C2B4DC59400888BED /* PrivacyInfo.xcprivacy in Resources */,
 				DC0132A0299A7B8E00B95145 /* notReferralMock.json in Resources */,
+				DCA766B12E686B6F008122FF /* Launch Screen.storyboard in Resources */,
 				DC0132A1299A7B8E00B95145 /* referralMock.json in Resources */,
 				DC01329E299A786700B95145 /* testnet_tokens.json in Resources */,
 				B0FB4EFA2A8512210057F4C2 /* walletUserWalletList.json in Resources */,
@@ -22189,7 +22193,6 @@
 				B03662692B63D7660064E073 /* iso4217Codes.plist in Resources */,
 				D866EE622E5363210071311E /* shiba.json in Resources */,
 				DC4512782BD1641900DE6F94 /* ethNoteDemo.json in Resources */,
-				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
 				5D5CE1A92625FF00009023EC /* config_prod.json in Resources */,
 				EF92E2B829954B3200DD9B06 /* config_beta.json in Resources */,
 				DC4512722BD15DFB00DE6F94 /* xlmBird.json in Resources */,
@@ -22208,6 +22211,7 @@
 				DC261C9F292CD3B800875E64 /* GoogleService-Info-Beta.plist in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
 				5D5CE1A82625FF00009023EC /* config_dev.json in Resources */,
+				DCA766B72E687A72008122FF /* launchScreenAssets.xcassets in Resources */,
 				304D34CD2D5F4AA7003CCAE5 /* local_tos.html in Resources */,
 				D866EE642E5384720071311E /* 4_12.json in Resources */,
 			);
@@ -26335,14 +26339,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				5D84352725B84E8C0085C9D2 /* en */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
 		DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
