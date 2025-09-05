@@ -48,6 +48,12 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
         }
     }
 
+    func openEarnInfoSheet(params: YieldPromoBottomSheetViewModel.EarnInfoParams) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: YieldPromoBottomSheetViewModel(flow: .earnInfo(params: params)))
+        }
+    }
+
     func openStartEarningSheet(params: YieldPromoBottomSheetViewModel.StartEarningParams) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: YieldPromoBottomSheetViewModel(flow: .startYearing(params: params)))
