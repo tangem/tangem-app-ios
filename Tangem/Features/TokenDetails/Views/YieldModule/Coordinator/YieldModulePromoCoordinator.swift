@@ -42,21 +42,21 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
         )
     }
 
-    func openRateInfoSheet(params: YieldPromoBottomSheetViewModel.RateInfoParams) {
+    func openRateInfoSheet(params: YieldModuleBottomSheetViewModel.RateInfoParams) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldPromoBottomSheetViewModel(flow: .rateInfo(params: params)))
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .rateInfo(params: params)))
         }
     }
 
-    func openEarnInfoSheet(params: YieldPromoBottomSheetViewModel.EarnInfoParams) {
+    func openEarnInfoSheet(params: YieldModuleBottomSheetViewModel.EarnInfoParams) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldPromoBottomSheetViewModel(flow: .earnInfo(params: params)))
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .earnInfo(params: params)))
         }
     }
 
-    func openStartEarningSheet(params: YieldPromoBottomSheetViewModel.StartEarningParams) {
+    func openStartEarningSheet(params: YieldModuleBottomSheetViewModel.StartEarningParams) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldPromoBottomSheetViewModel(flow: .startYearing(params: params)))
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .startYearing(params: params)))
         }
     }
 }
