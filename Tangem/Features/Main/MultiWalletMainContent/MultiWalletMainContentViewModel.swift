@@ -10,10 +10,12 @@ import Foundation
 import SwiftUI
 import Combine
 import CombineExt
+import TangemFoundation
 import TangemStaking
 import TangemNFT
 import TangemLocalization
 import TangemUI
+import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 
 final class MultiWalletMainContentViewModel: ObservableObject {
@@ -471,9 +473,29 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openReferral(input: input)
     }
 
-    private func openMobileFinishActivation() {
+    private func openMobileFinishActivation(needsAttention: Bool) {
         Analytics.log(.mainButtonFinishNow)
-        coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
+        if needsAttention {
+            coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
+        } else {
+            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        }
+    }
+
+    private func openMobileUpgrade() {
+        runTask(in: self) { viewModel in
+            do {
+                let context = try await viewModel.unlock()
+                viewModel.coordinator?.openMobileUpgrade(userWalletModel: viewModel.userWalletModel, context: context)
+            } catch where error.isCancellationError {
+                AppLogger.error("Unlock is canceled", error: error)
+            } catch {
+                AppLogger.error("Unlock failed:", error: error)
+                await runOnMain {
+                    viewModel.error = error.alertBinder
+                }
+            }
+        }
     }
 }
 
@@ -519,8 +541,10 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openReferralProgram:
             openReferralProgram()
-        case .openMobileFinishActivation:
-            openMobileFinishActivation()
+        case .openMobileFinishActivation(let needsAttention):
+            openMobileFinishActivation(needsAttention: needsAttention)
+        case .openMobileUpgrade:
+            openMobileUpgrade()
         default:
             break
         }
@@ -568,14 +592,8 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             hideTokenAction(for: tokenItemViewModel)
             return
         case .marketsDetails:
-            let tokenItem = tokenItemViewModel.tokenItem
-            let analyticsParams: [Analytics.ParameterKey: String] = [
-                .source: Analytics.ParameterValue.longTap.rawValue,
-                .token: tokenItem.currencySymbol.uppercased(),
-                .blockchain: tokenItem.blockchain.displayName,
-            ]
-            Analytics.log(event: .marketsChartScreenOpened, params: analyticsParams)
-            tokenRouter.openMarketsTokenDetails(for: tokenItem)
+            logContextTap(action: action, for: tokenItemViewModel)
+            tokenRouter.openMarketsTokenDetails(for: tokenItemViewModel.tokenItem)
             return
         default:
             break
@@ -597,6 +615,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .sell:
             openSell(for: walletModel)
         case .copyAddress:
+            logContextTap(action: action, for: tokenItemViewModel)
             UIPasteboard.general.string = walletModel.defaultAddressString
             delegate?.displayAddressCopiedToast()
         case .exchange:
@@ -606,6 +625,29 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .marketsDetails, .hide:
             return
         }
+    }
+
+    func logContextTap(action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {
+        let tokenItem = tokenItemViewModel.tokenItem
+        let event: Analytics.Event
+        
+        var analyticsParams: [Analytics.ParameterKey: String] = [
+            .token: tokenItem.currencySymbol.uppercased(),
+            .blockchain: tokenItem.blockchain.displayName,
+        ]
+
+        switch action {
+        case .marketsDetails:
+            analyticsParams[.source] = Analytics.ParameterValue.longTap.rawValue
+            event = .marketsChartScreenOpened
+        case .copyAddress:
+            analyticsParams[.source] = Analytics.ParameterValue.main.rawValue
+            event = .buttonCopyAddress
+        default:
+            return
+        }
+
+        Analytics.log(event: event, params: analyticsParams)
     }
 }
 
@@ -639,5 +681,30 @@ private extension MultiWalletMainContentViewModel {
             expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
             userWalletModel: userWalletModel
         )
+    }
+}
+
+// MARK: - Unlocking
+
+private extension MultiWalletMainContentViewModel {
+    func unlock() async throws -> MobileWalletContext {
+        let authUtil = MobileAuthUtil(
+            userWalletId: userWalletModel.userWalletId,
+            config: userWalletModel.config,
+            biometricsProvider: CommonUserWalletBiometricsProvider()
+        )
+
+        let result = try await authUtil.unlock()
+
+        switch result {
+        case .successful(let context):
+            return context
+
+        case .canceled:
+            throw CancellationError()
+
+        case .userWalletNeedsToDelete:
+            throw CancellationError()
+        }
     }
 }
