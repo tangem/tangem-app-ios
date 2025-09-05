@@ -10,7 +10,7 @@ import Combine
 import TangemAssets
 
 class SelectorReceiveAssetsAddressItemViewModel: Identifiable, ObservableObject {
-    let header: String
+    let title: String
 
     var address: String {
         addressInfo.address
@@ -19,13 +19,20 @@ class SelectorReceiveAssetsAddressItemViewModel: Identifiable, ObservableObject 
     // MARK: - Private Properties
 
     private let addressInfo: ReceiveAddressInfo
+    private let analyticsLogger: ItemSelectorReceiveAssetsAnalyticsLogger
     private weak var coordinator: SelectorReceiveAssetItemRoutable?
 
     // MARK: - Init
 
-    init(header: String, addressInfo: ReceiveAddressInfo, coordinator: SelectorReceiveAssetItemRoutable?) {
-        self.header = header
+    init(
+        title: String,
+        addressInfo: ReceiveAddressInfo,
+        analyticsLogger: ItemSelectorReceiveAssetsAnalyticsLogger,
+        coordinator: SelectorReceiveAssetItemRoutable?
+    ) {
+        self.title = title
         self.addressInfo = addressInfo
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
     }
 
@@ -40,6 +47,7 @@ class SelectorReceiveAssetsAddressItemViewModel: Identifiable, ObservableObject 
     }
 
     func copyAddressButtonDidTap() {
+        analyticsLogger.logCopyAddressButtonTapped()
         coordinator?.copyToClipboard(with: addressInfo.address)
     }
 }
