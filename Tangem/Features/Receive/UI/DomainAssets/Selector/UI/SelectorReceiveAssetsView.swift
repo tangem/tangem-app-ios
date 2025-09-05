@@ -62,7 +62,7 @@ extension SelectorReceiveAssetsView {
         enum Container {
             static let spacingContent: CGFloat = 12.0
             static let paddingBottom: CGFloat = 16.0
-            static let paddingTop: CGFloat = 4.0
+            static let paddingTop: CGFloat = 12.0
         }
     }
 }
