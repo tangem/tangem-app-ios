@@ -58,8 +58,14 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         // [REDACTED_TODO_COMMENT]
     }
 
-    func addCryptoAccount(_ cryptoAccountModel: any CryptoAccountModel) {
-        // [REDACTED_TODO_COMMENT]
+    func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [TokenItem]) {
+        let storedAccount = StoredCryptoAccount(
+            derivationIndex: config.derivationIndex,
+            name: config.name,
+            icon: .init(iconName: config.iconName, iconColor: config.iconColor),
+            tokenList: .empty // [REDACTED_TODO_COMMENT]
+        )
+        storage.appendNewOrUpdateExisting(account: storedAccount)
     }
 
     func removeCryptoAccount(withIdentifier identifier: AnyHashable) {
