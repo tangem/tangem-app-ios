@@ -16,7 +16,7 @@ struct SelectorReceiveAssetsDomainItemView: View {
     @ObservedObject private(set) var viewModel: SelectorReceiveAssetsDomainItemViewModel
 
     var body: some View {
-        Button(action: viewModel.itemButtonDidTap) {
+        VStack(alignment: .leading, spacing: .zero) {
             HStack(spacing: Layout.Container.contentSpacing) {
                 addressIconView(with: viewModel.address)
 
@@ -26,10 +26,8 @@ struct SelectorReceiveAssetsDomainItemView: View {
 
                 buttonView
             }
-            .padding(.vertical, Layout.Container.padding)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .padding(.vertical, Layout.Container.padding)
     }
 
     // MARK: - Private Implementation
@@ -51,16 +49,7 @@ struct SelectorReceiveAssetsDomainItemView: View {
     private var buttonView: some View {
         HStack(spacing: Layout.ButtomView.horizontalSpacing) {
             Button(action: viewModel.copyAddressButtonDidTap) {
-                Assets.copyNew.image
-                    .renderingMode(.template)
-                    .frame(size: .init(bothDimensions: 20))
-                    .foregroundStyle(Colors.Icon.informative)
-                    .padding(Layout.ButtomView.paddingIcon)
-                    .background(
-                        Circle()
-                            .fill(Colors.Button.secondary)
-                    )
-                    .padding(.leading, Layout.ButtomView.paddingIconCircle)
+                SelectorReceiveRoundButtonView(actionType: .copy)
             }
         }
     }
@@ -81,8 +70,6 @@ private extension SelectorReceiveAssetsDomainItemView {
 
         enum ButtomView {
             static let horizontalSpacing: CGFloat = 8
-            static let paddingIcon: CGFloat = 8
-            static let paddingIconCircle: CGFloat = 2
         }
 
         enum AddressIcon {

@@ -842,6 +842,7 @@
 "onramp_timing_minutes" = "%@ мин";
 "onramp_title_you_get" = "Вы получите";
 "onramp_transaction_status_footer_text" = "Вы можете закрыть этот экран и проверить статус транзакции на экране информации о токене.";
+"onramp_up_to_rate" = "Up to";
 "onramp_via" = "Через";
 "onramp_you_will_pay_title" = "You will pay";
 "organize_tokens_group" = "Группы";
@@ -942,7 +943,7 @@
 "send_fee_unreachable_error_text" = "Проверьте своё интернет соединение";
 "send_fee_unreachable_error_title" = "Информация о комиссии сети недоступна";
 "send_from_title" = "Вы отправляете";
-"send_from_wallet_name" = "From %@";
+"send_from_wallet_name" = "Из %@";
 "send_from_wallet" = "Из **%@**";
 "send_gas_limit_footer" = "Это максимальное количество газа, которое будет потрачено на выполнение транзакции или контракта. Лимит газа предотвращает неожиданные или неограниченные расходы при выполнении транзакции.";
 "send_gas_limit" = "Лимит газа";
