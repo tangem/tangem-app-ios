@@ -556,14 +556,8 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             hideTokenAction(for: tokenItemViewModel)
             return
         case .marketsDetails:
-            let tokenItem = tokenItemViewModel.tokenItem
-            let analyticsParams: [Analytics.ParameterKey: String] = [
-                .source: Analytics.ParameterValue.longTap.rawValue,
-                .token: tokenItem.currencySymbol.uppercased(),
-                .blockchain: tokenItem.blockchain.displayName,
-            ]
-            Analytics.log(event: .marketsChartScreenOpened, params: analyticsParams)
-            tokenRouter.openMarketsTokenDetails(for: tokenItem)
+            logContextTap(action: action, for: tokenItemViewModel)
+            tokenRouter.openMarketsTokenDetails(for: tokenItemViewModel.tokenItem)
             return
         default:
             break
@@ -585,6 +579,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .sell:
             openSell(for: walletModel)
         case .copyAddress:
+            logContextTap(action: action, for: tokenItemViewModel)
             UIPasteboard.general.string = walletModel.defaultAddressString
             delegate?.displayAddressCopiedToast()
         case .exchange:
@@ -594,6 +589,29 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .marketsDetails, .hide:
             return
         }
+    }
+
+    func logContextTap(action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {
+        let tokenItem = tokenItemViewModel.tokenItem
+        let event: Analytics.Event
+        
+        var analyticsParams: [Analytics.ParameterKey: String] = [
+            .token: tokenItem.currencySymbol.uppercased(),
+            .blockchain: tokenItem.blockchain.displayName,
+        ]
+
+        switch action {
+        case .marketsDetails:
+            analyticsParams[.source] = Analytics.ParameterValue.longTap.rawValue
+            event = .marketsChartScreenOpened
+        case .copyAddress:
+            analyticsParams[.source] = Analytics.ParameterValue.main.rawValue
+            event = .buttonCopyAddress
+        default:
+            return
+        }
+
+        Analytics.log(event: event, params: analyticsParams)
     }
 }
 
