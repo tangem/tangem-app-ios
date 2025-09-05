@@ -23,6 +23,7 @@ extension SelectorReceiveAssetsSectionFactory {
             let viewModel = SelectorReceiveAssetsAddressItemViewModel(
                 title: makeTitleItemStateView(tokenItem: tokenItem, addressInfo: addressInfo),
                 addressInfo: addressInfo,
+                analyticsLogger: analyticsLogger,
                 coordinator: coordinator
             )
             return .address(viewModel)
@@ -38,7 +39,7 @@ extension SelectorReceiveAssetsSectionFactory {
     }
 
     func makeTitleItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String {
-        Localization.domainReceiveAssetsOnboardingNetworkName(tokenItem.name.capitalizingFirstLetter())
+        Localization.domainReceiveAssetsNetworkNameAddress(tokenItem.name.capitalizingFirstLetter())
     }
 }
 
