@@ -126,6 +126,17 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
             .eraseToAnyPublisher()
     }
 
+    func shouldAllowPartialPayment(for issuer: String) -> AnyPublisher<Bool, Error> {
+        return request(.accountInfo(account: issuer))
+            .tryMap { xrpResponse in
+                let accountResponse = try Self.validateXRPResponseAndGetAccountResponse(xrpResponse)
+                // A TransferRate of 0, 1_000_000_000, or nil means no fee is set, so partial payments are not required.
+                // Only values greater than 1_000_000_000 indicate an issuer fee.
+                return accountResponse.transferRate ?? 0 > 1_000_000_000
+            }
+            .eraseToAnyPublisher()
+    }
+
     func getInfo(account: String) -> AnyPublisher<XrpInfoResponse, Error> {
         return Publishers.Zip4(
             getUnconfirmed(account: account),
