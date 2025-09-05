@@ -40,6 +40,12 @@ class XRPNetworkService: MultiNetworkProvider, XRPNetworkServiceType {
         }
     }
 
+    func shouldAllowPartialPayment(for issuer: String) -> AnyPublisher<Bool, Error> {
+        providerPublisher { provider in
+            provider.shouldAllowPartialPayment(for: issuer)
+        }
+    }
+
     func send(blob: String) -> AnyPublisher<String, Error> {
         providerPublisher { provider in
             provider.send(blob: blob)
