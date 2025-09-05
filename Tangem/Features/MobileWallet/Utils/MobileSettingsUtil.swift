@@ -12,8 +12,8 @@ import TangemFoundation
 import TangemMobileWalletSdk
 
 final class MobileSettingsUtil {
-    @Injected(\.sessionMobileAccessCodeStorageManager)
-    private var accessCodeStorageManager: MobileAccessCodeStorageManager
+    @Injected(\.userWalletDismissedNotifications)
+    private var dismissedNotifications: UserWalletDismissedNotifications
 
     private var isAccessCodeFeatureAvailable: Bool {
         userWalletConfig.isFeatureVisible(.userWalletAccessCode)
@@ -27,6 +27,10 @@ final class MobileSettingsUtil {
         userWalletConfig.isFeatureVisible(.userWalletBackup)
     }
 
+    private var isUpgradeFeatureAvailable: Bool {
+        userWalletConfig.isFeatureVisible(.userWalletUpgrade)
+    }
+
     private var isBackupNeeded: Bool {
         userWalletConfig.hasFeature(.mnemonicBackup) && userWalletConfig.hasFeature(.iCloudBackup)
     }
@@ -34,12 +38,6 @@ final class MobileSettingsUtil {
     private var userWalletConfig: UserWalletConfig {
         userWalletModel.config
     }
-
-    private lazy var accessCodeManager = SessionMobileAccessCodeManager(
-        userWalletId: userWalletModel.userWalletId,
-        configuration: .default,
-        storageManager: accessCodeStorageManager
-    )
 
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
@@ -55,6 +53,15 @@ final class MobileSettingsUtil {
 extension MobileSettingsUtil {
     var walletSettings: [WalletSetting] {
         var settings: [WalletSetting] = []
+
+        let isUpgradeNotificationDismissed = dismissedNotifications.has(
+            userWalletId: userWalletModel.userWalletId,
+            notification: .mobileUpgradeFromSettings
+        )
+
+        if isUpgradeFeatureAvailable, !isUpgradeNotificationDismissed {
+            settings.append(.upgrade)
+        }
 
         if isAccessCodeFeatureAvailable {
             settings.append(isAccessCodeNeeded ? .setAccessCode : .changeAccessCode)
@@ -90,6 +97,52 @@ extension MobileSettingsUtil {
     }
 }
 
+// MARK: - Upgrade notification
+
+extension MobileSettingsUtil {
+    func makeUpgradeNotificationInput(
+        onContext: @escaping (MobileWalletContext) -> Void,
+        onDismiss: @escaping () -> Void
+    ) -> NotificationViewInput {
+        let factory = NotificationsFactory()
+
+        let action: NotificationView.NotificationAction = { [weak self] _ in
+            self?.onUpgradeNotificationTap(onContext: onContext)
+        }
+
+        let buttonAction: NotificationView.NotificationButtonTapAction = { _, _ in }
+
+        let dismissAction: NotificationView.NotificationAction = { [weak self] _ in
+            self?.onUpgradeNotificationDismiss(onDismiss: onDismiss)
+        }
+
+        return factory.buildNotificationInput(
+            for: GeneralNotificationEvent.mobileUpgrade,
+            action: action,
+            buttonAction: buttonAction,
+            dismissAction: dismissAction
+        )
+    }
+
+    func onUpgradeNotificationTap(onContext: @escaping (MobileWalletContext) -> Void) {
+        runTask(in: self) { viewModel in
+            let unlockResult = await viewModel.unlock()
+
+            switch unlockResult {
+            case .successful(let context):
+                onContext(context)
+            case .canceled, .failed:
+                break
+            }
+        }
+    }
+
+    func onUpgradeNotificationDismiss(onDismiss: @escaping () -> Void) {
+        dismissedNotifications.add(userWalletId: userWalletModel.userWalletId, notification: .mobileUpgradeFromSettings)
+        onDismiss()
+    }
+}
+
 // MARK: - Unlocking
 
 private extension MobileSettingsUtil {
@@ -98,8 +151,7 @@ private extension MobileSettingsUtil {
             let authUtil = MobileAuthUtil(
                 userWalletId: userWalletModel.userWalletId,
                 config: userWalletModel.config,
-                biometricsProvider: CommonUserWalletBiometricsProvider(),
-                accessCodeManager: accessCodeManager
+                biometricsProvider: CommonUserWalletBiometricsProvider()
             )
             let result = try await authUtil.unlock()
 
@@ -134,6 +186,7 @@ extension MobileSettingsUtil {
         case setAccessCode
         case changeAccessCode
         case backup(needsBackup: Bool)
+        case upgrade
     }
 
     enum AccessCodeState {
