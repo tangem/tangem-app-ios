@@ -1,5 +1,5 @@
 //
-//  CryptoAccountsServiceError.swift
+//  CryptoAccountsNetworkServiceError.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum CryptoAccountsServiceError: Error {
+enum CryptoAccountsNetworkServiceError: Error {
     case noAccountsCreated
     case inconsistentState // [REDACTED_TODO_COMMENT]
     case underlyingError(Error)
