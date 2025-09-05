@@ -55,13 +55,14 @@ struct ReceiveDependenciesBuilder {
             coordinator: coordinator
         )
 
+        let hasLegacyAssets = addressTypesProvider.receiveAddressInfos
+            .contains(where: { $0.type == .legacy })
+
         switch tokenItem.blockchain {
         case .ethereum:
             return EthereumSelectorReceiveAssetsSectionFactory(input)
-        case .bitcoin:
-            return BitcoinSelectorReceiveAssetsSectionFactory(input)
         default:
-            return CommonSelectorReceiveAssetsSectionFactory(input)
+            return hasLegacyAssets ? AnySelectorReceiveAssetsSectionFactory(input) : CommonSelectorReceiveAssetsSectionFactory(input)
         }
     }
 }
