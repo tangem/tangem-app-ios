@@ -842,6 +842,7 @@
 "onramp_timing_minutes" = "%@ min";
 "onramp_title_you_get" = "You get";
 "onramp_transaction_status_footer_text" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton";
+"onramp_up_to_rate" = "Up to";
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "You will pay";
 "organize_tokens_group" = "Grouper";
