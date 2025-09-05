@@ -26,7 +26,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var tokensNotificationInputs: [NotificationViewInput] = []
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
-    @Published var yieldAccountNotificationInputs: [NotificationViewInput] = []
+    @Published var yieldModuleNotificationInputs: [NotificationViewInput] = []
 
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
@@ -60,7 +60,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let userWalletNotificationManager: NotificationManager
     private let tokensNotificationManager: NotificationManager
     private let bannerNotificationManager: NotificationManager?
-    private let yieldAccountNotificationManager: NotificationManager
+    private let yieldModuleNotificationManager: NotificationManager
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
@@ -87,7 +87,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         userWalletNotificationManager: NotificationManager,
         tokensNotificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
-        yieldAccountNotificationManager: NotificationManager,
+        yieldModuleNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         tokenSectionsAdapter: TokenSectionsAdapter,
         tokenRouter: SingleTokenRoutable,
@@ -99,7 +99,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.userWalletNotificationManager = userWalletNotificationManager
         self.tokensNotificationManager = tokensNotificationManager
         self.bannerNotificationManager = bannerNotificationManager
-        self.yieldAccountNotificationManager = yieldAccountNotificationManager
+        self.yieldModuleNotificationManager = yieldModuleNotificationManager
         self.rateAppController = rateAppController
         self.tokenSectionsAdapter = tokenSectionsAdapter
         self.tokenRouter = tokenRouter
@@ -245,11 +245,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        yieldAccountNotificationManager
+        yieldModuleNotificationManager
             .notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
-            .assign(to: \.yieldAccountNotificationInputs, on: self, ownership: .weak)
+            .assign(to: \.yieldModuleNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
         rateAppController.bind(
@@ -630,7 +630,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
     func logContextTap(action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {
         let tokenItem = tokenItemViewModel.tokenItem
         let event: Analytics.Event
-        
+
         var analyticsParams: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol.uppercased(),
             .blockchain: tokenItem.blockchain.displayName,
