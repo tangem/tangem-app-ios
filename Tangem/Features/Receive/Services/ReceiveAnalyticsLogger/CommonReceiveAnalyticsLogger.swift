@@ -40,7 +40,7 @@ extension CommonReceiveAnalyticsLogger: SelectorReceiveAssetsAnalyticsLogger {
 
 extension CommonReceiveAnalyticsLogger: QRCodeReceiveAssetsAnalyticsLogger {
     func logQRCodeReceiveAssetsScreenOpened() {
-        Analytics.log(event: .receiveScreenOpened, params: [
+        Analytics.log(event: .qrScreenOpened, params: [
             .token: tokenItem.currencySymbol,
             .blockchain: tokenItem.blockchain.displayName,
         ])
@@ -49,13 +49,17 @@ extension CommonReceiveAnalyticsLogger: QRCodeReceiveAssetsAnalyticsLogger {
     func logCopyButtonTapped() {
         switch flow {
         case .nft:
-            Analytics.log(event: .nftReceiveCopyAddressButtonClicked, params: [.blockchain: tokenItem.blockchain.displayName])
-
+            Analytics.log(
+                event: .nftReceiveCopyAddressButtonClicked,
+                params: [
+                    .blockchain: tokenItem.blockchain.displayName,
+                ]
+            )
         case .crypto:
             Analytics.log(event: .buttonCopyAddress, params: [
                 .token: tokenItem.currencySymbol,
-                .source: Analytics.ParameterValue.receive.rawValue,
                 .blockchain: tokenItem.blockchain.displayName,
+                .source: Analytics.ParameterValue.qr.rawValue,
             ])
         }
     }
@@ -78,6 +82,14 @@ extension CommonReceiveAnalyticsLogger: QRCodeReceiveAssetsAnalyticsLogger {
 // MARK: - ItemSelectorReceiveAssetsAnalyticsLogger
 
 extension CommonReceiveAnalyticsLogger: ItemSelectorReceiveAssetsAnalyticsLogger {
+    func logCopyAddressButtonTapped() {
+        Analytics.log(event: .buttonCopyAddress, params: [
+            .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
+            .source: Analytics.ParameterValue.receive.rawValue,
+        ])
+    }
+
     func logCopyDomainNameAddressButtonTapped() {
         Analytics.log(event: .buttonENS, params: [
             .token: tokenItem.currencySymbol,

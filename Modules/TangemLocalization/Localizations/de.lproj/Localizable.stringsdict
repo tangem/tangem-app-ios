@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>%@ Karte</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%@ Karten</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -77,9 +77,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li network</string>
+        <string>%1$@ Netzwerk</string>
         <key>other</key>
-        <string>%li networks</string>
+        <string>%1$@ Netzwerke</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -219,6 +219,38 @@
         <string></string>
         <key>other</key>
         <string>%li Wörter</string>
+      </dict>
+    </dict>
+    <key>onramp_providers_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li provider</string>
+        <key>other</key>
+        <string>%li providers</string>
+      </dict>
+    </dict>
+    <key>onramp_timing_days</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>up to %li day</string>
+        <key>other</key>
+        <string>up to %li days</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>

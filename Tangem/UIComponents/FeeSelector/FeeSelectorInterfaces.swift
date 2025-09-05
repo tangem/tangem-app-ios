@@ -16,6 +16,11 @@ enum FeeSelectorDismissButtonType {
     case close
 }
 
+enum FeeSelectorSavingType {
+    case autosave
+    case doneButton
+}
+
 struct FeeSelectorFee {
     let option: FeeOption
     let value: Decimal
@@ -30,7 +35,7 @@ protocol FeeSelectorContentViewModelInput: AnyObject {
 }
 
 protocol FeeSelectorContentViewModelOutput: AnyObject {
-    func update(selectedSelectorFee: FeeSelectorFee)
+    func update(selectedFeeOption: FeeOption)
     func dismissFeeSelector()
     func completeFeeSelection()
 }
@@ -41,5 +46,9 @@ protocol FeeSelectorContentViewModelAnalytics {
 }
 
 protocol FeeSelectorCustomFeeFieldsBuilder {
+    var customFeeIsValidPublisher: AnyPublisher<Bool, Never> { get }
+
     func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel]
+    func captureCustomFeeFieldsValue()
+    func resetCustomFeeFieldsValue()
 }

@@ -10,6 +10,7 @@ import UIKit
 import Foundation
 import Combine
 import TangemFoundation
+import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 
 class UserWalletSettingsCoordinator: CoordinatorObject {
@@ -31,10 +32,12 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var referralCoordinator: ReferralCoordinator?
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
     @Published var scanCardSettingsCoordinator: ScanCardSettingsCoordinator?
+    @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator?
 
     // MARK: - Child view models
 
     @Published var mobileBackupTypesViewModel: MobileBackupTypesViewModel?
+    @Published var mailViewModel: MailViewModel?
 
     // MARK: - Helpers
 
@@ -157,13 +160,6 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    // MARK: - MobileBackupOnboardingRoutable
-
-    func openMobileBackupOnboarding(userWalletModel: UserWalletModel) {
-        let backupInput = MobileOnboardingInput(flow: .walletActivate(userWalletModel: userWalletModel))
-        openOnboardingModal(with: .mobileInput(backupInput))
-    }
-
     // MARK: - MobileBackupNeededRoutable
 
     func dismissMobileBackupNeeded() {
@@ -178,7 +174,20 @@ extension UserWalletSettingsCoordinator:
 
     // MARK: - MobileBackupTypesRoutable
 
-    func openOnboarding(input: MobileOnboardingInput) {
-        openOnboardingModal(with: .mobileInput(input))
+    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext) {
+        Task { @MainActor in
+            let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
+                switch options {
+                case .dismiss:
+                    self?.mobileUpgradeCoordinator = nil
+                    self?.mobileBackupTypesViewModel = nil
+                }
+            }
+
+            let coordinator = MobileUpgradeCoordinator(dismissAction: dismissAction)
+            let inputOptions = MobileUpgradeCoordinator.InputOptions(userWalletModel: userWalletModel, context: context)
+            coordinator.start(with: inputOptions)
+            mobileUpgradeCoordinator = coordinator
+        }
     }
 }
