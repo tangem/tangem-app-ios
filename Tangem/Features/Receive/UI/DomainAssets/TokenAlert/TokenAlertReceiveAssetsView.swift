@@ -17,7 +17,7 @@ struct TokenAlertReceiveAssetsView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            VStack(spacing: Layout.Content.spacing) {
+            VStack(spacing: .zero) {
                 mainContent
             }
             .padding(.horizontal, Layout.Content.horizontalPadding)
@@ -33,7 +33,7 @@ struct TokenAlertReceiveAssetsView: View {
         VStack(alignment: .center, spacing: Layout.Content.spacing) {
             TokenIcon(
                 tokenIconInfo: viewModel.tokenIconInfo,
-                size: IconViewSizeSettings.tokenDetails.iconSize
+                size: IconViewSizeSettings.receiveAlert.iconSize
             )
 
             VStack(alignment: .center, spacing: Layout.Content.textSpacing) {
@@ -42,28 +42,19 @@ struct TokenAlertReceiveAssetsView: View {
                 descriptionView
             }
         }
+        .padding(.top, 12)
     }
 
     private var networkTitleView: some View {
         VStack(alignment: .center, spacing: .zero) {
             Text(Localization.domainReceiveAssetsOnboardingTitle)
-                .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                .style(Fonts.Regular.title3, color: Colors.Text.primary1)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
 
-            HStack(alignment: .center) {
-                NetworkIcon(
-                    imageAsset: viewModel.networkIconImageAsset,
-                    isActive: true,
-                    isDisabled: false,
-                    isMainIndicatorVisible: false,
-                    size: .init(bothDimensions: Layout.Icon.size)
-                )
-
-                Text(Localization.domainReceiveAssetsOnboardingNetworkName(viewModel.networkName))
-                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
-                    .multilineTextAlignment(.center)
-            }
+            Text(Localization.domainReceiveAssetsOnboardingNetworkName(viewModel.networkName))
+                .style(Fonts.Regular.title3, color: Colors.Text.primary1)
+                .multilineTextAlignment(.center)
         }
     }
 
