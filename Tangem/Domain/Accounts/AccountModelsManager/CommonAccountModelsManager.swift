@@ -152,29 +152,17 @@ extension CommonAccountModelsManager: AccountModelsManager {
         makeOrGetAccountModelsPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> any CryptoAccountModel {
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]
         let newDerivationIndex = cryptoAccountsRepository.totalCryptoAccountsCount + 1
-        let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
-            forAccountWithDerivationIndex: newDerivationIndex
-        )
-        let userTokensManager = userTokensManagerFactory.makeUserTokensManager(
-            forAccountWithDerivationIndex: newDerivationIndex,
-            userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager
-        )
-        let newCryptoAccount = CommonCryptoAccountModel(
-            userWalletId: userWalletId,
-            accountName: name,
-            accountIcon: icon,
+        let persistentConfig = CryptoAccountPersistentConfig(
             derivationIndex: newDerivationIndex,
-            walletModelsManager: walletModelsManager,
-            userTokensManager: userTokensManager
+            name: name,
+            iconName: icon.name.rawValue,
+            iconColor: icon.color.rawValue
         )
-        cryptoAccountsRepository.addCryptoAccount(newCryptoAccount)
-
-        return newCryptoAccount
+        cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: []) // [REDACTED_TODO_COMMENT]
     }
 
     func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws {
