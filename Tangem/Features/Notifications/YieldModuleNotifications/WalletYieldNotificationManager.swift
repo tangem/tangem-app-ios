@@ -1,5 +1,5 @@
 //
-//  YieldAccountNotificationManager.swift
+//  WalletYieldNotificationManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,7 @@
 
 import Combine
 
-/// YIELD [REDACTED_TODO_COMMENT]
-final class YieldAccountNotificationManager {
+final class WalletYieldNotificationManager {
     private let analyticsService = NotificationsAnalyticsService()
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private var updateSubscription: AnyCancellable?
@@ -33,7 +32,7 @@ final class YieldAccountNotificationManager {
 
 // MARK: - NotificationManager
 
-extension YieldAccountNotificationManager: NotificationManager {
+extension WalletYieldNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
         notificationInputsSubject.value
     }
