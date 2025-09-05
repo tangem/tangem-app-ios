@@ -12,12 +12,9 @@ import CombineExt
 import TangemFoundation
 
 final class CommonCryptoAccountsRepository {
-    fileprivate typealias StorageDidUpdateSubject = PassthroughSubject<Void, Never>
-
-    private let userWalletId: UserWalletId
     private let tokenItemsRepository: TokenItemsRepository
     private let networkService: CryptoAccountsService
-    private let storage: Storage
+    private let storage: CryptoAccountsPersistentStorage
     private let storageDidUpdateSubject: StorageDidUpdateSubject
 
     private lazy var _cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> = storageDidUpdateSubject
@@ -27,19 +24,15 @@ final class CommonCryptoAccountsRepository {
         .eraseToAnyPublisher()
 
     init(
-        userWalletId: UserWalletId,
         tokenItemsRepository: TokenItemsRepository,
-        networkService: CryptoAccountsService
+        networkService: CryptoAccountsService,
+        storage: CryptoAccountsPersistentStorage
     ) {
         let storageDidUpdateSubject = StorageDidUpdateSubject()
         self.storageDidUpdateSubject = storageDidUpdateSubject
-        self.userWalletId = userWalletId
         self.tokenItemsRepository = tokenItemsRepository
         self.networkService = networkService
-        storage = Storage(
-            storageIdentifier: userWalletId.stringValue,
-            storageDidUpdateSubject: storageDidUpdateSubject
-        )
+        self.storage = storage
     }
 }
 
@@ -89,87 +82,8 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
 
 // MARK: - Auxiliary types
 
-private extension CommonCryptoAccountsRepository {
-    // [REDACTED_TODO_COMMENT]
-    final class Storage {
-        @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
+private extension CommonCryptoAccountsRepository {}
 
-        private let key: PersistentStorageKey
-        private let workingQueue: DispatchQueue
-        private let storageDidUpdateSubject: StorageDidUpdateSubject
-
-        init(
-            storageIdentifier: String,
-            storageDidUpdateSubject: StorageDidUpdateSubject
-        ) {
-            key = .accounts(cid: storageIdentifier)
-            self.storageDidUpdateSubject = storageDidUpdateSubject
-            workingQueue = DispatchQueue(
-                label: "com.tangem.CommonCryptoAccountsRepository.Storage.workingQueue_\(storageIdentifier)",
-                attributes: .concurrent,
-                target: .global(qos: .userInitiated)
-            )
-        }
-
-        func getList() -> [StoredCryptoAccount] {
-            workingQueue.sync {
-                return unsafeFetch()
-            }
-        }
-
-        func appendNewOrUpdateExisting(account: StoredCryptoAccount) {
-            workingQueue.async(flags: .barrier) {
-                var editedItems = self.unsafeFetch()
-                var isDirty = false
-
-                if let targetIndex = editedItems.firstIndex(where: { $0.derivationIndex == account.derivationIndex }) {
-                    isDirty = editedItems[targetIndex] != account
-                    editedItems[targetIndex] = account
-                } else {
-                    isDirty = true
-                    editedItems.append(account)
-                }
-
-                if isDirty {
-                    self.unsafeSave(editedItems)
-                }
-            }
-        }
-
-        func remove(accountUsingPredicate predicate: @escaping (StoredCryptoAccount) -> Bool) {
-            // This combined read-write operation must be atomic, hence the barrier flag
-            workingQueue.async(flags: .barrier) {
-                let currentItems = self.unsafeFetch()
-                var editedItems = currentItems
-
-                editedItems.removeAll(where: predicate)
-                let isDirty = editedItems.count != currentItems.count
-
-                if isDirty {
-                    self.unsafeSave(editedItems)
-                }
-            }
-        }
-
-        func removeAll() {
-            workingQueue.async(flags: .barrier) {
-                self.unsafeSave([])
-            }
-        }
-
-        /// Unsafe because it must be called from `workingQueue` only.
-        private func unsafeFetch() -> [StoredCryptoAccount] {
-            return (try? persistentStorage.value(for: key)) ?? []
-        }
-
-        /// Unsafe because it must be called from `workingQueue` only.
-        private func unsafeSave(_ items: [StoredCryptoAccount]) {
-            do {
-                try persistentStorage.store(value: items, for: key)
-                storageDidUpdateSubject.send()
-            } catch {
-                assertionFailure("CommonCryptoAccountsRepository.Storage saving error: \(error)")
-            }
-        }
-    }
+extension CryptoAccountsRepository {
+    typealias StorageDidUpdateSubject = PassthroughSubject<Void, Never>
 }
