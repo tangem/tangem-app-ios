@@ -79,15 +79,15 @@ final class YieldModulePromoViewModel {
     }
 
     func onHowItWorksTap() {
-        safariManager.openURL(URL(string: "tangem.com")!)
+        safariManager.openURL(URL(string: "https://tangem.com")!)
     }
 
     func onOpenTosTap() {
-        safariManager.openURL(URL(string: "tangem.com")!)
+        safariManager.openURL(URL(string: "https://tangem.com")!)
     }
 
     func onOpenPrivacyPolicyTap() {
-        safariManager.openURL(URL(string: "tangem.com")!)
+        safariManager.openURL(URL(string: "https://tangem.com")!)
     }
 }
 
