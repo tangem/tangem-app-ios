@@ -10,7 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 
-extension YieldPromoBottomSheetView {
+extension YieldModuleBottomSheetView {
     struct SheetContainer<SubtitleFooter: View, BodyContent: View, ToolBarTitle: View, TopContent: View>: View {
         // MARK: - Slots
 
@@ -133,7 +133,7 @@ extension YieldPromoBottomSheetView {
     }
 }
 
-extension YieldPromoBottomSheetView {
+extension YieldModuleBottomSheetView {
     enum CallToActionButtonStyle {
         case gray(title: String)
         case black(title: String)
