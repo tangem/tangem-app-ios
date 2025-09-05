@@ -14,8 +14,8 @@ extension Decimal {
     }
 
     func exp(precision: Int) -> Decimal {
-        var result = Decimal(1)
-        var term = Decimal(1)
+        var result = Decimal(string: "1")!
+        var term = Decimal(string: "1")!
         var n = 1
 
         while n < precision {

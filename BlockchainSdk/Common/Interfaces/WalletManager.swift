@@ -17,7 +17,6 @@ public protocol WalletManager: WalletProvider,
     TransactionSender,
     TransactionCreator,
     TransactionFeeProvider,
-    YieldServiceProvider,
     TransactionValidator {}
 
 public enum WalletManagerState {
