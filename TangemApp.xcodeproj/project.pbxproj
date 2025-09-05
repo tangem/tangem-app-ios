@@ -60,6 +60,7 @@
 		0A9AB2912D76EC1B00DB203C /* KaspaTransactionHistoryTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9AB2902D76EC1B00DB203C /* KaspaTransactionHistoryTarget.swift */; };
 		0AA6A79D2DBA6D83008F5D43 /* ReferralProgramURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA6A79C2DBA6D83008F5D43 /* ReferralProgramURLParser.swift */; };
 		0AAE39C72E6AC30600010E57 /* YieldServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAE39C62E6AC30600010E57 /* YieldServiceProvider.swift */; };
+		0AAE39C92E6ACB8100010E57 /* CalculateYieldModuleAddressMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAE39C82E6ACB8100010E57 /* CalculateYieldModuleAddressMethod.swift */; };
 		0AB5A4732C5267CB00491764 /* SegmentedPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */; };
 		0AB8BD3C2DBB60AE00D88677 /* CommonReferralNotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8BD3B2DBB60AE00D88677 /* CommonReferralNotificationController.swift */; };
 		0AB8BD3E2DBB7EFD00D88677 /* ReferralConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */; };
@@ -4221,6 +4222,7 @@
 		0A9AB2902D76EC1B00DB203C /* KaspaTransactionHistoryTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTarget.swift; sourceTree = "<group>"; };
 		0AA6A79C2DBA6D83008F5D43 /* ReferralProgramURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralProgramURLParser.swift; sourceTree = "<group>"; };
 		0AAE39C62E6AC30600010E57 /* YieldServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldServiceProvider.swift; sourceTree = "<group>"; };
+		0AAE39C82E6ACB8100010E57 /* CalculateYieldModuleAddressMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculateYieldModuleAddressMethod.swift; sourceTree = "<group>"; };
 		0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedPicker.swift; sourceTree = "<group>"; };
 		0AB8BD3B2DBB60AE00D88677 /* CommonReferralNotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonReferralNotificationController.swift; sourceTree = "<group>"; };
 		0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralConstants.swift; sourceTree = "<group>"; };
@@ -12962,6 +12964,7 @@
 				0AF4063A2E5F3203006DC3DF /* ProtocolBalanceMethod.swift */,
 				0A92AE8D2E6590BA00CDB659 /* ReservedDataMethod.swift */,
 				0A8E6D0B2E69C878004ABC72 /* ReactivateTokenMethod.swift */,
+				0AAE39C82E6ACB8100010E57 /* CalculateYieldModuleAddressMethod.swift */,
 			);
 			path = SmartContractMethods;
 			sourceTree = "<group>";
@@ -25070,6 +25073,7 @@
 				B62D40DF2CBC79DA00C2460E /* HederaNetworkResult.AccountBalance.swift in Sources */,
 				B62D40C22CBC79DA00C2460E /* SmartContractMethod.swift in Sources */,
 				B62D40442CBC79DA00C2460E /* RosettaResponse.swift in Sources */,
+				0AAE39C92E6ACB8100010E57 /* CalculateYieldModuleAddressMethod.swift in Sources */,
 				0AF4063B2E5F3203006DC3DF /* ProtocolBalanceMethod.swift in Sources */,
 				B62D40ED2CBC79DA00C2460E /* HederaAddressService.swift in Sources */,
 				B62D3FE32CBC79DA00C2460E /* OP_EQUAL.swift in Sources */,
