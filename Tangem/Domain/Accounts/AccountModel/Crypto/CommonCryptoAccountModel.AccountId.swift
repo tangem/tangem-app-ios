@@ -34,7 +34,7 @@ extension CommonCryptoAccountModel {
 }
 
 extension CommonCryptoAccountModel.AccountId: AccountModelPersistentIdentifierConvertible {
-    func toPersistentIdentifier() -> AnyHashable {
+    func toPersistentIdentifier() -> Int {
         return derivationIndex
     }
 }

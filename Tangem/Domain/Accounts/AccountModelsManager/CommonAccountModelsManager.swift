@@ -159,7 +159,7 @@ actor CommonAccountModelsManager {
     /// - Note: `cryptoAccountsRepository` has internal synchronization mechanism, therefore this is a `nonisolated` method.
     private nonisolated func saveCryptoAccount(_ cryptoAccount: CommonCryptoAccountModel) {
         let persistentConfig = CryptoAccountPersistentConfig(
-            derivationIndex: cryptoAccount.id.toPersistentIdentifier() as! Int,
+            derivationIndex: cryptoAccount.id.toPersistentIdentifier(),
             name: cryptoAccount.name,
             iconName: cryptoAccount.icon.name.rawValue,
             iconColor: cryptoAccount.icon.color.rawValue,
