@@ -8,13 +8,14 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 final class AccountModelsManagerMock {
     private let accountModelsSubject = PassthroughSubject<[AccountModel], Never>()
 
-    private var cryptoAccounts: CryptoAccounts = [] {
+    private var cryptoAccounts: [CryptoAccountModelMock] = [] {
         didSet {
-            accountModelsSubject.send([.standard(cryptoAccounts)])
+            accountModelsSubject.send([.standard(.init(accounts: cryptoAccounts))])
         }
     }
 
@@ -22,8 +23,12 @@ final class AccountModelsManagerMock {
         // `defer` is used to trigger the `didSet` observer
         defer {
             let mainAccount = CryptoAccountModelMock(isMainAccount: true)
-            cryptoAccounts = .single(mainAccount)
+            cryptoAccounts = [mainAccount]
         }
+    }
+
+    private func removeCryptoAccount(withIdentifier identifier: AnyHashable) {
+        cryptoAccounts.removeAll { $0.id.toPersistentIdentifier().toAnyHashable() == identifier }
     }
 }
 
@@ -35,27 +40,10 @@ extension AccountModelsManagerMock: AccountModelsManager {
     }
 
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws {
-        let existingAccounts = cryptoAccounts.accounts
-        let newAccount = CryptoAccountModelMock(isMainAccount: false)
-        cryptoAccounts = .init(accounts: existingAccounts + [newAccount])
+        cryptoAccounts.append(CryptoAccountModelMock(isMainAccount: false))
     }
 
     func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws {
-        var existingAccounts = cryptoAccounts.accounts
-        existingAccounts.removeAll { $0.id.toPersistentIdentifier() == identifier.toPersistentIdentifier() }
-        cryptoAccounts = .init(accounts: existingAccounts)
-    }
-}
-
-// MARK: - Convenience extensions
-
-private extension CryptoAccounts {
-    var accounts: [any CryptoAccountModel] {
-        switch self {
-        case .single(let account):
-            return [account]
-        case .multiple(let accounts):
-            return accounts
-        }
+        removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier().toAnyHashable())
     }
 }
