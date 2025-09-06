@@ -9,6 +9,8 @@
 import Foundation
 
 /// Represents account identifier that can be converted to a persistent identifier.
-protocol AccountModelPersistentIdentifierConvertible {
-    func toPersistentIdentifier() -> AnyHashable
+protocol AccountModelPersistentIdentifierConvertible where PersistentIdentifier: Hashable {
+    associatedtype PersistentIdentifier
+
+    func toPersistentIdentifier() -> PersistentIdentifier
 }
