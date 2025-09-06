@@ -62,9 +62,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     }
 
     func removeCryptoAccount(withIdentifier identifier: AnyHashable) {
-        storage.remove { storedCryptoAccount in
-            AnyHashable(storedCryptoAccount.derivationIndex) == identifier
-        }
+        storage.removeAll { $0.derivationIndex.toAnyHashable() == identifier }
     }
 }
 
