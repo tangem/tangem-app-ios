@@ -15,6 +15,6 @@ protocol CryptoAccountsPersistentStorage {
     func bind(to storageDidUpdateSubject: StorageDidUpdateSubject)
     func getList() -> [StoredCryptoAccount]
     func appendNewOrUpdateExisting(account: StoredCryptoAccount)
-    func remove(accountUsingPredicate predicate: @escaping (StoredCryptoAccount) -> Bool)
+    func removeAll(where shouldBeRemoved: @escaping (StoredCryptoAccount) -> Bool)
     func removeAll()
 }

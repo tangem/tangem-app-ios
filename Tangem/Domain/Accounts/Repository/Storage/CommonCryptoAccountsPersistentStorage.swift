@@ -73,13 +73,13 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
         }
     }
 
-    func remove(accountUsingPredicate predicate: @escaping (StoredCryptoAccount) -> Bool) {
+    func removeAll(where shouldBeRemoved: @escaping (StoredCryptoAccount) -> Bool) {
         // This combined read-write operation must be atomic, hence the barrier flag
         workingQueue.async(flags: .barrier) {
             let currentItems = self.unsafeFetch()
             var editedItems = currentItems
 
-            editedItems.removeAll(where: predicate)
+            editedItems.removeAll(where: shouldBeRemoved)
             let isDirty = editedItems.count != currentItems.count
 
             if isDirty {
