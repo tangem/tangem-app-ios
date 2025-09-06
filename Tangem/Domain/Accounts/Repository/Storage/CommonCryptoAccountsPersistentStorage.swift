@@ -19,7 +19,7 @@ final class CommonCryptoAccountsPersistentStorage {
     init(storageIdentifier: String) {
         key = .accounts(cid: storageIdentifier)
         workingQueue = DispatchQueue(
-            label: "com.tangem.CommonCryptoAccountsRepository.Storage.workingQueue_\(storageIdentifier)",
+            label: "com.tangem.CommonCryptoAccountsPersistentStorage.workingQueue_\(storageIdentifier)",
             attributes: .concurrent,
             target: .global(qos: .userInitiated)
         )
@@ -36,7 +36,7 @@ final class CommonCryptoAccountsPersistentStorage {
             try persistentStorage.store(value: items, for: key)
             storageDidUpdateSubject?.send()
         } catch {
-            assertionFailure("CommonCryptoAccountsRepository.Storage saving error: \(error)")
+            assertionFailure("CommonCryptoAccountsPersistentStorage saving error: \(error)")
         }
     }
 }
