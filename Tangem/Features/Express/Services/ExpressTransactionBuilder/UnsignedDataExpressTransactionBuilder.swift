@@ -1,16 +1,16 @@
 //
-//  CommonExpressTransactionBuilder.swift
+//  UnsignedDataExpressTransactionBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import BlockchainSdk
 import TangemExpress
 
-struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
+struct UnsignedDataExpressTransactionBuilder: ExpressTransactionBuilder {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private let transactionCreator: TransactionCreator
@@ -39,7 +39,7 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
     }
 }
 
-private extension CommonExpressTransactionBuilder {
+private extension UnsignedDataExpressTransactionBuilder {
     func makeTransaction(_ data: ExpressTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
         var transactionParams: TransactionParams?
 
@@ -98,9 +98,4 @@ private extension CommonExpressTransactionBuilder {
             destination: destination
         )
     }
-}
-
-enum ExpressTransactionBuilderError: LocalizedError {
-    case approveImpossibleInNotEvmBlockchain
-    case transactionDataForSwapOperationNotFound
 }

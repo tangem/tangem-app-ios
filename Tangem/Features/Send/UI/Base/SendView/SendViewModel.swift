@@ -291,6 +291,9 @@ private extension SendViewModel {
                 let builder = try dataBuilder.stakingBuilder()
                 let (emailDataCollector, recipient) = builder.makeMailData(action: stakingTransactionAction, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
+            case .express(let expressTransactionData):
+                // [REDACTED_TODO_COMMENT]
+                assertionFailure("[DEX Solana Express] Need to implement")
             }
         } catch {
             showAlert(error.alertBinder)

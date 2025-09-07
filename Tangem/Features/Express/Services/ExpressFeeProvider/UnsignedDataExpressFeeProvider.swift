@@ -1,5 +1,5 @@
 //
-//  SolanaExpressFeeProvider.swift
+//  UnsignedDataExpressFeeProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import TangemExpress
 import BlockchainSdk
 
-struct SolanaExpressFeeProvider {
+struct UnsignedDataExpressFeeProvider {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private let feeProvider: any WalletModelFeeProvider
@@ -28,7 +28,7 @@ struct SolanaExpressFeeProvider {
 
 // MARK: - ExpressFeeProvider
 
-extension SolanaExpressFeeProvider: ExpressFeeProvider {
+extension UnsignedDataExpressFeeProvider: ExpressFeeProvider {
     func estimatedFee(amount: Decimal) async throws -> ExpressFee.Variants {
         let amount = makeAmount(amount: amount, item: tokenItem)
         let fees = try await feeProvider.estimatedFee(amount: amount).async()
@@ -51,7 +51,7 @@ extension SolanaExpressFeeProvider: ExpressFeeProvider {
 
 // MARK: - Private
 
-private extension SolanaExpressFeeProvider {
+private extension UnsignedDataExpressFeeProvider {
     func makeAmount(amount: Decimal, item: TokenItem) -> Amount {
         Amount(with: item.blockchain, type: item.amountType, value: amount)
     }
