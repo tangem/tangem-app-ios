@@ -85,19 +85,25 @@ class SendWithSwapModel {
 private extension SendWithSwapModel {
     private func bind() {
         Publishers
-            .CombineLatest3(
+            .CombineLatest4(
                 _amount.compactMap { $0?.crypto },
                 _destination.compactMap { $0?.value.transactionAddress },
+                _destinationAdditionalField,
                 _selectedFee.compactMap { $0.value.value }
             )
             .withWeakCaptureOf(self)
             .asyncMap { manager, args -> Result<BSDKTransaction, Error> in
-                let (amount, destination, fee) = args
-
+                let (amount, destination, additionalField, fee) = args
+                
                 do {
-                    return try await .success(
-                        manager.makeTransaction(amountValue: amount, destination: destination, fee: fee)
+                    let transaction = try await manager.makeTransaction(
+                        amountValue: amount,
+                        destination: destination,
+                        additionalField: additionalField,
+                        fee: fee
                     )
+
+                    return .success(transaction)
                 } catch {
                     return .failure(error)
                 }
@@ -137,7 +143,12 @@ private extension SendWithSwapModel {
             .store(in: &bag)
     }
 
-    private func makeTransaction(amountValue: Decimal, destination: String, fee: Fee) async throws -> BSDKTransaction {
+    private func makeTransaction(
+        amountValue: Decimal,
+        destination: String,
+        additionalField: SendDestinationAdditionalField,
+        fee: Fee
+    ) async throws -> BSDKTransaction {
         var amount = makeAmount(decimal: amountValue)
         let includeFee = feeIncludedCalculator.shouldIncludeFee(fee, into: amount)
         _isFeeIncluded.send(includeFee)
@@ -148,7 +159,7 @@ private extension SendWithSwapModel {
 
         var transactionsParams: TransactionParams?
 
-        if case .filled(_, _, let params) = _destinationAdditionalField.value {
+        if case .filled(_, _, let params) = additionalField {
             transactionsParams = params
         }
 
