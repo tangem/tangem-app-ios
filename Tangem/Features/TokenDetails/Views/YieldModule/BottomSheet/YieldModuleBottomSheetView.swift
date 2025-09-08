@@ -57,13 +57,13 @@ struct YieldModuleBottomSheetView: View {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetTitle
         case .startYearing:
-            Localization.yieldModuleStartEarningSheetTitle
+            Localization.yieldModuleStartEarning
         case .feePolicy:
             Localization.yieldModuleFeePolicySheetTitle
         case .approve:
             Localization.yieldModuleApproveSheetTitle
         case .stopEarning:
-            Localization.yieldModuleStopEarningSheetTitle
+            Localization.yieldModuleStopEarning
         case .earnInfo:
             nil
         }
@@ -113,13 +113,13 @@ struct YieldModuleBottomSheetView: View {
         case .rateInfo, .feePolicy:
             .gray(title: Localization.commonGotIt)
         case .startYearing:
-            .blackWithTangemIcon(title: Localization.yieldModuleStartEarningSheetTitle)
+            .blackWithTangemIcon(title: Localization.yieldModuleStartEarning)
         case .approve:
             .blackWithTangemIcon(title: Localization.commonConfirm)
         case .stopEarning:
             .blackWithTangemIcon(title: Localization.commonConfirm)
         case .earnInfo:
-            .gray(title: Localization.yieldModuleStopEarningSheetTitle)
+            .gray(title: Localization.yieldModuleStopEarning)
         }
     }
 
