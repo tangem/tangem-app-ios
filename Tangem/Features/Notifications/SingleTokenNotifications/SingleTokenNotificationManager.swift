@@ -116,11 +116,6 @@ final class SingleTokenNotificationManager {
             }
         }
 
-        // YIELD TODO
-        if false {
-            events.append(makeYieldAvailableNotification())
-        }
-
         events += makeAssetRequirementsNotificationEvents()
 
         let inputs = events.map {
@@ -350,7 +345,7 @@ final class SingleTokenNotificationManager {
     }
 
     private func makeYieldAvailableNotification() -> TokenNotificationEvent {
-        .yieldAvailable(configuration: .init(yieldRate: "5.1"))
+        .yieldAvailable(configuration: .init(apy: "TEST"))
     }
 }
 
