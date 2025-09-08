@@ -203,10 +203,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li provider</string>
         <key>other</key>
-        <string>%li providers</string>
+        <string>%liプロバイダー</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
@@ -219,10 +217,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>up to %li day</string>
         <key>other</key>
-        <string>up to %li days</string>
+        <string>最大%li日</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
