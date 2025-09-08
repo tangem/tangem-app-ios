@@ -151,6 +151,7 @@ private extension UserWalletSettingsViewModel {
         if userWalletModel.config.hasFeature(.cardSettings) {
             cardSettingsViewModel = DefaultRowViewModel(
                 title: Localization.cardSettingsTitle,
+                accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.deviceSettingsButton,
                 action: weakify(self, forFunction: UserWalletSettingsViewModel.openCardSettings)
             )
         }
