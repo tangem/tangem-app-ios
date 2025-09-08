@@ -233,6 +233,7 @@
 "common_finish" = "Завершить";
 "common_free" = "Free";
 "common_generate_addresses" = "Синхронизировать адреса";
+"common_get_started" = "Get started";
 "common_go_to_provider" = "К провайдеру";
 "common_go_to_token" = "Перейти в токен";
 "common_got_it" = "Понятно";
