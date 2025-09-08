@@ -103,7 +103,7 @@ private extension MobileUpgradeCoordinator {
     }
 
     func finish() {
-        dismiss(with: .dismiss)
+        dismiss(with: .finish)
     }
 }
 
@@ -117,5 +117,6 @@ extension MobileUpgradeCoordinator {
 
     enum OutputOptions {
         case dismiss
+        case finish
     }
 }
