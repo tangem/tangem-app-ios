@@ -233,6 +233,7 @@
 "common_finish" = "Terminer";
 "common_free" = "Free";
 "common_generate_addresses" = "Synchroniser les adresses";
+"common_get_started" = "Get started";
 "common_go_to_provider" = "Aller au fournisseur";
 "common_go_to_token" = "Aller au jeton";
 "common_got_it" = "Compris";
