@@ -17,7 +17,9 @@ final class CryptoAccountModelMock {
 
     private(set) var name = "Mock Account" {
         didSet {
-            didChangeSubject.send()
+            if oldValue != name {
+                didChangeSubject.send()
+            }
         }
     }
 
@@ -26,7 +28,9 @@ final class CryptoAccountModelMock {
         color: .allCases.randomElement()!
     ) {
         didSet {
-            didChangeSubject.send()
+            if oldValue != icon {
+                didChangeSubject.send()
+            }
         }
     }
 

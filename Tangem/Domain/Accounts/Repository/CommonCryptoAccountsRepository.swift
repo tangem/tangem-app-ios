@@ -43,6 +43,15 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
                 ),
                 tokenList: tokenItemsRepository.getList()
             ),
+            StoredCryptoAccount(
+                derivationIndex: 1,
+                name: "Test account",
+                icon: .init(
+                    iconName: AccountModel.Icon.Name.airplane.rawValue,
+                    iconColor: AccountModel.Icon.Color.coralRed.rawValue
+                ),
+                tokenList: tokenItemsRepository.getList()
+            ),
         ]
     }
 
