@@ -31,6 +31,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     private weak var sourceTokenInput: SendSourceTokenInput?
     private weak var receiveTokenOutput: SendReceiveTokenOutput?
     private let networks: [TokenItem]
+    private let coin: CoinModel
     private let expressRepository: ExpressRepository
     private let receiveTokenBuilder: SendReceiveTokenBuilder
     private let analyticsLogger: SendReceiveTokensListAnalyticsLogger
@@ -43,6 +44,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenOutput: SendReceiveTokenOutput,
         networks: [TokenItem],
+        coin: CoinModel,
         expressRepository: ExpressRepository,
         receiveTokenBuilder: SendReceiveTokenBuilder,
         analyticsLogger: SendReceiveTokensListAnalyticsLogger,
@@ -51,6 +53,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         self.sourceTokenInput = sourceTokenInput
         self.receiveTokenOutput = receiveTokenOutput
         self.networks = networks
+        self.coin = coin
         self.expressRepository = expressRepository
         self.receiveTokenBuilder = receiveTokenBuilder
         self.analyticsLogger = analyticsLogger
@@ -87,6 +90,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
 
                 await runOnMain { viewModel.state = .success(items) }
             } catch Error.supportedNetworksIsEmpty {
+                viewModel.analyticsLogger.logSendSwapCantSwapThisToken(token: viewModel.coin.symbol)
                 await runOnMain { viewModel.state = .failure(Localization.expressSwapNotSupportedText) }
             } catch {
                 await runOnMain { viewModel.state = .failure(error.localizedDescription) }
