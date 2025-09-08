@@ -56,6 +56,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case openReferralProgram
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
+    case openYieldPromo
 
     var id: Int { hashValue }
 
@@ -119,6 +120,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.hwActivationNeedFinish
         case .openMobileUpgrade:
             return .empty
+        case .openYieldPromo:
+            return Localization.commonGetStarted
         }
     }
 
@@ -154,7 +157,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
-             .openMobileUpgrade:
+             .openMobileUpgrade,
+             .openYieldPromo:
             return nil
         }
     }
@@ -189,7 +193,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupport2Yes,
              .seedSupport2No,
              .openReferralProgram,
-             .addTokenTrustline:
+             .addTokenTrustline,
+             .openYieldPromo:
             return .secondary
         case .openMobileFinishActivation(let needsAttention):
             return needsAttention ? .primary : .secondary
