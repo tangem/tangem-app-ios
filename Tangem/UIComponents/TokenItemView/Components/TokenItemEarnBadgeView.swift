@@ -9,10 +9,10 @@
 import SwiftUI
 import TangemAssets
 import TangemAccessibilityIdentifiers
+import TangemLocalization
 
-// [REDACTED_TODO_COMMENT]
 struct TokenItemEarnBadgeView: View {
-    let percent: String
+    let apy: String
 
     private var background: some View {
         RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Colors.Text.accent.opacity(0.1))
@@ -20,8 +20,7 @@ struct TokenItemEarnBadgeView: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            // [REDACTED_TODO_COMMENT]
-            Text("Earn \(percent)%")
+            Text(Localization.yieldModuleEarnBadge(apy))
                 .style(Fonts.BoldStatic.caption2, color: Colors.Text.accent)
                 .fixedSize(horizontal: true, vertical: false)
                 .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenItemEarnBadge)
