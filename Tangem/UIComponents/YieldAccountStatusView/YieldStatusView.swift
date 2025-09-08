@@ -12,7 +12,6 @@ import TangemUI
 import TangemAssets
 
 struct YieldStatusView: View {
-    
     // MARK: - View State
 
     let status: Status
@@ -26,9 +25,9 @@ struct YieldStatusView: View {
 
     var body: some View {
         switch status {
-        case .processingDeposit:
+        case .processing:
             content
-        case .active(_, _, let tapAction):
+        case .active(_, _, _, let tapAction):
             Button(action: tapAction) {
                 content
             }
@@ -47,7 +46,9 @@ struct YieldStatusView: View {
 
             Spacer()
 
-            chevron
+            if case .active(_, _, let isApproveNeeded, _) = status {
+                trailingView(isApproveNeeded: isApproveNeeded)
+            }
         }
         .defaultRoundedBackground()
     }
@@ -62,44 +63,50 @@ struct YieldStatusView: View {
     private var description: some View {
         HStack(spacing: 4) {
             descriptionText
-            loadingIndicator
+
+            if case .processing = status {
+                loadingIndicator
+            }
         }
     }
 
     @ViewBuilder
     private var loadingIndicator: some View {
-        if case .processingDeposit = status {
-            Circle()
-                .trim(from: 0.0, to: 0.8)
-                .stroke(Colors.Icon.accent, style: StrokeStyle(lineWidth: 2, lineCap: .square))
-                .frame(width: 12, height: 12)
-                .padding(.horizontal, 2)
-                .rotationEffect(.degrees(rotation))
-                .onAppear {
-                    withAnimation(animation) {
-                        rotation = 360.0
-                    }
+        Circle()
+            .trim(from: 0.0, to: 0.8)
+            .stroke(Colors.Icon.accent, style: StrokeStyle(lineWidth: 2, lineCap: .square))
+            .frame(width: 12, height: 12)
+            .padding(.horizontal, 2)
+            .rotationEffect(.degrees(rotation))
+            .onAppear {
+                withAnimation(animation) {
+                    rotation = 360.0
                 }
-        }
+            }
+    }
+
+    @ViewBuilder
+    private var warning: some View {
+        Assets.WalletConnect.yellowWarningCircle.image
+            .frame(size: .init(bothDimensions: 20))
     }
 
     @ViewBuilder
     private var chevron: some View {
-        if case .active = status {
-            Assets.chevronRightWithOffset24.image
-                .renderingMode(.template)
-                .foregroundColor(Colors.Icon.informative)
-        }
+        Assets.chevronRightWithOffset24.image
+            .renderingMode(.template)
+            .foregroundColor(Colors.Icon.informative)
+            .frame(size: .init(bothDimensions: 24))
     }
 
     @ViewBuilder
     private var descriptionText: some View {
         switch status {
-        case .processingDeposit:
+        case .processing:
             Text(Localization.yieldModuleTokenDetailsEarnNotificationProcessing)
                 .style(Fonts.Regular.callout, color: Colors.Text.primary1)
 
-        case .active(let income, let annualYield, _):
+        case .active(let income, let annualYield, _, _):
             HStack(spacing: 4) {
                 Text(income)
                     .style(Fonts.Regular.callout, color: Colors.Text.primary1)
@@ -108,15 +115,26 @@ struct YieldStatusView: View {
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
                 Text(annualYield + "%" + " " + Localization.yieldModuleTokenDetailsEarnNotificationApy)
-                    .style(Fonts.Regular.callout, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.callout, color: Colors.Text.tertiary)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func trailingView(isApproveNeeded: Bool) -> some View {
+        HStack(spacing: 2) {
+            if isApproveNeeded {
+                warning
+            }
+
+            chevron
         }
     }
 }
 
 extension YieldStatusView {
     enum Status {
-        case processingDeposit
-        case active(income: String, annualYield: String, tapAction: () -> Void)
+        case processing
+        case active(income: String, annualYield: String, isApproveNeeded: Bool, tapAction: () -> Void)
     }
 }
