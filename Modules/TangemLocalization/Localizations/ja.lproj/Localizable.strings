@@ -233,6 +233,7 @@
 "common_finish" = "終了";
 "common_free" = "無料";
 "common_generate_addresses" = "アドレスを同期する";
+"common_get_started" = "Get started";
 "common_go_to_provider" = "プロバイダーへ移動";
 "common_go_to_token" = "トークンへ移動";
 "common_got_it" = "わかりました";
