@@ -22,7 +22,7 @@ enum AccountModel {
 // MARK: - Inner types
 
 extension AccountModel {
-    struct Icon {
+    struct Icon: Equatable {
         let name: Name
         let color: Color
     }
@@ -63,5 +63,20 @@ extension AccountModel.Icon {
         case startUp
         case user
         case wallet
+    }
+}
+
+// MARK: - Convenience extensions
+
+extension AccountModel.Icon {
+    init?(rawName: String, rawColor: String) {
+        guard
+            let name = Name(rawValue: rawName),
+            let color = Color(rawValue: rawColor)
+        else {
+            return nil
+        }
+
+        self.init(name: name, color: color)
     }
 }
