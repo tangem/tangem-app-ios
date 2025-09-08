@@ -66,12 +66,3 @@ extension AccountWalletManagersRepositoryAdapter: WalletManagersRepository {
             .eraseToAnyPublisher()
     }
 }
-
-// MARK: - Constants
-
-private extension AccountWalletManagersRepositoryAdapter {
-    enum Constants {
-        static let utxoDerivationNodeIndex = 3
-        static let nonUTXODerivationNodeIndex = 5
-    }
-}
