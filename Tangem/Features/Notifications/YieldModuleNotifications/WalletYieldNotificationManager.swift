@@ -24,7 +24,7 @@ final class WalletYieldNotificationManager {
     // MARK: - Private Implementation
 
     private func show() {
-        let event = MultiWalletNotificationEvent.someTokensNeedApprove
+        let event = MultiWalletNotificationEvent.someTokensNeedYieldApprove
         let input = NotificationsFactory().buildNotificationInput(for: event)
         notificationInputsSubject.send([input])
     }
