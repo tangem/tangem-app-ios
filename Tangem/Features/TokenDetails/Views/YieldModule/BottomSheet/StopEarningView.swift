@@ -31,7 +31,7 @@ extension YieldModuleBottomSheetView {
             attr.font = Fonts.Regular.footnote
             attr.foregroundColor = Colors.Text.tertiary
 
-            var linkPart = AttributedString(Localization.yieldModuleEarnSheetReadMore)
+            var linkPart = AttributedString(Localization.commonReadMore)
             linkPart.font = Fonts.Regular.footnote
             linkPart.foregroundColor = Colors.Text.accent
 
@@ -45,7 +45,7 @@ extension YieldModuleBottomSheetView {
         private var networkFee: some View {
             GroupedSection(FeeModel(fee: fee)) { fee in
                 DefaultRowView(viewModel: .init(
-                    title: Localization.yieldModuleStartEarningSheetNetworkFeeTitle,
+                    title: Localization.yieldModuleStartEarning,
                     detailsType: .text(fee.fee)
                 )
                 )
