@@ -44,7 +44,7 @@ extension YieldModuleBottomSheetView {
 
         private var networkFee: some View {
             GroupedSection(FeeModel(fee: fee)) { fee in
-                DefaultRowView(viewModel: .init(title: Localization.yieldModuleStartEarningSheetNetworkFeeTitle, detailsType: .text(fee.fee)))
+                DefaultRowView(viewModel: .init(title: Localization.yieldModuleStartEarning, detailsType: .text(fee.fee)))
             } footer: {
                 feePolicyText
             }
