@@ -1679,7 +1679,7 @@
 "yield_module_token_details_earn_notification_description" = "Make your money work — earn interest on your balance.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Earning on your balance";
 "yield_module_token_details_earn_notification_processing" = "Processing your deposit";
-"yield_module_token_details_earn_notification_title" = "Earn %1$@% per year";
+"yield_module_token_details_earn_notification_title" = "Earn %1$@%% per year";
 "yield_module_transfer_mode_automatic" = "Automatic";
 "yield_module_unable_to_cover_fee_description" = "Deposit some %1$@ %2$@ to cover the network fee for transactions";
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
