@@ -94,7 +94,7 @@ private extension SendWithSwapModel {
             .withWeakCaptureOf(self)
             .asyncMap { manager, args -> Result<BSDKTransaction, Error> in
                 let (amount, destination, additionalField, fee) = args
-                
+
                 do {
                     let transaction = try await manager.makeTransaction(
                         amountValue: amount,
