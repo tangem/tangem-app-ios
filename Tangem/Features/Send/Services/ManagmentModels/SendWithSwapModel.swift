@@ -793,7 +793,8 @@ extension SendWithSwapModel: NotificationTapDelegate {
              .unlock,
              .addTokenTrustline,
              .openMobileFinishActivation,
-             .openMobileUpgrade:
+             .openMobileUpgrade,
+             .openYieldPromo:
             assertionFailure("Notification tap not handled")
         }
     }
