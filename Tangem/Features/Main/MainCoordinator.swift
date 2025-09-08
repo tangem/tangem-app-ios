@@ -289,7 +289,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         Task { @MainActor in
             let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
                 switch options {
-                case .dismiss:
+                case .dismiss, .finish:
                     self?.mobileUpgradeCoordinator = nil
                 }
             }
