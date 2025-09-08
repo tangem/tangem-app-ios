@@ -79,7 +79,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .maticMigration:
             return .string(Localization.warningMaticMigrationTitle)
         case .yieldAvailable(let configuration):
-            return .string(Localization.yieldModuleTokenDetailsEarnNotificationTitle(configuration.yieldRate))
+            return .string(Localization.yieldModuleTokenDetailsEarnNotificationTitle(configuration.apy))
         }
     }
 
@@ -308,7 +308,7 @@ extension TokenNotificationEvent {
     }
 
     struct YieldAvailableConfiguration: Hashable {
-        let yieldRate: String
+        let apy: String
     }
 }
 
