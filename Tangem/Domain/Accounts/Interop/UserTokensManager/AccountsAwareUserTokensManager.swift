@@ -54,11 +54,9 @@ final class AccountsAwareUserTokensManager {
         let blockchain = tokenItem.blockchain
         let derivationPathHelper = AccountDerivationPathHelper(blockchain: blockchain)
 
-        // The token item already contains derivation, such token items can be added to the main account as is (but in a canonical form)
-        if let tokenItemDerivationPath = tokenItem.blockchainNetwork.derivationPath, isMainAccountManager {
-            let canonicalDerivationPath = derivationPathHelper.canonicalDerivationPath(from: tokenItemDerivationPath)
-
-            return makeTokenItem(from: tokenItem, with: canonicalDerivationPath)
+        // In case when a token item already contains derivation such token item can be added to the main account as is
+        if isMainAccountManager {
+            return makeTokenItem(from: tokenItem, with: tokenItem.blockchainNetwork.derivationPath)
         }
 
         guard let derivationStyle = derivationInfo.derivationStyle else {
@@ -69,11 +67,11 @@ final class AccountsAwareUserTokensManager {
         let originalDerivationPath = blockchain.derivationPath(for: derivationStyle)
 
         // [REDACTED_TODO_COMMENT]
-        let canonicalDerivationPath = originalDerivationPath.map { path in
-            return derivationPathHelper.canonicalDerivationPath(from: path, derivationIndexValue: derivationInfo.derivationIndex)
+        let accountAwareDerivationPath = originalDerivationPath.map { path in
+            return derivationPathHelper.makeDerivationPath(from: path, forAccountWithIndex: derivationInfo.derivationIndex)
         }
 
-        return makeTokenItem(from: tokenItem, with: canonicalDerivationPath)
+        return makeTokenItem(from: tokenItem, with: accountAwareDerivationPath)
     }
 
     private func makeTokenItem(from tokenItem: TokenItem, with derivationPath: DerivationPath?) -> TokenItem {
