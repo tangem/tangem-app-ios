@@ -3211,6 +3211,7 @@
 		EAF8436B2E606AED000F7F5B /* WalletYieldNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF843692E606AED000F7F5B /* WalletYieldNotificationManager.swift */; };
 		EAF8436D2E607F81000F7F5B /* FakeWalletYieldNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF8436C2E607F81000F7F5B /* FakeWalletYieldNotificationManager.swift */; };
 		EAFC9E422E2F8EA2005AE9BF /* XRPAddressValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFC9E412E2F8EA2005AE9BF /* XRPAddressValidationTests.swift */; };
+		EAFDDCA32E6EFC790079F1C7 /* YieldStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFDDCA12E6EFC790079F1C7 /* YieldStatusView.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
 		EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A272C08E65A001535C9 /* StakingCalculator.swift */; };
 		EF031A652C0A32C3001535C9 /* SendGeometryEffectNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */; };
@@ -7322,6 +7323,7 @@
 		EAF843692E606AED000F7F5B /* WalletYieldNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletYieldNotificationManager.swift; sourceTree = "<group>"; };
 		EAF8436C2E607F81000F7F5B /* FakeWalletYieldNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeWalletYieldNotificationManager.swift; sourceTree = "<group>"; };
 		EAFC9E412E2F8EA2005AE9BF /* XRPAddressValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddressValidationTests.swift; sourceTree = "<group>"; };
+		EAFDDCA12E6EFC790079F1C7 /* YieldStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldStatusView.swift; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
 		EF031A272C08E65A001535C9 /* StakingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCalculator.swift; sourceTree = "<group>"; };
 		EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendGeometryEffectNames.swift; sourceTree = "<group>"; };
@@ -11343,6 +11345,7 @@
 				B6FB04E32B1FEED9000BB59E /* StatusBarConfiguration */,
 				5D011A222530776A00758010 /* TOS */,
 				DCE61E3F2B5EDDEC005A8D2E /* Safari */,
+				EAFDDCA22E6EFC790079F1C7 /* YieldAccountStatusView */,
 			);
 			path = UIComponents;
 			sourceTree = "<group>";
@@ -18766,6 +18769,14 @@
 			path = YieldModuleNotifications;
 			sourceTree = "<group>";
 		};
+		EAFDDCA22E6EFC790079F1C7 /* YieldAccountStatusView */ = {
+			isa = PBXGroup;
+			children = (
+				EAFDDCA12E6EFC790079F1C7 /* YieldStatusView.swift */,
+			);
+			path = YieldAccountStatusView;
+			sourceTree = "<group>";
+		};
 		EF031A262C08E64F001535C9 /* StakingCalculator */ = {
 			isa = PBXGroup;
 			children = (
@@ -23346,6 +23357,7 @@
 				DC7D39FD29E024A2007BCD23 /* TangemSdkFactory.swift in Sources */,
 				DA559C3E2B0261F400F59584 /* SendAmountView.swift in Sources */,
 				DC70C01D2B95F189002205BA /* FactorySettingsResettingMock.swift in Sources */,
+				EAFDDCA32E6EFC790079F1C7 /* YieldStatusView.swift in Sources */,
 				B6EAA5F92A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift in Sources */,
 				EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */,
 				B00142BD2D79954A00923B6D /* WalletModelId.swift in Sources */,

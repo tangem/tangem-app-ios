@@ -116,6 +116,11 @@ final class SingleTokenNotificationManager {
             }
         }
 
+        // YIELD TODO
+        if false {
+            events.append(makeYieldAvailableNotification())
+        }
+
         events += makeAssetRequirementsNotificationEvents()
 
         let inputs = events.map {
@@ -342,6 +347,10 @@ final class SingleTokenNotificationManager {
 
     private func hideNotification(_ notification: NotificationViewInput) {
         notificationInputsSubject.value.removeAll { $0 == notification }
+    }
+
+    private func makeYieldAvailableNotification() -> TokenNotificationEvent {
+        .yieldAvailable(configuration: .init(yieldRate: "5.1"))
     }
 }
 
