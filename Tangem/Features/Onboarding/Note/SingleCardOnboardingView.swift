@@ -32,6 +32,7 @@ struct SingleCardOnboardingView: View {
         case .saveUserWallet:
             UserWalletStorageAgreementView(
                 viewModel: viewModel.userWalletStorageAgreementViewModel,
+                source: .backupCard,
                 topInset: -viewModel.progressBarPadding
             )
         case .addTokens:
