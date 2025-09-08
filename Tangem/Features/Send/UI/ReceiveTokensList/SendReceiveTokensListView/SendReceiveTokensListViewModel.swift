@@ -12,7 +12,7 @@ import TangemFoundation
 import TangemExpress
 
 protocol SendReceiveTokensListViewRoutable: AnyObject {
-    func openNetworkSelector(networks: [TokenItem])
+    func openNetworkSelector(coin: CoinModel, networks: [TokenItem])
     func closeTokensList()
 }
 
@@ -130,6 +130,6 @@ class SendReceiveTokensListViewModel: ObservableObject, Identifiable {
     private func openNetworkSelector(coin: CoinModel, items: [TokenItem]) {
         analyticsLogger.logTokenSearched(coin: coin, searchText: searchText.nilIfEmpty)
         isFocused = false
-        router?.openNetworkSelector(networks: items)
+        router?.openNetworkSelector(coin: coin, networks: items)
     }
 }
