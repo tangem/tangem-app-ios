@@ -54,6 +54,12 @@ var serviceModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
+            name: "TangemDS",
+            resources: [
+                .process("Assets"),
+            ]
+        ),
+        .tangemTarget(
             name: "TangemLocalization",
             exclude: ["Templates"],
             resources: [.process("Localizations")]
