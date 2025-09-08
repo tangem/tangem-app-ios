@@ -280,11 +280,11 @@ extension SolanaWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionS
     typealias RawTransaction = RawTransactionData
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
-        try SolanaStakeKitTransactionHelper().prepareForSign(transaction.unsignedData)
+        try SolanaTransactionHelper().prepareForSign(transaction.unsignedData)
     }
 
     func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
-        let signedTransaction = try SolanaStakeKitTransactionHelper().prepareForSend(
+        let signedTransaction = try SolanaTransactionHelper().prepareForSend(
             transaction.unsignedData,
             signature: signature.signature
         )
@@ -301,5 +301,34 @@ extension SolanaWalletManager: StakeKitTransactionDataBroadcaster {
             base64serializedTransaction: rawTransaction.serializedData,
             startSendingTimestamp: rawTransaction.blockhashDate
         ).async()
+    }
+}
+
+// MARK: - CompiledTransactionSender
+
+extension SolanaWalletManager: CompiledTransactionSender {
+    func send(unsigned transaction: Data, signer: any TransactionSigner) async throws -> TransactionSendResult {
+        let helper = SolanaTransactionHelper()
+
+        let transactionHexRaw = transaction.hexString
+        let buildForSign = try helper.prepareForSign(transactionHexRaw)
+
+        let solanaSigner = SolanaTransactionSigner(
+            transactionSigner: signer,
+            walletPublicKey: wallet.publicKey
+        )
+
+        let signature = try await solanaSigner.sign(message: buildForSign)
+        let prepareForSend = try helper.prepareForSend(transactionHexRaw, signature: signature)
+
+        return try await networkService.sendRaw(
+            base64serializedTransaction: prepareForSend,
+            startSendingTimestamp: Date()
+        )
+        .map {
+            TransactionSendResult(hash: $0)
+        }
+        .mapSendTxError()
+        .async()
     }
 }

@@ -15,6 +15,8 @@ class SendTransactionDispatcher {
     private let walletModel: any WalletModel
     private let transactionSigner: TangemSigner
 
+    private let mapper = TransactionDispatcherResultMapper()
+
     init(
         walletModel: any WalletModel,
         transactionSigner: TangemSigner
@@ -28,24 +30,54 @@ class SendTransactionDispatcher {
 
 extension SendTransactionDispatcher: TransactionDispatcher {
     func send(transaction: SendTransactionType) async throws -> TransactionDispatcherResult {
-        guard case .transfer(let transferTransaction) = transaction else {
+        let transactionSendResult: TransactionSendResult
+
+        switch transaction {
+        case .transfer(let transferTransaction):
+            do {
+                transactionSendResult = try await sendTransfer(transaction: transferTransaction)
+            } catch {
+                AppLogger.error(error: error)
+                throw mapper.mapError(error.toUniversalError(), transaction: transaction)
+            }
+        case .staking:
             throw TransactionDispatcherResult.Error.transactionNotFound
+        case .express(let compiledTransaction):
+            do {
+                transactionSendResult = try await sendExpress(transaction: compiledTransaction)
+            } catch {
+                AppLogger.error(error: error)
+                throw mapper.mapError(error.toUniversalError(), transaction: transaction)
+            }
         }
 
-        let mapper = TransactionDispatcherResultMapper()
+        return mapper.mapResult(
+            transactionSendResult,
+            blockchain: walletModel.tokenItem.blockchain,
+            signer: transactionSigner.latestSignerType
+        )
+    }
+}
 
-        do {
-            let hash = try await walletModel.transactionSender.send(transferTransaction, signer: transactionSigner).async()
-            walletModel.updateAfterSendingTransaction()
+// MARK: - Private Implementation
 
-            return mapper.mapResult(
-                hash,
-                blockchain: walletModel.tokenItem.blockchain,
-                signer: transactionSigner.latestSignerType
-            )
-        } catch {
-            AppLogger.error(error: error)
-            throw mapper.mapError(error.toUniversalError(), transaction: transaction)
+private extension SendTransactionDispatcher {
+    func sendTransfer(transaction: BlockchainSdk.Transaction) async throws -> TransactionSendResult {
+        let sendResult = try await walletModel.transactionSender.send(transaction, signer: transactionSigner).async()
+        walletModel.updateAfterSendingTransaction()
+        return sendResult
+    }
+
+    func sendExpress(transaction: ExpressTransactionResult) async throws -> TransactionSendResult {
+        switch transaction {
+        case .default(let transfer):
+            return try await sendTransfer(transaction: transfer)
+        case .unsigned(let unsignedData):
+            guard let sender = walletModel.compiledTransactionSender else {
+                throw TransactionDispatcherResult.Error.actionNotSupported
+            }
+
+            return try await sender.send(unsigned: unsignedData, signer: transactionSigner)
         }
     }
 }

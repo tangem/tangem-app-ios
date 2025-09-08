@@ -99,8 +99,3 @@ private extension CommonExpressTransactionBuilder {
         )
     }
 }
-
-enum ExpressTransactionBuilderError: LocalizedError {
-    case approveImpossibleInNotEvmBlockchain
-    case transactionDataForSwapOperationNotFound
-}

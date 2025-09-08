@@ -1,5 +1,5 @@
 //
-//  UnsignedDataExpressTransactionBuilder.swift
+//  CompiledDataExpressTransactionBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,22 +10,19 @@ import Foundation
 import BlockchainSdk
 import TangemExpress
 
-struct UnsignedDataExpressTransactionBuilder: ExpressTransactionBuilder {
+struct CompiledDataExpressTransactionBuilder: ExpressTransactionBuilder {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private let transactionCreator: TransactionCreator
-    private let ethereumNetworkProvider: EthereumNetworkProvider?
 
     init(
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         transactionCreator: TransactionCreator,
-        ethereumNetworkProvider: EthereumNetworkProvider?
     ) {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.transactionCreator = transactionCreator
-        self.ethereumNetworkProvider = ethereumNetworkProvider
     }
 
     func makeTransaction(data: ExpressTransactionData, fee: Fee) async throws -> ExpressTransactionResult {
@@ -39,7 +36,7 @@ struct UnsignedDataExpressTransactionBuilder: ExpressTransactionBuilder {
     }
 }
 
-private extension UnsignedDataExpressTransactionBuilder {
+private extension CompiledDataExpressTransactionBuilder {
     func makeTransaction(_ data: ExpressTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
         var transactionParams: TransactionParams?
 
@@ -72,17 +69,7 @@ private extension UnsignedDataExpressTransactionBuilder {
     }
 
     func makeApproveTransaction(_ data: ApproveTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
-        guard ethereumNetworkProvider != nil else {
-            throw ExpressTransactionBuilderError.approveImpossibleInNotEvmBlockchain
-        }
-
-        let transaction = try await buildTransaction(
-            amount: 0, // For approve value isn't needed
-            fee: fee,
-            destination: .contractCall(contract: data.toContractAddress, data: data.txData)
-        )
-
-        return transaction
+        throw ExpressTransactionBuilderError.approveImpossibleInNotEvmBlockchain
     }
 
     func buildTransaction(

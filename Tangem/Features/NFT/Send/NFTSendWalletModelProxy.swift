@@ -264,6 +264,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.transactionSender
     }
 
+    var compiledTransactionSender: CompiledTransactionSender? {
+        mainTokenWalletModel.compiledTransactionSender
+    }
+
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? {
         mainTokenWalletModel.ethereumTransactionDataBuilder
     }

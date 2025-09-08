@@ -128,6 +128,8 @@ protocol WalletModelDependenciesProvider {
     var transactionValidator: TransactionValidator { get }
     var transactionSender: TransactionSender { get }
 
+    var compiledTransactionSender: CompiledTransactionSender? { get }
+
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { get }
     var ethereumNetworkProvider: EthereumNetworkProvider? { get }
     var ethereumTransactionSigner: EthereumTransactionSigner? { get }

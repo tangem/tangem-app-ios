@@ -98,6 +98,10 @@ public protocol TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError>
 }
 
+public protocol CompiledTransactionSender {
+    func send(unsigned transaction: Data, signer: TransactionSigner) async throws -> TransactionSendResult
+}
+
 // MARK: - TransactionSigner
 
 public protocol TransactionSigner {

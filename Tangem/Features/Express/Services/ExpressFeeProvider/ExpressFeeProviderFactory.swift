@@ -26,7 +26,7 @@ struct ExpressFeeProviderFactory {
     func make() -> ExpressFeeProvider {
         switch tokenItem.blockchain {
         case .solana:
-            SolanaExpressFeeProvider(tokenItem: tokenItem, feeTokenItem: feeTokenItem, feeProvider: feeProvider)
+            CompiledDataExpressFeeProvider(tokenItem: tokenItem, feeTokenItem: feeTokenItem, feeProvider: feeProvider)
         default:
             CommonExpressFeeProvider(tokenItem: tokenItem, feeTokenItem: feeTokenItem, feeProvider: feeProvider, ethereumNetworkProvider: ethereumNetworkProvider)
         }

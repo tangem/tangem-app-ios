@@ -186,6 +186,7 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var transactionCreator: any TransactionCreator { transactionDependency }
     var transactionValidator: any TransactionValidator { transactionDependency }
     var transactionSender: any TransactionSender { transactionDependency }
+    var compiledTransactionSender: (any CompiledTransactionSender)? { transactionDependency }
     var ethereumTransactionDataBuilder: (any EthereumTransactionDataBuilder)? { nil }
     var ethereumNetworkProvider: (any EthereumNetworkProvider)? { nil }
     var ethereumTransactionSigner: (any EthereumTransactionSigner)? { nil }

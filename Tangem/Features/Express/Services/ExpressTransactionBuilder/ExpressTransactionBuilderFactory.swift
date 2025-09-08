@@ -16,19 +16,28 @@ struct ExpressTransactionBuilderFactory {
     private let transactionCreator: TransactionCreator
     private let ethereumNetworkProvider: EthereumNetworkProvider?
 
-    init(tokenItem: TokenItem, feeTokenItem: TokenItem, feeProvider: any WalletModelFeeProvider, ethereumNetworkProvider: (any EthereumNetworkProvider)?) {
+    init(tokenItem: TokenItem, feeTokenItem: TokenItem, transactionCreator: TransactionCreator, ethereumNetworkProvider: (any EthereumNetworkProvider)?) {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
-        self.feeProvider = feeProvider
+        self.transactionCreator = transactionCreator
         self.ethereumNetworkProvider = ethereumNetworkProvider
     }
 
     func make() -> ExpressTransactionBuilder {
         switch tokenItem.blockchain {
         case .solana:
-            UnsignedDataExpressTransactionBuilder(tokenItem: tokenItem, feeTokenItem: feeTokenItem, feeProvider: feeProvider)
+            CompiledDataExpressTransactionBuilder(
+                tokenItem: tokenItem,
+                feeTokenItem: feeTokenItem,
+                transactionCreator: transactionCreator
+            )
         default:
-            CommonExpressFeeProvider(tokenItem: tokenItem, feeTokenItem: feeTokenItem, feeProvider: feeProvider, ethereumNetworkProvider: ethereumNetworkProvider)
+            CommonExpressTransactionBuilder(
+                tokenItem: tokenItem,
+                feeTokenItem: feeTokenItem,
+                transactionCreator: transactionCreator,
+                ethereumNetworkProvider: ethereumNetworkProvider
+            )
         }
     }
 }
