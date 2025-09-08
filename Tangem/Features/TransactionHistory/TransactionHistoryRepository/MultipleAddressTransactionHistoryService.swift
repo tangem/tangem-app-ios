@@ -139,7 +139,7 @@ private extension MultipleAddressTransactionHistoryService {
         let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, limit: pageSize)
 
         guard let provider = transactionHistoryProviders[address] else {
-            throw ServiceError.unknowProvider
+            throw ServiceError.unknownProvider
         }
 
         return provider
@@ -191,7 +191,7 @@ private extension MultipleAddressTransactionHistoryService {
 
 extension MultipleAddressTransactionHistoryService {
     enum ServiceError: Error {
-        case unknowProvider
+        case unknownProvider
     }
 }
 
