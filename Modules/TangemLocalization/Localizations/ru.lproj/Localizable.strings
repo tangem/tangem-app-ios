@@ -823,7 +823,7 @@
 "onramp_max_amount_restriction" = "Сумма покупки не может быть больше, чем %@";
 "onramp_min_amount_restriction" = "Сумма покупки должна составлять минимум %@";
 "onramp_no_available_providers" = "Нет доступных провайдеров для выбранной валюты";
-"onramp_offer_type_fastet" = "Быстрейший";
+"onramp_offer_type_fastet" = "Самый быстрый";
 "onramp_pay_with" = "Оплата с";
 "onramp_payment_method_subtitle" = "Платежный метод";
 "onramp_provider_max_amount" = "Доступно до %@";
@@ -842,9 +842,9 @@
 "onramp_timing_minutes" = "%@ мин";
 "onramp_title_you_get" = "Вы получите";
 "onramp_transaction_status_footer_text" = "Вы можете закрыть этот экран и проверить статус транзакции на экране информации о токене.";
-"onramp_up_to_rate" = "Up to";
+"onramp_up_to_rate" = "До";
 "onramp_via" = "Через";
-"onramp_you_will_pay_title" = "You will pay";
+"onramp_you_will_pay_title" = "Вы заплатите";
 "organize_tokens_group" = "Группы";
 "organize_tokens_sort_by_balance" = "По балансу";
 "organize_tokens_title" = "Упорядочить токены";
@@ -1679,7 +1679,7 @@
 "yield_module_token_details_earn_notification_description" = "Make your money work — earn interest on your balance.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Earning on your balance";
 "yield_module_token_details_earn_notification_processing" = "Processing your deposit";
-"yield_module_token_details_earn_notification_title" = "Earn %@% per year";
+"yield_module_token_details_earn_notification_title" = "Earn %1$@% per year";
 "yield_module_transfer_mode_automatic" = "Automatic";
 "yield_module_unable_to_cover_fee_description" = "Deposit some %1$@ %2$@ to cover the network fee for transactions";
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
