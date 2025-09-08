@@ -1679,7 +1679,7 @@
 "yield_module_token_details_earn_notification_description" = "あなたの資産を眠らせない — 残高を運用して利息を得ましょう。";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "保有資産から報酬を得る";
 "yield_module_token_details_earn_notification_processing" = "入金の処理中";
-"yield_module_token_details_earn_notification_title" = "年間%@%の収益";
+"yield_module_token_details_earn_notification_title" = "年間%1$@%の収益";
 "yield_module_transfer_mode_automatic" = "自動";
 "yield_module_unable_to_cover_fee_description" = "取引のネットワーク手数料をカバーするために、 %1$@ %2$@を入金してください";
 "yield_module_unable_to_cover_fee_title" = "%@手数料を支払えません";
