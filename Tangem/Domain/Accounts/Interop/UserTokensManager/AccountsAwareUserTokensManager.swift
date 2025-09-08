@@ -1,66 +1,82 @@
 //
-//  CommonUserTokensManager.swift
+//  AccountsAwareUserTokensManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import BlockchainSdk
-import TangemLocalization
-import Combine
 import Foundation
-import TangemFoundation
+import Combine
+import BlockchainSdk
 import TangemSdk
+import TangemFoundation
+import TangemLocalization
 
-@available(iOS, deprecated: 100000.0, message: "Superseded by 'AccountsAwareUserTokensManager', will be removed in the future")
-final class CommonUserTokensManager {
+/// Copy-paste of `CommonUserTokensManager`, but with accounts support.
+final class AccountsAwareUserTokensManager {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
-    let derivationManager: DerivationManager?
     weak var keysDerivingProvider: KeysDerivingProvider?
 
     private let userWalletId: UserWalletId
-    private let shouldLoadExpressAvailability: Bool
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
-    private let derivationStyle: DerivationStyle?
+    private let derivationInfo: DerivationInfo
     private let existingCurves: [EllipticCurve]
-    private let longHashesSupported: Bool
+    private let shouldLoadExpressAvailability: Bool
+    private let areLongHashesSupported: Bool
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
+
+    private var isMainAccountManager: Bool {
+        derivationInfo.derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
+    }
 
     init(
         userWalletId: UserWalletId,
-        shouldLoadExpressAvailability: Bool,
         userTokenListManager: UserTokenListManager,
         walletModelsManager: WalletModelsManager,
-        derivationStyle: DerivationStyle?,
-        derivationManager: DerivationManager?,
+        derivationInfo: DerivationInfo,
         existingCurves: [EllipticCurve],
-        longHashesSupported: Bool
+        shouldLoadExpressAvailability: Bool,
+        areLongHashesSupported: Bool
     ) {
         self.userWalletId = userWalletId
-        self.shouldLoadExpressAvailability = shouldLoadExpressAvailability
         self.userTokenListManager = userTokenListManager
         self.walletModelsManager = walletModelsManager
-        self.derivationStyle = derivationStyle
-        self.derivationManager = derivationManager
+        self.derivationInfo = derivationInfo
         self.existingCurves = existingCurves
-        self.longHashesSupported = longHashesSupported
+        self.shouldLoadExpressAvailability = shouldLoadExpressAvailability
+        self.areLongHashesSupported = areLongHashesSupported
     }
 
     private func withBlockchainNetwork(_ tokenItem: TokenItem) -> TokenItem {
-        // TokenItem already contains derivation
-        guard tokenItem.blockchainNetwork.derivationPath == nil else {
+        let blockchain = tokenItem.blockchain
+        let derivationPathHelper = AccountDerivationPathHelper(blockchain: blockchain)
+
+        // The token item already contains derivation, such token items can be added to the main account as is (but in a canonical form)
+        if let tokenItemDerivationPath = tokenItem.blockchainNetwork.derivationPath, isMainAccountManager {
+            let canonicalDerivationPath = derivationPathHelper.canonicalDerivationPath(from: tokenItemDerivationPath)
+
+            return makeTokenItem(from: tokenItem, with: canonicalDerivationPath)
+        }
+
+        guard let derivationStyle = derivationInfo.derivationStyle else {
+            // [REDACTED_TODO_COMMENT]
             return tokenItem
         }
 
-        // Derivation unsupported
-        guard let derivationStyle else {
-            return tokenItem
+        let originalDerivationPath = blockchain.derivationPath(for: derivationStyle)
+
+        // [REDACTED_TODO_COMMENT]
+        let canonicalDerivationPath = originalDerivationPath.map { path in
+            return derivationPathHelper.canonicalDerivationPath(from: path, derivationIndexValue: derivationInfo.derivationIndex)
         }
 
-        let derivationPath = tokenItem.blockchain.derivationPath(for: derivationStyle)
+        return makeTokenItem(from: tokenItem, with: canonicalDerivationPath)
+    }
+
+    private func makeTokenItem(from tokenItem: TokenItem, with derivationPath: DerivationPath?) -> TokenItem {
         let blockchainNetwork = BlockchainNetwork(tokenItem.blockchain, derivationPath: derivationPath)
 
         switch tokenItem {
@@ -108,10 +124,33 @@ final class CommonUserTokensManager {
     }
 
     private func validateDerivation(for tokenItem: TokenItem) throws {
-        if let derivationPath = tokenItem.blockchainNetwork.derivationPath,
-           tokenItem.blockchain.curve == .ed25519_slip0010,
-           derivationPath.nodes.contains(where: { !$0.isHardened }) {
+        let blockchain = tokenItem.blockchain
+        let derivationPath = tokenItem.blockchainNetwork.derivationPath
+
+        if let derivationPath, blockchain.curve == .ed25519_slip0010, derivationPath.nodes.contains(where: { !$0.isHardened }) {
             throw TangemSdkError.nonHardenedDerivationNotSupported
+        }
+
+        // Token items with custom derivations can be added to the main account as is
+        if isMainAccountManager {
+            return
+        }
+
+        let derivationPathHelper = AccountDerivationPathHelper(blockchain: tokenItem.blockchain)
+
+        guard let derivationNode = derivationPathHelper.extractAccountDerivationNode(from: derivationPath) else {
+            throw Error.derivationPathNotFound(tokenName: tokenItem.name)
+        }
+
+        let expectedDerivationIndex = UInt32(derivationInfo.derivationIndex)
+        let actualDerivationIndex = derivationNode.rawIndex
+
+        if actualDerivationIndex != expectedDerivationIndex {
+            throw Error.accountDerivationNodeMismatch(
+                expected: expectedDerivationIndex,
+                actual: actualDerivationIndex,
+                tokenName: tokenItem.name
+            )
         }
     }
 
@@ -131,7 +170,11 @@ final class CommonUserTokensManager {
 
 // MARK: - UserTokensManager protocol conformance
 
-extension CommonUserTokensManager: UserTokensManager {
+extension AccountsAwareUserTokensManager: UserTokensManager {
+    var derivationManager: DerivationManager? {
+        derivationInfo.derivationManager
+    }
+
     func deriveIfNeeded(completion: @escaping (Result<Void, Swift.Error>) -> Void) {
         guard
             let derivationManager,
@@ -192,7 +235,7 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
-        if AppUtils().hasLongHashesForSend(tokenItem), !longHashesSupported {
+        if AppUtils().hasLongHashesForSend(tokenItem), !areLongHashesSupported {
             throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
@@ -318,7 +361,7 @@ extension CommonUserTokensManager: UserTokensManager {
 
 // MARK: - UserTokensReordering protocol conformance
 
-extension CommonUserTokensManager: UserTokensReordering {
+extension AccountsAwareUserTokensManager: UserTokensReordering {
     var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> {
         return userTokenListManager
             .userTokensListPublisher
@@ -397,9 +440,19 @@ extension CommonUserTokensManager: UserTokensReordering {
     }
 }
 
-extension CommonUserTokensManager {
+// MARK: - Auxiliary types
+
+extension AccountsAwareUserTokensManager {
+    struct DerivationInfo {
+        let derivationIndex: Int
+        let derivationStyle: DerivationStyle?
+        let derivationManager: DerivationManager?
+    }
+
     enum Error: LocalizedError {
         case addressNotFound
+        case derivationPathNotFound(tokenName: String)
+        case accountDerivationNodeMismatch(expected: UInt32, actual: UInt32, tokenName: String)
         case failedSupportedLongHashesTokens(blockchainDisplayName: String)
         case failedSupportedCurve(blockchainDisplayName: String)
 
@@ -410,6 +463,12 @@ extension CommonUserTokensManager {
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
             case .addressNotFound:
+                return Localization.genericErrorCode(errorCode)
+            case .derivationPathNotFound:
+                // [REDACTED_TODO_COMMENT]
+                return Localization.genericErrorCode(errorCode)
+            case .accountDerivationNodeMismatch:
+                // [REDACTED_TODO_COMMENT]
                 return Localization.genericErrorCode(errorCode)
             }
         }
