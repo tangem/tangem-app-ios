@@ -134,7 +134,7 @@ extension AnyWalletManagerFactoryError: UniversalError {
 extension MultipleAddressTransactionHistoryService.ServiceError: UniversalError {
     var errorCode: Int {
         switch self {
-        case .unknowProvider:
+        case .unknownProvider:
             100006000
         }
     }
@@ -149,6 +149,23 @@ extension CommonUserTokensManager.Error: UniversalError {
             100007001
         case .failedSupportedLongHashesTokens:
             100007002
+        }
+    }
+}
+
+extension AccountsAwareUserTokensManager.Error: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .addressNotFound:
+            100011000
+        case .failedSupportedCurve:
+            100011001
+        case .failedSupportedLongHashesTokens:
+            100011002
+        case .derivationPathNotFound:
+            100011003
+        case .accountDerivationNodeMismatch:
+            100011004
         }
     }
 }
