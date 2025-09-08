@@ -21,14 +21,12 @@ struct ExpressInteractorWalletWrapper {
     init(walletModel: any WalletModel) {
         self.walletModel = walletModel
 
-        let expressFeeProviderFactory = ExpressFeeProviderFactory(
+        _feeProvider = CommonExpressFeeProvider(
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             feeProvider: walletModel,
             ethereumNetworkProvider: walletModel.ethereumNetworkProvider
         )
-
-        _feeProvider = expressFeeProviderFactory.make()
 
         _allowanceService = CommonAllowanceService(
             tokenItem: walletModel.tokenItem,

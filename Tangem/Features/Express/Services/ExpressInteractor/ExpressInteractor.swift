@@ -234,6 +234,7 @@ extension ExpressInteractor {
                 guard let provider = await expressManager.getSelectedProvider() else {
                     throw ExpressInteractorError.providerNotFound
                 }
+
                 return try await sendDEXTransaction(state: state, provider: provider.provider)
             }
         }()

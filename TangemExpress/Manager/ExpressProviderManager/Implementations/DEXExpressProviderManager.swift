@@ -166,7 +166,7 @@ private extension DEXExpressProviderManager {
         }
 
         var variants = try await request.pair.source.feeProvider.getFee(
-            amount: .dex(txValue: data.txValue, txData: txData),
+            amount: .dex(fromAmount: request.amount, txValue: data.txValue, txData: txData),
             destination: data.destinationAddress
         )
 

@@ -41,6 +41,7 @@ extension SendTransactionDispatcher: TransactionDispatcher {
                 throw mapper.mapError(error.toUniversalError(), transaction: transaction)
             }
         case .staking:
+            // [REDACTED_TODO_COMMENT]
             throw TransactionDispatcherResult.Error.transactionNotFound
         case .express(let compiledTransaction):
             do {
@@ -72,7 +73,7 @@ private extension SendTransactionDispatcher {
         switch transaction {
         case .default(let transfer):
             return try await sendTransfer(transaction: transfer)
-        case .unsigned(let unsignedData):
+        case .compiled(let unsignedData):
             guard let sender = walletModel.compiledTransactionSender else {
                 throw TransactionDispatcherResult.Error.actionNotSupported
             }

@@ -16,6 +16,9 @@ protocol ExpressTransactionBuilder {
 }
 
 enum ExpressTransactionResult {
+    /// Uncompiled BSDK Transaction for sign
     case `default`(BlockchainSdk.Transaction)
-    case unsigned(Data)
+
+    /// Compiled BSDK Transaction for sign
+    case compiled(Data)
 }

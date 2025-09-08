@@ -29,8 +29,14 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
     }
 
     func makeTransaction(data: ExpressTransactionData, fee: Fee) async throws -> ExpressTransactionResult {
-        let bsdkTransaction = try await makeTransaction(data, fee: fee)
-        return .default(bsdkTransaction)
+        switch (data.transactionType, tokenItem.blockchain) {
+        case (.swap, .solana):
+            let unsignedRawTransaction = try buildSwapCompiledTransactionRaw(with: data, fee: fee)
+            return .compiled(unsignedRawTransaction)
+        case (.send, _), (.swap, _):
+            let bsdkTransaction = try await makeTransaction(data, fee: fee)
+            return .default(bsdkTransaction)
+        }
     }
 
     func makeApproveTransaction(data: ApproveTransactionData, fee: Fee) async throws -> ExpressTransactionResult {
@@ -83,6 +89,23 @@ private extension CommonExpressTransactionBuilder {
         )
 
         return transaction
+    }
+
+    func buildSwapCompiledTransactionRaw(with data: ExpressTransactionData, fee: Fee) throws -> Data {
+        guard let txData = data.txData else {
+            throw ExpressTransactionBuilderError.transactionDataForSwapOperationNotFound
+        }
+
+        switch tokenItem.blockchain {
+        case .solana:
+            if let unsinedData = Data(base64Encoded: txData) {
+                return unsinedData
+            }
+
+            throw ExpressTransactionBuilderError.transactionDataForSwapOperationNotFound
+        default:
+            return Data(hexString: txData)
+        }
     }
 
     func buildTransaction(
