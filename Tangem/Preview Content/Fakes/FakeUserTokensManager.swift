@@ -57,10 +57,6 @@ class FakeUserTokensManager: UserTokensManager {
         false
     }
 
-    func canRemove(_ tokenItem: TokenItem) -> Bool {
-        false
-    }
-
     func remove(_ tokenItem: TokenItem) {}
 
     func sync(completion: @escaping () -> Void) {}
