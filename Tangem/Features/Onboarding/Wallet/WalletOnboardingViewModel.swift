@@ -126,7 +126,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override var mainButtonSettings: MainButton.Settings? {
         switch currentStep {
-        case .createWallet, .pushNotifications, .seedPhraseIntro, .backupCards, .success, .scanPrimaryCard, .mobileUpgrade:
+        case .createWallet, .pushNotifications, .seedPhraseIntro, .backupCards, .success, .scanPrimaryCard, .mobileUpgradeIntro:
             return nil
         default:
             return MainButton.Settings(
@@ -185,7 +185,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override var supplementButtonStyle: MainButton.Style {
         switch currentStep {
-        case .createWallet, .selectBackupCards, .scanPrimaryCard, .backupCards, .success, .mobileUpgrade:
+        case .createWallet, .selectBackupCards, .scanPrimaryCard, .backupCards, .success, .mobileUpgradeIntro:
             return .primary
         default:
             return .secondary
@@ -225,7 +225,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .saveUserWallet, .pushNotifications, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport, .addTokens:
+        case .saveUserWallet, .pushNotifications, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport, .addTokens, .mobileUpgradeBiometrics:
             return true
         default: return false
         }
@@ -463,7 +463,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             goToNextStep()
         case .scanPrimaryCard:
             readPrimaryCard()
-        case .mobileUpgrade:
+        case .mobileUpgradeIntro:
             upgradeMobileWallet()
         default:
             break
