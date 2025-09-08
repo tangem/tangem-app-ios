@@ -956,7 +956,7 @@
 "send_memo" = "Memo: %@";
 "send_network_fee_warning_title" = "Cobertura de tarifa de red";
 "send_nonce_footer" = "Número único para cada transacción. Utilícelo para reenviar o cancelar una transacción pendiente.";
-"send_nonce_hint" = "Introduzca nonce..";
+"send_nonce_hint" = "Introduzca nonce...";
 "send_nonce" = "Nonce";
 "send_notification_exceed_balance_text" = "Fondos insuficientes para la transferencia, ya que el total de la tarifa y el importe de la transferencia supera el saldo existente";
 "send_notification_exceed_balance_title" = "El total supera el saldo";
@@ -1679,7 +1679,7 @@
 "yield_module_token_details_earn_notification_description" = "Make your money work — earn interest on your balance.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Earning on your balance";
 "yield_module_token_details_earn_notification_processing" = "Processing your deposit";
-"yield_module_token_details_earn_notification_title" = "Earn %1$@% per year";
+"yield_module_token_details_earn_notification_title" = "Earn %1$@%% per year";
 "yield_module_transfer_mode_automatic" = "Automatic";
 "yield_module_unable_to_cover_fee_description" = "Deposit some %1$@ %2$@ to cover the network fee for transactions";
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
