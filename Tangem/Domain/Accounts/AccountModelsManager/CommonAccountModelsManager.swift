@@ -12,6 +12,7 @@ import TangemFoundation
 
 actor CommonAccountModelsManager {
     private typealias AccountId = CommonCryptoAccountModel.AccountId
+    private typealias AccountMetadata = (derivationIndex: Int, name: String, icon: AccountModel.Icon)
     private typealias Cache = [AccountId: CommonCryptoAccountModel]
 
     nonisolated var unownedExecutor: UnownedSerialExecutor {
@@ -19,6 +20,8 @@ actor CommonAccountModelsManager {
     }
 
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
+    private let walletModelsManagerFactory: AccountWalletModelsManagerFactory
+    private let userTokensManagerFactory: AccountUserTokensManagerFactory
     private let userWalletId: UserWalletId
     private let executor: any SerialExecutor
 
@@ -28,10 +31,14 @@ actor CommonAccountModelsManager {
 
     init(
         userWalletId: UserWalletId,
-        cryptoAccountsRepository: CryptoAccountsRepository
+        cryptoAccountsRepository: CryptoAccountsRepository,
+        walletModelsManagerFactory: AccountWalletModelsManagerFactory,
+        userTokensManagerFactory: AccountUserTokensManagerFactory
     ) {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
+        self.walletModelsManagerFactory = walletModelsManagerFactory
+        self.userTokensManagerFactory = userTokensManagerFactory
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
     }
@@ -41,37 +48,65 @@ actor CommonAccountModelsManager {
     }
 
     private func makeCryptoAccountModels(
-        from cryptoAccounts: [StoredCryptoAccount],
+        from storedCryptoAccounts: [StoredCryptoAccount],
         cache: inout Cache
     ) -> [any CryptoAccountModel] {
         // [REDACTED_TODO_COMMENT]
         let currentAccountIds = cache.keys.toSet()
+        var storedCryptoAccountsKeyedByAccountIds: [AccountId: StoredCryptoAccount] = [:]
 
-        var newDerivationIndices: [AccountId: Int] = [:]
-        let newAccountIds = cryptoAccounts
-            .map { cryptoAccount in
-                let accountId = AccountId(
-                    userWalletId: userWalletId,
-                    derivationIndex: cryptoAccount.derivationIndex
-                )
-                // Updating `newDerivationIndices` within the `map` loop here to reduce the number of iterations
-                newDerivationIndices[accountId] = cryptoAccount.derivationIndex
+        let newAccountIds = storedCryptoAccounts
+            .compactMap { storedCryptoAccount in
+                let accountId = AccountId(userWalletId: userWalletId, derivationIndex: storedCryptoAccount.derivationIndex)
+
+                // Updating the `storedCryptoAccountsKeyedByAccountIds` dict within this `compactMap` loop to reduce the number of iterations
+                storedCryptoAccountsKeyedByAccountIds[accountId] = storedCryptoAccount
 
                 return accountId
             }
             .toSet()
 
         let removedAccountIds = currentAccountIds.subtracting(newAccountIds)
-        let addedAccountIds = newAccountIds.subtracting(currentAccountIds)
-
         cache.removeAll { removedAccountIds.contains($0.key) }
 
-        return addedAccountIds.map { accountId in
+        return newAccountIds.compactMap { accountId in
+            // Early exit if the account is already created and cached
+            if let cachedAccount = cache[accountId] {
+                return cachedAccount
+            }
+
+            guard let storedCryptoAccount = storedCryptoAccountsKeyedByAccountIds[accountId] else {
+                assertionFailure("Stored crypto account not found for accountId: \(accountId)")
+                return nil
+            }
+
+            guard let accountIcon = AccountModel.Icon(
+                rawName: storedCryptoAccount.icon.iconName,
+                rawColor: storedCryptoAccount.icon.iconColor
+            ) else {
+                assertionFailure("Invalid icon for stored crypto account: \(storedCryptoAccount)")
+                return nil
+            }
+
+            let derivationIndex = storedCryptoAccount.derivationIndex
+            let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
+                forAccountWithDerivationIndex: derivationIndex
+            )
+            let userTokensManager = userTokensManagerFactory.makeUserTokensManager(
+                forAccountWithDerivationIndex: derivationIndex,
+                userWalletId: userWalletId,
+                walletModelsManager: walletModelsManager
+            )
             let cryptoAccount = CommonCryptoAccountModel(
                 userWalletId: userWalletId,
-                derivationIndex: newDerivationIndices[accountId]! // Force unwrapping is safe here since the dict is already populated
+                accountName: storedCryptoAccount.name,
+                accountIcon: accountIcon,
+                derivationIndex: derivationIndex,
+                walletModelsManager: walletModelsManager,
+                userTokensManager: userTokensManager
             )
-            // Updating `cache` within the `map` loop here to reduce the number of iterations
+
+            // Updating `cache` within this `compactMap` loop to reduce the number of iterations
             cache[accountId] = cryptoAccount
 
             return cryptoAccount
@@ -117,9 +152,22 @@ extension CommonAccountModelsManager: AccountModelsManager {
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> any CryptoAccountModel {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]
+        let newDerivationIndex = cryptoAccountsRepository.totalCryptoAccountsCount + 1
+        let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
+            forAccountWithDerivationIndex: newDerivationIndex
+        )
+        let userTokensManager = userTokensManagerFactory.makeUserTokensManager(
+            forAccountWithDerivationIndex: newDerivationIndex,
+            userWalletId: userWalletId,
+            walletModelsManager: walletModelsManager
+        )
         let newCryptoAccount = CommonCryptoAccountModel(
             userWalletId: userWalletId,
-            derivationIndex: cryptoAccountsRepository.totalCryptoAccountsCount + 1
+            accountName: name,
+            accountIcon: icon,
+            derivationIndex: newDerivationIndex,
+            walletModelsManager: walletModelsManager,
+            userTokensManager: userTokensManager
         )
         cryptoAccountsRepository.addCryptoAccount(newCryptoAccount)
 
@@ -155,22 +203,5 @@ private extension CommonAccountModelsManager {
         func asUnownedSerialExecutor() -> UnownedSerialExecutor {
             UnownedSerialExecutor(ordinary: self)
         }
-    }
-}
-
-// MARK: - Temporary convenience extensions
-
-@available(*, deprecated, message: "[REDACTED_TODO_COMMENT]")
-extension CommonAccountModelsManager {
-    init(userWalletId: UserWalletId) {
-        self.init(
-            userWalletId: userWalletId,
-            cryptoAccountsRepository:
-            CommonCryptoAccountsRepository(
-                tokenItemsRepository: CommonTokenItemsRepository(
-                    key: userWalletId.stringValue
-                )
-            )
-        )
     }
 }
