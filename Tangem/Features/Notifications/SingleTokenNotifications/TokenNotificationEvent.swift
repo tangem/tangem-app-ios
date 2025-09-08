@@ -178,7 +178,6 @@ extension TokenNotificationEvent: NotificationEvent {
         case .staking(let tokenIconInfo, _):
             return .init(iconType: .icon(tokenIconInfo))
         case .yieldAvailable:
-            // [REDACTED_TODO_COMMENT]
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         }
     }
