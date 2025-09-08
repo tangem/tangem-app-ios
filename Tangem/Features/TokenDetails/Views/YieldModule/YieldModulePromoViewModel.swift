@@ -66,7 +66,6 @@ final class YieldModulePromoViewModel {
                     tokenName: tokenName
                 )
             )
-
     }
 
     func onHowItWorksTap() {
