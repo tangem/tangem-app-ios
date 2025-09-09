@@ -985,8 +985,8 @@
 "send_qrcode_scan_info" = "Veuillez aligner votre code QR avec le carré pour le scanner. Assurez-vous de scanner l'adresse du réseau %@.";
 "send_recent_transactions" = "Récent";
 "send_recipient_address_error" = "Adresse non valide";
-"send_recipient_address_footer_highlighted_part" = "envoyer à %@";
-"send_recipient_address_footer_v2" = "Assurez-vous de %@ une adresse réseau, car des erreurs peuvent entraîner des transferts perdus";
+"send_recipient_address_footer_highlighted_part" = "%@ une adresse réseau";
+"send_recipient_address_footer_v2" = "Assurez-vous de %@, car des erreurs peuvent entraîner des transferts perdus";
 "send_recipient_address_footer" = "Assurez-vous que l'adresse du portefeuille de réception est sur le réseau %@ pour éviter de perdre vos jetons";
 "send_recipient_label" = "Envoyer à";
 "send_recipient_memo_footer_v2_highlighted" = "Attention : l'absence de Memo peut entraîner une perte de fonds.";
