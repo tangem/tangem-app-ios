@@ -1,0 +1,65 @@
+//
+//  ExpressTransactionDispatcher.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import Combine
+import BlockchainSdk
+import TangemFoundation
+
+class ExpressTransactionDispatcher {
+    private let walletModel: any WalletModel
+    private let transactionSigner: TangemSigner
+    private let sendTransactionDispatcher: TransactionDispatcher
+
+    private let mapper = TransactionDispatcherResultMapper()
+
+    init(
+        walletModel: any WalletModel,
+        transactionSigner: TangemSigner,
+        sendTransactionDispatcher: TransactionDispatcher
+    ) {
+        self.walletModel = walletModel
+        self.transactionSigner = transactionSigner
+        self.sendTransactionDispatcher = sendTransactionDispatcher
+    }
+}
+
+// MARK: - TransactionDispatcher
+
+extension ExpressTransactionDispatcher: TransactionDispatcher {
+    func send(transaction: SendTransactionType) async throws -> TransactionDispatcherResult {
+        guard case .express(let compiledTransaction) = transaction else {
+            throw TransactionDispatcherResult.Error.transactionNotFound
+        }
+
+        switch compiledTransaction {
+        case .compiled(let unsignedData):
+            let transactionSendResult = try await send(unsignedData: unsignedData)
+
+            return mapper.mapResult(
+                transactionSendResult,
+                blockchain: walletModel.tokenItem.blockchain,
+                signer: transactionSigner.latestSignerType
+            )
+        case .default(let transaction):
+            return try await sendTransactionDispatcher.send(transaction: .transfer(transaction))
+        }
+    }
+}
+
+// MARK: - Private Implementation
+
+private extension ExpressTransactionDispatcher {
+    func send(unsignedData: Data) async throws -> TransactionSendResult {
+        guard let sender = walletModel.compiledTransactionSender else {
+            throw TransactionDispatcherResult.Error.actionNotSupported
+        }
+
+        return try await sender.send(unsigned: unsignedData, signer: transactionSigner)
+    }
+}
