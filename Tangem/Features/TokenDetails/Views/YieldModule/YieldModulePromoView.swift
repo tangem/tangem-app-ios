@@ -36,7 +36,7 @@ struct YieldModulePromoView: View {
     }
 
     private var title: some View {
-        Text(Localization.yieldModulePromoScreenTitle(viewModel.annualYield))
+        Text(Localization.yieldModulePromoScreenTitle(viewModel.apy))
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
     }
 

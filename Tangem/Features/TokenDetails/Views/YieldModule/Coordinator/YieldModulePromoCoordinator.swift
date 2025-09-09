@@ -31,13 +31,11 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         rootViewModel = .init(
-            tokenName: options.tokenName,
-            annualYield: options.annualYield.formatted(),
+            walletModel: options.walletModel,
+            apy: options.apy,
             lastYearReturns: options.lastYearReturns,
-            tokenImage: options.tokenImage,
-            networkFee: options.currentFee,
-            maximumFee: options.maxFee,
-            blockchainName: options.blockchainName,
+            networkFee: options.networkFee,
+            maximumFee: options.maximumFee,
             coordinator: self
         )
     }
@@ -65,13 +63,10 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 
 extension YieldModulePromoCoordinator {
     struct Options {
-        let tokenName: String
-        let startEarningAction: () -> Void
-        let annualYield: Double
-        let currentFee: Double
-        let maxFee: Double
-        let blockchainName: String
+        let walletModel: any WalletModel
+        let apy: String
+        let networkFee: Decimal
+        let maximumFee: Decimal
         let lastYearReturns: [String: Double]
-        let tokenImage: Image
     }
 }

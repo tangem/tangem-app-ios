@@ -122,18 +122,15 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
-    func openYieldModulePromoView(startEarningAction: @escaping () -> Void, info: YieldModulePromoInfo) {
+    func openYieldModulePromoView(walletModel: any WalletModel, info: YieldModuleInfo) {
         let coordinator = YieldModulePromoCoordinator()
 
         let options = YieldModulePromoCoordinator.Options(
-            tokenName: info.tokenName,
-            startEarningAction: startEarningAction,
-            annualYield: info.annualYield,
-            currentFee: info.currentFee,
-            maxFee: info.maxFee,
-            blockchainName: info.blockchainName,
+            walletModel: walletModel,
+            apy: info.apy,
+            networkFee: info.networkFee,
+            maximumFee: info.maximumFee,
             lastYearReturns: info.lastYearReturns,
-            tokenImage: info.tokenImage
         )
 
         coordinator.start(with: options)
