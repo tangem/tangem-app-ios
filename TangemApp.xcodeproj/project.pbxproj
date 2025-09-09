@@ -1161,6 +1161,7 @@
 		B600F4E02C50F7D8008E53FE /* LineChartViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B600F4DD2C50F7D7008E53FE /* LineChartViewData.swift */; };
 		B600F4E12C50F7D8008E53FE /* LineChartViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B600F4DE2C50F7D8008E53FE /* LineChartViewWrapper.swift */; };
 		B600F4E22C50F7D8008E53FE /* LineChartViewConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B600F4DF2C50F7D8008E53FE /* LineChartViewConfigurator.swift */; };
+		B6016CEB2E6FC3EC0069A8BE /* AccountModelsManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6016CEA2E6FC3EC0069A8BE /* AccountModelsManagerError.swift */; };
 		B601D3852D42ECEB002694AE /* PerformanceTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B601D3842D42ECEB002694AE /* PerformanceTracker.swift */; };
 		B60275292A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60275282A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift */; };
 		B602752B2A7A651000865EA7 /* ShadowAnimatableModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B602752A2A7A651000865EA7 /* ShadowAnimatableModifier.swift */; };
@@ -5326,6 +5327,7 @@
 		B600F4DD2C50F7D7008E53FE /* LineChartViewData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartViewData.swift; sourceTree = "<group>"; };
 		B600F4DE2C50F7D8008E53FE /* LineChartViewWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartViewWrapper.swift; sourceTree = "<group>"; };
 		B600F4DF2C50F7D8008E53FE /* LineChartViewConfigurator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartViewConfigurator.swift; sourceTree = "<group>"; };
+		B6016CEA2E6FC3EC0069A8BE /* AccountModelsManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountModelsManagerError.swift; sourceTree = "<group>"; };
 		B601D3842D42ECEB002694AE /* PerformanceTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceTracker.swift; sourceTree = "<group>"; };
 		B60275282A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CornerRadiusAnimatableModifier.swift; sourceTree = "<group>"; };
 		B602752A2A7A651000865EA7 /* ShadowAnimatableModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowAnimatableModifier.swift; sourceTree = "<group>"; };
@@ -15319,6 +15321,7 @@
 			isa = PBXGroup;
 			children = (
 				B6B436952E3C364300006FA7 /* AccountModelsManager.swift */,
+				B6016CEA2E6FC3EC0069A8BE /* AccountModelsManagerError.swift */,
 				B6B436B32E3C3CE600006FA7 /* CommonAccountModelsManager.swift */,
 				B6BFDB692E43C13500021D8D /* DummyCommonAccountModelsManager.swift */,
 			);
@@ -24634,6 +24637,7 @@
 				EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */,
 				B6FB04E92B1FEF4E000BB59E /* StatusBarStyleConfiguratorWeakifyAdapter.swift in Sources */,
 				B0ED3F042C3D6F0300311DE2 /* DecimalRoundingUtility.swift in Sources */,
+				B6016CEB2E6FC3EC0069A8BE /* AccountModelsManagerError.swift in Sources */,
 				DCBE4CF82CCA0E2B00855904 /* ActionButtonView.swift in Sources */,
 				B67263402C7FC49C00F120E6 /* TokenItemPriceFormatter.swift in Sources */,
 				DC7127B12897ECDF00F60F71 /* LegacyConfig.swift in Sources */,
