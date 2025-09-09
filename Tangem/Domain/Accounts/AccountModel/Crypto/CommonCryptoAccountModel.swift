@@ -103,7 +103,7 @@ extension CommonCryptoAccountModel: Identifiable {
 
 extension CommonCryptoAccountModel: CryptoAccountModel {
     var isMainAccount: Bool {
-        derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
+        AccountModelUtils.isMainAccount(derivationIndex)
     }
 
     var didChangePublisher: AnyPublisher<Void, Never> {

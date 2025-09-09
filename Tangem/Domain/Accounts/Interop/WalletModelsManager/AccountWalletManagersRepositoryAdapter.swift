@@ -17,7 +17,7 @@ final class AccountWalletManagersRepositoryAdapter {
     private let walletManagersRepository: WalletManagersRepository
 
     private var isMainAccountAdapter: Bool {
-        derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
+        AccountModelUtils.isMainAccount(derivationIndex)
     }
 
     init(
