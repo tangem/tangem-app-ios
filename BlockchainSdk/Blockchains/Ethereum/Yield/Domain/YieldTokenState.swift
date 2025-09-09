@@ -32,4 +32,17 @@ public enum YieldTokenState {
         case notActive
         case active(maxNetworkFee: BigUInt)
     }
+
+    public var isActive: Bool {
+        switch self {
+        case .notDeployed:
+            return false
+        case .deployed(let deployedState):
+            if case .initialized(.active) = deployedState.initializationState {
+                return true
+            } else {
+                return false
+            }
+        }
+    }
 }
