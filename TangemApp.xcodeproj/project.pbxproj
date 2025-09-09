@@ -32269,8 +32269,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/Solana.Swift.git";
 			requirement = {
-				kind = exactVersion;
-				version = "1.2.0-tangem15";
+				branch = "feature/IOS-10943_add_extended_flag_changes";
+				kind = branch;
 			};
 		};
 		B6DB40D22E142F260023A90A /* XCRemoteSwiftPackageReference "grpc-swift" */ = {
