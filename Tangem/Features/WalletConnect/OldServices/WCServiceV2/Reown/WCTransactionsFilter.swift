@@ -25,7 +25,7 @@ final actor WCTransactionsFilter {
         if let ts = recent[request], now.timeIntervalSince(ts) < window {
             return false
         }
-
+      
         recent[request] = now
         return true
     }
