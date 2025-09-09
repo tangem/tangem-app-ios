@@ -985,8 +985,8 @@
 "send_qrcode_scan_info" = "Пожалуйста, совместите свой QR-код с квадратом, чтобы отсканировать его. Убедитесь, что вы сканируете адрес в сети %@.";
 "send_recent_transactions" = "Последние";
 "send_recipient_address_error" = "Неверный адрес";
-"send_recipient_address_footer_highlighted_part" = "send to %@";
-"send_recipient_address_footer_v2" = "Убедитесь, что отправляете на адрес в сети %@, ошибки могут привести к потере средств.";
+"send_recipient_address_footer_highlighted_part" = "в сети %@";
+"send_recipient_address_footer_v2" = "Убедитесь, что отправляете на адрес %@, ошибки могут привести к потере средств.";
 "send_recipient_address_footer" = "Убедитесь, что вы отправляете средства на адрес кошелька %@. Ошибки могут привести к потере ваших токенов.";
 "send_recipient_label" = "Отправить";
 "send_recipient_memo_footer_v2_highlighted" = "Внимание: отсутствие Memo может привести к потере средств.";
