@@ -60,7 +60,6 @@ final class AccountsAwareUserTokensManager {
         }
 
         guard let derivationStyle = derivationInfo.derivationStyle else {
-            // [REDACTED_TODO_COMMENT]
             return tokenItem
         }
 
