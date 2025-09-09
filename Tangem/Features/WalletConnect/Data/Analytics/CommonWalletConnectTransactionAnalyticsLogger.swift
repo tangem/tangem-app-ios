@@ -9,6 +9,7 @@
 final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransactionAnalyticsLogger {
     func logSignatureRequestReceived(transactionData: WCHandleTransactionData, simulationState: TransactionSimulationState) {
         let emulationStatus: Analytics.ParameterValue
+        let simulationResult = getSimulationResult(from: simulationState)
         var simulationResult: Analytics.ParameterValue = .unknown
 
         switch simulationState {
@@ -37,13 +38,16 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
         Analytics.log(event: signatureRequestReceivedEvent, params: signatureRequestReceivedParams)
     }
 
-    func logSignatureRequestHandled(transactionData: WCHandleTransactionData) {
+    func logSignatureRequestHandled(transactionData: WCHandleTransactionData, simulationState: TransactionSimulationState) {
         let event = Analytics.Event.walletConnectSignatureRequestHandled
+        let simulationResult = getSimulationResult(from: simulationState)
+        
         let params: [Analytics.ParameterKey: String] = [
             .methodName: transactionData.method.rawValue,
             .walletConnectDAppName: transactionData.dAppData.name,
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
             .walletConnectBlockchain: transactionData.blockchain.displayName,
+            .commonType: simulationResult.rawValue
         ]
 
         Analytics.log(event: event, params: params)
@@ -81,6 +85,14 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
 
     func logCancelButtonTapped() {
         Analytics.log(.walletConnectCancelButtonTapped, params: [.commonType: .sign])
+    }
+    
+    private func getSimulationResult(from simulationState: TransactionSimulationState) -> Analytics.ParameterValue {
+        if case .simulationSucceeded(let result) = simulationState {
+            return result.validationStatus?.analyticsTypeValue ?? .unknown
+        }
+        
+        return .unknown
     }
 }
 
