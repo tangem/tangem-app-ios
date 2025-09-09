@@ -423,16 +423,8 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 extension TokenDetailsViewModel {
     func openYieldModulePromo() {
         coordinator?.openYieldModulePromoView(
-            startEarningAction: {},
-            info: .init(
-                tokenName: walletModel.tokenItem.name,
-                annualYield: 5.1,
-                currentFee: 1.5,
-                maxFee: 2,
-                blockchainName: walletModel.tokenItem.networkId,
-                lastYearReturns: [:],
-                tokenImage: NetworkImageProvider().provide(by: walletModel.tokenItem.blockchain, filled: true).image
-            )
+            walletModel: walletModel,
+            info: .init(apy: "5.1", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
         )
     }
 }
