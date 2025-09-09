@@ -13,6 +13,18 @@ import TangemFoundation
 
 protocol TransactionDispatcher {
     func send(transaction: SendTransactionType) async throws -> TransactionDispatcherResult
+    func send(transactions: [SendTransactionType]) async throws -> [TransactionDispatcherResult]
+}
+
+extension TransactionDispatcher {
+    func send(transactions: [SendTransactionType]) async throws -> [TransactionDispatcherResult] {
+        var results = [TransactionDispatcherResult]()
+        for transaction in transactions {
+            results.append(try await send(transaction: transaction))
+        }
+
+        return results
+    }
 }
 
 struct TransactionDispatcherResult: Hashable {
