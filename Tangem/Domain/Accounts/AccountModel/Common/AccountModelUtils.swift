@@ -29,6 +29,14 @@ enum AccountModelUtils {
     }
 }
 
+// MARK: - Convenience extensions
+
+extension AccountModelUtils {
+    static func isMainAccount(_ derivationIndex: UInt32) -> Bool {
+        isMainAccount(Int(derivationIndex))
+    }
+}
+
 // MARK: - Constants
 
 private extension AccountModelUtils {
