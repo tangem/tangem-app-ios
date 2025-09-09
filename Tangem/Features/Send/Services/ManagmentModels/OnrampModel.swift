@@ -22,7 +22,7 @@ class OnrampModel {
     // MARK: - Data
 
     private let _currency: CurrentValueSubject<LoadingResult<OnrampFiatCurrency, Error>, Never>
-    private let _amount: CurrentValueSubject<Decimal?, Never> = .init(.none)
+    private let _amount: CurrentValueSubject<Decimal?, Never>
     private let _onrampProviders: CurrentValueSubject<LoadingResult<ProvidersList, Error>?, Never> = .init(.none)
     private let _selectedOnrampProvider: CurrentValueSubject<LoadingResult<OnrampProvider, Never>?, Never> = .init(.none)
     private let _isLoading: CurrentValueSubject<Bool, Never> = .init(false)
@@ -55,7 +55,8 @@ class OnrampModel {
         onrampManager: OnrampManager,
         onrampDataRepository: OnrampDataRepository,
         onrampRepository: OnrampRepository,
-        analyticsLogger: OnrampSendAnalyticsLogger
+        analyticsLogger: OnrampSendAnalyticsLogger,
+        predefinedValues: PredefinedValues,
     ) {
         self.userWalletId = userWalletId
         self.walletModel = walletModel
@@ -64,6 +65,7 @@ class OnrampModel {
         self.onrampRepository = onrampRepository
         self.analyticsLogger = analyticsLogger
 
+        _amount = .init(predefinedValues.amount)
         _currency = .init(
             onrampRepository.preferenceCurrency.map { .success($0) } ?? .loading
         )
@@ -383,6 +385,10 @@ private extension OnrampModel {
 // MARK: - OnrampAmountInput
 
 extension OnrampModel: OnrampAmountInput {
+    var amount: Decimal? {
+        _amount.value
+    }
+
     var amountPublisher: AnyPublisher<Decimal?, Never> {
         _amount.eraseToAnyPublisher()
     }
@@ -652,5 +658,11 @@ extension OnrampModel {
             case success
             case cancel
         }
+    }
+}
+
+extension OnrampModel {
+    struct PredefinedValues: Hashable {
+        let amount: Decimal?
     }
 }
