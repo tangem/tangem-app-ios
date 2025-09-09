@@ -10,4 +10,9 @@ import Foundation
 
 public enum YieldServiceError: Error {
     case unableToParseData
+    case feeNotFound
+    case balanceNotFound
+    case yieldIsAlreadyActive
+    case inconsistentState
+    case yieldIsNotActive
 }
