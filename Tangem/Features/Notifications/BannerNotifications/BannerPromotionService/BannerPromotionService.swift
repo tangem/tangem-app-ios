@@ -46,12 +46,12 @@ enum BannerPromotionPlacement {
 }
 
 enum PromotionProgramName: String, Hashable, CaseIterable {
-    case ring
+    case sepa
 
     var analyticsValue: Analytics.ParameterValue {
         switch self {
-        case .ring:
-            return Analytics.ParameterValue.ring
+        case .sepa:
+            return Analytics.ParameterValue.sepa
         }
     }
 }
