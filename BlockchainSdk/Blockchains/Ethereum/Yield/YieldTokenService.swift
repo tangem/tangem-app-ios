@@ -11,17 +11,15 @@ import BigInt
 
 public protocol YieldTokenService {
     func getAPY(for contractAddress: String) async throws -> Decimal
+    func calculateYieldAddress(for address: String) async throws -> String
     func getYieldTokenState(for address: String, contractAddress: String) async throws -> YieldTokenState
-    func getYieldBalances(for yieldToken: String, contractAddress: String) async throws -> YieldBalances
+    func getYieldBalances(
+        for yieldToken: String,
+        tokens: [Token]
+    ) async throws -> [Token: Result<YieldBalances?, Error>]
 }
 
-public final class CommonYieldTokenService: YieldTokenService {
-    private let evmSmartContractInteractor: EVMSmartContractInteractor
-
-    public init(evmSmartContractInteractor: EVMSmartContractInteractor) {
-        self.evmSmartContractInteractor = evmSmartContractInteractor
-    }
-
+extension EthereumNetworkService: YieldTokenService {
     public func getAPY(for contractAddress: String) async throws -> Decimal {
         let supplyAPYMethod = ReservedDataMethod(contractAddress: contractAddress)
 
@@ -30,7 +28,7 @@ public final class CommonYieldTokenService: YieldTokenService {
             method: supplyAPYMethod
         )
 
-        async let supplyAPYResult = evmSmartContractInteractor.ethCall(request: supplyAPYRequest).async()
+        async let supplyAPYResult = ethCall(request: supplyAPYRequest).async()
 
         let serviceFeeRateMethod = ServiceFeeRateMethod()
 
@@ -39,7 +37,7 @@ public final class CommonYieldTokenService: YieldTokenService {
             method: serviceFeeRateMethod
         )
 
-        async let serviceFeeRateResult = evmSmartContractInteractor.ethCall(
+        async let serviceFeeRateResult = ethCall(
             request: serviceFeeRateRequest
         ).async()
 
@@ -49,6 +47,21 @@ public final class CommonYieldTokenService: YieldTokenService {
         let serviceFeeRate = try YieldResponseMapper.mapFeeRate(serviceFeeRateData)
 
         return supplyAPYPercent * (1 - serviceFeeRate)
+    }
+
+    func calculateYieldAddress(for address: String) async throws -> String {
+        let method = CalculateYieldModuleAddressMethod(sourceAddress: address)
+
+        let request = YieldSmartContractRequest(
+            contractAddress: YieldConstants.yieldModuleFactoryContractAddress,
+            method: method
+        )
+
+        let result = try await ethCall(request: request).async()
+
+        let resultNoHex = result.removeHexPrefix()
+
+        return resultNoHex.stripLeadingZeroes().addHexPrefix()
     }
 
     public func getYieldTokenState(for address: String, contractAddress: String) async throws -> YieldTokenState {
@@ -74,7 +87,39 @@ public final class CommonYieldTokenService: YieldTokenService {
         }
     }
 
-    public func getYieldBalances(for yieldToken: String, contractAddress: String) async throws -> YieldBalances {
+    func getYieldBalances(
+        for yieldToken: String,
+        tokens: [Token]
+    ) async throws -> [Token: Result<YieldBalances?, Error>] {
+        try await withThrowingTaskGroup(of: (Token, Result<YieldBalances?, Error>).self) { [weak self] group in
+            var result = [Token: Result<YieldBalances?, Error>]()
+            tokens.forEach { token in
+                group.addTask {
+                    do {
+                        try Task.checkCancellation()
+                        guard let self else {
+                            throw CancellationError()
+                        }
+                        let result = try await self.getYieldBalances(
+                            for: yieldToken,
+                            contractAddress: token.contractAddress
+                        )
+                        return (token, .success(result))
+                    } catch {
+                        return (token, .failure(error))
+                    }
+                }
+            }
+
+            for try await res in group {
+                result[res.0] = res.1
+            }
+
+            return result
+        }
+    }
+
+    private func getYieldBalances(for yieldToken: String, contractAddress: String) async throws -> YieldBalances {
         let effectiveMethod = EffectiveBalanceMethod(yieldTokenAddress: contractAddress)
 
         let effectiveRequest = YieldSmartContractRequest(
@@ -89,8 +134,8 @@ public final class CommonYieldTokenService: YieldTokenService {
             method: protocolMethod
         )
 
-        async let effectiveBalance = evmSmartContractInteractor.ethCall(request: effectiveRequest).async()
-        async let protocolBalance = evmSmartContractInteractor.ethCall(request: protocolRequest).async()
+        async let effectiveBalance = ethCall(request: effectiveRequest).async()
+        async let protocolBalance = ethCall(request: protocolRequest).async()
 
         return try await YieldResponseMapper.mapBalances(
             protocolBalance: protocolBalance,
@@ -106,7 +151,7 @@ public final class CommonYieldTokenService: YieldTokenService {
             method: method
         )
 
-        let result = try await evmSmartContractInteractor.ethCall(request: request).async()
+        let result = try await ethCall(request: request).async()
 
         let resultNoHex = result.removeHexPrefix()
         if resultNoHex.isEmpty || BigUInt(resultNoHex) == 0 {
@@ -124,7 +169,7 @@ public final class CommonYieldTokenService: YieldTokenService {
             method: method
         )
 
-        let tokenData = try await evmSmartContractInteractor.ethCall(request: request).async()
+        let tokenData = try await ethCall(request: request).async()
 
         return try YieldResponseMapper.mapTokenData(tokenData)
     }
