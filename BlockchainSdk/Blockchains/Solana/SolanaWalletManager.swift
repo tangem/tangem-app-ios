@@ -307,7 +307,7 @@ extension SolanaWalletManager: StakeKitTransactionDataBroadcaster {
 // MARK: - CompiledTransactionSender
 
 extension SolanaWalletManager: CompiledTransactionSender {
-    func send(unsigned rawTransaction: Data, signer: any TransactionSigner) async throws -> TransactionSendResult {
+    func send(unsigned data: Data, signer: any TransactionSigner) async throws -> TransactionSendResult {
         guard let walletPublicKey = SolanaSwift.PublicKey(data: wallet.publicKey.blockchainKey) else {
             throw BlockchainSdkError.failedToBuildTx
         }
@@ -320,7 +320,7 @@ extension SolanaWalletManager: CompiledTransactionSender {
         let transaction: VersionedTransaction
 
         do {
-            transaction = try VersionedTransaction.deserialize(data: rawTransaction)
+            transaction = try VersionedTransaction.deserialize(data: data, isIncludeSignature: true)
         } catch {
             BSDKLogger.error(error: error)
             throw error
