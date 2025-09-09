@@ -125,7 +125,6 @@ struct SendView: View {
 
                 HideKeyboardButton(focused: $focused)
             }
-            .infinityFrame(axis: .horizontal)
         }
     }
 
