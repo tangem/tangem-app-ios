@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "sepa_banner_image.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

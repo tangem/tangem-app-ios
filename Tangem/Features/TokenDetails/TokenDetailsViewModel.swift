@@ -145,7 +145,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
-             .openMobileUpgrade:
+             .openMobileUpgrade,
+             .openBuyCrypto:
             super.didTapNotification(with: id, action: action)
         }
     }
