@@ -121,6 +121,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             openFeeCurrency()
         case .swap:
             openExchange()
+        case .openYieldPromo:
+            openYieldModulePromo()
         case .generateAddresses,
              .backupCard,
              .buyCrypto,
@@ -145,8 +147,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
-             .openMobileUpgrade,
-             .openYieldPromo:
+             .openMobileUpgrade:
             super.didTapNotification(with: id, action: action)
         }
     }
