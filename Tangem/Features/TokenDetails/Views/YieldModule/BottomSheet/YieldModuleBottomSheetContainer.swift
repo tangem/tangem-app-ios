@@ -12,18 +12,21 @@ import TangemAssets
 
 extension YieldModuleBottomSheetView {
     struct SheetContainer<SubtitleFooter: View, BodyContent: View, ToolBarTitle: View, TopContent: View>: View {
-        // MARK: - Slots
+        // MARK: - Properties
 
-        private let topContent: () -> TopContent
         private let title: String?
         private let subtitle: String?
-        private let subtitleFooter: () -> SubtitleFooter
-        private let content: () -> BodyContent
-        private let toolBarTitle: () -> ToolBarTitle
 
-        // MARK: - Actions & UI
+        // MARK: - UI
 
+        private let topContent: TopContent
+        private let subtitleFooter: SubtitleFooter
+        private let content: BodyContent
+        private let toolBarTitle: ToolBarTitle
         private let buttonStyle: CallToActionButtonStyle
+
+        // MARK: - Actions
+
         private let closeAction: (() -> Void)?
         private let backAction: (() -> Void)?
         private let buttonAction: () -> Void
@@ -35,21 +38,23 @@ extension YieldModuleBottomSheetView {
             title: String? = nil,
             subtitle: String? = nil,
             buttonStyle: CallToActionButtonStyle,
-            @ViewBuilder toolBarTitle: @escaping () -> ToolBarTitle = { EmptyView() },
-            @ViewBuilder topContent: @escaping () -> TopContent = { EmptyView() },
-            @ViewBuilder subtitleFooter: @escaping () -> SubtitleFooter = { EmptyView() },
-            @ViewBuilder content: @escaping () -> BodyContent = { EmptyView() },
+            @ViewBuilder toolBarTitle: () -> ToolBarTitle = { EmptyView() },
+            @ViewBuilder topContent: () -> TopContent = { EmptyView() },
+            @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
+            @ViewBuilder content: () -> BodyContent = { EmptyView() },
             closeAction: (() -> Void)? = nil,
             backAction: (() -> Void)? = nil,
             buttonAction: @escaping () -> Void,
             horizontalPadding: CGFloat
         ) {
-            self.topContent = topContent
+            // вычисляем и сохраняем View один раз
+            self.toolBarTitle = toolBarTitle()
+            self.topContent = topContent()
+            self.subtitleFooter = subtitleFooter()
+            self.content = content()
+
             self.title = title
             self.subtitle = subtitle
-            self.subtitleFooter = subtitleFooter
-            self.content = content
-            self.toolBarTitle = toolBarTitle
             self.buttonStyle = buttonStyle
             self.closeAction = closeAction
             self.backAction = backAction
@@ -64,7 +69,7 @@ extension YieldModuleBottomSheetView {
                 VStack(spacing: .zero) {
                     toolBar.padding(.bottom, 20)
 
-                    topContent().padding(.bottom, 28)
+                    topContent.padding(.bottom, 28)
 
                     titleView
                         .padding(.horizontal, 16)
@@ -74,9 +79,9 @@ extension YieldModuleBottomSheetView {
                         .padding(.horizontal, 16)
                         .padding(.bottom, 24)
 
-                    subtitleFooter().padding(.bottom, 24)
+                    subtitleFooter.padding(.bottom, 24)
 
-                    content().padding(.bottom, 24)
+                    content.padding(.bottom, 24)
 
                     bottomButton
                 }
@@ -118,7 +123,7 @@ extension YieldModuleBottomSheetView {
             .overlay {
                 HStack {
                     Spacer()
-                    toolBarTitle()
+                    toolBarTitle
                     Spacer()
                 }
             }
