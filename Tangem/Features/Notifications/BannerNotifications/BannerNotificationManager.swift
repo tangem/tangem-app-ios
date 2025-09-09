@@ -13,106 +13,107 @@ import TangemFoundation
 class BannerNotificationManager {
     @Injected(\.bannerPromotionService) private var bannerPromotionService: BannerPromotionService
 
-    private let analyticsService = NotificationsAnalyticsService()
-
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private weak var delegate: NotificationTapDelegate?
-    private var promotionUpdateTask: Task<Void, Never>?
-    private let placement: BannerPromotionPlacement
+
     private let userWalletId: UserWalletId
+    private let placement: BannerPromotionPlacement
+
+    private let analyticsService = NotificationsAnalyticsService()
+    private var promotionUpdateTask: Task<Void, Error>?
 
     init(userWalletId: UserWalletId, placement: BannerPromotionPlacement, contextDataProvider: AnalyticsContextDataProvider?) {
         self.userWalletId = userWalletId
         self.placement = placement
+
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
+        setup()
     }
 
-    private func setupRing() {
-        guard AppSettings.shared.userWalletIdsWithRing.contains(userWalletId.stringValue) else {
-            return
-        }
-
+    private func setup() {
         switch placement {
         case .main:
-            setupPromotionNotification(programName: .ring)
+            loadActivePromotionInfo(programName: .sepa)
         case .tokenDetails:
             break
         }
     }
 
-    private func setupPromotionNotification(programName: PromotionProgramName) {
+    private func loadActivePromotionInfo(programName: PromotionProgramName) {
         promotionUpdateTask?.cancel()
-
         promotionUpdateTask = runTask(in: self) { manager in
-            guard !Task.isCancelled else {
-                return
-            }
-
-            let placement = manager.placement
-
-            guard let promotion = await manager.bannerPromotionService.activePromotion(promotion: programName, on: placement) else {
-                manager.notificationInputsSubject.value.removeAll { $0.id == programName.hashValue }
-                return
-            }
-
-            if Task.isCancelled {
-                return
-            }
-
-            let factory = BannerNotificationFactory()
-
-            let dismissAction: NotificationView.NotificationAction = { [weak manager, placement] id in
-                manager?.bannerPromotionService.hide(promotion: programName, on: placement)
-                manager?.dismissNotification(with: id)
-
-                Analytics.log(
-                    .promotionBannerClicked,
-                    params:
-                    [
-                        .programName: programName.analyticsValue,
-                        .source: placement.analyticsValue,
-                        .action: .closed,
-                    ]
-                )
-            }
-
-            let buttonAction: NotificationView.NotificationButtonTapAction = { [weak manager, placement] id, action in
-                manager?.delegate?.didTapNotification(with: id, action: action)
-                manager?.bannerPromotionService.hide(promotion: programName, on: placement)
-                manager?.dismissNotification(with: id)
-
-                Analytics.log(
-                    .promotionBannerClicked,
-                    params:
-                    [
-                        .programName: programName.analyticsValue,
-                        .source: placement.analyticsValue,
-                        .action: .clicked,
-                    ]
-                )
-            }
-
-            let input = factory.buildBannerNotificationInput(
-                promotion: promotion,
-                placement: placement,
-                buttonAction: buttonAction,
-                dismissAction: dismissAction
-            )
-
-            await runOnMain {
-                if Task.isCancelled {
-                    return
+            guard let promotion = await manager.bannerPromotionService.activePromotion(promotion: programName, on: manager.placement) else {
+                await runOnMain {
+                    manager.notificationInputsSubject.value.removeAll { $0.id == programName.hashValue }
                 }
-
-                guard !manager.notificationInputsSubject.value.contains(where: { $0.id == input.id }) else {
-                    return
-                }
-
-                manager.notificationInputsSubject.value.insert(input, at: 0)
+                return
             }
+
+            try Task.checkCancellation()
+            await manager.setupNotification(promotion: promotion)
         }
     }
+
+    private func setupNotification(promotion: ActivePromotionInfo) async {
+        let analytics = BannerNotificationEventAnalyticsParamsBuilder(programName: promotion.bannerPromotion, placement: placement)
+
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self, placement] id, action in
+            self?.delegate?.didTapNotification(with: id, action: action)
+            self?.bannerPromotionService.hide(promotion: promotion.bannerPromotion, on: placement)
+            self?.dismissNotification(with: id)
+
+            var params = analytics.analyticsParams
+            params[.action] = Analytics.ParameterValue.clicked.rawValue
+            Analytics.log(event: .promotionBannerClicked, params: params)
+        }
+
+        let dismissAction: NotificationView.NotificationAction = { [weak self, placement] id in
+            self?.bannerPromotionService.hide(promotion: promotion.bannerPromotion, on: placement)
+            self?.dismissNotification(with: id)
+
+            var params = analytics.analyticsParams
+            params[.action] = Analytics.ParameterValue.closed.rawValue
+            Analytics.log(event: .promotionBannerClicked, params: params)
+        }
+
+        guard let event = await makeEvent(promotion: promotion, analytics: analytics) else {
+            await runOnMain {
+                notificationInputsSubject.value.removeAll { $0.id == promotion.bannerPromotion.hashValue }
+            }
+
+            return
+        }
+
+        let input = NotificationsFactory()
+            .buildNotificationInput(for: event, buttonAction: buttonAction, dismissAction: dismissAction)
+
+        guard !notificationInputsSubject.value.contains(where: { $0.id == input.id }) else {
+            return
+        }
+
+        await runOnMain {
+            notificationInputsSubject.value.insert(input, at: 0)
+        }
+    }
+
+    private func makeEvent(promotion: ActivePromotionInfo, analytics: BannerNotificationEventAnalyticsParamsBuilder) async -> BannerNotificationEvent? {
+        switch promotion.bannerPromotion {
+        case .sepa:
+            let builder = PredefinedOnrampParametersBuilder(userWalletId: userWalletId)
+            if let (walletModel, parameters) = await builder.prepare() {
+                return BannerNotificationEvent(
+                    programName: promotion.bannerPromotion,
+                    analytics: analytics,
+                    buttonAction: .init(.openBuyCrypto(walletModel: walletModel, parameters: parameters))
+                )
+            }
+        }
+
+        return nil
+    }
 }
+
+// MARK: - NotificationManager
 
 extension BannerNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
@@ -125,7 +126,6 @@ extension BannerNotificationManager: NotificationManager {
 
     func setupManager(with delegate: NotificationTapDelegate?) {
         self.delegate = delegate
-        setupRing()
     }
 
     func dismissNotification(with id: NotificationViewId) {
