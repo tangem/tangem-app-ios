@@ -467,15 +467,10 @@ extension AccountsAwareUserTokensManager {
                 return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
-            case .addressNotFound:
-                return Localization.genericErrorCode(errorCode)
-            case .derivationNotSupported:
-                // [REDACTED_TODO_COMMENT]
-                return Localization.genericErrorCode(errorCode)
-            case .derivationPathNotFound:
-                // [REDACTED_TODO_COMMENT]
-                return Localization.genericErrorCode(errorCode)
-            case .accountDerivationNodeMismatch:
+            case .addressNotFound,
+                 .derivationNotSupported,
+                 .derivationPathNotFound,
+                 .accountDerivationNodeMismatch:
                 // [REDACTED_TODO_COMMENT]
                 return Localization.genericErrorCode(errorCode)
             }
