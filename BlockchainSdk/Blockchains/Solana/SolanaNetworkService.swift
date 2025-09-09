@@ -269,6 +269,7 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             computeUnitLimit: computeUnitLimit,
             computeUnitPrice: computeUnitPrice,
             allowUnfundedRecipient: true,
+            allowCompoundRecipient: true,
             fromPublicKey: fromPublicKey
         )
         .flatMap { [solanaSdk] message, _ -> AnyPublisher<FeeForMessageResult, Error> in
