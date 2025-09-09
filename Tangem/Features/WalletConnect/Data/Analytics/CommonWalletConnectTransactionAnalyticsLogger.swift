@@ -10,7 +10,6 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
     func logSignatureRequestReceived(transactionData: WCHandleTransactionData, simulationState: TransactionSimulationState) {
         let emulationStatus: Analytics.ParameterValue
         let simulationResult = getSimulationResult(from: simulationState)
-        var simulationResult: Analytics.ParameterValue = .unknown
 
         switch simulationState {
         case .loading:
@@ -20,9 +19,8 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             emulationStatus = .walletConnectTransactionEmulationStatusCantEmulate
         case .simulationFailed:
             emulationStatus = .error
-        case .simulationSucceeded(let result):
+        case .simulationSucceeded:
             emulationStatus = .walletConnectTransactionEmulationStatusEmulated
-            simulationResult = result.validationStatus?.analyticsTypeValue ?? .unknown
         }
 
         let signatureRequestReceivedEvent = Analytics.Event.walletConnectSignatureRequestReceived
@@ -32,7 +30,7 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
             .walletConnectBlockchain: transactionData.blockchain.displayName,
             .walletConnectTransactionEmulationStatus: emulationStatus.rawValue,
-            .commonType: simulationResult.rawValue
+            .commonType: simulationResult.rawValue,
         ]
 
         Analytics.log(event: signatureRequestReceivedEvent, params: signatureRequestReceivedParams)
@@ -41,13 +39,13 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
     func logSignatureRequestHandled(transactionData: WCHandleTransactionData, simulationState: TransactionSimulationState) {
         let event = Analytics.Event.walletConnectSignatureRequestHandled
         let simulationResult = getSimulationResult(from: simulationState)
-        
+
         let params: [Analytics.ParameterKey: String] = [
             .methodName: transactionData.method.rawValue,
             .walletConnectDAppName: transactionData.dAppData.name,
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
             .walletConnectBlockchain: transactionData.blockchain.displayName,
-            .commonType: simulationResult.rawValue
+            .commonType: simulationResult.rawValue,
         ]
 
         Analytics.log(event: event, params: params)
@@ -86,12 +84,12 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
     func logCancelButtonTapped() {
         Analytics.log(.walletConnectCancelButtonTapped, params: [.commonType: .sign])
     }
-    
+
     private func getSimulationResult(from simulationState: TransactionSimulationState) -> Analytics.ParameterValue {
         if case .simulationSucceeded(let result) = simulationState {
             return result.validationStatus?.analyticsTypeValue ?? .unknown
         }
-        
+
         return .unknown
     }
 }
