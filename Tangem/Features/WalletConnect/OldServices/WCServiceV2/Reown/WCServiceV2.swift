@@ -17,6 +17,7 @@ final class WCServiceV2 {
 
     private var sessionProposalContinuationStorage = SessionProposalContinuationsStorage()
 
+    private let transactionsFilter = WCTransactionsFilter()
     private let transactionRequestSubject = PassthroughSubject<Result<WCHandleTransactionData, any Error>, Never>()
     private var bag = Set<AnyCancellable>()
 
@@ -97,6 +98,11 @@ private extension WCServiceV2 {
                 WCLogger.info("Receive message request: \(request) with verify context: \(String(describing: context))")
 
                 Task {
+                    guard await self.transactionsFilter.filter(request) else {
+                        WCLogger.info("Filtered out duplicate or invalid request: \(request)")
+                        return
+                    }
+
                     if Self.checkIfShouldIgnore(transactionRequest: request) {
                         WCLogger.info("Received a transaction with \(request.method) method. Rejecting and ignoring further handling.")
                         await self.reject(transactionRequest: request)
