@@ -65,7 +65,6 @@ final class AccountsAwareUserTokensManager {
 
         let originalDerivationPath = blockchain.derivationPath(for: derivationStyle)
 
-        // [REDACTED_TODO_COMMENT]
         let accountAwareDerivationPath = originalDerivationPath.map { path in
             return derivationPathHelper.makeDerivationPath(from: path, forAccountWithIndex: derivationInfo.derivationIndex)
         }
@@ -126,6 +125,14 @@ final class AccountsAwareUserTokensManager {
 
         if let derivationPath, blockchain.curve == .ed25519_slip0010, derivationPath.nodes.contains(where: { !$0.isHardened }) {
             throw TangemSdkError.nonHardenedDerivationNotSupported
+        }
+
+        // Some blockchains do not support any derivations other than the default one (for the main account)
+        if let derivationPath,
+           let accountDerivationNode = AccountDerivationPathHelper(blockchain: blockchain).extractAccountDerivationNode(from: derivationPath),
+           !AccountModelUtils.isMainAccount(accountDerivationNode.rawIndex),
+           !blockchain.curve.supportsDerivation {
+            throw Error.derivationNotSupported(tokenName: tokenItem.name)
         }
 
         // Token items with custom derivations can be added to the main account as is
@@ -448,6 +455,7 @@ extension AccountsAwareUserTokensManager {
 
     enum Error: LocalizedError {
         case addressNotFound
+        case derivationNotSupported(tokenName: String)
         case derivationPathNotFound(tokenName: String)
         case accountDerivationNodeMismatch(expected: UInt32, actual: UInt32, tokenName: String)
         case failedSupportedLongHashesTokens(blockchainDisplayName: String)
@@ -460,6 +468,9 @@ extension AccountsAwareUserTokensManager {
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
             case .addressNotFound:
+                return Localization.genericErrorCode(errorCode)
+            case .derivationNotSupported:
+                // [REDACTED_TODO_COMMENT]
                 return Localization.genericErrorCode(errorCode)
             case .derivationPathNotFound:
                 // [REDACTED_TODO_COMMENT]
