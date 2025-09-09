@@ -9,13 +9,11 @@
 import SwiftUI
 
 final class YieldModulePromoViewModel {
-    private(set) var annualYield: String
+    private let walletModel: any WalletModel
+    private(set) var apy: String
     private var lastYearReturns: [String: Double] = [:]
-    private let tokenImage: Image
-    private let networkFee: Double
-    private let maximumFee: Double
-    private let tokenName: String
-    private let blockchainName: String
+    private let networkFee: Decimal
+    private let maximumFee: Decimal
 
     // MARK: - Injected
 
@@ -28,23 +26,19 @@ final class YieldModulePromoViewModel {
     // MARK: - Init
 
     init(
-        tokenName: String,
-        annualYield: String,
+        walletModel: any WalletModel,
+        apy: String,
         lastYearReturns: [String: Double],
-        tokenImage: Image,
-        networkFee: Double,
-        maximumFee: Double,
-        blockchainName: String,
+        networkFee: Decimal,
+        maximumFee: Decimal,
         coordinator: YieldModulePromoCoordinator
     ) {
+        self.walletModel = walletModel
         self.coordinator = coordinator
-        self.annualYield = annualYield
+        self.apy = apy
         self.lastYearReturns = lastYearReturns
-        self.tokenImage = tokenImage
         self.networkFee = networkFee
         self.maximumFee = maximumFee
-        self.blockchainName = blockchainName
-        self.tokenName = tokenName
     }
 
     // MARK: - Public Implementation
@@ -55,15 +49,13 @@ final class YieldModulePromoViewModel {
 
     func onContinueButtonTapped() {
         coordinator?
-            .openEarnInfoSheet(
+            .openStartEarningSheet(
                 params: .init(
-                    availableFunds: "3.343535",
-                    chartData: .init(annualEarnings: [:]),
-                    transferMode: "Automatic",
-                    status: "Active",
-                    blockchainName: blockchainName,
+                    tokenName: walletModel.tokenItem.name,
+                    tokenIcon: NetworkImageProvider().provide(by: walletModel.tokenItem.blockchain, filled: true).image,
                     networkFee: networkFee.formatted(),
-                    tokenName: tokenName
+                    maximumFee: maximumFee.formatted(),
+                    blockchainName: walletModel.tokenItem.blockchain.displayName
                 )
             )
     }
@@ -81,12 +73,9 @@ final class YieldModulePromoViewModel {
     }
 }
 
-struct YieldModulePromoInfo {
-    let tokenName: String
-    let annualYield: Double
-    let currentFee: Double
-    let maxFee: Double
-    let blockchainName: String
+struct YieldModuleInfo {
+    let apy: String
+    let networkFee: Decimal
+    let maximumFee: Decimal
     let lastYearReturns: [String: Double]
-    let tokenImage: Image
 }
