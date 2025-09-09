@@ -163,6 +163,25 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
             .blockchain: token.blockchain.displayName,
         ])
     }
+
+    func logSendSwapCantSwapThisToken(token: String) {
+        Task {
+            var analyticsParameters: [Analytics.ParameterKey: String] = [:]
+
+            if let source = sendSourceTokenInput?.sourceToken {
+                analyticsParameters[.sendToken] = source.tokenItem.currencySymbol
+                analyticsParameters[.sendBlockchain] = source.tokenItem.blockchain.displayName
+            }
+
+            analyticsParameters[.receiveToken] = token
+
+            if let provider = await sendSwapProvidersInput?.selectedExpressProvider {
+                analyticsParameters[.provider] = provider.provider.name
+            }
+
+            Analytics.log(event: .sendNoticeCantSwapThisToken, params: analyticsParameters)
+        }
+    }
 }
 
 // MARK: - SendSummaryAnalyticsLogger
