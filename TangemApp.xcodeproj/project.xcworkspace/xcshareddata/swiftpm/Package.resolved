@@ -637,7 +637,7 @@
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
         "branch" : "feature/IOS-10923_derivation_management_fixes",
-        "revision" : "9fe23ec792dae63f79f75b202fbf1c6734c69946"
+        "revision" : "7c17dec97c0edc55d4bd549a1cd3f92348c5683c"
       }
     },
     {
