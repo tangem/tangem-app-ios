@@ -23,4 +23,16 @@ enum AccountModelUtils {
 
         return colors[colorIndex]
     }
+
+    static func isMainAccount(_ derivationIndex: Int) -> Bool {
+        derivationIndex == Constants.mainAccountDerivationIndex
+    }
+}
+
+// MARK: - Constants
+
+private extension AccountModelUtils {
+    enum Constants {
+        static let mainAccountDerivationIndex = 0
+    }
 }
