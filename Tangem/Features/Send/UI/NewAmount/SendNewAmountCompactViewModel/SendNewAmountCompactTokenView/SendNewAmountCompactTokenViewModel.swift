@@ -92,11 +92,13 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
     func bind(highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never>) {
         highPriceImpactPublisher.map { result in
-            if let result, result.isHighPriceImpact {
-                return HighPriceImpactWarning(percent: result.lossesInPercentsFormatted, infoMessage: result.infoMessage)
+            result.map { result in
+                HighPriceImpactWarning(
+                    percent: result.lossesInPercentsFormatted,
+                    infoMessage: result.infoMessage,
+                    isHighPriceImpact: result.isHighPriceImpact
+                )
             }
-
-            return nil
         }
         .receiveOnMain()
         .assign(to: &$highPriceImpactWarning)
@@ -114,6 +116,9 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
         case .success(let amount):
             switch amount.type {
+            case .typical where isApproximateAmount:
+                amountText = "\(AppConstants.tildeSign) \(sendAmountFormatter.formatMain(amount: amount))"
+                alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
             case .typical:
                 amountText = sendAmountFormatter.formatMain(amount: amount)
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
@@ -132,5 +137,6 @@ extension SendNewAmountCompactTokenViewModel {
     struct HighPriceImpactWarning {
         let percent: String
         let infoMessage: String
+        let isHighPriceImpact: Bool
     }
 }
