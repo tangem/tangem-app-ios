@@ -985,8 +985,8 @@
 "send_qrcode_scan_info" = "Bitte richte den QR-Code auf das Quadrat aus, um ihn zu scannen. Stell sicher, dass du die Netzwerkadresse %@ scannen.";
 "send_recent_transactions" = "Jüngste";
 "send_recipient_address_error" = "Keine gültige Adresse";
-"send_recipient_address_footer_highlighted_part" = "senden an %@";
-"send_recipient_address_footer_v2" = "Stelle sicher, dass Du %@ Netzwerkadresse hast, da Fehler zu verlorenen Übertragungen führen können";
+"send_recipient_address_footer_highlighted_part" = "%@ Netzwerkadresse";
+"send_recipient_address_footer_v2" = "Stelle sicher, dass Du %@ hast, da Fehler zu verlorenen Übertragungen führen können";
 "send_recipient_address_footer" = "Stelle sicher, dass sich die empfangende Wallet-Adresse im ** %@ -Netzwerk** befindet, um den Verlust Deiner Token zu vermeiden.";
 "send_recipient_label" = "Senden an";
 "send_recipient_memo_footer_v2_highlighted" = "Achtung: Das Fehlen eines Memos kann zum Verlust von Geldern führen.";
