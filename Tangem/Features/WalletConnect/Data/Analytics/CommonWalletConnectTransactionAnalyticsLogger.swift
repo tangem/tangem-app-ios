@@ -9,6 +9,7 @@
 final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransactionAnalyticsLogger {
     func logSignatureRequestReceived(transactionData: WCHandleTransactionData, simulationState: TransactionSimulationState) {
         let emulationStatus: Analytics.ParameterValue
+        var simulationResult: Analytics.ParameterValue = .unknown
 
         switch simulationState {
         case .loading:
@@ -18,8 +19,9 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             emulationStatus = .walletConnectTransactionEmulationStatusCantEmulate
         case .simulationFailed:
             emulationStatus = .error
-        case .simulationSucceeded:
+        case .simulationSucceeded(let result):
             emulationStatus = .walletConnectTransactionEmulationStatusEmulated
+            simulationResult = result.validationStatus?.analyticsTypeValue ?? .unknown
         }
 
         let signatureRequestReceivedEvent = Analytics.Event.walletConnectSignatureRequestReceived
@@ -29,7 +31,7 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
             .walletConnectBlockchain: transactionData.blockchain.displayName,
             .walletConnectTransactionEmulationStatus: emulationStatus.rawValue,
-            .commonType: transactionData.verificationStatus.analyticsTypeValue,
+            .commonType: simulationResult.rawValue
         ]
 
         Analytics.log(event: signatureRequestReceivedEvent, params: signatureRequestReceivedParams)
@@ -82,15 +84,13 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
     }
 }
 
-private extension WalletConnectDAppVerificationStatus {
-    var analyticsTypeValue: String {
+private extension BlockaidChainScanResult.ValidationStatus {
+    var analyticsTypeValue: Analytics.ParameterValue {
         switch self {
-        case .verified:
-            Analytics.ParameterValue.walletConnectVerified.rawValue
-        case .unknownDomain:
-            Analytics.ParameterValue.unknown.rawValue
-        case .malicious:
-            Analytics.ParameterValue.walletConnectRisky.rawValue
+        case .malicious, .warning:
+            Analytics.ParameterValue.walletConnectRisky
+        case .benign:
+            Analytics.ParameterValue.walletConnectVerified
         }
     }
 }
