@@ -29,7 +29,7 @@ final class AccountsAwareUserTokensManager {
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
 
     private var isMainAccountManager: Bool {
-        derivationInfo.derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
+        AccountModelUtils.isMainAccount(derivationInfo.derivationIndex)
     }
 
     init(
