@@ -25,6 +25,7 @@ struct OnrampAmountBuilder {
         let interactor = makeOnrampAmountInteractor(io: io, onrampProvidersInput: onrampProvidersInput)
         let viewModel = OnrampAmountViewModel(
             tokenItem: walletModel.tokenItem,
+            initialAmount: io.input.amount,
             interactor: interactor,
             coordinator: coordinator
         )

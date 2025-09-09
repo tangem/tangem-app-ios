@@ -39,6 +39,7 @@ struct SendReceiveTokensListBuilder {
     }
 
     func makeReceiveTokenNetworkSelectorViewModel(
+        coin: CoinModel,
         networks: [TokenItem],
         router: any SendReceiveTokenNetworkSelectorViewRoutable
     ) -> SendReceiveTokenNetworkSelectorViewModel {
@@ -46,6 +47,7 @@ struct SendReceiveTokensListBuilder {
             sourceTokenInput: sourceTokenInput,
             receiveTokenOutput: receiveTokenOutput,
             networks: networks,
+            coin: coin,
             expressRepository: expressRepository,
             receiveTokenBuilder: receiveTokenBuilder,
             analyticsLogger: analyticsLogger,
