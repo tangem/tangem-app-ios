@@ -99,7 +99,7 @@ public protocol TransactionSender {
 }
 
 public protocol CompiledTransactionSender {
-    func send(unsigned transaction: Data, signer: TransactionSigner) async throws -> TransactionSendResult
+    func send(unsigned rawTransaction: Data, signer: TransactionSigner) async throws -> TransactionSendResult
 }
 
 // MARK: - TransactionSigner
