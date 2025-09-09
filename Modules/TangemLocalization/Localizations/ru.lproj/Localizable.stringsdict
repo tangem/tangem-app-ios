@@ -265,6 +265,46 @@
         <string>%li слов</string>
       </dict>
     </dict>
+    <key>onramp_providers_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li провайдер</string>
+        <key>few</key>
+        <string>%li провайдера</string>
+        <key>many</key>
+        <string>%li провайдеров</string>
+        <key>other</key>
+        <string>%li провайдеров</string>
+      </dict>
+    </dict>
+    <key>onramp_timing_days</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>до %li дня</string>
+        <key>few</key>
+        <string>до %li дней</string>
+        <key>many</key>
+        <string>до %li дней</string>
+        <key>other</key>
+        <string>до %li дней</string>
+      </dict>
+    </dict>
     <key>referral_number_of_wallets</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>

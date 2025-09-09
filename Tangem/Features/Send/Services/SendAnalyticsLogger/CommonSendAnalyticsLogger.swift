@@ -19,18 +19,18 @@ class CommonSendAnalyticsLogger {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
-    private let coordinatorSource: SendCoordinator.Source
+    private let sendType: SendType
 
     init(
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder,
-        coordinatorSource: SendCoordinator.Source
+        sendType: SendType
     ) {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
-        self.coordinatorSource = coordinatorSource
+        self.sendType = sendType
     }
 }
 
@@ -162,6 +162,25 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
             .token: token.currencySymbol,
             .blockchain: token.blockchain.displayName,
         ])
+    }
+
+    func logSendSwapCantSwapThisToken(token: String) {
+        Task {
+            var analyticsParameters: [Analytics.ParameterKey: String] = [:]
+
+            if let source = sendSourceTokenInput?.sourceToken {
+                analyticsParameters[.sendToken] = source.tokenItem.currencySymbol
+                analyticsParameters[.sendBlockchain] = source.tokenItem.blockchain.displayName
+            }
+
+            analyticsParameters[.receiveToken] = token
+
+            if let provider = await sendSwapProvidersInput?.selectedExpressProvider {
+                analyticsParameters[.provider] = provider.provider.name
+            }
+
+            Analytics.log(event: .sendNoticeCantSwapThisToken, params: analyticsParameters)
+        }
     }
 }
 
@@ -322,13 +341,14 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
         case .filled: .full
         }
 
-        let source: Analytics.ParameterValue = switch sendReceiveTokenInput?.receiveToken {
-        case .none, .same: .send
-        case .swap: .sendAndSwap
+        var sourceValue = sendType.analytics
+
+        if case .swap = sendReceiveTokenInput?.receiveToken {
+            sourceValue = .sendAndSwap
         }
 
         Analytics.log(event: .transactionSent, params: [
-            .source: source.rawValue,
+            .source: sourceValue.rawValue,
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
             .blockchain: tokenItem.blockchain.displayName,
             .feeType: feeType.rawValue,
@@ -361,5 +381,25 @@ extension CommonSendAnalyticsLogger: SendAnalyticsLogger {
 
     func setup(sendSwapProvidersInput: any SendSwapProvidersInput) {
         self.sendSwapProvidersInput = sendSwapProvidersInput
+    }
+}
+
+// MARK: - SendAnalyticsLogger + Type
+
+extension CommonSendAnalyticsLogger {
+    enum SendType {
+        case send
+        case sell
+        case nft
+        case sendAndSwap
+
+        var analytics: Analytics.ParameterValue {
+            switch self {
+            case .send: .send
+            case .sell: .sell
+            case .nft: .nft
+            case .sendAndSwap: .sendAndSwap
+            }
+        }
     }
 }
