@@ -52,7 +52,7 @@
 		0A8E6D0C2E69C878004ABC72 /* ReactivateTokenMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8E6D0B2E69C878004ABC72 /* ReactivateTokenMethod.swift */; };
 		0A917D802D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A917D7F2D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift */; };
 		0A917D822D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A917D812D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift */; };
-		0A92AE8E2E6590BA00CDB659 /* ReservedDataMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A92AE8D2E6590BA00CDB659 /* ReservedDataMethod.swift */; };
+		0A92AE8E2E6590BA00CDB659 /* ReserveDataAaveV3Method.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A92AE8D2E6590BA00CDB659 /* ReserveDataAaveV3Method.swift */; };
 		0A92AE962E65C3A400CDB659 /* YieldTokenState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A92AE952E65C3A400CDB659 /* YieldTokenState.swift */; };
 		0A92AE9A2E65D86200CDB659 /* YieldConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A92AE992E65D86200CDB659 /* YieldConstants.swift */; };
 		0A94FAAB2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A94FAAA2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift */; };
@@ -101,7 +101,6 @@
 		0AF406312E5F1A82006DC3DF /* EnterProtocolMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406302E5F1A82006DC3DF /* EnterProtocolMethod.swift */; };
 		0AF406332E5F1DA5006DC3DF /* SendMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406322E5F1DA5006DC3DF /* SendMethod.swift */; };
 		0AF406352E5F2A11006DC3DF /* WithdrawAndDeactivateMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406342E5F2A11006DC3DF /* WithdrawAndDeactivateMethod.swift */; };
-		0AF406372E5F2B21006DC3DF /* YieldSmartContractMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406362E5F2B21006DC3DF /* YieldSmartContractMethod.swift */; };
 		0AF406392E5F31CC006DC3DF /* EffectiveBalanceMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406382E5F31CC006DC3DF /* EffectiveBalanceMethod.swift */; };
 		0AF4063B2E5F3203006DC3DF /* ProtocolBalanceMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF4063A2E5F3203006DC3DF /* ProtocolBalanceMethod.swift */; };
 		0AF4063D2E6019A0006DC3DF /* YieldTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF4063C2E6019A0006DC3DF /* YieldTokenService.swift */; };
@@ -4234,7 +4233,7 @@
 		0A8E6D0B2E69C878004ABC72 /* ReactivateTokenMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactivateTokenMethod.swift; sourceTree = "<group>"; };
 		0A917D7F2D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakeKitTransactionStatusProvider.swift; sourceTree = "<group>"; };
 		0A917D812D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONStakeKitTransactionHelper.swift; sourceTree = "<group>"; };
-		0A92AE8D2E6590BA00CDB659 /* ReservedDataMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReservedDataMethod.swift; sourceTree = "<group>"; };
+		0A92AE8D2E6590BA00CDB659 /* ReserveDataAaveV3Method.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReserveDataAaveV3Method.swift; sourceTree = "<group>"; };
 		0A92AE952E65C3A400CDB659 /* YieldTokenState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldTokenState.swift; sourceTree = "<group>"; };
 		0A92AE972E65CD4300CDB659 /* TaskTypealias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskTypealias.swift; sourceTree = "<group>"; };
 		0A92AE992E65D86200CDB659 /* YieldConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldConstants.swift; sourceTree = "<group>"; };
@@ -4284,7 +4283,6 @@
 		0AF406302E5F1A82006DC3DF /* EnterProtocolMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterProtocolMethod.swift; sourceTree = "<group>"; };
 		0AF406322E5F1DA5006DC3DF /* SendMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMethod.swift; sourceTree = "<group>"; };
 		0AF406342E5F2A11006DC3DF /* WithdrawAndDeactivateMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithdrawAndDeactivateMethod.swift; sourceTree = "<group>"; };
-		0AF406362E5F2B21006DC3DF /* YieldSmartContractMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSmartContractMethod.swift; sourceTree = "<group>"; };
 		0AF406382E5F31CC006DC3DF /* EffectiveBalanceMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectiveBalanceMethod.swift; sourceTree = "<group>"; };
 		0AF4063A2E5F3203006DC3DF /* ProtocolBalanceMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolBalanceMethod.swift; sourceTree = "<group>"; };
 		0AF4063C2E6019A0006DC3DF /* YieldTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldTokenService.swift; sourceTree = "<group>"; };
@@ -8403,6 +8401,26 @@
 			path = StakingAnalytics;
 			sourceTree = "<group>";
 		};
+		0A85A19C2E718BC300ED535D /* SmartContract */ = {
+			isa = PBXGroup;
+			children = (
+				0AF406252E5F064D006DC3DF /* ServiceFeeRateMethod.swift */,
+				0AF4063E2E601A61006DC3DF /* YieldModuleMethod.swift */,
+				0AF4062A2E5F0A91006DC3DF /* YieldTokenDataMethod.swift */,
+				0AF4062C2E5F0FAC006DC3DF /* DeployYieldModuleMethod.swift */,
+				0AF4062E2E5F1142006DC3DF /* InitYieldTokenMethod.swift */,
+				0AF406302E5F1A82006DC3DF /* EnterProtocolMethod.swift */,
+				0AF406342E5F2A11006DC3DF /* WithdrawAndDeactivateMethod.swift */,
+				0AF406322E5F1DA5006DC3DF /* SendMethod.swift */,
+				0AF406382E5F31CC006DC3DF /* EffectiveBalanceMethod.swift */,
+				0AF4063A2E5F3203006DC3DF /* ProtocolBalanceMethod.swift */,
+				0A92AE8D2E6590BA00CDB659 /* ReserveDataAaveV3Method.swift */,
+				0A8E6D0B2E69C878004ABC72 /* ReactivateTokenMethod.swift */,
+				0AAE39C82E6ACB8100010E57 /* CalculateYieldModuleAddressMethod.swift */,
+			);
+			path = SmartContract;
+			sourceTree = "<group>";
+		};
 		0A8E6CE12E697D1B004ABC72 /* DTO */ = {
 			isa = PBXGroup;
 			children = (
@@ -8452,10 +8470,10 @@
 		0AF406272E5F06C7006DC3DF /* Yield */ = {
 			isa = PBXGroup;
 			children = (
+				0A85A19C2E718BC300ED535D /* SmartContract */,
 				0A8E6CE22E697EDE004ABC72 /* Domain */,
 				0A8E6CE12E697D1B004ABC72 /* DTO */,
 				0AF406282E5F0717006DC3DF /* YieldResponseMapper.swift */,
-				0AF406362E5F2B21006DC3DF /* YieldSmartContractMethod.swift */,
 				0AF406402E602F95006DC3DF /* YieldSmartContractRequest.swift */,
 				0AF4063C2E6019A0006DC3DF /* YieldTokenService.swift */,
 				0A92AE992E65D86200CDB659 /* YieldConstants.swift */,
@@ -13011,19 +13029,6 @@
 				B62D3CC72CBC79D900C2460E /* TransferERC20TokenMethod.swift */,
 				B62AE31D2DCABD370037CEDB /* TransferERC721TokenMethod.swift */,
 				B62AE31F2DCAC0580037CEDB /* TransferERC1155TokenMethod.swift */,
-				0AF406252E5F064D006DC3DF /* ServiceFeeRateMethod.swift */,
-				0AF4063E2E601A61006DC3DF /* YieldModuleMethod.swift */,
-				0AF4062A2E5F0A91006DC3DF /* YieldTokenDataMethod.swift */,
-				0AF4062C2E5F0FAC006DC3DF /* DeployYieldModuleMethod.swift */,
-				0AF4062E2E5F1142006DC3DF /* InitYieldTokenMethod.swift */,
-				0AF406302E5F1A82006DC3DF /* EnterProtocolMethod.swift */,
-				0AF406342E5F2A11006DC3DF /* WithdrawAndDeactivateMethod.swift */,
-				0AF406322E5F1DA5006DC3DF /* SendMethod.swift */,
-				0AF406382E5F31CC006DC3DF /* EffectiveBalanceMethod.swift */,
-				0AF4063A2E5F3203006DC3DF /* ProtocolBalanceMethod.swift */,
-				0A92AE8D2E6590BA00CDB659 /* ReservedDataMethod.swift */,
-				0A8E6D0B2E69C878004ABC72 /* ReactivateTokenMethod.swift */,
-				0AAE39C82E6ACB8100010E57 /* CalculateYieldModuleAddressMethod.swift */,
 			);
 			path = SmartContractMethods;
 			sourceTree = "<group>";
@@ -25261,7 +25266,6 @@
 				B62D403E2CBC79DA00C2460E /* AdaliteNetworkProvider.swift in Sources */,
 				B62D41222CBC79DA00C2460E /* KoinosExternalLinkProvider.swift in Sources */,
 				B62D425D2CBC79DB00C2460E /* BlockchainSdkDependencies.swift in Sources */,
-				0AF406372E5F2B21006DC3DF /* YieldSmartContractMethod.swift in Sources */,
 				B62D414D2CBC79DA00C2460E /* PolkadotTransaction.swift in Sources */,
 				B62D42D92CBC79DB00C2460E /* String+.swift in Sources */,
 				B62D42712CBC79DB00C2460E /* BitcoinTransactionFeeCalculator.swift in Sources */,
@@ -25651,7 +25655,7 @@
 				2D53D2442D95796D00865200 /* PepecoinWalletAssembly.swift in Sources */,
 				2D53D2462D95796D00865200 /* PepecoinExternalLinkProvider.swift in Sources */,
 				2D53D2472D95796D00865200 /* PepecoinTestnetNetworkParams.swift in Sources */,
-				0A92AE8E2E6590BA00CDB659 /* ReservedDataMethod.swift in Sources */,
+				0A92AE8E2E6590BA00CDB659 /* ReserveDataAaveV3Method.swift in Sources */,
 				EA7C2ADE2E532FAF0007211E /* HyperliquidExternalLinkProvider.swift in Sources */,
 				2D53D2482D95796D00865200 /* PepecoinWalletManager.swift in Sources */,
 				2D53D24A2D95796D00865200 /* PepecoinMainnetNetworkParams.swift in Sources */,

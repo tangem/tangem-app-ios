@@ -19,7 +19,8 @@ public struct InitYieldTokenMethod {
     }
 }
 
-extension InitYieldTokenMethod: YieldSmartContractMethod {
+extension InitYieldTokenMethod: SmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `initYieldToken(address,uint240)` method.
     public var methodId: String { "0xebd4b81c" }
+    public var data: Data { defaultData() }
 }

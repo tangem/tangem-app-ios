@@ -12,7 +12,8 @@ public struct EffectiveBalanceMethod {
     let yieldTokenAddress: String
 }
 
-extension EffectiveBalanceMethod: YieldSmartContractMethod {
+extension EffectiveBalanceMethod: SmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `effectiveBalance(address yieldToken)` method.
     public var methodId: String { "0x16a398f7" }
+    public var data: Data { defaultData() }
 }

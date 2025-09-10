@@ -10,8 +10,8 @@ import Foundation
 
 public enum YieldConstants {
     public static let aavePoolContractAddress = "0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951"
-    public static let yieldProcessorContractAddress = "0xE77A9AA6cF5aaDEeFB5Bfcf1b8BD24cF773525d9"
-    public static let yieldModuleFactoryContractAddress = "0x67520fa4A19b2227BFa0abAb1d9773B88700E10f"
+    public static let yieldProcessorContractAddress = "0x234D7653Ee1B6d8d87D008e613757Ac2f6Bd5a69"
+    public static let yieldModuleFactoryContractAddress = "0x62bc085Ef9e7700Af1F572cefCfdf4228E4EA3b8"
     // [REDACTED_TODO_COMMENT]
     public static let maxNetworkFee = Decimal(string: "5")!
 }

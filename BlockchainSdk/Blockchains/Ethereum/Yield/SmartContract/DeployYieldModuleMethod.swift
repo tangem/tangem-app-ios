@@ -21,7 +21,8 @@ public struct DeployYieldModuleMethod {
     }
 }
 
-extension DeployYieldModuleMethod: YieldSmartContractMethod {
+extension DeployYieldModuleMethod: SmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `deployYieldModule(address owner, address yieldToken, uint240 maxNetworkFee)` method.
     public var methodId: String { "0xcbeda14c" }
+    public var data: Data { defaultData() }
 }

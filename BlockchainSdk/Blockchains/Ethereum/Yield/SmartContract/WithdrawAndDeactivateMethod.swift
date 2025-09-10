@@ -17,7 +17,8 @@ public struct WithdrawAndDeactivateMethod {
     }
 }
 
-extension WithdrawAndDeactivateMethod: YieldSmartContractMethod {
+extension WithdrawAndDeactivateMethod: SmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `withdrawAndDeactivate(address)` method.
     public var methodId: String { "0xc65e6dcf" }
+    public var data: Data { defaultData() }
 }

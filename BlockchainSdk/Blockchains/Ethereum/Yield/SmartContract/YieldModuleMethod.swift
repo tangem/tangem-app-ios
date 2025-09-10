@@ -14,7 +14,8 @@ public struct YieldModuleMethod {
 
 // MARK: - SmartContractMethod
 
-extension YieldModuleMethod: YieldSmartContractMethod {
+extension YieldModuleMethod: SmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `yieldModules(address)` method.
     public var methodId: String { "0x36571e2c" }
+    public var data: Data { defaultData() }
 }

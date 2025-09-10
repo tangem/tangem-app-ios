@@ -17,7 +17,8 @@ public struct EnterProtocolMethod {
     }
 }
 
-extension EnterProtocolMethod: YieldSmartContractMethod {
+extension EnterProtocolMethod: SmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `enterProtocolByOwner(address)` method.
     public var methodId: String { "0x79be55f7" }
+    public var data: Data { defaultData() }
 }

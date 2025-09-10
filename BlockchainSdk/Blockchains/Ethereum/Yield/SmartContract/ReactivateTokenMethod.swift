@@ -16,7 +16,8 @@ public struct ReactivateTokenMethod {
     }
 }
 
-extension ReactivateTokenMethod: YieldSmartContractMethod {
+extension ReactivateTokenMethod: SmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `reactivateToken(address)` method.
     public var methodId: String { "0x0d31916f" }
+    public var data: Data { defaultData() }
 }

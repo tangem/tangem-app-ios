@@ -15,7 +15,8 @@ public struct SendMethod {
     let amount: BigUInt
 }
 
-extension SendMethod: YieldSmartContractMethod {
+extension SendMethod: SmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `send(address,address,uint256)` method.
     public var methodId: String { "0x9bd9bbc6" }
+    public var data: Data { defaultData() }
 }

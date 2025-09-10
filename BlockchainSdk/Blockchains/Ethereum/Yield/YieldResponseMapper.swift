@@ -68,16 +68,6 @@ enum YieldResponseMapper {
 
         return (apr.exp() - Constants.decimalOne) * Constants.decimalPercent
     }
-
-    static func mapBalances(protocolBalance: String, effectiveBalance: String) -> YieldBalances {
-        let effectiveBalanceValue = BigUInt(Data(hexString: effectiveBalance))
-        let protocolBalanceValue = BigUInt(Data(hexString: protocolBalance))
-
-        return YieldBalances(
-            effective: effectiveBalanceValue,
-            protocol: protocolBalanceValue
-        )
-    }
 }
 
 private extension YieldResponseMapper {
