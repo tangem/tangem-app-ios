@@ -39,7 +39,8 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
         let networkService = EthereumNetworkService(
             decimals: blockchain.decimalCount,
             providers: providers,
-            abiEncoder: WalletCoreABIEncoder()
+            abiEncoder: WalletCoreABIEncoder(),
+            blockchainName: input.wallet.blockchain.displayName
         )
 
         let addressConverter = EthereumAddressConverterFactory().makeConverter(for: blockchain)
