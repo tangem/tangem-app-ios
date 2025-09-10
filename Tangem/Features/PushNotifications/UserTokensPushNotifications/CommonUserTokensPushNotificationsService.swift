@@ -29,6 +29,7 @@ final class CommonUserTokensPushNotificationsService: NSObject {
     private var initialSubscription: AnyCancellable?
     private var permissionSubscription: AnyCancellable?
     private var appSettingsSubscription: AnyCancellable?
+    private var eventProviderSubscription: AnyCancellable?
 
     private var reproducedBag: Set<AnyCancellable> = []
 
@@ -37,35 +38,11 @@ final class CommonUserTokensPushNotificationsService: NSObject {
     /// Subject for synchronizing the initialization request and receiving events from userWalletRepository.
     private var _syncEventSubject: PassthroughSubject<Void, Never> = .init()
 
+    /// Caches the latest `UserWalletRepositoryEvent` to avoid losing events emitted before initialization completes
+    private var _userWalletEventSubject: CurrentValueSubject<UserWalletRepositoryEvent?, Never> = .init(nil)
+
     private var applicationUid: String {
         AppSettings.shared.applicationUid
-    }
-
-    // MARK: - Implementation
-
-    /// Initializes the push notifications service.
-    /// Checks the registration of appUid (creates or updates the application on the server),
-    /// updates the isInitialized flag, and fetches the list of wallets linked to the appUid.
-    /// After successful initialization, sends a synchronization event.
-    func initialize() async {
-        guard FeatureProvider.isAvailable(.pushTransactionNotifications) else {
-            return
-        }
-
-        let fcmToken = Messaging.messaging().fcmToken ?? ""
-
-        switch defineInitializeType() {
-        case .create:
-            await createApplication(fcmToken: fcmToken)
-        case .update:
-            await updateApplication(fcmToken: fcmToken)
-        }
-
-        await update(isInitialized: true)
-
-        await fetchEntries()
-
-        _syncEventSubject.send(())
     }
 
     // MARK: - Private Implementation
@@ -80,8 +57,15 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     /// Subscribes to repository changes using combineLatest to ensure the service is fully initialized before handling events.
     private func bind() {
+        // Bridge repository events into a replayable subject
+        eventProviderSubscription = userWalletRepository.eventProvider
+            .withWeakCaptureOf(self)
+            .sink { service, event in
+                service._userWalletEventSubject.send(event)
+            }
+
         initialSubscription = _syncEventSubject
-            .combineLatest(userWalletRepository.eventProvider)
+            .combineLatest(_userWalletEventSubject.compactMap { $0 })
             .map(\.1)
             .receiveOnMain()
             .withWeakCaptureOf(self)
@@ -173,6 +157,33 @@ extension CommonUserTokensPushNotificationsService: UserTokensPushNotificationsS
 
     var entriesPublisher: AnyPublisher<[ApplicationWalletEntry], Never> {
         _applicationEntries.eraseToAnyPublisher()
+    }
+
+    /// Initializes the push notifications service.
+    /// Checks the registration of appUid (creates or updates the application on the server),
+    /// updates the isInitialized flag, and fetches the list of wallets linked to the appUid.
+    /// After successful initialization, sends a synchronization event.
+    func initialize() {
+        runTask(in: self) { service in
+            guard FeatureProvider.isAvailable(.pushTransactionNotifications) else {
+                return
+            }
+
+            let fcmToken = Messaging.messaging().fcmToken ?? ""
+
+            switch service.defineInitializeType() {
+            case .create:
+                await service.createApplication(fcmToken: fcmToken)
+            case .update:
+                await service.updateApplication(fcmToken: fcmToken)
+            }
+
+            await service.update(isInitialized: true)
+
+            await service.fetchEntries()
+
+            service._syncEventSubject.send(())
+        }
     }
 
     func updateWallet(notifyStatus: Bool, by userWalletId: String) {
