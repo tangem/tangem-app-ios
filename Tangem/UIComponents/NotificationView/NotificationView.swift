@@ -40,6 +40,7 @@ struct NotificationView: View {
         .padding(.horizontal, 14)
         .background(settings.event.colorScheme.background)
         .cornerRadiusContinuous(14)
+        .accessibilityIdentifier(settings.event.accessibilityIdentifier)
     }
 
     @ViewBuilder
