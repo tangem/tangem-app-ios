@@ -34,6 +34,8 @@ struct AuthView: View {
             Spacer()
 
             TangemIconView()
+                .foregroundColor(Colors.Text.primary1)
+                .padding(.bottom, 48)
                 .matchedGeometryEffectOptional(id: TangemIconView.namespaceId, in: namespace)
 
             Text(Localization.welcomeUnlockTitle)
