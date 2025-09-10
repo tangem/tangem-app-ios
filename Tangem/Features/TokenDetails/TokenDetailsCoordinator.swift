@@ -131,10 +131,17 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
             networkFee: info.networkFee,
             maximumFee: info.maximumFee,
             lastYearReturns: info.lastYearReturns,
+            feeCurrencyInfo: info.feeCurrencyInfo,
         )
 
         coordinator.start(with: options)
         yieldModulePromoCoordinator = coordinator
+    }
+
+    func openYieldInfo(params: YieldModuleBottomSheetParams.EarnInfoParams, walletModel: any WalletModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .earnInfo(params: params)))
+        }
     }
 }
 
