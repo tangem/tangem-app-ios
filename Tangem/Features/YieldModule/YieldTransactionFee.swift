@@ -15,15 +15,11 @@ public protocol YieldTransactionFee {
 
 struct DeployEnterFee: YieldTransactionFee {
     let deployFee: Fee
-    let enterFee: EnterFee
-
-    init(deployFee: Fee) {
-        self.deployFee = deployFee
-        enterFee = .defaultFee(fee: deployFee)
-    }
+    let approveFee: Fee
+    let enterFee: Fee
 
     var totalFee: Fee {
-        let value = deployFee.amount.value + enterFee.totalFee.amount.value
+        let value = deployFee.amount.value + approveFee.amount.value + enterFee.amount.value
         return Fee(Amount(with: deployFee.amount, value: value), parameters: deployFee.parameters)
     }
 }
@@ -31,11 +27,6 @@ struct DeployEnterFee: YieldTransactionFee {
 struct InitEnterFee: YieldTransactionFee {
     let initFee: Fee
     let enterFee: EnterFee
-
-    init(initFee: Fee) {
-        self.initFee = initFee
-        enterFee = .defaultFee(fee: initFee)
-    }
 
     var totalFee: Fee {
         let value = initFee.amount.value + enterFee.totalFee.amount.value
@@ -81,5 +72,19 @@ struct EnterFee: YieldTransactionFee {
                 Amount(with: fee.amount, value: YieldConstants.maxNetworkFee), parameters: fee.parameters
             )
         )
+    }
+}
+
+struct ExitFee: YieldTransactionFee {
+    let fee: Fee
+
+    var totalFee: Fee {
+        fee
+    }
+}
+
+private extension Fee {
+    func defaultFee() -> Fee {
+        Fee(Amount(with: amount, value: YieldConstants.maxNetworkFee), parameters: parameters)
     }
 }
