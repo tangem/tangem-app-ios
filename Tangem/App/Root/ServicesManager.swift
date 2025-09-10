@@ -75,6 +75,14 @@ class CommonServicesManager {
         FirebaseApp.configure(options: options)
     }
 
+    private func configureAmplitude() {
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
+        AmplitudeWrapper.shared.configure()
+    }
+
     private func configureBlockchainSdkExceptionHandler() {
         ExceptionHandler.shared.append(output: Analytics.BlockchainExceptionHandler())
     }
@@ -135,6 +143,7 @@ extension CommonServicesManager: ServicesManager {
         AppLogger.info("Start services initializing")
 
         configureFirebase()
+        configureAmplitude()
 
         configureBlockchainSdkExceptionHandler()
 
