@@ -12,6 +12,7 @@ import TangemAccessibilityIdentifiers
 
 final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
     private lazy var referralButton = button(.referralButton)
+    private lazy var deviceSettingsButton = button(.deviceSettings)
 
     func openReferralProgram() -> ReferralScreen {
         XCTContext.runActivity(named: "Open referral program screen") { _ in
@@ -19,15 +20,25 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
             return ReferralScreen(app)
         }
     }
+
+    func openDeviceSettings() -> ScanCardSettingsScreen {
+        XCTContext.runActivity(named: "Open device settings") { _ in
+            deviceSettingsButton.waitAndTap()
+            return ScanCardSettingsScreen(app)
+        }
+    }
 }
 
 enum CardSettingsScreenElement: String, UIElement {
     case referralButton
+    case deviceSettings
 
     var accessibilityIdentifier: String {
         switch self {
         case .referralButton:
             return CardSettingsAccessibilityIdentifiers.referralProgramButton
+        case .deviceSettings:
+            return CardSettingsAccessibilityIdentifiers.deviceSettingsButton
         }
     }
 }
