@@ -9,11 +9,13 @@
 import SwiftUI
 
 final class YieldModulePromoViewModel {
+    
     private let walletModel: any WalletModel
     private(set) var apy: String
     private var lastYearReturns: [String: Double] = [:]
     private let networkFee: Decimal
     private let maximumFee: Decimal
+    private let feeCurrencyInfo: YieldModuleBottomSheetParams.FeeCurrencyInfo?
 
     // MARK: - Injected
 
@@ -31,7 +33,8 @@ final class YieldModulePromoViewModel {
         lastYearReturns: [String: Double],
         networkFee: Decimal,
         maximumFee: Decimal,
-        coordinator: YieldModulePromoCoordinator
+        coordinator: YieldModulePromoCoordinator,
+        feeCurrencyInfo: YieldModuleBottomSheetParams.FeeCurrencyInfo?
     ) {
         self.walletModel = walletModel
         self.coordinator = coordinator
@@ -39,6 +42,7 @@ final class YieldModulePromoViewModel {
         self.lastYearReturns = lastYearReturns
         self.networkFee = networkFee
         self.maximumFee = maximumFee
+        self.feeCurrencyInfo = feeCurrencyInfo
     }
 
     // MARK: - Public Implementation
@@ -51,11 +55,12 @@ final class YieldModulePromoViewModel {
         coordinator?
             .openStartEarningSheet(
                 params: .init(
-                    tokenName: walletModel.tokenItem.name,
+                    tokenName: walletModel.feeTokenItem.name,
                     tokenIcon: NetworkImageProvider().provide(by: walletModel.tokenItem.blockchain, filled: true).image,
                     networkFee: networkFee.formatted(),
                     maximumFee: maximumFee.formatted(),
-                    blockchainName: walletModel.tokenItem.blockchain.displayName
+                    blockchainName: walletModel.tokenItem.blockchain.displayName,
+                    feeCurrencyInfo: feeCurrencyInfo
                 )
             )
     }
@@ -78,4 +83,5 @@ struct YieldModuleInfo {
     let networkFee: Decimal
     let maximumFee: Decimal
     let lastYearReturns: [String: Double]
+    let feeCurrencyInfo: YieldModuleBottomSheetParams.FeeCurrencyInfo?
 }
