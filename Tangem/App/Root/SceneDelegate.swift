@@ -21,7 +21,6 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     var lockWindow: UIWindow?
 
-    private lazy var servicesManager = KeychainSensitiveServicesManager()
     private lazy var sheetRegistry = FloatingSheetRegistry()
     private lazy var appOverlaysManager = AppOverlaysManager(sheetRegistry: sheetRegistry)
 
@@ -36,14 +35,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             handleActivities(connectionOptions.userActivities)
         }
 
-        runTask(in: self) { delegate in
-            await delegate.servicesManager.initialize()
-
-            runOnMain {
-                delegate.startApp(scene: scene, appCoordinatorOptions: .default)
-                delegate.appOverlaysManager.setup(with: scene)
-            }
-        }
+        startApp(scene: scene, appCoordinatorOptions: .default)
+        appOverlaysManager.setup(with: scene)
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
