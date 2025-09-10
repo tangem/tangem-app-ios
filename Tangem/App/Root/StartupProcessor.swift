@@ -11,6 +11,7 @@ import TangemSdk
 
 class StartupProcessor {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.servicesManager) private var servicesManager: ServicesManager
 
     var shouldOpenAuthScreen: Bool {
         if FeatureProvider.isAvailable(.mobileWallet) {
@@ -24,6 +25,10 @@ class StartupProcessor {
     }
 
     func getStartupOption() -> StartupOption {
+        guard servicesManager.initialized else {
+            return .launchScreen
+        }
+
         if BackupHelper().hasIncompletedBackup {
             return .uncompletedBackup
         }
@@ -66,4 +71,5 @@ enum StartupOption {
     case auth
     case welcome
     case main(UserWalletModel)
+    case launchScreen
 }

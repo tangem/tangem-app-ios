@@ -16,8 +16,6 @@ struct TangemIconView: View {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: 96, height: 96)
-            .foregroundColor(Colors.Text.primary1)
-            .padding(.bottom, 48)
     }
 
     static var namespaceId: String { "TangemIconViewAuth" }

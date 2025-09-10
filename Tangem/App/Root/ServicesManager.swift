@@ -15,7 +15,25 @@ import TangemStories
 import TangemFoundation
 import UIKit
 
-class ServicesManager {
+private struct ServicesManagerKey: InjectionKey {
+    static var currentValue: ServicesManager = CommonServicesManager()
+}
+
+extension InjectedValues {
+    var servicesManager: ServicesManager {
+        get { Self[ServicesManagerKey.self] }
+        set { Self[ServicesManagerKey.self] = newValue }
+    }
+}
+
+protocol ServicesManager {
+    var initialized: Bool { get }
+
+    func initialize()
+    func initializeKeychainSensitiveServices() async
+}
+
+class CommonServicesManager {
     @Injected(\.sellService) private var sellService: SellService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
@@ -31,46 +49,13 @@ class ServicesManager {
     private let pushNotificationEventsLogger: PushNotificationsEventsLogger
     private let mobileAccessCodeCleaner: MobileAccessCodeCleaner
 
+    private var _initialized: Bool = false
+
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
         storyDataPrefetchService = StoryDataPrefetchService()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
         mobileAccessCodeCleaner = MobileAccessCodeCleaner(manager: CommonMobileAccessCodeStorageManager())
-    }
-
-    func initialize() {
-        SettingsMigrator.migrateIfNeeded()
-
-        handleUITestingArguments()
-
-        TangemLoggerConfigurator().initialize()
-
-        let initialLaunches = recordAppLaunch()
-
-        if initialLaunches == 0 {
-            KeychainCleaner.cleanAllData()
-        }
-
-        AppLogger.info("Start services initializing")
-
-        configureFirebase()
-
-        configureBlockchainSdkExceptionHandler()
-
-        sellService.initialize()
-        accountHealthChecker.initialize()
-        apiListProvider.initialize()
-        userTokensPushNotificationsService.initialize()
-        pushNotificationsInteractor.initialize()
-        stakingPendingHashesSender?.sendHashesIfNeeded()
-        hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
-        storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
-        ukGeoDefiner.initialize()
-        if FeatureProvider.isAvailable(.walletConnectUI) {
-            wcService.initialize()
-        }
-        mobileAccessCodeCleaner.initialize()
-        SendFeatureProvider.shared.loadFeaturesAvailability()
     }
 
     /// - Warning: DO NOT enable in debug mode.
@@ -125,12 +110,60 @@ class ServicesManager {
     }
 }
 
-/// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
-class KeychainSensitiveServicesManager {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+extension CommonServicesManager: ServicesManager {
+    var initialized: Bool {
+        _initialized
+    }
 
-    func initialize() async {
+    func initialize() {
+        if _initialized {
+            return
+        }
+
+        SettingsMigrator.migrateIfNeeded()
+
+        handleUITestingArguments()
+
+        TangemLoggerConfigurator().initialize()
+
+        let initialLaunches = recordAppLaunch()
+
+        if initialLaunches == 0 {
+            KeychainCleaner.cleanAllData()
+        }
+
+        AppLogger.info("Start services initializing")
+
+        configureFirebase()
+
+        configureBlockchainSdkExceptionHandler()
+
+        sellService.initialize()
+        accountHealthChecker.initialize()
+        apiListProvider.initialize()
+        userTokensPushNotificationsService.initialize()
+        pushNotificationsInteractor.initialize()
+        stakingPendingHashesSender?.sendHashesIfNeeded()
+        hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
+        storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
+        ukGeoDefiner.initialize()
+
+        if FeatureProvider.isAvailable(.walletConnectUI) {
+            wcService.initialize()
+        }
+
+        mobileAccessCodeCleaner.initialize()
+        SendFeatureProvider.shared.loadFeaturesAvailability()
+    }
+
+    /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
+    func initializeKeychainSensitiveServices() async {
+        if _initialized {
+            return
+        }
+
         await userWalletRepository.initialize()
+        _initialized = true
     }
 }
 
