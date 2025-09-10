@@ -424,7 +424,46 @@ extension TokenDetailsViewModel {
     func openYieldModulePromo() {
         coordinator?.openYieldModulePromoView(
             walletModel: walletModel,
-            info: .init(apy: "5.1", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
+            info: .init(
+                apy: "5.1",
+                networkFee: 0.00034,
+                maximumFee: 8.50,
+                lastYearReturns: [:],
+                feeCurrencyInfo: feeCurrencyInfo
+            )
         )
+    }
+
+    func openYieldInfo() {
+        let params = YieldModuleBottomSheetParams.EarnInfoParams(
+            tokenName: walletModel.tokenItem.name,
+            availableFunds: "0.00049219 USDT",
+            chartData: .init(annualEarnings: [:]),
+            transferMode: "Automatic",
+            status: "Active",
+            networkFee: 1.45,
+            approveNeeded: true,
+            feeCurrencyInfo: feeCurrencyInfo
+        )
+
+        coordinator?.openYieldInfo(params: params, walletModel: walletModel)
+    }
+}
+
+private extension TokenDetailsViewModel {
+    var feeCurrencyInfo: YieldModuleBottomSheetParams.FeeCurrencyInfo? {
+        if true {
+//        if walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) >= 1.45 {
+            return .init(
+                feeCurrencyName: walletModel.feeTokenItem.name,
+                feeCurrencyIcon: NetworkImageProvider().provide(by: walletModel.feeTokenItem.blockchain, filled: true).image,
+                feeCurrencySymbol: walletModel.feeTokenItem.blockchain.currencySymbol,
+                goToFeeCurrencyAction: { [weak self] in
+                    self?.openFeeCurrency()
+                }
+            )
+        }
+
+        return nil
     }
 }
