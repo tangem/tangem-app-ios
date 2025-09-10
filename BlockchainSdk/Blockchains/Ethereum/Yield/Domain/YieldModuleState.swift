@@ -1,5 +1,5 @@
 //
-//  YieldTokenState.swift
+//  YieldModuleState.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,16 +9,16 @@
 import Foundation
 import BigInt
 
-public enum YieldTokenState {
+public enum YieldModuleState {
     case notDeployed
     case deployed(DeployedState)
 
     public struct DeployedState {
-        public let yieldToken: String
+        public let yieldModule: String
         public let initializationState: InitializationState
 
-        public init(yieldToken: String, initializationState: InitializationState) {
-            self.yieldToken = yieldToken
+        public init(yieldModule: String, initializationState: InitializationState) {
+            self.yieldModule = yieldModule
             self.initializationState = initializationState
         }
     }
@@ -31,6 +31,13 @@ public enum YieldTokenState {
     public enum ActiveState {
         case notActive
         case active(maxNetworkFee: BigUInt)
+    }
+
+    public var yieldModule: String? {
+        switch self {
+        case .notDeployed: nil
+        case .deployed(let deployedState): deployedState.yieldModule
+        }
     }
 
     public var isActive: Bool {
