@@ -32,6 +32,7 @@ struct YieldModuleBottomSheetView: View {
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
             content: { mainContent },
+            bottomBanner: bottomBanner,
             closeAction: closeAction,
             backAction: backAction,
             buttonAction: ctaButtonAction,
@@ -56,7 +57,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetTitle
-        case .startYearing:
+        case .startEarning:
             Localization.yieldModuleStartEarning
         case .feePolicy:
             Localization.yieldModuleFeePolicySheetTitle
@@ -73,7 +74,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetDescription
-        case .startYearing(let params):
+        case .startEarning(let params):
             Localization.yieldModuleStartEarningSheetDescription(params.tokenName)
         case .feePolicy(let params):
             Localization.yieldModuleFeePolicySheetDescription(params.tokenName)
@@ -91,7 +92,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .rateInfo:
             rateInfoSubtitleFooter
-        case .feePolicy, .startYearing, .approve, .stopEarning, .earnInfo:
+        case .feePolicy, .startEarning, .approve, .stopEarning, .earnInfo:
             EmptyView()
         }
     }
@@ -112,7 +113,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .rateInfo, .feePolicy:
             .gray(title: Localization.commonGotIt)
-        case .startYearing:
+        case .startEarning:
             .blackWithTangemIcon(title: Localization.yieldModuleStartEarning)
         case .approve:
             .blackWithTangemIcon(title: Localization.commonConfirm)
@@ -128,7 +129,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .earnInfo(let params):
             earnInfoToolbarTitleView(status: params.status)
-        case .approve, .stopEarning, .startYearing, .feePolicy, .rateInfo:
+        case .approve, .stopEarning, .startEarning, .feePolicy, .rateInfo:
             EmptyView()
         }
     }
@@ -152,7 +153,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .rateInfo, .feePolicy, .earnInfo:
             EmptyView()
-        case .startYearing(let params):
+        case .startEarning(let params):
             startEarningTopContent(icon: params.tokenIcon)
         case .stopEarning:
             stopEarningTopContent
@@ -167,13 +168,13 @@ struct YieldModuleBottomSheetView: View {
         case .rateInfo(let params):
             InterestRateInfo(lastYearReturns: params.lastYearReturns)
 
-        case .startYearing(let params):
+        case .startEarning(let params):
             StartEarningView(
                 fee: params.networkFee,
                 showFeePolicyAction: {
                     viewModel.onShowFeePolicy(
                         params: .init(
-                            currentFee: params.networkFee,
+                            networkFee: params.networkFee,
                             maximumFee: params.maximumFee,
                             tokenName: params.tokenName,
                             blockchainName: params.blockchainName
@@ -184,16 +185,16 @@ struct YieldModuleBottomSheetView: View {
 
         case .feePolicy(let params):
             FeePolicyView(
-                currentFee: params.currentFee,
+                networkFee: params.networkFee,
                 maximumFee: params.maximumFee,
                 blockchainName: params.blockchainName
             )
 
         case .approve(let params):
-            ApproveView(fee: params.networkFee, readMoreAction: {})
+            ApproveView(fee: params.networkFee.formatted(), readMoreAction: {})
 
         case .stopEarning(let params):
-            StopEarningView(fee: params.networkFee, readMoreAction: {})
+            StopEarningView(fee: params.networkFee.formatted(), readMoreAction: {})
 
         case .earnInfo(let params):
             EarnInfoView(
@@ -206,9 +207,34 @@ struct YieldModuleBottomSheetView: View {
         }
     }
 
+    private var bottomBanner: YieldModuleBottomSheetBottomBannerParams? {
+        if let info = viewModel.feeCurrencyInfo {
+            return .notEnoughFeeCurrency(
+                feeCurrencyName: info.feeCurrencyName,
+                tokenIcon: info.feeCurrencyIcon,
+                buttonAction: {
+                    info.goToFeeCurrencyAction()
+                    viewModel.onCloseTapAction()
+                }
+            )
+        }
+
+        if case .earnInfo = viewModel.flow {
+            return .approveNeeded(buttonAction: {
+                viewModel.onShowApproveNeededSheet()
+            })
+        }
+
+        return nil
+    }
+}
+
+// MARK: - Actions
+
+private extension YieldModuleBottomSheetView {
     private var closeAction: (() -> Void)? {
         switch viewModel.flow {
-        case .rateInfo, .startYearing, .earnInfo:
+        case .rateInfo, .startEarning, .earnInfo:
             viewModel.onCloseTapAction
         case .feePolicy, .stopEarning, .approve:
             nil
@@ -217,7 +243,7 @@ struct YieldModuleBottomSheetView: View {
 
     private var backAction: (() -> Void)? {
         switch viewModel.flow {
-        case .rateInfo, .startYearing, .earnInfo:
+        case .rateInfo, .startEarning, .earnInfo:
             nil
         case .feePolicy, .stopEarning, .approve:
             viewModel.onBackAction
@@ -226,7 +252,7 @@ struct YieldModuleBottomSheetView: View {
 
     private var ctaButtonAction: () -> Void {
         switch viewModel.flow {
-        case .rateInfo, .startYearing:
+        case .rateInfo, .startEarning:
             viewModel.onCloseTapAction
         case .feePolicy, .stopEarning, .approve:
             viewModel.onBackAction
@@ -235,6 +261,8 @@ struct YieldModuleBottomSheetView: View {
         }
     }
 }
+
+// MARK: - Top Content
 
 private extension YieldModuleBottomSheetView {
     private var approveTopContent: some View {
