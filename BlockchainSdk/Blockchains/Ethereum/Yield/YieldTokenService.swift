@@ -12,7 +12,7 @@ import BigInt
 public protocol YieldTokenService {
     func getAPY(for contractAddress: String) async throws -> Decimal
     func calculateYieldAddress(for address: String) async throws -> String
-    func getYieldTokenState(for address: String, contractAddress: String) async throws -> YieldTokenState
+    func getYieldModuleState(for address: String, contractAddress: String) async throws -> YieldModuleState
     func getYieldBalances(
         for yieldToken: String,
         tokens: [Token]
@@ -64,15 +64,15 @@ extension EthereumNetworkService: YieldTokenService {
         return resultNoHex.stripLeadingZeroes().addHexPrefix()
     }
 
-    public func getYieldTokenState(for address: String, contractAddress: String) async throws -> YieldTokenState {
-        let yieldToken = try await getYieldModule(for: address)
+    public func getYieldModuleState(for address: String, contractAddress: String) async throws -> YieldModuleState {
+        let yieldModule = try await getYieldModule(for: address)
 
-        if let yieldToken {
-            let yieldTokenData = try await getYieldTokenData(for: yieldToken, contractAddress: contractAddress)
+        if let yieldModule {
+            let yieldTokenData = try await getYieldTokenData(for: yieldModule, contractAddress: contractAddress)
 
             let maxNetworkFee = yieldTokenData.maxNetworkFee
 
-            let initializationState: YieldTokenState.InitializationState = if yieldTokenData.initialized {
+            let initializationState: YieldModuleState.InitializationState = if yieldTokenData.initialized {
                 if yieldTokenData.active {
                     .initialized(activeState: .active(maxNetworkFee: maxNetworkFee))
                 } else {
@@ -81,7 +81,7 @@ extension EthereumNetworkService: YieldTokenService {
             } else {
                 .notInitialized
             }
-            return .deployed(.init(yieldToken: yieldToken, initializationState: initializationState))
+            return .deployed(.init(yieldModule: yieldModule, initializationState: initializationState))
         } else {
             return .notDeployed
         }
