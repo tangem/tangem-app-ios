@@ -180,6 +180,8 @@ extension UserWalletSettingsCoordinator:
                 switch options {
                 case .dismiss:
                     self?.mobileUpgradeCoordinator = nil
+                case .finish:
+                    self?.mobileUpgradeCoordinator = nil
                     self?.mobileBackupTypesViewModel = nil
                 }
             }
