@@ -11,7 +11,7 @@ import XCTest
 final class ScanCardUITests: BaseTestCase {
     func testScanTwinCard_MainShowed() {
         setAllureId(869)
-        launchApp(tangemApiType: .mock)
+        launchApp()
 
         StoriesScreen(app)
             .scanMockWallet(name: .twin)
@@ -20,7 +20,7 @@ final class ScanCardUITests: BaseTestCase {
 
     func testScanWallet2Card_MainShowed() {
         setAllureId(865)
-        launchApp(tangemApiType: .mock)
+        launchApp()
 
         StoriesScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -29,7 +29,7 @@ final class ScanCardUITests: BaseTestCase {
 
     func testScanWalletCard_MainShowed() {
         setAllureId(867)
-        launchApp(tangemApiType: .mock)
+        launchApp()
 
         StoriesScreen(app)
             .scanMockWallet(name: .wallet)
@@ -38,7 +38,7 @@ final class ScanCardUITests: BaseTestCase {
 
     func testScanXrpNoteCard_MainShowed() {
         setAllureId(868)
-        launchApp(tangemApiType: .mock)
+        launchApp()
 
         StoriesScreen(app)
             .scanMockWallet(name: .xrpNote)
@@ -47,7 +47,7 @@ final class ScanCardUITests: BaseTestCase {
 
     func testScanShibaCard_MainShowed() {
         setAllureId(866)
-        launchApp(tangemApiType: .mock)
+        launchApp()
 
         StoriesScreen(app)
             .scanMockWallet(name: .shiba)
@@ -56,7 +56,7 @@ final class ScanCardUITests: BaseTestCase {
 
     func testScanV3EdCard_MainShowed() {
         setAllureId(870)
-        launchApp(tangemApiType: .mock)
+        launchApp()
 
         StoriesScreen(app)
             .scanMockWallet(name: .xlmBird)
@@ -65,7 +65,7 @@ final class ScanCardUITests: BaseTestCase {
 
     func testScanV3SeckpCard_MainShowed() {
         setAllureId(872)
-        launchApp(tangemApiType: .mock)
+        launchApp()
 
         StoriesScreen(app)
             .scanMockWallet(name: .v3seckp)
@@ -74,7 +74,7 @@ final class ScanCardUITests: BaseTestCase {
 
     func testScanRing_MainShowed() {
         setAllureId(864)
-        launchApp(tangemApiType: .mock)
+        launchApp()
 
         StoriesScreen(app)
             .scanMockWallet(name: .ring)
@@ -83,7 +83,7 @@ final class ScanCardUITests: BaseTestCase {
 
     func testScan4_12Card_MainShowed() {
         setAllureId(871)
-        launchApp(tangemApiType: .mock)
+        launchApp()
 
         StoriesScreen(app)
             .scanMockWallet(name: .four12)
