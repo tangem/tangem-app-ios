@@ -28,6 +28,8 @@ struct OnrampFlowBaseBuilder {
             analyticsLogger: analyticsLogger
         )
 
+        analyticsLogger.setup(onrampProvidersInput: onrampModel)
+
         let notificationManager = builder.makeOnrampNotificationManager(input: onrampModel, delegate: onrampModel)
 
         let providersBuilder = OnrampProvidersBuilder(
