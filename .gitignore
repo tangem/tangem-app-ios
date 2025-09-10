@@ -76,6 +76,7 @@ fastlane/uitest-artifacts/
 # Generated
 Modules/TangemAssets/Generated/**.swift
 Modules/TangemLocalization/Generated/**.swift
+Modules/TangemDS/Generated/**.swift
 
 # Rubygems
 vendor/bundle
