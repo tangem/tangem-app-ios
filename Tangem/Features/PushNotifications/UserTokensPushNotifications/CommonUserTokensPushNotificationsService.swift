@@ -419,8 +419,6 @@ private extension CommonUserTokensPushNotificationsService {
         let allowanceUserWalletIdTransactionsPush = AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue)
 
         if !allowanceUserWalletIdTransactionsPush {
-            AppSettings.shared.allowanceUserWalletIdTransactionsPush.append(userWalletId.stringValue)
-
             // We will force the update of the push stats on the backend, provided that the system permissions have been issued in definePushNotifyStatus
             return true
         }
