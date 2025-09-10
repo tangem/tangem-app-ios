@@ -25,25 +25,12 @@ class YieldModuleTransactionDispatcher {
 
 extension YieldModuleTransactionDispatcher: TransactionDispatcher {
     func send(transaction: SendTransactionType) async throws -> TransactionDispatcherResult {
-        guard case .transfer(let transferTransaction) = transaction else {
+        let results = try await send(transactions: [transaction])
+        guard let result = results.first else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
-
-        let mapper = TransactionDispatcherResultMapper()
-
-        do {
-            let hash = try await walletModel.transactionSender.send(transferTransaction, signer: transactionSigner).async()
-            walletModel.updateAfterSendingTransaction()
-
-            return mapper.mapResult(
-                hash,
-                blockchain: walletModel.tokenItem.blockchain,
-                signer: transactionSigner.latestSignerType
-            )
-        } catch {
-            AppLogger.error(error: error)
-            throw mapper.mapError(error.toUniversalError(), transaction: transaction)
-        }
+        
+        return result
     }
 
     func send(transactions: [SendTransactionType]) async throws -> [TransactionDispatcherResult] {
