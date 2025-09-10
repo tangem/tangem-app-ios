@@ -206,48 +206,46 @@ extension TokenDetailsViewModel {
             transactionSigner: userWalletModel.signer
         )
 
-        let module = CommonYieldModuleManager(
-            address: walletModel.defaultAddressString,
+        guard let module = CommonYieldModuleManager(
+            walletAddress: walletModel.defaultAddressString,
             tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
             yieldTokenService: yieldService,
             tokenBalanceProvider: walletModel.totalTokenBalanceProvider,
             ethereumNetworkProvider: ethereumNetworkProvider,
             ethereumTransactionDataBuilder: ethereumTransactionDataBuilder,
             transactionCreator: walletModel.transactionCreator,
             transactionDispatcher: dispatcher
-        )
+        ) else { return }
 
         Task {
-            let isActive = try await module.isYieldModuleActive(
-                for: walletModel.defaultAddressString,
+            let apy = try await module.getAPY(contractAddress: token.contractAddress)
+
+            let state = try await module.getYieldModuleState(
                 contractAddress: token.contractAddress
             )
 
-            if isActive {
-                let fee = try await module.exitFee(
-                    for: walletModel.defaultAddressString,
-                    contractAddress: token.contractAddress
-                )
-
-                let result = try await module.exit(
-                    for: walletModel.defaultAddressString,
-                    contractAddress: token.contractAddress,
-                    fee: fee
-                )
-                print(result)
-            } else {
+            if !state.isActive {
                 let fee = try await module.enterFee(
-                    for: walletModel.defaultAddressString,
                     contractAddress: token.contractAddress
                 )
 
                 let result = try await module.enter(
-                    for: walletModel.defaultAddressString,
                     contractAddress: token.contractAddress,
                     fee: fee
                 )
 
+                print(result)
+            } else if let yieldModule = state.yieldModule {
+                let fee = try await module.exitFee(
+                    yieldModule: yieldModule,
+                    contractAddress: token.contractAddress
+                )
+
+                let result = try await module.exit(
+                    yieldModule: yieldModule,
+                    contractAddress: token.contractAddress,
+                    fee: fee
+                )
                 print(result)
             }
         }
