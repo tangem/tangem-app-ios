@@ -34,6 +34,13 @@ final class MainViewModel: ObservableObject {
 
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
+    private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
+        settings: .init(stopRefreshingDelay: 1, refreshTaskTimeout: 120), // 2 minutes
+        refreshable: { [weak self] in
+            await self?.onPullToRefresh()
+        }
+    )
+
     // MARK: - Dependencies
 
     private let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper
@@ -147,26 +154,6 @@ final class MainViewModel: ObservableObject {
         }
 
         coordinator?.beginHandlingIncomingActions()
-    }
-
-    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
-        isHorizontalScrollDisabled = true
-        let completion = { [weak self] in
-            self?.isHorizontalScrollDisabled = false
-            completionHandler()
-        }
-        let page = pages[selectedCardIndex]
-
-        switch page {
-        case .singleWallet(_, _, let viewModel):
-            viewModel?.onPullToRefresh(completionHandler: completion)
-        case .multiWallet(_, _, let viewModel):
-            viewModel.onPullToRefresh(completionHandler: completion)
-        case .lockedWallet:
-            completion()
-        case .visaWallet(_, _, let viewModel):
-            viewModel.onPullToRefresh(completionHandler: completion)
-        }
     }
 
     func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
@@ -400,6 +387,25 @@ final class MainViewModel: ObservableObject {
                 self?.coordinator?.openPushNotificationsAuthorization()
             }
         }
+    }
+
+    private func onPullToRefresh() async {
+        await runOnMain { isHorizontalScrollDisabled = true }
+
+        let page = pages[selectedCardIndex]
+
+        switch page {
+        case .singleWallet(_, _, let viewModel):
+            await viewModel?.onPullToRefresh()
+        case .multiWallet(_, _, let viewModel):
+            await viewModel.onPullToRefresh()
+        case .lockedWallet:
+            break
+        case .visaWallet(_, _, let viewModel):
+            await viewModel.onPullToRefresh()
+        }
+
+        await runOnMain { isHorizontalScrollDisabled = false }
     }
 }
 
