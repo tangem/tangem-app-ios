@@ -11,7 +11,7 @@ import UIKit
 
 public extension Colors {
     enum Text {
-        enum Neutral {
+        public enum Neutral {
             public static let primary: Color = .dynamic(light: Darks.dark6, dark: Base.white)
             public static let primaryInverted: Color = .dynamic(light: Base.white, dark: Darks.dark6)
             public static let primaryInvertedConstant: Color = Base.white
@@ -19,7 +19,7 @@ public extension Colors {
             public static let tertiary: Color = Darks.dark1
         }
 
-        enum Status {
+        public enum Status {
             public static let accent: Color = Blue.azure
             public static let disabled: Color = .dynamic(light: Lights.light4, dark: Darks.dark3)
             public static let warning: Color = .dynamic(light: Red.amaranth, dark: Red.flamingo)
@@ -29,7 +29,7 @@ public extension Colors {
     }
 
     enum Graphic {
-        enum Neutral {
+        public enum Neutral {
             public static let primary: Color = .dynamic(light: Darks.dark6, dark: Base.white)
             public static let primaryInverted: Color = .dynamic(light: Base.white, dark: Darks.dark6)
             public static let primaryInvertedConstant: Color = Base.white
@@ -39,7 +39,7 @@ public extension Colors {
             public static let quaternary: Color = .dynamic(light: Lights.light4, dark: Darks.dark3)
         }
 
-        enum Status {
+        public enum Status {
             public static let accent: Color = Blue.azure
             public static let warning: Color = .dynamic(light: Red.amaranth, dark: Red.flamingo)
             public static let attention: Color = .dynamic(light: Yellow.tangerine, dark: Yellow.mustard)
@@ -75,12 +75,12 @@ public extension Colors {
     }
 
     enum Border {
-        enum Neutral {
+        public enum Neutral {
             public static let primary: Color = .dynamic(light: Lights.light2, dark: Darks.dark4)
             public static let secondary: Color = .dynamic(light: Lights.light5, dark: Darks.dark4)
         }
 
-        enum Status {
+        public enum Status {
             public static let accent: Color = Blue.azure
             public static let warning: Color = .dynamic(light: Red.amaranth, dark: Red.flamingo)
             public static let attention: Color = .dynamic(light: Yellow.tangerine, dark: Yellow.mustard)
@@ -105,7 +105,7 @@ public extension Colors {
     }
 
     enum Fill {
-        enum Neutral {
+        public enum Neutral {
             public static let primary: Color = .dynamic(light: Darks.dark6, dark: Base.white)
             public static let primaryInverted: Color = .dynamic(light: Base.white, dark: Darks.dark6)
             public static let primaryConstant: Color = Base.white
@@ -114,7 +114,7 @@ public extension Colors {
             public static let quaternary: Color = .dynamic(light: Lights.light4, dark: Darks.dark3)
         }
 
-        enum Status {
+        public enum Status {
             public static let accent: Color = Blue.azure
             public static let warning: Color = .dynamic(light: Red.amaranth, dark: Red.flamingo)
             public static let attention: Color = .dynamic(light: Yellow.tangerine, dark: Yellow.mustard)
