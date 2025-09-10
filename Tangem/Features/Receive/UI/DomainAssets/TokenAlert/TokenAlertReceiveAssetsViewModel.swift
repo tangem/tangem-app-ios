@@ -19,13 +19,7 @@ final class TokenAlertReceiveAssetsViewModel: ObservableObject, Identifiable {
     let tokenIconInfo: TokenIconInfo
     let networkName: String
 
-    var networkIconImageAsset: ImageType { imageAsset }
-
     // MARK: - Private Properties
-
-    private let imageAsset: ImageType
-
-    private let blockchainIconProvider = NetworkImageProvider()
 
     private var proxySelectorViewModel: SelectorReceiveAssetsViewModel
     private weak var coordinator: TokenAlertReceiveAssetsRoutable?
@@ -40,24 +34,8 @@ final class TokenAlertReceiveAssetsViewModel: ObservableObject, Identifiable {
         proxySelectorViewModel = selectorViewModel
         self.coordinator = coordinator
 
-        let imageUrl: URL?
-
-        if let id = tokenItem.id {
-            imageUrl = IconURLBuilder().tokenIconURL(id: id)
-        } else {
-            imageUrl = nil
-        }
-
-        tokenIconInfo = TokenIconInfo(
-            name: "",
-            blockchainIconAsset: nil,
-            imageURL: imageUrl,
-            isCustom: false,
-            customTokenColor: tokenItem.token?.customTokenColor,
-        )
-
+        tokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: false)
         networkName = tokenItem.blockchain.displayName.capitalizingFirstLetter()
-        imageAsset = blockchainIconProvider.provide(by: tokenItem.blockchainNetwork.blockchain, filled: true)
     }
 
     func onViewAppear() {
