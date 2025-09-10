@@ -25,6 +25,10 @@ enum CardMock: String, CaseIterable {
     case four12
     case v3seckp
     case ring
+    case shibaNoBackup
+    case wallet2NoBackup
+    case shibaNoWallets
+    case wallet2NoWallets
     case walletNoBackup
 
     var accessibilityIdentifier: String {
@@ -57,6 +61,14 @@ enum CardMock: String, CaseIterable {
             return CardMockAccessibilityIdentifiers.v3seckp.rawValue
         case .ring:
             return CardMockAccessibilityIdentifiers.ring.rawValue
+        case .shibaNoBackup:
+            return CardMockAccessibilityIdentifiers.shibaNoBackup.rawValue
+        case .wallet2NoBackup:
+            return CardMockAccessibilityIdentifiers.wallet2NoBackup.rawValue
+        case .shibaNoWallets:
+            return CardMockAccessibilityIdentifiers.shibaNoWallets.rawValue
+        case .wallet2NoWallets:
+            return CardMockAccessibilityIdentifiers.wallet2NoWallets.rawValue
         case .walletNoBackup:
             return CardMockAccessibilityIdentifiers.walletNoBackup.rawValue
         }
@@ -105,6 +117,14 @@ enum CardMock: String, CaseIterable {
             return .none
         case .ring:
             return .none
+        case .shibaNoBackup:
+            return .none
+        case .wallet2NoBackup:
+            return .none
+        case .shibaNoWallets:
+            return .none
+        case .wallet2NoWallets:
+            return .none
         case .walletNoBackup:
             return .none
         }
@@ -140,6 +160,14 @@ enum CardMock: String, CaseIterable {
             return url(fileName: "v3seckp")
         case .ring:
             return url(fileName: "ring")
+        case .shibaNoBackup:
+            return url(fileName: "shibaNoBackup")
+        case .wallet2NoBackup:
+            return url(fileName: "wallet2NoBackup")
+        case .shibaNoWallets:
+            return url(fileName: "shibaNoWallets")
+        case .wallet2NoWallets:
+            return url(fileName: "wallet2NoWallets")
         case .walletNoBackup:
             return url(fileName: "walletNoBackup")
         }
