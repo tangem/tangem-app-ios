@@ -10,6 +10,13 @@ import Foundation
 import TangemExpress
 import TangemFoundation
 
+struct PredefinedOnrampParameters: Hashable {
+    static let none = PredefinedOnrampParameters(amount: .none, preferredValues: .none)
+
+    let amount: Decimal?
+    let preferredValues: PreferredValues
+}
+
 struct OnrampFlowBaseBuilder {
     let walletModel: any WalletModel
     let source: SendCoordinator.Source
@@ -18,14 +25,18 @@ struct OnrampFlowBaseBuilder {
     let sendFinishStepBuilder: SendFinishStepBuilder
     let builder: SendDependenciesBuilder
 
-    func makeSendViewModel(router: SendRoutable) -> SendViewModel {
-        let (onrampManager, onrampRepository, onrampDataRepository) = builder.makeOnrampDependencies()
+    func makeSendViewModel(parameters: PredefinedOnrampParameters, router: SendRoutable) -> SendViewModel {
+        let (onrampManager, onrampRepository, onrampDataRepository) = builder.makeOnrampDependencies(
+            preferredValues: parameters.preferredValues
+        )
+
         let analyticsLogger = builder.makeOnrampSendAnalyticsLogger(source: source)
         let onrampModel = builder.makeOnrampModel(
             onrampManager: onrampManager,
             onrampDataRepository: onrampDataRepository,
             onrampRepository: onrampRepository,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            predefinedValues: .init(amount: parameters.amount)
         )
 
         let notificationManager = builder.makeOnrampNotificationManager(input: onrampModel, delegate: onrampModel)
