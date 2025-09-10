@@ -24,7 +24,7 @@ struct TokenDetailsView: View {
     private let coordinateSpaceName = UUID()
 
     var body: some View {
-        RefreshableScrollView(onRefresh: viewModel.onPullToRefresh(completionHandler:)) {
+        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: 14) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
