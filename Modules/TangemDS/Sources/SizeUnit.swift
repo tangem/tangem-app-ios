@@ -9,14 +9,32 @@
 import Foundation
 
 public enum SizeUnit {
-    case zero, half
-    case x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18
+    case zero
+    case half
+    case x1
+    case x2
+    case x3
+    case x4
+    case x5
+    case x6
+    case x7
+    case x8
+    case x9
+    case x10
+    case x11
+    case x12
+    case x13
+    case x14
+    case x15
+    case x16
+    case x17
+    case x18
 
     var value: CGFloat {
-        baseValue * factor
+        Self.baseValue * factor
     }
 
-    private let baseValue: CGFloat = 4
+    private static let baseValue: CGFloat = 4
 
     private var factor: Double {
         switch self {
