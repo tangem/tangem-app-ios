@@ -49,6 +49,10 @@ struct TokenDetailsView: View {
                     )
                 }
 
+                YieldStatusView(status: .active(income: "1.34464", annualYield: "5.1", isApproveNeeded: false, tapAction: {
+                    viewModel.openYieldInfo()
+                }))
+
                 if let activeStakingViewData = viewModel.activeStakingViewData {
                     ActiveStakingView(data: activeStakingViewData)
                         .padding(14)

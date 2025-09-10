@@ -3197,6 +3197,7 @@
 		EA0DB86C2E24074D008BFBB2 /* StellarAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0DB86B2E24074D008BFBB2 /* StellarAssetIdParser.swift */; };
 		EA0EDD812E61DEDA00BCA426 /* YieldModulePromoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0EDD7F2E61DEDA00BCA426 /* YieldModulePromoView.swift */; };
 		EA0EDD832E61DEE700BCA426 /* YieldModulePromoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0EDD822E61DEE700BCA426 /* YieldModulePromoViewModel.swift */; };
+		EA1667822E719223004EEC40 /* YieldModuleBottomSheetBottomBannerParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1667812E719223004EEC40 /* YieldModuleBottomSheetBottomBannerParams.swift */; };
 		EA186D8A2E68884D00F6DFEA /* StopEarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA186D892E68884D00F6DFEA /* StopEarningView.swift */; };
 		EA186DAE2E68943000F6DFEA /* ApproveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA186DAD2E68943000F6DFEA /* ApproveView.swift */; };
 		EA265A112E5F302F00C6EA3F /* TokenItemEarnBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA265A102E5F302F00C6EA3F /* TokenItemEarnBadgeView.swift */; };
@@ -7340,6 +7341,7 @@
 		EA0DB86B2E24074D008BFBB2 /* StellarAssetIdParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarAssetIdParser.swift; sourceTree = "<group>"; };
 		EA0EDD7F2E61DEDA00BCA426 /* YieldModulePromoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModulePromoView.swift; sourceTree = "<group>"; };
 		EA0EDD822E61DEE700BCA426 /* YieldModulePromoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModulePromoViewModel.swift; sourceTree = "<group>"; };
+		EA1667812E719223004EEC40 /* YieldModuleBottomSheetBottomBannerParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleBottomSheetBottomBannerParams.swift; sourceTree = "<group>"; };
 		EA186D892E68884D00F6DFEA /* StopEarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StopEarningView.swift; sourceTree = "<group>"; };
 		EA186DAD2E68943000F6DFEA /* ApproveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApproveView.swift; sourceTree = "<group>"; };
 		EA265A102E5F302F00C6EA3F /* TokenItemEarnBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemEarnBadgeView.swift; sourceTree = "<group>"; };
@@ -18917,6 +18919,15 @@
 			path = Features;
 			sourceTree = "<group>";
 		};
+		EAF8436A2E606AED000F7F5B /* YieldModuleNotifications */ = {
+			isa = PBXGroup;
+			children = (
+				EAF843692E606AED000F7F5B /* WalletYieldNotificationManager.swift */,
+				EAF8436C2E607F81000F7F5B /* FakeWalletYieldNotificationManager.swift */,
+			);
+			path = YieldModuleNotifications;
+			sourceTree = "<group>";
+		};
 		EAFCD5E22E65A7FE0038169B /* BottomSheet */ = {
 			isa = PBXGroup;
 			children = (
@@ -18929,17 +18940,9 @@
 				EA186D892E68884D00F6DFEA /* StopEarningView.swift */,
 				EA186DAD2E68943000F6DFEA /* ApproveView.swift */,
 				EAD230242E6ACB3600B0E503 /* EarnInfoView.swift */,
+				EA1667812E719223004EEC40 /* YieldModuleBottomSheetBottomBannerParams.swift */,
 			);
 			path = BottomSheet;
-            sourceTree = "<group>";
-        };
-		EAF8436A2E606AED000F7F5B /* YieldModuleNotifications */ = {
-			isa = PBXGroup;
-			children = (
-				EAF843692E606AED000F7F5B /* WalletYieldNotificationManager.swift */,
-				EAF8436C2E607F81000F7F5B /* FakeWalletYieldNotificationManager.swift */,
-			);
-			path = YieldModuleNotifications;
 			sourceTree = "<group>";
 		};
 		EAFDDCA22E6EFC790079F1C7 /* YieldAccountStatusView */ = {
@@ -24146,6 +24149,7 @@
 				DC72548E2A02BB810003FE1B /* CardInitializerMock.swift in Sources */,
 				B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */,
 				DC145B5B2E2E3E1D00E04F5C /* WCCustomAllowanceInputFactory.swift in Sources */,
+				EA1667822E719223004EEC40 /* YieldModuleBottomSheetBottomBannerParams.swift in Sources */,
 				EFA1547E2CD24B7C00A0642C /* OnrampAmountInteractor.swift in Sources */,
 				DC22535B28A4FDE90094F30C /* GeneralNotificationEventsFactory.swift in Sources */,
 				B041C96E2C3FF74100CE027A /* TangemProgressViewStyle.swift in Sources */,
