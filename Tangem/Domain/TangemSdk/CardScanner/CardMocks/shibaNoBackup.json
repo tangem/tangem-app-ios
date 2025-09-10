@@ -12,7 +12,7 @@
             "index": 0,
             "totalSignedHashes": 0,
             "isImported": false,
-            "hasBackup": true,
+            "hasBackup": false,
             "derivedKeys": {
                 "m/0'/1": {
                     "publicKey": "037B710002048D83A9EE80546EC773EF1E297740106FD4B0F60196BE03D0EF7C39",
@@ -33,7 +33,7 @@
             "index": 1,
             "totalSignedHashes": 0,
             "isImported": false,
-            "hasBackup": true,
+            "hasBackup": false,
             "derivedKeys": {
                 "m/0'/1": {
                     "publicKey": "2885DEDFE4100B0F954C2D51537CCCDC1CAFD3DA95879DECE78D8E2EF28EFA88",
@@ -53,7 +53,7 @@
             "index": 2,
             "totalSignedHashes": 0,
             "isImported": false,
-            "hasBackup": true,
+            "hasBackup": false,
             "derivedKeys": {}
         }
     ],
@@ -115,6 +115,10 @@
     },
     "userSettings": {
         "isUserCodeRecoveryAllowed": true
+    },
+    "backupStatus" : {
+      "status" : "noBackup"
     }
 }
+
 
