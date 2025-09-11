@@ -19,7 +19,7 @@ class EthereumNetworkService: MultiNetworkProvider {
 
     let blockchainName: String = Blockchain.ethereum(testnet: false).displayName
 
-    private let decimals: Int
+    let decimals: Int
     private let abiEncoder: ABIEncoder
 
     init(
@@ -45,11 +45,8 @@ class EthereumNetworkService: MultiNetworkProvider {
             getTxCount(address),
             getPendingTxCount(address)
         )
-        .withWeakCaptureOf(self)
-        .asyncMap { result in
-            let (networkService, (balance, tokenBalances, txCount, pendingTxCount)) = result
-            let yieldModuleBalances = try await networkService.getYieldBalances(for: address, tokens: tokens)
-            return EthereumInfoResponse(
+        .map { balance, tokenBalances, txCount, pendingTxCount in
+            EthereumInfoResponse(
                 balance: balance,
                 tokenBalances: tokenBalances,
                 txCount: txCount,
