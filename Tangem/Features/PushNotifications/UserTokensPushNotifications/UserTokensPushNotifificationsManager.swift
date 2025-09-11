@@ -13,5 +13,5 @@ protocol UserTokensPushNotificationsManager {
     var statusPublisher: AnyPublisher<UserWalletPushNotifyStatus, Never> { get }
     var status: UserWalletPushNotifyStatus { get }
 
-    func updateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus)
+    func handleUpdateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus)
 }

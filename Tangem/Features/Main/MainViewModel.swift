@@ -112,7 +112,14 @@ final class MainViewModel: ObservableObject {
     /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
         if !isLoggingOut {
-            Analytics.log(.mainScreenOpened)
+            var analyticsParameters: [Analytics.ParameterKey: Analytics.ParameterValue] = [:]
+
+            if let userWalletModel = userWalletRepository.selectedModel {
+                let walletType = Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets)
+                analyticsParameters[.walletType] = walletType
+            }
+
+            Analytics.log(.mainScreenOpened, params: analyticsParameters)
         }
 
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
