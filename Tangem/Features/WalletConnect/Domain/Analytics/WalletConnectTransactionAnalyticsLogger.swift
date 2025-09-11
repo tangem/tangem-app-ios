@@ -8,7 +8,7 @@
 
 protocol WalletConnectTransactionAnalyticsLogger {
     func logSignatureRequestReceived(transactionData: WCHandleTransactionData, simulationState: TransactionSimulationState)
-    func logSignatureRequestHandled(transactionData: WCHandleTransactionData)
+    func logSignatureRequestHandled(transactionData: WCHandleTransactionData, simulationState: TransactionSimulationState)
     func logSignatureRequestFailed(transactionData: WCHandleTransactionData, error: some Error)
     func logTransactionDetailsOpened(transactionData: WCHandleTransactionData)
     func logSignButtonTapped(transactionData: WCHandleTransactionData)
