@@ -15,13 +15,32 @@ import TangemStories
 import TangemFoundation
 import UIKit
 
-class ServicesManager {
+private struct ServicesManagerKey: InjectionKey {
+    static var currentValue: ServicesManager = CommonServicesManager()
+}
+
+extension InjectedValues {
+    var servicesManager: ServicesManager {
+        get { Self[ServicesManagerKey.self] }
+        set { Self[ServicesManagerKey.self] = newValue }
+    }
+}
+
+protocol ServicesManager {
+    var initialized: Bool { get }
+
+    func initialize()
+    func initializeKeychainSensitiveServices() async
+}
+
+class CommonServicesManager {
     @Injected(\.sellService) private var sellService: SellService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+    @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
 
@@ -30,45 +49,13 @@ class ServicesManager {
     private let pushNotificationEventsLogger: PushNotificationsEventsLogger
     private let mobileAccessCodeCleaner: MobileAccessCodeCleaner
 
+    private var _initialized: Bool = false
+
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
         storyDataPrefetchService = StoryDataPrefetchService()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
         mobileAccessCodeCleaner = MobileAccessCodeCleaner()
-    }
-
-    func initialize() {
-        SettingsMigrator.migrateIfNeeded()
-
-        configureForUITests()
-
-        TangemLoggerConfigurator().initialize()
-
-        let initialLaunches = recordAppLaunch()
-
-        if initialLaunches == 0 {
-            KeychainCleaner.cleanAllData()
-        }
-
-        AppLogger.info("Start services initializing")
-
-        configureFirebase()
-
-        configureBlockchainSdkExceptionHandler()
-
-        sellService.initialize()
-        accountHealthChecker.initialize()
-        apiListProvider.initialize()
-        pushNotificationsInteractor.initialize()
-        stakingPendingHashesSender?.sendHashesIfNeeded()
-        hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
-        storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
-        ukGeoDefiner.initialize()
-        if FeatureProvider.isAvailable(.walletConnectUI) {
-            wcService.initialize()
-        }
-        mobileAccessCodeCleaner.initialize()
-        SendFeatureProvider.shared.loadFeaturesAvailability()
     }
 
     /// - Warning: DO NOT enable in debug mode.
@@ -86,6 +73,14 @@ class ServicesManager {
         }
 
         FirebaseApp.configure(options: options)
+    }
+
+    private func configureAmplitude() {
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
+        AmplitudeWrapper.shared.configure()
     }
 
     private func configureBlockchainSdkExceptionHandler() {
@@ -123,14 +118,61 @@ class ServicesManager {
     }
 }
 
-/// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
-class KeychainSensitiveServicesManager {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
+extension CommonServicesManager: ServicesManager {
+    var initialized: Bool {
+        _initialized
+    }
 
-    func initialize() async {
-        await userTokensPushNotificationsService.initialize() // Must initialize before init UserWalletRepository. Becase we must listen event provider flow
+    func initialize() {
+        if _initialized {
+            return
+        }
+
+        SettingsMigrator.migrateIfNeeded()
+
+        configureForUITests()
+
+        TangemLoggerConfigurator().initialize()
+
+        let initialLaunches = recordAppLaunch()
+
+        if initialLaunches == 0 {
+            KeychainCleaner.cleanAllData()
+        }
+
+        AppLogger.info("Start services initializing")
+
+        configureFirebase()
+        configureAmplitude()
+
+        configureBlockchainSdkExceptionHandler()
+
+        sellService.initialize()
+        accountHealthChecker.initialize()
+        apiListProvider.initialize()
+        userTokensPushNotificationsService.initialize()
+        pushNotificationsInteractor.initialize()
+        stakingPendingHashesSender?.sendHashesIfNeeded()
+        hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
+        storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
+        ukGeoDefiner.initialize()
+
+        if FeatureProvider.isAvailable(.walletConnectUI) {
+            wcService.initialize()
+        }
+
+        mobileAccessCodeCleaner.initialize()
+        SendFeatureProvider.shared.loadFeaturesAvailability()
+    }
+
+    /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
+    func initializeKeychainSensitiveServices() async {
+        if _initialized {
+            return
+        }
+
         await userWalletRepository.initialize()
+        _initialized = true
     }
 }
 
