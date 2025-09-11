@@ -57,7 +57,7 @@
             "derivedKeys": {}
         }
     ],
-    "cardPublicKey": "03B5EC6950BA1ADD6159464ED32C18E26460E9BBA02B519E0FB48E2440E206CEF1",
+    "cardPublicKey": "0000",
     "attestation": {
         "walletKeysAttestation": "skipped",
         "cardKeyAttestation": "failed",
@@ -97,8 +97,8 @@
     "isAccessCodeSet": false,
     "manufacturer": {
         "name": "TANGEM",
-        "signature": "2C08746FC714A365986198F13AF829CB5F636B2FE38A2940165E21AF72D10AF0610E5EDCAE944AF723DA42438CC941E2C6DF1F78D32AFD88B69F619AF3E41DD7",
-        "manufactureDate": "2023-06-09"
+        "manufactureDate": "2023-06-09",
+        "signature" : "0000"
     },
     "supportedCurves": [
         "secp256k1",
@@ -111,7 +111,7 @@
     ],
     "issuer": {
         "name": "TANGEM SDK",
-        "publicKey": "025F16BD1D2EAFE463E62A335A09E6B2BBCBD04452526885CB679FC4D27AF1BD22"
+        "publicKey": "0000"
     },
     "userSettings": {
         "isUserCodeRecoveryAllowed": true
