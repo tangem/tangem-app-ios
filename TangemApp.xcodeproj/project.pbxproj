@@ -3242,6 +3242,16 @@
 		EA4032592E55F02E00573568 /* PromoCodeActivationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4032582E55F02E00573568 /* PromoCodeActivationDTO.swift */; };
 		EA46738F2E37F4800052E196 /* XRPAmountConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA46738E2E37F4800052E196 /* XRPAmountConverter.swift */; };
 		EA4A4F312E2FAE9B0059E282 /* CloreTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4A4F302E2FAE9B0059E282 /* CloreTransactionTests.swift */; };
+		EA5092B12E72F23C004193AC /* YieldModulePromoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092B02E72F23C004193AC /* YieldModulePromoView.swift */; };
+		EA5092B32E72F26E004193AC /* YieldModulePromoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092B22E72F26E004193AC /* YieldModulePromoViewModel.swift */; };
+		EA5092B92E72F319004193AC /* YieldModuleCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092B82E72F319004193AC /* YieldModuleCoordinator.swift */; };
+		EA5092BB2E72F3F6004193AC /* YieldModuleBottomSheetViewModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092BA2E72F3F6004193AC /* YieldModuleBottomSheetViewModule.swift */; };
+		EA5092BD2E72F4FD004193AC /* YieldModuleBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092BC2E72F4FD004193AC /* YieldModuleBottomSheetView.swift */; };
+		EA5092BF2E72F54D004193AC /* YieldModuleBottomSheetContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092BE2E72F54D004193AC /* YieldModuleBottomSheetContainerView.swift */; };
+		EA5092C32E72FB40004193AC /* YieldModuleFeePolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092C22E72FB40004193AC /* YieldModuleFeePolicyView.swift */; };
+		EA5092C52E72FB80004193AC /* YieldModuleStartEarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092C42E72FB80004193AC /* YieldModuleStartEarningView.swift */; };
+		EA5092C72E72FBF3004193AC /* YieldModuleInterestRateInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092C62E72FBF3004193AC /* YieldModuleInterestRateInfoView.swift */; };
+		EA5092C92E72FE8C004193AC /* YieldModuleCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092C82E72FE8C004193AC /* YieldModuleCoordinatorView.swift */; };
 		EA669FF72E390D200003688A /* XRPTrustlineUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA669FF62E390D200003688A /* XRPTrustlineUtils.swift */; };
 		EA66A07B2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA66A07A2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift */; };
 		EA6C829F2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */; };
@@ -7417,6 +7427,16 @@
 		EA4032582E55F02E00573568 /* PromoCodeActivationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromoCodeActivationDTO.swift; sourceTree = "<group>"; };
 		EA46738E2E37F4800052E196 /* XRPAmountConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAmountConverter.swift; sourceTree = "<group>"; };
 		EA4A4F302E2FAE9B0059E282 /* CloreTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreTransactionTests.swift; sourceTree = "<group>"; };
+		EA5092B02E72F23C004193AC /* YieldModulePromoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModulePromoView.swift; sourceTree = "<group>"; };
+		EA5092B22E72F26E004193AC /* YieldModulePromoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModulePromoViewModel.swift; sourceTree = "<group>"; };
+		EA5092B82E72F319004193AC /* YieldModuleCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleCoordinator.swift; sourceTree = "<group>"; };
+		EA5092BA2E72F3F6004193AC /* YieldModuleBottomSheetViewModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleBottomSheetViewModule.swift; sourceTree = "<group>"; };
+		EA5092BC2E72F4FD004193AC /* YieldModuleBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleBottomSheetView.swift; sourceTree = "<group>"; };
+		EA5092BE2E72F54D004193AC /* YieldModuleBottomSheetContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleBottomSheetContainerView.swift; sourceTree = "<group>"; };
+		EA5092C22E72FB40004193AC /* YieldModuleFeePolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleFeePolicyView.swift; sourceTree = "<group>"; };
+		EA5092C42E72FB80004193AC /* YieldModuleStartEarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleStartEarningView.swift; sourceTree = "<group>"; };
+		EA5092C62E72FBF3004193AC /* YieldModuleInterestRateInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleInterestRateInfoView.swift; sourceTree = "<group>"; };
+		EA5092C82E72FE8C004193AC /* YieldModuleCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleCoordinatorView.swift; sourceTree = "<group>"; };
 		EA669FF62E390D200003688A /* XRPTrustlineUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPTrustlineUtils.swift; sourceTree = "<group>"; };
 		EA66A07A2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetRequirementFeeStatus.swift; sourceTree = "<group>"; };
 		EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeepLinkValidatorTests.swift; sourceTree = "<group>"; };
@@ -8473,6 +8493,9 @@
 		0A941BE32E6B29D200770474 /* YieldModule */ = {
 			isa = PBXGroup;
 			children = (
+				EA5092B72E72F2F7004193AC /* ViewModels */,
+				EA5092B52E72F2BE004193AC /* Coordinator */,
+				EA5092AF2E72F22B004193AC /* Views */,
 				0A941BE42E6B2A0700770474 /* YieldModuleManager.swift */,
 				0A3C90BA2E6ECC64002C5374 /* YieldTransactionFee.swift */,
 				0A85A1982E7076E600ED535D /* YieldTransactionProvider.swift */,
@@ -18960,6 +18983,45 @@
 			path = Promocode;
 			sourceTree = "<group>";
 		};
+		EA5092AF2E72F22B004193AC /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				EA5092C12E72FB20004193AC /* BottomSheet */,
+				EA5092B02E72F23C004193AC /* YieldModulePromoView.swift */,
+				EA5092BE2E72F54D004193AC /* YieldModuleBottomSheetContainerView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		EA5092B52E72F2BE004193AC /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+				EA5092B82E72F319004193AC /* YieldModuleCoordinator.swift */,
+				EA5092C82E72FE8C004193AC /* YieldModuleCoordinatorView.swift */,
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		EA5092B72E72F2F7004193AC /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				EA5092B22E72F26E004193AC /* YieldModulePromoViewModel.swift */,
+				EA5092BA2E72F3F6004193AC /* YieldModuleBottomSheetViewModule.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		EA5092C12E72FB20004193AC /* BottomSheet */ = {
+			isa = PBXGroup;
+			children = (
+				EA5092BC2E72F4FD004193AC /* YieldModuleBottomSheetView.swift */,
+				EA5092C22E72FB40004193AC /* YieldModuleFeePolicyView.swift */,
+				EA5092C42E72FB80004193AC /* YieldModuleStartEarningView.swift */,
+				EA5092C62E72FBF3004193AC /* YieldModuleInterestRateInfoView.swift */,
+			);
+			path = BottomSheet;
+			sourceTree = "<group>";
+		};
 		EA53DA2F2DE0C0B300449AC9 /* PushNotificationSubscribers */ = {
 			isa = PBXGroup;
 			children = (
@@ -22685,6 +22747,7 @@
 				EF0FBB732C53BE4A0095A6BD /* StakingValidatorsCompactView.swift in Sources */,
 				DC28917B2CD9124700F57F59 /* TokenSelectorLocalizable.swift in Sources */,
 				B0E479C22C3EB39D0043B239 /* MarketsTokenDetailsMetrics.swift in Sources */,
+				EA5092C32E72FB40004193AC /* YieldModuleFeePolicyView.swift in Sources */,
 				B60976A92C7384C100778E71 /* MarketsViewNavigationControllerConfigurator.swift in Sources */,
 				B6FE5B282B93C0FF00B7A76B /* UserCodeRecoveringMock.swift in Sources */,
 				DC37A0782A584BD000C2A3F2 /* UserTokensManagerMock.swift in Sources */,
@@ -22735,6 +22798,7 @@
 				DC1DA92D2D554356003638ED /* OverlayContentContainerViewController.swift in Sources */,
 				DC1DA92E2D554356003638ED /* OverlayContentContainerAppLifecycleHelper.swift in Sources */,
 				0A917D802D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift in Sources */,
+				EA5092B12E72F23C004193AC /* YieldModulePromoView.swift in Sources */,
 				DC22535728A4F5BF0094F30C /* GenericDemoConfig.swift in Sources */,
 				DC66BBE52858EB6300CDF765 /* OnboardingCoordinator.swift in Sources */,
 				EF700D6E2DF9C9E000C95113 /* SendReceiveTokenBuilder.swift in Sources */,
@@ -23321,6 +23385,7 @@
 				B0C4F78126F0CCF70086D815 /* OnboardingStep.swift in Sources */,
 				B05DD9652A9F12A700B24ED9 /* TokenNotificationEvent.swift in Sources */,
 				0F2786372E2B8A6F00742D0F /* MobileOnboardingActivateWalletFlowBuilder.swift in Sources */,
+				EA5092B92E72F319004193AC /* YieldModuleCoordinator.swift in Sources */,
 				0F84C11B2E142C2C00DC7FB1 /* MobileFinishActivationNeededView.swift in Sources */,
 				DA1DF0612BA4630D008310E4 /* FormattedFeeComponents.swift in Sources */,
 				EFFA43772E0407B2001E0E54 /* CommonExpressBalanceProvider.swift in Sources */,
@@ -23448,6 +23513,7 @@
 				2D30234D2DF093B600B4FFE6 /* PushNotificationsHelpersFactory.swift in Sources */,
 				2D30234E2DF093B600B4FFE6 /* CommonPushNotificationsInteractor.swift in Sources */,
 				2D30234F2DF093B600B4FFE6 /* UserWalletPushNotifyStatus.swift in Sources */,
+				EA5092BB2E72F3F6004193AC /* YieldModuleBottomSheetViewModule.swift in Sources */,
 				2D3023502DF093B600B4FFE6 /* PushNotificationsPermissionManager.swift in Sources */,
 				2D3023512DF093B600B4FFE6 /* CommonUserTokensPushNotificationsService.swift in Sources */,
 				2D3023522DF093B600B4FFE6 /* PushNotificationsAvailabilityProvider.swift in Sources */,
@@ -23467,12 +23533,14 @@
 				DCFE143E294B31C00053106B /* AppPresenter.swift in Sources */,
 				0FE5884C2DEF124C00E5663E /* MobileOnboardingInput.swift in Sources */,
 				2D3E1DF52C9ACE80006AF975 /* CardsInfoPagerBottomOverlayFactoryParams.swift in Sources */,
+				EA5092C52E72FB80004193AC /* YieldModuleStartEarningView.swift in Sources */,
 				DCCEAC962DFFD5000013D4AB /* WCTransactionSimulationFactory.swift in Sources */,
 				DCCEAC972DFFD5000013D4AB /* WCTransactionSimulationView.swift in Sources */,
 				0F48DC8F2E45F06E0095D3C8 /* MobileAccessCodeSkipHelper.swift in Sources */,
 				DCCEAC982DFFD5000013D4AB /* TransactionSimulationState.swift in Sources */,
 				DCCEAC992DFFD5000013D4AB /* WCTransactionSimulationService.swift in Sources */,
 				B6ED082C2A7D9DCD0090E51F /* UserTokensReorderingOptions.swift in Sources */,
+				EA5092BD2E72F4FD004193AC /* YieldModuleBottomSheetView.swift in Sources */,
 				2DD754D72AE1660D0009CA64 /* GenerateAddressesViewModel.swift in Sources */,
 				DA76488B2E3B9A2C00F13316 /* TangemPayOfferView.swift in Sources */,
 				DA559C322B0261F400F59584 /* SendModel.swift in Sources */,
@@ -23552,6 +23620,7 @@
 				B674D6D72A96A90000172491 /* StoredUserTokenList.swift in Sources */,
 				B6E932B12A2F26BB0068D466 /* OrganizeTokensHeaderViewModel.swift in Sources */,
 				DAAA3C6D2B3D64B90002DBB0 /* EmailDataProvider.swift in Sources */,
+				EA5092B32E72F26E004193AC /* YieldModulePromoViewModel.swift in Sources */,
 				0FFA34CE2E046D1B00ACB48F /* WordsCaptureProtectionView.swift in Sources */,
 				C2E9212C2DD7A6D700ACE654 /* WalletConnectDAppVerificationService.swift in Sources */,
 				B6CAC21D2E46C673002DFA82 /* CommonCryptoAccountsRepository.swift in Sources */,
@@ -23770,6 +23839,7 @@
 				B63FDB182A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift in Sources */,
 				EF40414C2DE4E098002F996A /* SendNewAmountCompactViewSeparator.swift in Sources */,
 				B0C87B482566492000F861DE /* TwinData.swift in Sources */,
+				EA5092BF2E72F54D004193AC /* YieldModuleBottomSheetContainerView.swift in Sources */,
 				2DE0BA992CA93100002C09D9 /* BlockHeaderTitleButtonView.swift in Sources */,
 				EFF2A52D2C60BA0F007DB0C1 /* StakingNotificationEvent.swift in Sources */,
 				0FA453D92E1E9F330055B5BB /* NewAuthRoutable.swift in Sources */,
@@ -24659,6 +24729,7 @@
 				2DFC278D2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift in Sources */,
 				B0AC1A312BA47D5D00FE6879 /* OnboardingSeedPassphraseInfoBottomSheetView.swift in Sources */,
 				DADC9CA02B91C8AC00DA2C27 /* SendAlertBuilder.swift in Sources */,
+				EA5092C92E72FE8C004193AC /* YieldModuleCoordinatorView.swift in Sources */,
 				B6AEF9742A796713004663C3 /* TokenSectionsAdapter.swift in Sources */,
 				0FB934092E4A91DC00DAB673 /* MobileOnboardingSeedPhraseValidationViewModel.swift in Sources */,
 				DC0A582628252D140031BECC /* FailedScanTrackable.swift in Sources */,
@@ -24992,6 +25063,7 @@
 				2D30235B2DF0970800B4FFE6 /* TransactionNotificationsRowToggleView.swift in Sources */,
 				2D30235C2DF0970800B4FFE6 /* TransactionNotificationsRowToggleRoutable.swift in Sources */,
 				B68EF4822A9C22B800E2AC5B /* LockedWalletMainContentViewModel.swift in Sources */,
+				EA5092C72E72FBF3004193AC /* YieldModuleInterestRateInfoView.swift in Sources */,
 				DC2F7E072E4FD06500FE98B4 /* MobileOnboardingRoutable.swift in Sources */,
 				B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */,
 				B0CE1E4C2A30A00000D297F8 /* FakeBalanceWithButtonsInfoProvider.swift in Sources */,
