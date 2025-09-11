@@ -74,6 +74,8 @@ struct AppCoordinatorView: CoordinatorView {
                 LockView(usesNamespace: true)
                     .setNamespace(namespace)
                     .transition(.asymmetric(insertion: .identity, removal: .opacity.animation(.easeOut(duration: 0.3))))
+            case .launch:
+                LaunchScreenView()
             case .none:
                 EmptyView()
             }
