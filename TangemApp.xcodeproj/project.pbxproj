@@ -3245,13 +3245,14 @@
 		EA5092B12E72F23C004193AC /* YieldModulePromoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092B02E72F23C004193AC /* YieldModulePromoView.swift */; };
 		EA5092B32E72F26E004193AC /* YieldModulePromoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092B22E72F26E004193AC /* YieldModulePromoViewModel.swift */; };
 		EA5092B92E72F319004193AC /* YieldModuleCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092B82E72F319004193AC /* YieldModuleCoordinator.swift */; };
-		EA5092BB2E72F3F6004193AC /* YieldModuleBottomSheetViewModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092BA2E72F3F6004193AC /* YieldModuleBottomSheetViewModule.swift */; };
+		EA5092BB2E72F3F6004193AC /* YieldModuleBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092BA2E72F3F6004193AC /* YieldModuleBottomSheetViewModel.swift */; };
 		EA5092BD2E72F4FD004193AC /* YieldModuleBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092BC2E72F4FD004193AC /* YieldModuleBottomSheetView.swift */; };
 		EA5092BF2E72F54D004193AC /* YieldModuleBottomSheetContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092BE2E72F54D004193AC /* YieldModuleBottomSheetContainerView.swift */; };
 		EA5092C32E72FB40004193AC /* YieldModuleFeePolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092C22E72FB40004193AC /* YieldModuleFeePolicyView.swift */; };
 		EA5092C52E72FB80004193AC /* YieldModuleStartEarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092C42E72FB80004193AC /* YieldModuleStartEarningView.swift */; };
 		EA5092C72E72FBF3004193AC /* YieldModuleInterestRateInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092C62E72FBF3004193AC /* YieldModuleInterestRateInfoView.swift */; };
 		EA5092C92E72FE8C004193AC /* YieldModuleCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092C82E72FE8C004193AC /* YieldModuleCoordinatorView.swift */; };
+		EA5092CC2E730208004193AC /* YieldModuleViewParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5092CB2E730208004193AC /* YieldModuleViewParams.swift */; };
 		EA669FF72E390D200003688A /* XRPTrustlineUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA669FF62E390D200003688A /* XRPTrustlineUtils.swift */; };
 		EA66A07B2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA66A07A2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift */; };
 		EA6C829F2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */; };
@@ -7430,13 +7431,14 @@
 		EA5092B02E72F23C004193AC /* YieldModulePromoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModulePromoView.swift; sourceTree = "<group>"; };
 		EA5092B22E72F26E004193AC /* YieldModulePromoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModulePromoViewModel.swift; sourceTree = "<group>"; };
 		EA5092B82E72F319004193AC /* YieldModuleCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleCoordinator.swift; sourceTree = "<group>"; };
-		EA5092BA2E72F3F6004193AC /* YieldModuleBottomSheetViewModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleBottomSheetViewModule.swift; sourceTree = "<group>"; };
+		EA5092BA2E72F3F6004193AC /* YieldModuleBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleBottomSheetViewModel.swift; sourceTree = "<group>"; };
 		EA5092BC2E72F4FD004193AC /* YieldModuleBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleBottomSheetView.swift; sourceTree = "<group>"; };
 		EA5092BE2E72F54D004193AC /* YieldModuleBottomSheetContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleBottomSheetContainerView.swift; sourceTree = "<group>"; };
 		EA5092C22E72FB40004193AC /* YieldModuleFeePolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleFeePolicyView.swift; sourceTree = "<group>"; };
 		EA5092C42E72FB80004193AC /* YieldModuleStartEarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleStartEarningView.swift; sourceTree = "<group>"; };
 		EA5092C62E72FBF3004193AC /* YieldModuleInterestRateInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleInterestRateInfoView.swift; sourceTree = "<group>"; };
 		EA5092C82E72FE8C004193AC /* YieldModuleCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleCoordinatorView.swift; sourceTree = "<group>"; };
+		EA5092CB2E730208004193AC /* YieldModuleViewParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleViewParams.swift; sourceTree = "<group>"; };
 		EA669FF62E390D200003688A /* XRPTrustlineUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPTrustlineUtils.swift; sourceTree = "<group>"; };
 		EA66A07A2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetRequirementFeeStatus.swift; sourceTree = "<group>"; };
 		EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeepLinkValidatorTests.swift; sourceTree = "<group>"; };
@@ -19006,7 +19008,8 @@
 			isa = PBXGroup;
 			children = (
 				EA5092B22E72F26E004193AC /* YieldModulePromoViewModel.swift */,
-				EA5092BA2E72F3F6004193AC /* YieldModuleBottomSheetViewModule.swift */,
+				EA5092BA2E72F3F6004193AC /* YieldModuleBottomSheetViewModel.swift */,
+				EA5092CB2E730208004193AC /* YieldModuleViewParams.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -23513,7 +23516,7 @@
 				2D30234D2DF093B600B4FFE6 /* PushNotificationsHelpersFactory.swift in Sources */,
 				2D30234E2DF093B600B4FFE6 /* CommonPushNotificationsInteractor.swift in Sources */,
 				2D30234F2DF093B600B4FFE6 /* UserWalletPushNotifyStatus.swift in Sources */,
-				EA5092BB2E72F3F6004193AC /* YieldModuleBottomSheetViewModule.swift in Sources */,
+				EA5092BB2E72F3F6004193AC /* YieldModuleBottomSheetViewModel.swift in Sources */,
 				2D3023502DF093B600B4FFE6 /* PushNotificationsPermissionManager.swift in Sources */,
 				2D3023512DF093B600B4FFE6 /* CommonUserTokensPushNotificationsService.swift in Sources */,
 				2D3023522DF093B600B4FFE6 /* PushNotificationsAvailabilityProvider.swift in Sources */,
@@ -24138,6 +24141,7 @@
 				DA4055252ABDD3A300353F8A /* AddCustomTokenNetworksListItemViewModel.swift in Sources */,
 				0F3735022E5EFEBE009E58C7 /* UserWalletDismissedNotifications.swift in Sources */,
 				B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */,
+				EA5092CC2E730208004193AC /* YieldModuleViewParams.swift in Sources */,
 				B62C65CE2C38D06B00189AD4 /* CommonPushNotificationsService.swift in Sources */,
 				0A5544C62DF6FD0E00BF409C /* KeyInfo.swift in Sources */,
 				C2E3ADD22D5F5D410042ADDA /* AppSettingsStoryAvailabilityService.swift in Sources */,
