@@ -28,6 +28,8 @@ final class YieldTransactionProvider {
         self.transactionBuilder = transactionBuilder
     }
 
+    // MARK: - Deploy
+    
     func deployTransactions(
         yieldModule: String,
         balance: BigUInt,
@@ -55,6 +57,8 @@ final class YieldTransactionProvider {
 
         return [deployTransaction, approveTransaction, enterResult]
     }
+    
+    // MARK: - Init
 
     func initTransactions(
         contractAddress: String,
@@ -91,6 +95,8 @@ final class YieldTransactionProvider {
 
         return transactions
     }
+    
+    // MARK: - Reactivate
 
     func reactivateTransactions(
         contractAddress: String,
@@ -127,6 +133,8 @@ final class YieldTransactionProvider {
 
         return transactions
     }
+    
+    // MARK: - Exit
 
     func exitTransactions(
         contractAddress: String,
@@ -138,6 +146,8 @@ final class YieldTransactionProvider {
         return try await [transaction(yieldModule: yieldModule, txData: method.data, fee: fee.fee)]
     }
 }
+
+// MARK: - Private calls
 
 private extension YieldTransactionProvider {
     private func requestPermissionTransaction(
