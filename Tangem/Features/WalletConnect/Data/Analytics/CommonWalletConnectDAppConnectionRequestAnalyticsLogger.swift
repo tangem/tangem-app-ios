@@ -35,6 +35,8 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
 
         let proposalReceivedEvent = Analytics.Event.walletConnectDAppSessionProposalReceived
         let proposalReceivedParams: [Analytics.ParameterKey: String] = [
+            .walletConnectDAppName: connectionProposal.dAppData.name,
+            .walletConnectDAppUrl: connectionProposal.dAppData.domain.absoluteString,
             .networks: blockchainNames,
             .walletConnectDAppDomainVerification: proposalReceivedDomainVerificationValue.rawValue,
         ]
