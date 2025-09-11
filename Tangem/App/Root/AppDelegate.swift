@@ -13,7 +13,7 @@ import TangemAssets
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
-    private lazy var servicesManager = ServicesManager()
+    @Injected(\.servicesManager) private var servicesManager: ServicesManager
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
