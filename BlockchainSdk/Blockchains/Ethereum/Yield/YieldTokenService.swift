@@ -16,7 +16,7 @@ public protocol YieldTokenService {
     func getYieldBalances(
         for yieldToken: String,
         tokens: [Token]
-    ) async throws -> [Token: Result<YieldBalances?, Error>]
+    ) async throws -> [Token: Result<Decimal, Error>]
 }
 
 extension EthereumNetworkService: YieldTokenService {
@@ -90,9 +90,9 @@ extension EthereumNetworkService: YieldTokenService {
     func getYieldBalances(
         for yieldToken: String,
         tokens: [Token]
-    ) async throws -> [Token: Result<YieldBalances?, Error>] {
-        try await withThrowingTaskGroup(of: (Token, Result<YieldBalances?, Error>).self) { [weak self] group in
-            var result = [Token: Result<YieldBalances?, Error>]()
+    ) async throws -> [Token: Result<Decimal, Error>] {
+        try await withThrowingTaskGroup(of: (Token, Result<Decimal, Error>).self) { [weak self] group in
+            var result = [Token: Result<Decimal, Error>]()
             tokens.forEach { token in
                 group.addTask {
                     do {
@@ -100,7 +100,7 @@ extension EthereumNetworkService: YieldTokenService {
                         guard let self else {
                             throw CancellationError()
                         }
-                        let result = try await self.getYieldBalances(
+                        let result = try await self.getYieldBalance(
                             for: yieldToken,
                             contractAddress: token.contractAddress
                         )
@@ -119,7 +119,7 @@ extension EthereumNetworkService: YieldTokenService {
         }
     }
 
-    private func getYieldBalances(for yieldToken: String, contractAddress: String) async throws -> YieldBalances {
+    private func getYieldBalance(for yieldToken: String, contractAddress: String) async throws -> Decimal {
         let effectiveMethod = EffectiveBalanceMethod(yieldTokenAddress: contractAddress)
 
         let effectiveRequest = YieldSmartContractRequest(
@@ -127,20 +127,13 @@ extension EthereumNetworkService: YieldTokenService {
             method: effectiveMethod
         )
 
-        let protocolMethod = ProtocolBalanceMethod(yieldTokenAddress: contractAddress)
+        let effectiveBalance = try await ethCall(request: effectiveRequest).async()
 
-        let protocolRequest = YieldSmartContractRequest(
-            contractAddress: yieldToken,
-            method: protocolMethod
-        )
+        guard let result = EthereumUtils.parseEthereumDecimal(effectiveBalance, decimalsCount: decimals) else {
+            throw YieldServiceError.unableToParseData
+        }
 
-        async let effectiveBalance = ethCall(request: effectiveRequest).async()
-        async let protocolBalance = ethCall(request: protocolRequest).async()
-
-        return try await YieldResponseMapper.mapBalances(
-            protocolBalance: protocolBalance,
-            effectiveBalance: effectiveBalance
-        )
+        return result
     }
 
     private func getYieldModule(for address: String) async throws -> String? {

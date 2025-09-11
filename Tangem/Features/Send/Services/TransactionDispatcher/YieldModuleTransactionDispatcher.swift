@@ -29,7 +29,7 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
         guard let result = results.first else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
-        
+
         return result
     }
 
