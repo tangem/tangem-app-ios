@@ -36,21 +36,24 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     }
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = addressConverter.convertToETHAddressPublisher(wallet.address)
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedAddress in
-                walletManager.networkService
-                    .getInfo(address: convertedAddress, tokens: walletManager.cardTokens)
-            }
-            .sink(receiveCompletion: { [weak self] completionSubscription in
-                if case .failure(let error) = completionSubscription {
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                }
-            }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response)
+        ConcurrencyTask {
+            let convertedAddress = try await addressConverter.convertToETHAddressPublisher(wallet.address).async()
+
+//            async let yieldBalanceInfo = yieldService?.getYieldBalanceInfo(for: convertedAddress, contractAddress: "")
+
+            do {
+                let info: EthereumInfoResponse = try await networkService.getInfo(
+                    address: convertedAddress,
+                    tokens: cardTokens
+                ).async()
+//                let (infoResponse, yieldBalanceInfo) = try await (info, yieldBalanceInfo)
+                updateWallet(with: info)
                 completion(.success(()))
-            })
+            } catch {
+                wallet.clearAmounts()
+                completion(.failure(error))
+            }
+        }
     }
 
     /// It can't be into extension because it will be overridden in the `OptimismWalletManager`
@@ -106,6 +109,36 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
             }
         }
         .eraseToAnyPublisher()
+    }
+
+    func signMultiple(_ transactions: [Transaction], signer: TransactionSigner) -> AnyPublisher<[String], Error> {
+        guard let firstTransaction = transactions.first else {
+            return .justWithError(output: []).eraseToAnyPublisher()
+        }
+        return networkService.getPendingTxCount(firstTransaction.sourceAddress)
+            .asyncMap { [addressConverter, txBuilder, wallet] pendingNonce in
+                let enrichedTransactions = try transactions.enumerated().map { index, transaction in
+                    let convertedTransaction = try addressConverter.convertToETHAddresses(in: transaction)
+                    return Self.enrichTransactionWithNonce(
+                        transaction: convertedTransaction,
+                        pendingNonce: pendingNonce + index
+                    )
+                }
+
+                let hashesToSign = try enrichedTransactions.map { try txBuilder.buildForSign(transaction: $0) }
+
+                let signatures = try await signer.sign(hashes: hashesToSign, walletPublicKey: wallet.publicKey).async()
+
+                return try zip(signatures, enrichedTransactions).map { signatureInfo, transaction in
+                    try txBuilder.buildForSend(
+                        transaction: transaction,
+                        signatureInfo: signatureInfo
+                    )
+                    .hex()
+                    .addHexPrefix()
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     /// It can't be into extension because it will be overridden in the `MantleWalletManager`
@@ -387,6 +420,29 @@ extension EthereumWalletManager: TransactionSender {
             .mapSendTxError()
             .eraseToAnyPublisher()
     }
+
+    func send(_ transactions: [Transaction], signer: any TransactionSigner) -> AnyPublisher<[TransactionSendResult], SendTxError> {
+        signMultiple(transactions, signer: signer)
+            .withWeakCaptureOf(self)
+            .asyncMap { walletManager, rawTransactions in
+                var results: [TransactionSendResult] = []
+                for (transaction, rawTransaction) in zip(transactions, rawTransactions) {
+                    let hash = try await walletManager.networkService
+                        .send(transaction: rawTransaction)
+                        .async()
+
+                    let mapper = PendingTransactionRecordMapper()
+                    let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
+                    walletManager.wallet.addPendingTransaction(record)
+
+                    results.append(TransactionSendResult(hash: hash))
+                }
+
+                return results
+            }
+            .mapSendTxError()
+            .eraseToAnyPublisher()
+    }
 }
 
 // MARK: - TransactionValidator
@@ -443,5 +499,13 @@ extension EthereumWalletManager: StakeKitTransactionsBuilder, StakeKitTransactio
 extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
+    }
+}
+
+// MARK: - YieldsServiceProvider
+
+extension EthereumWalletManager: YieldServiceProvider {
+    var yieldService: (any YieldTokenService)? {
+        networkService
     }
 }
