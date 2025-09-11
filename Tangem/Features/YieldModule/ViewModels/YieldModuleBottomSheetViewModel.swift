@@ -1,5 +1,5 @@
 //
-//  YieldModuleBottomSheetViewModule.swift
+//  YieldModuleBottomSheetViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -40,7 +40,7 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
         }
     }
 
-    func onShowFeePolicy(params: FeePolicyParams) {
+    func onShowFeePolicy(params: YieldModuleViewParams.FeePolicyParams) {
         flow = .feePolicy(params: params)
     }
 
@@ -51,9 +51,9 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
 
 extension YieldModuleBottomSheetViewModel {
     enum Flow: Identifiable, Equatable {
-        case rateInfo(params: RateInfoParams)
-        case feePolicy(params: FeePolicyParams)
-        case startEarning(params: StartEarningParams)
+        case rateInfo(params: YieldModuleViewParams.RateInfoParams)
+        case feePolicy(params: YieldModuleViewParams.FeePolicyParams)
+        case startEarning(params: YieldModuleViewParams.StartEarningParams)
 
         // MARK: - Identifiable
 
@@ -67,26 +67,5 @@ extension YieldModuleBottomSheetViewModel {
                 "startEarning"
             }
         }
-    }
-}
-
-extension YieldModuleBottomSheetViewModel {
-    struct StartEarningParams: Equatable {
-        let tokenName: String
-        let tokenIcon: Image
-        let networkFee: String
-        let maximumFee: String
-        let blockchainName: String
-    }
-
-    struct RateInfoParams: Equatable {
-        let lastYearReturns: [String: Double]
-    }
-
-    struct FeePolicyParams: Equatable {
-        let currentFee: String
-        let maximumFee: String
-        let tokenName: String
-        let blockchainName: String
     }
 }
