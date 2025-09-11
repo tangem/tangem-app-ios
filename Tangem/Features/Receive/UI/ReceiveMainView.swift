@@ -45,7 +45,7 @@ struct ReceiveMainView: View {
         .scrollBounceBehaviorBackport(.basedOnSize)
         .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.tertiary
+            configuration.sheetBackgroundColor = viewModel.viewState?.backgroundColor ?? Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
             configuration.backgroundInteractionBehavior = .consumeTouches
         }
@@ -53,7 +53,6 @@ struct ReceiveMainView: View {
 
     private func header(from viewState: ReceiveMainViewModel.ViewState) -> some View {
         var title: String?
-        let backgroundColor = Colors.Background.tertiary
         var backButtonAction: (() -> Void)?
         var closeButtonAction: (() -> Void)?
 
@@ -74,7 +73,7 @@ struct ReceiveMainView: View {
 
         return ReceiveNavigationBarView(
             title: title,
-            backgroundColor: backgroundColor,
+            backgroundColor: viewState.backgroundColor,
             backButtonAction: backButtonAction,
             closeButtonAction: closeButtonAction
         )

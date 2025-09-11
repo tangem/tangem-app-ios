@@ -222,4 +222,8 @@ extension CosmosChain {
             return nil
         }
     }
+
+    var blockchainName: String {
+        blockchain.displayName
+    }
 }
