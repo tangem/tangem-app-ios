@@ -217,7 +217,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         let associatedCardIds = models[currentIndex].associatedCardIds
         try? accessCodeRepository.deleteAccessCode(for: Array(associatedCardIds))
         associatedCardIds.forEach {
-            try? visaRefreshTokenRepository.deleteToken(cardId: $0)
+            try? visaRefreshTokenRepository.deleteToken(visaRefreshTokenId: .cardId($0))
         }
 
         models.removeAll { $0.userWalletId == userWalletId }
