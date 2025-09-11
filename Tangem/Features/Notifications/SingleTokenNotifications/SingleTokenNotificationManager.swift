@@ -118,6 +118,12 @@ final class SingleTokenNotificationManager {
 
         events += makeAssetRequirementsNotificationEvents()
 
+        // [REDACTED_TODO_COMMENT]
+        // The apy value will most likely be store in a wallet model
+        if false {
+            events.append(.yieldAvailable(configuration: .init(apy: "5.1")))
+        }
+
         let inputs = events.map {
             factory.buildNotificationInput(
                 for: $0,
