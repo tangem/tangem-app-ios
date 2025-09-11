@@ -16,6 +16,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
+import BigInt
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
@@ -195,20 +196,75 @@ extension TokenDetailsViewModel {
     }
 
     func generateXPUBButtonAction() {
-        guard let xpubGenerator else { return }
+        guard let token = walletModel.tokenItem.token, let yieldService = walletModel.yieldService,
+              let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
+              let ethereumTransactionDataBuilder = walletModel.ethereumTransactionDataBuilder else {
+            return
+        }
 
-        runTask { [weak self] in
-            do {
-                let xpub = try await xpubGenerator.generateXPUB()
-                let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
-                AppPresenter.shared.show(viewController)
-            } catch {
-                let sdkError = error.toTangemSdkError()
-                if !sdkError.isUserCancelled {
-                    self?.alert = error.alertBinder
-                }
+        let dispatcher = YieldModuleTransactionDispatcher(
+            walletModel: walletModel,
+            transactionSigner: userWalletModel.signer
+        )
+
+        guard let module = CommonYieldModuleManager(
+            walletAddress: walletModel.defaultAddressString,
+            tokenItem: walletModel.tokenItem,
+            yieldTokenService: yieldService,
+            tokenBalanceProvider: walletModel.totalTokenBalanceProvider,
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            ethereumTransactionDataBuilder: ethereumTransactionDataBuilder,
+            transactionCreator: walletModel.transactionCreator,
+            transactionDispatcher: dispatcher
+        ) else { return }
+
+        Task {
+            let apy = try await module.getAPY(contractAddress: token.contractAddress)
+
+            let state = try await module.getYieldModuleState(
+                contractAddress: token.contractAddress
+            )
+
+            if !state.isActive {
+                let fee = try await module.enterFee(
+                    contractAddress: token.contractAddress
+                )
+
+                let result = try await module.enter(
+                    contractAddress: token.contractAddress,
+                    fee: fee
+                )
+
+                print(result)
+            } else if let yieldModule = state.yieldModule {
+                let fee = try await module.exitFee(
+                    yieldModule: yieldModule,
+                    contractAddress: token.contractAddress
+                )
+
+                let result = try await module.exit(
+                    yieldModule: yieldModule,
+                    contractAddress: token.contractAddress,
+                    fee: fee
+                )
+                print(result)
             }
         }
+
+//        guard let xpubGenerator else { return }
+//
+//        runTask { [weak self] in
+//            do {
+//                let xpub = try await xpubGenerator.generateXPUB()
+//                let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
+//                AppPresenter.shared.show(viewController)
+//            } catch {
+//                let sdkError = error.toTangemSdkError()
+//                if !sdkError.isUserCancelled {
+//                    self?.alert = error.alertBinder
+//                }
+//            }
+//        }
     }
 
     private func showUnableToHideAlert() {
