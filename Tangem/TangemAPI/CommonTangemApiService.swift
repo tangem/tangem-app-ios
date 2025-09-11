@@ -204,9 +204,13 @@ extension CommonTangemApiService: TangemApiService {
         let target = TangemApiTarget(
             type: .loadReferralProgramInfo(userWalletId: userWalletId, expectedAwardsLimit: expectedAwardsLimit)
         )
-        let response = try await provider.asyncRequest(target)
-        let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
-        return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
+
+            return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
+        }
     }
 
     func participateInReferralProgram(
@@ -223,9 +227,13 @@ extension CommonTangemApiService: TangemApiService {
         let target = TangemApiTarget(
             type: .participateInReferralProgram(userInfo: userInfo)
         )
-        let response = try await provider.asyncRequest(target)
-        let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
-        return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
+
+            return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
+        }
     }
 
     func expressPromotion(request model: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
