@@ -13,7 +13,8 @@ import TangemFoundation
 actor CommonAccountModelsManager {
     private typealias AccountId = CommonCryptoAccountModel.AccountId
     private typealias AccountMetadata = (derivationIndex: Int, name: String, icon: AccountModel.Icon)
-    private typealias Cache = [AccountId: CommonCryptoAccountModel]
+    private typealias CacheEntry = (model: CommonCryptoAccountModel, didChangeSubscription: AnyCancellable)
+    private typealias Cache = [AccountId: CacheEntry]
 
     nonisolated var unownedExecutor: UnownedSerialExecutor {
         executor.asUnownedSerialExecutor()
@@ -41,10 +42,13 @@ actor CommonAccountModelsManager {
         self.userTokensManagerFactory = userTokensManagerFactory
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
+        initialize() // [REDACTED_TODO_COMMENT]
     }
 
-    private func initialize() {
-        // [REDACTED_TODO_COMMENT]
+    private nonisolated func initialize() {
+        runTask(in: self, isDetached: true) { manager in
+            await manager.cryptoAccountsRepository.initialize()
+        }
     }
 
     private func makeCryptoAccountModels(
@@ -67,11 +71,11 @@ actor CommonAccountModelsManager {
             .toSet()
 
         let removedAccountIds = currentAccountIds.subtracting(newAccountIds)
-        cache.removeAll { removedAccountIds.contains($0.key) }
+        cache.removeAll { removedAccountIds.contains($0.key) } // Also destroys the `didChangeSubscription`s for removed accounts
 
         return newAccountIds.compactMap { accountId in
             // Early exit if the account is already created and cached
-            if let cachedAccount = cache[accountId] {
+            if let (cachedAccount, _) = cache[accountId] {
                 return cachedAccount
             }
 
@@ -107,7 +111,7 @@ actor CommonAccountModelsManager {
             )
 
             // Updating `cache` within this `compactMap` loop to reduce the number of iterations
-            cache[accountId] = cryptoAccount
+            cache[accountId] = (cryptoAccount, makeDidChangeSubscription(for: cryptoAccount))
 
             return cryptoAccount
         }
@@ -140,6 +144,30 @@ actor CommonAccountModelsManager {
             return publisher
         }
     }
+
+    private func makeDidChangeSubscription(for cryptoAccount: CommonCryptoAccountModel) -> AnyCancellable {
+        return cryptoAccount
+            .didChangePublisher
+            .withWeakCaptureOf(cryptoAccount)
+            .withWeakCaptureOf(self)
+            .sink { input in
+                let (manager, (cryptoAccount, _)) = input
+                manager.saveCryptoAccount(cryptoAccount)
+            }
+    }
+
+    /// - Note: `cryptoAccountsRepository` has internal synchronization mechanism, therefore this is a `nonisolated` method.
+    private nonisolated func saveCryptoAccount(_ cryptoAccount: CommonCryptoAccountModel) {
+        let persistentConfig = CryptoAccountPersistentConfig(
+            derivationIndex: cryptoAccount.id.toPersistentIdentifier(),
+            name: cryptoAccount.name,
+            iconName: cryptoAccount.icon.name.rawValue,
+            iconColor: cryptoAccount.icon.color.rawValue,
+        )
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
+        cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: [])
+    }
 }
 
 // MARK: - AccountModelsManager protocol conformance
@@ -149,34 +177,22 @@ extension CommonAccountModelsManager: AccountModelsManager {
         makeOrGetAccountModelsPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> any CryptoAccountModel {
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]
         let newDerivationIndex = cryptoAccountsRepository.totalCryptoAccountsCount + 1
-        let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
-            forAccountWithDerivationIndex: newDerivationIndex
-        )
-        let userTokensManager = userTokensManagerFactory.makeUserTokensManager(
-            forAccountWithDerivationIndex: newDerivationIndex,
-            userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager
-        )
-        let newCryptoAccount = CommonCryptoAccountModel(
-            userWalletId: userWalletId,
-            accountName: name,
-            accountIcon: icon,
+        let persistentConfig = CryptoAccountPersistentConfig(
             derivationIndex: newDerivationIndex,
-            walletModelsManager: walletModelsManager,
-            userTokensManager: userTokensManager
+            name: name,
+            iconName: icon.name.rawValue,
+            iconColor: icon.color.rawValue
         )
-        cryptoAccountsRepository.addCryptoAccount(newCryptoAccount)
-
-        return newCryptoAccount
+        // [REDACTED_TODO_COMMENT]
+        cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: [])
     }
 
-    func archiveCryptoAccount(with index: Int) async throws -> any CryptoAccountModel {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
+    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws {
+        cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
     }
 }
 
