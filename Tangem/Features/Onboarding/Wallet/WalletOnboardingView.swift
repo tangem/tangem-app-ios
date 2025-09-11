@@ -42,6 +42,7 @@ struct WalletOnboardingView: View {
         case .saveUserWallet:
             UserWalletStorageAgreementView(
                 viewModel: viewModel.userWalletStorageAgreementViewModel,
+                source: .backupCard,
                 topInset: -viewModel.progressBarPadding
             )
         case .seedPhraseIntro:
@@ -74,6 +75,12 @@ struct WalletOnboardingView: View {
                     buttonsAxis: .vertical
                 )
             }
+        case .mobileUpgradeBiometrics:
+            UserWalletStorageAgreementView(
+                viewModel: viewModel.userWalletStorageAgreementViewModel,
+                source: .upgradeMobile,
+                topInset: -viewModel.progressBarPadding
+            )
         default:
             EmptyView()
         }
