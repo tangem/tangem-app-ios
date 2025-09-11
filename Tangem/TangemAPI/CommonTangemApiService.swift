@@ -395,7 +395,7 @@ extension CommonTangemApiService: TangemApiService {
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
 
-            guard let revision = response.response?.value(forHTTPHeaderField: Constants.eTagHeaderName) else {
+            guard let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue) else {
                 throw TangemAPIError(code: .optimisticLockingFailed, message: "ETag header is missing in the response")
             }
 
@@ -431,14 +431,6 @@ private extension CommonTangemApiService {
             ],
             analyticsSystems: [.firebase, .crashlytics]
         )
-    }
-}
-
-// MARK: - Constants
-
-private extension CommonTangemApiService {
-    enum Constants {
-        static let eTagHeaderName = "ETag"
     }
 }
 
