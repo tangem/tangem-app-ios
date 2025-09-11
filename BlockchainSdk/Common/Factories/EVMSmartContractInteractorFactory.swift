@@ -32,7 +32,8 @@ public struct EVMSmartContractInteractorFactory {
                 apiInfo: apiInfo,
                 tangemProviderConfig: tangemProviderConfig
             )),
-            abiEncoder: WalletCoreABIEncoder()
+            abiEncoder: WalletCoreABIEncoder(),
+            blockchainName: blockchain.displayName
         )
 
         return networkService
