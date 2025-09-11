@@ -56,6 +56,7 @@ enum NotificationButtonActionType: Identifiable {
     case openReferralProgram
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
+    case openYieldPromo
     case openBuyCrypto(walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
 
     var id: Int {
@@ -89,6 +90,7 @@ enum NotificationButtonActionType: Identifiable {
         case .openReferralProgram: "openReferralProgram".hashValue
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
+        case .openYieldPromo: "openYieldPromo".hashValue
         case .openBuyCrypto(let walletModel, let parameters): "openBuyCrypto\(walletModel.id)\(parameters.hashValue)".hashValue
         }
     }
@@ -153,6 +155,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.hwActivationNeedFinish
         case .openMobileUpgrade:
             return .empty
+        case .openYieldPromo:
+            return Localization.commonGetStarted
         case .openBuyCrypto:
             return Localization.commonBuy
         }
@@ -191,6 +195,7 @@ enum NotificationButtonActionType: Identifiable {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
+             .openYieldPromo,
              .openBuyCrypto:
             return nil
         }
@@ -227,6 +232,7 @@ enum NotificationButtonActionType: Identifiable {
              .seedSupport2No,
              .openReferralProgram,
              .addTokenTrustline,
+             .openYieldPromo,
              .openBuyCrypto:
             return .secondary
         case .openMobileFinishActivation(let needsAttention):
