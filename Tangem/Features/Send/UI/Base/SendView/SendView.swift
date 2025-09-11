@@ -259,16 +259,20 @@ struct SendView: View {
                     .transition(.move(edge: .leading).combined(with: .opacity))
                 }
 
-                MainButton(
-                    title: viewModel.bottomBarSettings.action.title(action: viewModel.flowActionType),
-                    icon: viewModel.bottomBarSettings.action.icon(action: viewModel.flowActionType),
-                    style: .primary,
-                    size: .default,
-                    isLoading: viewModel.mainButtonLoading,
-                    isDisabled: !viewModel.actionIsAvailable,
-                    action: viewModel.userDidTapActionButton
-                )
-                .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
+                if let mainButtonType = viewModel.bottomBarSettings.action {
+                    MainButton(
+                        title: mainButtonType.title(action: viewModel.flowActionType),
+                        icon: mainButtonType.icon(action: viewModel.flowActionType),
+                        style: .primary,
+                        size: .default,
+                        isLoading: viewModel.mainButtonLoading,
+                        isDisabled: !viewModel.actionIsAvailable,
+                        action: {
+                            viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
+                        }
+                    )
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
+                }
             }
             .animation(SendTransitionService.Constants.auxiliaryViewAnimation, value: viewModel.bottomBarSettings.backButtonVisible)
         }

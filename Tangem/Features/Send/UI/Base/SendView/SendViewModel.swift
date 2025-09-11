@@ -104,8 +104,7 @@ final class SendViewModel: ObservableObject {
 
     func onDisappear() {}
 
-    func userDidTapActionButton() {
-        let mainButtonType = bottomBarSettings.action
+    func userDidTapActionButton(mainButtonType: SendMainButtonType) {
         analyticsLogger.logMainActionButton(type: mainButtonType, flow: flowActionType)
 
         switch mainButtonType {
@@ -155,9 +154,8 @@ final class SendViewModel: ObservableObject {
 
     func dismiss() {
         analyticsLogger.logCloseButton(stepType: step.type, isAvailableToAction: actionIsAvailable)
-        let mainButtonType = bottomBarSettings.action
 
-        switch mainButtonType {
+        switch bottomBarSettings.action {
         case .continue:
             // When `mainButtonType == .continue` means we're in the `edit` mode
             // We perform the back action with no save changes in new UI
@@ -166,7 +164,9 @@ final class SendViewModel: ObservableObject {
             showAlert(alertBuilder.makeDismissAlert { [weak self] in
                 self?.coordinator?.dismiss(reason: .other)
             })
-        case _:
+        case .none:
+            coordinator?.dismiss(reason: .other)
+        case .some(let mainButtonType):
             coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
     }
