@@ -30,7 +30,12 @@ public enum YieldModuleState {
 
     public enum ActiveState {
         case notActive
-        case active(maxNetworkFee: BigUInt)
+        case active(info: ActiveStateInfo)
+    }
+    
+    public struct ActiveStateInfo {
+        let balance: BigUInt
+        let maxNetworkFee: BigUInt
     }
 
     public var yieldModule: String? {
