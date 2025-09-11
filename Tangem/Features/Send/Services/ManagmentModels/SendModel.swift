@@ -417,7 +417,9 @@ extension SendModel: NotificationTapDelegate {
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .unlock,
-             .openBuyCrypto:
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             assertionFailure("Notification tap not handled")
         }
     }
