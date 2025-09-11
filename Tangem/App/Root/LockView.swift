@@ -21,6 +21,8 @@ struct LockView: View {
     var body: some View {
         VStack(spacing: 0) {
             TangemIconView()
+                .foregroundColor(Colors.Text.primary1)
+                .padding(.bottom, 48)
                 .if(usesNamespace) {
                     $0.matchedGeometryEffectOptional(id: TangemIconView.namespaceId, in: namespace)
                 }
