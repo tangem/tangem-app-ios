@@ -263,10 +263,66 @@ struct TangemApiTarget: TargetType {
         // MARK: - Promo Code
         case .activatePromoCode(let requestModel):
             return .requestJSONEncodable(requestModel)
+
+        // MARK: - Accounts
+        case .getUserAccounts:
+            return .requestPlain
+        case .saveUserAccounts(_, _, let accounts):
+            return .requestJSONEncodable(accounts)
+        case .getArchivedUserAccounts:
+            return .requestPlain
         }
     }
 
-    var headers: [String: String]? { nil }
+    var headers: [String: String]? {
+        switch type {
+        case .saveUserAccounts(_, let revision, _):
+            return [
+                TangemAPIHeaders.ifMatch.rawValue: revision,
+            ]
+        case .rawData,
+             .currencies,
+             .coins,
+             .quotes,
+             .geo,
+             .features,
+             .getUserWalletTokens,
+             .saveUserWalletTokens,
+             .loadReferralProgramInfo,
+             .participateInReferralProgram,
+             .createAccount,
+             .promotion,
+             .validateNewUserPromotionEligibility,
+             .validateOldUserPromotionEligibility,
+             .awardNewUser,
+             .awardOldUser,
+             .resetAward,
+             .activatePromoCode,
+             .story,
+             .coinsList,
+             .coinsHistoryChartPreview,
+             .tokenMarketsDetails,
+             .historyChart,
+             .tokenExchangesList,
+             .hotCrypto,
+             .apiList,
+             .seedNotifyGetStatus,
+             .seedNotifySetStatus,
+             .seedNotifyGetStatusConfirmed,
+             .seedNotifySetStatusConfirmed,
+             .walletInitialized,
+             .pushNotificationsEligible,
+             .createUserWalletsApplication,
+             .updateUserWalletsApplication,
+             .getUserWallets,
+             .getUserWallet,
+             .updateUserWallet,
+             .createAndConnectUserWallet,
+             .getUserAccounts,
+             .getArchivedUserAccounts:
+            return nil
+        }
+    }
 }
 
 extension TangemApiTarget {
