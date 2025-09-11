@@ -8,10 +8,10 @@
 
 import Foundation
 
-struct StoredCryptoAccount: Codable {
+struct StoredCryptoAccount: Codable, Equatable {
     typealias TokenList = StoredUserTokenList
 
-    struct Icon: Codable {
+    struct Icon: Codable, Equatable {
         let iconName: String
         let iconColor: String
     }
