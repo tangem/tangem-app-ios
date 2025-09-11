@@ -38,7 +38,7 @@ public struct VisaAuthorizationTokensHandlerBuilder {
             )
 
         let authorizationTokensHandler = CommonVisaAuthorizationTokensHandler(
-            cardId: cardId,
+            visaRefreshTokenId: .cardId(cardId),
             authorizationTokensHolder: authorizationTokensHolder,
             tokenRefreshService: authorizationTokenRefreshService,
             refreshTokenSaver: refreshTokenSaver
@@ -47,11 +47,29 @@ public struct VisaAuthorizationTokensHandlerBuilder {
         return authorizationTokensHandler
     }
 
-    public func build(visaAuthorizationTokens: VisaAuthorizationTokens) -> VisaAuthorizationTokensHandler {
-        TangemPayAuthorizationTokensHandler(
-            authorizationTokensHolder: AuthorizationTokensHolder(
-                authorizationTokens: visaAuthorizationTokens
+    public func build(
+        customerWalletAddress: String,
+        authorizationTokens: VisaAuthorizationTokens?,
+        refreshTokenSaver: VisaRefreshTokenSaver?,
+        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
+    ) -> VisaAuthorizationTokensHandler {
+        let authorizationTokensHolder: AuthorizationTokensHolder
+        if let authorizationTokens {
+            authorizationTokensHolder = .init(authorizationTokens: authorizationTokens)
+        } else {
+            authorizationTokensHolder = .init()
+        }
+
+        let authorizationTokenRefreshService = apiServiceBuilder
+            .buildAuthorizationTokenRefreshService(
+                urlSessionConfiguration: urlSessionConfiguration
             )
+
+        return CommonVisaAuthorizationTokensHandler(
+            visaRefreshTokenId: .customerWalletAddress(customerWalletAddress),
+            authorizationTokensHolder: authorizationTokensHolder,
+            tokenRefreshService: authorizationTokenRefreshService,
+            refreshTokenSaver: refreshTokenSaver
         )
     }
 }
