@@ -488,7 +488,6 @@
 		2DCB23A32E5700E50076C294 /* ReceiveAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCB23A02E5700E50076C294 /* ReceiveAnalyticsLogger.swift */; };
 		2DCDE45A2DE60E5C007ECD34 /* UserTokenListAddressProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE4592DE60E5C007ECD34 /* UserTokenListAddressProvider.swift */; };
 		2DCDE45F2DE60F14007ECD34 /* UserWalletDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45E2DE60F14007ECD34 /* UserWalletDTO.swift */; };
-		2DCDE4602DE60F14007ECD34 /* GenericResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45C2DE60F14007ECD34 /* GenericResponseDTO.swift */; };
 		2DCDE4612DE60F14007ECD34 /* ApplicationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */; };
 		2DCDE4622DE60F14007ECD34 /* NotificationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45D2DE60F14007ECD34 /* NotificationDTO.swift */; };
 		2DD3672B2D774EE900BB8DCF /* PendingExpressTransactionParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD3672A2D774EE900BB8DCF /* PendingExpressTransactionParams.swift */; };
@@ -4658,7 +4657,6 @@
 		2DCB23A02E5700E50076C294 /* ReceiveAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAnalyticsLogger.swift; sourceTree = "<group>"; };
 		2DCDE4592DE60E5C007ECD34 /* UserTokenListAddressProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListAddressProvider.swift; sourceTree = "<group>"; };
 		2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDTO.swift; sourceTree = "<group>"; };
-		2DCDE45C2DE60F14007ECD34 /* GenericResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericResponseDTO.swift; sourceTree = "<group>"; };
 		2DCDE45D2DE60F14007ECD34 /* NotificationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDTO.swift; sourceTree = "<group>"; };
 		2DCDE45E2DE60F14007ECD34 /* UserWalletDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletDTO.swift; sourceTree = "<group>"; };
 		2DD3672A2D774EE900BB8DCF /* PendingExpressTransactionParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingExpressTransactionParams.swift; sourceTree = "<group>"; };
@@ -21570,7 +21568,6 @@
 				EF914D482A60388F001F00B2 /* Quotes */,
 				2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */,
 				EF5E5A842B7100D700D19BBB /* ExpressPromotion.swift */,
-				2DCDE45C2DE60F14007ECD34 /* GenericResponseDTO.swift */,
 				DAA153BB2876CBFC002254D1 /* GeoResponse.swift */,
 				2DCDE45D2DE60F14007ECD34 /* NotificationDTO.swift */,
 				EF914D4D2A604615001F00B2 /* QuotesDTO.swift */,
@@ -23182,7 +23179,6 @@
 				0F2786282E2AEA0A00742D0F /* MobileOnboardingImportWalletFlowBuilder.swift in Sources */,
 				B0A0910E26D362A600F46DF5 /* OnboardingProgressCircle.swift in Sources */,
 				2DCDE45F2DE60F14007ECD34 /* UserWalletDTO.swift in Sources */,
-				2DCDE4602DE60F14007ECD34 /* GenericResponseDTO.swift in Sources */,
 				2DCDE4612DE60F14007ECD34 /* ApplicationDTO.swift in Sources */,
 				2DCDE4622DE60F14007ECD34 /* NotificationDTO.swift in Sources */,
 				DAF59CC12ACC4D8C004FCA86 /* AddCustomTokenDerivationOption.swift in Sources */,

@@ -354,8 +354,9 @@ extension CommonTangemApiService: TangemApiService {
         return try await request(for: requestTarget, decoder: decoder)
     }
 
-    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws -> EmptyGenericResponseDTO {
-        try await request(for: .updateUserWalletsApplication(uid: uid, requestModel: requestModel), decoder: decoder)
+    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws {
+        let target: TangemApiTarget.TargetType = .updateUserWalletsApplication(uid: uid, requestModel: requestModel)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
     // MARK: - UserWallets
@@ -368,12 +369,14 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .getUserWallet(userWalletId: userWalletId), decoder: decoder)
     }
 
-    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws -> EmptyGenericResponseDTO {
-        try await request(for: .updateUserWallet(userWalletId: userWalletId, requestModel: requestModel), decoder: decoder)
+    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws {
+        let target: TangemApiTarget.TargetType = .updateUserWallet(userWalletId: userWalletId, requestModel: requestModel)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
-    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO {
-        try await request(for: .createAndConnectUserWallet(applicationUid: applicationUid, items: items), decoder: decoder)
+    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws {
+        let target: TangemApiTarget.TargetType = .createAndConnectUserWallet(applicationUid: applicationUid, items: items)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 }
 
@@ -391,4 +394,13 @@ private extension CommonTangemApiService {
             analyticsSystems: [.firebase, .crashlytics]
         )
     }
+}
+
+// MARK: - Auxiliary types
+
+/// Used when the API returns an empty response with 200 status code.
+/// Using `Never` since Swift 5.9 could be an alternative, but its decoding throws an error unconditionally,
+/// see https://github.com/swiftlang/swift-evolution/blob/main/proposals/0396-never-codable.md for details.
+private extension CommonTangemApiService {
+    struct EmptyGenericResponseDTO: Decodable {}
 }

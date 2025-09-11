@@ -167,7 +167,7 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws -> EmptyGenericResponseDTO {
+    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws {
         throw "Not implemented"
     }
 
@@ -179,11 +179,11 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws -> EmptyGenericResponseDTO {
+    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws {
         throw "Not implemented"
     }
 
-    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO {
+    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws {
         throw "Not implemented"
     }
 
