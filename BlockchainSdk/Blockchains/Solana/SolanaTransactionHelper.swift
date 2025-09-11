@@ -24,7 +24,7 @@ public struct SolanaTransactionHelper {
     }
 
     func prepareForSign(_ unsignedData: String) throws -> Data {
-        let (transaction, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: Data(hex: unsignedData))
+        let (transaction, _) = try self.removeSignaturesPlaceholders(from: Data(hex: unsignedData))
         return transaction
     }
 
