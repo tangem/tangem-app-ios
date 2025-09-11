@@ -30,6 +30,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
+    @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -120,7 +121,22 @@ extension TokenDetailsCoordinator {
 
 // MARK: - TokenDetailsRoutable
 
-extension TokenDetailsCoordinator: TokenDetailsRoutable {}
+extension TokenDetailsCoordinator: TokenDetailsRoutable {
+    func openYieldModulePromoView(walletModel: any WalletModel, info: YieldModuleInfo) {
+        let coordinator = YieldModulePromoCoordinator()
+
+        let options = YieldModulePromoCoordinator.Options(
+            walletModel: walletModel,
+            apy: info.apy,
+            networkFee: info.networkFee,
+            maximumFee: info.maximumFee,
+            lastYearReturns: info.lastYearReturns,
+        )
+
+        coordinator.start(with: options)
+        yieldModulePromoCoordinator = coordinator
+    }
+}
 
 // MARK: - PendingExpressTxStatusRoutable
 
