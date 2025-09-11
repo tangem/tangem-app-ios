@@ -12,8 +12,8 @@ import TangemAssets
 public struct ListFooterOverlayShadowView: View {
     private let colors: [Color]
 
-    public init(colors: [Color] = [Colors.Background.primary.opacity(0.0), Colors.Background.primary.opacity(0.95)]) {
-        self.colors = colors
+    public init(color: Color = Colors.Background.primary, opacities: [CGFloat] = [0.0, 0.95]) {
+        colors = opacities.map { color.opacity($0) }
     }
 
     public var body: some View {
