@@ -86,8 +86,6 @@ extension Analytics {
         case fromSummary = "From Summary"
         case valid = "Valid"
 
-        case userWalletId = "User Wallet ID"
-
         case sendBlockchain = "Send Blockchain"
         case receiveBlockchain = "Receive Blockchain"
 
