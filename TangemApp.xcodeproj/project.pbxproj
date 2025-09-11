@@ -504,6 +504,9 @@
 		2DE0BA992CA93100002C09D9 /* BlockHeaderTitleButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BA982CA93100002C09D9 /* BlockHeaderTitleButtonView.swift */; };
 		2DE0BB602CAD41E3002C09D9 /* BlockHeaderTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BB5F2CAD41E3002C09D9 /* BlockHeaderTitleView.swift */; };
 		2DE0BBB42CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BBB32CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift */; };
+		2DE3DF972E72BF7B00A687FC /* QuaiExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE3DF962E72BF7B00A687FC /* QuaiExternalLinkProvider.swift */; };
+		2DE3DF9B2E72C5EF00A687FC /* QuaiAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE3DF9A2E72C5EF00A687FC /* QuaiAddressService.swift */; };
+		2DE3DF9D2E72C6CD00A687FC /* QuaiZoneUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE3DF9C2E72C6CD00A687FC /* QuaiZoneUtils.swift */; };
 		2DF1D92A2C2C519C00B1CEE7 /* MarketsChartModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF1D9292C2C519C00B1CEE7 /* MarketsChartModel.swift */; };
 		2DFC278D2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278C2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift */; };
 		2DFC27922C78E833009B247E /* TokenItemInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278E2C78E833009B247E /* TokenItemInfoProvider.swift */; };
@@ -4670,6 +4673,9 @@
 		2DE0BA982CA93100002C09D9 /* BlockHeaderTitleButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockHeaderTitleButtonView.swift; sourceTree = "<group>"; };
 		2DE0BB5F2CAD41E3002C09D9 /* BlockHeaderTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockHeaderTitleView.swift; sourceTree = "<group>"; };
 		2DE0BBB32CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenDescriptionBottomSheetView.swift; sourceTree = "<group>"; };
+		2DE3DF962E72BF7B00A687FC /* QuaiExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiExternalLinkProvider.swift; sourceTree = "<group>"; };
+		2DE3DF9A2E72C5EF00A687FC /* QuaiAddressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiAddressService.swift; sourceTree = "<group>"; };
+		2DE3DF9C2E72C6CD00A687FC /* QuaiZoneUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiZoneUtils.swift; sourceTree = "<group>"; };
 		2DF1D9292C2C519C00B1CEE7 /* MarketsChartModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsChartModel.swift; sourceTree = "<group>"; };
 		2DFC278C2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenContextActionsSectionBuilder.swift; sourceTree = "<group>"; };
 		2DFC278E2C78E833009B247E /* TokenItemInfoProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemInfoProvider.swift; sourceTree = "<group>"; };
@@ -9639,6 +9645,16 @@
 			path = Receive;
 			sourceTree = "<group>";
 		};
+		2DE3DF952E72BF6900A687FC /* quai */ = {
+			isa = PBXGroup;
+			children = (
+				2DE3DF962E72BF7B00A687FC /* QuaiExternalLinkProvider.swift */,
+				2DE3DF9A2E72C5EF00A687FC /* QuaiAddressService.swift */,
+				2DE3DF9C2E72C6CD00A687FC /* QuaiZoneUtils.swift */,
+			);
+			path = quai;
+			sourceTree = "<group>";
+		};
 		2DFC27912C78E833009B247E /* TokenItemInfo */ = {
 			isa = PBXGroup;
 			children = (
@@ -13961,6 +13977,7 @@
 				B62D3DA72CBC79D900C2460E /* NEAR */,
 				2D53D2432D95796D00865200 /* Pepecoin */,
 				B62D3DD02CBC79D900C2460E /* Polkadot */,
+				2DE3DF952E72BF6900A687FC /* quai */,
 				B62D3DDE2CBC79D900C2460E /* Radiant */,
 				B62D3DED2CBC79D900C2460E /* Ravencoin */,
 				B62D3DF02CBC79D900C2460E /* Rsk */,
@@ -25296,6 +25313,7 @@
 				B62D3FE92CBC79DA00C2460E /* OP_XOR.swift in Sources */,
 				B62D408F2CBC79DA00C2460E /* TransferERC20TokenMethod.swift in Sources */,
 				B62D42602CBC79DB00C2460E /* EVMSmartContractInteractorFactory.swift in Sources */,
+				2DE3DF972E72BF7B00A687FC /* QuaiExternalLinkProvider.swift in Sources */,
 				B62D40AB2CBC79DA00C2460E /* EnergyWebChainExternalLinkProvider.swift in Sources */,
 				B62D40E72CBC79DA00C2460E /* HederaNetworkResult.TransactionsInfo.swift in Sources */,
 				B62D40862CBC79DA00C2460E /* DucatusWalletAssembly.swift in Sources */,
@@ -25905,6 +25923,7 @@
 				B62D41B52CBC79DB00C2460E /* TezosWalletAssembly.swift in Sources */,
 				B62D42392CBC79DB00C2460E /* ElectrumWebSocketProvider.swift in Sources */,
 				B62D429F2CBC79DB00C2460E /* AssetRequirementsCondition.swift in Sources */,
+				2DE3DF9D2E72C6CD00A687FC /* QuaiZoneUtils.swift in Sources */,
 				B62D3FD82CBC79DA00C2460E /* OP_MOD.swift in Sources */,
 				B62D41142CBC79DA00C2460E /* KoinosProtocol.swift in Sources */,
 				B62D41C62CBC79DB00C2460E /* account_contract.pb.swift in Sources */,
@@ -25965,6 +25984,7 @@
 				B62D420A2CBC79DB00C2460E /* XRPLResponse.swift in Sources */,
 				B62D40EE2CBC79DA00C2460E /* HederaAPIResolver.swift in Sources */,
 				B62D40962CBC79DA00C2460E /* EthereumTransactionDataBuilder.swift in Sources */,
+				2DE3DF9B2E72C5EF00A687FC /* QuaiAddressService.swift in Sources */,
 				B62D3FD72CBC79DA00C2460E /* OP_MIN.swift in Sources */,
 				EF38050E2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift in Sources */,
 				B62D401E2CBC79DA00C2460E /* OP_SWAP.swift in Sources */,
