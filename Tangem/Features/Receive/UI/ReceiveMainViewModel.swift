@@ -8,15 +8,18 @@
 
 import UIKit
 import Foundation
+import SwiftUI
 import Combine
 import TangemFoundation
 import TangemUI
 import BlockchainSdk
 import TangemLocalization
+import TangemAssets
 
 class ReceiveMainViewModel: ObservableObject {
     // MARK: - Injected
 
+    @Injected(\.overlayShareActivitiesPresenter) private var shareActivitiesPresenter: any ShareActivitiesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - View State
@@ -111,11 +114,8 @@ extension ReceiveMainViewModel: ReceiveFlowCoordinator {
     }
 
     func share(with address: String) {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-
-            let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
-            UIApplication.modalFromTop(av)
+        runTask(in: self) { @MainActor viewModel in
+            viewModel.shareActivitiesPresenter.share(activityItems: [address])
         }
     }
 
@@ -146,6 +146,15 @@ extension ReceiveMainViewModel {
                 "qrCode"
             case .tokenAlert:
                 "tokenAlert"
+            }
+        }
+
+        var backgroundColor: Color {
+            switch self {
+            case .selector, .tokenAlert:
+                return Colors.Background.tertiary
+            case .qrCode:
+                return Colors.Background.primary
             }
         }
 
