@@ -14,11 +14,8 @@ protocol AccountModelsManager {
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { get }
 
     /// - Note: This method is also responsible for moving custom tokens into the newly created account if they have a matching derivation.
-    /// - Returns: The created account model.
-    @discardableResult
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> any CryptoAccountModel
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws
 
     /// - Returns: The archived account model.
-    @discardableResult
-    func archiveCryptoAccount(with index: Int) async throws -> any CryptoAccountModel
+    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws
 }
