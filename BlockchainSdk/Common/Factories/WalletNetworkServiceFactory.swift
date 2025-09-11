@@ -189,7 +189,8 @@ private extension WalletNetworkServiceFactory {
                 apiInfo: apiList[blockchain.networkId] ?? [],
                 tangemProviderConfig: tangemProviderConfig
             )),
-            abiEncoder: WalletCoreABIEncoder()
+            abiEncoder: WalletCoreABIEncoder(),
+            blockchainName: blockchain.displayName
         )
 
         return networkService
