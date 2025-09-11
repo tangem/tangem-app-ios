@@ -402,8 +402,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/Solana.Swift.git",
       "state" : {
-        "branch" : "feature/IOS-10943_add_extended_flag_changes",
-        "revision" : "af32d7a48e70425eb81089c8842bd97c87c55ff5"
+        "revision" : "dce306775e5abfdbfdc51f9e809147dc6c62b089",
+        "version" : "1.2.0-tangem17"
       }
     },
     {

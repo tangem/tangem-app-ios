@@ -23941,7 +23941,6 @@
 				B6AE4DA52C530C7500070D96 /* MarketsHistoryChartProviderStub.swift in Sources */,
 				30D24FF92DA3FA42003B90B5 /* UIApplication+.swift in Sources */,
 				C265B21C2E5698950011C01D /* WalletConnectSessionNamespace.swift in Sources */,
-				B0E1C2422C2430C6005309E1 /* AlertBuilder.swift in Sources */,
 				B002416F2C2441EF00416397 /* HideTokenAlertBuilder.swift in Sources */,
 				EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */,
 				B6AA13702A2A377C00B53937 /* CardInfoPageWarningPreviewSectionItem.swift in Sources */,
@@ -32426,8 +32425,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/Solana.Swift.git";
 			requirement = {
-				branch = "feature/IOS-10943_add_extended_flag_changes";
-				kind = branch;
+				kind = exactVersion;
+				version = "1.2.0-tangem17";
 			};
 		};
 		B6DB40D22E142F260023A90A /* XCRemoteSwiftPackageReference "grpc-swift" */ = {
