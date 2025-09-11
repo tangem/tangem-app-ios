@@ -60,7 +60,7 @@ struct SendNewAmountCompactTokenView: View {
                     .minimumScaleFactor(SendAmountStep.Constants.amountMinTextScale)
             }
 
-            HStack(spacing: 8) {
+            HStack(spacing: 4) {
                 Text(viewModel.alternativeAmount ?? " ")
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
 
@@ -84,12 +84,15 @@ struct SendNewAmountCompactTokenView: View {
     private var highPriceImpactWarningView: some View {
         if let highPriceImpactWarning = viewModel.highPriceImpactWarning {
             HStack(spacing: 2) {
-                Text(highPriceImpactWarning.percent)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.attention)
+                if highPriceImpactWarning.isHighPriceImpact {
+                    Text(highPriceImpactWarning.percent)
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.attention)
+                        .padding(.leading, 4)
+                }
 
                 if #available(iOS 16.4, *) {
                     InfoButtonView(size: .medium, tooltipText: highPriceImpactWarning.infoMessage)
-                        .color(Colors.Text.attention)
+                        .color(highPriceImpactWarning.isHighPriceImpact ? Colors.Text.attention : Colors.Text.tertiary)
                 } else {
                     Button(action: {
                         viewModel.userDidTapHighPriceImpactWarning(highPriceImpactWarning: highPriceImpactWarning)
@@ -98,7 +101,7 @@ struct SendNewAmountCompactTokenView: View {
                             .renderingMode(.template)
                             .resizable()
                             .frame(width: 16, height: 16)
-                            .foregroundStyle(Colors.Text.attention)
+                            .foregroundStyle(highPriceImpactWarning.isHighPriceImpact ? Colors.Text.attention : Colors.Text.tertiary)
                     }
                 }
             }
