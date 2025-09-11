@@ -327,18 +327,18 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func setSeedNotifyStatus(userWalletId: String, status: SeedNotifyStatus) async throws {
-        let target = TangemApiTarget(type: .seedNotifySetStatus(userWalletId: userWalletId, status: status))
-        _ = try await provider.asyncRequest(target)
+        let target: TangemApiTarget.TargetType = .seedNotifySetStatus(userWalletId: userWalletId, status: status)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
     func setSeedNotifyStatusConfirmed(userWalletId: String, status: SeedNotifyStatus) async throws {
-        let target = TangemApiTarget(type: .seedNotifySetStatusConfirmed(userWalletId: userWalletId, status: status))
-        _ = try await provider.asyncRequest(target)
+        let target: TangemApiTarget.TargetType = .seedNotifySetStatusConfirmed(userWalletId: userWalletId, status: status)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
     func setWalletInitialized(userWalletId: String) async throws {
-        let target = TangemApiTarget(type: .walletInitialized(userWalletId: userWalletId))
-        _ = try await provider.asyncRequest(target)
+        let target: TangemApiTarget.TargetType = .walletInitialized(userWalletId: userWalletId)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
     // MARK: - Notification
