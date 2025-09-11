@@ -16,13 +16,14 @@ class PolkadotNetworkService: MultiNetworkProvider {
     var currentProviderIndex: Int = 0
     let providers: [PolkadotJsonRpcProvider]
 
-    let blockchainName: String = Blockchain.polkadot(curve: .ed25519_slip0010, testnet: false).displayName
-
     private let network: PolkadotNetwork
+
+    let blockchainName: String
 
     init(providers: [PolkadotJsonRpcProvider], network: PolkadotNetwork) {
         self.providers = providers
         self.network = network
+        blockchainName = network.blockchainName
     }
 
     func getInfo(for address: String) -> AnyPublisher<BigUInt, Error> {
