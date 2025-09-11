@@ -277,6 +277,7 @@ struct TangemApiTarget: TargetType {
     var headers: [String: String]? {
         switch type {
         case .saveUserAccounts(_, let revision, _):
+            // This endpoint uses manual ETags for optimistic locking during mutations
             return [
                 TangemAPIHeaders.ifMatch.rawValue: revision,
             ]
