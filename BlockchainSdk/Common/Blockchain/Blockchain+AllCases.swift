@@ -101,6 +101,7 @@ public extension Blockchain {
         case .zkLinkNova: break
         case .pepecoin: break
         case .hyperliquidEVM: break
+        case .quai: break
             // READ BELOW:
             //
             // Did you get a compilation error here? If so, add your new blockchain to the array below
