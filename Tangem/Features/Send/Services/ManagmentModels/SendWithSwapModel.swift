@@ -805,6 +805,7 @@ extension SendWithSwapModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
+             .openYieldPromo,
              .openBuyCrypto:
             assertionFailure("Notification tap not handled")
         }
