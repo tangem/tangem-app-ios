@@ -233,7 +233,7 @@
 "common_finish" = "終了";
 "common_free" = "無料";
 "common_generate_addresses" = "アドレスを同期する";
-"common_get_started" = "Get started";
+"common_get_started" = "はじめる";
 "common_go_to_provider" = "プロバイダーへ移動";
 "common_go_to_token" = "トークンへ移動";
 "common_got_it" = "わかりました";
@@ -985,7 +985,7 @@
 "send_qrcode_scan_info" = "QRコードを正方形に合わせてスキャンしてください。%@ ネットワークアドレスをスキャンしてください。";
 "send_recent_transactions" = "最近の取引";
 "send_recipient_address_error" = "有効なアドレスではありません";
-"send_recipient_address_footer_highlighted_part" = "%@ に送信";
+"send_recipient_address_footer_highlighted_part" = "%@";
 "send_recipient_address_footer_v2" = "%@ネットワーク上のアドレスに送信していることを確認してください。エラーが発生すると資金が失われる可能性があります。";
 "send_recipient_address_footer" = "トークンの損失を避けるために、受信ウォレットアドレスが** %@ネットワーク**上にあることを確認してください";
 "send_recipient_label" = "送金先";
@@ -1099,7 +1099,7 @@
 "staking_notification_ton_activate_account" = "TONでステーキングを開始するには、まず任意の金額の送金を行ってください。これにより、ウォレットがアクティブになります。";
 "staking_notification_ton_extra_reserve_info" = "取引を完了するには、ネットワーク手数料に加えて最大0.2TONが必要になる場合があります。未使用分は返金されます。";
 "staking_notification_ton_extra_reserve_is_required" = "この操作を続行するには、ネットワーク手数料に加えて0.2 TONが必要です。残高を補充してください。";
-"staking_notification_ton_extra_reserve_title" = "0.2 TON保留済み";
+"staking_notification_ton_extra_reserve_title" = "TONの準備金が必要です";
 "staking_notification_ton_have_to_unstake_all_text" = "このアクションは、ネットワークのルールに従って、他のポジションをクローズするか、引き出しステータスに切り替えます。";
 "staking_notification_ton_have_to_unstake_all_title" = "ポジション状況";
 "staking_notification_unlock_text" = "資金をステーキングから引き出すには、ロックを解除してください。ロック解除には%@かかります。";
