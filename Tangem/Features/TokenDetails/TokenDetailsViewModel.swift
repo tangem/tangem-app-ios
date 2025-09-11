@@ -122,6 +122,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             openFeeCurrency()
         case .swap:
             openExchange()
+        case .openYieldPromo:
+            openYieldPromo()
         case .generateAddresses,
              .backupCard,
              .buyCrypto,
@@ -147,7 +149,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openYieldPromo,
              .openBuyCrypto:
             super.didTapNotification(with: id, action: action)
         }
@@ -418,6 +419,13 @@ private extension TokenDetailsViewModel {
         }
 
         coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
+    }
+
+    func openYieldPromo() {
+        coordinator?.openYieldModulePromoView(
+            walletModel: walletModel,
+            info: .init(apy: "5.1", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
+        )
     }
 }
 
