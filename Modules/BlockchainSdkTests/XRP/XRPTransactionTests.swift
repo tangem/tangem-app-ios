@@ -77,7 +77,7 @@ struct XRPTransactionTests {
         builder.account = ""
 
         // when
-        let (_, messageToSign) = try builder.buildForSign(transaction: transaction)
+        let (_, messageToSign) = try builder.buildForSign(transaction: transaction, partialPaymentAllowed: false)
 
         // then
         TransactionSizeTesterUtility().testTxSize(messageToSign)
