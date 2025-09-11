@@ -100,34 +100,6 @@ struct ExpressAPIMapper {
         fromAmount /= pow(10, response.fromDecimals)
         toAmount /= pow(10, response.toDecimals)
 
-        /*
-         var txValue: Decimal
-
-         switch item.providerInfo.type {
-         case .cex:
-             guard let detailsTxValue = txDetails.txValue, let decimalTxValue = Decimal(string: detailsTxValue) else {
-                 throw ExpressAPIMapperError.mapToDecimalError(txDetails.txValue ?? "")
-             }
-
-             txValue = decimalTxValue
-
-             // For CEX we have txValue amount as value which have to be sent
-             txValue /= pow(10, item.source.currency.decimalCount)
-         case .dex, .dexBridge:
-             if let detailsTxValue = txDetails.txValue, let decimalTxValue = Decimal(string: detailsTxValue) {
-                 txValue = decimalTxValue
-             } else {
-                 txValue = .zero
-             }
-
-             // For DEX we have txValue amount as coin. Because it's EVM
-             txValue /= pow(10, item.source.feeCurrency.decimalCount)
-         case .onramp, .unknown:
-             throw ExpressAPIMapperError.wrongProviderType
-         }
-
-          */
-
         let txValue = try mapTxValueToDecimalValue(item: item, txValue: txDetails.txValue)
 
         let otherNativeFee = txDetails.otherNativeFee
