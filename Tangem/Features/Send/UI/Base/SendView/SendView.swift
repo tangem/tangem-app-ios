@@ -278,7 +278,7 @@ struct SendView: View {
     }
 
     private var bottomOverlay: some View {
-        ListFooterOverlayShadowView()
+        ListFooterOverlayShadowView(opacities: [0, 0.95, 1])
             .frame(height: bottomGradientHeight)
             .visible(viewModel.shouldShowBottomOverlay)
     }
