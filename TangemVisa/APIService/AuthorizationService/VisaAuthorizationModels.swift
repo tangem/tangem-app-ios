@@ -19,7 +19,7 @@ public enum VisaAuthorizationType: String, Codable {
     case customerWallet = "customer_wallet"
 }
 
-public struct VisaAuthorizationTokens: Codable {
+public struct VisaAuthorizationTokens: Codable, Equatable {
     public let accessToken: String?
     public let refreshToken: String
     public let authorizationType: VisaAuthorizationType
