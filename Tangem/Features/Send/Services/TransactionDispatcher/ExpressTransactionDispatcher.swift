@@ -33,11 +33,11 @@ class ExpressTransactionDispatcher {
 
 extension ExpressTransactionDispatcher: TransactionDispatcher {
     func send(transaction: SendTransactionType) async throws -> TransactionDispatcherResult {
-        guard case .express(let compiledTransaction) = transaction else {
+        guard case .express(let transactionTypeData) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        switch compiledTransaction {
+        switch transactionTypeData {
         case .compiled(let unsignedData):
             let transactionSendResult = try await send(unsignedData: unsignedData)
 
