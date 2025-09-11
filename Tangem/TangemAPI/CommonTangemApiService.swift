@@ -44,7 +44,7 @@ class CommonTangemApiService {
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
 
-            return try response.mapAPIResponse(decoder: decoder)
+            return try response.mapAPIResponseAndTangemAPIError(allowRedirectCodes: false, decoder: decoder)
         }
     }
 
@@ -374,20 +374,6 @@ extension CommonTangemApiService: TangemApiService {
 
     func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO {
         try await request(for: .createAndConnectUserWallet(applicationUid: applicationUid, items: items), decoder: decoder)
-    }
-}
-
-// MARK: - Decode
-
-private extension Response {
-    func mapAPIResponse<D: Decodable>(decoder: JSONDecoder = .init()) throws -> D {
-        let filteredResponse = try filterSuccessfulStatusCodes()
-
-        if let baseError = try? filteredResponse.map(TangemBaseAPIError.self) {
-            throw baseError.error
-        }
-
-        return try filteredResponse.map(D.self, using: decoder)
     }
 }
 
