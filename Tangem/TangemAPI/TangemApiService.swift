@@ -108,8 +108,7 @@ protocol TangemApiService: AnyObject {
     func createUserWalletsApplications(requestModel: ApplicationDTO.Request) async throws -> ApplicationDTO.Create.Response
 
     /// Update application with new uid with pushToken
-    @discardableResult
-    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws -> EmptyGenericResponseDTO
+    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws
 
     // MARK: - UserWallets
 
@@ -122,15 +121,12 @@ protocol TangemApiService: AnyObject {
     func getUserWallet(userWalletId: String) async throws -> UserWalletDTO.Response
 
     /// Update user wallet data model
-    @discardableResult
-    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws -> EmptyGenericResponseDTO
+    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws
 
     /// Creates a new user wallet and associates it with the given application
     /// - Parameters:
     ///   - requestModel: Details for creating the new wallet including ID and name
-    /// - Returns: Empty response indicating success
-    @discardableResult
-    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO
+    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws
 }
 
 private struct TangemApiServiceKey: InjectionKey {
