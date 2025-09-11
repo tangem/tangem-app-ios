@@ -205,11 +205,8 @@ struct WalletConnectConnectedDAppDetailsView: View {
         }
         .background {
             ListFooterOverlayShadowView(
-                colors: [
-                    Colors.Background.tertiary.opacity(0.0),
-                    Colors.Background.tertiary.opacity(0.95),
-                    Colors.Background.tertiary,
-                ]
+                color: Colors.Background.tertiary,
+                opacities: [0.0, 0.95, 1]
             )
             .padding(.top, 6)
         }
