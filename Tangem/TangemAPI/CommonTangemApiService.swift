@@ -386,6 +386,36 @@ extension CommonTangemApiService: TangemApiService {
         let target: TangemApiTarget.TargetType = .createAndConnectUserWallet(applicationUid: applicationUid, items: items)
         let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
+
+    // MARK: - Accounts
+
+    func getUserAccounts(userWalletId: String) async throws -> (revision: String, accounts: AccountsDTO.Response.Accounts) {
+        let target = TangemApiTarget(type: .getUserAccounts(userWalletId: userWalletId))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+
+            guard let revision = response.response?.value(forHTTPHeaderField: Constants.eTagHeaderName) else {
+                throw TangemAPIError(code: .optimisticLockingFailed, message: "ETag header is missing in the response")
+            }
+
+            let accounts: AccountsDTO.Response.Accounts = try response.mapAPIResponseAndTangemAPIError(
+                allowRedirectCodes: true,
+                decoder: decoder
+            )
+
+            return (revision: revision, accounts: accounts)
+        }
+    }
+
+    func saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts) async throws {
+        let target: TangemApiTarget.TargetType = .saveUserAccounts(userWalletId: userWalletId, revision: revision, accounts: accounts)
+        let _: EmptyGenericResponseDTO = try await request(for: target)
+    }
+
+    func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts {
+        try await request(for: .getArchivedUserAccounts(userWalletId: userWalletId), decoder: decoder)
+    }
 }
 
 // MARK: - Analytics
@@ -401,6 +431,14 @@ private extension CommonTangemApiService {
             ],
             analyticsSystems: [.firebase, .crashlytics]
         )
+    }
+}
+
+// MARK: - Constants
+
+private extension CommonTangemApiService {
+    enum Constants {
+        static let eTagHeaderName = "ETag"
     }
 }
 
