@@ -98,8 +98,8 @@ private extension CommonExpressTransactionBuilder {
 
         switch tokenItem.blockchain {
         case .solana:
-            if let unsinedData = Data(base64Encoded: txData) {
-                return unsinedData
+            if let unsignedData = Data(base64Encoded: txData) {
+                return unsignedData
             }
 
             throw ExpressTransactionBuilderError.transactionDataForSwapOperationNotFound
