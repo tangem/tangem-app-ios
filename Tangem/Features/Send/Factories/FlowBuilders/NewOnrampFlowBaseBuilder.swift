@@ -1,27 +1,20 @@
 //
-//  OnrampFlowBaseBuilder.swift
+//  NewOnrampFlowBaseBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import TangemExpress
 import TangemFoundation
 
-struct PredefinedOnrampParameters: Hashable {
-    static let none = PredefinedOnrampParameters(amount: .none, preferredValues: .none)
-
-    let amount: Decimal?
-    let preferredValues: PreferredValues
-}
-
-struct OnrampFlowBaseBuilder {
+struct NewOnrampFlowBaseBuilder {
     let walletModel: any WalletModel
     let source: SendCoordinator.Source
     let onrampAmountBuilder: OnrampAmountBuilder
-    let onrampStepBuilder: OnrampStepBuilder
+    let onrampStepBuilder: NewOnrampStepBuilder
     let sendFinishStepBuilder: SendFinishStepBuilder
     let builder: SendDependenciesBuilder
 
@@ -38,8 +31,6 @@ struct OnrampFlowBaseBuilder {
             analyticsLogger: analyticsLogger,
             predefinedValues: .init(amount: parameters.amount)
         )
-
-        analyticsLogger.setup(onrampProvidersInput: onrampModel)
 
         let notificationManager = builder.makeOnrampNotificationManager(input: onrampModel, delegate: onrampModel)
 
@@ -97,7 +88,7 @@ struct OnrampFlowBaseBuilder {
             onrampStatusCompactViewModel: onrampStatusCompactViewModel
         )
 
-        let stepsManager = CommonOnrampStepsManager(
+        let stepsManager = CommonNewOnrampStepsManager(
             onrampStep: onramp.step,
             finishStep: finish,
             summaryTitleProvider: builder.makeOnrampSummaryTitleProvider(),
