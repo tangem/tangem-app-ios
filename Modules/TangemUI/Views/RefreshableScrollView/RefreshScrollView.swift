@@ -47,7 +47,7 @@ public struct RefreshScrollView<Content: View>: View {
         }
         .introspectResponderChain(
             introspectedType: UIScrollView.self,
-            includeSubviews: true,
+            behaviour: .subviewTree,
             updateOnChangeOf: introspectResponderChainID,
             action: { scrollView in
                 stateObject.scrollViewDelegate.set(scrollView: scrollView)
