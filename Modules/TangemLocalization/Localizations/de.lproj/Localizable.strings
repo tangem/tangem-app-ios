@@ -985,8 +985,8 @@
 "send_qrcode_scan_info" = "Bitte richte den QR-Code auf das Quadrat aus, um ihn zu scannen. Stell sicher, dass du die Netzwerkadresse %@ scannen.";
 "send_recent_transactions" = "Jüngste";
 "send_recipient_address_error" = "Keine gültige Adresse";
-"send_recipient_address_footer_highlighted_part" = "senden an %@";
-"send_recipient_address_footer_v2" = "Stelle sicher, dass Du %@ Netzwerkadresse hast, da Fehler zu verlorenen Übertragungen führen können";
+"send_recipient_address_footer_highlighted_part" = "%@ Netzwerkadresse";
+"send_recipient_address_footer_v2" = "Stelle sicher, dass Du %@ hast, da Fehler zu verlorenen Übertragungen führen können";
 "send_recipient_address_footer" = "Stelle sicher, dass sich die empfangende Wallet-Adresse im ** %@ -Netzwerk** befindet, um den Verlust Deiner Token zu vermeiden.";
 "send_recipient_label" = "Senden an";
 "send_recipient_memo_footer_v2_highlighted" = "Achtung: Das Fehlen eines Memos kann zum Verlust von Geldern führen.";
@@ -1099,7 +1099,7 @@
 "staking_notification_ton_activate_account" = "Um mit dem Staking bei TON zu beginnen, führe zunächst eine ausgehende Transaktion in beliebiger Höhe durch – dadurch wird Deine Wallet aktiviert.";
 "staking_notification_ton_extra_reserve_info" = "Für den Abschluss der Transaktion können zusätzlich zur Netzwerkgebühr bis zu 0,2 TON erforderlich sein. Nicht genutzte Beträge werden zurückerstattet.";
 "staking_notification_ton_extra_reserve_is_required" = "Für diesen Vorgang sind zusätzlich zur Netzwerkgebühr 0,2 TON erforderlich. Bitte lade Dein Guthaben auf.";
-"staking_notification_ton_extra_reserve_title" = "0,2 Ton reserviert";
+"staking_notification_ton_extra_reserve_title" = "TON-Reserve erforderlich";
 "staking_notification_ton_have_to_unstake_all_text" = "Durch diese Aktion werden andere Positionen geschlossen oder gemäß den Netzwerkregeln in den Auszahlungsstatus versetzt.";
 "staking_notification_ton_have_to_unstake_all_title" = "Positionsstatus";
 "staking_notification_unlock_text" = "Entsperre dein Geld, um es aus dem Staking-Prozess abzuheben. Das Freischalten nimmt %@.";
