@@ -96,6 +96,7 @@ protocol SendReceiveTokensListAnalyticsLogger {
     func logTokenSearched(coin: CoinModel, searchText: String?)
 
     func logTokenChosen(token: TokenItem)
+    func logSendSwapCantSwapThisToken(token: String)
 }
 
 protocol SendFeeAnalyticsLogger {
