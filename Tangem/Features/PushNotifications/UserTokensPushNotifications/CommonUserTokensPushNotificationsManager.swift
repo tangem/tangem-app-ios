@@ -27,7 +27,6 @@ class CommonUserTokensPushNotificationsManager {
 
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.unavailable(reason: .notInitialized, enabledRemote: false))
 
-    private var allowanceTask: Task<Void, Error>?
     private var updateTask: Task<Void, Error>?
     private var cancellables = Set<AnyCancellable>()
 
@@ -37,6 +36,11 @@ class CommonUserTokensPushNotificationsManager {
 
     private var currentEntry: ApplicationWalletEntry? {
         userTokensPushNotificationsService.entries.first(where: { $0.id == userWalletId.stringValue })
+    }
+
+    @MainActor
+    private var allowanceUserWalletIdTransactionsPush: Bool {
+        AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue)
     }
 
     // MARK: Init
@@ -58,17 +62,18 @@ class CommonUserTokensPushNotificationsManager {
     // MARK: - Private Implementation
 
     private func bind() {
+        let readyUserTokenListPublisher = userTokenListManager
+            .userTokensListPublisher
+            .dropFirst()
+
         userTokensPushNotificationsService
             .entriesPublisher
             .removeDuplicates()
-            .combineLatest(userTokenListManager.initializedPublisher)
+            .combineLatest(readyUserTokenListPublisher)
+            .map(\.0)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { manager, args in
-                let (entries, _) = args
-
-                // Need cancel update status when entries did update
-                manager.updateTask?.cancel()
-
+            .sink { manager, entries in
                 guard let entry = entries.first(where: { $0.id == manager.userWalletId.stringValue }) else {
                     return
                 }
@@ -81,7 +86,7 @@ class CommonUserTokensPushNotificationsManager {
             .hasPendingDerivations
             .dropFirst() // We synchronize only state changes and send them only when they change.
             .removeDuplicates()
-            .combineLatest(userTokenListManager.initializedPublisher)
+            .combineLatest(readyUserTokenListPublisher)
             .filter { !$0.0 }
             .withWeakCaptureOf(self)
             .sink { manager, _ in
@@ -91,8 +96,9 @@ class CommonUserTokensPushNotificationsManager {
 
         NotificationCenter.default
             .publisher(for: UIApplication.willEnterForegroundNotification)
-            .combineLatest(userTokenListManager.initializedPublisher)
+            .combineLatest(readyUserTokenListPublisher)
             .withWeakCaptureOf(self)
+            .receiveOnMain()
             .sink { manager, _ in
                 guard let currentEntry = manager.currentEntry else {
                     return
@@ -104,6 +110,9 @@ class CommonUserTokensPushNotificationsManager {
     }
 
     private func updateStatusIfNeeded(with remoteNotifyStatus: Bool) {
+        // Need cancel update status when entries did update
+        updateTask?.cancel()
+
         updateTask = runTask { [weak self] in
             guard let self else {
                 return
@@ -113,7 +122,7 @@ class CommonUserTokensPushNotificationsManager {
 
             // Checking the deduplication of a status update call
             if pushNotifyStatus != _userWalletPushStatusSubject.value {
-                updateWalletPushNotifyStatus(pushNotifyStatus)
+                await updateWalletPushNotifyStatus(pushNotifyStatus)
             }
         }
     }
@@ -128,11 +137,40 @@ class CommonUserTokensPushNotificationsManager {
     }
 
     private func syncRemoteStatus() {
-        guard userTokenListManager.initialized else {
-            return
+        userTokenListManager.upload()
+    }
+
+    @MainActor
+    private func updateAllowanceIfNeeded() {
+        if !AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue) {
+            AppSettings.shared.allowanceUserWalletIdTransactionsPush.append(userWalletId.stringValue)
+        }
+    }
+
+    private func shouldSyncRemoteStatus(
+        currentStatus: UserWalletPushNotifyStatus,
+        newStatus: UserWalletPushNotifyStatus,
+        hasAllowance: Bool
+    ) -> Bool {
+        currentStatus.isNotInitialized ? !hasAllowance : currentStatus.isActive != newStatus.isActive
+    }
+
+    private func updateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) async {
+        let currentStatus = _userWalletPushStatusSubject.value
+
+        _userWalletPushStatusSubject.send(status)
+
+        if await shouldSyncRemoteStatus(
+            currentStatus: currentStatus,
+            newStatus: status,
+            hasAllowance: allowanceUserWalletIdTransactionsPush
+        ) {
+            syncRemoteStatus()
         }
 
-        userTokenListManager.upload()
+        userTokensPushNotificationsService.updateWallet(notifyStatus: status.isActive, by: userWalletId.stringValue)
+
+        await updateAllowanceIfNeeded()
     }
 }
 
@@ -155,10 +193,11 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
         throw .permissionDenied
     }
 
-    func updateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {
-        _userWalletPushStatusSubject.send(status)
-        syncRemoteStatus()
-        userTokensPushNotificationsService.updateWallet(notifyStatus: status.isActive, by: userWalletId.stringValue)
+    func handleUpdateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {
+        runTask(in: self) { @MainActor manager in
+            manager.updateTask?.cancel()
+            await manager.updateWalletPushNotifyStatus(status)
+        }
     }
 }
 
