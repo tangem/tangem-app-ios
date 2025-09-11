@@ -985,8 +985,8 @@
 "send_qrcode_scan_info" = "Veuillez aligner votre code QR avec le carré pour le scanner. Assurez-vous de scanner l'adresse du réseau %@.";
 "send_recent_transactions" = "Récent";
 "send_recipient_address_error" = "Adresse non valide";
-"send_recipient_address_footer_highlighted_part" = "envoyer à %@";
-"send_recipient_address_footer_v2" = "Assurez-vous de %@ une adresse réseau, car des erreurs peuvent entraîner des transferts perdus";
+"send_recipient_address_footer_highlighted_part" = "%@ une adresse réseau";
+"send_recipient_address_footer_v2" = "Assurez-vous de %@, car des erreurs peuvent entraîner des transferts perdus";
 "send_recipient_address_footer" = "Assurez-vous que l'adresse du portefeuille de réception est sur le réseau %@ pour éviter de perdre vos jetons";
 "send_recipient_label" = "Envoyer à";
 "send_recipient_memo_footer_v2_highlighted" = "Attention : l'absence de Memo peut entraîner une perte de fonds.";
@@ -1099,7 +1099,7 @@
 "staking_notification_ton_activate_account" = "Pour commencer à staker TON, effectuez d'abord une transaction sortante de n'importe quel montant — cela activera votre portefeuille.";
 "staking_notification_ton_extra_reserve_info" = "Jusqu'à 0,2 TON peuvent être requis en plus des frais de réseau pour terminer la transaction. Tout montant non utilisé sera remboursé.";
 "staking_notification_ton_extra_reserve_is_required" = "0,2 TON requis pour effectuer cette opération, en plus des frais de réseau. Veuillez recharger votre solde.";
-"staking_notification_ton_extra_reserve_title" = "0,2 Ton réservés";
+"staking_notification_ton_extra_reserve_title" = "Réserve de TON requise";
 "staking_notification_ton_have_to_unstake_all_text" = "Cette action fermera d'autres positions ou les fera passer au statut de retrait, conformément aux règles du réseau.";
 "staking_notification_ton_have_to_unstake_all_title" = "Statut des positions";
 "staking_notification_unlock_text" = "Débloquez votre argent pour le retirer du processus de staking. Le déverrouillage prend %@.";
