@@ -65,10 +65,10 @@ class CommonTangemApiService {
             log(error: error, exceptionHost: target.requestDescription, code: error.errorCode.description)
             throw error
         } catch let error as TangemAPIError {
-            log(error: error, exceptionHost: target.requestDescription, code: error.code.description ?? "")
+            log(error: error, exceptionHost: target.requestDescription, code: error.code.description ?? .empty)
             throw error
         } catch {
-            log(error: error, exceptionHost: target.requestDescription, code: TangemAPIError.ErrorCode.unknown.description ?? "")
+            log(error: error, exceptionHost: target.requestDescription, code: TangemAPIError.ErrorCode.unknown.description ?? .empty)
             throw error
         }
     }
@@ -355,11 +355,11 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .pushNotificationsEligible, decoder: decoder)
     }
 
-    // MARK: - Applicationss
+    // MARK: - Applications
 
     func createUserWalletsApplications(requestModel: ApplicationDTO.Request) async throws -> ApplicationDTO.Create.Response {
-        let requestTarget: TangemApiTarget.TargetType = .createUserWalletsApplication(requestModel)
-        return try await request(for: requestTarget, decoder: decoder)
+        let target: TangemApiTarget.TargetType = .createUserWalletsApplication(requestModel)
+        return try await request(for: target, decoder: decoder)
     }
 
     func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws {
