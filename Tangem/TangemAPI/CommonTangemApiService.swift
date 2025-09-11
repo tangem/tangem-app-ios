@@ -40,10 +40,27 @@ class CommonTangemApiService {
 
     private func request<D: Decodable>(for type: TangemApiTarget.TargetType, decoder: JSONDecoder = .init()) async throws -> D {
         let target = TangemApiTarget(type: type)
-        let response = try await provider.asyncRequest(target)
 
-        do {
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+
             return try response.mapAPIResponse(decoder: decoder)
+        }
+    }
+
+    private func requestRawData(for type: TangemApiTarget.TargetType) async throws -> Data {
+        let target = TangemApiTarget(type: type)
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+
+            return response.data
+        }
+    }
+
+    private func withErrorLoggingPipeline<T>(target: TangemApiTarget, work: () async throws -> T) async rethrows -> T {
+        do {
+            return try await work()
         } catch let error as MoyaError {
             log(error: error, exceptionHost: target.requestDescription, code: error.errorCode.description)
             throw error
@@ -54,11 +71,6 @@ class CommonTangemApiService {
             log(error: error, exceptionHost: target.requestDescription, code: TangemAPIError.ErrorCode.unknown.description ?? "")
             throw error
         }
-    }
-
-    private func requestRawData(for type: TangemApiTarget.TargetType) async throws -> Data {
-        let target = TangemApiTarget(type: type)
-        return try await provider.asyncRequest(target).data
     }
 }
 
