@@ -100,6 +100,7 @@ struct MarketsView: View {
         }
         .introspectResponderChain(
             introspectedType: UINavigationController.self,
+            behaviour: .responderChain,
             updateOnChangeOf: responderChainIntrospectionTrigger,
             action: navigationControllerConfigurator.configure(_:)
         )
