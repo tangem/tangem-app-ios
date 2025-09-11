@@ -36,7 +36,6 @@ struct YieldStatusView: View {
 
     // MARK: - Sub Views
 
-    @ViewBuilder
     private var content: some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
@@ -53,13 +52,11 @@ struct YieldStatusView: View {
         .defaultRoundedBackground()
     }
 
-    @ViewBuilder
     private var title: some View {
         Text(Localization.yieldModuleTokenDetailsEarnNotificationEarningOnYourBalanceTitle)
             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
     }
 
-    @ViewBuilder
     private var description: some View {
         HStack(spacing: 4) {
             descriptionText
@@ -70,7 +67,6 @@ struct YieldStatusView: View {
         }
     }
 
-    @ViewBuilder
     private var loadingIndicator: some View {
         Circle()
             .trim(from: 0.0, to: 0.8)
@@ -85,13 +81,11 @@ struct YieldStatusView: View {
             }
     }
 
-    @ViewBuilder
     private var warning: some View {
         Assets.WalletConnect.yellowWarningCircle.image
             .frame(size: .init(bothDimensions: 20))
     }
 
-    @ViewBuilder
     private var chevron: some View {
         Assets.chevronRightWithOffset24.image
             .renderingMode(.template)
@@ -120,7 +114,6 @@ struct YieldStatusView: View {
         }
     }
 
-    @ViewBuilder
     private func trailingView(isApproveNeeded: Bool) -> some View {
         HStack(spacing: 2) {
             if isApproveNeeded {
