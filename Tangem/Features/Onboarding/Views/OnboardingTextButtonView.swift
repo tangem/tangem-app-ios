@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnboardingBottomButtonsSettings {
     let main: MainButton.Settings?
@@ -38,6 +39,7 @@ struct OnboardingTextButtonView: View {
                     buttonsSettings.main?.action()
                 }
             }
+            .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mainButton)
             // For now we need to leave view in the hierarchy to prevent
             // issues with drawing card images
             .hidden(buttonsSettings.main == nil)
@@ -53,6 +55,7 @@ struct OnboardingTextButtonView: View {
                     buttonsSettings.supplement?.action()
                 }
             }
+            .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.supplementButton)
             // For now we need to leave view in the hierarchy to prevent
             // issues with drawing card images
             .hidden(buttonsSettings.supplement == nil)

@@ -985,8 +985,8 @@
 "send_qrcode_scan_info" = "Please align your QR code with the square to scan it. Ensure you scan %@ network address.";
 "send_recent_transactions" = "Recent";
 "send_recipient_address_error" = "Not a valid address";
-"send_recipient_address_footer_highlighted_part" = "send to %@";
-"send_recipient_address_footer_v2" = "Make sure you are sending to an address on the %@ network. An error may result in the loss of funds.";
+"send_recipient_address_footer_highlighted_part" = "%@ network";
+"send_recipient_address_footer_v2" = "Make sure you are sending to an address on the %@. An error may result in the loss of funds.";
 "send_recipient_address_footer" = "Ensure the receiving wallet address is on **the %@ network** to avoid losing your tokens";
 "send_recipient_label" = "Send to";
 "send_recipient_memo_footer_v2_highlighted" = "Caution: Missing a memo may lead to fund loss.";
@@ -1099,7 +1099,7 @@
 "staking_notification_ton_activate_account" = "To start staking in TON, first make an outgoing transaction of any amount — this will activate your wallet.";
 "staking_notification_ton_extra_reserve_info" = "Up to 0.2 TON may be required in addition to the network fee to complete the transaction. Any unused amount will be refunded.";
 "staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
-"staking_notification_ton_extra_reserve_title" = "0.2 Ton Reserved";
+"staking_notification_ton_extra_reserve_title" = "TON reserve required";
 "staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
 "staking_notification_ton_have_to_unstake_all_title" = "Positions status";
 "staking_notification_unlock_text" = "Unlock your money to withdraw it from staking process. Unlocking takes %@.";
