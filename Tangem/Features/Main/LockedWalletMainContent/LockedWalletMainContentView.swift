@@ -22,6 +22,9 @@ struct LockedWalletMainContentView: View {
             }
         }
         .padding(.horizontal, 16)
+        .background(
+            Color.clear.alert(item: $viewModel.alert) { $0.alert }
+        )
     }
 
     private var placeholderColor: Color {
