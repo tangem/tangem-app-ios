@@ -9,7 +9,10 @@
 import Foundation
 
 enum PersistentStorageKey {
+    /// - Note: Superseded by `accounts(cid:)`, will be removed in future.
     case wallets(cid: String)
+    /// - Note: Supersedes `wallets(cid:)`.
+    case accounts(cid: String)
     case allWalletConnectSessionsOld
     case walletConnectSessions
     case pendingExpressTransactions
@@ -21,6 +24,8 @@ enum PersistentStorageKey {
         switch self {
         case .wallets(let cid):
             return "wallets_\(cid)"
+        case .accounts(let cid):
+            return "accounts_\(cid)"
         case .allWalletConnectSessionsOld:
             return "wc_sessions"
         case .walletConnectSessions:
