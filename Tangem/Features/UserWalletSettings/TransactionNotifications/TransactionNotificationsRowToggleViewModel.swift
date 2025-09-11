@@ -150,7 +150,7 @@ private extension TransactionNotificationsRowToggleViewModel {
             return
         }
 
-        userTokensPushNotificationsManager.updateWalletPushNotifyStatus(toUpdatePushNotifyStatus)
+        userTokensPushNotificationsManager.handleUpdateWalletPushNotifyStatus(toUpdatePushNotifyStatus)
     }
 
     func handleAndCheckUnavailablePushNotifyStatus() {
@@ -160,7 +160,7 @@ private extension TransactionNotificationsRowToggleViewModel {
             await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
 
             if await viewModel.pushNotificationsPermission.isAuthorized {
-                viewModel.userTokensPushNotificationsManager.updateWalletPushNotifyStatus(.enabled)
+                viewModel.userTokensPushNotificationsManager.handleUpdateWalletPushNotifyStatus(.enabled)
             } else {
                 // To display a system message about the need for permission to receive notifications.
                 viewModel.showPushSettingsAlert?()
