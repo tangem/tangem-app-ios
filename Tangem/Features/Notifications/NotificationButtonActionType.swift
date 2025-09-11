@@ -23,7 +23,7 @@ struct NotificationButtonAction {
     }
 }
 
-enum NotificationButtonActionType: Identifiable, Hashable {
+enum NotificationButtonActionType: Identifiable {
     case generateAddresses
     case backupCard
     case buyCrypto(currencySymbol: String?)
@@ -56,8 +56,46 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case openReferralProgram
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
+    case openBuyCrypto(walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
+    case tangemPayCreateAccountAndIssueCard
+    case tangemPayViewKYCStatus
 
-    var id: Int { hashValue }
+    var id: Int {
+        switch self {
+        case .generateAddresses: "generateAddresses".hashValue
+        case .backupCard: "backupCard".hashValue
+        case .buyCrypto(let currencySymbol): "buyCrypto\(String(describing: currencySymbol))".hashValue
+        case .openFeeCurrency(let currencySymbol): "openFeeCurrency\(currencySymbol)".hashValue
+        case .refresh: "refresh".hashValue
+        case .refreshFee: "refresh_fee".hashValue
+        case .goToProvider: "goToProvider".hashValue
+        case .leaveAmount(let amount, let amountFormatted): "leaveAmount\(amount)\(amountFormatted)".hashValue
+        case .reduceAmountBy(let amount, let amountFormatted): "reduceAmountBy\(amount)\(amountFormatted)".hashValue
+        case .reduceAmountTo(let amount, let amountFormatted): "reduceAmountTo\(amount)\(amountFormatted)".hashValue
+        case .openLink(let promotionLink, let buttonTitle): "openLink\(promotionLink)\(buttonTitle)".hashValue
+        case .swap: "swap".hashValue
+        case .addHederaTokenAssociation: "addHederaTokenAssociation".hashValue
+        case .addTokenTrustline: "addTokenTrustline".hashValue
+        case .retryKaspaTokenTransaction: "retryKaspaTokenTransaction".hashValue
+        case .stake: "stake".hashValue
+        case .openFeedbackMail: "openFeedbackMail".hashValue
+        case .openAppStoreReview: "openAppStoreReview".hashValue
+        case .empty: "empty".hashValue
+        case .support: "support".hashValue
+        case .openCurrency: "openCurrency".hashValue
+        case .seedSupportYes: "seedSupportYes".hashValue
+        case .seedSupportNo: "seedSupportNo".hashValue
+        case .seedSupport2Yes: "seedSupport2Yes".hashValue
+        case .seedSupport2No: "seedSupport2No".hashValue
+        case .unlock: "unlock".hashValue
+        case .openReferralProgram: "openReferralProgram".hashValue
+        case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
+        case .openMobileUpgrade: "openMobileUpgrade".hashValue
+        case .openBuyCrypto(let walletModel, let parameters): "openBuyCrypto\(walletModel.id)\(parameters.hashValue)".hashValue
+        case .tangemPayCreateAccountAndIssueCard: "tangemPayCreateAccountAndIssueCard".hashValue
+        case .tangemPayViewKYCStatus: "tangemPayViewKYCStatus".hashValue
+        }
+    }
 
     var title: String {
         switch self {
@@ -119,6 +157,13 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.hwActivationNeedFinish
         case .openMobileUpgrade:
             return .empty
+        case .openBuyCrypto:
+            return Localization.commonBuy
+        case .tangemPayCreateAccountAndIssueCard:
+            return Localization.commonContinue
+        case .tangemPayViewKYCStatus:
+            // [REDACTED_TODO_COMMENT]
+            return "View Status"
         }
     }
 
@@ -154,7 +199,10 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
-             .openMobileUpgrade:
+             .openMobileUpgrade,
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             return nil
         }
     }
@@ -189,7 +237,10 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupport2Yes,
              .seedSupport2No,
              .openReferralProgram,
-             .addTokenTrustline:
+             .addTokenTrustline,
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             return .secondary
         case .openMobileFinishActivation(let needsAttention):
             return needsAttention ? .primary : .secondary
