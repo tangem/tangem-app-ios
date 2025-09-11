@@ -57,6 +57,25 @@ enum PolkadotNetwork {
             return 126
         }
     }
+
+    var blockchainName: String {
+        switch self {
+        case .polkadot(let curve):
+            return Blockchain.polkadot(curve: curve, testnet: false).displayName
+        case .kusama(let curve):
+            return Blockchain.kusama(curve: curve).displayName
+        case .westend(let curve):
+            return Blockchain.polkadot(curve: curve, testnet: true).displayName
+        case .azero(let curve, let isTestnet):
+            return Blockchain.azero(curve: curve, testnet: isTestnet).displayName
+        case .joystream(let curve):
+            return Blockchain.joystream(curve: curve).displayName
+        case .bittensor(let curve):
+            return Blockchain.bittensor(curve: curve).displayName
+        case .energyWebX(let curve):
+            return Blockchain.energyWebX(curve: curve).displayName
+        }
+    }
 }
 
 /// https://support.polkadot.network/support/solutions/articles/65000168651-what-is-the-existential-deposit-
