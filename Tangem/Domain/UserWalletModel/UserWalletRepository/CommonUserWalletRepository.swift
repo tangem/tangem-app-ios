@@ -32,10 +32,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         return hasProtected
     }
 
-    var isLocked: Bool {
-        let hasUnlockedModels = models.contains(where: { !$0.isUserWalletLocked })
-        return !hasUnlockedModels
-    }
+    var isLocked: Bool { _locked }
 
     var selectedModel: UserWalletModel? {
         if let selectedUserWalletId {
@@ -59,6 +56,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private var bag: Set<AnyCancellable> = .init()
+    private var _locked: Bool = true
 
     init() {}
 
@@ -85,7 +83,9 @@ class CommonUserWalletRepository: UserWalletRepository {
     func unlock(with method: UserWalletRepositoryUnlockMethod) async throws -> UserWalletModel {
         defer {
             setStartWalletUsageDateIfNeeded()
+            signIn()
         }
+
         return switch method {
         case .biometrics(let context):
             try handleUnlock(context: context)
@@ -257,6 +257,16 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
+    private func signIn() {
+        guard _locked else { return }
+
+        _locked = false
+
+        if let selectedModel {
+            AmplitudeWrapper.shared.setUserId(userId: selectedModel.userWalletId)
+        }
+    }
+
     private func _handleUnlock(context: LAContext) throws -> Int {
         let userWalletIds = models.map { $0.userWalletId }
         let encryptionKeys = try encryptionKeyStorage.fetch(userWalletIds: userWalletIds, context: context)
@@ -394,6 +404,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         models = lockedModels
         globalServicesContext.resetServices()
         globalServicesContext.stopAnalyticsSession()
+        _locked = true
         sendEvent(.locked)
     }
 

@@ -417,7 +417,8 @@ extension SendModel: NotificationTapDelegate {
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .unlock,
-             .openYieldPromo:
+             .openYieldPromo,
+             .openBuyCrypto:
             assertionFailure("Notification tap not handled")
         }
     }

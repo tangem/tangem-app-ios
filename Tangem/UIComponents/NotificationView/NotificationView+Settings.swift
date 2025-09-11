@@ -58,7 +58,7 @@ extension NotificationView {
         var id: Int { actionType.id }
 
         static func == (lhs: NotificationButton, rhs: NotificationButton) -> Bool {
-            return lhs.actionType == rhs.actionType
+            return lhs.actionType.id == rhs.actionType.id
         }
     }
 
@@ -95,42 +95,12 @@ extension NotificationView {
         case secondary
         case action
 
-        /// Customs
-        case ring
-
         @ViewBuilder
         var background: some View {
             switch self {
             case .primary: Colors.Background.primary
             case .secondary: Colors.Button.disabled
             case .action: Colors.Background.action
-            case .ring:
-                ZStack {
-                    Assets.promoRingBg.image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                }
-                .background(Color(hex: "#1E1E1E")!)
-            }
-        }
-
-        @ViewBuilder
-        var overlay: some View {
-            switch self {
-            case .ring:
-                VStack(alignment: .leading) {
-                    HStack(alignment: .top) {
-                        Assets.promoRingIcon.image
-                            .resizable()
-                            .frame(width: 60, height: 119)
-                            .offset(CGSize(width: 0, height: 25.0))
-                            .padding(.top, 12)
-                            .padding(.leading, 14)
-                        Spacer()
-                    }
-                }
-            default:
-                EmptyView()
             }
         }
 
@@ -138,8 +108,6 @@ extension NotificationView {
             switch self {
             case .primary, .secondary, .action:
                 return Colors.Icon.inactive
-            case .ring:
-                return Colors.Icon.informative
             }
         }
 
@@ -147,14 +115,12 @@ extension NotificationView {
             switch self {
             case .primary, .secondary, .action:
                 return Colors.Text.primary1
-            case .ring:
-                return Colors.Text.constantWhite
             }
         }
 
         var messageColor: Color {
             switch self {
-            case .primary, .secondary, .action, .ring:
+            case .primary, .secondary, .action:
                 return Colors.Text.tertiary
             }
         }

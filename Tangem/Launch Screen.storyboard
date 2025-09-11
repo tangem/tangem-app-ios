@@ -12,26 +12,26 @@
         <!--View Controller-->
         <scene sceneID="EHf-IW-A2E">
             <objects>
-                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                <viewController extendedLayoutIncludesOpaqueBars="YES" id="01J-lp-oVM" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tangemIconBigLogo" translatesAutoresizingMaskIntoConstraints="NO" id="O5e-yD-HVl">
-                                <rect key="frame" x="148.66666666666666" y="286" width="96" height="96"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" image="tangemIconBigLogo" translatesAutoresizingMaskIntoConstraints="NO" id="O5e-yD-HVl">
+                                <rect key="frame" x="148.66666666666666" y="378" width="96" height="96"/>
                                 <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="96" id="T4b-4z-Lxh"/>
-                                    <constraint firstAttribute="width" constant="96" id="fCW-gw-q1s"/>
+                                    <constraint firstAttribute="width" constant="96" id="AAH-BX-W9C"/>
+                                    <constraint firstAttribute="height" constant="96" id="e2F-mj-cFB"/>
                                 </constraints>
                             </imageView>
                         </subviews>
-                        <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
+                        <viewLayoutGuide key="safeArea" id="FvU-0Q-AOC"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="O5e-yD-HVl" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" constant="-92" id="LmD-GO-Q4P"/>
-                            <constraint firstItem="O5e-yD-HVl" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="YDm-Pj-Foi"/>
+                            <constraint firstItem="O5e-yD-HVl" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Qz3-TW-XjI"/>
+                            <constraint firstItem="O5e-yD-HVl" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="ybE-SR-Cde"/>
                         </constraints>
                     </view>
                 </viewController>
