@@ -18035,12 +18035,12 @@
 		DC8C22F32D8A1409005159FE /* TangemAPI */ = {
 			isa = PBXGroup;
 			children = (
-				DCE0C5AB2E2FF2E100F5C84D /* TangemApiAuthorizationPlugin.swift */,
 				EFCC66DF28AA6FB200EC7757 /* Models */,
-				DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */,
 				DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */,
 				DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */,
 				B6662CF92E72C9FD00198D8D /* TangemAPIHeaders.swift */,
+				DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */,
+				DCE0C5AB2E2FF2E100F5C84D /* TangemApiAuthorizationPlugin.swift */,
 				2D56D4F82D93F56C001FCDDC /* TangemNetwokAnalyticsPlugin.swift */,
 			);
 			path = TangemAPI;
