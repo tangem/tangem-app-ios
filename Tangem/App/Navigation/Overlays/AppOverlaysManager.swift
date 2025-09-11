@@ -21,6 +21,7 @@ final class AppOverlaysManager {
     @Injected(\.tangemStoriesViewModel) private var tangemStoriesViewModel: TangemStoriesViewModel
     @Injected(\.alertPresenterViewModel) private var alertPresenterViewModel: AlertPresenterViewModel
     @Injected(\.storyKingfisherImageCache) private var storyKingfisherImageCache: ImageCache
+    @Injected(\.overlayShareActivitiesViewModel) private var shareActivitiesViewModel: ShareActivitiesViewModel
 
     private var overlayWindow: UIWindow?
     private var storiesViewController: UIViewController?
@@ -70,6 +71,23 @@ final class AppOverlaysManager {
                 self?.handleNewStoriesState(state)
             }
             .store(in: &cancellables)
+
+        shareActivitiesViewModel
+            .$activityItems
+            .dropFirst()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { manager, activityItems in
+                guard let activityItems, !activityItems.isEmpty else { return }
+
+                let av = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+                manager.present(viewController: av)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func present(viewController: UIViewController) {
+        overlayWindow?.rootViewController?.present(viewController, animated: true)
     }
 
     private func handleNewStoriesState(_ state: TangemStoriesViewModel.State?) {
