@@ -65,12 +65,6 @@ struct MainView: View {
             }
         })
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
-        .bottomSheet(
-            item: $viewModel.unlockWalletBottomSheetViewModel,
-            backgroundColor: Colors.Background.primary
-        ) { model in
-            UnlockUserWalletBottomSheetView(viewModel: model)
-        }
     }
 
     var detailsNavigationButton: some View {
