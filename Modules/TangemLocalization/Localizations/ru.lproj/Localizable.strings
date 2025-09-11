@@ -985,8 +985,8 @@
 "send_qrcode_scan_info" = "Пожалуйста, совместите свой QR-код с квадратом, чтобы отсканировать его. Убедитесь, что вы сканируете адрес в сети %@.";
 "send_recent_transactions" = "Последние";
 "send_recipient_address_error" = "Неверный адрес";
-"send_recipient_address_footer_highlighted_part" = "send to %@";
-"send_recipient_address_footer_v2" = "Убедитесь, что отправляете на адрес в сети %@, ошибки могут привести к потере средств.";
+"send_recipient_address_footer_highlighted_part" = "в сети %@";
+"send_recipient_address_footer_v2" = "Убедитесь, что отправляете на адрес %@, ошибки могут привести к потере средств.";
 "send_recipient_address_footer" = "Убедитесь, что вы отправляете средства на адрес кошелька %@. Ошибки могут привести к потере ваших токенов.";
 "send_recipient_label" = "Отправить";
 "send_recipient_memo_footer_v2_highlighted" = "Внимание: отсутствие Memo может привести к потере средств.";
@@ -1099,7 +1099,7 @@
 "staking_notification_ton_activate_account" = "Чтобы начать стейкинг в TON, сначала осуществите исходящую транзакцию на любую сумму — это активирует ваш кошелек.";
 "staking_notification_ton_extra_reserve_info" = "До 0.2 TON может потребоваться сверх сетевой комиссии для завершения транзакции. Неиспользованная часть будет возвращена.";
 "staking_notification_ton_extra_reserve_is_required" = "Для выполнения операции требуется дополнительно 0.2 TON, помимо сетевой комиссии. Пожалуйста, пополните баланс.";
-"staking_notification_ton_extra_reserve_title" = "Зарезервировано 0.2 TON";
+"staking_notification_ton_extra_reserve_title" = "Требуется резерв TON";
 "staking_notification_ton_have_to_unstake_all_text" = "Это действие закроет другие позиции или переведёт их в статус вывода средств в соответствии с правилами сети.";
 "staking_notification_ton_have_to_unstake_all_title" = "Статус позиций";
 "staking_notification_unlock_text" = "Разблокируйте свои средства, чтобы вывести их из стейкинга. Разблокировка займёт %@.";
