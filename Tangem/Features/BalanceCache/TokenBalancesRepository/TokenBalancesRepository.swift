@@ -21,4 +21,5 @@ struct CachedBalance: Hashable, Codable {
 enum CachedBalanceType: String, Hashable, Codable {
     case available
     case staked
+    case yieldModule
 }

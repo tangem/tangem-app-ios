@@ -12,19 +12,20 @@ import BigInt
 import Combine
 
 public protocol YieldModuleManager {
-    func getAPY(contractAddress: String) async throws -> Decimal
-    func getYieldModuleState(contractAddress: String) async throws -> YieldModuleState
+    func getAPY() async throws -> Decimal
+    func getYieldModuleState() async throws -> YieldModuleState
 
-    func enterFee(contractAddress: String) async throws -> YieldTransactionFee
-    func enter(contractAddress: String, fee: YieldTransactionFee) async throws -> [String]
+    func enterFee() async throws -> YieldTransactionFee
+    func enter(fee: YieldTransactionFee) async throws -> [String]
 
-    func exitFee(yieldModule: String, contractAddress: String) async throws -> YieldTransactionFee
-    func exit(yieldModule: String, contractAddress: String, fee: YieldTransactionFee) async throws -> [String]
+    func exitFee(yieldModule: String) async throws -> YieldTransactionFee
+    func exit(yieldModule: String, fee: YieldTransactionFee) async throws -> [String]
 }
 
 final class CommonYieldModuleManager {
     private let walletAddress: String
-    private let tokenItem: TokenItem
+    private let token: Token
+    private let blockchain: Blockchain
     private let yieldTokenService: YieldTokenService
     private let tokenBalanceProvider: TokenBalanceProvider
     private let transactionDispatcher: TransactionDispatcher
@@ -32,9 +33,10 @@ final class CommonYieldModuleManager {
     private let transactionProvider: YieldTransactionProvider
     private let transactionFeeProvider: YieldTransactionFeeProvider
 
-    init?(
+    init(
         walletAddress: String,
-        tokenItem: TokenItem,
+        token: Token,
+        blockchain: Blockchain,
         yieldTokenService: YieldTokenService,
         tokenBalanceProvider: TokenBalanceProvider,
         ethereumNetworkProvider: EthereumNetworkProvider,
@@ -42,32 +44,30 @@ final class CommonYieldModuleManager {
         transactionCreator: TransactionCreator,
         transactionDispatcher: TransactionDispatcher
     ) {
-        guard let token = tokenItem.token else {
-            return nil
-        }
         self.walletAddress = walletAddress
-        self.tokenItem = tokenItem
+        self.token = token
+        self.blockchain = blockchain
         self.yieldTokenService = yieldTokenService
         self.tokenBalanceProvider = tokenBalanceProvider
         self.transactionDispatcher = transactionDispatcher
 
         transactionProvider = YieldTransactionProvider(
             token: token,
-            blockchain: tokenItem.blockchain,
+            blockchain: blockchain,
             transactionCreator: transactionCreator,
             transactionBuilder: ethereumTransactionDataBuilder
         )
 
         let allowanceChecker = AllowanceChecker(
-            blockchain: tokenItem.blockchain,
-            amountType: tokenItem.amountType,
+            blockchain: blockchain,
+            amountType: .token(value: token),
             walletAddress: walletAddress,
             ethereumNetworkProvider: ethereumNetworkProvider,
             ethereumTransactionDataBuilder: ethereumTransactionDataBuilder
         )
 
         transactionFeeProvider = YieldTransactionFeeProvider(
-            blockchain: tokenItem.blockchain,
+            blockchain: blockchain,
             ethereumNetworkProvider: ethereumNetworkProvider,
             allowanceChecker: allowanceChecker,
         )
@@ -79,29 +79,32 @@ final class CommonYieldModuleManager {
 }
 
 extension CommonYieldModuleManager: YieldModuleManager {
-    func getAPY(contractAddress: String) async throws -> Decimal {
-        try await yieldTokenService.getAPY(for: contractAddress)
+    func getAPY() async throws -> Decimal {
+        try await yieldTokenService.getAPY(for: token.contractAddress)
     }
 
-    func getYieldModuleState(contractAddress: String) async throws -> YieldModuleState {
-        try await yieldTokenService.getYieldModuleState(for: walletAddress, contractAddress: contractAddress)
+    func getYieldModuleState() async throws -> YieldModuleState {
+        try await yieldTokenService.getYieldModuleState(for: walletAddress, contractAddress: token.contractAddress)
     }
 
-    func enterFee(contractAddress: String) async throws -> YieldTransactionFee {
+    func enterFee() async throws -> YieldTransactionFee {
         let yieldTokenState = try await yieldTokenService.getYieldModuleState(
             for: walletAddress,
-            contractAddress: contractAddress
+            contractAddress: token.contractAddress
         )
 
         switch yieldTokenState {
         case .notDeployed:
-            return try await transactionFeeProvider.deployFee(address: walletAddress, contractAddress: contractAddress)
+            return try await transactionFeeProvider.deployFee(
+                address: walletAddress,
+                contractAddress: token.contractAddress
+            )
         case .deployed(let deployed):
             guard let balanceValue = tokenBalanceProvider.balanceType.value else {
                 throw YieldServiceError.balanceNotFound
             }
 
-            let balance = balanceValue * tokenItem.blockchain.decimalValue
+            let balance = balanceValue * blockchain.decimalValue
 
             switch deployed.initializationState {
             case .notInitialized:
@@ -122,10 +125,10 @@ extension CommonYieldModuleManager: YieldModuleManager {
         }
     }
 
-    func enter(contractAddress: String, fee: any YieldTransactionFee) async throws -> [String] {
+    func enter(fee: any YieldTransactionFee) async throws -> [String] {
         let yieldTokenState = try await yieldTokenService.getYieldModuleState(
             for: walletAddress,
-            contractAddress: contractAddress
+            contractAddress: token.contractAddress
         )
 
         var transactions = [Transaction]()
@@ -135,7 +138,7 @@ extension CommonYieldModuleManager: YieldModuleManager {
             let yieldModule = try await yieldTokenService.calculateYieldAddress(for: walletAddress)
 
             guard let balance = tokenBalanceProvider.balanceType.value,
-                  let balanceBigUInt = BigUInt(decimal: balance * tokenItem.decimalValue) else {
+                  let balanceBigUInt = BigUInt(decimal: balance * blockchain.decimalValue) else {
                 throw YieldServiceError.balanceNotFound
             }
 
@@ -143,7 +146,7 @@ extension CommonYieldModuleManager: YieldModuleManager {
                 yieldModule: yieldModule,
                 balance: balanceBigUInt,
                 address: walletAddress,
-                contractAddress: contractAddress,
+                contractAddress: token.contractAddress,
                 fee: deployEnterFee
             )
 
@@ -152,7 +155,7 @@ extension CommonYieldModuleManager: YieldModuleManager {
             switch (deployed.initializationState, fee) {
             case (.notInitialized, let initFee as InitEnterFee):
                 let initTransactions = try await transactionProvider.initTransactions(
-                    contractAddress: contractAddress,
+                    contractAddress: token.contractAddress,
                     yieldModule: deployed.yieldModule,
                     fee: initFee
                 )
@@ -160,7 +163,7 @@ extension CommonYieldModuleManager: YieldModuleManager {
                 transactions.append(contentsOf: initTransactions)
             case (.initialized(.notActive), let reactivateFee as ReactivateEnterFee):
                 let reactivateTransactions = try await transactionProvider.reactivateTransactions(
-                    contractAddress: contractAddress,
+                    contractAddress: token.contractAddress,
                     yieldModule: deployed.yieldModule,
                     fee: reactivateFee
                 )
@@ -179,14 +182,14 @@ extension CommonYieldModuleManager: YieldModuleManager {
             .map(\.hash)
     }
 
-    func exitFee(yieldModule: String, contractAddress: String) async throws -> any YieldTransactionFee {
-        try await transactionFeeProvider.exitFee(yieldModule: yieldModule, contractAddress: contractAddress)
+    func exitFee(yieldModule: String) async throws -> any YieldTransactionFee {
+        try await transactionFeeProvider.exitFee(yieldModule: yieldModule, contractAddress: token.contractAddress)
     }
 
-    func exit(yieldModule: String, contractAddress: String, fee: YieldTransactionFee) async throws -> [String] {
+    func exit(yieldModule: String, fee: YieldTransactionFee) async throws -> [String] {
         let yieldTokenState = try await yieldTokenService.getYieldModuleState(
             for: walletAddress,
-            contractAddress: contractAddress
+            contractAddress: token.contractAddress
         )
 
         guard case .deployed(let deployedState) = yieldTokenState,
@@ -196,7 +199,7 @@ extension CommonYieldModuleManager: YieldModuleManager {
         }
 
         let transactions = try await transactionProvider.exitTransactions(
-            contractAddress: contractAddress,
+            contractAddress: token.contractAddress,
             yieldModule: yieldModule,
             fee: exitFee
         )
