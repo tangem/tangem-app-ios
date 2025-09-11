@@ -8,6 +8,7 @@
 
 import TangemFoundation
 import AmplitudeSwift
+import TangemSdk
 
 final class AmplitudeWrapper {
     @Injected(\.keysManager) private var keysManager: KeysManager
