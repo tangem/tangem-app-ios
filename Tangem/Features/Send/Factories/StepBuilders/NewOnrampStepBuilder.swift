@@ -22,7 +22,7 @@ struct NewOnrampStepBuilder {
     func makeOnrampStep(
         io: IO,
         providersInput: some OnrampProvidersInput,
-        onrampAmountViewModel: OnrampAmountViewModel,
+        onrampAmountViewModel: NewOnrampAmountViewModel,
         onrampProvidersCompactViewModel: OnrampProvidersCompactViewModel,
         notificationManager: some NotificationManager
     ) -> ReturnValue {
@@ -33,7 +33,6 @@ struct NewOnrampStepBuilder {
             notificationManager: notificationManager,
             interactor: interactor
         )
-
         let step = NewOnrampStep(tokenItem: walletModel.tokenItem, viewModel: viewModel, interactor: interactor)
 
         return (step: step, interactor: interactor)
