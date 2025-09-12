@@ -13,6 +13,7 @@ import TangemFoundation
 
 protocol SendBaseDataBuilder: SendGenericBaseDataBuilder {
     func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
+    func makeMailData(transactionData: Data, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
     func makeSendReceiveTokensList() throws -> SendReceiveTokensListBuilder
     func makeFeeCurrencyData() -> (userWalletId: UserWalletId, feeTokenItem: TokenItem)
 }
@@ -60,13 +61,6 @@ extension SendGenericBaseDataBuilder {
     func onrampBuilder() throws -> OnrampBaseDataBuilder {
         guard let builder = self as? OnrampBaseDataBuilder else {
             throw SendBaseDataBuilderError.notFound("OnrampBaseDataBuilder")
-        }
-        return builder
-    }
-
-    func expressBuilder() throws -> ExpressBaseDataBuilder {
-        guard let builder = self as? ExpressBaseDataBuilder else {
-            throw SendBaseDataBuilderError.notFound("ExpressBaseDataBuilder")
         }
         return builder
     }
