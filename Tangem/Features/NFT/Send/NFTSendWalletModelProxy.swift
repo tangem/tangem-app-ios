@@ -240,6 +240,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.getFeeCurrencyBalance(amountType: amountType)
     }
 
+    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
+        try await mainTokenWalletModel.getFee(compiledTransaction: data)
+    }
+
     var blockchainDataProvider: BlockchainDataProvider {
         mainTokenWalletModel.blockchainDataProvider
     }

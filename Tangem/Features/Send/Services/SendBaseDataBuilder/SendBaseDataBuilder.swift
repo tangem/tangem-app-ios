@@ -31,10 +31,15 @@ protocol OnrampBaseDataBuilder: SendGenericBaseDataBuilder {
     func demoAlertMessage() -> String?
 }
 
+protocol ExpressBaseDataBuilder: SendGenericBaseDataBuilder {
+    func makeMailData(transactionResult: ExpressTransactionResult, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
+}
+
 protocol SendGenericBaseDataBuilder {
     func sendBuilder() throws -> SendBaseDataBuilder
     func stakingBuilder() throws -> StakingBaseDataBuilder
     func onrampBuilder() throws -> OnrampBaseDataBuilder
+    func expressBuilder() throws -> ExpressBaseDataBuilder
 }
 
 extension SendGenericBaseDataBuilder {
@@ -55,6 +60,13 @@ extension SendGenericBaseDataBuilder {
     func onrampBuilder() throws -> OnrampBaseDataBuilder {
         guard let builder = self as? OnrampBaseDataBuilder else {
             throw SendBaseDataBuilderError.notFound("OnrampBaseDataBuilder")
+        }
+        return builder
+    }
+
+    func expressBuilder() throws -> ExpressBaseDataBuilder {
+        guard let builder = self as? ExpressBaseDataBuilder else {
+            throw SendBaseDataBuilderError.notFound("ExpressBaseDataBuilder")
         }
         return builder
     }

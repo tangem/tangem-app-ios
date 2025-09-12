@@ -60,6 +60,6 @@ private extension ExpressTransactionDispatcher {
             throw TransactionDispatcherResult.Error.actionNotSupported
         }
 
-        return try await sender.send(unsigned: unsignedData, signer: transactionSigner)
+        return try await sender.send(compiledTransaction: unsignedData, signer: transactionSigner)
     }
 }

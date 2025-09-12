@@ -115,6 +115,7 @@ protocol WalletModelFeeProvider {
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error>
     func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal
     func hasFeeCurrency(amountType: Amount.AmountType) -> Bool
+    func getFee(compiledTransaction data: Data) async throws -> [Fee]
 }
 
 // MARK: - Dependencies

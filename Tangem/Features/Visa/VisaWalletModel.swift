@@ -176,6 +176,10 @@ extension VisaWalletModel: WalletModelFeeProvider {
     func hasFeeCurrency(amountType: Amount.AmountType) -> Bool {
         return false
     }
+
+    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
+        return []
+    }
 }
 
 extension VisaWalletModel: WalletModelDependenciesProvider {

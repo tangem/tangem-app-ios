@@ -40,7 +40,7 @@ public class VisaDummyTransactionDependencies: TransactionCreator, TransactionSe
         return Fail(error: error).eraseToAnyPublisher()
     }
 
-    public func send(unsigned transaction: Data, signer: any BlockchainSdk.TransactionSigner) async throws -> TransactionSendResult {
+    public func send(compiledTransaction data: Data, signer: any BlockchainSdk.TransactionSigner) async throws -> TransactionSendResult {
         let error = SendTxError(error: VisaDummyTransactionDependencies.Error.notSupported)
         throw error
     }

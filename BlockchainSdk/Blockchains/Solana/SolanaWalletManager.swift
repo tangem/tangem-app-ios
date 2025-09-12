@@ -304,10 +304,24 @@ extension SolanaWalletManager: StakeKitTransactionDataBroadcaster {
     }
 }
 
-// MARK: - CompiledTransactionSender
+// MARK: - CompiledTransactionSender & CompiledTransactionFeeProvider
 
-extension SolanaWalletManager: CompiledTransactionSender {
-    func send(unsigned data: Data, signer: any TransactionSigner) async throws -> TransactionSendResult {
+extension SolanaWalletManager: CompiledTransactionSender, CompiledTransactionFeeProvider {
+    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
+        let (buildForSign, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
+
+        return try await networkService
+            .getFeeForCompiled(message: buildForSign.base64EncodedString())
+            .withWeakCaptureOf(self)
+            .map { service, decimalFeeValue in
+                let feeAmount = Amount(with: service.wallet.blockchain, type: .coin, value: decimalFeeValue)
+                return [Fee(feeAmount)]
+            }
+            .eraseToAnyPublisher()
+            .async()
+    }
+
+    func send(compiledTransaction data: Data, signer: any TransactionSigner) async throws -> TransactionSendResult {
         guard let walletPublicKey = SolanaSwift.PublicKey(data: wallet.publicKey.blockchainKey) else {
             throw BlockchainSdkError.failedToBuildTx
         }
