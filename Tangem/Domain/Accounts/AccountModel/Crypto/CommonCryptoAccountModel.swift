@@ -30,6 +30,7 @@ final class CommonCryptoAccountModel {
         }
     }
 
+    // [REDACTED_TODO_COMMENT]
     private let didChangeSubject = PassthroughSubject<Void, Never>()
     private let accountId: AccountId
     private let derivationIndex: Int
@@ -90,7 +91,7 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
     }
 
-    var didChangePublisher: any Publisher<Void, Never> {
+    var didChangePublisher: AnyPublisher<Void, Never> {
         didChangeSubject.eraseToAnyPublisher()
     }
 

@@ -72,13 +72,8 @@ struct WalletConnectView: View {
         .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.newConnectionButton)
         .background {
             if !viewModel.state.contentState.isEmpty {
-                ListFooterOverlayShadowView(
-                    colors: [
-                        Colors.Background.secondary.opacity(0.0),
-                        Colors.Background.secondary.opacity(0.95),
-                    ]
-                )
-                .transition(.opacity)
+                ListFooterOverlayShadowView(color: Colors.Background.secondary)
+                    .transition(.opacity)
             }
         }
         .padding(.horizontal, viewModel.state.contentState.isEmpty ? 80 : 16)
