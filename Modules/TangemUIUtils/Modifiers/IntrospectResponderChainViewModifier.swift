@@ -1,24 +1,31 @@
 //
 //  IntrospectResponderChainViewModifier.swift
-//  Tangem
+//  TangemUIUtils
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
-import TangemUI
 
 // MARK: - Convenience extensions
 
-extension View {
+public extension View {
     @ViewBuilder
     func introspectResponderChain<IntrospectedType>(
         introspectedType: IntrospectedType.Type,
+        includeSubviews: Bool = false,
         updateOnChangeOf: AnyHashable? = nil,
         action: @escaping (_ introspectedInstance: IntrospectedType) -> Void
     ) -> some View {
-        modifier(IntrospectResponderChainViewModifier(introspectedType: introspectedType, updateOnChangeOf: updateOnChangeOf, action: action))
+        modifier(
+            IntrospectResponderChainViewModifier(
+                introspectedType: introspectedType,
+                includeSubviews: includeSubviews,
+                updateOnChangeOf: updateOnChangeOf,
+                action: action
+            )
+        )
     }
 }
 
@@ -28,12 +35,13 @@ private struct IntrospectResponderChainViewModifier<IntrospectedType>: ViewModif
     typealias Action = (_ introspectedInstance: IntrospectedType) -> Void
 
     let introspectedType: IntrospectedType.Type
+    let includeSubviews: Bool
     let updateOnChangeOf: AnyHashable?
     let action: Action
 
     func body(content: Content) -> some View {
         content.overlay {
-            IntrospectView(introspectedType: introspectedType, action: action)
+            IntrospectView(introspectedType: introspectedType, includeSubviews: includeSubviews, action: action)
                 .frame(size: .zero)
                 .allowsHitTesting(false)
                 .accessibility(hidden: true)
@@ -51,6 +59,7 @@ private extension IntrospectResponderChainViewModifier {
         typealias UIViewType = UIView
 
         let introspectedType: IntrospectedType.Type
+        let includeSubviews: Bool
         let action: Action
 
         func makeUIView(context: Context) -> UIViewType {
@@ -59,13 +68,40 @@ private extension IntrospectResponderChainViewModifier {
 
         func updateUIView(_ uiView: UIViewType, context: Context) {
             var nextResponder = uiView.next
-            while nextResponder != nil {
-                if let introspectedInstance = nextResponder as? IntrospectedType {
+            while let responder = nextResponder {
+                if let introspectedInstance = responder as? IntrospectedType {
                     action(introspectedInstance)
                     break
                 }
+
+                // if responder is a UIView, search its subview tree as well
+                // (many UIKit internals put the useful views as children)
+                if includeSubviews, let view = responder as? UIView {
+                    if let introspectedInstance = searchInSubviews(view) {
+                        action(introspectedInstance)
+                    }
+                }
+
                 nextResponder = nextResponder?.next
             }
+        }
+
+        private func searchInSubviews(_ root: UIView) -> IntrospectedType? {
+            var stack: [UIView] = [root]
+
+            while !stack.isEmpty {
+                let view = stack.removeLast()
+
+                if let match = view as? IntrospectedType {
+                    return match
+                }
+
+                for sub in view.subviews {
+                    stack.append(sub)
+                }
+            }
+
+            return nil
         }
     }
 }
