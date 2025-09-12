@@ -36,6 +36,9 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     @Published private var missingDerivation: Bool = false
     @Published private var networkUnreachable: Bool = false
 
+    /// YIELD [REDACTED_TODO_COMMENT]
+    @Published private(set) var isYieldAvailable = false
+
     let tokenItem: TokenItem
 
     var name: String { tokenIcon.name }
