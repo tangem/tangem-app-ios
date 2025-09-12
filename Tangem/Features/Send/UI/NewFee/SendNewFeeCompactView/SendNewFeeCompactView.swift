@@ -32,7 +32,7 @@ struct SendNewFeeCompactView: View {
                 )
             }
         )
-        .isTappable(viewModel.canEditFee)
+        .shouldShowTrailingIcon(viewModel.canEditFee)
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 11, horizontalPadding: 14)
     }
 }
