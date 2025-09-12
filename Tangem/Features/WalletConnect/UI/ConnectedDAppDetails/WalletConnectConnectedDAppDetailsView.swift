@@ -103,12 +103,9 @@ struct WalletConnectConnectedDAppDetailsView: View {
 
     private func dAppAndWalletSection(_ viewState: WalletConnectConnectedDAppDetailsViewState.DAppDetails) -> some View {
         VStack(spacing: .zero) {
-            WalletConnectDAppDescriptionView(
-                viewModel: viewState.dAppDescriptionSection,
-                kingfisherImageCache: kingfisherImageCache,
-                verifiedDomainTapAction: {
-                    viewModel.handle(viewEvent: .verifiedDomainIconTapped)
-                }
+            EntitySummaryView(
+                viewState: viewState.dAppDescriptionSection,
+                kingfisherImageCache: kingfisherImageCache
             )
             .padding(.horizontal, 14)
             .padding(.vertical, 16)
@@ -205,11 +202,8 @@ struct WalletConnectConnectedDAppDetailsView: View {
         }
         .background {
             ListFooterOverlayShadowView(
-                colors: [
-                    Colors.Background.tertiary.opacity(0.0),
-                    Colors.Background.tertiary.opacity(0.95),
-                    Colors.Background.tertiary,
-                ]
+                color: Colors.Background.tertiary,
+                opacities: [0.0, 0.95, 1]
             )
             .padding(.top, 6)
         }
