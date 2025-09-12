@@ -117,18 +117,19 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         AppLogger.debug("\(userWalletModel.name) deinit")
     }
 
-    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
+    func onPullToRefresh() async {
         if isUpdating {
             return
         }
 
         isUpdating = true
-
         refreshActionButtonsData()
 
-        userWalletModel.userTokensManager.sync { [weak self] in
-            self?.isUpdating = false
-            completionHandler()
+        await withCheckedContinuation { [weak self] checkedContinuation in
+            self?.userWalletModel.userTokensManager.sync { [weak self] in
+                self?.isUpdating = false
+                checkedContinuation.resume()
+            }
         }
     }
 

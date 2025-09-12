@@ -806,7 +806,9 @@ extension SendWithSwapModel: NotificationTapDelegate {
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .openYieldPromo,
-             .openBuyCrypto:
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             assertionFailure("Notification tap not handled")
         }
     }
