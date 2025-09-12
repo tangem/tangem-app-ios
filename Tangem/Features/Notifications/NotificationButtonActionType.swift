@@ -58,6 +58,8 @@ enum NotificationButtonActionType: Identifiable {
     case openMobileUpgrade
     case openYieldPromo
     case openBuyCrypto(walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
+    case tangemPayCreateAccountAndIssueCard
+    case tangemPayViewKYCStatus
 
     var id: Int {
         switch self {
@@ -92,6 +94,8 @@ enum NotificationButtonActionType: Identifiable {
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
         case .openYieldPromo: "openYieldPromo".hashValue
         case .openBuyCrypto(let walletModel, let parameters): "openBuyCrypto\(walletModel.id)\(parameters.hashValue)".hashValue
+        case .tangemPayCreateAccountAndIssueCard: "tangemPayCreateAccountAndIssueCard".hashValue
+        case .tangemPayViewKYCStatus: "tangemPayViewKYCStatus".hashValue
         }
     }
 
@@ -159,6 +163,11 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonGetStarted
         case .openBuyCrypto:
             return Localization.commonBuy
+        case .tangemPayCreateAccountAndIssueCard:
+            return Localization.commonContinue
+        case .tangemPayViewKYCStatus:
+            // [REDACTED_TODO_COMMENT]
+            return "View Status"
         }
     }
 
@@ -196,7 +205,9 @@ enum NotificationButtonActionType: Identifiable {
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .openYieldPromo,
-             .openBuyCrypto:
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             return nil
         }
     }
@@ -233,7 +244,9 @@ enum NotificationButtonActionType: Identifiable {
              .openReferralProgram,
              .addTokenTrustline,
              .openYieldPromo,
-             .openBuyCrypto:
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             return .secondary
         case .openMobileFinishActivation(let needsAttention):
             return needsAttention ? .primary : .secondary
