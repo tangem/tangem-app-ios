@@ -10,11 +10,16 @@ import Foundation
 import Combine
 
 protocol CryptoAccountsPersistentStorage {
-    typealias StorageDidUpdateSubject = PassthroughSubject<Void, Never>
-
-    func bind(to storageDidUpdateSubject: StorageDidUpdateSubject)
     func getList() -> [StoredCryptoAccount]
     func appendNewOrUpdateExisting(account: StoredCryptoAccount)
     func removeAll(where shouldBeRemoved: @escaping (StoredCryptoAccount) -> Bool)
     func removeAll()
+}
+
+// [REDACTED_TODO_COMMENT]
+protocol _CryptoAccountsPersistentStorage {
+    typealias StorageDidUpdateSubject = PassthroughSubject<Void, Never>
+
+    func bind(to storageDidUpdateSubject: StorageDidUpdateSubject)
+    func isMigrationNeeded() -> Bool
 }
