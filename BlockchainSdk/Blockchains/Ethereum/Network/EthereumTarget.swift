@@ -126,7 +126,7 @@ extension EthereumTarget {
         case quai
 
         func makeRPC(method: String) -> String {
-            "\(self)_\(method)"
+            "\(self.rawValue)_\(method)"
         }
     }
 }

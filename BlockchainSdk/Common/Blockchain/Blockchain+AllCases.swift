@@ -195,6 +195,7 @@ public extension Blockchain {
             .alephium(testnet: false),
             .vanar(testnet: false),
             .pepecoin(testnet: false),
+            .quai(testnet: false)
         ]
     }
 }
