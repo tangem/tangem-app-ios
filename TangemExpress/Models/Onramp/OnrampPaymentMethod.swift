@@ -31,6 +31,7 @@ public extension OnrampPaymentMethod {
         case googlePay
 
         case sepa
+        case invoiceRevolutPay
 
         /// Generic for other not so important methods
         case other(id: String)
@@ -41,6 +42,7 @@ public extension OnrampPaymentMethod {
             case "card": .card
             case "google-pay": .googlePay
             case "sepa": .sepa
+            case "invoice-revolut-pay": .invoiceRevolutPay
             default: .other(id: id)
             }
         }
@@ -49,8 +51,7 @@ public extension OnrampPaymentMethod {
             switch self {
             case .applePay: return 2
             case .card: return 1
-            case .sepa: return 0
-            case .other: return 0
+            case .sepa, .invoiceRevolutPay, .other: return 0
             case .googlePay: return -1
             }
         }
