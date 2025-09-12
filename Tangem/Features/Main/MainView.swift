@@ -18,6 +18,7 @@ struct MainView: View {
     var body: some View {
         CardsInfoPagerView(
             data: viewModel.pages,
+            refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
             selectedIndex: $viewModel.selectedCardIndex,
             discoveryAnimationTrigger: viewModel.swipeDiscoveryAnimationTrigger,
             headerFactory: { info in
@@ -40,8 +41,7 @@ struct MainView: View {
             },
             bottomOverlayFactory: { info, overlayParams in
                 info.makeBottomOverlay(overlayParams)
-            },
-            onPullToRefresh: viewModel.onPullToRefresh(completionHandler:)
+            }
         )
         .pageSwitchThreshold(0.4)
         .contentViewVerticalOffset(64.0)
