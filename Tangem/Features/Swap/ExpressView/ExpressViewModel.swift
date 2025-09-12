@@ -699,7 +699,9 @@ extension ExpressViewModel: NotificationTapDelegate {
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .openYieldPromo,
-             .openBuyCrypto:
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             return
         }
     }
