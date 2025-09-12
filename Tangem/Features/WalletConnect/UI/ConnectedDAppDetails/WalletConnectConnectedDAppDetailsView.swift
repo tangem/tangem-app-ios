@@ -103,12 +103,9 @@ struct WalletConnectConnectedDAppDetailsView: View {
 
     private func dAppAndWalletSection(_ viewState: WalletConnectConnectedDAppDetailsViewState.DAppDetails) -> some View {
         VStack(spacing: .zero) {
-            WalletConnectDAppDescriptionView(
-                viewModel: viewState.dAppDescriptionSection,
-                kingfisherImageCache: kingfisherImageCache,
-                verifiedDomainTapAction: {
-                    viewModel.handle(viewEvent: .verifiedDomainIconTapped)
-                }
+            EntitySummaryView(
+                viewState: viewState.dAppDescriptionSection,
+                kingfisherImageCache: kingfisherImageCache
             )
             .padding(.horizontal, 14)
             .padding(.vertical, 16)
