@@ -64,12 +64,6 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
         return transaction
     }
 
-    /// Remove signatures placeholder from raw transaction
-    func prepareTransactionToSign(_ transaction: String) throws -> (Data, Int) {
-        let data = try Data(transaction.base64Decoded())
-        return try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
-    }
-
     func handle() async throws -> RPCResult {
         let (unsignedHash, signatureCount) = try prepareTransactionToSign(transaction)
 
@@ -100,6 +94,11 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
 }
 
 private extension WalletConnectSolanaSignTransactionHandler {
+    func prepareTransactionToSign(_ transaction: String) throws -> (Data, Int) {
+        let data = try Data(transaction.base64Decoded())
+        return try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
+    }
+
     func defaultHandleTransaction(unsignedHash: Data) async throws -> RPCResult {
         let solanaSigner = SolanaWalletConnectSigner(signer: signer)
         let signedHash = try await solanaSigner.sign(data: unsignedHash, using: walletModel)
