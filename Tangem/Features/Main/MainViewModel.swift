@@ -30,9 +30,14 @@ final class MainViewModel: ObservableObject {
     @Published var isHorizontalScrollDisabled = false
     @Published var actionSheet: ActionSheetBinder?
 
-    @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
-
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
+
+    private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
+        settings: .init(stopRefreshingDelay: 1, refreshTaskTimeout: 120), // 2 minutes
+        refreshable: { [weak self] in
+            await self?.onPullToRefresh()
+        }
+    )
 
     // MARK: - Dependencies
 
@@ -100,12 +105,6 @@ final class MainViewModel: ObservableObject {
 
     func openDetails() {
         let userWalletModel = userWalletRepository.models[selectedCardIndex]
-
-        if userWalletModel.isUserWalletLocked {
-            openUnlockUserWalletBottomSheet(for: userWalletModel)
-            return
-        }
-
         coordinator?.openDetails(for: userWalletModel)
     }
 
@@ -154,26 +153,6 @@ final class MainViewModel: ObservableObject {
         }
 
         coordinator?.beginHandlingIncomingActions()
-    }
-
-    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
-        isHorizontalScrollDisabled = true
-        let completion = { [weak self] in
-            self?.isHorizontalScrollDisabled = false
-            completionHandler()
-        }
-        let page = pages[selectedCardIndex]
-
-        switch page {
-        case .singleWallet(_, _, let viewModel):
-            viewModel?.onPullToRefresh(completionHandler: completion)
-        case .multiWallet(_, _, let viewModel):
-            viewModel.onPullToRefresh(completionHandler: completion)
-        case .lockedWallet:
-            completion()
-        case .visaWallet(_, _, let viewModel):
-            viewModel.onPullToRefresh(completionHandler: completion)
-        }
     }
 
     func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
@@ -294,7 +273,6 @@ final class MainViewModel: ObservableObject {
 
                 switch event {
                 case .unlockedBiometrics:
-                    unlockWalletBottomSheetViewModel = nil
                     recreatePages()
                 case .locked:
                     isLoggingOut = true
@@ -303,7 +281,6 @@ final class MainViewModel: ObservableObject {
                         addNewPage(for: userWalletModel)
                     }
                 case .unlocked(let userWalletId):
-                    unlockWalletBottomSheetViewModel = nil
                     userWalletUnlocked(userWalletId: userWalletId)
                 case .deleted(let userWalletIds):
                     // This model is alive for enough time to receive the "deleted" event
@@ -408,20 +385,31 @@ final class MainViewModel: ObservableObject {
             }
         }
     }
-}
 
-// MARK: - Navigation
+    @MainActor
+    private func onPullToRefresh() async {
+        isHorizontalScrollDisabled = true
 
-extension MainViewModel: MainLockedUserWalletDelegate {
-    func openUnlockUserWalletBottomSheet(for userWalletModel: UserWalletModel) {
-        unlockWalletBottomSheetViewModel = .init(
-            userWalletModel: userWalletModel,
-            delegate: self
-        )
+        let page = pages[selectedCardIndex]
+
+        switch page {
+        case .singleWallet(_, _, let viewModel):
+            await viewModel?.onPullToRefresh()
+        case .multiWallet(_, _, let viewModel):
+            await viewModel.onPullToRefresh()
+        case .lockedWallet:
+            break
+        case .visaWallet(_, _, let viewModel):
+            await viewModel.onPullToRefresh()
+        }
+
+        isHorizontalScrollDisabled = false
     }
 }
 
-extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
+// MARK: - Unlocking
+
+private extension MainViewModel {
     func userWalletUnlocked(userWalletId: UserWalletId) {
         guard let index = pages.firstIndex(where: { $0.id == userWalletId }) else {
             return
@@ -440,11 +428,17 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
         )
 
         pages[index] = page
-        unlockWalletBottomSheetViewModel = nil
+    }
+}
+
+// MARK: - Navigation
+
+extension MainViewModel: MainLockedUserWalletDelegate {
+    func openTroubleshooting(actionSheet: ActionSheetBinder) {
+        self.actionSheet = actionSheet
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
-        unlockWalletBottomSheetViewModel = nil
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
             self?.coordinator?.openMail(with: dataCollector, emailType: emailType, recipient: recipient)
         }
