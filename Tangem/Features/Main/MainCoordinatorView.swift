@@ -58,7 +58,7 @@ struct MainCoordinatorView: CoordinatorView {
             introspectedType: UINavigationController.self,
             updateOnChangeOf: responderChainIntrospectionTrigger
         ) { [weak navigationAssertion] navigationController in
-            navigationController.setDelegateSafe(navigationAssertion)
+            navigationController.safeSet(delegate: navigationAssertion)
         }
     }
 
