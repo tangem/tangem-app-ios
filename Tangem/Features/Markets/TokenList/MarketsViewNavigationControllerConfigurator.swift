@@ -18,7 +18,7 @@ final class MarketsViewNavigationControllerConfigurator: NSObject, ObservableObj
 
     func configure(_ navigationController: UINavigationController) {
         navigationController.setNavigationBarAlwaysHidden()
-        navigationController.setDelegateSafe(self)
+        navigationController.safeSet(delegate: self)
     }
 }
 

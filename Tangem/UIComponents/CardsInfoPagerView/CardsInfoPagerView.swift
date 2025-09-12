@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemUIUtils
+import TangemFoundation
 
 struct CardsInfoPagerView<
     Data, ID, Header, Body, BottomOverlay
@@ -16,7 +17,6 @@ struct CardsInfoPagerView<
     typealias HeaderFactory = (_ element: Data.Element) -> Header
     typealias ContentFactory = (_ element: Data.Element) -> Body
     typealias BottomOverlayFactory = (_ element: Data.Element, _ overlayParams: CardsInfoPagerBottomOverlayFactoryParams) -> BottomOverlay
-    typealias OnPullToRefresh = OnRefresh
     typealias OnPageChange = (_ pageChangeReason: CardsInfoPageChangeReason) -> Void
 
     // MARK: - Dependencies
@@ -26,7 +26,7 @@ struct CardsInfoPagerView<
     private let headerFactory: HeaderFactory
     private let contentFactory: ContentFactory
     private let bottomOverlayFactory: BottomOverlayFactory
-    private let onPullToRefresh: OnPullToRefresh?
+    private let refreshScrollViewStateObject: RefreshScrollViewStateObject?
 
     // MARK: - Selected index
 
@@ -213,16 +213,17 @@ struct CardsInfoPagerView<
     init(
         data: Data,
         id idProvider: KeyPath<(Data.Index, Data.Element), ID>,
+        refreshScrollViewStateObject: RefreshScrollViewStateObject?,
         selectedIndex: Binding<Int>,
         discoveryAnimationTrigger: CardsInfoPagerSwipeDiscoveryAnimationTrigger,
         configStorageKey: AnyHashable,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder contentFactory: @escaping ContentFactory,
-        @ViewBuilder bottomOverlayFactory: @escaping BottomOverlayFactory,
-        onPullToRefresh: OnPullToRefresh?
+        @ViewBuilder bottomOverlayFactory: @escaping BottomOverlayFactory
     ) {
         self.data = data
         self.idProvider = idProvider
+        self.refreshScrollViewStateObject = refreshScrollViewStateObject
         _selectedIndex = .init(initialValue: selectedIndex.wrappedValue)
         _previouslySelectedIndex = .init(initialValue: selectedIndex.wrappedValue)
         _contentSelectedIndex = .init(initialValue: selectedIndex.wrappedValue)
@@ -232,7 +233,6 @@ struct CardsInfoPagerView<
         self.headerFactory = headerFactory
         self.contentFactory = contentFactory
         self.bottomOverlayFactory = bottomOverlayFactory
-        self.onPullToRefresh = onPullToRefresh
     }
 
     // MARK: - View factories
@@ -261,8 +261,8 @@ struct CardsInfoPagerView<
     private func makeScrollView(with geometryProxy: GeometryProxy) -> some View {
         ScrollViewReader { scrollViewProxy in
             Group {
-                if let onPullToRefresh = onPullToRefresh {
-                    RefreshableScrollView(onRefresh: onPullToRefresh) {
+                if let refreshScrollViewStateObject {
+                    RefreshScrollView(stateObject: refreshScrollViewStateObject) {
                         makeContent(with: geometryProxy)
                     }
                 } else {
