@@ -147,7 +147,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .openYieldPromo,
-             .openBuyCrypto:
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             super.didTapNotification(with: id, action: action)
         }
     }

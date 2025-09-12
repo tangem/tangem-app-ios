@@ -12,6 +12,7 @@ import CombineExt
 import TangemAssets
 import TangemLocalization
 import TangemFoundation
+import TangemUI
 
 public final class NFTCollectionsListViewModel: ObservableObject {
     typealias ViewState = LoadingValue<[NFTCollectionDisclosureGroupViewModel]>
@@ -25,6 +26,17 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     @Published private(set) var rowExpanded = false
     @Published private(set) var tappedRowID: AnyHashable? = nil
     @Published private(set) var loadingTroublesViewData: NFTNotificationViewData?
+    private(set) lazy var scrollViewStateObject: RefreshScrollViewStateObject = .init(refreshable: { [weak self] in
+        await withCheckedContinuation { [weak self] pullToRefreshContinuation in
+            guard self?.state.isLoading == false else {
+                self?.pullToRefreshContinuation?.resume()
+                return
+            }
+
+            self?.pullToRefreshContinuation = pullToRefreshContinuation
+            self?.updateInternal()
+        }
+    })
 
     // MARK: - Private properties
 
@@ -37,7 +49,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     )
 
     private var collectionsViewModels: [NFTCollectionDisclosureGroupViewModel] = []
-    private var pullToRefreshCompletion: (() -> Void)?
+    private var pullToRefreshContinuation: CheckedContinuation<Void, Never>?
     private var didAppear = false
     private var bag: Set<AnyCancellable> = []
 
@@ -63,6 +75,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         self.navigationContext = navigationContext
     }
 
+    deinit {
+        pullToRefreshContinuation?.resume()
+    }
+
     func onViewAppear() {
         if didAppear {
             return
@@ -78,9 +94,9 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         dependencies.analytics.logReceiveOpen()
     }
 
-    func update(completion: (() -> Void)? = nil) {
-        pullToRefreshCompletion = completion
+    func update() {
         guard !state.isLoading else { return }
+
         updateInternal()
     }
 
@@ -142,15 +158,13 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     private func updatePullToRefreshCompletion(with result: ManagerStateMappingResult) {
-        guard
-            let completion = pullToRefreshCompletion,
-            !result.viewState.isLoading
-        else {
+        guard let continuation = pullToRefreshContinuation,
+              !result.viewState.isLoading else {
             return
         }
 
-        completion()
-        pullToRefreshCompletion = nil
+        continuation.resume()
+        pullToRefreshContinuation = nil
     }
 
     private func updateState(to newValue: ViewState) {

@@ -201,6 +201,15 @@ struct SendView: View {
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
             .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+        case .newOnramp(let onrampViewModel):
+            NewOnrampView(
+                viewModel: onrampViewModel,
+                transitionService: transitionService,
+                namespace: .init(id: namespace, names: SendGeometryEffectNames()),
+                keyboardActive: $focused
+            )
+            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .finish(let sendFinishViewModel):
             SendFinishView(
                 viewModel: sendFinishViewModel,
@@ -269,7 +278,7 @@ struct SendView: View {
     }
 
     private var bottomOverlay: some View {
-        ListFooterOverlayShadowView()
+        ListFooterOverlayShadowView(opacities: [0, 0.95, 1])
             .frame(height: bottomGradientHeight)
             .visible(viewModel.shouldShowBottomOverlay)
     }
