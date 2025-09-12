@@ -17,7 +17,9 @@ final class CommonCryptoAccountsRepository {
     private let storage: CryptoAccountsPersistentStorage
     private let storageDidUpdateSubject: StorageDidUpdateSubject
 
+    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
     private lazy var _cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> = storageDidUpdateSubject
+        .prepend(())
         .withWeakCaptureOf(self)
         .map { $0.0.storage.getList() }
         .share(replay: 1)
