@@ -63,7 +63,7 @@ extension PromotionProgramName {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .sepa: .action
+        case .sepa: .primary
         }
     }
 }
