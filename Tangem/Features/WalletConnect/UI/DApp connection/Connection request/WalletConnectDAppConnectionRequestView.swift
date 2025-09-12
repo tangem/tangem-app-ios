@@ -31,10 +31,9 @@ struct WalletConnectDAppConnectionRequestView: View {
 
     private var dAppAndConnectionRequestSections: some View {
         VStack(spacing: .zero) {
-            WalletConnectDAppDescriptionView(
-                viewModel: viewModel.state.dAppDescriptionSection,
-                kingfisherImageCache: kingfisherImageCache,
-                verifiedDomainTapAction: { viewModel.handle(viewEvent: .verifiedDomainIconTapped) }
+            EntitySummaryView(
+                viewState: viewModel.state.dAppDescriptionSection,
+                kingfisherImageCache: kingfisherImageCache
             )
             .padding(.vertical, 16)
             .padding(.horizontal, 14)
@@ -72,11 +71,8 @@ struct WalletConnectDAppConnectionRequestView: View {
                 .padding(.leading, 46)
                 .padding(.trailing, 14)
 
-            WalletConnectDAppConnectionRequestView.NetworksSection(
-                viewModel: viewModel.state.networksSection,
-                tapAction: { viewModel.handle(viewEvent: .networksRowTapped) }
-            )
-            .padding(.horizontal, 14)
+            networkSection
+                .padding(.horizontal, 14)
 
             if let networksWarningSection = viewModel.state.networksWarningSection {
                 Divider()
@@ -90,35 +86,100 @@ struct WalletConnectDAppConnectionRequestView: View {
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
+    // MARK: - Wallet section
+
     private var walletSection: some View {
-        Button(action: { viewModel.handle(viewEvent: .walletRowTapped) }) {
-            HStack(spacing: .zero) {
-                viewModel.state.walletSection.iconAsset.image
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(Colors.Icon.accent)
+        BaseOneLineRowButton(
+            icon: viewModel.state.walletSection.iconAsset,
+            title: viewModel.state.walletSection.label,
+            shouldShowTrailingIcon: viewModel.state.walletSection.selectionIsAvailable,
+            action: { viewModel.handle(viewEvent: .walletRowTapped) },
+            trailingView: { walletSectionTrailingView }
+        )
+        .allowsHitTesting(viewModel.state.walletSection.selectionIsAvailable)
+    }
 
-                Spacer()
-                    .frame(width: 8)
-
-                Text(viewModel.state.walletSection.label)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                    .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.walletLabel)
-
-                Spacer(minLength: .zero)
-
-                Text(viewModel.state.walletSection.selectedUserWalletName)
-                    .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-                    .padding(.horizontal, 4)
-
-                viewModel.state.walletSection.trailingIconAsset?.image
-                    .resizable()
-                    .frame(width: 18, height: 24)
-                    .foregroundStyle(Colors.Icon.informative)
-            }
-            .padding(.vertical, 12)
-            .contentShape(.rect)
+    private var walletSectionTrailingView: some View {
+        HStack(spacing: 0) {
+            Text(viewModel.state.walletSection.selectedUserWalletName)
+                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                .padding(.horizontal, 4)
         }
-        .buttonStyle(.plain)
+    }
+
+    // MARK: - Network section
+
+    private var networkSection: some View {
+        BaseOneLineRowButton(
+            icon: viewModel.state.networksSection.iconAsset,
+            title: viewModel.state.networksSection.label,
+            shouldShowTrailingIcon: false, // Needed to fully control trailing icon from self-made view
+            action: { viewModel.handle(viewEvent: .networksRowTapped) },
+            trailingView: { networkSectionTrailingView }
+        )
+        .allowsHitTesting(viewModel.state.networksSection.state != .loading)
+    }
+
+    private var networkSectionTrailingView: some View {
+        HStack(spacing: 0) {
+            switch viewModel.state.networksSection.state {
+            case .loading:
+                SkeletonView()
+                    .frame(width: 88, height: 24)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            case .content(let contentState):
+                switch contentState.selectionMode {
+                case .available(let availableSelectionMode):
+                    availableSelectionTrailingView(availableSelectionMode)
+                case .requiredNetworksAreMissing:
+                    EmptyView()
+                }
+            }
+
+            viewModel.state.networksSection.trailingIconAsset?.image
+                .resizable()
+                .frame(width: 18, height: 24)
+                .foregroundStyle(Colors.Icon.informative)
+        }
+    }
+
+    private func availableSelectionTrailingView(
+        _ availableSelectionMode: WalletConnectDAppConnectionRequestViewState.NetworksSection.AvailableSelectionMode
+    ) -> some View {
+        HStack(spacing: -8) {
+            ForEach(availableSelectionMode.blockchainLogoAssets.indexed(), id: \.0) { index, blockchainLogoAsset in
+                ZStack {
+                    Circle()
+                        .fill(Colors.Background.action)
+                        .frame(width: 24, height: 24)
+
+                    blockchainLogoAsset.image
+                        .resizable()
+                        .clipShape(.circle)
+                        .frame(width: 20, height: 20)
+                }
+            }
+
+            if let remainingBlockchainsCounter = availableSelectionMode.remainingBlockchainsCounter {
+                ZStack {
+                    Circle()
+                        .fill(Colors.Background.action)
+                        .frame(width: 24, height: 24)
+
+                    Circle()
+                        .fill(Colors.Icon.primary1.opacity(0.1))
+                        .frame(width: 24, height: 24)
+
+                    Circle()
+                        .strokeBorder(Colors.Background.action, lineWidth: 2)
+                        .frame(width: 24, height: 24)
+
+                    Text(remainingBlockchainsCounter)
+                        .style(Fonts.Bold.caption2, color: Colors.Text.secondary)
+                }
+            }
+        }
+        .padding(.horizontal, 4)
     }
 }
