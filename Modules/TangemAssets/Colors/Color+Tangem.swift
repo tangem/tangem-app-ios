@@ -7,34 +7,33 @@
 //
 
 import SwiftUI
-import UIKit
 
 // MARK: - Tangem colors
 
 public extension Color {
-    static let tangem = TangemColor.self
+    enum Tangem {}
 }
 
-public enum TangemColor {
-    public enum Text {}
-    public enum Graphic {}
-    public enum Status {}
-    public enum Button {}
-    public enum Surface {}
-    public enum Controls {}
-    public enum Border {}
-    public enum Field {}
-    public enum Overlay {}
-    public enum Fill {}
-    public enum Skeleton {}
-    public enum Markers {}
+public extension Color.Tangem {
+    enum Text {}
+    enum Graphic {}
+    enum Status {}
+    enum Button {}
+    enum Surface {}
+    enum Controls {}
+    enum Border {}
+    enum Field {}
+    enum Overlay {}
+    enum Fill {}
+    enum Skeleton {}
+    enum Markers {}
 }
 
-private typealias Primitives = Colors.Primitives
+private typealias Primitives = DesignSystemColors.Primitives
 
 // MARK: - Text
 
-public extension TangemColor.Text {
+public extension Color.Tangem.Text {
     enum Neutral {
         public static let primary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Base.white)
         public static let primaryInverted: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark6)
@@ -54,7 +53,7 @@ public extension TangemColor.Text {
 
 // MARK: - Graphic
 
-public extension TangemColor.Graphic {
+public extension Color.Tangem.Graphic {
     enum Neutral {
         public static let primary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Base.white)
         public static let primaryInverted: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark6)
@@ -74,7 +73,7 @@ public extension TangemColor.Graphic {
 
 // MARK: - Button
 
-public extension TangemColor.Button {
+public extension Color.Tangem.Button {
     static let backgroundPrimary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Lights.light1)
     static let backgroundSecondary: Color = .dynamic(light: Primitives.Darks.dark6.opacity(0.1), dark: Primitives.Base.white.opacity(0.1))
     static let backgroundDisabled: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark5)
@@ -90,7 +89,7 @@ public extension TangemColor.Button {
 
 // MARK: - Surface
 
-public extension TangemColor.Surface {
+public extension Color.Tangem.Surface {
     static let level1: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark6)
     static let level2: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Base.black)
     static let level3: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark6)
@@ -99,7 +98,7 @@ public extension TangemColor.Surface {
 
 // MARK: - Controls
 
-public extension TangemColor.Controls {
+public extension Color.Tangem.Controls {
     static let backgroundChecked: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Blue.azure)
     static let backgroundDefault: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
     static let iconDefault: Color = Primitives.Base.white
@@ -108,7 +107,7 @@ public extension TangemColor.Controls {
 
 // MARK: - Border
 
-public extension TangemColor.Border {
+public extension Color.Tangem.Border {
     enum Neutral {
         public static let primary: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
         public static let secondary: Color = .dynamic(light: Primitives.Lights.light5, dark: Primitives.Darks.dark4)
@@ -123,7 +122,7 @@ public extension TangemColor.Border {
 
 // MARK: - Field
 
-public extension TangemColor.Field {
+public extension Color.Tangem.Field {
     static let backgroundDefault: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
     static let backgroundFocused: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
     static let textPlaceholder: Color = .dynamic(light: Primitives.Darks.dark2, dark: Primitives.Lights.light5)
@@ -137,14 +136,14 @@ public extension TangemColor.Field {
 
 // MARK: - Overlay
 
-public extension TangemColor.Overlay {
+public extension Color.Tangem.Overlay {
     static let primary: Color = Primitives.Overlays.overlay1
     static let secondary: Color = Primitives.Overlays.overlay2
 }
 
 // MARK: - Fill
 
-public extension TangemColor.Fill {
+public extension Color.Tangem.Fill {
     enum Neutral {
         public static let primary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Base.white)
         public static let primaryInverted: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark6)
@@ -163,13 +162,13 @@ public extension TangemColor.Fill {
 
 // MARK: - Fill
 
-public extension TangemColor.Fill {
+public extension Color.Tangem.Fill {
     static let backgroundPrimary: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
 }
 
 // MARK: - Markers
 
-public extension TangemColor.Markers {
+public extension Color.Tangem.Markers {
     static let backgroundSolidGray: Color = .dynamic(light: Primitives.Lights.light3, dark: Primitives.Darks.dark5)
     static let backgroundSolidBlue: Color = Primitives.Blue.azure
     static let backgroundSolidRed: Color = Primitives.Red.amaranth
