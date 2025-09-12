@@ -353,18 +353,6 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeExpressBaseDataBuilder(
-        input: SendBaseDataBuilderInput,
-        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder? = .none
-    ) -> ExpressBaseDataBuilder {
-        CommonExpressBaseDataBuilder(
-            input: input,
-            walletModel: walletModel,
-            emailDataProvider: self.input.emailDataProvider,
-            sendReceiveTokensListBuilder: sendReceiveTokensListBuilder
-        )
-    }
-
     func makeCustomFeeService(input: any CustomFeeServiceInput) -> CustomFeeService? {
         CustomFeeServiceFactory(walletModel: walletModel).makeService(input: input)
     }

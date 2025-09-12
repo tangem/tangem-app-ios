@@ -182,6 +182,7 @@
 		0FFA350F2E058FD400ACB48F /* MobileOnboardingAccessCodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA350C2E058FD400ACB48F /* MobileOnboardingAccessCodeViewModel.swift */; };
 		0FFA35102E058FD400ACB48F /* MobileOnboardingAccessCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA350B2E058FD400ACB48F /* MobileOnboardingAccessCodeView.swift */; };
 		2D0B1B3C2E69F47E00516BC0 /* ExpressFeeProviderError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0B1B3B2E69F47E00516BC0 /* ExpressFeeProviderError.swift */; };
+		2D0EC8322E7486A10079368D /* SolanaStakeKitTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0EC8302E7486A10079368D /* SolanaStakeKitTransactionHelper.swift */; };
 		2D1366192D036737000AE1C4 /* TONTransactionInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1366172D036737000AE1C4 /* TONTransactionInput.swift */; };
 		2D13661A2D036737000AE1C4 /* TONError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1366162D036737000AE1C4 /* TONError.swift */; };
 		2D1400CA2C43F79F00B75A42 /* MarketsPortfolioContextActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1400C82C43F4FD00B75A42 /* MarketsPortfolioContextActions.swift */; };
@@ -4365,6 +4366,7 @@
 		0FFA350B2E058FD400ACB48F /* MobileOnboardingAccessCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingAccessCodeView.swift; sourceTree = "<group>"; };
 		0FFA350C2E058FD400ACB48F /* MobileOnboardingAccessCodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingAccessCodeViewModel.swift; sourceTree = "<group>"; };
 		2D0B1B3B2E69F47E00516BC0 /* ExpressFeeProviderError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeProviderError.swift; sourceTree = "<group>"; };
+		2D0EC8302E7486A10079368D /* SolanaStakeKitTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaStakeKitTransactionHelper.swift; sourceTree = "<group>"; };
 		2D1366162D036737000AE1C4 /* TONError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONError.swift; sourceTree = "<group>"; };
 		2D1366172D036737000AE1C4 /* TONTransactionInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONTransactionInput.swift; sourceTree = "<group>"; };
 		2D1400C82C43F4FD00B75A42 /* MarketsPortfolioContextActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsPortfolioContextActions.swift; sourceTree = "<group>"; };
@@ -8742,6 +8744,14 @@
 				0FFA350A2E058FD400ACB48F /* MobileOnboardingAccessCodeDelegate.swift */,
 			);
 			path = AccessCode;
+			sourceTree = "<group>";
+		};
+		2D0EC8312E7486A10079368D /* StakeKit */ = {
+			isa = PBXGroup;
+			children = (
+				2D0EC8302E7486A10079368D /* SolanaStakeKitTransactionHelper.swift */,
+			);
+			path = StakeKit;
 			sourceTree = "<group>";
 		};
 		2D1366182D036737000AE1C4 /* Domain */ = {
@@ -13624,11 +13634,12 @@
 				B62D3DF92CBC79D900C2460E /* SolanaSdk+.swift */,
 				0AEE7DB32DA3FB590039B06D /* SolanaTransactionHelper.swift */,
 				B62D3DFB2CBC79D900C2460E /* SolanaTransactionSigner.swift */,
+				2D59AB012E31067D00C3C352 /* SolanaVersionedMessageError+.swift */,
 				B62D3DFC2CBC79D900C2460E /* SolanaWalletAssembly.swift */,
 				2DB071EE2E25291D00E9F789 /* SolanaWalletConnectTransactionRely.swift */,
 				B62D3DFD2CBC79D900C2460E /* SolanaWalletManager.swift */,
-				2D59AB012E31067D00C3C352 /* SolanaVersionedMessageError+.swift */,
 				2DB071ED2E250BA000E9F789 /* ALT */,
+				2D0EC8312E7486A10079368D /* StakeKit */,
 			);
 			path = Solana;
 			sourceTree = "<group>";
@@ -25281,6 +25292,7 @@
 				B62D42712CBC79DB00C2460E /* BitcoinTransactionFeeCalculator.swift in Sources */,
 				B62D422B2CBC79DB00C2460E /* BlockBookResponses.swift in Sources */,
 				B62D3F982CBC79DA00C2460E /* AlgorandTransactionParams.swift in Sources */,
+				2D0EC8322E7486A10079368D /* SolanaStakeKitTransactionHelper.swift in Sources */,
 				B62D3FB32CBC79DA00C2460E /* AptosAddressService.swift in Sources */,
 				B62D40612CBC79DA00C2460E /* ChiaTransactionBuilder.swift in Sources */,
 				B62D40B32CBC79DA00C2460E /* MantaExternalLinkProvider.swift in Sources */,

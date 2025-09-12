@@ -32,15 +32,10 @@ protocol OnrampBaseDataBuilder: SendGenericBaseDataBuilder {
     func demoAlertMessage() -> String?
 }
 
-protocol ExpressBaseDataBuilder: SendGenericBaseDataBuilder {
-    func makeMailData(transactionResult: ExpressTransactionResult, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
-}
-
 protocol SendGenericBaseDataBuilder {
     func sendBuilder() throws -> SendBaseDataBuilder
     func stakingBuilder() throws -> StakingBaseDataBuilder
     func onrampBuilder() throws -> OnrampBaseDataBuilder
-    func expressBuilder() throws -> ExpressBaseDataBuilder
 }
 
 extension SendGenericBaseDataBuilder {

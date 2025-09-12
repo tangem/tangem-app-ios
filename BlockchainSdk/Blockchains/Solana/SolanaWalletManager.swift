@@ -280,11 +280,11 @@ extension SolanaWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionS
     typealias RawTransaction = RawTransactionData
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
-        try SolanaTransactionHelper().prepareForSign(transaction.unsignedData)
+        try SolanaStakeKitTransactionHelper().prepareForSign(transaction.unsignedData)
     }
 
     func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
-        let signedTransaction = try SolanaTransactionHelper().prepareForSend(
+        let signedTransaction = try SolanaStakeKitTransactionHelper().prepareForSend(
             transaction.unsignedData,
             signature: signature.signature
         )
