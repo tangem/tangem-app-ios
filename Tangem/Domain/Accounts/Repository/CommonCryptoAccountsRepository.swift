@@ -12,6 +12,8 @@ import CombineExt
 import TangemFoundation
 
 final class CommonCryptoAccountsRepository {
+    private typealias StorageDidUpdateSubject = PassthroughSubject<Void, Never>
+
     private let tokenItemsRepository: TokenItemsRepository
     private let networkService: CryptoAccountsNetworkService
     private let storage: CryptoAccountsPersistentStorage
@@ -68,10 +70,4 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     }
 }
 
-// MARK: - Auxiliary types
 
-private extension CommonCryptoAccountsRepository {}
-
-extension CryptoAccountsRepository {
-    typealias StorageDidUpdateSubject = PassthroughSubject<Void, Never>
-}
