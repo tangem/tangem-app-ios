@@ -20,7 +20,7 @@ struct SendSwapProviderCompactView: View {
             BaseOneLineRow(icon: Assets.Glyphs.stackNew, title: Localization.expressProvider) {
                 providerView
             }
-            .isTappable(data.isTappable)
+            .shouldShowTrailingIcon(data.isTappable)
             // We use 11 to save default 46 row height
             .padding(.vertical, 11)
 
