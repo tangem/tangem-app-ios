@@ -16,15 +16,23 @@ extension AccountsDTO.Response {
         // [REDACTED_TODO_COMMENT]
         typealias SortType = UserTokenList.SortType
 
-        // [REDACTED_TODO_COMMENT]
-        typealias Token = UserTokenList.Token
-
         struct Wallet: Decodable {
             let version: Int
             let group: GroupType
             let sort: SortType
             let totalAccounts: Int
             let totalArchivedAccounts: Int
+        }
+
+        struct Token: Codable, Hashable {
+            let id: String?
+            let networkId: String
+            let name: String
+            let symbol: String
+            let decimals: Int
+            let derivationPath: String?
+            let contractAddress: String?
+            let addresses: [String]?
         }
 
         struct Account: Decodable {
