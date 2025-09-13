@@ -389,16 +389,12 @@ extension CommonTangemApiService: TangemApiService {
 
     // MARK: - Accounts
 
-    func getUserAccounts(userWalletId: String) async throws -> (revision: String, accounts: AccountsDTO.Response.Accounts) {
+    func getUserAccounts(userWalletId: String) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
         let target = TangemApiTarget(type: .getUserAccounts(userWalletId: userWalletId))
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
-
-            guard let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue) else {
-                throw TangemAPIError(code: .optimisticLockingFailed, message: "ETag header is missing in the response")
-            }
-
+            let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
             let accounts: AccountsDTO.Response.Accounts = try response.mapAPIResponseAndTangemAPIError(
                 allowRedirectCodes: true,
                 decoder: decoder
