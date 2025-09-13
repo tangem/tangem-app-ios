@@ -200,7 +200,13 @@ private struct CommonUserWalletModelDependencies {
         // Inline func is used here to avoid long parameter list in the method signature.
         func makeAccountModelsManager() -> AccountModelsManager {
             let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
-            let networkService = CommonCryptoAccountsNetworkService(userWalletId: userWalletId)
+            let eTagStorage = CommonCryptoAccountsETagStorage()
+            let mapper = CryptoAccountsNetworkMapper(supportedBlockchains: config.supportedBlockchains)
+            let networkService = CommonCryptoAccountsNetworkService(
+                userWalletId: userWalletId,
+                eTagStorage: eTagStorage,
+                mapper: mapper
+            )
             let storage = CommonCryptoAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
             let cryptoAccountsRepository = CommonCryptoAccountsRepository(
                 tokenItemsRepository: tokenItemsRepository,
