@@ -130,7 +130,7 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - Accounts
 
-    func getUserAccounts(userWalletId: String) async throws -> (revision: String, accounts: AccountsDTO.Response.Accounts)
+    func getUserAccounts(userWalletId: String) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts)
     func saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts) async throws
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts
 }
