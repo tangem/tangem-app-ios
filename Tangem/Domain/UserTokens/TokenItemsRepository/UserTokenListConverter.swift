@@ -9,6 +9,7 @@
 import Foundation
 import enum BlockchainSdk.Blockchain
 
+@available(iOS, deprecated: 100000.0, message: "Superseded by 'CryptoAccountsNetworkMapper', will be removed in the future")
 struct UserTokenListConverter {
     private let supportedBlockchains: Set<Blockchain>
     private weak var externalParametersProvider: UserTokenListExternalParametersProvider?
