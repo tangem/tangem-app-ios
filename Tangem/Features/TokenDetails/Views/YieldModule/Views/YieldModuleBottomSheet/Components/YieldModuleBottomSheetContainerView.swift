@@ -71,12 +71,12 @@ extension YieldModuleBottomSheetView {
                     topContent.padding(.bottom, 28)
 
                     titleView
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, 14)
                         .padding(.bottom, 6)
 
                     subtitleView
                         .padding(.horizontal, 16)
-                        .padding(.bottom, 24)
+                        .padding(.bottom, 20)
 
                     subtitleFooter.padding(.bottom, 24)
 
@@ -85,7 +85,7 @@ extension YieldModuleBottomSheetView {
                     bottomButton
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 16)
+                .padding(.vertical, 24)
             }
         }
 
