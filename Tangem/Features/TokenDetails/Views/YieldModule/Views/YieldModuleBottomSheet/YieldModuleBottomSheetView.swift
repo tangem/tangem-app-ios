@@ -179,7 +179,9 @@ struct YieldModuleBottomSheetView: View {
 
     private var ctaButtonAction: () -> Void {
         switch viewModel.flow {
-        case .rateInfo, .startEarning:
+        case .startEarning:
+            viewModel.onStartEarningTap
+        case .rateInfo:
             viewModel.onCloseTapAction
         case .feePolicy:
             viewModel.onBackAction
