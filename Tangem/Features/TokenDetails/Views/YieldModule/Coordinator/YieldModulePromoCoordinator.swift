@@ -39,6 +39,12 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
             coordinator: self
         )
     }
+
+    func openRateInfoSheet(params: YieldModuleBottomSheetParams.RateInfoParams) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .rateInfo(params: params)))
+        }
+    }
 }
 
 // MARK: - Options
