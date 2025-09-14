@@ -71,7 +71,7 @@ struct YieldModulePromoView: View {
     }
 
     private var pillInfoButton: some View {
-        Button(action: { viewModel.openInterestRateInfo() }) {
+        Button(action: { viewModel.onInterestRateInfoTap() }) {
             HStack(spacing: 4) {
                 Text(Localization.yieldModulePromoScreenVariableRateInfo).style(Fonts.Bold.caption1, color: Colors.Text.secondary)
 
@@ -114,7 +114,7 @@ struct YieldModulePromoView: View {
     }
 
     private var continueButton: some View {
-        Button(action: {}) {
+        Button(action: { viewModel.onContinueTap() }) {
             Text(Localization.commonContinue)
                 .frame(maxWidth: .infinity)
         }
