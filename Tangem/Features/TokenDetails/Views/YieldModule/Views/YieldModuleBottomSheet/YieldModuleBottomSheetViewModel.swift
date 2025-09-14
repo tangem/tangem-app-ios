@@ -47,6 +47,22 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
         previousFlow.map { flow = $0 }
     }
 
+    func onShowFeePolicyTap() {
+        guard case .startEarning(let params) = flow else {
+            onCloseTapAction()
+            return
+        }
+
+        flow = .feePolicy(
+            params: .init(
+                tokenName: params.tokenName,
+                networkFee: params.networkFee,
+                maximumFee: params.maximumFee,
+                blockchainName: params.blockchainName
+            )
+        )
+    }
+
     func onStartEarningTap() {
         // WIP
     }
