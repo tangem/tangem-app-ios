@@ -421,3 +421,12 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
         }
     }
 }
+
+extension TokenDetailsViewModel {
+    func openYieldModulePromo() {
+        coordinator?.openYieldModulePromoView(
+            walletModel: walletModel,
+            info: .init(apy: "TEST DATA", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
+        )
+    }
+}
