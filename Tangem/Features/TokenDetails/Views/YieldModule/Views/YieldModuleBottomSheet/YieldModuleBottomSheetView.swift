@@ -189,15 +189,20 @@ struct YieldModuleBottomSheetView: View {
 
 private extension YieldModuleBottomSheetView {
     private func startEarningTopContent(icon: Image) -> some View {
-        HStack(spacing: 8) {
+        ZStack {
             icon
                 .resizable()
-                .frame(size: .init(bothDimensions: 48))
+                .frame(width: 48, height: 48)
+                .offset(x: -15.5)
 
             Assets.YieldModule.yieldModuleAaveLogo.image
                 .resizable()
-                .frame(size: .init(bothDimensions: 48))
+                .frame(width: 48, height: 48)
+                .overlay(Circle().stroke(Color.white, lineWidth: 6))
+                .clipShape(Circle())
+                .offset(x: 15.5)
         }
+        .frame(width: 96, height: 54)
     }
 }
 
