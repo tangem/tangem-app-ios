@@ -58,17 +58,9 @@ struct YieldModulePromoView: View {
     }
 
     private var topLogo: some View {
-        ZStack {
-            Circle()
-                .foregroundStyle(Colors.Icon.accent.opacity(0.1))
-                .frame(size: .init(bothDimensions: 72))
-
-            Assets.YieldModule.yieldModuleLogo.image
-                .resizable()
-                .renderingMode(.template)
-                .frame(size: .init(bothDimensions: 34))
-                .foregroundStyle(Colors.Icon.accent)
-        }
+        Assets.YieldModule.yieldModuleLogo.image
+            .resizable()
+            .frame(size: .init(bothDimensions: 72))
     }
 
     private var title: some View {
