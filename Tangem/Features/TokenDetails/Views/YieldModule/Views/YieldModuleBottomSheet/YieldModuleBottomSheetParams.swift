@@ -22,9 +22,9 @@ enum YieldModuleBottomSheetParams {
     }
 
     struct FeePolicyParams: Equatable {
-        let currentFee: String
-        let maximumFee: String
         let tokenName: String
+        let networkFee: String
+        let maximumFee: String
         let blockchainName: String
     }
 }

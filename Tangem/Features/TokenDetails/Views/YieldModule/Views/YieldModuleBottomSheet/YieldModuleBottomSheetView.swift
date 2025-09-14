@@ -136,26 +136,10 @@ struct YieldModuleBottomSheetView: View {
             YieldModuleInterestRateInfoView(lastYearReturns: params.lastYearReturns)
 
         case .startEarning(let params):
-            YieldModuleStartEarningView(
-                networkFee: params.networkFee,
-                showFeePolicyAction: {
-                    viewModel.onShowFeePolicy(
-                        params: .init(
-                            currentFee: params.networkFee,
-                            maximumFee: params.maximumFee,
-                            tokenName: params.tokenName,
-                            blockchainName: params.blockchainName
-                        )
-                    )
-                }
-            )
+            YieldModuleStartEarningView(networkFee: params.networkFee, showFeePolicyAction: viewModel.onShowFeePolicyTap)
 
         case .feePolicy(let params):
-            YieldModuleFeePolicyView(
-                networkFee: params.currentFee,
-                maximumFee: params.maximumFee,
-                blockchainName: params.blockchainName
-            )
+            YieldModuleFeePolicyView(currentFee: params.networkFee, maximumFee: params.maximumFee, blockchainName: params.blockchainName)
         }
     }
 
@@ -195,16 +179,19 @@ private extension YieldModuleBottomSheetView {
             icon
                 .resizable()
                 .frame(width: 48, height: 48)
-                .offset(x: -15.5)
+                .offset(x: -16)
 
             Assets.YieldModule.yieldModuleAaveLogo.image
                 .resizable()
                 .frame(width: 48, height: 48)
-                .overlay(Circle().stroke(Color.white, lineWidth: 6))
-                .clipShape(Circle())
-                .offset(x: 15.5)
+                .background(
+                    Circle()
+                        .fill(Colors.Background.tertiary)
+                        .frame(width: 50, height: 50)
+                )
+                .offset(x: 16)
         }
-        .frame(width: 96, height: 54)
+        .frame(height: 48)
     }
 }
 
