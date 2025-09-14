@@ -51,6 +51,10 @@ final class YieldModulePromoViewModel {
 
     // MARK: - Public Implementation
 
+    func openInterestRateInfo() {
+        coordinator?.openRateInfoSheet(params: .init(lastYearReturns: lastYearReturns))
+    }
+
     func onHowItWorksTap() {
         safariManager.openURL(howIrWorksUrl)
     }
