@@ -39,6 +39,10 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
         }
     }
 
+    func onStopEarningTap() {
+        // WIP
+    }
+
     func onShowFeePolicy(params: YieldModuleBottomSheetParams.FeePolicyParams) {
         flow = .feePolicy(params: params)
     }
@@ -73,6 +77,7 @@ extension YieldModuleBottomSheetViewModel {
         case rateInfo(params: YieldModuleBottomSheetParams.RateInfoParams)
         case feePolicy(params: YieldModuleBottomSheetParams.FeePolicyParams)
         case startEarning(params: YieldModuleBottomSheetParams.StartEarningParams)
+        case earnInfo(params: YieldModuleBottomSheetParams.EarnInfoParams)
 
         // MARK: - Identifiable
 
@@ -84,6 +89,8 @@ extension YieldModuleBottomSheetViewModel {
                 "feePolicy"
             case .startEarning:
                 "startEarning"
+            case .earnInfo:
+                "earnInfo"
             }
         }
     }

@@ -136,6 +136,12 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         coordinator.start(with: options)
         yieldModulePromoCoordinator = coordinator
     }
+
+    func openYieldEarnInfo(params: YieldModuleBottomSheetParams.EarnInfoParams) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .earnInfo(params: params)))
+        }
+    }
 }
 
 // MARK: - PendingExpressTxStatusRoutable
