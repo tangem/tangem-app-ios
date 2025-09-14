@@ -46,6 +46,10 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
     func onBackAction() {
         previousFlow.map { flow = $0 }
     }
+
+    func onStartEarningTap() {
+        // WIP
+    }
 }
 
 extension YieldModuleBottomSheetViewModel {
