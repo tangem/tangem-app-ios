@@ -68,7 +68,7 @@ extension YieldModuleBottomSheetView {
                 VStack(spacing: .zero) {
                     toolBar.padding(.bottom, 20)
 
-                    topContent.padding(.bottom, 28)
+                    topContent.padding(.bottom, 20)
 
                     titleView
                         .padding(.horizontal, 14)
