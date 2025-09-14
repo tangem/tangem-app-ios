@@ -18,35 +18,37 @@ struct YieldModulePromoView: View {
     // MARK: - View Body
 
     var body: some View {
-        ZStack {
-            background
+        ScrollView(showsIndicators: false) {
+            ZStack {
+                background
 
-            VStack(spacing: .zero) {
-                Spacer()
+                VStack(spacing: 98) {
+                    VStack(spacing: .zero) {
+                        topLogo.padding(.bottom, 20)
 
-                topLogo.padding(.bottom, 20)
+                        title.padding(.bottom, 12)
 
-                title.padding(.bottom, 12)
+                        pillInfoButton.padding(.bottom, 34)
 
-                pillInfoButton.padding(.bottom, 32)
+                        benefitsStack
+                    }
+                    .padding(.top, 70)
+                    .padding(.horizontal, 40)
 
-                benefitsStack.padding(.horizontal, 40)
-
-                Spacer()
-
-                tosAndPrivacy.padding(.bottom, 16)
-
-                continueButton
-                    .padding(.bottom, 6)
+                    VStack(spacing: 16) {
+                        tosAndPrivacy
+                        continueButton
+                    }
                     .padding(.horizontal, 16)
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(Localization.yieldModulePromoScreenHowItWorksButtonTitle) {
-                    viewModel.onHowItWorksTap()
                 }
-                .foregroundColor(Colors.Text.primary1)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(Localization.yieldModulePromoScreenHowItWorksButtonTitle) {
+                        viewModel.onHowItWorksTap()
+                    }
+                    .foregroundColor(Colors.Text.primary1)
+                }
             }
         }
     }
@@ -86,7 +88,7 @@ struct YieldModulePromoView: View {
     }
 
     private var benefitsStack: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 26) {
             BenefitRow(
                 icon: Assets.YieldModule.yieldModuleLightning.image,
                 title: Localization.yieldModulePromoScreenCashOutTitle,
@@ -108,28 +110,7 @@ struct YieldModulePromoView: View {
     }
 
     private var tosAndPrivacy: some View {
-        VStack(spacing: 2) {
-            Text(Localization.yieldModulePromoScreenTermsDisclaimer)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-
-            HStack(spacing: 4) {
-                Text(Localization.commonTermsOfUse)
-                    .font(Fonts.Regular.footnote)
-                    .tint(Colors.Text.accent)
-                    .onTapGesture {
-                        viewModel.onOpenTosTap()
-                    }
-
-                Text(Localization.commonAnd).style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-
-                Text(Localization.commonPrivacyPolicy)
-                    .font(Fonts.Regular.footnote)
-                    .tint(Colors.Text.accent)
-                    .onTapGesture {
-                        viewModel.onOpenPrivacyPolicyTap()
-                    }
-            }
-        }
+        Text(viewModel.makeTosAndPrivacyString()).multilineTextAlignment(.center)
     }
 
     private var continueButton: some View {
@@ -159,7 +140,7 @@ private extension YieldModulePromoView {
             HStack(alignment: .top, spacing: 16) {
                 iconView
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(title).style(Fonts.Bold.callout, color: Colors.Text.primary1)
                     Text(subtitle).style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                 }
