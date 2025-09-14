@@ -24,6 +24,11 @@ struct YieldModuleBottomSheetView: View {
 
     @ViewBuilder
     private var contentView: some View {
+        Rectangle()
+            .fill(.red)
+            .frame(height: 700)
+            .frame(width: 50)
+
         YieldModuleBottomSheetContainerView(
             title: title,
             subtitle: subtitle,
@@ -35,7 +40,9 @@ struct YieldModuleBottomSheetView: View {
             closeAction: closeAction,
             backAction: backAction,
             buttonAction: ctaButtonAction,
-            horizontalPadding: horizontalPadding
+            topPadding: topPadding,
+            horizontalPadding: horizontalPadding,
+            buttonTopPadding: buttonTopPadding
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
@@ -43,8 +50,31 @@ struct YieldModuleBottomSheetView: View {
         }
     }
 
+    private var topPadding: CGFloat {
+        switch viewModel.flow {
+        case .earnInfo:
+            18
+        default:
+            24
+        }
+    }
+
     private var horizontalPadding: CGFloat {
-        16
+        switch viewModel.flow {
+        case .earnInfo:
+            0
+        default:
+            16
+        }
+    }
+
+    private var buttonTopPadding: CGFloat {
+        switch viewModel.flow {
+        case .earnInfo:
+            16
+        default:
+            24
+        }
     }
 
     private var title: String? {
@@ -55,6 +85,8 @@ struct YieldModuleBottomSheetView: View {
             Localization.yieldModuleStartEarning
         case .feePolicy:
             Localization.yieldModuleFeePolicySheetTitle
+        case .earnInfo:
+            nil
         }
     }
 
@@ -66,6 +98,8 @@ struct YieldModuleBottomSheetView: View {
             Localization.yieldModuleStartEarningSheetDescription(params.tokenName)
         case .feePolicy(let params):
             Localization.yieldModuleFeePolicySheetDescription(params.tokenName)
+        case .earnInfo:
+            nil
         }
     }
 
@@ -74,7 +108,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .rateInfo:
             rateInfoSubtitleFooter
-        case .feePolicy, .startEarning:
+        case .feePolicy, .startEarning, .earnInfo:
             EmptyView()
         }
     }
@@ -97,16 +131,23 @@ struct YieldModuleBottomSheetView: View {
             .gray(title: Localization.commonGotIt)
         case .startEarning:
             .blackWithTangemIcon(title: Localization.yieldModuleStartEarning)
+        case .earnInfo:
+            .gray(title: Localization.yieldModuleStopEarning)
         }
     }
 
     @ViewBuilder
     private var toolBarTitle: some View {
-        EmptyView()
+        switch viewModel.flow {
+        case .earnInfo(let params):
+            earnInfoToolbarTitleView(status: params.status)
+        case .startEarning, .feePolicy, .rateInfo:
+            EmptyView()
+        }
     }
 
     private func earnInfoToolbarTitleView(status: String) -> some View {
-        VStack(spacing: .zero) {
+        VStack(spacing: 3) {
             Text(Localization.yieldModuleEarnSheetTitle).style(Fonts.Bold.headline, color: Colors.Text.primary1)
 
             HStack(spacing: 4) {
@@ -122,7 +163,7 @@ struct YieldModuleBottomSheetView: View {
     @ViewBuilder
     private var topContent: some View {
         switch viewModel.flow {
-        case .rateInfo, .feePolicy:
+        case .rateInfo, .feePolicy, .earnInfo:
             EmptyView()
         case .startEarning(let params):
             startEarningTopContent(icon: params.tokenIcon)
@@ -140,12 +181,15 @@ struct YieldModuleBottomSheetView: View {
 
         case .feePolicy(let params):
             YieldModuleFeePolicyView(currentFee: params.networkFee, maximumFee: params.maximumFee, blockchainName: params.blockchainName)
+
+        case .earnInfo(let params):
+            YieldModuleEarnInfoView(params: params)
         }
     }
 
     private var closeAction: (() -> Void)? {
         switch viewModel.flow {
-        case .rateInfo, .startEarning:
+        case .rateInfo, .startEarning, .earnInfo:
             viewModel.onCloseTapAction
         case .feePolicy:
             nil
@@ -154,7 +198,7 @@ struct YieldModuleBottomSheetView: View {
 
     private var backAction: (() -> Void)? {
         switch viewModel.flow {
-        case .rateInfo, .startEarning:
+        case .rateInfo, .startEarning, .earnInfo:
             nil
         case .feePolicy:
             viewModel.onBackAction
@@ -169,6 +213,8 @@ struct YieldModuleBottomSheetView: View {
             viewModel.onCloseTapAction
         case .feePolicy:
             viewModel.onBackAction
+        case .earnInfo(let params):
+            params.onStopEarningAction
         }
     }
 }
