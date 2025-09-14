@@ -148,7 +148,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
              .tangemPayViewKYCStatus:
