@@ -16,7 +16,10 @@ extension YieldModuleBottomSheetView {
 
         private let title: String?
         private let subtitle: String?
+
+        private let topPadding: CGFloat
         private let horizontalPadding: CGFloat
+        private let buttonTopPadding: CGFloat
 
         // MARK: - UI
 
@@ -45,7 +48,10 @@ extension YieldModuleBottomSheetView {
             closeAction: (() -> Void)? = nil,
             backAction: (() -> Void)? = nil,
             buttonAction: @escaping () -> Void,
-            horizontalPadding: CGFloat
+            topPadding: CGFloat,
+            horizontalPadding: CGFloat,
+            buttonTopPadding: CGFloat
+
         ) {
             self.toolBarTitle = toolBarTitle()
             self.topContent = topContent()
@@ -58,7 +64,9 @@ extension YieldModuleBottomSheetView {
             self.closeAction = closeAction
             self.backAction = backAction
             self.buttonAction = buttonAction
+            self.topPadding = topPadding
             self.horizontalPadding = horizontalPadding
+            self.buttonTopPadding = buttonTopPadding
         }
 
         // MARK: - View Body
@@ -80,12 +88,12 @@ extension YieldModuleBottomSheetView {
 
                     subtitleFooter.padding(.bottom, 24)
 
-                    content.padding(.bottom, 24)
+                    content
 
-                    bottomButton
+                    bottomButton.padding(.top, buttonTopPadding)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 24)
+                .padding(.vertical, topPadding)
             }
         }
 
