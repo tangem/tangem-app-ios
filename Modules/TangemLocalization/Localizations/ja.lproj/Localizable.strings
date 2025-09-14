@@ -192,6 +192,7 @@
 "common_camera_denied_alert_title" = "カメラへのアクセスが拒否されました";
 "common_cancel" = "キャンセル";
 "common_change" = "変更";
+"common_choose_account" = "Choose account";
 "common_choose_action" = "アクションを選択";
 "common_choose_network" = "ネットワークを選択";
 "common_choose_token" = "トークンを選択";
@@ -985,9 +986,7 @@
 "send_qrcode_scan_info" = "QRコードを正方形に合わせてスキャンしてください。%@ ネットワークアドレスをスキャンしてください。";
 "send_recent_transactions" = "最近の取引";
 "send_recipient_address_error" = "有効なアドレスではありません";
-"send_recipient_address_footer_highlighted_part" = "%@";
-"send_recipient_address_footer_v2" = "%@ネットワーク上のアドレスに送信していることを確認してください。エラーが発生すると資金が失われる可能性があります。";
-"send_recipient_address_footer" = "トークンの損失を避けるために、受信ウォレットアドレスが** %@ネットワーク**上にあることを確認してください";
+"send_recipient_address_footer" = "トークンの損失を避けるために、受信ウォレットアドレスが**%@ネットワーク**上にあることを確認してください";
 "send_recipient_label" = "送金先";
 "send_recipient_memo_footer_v2_highlighted" = "注意：メモを忘れると資金が失われる可能性があります。";
 "send_recipient_memo_footer" = "メモ/宛先タグは、同じネットワーク上の同じ受信者に送信された取引を区別するためのユニークなIDです。注意：メモを省略すると、資金の行き違いにつながる可能性があります。";
@@ -1206,6 +1205,14 @@
 "swapping_to_title" = "受け取る";
 "swapping_token_list_title" = "トークンを選択";
 "swapping_token_not_available" = "利用不可";
+"tangempay_onboarding_get_card_button_text" = "Get card";
+"tangempay_onboarding_pay_description" = "Add to your wallet and pay with your phone anywhere.";
+"tangempay_onboarding_pay_title" = "Apple Pay &amp; Google Pay";
+"tangempay_onboarding_purchases_description" = "Use your USDC balance to pay for everyday purchases seamlessly.";
+"tangempay_onboarding_purchases_title" = "Everyday purchases";
+"tangempay_onboarding_security_description" = "Your card details are protected — full control in the app.";
+"tangempay_onboarding_security_title" = "Built-in security";
+"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
 "this_is_my_wallet_title" = "これは私のウォレットです";
 "toast_balances_hidden" = "残高非表示";
 "toast_balances_shown" = "残高表示";
@@ -1660,7 +1667,7 @@
 "yield_module_promo_screen_self_custodial_subtitle" = "Aaveは世界中で何百万人もの人々に信頼されています。総貸付額は104億ドルです。";
 "yield_module_promo_screen_self_custodial_title" = "分散型・自己管理型";
 "yield_module_promo_screen_terms_disclaimer" = "サービスを使用することにより、プロバイダーに同意したものとみなされます";
-"yield_module_promo_screen_title" = "年間%@%の収益";
+"yield_module_promo_screen_title" = "年間%@%%の収益";
 "yield_module_promo_screen_variable_rate_info" = "Aave • 変動金利";
 "yield_module_provider" = "Aave";
 "yield_module_rate_info_sheet_chart_average" = "平均%@";
