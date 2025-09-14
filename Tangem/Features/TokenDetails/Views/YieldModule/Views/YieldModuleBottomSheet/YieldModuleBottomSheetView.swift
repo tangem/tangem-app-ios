@@ -178,11 +178,13 @@ private extension YieldModuleBottomSheetView {
         ZStack {
             icon
                 .resizable()
+                .scaledToFit()
                 .frame(width: 48, height: 48)
                 .offset(x: -16)
 
             Assets.YieldModule.yieldModuleAaveLogo.image
                 .resizable()
+                .scaledToFit()
                 .frame(width: 48, height: 48)
                 .background(
                     Circle()
@@ -191,7 +193,6 @@ private extension YieldModuleBottomSheetView {
                 )
                 .offset(x: 16)
         }
-        .frame(height: 48)
     }
 }
 
