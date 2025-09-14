@@ -192,6 +192,7 @@
 "common_camera_denied_alert_title" = "Der Kamerazugriff wurde verweigert";
 "common_cancel" = "Abbrechen";
 "common_change" = "Ändern";
+"common_choose_account" = "Choose account";
 "common_choose_action" = "Aktion wählen";
 "common_choose_network" = "Netzwerk auswählen";
 "common_choose_token" = "Token auswählen";
@@ -985,9 +986,7 @@
 "send_qrcode_scan_info" = "Bitte richte den QR-Code auf das Quadrat aus, um ihn zu scannen. Stell sicher, dass du die Netzwerkadresse %@ scannen.";
 "send_recent_transactions" = "Jüngste";
 "send_recipient_address_error" = "Keine gültige Adresse";
-"send_recipient_address_footer_highlighted_part" = "%@ Netzwerkadresse";
-"send_recipient_address_footer_v2" = "Stelle sicher, dass Du %@ hast, da Fehler zu verlorenen Übertragungen führen können";
-"send_recipient_address_footer" = "Stelle sicher, dass sich die empfangende Wallet-Adresse im ** %@ -Netzwerk** befindet, um den Verlust Deiner Token zu vermeiden.";
+"send_recipient_address_footer" = "Stelle sicher, dass sich die empfangende Wallet-Adresse im **%@ -Netzwerk** befindet, um den Verlust Deiner Token zu vermeiden.";
 "send_recipient_label" = "Senden an";
 "send_recipient_memo_footer_v2_highlighted" = "Achtung: Das Fehlen eines Memos kann zum Verlust von Geldern führen.";
 "send_recipient_memo_footer" = "Ein Memo/Destination Tag ist eine eindeutige ID zur Unterscheidung von Transaktionen, die an denselben Empfänger im selben Netzwerk gesendet werden. Vorsicht! Das Weglassen eines Vermerks kann dazu führen, dass Gelder für immer verloren sind!";
@@ -1206,6 +1205,14 @@
 "swapping_to_title" = "Du erhältst";
 "swapping_token_list_title" = "Token auswählen";
 "swapping_token_not_available" = "Nicht verfügbar";
+"tangempay_onboarding_get_card_button_text" = "Get card";
+"tangempay_onboarding_pay_description" = "Add to your wallet and pay with your phone anywhere.";
+"tangempay_onboarding_pay_title" = "Apple Pay &amp; Google Pay";
+"tangempay_onboarding_purchases_description" = "Use your USDC balance to pay for everyday purchases seamlessly.";
+"tangempay_onboarding_purchases_title" = "Everyday purchases";
+"tangempay_onboarding_security_description" = "Your card details are protected — full control in the app.";
+"tangempay_onboarding_security_title" = "Built-in security";
+"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
 "this_is_my_wallet_title" = "Das ist meine Wallet";
 "toast_balances_hidden" = "Guthaben versteckt";
 "toast_balances_shown" = "Angezeigte Salden";
@@ -1659,8 +1666,8 @@
 "yield_module_promo_screen_how_it_works_button_title" = "How it works?";
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave is trusted by millions worldwide. Total lended value is $10.4B.";
 "yield_module_promo_screen_self_custodial_title" = "Decentralized and self-custodial";
-"yield_module_promo_screen_terms_disclaimer" = "By using service, you agree with provider";
-"yield_module_promo_screen_title" = "Earn %@% yearly";
+"yield_module_promo_screen_terms_disclaimer" = "By using service, you agree with provider %1$@ and %2$@";
+"yield_module_promo_screen_title" = "Earn %@%% yearly";
 "yield_module_promo_screen_variable_rate_info" = "Aave • Variable Interest Rate";
 "yield_module_provider" = "Aave";
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";
