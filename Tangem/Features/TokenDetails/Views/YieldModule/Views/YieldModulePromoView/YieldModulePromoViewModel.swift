@@ -7,13 +7,21 @@
 //
 
 import SwiftUI
+import TangemLocalization
+import TangemAssets
 
 final class YieldModulePromoViewModel {
+    // MARK: - Properties
+
     private let walletModel: any WalletModel
     private(set) var apy: String
     private var lastYearReturns: [String: Double] = [:]
     private let networkFee: Decimal
     private let maximumFee: Decimal
+
+    private(set) var tosUrl = URL(string: "https://tangem.com")!
+    private(set) var privacyPolicyUrl = URL(string: "https://tangem.com")!
+    private(set) var howIrWorksUrl = URL(string: "https://tangem.com")!
 
     // MARK: - Injected
 
@@ -53,6 +61,29 @@ final class YieldModulePromoViewModel {
 
     func onOpenPrivacyPolicyTap() {
         safariManager.openURL(URL(string: "https://tangem.com")!)
+    }
+
+    func makeTosAndPrivacyString() -> AttributedString {
+        let string = Localization.yieldModulePromoScreenTermsDisclaimer(
+            "\n\(Localization.commonTermsOfUse)",
+            Localization.commonPrivacyPolicy
+        )
+
+        var attributedString = AttributedString(string)
+        attributedString.foregroundColor = Colors.Text.tertiary
+        attributedString.font = Fonts.Regular.footnote
+
+        if let tosRange = attributedString.range(of: Localization.commonTermsOfUse) {
+            attributedString[tosRange].link = tosUrl
+            attributedString[tosRange].foregroundColor = Colors.Text.accent
+        }
+
+        if let privacyRange = attributedString.range(of: Localization.commonPrivacyPolicy) {
+            attributedString[privacyRange].link = privacyPolicyUrl
+            attributedString[privacyRange].foregroundColor = Colors.Text.accent
+        }
+
+        return attributedString
     }
 }
 
