@@ -11,6 +11,7 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WalletConnectQRScanView: View {
     @ObservedObject var viewModel: WalletConnectQRScanViewModel
@@ -127,6 +128,7 @@ struct WalletConnectQRScanView: View {
             }
             .labelStyle(.titleAndIcon)
             .tint(.clear)
+            .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.pasteButton)
         } else {
             Button(
                 action: {
@@ -149,6 +151,7 @@ struct WalletConnectQRScanView: View {
                 }
             )
             .buttonStyle(.plain)
+            .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.pasteButton)
         }
     }
 
