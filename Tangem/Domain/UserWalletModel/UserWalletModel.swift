@@ -29,6 +29,7 @@ protocol UserWalletModel:
     var userWalletId: UserWalletId { get }
     var tangemApiAuthData: TangemApiAuthorizationData? { get }
     var nftManager: NFTManager { get }
+    var yieldModuleManager: YieldModuleManager { get }
     var keysRepository: KeysRepository { get }
     var refcodeProvider: RefcodeProvider? { get }
     var signer: TangemSigner { get }

@@ -19,6 +19,7 @@ class CommonWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     let id: WalletModelId
     let userWalletId: UserWalletId
@@ -355,10 +356,6 @@ extension CommonWalletModel: WalletModel {
     var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? {
         walletManager as? StakingAccountInitializationStateProvider
     }
-
-    var yieldService: (any YieldTokenService)? {
-        walletManager.yieldService
-    }
 }
 
 // MARK: - Updater
@@ -391,7 +388,7 @@ extension CommonWalletModel: WalletModelUpdater {
         let newUpdatePublisher = PassthroughSubject<WalletModelState, Never>()
         updatePublisher = newUpdatePublisher
 
-        if case .loading = state {
+        if case .loading = walletModelState {
             return newUpdatePublisher.eraseToAnyPublisher()
         }
 
@@ -403,7 +400,8 @@ extension CommonWalletModel: WalletModelUpdater {
             .updatePublisher()
             .combineLatest(
                 loadQuotes(),
-                updateStakingManagerState()
+                updateStakingManagerState(),
+//                updateYieldModuleState()
             )
             .withWeakCaptureOf(self)
             // There must be a delayed call, as we are waiting for the wallet manager update. Workflow for blockchains like Hedera
@@ -457,6 +455,18 @@ extension CommonWalletModel: WalletModelUpdater {
         // Here we have to skip the error to let the PTR to complete
         .replaceError(with: ())
         .eraseToAnyPublisher()
+    }
+
+    private func updateYieldModuleState() -> AnyPublisher<Void, Never> {
+        yieldModuleWalletManagerPublisher
+            .handleEvents(receiveOutput: { value in
+                print(value)
+            })
+            .asyncMap { publisher in
+                await publisher?.updateState()
+            }
+            .replaceError(with: ())
+            .eraseToAnyPublisher()
     }
 }
 
@@ -798,12 +808,46 @@ extension CommonWalletModel: TransactionHistoryFetcher {
 // MARK: - AvailableTokenBalanceProviderInput
 
 extension CommonWalletModel: AvailableTokenBalanceProviderInput {
-    var state: WalletModelState {
+    var walletModelState: WalletModelState {
         _state.value
     }
 
-    var statePublisher: AnyPublisher<WalletModelState, Never> {
+    var walletModelStatePublisher: AnyPublisher<WalletModelState, Never> {
         _state.eraseToAnyPublisher()
+    }
+
+    var yieldModuleManagerState: YieldModuleWalletManagerState? {
+        yieldModuleWalletManager?.state
+    }
+
+    var yieldModuleManagerStatePublisher: AnyPublisher<YieldModuleWalletManagerState, Never> {
+        return yieldModuleWalletManagerPublisher
+            .compactMap { $0 }
+            .flatMap { manager in
+                return manager.statePublisher
+            }
+            .replaceError(with: .notEnabled)
+            .eraseToAnyPublisher()
+    }
+
+    private var yieldModuleWalletManager: YieldModuleWalletManager? {
+        userWalletRepository.selectedModel?.yieldModuleManager.yieldWalletManagers[tokenItem]
+    }
+
+    private var yieldModuleWalletManagerPublisher: AnyPublisher<YieldModuleWalletManager?, Never> {
+        guard let selectedModel = userWalletRepository.selectedModel else {
+            return .just(output: .none)
+                .eraseToAnyPublisher()
+        }
+        return selectedModel
+            .yieldModuleManager
+            .yieldWalletManagersPublisher
+            .setFailureType(to: Error.self)
+            .compactMap { [tokenItem] walletManagers -> YieldModuleWalletManager? in
+                walletManagers[tokenItem]
+            }
+            .replaceError(with: nil)
+            .eraseToAnyPublisher()
     }
 }
 
