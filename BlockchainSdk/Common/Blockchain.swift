@@ -1159,7 +1159,7 @@ extension Blockchain: Codable {
         case .zkLinkNova: return "zklink"
         case .pepecoin: return "pepecoin"
         case .hyperliquidEVM: return "hyperliquid"
-        case .quai: return "quai"
+        case .quai: return "quai-network"
         }
     }
 
@@ -1271,7 +1271,7 @@ extension Blockchain: Codable {
         case "zklink": self = .zkLinkNova(testnet: isTestnet)
         case "pepecoin": self = .pepecoin(testnet: isTestnet)
         case "hyperliquid": self = .hyperliquidEVM(testnet: isTestnet)
-        case "quai": self = .quai(testnet: isTestnet)
+        case "quai-network": self = .quai(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1556,7 +1556,7 @@ private extension Blockchain {
             case .coin: return "hyperliquid"
             }
         case .quai:
-            return "quai"
+            return "quai-network"
         }
     }
 

@@ -167,7 +167,7 @@ struct DerivationConfigV1: DerivationConfig {
         case .pepecoin:
             return "m/44'/3434'/0'/0/0"
         case .quai:
-            return "m/44'/994'/0'/0/0"
+            return "m/44'/994'/0'/0"
         }
     }
 }
