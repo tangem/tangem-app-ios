@@ -84,7 +84,7 @@ struct OrganizeTokensListFactory {
             balance: fiatBalance(for: walletModel),
             hasDerivation: true,
             isTestnet: walletModel.tokenItem.blockchain.isTestnet,
-            isNetworkUnreachable: walletModel.state.isBlockchainUnreachable,
+            isNetworkUnreachable: walletModel.walletModelState.isBlockchainUnreachable,
             isDraggable: isDraggable
         )
     }
