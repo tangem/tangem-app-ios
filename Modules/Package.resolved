@@ -1,5 +1,5 @@
 {
-  "originHash" : "73b8f5f82e50e729657e51cb85c8287aff98d3c36bd2c88e54443d98449e63ff",
+  "originHash" : "4bec7f13d6973774d28fe38105b2bd4f96915db3e94f8f32ee54de41f7b95632",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -95,7 +95,6 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/IcpKit.git",
       "state" : {
-        "branch" : "feature/IOS-9480_migrate_bsdk_to_spm",
         "revision" : "0e19de6d0cdbd1f8f464556d20d2feebfce9970c"
       }
     },
@@ -401,7 +400,7 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "b9b875e1d995cda7c334ec339e7a4c3336b2aeb6"
+        "revision" : "6e49d8b736024cae829f4d4a72a9b0beafdabcd8"
       }
     },
     {
