@@ -40,4 +40,24 @@ public extension Publisher {
         return Empty()
             .eraseToAnyPublisher()
     }
+
+    func debounce(
+        for interval: DispatchQueue.SchedulerTimeType.Stride,
+        scheduler: DispatchQueue = .global(),
+        if shouldDebounce: @escaping (Output) -> Bool
+    ) -> some Publisher<Output, Failure> {
+        map { value in
+            guard shouldDebounce(value) else {
+                return Just(value)
+                    .setFailureType(to: Failure.self)
+                    .eraseToAnyPublisher()
+            }
+
+            return Just(value)
+                .setFailureType(to: Failure.self)
+                .delay(for: interval, scheduler: scheduler)
+                .eraseToAnyPublisher()
+        }
+        .switchToLatest()
+    }
 }
