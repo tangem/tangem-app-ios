@@ -21,6 +21,7 @@ class CommonWalletModel {
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
 
     let id: WalletModelId
+    let userWalletId: UserWalletId
     let tokenItem: TokenItem
     let isCustom: Bool
     var demoBalance: Decimal?
@@ -44,11 +45,14 @@ class CommonWalletModel {
         }
     }
 
+    private unowned var _account: (any CryptoAccountModel)!
+
     private let sendAvailabilityProvider: TransactionSendAvailabilityProvider
     private let tokenBalancesRepository: TokenBalancesRepository
     private let walletManager: WalletManager
     private let _stakingManager: StakingManager?
     private let _transactionHistoryService: TransactionHistoryService?
+    private let _receiveAddressService: ReceiveAddressService
     private let featureManager: WalletModelFeaturesManager
 
     private var updateTimer: AnyCancellable?
@@ -73,20 +77,24 @@ class CommonWalletModel {
     }
 
     init(
+        userWalletId: UserWalletId,
         walletManager: WalletManager,
         stakingManager: StakingManager?,
         featureManager: WalletModelFeaturesManager,
         transactionHistoryService: TransactionHistoryService?,
+        receiveAddressService: ReceiveAddressService,
         sendAvailabilityProvider: TransactionSendAvailabilityProvider,
         tokenBalancesRepository: TokenBalancesRepository,
         amountType: Amount.AmountType,
         shouldPerformHealthCheck: Bool,
         isCustom: Bool
     ) {
+        self.userWalletId = userWalletId
         self.walletManager = walletManager
         self.featureManager = featureManager
         _stakingManager = stakingManager
         _transactionHistoryService = transactionHistoryService
+        _receiveAddressService = receiveAddressService
         self.amountType = amountType
         self.isCustom = isCustom
         self.sendAvailabilityProvider = sendAvailabilityProvider
@@ -241,6 +249,8 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
+    var account: any CryptoAccountModel { _account }
+
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
 
     var name: String {
@@ -355,9 +365,13 @@ extension CommonWalletModel: WalletModelUpdater {
     /// and `fetch()` in CommonTransactionHistoryService uses its own `cancellable`.
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
         _transactionHistoryService?.clearHistory()
+        _receiveAddressService.clear()
 
         return Publishers
-            .CombineLatest(update(silent: silent), updateTransactionsHistory())
+            .CombineLatest(
+                update(silent: silent),
+                updateTransactionsHistory()
+            )
             .mapToVoid()
             .eraseToAnyPublisher()
     }
@@ -383,7 +397,17 @@ extension CommonWalletModel: WalletModelUpdater {
 
         updateWalletModelSubscription = walletManager
             .updatePublisher()
-            .combineLatest(loadQuotes(), updateStakingManagerState())
+            .combineLatest(
+                loadQuotes(),
+                updateStakingManagerState()
+            )
+            .withWeakCaptureOf(self)
+            // There must be a delayed call, as we are waiting for the wallet manager update. Workflow for blockchains like Hedera
+            .flatMap { walletModel, newState in
+                walletModel
+                    .updateReceiveAddressTypes()
+                    .map { newState }
+            }
             .withWeakCaptureOf(self)
             .sink { walletModel, newState in
                 let newState = walletModel.walletManager.state
@@ -410,6 +434,16 @@ extension CommonWalletModel: WalletModelUpdater {
         }
 
         return _transactionHistoryService.update()
+    }
+
+    private func updateReceiveAddressTypes() -> AnyPublisher<Void, Never> {
+        Future.async { [weak self] in
+            let addresses = self?.addresses ?? []
+            await self?._receiveAddressService.update(with: addresses)
+        }
+        // Here we have to skip the error to let the PTR to complete
+        .replaceError(with: ())
+        .eraseToAnyPublisher()
     }
 
     private func updateStakingManagerState() -> AnyPublisher<Void, Never> {
@@ -810,6 +844,18 @@ extension CommonWalletModel: FeeResourceInfoProvider {
         default:
             return nil
         }
+    }
+}
+
+// MARK: - WalletModelReceiveAddressProvider
+
+extension CommonWalletModel: ReceiveAddressTypesProvider {
+    var receiveAddressTypes: [ReceiveAddressType] {
+        _receiveAddressService.addressTypes
+    }
+
+    var receiveAddressInfos: [ReceiveAddressInfo] {
+        _receiveAddressService.addressInfos
     }
 }
 
