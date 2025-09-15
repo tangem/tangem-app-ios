@@ -36,18 +36,18 @@ final class MainHeaderViewModel: ObservableObject {
         balanceProvider: MainHeaderBalanceProvider
     ) {
         self.isUserWalletLocked = isUserWalletLocked
-
         self.supplementInfoProvider = supplementInfoProvider
         self.subtitleProvider = subtitleProvider
         self.balanceProvider = balanceProvider
-
+        userWalletName = supplementInfoProvider.name
         balance = balanceProvider.balance
 
         bind()
     }
 
     private func bind() {
-        supplementInfoProvider?.userWalletNamePublisher
+        supplementInfoProvider?.updatePublisher
+            .compactMap(\.newName)
             .receive(on: DispatchQueue.main)
             .assign(to: \.userWalletName, on: self, ownership: .weak)
             .store(in: &bag)

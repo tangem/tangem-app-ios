@@ -10,6 +10,7 @@ import Combine
 import TangemLocalization
 import SwiftUI
 import TangemAssets
+import TangemFoundation
 
 struct WalletSelectorView: View {
     @ObservedObject var viewModel: WalletSelectorViewModel

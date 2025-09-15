@@ -15,6 +15,7 @@ class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Root ViewModels
 
@@ -131,20 +132,20 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
 
 extension MarketsTokenDetailsCoordinator {
     func openReceive(walletModel: any WalletModel) {
-        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .crypto).makeViewModel(for: walletModel)
-    }
+        let receiveFlowFactory = AvailabilityReceiveFlowFactory(
+            flow: .crypto,
+            tokenItem: walletModel.tokenItem,
+            addressTypesProvider: walletModel
+        )
 
-    func openBuyCryptoIfPossible(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
-            error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
+        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
+        case .bottomSheetReceiveFlow(let viewModel):
+            receiveBottomSheetViewModel = viewModel
+        case .domainReceiveFlow(let viewModel):
+            Task { @MainActor in
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            }
         }
-
-        guard let url = portfolioCoordinatorFactory.makeBuyURL(for: walletModel, with: userWalletModel) else {
-            return
-        }
-
-        openBuyCrypto(at: url, with: walletModel)
     }
 
     func openExchange(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
@@ -178,8 +179,7 @@ extension MarketsTokenDetailsCoordinator {
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(
-            walletModel: walletModel,
-            userWalletModel: userWalletModel,
+            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
             type: .onramp,
             source: .markets
         )

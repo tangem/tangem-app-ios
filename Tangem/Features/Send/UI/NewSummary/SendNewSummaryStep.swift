@@ -12,20 +12,20 @@ import SwiftUI
 
 class SendNewSummaryStep {
     private let viewModel: SendNewSummaryViewModel
-    private let input: SendSummaryInput
+    private let interactor: SendNewSummaryInteractor
+    private let analyticsLogger: SendSummaryAnalyticsLogger
     private let sendFeeProvider: SendFeeProvider
-    private let _title: String?
 
     init(
         viewModel: SendNewSummaryViewModel,
-        input: SendSummaryInput,
-        sendFeeProvider: SendFeeProvider,
-        title: String?
+        interactor: SendNewSummaryInteractor,
+        analyticsLogger: SendSummaryAnalyticsLogger,
+        sendFeeProvider: SendFeeProvider
     ) {
         self.viewModel = viewModel
-        self.input = input
+        self.interactor = interactor
+        self.analyticsLogger = analyticsLogger
         self.sendFeeProvider = sendFeeProvider
-        _title = title
     }
 
     func set(router: SendSummaryStepsRoutable) {
@@ -36,20 +36,19 @@ class SendNewSummaryStep {
 // MARK: - SendStep
 
 extension SendNewSummaryStep: SendStep {
-    var title: String? { _title }
-
     var type: SendStepType { .newSummary(viewModel) }
-
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .none }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .closeButton }
-
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
+    var isUpdatingPublisher: AnyPublisher<Bool, Never> {
+        interactor.isUpdatingPublisher.eraseToAnyPublisher()
+    }
+
     var isValidPublisher: AnyPublisher<Bool, Never> {
-        input.isReadyToSendPublisher.eraseToAnyPublisher()
+        interactor.isReadyToSendPublisher.eraseToAnyPublisher()
     }
 
     func willAppear(previous step: any SendStep) {
+        analyticsLogger.logSummaryStepOpened()
         sendFeeProvider.updateFees()
     }
 }

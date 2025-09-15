@@ -96,6 +96,8 @@ extension CommonStakingSendAnalyticsLogger: SendSummaryAnalyticsLogger {
             ]
         )
     }
+
+    func logUserDidTapOnProvider() {}
 }
 
 // MARK: - SendFinishAnalyticsLogger
