@@ -24,11 +24,6 @@ struct YieldModuleBottomSheetView: View {
 
     @ViewBuilder
     private var contentView: some View {
-        Rectangle()
-            .fill(.red)
-            .frame(height: 700)
-            .frame(width: 50)
-
         YieldModuleBottomSheetContainerView(
             title: title,
             subtitle: subtitle,
@@ -87,6 +82,10 @@ struct YieldModuleBottomSheetView: View {
             Localization.yieldModuleFeePolicySheetTitle
         case .earnInfo:
             nil
+        case .approve:
+            Localization.yieldModuleApproveSheetTitle
+        case .stopEarning:
+            Localization.yieldModuleStopEarning
         }
     }
 
@@ -100,6 +99,10 @@ struct YieldModuleBottomSheetView: View {
             Localization.yieldModuleFeePolicySheetDescription(params.tokenName)
         case .earnInfo:
             nil
+        case .approve:
+            Localization.yieldModuleApproveSheetSubtitle
+        case .stopEarning(let params):
+            Localization.yieldModuleStopEarningSheetDescription(params.tokenName)
         }
     }
 
@@ -108,7 +111,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .rateInfo:
             rateInfoSubtitleFooter
-        case .feePolicy, .startEarning, .earnInfo:
+        case .feePolicy, .startEarning, .approve, .stopEarning, .earnInfo:
             EmptyView()
         }
     }
@@ -133,6 +136,10 @@ struct YieldModuleBottomSheetView: View {
             .blackWithTangemIcon(title: Localization.yieldModuleStartEarning)
         case .earnInfo:
             .gray(title: Localization.yieldModuleStopEarning)
+        case .approve:
+            .blackWithTangemIcon(title: Localization.commonConfirm)
+        case .stopEarning:
+            .blackWithTangemIcon(title: Localization.commonConfirm)
         }
     }
 
@@ -141,7 +148,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .earnInfo(let params):
             earnInfoToolbarTitleView(status: params.status)
-        case .startEarning, .feePolicy, .rateInfo:
+        case .approve, .stopEarning, .startEarning, .feePolicy, .rateInfo:
             EmptyView()
         }
     }
@@ -167,6 +174,10 @@ struct YieldModuleBottomSheetView: View {
             EmptyView()
         case .startEarning(let params):
             startEarningTopContent(icon: params.tokenIcon)
+        case .stopEarning:
+            stopEarningTopContent
+        case .approve:
+            approveTopContent
         }
     }
 
@@ -184,6 +195,12 @@ struct YieldModuleBottomSheetView: View {
 
         case .earnInfo(let params):
             YieldModuleEarnInfoView(params: params)
+
+        case .approve(let params):
+            YieldModuleApproveView(params: params)
+
+        case .stopEarning(let params):
+            YieldModuleStopEarningView(params: params)
         }
     }
 
@@ -191,7 +208,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .rateInfo, .startEarning, .earnInfo:
             viewModel.onCloseTapAction
-        case .feePolicy:
+        case .feePolicy, .stopEarning, .approve:
             nil
         }
     }
@@ -200,7 +217,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .rateInfo, .startEarning, .earnInfo:
             nil
-        case .feePolicy:
+        case .feePolicy, .stopEarning, .approve:
             viewModel.onBackAction
         }
     }
@@ -215,9 +232,15 @@ struct YieldModuleBottomSheetView: View {
             viewModel.onBackAction
         case .earnInfo(let params):
             params.onStopEarningAction
+        case .stopEarning(let params):
+            params.mainAction
+        case .approve(let params):
+            params.mainAction
         }
     }
 }
+
+// MARK: - Top Content
 
 private extension YieldModuleBottomSheetView {
     private func startEarningTopContent(icon: Image) -> some View {
@@ -239,6 +262,20 @@ private extension YieldModuleBottomSheetView {
                 )
                 .offset(x: 16)
         }
+    }
+
+    private var approveTopContent: some View {
+        Assets.YieldModule.yieldModuleApprove.image
+            .resizable()
+            .scaledToFit()
+            .frame(size: .init(bothDimensions: 56))
+    }
+
+    private var stopEarningTopContent: some View {
+        Assets.WalletConnect.yellowWarningCircle.image
+            .resizable()
+            .scaledToFit()
+            .frame(size: .init(bothDimensions: 56))
     }
 }
 
