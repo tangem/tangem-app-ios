@@ -24,7 +24,7 @@ struct CardanoWalletAssembly: WalletManagerAssembly {
                 }
 
                 switch $0 {
-                case .getBlock, .tangemRosetta, .nowNodes, .cardanoMock:
+                case .getBlock, .tangemRosetta, .nowNodes:
                     return RosettaNetworkProvider(
                         url: nodeInfo.url,
                         configuration: input.networkInput.tangemProviderConfig,
@@ -37,6 +37,15 @@ struct CardanoWalletAssembly: WalletManagerAssembly {
                         configuration: input.networkInput.tangemProviderConfig,
                         cardanoResponseMapper: cardanoResponseMapper
                     ).eraseToAnyCardanoNetworkProvider()
+                #if DEBUG
+                case .cardanoMock:
+                    return RosettaNetworkProvider(
+                        url: nodeInfo.url,
+                        configuration: input.networkInput.tangemProviderConfig,
+                        cardanoResponseMapper: cardanoResponseMapper
+                    )
+                    .eraseToAnyCardanoNetworkProvider()
+                #endif
                 default:
                     return nil
                 }
