@@ -17,7 +17,7 @@ final class AccountWalletManagersRepositoryAdapter {
     private let walletManagersRepository: WalletManagersRepository
 
     private var isMainAccountAdapter: Bool {
-        derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
+        AccountModelUtils.isMainAccount(derivationIndex)
     }
 
     init(
@@ -33,7 +33,9 @@ final class AccountWalletManagersRepositoryAdapter {
     ) -> [BlockchainNetwork: WalletManager] {
         return walletManagers
             .filter { key, value in
-                // [REDACTED_TODO_COMMENT]
+                // In case of blockchains with multiple derivation paths (like Cardano), the second derivation path
+                // is derived from the first one and has nothing to do with the account functionality
+                // Therefore, we only use the first derivation path
                 guard let derivationPath = key.derivationPaths().first else {
                     // The absence of derivation paths means that this wallet manager belongs to the main account
                     return isMainAccountAdapter
@@ -42,12 +44,11 @@ final class AccountWalletManagersRepositoryAdapter {
                 let helper = AccountDerivationPathHelper(blockchain: key.blockchain)
 
                 guard let derivationNode = helper.extractAccountDerivationNode(from: derivationPath) else {
-                    // The absence of a derivation node at the particular index in the paths means
+                    // The absence of a derivation node at the particular index in the derivation path means
                     // that this wallet manager has default derivation and belongs to the main account
                     return isMainAccountAdapter
                 }
 
-                // [REDACTED_TODO_COMMENT]
                 return derivationNode.rawIndex == UInt32(derivationIndex)
             }
     }
@@ -64,14 +65,5 @@ extension AccountWalletManagersRepositoryAdapter: WalletManagersRepository {
                 return adapter.filterWalletManagers(walletManagers)
             }
             .eraseToAnyPublisher()
-    }
-}
-
-// MARK: - Constants
-
-private extension AccountWalletManagersRepositoryAdapter {
-    enum Constants {
-        static let utxoDerivationNodeIndex = 3
-        static let nonUTXODerivationNodeIndex = 5
     }
 }
