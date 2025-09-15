@@ -78,7 +78,8 @@ struct DerivationConfigV3: DerivationConfig {
              .apeChain,
              .sonic,
              .vanar,
-             .zkLinkNova:
+             .zkLinkNova,
+             .hyperliquidEVM:
             return "m/44'/60'/0'/0/0"
         case .ethereumClassic:
             return "m/44'/61'/0'/0/0"
