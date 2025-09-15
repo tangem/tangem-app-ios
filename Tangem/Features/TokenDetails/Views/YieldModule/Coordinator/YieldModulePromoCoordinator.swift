@@ -36,17 +36,18 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
             lastYearReturns: options.lastYearReturns,
             networkFee: options.networkFee,
             maximumFee: options.maximumFee,
+            feeCurrencyInfo: options.feeCurrencyInfo,
             coordinator: self
         )
     }
 
-    func openRateInfoSheet(params: YieldModuleBottomSheetParams.RateInfoParams) {
+    func openRateInfoSheet(params: YieldModuleParams.RateInfoParams) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .rateInfo(params: params)))
         }
     }
 
-    func openStartEarningSheet(params: YieldModuleBottomSheetParams.StartEarningParams) {
+    func openStartEarningSheet(params: YieldModuleParams.StartEarningParams) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .startEarning(params: params)))
         }
@@ -62,5 +63,6 @@ extension YieldModulePromoCoordinator {
         let networkFee: Decimal
         let maximumFee: Decimal
         let lastYearReturns: [String: Double]
+        let feeCurrencyInfo: YieldModuleParams.FeeCurrencyInfo?
     }
 }

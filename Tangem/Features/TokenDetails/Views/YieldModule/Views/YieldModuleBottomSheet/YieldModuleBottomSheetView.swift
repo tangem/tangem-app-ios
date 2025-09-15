@@ -32,6 +32,7 @@ struct YieldModuleBottomSheetView: View {
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
             content: { mainContent },
+            notificationBanner: notificationBanner,
             closeAction: closeAction,
             backAction: backAction,
             buttonAction: ctaButtonAction,
@@ -147,7 +148,7 @@ struct YieldModuleBottomSheetView: View {
     private var toolBarTitle: some View {
         switch viewModel.flow {
         case .earnInfo(let params):
-            earnInfoToolbarTitleView(status: params.status)
+            earnInfoToolbarTitleView(status: params.status.description)
         case .approve, .stopEarning, .startEarning, .feePolicy, .rateInfo:
             EmptyView()
         }
@@ -222,6 +223,10 @@ struct YieldModuleBottomSheetView: View {
         }
     }
 
+    private var notificationBanner: YieldModuleParams.YieldModuleBottomSheetNotificationBannerParams? {
+        viewModel.createNoficiationBannerIfNeeded()
+    }
+
     private var ctaButtonAction: () -> Void {
         switch viewModel.flow {
         case .startEarning:
@@ -230,8 +235,8 @@ struct YieldModuleBottomSheetView: View {
             viewModel.onCloseTapAction
         case .feePolicy:
             viewModel.onBackAction
-        case .earnInfo(let params):
-            params.onStopEarningAction
+        case .earnInfo:
+            viewModel.onShowApproveSheet
         case .stopEarning(let params):
             params.mainAction
         case .approve(let params):
