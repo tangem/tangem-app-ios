@@ -507,7 +507,6 @@
 		2DE3DF972E72BF7B00A687FC /* QuaiExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE3DF962E72BF7B00A687FC /* QuaiExternalLinkProvider.swift */; };
 		2DE3DF9B2E72C5EF00A687FC /* QuaiAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE3DF9A2E72C5EF00A687FC /* QuaiAddressService.swift */; };
 		2DE3DF9D2E72C6CD00A687FC /* QuaiZoneUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE3DF9C2E72C6CD00A687FC /* QuaiZoneUtils.swift */; };
-		2DE3DFC22E74196B00A687FC /* QuaiWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE3DFC12E74196B00A687FC /* QuaiWalletManagerFactory.swift */; };
 		2DE3DFC42E741DB100A687FC /* QuaiAddressUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE3DFC32E741DB100A687FC /* QuaiAddressUtils.swift */; };
 		2DF1D92A2C2C519C00B1CEE7 /* MarketsChartModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF1D9292C2C519C00B1CEE7 /* MarketsChartModel.swift */; };
 		2DFC278D2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278C2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift */; };
@@ -4678,8 +4677,6 @@
 		2DE3DF962E72BF7B00A687FC /* QuaiExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiExternalLinkProvider.swift; sourceTree = "<group>"; };
 		2DE3DF9A2E72C5EF00A687FC /* QuaiAddressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiAddressService.swift; sourceTree = "<group>"; };
 		2DE3DF9C2E72C6CD00A687FC /* QuaiZoneUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiZoneUtils.swift; sourceTree = "<group>"; };
-		2DE3DFC02E7415A400A687FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2DE3DFC12E74196B00A687FC /* QuaiWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiWalletManagerFactory.swift; sourceTree = "<group>"; };
 		2DE3DFC32E741DB100A687FC /* QuaiAddressUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiAddressUtils.swift; sourceTree = "<group>"; };
 		2DF1D9292C2C519C00B1CEE7 /* MarketsChartModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsChartModel.swift; sourceTree = "<group>"; };
 		2DFC278C2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenContextActionsSectionBuilder.swift; sourceTree = "<group>"; };
@@ -18546,7 +18543,6 @@
 			children = (
 				DCBF4D162D8B497F002C2B8E /* AnyWalletManagerFactory.swift */,
 				DCBF4D172D8B497F002C2B8E /* CardanoWalletManagerFactory.swift */,
-				2DE3DFC12E74196B00A687FC /* QuaiWalletManagerFactory.swift */,
 				DCBF4D182D8B497F002C2B8E /* GenericWalletManagerFactory.swift */,
 				DCBF4D192D8B497F002C2B8E /* HDWalletManagerFactory.swift */,
 				DCBF4D1A2D8B497F002C2B8E /* SimpleWalletManagerFactory.swift */,
@@ -24081,7 +24077,6 @@
 				EF5F54692C875D9500B7D1E7 /* StakingDetailsStakeViewData.swift in Sources */,
 				EF977CBA2C774B8E006BB27C /* MultipleRewardsCoordinatorView.swift in Sources */,
 				EFC84AC02C35CB2000546882 /* SendFinishView.swift in Sources */,
-				2DE3DFC22E74196B00A687FC /* QuaiWalletManagerFactory.swift in Sources */,
 				B6FCEE732C40E16100CA9252 /* CGAffineTransform+.swift in Sources */,
 				EFF2A52B2C60B70A007DB0C1 /* StakingNotificationManager.swift in Sources */,
 				EA4032352E54C11E00573568 /* PromocodeActivationView.swift in Sources */,
