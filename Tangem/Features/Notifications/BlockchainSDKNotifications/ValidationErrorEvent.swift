@@ -10,6 +10,7 @@ import Foundation
 import TangemLocalization
 import SwiftUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 enum ValidationErrorEvent: Hashable {
     // Amount/Fee notifications

@@ -32,6 +32,9 @@ public enum NetworkProviderType {
     case onfinality
     case koinosPro
     case tangemAlephium
+    #if DEBUG
+    case cardanoMock
+    #endif
 }
 
 struct NodeInfo: HostProvider {

@@ -65,6 +65,10 @@ struct APIKeysInfoProvider {
             )
         case .public, .quickNode, .getBlock, .blockchair, .blockcypher, .infura, .adalite, .tangemRosetta, .solana, .kaspa, .dwellir, .none:
             return nil
+        #if DEBUG
+        case .cardanoMock:
+            return nil
+        #endif
         }
     }
 }
