@@ -2106,9 +2106,6 @@
 		B665F6752E665E3600A0A9BF /* CryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6742E665E3600A0A9BF /* CryptoAccountsNetworkService.swift */; };
 		B665F6772E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6762E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift */; };
 		B665F6792E66E9D600A0A9BF /* CommonCryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6782E66E9D600A0A9BF /* CommonCryptoAccountsNetworkService.swift */; };
-		B665F6752E665E3600A0A9BF /* CryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6742E665E3600A0A9BF /* CryptoAccountsNetworkService.swift */; };
-		B665F6772E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6762E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift */; };
-		B665F6792E66E9D600A0A9BF /* CommonCryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6782E66E9D600A0A9BF /* CommonCryptoAccountsNetworkService.swift */; };
 		B6662CF82E72541500198D8D /* TangemAPIErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6662CF72E72541500198D8D /* TangemAPIErrorMapper.swift */; };
 		B6662CFA2E72C9FD00198D8D /* TangemAPIHeaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6662CF92E72C9FD00198D8D /* TangemAPIHeaders.swift */; };
 		B66655712C6EC901001E2C68 /* UIView.AnimationCurve+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66655702C6EC901001E2C68 /* UIView.AnimationCurve+.swift */; };
@@ -6289,9 +6286,6 @@
 		B65E1F082A94CFB000A58DDE /* OrganizeTokensDragAndDropActionsCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensDragAndDropActionsCache.swift; sourceTree = "<group>"; };
 		B660157C2C7F3A3A0013D92D /* MarketsHistoryChartYAxisValueFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsHistoryChartYAxisValueFormatter.swift; sourceTree = "<group>"; };
 		B6654ACB2B5EB73200249008 /* CommonRateAppController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonRateAppController.swift; sourceTree = "<group>"; };
-		B665F6742E665E3600A0A9BF /* CryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
-		B665F6762E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkServiceError.swift; sourceTree = "<group>"; };
-		B665F6782E66E9D600A0A9BF /* CommonCryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
 		B665F6742E665E3600A0A9BF /* CryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
 		B665F6762E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkServiceError.swift; sourceTree = "<group>"; };
 		B665F6782E66E9D600A0A9BF /* CommonCryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
@@ -14995,16 +14989,6 @@
 				B660157C2C7F3A3A0013D92D /* MarketsHistoryChartYAxisValueFormatter.swift */,
 			);
 			path = Formatters;
-			sourceTree = "<group>";
-		};
-		B665F6732E665E0900A0A9BF /* Network */ = {
-			isa = PBXGroup;
-			children = (
-				B665F6742E665E3600A0A9BF /* CryptoAccountsNetworkService.swift */,
-				B665F6762E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift */,
-				B665F6782E66E9D600A0A9BF /* CommonCryptoAccountsNetworkService.swift */,
-			);
-			path = Network;
 			sourceTree = "<group>";
 		};
 		B665F6732E665E0900A0A9BF /* Network */ = {
