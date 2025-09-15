@@ -67,7 +67,7 @@ extension ExpressInteractorWalletWrapper: ExpressInteractorSourceWallet {
     var defaultAddressString: String { walletModel.defaultAddressString }
     var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? { walletModel.sendingRestrictions }
     var amountToCreateAccount: Decimal {
-        if case .noAccount(_, let amount) = walletModel.state {
+        if case .noAccount(_, let amount) = walletModel.walletModelState {
             return amount
         }
 

@@ -11,5 +11,5 @@ import Combine
 
 /// YieldModule feature availability for a particular wallet.
 protocol YieldModuleAvailabilityProvider {
-    func isYieldModuleAvailable() -> Bool
+    func isYieldModuleAvailable(for: TokenItem) -> Bool
 }
