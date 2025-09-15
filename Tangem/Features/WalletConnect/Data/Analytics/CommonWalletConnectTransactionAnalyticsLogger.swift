@@ -8,42 +8,19 @@
 
 final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransactionAnalyticsLogger {
     func logSignatureRequestReceived(transactionData: WCHandleTransactionData, simulationState: TransactionSimulationState) {
-        let securityAlertEvent: Analytics.Event?
-        let securityAlertParamKey: Analytics.ParameterKey?
-        let securityAlertParamValue: Analytics.ParameterValue?
         let emulationStatus: Analytics.ParameterValue
+        let simulationResult = getSimulationResult(from: simulationState)
 
         switch simulationState {
         case .loading:
             assertionFailure("Invalid simulation state. Developer mistake.")
             return
         case .simulationNotSupported:
-            securityAlertEvent = nil
-            securityAlertParamKey = nil
-            securityAlertParamValue = nil
             emulationStatus = .walletConnectTransactionEmulationStatusCantEmulate
         case .simulationFailed:
-            securityAlertEvent = nil
-            securityAlertParamKey = nil
-            securityAlertParamValue = nil
             emulationStatus = .error
-        case .simulationSucceeded(let scanResult):
+        case .simulationSucceeded:
             emulationStatus = .walletConnectTransactionEmulationStatusEmulated
-
-            switch scanResult.validationStatus {
-            case .malicious, .warning:
-                securityAlertEvent = .walletConnectSecurityAlertShown
-                securityAlertParamKey = .commonType
-                securityAlertParamValue = .walletConnectSecurityAlertRisky
-            case .benign:
-                securityAlertEvent = nil
-                securityAlertParamKey = nil
-                securityAlertParamValue = nil
-            case nil:
-                securityAlertEvent = .walletConnectSecurityAlertShown
-                securityAlertParamKey = .commonType
-                securityAlertParamValue = .unknown
-            }
         }
 
         let signatureRequestReceivedEvent = Analytics.Event.walletConnectSignatureRequestReceived
@@ -53,29 +30,22 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
             .walletConnectBlockchain: transactionData.blockchain.displayName,
             .walletConnectTransactionEmulationStatus: emulationStatus.rawValue,
+            .commonType: simulationResult.rawValue,
         ]
 
         Analytics.log(event: signatureRequestReceivedEvent, params: signatureRequestReceivedParams)
-
-        guard let securityAlertEvent, let securityAlertParamKey, let securityAlertParamValue else { return }
-
-        let securityAlertParams: [Analytics.ParameterKey: String] = [
-            securityAlertParamKey: securityAlertParamValue.rawValue,
-            .source: Analytics.ParameterValue.walletConnectSecurityAlertSourceSmartContract.rawValue,
-            .walletConnectDAppName: transactionData.dAppData.name,
-            .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
-        ]
-
-        Analytics.log(event: securityAlertEvent, params: securityAlertParams)
     }
 
-    func logSignatureRequestHandled(transactionData: WCHandleTransactionData) {
+    func logSignatureRequestHandled(transactionData: WCHandleTransactionData, simulationState: TransactionSimulationState) {
         let event = Analytics.Event.walletConnectSignatureRequestHandled
+        let simulationResult = getSimulationResult(from: simulationState)
+
         let params: [Analytics.ParameterKey: String] = [
             .methodName: transactionData.method.rawValue,
             .walletConnectDAppName: transactionData.dAppData.name,
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
             .walletConnectBlockchain: transactionData.blockchain.displayName,
+            .commonType: simulationResult.rawValue,
         ]
 
         Analytics.log(event: event, params: params)
@@ -89,6 +59,7 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
             .walletConnectBlockchain: transactionData.blockchain.displayName,
             .errorCode: "\(error.universalErrorCode)",
+            .errorDescription: error.localizedDescription,
         ]
 
         Analytics.log(event: event, params: params)
@@ -112,5 +83,24 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
 
     func logCancelButtonTapped() {
         Analytics.log(.walletConnectCancelButtonTapped, params: [.commonType: .sign])
+    }
+
+    private func getSimulationResult(from simulationState: TransactionSimulationState) -> Analytics.ParameterValue {
+        if case .simulationSucceeded(let result) = simulationState {
+            return result.validationStatus?.analyticsTypeValue ?? .unknown
+        }
+
+        return .unknown
+    }
+}
+
+private extension BlockaidChainScanResult.ValidationStatus {
+    var analyticsTypeValue: Analytics.ParameterValue {
+        switch self {
+        case .malicious, .warning:
+            Analytics.ParameterValue.walletConnectRisky
+        case .benign:
+            Analytics.ParameterValue.walletConnectVerified
+        }
     }
 }

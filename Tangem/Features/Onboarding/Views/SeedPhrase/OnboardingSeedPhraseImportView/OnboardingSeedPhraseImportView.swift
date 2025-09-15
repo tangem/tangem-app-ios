@@ -15,6 +15,8 @@ import TangemUIUtils
 struct OnboardingSeedPhraseImportView: View {
     @ObservedObject var viewModel: OnboardingSeedPhraseImportViewModel
 
+    @State private var isResponder: Bool = false
+
     var body: some View {
         ZStack {
             ScrollView(showsIndicators: false) {
@@ -28,7 +30,7 @@ struct OnboardingSeedPhraseImportView: View {
 
                         SeedPhraseTextView(
                             inputProcessor: viewModel.inputProcessor,
-                            shouldBecomeFirstResponderOnDidAppear: true
+                            isResponder: isResponder
                         )
                         .screenCaptureProtection()
                         .padding(.horizontal, 16)
@@ -37,6 +39,12 @@ struct OnboardingSeedPhraseImportView: View {
                         .cornerRadiusContinuous(14)
                         .frame(minHeight: 114, maxHeight: 154)
                         .padding(.top, 20)
+                        .onDidAppear {
+                            isResponder = true
+                        }
+                        .onWillDisappear {
+                            isResponder = false
+                        }
 
                         if let inputError = viewModel.inputError {
                             Text(inputError)
