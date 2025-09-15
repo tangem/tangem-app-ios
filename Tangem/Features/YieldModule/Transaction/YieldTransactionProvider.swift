@@ -29,7 +29,7 @@ final class YieldTransactionProvider {
     }
 
     // MARK: - Deploy
-    
+
     func deployTransactions(
         yieldModule: String,
         balance: BigUInt,
@@ -57,7 +57,7 @@ final class YieldTransactionProvider {
 
         return [deployTransaction, approveTransaction, enterResult]
     }
-    
+
     // MARK: - Init
 
     func initTransactions(
@@ -95,7 +95,7 @@ final class YieldTransactionProvider {
 
         return transactions
     }
-    
+
     // MARK: - Reactivate
 
     func reactivateTransactions(
@@ -105,13 +105,13 @@ final class YieldTransactionProvider {
     ) async throws -> [Transaction] {
         var transactions = [Transaction]()
 
-        let initModuleTransaction = try await reactivateTokenTransaction(
+        let reactivateTokenTransaction = try await reactivateTokenTransaction(
             contractAddress: contractAddress,
             yieldModule: yieldModule,
             fee: fee.reactivateFee
         )
 
-        transactions.append(initModuleTransaction)
+        transactions.append(reactivateTokenTransaction)
 
         if let approveFee = fee.enterFee.approveFee {
             let requestPermissionsTransaction = try await requestPermissionTransaction(
@@ -133,7 +133,35 @@ final class YieldTransactionProvider {
 
         return transactions
     }
-    
+
+    func enterTransactions(
+        contractAddress: String,
+        yieldModule: String,
+        fee: EnterFee
+    ) async throws -> [Transaction] {
+        var transactions = [Transaction]()
+
+        if let approveFee = fee.approveFee {
+            let requestPermissionsTransaction = try await requestPermissionTransaction(
+                contractAddress: contractAddress,
+                yieldModule: yieldModule,
+                fee: approveFee
+            )
+
+            transactions.append(requestPermissionsTransaction)
+        }
+
+        let enterResult = try await enterTransaction(
+            contractAddress: contractAddress,
+            yieldModule: yieldModule,
+            fee: fee.enterFee
+        )
+
+        transactions.append(enterResult)
+
+        return transactions
+    }
+
     // MARK: - Exit
 
     func exitTransactions(
@@ -143,7 +171,7 @@ final class YieldTransactionProvider {
     ) async throws -> [Transaction] {
         let method = WithdrawAndDeactivateMethod(yieldTokenAddress: contractAddress)
 
-        return try await [transaction(yieldModule: yieldModule, txData: method.data, fee: fee.fee)]
+        return try await [transaction(contractAddress: yieldModule, txData: method.data, fee: fee.fee)]
     }
 }
 
@@ -155,8 +183,9 @@ private extension YieldTransactionProvider {
         yieldModule: String,
         fee: Fee
     ) async throws -> Transaction {
-        let data = try transactionBuilder.buildForApprove(spender: contractAddress, amount: .greatestFiniteMagnitude)
-        return try await transaction(yieldModule: yieldModule, txData: data, fee: fee)
+        let data = try transactionBuilder.buildForApprove(spender: yieldModule, amount: .greatestFiniteMagnitude)
+
+        return try await transaction(contractAddress: contractAddress, txData: data, fee: fee)
     }
 
     private func deployTransaction(address: String, contractAddress: String, fee: Fee) async throws -> Transaction {
@@ -167,7 +196,7 @@ private extension YieldTransactionProvider {
         )
 
         return try await transaction(
-            yieldModule: YieldConstants.yieldModuleFactoryContractAddress,
+            contractAddress: YieldConstants.yieldModuleFactoryContractAddress,
             txData: deployAction.data,
             fee: fee,
         )
@@ -179,7 +208,7 @@ private extension YieldTransactionProvider {
             maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue)!
         )
 
-        return try await transaction(yieldModule: yieldModule, txData: smartContract.data, fee: fee)
+        return try await transaction(contractAddress: yieldModule, txData: smartContract.data, fee: fee)
     }
 
     func reactivateTokenTransaction(
@@ -192,7 +221,7 @@ private extension YieldTransactionProvider {
             maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue)!
         )
 
-        return try await transaction(yieldModule: yieldModule, txData: smartContract.data, fee: fee)
+        return try await transaction(contractAddress: yieldModule, txData: smartContract.data, fee: fee)
     }
 
     private func initTokenTransaction(
@@ -205,7 +234,7 @@ private extension YieldTransactionProvider {
             maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue)!
         )
 
-        return try await transaction(yieldModule: yieldModule, txData: smartContract.data, fee: fee)
+        return try await transaction(contractAddress: yieldModule, txData: smartContract.data, fee: fee)
     }
 
     private func enterTransaction(
@@ -217,15 +246,15 @@ private extension YieldTransactionProvider {
             yieldTokenAddress: contractAddress
         )
 
-        return try await transaction(yieldModule: yieldModule, txData: enterAction.data, fee: fee)
+        return try await transaction(contractAddress: yieldModule, txData: enterAction.data, fee: fee)
     }
 
-    private func transaction(yieldModule: String, txData: Data, fee: Fee) async throws -> Transaction {
+    private func transaction(contractAddress: String, txData: Data, fee: Fee) async throws -> Transaction {
         try await transactionCreator.createTransaction(
             amount: Amount(with: token, value: .zero),
             fee: fee,
-            destinationAddress: yieldModule,
-            contractAddress: yieldModule,
+            destinationAddress: contractAddress,
+            contractAddress: contractAddress,
             params: EthereumTransactionParams(data: txData)
         )
     }

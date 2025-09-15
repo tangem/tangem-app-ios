@@ -157,7 +157,8 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 let featureManager = CommonWalletModelFeaturesManager(
                     userWalletId: userWalletId,
                     userWalletConfig: config,
-                    tokenItem: tokenItem
+                    tokenItem: tokenItem,
+                    walletManager: walletManager
                 )
                 let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: amountType)
                 let tokenModel = CommonWalletModel(

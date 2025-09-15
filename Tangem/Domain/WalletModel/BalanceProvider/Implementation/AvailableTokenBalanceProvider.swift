@@ -11,8 +11,11 @@ import Combine
 import TangemFoundation
 
 protocol AvailableTokenBalanceProviderInput: AnyObject {
-    var state: WalletModelState { get }
-    var statePublisher: AnyPublisher<WalletModelState, Never> { get }
+    var walletModelState: WalletModelState { get }
+    var walletModelStatePublisher: AnyPublisher<WalletModelState, Never> { get }
+
+    var yieldModuleManagerState: YieldModuleWalletManagerState? { get }
+    var yieldModuleManagerStatePublisher: AnyPublisher<YieldModuleWalletManagerState, Never> { get }
 }
 
 /// Just simple available to use (e.g. send) balance
@@ -46,7 +49,14 @@ extension AvailableTokenBalanceProvider: TokenBalanceProvider {
             return .empty(.noData)
         }
 
-        return mapToTokenBalance(state: strongInput.state)
+        switch strongInput.yieldModuleManagerState {
+        case .enabled(.loading):
+            return mapToTokenBalance(yieldModuleManagerState: .loading)
+        case .enabled(.loaded(let state)) where state.smartContractState.balance != nil:
+            return mapToTokenBalance(yieldModuleManagerState: .loaded(state))
+        default:
+            return mapToTokenBalance(state: strongInput.walletModelState)
+        }
     }
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
@@ -55,8 +65,18 @@ extension AvailableTokenBalanceProvider: TokenBalanceProvider {
             return Empty().eraseToAnyPublisher()
         }
 
-        return strongInput.statePublisher
-            .map { self.mapToTokenBalance(state: $0) }
+        return strongInput.walletModelStatePublisher
+            .combineLatest(strongInput.yieldModuleManagerStatePublisher)
+            .map { walletModelState, yieldModuleState in
+                switch yieldModuleState {
+                case .enabled(.loading):
+                    return self.mapToTokenBalance(yieldModuleManagerState: .loading)
+                case .enabled(.loaded(let state)) where state.smartContractState.balance != nil:
+                    return self.mapToTokenBalance(yieldModuleManagerState: .loaded(state))
+                default:
+                    return self.mapToTokenBalance(state: walletModelState)
+                }
+            }
             .eraseToAnyPublisher()
     }
 
@@ -107,6 +127,18 @@ private extension AvailableTokenBalanceProvider {
             return .empty(.noAccount(message: message))
         case .failed:
             return .failure(cachedBalance())
+        }
+    }
+
+    func mapToTokenBalance(yieldModuleManagerState: LoadingValue<YieldModuleWalletManagerStateInfo>) -> TokenBalanceType {
+        switch yieldModuleManagerState {
+        case .loading:
+            return .loading(cachedBalance())
+        case .loaded(let state):
+            let balance = state.smartContractState.balance ?? .zero
+            storeBalance(balance: balance)
+            return .loaded(balance)
+        case .failedToLoad: return .failure(cachedBalance())
         }
     }
 

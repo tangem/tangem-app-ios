@@ -73,30 +73,30 @@ final class CommonWalletModelFeaturesManager {
 
     // [REDACTED_TODO_COMMENT]
     private lazy var transactionHistoryFeaturePublisher: some Publisher<[WalletModelFeature], Never> = Just([])
-    
+
     // MARK: - Yield module
-    
+
     private lazy var yieldModuleFeaturePublisher: some Publisher<[WalletModelFeature], Never> = {
         let publisher: Just<[WalletModelFeature]> = if let factory = yieldModuleManagerFactory {
-            Just([WalletModelFeature.yieldModule(managerFactory: factory)])
+            Just([WalletModelFeature.yieldModule(factory: factory)])
         } else {
             Just([])
         }
         return publisher.eraseToAnyPublisher()
     }()
-    
+
     private var isYieldModuleAvailable: Bool {
-        yieldModuleAvailabilityProvider.isYieldModuleAvailable()
+        yieldModuleAvailabilityProvider.isYieldModuleAvailable(for: tokenItem)
     }
-    
-    private var _yieldModuleManagerFactory: YieldModuleManagerFactory?
-    private var yieldModuleManagerFactory: YieldModuleManagerFactory? {
+
+    private var _yieldModuleManagerFactory: YieldModuleWalletManagerFactory?
+    private var yieldModuleManagerFactory: YieldModuleWalletManagerFactory? {
         if isYieldModuleAvailable,
            let token = tokenItem.token,
            let ethereumNetworkProvider = walletManager as? EthereumNetworkProvider,
-           let yieldTokenService = walletManager as? YieldTokenService,
+           let yieldTokenService = (walletManager as YieldServiceProvider).yieldService,
            let ethereumTransactionDataBuilder = walletManager as? EthereumTransactionDataBuilder {
-            let factory = _yieldModuleManagerFactory ?? CommonYieldModuleManagerFactory(
+            let factory = _yieldModuleManagerFactory ?? CommonYieldModuleWalletManagerFactory(
                 token: token,
                 blockchain: tokenItem.blockchain,
                 signer: userWalletConfig.tangemSigner,

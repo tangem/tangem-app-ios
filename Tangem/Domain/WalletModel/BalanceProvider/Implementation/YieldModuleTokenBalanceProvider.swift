@@ -10,8 +10,8 @@ import Foundation
 import Combine
 
 protocol YieldModuleTokenBalanceProviderInput: AnyObject {
-    var state: WalletModelState { get }
-    var statePublisher: AnyPublisher<WalletModelState, Never> { get }
+    var yieldModuleManagerState: YieldModuleWalletManagerState? { get }
+    var yieldModuleManagerStatePublisher: AnyPublisher<YieldModuleWalletManagerState, Never> { get }
 }
 
 /// Used as available balance when yield module is active
@@ -45,7 +45,7 @@ extension YieldModuleTokenBalanceProvider: TokenBalanceProvider {
             return .empty(.noData)
         }
 
-        return mapToTokenBalance(state: strongInput.state)
+        return mapToYieldModuleBalance(state: strongInput.yieldModuleManagerState)
     }
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
@@ -54,18 +54,18 @@ extension YieldModuleTokenBalanceProvider: TokenBalanceProvider {
             return Empty().eraseToAnyPublisher()
         }
 
-        return strongInput.statePublisher
-            .map { self.mapToTokenBalance(state: $0) }
+        return strongInput.yieldModuleManagerStatePublisher
+            .map { self.mapToYieldModuleBalance(state: $0) }
             .eraseToAnyPublisher()
     }
 
     var formattedBalanceType: FormattedTokenBalanceType {
-        mapToFormattedTokenBalanceType(type: balanceType)
+        mapToFormattedYieldModuleBalanceType(type: balanceType)
     }
 
     var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
         balanceTypePublisher
-            .map { self.mapToFormattedTokenBalanceType(type: $0) }
+            .map { self.mapToFormattedYieldModuleBalanceType(type: $0) }
             .eraseToAnyPublisher()
     }
 }
@@ -80,36 +80,25 @@ private extension YieldModuleTokenBalanceProvider {
 
     func cachedBalance() -> TokenBalanceType.Cached? {
         tokenBalancesRepository
-            .balance(walletModelId: walletModelId, type: .available)
+            .balance(walletModelId: walletModelId, type: .yieldModule)
             .map { .init(balance: $0.balance, date: $0.date) }
     }
 
-    func mapToTokenBalance(state: WalletModelState) -> TokenBalanceType {
-        // The `binance` always has zero balance
-        if case .binance = tokenItem.blockchain {
-            return .loaded(0)
-        }
-
+    func mapToYieldModuleBalance(state: YieldModuleWalletManagerState?) -> TokenBalanceType {
         switch state {
-        case .created:
-            // Return `.loading` because we assume
-            // that loading should start anyway
-            // and to avoid any UI empty states
+        case .none, .notEnabled:
+            return .empty(.noData)
+        case .enabled(.loading):
             return .loading(cachedBalance())
-        case .loading:
-            return .loading(cachedBalance())
-        case .loaded(let balance):
+        case .enabled(.loaded(let state)):
+            let balance = state.smartContractState.balance ?? .zero
             storeBalance(balance: balance)
             return .loaded(balance)
-        case .noAccount(let message, _):
-            storeBalance(balance: .zero)
-            return .empty(.noAccount(message: message))
-        case .failed:
-            return .failure(cachedBalance())
+        case .enabled(.failedToLoad): return .failure(cachedBalance())
         }
     }
 
-    func mapToFormattedTokenBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
+    func mapToFormattedYieldModuleBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
         let currencyCode = tokenItem.currencySymbol
         let builder = FormattedTokenBalanceTypeBuilder(format: { [balanceFormatter] value in
             balanceFormatter.formatCryptoBalance(value, currencyCode: currencyCode)
