@@ -11,7 +11,7 @@ import Combine
 import TangemExpress
 
 final class NewOnrampViewModel: ObservableObject, Identifiable {
-    @Published private(set) var onrampAmountViewModel: OnrampAmountViewModel
+    @Published private(set) var onrampAmountViewModel: NewOnrampAmountViewModel
     @Published private(set) var onrampProvidersCompactViewModel: OnrampProvidersCompactViewModel
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
@@ -25,7 +25,7 @@ final class NewOnrampViewModel: ObservableObject, Identifiable {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        onrampAmountViewModel: OnrampAmountViewModel,
+        onrampAmountViewModel: NewOnrampAmountViewModel,
         onrampProvidersCompactViewModel: OnrampProvidersCompactViewModel,
         notificationManager: NotificationManager,
         interactor: OnrampInteractor
