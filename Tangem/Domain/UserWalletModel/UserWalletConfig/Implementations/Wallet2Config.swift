@@ -25,14 +25,6 @@ struct Wallet2Config {
 }
 
 extension Wallet2Config: UserWalletConfig {
-    var cardSetLabel: String? {
-        guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
-            return nil
-        }
-
-        return Localization.cardLabelCardCount(backupCardsCount + 1)
-    }
-
     var cardsCount: Int {
         if let backupCardsCount = card.backupStatus?.backupCardsCount {
             return backupCardsCount + 1
@@ -257,7 +249,7 @@ extension Wallet2Config: UserWalletConfig {
         case "AF85", "AF86", "AF87", "AF990011", "AF990012", "AF990013":
             return cardsCount == 2 ? Assets.Cards.winter2Double : Assets.Cards.winter2Triple
         // USA
-        case "AF91":
+        case "AF91", "AF990017":
             return cardsCount == 2 ? Assets.Cards.usaDouble : Assets.Cards.usaTriple
         // Gets Mine
         case "BB000008":
@@ -426,6 +418,16 @@ extension Wallet2Config: UserWalletConfig {
             return .available
         case .nft:
             return .available
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
+        case .userWalletAccessCode:
+            return .hidden
+        case .userWalletBackup:
+            return .hidden
+        case .isBalanceRestrictionActive:
+            return .hidden
         }
     }
 

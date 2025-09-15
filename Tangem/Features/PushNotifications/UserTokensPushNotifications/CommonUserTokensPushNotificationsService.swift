@@ -28,43 +28,21 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     private var initialSubscription: AnyCancellable?
     private var permissionSubscription: AnyCancellable?
+    private var appSettingsSubscription: AnyCancellable?
+    private var eventProviderSubscription: AnyCancellable?
+
     private var reproducedBag: Set<AnyCancellable> = []
+
     private var updateStateTask: Task<Void, Never>?
 
     /// Subject for synchronizing the initialization request and receiving events from userWalletRepository.
     private var _syncEventSubject: PassthroughSubject<Void, Never> = .init()
 
+    /// Caches the latest `UserWalletRepositoryEvent` to avoid losing events emitted before initialization completes
+    private var _userWalletEventSubject: CurrentValueSubject<UserWalletRepositoryEvent?, Never> = .init(nil)
+
     private var applicationUid: String {
         AppSettings.shared.applicationUid
-    }
-
-    // MARK: - Implementation
-
-    /// Initializes the push notifications service.
-    /// Checks the registration of appUid (creates or updates the application on the server),
-    /// updates the isInitialized flag, and fetches the list of wallets linked to the appUid.
-    /// After successful initialization, sends a synchronization event.
-    func initialize() {
-        guard FeatureProvider.isAvailable(.pushTransactionNotifications) else {
-            return
-        }
-
-        runTask(in: self) { service in
-            let fcmToken = Messaging.messaging().fcmToken ?? ""
-
-            switch service.defineInitializeType() {
-            case .create:
-                await service.createApplication(fcmToken: fcmToken)
-            case .update:
-                await service.updateApplication(fcmToken: fcmToken)
-            }
-
-            await service.update(isInitialized: true)
-
-            await service.fetchEntries()
-
-            service._syncEventSubject.send(())
-        }
     }
 
     // MARK: - Private Implementation
@@ -79,8 +57,15 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     /// Subscribes to repository changes using combineLatest to ensure the service is fully initialized before handling events.
     private func bind() {
+        // Bridge repository events into a replayable subject
+        eventProviderSubscription = userWalletRepository.eventProvider
+            .withWeakCaptureOf(self)
+            .sink { service, event in
+                service._userWalletEventSubject.send(event)
+            }
+
         initialSubscription = _syncEventSubject
-            .combineLatest(userWalletRepository.eventProvider)
+            .combineLatest(_userWalletEventSubject.compactMap { $0 })
             .map(\.1)
             .receiveOnMain()
             .withWeakCaptureOf(self)
@@ -92,6 +77,7 @@ final class CommonUserTokensPushNotificationsService: NSObject {
         permissionSubscription = _syncEventSubject
             .combineLatest(pushNotificationsInteractor.permissionRequestPublisher)
             .map(\.1)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { service, request in
                 guard case .allow(.afterLogin) = request else {
@@ -99,6 +85,24 @@ final class CommonUserTokensPushNotificationsService: NSObject {
                 }
 
                 service.permissionRequestInitialPushAllowanceForExistingWallets()
+            }
+
+        /*
+         This subscription is needed for workaround to enable biometrics and change the status of push notifications. Since the wallet repository does not generate any events. Filtering is only true because disabling push biometrics generates events in the wallet repository and there is no need to track false
+         */
+        appSettingsSubscription = _syncEventSubject
+            .combineLatest(AppSettings
+                .shared
+                .$saveUserWallets
+                .dropFirst()
+                .removeDuplicates()
+            )
+            .map(\.1)
+            .filter { $0 }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { service, _ in
+                service.updateState()
             }
     }
 
@@ -108,7 +112,7 @@ final class CommonUserTokensPushNotificationsService: NSObject {
         reproducedBag.removeAll()
 
         userWalletRepository.models.map {
-            $0.userWalletNamePublisher.dropFirst()
+            $0.updatePublisher.compactMap(\.newName)
         }
         .merge()
         .withWeakCaptureOf(self)
@@ -127,6 +131,7 @@ final class CommonUserTokensPushNotificationsService: NSObject {
     private func handleUserWalletUpdates(by event: UserWalletRepositoryEvent) {
         switch event {
         case .inserted, .unlocked, .deleted, .unlockedBiometrics:
+            AppLogger.info("Did receive event: \(event)")
             updateState()
         default:
             return
@@ -152,6 +157,33 @@ extension CommonUserTokensPushNotificationsService: UserTokensPushNotificationsS
 
     var entriesPublisher: AnyPublisher<[ApplicationWalletEntry], Never> {
         _applicationEntries.eraseToAnyPublisher()
+    }
+
+    /// Initializes the push notifications service.
+    /// Checks the registration of appUid (creates or updates the application on the server),
+    /// updates the isInitialized flag, and fetches the list of wallets linked to the appUid.
+    /// After successful initialization, sends a synchronization event.
+    func initialize() {
+        runTask(in: self) { service in
+            guard FeatureProvider.isAvailable(.pushTransactionNotifications) else {
+                return
+            }
+
+            let fcmToken = Messaging.messaging().fcmToken ?? ""
+
+            switch service.defineInitializeType() {
+            case .create:
+                await service.createApplication(fcmToken: fcmToken)
+            case .update:
+                await service.updateApplication(fcmToken: fcmToken)
+            }
+
+            await service.update(isInitialized: true)
+
+            await service.fetchEntries()
+
+            service._syncEventSubject.send(())
+        }
     }
 
     func updateWallet(notifyStatus: Bool, by userWalletId: String) {
@@ -183,7 +215,7 @@ private extension CommonUserTokensPushNotificationsService {
             let response = try await tangemApiService.createUserWalletsApplications(requestModel: requestModel)
 
             await MainActor.run {
-                AppLogger.info("Application uid: \(response.uid)")
+                AppLogger.info("Application has been created for uid: \(response.uid)")
                 AppSettings.shared.applicationUid = response.uid
                 AppSettings.shared.lastStoredFCMToken = fcmToken
             }
@@ -201,7 +233,7 @@ private extension CommonUserTokensPushNotificationsService {
                 AppSettings.shared.lastStoredFCMToken = fcmToken
             }
 
-            AppLogger.info("Application did updated by uid: \(applicationUid)")
+            AppLogger.info("Application has been updated for uid: \(applicationUid)")
         } catch {
             AppLogger.error(error: error)
         }
@@ -351,7 +383,7 @@ private extension CommonUserTokensPushNotificationsService {
             return
         }
 
-        userWalletModel.updateWalletName(name)
+        userWalletModel.update(type: .newName(name))
     }
 }
 
@@ -387,8 +419,6 @@ private extension CommonUserTokensPushNotificationsService {
         let allowanceUserWalletIdTransactionsPush = AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue)
 
         if !allowanceUserWalletIdTransactionsPush {
-            AppSettings.shared.allowanceUserWalletIdTransactionsPush.append(userWalletId.stringValue)
-
             // We will force the update of the push stats on the backend, provided that the system permissions have been issued in definePushNotifyStatus
             return true
         }
@@ -419,7 +449,7 @@ extension CommonUserTokensPushNotificationsService {
 extension CommonUserTokensPushNotificationsService: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         runTask(in: self) { service in
-            // Skip when service did not initilized
+            // Skip when service is not initialized
             guard await service.isInitialized else {
                 return
             }

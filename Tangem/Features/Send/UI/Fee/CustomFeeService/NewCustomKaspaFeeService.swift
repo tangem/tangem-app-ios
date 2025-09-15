@@ -18,9 +18,15 @@ class NewCustomKaspaFeeService {
     private lazy var customFeeTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
 
     private let customFee = CurrentValueSubject<Fee?, Never>(nil)
+
+    private var cachedCustomFee: Fee?
     private var initialCustomFee: Fee
     private var customFeeEnricher: KaspaKRC20FeeParametersEnricher?
     private var bag: Set<AnyCancellable> = []
+
+    private var zeroFee: Fee {
+        Fee(Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: .zero))
+    }
 
     init(
         tokenItem: TokenItem,
@@ -60,7 +66,8 @@ class NewCustomKaspaFeeService {
     }
 
     private func onFieldChange(decimalValue: Decimal?) {
-        guard let decimalValue else {
+        guard let decimalValue, decimalValue > 0 else {
+            customFee.send(zeroFee)
             return
         }
 
@@ -102,8 +109,19 @@ extension NewCustomKaspaFeeService: CustomFeeService {
         initialCustomFee = fee
         customFeeEnricher = KaspaKRC20FeeParametersEnricher(existingFeeParameters: fee.parameters)
     }
+}
 
-    func selectorCustomFeeRowViewModels() -> [FeeSelectorCustomFeeRowViewModel] {
+// MARK: - FeeSelectorCustomFeeFieldsBuilder
+
+extension NewCustomKaspaFeeService: FeeSelectorCustomFeeFieldsBuilder {
+    var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
+        customFee
+            .withWeakCaptureOf(self)
+            .map { $0.initialCustomFee != $1 }
+            .eraseToAnyPublisher()
+    }
+
+    func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel] {
         return [
             FeeSelectorCustomFeeRowViewModel(
                 title: Localization.sendMaxFee,
@@ -120,5 +138,16 @@ extension NewCustomKaspaFeeService: CustomFeeService {
                 self?.onFocusChanged(isSelected: focused)
             },
         ]
+    }
+
+    func captureCustomFeeFieldsValue() {
+        cachedCustomFee = customFee.value ?? initialCustomFee
+    }
+
+    func resetCustomFeeFieldsValue() {
+        if let cachedCustomFee {
+            customFee.send(cachedCustomFee)
+            customFeeTextField.update(value: cachedCustomFee.amount.value)
+        }
     }
 }

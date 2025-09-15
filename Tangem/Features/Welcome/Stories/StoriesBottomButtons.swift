@@ -20,18 +20,18 @@ struct StoriesBottomButtons: View {
     let scanCard: () -> Void
     let orderCard: () -> Void
 
-    private let isHotWalletEnabled = FeatureProvider.isAvailable(.hotWallet)
+    private let isMobileWalletEnabled = FeatureProvider.isAvailable(.mobileWallet)
 
     private let createColorStyle: MainButton.Style = .primary
     private let importColorStyle: MainButton.Style = .secondary
     private let orderColorStyle: MainButton.Style = .secondary
 
     private var scanColorStyle: MainButton.Style {
-        isHotWalletEnabled ? .secondary : .primary
+        isMobileWalletEnabled ? .secondary : .primary
     }
 
     var body: some View {
-        if isHotWalletEnabled {
+        if isMobileWalletEnabled {
             VStack(spacing: 8) {
                 createWalletButton
                 importWalletButton

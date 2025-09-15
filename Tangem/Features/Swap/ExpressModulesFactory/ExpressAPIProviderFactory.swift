@@ -16,11 +16,8 @@ struct ExpressAPIProviderFactory {
 
     // MARK: - Implementation
 
-    func makeExpressAPIProvider(userWalletModel: UserWalletModel) -> ExpressAPIProvider {
-        makeExpressAPIProvider(
-            userId: userWalletModel.userWalletId.stringValue,
-            refcode: userWalletModel.refcodeProvider?.getRefcode()
-        )
+    func makeExpressAPIProvider(userWalletId: UserWalletId, refcode: Refcode?) -> ExpressAPIProvider {
+        makeExpressAPIProvider(userId: userWalletId.stringValue, refcode: refcode)
     }
 
     func makeExpressAPIProvider(userId: String, refcode: Refcode?) -> ExpressAPIProvider {

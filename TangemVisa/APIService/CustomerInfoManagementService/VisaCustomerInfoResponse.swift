@@ -14,6 +14,7 @@ public struct VisaCustomerInfoResponse: Decodable {
     public let createdAt: Date
     public let productInstance: ProductInstance
     public let paymentAccount: PaymentAccount
+    public let kyc: KYCInfo
 }
 
 public extension VisaCustomerInfoResponse {
@@ -54,5 +55,36 @@ public extension VisaCustomerInfoResponse {
         public let id: String
         public let customerWalletAddress: String
         public let address: String
+    }
+
+    struct KYCInfo: Decodable, Identifiable, Equatable {
+        public let id: String
+        public let provider: String
+        public let status: KYCStatus
+        public let risk: KYCRisk
+        public let reviewAnswer: KYCReviewAnswer
+        public let createdAt: Date
+    }
+
+    enum KYCStatus: String, Decodable {
+        case required = "REQUIRED"
+        case approved = "APPROVED"
+        case declined = "DECLINED"
+        case inProgress = "IN_PROGRESS"
+        case expired = "EXPIRED"
+        case undefined = "UNDEFINED"
+    }
+
+    enum KYCRisk: String, Decodable {
+        case low = "LOW"
+        case medium = "MEDIUM"
+        case high = "HIGH"
+        case undefined = "UNDEFINED"
+    }
+
+    enum KYCReviewAnswer: String, Decodable {
+        case green = "GREEN"
+        case red = "RED"
+        case undefined = "UNDEFINED"
     }
 }

@@ -12,4 +12,9 @@ public enum TokenAccessibilityIdentifiers {
     public static let moreButton = "tokenMoreButton"
     public static let hideTokenButton = "tokenHideButton"
     public static let actionButtonsList = "tokenActionButtonsList"
+
+    /// Staking related elements
+    public static let nativeStakingBlock = "tokenNativeStakingBlock"
+    public static let nativeStakingTitle = "tokenNativeStakingTitle"
+    public static let nativeStakingChevron = "tokenNativeStakingChevron"
 }

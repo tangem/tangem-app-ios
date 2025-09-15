@@ -12,7 +12,7 @@ struct TokenActionAvailabilityProvider {
 
     private let userWalletConfig: UserWalletConfig
     private let walletModel: any WalletModel
-    private let exchangeCryptoUtility: ExchangeCryptoUtility
+    private let sellCryptoUtility: SellCryptoUtility
 
     init(
         userWalletConfig: UserWalletConfig,
@@ -20,7 +20,7 @@ struct TokenActionAvailabilityProvider {
     ) {
         self.userWalletConfig = userWalletConfig
         self.walletModel = walletModel
-        exchangeCryptoUtility = ExchangeCryptoUtility(
+        sellCryptoUtility = SellCryptoUtility(
             tokenItem: walletModel.tokenItem,
             address: walletModel.defaultAddressString
         )
@@ -72,7 +72,7 @@ extension TokenActionAvailabilityProvider {
 
         actions.append(contentsOf: [.receive, .send])
 
-        if userWalletConfig.isFeatureVisible(.swapping) {
+        if userWalletConfig.isFeatureVisible(.swapping), !isSwapHidden {
             actions.append(.exchange)
         }
 
@@ -167,6 +167,7 @@ extension TokenActionAvailabilityProvider {
 extension TokenActionAvailabilityProvider {
     enum SwapActionAvailabilityStatus {
         case available
+        case hidden
         case unavailable(tokenName: String)
         case customToken
         case blockchainLoading
@@ -181,6 +182,14 @@ extension TokenActionAvailabilityProvider {
 
     var isSwapAvailable: Bool {
         if case .available = swapAvailability {
+            return true
+        }
+
+        return false
+    }
+
+    var isSwapHidden: Bool {
+        if case .hidden = swapAvailability {
             return true
         }
 
@@ -205,11 +214,14 @@ extension TokenActionAvailabilityProvider {
             return .blockchainLoading
         case .hasOnlyCachedBalance:
             return .hasOnlyCachedBalance
-        case .zeroWalletBalance,
-             .hasPendingTransaction,
+        case .hasPendingTransaction,
              .oldCard,
              .zeroFeeCurrencyBalance,
              .none:
+            break
+        case .zeroWalletBalance where userWalletConfig.isFeatureVisible(.isBalanceRestrictionActive):
+            return .hidden
+        case .zeroWalletBalance:
             break
         }
 
@@ -304,7 +316,7 @@ extension TokenActionAvailabilityProvider {
             return .demo(disabledLocalizedReason: disabledLocalizedReason)
         }
 
-        if !exchangeCryptoUtility.sellAvailable {
+        if !sellCryptoUtility.sellAvailable {
             return .unavailable(tokenName: walletModel.tokenItem.name)
         }
 
@@ -357,32 +369,20 @@ extension TokenActionAvailabilityProvider {
             return .missingAssetRequirement
         }
 
-        if FeatureProvider.isAvailable(.onramp) {
-            let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
-            let tokenState = expressAvailabilityProvider.onrampState(for: walletModel.tokenItem)
+        let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
+        let tokenState = expressAvailabilityProvider.onrampState(for: walletModel.tokenItem)
 
-            switch (tokenState, assetsState) {
-            case (.available, _):
-                return .available
-            case (.unavailable, .updating), (.notLoaded, .updating):
-                return .expressLoading
-            case (.notLoaded, .updated):
-                return .expressNotLoaded
-            case (.unavailable, .updated):
-                return .unavailable(tokenName: walletModel.tokenItem.name)
-            case (.notLoaded, .failed), (.unavailable, .failed):
-                return .expressUnreachable
-            }
-        } else {
-            if let disabledLocalizedReason = userWalletConfig.getDisabledLocalizedReason(for: .exchange) {
-                return .demo(disabledLocalizedReason: disabledLocalizedReason)
-            }
-
-            if !exchangeCryptoUtility.buyAvailable {
-                return .unavailable(tokenName: walletModel.tokenItem.name)
-            }
-
+        switch (tokenState, assetsState) {
+        case (.available, _):
             return .available
+        case (.unavailable, .updating), (.notLoaded, .updating):
+            return .expressLoading
+        case (.notLoaded, .updated):
+            return .expressNotLoaded
+        case (.unavailable, .updated):
+            return .unavailable(tokenName: walletModel.tokenItem.name)
+        case (.notLoaded, .failed), (.unavailable, .failed):
+            return .expressUnreachable
         }
     }
 }

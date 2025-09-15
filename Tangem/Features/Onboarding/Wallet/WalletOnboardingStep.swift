@@ -221,5 +221,3 @@ extension WalletOnboardingStep: OnboardingProgressStepIndicatable {
         }
     }
 }
-
-extension WalletOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}

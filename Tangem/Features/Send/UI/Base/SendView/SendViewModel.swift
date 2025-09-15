@@ -27,9 +27,7 @@ final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var step: SendStep
-    @Published var mainButtonType: SendMainButtonType
     @Published var flowActionType: SendFlowActionType
-    @Published var showBackButton = false
     @Published var isKeyboardActive: Bool = false
 
     @Published var transactionURL: URL?
@@ -40,9 +38,9 @@ final class SendViewModel: ObservableObject {
     @Published var mainButtonLoading: Bool = false
     @Published var actionIsAvailable: Bool = false
 
-    var title: String? { step.title }
-    var subtitle: String? { step.subtitle }
+    var navigationBarSettings: SendStepNavigationBarSettings { stepsManager.navigationBarSettings }
     var shouldShowBottomOverlay: Bool { step.shouldShowBottomOverlay }
+    var bottomBarSettings: SendStepBottomBarSettings { stepsManager.bottomBarSettings }
 
     var shouldShowDismissAlert: Bool {
         stepsManager.shouldShowDismissAlert
@@ -54,12 +52,11 @@ final class SendViewModel: ObservableObject {
 
     private let interactor: SendBaseInteractor
     private let stepsManager: SendStepsManager
-    private let userWalletModel: UserWalletModel
     private let alertBuilder: SendAlertBuilder
     private let dataBuilder: SendGenericBaseDataBuilder
     private let analyticsLogger: SendBaseViewAnalyticsLogger
+    private let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
     private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
     private let source: SendCoordinator.Source
     private weak var coordinator: SendRoutable?
 
@@ -67,40 +64,38 @@ final class SendViewModel: ObservableObject {
 
     private var sendTask: Task<Void, Never>?
     private var isValidSubscription: AnyCancellable?
+    private var isUpdatingSubscription: AnyCancellable?
     private var isValidContinueSubscription: AnyCancellable?
 
     init(
         interactor: SendBaseInteractor,
         stepsManager: SendStepsManager,
-        userWalletModel: UserWalletModel,
         alertBuilder: SendAlertBuilder,
         dataBuilder: SendGenericBaseDataBuilder,
         analyticsLogger: SendBaseViewAnalyticsLogger,
+        blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper,
         tokenItem: TokenItem,
-        feeTokenItem: TokenItem,
         source: SendCoordinator.Source,
         coordinator: SendRoutable
     ) {
         self.interactor = interactor
         self.stepsManager = stepsManager
-        self.userWalletModel = userWalletModel
         self.alertBuilder = alertBuilder
         self.analyticsLogger = analyticsLogger
+        self.blockchainSDKNotificationMapper = blockchainSDKNotificationMapper
         self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
         self.dataBuilder = dataBuilder
         self.source = source
         self.coordinator = coordinator
 
-        step = stepsManager.initialState.step
-        mainButtonType = stepsManager.initialState.action
+        step = stepsManager.initialStep
         flowActionType = stepsManager.initialFlowActionType
         isKeyboardActive = stepsManager.initialKeyboardState
 
         bind()
-        bind(step: stepsManager.initialState.step)
+        bind(step: stepsManager.initialStep)
 
-        stepsManager.initialState.step.initialAppear()
+        stepsManager.initialStep.initialAppear()
     }
 
     func onAppear() {
@@ -110,6 +105,7 @@ final class SendViewModel: ObservableObject {
     func onDisappear() {}
 
     func userDidTapActionButton() {
+        let mainButtonType = bottomBarSettings.action
         analyticsLogger.logMainActionButton(type: mainButtonType, flow: flowActionType)
 
         switch mainButtonType {
@@ -159,6 +155,7 @@ final class SendViewModel: ObservableObject {
 
     func dismiss() {
         analyticsLogger.logCloseButton(stepType: step.type, isAvailableToAction: actionIsAvailable)
+        let mainButtonType = bottomBarSettings.action
 
         switch mainButtonType {
         case .continue:
@@ -189,12 +186,12 @@ final class SendViewModel: ObservableObject {
 
 private extension SendViewModel {
     func performOnramp() {
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
-            showAlert(AlertBuilder.makeDemoAlert(disabledLocalizedReason))
-            return
-        }
-
         do {
+            if let demoAlertMessage = try dataBuilder.onrampBuilder().demoAlertMessage() {
+                showAlert(AlertBuilder.makeDemoAlert(demoAlertMessage))
+                return
+            }
+
             isKeyboardActive = false
             let onrampRedirectingBuilder = try dataBuilder.onrampBuilder().makeDataForOnrampRedirecting()
             coordinator?.openOnrampRedirecting(onrampRedirectingBuilder: onrampRedirectingBuilder)
@@ -225,12 +222,8 @@ private extension SendViewModel {
             } catch _ as CancellationError {
                 // Do nothing
             } catch let error as ValidationError {
-                let factory = BlockchainSDKNotificationMapper(
-                    tokenItem: viewModel.tokenItem,
-                    feeTokenItem: viewModel.feeTokenItem
-                )
-
-                let validationErrorEvent = factory.mapToValidationErrorEvent(error)
+                let mapper = viewModel.blockchainSDKNotificationMapper
+                let validationErrorEvent = mapper.mapToValidationErrorEvent(error)
                 let message = validationErrorEvent.description ?? error.localizedDescription
                 let alertBinder = AlertBinder(title: Localization.commonError, message: message)
                 AppLogger.error(error: error)
@@ -308,6 +301,10 @@ private extension SendViewModel {
         isValidSubscription = step.isValidPublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.actionIsAvailable, on: self, ownership: .weak)
+
+        isUpdatingSubscription = step.isUpdatingPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.mainButtonLoading, on: self, ownership: .weak)
     }
 
     func bind() {
@@ -337,13 +334,17 @@ private extension SendViewModel {
 
 extension SendViewModel: SendModelRoutable {
     func openNetworkCurrency() {
-        let walletModels = userWalletModel.walletModelsManager.walletModels
-        guard let feeCurrencyWalletModel = walletModels.first(where: { $0.tokenItem == feeTokenItem }) else {
-            assertionFailure("Network currency WalletModel not found")
-            return
+        do {
+            let builder = try dataBuilder.sendBuilder()
+            let (userWalletId, feeTokenItem) = builder.makeFeeCurrencyData()
+            coordinator?.openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem)
+        } catch {
+            showAlert(error.alertBinder)
         }
+    }
 
-        coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
+    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {
+        coordinator?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
     }
 
     func resetFlow() {
@@ -450,24 +451,21 @@ extension SendViewModel: SendViewAlertPresenter {
 // MARK: - SendStepsManagerOutput
 
 extension SendViewModel: SendStepsManagerOutput {
-    func update(state: SendStepsManagerViewState) {
-        step.willDisappear(next: state.step)
+    func update(step newStep: any SendStep) {
+        step.willDisappear(next: newStep)
         step.sendStepViewAnimatable.viewDidChangeVisibilityState(
-            .disappearing(nextStep: state.step.type)
+            .disappearing(nextStep: newStep.type)
         )
 
-        state.step.willAppear(previous: step)
-        state.step.sendStepViewAnimatable.viewDidChangeVisibilityState(
+        newStep.willAppear(previous: step)
+        newStep.sendStepViewAnimatable.viewDidChangeVisibilityState(
             .appearing(previousStep: step.type)
         )
 
-        mainButtonType = state.action
-        showBackButton = state.backButtonVisible
-
         // Give some time to update `transitions`
         DispatchQueue.main.async {
-            self.step = state.step
-            self.bind(step: state.step)
+            self.step = newStep
+            self.bind(step: newStep)
         }
     }
 
