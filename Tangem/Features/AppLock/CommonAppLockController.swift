@@ -26,7 +26,7 @@ extension CommonAppLockController: AppLockController {
     }
 
     func sceneDidEnterBackground() {
-        if !userWalletRepository.isLocked {
+        if userWalletRepository.shouldLockOnBackground {
             minimizedAppTimer.start()
         }
     }
@@ -45,7 +45,7 @@ extension CommonAppLockController: AppLockController {
         }
 
         guard let context = try? await UserWalletBiometricsUnlocker().unlock(),
-              let userWalletModel = try? userWalletRepository.unlock(with: .biometrics(context)) else {
+              let userWalletModel = try? await userWalletRepository.unlock(with: .biometrics(context)) else {
             return .openAuth
         }
 
