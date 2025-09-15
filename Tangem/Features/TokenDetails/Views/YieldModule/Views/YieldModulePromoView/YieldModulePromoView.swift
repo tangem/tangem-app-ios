@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemLocalization
+import TangemUI
 
 struct YieldModulePromoView: View {
     // MARK: - Properties
@@ -18,37 +19,30 @@ struct YieldModulePromoView: View {
     // MARK: - View Body
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            ZStack {
-                background
+        ZStack {
+            background
 
-                VStack(spacing: 98) {
-                    VStack(spacing: .zero) {
-                        topLogo.padding(.bottom, 20)
-
-                        title.padding(.bottom, 12)
-
-                        pillInfoButton.padding(.bottom, 34)
-
-                        benefitsStack
+            VStack(spacing: .zero) {
+                GeometryReader { proxy in
+                    GroupedScrollView {
+                        topStack
+                            .padding(.horizontal, 24)
+                            .frame(maxWidth: .infinity, minHeight: proxy.size.height, alignment: .center)
                     }
-                    .padding(.top, 70)
-                    .padding(.horizontal, 40)
+                }
 
-                    VStack(spacing: 16) {
-                        tosAndPrivacy
-                        continueButton
-                    }
+                bottomStack
                     .padding(.horizontal, 16)
-                }
+                    .padding(.top, 22)
+                    .padding(.bottom, 6)
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(Localization.yieldModulePromoScreenHowItWorksButtonTitle) {
-                        viewModel.onHowItWorksTap()
-                    }
-                    .foregroundColor(Colors.Text.primary1)
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(Localization.yieldModulePromoScreenHowItWorksButtonTitle) {
+                    viewModel.onHowItWorksTap()
                 }
+                .foregroundColor(Colors.Text.primary1)
             }
         }
     }
@@ -71,19 +65,27 @@ struct YieldModulePromoView: View {
     }
 
     private var pillInfoButton: some View {
-        Button(action: { viewModel.onInterestRateInfoTap() }) {
+        Button(action: {}) {
             HStack(spacing: 4) {
                 Text(Localization.yieldModulePromoScreenVariableRateInfo).style(Fonts.Bold.caption1, color: Colors.Text.secondary)
 
-                Image(systemName: "info.circle")
-                    .resizable()
-                    .frame(size: .init(bothDimensions: 12))
+                Assets.infoCircle16.image
+                    .renderingMode(.template)
                     .foregroundStyle(Colors.Icon.informative)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 4)
             .background(Colors.Control.unchecked)
             .clipShape(Capsule())
+        }
+    }
+
+    private var topStack: some View {
+        VStack(spacing: .zero) {
+            topLogo.padding(.bottom, 20)
+            title.padding(.bottom, 8)
+            pillInfoButton.padding(.bottom, 30)
+            benefitsStack.padding(.top, 6)
         }
     }
 
@@ -114,11 +116,14 @@ struct YieldModulePromoView: View {
     }
 
     private var continueButton: some View {
-        Button(action: { viewModel.onContinueTap() }) {
-            Text(Localization.commonContinue)
-                .frame(maxWidth: .infinity)
+        MainButton(title: Localization.commonContinue, action: { viewModel.onContinueTap() })
+    }
+
+    private var bottomStack: some View {
+        VStack(spacing: 16) {
+            tosAndPrivacy
+            continueButton
         }
-        .buttonStyle(.tangemStyle)
     }
 }
 
