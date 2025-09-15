@@ -18,23 +18,19 @@ struct NewOnrampView: View {
     @FocusState.Binding var keyboardActive: Bool
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            GroupedScrollView(spacing: 14) {
-                OnrampAmountView(
-                    viewModel: viewModel.onrampAmountViewModel,
-                    namespace: .init(id: namespace.id, names: namespace.names)
-                )
+        GroupedScrollView(spacing: 14) {
+            NewOnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
 
-                OnrampProvidersCompactView(
-                    viewModel: viewModel.onrampProvidersCompactViewModel
-                )
+            OnrampProvidersCompactView(
+                viewModel: viewModel.onrampProvidersCompactViewModel
+            )
 
-                ForEach(viewModel.notificationInputs) { input in
-                    NotificationView(input: input)
-                        .setButtonsLoadingState(to: viewModel.notificationButtonIsLoading)
-                }
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .setButtonsLoadingState(to: viewModel.notificationButtonIsLoading)
             }
-
+        }
+        .safeAreaInset(edge: .bottom) {
             legalView
         }
     }
