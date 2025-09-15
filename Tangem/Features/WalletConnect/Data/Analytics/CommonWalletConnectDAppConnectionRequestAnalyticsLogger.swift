@@ -24,30 +24,9 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
     }
 
     func logConnectionProposalReceived(_ connectionProposal: WalletConnectDAppConnectionProposal) {
-        let securityAlertEvent: Analytics.Event?
-        let securityAlertParamKey: Analytics.ParameterKey?
-        let securityAlertParamValue: Analytics.ParameterValue?
-        let proposalReceivedDomainVerificationValue: Analytics.ParameterValue
-
-        switch connectionProposal.verificationStatus {
-        case .verified:
-            securityAlertEvent = nil
-            securityAlertParamKey = nil
-            securityAlertParamValue = nil
-            proposalReceivedDomainVerificationValue = .walletConnectSecurityAlertVerified
-
-        case .unknownDomain:
-            securityAlertEvent = .walletConnectSecurityAlertShown
-            securityAlertParamKey = .commonType
-            securityAlertParamValue = .unknown
-            proposalReceivedDomainVerificationValue = .unknown
-
-        case .malicious:
-            securityAlertEvent = .walletConnectSecurityAlertShown
-            securityAlertParamKey = .commonType
-            securityAlertParamValue = .walletConnectSecurityAlertRisky
-            proposalReceivedDomainVerificationValue = .walletConnectSecurityAlertRisky
-        }
+        let proposalReceivedDomainVerificationValue = getAnalyticsVerificationParameterValue(
+            from: connectionProposal.verificationStatus
+        )
 
         let blockchainNames = connectionProposal.sessionProposal.requiredBlockchains
             .union(connectionProposal.sessionProposal.optionalBlockchains)
@@ -56,22 +35,13 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
 
         let proposalReceivedEvent = Analytics.Event.walletConnectDAppSessionProposalReceived
         let proposalReceivedParams: [Analytics.ParameterKey: String] = [
+            .walletConnectDAppName: connectionProposal.dAppData.name,
+            .walletConnectDAppUrl: connectionProposal.dAppData.domain.absoluteString,
             .networks: blockchainNames,
             .walletConnectDAppDomainVerification: proposalReceivedDomainVerificationValue.rawValue,
         ]
 
         Analytics.log(event: proposalReceivedEvent, params: proposalReceivedParams)
-
-        guard let securityAlertEvent, let securityAlertParamKey, let securityAlertParamValue else { return }
-
-        let securityAlertParams: [Analytics.ParameterKey: String] = [
-            securityAlertParamKey: securityAlertParamValue.rawValue,
-            .source: Analytics.ParameterValue.walletConnectSecurityAlertSourceDomain.rawValue,
-            .walletConnectDAppName: connectionProposal.dAppData.name,
-            .walletConnectDAppUrl: connectionProposal.dAppData.domain.absoluteString,
-        ]
-
-        Analytics.log(event: securityAlertEvent, params: securityAlertParams)
     }
 
     func logConnectButtonTapped() {
@@ -82,10 +52,13 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
         Analytics.log(.walletConnectCancelButtonTapped, params: [.commonType: .walletConnectCancelButtonTypeDApp])
     }
 
-    func logDAppConnected(with dAppData: WalletConnectDAppData) {
+    func logDAppConnected(with dAppData: WalletConnectDAppData, verificationStatus: WalletConnectDAppVerificationStatus) {
+        let proposalReceivedDomainVerificationValue = getAnalyticsVerificationParameterValue(from: verificationStatus)
+
         let params: [Analytics.ParameterKey: String] = [
             .walletConnectDAppName: dAppData.name,
             .walletConnectDAppUrl: dAppData.domain.absoluteString,
+            .walletConnectDAppDomainVerification: proposalReceivedDomainVerificationValue.rawValue,
         ]
 
         Analytics.log(event: .walletConnectDAppConnected, params: params)
@@ -102,5 +75,15 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
         ]
 
         Analytics.log(event: .walletConnectDAppDisconnected, params: params)
+    }
+
+    private func getAnalyticsVerificationParameterValue(from verificationStatus: WalletConnectDAppVerificationStatus) -> Analytics.ParameterValue {
+        switch verificationStatus {
+        case .verified: .walletConnectVerified
+
+        case .unknownDomain: .unknown
+
+        case .malicious: .walletConnectRisky
+        }
     }
 }

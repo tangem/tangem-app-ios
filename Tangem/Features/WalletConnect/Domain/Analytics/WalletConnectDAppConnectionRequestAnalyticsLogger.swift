@@ -17,7 +17,7 @@ protocol WalletConnectDAppConnectionRequestAnalyticsLogger {
     func logConnectButtonTapped()
     func logCancelButtonTapped()
 
-    func logDAppConnected(with dAppData: WalletConnectDAppData)
+    func logDAppConnected(with dAppData: WalletConnectDAppData, verificationStatus: WalletConnectDAppVerificationStatus)
     func logDAppConnectionFailed(with error: WalletConnectDAppProposalApprovalError)
     func logDAppDisconnected(with dAppData: WalletConnectDAppData)
 }
