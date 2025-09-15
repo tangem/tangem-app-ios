@@ -109,6 +109,13 @@ struct TangemApiTarget: TargetType {
         // MARK: - Promo Code
         case .activatePromoCode:
             return "/promo-codes/activate"
+
+        // MARK: - Accounts
+        case .getUserAccounts(let userWalletId),
+             .saveUserAccounts(let userWalletId, _, _):
+            return "wallets/\(userWalletId)/accounts"
+        case .getArchivedUserAccounts(let userWalletId):
+            return "wallets/\(userWalletId)/accounts/archived"
         }
     }
 
@@ -134,10 +141,13 @@ struct TangemApiTarget: TargetType {
              .seedNotifyGetStatusConfirmed,
              .story,
              .pushNotificationsEligible,
+             .getUserAccounts,
+             .getArchivedUserAccounts,
              .getUserWallets,
              .getUserWallet:
             return .get
         case .saveUserWalletTokens,
+             .saveUserAccounts,
              .seedNotifySetStatus,
              .seedNotifySetStatusConfirmed:
             return .put
@@ -387,6 +397,11 @@ extension TangemApiTarget {
         case getUserWallet(userWalletId: String)
         case updateUserWallet(userWalletId: String, requestModel: UserWalletDTO.Update.Request)
         case createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>)
+
+        // Accounts
+        case getUserAccounts(userWalletId: String)
+        case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
+        case getArchivedUserAccounts(userWalletId: String)
     }
 }
 
@@ -408,10 +423,48 @@ extension TangemApiTarget: TargetTypeLogConvertible {
 
     var shouldLogResponseBody: Bool {
         switch type {
-        case .currencies, .coins, .quotes, .apiList, .coinsList, .coinsHistoryChartPreview,
-             .historyChart, .tokenMarketsDetails, .tokenExchangesList, .story, .rawData, .hotCrypto, .createUserWalletsApplication, .updateUserWalletsApplication, .getUserWallets, .getUserWallet, .updateUserWallet, .createAndConnectUserWallet:
+        case .currencies,
+             .coins,
+             .quotes,
+             .apiList,
+             .coinsList,
+             .coinsHistoryChartPreview,
+             .historyChart,
+             .tokenMarketsDetails,
+             .tokenExchangesList,
+             .story,
+             .rawData,
+             .hotCrypto,
+             .createUserWalletsApplication,
+             .updateUserWalletsApplication,
+             .getUserWallets,
+             .getUserWallet,
+             .updateUserWallet,
+             .createAndConnectUserWallet:
             return false
-        case .geo, .features, .getUserWalletTokens, .saveUserWalletTokens, .loadReferralProgramInfo, .participateInReferralProgram, .createAccount, .promotion, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser, .resetAward, .seedNotifyGetStatus, .seedNotifySetStatus, .seedNotifyGetStatusConfirmed, .seedNotifySetStatusConfirmed, .walletInitialized, .pushNotificationsEligible, .activatePromoCode:
+        case .geo,
+             .features,
+             .getUserWalletTokens,
+             .saveUserWalletTokens,
+             .loadReferralProgramInfo,
+             .participateInReferralProgram,
+             .createAccount,
+             .promotion,
+             .validateNewUserPromotionEligibility,
+             .validateOldUserPromotionEligibility,
+             .awardNewUser,
+             .awardOldUser,
+             .resetAward,
+             .seedNotifyGetStatus,
+             .seedNotifySetStatus,
+             .seedNotifyGetStatusConfirmed,
+             .seedNotifySetStatusConfirmed,
+             .walletInitialized,
+             .pushNotificationsEligible,
+             .getUserAccounts,
+             .saveUserAccounts,
+             .getArchivedUserAccounts,
+             .activatePromoCode:
             return true
         }
     }
