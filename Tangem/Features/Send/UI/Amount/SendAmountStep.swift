@@ -33,13 +33,7 @@ class SendAmountStep {
 // MARK: - SendStep
 
 extension SendAmountStep: SendStep {
-    var title: String? { Localization.commonAmount }
-
     var type: SendStepType { .amount(viewModel) }
-
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .none }
-
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
