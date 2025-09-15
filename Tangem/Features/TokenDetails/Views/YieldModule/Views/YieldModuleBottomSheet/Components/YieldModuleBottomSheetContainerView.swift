@@ -12,6 +12,8 @@ import TangemAssets
 
 extension YieldModuleBottomSheetView {
     struct YieldModuleBottomSheetContainerView<SubtitleFooter: View, BodyContent: View, ToolBarTitle: View, TopContent: View>: View {
+        typealias NotificationBanner = YieldModuleParams.YieldModuleBottomSheetNotificationBannerParams
+
         // MARK: - Properties
 
         private let title: String?
@@ -28,6 +30,7 @@ extension YieldModuleBottomSheetView {
         private let content: BodyContent
         private let toolBarTitle: ToolBarTitle
         private let buttonStyle: CallToActionButtonStyle
+        private let notificationBanner: NotificationBanner?
 
         // MARK: - Actions
 
@@ -45,6 +48,7 @@ extension YieldModuleBottomSheetView {
             @ViewBuilder topContent: () -> TopContent = { EmptyView() },
             @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
             @ViewBuilder content: () -> BodyContent = { EmptyView() },
+            notificationBanner: NotificationBanner? = nil,
             closeAction: (() -> Void)? = nil,
             backAction: (() -> Void)? = nil,
             buttonAction: @escaping () -> Void,
@@ -67,6 +71,7 @@ extension YieldModuleBottomSheetView {
             self.topPadding = topPadding
             self.horizontalPadding = horizontalPadding
             self.buttonTopPadding = buttonTopPadding
+            self.notificationBanner = notificationBanner
         }
 
         // MARK: - View Body
@@ -89,6 +94,10 @@ extension YieldModuleBottomSheetView {
                     subtitleFooter.padding(.bottom, 24)
 
                     content
+
+                    if let notificationBanner {
+                        YieldModuleBottomSheetNotificationBanner(params: notificationBanner)
+                    }
 
                     bottomButton.padding(.top, buttonTopPadding)
                 }
