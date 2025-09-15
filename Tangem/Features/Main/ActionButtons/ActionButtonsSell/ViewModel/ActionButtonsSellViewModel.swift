@@ -13,7 +13,7 @@ import struct TangemUIUtils.AlertBinder
 final class ActionButtonsSellViewModel: ObservableObject {
     // MARK: - Dependencies
 
-    @Injected(\.exchangeService) private var exchangeService: CombinedExchangeService & ExchangeService
+    @Injected(\.sellService) private var sellService: SellService
 
     // MARK: - Published properties
 
@@ -84,8 +84,8 @@ final class ActionButtonsSellViewModel: ObservableObject {
     }
 
     private func bind() {
-        exchangeService
-            .sellInitializationPublisher
+        sellService
+            .initializationPublisher
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, newState in
@@ -129,24 +129,23 @@ private extension ActionButtonsSellViewModel {
         from response: String,
         and walletModel: any WalletModel
     ) -> ActionButtonsSendToSellModel? {
-        let exchangeUtility = makeExchangeCryptoUtility(for: walletModel)
+        let sellUtility = makeSellCryptoUtility(for: walletModel)
 
-        guard
-            let sellCryptoRequest = exchangeUtility.extractSellCryptoRequest(from: response)
-        else {
+        guard let sellCryptoRequest = sellUtility.extractSellCryptoRequest(from: response) else {
             return nil
         }
 
-        return .init(
-            amountToSend: sellCryptoRequest.amount,
+        let sellParameters = PredefinedSellParameters(
+            amount: sellCryptoRequest.amount,
             destination: sellCryptoRequest.targetAddress,
-            tag: sellCryptoRequest.tag,
-            walletModel: walletModel
+            tag: sellCryptoRequest.tag
         )
+
+        return .init(.init(sellParameters: sellParameters, walletModel: walletModel))
     }
 
     func makeSellUrl(from token: ActionButtonsTokenSelectorItem) -> URL? {
-        let sellUrl = exchangeService.getSellUrl(
+        let sellUrl = sellService.getSellUrl(
             currencySymbol: token.infoProvider.tokenItem.currencySymbol,
             amountType: token.walletModel.tokenItem.amountType,
             blockchain: token.walletModel.tokenItem.blockchain,
@@ -156,8 +155,8 @@ private extension ActionButtonsSellViewModel {
         return sellUrl
     }
 
-    func makeExchangeCryptoUtility(for walletModel: any WalletModel) -> ExchangeCryptoUtility {
-        return ExchangeCryptoUtility(
+    func makeSellCryptoUtility(for walletModel: any WalletModel) -> SellCryptoUtility {
+        SellCryptoUtility(
             tokenItem: walletModel.tokenItem,
             address: walletModel.defaultAddressString
         )

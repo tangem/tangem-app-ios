@@ -90,7 +90,8 @@ extension WalletNetworkServiceFactory {
              .apeChain,
              .sonic,
              .vanar,
-             .zkLinkNova:
+             .zkLinkNova,
+             .hyperliquidEVM:
             return makeEthereumNetworkService(for: blockchain)
         case .rsk:
             throw Error.notImplemeneted
@@ -188,7 +189,8 @@ private extension WalletNetworkServiceFactory {
                 apiInfo: apiList[blockchain.networkId] ?? [],
                 tangemProviderConfig: tangemProviderConfig
             )),
-            abiEncoder: WalletCoreABIEncoder()
+            abiEncoder: WalletCoreABIEncoder(),
+            blockchainName: blockchain.displayName
         )
 
         return networkService

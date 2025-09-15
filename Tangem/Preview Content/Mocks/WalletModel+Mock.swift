@@ -12,10 +12,12 @@ import Combine
 
 extension CommonWalletModel {
     static let mockETH = CommonWalletModel(
+        userWalletId: .init(with: Data()),
         walletManager: EthereumWalletManagerMock(),
         stakingManager: StakingManagerMock(),
         featureManager: WalletModelFeaturesManagerMock(),
         transactionHistoryService: nil,
+        receiveAddressService: DummyReceiveAddressService(addressInfos: []),
         sendAvailabilityProvider: TransactionSendAvailabilityProvider(isSendingSupportedByCard: true),
         tokenBalancesRepository: TokenBalancesRepositoryMock(),
         amountType: .coin,
