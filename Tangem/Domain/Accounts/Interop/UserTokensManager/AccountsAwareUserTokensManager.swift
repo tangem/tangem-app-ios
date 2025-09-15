@@ -179,6 +179,27 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         derivationInfo.derivationManager
     }
 
+    func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
+        guard let derivationManager, let keysDerivingProvider else {
+            return false
+        }
+
+        let networksToRemove = itemsToRemove
+            .filter { $0.isBlockchain }
+            .map { withBlockchainNetwork($0) }
+            .map(\.blockchainNetwork)
+
+        let networksToAdd = itemsToAdd
+            .map { withBlockchainNetwork($0) }
+            .map(\.blockchainNetwork)
+
+        return derivationManager.needsDerivation(
+            networksToRemove: networksToRemove,
+            networksToAdd: networksToAdd,
+            interactor: keysDerivingProvider.keysDerivingInteractor
+        )
+    }
+
     func deriveIfNeeded(completion: @escaping (Result<Void, Swift.Error>) -> Void) {
         guard
             let derivationManager,

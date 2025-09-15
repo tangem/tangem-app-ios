@@ -23,6 +23,8 @@ class KeysDerivingCardInteractor {
 // MARK: - KeysDeriving
 
 extension KeysDerivingCardInteractor: KeysDeriving {
+    var isKeysDerivedByCard: Bool { true }
+
     func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, Error>) -> Void) {
         let task = DeriveMultipleWalletPublicKeysTask(derivations)
 

@@ -34,4 +34,8 @@ class FakeDerivationManager: DerivationManager {
             self._pendingDerivationsCount.send(0)
         }
     }
+
+    func needsDerivation(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork], interactor: KeysDeriving) -> Bool {
+        true
+    }
 }
