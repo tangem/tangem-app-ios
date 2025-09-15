@@ -19,7 +19,7 @@ final class WalletConnectSheet: ScreenBase<WalletConnectConnectionScreenElement>
     private lazy var connectButton = button(.connectButton)
 
     @discardableResult
-    func validate() -> Self {
+    func waitForConnectionProposalBottomSheetToBeVisible() -> Self {
         XCTContext.runActivity(named: "Validate WalletConnect connection sheet elements") { _ in
             waitAndAssertTrue(
                 headerTitle,
@@ -67,7 +67,7 @@ final class WalletConnectSheet: ScreenBase<WalletConnectConnectionScreenElement>
         }
     }
 
-    func approveConnection() {
+    func tapConnectionButton() {
         XCTContext.runActivity(named: "Approve WalletConnect connection") { _ in
             connectButton.waitAndTap()
         }
