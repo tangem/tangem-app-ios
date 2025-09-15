@@ -15,7 +15,7 @@ extension YieldModuleBottomSheetView {
     struct YieldModuleApproveView: View {
         // MARK: - Properties
 
-        let params: YieldModuleBottomSheetParams.СommonParams
+        let params: YieldModuleParams.СommonParams
 
         // MARK: - View Body
 
@@ -43,7 +43,7 @@ extension YieldModuleBottomSheetView {
 
         private var networkFee: some View {
             GroupedSection(FeeModel(fee: params.networkFee)) { fee in
-                DefaultRowView(viewModel: .init(title: Localization.yieldModuleStartEarning, detailsType: .text(fee.fee)))
+                DefaultRowView(viewModel: .init(title: Localization.commonNetworkFeeTitle, detailsType: .text(fee.fee)))
             } footer: {
                 feePolicyText
             }

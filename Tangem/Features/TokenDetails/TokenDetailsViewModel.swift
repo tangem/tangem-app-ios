@@ -424,22 +424,39 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 }
 
 extension TokenDetailsViewModel {
+    var feeCurrencyInfo: YieldModuleParams.FeeCurrencyInfo? {
+        if true {
+            return .init(
+                feeCurrencyName: walletModel.feeTokenItem.name,
+                feeCurrencyIcon: NetworkImageProvider().provide(by: walletModel.feeTokenItem.blockchain, filled: true).image,
+                feeCurrencySymbol: walletModel.feeTokenItem.blockchain.currencySymbol,
+                goToFeeCurrencyAction: { [weak self] in
+                    self?.openFeeCurrency()
+                }
+            )
+        }
+
+        return nil
+    }
+
     func openYieldModulePromo() {
         coordinator?.openYieldModulePromoView(
             walletModel: walletModel,
-            info: .init(apy: "WIP", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
+            info: .init(apy: "WIP", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:], feeCurrencyInfo: feeCurrencyInfo)
         )
     }
 
     func openYieldEarnInfo() {
-        let params = YieldModuleBottomSheetParams.EarnInfoParams(
+        let params = YieldModuleParams.EarnInfoParams(
             earningsData: .init(totalEarnings: "WIP", chartData: [:]),
-            status: "WIP",
+            status: .active(approveRequired: true),
             apy: "WIP",
             availableFunds: .init(availableBalance: "WIP"),
             transferMode: "WIP",
             tokenName: walletModel.tokenItem.name,
             tokenSymbol: walletModel.tokenItem.token?.symbol ?? "",
+            networkFee: "5.1",
+            feeCurrencyInfo: feeCurrencyInfo,
             onReadMoreAction: {},
             onStopEarningAction: {},
             onApproveAction: {}
