@@ -7,19 +7,43 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
-import TangemFoundation
 import SwiftUI
+import TangemLocalization
+import TangemFoundation
+
+extension SendNewDestinationViewModel {
+    enum DestinationAddressSectionType: Identifiable {
+        case destinationAddress(SendNewDestinationAddressViewModel)
+        case destinationResolvedAddress(String)
+
+        var id: String {
+            switch self {
+            case .destinationAddress(let viewModel): String(describing: viewModel.id)
+            case .destinationResolvedAddress(let address): address
+            }
+        }
+    }
+}
 
 class SendNewDestinationViewModel: ObservableObject, Identifiable {
-    @Published var destinationAddressViewModel: SendNewDestinationAddressViewModel
+    var destinationAddressSectionType: [DestinationAddressSectionType] {
+        var section: [DestinationAddressSectionType] = [.destinationAddress(destinationAddressViewModel)]
+        if let destinationResolvedAddress {
+            section.append(.destinationResolvedAddress(destinationResolvedAddress))
+        }
+        return section
+    }
+
     @Published var additionalFieldViewModel: SendNewDestinationAdditionalFieldViewModel?
 
     @Published var shouldShowSuggestedDestination: Bool = true
     @Published var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
 
     @Published var networkName: String = ""
+
+    @Published private var destinationAddressViewModel: SendNewDestinationAddressViewModel
+    @Published private var destinationResolvedAddress: String?
 
     // MARK: - Private
 
@@ -48,7 +72,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
         destinationAddressViewModel = SendNewDestinationAddressViewModel(
             textViewModel: .init(),
-            sendAddress: .init(value: "", source: .textField)
+            address: .init(string: "", source: .textField)
         )
 
         destinationAddressViewModel.router = self
@@ -61,10 +85,32 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
     private func updateView(tokenItem: TokenItem) {
         networkName = tokenItem.networkName
+        destinationAddressViewModel.textViewModel.placeholder = makePlaceholder(tokenItem: tokenItem)
+        additionalFieldViewModel = makeAdditionalFieldViewModel(tokenItem: tokenItem)
+    }
 
-        additionalFieldViewModel = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain).map { additionalFieldType in
-            .init(title: additionalFieldType.name)
+    private func makePlaceholder(tokenItem: TokenItem) -> String {
+        switch tokenItem.blockchain {
+        case .ethereum: Localization.sendEnterAddressFieldEns
+        default: Localization.sendEnterAddressField
         }
+    }
+
+    private func makeAdditionalFieldViewModel(tokenItem: TokenItem) -> SendNewDestinationAdditionalFieldViewModel? {
+        let viewModel = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain).map { additionalFieldType in
+            SendNewDestinationAdditionalFieldViewModel(title: additionalFieldType.name)
+        }
+
+        viewModel?.textPublisher()
+            .dropFirst()
+            .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
+            .sink { viewModel, field in
+                viewModel.interactor.update(additionalField: field)
+            }
+            .store(in: &bag)
+
+        return viewModel
     }
 
     private func bind() {
@@ -78,14 +124,20 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
         // MARK: - Destination
 
-        destinationAddressViewModel.addressPublisher()
+        destinationAddressViewModel
+            .addressPublisher()
             .dropFirst()
+            .debounce(for: interactor.willResolveAddress ? .seconds(1) : 0) { !$0.string.isEmpty }
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, destination in
-                viewModel.interactor.update(destination: destination.value, source: destination.source)
+                viewModel.interactor.update(destination: destination.string, source: destination.source)
             }
             .store(in: &bag)
+
+        interactor.destinationResolvedAddress
+            .receiveOnMain()
+            .assign(to: &$destinationResolvedAddress)
 
         interactor.isValidatingDestination
             .withWeakCaptureOf(self)
@@ -105,7 +157,8 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
         // MARK: - Transaction History
 
-        Publishers.CombineLatest(interactor.transactionHistoryPublisher, interactor.suggestedWalletsPublisher)
+        Publishers
+            .CombineLatest(interactor.transactionHistoryPublisher, interactor.suggestedWalletsPublisher)
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, args in
@@ -131,7 +184,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, address in
-                viewModel.destinationAddressViewModel.update(address: .init(value: address, source: .qrCode))
+                viewModel.destinationAddressViewModel.update(address: .init(string: address, source: .qrCode))
             }
             .store(in: &bag)
 
@@ -160,25 +213,20 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        interactor.destinationAdditionalFieldError
+        interactor
+            .destinationAdditionalFieldError
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, error in
                 viewModel.additionalFieldViewModel?.update(error: error)
             }
             .store(in: &bag)
-
-        additionalFieldViewModel?.textPublisher()
-            .dropFirst()
-            .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, field in
-                viewModel.interactor.update(additionalField: field)
-            }
-            .store(in: &bag)
     }
 
-    private func setupSuggestedDestination(recentTransactions: [SendSuggestedDestinationTransactionRecord], suggestedWallets: [SendSuggestedDestinationWallet]) {
+    private func setupSuggestedDestination(
+        recentTransactions: [SendSuggestedDestinationTransactionRecord],
+        suggestedWallets: [SendSuggestedDestinationWallet]
+    ) {
         let hasSuggestions = !suggestedWallets.isEmpty || !recentTransactions.isEmpty
 
         guard hasSuggestions else {
@@ -196,7 +244,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
     private func userDidTapSuggestedDestination(_ destination: SendSuggestedDestination) {
         FeedbackGenerator.success()
-        destinationAddressViewModel.update(address: .init(value: destination.address, source: .qrCode))
+        destinationAddressViewModel.update(address: .init(string: destination.address, source: .qrCode))
 
         if let additionalField = destination.additionalField {
             additionalFieldViewModel?.update(text: additionalField)
@@ -205,9 +253,9 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
         allFieldsIsValidSubscription = interactor.allFieldsIsValid
             // Drop initial value
             .dropFirst()
-            .combineLatest(destinationAddressViewModel.$sendAddress)
+            .combineLatest(destinationAddressViewModel.addressPublisher())
             // Take only one with this address
-            .first { $1.value == destination.address }
+            .first { $1.string == destination.address }
             // Give some time to update UI fields
             .delay(for: 0.3, scheduler: DispatchQueue.main)
             // Move to next steps only when all is valid
@@ -237,7 +285,8 @@ extension SendNewDestinationViewModel: SendNewDestinationAddressViewRoutable {
 
 extension SendNewDestinationViewModel: SendExternalDestinationUpdatableViewModel {
     func externalUpdate(address: SendAddress) {
-        destinationAddressViewModel.update(address: address)
+        destinationAddressViewModel.update(address: .init(string: address.value.transactionAddress, source: address.source))
+        destinationResolvedAddress = address.value.showableResolved
     }
 
     func externalUpdate(additionalField: SendDestinationAdditionalField) {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 class CommonNewSendStepsManager {
     private let amountStep: SendNewAmountStep
@@ -15,6 +16,7 @@ class CommonNewSendStepsManager {
     private let finishStep: SendNewFinishStep
     private let feeSelector: FeeSelectorContentViewModel
     private let providersSelector: SendSwapProvidersSelectorViewModel
+    private let summaryTitleProvider: SendSummaryTitleProvider
 
     private var stack: [SendStep]
     weak var router: SendRoutable?
@@ -30,7 +32,8 @@ class CommonNewSendStepsManager {
         summaryStep: SendNewSummaryStep,
         finishStep: SendNewFinishStep,
         feeSelector: FeeSelectorContentViewModel,
-        providersSelector: SendSwapProvidersSelectorViewModel
+        providersSelector: SendSwapProvidersSelectorViewModel,
+        summaryTitleProvider: SendSummaryTitleProvider
     ) {
         self.amountStep = amountStep
         self.destinationStep = destinationStep
@@ -38,13 +41,14 @@ class CommonNewSendStepsManager {
         self.finishStep = finishStep
         self.feeSelector = feeSelector
         self.providersSelector = providersSelector
+        self.summaryTitleProvider = summaryTitleProvider
 
         stack = [amountStep]
     }
 
     private func currentStep() -> SendStep {
         let last = stack.last
-        return last ?? initialState.step
+        return last ?? initialStep
     }
 
     private func getNextStep() -> (SendStep)? {
@@ -53,7 +57,7 @@ class CommonNewSendStepsManager {
             return summaryStep
         case .newAmount:
             return destinationStep
-        case .fee, .validators, .summary, .newSummary, .finish, .onramp, .amount, .destination, .newFinish:
+        default:
             assertionFailure("There is no next step")
             return nil
         }
@@ -61,19 +65,7 @@ class CommonNewSendStepsManager {
 
     private func next(step: SendStep) {
         stack.append(step)
-
-        switch step.type {
-        case .newSummary:
-            output?.update(state: .init(step: step, action: .action))
-        case .newFinish:
-            output?.update(state: .init(step: step, action: .close))
-        case .newAmount where isEditAction, .newDestination where isEditAction:
-            output?.update(state: .init(step: step, action: .continue))
-        case .newAmount, .newDestination:
-            output?.update(state: .init(step: step, action: .next))
-        case .amount, .fee, .validators, .onramp, .destination, .summary, .finish:
-            assertionFailure("There is no next step")
-        }
+        output?.update(step: step)
     }
 
     private func back() {
@@ -83,14 +75,7 @@ class CommonNewSendStepsManager {
         }
 
         stack.removeLast()
-        let step = currentStep()
-
-        switch step.type {
-        case .summary, .newSummary:
-            output?.update(state: .init(step: step, action: .action))
-        default:
-            output?.update(state: .init(step: step, action: .next))
-        }
+        output?.update(step: currentStep())
     }
 }
 
@@ -98,11 +83,36 @@ class CommonNewSendStepsManager {
 
 extension CommonNewSendStepsManager: SendStepsManager {
     var initialKeyboardState: Bool { true }
-
     var initialFlowActionType: SendFlowActionType { .send }
+    var initialStep: any SendStep { amountStep }
 
-    var initialState: SendStepsManagerViewState {
-        .init(step: amountStep, action: .next, backButtonVisible: false)
+    var navigationBarSettings: SendStepNavigationBarSettings {
+        switch currentStep().type {
+        case .newAmount:
+            return .init(title: Localization.commonAmount, trailingViewType: .closeButton)
+        case .newDestination where isEditAction:
+            return .init(title: Localization.wcCommonAddress, trailingViewType: .closeButton)
+        case .newDestination:
+            return .init(title: Localization.wcCommonAddress, leadingViewType: .backButton, trailingViewType: .closeButton)
+        case .newSummary:
+            return .init(title: summaryTitleProvider.title, leadingViewType: .backButton, trailingViewType: .closeButton)
+        case .newFinish:
+            return .init(trailingViewType: .closeButton)
+        default:
+            return .empty
+        }
+    }
+
+    var bottomBarSettings: SendStepBottomBarSettings {
+        switch currentStep().type {
+        case .newAmount where isEditAction: .init(action: .continue)
+        case .newDestination where isEditAction: .init(action: .continue)
+        case .newAmount: .init(action: .next)
+        case .newDestination: .init(action: .next)
+        case .newSummary: .init(action: .action)
+        case .newFinish: .init(action: .close)
+        default: .empty
+        }
     }
 
     var shouldShowDismissAlert: Bool {
@@ -119,7 +129,7 @@ extension CommonNewSendStepsManager: SendStepsManager {
 
     func resetFlow() {
         stack = [amountStep]
-        output?.update(state: .init(step: amountStep, action: .next))
+        output?.update(step: amountStep)
     }
 
     func performBack() {
@@ -169,12 +179,8 @@ extension CommonNewSendStepsManager: SendStepsManager {
 // MARK: - SendSummaryStepsRoutable
 
 extension CommonNewSendStepsManager: SendSummaryStepsRoutable {
-    func summaryStepRequestEditValidators() {
-        assertionFailure("This steps is not tappable in this flow")
-    }
-
     func summaryStepRequestEditDestination() {
-        guard case .newSummary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
@@ -183,7 +189,7 @@ extension CommonNewSendStepsManager: SendSummaryStepsRoutable {
     }
 
     func summaryStepRequestEditAmount() {
-        guard case .newSummary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
@@ -192,7 +198,7 @@ extension CommonNewSendStepsManager: SendSummaryStepsRoutable {
     }
 
     func summaryStepRequestEditFee() {
-        guard case .newSummary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
@@ -201,7 +207,7 @@ extension CommonNewSendStepsManager: SendSummaryStepsRoutable {
     }
 
     func summaryStepRequestEditProviders() {
-        guard case .newSummary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
