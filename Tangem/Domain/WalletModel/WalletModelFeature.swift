@@ -17,6 +17,6 @@ enum WalletModelFeature {
 
     @available(*, unavailable, message: "This feature is not implemented yet")
     case transactionHistory
-    
-    case yieldModule(managerFactory: YieldModuleManagerFactory)
+
+    case yieldModule(factory: YieldModuleWalletManagerFactory)
 }

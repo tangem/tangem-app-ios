@@ -9,20 +9,20 @@
 import Foundation
 import BlockchainSdk
 
-protocol YieldModuleManagerFactory {
+protocol YieldModuleWalletManagerFactory {
     func make(
         walletModel: any WalletModel
-    ) -> YieldModuleManager
+    ) -> YieldModuleWalletManager
 }
 
-struct CommonYieldModuleManagerFactory: YieldModuleManagerFactory {
+struct CommonYieldModuleWalletManagerFactory: YieldModuleWalletManagerFactory {
     private let token: Token
     private let blockchain: Blockchain
     private let signer: TangemSigner
     private let ethereumNetworkProvider: EthereumNetworkProvider
     private let yieldTokenService: YieldTokenService
     private let ethereumTransactionDataBuilder: EthereumTransactionDataBuilder
-    
+
     init(
         token: Token,
         blockchain: Blockchain,
@@ -38,16 +38,16 @@ struct CommonYieldModuleManagerFactory: YieldModuleManagerFactory {
         self.yieldTokenService = yieldTokenService
         self.ethereumTransactionDataBuilder = ethereumTransactionDataBuilder
     }
-    
+
     func make(
         walletModel: any WalletModel
-    ) -> YieldModuleManager {
+    ) -> YieldModuleWalletManager {
         let dispatcher = YieldModuleTransactionDispatcher(
             walletModel: walletModel,
             transactionSigner: signer
         )
 
-        return CommonYieldModuleManager(
+        return CommonYieldModuleWalletManager(
             walletAddress: walletModel.defaultAddressString,
             token: token,
             blockchain: blockchain,
