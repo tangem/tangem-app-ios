@@ -52,8 +52,8 @@ class XRPTransactionBuilder {
         return signed
     }
 
-    func buildForSign(transaction: Transaction) throws -> (XRPTransaction, Data) {
-        let transaction = try buildTransaction(from: transaction)
+    func buildForSign(transaction: Transaction, partialPaymentAllowed: Bool) throws -> (XRPTransaction, Data) {
+        let transaction = try buildTransaction(from: transaction, partialPaymentAllowed: partialPaymentAllowed)
         return sign(transaction: transaction)
     }
 
@@ -73,7 +73,7 @@ class XRPTransactionBuilder {
         return blob
     }
 
-    private func buildTransaction(from transaction: Transaction) throws -> XRPTransaction {
+    private func buildTransaction(from transaction: Transaction, partialPaymentAllowed: Bool) throws -> XRPTransaction {
         guard let account = account,
               let sequence = (transaction.params as? XRPTransactionParams)?.sequence
         else {
@@ -109,7 +109,8 @@ class XRPTransactionBuilder {
             amount: amountField,
             fee: feeDrops,
             sequence: sequence,
-            destinationTag: destinationTag
+            destinationTag: destinationTag,
+            flags: partialPaymentAllowed ? [.tfPartialPayment] : nil
         )
 
         return XRPTransaction(params: params)
