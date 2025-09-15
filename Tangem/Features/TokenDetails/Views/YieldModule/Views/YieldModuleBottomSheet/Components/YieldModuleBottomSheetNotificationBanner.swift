@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 extension YieldModuleBottomSheetView {
     struct YieldModuleBottomSheetNotificationBanner: View {
@@ -55,18 +56,18 @@ extension YieldModuleBottomSheetView {
         private var topPadding: CGFloat {
             switch params {
             case .approveNeeded:
-                return 6
+                return 8
             case .notEnoughFeeCurrency:
                 return 20
             }
         }
 
-        private var buttonStyleColor: ButtonColorStyle {
+        private var buttonStyleColor: MainButton.Style {
             switch params {
             case .approveNeeded:
-                return .black
+                return .primary
             case .notEnoughFeeCurrency:
-                return .gray
+                return .secondary
             }
         }
 
@@ -122,10 +123,7 @@ extension YieldModuleBottomSheetView {
         }
 
         private var button: some View {
-            Button(action: buttonAction) {
-                Text(buttonTitleText)
-            }
-            .buttonStyle(TangemButtonStyle(colorStyle: buttonStyleColor, layout: .flexibleWidth, font: Fonts.Bold.subheadline))
+            MainButton(title: buttonTitleText, style: buttonStyleColor, action: buttonAction)
         }
     }
 }
