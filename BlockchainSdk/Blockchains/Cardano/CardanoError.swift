@@ -16,6 +16,7 @@ enum CardanoError: Error, LocalizedError {
     case assetNotFound
     case walletCoreError
     case feeParametersNotFound
+    case failedToHashTransactionData
 
     var errorDescription: String? {
         Localization.genericErrorCode(errorCode)

@@ -20,7 +20,7 @@ enum PreviewData {
             cardInitializer: nil,
             pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),
             steps: .singleWallet([.createWallet, .success]),
-            cardInput: .userWalletModel(PreviewCard.ethEmptyNote.userWalletModel),
+            cardInput: .userWalletModel(PreviewCard.ethEmptyNote.userWalletModel, cardId: ""),
             twinData: nil
         )
     }
@@ -36,10 +36,9 @@ enum PreviewData {
                 .first,
                 .second,
                 .third,
-                .topup,
                 .done,
             ]),
-            cardInput: .userWalletModel(PreviewCard.twin.userWalletModel),
+            cardInput: .userWalletModel(PreviewCard.twin.userWalletModel, cardId: ""),
             twinData: .init(series: TwinCardSeries.cb61)
         )
     }
@@ -51,7 +50,7 @@ enum PreviewData {
             cardInitializer: nil,
             pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),
             steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
-            cardInput: .userWalletModel(PreviewCard.tangemWalletEmpty.userWalletModel),
+            cardInput: .userWalletModel(PreviewCard.tangemWalletEmpty.userWalletModel, cardId: ""),
             twinData: nil
         )
     }

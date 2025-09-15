@@ -12,7 +12,7 @@ import TangemAssets
 import TangemFoundation
 
 public protocol SelectableSectionRow: View {
-    var isSelected: Bool { get set }
+    var isSelected: Bool { get }
 }
 
 public struct SelectableSection<Model: Identifiable, Content: SelectableSectionRow>: View {
@@ -39,7 +39,7 @@ public struct SelectableSection<Model: Identifiable, Content: SelectableSectionR
 
                 rowView
                     .onChange(of: rowView.isSelected) { newValue in
-                        FeedbackGenerator.selectionChanged()
+                        newValue ? FeedbackGenerator.selectionChanged() : ()
                     }
                     .overlay(alignment: .bottom) {
                         if currentIsSelected {

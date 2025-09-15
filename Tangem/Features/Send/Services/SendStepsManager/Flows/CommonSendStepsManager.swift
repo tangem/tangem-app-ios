@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 class CommonSendStepsManager {
     private let destinationStep: SendDestinationStep
@@ -14,6 +15,7 @@ class CommonSendStepsManager {
     private let feeStep: SendFeeStep
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
+    private let summaryTitleProvider: SendSummaryTitleProvider
 
     private var stack: [SendStep]
     private weak var output: SendStepsManagerOutput?
@@ -27,20 +29,22 @@ class CommonSendStepsManager {
         amountStep: SendAmountStep,
         feeStep: SendFeeStep,
         summaryStep: SendSummaryStep,
-        finishStep: SendFinishStep
+        finishStep: SendFinishStep,
+        summaryTitleProvider: SendSummaryTitleProvider
     ) {
         self.destinationStep = destinationStep
         self.amountStep = amountStep
         self.feeStep = feeStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
+        self.summaryTitleProvider = summaryTitleProvider
 
         stack = [destinationStep]
     }
 
     private func currentStep() -> SendStep {
         let last = stack.last
-        return last ?? initialState.step
+        return last ?? initialStep
     }
 
     private func getNextStep() -> SendStep? {
@@ -49,7 +53,7 @@ class CommonSendStepsManager {
             return amountStep
         case .amount:
             return summaryStep
-        case .fee, .validators, .summary, .finish, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
+        default:
             assertionFailure("There is no next step")
             return nil
         }
@@ -57,21 +61,7 @@ class CommonSendStepsManager {
 
     private func next(step: SendStep) {
         stack.append(step)
-
-        switch step.type {
-        case .summary:
-            output?.update(state: .init(step: step, action: .action))
-        case .finish:
-            output?.update(state: .init(step: step, action: .close))
-        case .amount where isEditAction,
-             .destination where isEditAction,
-             .fee where isEditAction:
-            output?.update(state: .init(step: step, action: .continue))
-        case .amount, .destination:
-            output?.update(state: .init(step: step, action: .next, backButtonVisible: true))
-        case .fee, .validators, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
-            assertionFailure("There is no next step")
-        }
+        output?.update(step: step)
     }
 
     private func back() {
@@ -81,14 +71,7 @@ class CommonSendStepsManager {
         }
 
         stack.removeLast()
-        let step = currentStep()
-
-        switch step.type {
-        case .summary:
-            output?.update(state: .init(step: step, action: .action))
-        default:
-            output?.update(state: .init(step: step, action: .next))
-        }
+        output?.update(step: currentStep())
     }
 }
 
@@ -96,15 +79,47 @@ class CommonSendStepsManager {
 
 extension CommonSendStepsManager: SendStepsManager {
     var initialKeyboardState: Bool { false }
-
     var initialFlowActionType: SendFlowActionType { .send }
-
-    var initialState: SendStepsManagerViewState {
-        .init(step: destinationStep, action: .next, backButtonVisible: false)
-    }
+    var initialStep: any SendStep { destinationStep }
 
     var shouldShowDismissAlert: Bool {
         stack.contains(where: { $0.type.isSummary })
+    }
+
+    var navigationBarSettings: SendStepNavigationBarSettings {
+        switch currentStep().type {
+        case .destination:
+            return .init(
+                title: Localization.sendRecipientLabel,
+                leadingViewType: .closeButton,
+                trailingViewType: .qrCodeButton { [weak self] in
+                    self?.destinationStep.userDidRequestScanQRCode()
+                }
+            )
+        case .amount:
+            return .init(title: Localization.commonAmount, leadingViewType: .closeButton)
+        case .fee:
+            return .init(title: Localization.commonFeeSelectorTitle, leadingViewType: .closeButton)
+        case .summary:
+            return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, leadingViewType: .closeButton)
+        case .finish:
+            return .init(leadingViewType: .closeButton)
+        default:
+            return .empty
+        }
+    }
+
+    var bottomBarSettings: SendStepBottomBarSettings {
+        switch currentStep().type {
+        case .destination where isEditAction: .init(action: .continue)
+        case .amount where isEditAction: .init(action: .continue)
+        case .fee where isEditAction: .init(action: .continue)
+        case .destination: .init(action: .next)
+        case .amount: .init(action: .next, backButtonVisible: true)
+        case .summary: .init(action: .action)
+        case .finish: .init(action: .close)
+        default: .empty
+        }
     }
 
     func set(output: SendStepsManagerOutput) {
@@ -149,12 +164,8 @@ extension CommonSendStepsManager: SendStepsManager {
 // MARK: - SendSummaryStepsRoutable
 
 extension CommonSendStepsManager: SendSummaryStepsRoutable {
-    func summaryStepRequestEditValidators() {
-        assertionFailure("This steps is not tappable in this flow")
-    }
-
     func summaryStepRequestEditDestination() {
-        guard case .summary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
@@ -163,7 +174,7 @@ extension CommonSendStepsManager: SendSummaryStepsRoutable {
     }
 
     func summaryStepRequestEditAmount() {
-        guard case .summary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
@@ -172,7 +183,7 @@ extension CommonSendStepsManager: SendSummaryStepsRoutable {
     }
 
     func summaryStepRequestEditFee() {
-        guard case .summary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
