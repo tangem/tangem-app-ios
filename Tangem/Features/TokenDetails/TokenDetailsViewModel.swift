@@ -196,58 +196,20 @@ extension TokenDetailsViewModel {
     }
 
     func generateXPUBButtonAction() {
-        guard let token = walletModel.tokenItem.token, let yieldService = walletModel.yieldService,
-              let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
-              let ethereumTransactionDataBuilder = walletModel.ethereumTransactionDataBuilder else {
-            return
-        }
-
-        let dispatcher = YieldModuleTransactionDispatcher(
-            walletModel: walletModel,
-            transactionSigner: userWalletModel.signer
-        )
-
-        guard let module = CommonYieldModuleManager(
-            walletAddress: walletModel.defaultAddressString,
-            tokenItem: walletModel.tokenItem,
-            yieldTokenService: yieldService,
-            tokenBalanceProvider: walletModel.totalTokenBalanceProvider,
-            ethereumNetworkProvider: ethereumNetworkProvider,
-            ethereumTransactionDataBuilder: ethereumTransactionDataBuilder,
-            transactionCreator: walletModel.transactionCreator,
-            transactionDispatcher: dispatcher
-        ) else { return }
+        guard let manager = userWalletModel.yieldModuleManager.yieldWalletManagers[walletModel.tokenItem] else { return }
 
         Task {
-            let apy = try await module.getAPY(contractAddress: token.contractAddress)
+            do {
+                await manager.updateState()
+                guard let yieldModule = manager.state?.yieldModule else { return }
+//                let fee = try await manager.exitFee(yieldModule: yieldModule)
+//                let result = try await manager.exit(yieldModule: yieldModule, fee: fee)
 
-            let state = try await module.getYieldModuleState(
-                contractAddress: token.contractAddress
-            )
-
-            if !state.isActive {
-                let fee = try await module.enterFee(
-                    contractAddress: token.contractAddress
-                )
-
-                let result = try await module.enter(
-                    contractAddress: token.contractAddress,
-                    fee: fee
-                )
-
+                let fee = try await manager.enterFee()
+                let result = try await manager.enter(fee: fee)
                 print(result)
-            } else if let yieldModule = state.yieldModule {
-                let fee = try await module.exitFee(
-                    yieldModule: yieldModule,
-                    contractAddress: token.contractAddress
-                )
-
-                let result = try await module.exit(
-                    yieldModule: yieldModule,
-                    contractAddress: token.contractAddress,
-                    fee: fee
-                )
-                print(result)
+            } catch {
+                print(error)
             }
         }
 
@@ -347,6 +309,27 @@ private extension TokenDetailsViewModel {
                 AppLogger.info("Token details receive new StakingManager state: \(state)")
                 self?.updateStaking(state: state)
             }
+            .store(in: &bag)
+
+        userWalletModel.yieldModuleManager.yieldWalletManagersPublisher
+            .setFailureType(to: Error.self)
+            .receiveOnMain()
+            .compactMap { [self] walletManagers -> YieldModuleWalletManager? in
+                walletManagers[walletModel.tokenItem]
+            }
+            .first()
+            .eraseToAnyPublisher()
+            .flatMap { manager in
+                return manager.statePublisher
+            }
+            .sink(
+                receiveCompletion: { _ in
+
+                },
+                receiveValue: { value in
+                    print("value: \(value)")
+                }
+            )
             .store(in: &bag)
     }
 
