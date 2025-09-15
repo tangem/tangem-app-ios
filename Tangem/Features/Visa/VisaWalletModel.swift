@@ -13,11 +13,13 @@ import TangemVisa
 import TangemStaking
 import TangemExpress
 import TangemLocalization
+import TangemFoundation
 
 class VisaWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     let id: WalletModelId
+    let userWalletId: UserWalletId
 
     lazy var availableBalanceProvider = makeAvailableBalanceProvider()
     let stakingBalanceProvider: TokenBalanceProvider = NotSupportedStakingTokenBalanceProvider()
@@ -36,10 +38,12 @@ class VisaWalletModel {
     private let transactionSendAvailabilityProvider: TransactionSendAvailabilityProvider
 
     init(
+        userWalletId: UserWalletId,
         tokenItem: TokenItem,
         tokenBalancesRepository: TokenBalancesRepository,
         transactionSendAvailabilityProvider: TransactionSendAvailabilityProvider
     ) {
+        self.userWalletId = userWalletId
         self.tokenItem = tokenItem
         id = .init(tokenItem: tokenItem)
 
@@ -312,6 +316,21 @@ extension VisaWalletModel: WalletModel {
     var stakeKitTransactionSender: (any StakeKitTransactionSender)? { nil }
 
     var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? { nil }
+
+    var account: any CryptoAccountModel {
+        preconditionFailure("Visa should be implemented as a dedicated account type, not as a wallet model")
+    }
+
+    var receiveAddressInfos: [ReceiveAddressInfo] {
+        // [REDACTED_TODO_COMMENT]
+        ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
+    }
+
+    var receiveAddressTypes: [ReceiveAddressType] {
+        // [REDACTED_TODO_COMMENT]
+        let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
+        return addressInfos.map { .address($0) }
+    }
 }
 
 extension VisaWalletModel: Equatable {
