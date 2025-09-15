@@ -17,7 +17,7 @@ final class CommonCryptoAccountsRepository {
     private let tokenItemsRepository: TokenItemsRepository
     private let networkService: CryptoAccountsNetworkService
     private let storage: CryptoAccountsPersistentStorage & _CryptoAccountsPersistentStorage
-    private let storageDidUpdateSubject: StorageDidUpdateSubject
+    private let storageDidUpdateSubject: CryptoAccountsPersistentStorage.StorageDidUpdateSubject
 
     /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
     private lazy var _cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> = storageDidUpdateSubject
@@ -32,7 +32,7 @@ final class CommonCryptoAccountsRepository {
         networkService: CryptoAccountsNetworkService,
         storage: CryptoAccountsPersistentStorage & _CryptoAccountsPersistentStorage
     ) {
-        storageDidUpdateSubject = StorageDidUpdateSubject()
+        storageDidUpdateSubject = CryptoAccountsPersistentStorage.StorageDidUpdateSubject()
         self.tokenItemsRepository = tokenItemsRepository
         self.networkService = networkService
         self.storage = storage
