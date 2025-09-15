@@ -10,6 +10,14 @@ import SwiftUI
 import TangemFoundation
 
 enum YieldModuleBottomSheetParams {
+    struct СommonParams: Equatable {
+        let tokenName: String
+        let networkFee: String
+
+        @IgnoredEquatable var readMoreAction: @MainActor @Sendable () -> Void
+        @IgnoredEquatable var mainAction: @MainActor @Sendable () -> Void
+    }
+
     struct StartEarningParams: Equatable {
         let tokenName: String
         let tokenIcon: Image
@@ -38,8 +46,9 @@ enum YieldModuleBottomSheetParams {
         let tokenName: String
         let tokenSymbol: String
 
-        @IgnoredEquatable var onReadMoreAction: () -> Void
-        @IgnoredEquatable var onStopEarningAction: () -> Void
+        @IgnoredEquatable var onReadMoreAction: @MainActor @Sendable () -> Void
+        @IgnoredEquatable var onStopEarningAction: @MainActor @Sendable () -> Void
+        @IgnoredEquatable var onApproveAction: @MainActor @Sendable () -> Void
 
         struct AvailableFundsData: Identifiable, Equatable {
             let availableBalance: String
