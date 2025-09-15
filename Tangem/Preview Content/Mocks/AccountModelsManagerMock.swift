@@ -35,15 +35,19 @@ final class AccountModelsManagerMock {
 // MARK: - AccountModelsManager protocol conformance
 
 extension AccountModelsManagerMock: AccountModelsManager {
+    var canAddCryptoAccounts: Bool {
+        true
+    }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws {
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
         cryptoAccounts.append(CryptoAccountModelMock(isMainAccount: false))
     }
 
-    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws {
+    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws(AccountModelsManagerError) {
         removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier().toAnyHashable())
     }
 }
