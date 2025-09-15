@@ -39,6 +39,7 @@ class AppCoordinator: CoordinatorObject {
     @Injected(\.appLockController) private var appLockController: AppLockController
     @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.servicesManager) private var servicesManager: ServicesManager
 
     // MARK: - Child coordinators
 
@@ -83,6 +84,15 @@ class AppCoordinator: CoordinatorObject {
             setupAuth(unlockOnAppear: true)
         case .uncompletedBackup:
             setupUncompletedBackup()
+        case .main(let model):
+            openMain(with: model)
+        case .launchScreen:
+            setupLaunch()
+
+            runTask(in: self) { coordinator in
+                await coordinator.servicesManager.initializeKeychainSensitiveServices()
+                coordinator.start(with: options)
+            }
         }
     }
 
@@ -103,6 +113,10 @@ class AppCoordinator: CoordinatorObject {
 
     private func setupLock() {
         setState(.lock)
+    }
+
+    private func setupLaunch() {
+        setState(.launch)
     }
 
     private func setupWelcome() {
@@ -277,10 +291,11 @@ extension AppCoordinator {
         case main(MainCoordinator)
         case onboarding(OnboardingCoordinator)
         case lock
+        case launch
 
         var shouldAddLockView: Bool {
             switch self {
-            case .auth, .welcome:
+            case .auth, .welcome, .launch:
                 return false
             case .lock, .main, .onboarding, .uncompleteBackup:
                 return true

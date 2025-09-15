@@ -7,21 +7,23 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 public struct VisaAuthorizationTokensHandlerBuilder {
-    private let apiType: VisaAPIType
-    private let isMockedAPIEnabled: Bool
+    private let apiServiceBuilder: VisaAPIServiceBuilder
 
     public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
-        self.apiType = apiType
-        self.isMockedAPIEnabled = isMockedAPIEnabled
+        apiServiceBuilder = VisaAPIServiceBuilder(
+            apiType: apiType,
+            isMockedAPIEnabled: isMockedAPIEnabled
+        )
     }
 
     public func build(
         cardId: String,
         cardActivationStatus: VisaCardActivationLocalState,
         refreshTokenSaver: VisaRefreshTokenSaver?,
-        urlSessionConfiguration: URLSessionConfiguration
+        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> VisaAuthorizationTokensHandler {
         let authorizationTokensHolder: AuthorizationTokensHolder
         if let authorizationTokens = cardActivationStatus.authTokens {
@@ -30,11 +32,10 @@ public struct VisaAuthorizationTokensHandlerBuilder {
             authorizationTokensHolder = .init()
         }
 
-        let authorizationTokenRefreshService = VisaAPIServiceBuilder(
-            apiType: apiType,
-            isMockedAPIEnabled: isMockedAPIEnabled
-        )
-        .buildAuthorizationTokenRefreshService(urlSessionConfiguration: urlSessionConfiguration)
+        let authorizationTokenRefreshService = apiServiceBuilder
+            .buildAuthorizationTokenRefreshService(
+                urlSessionConfiguration: urlSessionConfiguration
+            )
 
         let authorizationTokensHandler = CommonVisaAuthorizationTokensHandler(
             cardId: cardId,
@@ -44,5 +45,13 @@ public struct VisaAuthorizationTokensHandlerBuilder {
         )
 
         return authorizationTokensHandler
+    }
+
+    public func build(visaAuthorizationTokens: VisaAuthorizationTokens) -> VisaAuthorizationTokensHandler {
+        TangemPayAuthorizationTokensHandler(
+            authorizationTokensHolder: AuthorizationTokensHolder(
+                authorizationTokens: visaAuthorizationTokens
+            )
+        )
     }
 }

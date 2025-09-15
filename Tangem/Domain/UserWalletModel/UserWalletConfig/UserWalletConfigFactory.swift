@@ -16,8 +16,8 @@ struct UserWalletConfigFactory {
         switch walletInfo {
         case .cardWallet(let cardInfo):
             makeConfig(cardInfo: cardInfo)
-        case .mobileWallet(let hotWalletInfo):
-            makeConfig(hotWalletInfo: hotWalletInfo)
+        case .mobileWallet(let mobileWalletInfo):
+            makeConfig(mobileWalletInfo: mobileWalletInfo)
         }
     }
 
@@ -64,8 +64,7 @@ struct UserWalletConfigFactory {
         }
     }
 
-    func makeConfig(hotWalletInfo: HotWalletInfo) -> HotUserWalletConfig {
-        #warning("provide implementation")
-        fatalError("Not implemented")
+    func makeConfig(mobileWalletInfo: MobileWalletInfo) -> MobileUserWalletConfig {
+        return MobileUserWalletConfig(mobileWalletInfo: mobileWalletInfo)
     }
 }
