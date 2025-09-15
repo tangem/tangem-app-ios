@@ -14,12 +14,11 @@ import BlockchainSdk
 final class CommonYieldModuleAvailabilityProvider {
     private var isFeatureToggleEnabled: Bool { FeatureProvider.isAvailable(.yieldModule) }
 
-    init() {
-    }
+    init() {}
 }
 
 extension CommonYieldModuleAvailabilityProvider: YieldModuleAvailabilityProvider {
-    func isYieldModuleAvailable() -> Bool {
-        isFeatureToggleEnabled
+    func isYieldModuleAvailable(for tokenItem: TokenItem) -> Bool {
+        tokenItem.blockchain.isEvm && isFeatureToggleEnabled
     }
 }

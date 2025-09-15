@@ -44,7 +44,7 @@ final class YieldTransactionFeeProvider {
 
     func initializeFee(address: String, yieldModule: String, balance: Decimal) async throws -> InitEnterFee {
         async let estimatedFee = estimateFee(gasLimit: YieldConstants.estimatedGasLimit)
-        async let approveData = try await approveData(address: address, contractAddress: yieldModule, balance: balance)
+        let approveData = try await approveData(spender: yieldModule, balance: balance)
 
         return try await InitEnterFee(
             initFee: estimatedFee,
@@ -54,12 +54,19 @@ final class YieldTransactionFeeProvider {
 
     func reactivateFee(address: String, yieldModule: String, balance: Decimal) async throws -> ReactivateEnterFee {
         async let estimatedFee = estimateFee(gasLimit: YieldConstants.estimatedGasLimit)
-        async let approveData = try await approveData(address: address, contractAddress: yieldModule, balance: balance)
+        async let approveData = approveData(spender: yieldModule, balance: balance)
 
         return try await ReactivateEnterFee(
             reactivateFee: estimatedFee,
             enterFee: EnterFee(enterFee: estimatedFee, approveFee: approveData?.fee)
         )
+    }
+
+    func enterFee(address: String, yieldModule: String, balance: Decimal) async throws -> EnterFee {
+        async let estimatedFee = estimateFee(gasLimit: YieldConstants.estimatedGasLimit)
+        async let approveData = approveData(spender: yieldModule, balance: balance)
+
+        return try await EnterFee(enterFee: estimatedFee, approveFee: approveData?.fee)
     }
 
     func exitFee(yieldModule: String, contractAddress: String) async throws -> any YieldTransactionFee {
@@ -103,10 +110,11 @@ private extension YieldTransactionFeeProvider {
         return Fee(gasAmount, parameters: parameters)
     }
 
-    private func approveData(address: String, contractAddress: String, balance: Decimal) async throws -> ApproveTransactionData? {
+    private func approveData(spender: String, balance: Decimal) async throws -> ApproveTransactionData? {
+        let balance = balance > 0 ? balance : 1
         let isPermissionRequired = try await allowanceChecker.isPermissionRequired(
             amount: balance * blockchain.decimalValue,
-            spender: contractAddress
+            spender: spender
         )
 
         guard isPermissionRequired else {
@@ -114,7 +122,7 @@ private extension YieldTransactionFeeProvider {
         }
 
         return try await allowanceChecker.makeApproveData(
-            spender: contractAddress,
+            spender: spender,
             amount: .greatestFiniteMagnitude,
             policy: .unlimited
         )

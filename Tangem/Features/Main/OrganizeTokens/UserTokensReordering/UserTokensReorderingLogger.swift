@@ -50,7 +50,7 @@ struct UserTokensReorderingLogger {
         return objectDescription(
             "Token: \(item.name)",
             userInfo: [
-                "state": description(for: walletModel?.state),
+                "state": description(for: walletModel?.walletModelState),
                 "canUseQuotes": description(for: walletModel?.canUseQuotes),
                 "isCustom": description(for: walletModel?.isCustom),
             ]

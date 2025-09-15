@@ -22,6 +22,7 @@ class LockedUserWalletModel: UserWalletModel {
     let userTokensManager: UserTokensManager = LockedUserTokensManager()
     let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
     let nftManager: NFTManager = NotSupportedNFTManager()
+    let yieldModuleManager: YieldModuleManager = NotSupportedYieldModuleManager()
     let walletImageProvider: WalletImageProviding
     let config: UserWalletConfig
 
