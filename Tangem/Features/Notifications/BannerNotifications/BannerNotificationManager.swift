@@ -57,10 +57,8 @@ class BannerNotificationManager {
     private func setupNotification(promotion: ActivePromotionInfo) async {
         let analytics = BannerNotificationEventAnalyticsParamsBuilder(programName: promotion.bannerPromotion, placement: placement)
 
-        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self, placement] id, action in
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
             self?.delegate?.didTapNotification(with: id, action: action)
-            self?.bannerPromotionService.hide(promotion: promotion.bannerPromotion, on: placement)
-            self?.dismissNotification(with: id)
 
             var params = analytics.analyticsParams
             params[.action] = Analytics.ParameterValue.clicked.rawValue

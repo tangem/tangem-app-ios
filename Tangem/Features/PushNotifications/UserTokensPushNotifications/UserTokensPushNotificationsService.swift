@@ -13,7 +13,7 @@ protocol UserTokensPushNotificationsService: AnyObject {
     var entries: [ApplicationWalletEntry] { get }
     var entriesPublisher: AnyPublisher<[ApplicationWalletEntry], Never> { get }
 
-    func initialize() async
+    func initialize()
 
     func updateWallet(notifyStatus: Bool, by userWalletId: String)
 }
