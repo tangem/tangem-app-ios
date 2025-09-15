@@ -1,5 +1,5 @@
 //
-//  UITestsAPIResolver.swift
+//  MockAPIResolver.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,19 +8,17 @@
 
 import Foundation
 
-#if DEBUG
-struct UITestsAPIResolver {
+struct MockAPIResolver {
     func resolve(providerType: NetworkProviderType, blockchain: Blockchain) -> NodeInfo? {
         guard case .cardano = blockchain else {
             return nil
         }
 
         switch providerType {
-        case .cardanoMock:
+        case .mock:
             return .init(url: URL(string: "https://wiremock.tests-d.com/cardano")!)
         default:
             return nil
         }
     }
 }
-#endif

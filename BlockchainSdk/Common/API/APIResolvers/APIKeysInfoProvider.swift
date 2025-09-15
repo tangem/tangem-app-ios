@@ -63,12 +63,8 @@ struct APIKeysInfoProvider {
                 headerName: "x-api-key",
                 headerValue: keysConfig.tangemAlephiumApiKey
             )
-        case .public, .quickNode, .getBlock, .blockchair, .blockcypher, .infura, .adalite, .tangemRosetta, .solana, .kaspa, .dwellir, .none:
+        case .public, .quickNode, .getBlock, .blockchair, .blockcypher, .infura, .adalite, .tangemRosetta, .solana, .kaspa, .dwellir, .mock, .none:
             return nil
-        #if DEBUG
-        case .cardanoMock:
-            return nil
-        #endif
         }
     }
 }
