@@ -17,11 +17,20 @@ struct SendNewDestinationView: View {
 
     var body: some View {
         GroupedScrollView(spacing: 20) {
-            GroupedSection(viewModel.destinationAddressViewModel) {
-                SendNewDestinationAddressView(viewModel: $0)
+            GroupedSection(viewModel.destinationAddressSectionType) { type in
+                switch type {
+                case .destinationAddress(let viewModel):
+                    SendNewDestinationAddressView(viewModel: viewModel)
+                case .destinationResolvedAddress(let resolved):
+                    Text(resolved)
+                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
             } footer: {
                 DefaultFooterView(Localization.sendRecipientAddressFooter(viewModel.networkName))
             }
+            .interItemSpacing(12)
             .innerContentPadding(12)
             .backgroundColor(Colors.Background.action)
 

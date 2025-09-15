@@ -45,10 +45,10 @@ extension NoteOnboardingStepsBuilder: OnboardingStepsBuilder {
             if !AppSettings.shared.cardsStartedActivation.contains(cardId) {
                 steps.append(contentsOf: otherSteps)
             } else {
-                steps.append(contentsOf: otherSteps + [.topup, .successTopup])
+                steps.append(contentsOf: otherSteps + [.success])
             }
         } else {
-            steps.append(contentsOf: [.createWallet] + otherSteps + [.topup, .successTopup])
+            steps.append(contentsOf: [.createWallet] + otherSteps + [.success])
         }
 
         return .singleWallet(steps)

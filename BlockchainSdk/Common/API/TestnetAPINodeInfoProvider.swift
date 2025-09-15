@@ -276,7 +276,11 @@ struct TestnetAPINodeInfoProvider {
             ]
         case .pepecoin:
             return [
-                .init(url: URL(string: " https://testnet.pepeblocks.com")!),
+                .init(url: URL(string: "https://testnet.pepeblocks.com")!),
+            ]
+        case .hyperliquidEVM:
+            return [
+                .init(url: URL(string: "https://rpc.hyperliquid-testnet.xyz/evm")!),
             ]
         // [REDACTED_TODO_COMMENT]
         case .bitcoin, .litecoin, .disChain, .rsk, .bitcoinCash, .binance, .cardano,
