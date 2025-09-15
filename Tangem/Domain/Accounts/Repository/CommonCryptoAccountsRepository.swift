@@ -39,7 +39,7 @@ final class CommonCryptoAccountsRepository {
         storage.bind(to: storageDidUpdateSubject)
     }
 
-    private func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [StoredCryptoAccount.StoredToken]) {
+    private func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [StoredCryptoAccount.Token]) {
         let storedAccount = StoredCryptoAccount(
             derivationIndex: config.derivationIndex,
             name: config.name,
@@ -78,7 +78,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
 
     func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [TokenItem]) {
         // [REDACTED_TODO_COMMENT]
-        let storedTokens: [StoredCryptoAccount.StoredToken] = []
+        let storedTokens: [StoredCryptoAccount.Token] = []
         addCryptoAccount(withConfig: config, tokens: storedTokens)
     }
 

@@ -9,7 +9,7 @@
 import Foundation
 
 struct StoredCryptoAccount: Codable, Equatable {
-    typealias StoredToken = StoredUserTokenList.Entry
+    typealias Token = StoredUserTokenList.Entry
     typealias Grouping = StoredUserTokenList.Grouping
     typealias Sorting = StoredUserTokenList.Sorting
 
@@ -22,7 +22,7 @@ struct StoredCryptoAccount: Codable, Equatable {
     /// Nil, if the account uses a localized name.
     let name: String?
     let icon: Icon
-    let tokens: [StoredToken]
+    let tokens: [Token]
     let grouping: Grouping
     let sorting: Sorting
 }
