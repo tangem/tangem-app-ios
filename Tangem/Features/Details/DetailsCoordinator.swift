@@ -28,6 +28,8 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var userWalletSettingsCoordinator: UserWalletSettingsCoordinator?
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
+    @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator?
+    @Published var importWalletSelectorCoordinator: ImportWalletSelectorCoordinator?
 
     // MARK: - Child view models
 
@@ -36,6 +38,7 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var tosViewModel: TOSViewModel?
     @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
     @Published var logsViewModel: LogsViewModel?
+    @Published var tangemPayOfferViewModel: TangemPayOfferViewModel?
 
     // MARK: - Helpers
 
@@ -100,6 +103,34 @@ extension DetailsCoordinator: DetailsRoutable {
         modalOnboardingCoordinator = coordinator
     }
 
+    func openCreateWallet() {
+        let dismissAction: Action<CreateWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main:
+                self?.dismiss()
+            }
+        }
+
+        let coordinator = CreateWalletSelectorCoordinator(dismissAction: dismissAction)
+        let inputOptions = CreateWalletSelectorCoordinator.InputOptions()
+        coordinator.start(with: inputOptions)
+        createWalletSelectorCoordinator = coordinator
+    }
+
+    func openImportWallet() {
+        let dismissAction: Action<ImportWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main:
+                self?.dismiss()
+            }
+        }
+
+        let coordinator = ImportWalletSelectorCoordinator(dismissAction: dismissAction)
+        let inputOptions = ImportWalletSelectorCoordinator.InputOptions()
+        coordinator.start(with: inputOptions)
+        importWalletSelectorCoordinator = coordinator
+    }
+
     func openAppSettings() {
         let coordinator = AppSettingsCoordinator(popToRootAction: popToRootAction)
         coordinator.start(with: .init())
@@ -141,5 +172,9 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openLogs() {
         logsViewModel = .init()
+    }
+
+    func openTangemPayOfferViewModel() {
+        tangemPayOfferViewModel = TangemPayOfferViewModel()
     }
 }
