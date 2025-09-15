@@ -192,6 +192,7 @@
 "common_camera_denied_alert_title" = "相機存取權遭拒";
 "common_cancel" = "删除";
 "common_change" = "Change";
+"common_choose_account" = "Choose account";
 "common_choose_action" = "Choose action";
 "common_choose_network" = "Choose network";
 "common_choose_token" = "選擇代幣";
@@ -985,9 +986,7 @@
 "send_qrcode_scan_info" = "Please align your QR code with the square to scan it. Ensure you scan %@ network address.";
 "send_recent_transactions" = "Recent";
 "send_recipient_address_error" = "Not a valid address";
-"send_recipient_address_footer_highlighted_part" = "%@ network";
-"send_recipient_address_footer_v2" = "Make sure you are sending to an address on the %@. An error may result in the loss of funds.";
-"send_recipient_address_footer" = "Ensure the receiving wallet address is on **the %@ network** to avoid losing your tokens";
+"send_recipient_address_footer" = "Ensure the recipient's address is on **the %@ network** to avoid losing your funds";
 "send_recipient_label" = "Send to";
 "send_recipient_memo_footer_v2_highlighted" = "Caution: Missing a memo may lead to fund loss.";
 "send_recipient_memo_footer" = "A Memo/Destination Tag is a unique ID for differentiating transactions sent to the same recipient on the same network. Caution: Omitting a memo may lead to misplaced funds";
@@ -1206,6 +1205,14 @@
 "swapping_to_title" = "You receive";
 "swapping_token_list_title" = "選擇代幣";
 "swapping_token_not_available" = "無法使用";
+"tangempay_onboarding_get_card_button_text" = "Get card";
+"tangempay_onboarding_pay_description" = "Add to your wallet and pay with your phone anywhere.";
+"tangempay_onboarding_pay_title" = "Apple Pay &amp; Google Pay";
+"tangempay_onboarding_purchases_description" = "Use your USDC balance to pay for everyday purchases seamlessly.";
+"tangempay_onboarding_purchases_title" = "Everyday purchases";
+"tangempay_onboarding_security_description" = "Your card details are protected — full control in the app.";
+"tangempay_onboarding_security_title" = "Built-in security";
+"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
 "this_is_my_wallet_title" = "This is my wallet";
 "toast_balances_hidden" = "Balances hidden";
 "toast_balances_shown" = "Balances shown";
@@ -1659,8 +1666,8 @@
 "yield_module_promo_screen_how_it_works_button_title" = "How it works?";
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave is trusted by millions worldwide. Total lended value is $10.4B.";
 "yield_module_promo_screen_self_custodial_title" = "Decentralized and self-custodial";
-"yield_module_promo_screen_terms_disclaimer" = "By using service, you agree with provider";
-"yield_module_promo_screen_title" = "Earn %@% yearly";
+"yield_module_promo_screen_terms_disclaimer" = "By using service, you agree with provider %1$@ and %2$@";
+"yield_module_promo_screen_title" = "Earn %@%% yearly";
 "yield_module_promo_screen_variable_rate_info" = "Aave • Variable Interest Rate";
 "yield_module_provider" = "Aave";
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";

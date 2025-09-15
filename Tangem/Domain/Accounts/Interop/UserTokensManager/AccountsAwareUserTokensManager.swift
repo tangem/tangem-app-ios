@@ -29,7 +29,7 @@ final class AccountsAwareUserTokensManager {
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
 
     private var isMainAccountManager: Bool {
-        derivationInfo.derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
+        AccountModelUtils.isMainAccount(derivationInfo.derivationIndex)
     }
 
     init(
@@ -54,26 +54,22 @@ final class AccountsAwareUserTokensManager {
         let blockchain = tokenItem.blockchain
         let derivationPathHelper = AccountDerivationPathHelper(blockchain: blockchain)
 
-        // The token item already contains derivation, such token items can be added to the main account as is (but in a canonical form)
-        if let tokenItemDerivationPath = tokenItem.blockchainNetwork.derivationPath, isMainAccountManager {
-            let canonicalDerivationPath = derivationPathHelper.canonicalDerivationPath(from: tokenItemDerivationPath)
-
-            return makeTokenItem(from: tokenItem, with: canonicalDerivationPath)
+        // In case when a token item already contains derivation such token item can be added to the main account as is
+        if isMainAccountManager {
+            return makeTokenItem(from: tokenItem, with: tokenItem.blockchainNetwork.derivationPath)
         }
 
         guard let derivationStyle = derivationInfo.derivationStyle else {
-            // [REDACTED_TODO_COMMENT]
             return tokenItem
         }
 
         let originalDerivationPath = blockchain.derivationPath(for: derivationStyle)
 
-        // [REDACTED_TODO_COMMENT]
-        let canonicalDerivationPath = originalDerivationPath.map { path in
-            return derivationPathHelper.canonicalDerivationPath(from: path, derivationIndexValue: derivationInfo.derivationIndex)
+        let accountAwareDerivationPath = originalDerivationPath.map { path in
+            return derivationPathHelper.makeDerivationPath(from: path, forAccountWithIndex: derivationInfo.derivationIndex)
         }
 
-        return makeTokenItem(from: tokenItem, with: canonicalDerivationPath)
+        return makeTokenItem(from: tokenItem, with: accountAwareDerivationPath)
     }
 
     private func makeTokenItem(from tokenItem: TokenItem, with derivationPath: DerivationPath?) -> TokenItem {
@@ -129,6 +125,14 @@ final class AccountsAwareUserTokensManager {
 
         if let derivationPath, blockchain.curve == .ed25519_slip0010, derivationPath.nodes.contains(where: { !$0.isHardened }) {
             throw TangemSdkError.nonHardenedDerivationNotSupported
+        }
+
+        // Some blockchains do not support any derivations other than the default one (for the main account)
+        if let derivationPath,
+           let accountDerivationNode = AccountDerivationPathHelper(blockchain: blockchain).extractAccountDerivationNode(from: derivationPath),
+           !AccountModelUtils.isMainAccount(accountDerivationNode.rawIndex),
+           !blockchain.curve.supportsDerivation {
+            throw Error.derivationNotSupported(tokenName: tokenItem.name)
         }
 
         // Token items with custom derivations can be added to the main account as is
@@ -451,6 +455,7 @@ extension AccountsAwareUserTokensManager {
 
     enum Error: LocalizedError {
         case addressNotFound
+        case derivationNotSupported(tokenName: String)
         case derivationPathNotFound(tokenName: String)
         case accountDerivationNodeMismatch(expected: UInt32, actual: UInt32, tokenName: String)
         case failedSupportedLongHashesTokens(blockchainDisplayName: String)
@@ -462,12 +467,10 @@ extension AccountsAwareUserTokensManager {
                 return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
-            case .addressNotFound:
-                return Localization.genericErrorCode(errorCode)
-            case .derivationPathNotFound:
-                // [REDACTED_TODO_COMMENT]
-                return Localization.genericErrorCode(errorCode)
-            case .accountDerivationNodeMismatch:
+            case .addressNotFound,
+                 .derivationNotSupported,
+                 .derivationPathNotFound,
+                 .accountDerivationNodeMismatch:
                 // [REDACTED_TODO_COMMENT]
                 return Localization.genericErrorCode(errorCode)
             }
