@@ -12,6 +12,8 @@ import CombineExt
 import TangemFoundation
 
 final class CommonCryptoAccountsRepository {
+    private typealias StorageDidUpdateSubject = PassthroughSubject<Void, Never>
+
     private let tokenItemsRepository: TokenItemsRepository
     private let networkService: CryptoAccountsNetworkService
     private let storage: CryptoAccountsPersistentStorage
@@ -34,6 +36,18 @@ final class CommonCryptoAccountsRepository {
         self.storage = storage
         storage.bind(to: storageDidUpdateSubject)
     }
+
+    private func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [StoredCryptoAccount.Token]) {
+        let storedAccount = StoredCryptoAccount(
+            derivationIndex: config.derivationIndex,
+            name: config.name,
+            icon: .init(iconName: config.iconName, iconColor: config.iconColor),
+            tokens: tokens,
+            grouping: Constants.defaultGroupingType, // [REDACTED_TODO_COMMENT]
+            sorting: Constants.defaultSortingType // [REDACTED_TODO_COMMENT]
+        )
+        storage.appendNewOrUpdateExisting(account: storedAccount)
+    }
 }
 
 // MARK: - CryptoAccountsRepository protocol conformance
@@ -52,13 +66,9 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     }
 
     func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [TokenItem]) {
-        let storedAccount = StoredCryptoAccount(
-            derivationIndex: config.derivationIndex,
-            name: config.name,
-            icon: .init(iconName: config.iconName, iconColor: config.iconColor),
-            tokenList: .empty // [REDACTED_TODO_COMMENT]
-        )
-        storage.appendNewOrUpdateExisting(account: storedAccount)
+        // [REDACTED_TODO_COMMENT]
+        let storedTokens: [StoredCryptoAccount.Token] = []
+        addCryptoAccount(withConfig: config, tokens: storedTokens)
     }
 
     func removeCryptoAccount(withIdentifier identifier: AnyHashable) {
@@ -66,10 +76,11 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     }
 }
 
-// MARK: - Auxiliary types
+// MARK: - Constants
 
-private extension CommonCryptoAccountsRepository {}
-
-extension CryptoAccountsRepository {
-    typealias StorageDidUpdateSubject = PassthroughSubject<Void, Never>
+private extension CommonCryptoAccountsRepository {
+    enum Constants {
+        static let defaultGroupingType: StoredCryptoAccount.Grouping = .none
+        static let defaultSortingType: StoredCryptoAccount.Sorting = .manual
+    }
 }
