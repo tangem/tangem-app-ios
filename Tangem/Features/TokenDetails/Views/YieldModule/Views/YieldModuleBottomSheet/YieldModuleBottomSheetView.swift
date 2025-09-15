@@ -24,10 +24,6 @@ struct YieldModuleBottomSheetView: View {
 
     @ViewBuilder
     private var contentView: some View {
-        Rectangle()
-            .fill(.red)
-            .frame(height: 700)
-            .frame(width: 50)
 
         YieldModuleBottomSheetContainerView(
             title: title,
