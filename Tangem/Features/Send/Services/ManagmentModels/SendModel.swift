@@ -417,6 +417,7 @@ extension SendModel: NotificationTapDelegate {
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .unlock,
+             .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
              .tangemPayViewKYCStatus:
