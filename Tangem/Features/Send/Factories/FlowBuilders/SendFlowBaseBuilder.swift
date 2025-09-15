@@ -9,7 +9,6 @@
 import Foundation
 
 struct SendFlowBaseBuilder {
-    let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
     let coordinatorSource: SendCoordinator.Source
     let sendAmountStepBuilder: SendAmountStepBuilder
@@ -57,7 +56,6 @@ struct SendFlowBaseBuilder {
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
             actionType: .send,
-            descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
             destinationEditableType: .editable,
             amountEditableType: .editable,
@@ -99,7 +97,8 @@ struct SendFlowBaseBuilder {
             amountStep: amount.step,
             feeStep: fee.step,
             summaryStep: summary.step,
-            finishStep: finish
+            finishStep: finish,
+            summaryTitleProvider: builder.makeSendSummaryTitleProvider()
         )
 
         summary.step.set(router: stepsManager)
@@ -110,12 +109,11 @@ struct SendFlowBaseBuilder {
         let viewModel = SendViewModel(
             interactor: interactor,
             stepsManager: stepsManager,
-            userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
             dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
             analyticsLogger: analyticsLogger,
+            blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper(),
             tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
             source: coordinatorSource,
             coordinator: router
         )
