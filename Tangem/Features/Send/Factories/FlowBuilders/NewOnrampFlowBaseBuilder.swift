@@ -52,7 +52,7 @@ struct NewOnrampFlowBaseBuilder {
             onrampManager: onrampManager
         )
 
-        let (onrampAmountViewModel, _) = onrampAmountBuilder.makeOnrampAmountViewModel(
+        let (onrampAmountViewModel, _) = onrampAmountBuilder.makeNewOnrampAmountViewModel(
             io: (input: onrampModel, output: onrampModel),
             onrampProvidersInput: onrampModel,
             coordinator: router
