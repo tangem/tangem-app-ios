@@ -73,7 +73,7 @@ extension YieldModuleBottomSheetView {
         // MARK: - View Body
 
         var body: some View {
-            VStack(spacing: 14) {
+            VStack(spacing: 12) {
                 HStack(spacing: 12) {
                     iconStack
                     message
@@ -95,7 +95,6 @@ extension YieldModuleBottomSheetView {
                     .frame(size: .init(bothDimensions: 16))
                 Spacer()
             }
-            .padding(.top, 2)
         }
 
         private var message: some View {
