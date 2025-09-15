@@ -66,18 +66,6 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     }
 }
 
-// MARK: - Constants
-
-// [REDACTED_TODO_COMMENT]
-/** private */ extension CommonCryptoAccountsRepository {
-    enum Constants {
-        static let mainAccountDerivationIndex = 0
-        static let mainAccountName = "Main Account" // [REDACTED_TODO_COMMENT]
-        static let mainAccountIconName = AccountModel.Icon.Name.star.rawValue
-        static let mainAccountIconColor = AccountModel.Icon.Color.brightBlue.rawValue
-    }
-}
-
 // MARK: - Auxiliary types
 
 private extension CommonCryptoAccountsRepository {}

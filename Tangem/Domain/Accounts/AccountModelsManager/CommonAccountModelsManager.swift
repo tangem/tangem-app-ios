@@ -25,6 +25,7 @@ actor CommonAccountModelsManager {
     private let userTokensManagerFactory: AccountUserTokensManagerFactory
     private let userWalletId: UserWalletId
     private let executor: any SerialExecutor
+    private let areHDWalletsSupported: Bool
 
     /// - Note: Manual synchronization is used for reads/writes, hence it is safe to mark this as `nonisolated(unsafe)`.
     private nonisolated(unsafe) var unsafeAccountModelsPublisher: AnyPublisher<[AccountModel], Never>?
@@ -34,12 +35,14 @@ actor CommonAccountModelsManager {
         userWalletId: UserWalletId,
         cryptoAccountsRepository: CryptoAccountsRepository,
         walletModelsManagerFactory: AccountWalletModelsManagerFactory,
-        userTokensManagerFactory: AccountUserTokensManagerFactory
+        userTokensManagerFactory: AccountUserTokensManagerFactory,
+        areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
         self.walletModelsManagerFactory = walletModelsManagerFactory
         self.userTokensManagerFactory = userTokensManagerFactory
+        self.areHDWalletsSupported = areHDWalletsSupported
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
         initialize() // [REDACTED_TODO_COMMENT]
@@ -173,11 +176,19 @@ actor CommonAccountModelsManager {
 // MARK: - AccountModelsManager protocol conformance
 
 extension CommonAccountModelsManager: AccountModelsManager {
+    nonisolated var canAddCryptoAccounts: Bool {
+        areHDWalletsSupported
+    }
+
     nonisolated var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         makeOrGetAccountModelsPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws {
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
+        guard canAddCryptoAccounts else {
+            throw .addingCryptoAccountsNotSupported
+        }
+
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]
         let newDerivationIndex = cryptoAccountsRepository.totalCryptoAccountsCount + 1
@@ -191,7 +202,11 @@ extension CommonAccountModelsManager: AccountModelsManager {
         cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: [])
     }
 
-    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws {
+    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws(AccountModelsManagerError) {
+        if identifier.isMainAccount {
+            throw .cannotArchiveCryptoAccount
+        }
+
         cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
     }
 }
