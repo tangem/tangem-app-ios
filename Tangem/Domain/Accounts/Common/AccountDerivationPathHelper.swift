@@ -14,36 +14,49 @@ import BlockchainSdk
 struct AccountDerivationPathHelper {
     private let blockchain: Blockchain
 
-    private var accountDerivationNodeIndex: Int {
-        blockchain.isUTXO ? Constants.utxoDerivationNodeIndex : Constants.nonUTXODerivationNodeIndex
-    }
-
     init(blockchain: Blockchain) {
         self.blockchain = blockchain
     }
 
     func extractAccountDerivationNode(from derivationPath: DerivationPath?) -> DerivationNode? {
-        return derivationPath?.nodes[safe: accountDerivationNodeIndex]
+        guard let derivationPath else {
+            return nil
+        }
+
+        let accountDerivationNodeIndex = accountDerivationNodeIndex(for: derivationPath)
+
+        return derivationPath.nodes[accountDerivationNodeIndex]
     }
 
-    /// Returns canonical derivation path for the main account (account derivation index is unchanged).
-    func canonicalDerivationPath(from derivationPath: DerivationPath) -> DerivationPath {
-        let currentNodes = derivationPath.nodes
-        let additionalNodesCount = max(0, DerivationPath.canonicalLength - currentNodes.count)
-        // [REDACTED_TODO_COMMENT]
-        let canonicalNodes = currentNodes + Array(repeating: .hardened(0), count: additionalNodesCount)
+    func makeDerivationPath(from derivationPath: DerivationPath, forAccountWithIndex accountIndex: Int) -> DerivationPath {
+        let rawAccountIndex = UInt32(accountIndex)
+        let accountDerivationNodeIndex = accountDerivationNodeIndex(for: derivationPath)
+        var nodes = derivationPath.nodes
 
-        return DerivationPath(nodes: canonicalNodes)
+        nodes[accountDerivationNodeIndex] = nodes[accountDerivationNodeIndex].withRawIndex(rawAccountIndex)
+
+        return DerivationPath(nodes: nodes)
     }
 
-    /// Returns canonical derivation path for the account with specified derivation index.
-    func canonicalDerivationPath(from derivationPath: DerivationPath, derivationIndexValue: Int) -> DerivationPath {
-        let rawIndexValue = UInt32(derivationIndexValue)
-        let canonicalDerivationPath = canonicalDerivationPath(from: derivationPath)
-        var canonicalNodes = canonicalDerivationPath.nodes
-        canonicalNodes[accountDerivationNodeIndex] = canonicalNodes[accountDerivationNodeIndex].withRawIndex(rawIndexValue)
+    private func accountDerivationNodeIndex(for derivationPath: DerivationPath) -> Int {
+        let nodes = derivationPath.nodes
 
-        return DerivationPath(nodes: canonicalNodes)
+        switch nodes.count {
+        case 5 where blockchain.isUTXO:
+            return Constants.utxoDerivationNodeIndex
+        case 3 where !blockchain.isUTXO,
+             5 where !blockchain.isUTXO:
+            // For non-UTXO blockchains we use the last node as account node (either 3rd or 5th)
+            return nodes.count - 1
+        case 4 where blockchain.isTezos:
+            // Some non-UTXO blockchains (like Tezos) have 4 nodes in the derivation path
+            return Constants.nonUTXONonStandardDerivationNodeIndex
+        default:
+            // Currently, there are no blockchains with other derivation path nodes count
+            // Such blockchains should be handled here explicitly
+            assertionFailure("Unexpected derivation path nodes count: \(nodes.count) for blockchain: \(blockchain.displayName)")
+            return max(0, nodes.count - 1)
+        }
     }
 }
 
@@ -53,7 +66,18 @@ private extension AccountDerivationPathHelper {
     enum Constants {
         /// 3rd node for UTXO blockchains (m / purpose' / coin_type' / account' / change / address_index)
         static let utxoDerivationNodeIndex = 2
-        /// 5th node for non-UTXO blockchains (m / purpose' / coin_type' / account' / change / address_index)
-        static let nonUTXODerivationNodeIndex = 4
+        /// 3rd node for some non-UTXO blockchains (like Tezos) which have 4 nodes (m / purpose' / coin_type' / account' / unspecified)
+        static let nonUTXONonStandardDerivationNodeIndex = 2
+    }
+}
+
+// MARK: - Convenience extensions
+
+private extension Blockchain {
+    var isTezos: Bool {
+        if case .tezos = self {
+            return true
+        }
+        return false
     }
 }
