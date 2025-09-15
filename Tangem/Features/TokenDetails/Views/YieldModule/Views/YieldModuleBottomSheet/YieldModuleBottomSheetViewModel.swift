@@ -78,6 +78,8 @@ extension YieldModuleBottomSheetViewModel {
         case feePolicy(params: YieldModuleBottomSheetParams.FeePolicyParams)
         case startEarning(params: YieldModuleBottomSheetParams.StartEarningParams)
         case earnInfo(params: YieldModuleBottomSheetParams.EarnInfoParams)
+        case stopEarning(params: YieldModuleBottomSheetParams.СommonParams)
+        case approve(params: YieldModuleBottomSheetParams.СommonParams)
 
         // MARK: - Identifiable
 
@@ -91,6 +93,10 @@ extension YieldModuleBottomSheetViewModel {
                 "startEarning"
             case .earnInfo:
                 "earnInfo"
+            case .stopEarning:
+                "stopEarning"
+            case .approve:
+                "approve"
             }
         }
     }
