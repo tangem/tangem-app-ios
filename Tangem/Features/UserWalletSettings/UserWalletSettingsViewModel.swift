@@ -10,6 +10,8 @@ import Combine
 import SwiftUI
 import TangemLocalization
 import TangemFoundation
+import TangemAccessibilityIdentifiers
+import TangemMobileWalletSdk
 import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
 
@@ -24,11 +26,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Published private(set) var name: String
     @Published var accountsSection: [AccountsSectionType] = []
-    @Published var hotAccessCodeViewModel: DefaultRowViewModel?
+    @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
 
     var commonSectionModels: [DefaultRowViewModel] {
-        [hotBackupViewModel, manageTokensViewModel, cardSettingsViewModel, referralViewModel].compactMap { $0 }
+        [mobileBackupViewModel, manageTokensViewModel, cardSettingsViewModel, referralViewModel].compactMap { $0 }
     }
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
@@ -41,12 +43,12 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     // MARK: - Private
 
-    @Published private var hotBackupViewModel: DefaultRowViewModel?
+    @Published private var mobileBackupViewModel: DefaultRowViewModel?
     @Published private var manageTokensViewModel: DefaultRowViewModel?
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
 
-    private let hotSettingsUtil: HotSettingsUtil
+    private let mobileSettingsUtil: MobileSettingsUtil
 
     private var isNFTEnabled: Bool {
         get { nftAvailabilityProvider.isNFTEnabled(for: userWalletModel) }
@@ -58,15 +60,18 @@ final class UserWalletSettingsViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private weak var coordinator: UserWalletSettingsRoutable?
 
+    private var bag = Set<AnyCancellable>()
+
     init(
         userWalletModel: UserWalletModel,
         coordinator: UserWalletSettingsRoutable
     ) {
         name = userWalletModel.name
-        hotSettingsUtil = HotSettingsUtil(userWalletModel: userWalletModel)
+        mobileSettingsUtil = MobileSettingsUtil(userWalletModel: userWalletModel)
 
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
+        bind()
     }
 
     func onAppear() {
@@ -89,10 +94,22 @@ final class UserWalletSettingsViewModel: ObservableObject {
 // MARK: - Private
 
 private extension UserWalletSettingsViewModel {
+    func bind() {
+        userWalletModel.updatePublisher
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, event in
+                if case .configurationChanged = event {
+                    viewModel.setupView()
+                }
+            }
+            .store(in: &bag)
+    }
+
     func setupView() {
         // setupAccountsSection()
         setupViewModels()
-        setupHotViewModels()
+        setupMobileViewModels()
     }
 
     func setupAccountsSection() {
@@ -126,6 +143,7 @@ private extension UserWalletSettingsViewModel {
             referralViewModel =
                 DefaultRowViewModel(
                     title: Localization.detailsReferralTitle,
+                    accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.referralProgramButton,
                     action: weakify(self, forFunction: UserWalletSettingsViewModel.openReferral)
                 )
         } else {
@@ -160,41 +178,45 @@ private extension UserWalletSettingsViewModel {
         )
     }
 
-    func setupHotViewModels() {
-        hotSettingsUtil.walletSettings.forEach { setting in
+    func setupMobileViewModels() {
+        mobileSettingsUtil.walletSettings.forEach { setting in
             switch setting {
             case .accessCode:
-                hotAccessCodeViewModel = DefaultRowViewModel(
+                mobileAccessCodeViewModel = DefaultRowViewModel(
                     title: Localization.walletSettingsAccessCodeTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.hotAccessCodeAction)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.MobileAccessCodeAction)
                 )
-            case .backup(let hasBackup):
+            case .backup(let needsBackup):
                 let detailsType: DefaultRowViewModel.DetailsType?
-                if hasBackup {
-                    detailsType = nil
-                } else {
+                if needsBackup {
                     let badgeItem = BadgeView.Item(title: Localization.hwBackupNoBackup, style: .warning)
                     detailsType = .badge(badgeItem)
+                } else {
+                    detailsType = nil
                 }
 
-                hotBackupViewModel = DefaultRowViewModel(
+                mobileBackupViewModel = DefaultRowViewModel(
                     title: Localization.commonBackup,
                     detailsType: detailsType,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.openHotBackupTypes)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.openMobileBackupTypes)
                 )
             }
         }
     }
 
-    func hotAccessCodeAction() {
+    func MobileAccessCodeAction() {
         runTask(in: self) { viewModel in
-            let result = await viewModel.hotSettingsUtil.performAccessCodeAction()
+            let state = await viewModel.mobileSettingsUtil.calculateAccessCodeState()
 
-            switch result {
-            case .backupNeeded:
-                viewModel.openHotBackupNeeded()
-            case .onboarding(let needsValidation):
-                viewModel.openHotAccessCodeOnboarding(needsValidation: needsValidation)
+            await runOnMain {
+                switch state {
+                case .needsBackup:
+                    viewModel.openMobileBackupNeeded()
+                case .onboarding(let context):
+                    viewModel.openMobileAccessCodeOnboarding(context: context)
+                case .none:
+                    break
+                }
             }
         }
     }
@@ -306,17 +328,18 @@ private extension UserWalletSettingsViewModel {
         coordinator?.openReferral(input: input)
     }
 
-    func openHotBackupNeeded() {
-        coordinator?.openHotBackupNeeded()
+    func openMobileBackupNeeded() {
+        coordinator?.openMobileBackupNeeded(userWalletModel: userWalletModel)
     }
 
-    func openHotAccessCodeOnboarding(needsValidation: Bool) {
-        let input = HotOnboardingInput(flow: .accessCodeChange(needAccessCodeValidation: needsValidation))
-        openOnboarding(with: .hotInput(input))
+    func openMobileAccessCodeOnboarding(context: MobileWalletContext) {
+        let flow = MobileOnboardingFlow.accessCode(userWalletModel: userWalletModel, context: context)
+        let input = MobileOnboardingInput(flow: flow)
+        openOnboarding(with: .mobileInput(input))
     }
 
-    func openHotBackupTypes() {
-        coordinator?.openHotBackupTypes()
+    func openMobileBackupTypes() {
+        coordinator?.openMobileBackupTypes(userWalletModel: userWalletModel)
     }
 }
 

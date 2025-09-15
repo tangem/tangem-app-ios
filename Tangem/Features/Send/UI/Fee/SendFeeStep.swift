@@ -42,14 +42,9 @@ class SendFeeStep {
 // MARK: - SendStep
 
 extension SendFeeStep: SendStep {
-    var title: String? { Localization.commonFeeSelectorTitle }
-
     var type: SendStepType { .fee(viewModel) }
-
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .none }
-
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
+    var shouldShowBottomOverlay: Bool { false }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         .just(output: true)
