@@ -193,6 +193,34 @@
         <string>%li 単語</string>
       </dict>
     </dict>
+    <key>onramp_providers_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>other</key>
+        <string>%liプロバイダー</string>
+      </dict>
+    </dict>
+    <key>onramp_timing_days</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>other</key>
+        <string>最大%li日</string>
+      </dict>
+    </dict>
     <key>referral_number_of_wallets</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>

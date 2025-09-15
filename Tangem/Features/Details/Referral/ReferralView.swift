@@ -12,6 +12,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct ReferralView: View {
     @Environment(\.colorScheme) var colorScheme
@@ -49,6 +50,7 @@ struct ReferralView: View {
                         .padding(.horizontal, 57)
                         .padding(.top, 28)
                         .padding(.bottom, 32)
+                        .accessibilityIdentifier(ReferralAccessibilityIdentifiers.title)
 
                     content
                         .padding(.bottom, max(geometry.safeAreaInsets.bottom, 10))
@@ -85,6 +87,7 @@ struct ReferralView: View {
                     Text(viewModel.awardDescription(highlightColor: Colors.Text.primary1))
                 }
             )
+            .accessibilityIdentifier(ReferralAccessibilityIdentifiers.currenciesSection)
 
             IconWithMessageView(
                 Assets.discount,
@@ -95,6 +98,7 @@ struct ReferralView: View {
                         Text(" " + Localization.referralPointDiscountDescriptionSuffix)
                 }
             )
+            .accessibilityIdentifier(ReferralAccessibilityIdentifiers.discountSection)
             .padding(.top, viewModel.isAlreadyReferral ? 20 : 38)
 
             Spacer()
@@ -127,6 +131,7 @@ struct ReferralView: View {
                 Text(Localization.commonTermsAndConditions).foregroundColor(Colors.Text.accent) +
                 Text(" " + Localization.referralTosSuffix)
         }
+        .accessibilityIdentifier(ReferralAccessibilityIdentifiers.tosButton)
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
         .font(Fonts.Regular.footnote)
@@ -284,6 +289,7 @@ struct ReferralView: View {
                     runTask(code: viewModel.participateInReferralProgram)
                 }
             )
+            .accessibilityIdentifier(ReferralAccessibilityIdentifiers.participateButton)
         }
     }
 }

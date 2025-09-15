@@ -16,7 +16,7 @@ struct SendNewAmountCompactViewSeparator: View {
     var body: some View {
         ZStack(alignment: .center) {
             Line()
-                .stroke(style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [4]))
+                .stroke(style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [1, 7]))
                 .foregroundStyle(Colors.Background.tertiary)
                 .frame(height: 3)
                 .offset(y: 1.5)
