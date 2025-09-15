@@ -16,27 +16,30 @@ final class CommonCryptoAccountsRepository {
 
     private let tokenItemsRepository: TokenItemsRepository
     private let networkService: CryptoAccountsNetworkService
-    private let storage: CryptoAccountsPersistentStorage & _CryptoAccountsPersistentStorage
-    private let storageDidUpdateSubject: CryptoAccountsPersistentStorage.StorageDidUpdateSubject
+    private let persistentStorage: CryptoAccountsPersistentStorage
+    private let storageController: CryptoAccountsPersistentStorageController
+    private let storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject
 
     /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
     private lazy var _cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> = storageDidUpdateSubject
         .prepend(())
         .withWeakCaptureOf(self)
-        .map { $0.0.storage.getList() }
+        .map { $0.0.persistentStorage.getList() }
         .share(replay: 1)
         .eraseToAnyPublisher()
 
     init(
         tokenItemsRepository: TokenItemsRepository,
         networkService: CryptoAccountsNetworkService,
-        storage: CryptoAccountsPersistentStorage & _CryptoAccountsPersistentStorage
+        persistentStorage: CryptoAccountsPersistentStorage,
+        storageController: CryptoAccountsPersistentStorageController
     ) {
-        storageDidUpdateSubject = CryptoAccountsPersistentStorage.StorageDidUpdateSubject()
+        storageDidUpdateSubject = .init()
         self.tokenItemsRepository = tokenItemsRepository
         self.networkService = networkService
-        self.storage = storage
-        storage.bind(to: storageDidUpdateSubject)
+        self.persistentStorage = persistentStorage
+        self.storageController = storageController
+        storageController.bind(to: storageDidUpdateSubject)
     }
 
     private func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [StoredCryptoAccount.Token]) {
@@ -48,7 +51,7 @@ final class CommonCryptoAccountsRepository {
             grouping: Constants.defaultGroupingType, // [REDACTED_TODO_COMMENT]
             sorting: Constants.defaultSortingType // [REDACTED_TODO_COMMENT]
         )
-        storage.appendNewOrUpdateExisting(account: storedAccount)
+        persistentStorage.appendNewOrUpdateExisting(account: storedAccount)
     }
 
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
@@ -63,7 +66,7 @@ final class CommonCryptoAccountsRepository {
 
 extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     var totalCryptoAccountsCount: Int {
-        storage.getList().count
+        persistentStorage.getList().count
     }
 
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> {
@@ -71,7 +74,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     }
 
     func initialize(forUserWalletWithId userWalletId: UserWalletId) {
-        if storage.isMigrationNeeded() {
+        if storageController.isMigrationNeeded() {
             migrateStorage(forUserWalletWithId: userWalletId)
         }
     }
@@ -83,7 +86,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     }
 
     func removeCryptoAccount(withIdentifier identifier: AnyHashable) {
-        storage.removeAll { $0.derivationIndex.toAnyHashable() == identifier }
+        persistentStorage.removeAll { $0.derivationIndex.toAnyHashable() == identifier }
     }
 }
 
