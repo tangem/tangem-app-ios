@@ -92,9 +92,9 @@ enum YieldModuleParams {
             var description: String {
                 switch self {
                 case .active:
-                    Localization.yieldModuleEarnSheetStatusActive
+                    Localization.yieldModuleStatusActive
                 case .paused:
-                    "Paused"
+                    Localization.yieldModuleStatusPaused
                 }
             }
         }
