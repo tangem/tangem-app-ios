@@ -15,7 +15,7 @@ extension YieldModuleBottomSheetView {
     struct YieldModuleStopEarningView: View {
         // MARK: - Properties
 
-        let params: YieldModuleBottomSheetParams.СommonParams
+        let params: YieldModuleParams.СommonParams
 
         // MARK: - View Body
 
