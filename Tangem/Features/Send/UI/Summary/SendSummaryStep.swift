@@ -14,21 +14,15 @@ class SendSummaryStep {
     private let viewModel: SendSummaryViewModel
     private let input: SendSummaryInput
     private let analyticsLogger: SendSummaryAnalyticsLogger
-    private let _title: String?
-    private let _subtitle: String?
 
     init(
         viewModel: SendSummaryViewModel,
         input: SendSummaryInput,
-        analyticsLogger: SendSummaryAnalyticsLogger,
-        title: String?,
-        subtitle: String?
+        analyticsLogger: SendSummaryAnalyticsLogger
     ) {
         self.viewModel = viewModel
         self.input = input
         self.analyticsLogger = analyticsLogger
-        _title = title
-        _subtitle = subtitle
     }
 
     func set(router: SendSummaryStepsRoutable) {
@@ -39,15 +33,7 @@ class SendSummaryStep {
 // MARK: - SendStep
 
 extension SendSummaryStep: SendStep {
-    var title: String? { _title }
-
-    var subtitle: String? { _subtitle }
-
     var type: SendStepType { .summary(viewModel) }
-
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .none }
-
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
