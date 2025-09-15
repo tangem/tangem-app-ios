@@ -16,10 +16,7 @@ final class WCSolanaSignAllTransactionsHandler {
     private let signer: WalletConnectSigner
     private let hashesToSign: [String]
     private let request: AnyCodable
-
     private let encoder = JSONEncoder()
-
-    // MARK: - Init
 
     init(
         request: AnyCodable,
@@ -46,8 +43,7 @@ final class WCSolanaSignAllTransactionsHandler {
         self.request = request
     }
 
-    /// Remove signatures placeholder from raw transaction
-    func prepareTransactionToSign(hash: String) throws -> Data {
+    private func prepareTransactionToSign(hash: String) throws -> Data {
         let data = try hash.base64DecodedData()
         let (signature, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
         return signature
@@ -72,17 +68,16 @@ extension WCSolanaSignAllTransactionsHandler: WalletConnectMessageHandler {
     }
 
     func handle() async throws -> RPCResult {
-        let signedHashes = try await signer.sign(
-            hashes: hashesToSign.map { try prepareTransactionToSign(hash: $0) },
-            using: walletModel
-        )
+        let transactionsToSign: [Data] = try hashesToSign.map { try prepareTransactionToSign(hash: $0) }
 
-        let preparedToSendHashes: [String] = try hashesToSign.enumerated().map { index, hashToSign in
-            let hashToSignData = try prepareTransactionToSign(hash: hashToSign)
-            let data = Data(1) + signedHashes[index] + hashToSignData
-            return data.base64EncodedString().lowercased()
-        }
+        let transactionsToRespond: [String] = try await signer.sign(hashes: transactionsToSign, using: walletModel)
+            .enumerated()
+            .map { index, signedTransaction in
+                let assembledResponseTransaction = Data(1) + signedTransaction + transactionsToSign[index]
+                return assembledResponseTransaction.base64EncodedString()
+            }
 
-        return .response(AnyCodable(WCSolanaSignAllTransactionsDTO.Body(transactions: preparedToSendHashes)))
+        let responseBody = WCSolanaSignAllTransactionsDTO.Body(transactions: transactionsToRespond)
+        return .response(AnyCodable(responseBody))
     }
 }
