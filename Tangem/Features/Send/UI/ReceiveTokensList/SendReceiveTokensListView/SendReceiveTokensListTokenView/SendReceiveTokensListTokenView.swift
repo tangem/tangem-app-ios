@@ -18,7 +18,7 @@ struct SendReceiveTokensListTokenView: View {
             HStack(alignment: .center, spacing: 12) {
                 IconView(url: viewModel.iconURL, size: CGSize(width: 36, height: 36), forceKingfisher: true)
 
-                HStack(alignment: .center, spacing: 4) {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(viewModel.name)
                         .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 

@@ -13,6 +13,7 @@ import BlockchainSdk
 
 protocol SendModelRoutable: AnyObject {
     func openNetworkCurrency()
+    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
     func resetFlow()
 }
 
@@ -83,7 +84,7 @@ private extension SendModel {
         Publishers
             .CombineLatest3(
                 _amount.compactMap { $0?.crypto },
-                _destination.compactMap { $0?.value },
+                _destination.compactMap { $0?.value.transactionAddress },
                 _selectedFee.compactMap { $0.value.value }
             )
             .withWeakCaptureOf(self)
@@ -290,7 +291,7 @@ extension SendModel: SendFeeProviderInput {
     }
 
     var destinationAddressPublisher: AnyPublisher<String, Never> {
-        _destination.compactMap { $0?.value }.eraseToAnyPublisher()
+        _destination.compactMap { $0?.value.transactionAddress }.eraseToAnyPublisher()
     }
 }
 
@@ -413,7 +414,7 @@ extension SendModel: NotificationTapDelegate {
              .seedSupport2No,
              .openReferralProgram,
              .addTokenTrustline,
-             .openHotFinishActivation,
+             .openMobileFinishActivation,
              .unlock:
             assertionFailure("Notification tap not handled")
         }
@@ -470,5 +471,15 @@ extension SendModel {
         let destination: SendAddress?
         let tag: SendDestinationAdditionalField
         let amount: SendAmount?
+
+        init(
+            destination: SendAddress? = nil,
+            tag: SendDestinationAdditionalField = .notSupported,
+            amount: SendAmount? = nil
+        ) {
+            self.destination = destination
+            self.tag = tag
+            self.amount = amount
+        }
     }
 }

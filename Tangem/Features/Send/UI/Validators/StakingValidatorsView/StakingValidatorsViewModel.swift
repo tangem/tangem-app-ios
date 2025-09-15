@@ -40,8 +40,7 @@ final class StakingValidatorsViewModel: ObservableObject, Identifiable {
 
     func onDisappear() {
         auxiliaryViewsVisible = false
-        if selectedValidator != initialSelectedValidator,
-           let validator = validators.first(where: { $0.address == selectedValidator }) {
+        if selectedValidator != initialSelectedValidator, validators.contains(where: { $0.address == selectedValidator }) {
             analyticsLogger.logStakingValidatorChosen()
         }
     }
