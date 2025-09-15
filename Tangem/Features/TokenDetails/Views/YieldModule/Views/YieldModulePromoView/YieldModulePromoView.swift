@@ -65,7 +65,7 @@ struct YieldModulePromoView: View {
     }
 
     private var pillInfoButton: some View {
-        Button(action: {}) {
+        Button(action: { viewModel.onInterestRateInfoTap() }) {
             HStack(spacing: 4) {
                 Text(Localization.yieldModulePromoScreenVariableRateInfo).style(Fonts.Bold.caption1, color: Colors.Text.secondary)
 
