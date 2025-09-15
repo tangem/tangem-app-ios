@@ -29,6 +29,7 @@ extension AccountsDTO.Response {
 
         struct Account: Decodable {
             let id: String
+            /// Nil, if the account uses a localized name.
             let name: String?
             let icon: String
             let iconColor: String
