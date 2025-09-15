@@ -192,6 +192,7 @@
 "common_camera_denied_alert_title" = "L'accès à la caméra est refusé";
 "common_cancel" = "Annuler";
 "common_change" = "Changez";
+"common_choose_account" = "Choose account";
 "common_choose_action" = "Choisissez une action";
 "common_choose_network" = "Choisissez le réseau";
 "common_choose_token" = "Choisir le jeton";
@@ -985,9 +986,7 @@
 "send_qrcode_scan_info" = "Veuillez aligner votre code QR avec le carré pour le scanner. Assurez-vous de scanner l'adresse du réseau %@.";
 "send_recent_transactions" = "Récent";
 "send_recipient_address_error" = "Adresse non valide";
-"send_recipient_address_footer_highlighted_part" = "%@ une adresse réseau";
-"send_recipient_address_footer_v2" = "Assurez-vous de %@, car des erreurs peuvent entraîner des transferts perdus";
-"send_recipient_address_footer" = "Assurez-vous que l'adresse du portefeuille de réception est sur le réseau %@ pour éviter de perdre vos jetons";
+"send_recipient_address_footer" = "Assurez-vous que l'adresse du portefeuille de réception est sur **le réseau %@** pour éviter de perdre vos jetons";
 "send_recipient_label" = "Envoyer à";
 "send_recipient_memo_footer_v2_highlighted" = "Attention : l'absence de Memo peut entraîner une perte de fonds.";
 "send_recipient_memo_footer" = "Un Memo/Destination Tag est un identifiant unique permettant de différencier les transactions envoyées au même destinataire sur le même réseau. Attention : L'omission d'un mémo peut entraîner des fonds mal placés";
@@ -1206,6 +1205,14 @@
 "swapping_to_title" = "Vous recevez";
 "swapping_token_list_title" = "Choisir le jeton";
 "swapping_token_not_available" = "non disponible";
+"tangempay_onboarding_get_card_button_text" = "Get card";
+"tangempay_onboarding_pay_description" = "Add to your wallet and pay with your phone anywhere.";
+"tangempay_onboarding_pay_title" = "Apple Pay &amp; Google Pay";
+"tangempay_onboarding_purchases_description" = "Use your USDC balance to pay for everyday purchases seamlessly.";
+"tangempay_onboarding_purchases_title" = "Everyday purchases";
+"tangempay_onboarding_security_description" = "Your card details are protected — full control in the app.";
+"tangempay_onboarding_security_title" = "Built-in security";
+"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
 "this_is_my_wallet_title" = "C'est mon portefeuille";
 "toast_balances_hidden" = "Soldes masqués";
 "toast_balances_shown" = "Soldes affichés";
@@ -1659,8 +1666,8 @@
 "yield_module_promo_screen_how_it_works_button_title" = "How it works?";
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave is trusted by millions worldwide. Total lended value is $10.4B.";
 "yield_module_promo_screen_self_custodial_title" = "Decentralized and self-custodial";
-"yield_module_promo_screen_terms_disclaimer" = "By using service, you agree with provider";
-"yield_module_promo_screen_title" = "Earn %@% yearly";
+"yield_module_promo_screen_terms_disclaimer" = "By using service, you agree with provider %1$@ and %2$@";
+"yield_module_promo_screen_title" = "Earn %@%% yearly";
 "yield_module_promo_screen_variable_rate_info" = "Aave • Variable Interest Rate";
 "yield_module_provider" = "Aave";
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";
