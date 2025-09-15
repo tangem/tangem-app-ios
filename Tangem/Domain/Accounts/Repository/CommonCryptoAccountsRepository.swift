@@ -65,9 +65,3 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         storage.removeAll { $0.derivationIndex.toAnyHashable() == identifier }
     }
 }
-
-// MARK: - Auxiliary types
-
-private extension CommonCryptoAccountsRepository {}
-
-extension CryptoAccountsRepository {}
