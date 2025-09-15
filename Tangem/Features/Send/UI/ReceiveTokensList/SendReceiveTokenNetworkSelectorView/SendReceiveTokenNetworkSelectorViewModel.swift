@@ -16,6 +16,7 @@ protocol SendReceiveTokenNetworkSelectorViewRoutable: AnyObject {
 }
 
 class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
+    @Published var notification: NotificationViewInput?
     @Published var state: LoadingResult<[SendReceiveTokenNetworkSelectorNetworkViewData], String> = .loading
 
     var notSupportedTitle: String {
@@ -30,8 +31,10 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     private weak var sourceTokenInput: SendSourceTokenInput?
     private weak var receiveTokenOutput: SendReceiveTokenOutput?
     private let networks: [TokenItem]
+    private let coin: CoinModel
     private let expressRepository: ExpressRepository
     private let receiveTokenBuilder: SendReceiveTokenBuilder
+    private let analyticsLogger: SendReceiveTokensListAnalyticsLogger
 
     private weak var router: SendReceiveTokenNetworkSelectorViewRoutable?
 
@@ -41,23 +44,34 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenOutput: SendReceiveTokenOutput,
         networks: [TokenItem],
+        coin: CoinModel,
         expressRepository: ExpressRepository,
         receiveTokenBuilder: SendReceiveTokenBuilder,
+        analyticsLogger: SendReceiveTokensListAnalyticsLogger,
         router: SendReceiveTokenNetworkSelectorViewRoutable
     ) {
         self.sourceTokenInput = sourceTokenInput
         self.receiveTokenOutput = receiveTokenOutput
         self.networks = networks
+        self.coin = coin
         self.expressRepository = expressRepository
         self.receiveTokenBuilder = receiveTokenBuilder
+        self.analyticsLogger = analyticsLogger
         self.router = router
 
         load()
+        setupNotification()
     }
 
     func dismiss() {
         loadTask?.cancel()
         router?.dismissNetworkSelector(isSelected: false)
+    }
+
+    private func setupNotification() {
+        notification = NotificationsFactory().buildNotificationInput(
+            for: SendReceiveTokensListNotification.irreversibleLossNotification
+        )
     }
 
     private func load() {
@@ -76,6 +90,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
 
                 await runOnMain { viewModel.state = .success(items) }
             } catch Error.supportedNetworksIsEmpty {
+                viewModel.analyticsLogger.logSendSwapCantSwapThisToken(token: viewModel.coin.symbol)
                 await runOnMain { viewModel.state = .failure(Localization.expressSwapNotSupportedText) }
             } catch {
                 await runOnMain { viewModel.state = .failure(error.localizedDescription) }
@@ -133,7 +148,8 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
             id: tokenItem.blockchain.networkId,
             iconURL: IconURLBuilder().tokenIconURL(id: tokenItem.blockchain.coinId, size: .large),
             name: tokenItem.blockchain.displayName,
-            symbol: tokenItem.blockchain.currencySymbol
+            network: tokenItem.contractName,
+            isMainNetwork: tokenItem.isBlockchain
         ) { [weak self] in
             self?.userDidSelect(tokenItem: tokenItem)
         }
@@ -143,6 +159,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         receiveTokenOutput?.userDidRequestSelect(
             receiveToken: receiveTokenBuilder.makeSendReceiveToken(tokenItem: tokenItem)
         ) { [weak self] selected in
+            self?.analyticsLogger.logTokenChosen(token: tokenItem)
             self?.router?.dismissNetworkSelector(isSelected: selected)
         }
     }
