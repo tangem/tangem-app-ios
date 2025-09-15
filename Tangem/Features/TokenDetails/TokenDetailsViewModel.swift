@@ -121,6 +121,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             openFeeCurrency()
         case .swap:
             openExchange()
+        case .openYieldPromo:
+            openYieldModulePromo()
         case .generateAddresses,
              .backupCard,
              .buyCrypto,
@@ -418,5 +420,14 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
         case .failure, .loading, .loaded:
             return true
         }
+    }
+}
+
+extension TokenDetailsViewModel {
+    func openYieldModulePromo() {
+        coordinator?.openYieldModulePromoView(
+            walletModel: walletModel,
+            info: .init(apy: "TEST", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
+        )
     }
 }
