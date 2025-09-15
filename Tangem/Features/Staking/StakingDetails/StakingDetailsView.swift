@@ -28,35 +28,34 @@ struct StakingDetailsView: View {
     }
 
     var body: some View {
-        RefreshableScrollView(onRefresh: viewModel.refresh(completion:)) {
-            LazyVStack(spacing: 0) {
-                VStack(spacing: 14) {
-                    if !viewModel.hideStakingInfoBanner {
-                        banner
-                    }
-
-                    GroupedSection(viewModel.detailsViewModels) { data in
-                        DefaultRowView(viewModel: data)
-                    }
-
-                    rewardView
-
-                    GroupedSection(viewModel.stakes) { data in
-                        StakingDetailsStakeView(data: data)
-                    } header: {
-                        DefaultHeaderView(Localization.stakingYourStakes)
-                            .padding(.top, 12)
-                            .padding(.bottom, 8)
-                    }
-                    .separatorStyle(.none)
-                    .interItemSpacing(0)
-                    .innerContentPadding(0)
+        RefreshScrollView(stateObject: viewModel.scrollViewStateObject, contentSettings: .lazyVStack(spacing: .zero)) {
+            VStack(spacing: 14) {
+                if !viewModel.hideStakingInfoBanner {
+                    banner
                 }
-                .readGeometry(\.frame.size, bindTo: $contentSize)
 
-                bottomView
+                GroupedSection(viewModel.detailsViewModels) { data in
+                    DefaultRowView(viewModel: data)
+                }
+
+                rewardView
+
+                GroupedSection(viewModel.stakes) { data in
+                    StakingDetailsStakeView(data: data)
+                } header: {
+                    DefaultHeaderView(Localization.stakingYourStakes)
+                        .padding(.top, 12)
+                        .padding(.bottom, 8)
+                }
+                .separatorStyle(.none)
+                .interItemSpacing(0)
+                .innerContentPadding(0)
             }
+            .readGeometry(\.frame.size, bindTo: $contentSize)
             .padding(.horizontal, 16)
+
+            bottomView
+                .padding(.horizontal, 16)
         }
         .readGeometry(bindTo: $viewGeometryInfo)
         .background(Colors.Background.secondary)

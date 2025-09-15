@@ -11,18 +11,6 @@ import UIKit
 import ObjectiveC.runtime
 
 extension UINavigationController {
-    func setDelegateSafe(_ newDelegate: UINavigationControllerDelegate?) {
-        if delegate === newDelegate {
-            return
-        }
-
-        if delegate != nil {
-            assertionFailure("Attempting to erase an internal SwiftUI delegate \(String(describing: delegate))")
-        } else {
-            delegate = newDelegate
-        }
-    }
-
     /// Unlike `UINavigationController.setNavigationBarHidden(_:animated:)` from UIKit or `navigationBarHidden(_:)`
     /// from SwiftUI, this approach will hide the navigation bar without breaking the swipe-to-pop gesture.
     func setNavigationBarAlwaysHidden() {
