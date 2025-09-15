@@ -192,6 +192,7 @@
 "common_camera_denied_alert_title" = "Доступ к камере запрещен";
 "common_cancel" = "Отмена";
 "common_change" = "Изменить";
+"common_choose_account" = "Choose account";
 "common_choose_action" = "Выберите действие";
 "common_choose_network" = "Выберите сеть";
 "common_choose_token" = "Выберите токен";
@@ -985,9 +986,7 @@
 "send_qrcode_scan_info" = "Пожалуйста, совместите свой QR-код с квадратом, чтобы отсканировать его. Убедитесь, что вы сканируете адрес в сети %@.";
 "send_recent_transactions" = "Последние";
 "send_recipient_address_error" = "Неверный адрес";
-"send_recipient_address_footer_highlighted_part" = "в сети %@";
-"send_recipient_address_footer_v2" = "Убедитесь, что отправляете на адрес %@, ошибки могут привести к потере средств.";
-"send_recipient_address_footer" = "Убедитесь, что вы отправляете средства на адрес кошелька %@. Ошибки могут привести к потере ваших токенов.";
+"send_recipient_address_footer" = "Убедитесь, что адрес получателя находится **в сети %@**, чтобы избежать потери отправляемых средств";
 "send_recipient_label" = "Отправить";
 "send_recipient_memo_footer_v2_highlighted" = "Внимание: отсутствие Memo может привести к потере средств.";
 "send_recipient_memo_footer" = "Мемо/ Код назначения - это код, разделяющий транзакции к общему получателю в сети криптовалют. Внимание: отсутствие мемо может привести к потере средств.";
@@ -1206,6 +1205,14 @@
 "swapping_to_title" = "Вы получите";
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_not_available" = "не доступен";
+"tangempay_onboarding_get_card_button_text" = "Get card";
+"tangempay_onboarding_pay_description" = "Add to your wallet and pay with your phone anywhere.";
+"tangempay_onboarding_pay_title" = "Apple Pay &amp; Google Pay";
+"tangempay_onboarding_purchases_description" = "Use your USDC balance to pay for everyday purchases seamlessly.";
+"tangempay_onboarding_purchases_title" = "Everyday purchases";
+"tangempay_onboarding_security_description" = "Your card details are protected — full control in the app.";
+"tangempay_onboarding_security_title" = "Built-in security";
+"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
 "this_is_my_wallet_title" = "Это мой кошелек";
 "toast_balances_hidden" = "Балансы скрыты";
 "toast_balances_shown" = "Балансы показаны";
@@ -1659,8 +1666,8 @@
 "yield_module_promo_screen_how_it_works_button_title" = "How it works?";
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave is trusted by millions worldwide. Total lended value is $10.4B.";
 "yield_module_promo_screen_self_custodial_title" = "Decentralized and self-custodial";
-"yield_module_promo_screen_terms_disclaimer" = "By using service, you agree with provider";
-"yield_module_promo_screen_title" = "Earn %@% yearly";
+"yield_module_promo_screen_terms_disclaimer" = "By using service, you agree with provider %1$@ and %2$@";
+"yield_module_promo_screen_title" = "Earn %@%% yearly";
 "yield_module_promo_screen_variable_rate_info" = "Aave • Variable Interest Rate";
 "yield_module_provider" = "Aave";
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";
