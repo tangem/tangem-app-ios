@@ -34,15 +34,23 @@ struct FeeSelectorContentView: View {
                 .padding(.horizontal, 14)
             }
             .scrollBounceBehaviorBackport(.basedOnSize)
+            .padding(.bottom, 16)
 
-            MainButton(title: Localization.commonDone, action: viewModel.done)
-                .padding(.vertical, 16)
+            if viewModel.showDoneButton {
+                MainButton(
+                    title: Localization.commonDone,
+                    isDisabled: viewModel.doneButtonIsDisabled,
+                    action: viewModel.done
+                )
+                .padding(.bottom, 16)
                 .padding(.horizontal, 16)
+            }
         }
+        .onAppear(perform: viewModel.onAppear)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.action
             configuration.sheetFrameUpdateAnimation = .easeInOut
-            configuration.backgroundInteractionBehavior = .consumeTouches
+            configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
 
