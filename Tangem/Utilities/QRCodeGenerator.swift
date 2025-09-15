@@ -10,18 +10,33 @@ import UIKit
 import CoreImage.CIFilterBuiltins
 
 enum QrCodeGenerator {
-    static func generateQRCode(from string: String) -> UIImage {
-        let data = string.data(using: String.Encoding.utf8)
+    static func generateQRCode(
+        from string: String,
+        backgroundColor: UIColor = .white,
+        foregroundColor: UIColor = .black
+    ) -> UIImage {
+        let data = string.data(using: .utf8)
 
         let context = CIContext()
-        let filter = CIFilter.qrCodeGenerator()
         let transform = CGAffineTransform(scaleX: 7, y: 7)
 
+        let filter = CIFilter.qrCodeGenerator()
+
         filter.setValue(data, forKey: "inputMessage")
-        if let ciQRImage = filter.outputImage?.transformed(by: transform),
-           let cgImage = context.createCGImage(ciQRImage, from: ciQRImage.extent) {
-            return UIImage(cgImage: cgImage)
+
+        let colorFilter = CIFilter.falseColor()
+        colorFilter.inputImage = filter.outputImage
+        colorFilter.color0 = CIColor(color: foregroundColor)
+        colorFilter.color1 = CIColor(color: backgroundColor)
+
+        guard let ciQRImage = colorFilter.outputImage?.transformed(by: transform),
+              let cgImage = context.createCGImage(ciQRImage, from: ciQRImage.extent)
+        else {
+            return UIImage()
         }
-        return UIImage(systemName: "xmark") ?? UIImage()
+
+        let qrImage = UIImage(cgImage: cgImage)
+
+        return qrImage
     }
 }
