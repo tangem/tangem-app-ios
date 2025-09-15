@@ -161,6 +161,7 @@ struct SupportedBlockchains {
             .alephium(testnet: false),
             .pepecoin(testnet: false),
             .hyperliquidEVM(testnet: false),
+            .quai(testnet: false),
         ]
     }
 
