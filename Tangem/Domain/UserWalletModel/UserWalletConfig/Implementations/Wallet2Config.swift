@@ -317,6 +317,15 @@ extension Wallet2Config: UserWalletConfig {
         // Pepecoin
         case "BB000015":
             return cardsCount == 2 ? Assets.Cards.pepeDouble : Assets.Cards.pepeTriple
+        // Blush Sky summer collection
+        case "AF990020", "AF990021", "AF990022":
+            return cardsCount == 2 ? Assets.Cards.blushSkyDouble : Assets.Cards.blushSkyTriple
+        // Electra Sea summer collection
+        case "AF990023", "AF990024", "AF990025":
+            return cardsCount == 2 ? Assets.Cards.electraSeaDouble : Assets.Cards.electraSeaTriple
+        // Hyper Blue summer collection
+        case "AF990026", "AF990027", "AF990028":
+            return cardsCount == 2 ? Assets.Cards.hyperBlueDouble : Assets.Cards.hyperBlueTriple
         // Tangem Wallet 2.0
         default:
             var isUserWalletWithRing = false

@@ -40,16 +40,16 @@ final class WCLinksUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
 
         WalletConnectSheet(app)
-            .validate()
-            .approveConnection()
+            .waitForConnectionProposalBottomSheetToBeVisible()
+            .tapConnectionButton()
 
         MainScreen(app)
             .openDetails()
             .openWalletConnections()
             .tapFirstDAppRow()
-            .validate()
-            .disconnectApp()
-            .validateEmptyState()
+            .waitForConnectedAppBottomSheetToBeVisible()
+            .tapDisconnectButton()
+            .waitForEmptyConnectionsList()
     }
 
     func testOpenWalletConnectSheetFromMainScreen_ConnectionEstablished() throws {
@@ -63,16 +63,16 @@ final class WCLinksUITests: BaseTestCase {
         openDeeplinkInSafari(wcURI)
 
         WalletConnectSheet(app)
-            .validate()
-            .approveConnection()
+            .waitForConnectionProposalBottomSheetToBeVisible()
+            .tapConnectionButton()
 
         MainScreen(app)
             .openDetails()
             .openWalletConnections()
             .tapFirstDAppRow()
-            .validate()
-            .disconnectApp()
-            .validateEmptyState()
+            .waitForConnectedAppBottomSheetToBeVisible()
+            .tapDisconnectButton()
+            .waitForEmptyConnectionsList()
     }
 
     func testOpenWalletConnectSheetFromDetailsScreen_ConnectionEstablished() throws {
@@ -87,23 +87,53 @@ final class WCLinksUITests: BaseTestCase {
         openDeeplinkInSafari(wcURI)
 
         WalletConnectSheet(app)
-            .validate()
-            .approveConnection()
+            .waitForConnectionProposalBottomSheetToBeVisible()
+            .tapConnectionButton()
 
         DetailsScreen(app)
             .openWalletConnections()
             .tapFirstDAppRow()
-            .validate()
-            .disconnectApp()
-            .validateEmptyState()
+            .waitForConnectedAppBottomSheetToBeVisible()
+            .tapDisconnectButton()
+            .waitForEmptyConnectionsList()
+    }
+
+    func testOpenNewConnectionFromDetailsScreen_TapPasteButton() throws {
+        setAllureId(887)
+
+        UIPasteboard.general.string = wcURI.replacingOccurrences(of: "tangem://wc?uri=", with: "")
+        launchApp()
+
+        StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .openDetails()
+
+        DetailsScreen(app)
+            .openWalletConnections()
+            .tapNewConnection()
+            .waitForQRScannerScreenToBeVisible()
+            .tapPasteButton()
+            .waitForConnectionProposalBottomSheetToBeVisible()
+            .tapConnectionButton()
+
+        WalletConnectionsScreen(app)
+            .tapFirstDAppRow()
+            .waitForConnectedAppBottomSheetToBeVisible()
+            .tapDisconnectButton()
+            .waitForEmptyConnectionsList()
     }
 
     private func openDeeplinkInSafari(_ deeplink: String) {
+        let clearButton = safari.buttons["ClearTextButton"]
+
         // Open address bar
         let urlField = safari.textFields["Address"]
         XCTAssertTrue(urlField.waitForExistence(timeout: 5), "Address bar not found")
         urlField.tap()
-        safari.buttons["ClearTextButton"].tap()
+
+        if clearButton.waitForExistence(timeout: .conditional) {
+            clearButton.tap()
+        }
 
         // Insert deeplink
         UIPasteboard.general.string = deeplink
