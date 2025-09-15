@@ -43,12 +43,46 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
         // WIP
     }
 
-    func onShowFeePolicy(params: YieldModuleBottomSheetParams.FeePolicyParams) {
+    func onShowFeePolicy(params: YieldModuleParams.FeePolicyParams) {
         flow = .feePolicy(params: params)
     }
 
     func onBackAction() {
         previousFlow.map { flow = $0 }
+    }
+
+    func onShowApproveSheet() {
+        guard case .earnInfo(let params) = flow else {
+            onCloseTapAction()
+            return
+        }
+
+        flow = .approve(
+            params: .init(
+                tokenName: params.tokenName,
+                networkFee: params.networkFee,
+                feeCurrencyInfo: params.feeCurrencyInfo,
+                readMoreAction: params.onReadMoreAction,
+                mainAction: params.onApproveAction
+            )
+        )
+    }
+
+    func onShowStopEarningSheet() {
+        guard case .earnInfo(let params) = flow else {
+            onCloseTapAction()
+            return
+        }
+
+        flow = .stopEarning(
+            params: .init(
+                tokenName: params.tokenName,
+                networkFee: params.networkFee,
+                feeCurrencyInfo: params.feeCurrencyInfo,
+                readMoreAction: params.onReadMoreAction,
+                mainAction: params.onStopEarningAction
+            )
+        )
     }
 
     func onShowFeePolicyTap() {
@@ -70,16 +104,42 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
     func onStartEarningTap() {
         // WIP
     }
+
+    func createNoficiationBannerIfNeeded() -> YieldModuleParams.YieldModuleBottomSheetNotificationBannerParams? {
+        switch flow {
+        case .startEarning, .approve, .stopEarning:
+            guard let info = flow.feeCurrencyInfo else { return nil }
+            return .notEnoughFeeCurrency(
+                feeCurrencyName: info.feeCurrencyName,
+                tokenIcon: info.feeCurrencyIcon,
+                buttonAction: { [weak self] in
+                    info.goToFeeCurrencyAction()
+                    self?.onCloseTapAction()
+                }
+            )
+
+        case .earnInfo(let parameters):
+            if case .active(true) = parameters.status {
+                return .approveNeeded(buttonAction: {
+                    parameters.onApproveAction()
+                })
+            }
+            return nil
+
+        case .feePolicy, .rateInfo:
+            return nil
+        }
+    }
 }
 
 extension YieldModuleBottomSheetViewModel {
     enum Flow: Identifiable, Equatable {
-        case rateInfo(params: YieldModuleBottomSheetParams.RateInfoParams)
-        case feePolicy(params: YieldModuleBottomSheetParams.FeePolicyParams)
-        case startEarning(params: YieldModuleBottomSheetParams.StartEarningParams)
-        case earnInfo(params: YieldModuleBottomSheetParams.EarnInfoParams)
-        case stopEarning(params: YieldModuleBottomSheetParams.СommonParams)
-        case approve(params: YieldModuleBottomSheetParams.СommonParams)
+        case rateInfo(params: YieldModuleParams.RateInfoParams)
+        case feePolicy(params: YieldModuleParams.FeePolicyParams)
+        case startEarning(params: YieldModuleParams.StartEarningParams)
+        case earnInfo(params: YieldModuleParams.EarnInfoParams)
+        case stopEarning(params: YieldModuleParams.СommonParams)
+        case approve(params: YieldModuleParams.СommonParams)
 
         // MARK: - Identifiable
 
@@ -97,6 +157,21 @@ extension YieldModuleBottomSheetViewModel {
                 "stopEarning"
             case .approve:
                 "approve"
+            }
+        }
+
+        var feeCurrencyInfo: YieldModuleParams.FeeCurrencyInfo? {
+            switch self {
+            case .startEarning(let params):
+                return params.feeCurrencyInfo
+            case .stopEarning(let params):
+                return params.feeCurrencyInfo
+            case .approve(let params):
+                return params.feeCurrencyInfo
+            case .earnInfo(let params):
+                return params.feeCurrencyInfo
+            default:
+                return nil
             }
         }
     }

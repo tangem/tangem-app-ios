@@ -13,7 +13,7 @@ import TangemUI
 
 extension YieldModuleBottomSheetView {
     struct YieldModuleEarnInfoView: View {
-        typealias EarnInfoParams = YieldModuleBottomSheetParams.EarnInfoParams
+        typealias EarnInfoParams = YieldModuleParams.EarnInfoParams
 
         // MARK: - Properties
 
