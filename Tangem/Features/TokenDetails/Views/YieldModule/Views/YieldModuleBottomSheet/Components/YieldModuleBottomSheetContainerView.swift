@@ -24,27 +24,25 @@ extension YieldModuleBottomSheetView {
         private let subtitleFooter: SubtitleFooter
         private let content: BodyContent
         private let toolBarTitle: ToolBarTitle
-        private let buttonStyle: CallToActionButtonStyle
+        private let button: MainButton
 
         // MARK: - Actions
 
         private let closeAction: (() -> Void)?
         private let backAction: (() -> Void)?
-        private let buttonAction: () -> Void
 
         // MARK: - Init
 
         public init(
             title: String? = nil,
             subtitle: String? = nil,
-            buttonStyle: CallToActionButtonStyle,
+            button: MainButton,
             @ViewBuilder toolBarTitle: () -> ToolBarTitle = { EmptyView() },
             @ViewBuilder topContent: () -> TopContent = { EmptyView() },
             @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
             @ViewBuilder content: () -> BodyContent = { EmptyView() },
             closeAction: (() -> Void)? = nil,
             backAction: (() -> Void)? = nil,
-            buttonAction: @escaping () -> Void,
             horizontalPadding: CGFloat
         ) {
             self.toolBarTitle = toolBarTitle()
@@ -54,10 +52,9 @@ extension YieldModuleBottomSheetView {
 
             self.title = title
             self.subtitle = subtitle
-            self.buttonStyle = buttonStyle
+            self.button = button
             self.closeAction = closeAction
             self.backAction = backAction
-            self.buttonAction = buttonAction
             self.horizontalPadding = horizontalPadding
         }
 
@@ -66,26 +63,28 @@ extension YieldModuleBottomSheetView {
         var body: some View {
             ScrollView {
                 VStack(spacing: .zero) {
-                    toolBar.padding(.bottom, 20)
+                    toolBar
 
-                    topContent.padding(.bottom, 20)
+                    topContent.padding(.top, 8)
 
                     titleView
+                        .padding(.top, 20)
                         .padding(.horizontal, 14)
                         .padding(.bottom, 6)
 
                     subtitleView
                         .padding(.horizontal, 16)
-                        .padding(.bottom, 20)
+                        .padding(.bottom, 24)
 
                     subtitleFooter.padding(.bottom, 24)
 
-                    content.padding(.bottom, 24)
+                    content
 
-                    bottomButton
+                    button.padding(.top, 32)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 24)
+                .padding(.top, 16)
+                .padding(.bottom, 18)
             }
         }
 
@@ -124,49 +123,6 @@ extension YieldModuleBottomSheetView {
                     Spacer()
                     toolBarTitle
                     Spacer()
-                }
-            }
-        }
-
-        private var bottomButton: some View {
-            Button(action: buttonAction) {
-                buttonStyle.label
-            }
-            .buttonStyle(buttonStyle.tangemButtonStyle)
-        }
-    }
-}
-
-extension YieldModuleBottomSheetView {
-    enum CallToActionButtonStyle {
-        case gray(title: String)
-        case black(title: String)
-        case blackWithTangemIcon(title: String)
-
-        var tangemButtonStyle: TangemButtonStyle {
-            var buttonColorStyle: ButtonColorStyle
-
-            switch self {
-            case .gray:
-                buttonColorStyle = .gray
-            case .black, .blackWithTangemIcon:
-                buttonColorStyle = .black
-            }
-
-            return TangemButtonStyle(colorStyle: buttonColorStyle, layout: .flexibleWidth)
-        }
-
-        @ViewBuilder
-        var label: some View {
-            switch self {
-            case .gray(let title):
-                Text(title)
-            case .black(let title):
-                Text(title)
-            case .blackWithTangemIcon(let title):
-                HStack(spacing: 10) {
-                    Text(title)
-                    Assets.tangemIcon.image
                 }
             }
         }
