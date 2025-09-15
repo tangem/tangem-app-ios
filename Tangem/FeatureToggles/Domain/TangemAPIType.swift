@@ -23,7 +23,7 @@ public enum TangemAPIType: String, CaseIterable, Codable {
         case .stage:
             return URL(string: "https://api.tests-s.com/v1")!
         case .mock:
-            return URL(string: "http://localhost:8081/v1")!
+            return URL(string: "https://wiremock.tests-d.com/v1")!
         }
     }
 
