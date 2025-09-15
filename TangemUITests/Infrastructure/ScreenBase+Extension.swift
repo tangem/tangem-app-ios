@@ -97,6 +97,10 @@ extension ScreenBase {
         app.images.matching(identifier: element.accessibilityIdentifier)
     }
 
+    func scrollView(_ element: T) -> XCUIElement {
+        app.scrollViews[element.accessibilityIdentifier].firstMatch
+    }
+
     func pullToRefresh() {
         let startCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
         let finishCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
