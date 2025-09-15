@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 struct NewOnrampView: View {
@@ -21,9 +22,12 @@ struct NewOnrampView: View {
         GroupedScrollView(spacing: 14) {
             NewOnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
 
-            OnrampProvidersCompactView(
-                viewModel: viewModel.onrampProvidersCompactViewModel
-            )
+            if viewModel.viewState == .offers {
+                OnrampProvidersCompactView(
+                    viewModel: viewModel.onrampProvidersCompactViewModel
+                )
+                .transition(transitionService.newSummaryViewTransition())
+            }
 
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
@@ -31,7 +35,24 @@ struct NewOnrampView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            legalView
+            bottomContainer
+                .transition(.offset(y: 500).combined(with: .opacity))
+        }
+        .animation(.easeOut, value: viewModel.viewState)
+    }
+
+    @ViewBuilder
+    private var bottomContainer: some View {
+        if viewModel.viewState == .amount {
+            VStack(spacing: 8) {
+                legalView
+
+                MainButton(title: Localization.commonContinue) {
+                    keyboardActive = false
+                    viewModel.usedDidTapContinue()
+                }
+            }
+            .padding(.horizontal, 16)
         }
     }
 
