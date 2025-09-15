@@ -114,11 +114,7 @@ extension CommonStakingSendAnalyticsLogger: SendFinishAnalyticsLogger {
             .action: stakingAnalyticsAction.rawValue,
         ])
     }
-}
 
-// MARK: - SendBaseViewAnalyticsLogger
-
-extension CommonStakingSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
     func logShareButton() {
         Analytics.log(
             event: .stakingButtonShare,
@@ -134,7 +130,11 @@ extension CommonStakingSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
             params: [.token: tokenItem.currencySymbol]
         )
     }
+}
 
+// MARK: - SendBaseViewAnalyticsLogger
+
+extension CommonStakingSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
     func logRequestSupport() {
         Analytics.log(.requestSupport, params: [.source: .send])
     }

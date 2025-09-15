@@ -229,25 +229,7 @@ struct SendView: View {
 
     @ViewBuilder
     private var bottomContainer: some View {
-        VStack(spacing: 10) {
-            if let url = viewModel.transactionURL, viewModel.shouldShowShareExploreButtons {
-                HStack(spacing: 8) {
-                    MainButton(
-                        title: Localization.commonExplore,
-                        icon: .leading(Assets.Glyphs.explore),
-                        style: .secondary,
-                        action: { viewModel.explore(url: url) }
-                    )
-                    MainButton(
-                        title: Localization.commonShare,
-                        icon: .leading(Assets.share),
-                        style: .secondary,
-                        action: { viewModel.share(url: url) }
-                    )
-                }
-                .transition(.opacity.animation(SendTransitionService.Constants.newAnimation))
-            }
-
+        if let mainButtonType = viewModel.bottomBarSettings.action {
             HStack(spacing: 8) {
                 if viewModel.bottomBarSettings.backButtonVisible {
                     SendViewBackButton(
@@ -259,26 +241,24 @@ struct SendView: View {
                     .transition(.move(edge: .leading).combined(with: .opacity))
                 }
 
-                if let mainButtonType = viewModel.bottomBarSettings.action {
-                    MainButton(
-                        title: mainButtonType.title(action: viewModel.flowActionType),
-                        icon: mainButtonType.icon(action: viewModel.flowActionType),
-                        style: .primary,
-                        size: .default,
-                        isLoading: viewModel.mainButtonLoading,
-                        isDisabled: !viewModel.actionIsAvailable,
-                        action: {
-                            viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
-                        }
-                    )
-                    .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
-                }
+                MainButton(
+                    title: mainButtonType.title(action: viewModel.flowActionType),
+                    icon: mainButtonType.icon(action: viewModel.flowActionType),
+                    style: .primary,
+                    size: .default,
+                    isLoading: viewModel.mainButtonLoading,
+                    isDisabled: !viewModel.actionIsAvailable,
+                    action: {
+                        viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
+                    }
+                )
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
             }
             .animation(SendTransitionService.Constants.auxiliaryViewAnimation, value: viewModel.bottomBarSettings.backButtonVisible)
+            .padding(.top, 8)
+            .padding(.bottom, 14)
+            .padding(.horizontal, 16)
         }
-        .padding(.top, 8)
-        .padding(.bottom, 14)
-        .padding(.horizontal, 16)
     }
 
     private var bottomOverlay: some View {

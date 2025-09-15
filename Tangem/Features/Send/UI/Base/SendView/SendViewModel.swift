@@ -30,8 +30,6 @@ final class SendViewModel: ObservableObject {
     @Published var flowActionType: SendFlowActionType
     @Published var isKeyboardActive: Bool = false
 
-    @Published var transactionURL: URL?
-
     @Published var closeButtonDisabled = false
     @Published var trailingButtonDisabled = false
     @Published var isUserInteractionDisabled = false
@@ -170,16 +168,6 @@ final class SendViewModel: ObservableObject {
             coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
     }
-
-    func share(url: URL) {
-        analyticsLogger.logShareButton()
-        coordinator?.openShareSheet(url: url)
-    }
-
-    func explore(url: URL) {
-        analyticsLogger.logExploreButton()
-        coordinator?.openExplorer(url: url)
-    }
 }
 
 // MARK: - Private
@@ -236,8 +224,7 @@ private extension SendViewModel {
     }
 
     @MainActor
-    func proceed(result: TransactionDispatcherResult) {
-        transactionURL = result.url
+    func proceed(result _: TransactionDispatcherResult) {
         stepsManager.performFinish()
     }
 
