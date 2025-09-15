@@ -23,6 +23,7 @@ class NewCustomBitcoinFeeService {
     private lazy var satoshiPerByteTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: 0)
 
     private let customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
+    private var cachedCustomFee: Fee?
     private var bag: Set<AnyCancellable> = []
 
     private var zeroFee: Fee {
@@ -105,6 +106,15 @@ class NewCustomBitcoinFeeService {
             return zeroFee
         }
     }
+
+    func updateView(fee: BSDKFee) {
+        guard let bitcoinFeeParameters = fee.parameters as? BitcoinFeeParameters else {
+            return
+        }
+
+        customFeeTextField.update(value: fee.amount.value)
+        satoshiPerByteTextField.update(value: Decimal(bitcoinFeeParameters.rate))
+    }
 }
 
 extension NewCustomBitcoinFeeService: CustomFeeService {
@@ -115,16 +125,22 @@ extension NewCustomBitcoinFeeService: CustomFeeService {
     func initialSetupCustomFee(_ fee: BlockchainSdk.Fee) {
         assert(customFee.value == nil, "Duplicate initial setup")
 
-        guard let bitcoinFeeParameters = fee.parameters as? BitcoinFeeParameters else {
-            return
-        }
-
         customFee.send(fee)
-        customFeeTextField.update(value: fee.amount.value)
-        satoshiPerByteTextField.update(value: Decimal(bitcoinFeeParameters.rate))
+        updateView(fee: fee)
+    }
+}
+
+// MARK: - FeeSelectorCustomFeeFieldsBuilder
+
+extension NewCustomBitcoinFeeService: FeeSelectorCustomFeeFieldsBuilder {
+    var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
+        customFee
+            .withWeakCaptureOf(self)
+            .map { $0.zeroFee != $1 }
+            .eraseToAnyPublisher()
     }
 
-    func selectorCustomFeeRowViewModels() -> [FeeSelectorCustomFeeRowViewModel] {
+    func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel] {
         let customFeeRowViewModel = FeeSelectorCustomFeeRowViewModel(
             title: Localization.sendMaxFee,
             tooltip: Localization.sendBitcoinCustomFeeFooter,
@@ -148,5 +164,16 @@ extension NewCustomBitcoinFeeService: CustomFeeService {
         )
 
         return [customFeeRowViewModel, satoshiPerByteRowViewModel]
+    }
+
+    func captureCustomFeeFieldsValue() {
+        cachedCustomFee = customFee.value
+    }
+
+    func resetCustomFeeFieldsValue() {
+        if let cachedCustomFee {
+            customFee.send(cachedCustomFee)
+            updateView(fee: cachedCustomFee)
+        }
     }
 }

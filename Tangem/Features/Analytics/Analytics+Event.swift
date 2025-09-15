@@ -45,7 +45,6 @@ extension Analytics {
         case accessCodeReEntered = "[Onboarding / Backup] Access Code Re-entered"
         case backupFinished = "[Onboarding / Backup] Backup Finished"
         case backupResetCardNotification = "[Onboarding / Backup] Reset Card Notification"
-        case activationScreenOpened = "[Onboarding / Top Up] Activation Screen Opened"
         case buttonBuyCrypto = "[Onboarding / Top Up] Button - Buy Crypto"
         case onboardingButtonShowTheWalletAddress = "[Onboarding / Top Up] Button - Show the Wallet Address"
         case onboardingEnableBiometric = "[Onboarding / Biometric] Enable Biometric"
@@ -75,8 +74,10 @@ extension Analytics {
         case buttonUnderstand = "[Token] Button - Understand"
         case tokenBought = "[Token] Token Bought"
         case receiveScreenOpened = "[Token / Receive] Receive Screen Opened"
+        case qrScreenOpened = "[Token / Receive] QR Screen Opened"
         case buttonCopyAddress = "[Token / Receive] Button - Copy Address"
         case buttonShareAddress = "[Token / Receive] Button - Share Address"
+        case buttonENS = "[Token / Receive] Button - ENS"
         case buttonAddTokenTrustline = "[Token] Button - Token Trustline"
         case stakingClicked = "[Token] Staking Clicked"
 
@@ -114,6 +115,14 @@ extension Analytics {
         case sendNoticeTransactionDelaysArePossible = "[Token / Send] Notice - Transaction Delays Are Possible"
         case sendErrorTransactionRejected = "[Token / Send] Error - Transaction Rejected"
         case sendButtonClose = "[Token / Send] Button - Close"
+        case sendButtonConvertToken = "[Token / Send] Button - Convert Token"
+        case sendTokenSearched = "[Token / Send] Token Searched"
+        case sendTokenSearchedClicked = "[Token / Send] Token Search Clicked"
+        case sendTokenChosen = "[Token / Send] Token chosen"
+        case sendProviderClicked = "[Token / Send] Provider Clicked"
+        case sendProviderChosen = "[Token / Send] Provider Chosen"
+        case sendSendWithSwapInProgressScreenOpened = "[Token / Send] Send With Swap In Progress Screen Opened"
+        case sendNoticeCantSwapThisToken = "[Token / Send] Notice - Can't Swap This Token"
 
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
         case p2PScreenOpened = "[Token / Topup] P2P Screen Opened"
@@ -159,8 +168,6 @@ extension Analytics {
         case walletConnectDAppSessionProposalReceived = "[Wallet Connect] dApp Connection Requested"
         case walletConnectDAppConnectionRequestConnectButtonTapped = "[Wallet Connect] Button - Connect"
         case walletConnectCancelButtonTapped = "[Wallet Connect] Button - Cancel"
-
-        case walletConnectSecurityAlertShown = "[Wallet Connect] Notice - Security Alert"
 
         case walletConnectDAppConnected = "[Wallet Connect] dApp Connected"
         case walletConnectDAppConnectionFailed = "[Wallet Connect] dApp Connection Failed"
