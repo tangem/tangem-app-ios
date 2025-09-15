@@ -28,7 +28,7 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.19")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", revision: "fca095d5c57d65c066c06cab9aa588ac0e296fe2"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "3.23.8")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -116,8 +116,8 @@ var serviceModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
-            name: "TangemHotSdk",
-            path: "TangemHotSdk/Sources/swift",
+            name: "TangemMobileWalletSdk",
+            path: "TangemMobileWalletSdk/Sources/swift",
             dependencies: [
                 .product(name: "TangemSdk", package: "tangem-sdk-ios"),
                 .target(name: "TrezorCrypto"),
@@ -130,7 +130,7 @@ var serviceModules: [PackageDescription.Target] {
         // TrezorCrypto library is from WalletCore repo, commit 6e9567b5f9efc965e4fc1af00ecf485c4bf040a1
         .tangemTarget(
             name: "TrezorCrypto",
-            path: "TangemHotSdk/Sources/TrezorCrypto",
+            path: "TangemMobileWalletSdk/Sources/TrezorCrypto",
             exclude: [
                 "crypto/ed25519-donna/README.md",
                 "crypto/nist256p1.table",
@@ -139,6 +139,9 @@ var serviceModules: [PackageDescription.Target] {
             ],
             sources: ["crypto"],
             publicHeadersPath: "include",
+            cSettings: [
+                .unsafeFlags(["-Wno-shorten-64-to-32"]),
+            ],
         ),
     ]
 }
@@ -179,6 +182,20 @@ var featureModules: [PackageDescription.Target] {
                 .swiftLanguageMode(.v5),
             ]
         ),
+        .tangemTarget(
+            name: "TangemAccounts",
+            dependencies: [
+                "TangemAssets",
+                "TangemLocalization",
+                "TangemUIUtils",
+                "TangemUI",
+                "TangemFoundation",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
     ]
 }
 
@@ -205,11 +222,11 @@ var unitTestsModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTestTarget(
-            name: "TangemHotSdkTests",
-            path: "TangemHotSdk/Tests",
+            name: "TangemMobileWalletSdkTests",
+            path: "TangemMobileWalletSdk/Tests",
             dependencies: [
                 "TangemFoundation",
-                "TangemHotSdk",
+                "TangemMobileWalletSdk",
                 "TrezorCrypto",
             ]
         ),

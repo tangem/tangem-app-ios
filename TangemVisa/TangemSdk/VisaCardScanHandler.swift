@@ -21,23 +21,21 @@ public final class VisaCardScanHandler: CardSessionRunnable {
     public typealias Response = VisaCardActivationLocalState
     public typealias CompletionHandler = CompletionResult<VisaCardActivationLocalState>
 
-    private let visaUtilities: VisaUtilities
     private let authorizationService: VisaAuthorizationService
     private let cardActivationStateProvider: VisaCardActivationStatusService
     private let visaRefreshTokenRepository: VisaRefreshTokenRepository
+    private let isTestnet: Bool
 
     init(
-        isTestnet: Bool,
         authorizationService: VisaAuthorizationService,
         cardActivationStateProvider: VisaCardActivationStatusService,
-        refreshTokenRepository: VisaRefreshTokenRepository
+        refreshTokenRepository: VisaRefreshTokenRepository,
+        isTestnet: Bool
     ) {
-        // - NOTE: We need to use this isTestnet = false, because in BlockchainSdk we have if for testnet `DerivationPath` generation
-        // that didn't work properly, and for Visa we must generate derive keys using polygon derivation
-        visaUtilities = .init(isTestnet: false)
         self.authorizationService = authorizationService
         self.cardActivationStateProvider = cardActivationStateProvider
         visaRefreshTokenRepository = refreshTokenRepository
+        self.isTestnet = isTestnet
     }
 
     deinit {
@@ -47,236 +45,155 @@ public final class VisaCardScanHandler: CardSessionRunnable {
     public func run(in session: CardSession, completion: @escaping CompletionHandler) {
         VisaLogger.info("Attempting to handle Visa card scan")
         guard let card = session.environment.card else {
+            VisaLogger.info("Failed to find card in session environment")
             completion(.failure(.missingPreflightRead))
             return
         }
 
-        let mandatoryCurve = visaUtilities.mandatoryCurve
-        guard let wallet = card.wallets.first(where: { $0.curve == mandatoryCurve }) else {
+        guard let wallet = card.wallets.first(where: { $0.curve == VisaUtilities.mandatoryCurve }) else {
             // 1 flow
-            let activationInput = VisaCardActivationInput(cardId: card.cardId, cardPublicKey: card.cardPublicKey, isAccessCodeSet: card.isAccessCodeSet)
+            let activationInput = VisaCardActivationInput(
+                cardId: card.cardId,
+                cardPublicKey: card.cardPublicKey,
+                isAccessCodeSet: card.isAccessCodeSet
+            )
             let activationStatus = VisaCardActivationLocalState.notStartedActivation(activationInput: activationInput)
             completion(.success(activationStatus))
             return
         }
 
         // Start of 2 flow
-        deriveKey(wallet: wallet, in: session, completion: completion)
-    }
-
-    private func deriveKey(wallet: Card.Wallet, in session: CardSession, completion: @escaping CompletionHandler) {
-        guard let derivationPath = visaUtilities.visaDefaultDerivationPath else {
-            VisaLogger.info("Failed to create derivation path while first scan")
-            completion(.failure(.underlying(error: HandlerError.failedToCreateDerivationPath)))
-            return
-        }
-
-        let derivationTask = DeriveWalletPublicKeyTask(walletPublicKey: wallet.publicKey, derivationPath: derivationPath)
-        derivationTask.run(in: session) { result in
-            self.handleDerivationResponse(
-                derivationResult: result,
-                in: session,
-                completion: completion
-            )
-        }
-    }
-
-    private func handleDerivationResponse(
-        derivationResult: Result<ExtendedPublicKey, TangemSdkError>,
-        in session: CardSession,
-        completion: @escaping CompletionHandler
-    ) {
-        switch derivationResult {
-        case .success:
-            runTask(in: self, isDetached: false, priority: .userInitiated) { handler in
-                VisaLogger.info("Start task for loading challenge for Visa wallet")
-                await handler.handleWalletAuthorization(in: session, completion: completion)
-            }
-        case .failure(let error):
-            completion(.failure(error))
-        }
-    }
-
-    private func handleWalletAuthorization(
-        in session: CardSession,
-        completion: @escaping CompletionHandler
-    ) async {
-        VisaLogger.info("Started handling authorization using Visa wallet")
-        guard let card = session.environment.card else {
-            completion(.failure(.missingPreflightRead))
-            return
-        }
-
-        guard let wallet = card.wallets.first(where: { $0.curve == visaUtilities.mandatoryCurve }) else {
-            VisaLogger.info("Failed to find extended public key while handling wallet authorization")
-            completion(.failure(.underlying(error: HandlerError.failedToFindDerivedWalletKey)))
-            return
-        }
-
-        let walletAddress: String
-        do {
-            VisaLogger.info("Requesting challenge for wallet authorization")
-            walletAddress = try visaUtilities.makeAddress(walletPublicKey: wallet.publicKey).value
-        } catch {
-            VisaLogger.info("Error during Wallet address generation process. Error: \(error)")
-            completion(.failure(.underlying(error: error)))
-            return
-        }
-
-        do {
-            let challengeResponse = try await authorizationService.getWalletAuthorizationChallenge(
-                cardId: card.cardId,
-                walletPublicKey: wallet.publicKey.hexString
-            )
-
-            let signedChallengeResponse = try await signChallengeWithWallet(
-                walletPublicKey: wallet.publicKey,
-                challenge: Data(hexString: challengeResponse.nonce),
-                in: session
-            )
-
-            VisaLogger.info("Challenge signed with Wallet public key")
-
-            let authorizationTokensResponse = try await authorizationService.getAccessTokensForWalletAuth(
-                signedChallenge: signedChallengeResponse.walletSignature.hexString,
-                salt: signedChallengeResponse.salt.hexString,
-                sessionId: challengeResponse.sessionId
-            )
-
-            if let authorizationTokensResponse {
-                // 2.1 Flow
-                VisaLogger.info("Authorized using Wallet public key successfully")
-                try visaRefreshTokenRepository.save(refreshToken: authorizationTokensResponse.refreshToken, cardId: card.cardId)
-                completion(.success(.activated(authTokens: authorizationTokensResponse)))
-            } else {
-                // 2.2 Flow
-                VisaLogger.info("Failed to get Access token for Wallet public key authoziation. Authorizing using Card Pub key")
-                await handleCardAuthorization(
-                    walletAddress: walletAddress,
+        VisaLogger.info("Start task for loading challenge for Visa wallet")
+        runTask(in: self, isDetached: false, priority: .userInitiated) { handler in
+            do {
+                let cardActivationState = try await handler.handleWalletAuthorizationWithFallbackToCardAuthorization(
                     session: session,
-                    completion: completion
+                    card: card,
+                    wallet: wallet
                 )
-            }
-        } catch let error as TangemSdkError {
-            VisaLogger.info("Error during Wallet authorization process. Tangem Sdk Error: \(error)")
-            completion(.failure(error))
-        } catch let error as VisaAPIError {
-            VisaLogger.error("API error during wallet authorization process", error: error)
-            switch error.code {
-            case 110206, 110208:
-                await handleCardAuthorization(
-                    walletAddress: walletAddress,
-                    session: session,
-                    completion: completion
-                )
-            default:
+                completion(.success(cardActivationState))
+            } catch let error as TangemSdkError {
+                VisaLogger.info("Error during authorization process. Tangem Sdk Error: \(error)")
+                completion(.failure(error))
+            } catch {
+                VisaLogger.info("Error during authorization process. Error: \(error)")
                 completion(.failure(.underlying(error: error)))
             }
-        } catch {
-            VisaLogger.info("Error during Wallet authorization process. Error: \(error)")
-            completion(.failure(.underlying(error: error)))
         }
     }
 
-    private func handleCardAuthorization(
-        walletAddress: String,
+    private func handleWalletAuthorizationWithFallbackToCardAuthorization(
         session: CardSession,
-        completion: @escaping CompletionHandler
-    ) async {
-        VisaLogger.info("Started handling visa card scan async")
-        guard let card = session.environment.card else {
-            VisaLogger.info("Failed to find card in session environment")
-            completion(.failure(TangemSdkError.missingPreflightRead))
-            return
-        }
-
+        card: Card,
+        wallet: Card.Wallet
+    ) async throws -> VisaCardActivationLocalState {
         do {
-            VisaLogger.info("Requesting authorization challenge to sign")
-            let challengeResponse = try await authorizationService.getCardAuthorizationChallenge(
+            VisaLogger.info("Started handling authorization using Visa wallet")
+            return try await handleWalletAuthorization(
+                session: session,
                 cardId: card.cardId,
-                cardPublicKey: card.cardPublicKey.hexString
+                walletPublicKey: wallet.publicKey
             )
-            VisaLogger.info("Received challenge to sign")
-
-            let attestCardKeyResponse = try await signChallengeWithCard(session: session, challenge: challengeResponse.nonce)
-            VisaLogger.info("Challenged signed. Result: \(attestCardKeyResponse.cardSignature.hexString)")
-            let authorizationTokensResponse = try await authorizationService.getAccessTokensForCardAuth(
-                signedChallenge: attestCardKeyResponse.cardSignature.hexString,
-                salt: attestCardKeyResponse.salt.hexString,
-                sessionId: challengeResponse.sessionId
-            )
-            VisaLogger.info("Receive authorization tokens response")
-
-            let cardActivationStatus = try await cardActivationStateProvider.getCardActivationStatus(
-                authorizationTokens: authorizationTokensResponse,
-                cardId: card.cardId,
-                cardPublicKey: card.cardPublicKey.hexString
-            )
-
-            switch cardActivationStatus.activationRemoteState {
-            case .blockedForActivation:
-                throw VisaActivationError.blockedForActivation
-            case .activated:
-                throw VisaActivationError.invalidActivationState
-            default:
-                break
-            }
-
-            let activationInput = VisaCardActivationInput(
+        } catch let error as VisaAPIError where [110206, 110208].contains(error.code) {
+            VisaLogger.info("Started handling visa card scan async")
+            let walletAddress = try VisaUtilities.makeAddress(walletPublicKey: wallet.publicKey, isTestnet: isTestnet).value
+            return try await handleCardAuthorization(
+                session: session,
                 cardId: card.cardId,
                 cardPublicKey: card.cardPublicKey,
                 isAccessCodeSet: card.isAccessCodeSet,
                 walletAddress: walletAddress
             )
-            completion(.success(.activationStarted(
-                activationInput: activationInput,
-                authTokens: authorizationTokensResponse,
-                activationStatus: cardActivationStatus
-            )))
-        } catch let error as TangemSdkError {
-            VisaLogger.error("Failed to handle challenge signing. Tangem SDK error", error: error)
-            completion(.failure(error))
-        } catch {
-            VisaLogger.error("Failed to handle challenge signing. Plain error", error: error)
-            completion(.failure(TangemSdkError.underlying(error: error)))
         }
     }
 
-    private func signChallengeWithWallet(
-        walletPublicKey: Data,
-        challenge: Data,
-        in session: CardSession
-    ) async throws -> AttestWalletKeyResponse {
-        try await withCheckedThrowingContinuation { [session] continuation in
-            let signHashCommand = AttestWalletKeyTask(
-                walletPublicKey: walletPublicKey,
-                challenge: challenge,
-                confirmationMode: .dynamic
-            )
-            signHashCommand.run(in: session) { result in
-                switch result {
-                case .success(let signHashResponse):
-                    continuation.resume(returning: signHashResponse)
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
-        }
+    private func handleWalletAuthorization(
+        session: CardSession,
+        cardId: String,
+        walletPublicKey: Data
+    ) async throws -> VisaCardActivationLocalState {
+        VisaLogger.info("Requesting challenge for wallet authorization")
+        let challengeResponse = try await authorizationService.getWalletAuthorizationChallenge(
+            cardId: cardId,
+            walletPublicKey: walletPublicKey.hexString
+        )
+        VisaLogger.info("Received challenge to sign")
+
+        let signedChallengeResponse = try await AttestWalletKeyTask(
+            walletPublicKey: walletPublicKey,
+            challenge: Data(hexString: challengeResponse.nonce),
+            confirmationMode: .dynamic
+        )
+        .run(in: session)
+        VisaLogger.info("Challenge signed with Wallet public key")
+
+        let authorizationTokensResponse = try await authorizationService.getAccessTokensForWalletAuth(
+            signedChallenge: signedChallengeResponse.walletSignature.hexString,
+            salt: signedChallengeResponse.salt.hexString,
+            sessionId: challengeResponse.sessionId
+        )
+        VisaLogger.info("Receive authorization tokens response")
+
+        VisaLogger.info("Authorized using Wallet public key successfully")
+        try visaRefreshTokenRepository.save(refreshToken: authorizationTokensResponse.refreshToken, cardId: cardId)
+
+        return .activated(authTokens: authorizationTokensResponse)
     }
 
-    private func signChallengeWithCard(session: CardSession, challenge: String) async throws -> AttestCardKeyResponse {
-        try await withCheckedThrowingContinuation { [session] continuation in
-            let data = Data(hexString: challenge)
-            let signTask = AttestCardKeyCommand(challenge: data)
-            signTask.run(in: session) { result in
-                switch result {
-                case .success(let attestCardKeyResponse):
-                    continuation.resume(returning: attestCardKeyResponse)
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
+    private func handleCardAuthorization(
+        session: CardSession,
+        cardId: String,
+        cardPublicKey: Data,
+        isAccessCodeSet: Bool,
+        walletAddress: String
+    ) async throws -> VisaCardActivationLocalState {
+        VisaLogger.info("Requesting challenge for wallet authorization")
+        let challengeResponse = try await authorizationService.getCardAuthorizationChallenge(
+            cardId: cardId,
+            cardPublicKey: cardPublicKey.hexString
+        )
+        VisaLogger.info("Received challenge to sign")
+
+        let signedChallengeResponse = try await AttestCardKeyCommand(
+            challenge: Data(hexString: challengeResponse.nonce)
+        )
+        .run(in: session)
+        VisaLogger.info("Challenge signed with Wallet public key")
+
+        let authorizationTokensResponse = try await authorizationService.getAccessTokensForCardAuth(
+            signedChallenge: signedChallengeResponse.cardSignature.hexString,
+            salt: signedChallengeResponse.salt.hexString,
+            sessionId: challengeResponse.sessionId
+        )
+        VisaLogger.info("Receive authorization tokens response")
+
+        let cardActivationStatus = try await cardActivationStateProvider.getCardActivationStatus(
+            authorizationTokens: authorizationTokensResponse,
+            cardId: cardId,
+            cardPublicKey: cardPublicKey.hexString
+        )
+
+        switch cardActivationStatus.activationRemoteState {
+        case .blockedForActivation:
+            throw VisaActivationError.blockedForActivation
+        case .activated:
+            throw VisaActivationError.invalidActivationState
+        default:
+            break
         }
+
+        let activationInput = VisaCardActivationInput(
+            cardId: cardId,
+            cardPublicKey: cardPublicKey,
+            isAccessCodeSet: isAccessCodeSet,
+            walletAddress: walletAddress
+        )
+
+        return .activationStarted(
+            activationInput: activationInput,
+            authTokens: authorizationTokensResponse,
+            activationStatus: cardActivationStatus
+        )
     }
 }
 
@@ -294,6 +211,21 @@ public extension VisaCardScanHandler {
             switch self {
             case .failedToCreateDerivationPath, .failedToFindWallet, .failedToFindDerivedWalletKey:
                 return "Error occurred. Please contact support"
+            }
+        }
+    }
+}
+
+extension CardSessionRunnable {
+    func run(in session: CardSession) async throws -> Response {
+        try await withCheckedThrowingContinuation { continuation in
+            self.run(in: session) { result in
+                switch result {
+                case .success(let success):
+                    continuation.resume(returning: success)
+                case .failure(let failure):
+                    continuation.resume(throwing: failure)
+                }
             }
         }
     }

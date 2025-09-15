@@ -18,6 +18,8 @@ extension Analytics {
         case off = "Off"
         case yes = "Yes"
         case no = "No"
+        case `true` = "True"
+        case `false` = "False"
         case full = "Full"
         case null = "Null"
         case empty = "Empty"
@@ -36,6 +38,8 @@ extension Analytics {
         case market = "Market"
         case chart = "Chart"
         case blocks = "Blocks"
+        case seedless = "Seedless"
+        case seedphrase = "Seed phrase"
 
         case card = "Card"
         case ring = "Ring"
@@ -51,11 +55,13 @@ extension Analytics {
         case settings = "Settings"
         case signIn = "Sign In"
         case receive = "Receive"
+        case qr = "QR"
         case stories = "Stories"
         case buy = "Buy"
         case sell = "Sell"
         case swap = "Swap"
         case send = "Send"
+        case sendAndSwap = "Send&Swap"
         case backup = "Backup"
         case sign = "Sign"
 
@@ -230,8 +236,8 @@ extension Analytics {
 
         // MARK: - Wallet Connect
 
-        case walletConnectSecurityAlertVerified = "Verified"
-        case walletConnectSecurityAlertRisky = "Risky"
+        case walletConnectVerified = "Verified"
+        case walletConnectRisky = "Risky"
         case walletConnectSecurityAlertSourceDomain = "Domain"
         case walletConnectSecurityAlertSourceSmartContract = "Smart Contract"
 
@@ -252,6 +258,14 @@ extension Analytics {
 
         static func affirmativeOrNegative(for boolean: Bool) -> ParameterValue {
             return boolean ? .yes : .no
+        }
+
+        static func boolState(for boolean: Bool) -> ParameterValue {
+            return boolean ? .true : .false
+        }
+
+        static func seedState(for boolean: Bool) -> ParameterValue {
+            return boolean ? .seedphrase : .seedless
         }
     }
 }

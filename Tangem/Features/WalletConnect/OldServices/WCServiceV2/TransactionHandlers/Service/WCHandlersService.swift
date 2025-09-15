@@ -37,7 +37,7 @@ final class CommonWCHandlersService {
         let method = request.method
 
         guard let wcAction = WalletConnectMethod(rawValue: method) else {
-            throw WalletConnectV2Error.unsupportedWCMethod(method)
+            throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(method)
         }
 
         return try wcHandlersFactory.createHandler(
@@ -59,25 +59,25 @@ extension CommonWCHandlersService: WCHandlersService {
         guard let targetBlockchain = WalletConnectBlockchainMapper.mapToDomain(request.chainId) else {
             // [REDACTED_TODO_COMMENT]
             WCLogger.warning("Failed to create blockchain for request: \(request.id)")
-            throw WalletConnectV2Error.missingBlockchains([request.chainId.absoluteString])
+            throw WalletConnectTransactionRequestProcessingError.missingBlockchains([request.chainId.absoluteString])
         }
 
         // User wallet validation
         if userWalletRepository.models.isEmpty {
             WCLogger.warning("User wallet repository is locked")
-            throw WalletConnectV2Error.userWalletRepositoryIsLocked
+            throw WalletConnectTransactionRequestProcessingError.userWalletRepositoryIsLocked
         }
 
         guard
             let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == connectedDApp.userWalletID })
         else {
             WCLogger.warning("Failed to find target user wallet")
-            throw WalletConnectV2Error.missingActiveUserWalletModel
+            throw WalletConnectTransactionRequestProcessingError.missingActiveUserWalletModel
         }
 
         if userWalletModel.isUserWalletLocked {
             WCLogger.warning("Attempt to handle message with locked user wallet")
-            throw WalletConnectV2Error.userWalletIsLocked
+            throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
         }
 
         // Return validated request data
@@ -113,6 +113,7 @@ extension CommonWCHandlersService: WCHandlersService {
             rawTransaction: handler.rawTransaction,
             requestData: handler.requestData,
             blockchain: blockchain,
+            verificationStatus: connectedDApp.verificationStatus,
             accept: { try await handler.handle() },
             reject: { RPCResult.error(.init(code: 0, message: "User rejected sign")) },
             updatableHandler: handler as? WCTransactionUpdatable

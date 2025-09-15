@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SendAmountView: View {
     @ObservedObject var viewModel: SendAmountViewModel
@@ -58,6 +59,7 @@ struct SendAmountView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
                 .matchedGeometryEffect(id: namespace.names.walletBalance, in: namespace.id)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.balanceLabel)
         }
         // Because the top padding have to be is 16 to the white background
         // But the bottom padding have to be is 12
@@ -76,6 +78,7 @@ struct SendAmountView: View {
 
             VStack(spacing: 6) {
                 SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.decimalNumberTextField)
                     .alignment(.center)
                     .prefixSuffixOptions(viewModel.currentFieldOptions)
                     .minTextScale(SendAmountStep.Constants.amountMinTextScale)

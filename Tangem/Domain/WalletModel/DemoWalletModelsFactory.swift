@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 struct DemoWalletModelsFactory {
     private let factory: CommonWalletModelsFactory

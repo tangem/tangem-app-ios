@@ -55,9 +55,9 @@ extension SendReceiveTokenCoordinator {
 // MARK: - SendReceiveTokensListViewRoutable
 
 extension SendReceiveTokenCoordinator: SendReceiveTokensListViewRoutable {
-    func openNetworkSelector(networks: [TokenItem]) {
+    func openNetworkSelector(coin: CoinModel, networks: [TokenItem]) {
         let selectorViewModel = receiveTokensListBuilder
-            .makeReceiveTokenNetworkSelectorViewModel(networks: networks, router: self)
+            .makeReceiveTokenNetworkSelectorViewModel(coin: coin, networks: networks, router: self)
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: selectorViewModel)

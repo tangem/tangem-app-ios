@@ -14,6 +14,7 @@ import CombineExt
 import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
+import TangemFoundation
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -111,7 +112,14 @@ final class MainViewModel: ObservableObject {
     /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
         if !isLoggingOut {
-            Analytics.log(.mainScreenOpened)
+            var analyticsParameters: [Analytics.ParameterKey: Analytics.ParameterValue] = [:]
+
+            if let userWalletModel = userWalletRepository.selectedModel {
+                let walletType = Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets)
+                analyticsParameters[.walletType] = walletType
+            }
+
+            Analytics.log(.mainScreenOpened, params: analyticsParameters)
         }
 
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
@@ -291,7 +299,7 @@ final class MainViewModel: ObservableObject {
                 case .locked:
                     isLoggingOut = true
                 case .inserted(let userWalletId):
-                    if let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) {
+                    if let userWalletModel = userWalletRepository.models[userWalletId] {
                         addNewPage(for: userWalletModel)
                     }
                 case .unlocked(let userWalletId):
@@ -419,7 +427,7 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
             return
         }
 
-        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
+        guard let userWalletModel = userWalletRepository.models[userWalletId] else {
             return
         }
 

@@ -34,7 +34,7 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var hotBackupTypesViewModel: HotBackupTypesViewModel?
+    @Published var mobileBackupTypesViewModel: MobileBackupTypesViewModel?
 
     // MARK: - Helpers
 
@@ -64,8 +64,8 @@ extension UserWalletSettingsCoordinator {
 extension UserWalletSettingsCoordinator:
     UserWalletSettingsRoutable,
     TransactionNotificationsModalRoutable,
-    HotBackupNeedRoutable,
-    HotBackupTypesRoutable {
+    MobileBackupNeededRoutable,
+    MobileBackupTypesRoutable {
     func openAddNewAccount() {
         // [REDACTED_TODO_COMMENT]
     }
@@ -118,16 +118,16 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    func openHotBackupNeeded() {
-        let viewModel = HotBackupNeededViewModel(routable: self)
+    func openMobileBackupNeeded(userWalletModel: UserWalletModel) {
+        let viewModel = MobileBackupNeededViewModel(userWalletModel: userWalletModel, routable: self)
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
-    func openHotBackupTypes() {
-        hotBackupTypesViewModel = HotBackupTypesViewModel(routable: self)
+    func openMobileBackupTypes(userWalletModel: UserWalletModel) {
+        mobileBackupTypesViewModel = MobileBackupTypesViewModel(userWalletModel: userWalletModel, routable: self)
     }
 
     func openAppSettings() {
@@ -153,25 +153,28 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    // MARK: - HotBackupOnboardingRoutable
+    // MARK: - MobileBackupOnboardingRoutable
 
-    func openHotBackupOnboarding() {
-        let backupInput = HotOnboardingInput(flow: .walletActivate)
-        openOnboardingModal(with: .hotInput(backupInput))
+    func openMobileBackupOnboarding(userWalletModel: UserWalletModel) {
+        let backupInput = MobileOnboardingInput(flow: .walletActivate(userWalletModel: userWalletModel))
+        openOnboardingModal(with: .mobileInput(backupInput))
     }
 
-    // MARK: - HotBackupNeedRoutable
+    // MARK: - MobileBackupNeededRoutable
 
-    func dismissHotBackupNeeded() {
+    func dismissMobileBackupNeeded() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
     }
 
-    // MARK: - HotBackupTypesRoutable
+    func openMobileOnboarding(input: MobileOnboardingInput) {
+        openOnboardingModal(with: .mobileInput(input))
+    }
 
-    func openHotBackupSeedPhrase() {
-        let backupInput = HotOnboardingInput(flow: .seedPhraseBackup)
-        openOnboardingModal(with: .hotInput(backupInput))
+    // MARK: - MobileBackupTypesRoutable
+
+    func openOnboarding(input: MobileOnboardingInput) {
+        openOnboardingModal(with: .mobileInput(input))
     }
 }

@@ -310,7 +310,8 @@ extension MainButton: Setupable {
 // MARK: - Previews
 
 #if DEBUG
-#Preview {
+@available(iOS 17.0, *)
+#Preview(traits: .sizeThatFitsLayout) {
     Group {
         ForEach(MainButton.Style.allCases, id: \.hashValue) { style in
             VStack(spacing: 16) {
@@ -400,9 +401,7 @@ extension MainButton: Setupable {
             }
             .padding(.horizontal, 16)
             .background(Colors.Background.secondary)
-            .previewDisplayName(style.rawValue)
         }
     }
-    .previewLayout(.sizeThatFits)
 }
-#endif
+#endif // DEBUG
