@@ -105,12 +105,20 @@ extension VisaWalletModel: WalletModelBalancesProvider {
 }
 
 extension VisaWalletModel: AvailableTokenBalanceProviderInput {
-    var state: WalletModelState {
+    var walletModelState: WalletModelState {
         stateSubject.value
     }
 
-    var statePublisher: AnyPublisher<WalletModelState, Never> {
+    var walletModelStatePublisher: AnyPublisher<WalletModelState, Never> {
         stateSubject.eraseToAnyPublisher()
+    }
+
+    var yieldModuleManagerState: YieldModuleWalletManagerState? {
+        .notEnabled
+    }
+
+    var yieldModuleManagerStatePublisher: AnyPublisher<YieldModuleWalletManagerState, Never> {
+        .just(output: .notEnabled)
     }
 }
 
