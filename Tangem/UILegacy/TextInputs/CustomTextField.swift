@@ -232,9 +232,11 @@ struct CustomTextField: UIViewRepresentable {
         context.coordinator.decimalCount = decimalCount
         context.coordinator.isEnabled = isEnabled
 
-        if isResponder ?? false {
-            DispatchQueue.main.async {
+        DispatchQueue.main.async {
+            if isResponder ?? false {
                 uiView.becomeFirstResponder()
+            } else {
+                uiView.resignFirstResponder()
             }
         }
     }
