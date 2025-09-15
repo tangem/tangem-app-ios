@@ -236,7 +236,7 @@ struct YieldModuleBottomSheetView: View {
         case .feePolicy:
             viewModel.onBackAction
         case .earnInfo:
-            viewModel.onShowApproveSheet
+            viewModel.onShowStopEarningSheet
         case .stopEarning(let params):
             params.mainAction
         case .approve(let params):
@@ -277,7 +277,7 @@ private extension YieldModuleBottomSheetView {
     }
 
     private var stopEarningTopContent: some View {
-        Assets.WalletConnect.yellowWarningCircle.image
+        Assets.YieldModule.yieldModuleStopEarning.image
             .resizable()
             .scaledToFit()
             .frame(size: .init(bothDimensions: 56))
