@@ -192,7 +192,7 @@
 "common_camera_denied_alert_title" = "カメラへのアクセスが拒否されました";
 "common_cancel" = "キャンセル";
 "common_change" = "変更";
-"common_choose_account" = "Choose account";
+"common_choose_account" = "アカウントを選択";
 "common_choose_action" = "アクションを選択";
 "common_choose_network" = "ネットワークを選択";
 "common_choose_token" = "トークンを選択";
@@ -1205,14 +1205,14 @@
 "swapping_to_title" = "受け取る";
 "swapping_token_list_title" = "トークンを選択";
 "swapping_token_not_available" = "利用不可";
-"tangempay_onboarding_get_card_button_text" = "Get card";
-"tangempay_onboarding_pay_description" = "Add to your wallet and pay with your phone anywhere.";
+"tangempay_onboarding_get_card_button_text" = "カードをGET";
+"tangempay_onboarding_pay_description" = "ウォレットに追加して、どこでもスマートフォンで支払いができます。";
 "tangempay_onboarding_pay_title" = "Apple Pay &amp; Google Pay";
-"tangempay_onboarding_purchases_description" = "Use your USDC balance to pay for everyday purchases seamlessly.";
-"tangempay_onboarding_purchases_title" = "Everyday purchases";
-"tangempay_onboarding_security_description" = "Your card details are protected — full control in the app.";
-"tangempay_onboarding_security_title" = "Built-in security";
-"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
+"tangempay_onboarding_purchases_description" = "USDC残高を使用して、毎日のお買い物をシームレスに支払います。";
+"tangempay_onboarding_purchases_title" = "日常の買い物";
+"tangempay_onboarding_security_description" = "カードの詳細は保護されており、アプリ内で完全に制御できます。";
+"tangempay_onboarding_security_title" = "内蔵セキュリティ";
+"tangempay_onboarding_title" = "無料のCryptoカード\nを数分で入手しましょう";
 "this_is_my_wallet_title" = "これは私のウォレットです";
 "toast_balances_hidden" = "残高非表示";
 "toast_balances_shown" = "残高表示";
@@ -1556,6 +1556,7 @@
 "wc_alert_wrong_card_title" = "問題が起きています";
 "wc_all_dapps_disconnected" = "すべてのdAppが接続解除されました";
 "wc_allow_to_spend" = "使用を許可する";
+"wc_approve_description" = "By approving, you allow dApp or Smart contract to use tokens in future transactions.";
 "wc_common_address" = "アドレス";
 "wc_common_connect" = "接続する";
 "wc_common_loading" = "読み込み中";
@@ -1644,7 +1645,6 @@
 "yield_module_earn_sheet_current_apy_title" = "現在のAPY";
 "yield_module_earn_sheet_my_funds_title" = "私の資金";
 "yield_module_earn_sheet_provider_description" = "あなたの%1$@はAaveに預けられ、利息が付きます。あなたは%2$@トークンを保有しており、これは残高を表し、時間の経過とともに増加します。入金すると、資金はAaveに預け入れられ、取引手数料を差し引いた利息が付きます。";
-"yield_module_earn_sheet_status_active" = "アクティブ";
 "yield_module_earn_sheet_title" = "利回りを得る";
 "yield_module_earn_sheet_total_earnings_title" = "総収益";
 "yield_module_earn_sheet_transfers_title" = "Aaveへの送金";
@@ -1666,7 +1666,7 @@
 "yield_module_promo_screen_how_it_works_button_title" = "使い方";
 "yield_module_promo_screen_self_custodial_subtitle" = "Aaveは世界中で何百万人もの人々に信頼されています。総貸付額は104億ドルです。";
 "yield_module_promo_screen_self_custodial_title" = "分散型・自己管理型";
-"yield_module_promo_screen_terms_disclaimer" = "サービスを使用することにより、プロバイダーに同意したものとみなされます";
+"yield_module_promo_screen_terms_disclaimer" = "サービスを利用することにより、プロバイダー%1$@および%2$@に同意したことになります";
 "yield_module_promo_screen_title" = "年間%@%%の収益";
 "yield_module_promo_screen_variable_rate_info" = "Aave • 変動金利";
 "yield_module_provider" = "Aave";
@@ -1680,6 +1680,8 @@
 "yield_module_start_earning_sheet_fee_policy" = "手数料ポリシーを見る";
 "yield_module_start_earning_sheet_next_deposits" = "次回の入金は自動的にAaveに供給されます。";
 "yield_module_start_earning" = "利息の獲得を開始";
+"yield_module_status_active" = "アクティブ";
+"yield_module_status_paused" = "Paused";
 "yield_module_stop_earning_sheet_description" = "オフにすると、Aaveから資金が引き出され、ウォレットの%@に戻され、報酬の獲得が停止されます。";
 "yield_module_stop_earning_sheet_fee_note" = "出金金額からネットワーク手数料が差し引かれます。";
 "yield_module_stop_earning" = "収益を停止する";
