@@ -45,11 +45,13 @@ struct XrpAccountData: Codable {
     let account: String?
     let balance: String?
     let sequence: Int?
+    let transferRate: Int?
 
     enum CodingKeys: String, CodingKey {
         case account = "Account"
         case balance = "Balance"
         case sequence = "Sequence"
+        case transferRate = "TransferRate"
     }
 }
 

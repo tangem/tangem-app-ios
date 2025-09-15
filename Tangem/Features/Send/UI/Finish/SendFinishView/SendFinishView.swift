@@ -17,8 +17,6 @@ struct SendFinishView: View {
 
     var body: some View {
         GroupedScrollView(spacing: 14) {
-            FixedSpacer(height: 20)
-
             if viewModel.showHeader, let transactionTime = viewModel.transactionSentTime {
                 header(transactionTime: transactionTime)
             }

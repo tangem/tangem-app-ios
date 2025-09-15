@@ -11,14 +11,17 @@ import Combine
 import BlockchainSdk
 import TangemExpress
 import TangemStaking
+import TangemFoundation
 
 protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
     AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
     WalletModelHelpers, WalletModelFeeProvider, WalletModelDependenciesProvider,
     WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
-    StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider {
+    StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider,
+    ReceiveAddressTypesProvider {
     var id: WalletModelId { get }
+    var userWalletId: UserWalletId { get }
     var name: String { get }
     var addresses: [Address] { get }
     var defaultAddress: Address { get }
@@ -44,10 +47,17 @@ protocol WalletModel:
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { get }
 
-    // Staking
+    // MARK: - Staking
+
     var stakingManager: StakingManager? { get }
     var stakeKitTransactionSender: StakeKitTransactionSender? { get }
     var accountInitializationStateProvider: StakingAccountInitializationStateProvider? { get }
+
+    // MARK: - Accounts
+
+    // [REDACTED_TODO_COMMENT]
+    /// - Warning: Unowned, has the meaningful value only when accounts feature toggle is enabled.
+    var account: any CryptoAccountModel { get }
 }
 
 extension WalletModel {

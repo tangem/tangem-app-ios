@@ -11,9 +11,10 @@ import TangemSdk
 
 class StartupProcessor {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.servicesManager) private var servicesManager: ServicesManager
 
     var shouldOpenAuthScreen: Bool {
-        if FeatureProvider.isAvailable(.hotWallet) {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             AppSettings.shared.saveUserWallets
                 && userWalletRepository.models.isNotEmpty
         } else {
@@ -24,8 +25,16 @@ class StartupProcessor {
     }
 
     func getStartupOption() -> StartupOption {
+        guard servicesManager.initialized else {
+            return .launchScreen
+        }
+
         if BackupHelper().hasIncompletedBackup {
             return .uncompletedBackup
+        }
+
+        if let modelToOpen = shouldOpenMainScreen() {
+            return .main(modelToOpen)
         }
 
         if shouldOpenAuthScreen {
@@ -34,10 +43,33 @@ class StartupProcessor {
 
         return .welcome
     }
+
+    private func shouldOpenMainScreen() -> UserWalletModel? {
+        guard FeatureProvider.isAvailable(.mobileWallet) else {
+            return nil
+        }
+
+        let allUnlocked = userWalletRepository.models.allConforms { !$0.isUserWalletLocked }
+        guard allUnlocked else {
+            return nil
+        }
+
+        if let selectedModel = userWalletRepository.selectedModel {
+            return selectedModel
+        }
+
+        if let firstModel = userWalletRepository.models.first {
+            return firstModel
+        }
+
+        return nil
+    }
 }
 
 enum StartupOption {
     case uncompletedBackup
     case auth
     case welcome
+    case main(UserWalletModel)
+    case launchScreen
 }

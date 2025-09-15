@@ -13,6 +13,7 @@ import TangemAssets
 import TangemStaking
 import TangemFoundation
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
 
@@ -208,6 +209,7 @@ private extension StakingDetailsViewModel {
             DefaultRowViewModel(
                 title: Localization.stakingDetailsAnnualPercentageRate,
                 detailsType: .text(yield.rewardRateValues.formatted(formatter: percentFormatter)),
+                accessibilityIdentifier: StakingAccessibilityIdentifiers.annualPercentageRateValue,
                 secondaryAction: { [weak self] in
                     self?.openBottomSheet(
                         title: Localization.stakingDetailsAnnualPercentageRate,
@@ -217,7 +219,8 @@ private extension StakingDetailsViewModel {
             ),
             DefaultRowViewModel(
                 title: Localization.stakingDetailsAvailable,
-                detailsType: .text(tokenBalanceProvider.formattedBalanceType.value, sensitive: true)
+                detailsType: .text(tokenBalanceProvider.formattedBalanceType.value, sensitive: true),
+                accessibilityIdentifier: StakingAccessibilityIdentifiers.availableValue
             ),
         ]
 
@@ -240,6 +243,7 @@ private extension StakingDetailsViewModel {
                 DefaultRowViewModel(
                     title: Localization.stakingDetailsUnbondingPeriod,
                     detailsType: .text(yield.unbondingPeriod.formatted(formatter: dateFormatter)),
+                    accessibilityIdentifier: StakingAccessibilityIdentifiers.unbondingPeriodValue,
                     secondaryAction: { [weak self] in
                         self?.openBottomSheet(
                             title: Localization.stakingDetailsUnbondingPeriod,
@@ -250,6 +254,7 @@ private extension StakingDetailsViewModel {
                 DefaultRowViewModel(
                     title: Localization.stakingDetailsRewardClaiming,
                     detailsType: .text(yield.rewardClaimingType.title),
+                    accessibilityIdentifier: StakingAccessibilityIdentifiers.rewardClaimingValue,
                     secondaryAction: { [weak self] in
                         self?.openBottomSheet(
                             title: Localization.stakingDetailsRewardClaiming,
@@ -277,6 +282,7 @@ private extension StakingDetailsViewModel {
             DefaultRowViewModel(
                 title: Localization.stakingDetailsRewardSchedule,
                 detailsType: .text(yield.rewardScheduleType.formatted()),
+                accessibilityIdentifier: StakingAccessibilityIdentifiers.rewardScheduleValue,
                 secondaryAction: { [weak self] in
                     self?.openBottomSheet(
                         title: Localization.stakingDetailsRewardSchedule,

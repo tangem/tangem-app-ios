@@ -90,7 +90,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             rateType: .float,
             toAddress: item.destination.address,
             refundAddress: item.source.address,
-            refundExtraId: nil // There is no memo on the client side
+            refundExtraId: nil, // There is no memo on the client side
+            partnerOperationType: item.operationType.rawValue
         )
 
         let response = try await expressAPIService.exchangeData(request: request)
