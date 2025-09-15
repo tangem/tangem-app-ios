@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 protocol KeysRepository: AnyObject, KeysProvider {
     func update(derivations: DerivationResult)

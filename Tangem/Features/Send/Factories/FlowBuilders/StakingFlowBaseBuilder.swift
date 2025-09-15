@@ -11,7 +11,6 @@ import TangemStaking
 import BlockchainSdk
 
 struct StakingFlowBaseBuilder {
-    let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
     let source: SendCoordinator.Source
     let sendAmountStepBuilder: SendAmountStepBuilder
@@ -52,7 +51,6 @@ struct StakingFlowBaseBuilder {
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: stakingModel, output: stakingModel),
             actionType: .stake,
-            descriptionBuilder: builder.makeStakingTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
             destinationEditableType: .editable,
             amountEditableType: .editable,
@@ -79,7 +77,8 @@ struct StakingFlowBaseBuilder {
             amountStep: amount.step,
             validatorsStep: validators.step,
             summaryStep: summary.step,
-            finishStep: finish
+            finishStep: finish,
+            summaryTitleProvider: builder.makeStakingSummaryTitleProvider(actionType: .stake)
         )
 
         summary.step.set(router: stepsManager)
@@ -89,12 +88,11 @@ struct StakingFlowBaseBuilder {
         let viewModel = SendViewModel(
             interactor: interactor,
             stepsManager: stepsManager,
-            userWalletModel: userWalletModel,
             alertBuilder: builder.makeStakingAlertBuilder(),
             dataBuilder: builder.makeStakingBaseDataBuilder(input: stakingModel),
             analyticsLogger: analyticsLogger,
+            blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper(),
             tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
             source: source,
             coordinator: router
         )
