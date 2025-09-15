@@ -87,14 +87,14 @@ enum YieldModuleParams {
 
         enum Status: Equatable {
             case active(approveRequired: Bool)
-            case inactive
+            case paused
 
             var description: String {
                 switch self {
                 case .active:
                     Localization.yieldModuleEarnSheetStatusActive
-                case .inactive:
-                    "Inactive"
+                case .paused:
+                    "Paused"
                 }
             }
         }
