@@ -137,7 +137,6 @@ private extension CommonDeeplinkPresenter {
             with: .init(
                 userWalletModel: userWalletModel,
                 walletModel: walletModel,
-                userTokensManager: userWalletModel.userTokensManager,
                 pendingTransactionDetails: pendingTransactionDetails
             )
         )
@@ -155,7 +154,6 @@ private extension CommonDeeplinkPresenter {
             with: .init(
                 userWalletModel: userWalletModel,
                 walletModel: walletModel,
-                userTokensManager: userWalletModel.userTokensManager,
                 pendingTransactionDetails: nil
             )
         )
