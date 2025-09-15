@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemSdk
 import BlockchainSdk
 import TangemAssets
+import TangemFoundation
 
 struct TwinConfig: CardContainer {
     let card: CardDTO
@@ -38,10 +39,6 @@ struct TwinConfig: CardContainer {
 }
 
 extension TwinConfig: UserWalletConfig {
-    var cardSetLabel: String? {
-        Localization.cardLabelCardCount(cardsCount)
-    }
-
     var cardsCount: Int {
         2
     }
@@ -169,6 +166,16 @@ extension TwinConfig: UserWalletConfig {
         case .promotion:
             return .hidden
         case .nft:
+            return .hidden
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
+        case .userWalletAccessCode:
+            return .hidden
+        case .userWalletBackup:
+            return .hidden
+        case .isBalanceRestrictionActive:
             return .hidden
         }
     }

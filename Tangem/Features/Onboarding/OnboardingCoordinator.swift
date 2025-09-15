@@ -25,9 +25,10 @@ final class OnboardingCoordinator: CoordinatorObject {
 
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
-    @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
+
+    // MARK: - Child coordinators
 
     // MARK: - Helpers
 
@@ -48,11 +49,9 @@ final class OnboardingCoordinator: CoordinatorObject {
         self.options = options
         switch options {
         case .input(let onboardingInputput):
-            process(input: onboardingInputput)
-        case .hotInput(let hotOnboardingInput):
-            let model = HotOnboardingViewModel(input: hotOnboardingInput, coordinator: self)
-            onDismissalAttempt = model.onDismissalAttempt
-            viewState = .hot(model)
+            handle(input: onboardingInputput)
+        case .mobileInput(let mobileOnboardingInput):
+            handle(input: mobileOnboardingInput)
         }
 
         Analytics.log(.onboardingStarted)
@@ -64,7 +63,7 @@ final class OnboardingCoordinator: CoordinatorObject {
 extension OnboardingCoordinator {
     enum Options {
         case input(OnboardingInput)
-        case hotInput(HotOnboardingInput)
+        case mobileInput(MobileOnboardingInput)
     }
 
     enum OutputOptions {
@@ -90,14 +89,6 @@ extension OnboardingCoordinator: OnboardingBrowserRoutable {
             onSuccess(onSuccessURL)
             self?.safariHandle = nil
         })
-    }
-}
-
-// MARK: - OnboardingTopupRoutable
-
-extension OnboardingCoordinator: OnboardingTopupRoutable {
-    func openQR(shareAddress: String, address: String, qrNotice: String) {
-        addressQrBottomSheetContentViewModel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
     }
 }
 
@@ -149,14 +140,14 @@ extension OnboardingCoordinator: OnboardingRoutable {
 
 extension OnboardingCoordinator: VisaOnboardingRoutable {}
 
-// MARK: - HotOnboardingRoutable
+// MARK: - MobileOnboardingRoutable
 
-extension OnboardingCoordinator: HotOnboardingRoutable {}
+extension OnboardingCoordinator: MobileOnboardingRoutable {}
 
-// MARK: - Private methods
+// MARK: - Input handlers
 
 private extension OnboardingCoordinator {
-    func process(input: OnboardingInput) {
+    func handle(input: OnboardingInput) {
         switch input.steps {
         case .singleWallet:
             let model = SingleCardOnboardingViewModel(input: input, coordinator: self)
@@ -179,6 +170,12 @@ private extension OnboardingCoordinator {
             viewState = .visa(model)
         }
     }
+
+    func handle(input: MobileOnboardingInput) {
+        let model = MobileOnboardingViewModel(input: input, coordinator: self)
+        onDismissalAttempt = model.onDismissalAttempt
+        viewState = .mobile(model)
+    }
 }
 
 // MARK: ViewState
@@ -189,6 +186,6 @@ extension OnboardingCoordinator {
         case twins(TwinsOnboardingViewModel)
         case wallet(WalletOnboardingViewModel)
         case visa(VisaOnboardingViewModel)
-        case hot(HotOnboardingViewModel)
+        case mobile(MobileOnboardingViewModel)
     }
 }
