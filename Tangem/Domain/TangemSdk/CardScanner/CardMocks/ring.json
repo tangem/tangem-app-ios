@@ -147,7 +147,7 @@
   },
   "issuer" : {
     "name" : "Tangem 2.0",
-    "publicKey" : "028859CCC424B7EF676B92DC036E86482BDA081ECE19E9EF265E0590EC0936E8E0"
+    "publicKey" : "0000"
   },
   "supportedCurves" : [
     "secp256k1",
@@ -162,8 +162,8 @@
   "manufacturer" : {
     "name" : "TANGEM",
     "manufactureDate" : "2024-06-17",
-    "signature" : "A93DB6F89AF0723083061CE10B21CE49BD17C5D2B23152C3BE0506315F6907FA0F3526F36807D6E55AA92FF21936D02B183E709ED884C82AF9F1DB17628BC0D7"
+    "signature" : "0000"
   },
-  "cardPublicKey" : "0211EA0545BC4251B93C70C7DF15F8628A01E308C70389D51BFEE2EC1900C2EDEF"
+  "cardPublicKey" : "0000"
 }
 
