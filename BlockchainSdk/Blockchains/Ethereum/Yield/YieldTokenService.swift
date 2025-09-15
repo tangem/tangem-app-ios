@@ -12,11 +12,8 @@ import BigInt
 public protocol YieldTokenService {
     func getAPY(for contractAddress: String) async throws -> Decimal
     func calculateYieldAddress(for address: String) async throws -> String
-    func getYieldModuleState(for address: String, contractAddress: String) async throws -> YieldModuleState
-    func getYieldBalances(
-        for yieldToken: String,
-        tokens: [Token]
-    ) async throws -> [Token: Result<Decimal, Error>]
+    func getYieldModuleState(for address: String, contractAddress: String) async throws -> YieldModuleSmartContractState
+    func getYieldBalance(for yieldModule: String, contractAddress: String) async throws -> Decimal
 }
 
 extension EthereumNetworkService: YieldTokenService {
@@ -64,7 +61,7 @@ extension EthereumNetworkService: YieldTokenService {
         return resultNoHex.stripLeadingZeroes().addHexPrefix()
     }
 
-    public func getYieldModuleState(for address: String, contractAddress: String) async throws -> YieldModuleState {
+    public func getYieldModuleState(for address: String, contractAddress: String) async throws -> YieldModuleSmartContractState {
         let yieldModule = try await getYieldModule(for: address)
 
         if let yieldModule {
@@ -72,14 +69,23 @@ extension EthereumNetworkService: YieldTokenService {
 
             let maxNetworkFee = yieldTokenData.maxNetworkFee
 
-            let initializationState: YieldModuleState.InitializationState = if yieldTokenData.initialized {
+            let initializationState: YieldModuleSmartContractState.InitializationState
+            if yieldTokenData.initialized {
                 if yieldTokenData.active {
-                    .initialized(activeState: .active(maxNetworkFee: maxNetworkFee))
+                    let balance = try? await getYieldBalance(for: yieldModule, contractAddress: contractAddress)
+                    initializationState = .initialized(
+                        activeState: .active(
+                            info: YieldModuleSmartContractState.ActiveStateInfo(
+                                balance: balance,
+                                maxNetworkFee: maxNetworkFee
+                            )
+                        )
+                    )
                 } else {
-                    .initialized(activeState: .notActive)
+                    initializationState = .initialized(activeState: .notActive)
                 }
             } else {
-                .notInitialized
+                initializationState = .notInitialized
             }
             return .deployed(.init(yieldModule: yieldModule, initializationState: initializationState))
         } else {
@@ -87,43 +93,11 @@ extension EthereumNetworkService: YieldTokenService {
         }
     }
 
-    func getYieldBalances(
-        for yieldToken: String,
-        tokens: [Token]
-    ) async throws -> [Token: Result<Decimal, Error>] {
-        try await withThrowingTaskGroup(of: (Token, Result<Decimal, Error>).self) { [weak self] group in
-            var result = [Token: Result<Decimal, Error>]()
-            tokens.forEach { token in
-                group.addTask {
-                    do {
-                        try Task.checkCancellation()
-                        guard let self else {
-                            throw CancellationError()
-                        }
-                        let result = try await self.getYieldBalance(
-                            for: yieldToken,
-                            contractAddress: token.contractAddress
-                        )
-                        return (token, .success(result))
-                    } catch {
-                        return (token, .failure(error))
-                    }
-                }
-            }
-
-            for try await res in group {
-                result[res.0] = res.1
-            }
-
-            return result
-        }
-    }
-
-    private func getYieldBalance(for yieldToken: String, contractAddress: String) async throws -> Decimal {
+    public func getYieldBalance(for yieldModule: String, contractAddress: String) async throws -> Decimal {
         let effectiveMethod = EffectiveBalanceMethod(yieldTokenAddress: contractAddress)
 
         let effectiveRequest = YieldSmartContractRequest(
-            contractAddress: yieldToken,
+            contractAddress: yieldModule,
             method: effectiveMethod
         )
 
