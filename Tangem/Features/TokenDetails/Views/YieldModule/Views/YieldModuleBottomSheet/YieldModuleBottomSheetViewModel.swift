@@ -118,11 +118,20 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
                 }
             )
 
-        case .earnInfo(let parameters):
-            if case .active(true) = parameters.status {
-                return .approveNeeded(buttonAction: {
-                    parameters.onApproveAction()
-                })
+        case .earnInfo(let params):
+            if case .active(true) = params.status {
+                return .approveNeeded(
+                    buttonAction: { [weak self] in
+                        self?.flow = .approve(
+                            params: .init(
+                                tokenName: params.tokenName,
+                                networkFee: params.networkFee,
+                                feeCurrencyInfo: params.feeCurrencyInfo,
+                                readMoreAction: params.onReadMoreAction,
+                                mainAction: params.onApproveAction
+                            )
+                        )
+                    })
             }
             return nil
 
