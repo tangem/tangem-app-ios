@@ -9,22 +9,34 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemLocalization
 
 final class CommonCryptoAccountModel {
     let walletModelsManager: WalletModelsManager
     let userTokensManager: UserTokensManager
 
-    private(set) var name: String {
+    private(set) var icon: AccountModel.Icon {
         didSet {
-            if oldValue != name {
+            if oldValue != icon {
                 didChangeSubject.send()
             }
         }
     }
 
-    private(set) var icon: AccountModel.Icon {
+    var name: String {
+        if let name = _name?.nilIfEmpty {
+            return name
+        }
+        if isMainAccount {
+            return Localization.accountMainAccountTitle
+        }
+
+        return .empty
+    }
+
+    private var _name: String? {
         didSet {
-            if oldValue != icon {
+            if oldValue != _name {
                 didChangeSubject.send()
             }
         }
@@ -35,16 +47,18 @@ final class CommonCryptoAccountModel {
     private let accountId: AccountId
     private let derivationIndex: Int
 
+    /// Designated initializer.
+    /// - Note: `name` argument can be nil for main accounts, in this case a default localized name will be used.
     init(
         accountId: AccountId,
-        accountName: String,
+        accountName: String?,
         accountIcon: AccountModel.Icon,
         derivationIndex: Int,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager
     ) {
         self.accountId = accountId
-        name = accountName
+        _name = accountName
         icon = accountIcon
         self.derivationIndex = derivationIndex
         self.walletModelsManager = walletModelsManager
@@ -56,9 +70,10 @@ final class CommonCryptoAccountModel {
 
 extension CommonCryptoAccountModel {
     /// Convenience init, initializes a `CommonCryptoAccountModel` with a `UserWalletId` and a derivation index.
+    /// - Note: `name` argument can be nil for main accounts, in this case a default localized name will be used.
     convenience init(
         userWalletId: UserWalletId,
-        accountName: String,
+        accountName: String?,
         accountIcon: AccountModel.Icon,
         derivationIndex: Int,
         walletModelsManager: WalletModelsManager,
@@ -88,7 +103,7 @@ extension CommonCryptoAccountModel: Identifiable {
 
 extension CommonCryptoAccountModel: CryptoAccountModel {
     var isMainAccount: Bool {
-        derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
+        AccountModelUtils.isMainAccount(derivationIndex)
     }
 
     var didChangePublisher: AnyPublisher<Void, Never> {
@@ -101,7 +116,7 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
     }
 
     func setName(_ name: String) async throws {
-        self.name = name
+        _name = name
     }
 
     func setIcon(_ icon: AccountModel.Icon) async throws {
