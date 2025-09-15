@@ -35,6 +35,14 @@ enum TotalBalanceState: Hashable {
         default: false
         }
     }
+
+    var hasPositiveBalance: Bool {
+        let balance: Decimal = switch self {
+        case .loaded(let balance): balance
+        default: 0
+        }
+        return balance > 0
+    }
 }
 
 // MARK: - CustomStringConvertible

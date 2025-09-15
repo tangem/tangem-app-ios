@@ -10,19 +10,11 @@ import Foundation
 import FirebaseAnalytics
 import FirebaseCrashlytics
 import BlockchainSdk
-import AmplitudeSwift
 import TangemSdk
 import TangemFoundation
 
 class Analytics {
     @Injected(\.analyticsContext) private static var analyticsContext: AnalyticsContext
-    private static var amplitude: Amplitude? = {
-        guard !AppEnvironment.current.isDebug else {
-            return nil
-        }
-
-        return Amplitude(configuration: Configuration(apiKey: try! CommonKeysManager().amplitudeApiKey))
-    }()
 
     private static let firebaseLoggingQueue = DispatchQueue(
         label: "com.tangem.Analytics.firebaseLoggingQueue",
@@ -203,7 +195,7 @@ class Analytics {
                 let message = "\(event).\(params)"
                 Crashlytics.crashlytics().log(message)
             case .amplitude:
-                amplitude?.track(eventType: event, eventProperties: params)
+                AmplitudeWrapper.shared.track(eventType: event, eventProperties: params)
             }
         }
 
