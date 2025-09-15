@@ -1,5 +1,5 @@
 //
-//  ConnectedAppScreen.swift
+//  WalletConnectedAppSheet.swift
 //  TangemUITests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,12 +9,12 @@
 import XCTest
 import TangemAccessibilityIdentifiers
 
-final class ConnectedAppScreen: ScreenBase<ConnectedAppScreenElement> {
+final class WalletConnectedAppSheet: ScreenBase<ConnectedAppScreenElement> {
     private lazy var headerTitle = staticText(.headerTitle)
     private lazy var disconnectButton = button(.disconnectButton)
 
-    func validate() -> Self {
-        XCTContext.runActivity(named: "Validate Connected App screen") { _ in
+    func waitForConnectedAppBottomSheetToBeVisible() -> Self {
+        XCTContext.runActivity(named: "Validate Connected App sheet") { _ in
             waitAndAssertTrue(headerTitle, "Header title should be visible")
             XCTAssertTrue(disconnectButton.exists, "Disconnect button should be visible")
             XCTAssertTrue(disconnectButton.isHittable, "Disconnect button should be hittable")
@@ -22,7 +22,7 @@ final class ConnectedAppScreen: ScreenBase<ConnectedAppScreenElement> {
         }
     }
 
-    func disconnectApp() -> WalletConnectionsScreen {
+    func tapDisconnectButton() -> WalletConnectionsScreen {
         XCTContext.runActivity(named: "Tap disconnect button") { _ in
             disconnectButton.waitAndTap()
             return WalletConnectionsScreen(app)
