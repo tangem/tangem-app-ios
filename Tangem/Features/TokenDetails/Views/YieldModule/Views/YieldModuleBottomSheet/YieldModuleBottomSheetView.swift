@@ -27,14 +27,13 @@ struct YieldModuleBottomSheetView: View {
         YieldModuleBottomSheetContainerView(
             title: title,
             subtitle: subtitle,
-            buttonStyle: buttonStyle,
+            button: mainButton,
             toolBarTitle: { toolBarTitle },
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
             content: { mainContent },
             closeAction: closeAction,
             backAction: backAction,
-            buttonAction: ctaButtonAction,
             horizontalPadding: horizontalPadding
         )
         .transition(.content)
@@ -91,12 +90,17 @@ struct YieldModuleBottomSheetView: View {
         }
     }
 
-    private var buttonStyle: CallToActionButtonStyle {
+    private var mainButton: MainButton {
         switch viewModel.flow {
         case .rateInfo, .feePolicy:
-            .gray(title: Localization.commonGotIt)
+            .init(settings: .init(title: Localization.commonGotIt, style: .secondary, action: ctaButtonAction))
         case .startEarning:
-            .blackWithTangemIcon(title: Localization.yieldModuleStartEarning)
+            .init(settings: .init(
+                title: Localization.yieldModuleStartEarning,
+                icon: .trailing(Assets.tangemIcon),
+                style: .primary,
+                action: ctaButtonAction
+            ))
         }
     }
 
