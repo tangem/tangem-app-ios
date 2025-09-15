@@ -31,6 +31,7 @@ class FakeUserWalletModel: UserWalletModel {
     let walletModelsManager: WalletModelsManager
     let userTokenListManager: UserTokenListManager
     var nftManager: NFTManager { NFTManagerStub() }
+    var yieldModuleManager: any YieldModuleManager { NotSupportedYieldModuleManager() }
     let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProviding
     let walletImageProvider: WalletImageProviding

@@ -1,5 +1,5 @@
 //
-//  YieldModuleState.swift
+//  YieldModuleSmartContractState.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import BigInt
 
-public enum YieldModuleState {
+public enum YieldModuleSmartContractState {
     case notDeployed
     case deployed(DeployedState)
 
@@ -32,9 +32,9 @@ public enum YieldModuleState {
         case notActive
         case active(info: ActiveStateInfo)
     }
-    
+
     public struct ActiveStateInfo {
-        let balance: BigUInt
+        let balance: Decimal?
         let maxNetworkFee: BigUInt
     }
 
@@ -56,5 +56,15 @@ public enum YieldModuleState {
                 return false
             }
         }
+    }
+
+    public var balance: Decimal? {
+        guard case .deployed(let deployedState) = self,
+              case .initialized(let activeState) = deployedState.initializationState,
+              case .active(let activeStateInfo) = activeState else {
+            return nil
+        }
+
+        return activeStateInfo.balance
     }
 }
