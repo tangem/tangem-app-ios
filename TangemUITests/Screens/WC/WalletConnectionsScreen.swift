@@ -15,7 +15,7 @@ final class WalletConnectionsScreen: ScreenBase<WalletConnectionsScreenElement> 
     private lazy var noSessionsTitle = staticText(.noSessionsTitle)
     private lazy var noSessionsDescription = staticText(.noSessionsDescription)
 
-    func validateEmptyState() {
+    func waitForEmptyConnectionsList() {
         XCTContext.runActivity(named: "Validate WalletConnections empty state") { _ in
             XCTAssertTrue(noSessionsTitle.waitForExistence(timeout: .robustUIUpdate), "No sessions title should be visible")
             XCTAssertTrue(noSessionsDescription.exists, "No sessions description should be visible")
@@ -23,18 +23,18 @@ final class WalletConnectionsScreen: ScreenBase<WalletConnectionsScreenElement> 
         }
     }
 
-    func tapNewConnection() -> WalletConnectSheet {
+    func tapNewConnection() -> WalletConnectQRScanScreen {
         XCTContext.runActivity(named: "Tap new connection button") { _ in
             newConnectionButton.waitAndTap()
-            return WalletConnectSheet(app)
+            return WalletConnectQRScanScreen(app)
         }
     }
 
-    func tapFirstDAppRow() -> ConnectedAppScreen {
+    func tapFirstDAppRow() -> WalletConnectedAppSheet {
         XCTContext.runActivity(named: "Tap first dApp row in connections list") { _ in
             let dAppRows = app.buttons.matching(identifier: WalletConnectAccessibilityIdentifiers.dAppRow)
             dAppRows.firstMatch.waitAndTap()
-            return ConnectedAppScreen(app)
+            return WalletConnectedAppSheet(app)
         }
     }
 }
