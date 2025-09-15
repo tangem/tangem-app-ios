@@ -27,6 +27,11 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         throw CryptoAccountsNetworkServiceError.underlyingError("Not implemented")
     }
 
+    func getArchivedCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> [StoredCryptoAccount] {
+        // [REDACTED_TODO_COMMENT]
+        throw CryptoAccountsNetworkServiceError.underlyingError("Not implemented")
+    }
+
     func save(cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError) {
         // [REDACTED_TODO_COMMENT]
         throw CryptoAccountsNetworkServiceError.underlyingError("Not implemented")
