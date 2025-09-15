@@ -441,7 +441,8 @@ extension TokenDetailsViewModel {
             tokenName: walletModel.tokenItem.name,
             tokenSymbol: walletModel.tokenItem.token?.symbol ?? "",
             onReadMoreAction: {},
-            onStopEarningAction: {}
+            onStopEarningAction: {},
+            onApproveAction: {}
         )
 
         coordinator?.openYieldEarnInfo(params: params)
