@@ -53,6 +53,6 @@ extension AccountModelUtils {
 private extension AccountModelUtils {
     enum Constants {
         static let mainAccountDerivationIndex = 0
-        static let mainAccountIconName: AccountModel.Icon.Color = .brightBlue
+        static let mainAccountIconName: AccountModel.Icon.Name = .star
     }
 }
