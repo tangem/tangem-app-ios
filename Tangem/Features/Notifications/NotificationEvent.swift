@@ -34,17 +34,19 @@ extension NotificationEvent where Self: Hashable {
 
 extension NotificationEvent {
     var accessibilityIdentifier: String? {
-        guard let generalEvent = self as? GeneralNotificationEvent else {
-            return nil
+        if let generalEvent = self as? GeneralNotificationEvent {
+            switch generalEvent {
+            case .devCard:
+                return MainAccessibilityIdentifiers.developerCardBanner
+            case .seedSupport:
+                return MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner
+            default:
+                return nil
+            }
+        } else if let tokenEvent = self as? TokenNotificationEvent {
+            return tokenEvent.accessibilityIdentifier
         }
 
-        switch generalEvent {
-        case .devCard:
-            return MainAccessibilityIdentifiers.developerCardBanner
-        case .seedSupport:
-            return MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner
-        default:
-            return nil
-        }
+        return nil
     }
 }
