@@ -33,7 +33,7 @@ protocol ServicesManager {
     func initializeKeychainSensitiveServices() async
 }
 
-class CommonServicesManager {
+final class CommonServicesManager {
     @Injected(\.sellService) private var sellService: SellService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
@@ -144,6 +144,7 @@ extension CommonServicesManager: ServicesManager {
 
         configureFirebase()
         configureAmplitude()
+        AppsFlyerConfigurator.configure()
 
         configureBlockchainSdkExceptionHandler()
 
