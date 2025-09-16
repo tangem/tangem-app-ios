@@ -723,15 +723,9 @@ struct SendDependenciesBuilder {
         dataRepository: OnrampDataRepository
     ) {
         let apiProvider = expressDependenciesFactory.expressAPIProvider
+        let repository: OnrampRepository = expressDependenciesFactory.onrampRepository
+
         let factory = TangemExpressFactory()
-
-        // For UI tests, use UITestOnrampRepository with predefined values
-        let repository: OnrampRepository = if AppEnvironment.current.isUITest {
-            UITestOnrampRepository()
-        } else {
-            factory.makeOnrampRepository(storage: CommonOnrampStorage())
-        }
-
         let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
         let manager = factory.makeOnrampManager(
             expressAPIProvider: apiProvider,
