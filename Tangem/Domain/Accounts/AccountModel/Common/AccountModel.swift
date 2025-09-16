@@ -28,29 +28,30 @@ extension AccountModel {
     }
 }
 
+/// https://github.com/tangem-developments/tangem-app-android/blob/develop/common/ui/src/main/java/com/tangem/common/ui/account/CryptoPortfolioIconExt.kt
 extension AccountModel.Icon {
     enum Color: String, CaseIterable {
-        case brightBlue
-        case coralRed
-        case cyan
-        case darkGreen
-        case deepPurple
-        case hotPink
-        case lavender
-        case magenta
-        case mediumGreen
-        case purple
-        case royalBlue
-        case yellow
+        case azure
+        case caribbeanBlue
+        case dullLavender
+        case candyGrapeFizz
+        case sweetDesire
+        case palatinateBlue
+        case fuchsiaNebula
+        case mexicanPink
+        case pelati
+        case pattypan
+        case ufoGreen
+        case vitalGreen
     }
 
     enum Name: String, CaseIterable {
-        case airplane
+        case airplaneMode
         case beach
         case bookmark
         case clock
         case family
-        case favorite
+        case favorite = "favourite" // Ew, UK spelling, but Android uses it
         case gift
         case home
         case letter
