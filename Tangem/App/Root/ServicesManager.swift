@@ -156,10 +156,7 @@ extension CommonServicesManager: ServicesManager {
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         ukGeoDefiner.initialize()
-
-        if FeatureProvider.isAvailable(.walletConnectUI) {
-            wcService.initialize()
-        }
+        wcService.initialize()
 
         mobileAccessCodeCleaner.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
