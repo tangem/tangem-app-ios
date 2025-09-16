@@ -255,7 +255,6 @@ struct SendView: View {
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
             }
             .animation(SendTransitionService.Constants.auxiliaryViewAnimation, value: viewModel.bottomBarSettings.backButtonVisible)
-            .padding(.top, 8)
             .padding(.bottom, 14)
             .padding(.horizontal, 16)
         }

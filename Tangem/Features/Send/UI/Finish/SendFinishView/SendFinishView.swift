@@ -64,7 +64,7 @@ struct SendFinishView: View {
                 OnrampStatusCompactView(viewModel: onrampStatusCompactViewModel)
             }
         }
-        .safeAreaInset(edge: .bottom, spacing: 10) {
+        .safeAreaInset(edge: .bottom, spacing: 8) {
             if let url = viewModel.transactionURL {
                 bottomButtons(url: url)
             }
@@ -109,6 +109,7 @@ struct SendFinishView: View {
                 action: { viewModel.share(url: url) }
             )
         }
+        .padding(.horizontal, 16)
         .transition(.opacity.animation(SendTransitionService.Constants.newAnimation))
     }
 }
