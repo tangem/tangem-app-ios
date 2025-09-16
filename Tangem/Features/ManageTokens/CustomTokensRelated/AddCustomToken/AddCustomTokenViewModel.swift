@@ -29,6 +29,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
     @Published var addButtonDisabled = false
     @Published var isLoading = false
+    @Published var needsCardDerivation: Bool = false
 
     @Published var contractAddressError: Error?
     @Published var decimalsError: Error?
@@ -226,6 +227,27 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             self?.validate()
         }
         .store(in: &bag)
+
+        $selectedBlockchainNetworkId
+            .combineLatest($contractAddress)
+            .combineLatest($name)
+            .combineLatest($symbol)
+            .combineLatest($decimals)
+            .combineLatest($addButtonDisabled)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .map { viewModel, _ in
+                do {
+                    let tokenItem = try viewModel.enteredTokenItem()
+                    return viewModel.userWalletModel.userTokensManager.needsCardDerivation(
+                        itemsToRemove: [],
+                        itemsToAdd: [tokenItem]
+                    )
+                } catch {
+                    return false
+                }
+            }
+            .assign(to: &$needsCardDerivation)
     }
 
     private func enteredTokenItem() throws -> TokenItem {
