@@ -104,6 +104,7 @@ extension YieldModuleBottomSheetView {
         private var titleView: some View {
             if let title {
                 Text(title).style(Fonts.Bold.title2, color: Colors.Text.primary1)
+                    .multilineTextAlignment(.center)
             }
         }
 
