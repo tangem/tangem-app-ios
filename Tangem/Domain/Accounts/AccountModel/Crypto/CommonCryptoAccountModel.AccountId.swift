@@ -32,3 +32,13 @@ extension CommonCryptoAccountModel {
         }
     }
 }
+
+extension CommonCryptoAccountModel.AccountId: AccountModelPersistentIdentifierConvertible {
+    var isMainAccount: Bool {
+        AccountModelUtils.isMainAccount(derivationIndex)
+    }
+
+    func toPersistentIdentifier() -> Int {
+        return derivationIndex
+    }
+}

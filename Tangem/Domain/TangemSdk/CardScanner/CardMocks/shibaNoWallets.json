@@ -1,0 +1,70 @@
+{
+    "cardId": "AF02010000000002",
+    "isPasscodeSet": false,
+    "wallets": [],
+    "cardPublicKey": "0000",
+    "attestation": {
+        "walletKeysAttestation": "skipped",
+        "cardKeyAttestation": "failed",
+        "firmwareAttestation": "skipped",
+        "cardUniquenessAttestation": "skipped"
+    },
+    "batchId": "AF02",
+    "linkedTerminalStatus": "none",
+    "settings": {
+        "isBackupAllowed": true,
+        "isHDWalletAllowed": true,
+        "supportedEncryptionModes": [
+            "strong",
+            "fast",
+            "none"
+        ],
+        "isRemovingUserCodesAllowed": true,
+        "isSettingAccessCodeAllowed": false,
+        "isSettingPasscodeAllowed": false,
+        "maxWalletsCount": 20,
+        "isFilesAllowed": true,
+        "isKeysImportAllowed": true,
+        "securityDelay": 15000,
+        "isLinkedTerminalEnabled": true,
+        "isPermanentWallet": false,
+        "isOverwritingIssuerExtraDataRestricted" : false,
+        "isIssuerDataProtectedAgainstReplay": true,
+        "isSelectBlockchainAllowed": true
+    },
+    "firmwareVersion": {
+        "patch": 0,
+        "stringValue": "6.21d SDK",
+        "major": 6,
+        "minor": 21,
+        "type": "d SDK"
+    },
+    "isAccessCodeSet": false,
+    "manufacturer": {
+        "name": "TANGEM",
+        "manufactureDate": "2023-06-09",
+        "signature" : "0000"
+    },
+    "supportedCurves": [
+        "secp256k1",
+        "ed25519",
+        "secp256r1",
+        "bip0340",
+        "bls12381_G2",
+        "bls12381_G2_AUG",
+        "bls12381_G2_POP"
+    ],
+    "issuer": {
+        "name": "TANGEM SDK",
+        "publicKey": "0000"
+    },
+    "userSettings": {
+        "isUserCodeRecoveryAllowed": true
+    },
+    "backupStatus" : {
+      "status" : "noBackup"
+    }
+}
+
+
+

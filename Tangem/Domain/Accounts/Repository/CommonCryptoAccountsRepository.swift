@@ -8,13 +8,31 @@
 
 import Foundation
 import Combine
+import CombineExt
+import TangemFoundation
 
 final class CommonCryptoAccountsRepository {
-    // [REDACTED_TODO_COMMENT]
     private let tokenItemsRepository: TokenItemsRepository
+    private let networkService: CryptoAccountsNetworkService
+    private let storage: CryptoAccountsPersistentStorage
+    private let storageDidUpdateSubject: StorageDidUpdateSubject
 
-    init(tokenItemsRepository: TokenItemsRepository) {
+    private lazy var _cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> = storageDidUpdateSubject
+        .withWeakCaptureOf(self)
+        .map { $0.0.storage.getList() }
+        .share(replay: 1)
+        .eraseToAnyPublisher()
+
+    init(
+        tokenItemsRepository: TokenItemsRepository,
+        networkService: CryptoAccountsNetworkService,
+        storage: CryptoAccountsPersistentStorage
+    ) {
+        storageDidUpdateSubject = StorageDidUpdateSubject()
         self.tokenItemsRepository = tokenItemsRepository
+        self.networkService = networkService
+        self.storage = storage
+        storage.bind(to: storageDidUpdateSubject)
     }
 }
 
@@ -22,52 +40,36 @@ final class CommonCryptoAccountsRepository {
 
 extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     var totalCryptoAccountsCount: Int {
-        // [REDACTED_TODO_COMMENT]
-        return 1
+        storage.getList().count
     }
 
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> {
-        // [REDACTED_TODO_COMMENT]
-        return .just(output: getAccounts())
+        _cryptoAccountsPublisher
     }
 
-    func getAccounts() -> [StoredCryptoAccount] {
+    func initialize() {
         // [REDACTED_TODO_COMMENT]
-        return [
-            StoredCryptoAccount(
-                derivationIndex: Constants.mainAccountDerivationIndex,
-                name: Constants.mainAccountName,
-                icon: .init(
-                    iconName: Constants.mainAccountIconName,
-                    iconColor: Constants.mainAccountIconColor
-                ),
-                tokenList: tokenItemsRepository.getList()
-            ),
-            StoredCryptoAccount(
-                derivationIndex: 1,
-                name: "Test account",
-                icon: .init(
-                    iconName: AccountModel.Icon.Name.airplane.rawValue,
-                    iconColor: AccountModel.Icon.Color.coralRed.rawValue
-                ),
-                tokenList: tokenItemsRepository.getList()
-            ),
-        ]
     }
 
-    func addCryptoAccount(_ cryptoAccountModel: any CryptoAccountModel) {
-        // [REDACTED_TODO_COMMENT]
+    func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [TokenItem]) {
+        let storedAccount = StoredCryptoAccount(
+            derivationIndex: config.derivationIndex,
+            name: config.name,
+            icon: .init(iconName: config.iconName, iconColor: config.iconColor),
+            tokenList: .empty // [REDACTED_TODO_COMMENT]
+        )
+        storage.appendNewOrUpdateExisting(account: storedAccount)
+    }
+
+    func removeCryptoAccount(withIdentifier identifier: AnyHashable) {
+        storage.removeAll { $0.derivationIndex.toAnyHashable() == identifier }
     }
 }
 
-// MARK: - Constants
+// MARK: - Auxiliary types
 
-// [REDACTED_TODO_COMMENT]
-/** private */ extension CommonCryptoAccountsRepository {
-    enum Constants {
-        static let mainAccountDerivationIndex = 0
-        static let mainAccountName = "Main Account" // [REDACTED_TODO_COMMENT]
-        static let mainAccountIconName = AccountModel.Icon.Name.star.rawValue
-        static let mainAccountIconColor = AccountModel.Icon.Color.brightBlue.rawValue
-    }
+private extension CommonCryptoAccountsRepository {}
+
+extension CryptoAccountsRepository {
+    typealias StorageDidUpdateSubject = PassthroughSubject<Void, Never>
 }

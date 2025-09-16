@@ -17,7 +17,7 @@ class EthereumNetworkService: MultiNetworkProvider {
     let providers: [EthereumJsonRpcProvider]
     var currentProviderIndex: Int = 0
 
-    let blockchainName: String = Blockchain.ethereum(testnet: false).displayName
+    let blockchainName: String
 
     let decimals: Int
     private let abiEncoder: ABIEncoder
@@ -25,11 +25,13 @@ class EthereumNetworkService: MultiNetworkProvider {
     init(
         decimals: Int,
         providers: [EthereumJsonRpcProvider],
-        abiEncoder: ABIEncoder
+        abiEncoder: ABIEncoder,
+        blockchainName: String
     ) {
         self.providers = providers
         self.decimals = decimals
         self.abiEncoder = abiEncoder
+        self.blockchainName = blockchainName
     }
 
     func send(transaction: String) -> AnyPublisher<String, Error> {
