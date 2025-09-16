@@ -177,6 +177,10 @@ extension CommonAccountModelsManager: AccountModelsManager {
         makeOrGetAccountModelsPublisher()
     }
 
+    nonisolated var totalCryptoAccountsCount: Int {
+        cryptoAccountsRepository.totalCryptoAccountsCount
+    }
+
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]

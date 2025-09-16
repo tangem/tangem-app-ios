@@ -86,6 +86,7 @@ struct AccountFormView: View {
         VStack(spacing: 12) {
             AccountFormHeaderView(
                 accountName: $viewModel.accountName,
+                maxCharacters: viewModel.maxNameLength,
                 placeholderText: viewModel.placeholder,
                 color: viewModel.selectedColor.color,
                 nameMode: viewModel.nameMode
@@ -161,7 +162,13 @@ struct AccountFormView: View {
 #if DEBUG
 @available(iOS 17.0, *)
 #Preview {
-    @Previewable @ObservedObject var viewModel = AccountFormViewModel(flowType: .create)
+    @Previewable @ObservedObject var viewModel = AccountFormViewModel(
+        userWalletId: .init(value: Data()),
+        accountIndex: 1,
+        accountModelsManager: AccountModelsManagerMock(),
+        flowType: .create,
+        closeAction: {}
+    )
 
     Color.clear
         .sheet(isPresented: .constant(true)) {

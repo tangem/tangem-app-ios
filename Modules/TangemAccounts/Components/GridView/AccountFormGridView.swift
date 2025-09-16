@@ -106,7 +106,7 @@ public enum AccountFormGridViewConstants {
         Assets.Accounts.user,
         Assets.Accounts.walletAccounts,
     ].map {
-        let kind: GridItemImageKind = $0 == Assets.Accounts.letter ? .letter($0) : .image($0)
+        let kind: GridItemImageKind = $0 == Assets.Accounts.letter ? .letter(view: $0) : .image($0)
         return GridItemImage(kind)
     }
 
