@@ -34,7 +34,7 @@ struct NewOnrampView: View {
                     .setButtonsLoadingState(to: viewModel.notificationButtonIsLoading)
             }
         }
-        .safeAreaInset(edge: .bottom) {
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
             bottomContainer
                 .transition(.offset(y: 500).combined(with: .opacity))
         }
@@ -52,6 +52,7 @@ struct NewOnrampView: View {
                     viewModel.usedDidTapContinue()
                 }
             }
+            .padding(.bottom, 14)
             .padding(.horizontal, 16)
         }
     }

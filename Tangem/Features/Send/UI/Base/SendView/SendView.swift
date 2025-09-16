@@ -47,7 +47,7 @@ struct SendView: View {
         .animation(.none, value: viewModel.navigationBarSettings)
         .animation(.none, value: viewModel.bottomBarSettings)
         .scrollDismissesKeyboardCompat(.immediately)
-        .safeAreaInset(edge: .bottom) { bottomContainer }
+        .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
         .onReceive(viewModel.$isKeyboardActive, perform: { focused = $0 })
         .onChange(of: viewModel.shouldShowDismissAlert) { interactiveDismissDisabled = $0 }
         .onAppear(perform: viewModel.onAppear)
