@@ -43,10 +43,6 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
         // WIP
     }
 
-    func onShowFeePolicy(params: YieldModuleBottomSheetParams.FeePolicyParams) {
-        flow = .feePolicy(params: params)
-    }
-
     func onBackAction() {
         previousFlow.map { flow = $0 }
     }
