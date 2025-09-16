@@ -18,6 +18,7 @@ extension YieldModuleBottomSheetView {
         TopContent: View
     >: View {
         typealias NotificationBanner = YieldModuleParams.YieldModuleBottomSheetNotificationBannerParams
+
         // MARK: - Properties
 
         private let title: String?
@@ -75,7 +76,7 @@ extension YieldModuleBottomSheetView {
                     topContent
 
                     titleView
-                        .padding(.top, 20)
+                        .padding(.top, 14)
                         .padding(.horizontal, 14)
 
                     subtitleView
