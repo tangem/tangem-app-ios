@@ -22,11 +22,10 @@ extension YieldModuleBottomSheetView {
         // MARK: - View Body
 
         var body: some View {
-            GroupedScrollView(spacing: 8, showsIndicators: false) {
+            VStack(spacing: 8) {
                 topSection
                 myFundsSection
             }
-            .padding(.horizontal, -16)
         }
 
         // MARK: - Sub Views
