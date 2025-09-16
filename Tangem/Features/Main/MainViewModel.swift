@@ -343,39 +343,37 @@ final class MainViewModel: ObservableObject {
                 .store(in: &bag)
         }
 
-        if FeatureProvider.isAvailable(.walletConnectUI) {
-            wcService.transactionRequestPublisher
-                .receiveOnMain()
-                .sink { [coordinator, floatingSheetPresenter] transactionHandleResult in
-                    MainActor.assumeIsolated {
-                        switch transactionHandleResult {
-                        case .success(let transactionData):
-                            let sheetViewModel = WCTransactionViewModel(
-                                transactionData: transactionData,
-                                feeManager: CommonWCTransactionFeeManager(
-                                    feeRepository: CommonWCTransactionFeePreferencesRepository(dappName: transactionData.dAppData.name)
-                                ),
-                                analyticsLogger: CommonWalletConnectTransactionAnalyticsLogger()
-                            )
-                            coordinator?.show(floatingSheetViewModel: sheetViewModel)
+        wcService.transactionRequestPublisher
+            .receiveOnMain()
+            .sink { [coordinator, floatingSheetPresenter] transactionHandleResult in
+                MainActor.assumeIsolated {
+                    switch transactionHandleResult {
+                    case .success(let transactionData):
+                        let sheetViewModel = WCTransactionViewModel(
+                            transactionData: transactionData,
+                            feeManager: CommonWCTransactionFeeManager(
+                                feeRepository: CommonWCTransactionFeePreferencesRepository(dappName: transactionData.dAppData.name)
+                            ),
+                            analyticsLogger: CommonWalletConnectTransactionAnalyticsLogger()
+                        )
+                        coordinator?.show(floatingSheetViewModel: sheetViewModel)
 
-                        case .failure(let error):
-                            if let transactionRequestError = error as? WalletConnectTransactionRequestProcessingError,
-                               let errorViewModel = WalletConnectModuleFactory.makeTransactionRequestProcessingErrorViewModel(
-                                   transactionRequestError,
-                                   closeAction: {
-                                       floatingSheetPresenter.removeActiveSheet()
-                                   }
-                               ) {
-                                coordinator?.show(floatingSheetViewModel: errorViewModel)
-                            } else {
-                                coordinator?.show(toast: WalletConnectModuleFactory.makeGenericErrorToast(error))
-                            }
+                    case .failure(let error):
+                        if let transactionRequestError = error as? WalletConnectTransactionRequestProcessingError,
+                           let errorViewModel = WalletConnectModuleFactory.makeTransactionRequestProcessingErrorViewModel(
+                               transactionRequestError,
+                               closeAction: {
+                                   floatingSheetPresenter.removeActiveSheet()
+                               }
+                           ) {
+                            coordinator?.show(floatingSheetViewModel: errorViewModel)
+                        } else {
+                            coordinator?.show(toast: WalletConnectModuleFactory.makeGenericErrorToast(error))
                         }
                     }
                 }
-                .store(in: &bag)
-        }
+            }
+            .store(in: &bag)
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
