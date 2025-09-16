@@ -9,10 +9,12 @@
 import Combine
 import TangemFoundation
 import TangemMobileWalletSdk
-import struct TangemSdk.Mnemonic
+import TangemUIUtils
+import TangemSdk
 
 final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
     @Published var isCreating: Bool = false
+    @Published var alert: AlertBinder?
 
     lazy var importViewModel = OnboardingSeedPhraseImportViewModel(
         inputProcessor: SeedPhraseInputProcessor(),
@@ -20,6 +22,8 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
     )
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    private lazy var mobileSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private weak var delegate: MobileOnboardingSeedPhraseImportDelegate?
 
@@ -56,6 +60,12 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 
                 let walletInfo = try await initializer.initializeWallet(mnemonic: mnemonic, passphrase: passphrase)
 
+                let userWalletId = UserWalletId(config: MobileUserWalletConfig(mobileWalletInfo: walletInfo))
+
+                guard !viewModel.userWalletRepository.models.contains(where: { $0.userWalletId == userWalletId }) else {
+                    throw UserWalletRepositoryError.duplicateWalletAdded
+                }
+
                 guard let userWalletModel = CommonUserWalletModelFactory().makeModel(
                     walletInfo: .mobileWallet(walletInfo),
                     keys: .mobileWallet(keys: walletInfo.keys),
@@ -77,6 +87,7 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
                 AppLogger.error("Failed to create wallet", error: error)
                 await runOnMain {
                     viewModel.isCreating = false
+                    viewModel.alert = error.alertBinder
                 }
             }
         }
