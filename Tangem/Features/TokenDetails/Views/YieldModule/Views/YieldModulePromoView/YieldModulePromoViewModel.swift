@@ -51,6 +51,23 @@ final class YieldModulePromoViewModel {
 
     // MARK: - Public Implementation
 
+    func onInterestRateInfoTap() {
+        coordinator?.openRateInfoSheet(params: .init(lastYearReturns: lastYearReturns))
+    }
+
+    func onContinueTap() {
+        coordinator?
+            .openStartEarningSheet(
+                params: .init(
+                    tokenName: walletModel.tokenItem.name,
+                    tokenIcon: NetworkImageProvider().provide(by: walletModel.tokenItem.blockchain, filled: true).image,
+                    networkFee: networkFee.formatted(),
+                    maximumFee: maximumFee.formatted(),
+                    blockchainName: walletModel.tokenItem.blockchain.displayName
+                )
+            )
+    }
+
     func onHowItWorksTap() {
         safariManager.openURL(howIrWorksUrl)
     }
