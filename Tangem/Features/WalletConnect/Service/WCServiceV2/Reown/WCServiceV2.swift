@@ -46,7 +46,7 @@ private extension WCServiceV2 {
         setupMessagesSubscriptions()
         subscribeToDeleteWallet()
     }
-    
+
     func subscribeToDeleteWallet() {
         userWalletRepository
             .eventProvider
