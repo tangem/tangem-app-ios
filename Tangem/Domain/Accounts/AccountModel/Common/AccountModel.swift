@@ -23,8 +23,17 @@ enum AccountModel {
 
 extension AccountModel {
     struct Icon: Equatable {
-        let name: Name
+        let nameMode: NameMode
         let color: Color
+
+        var nameOrLetter: String {
+            switch nameMode {
+            case .letter(let letter):
+                return letter
+            case .named(let name):
+                return name.rawValue
+            }
+        }
     }
 }
 
@@ -42,6 +51,11 @@ extension AccountModel.Icon {
         case purple
         case royalBlue
         case yellow
+    }
+
+    enum NameMode: Equatable {
+        case letter(String)
+        case named(Name)
     }
 
     enum Name: String, CaseIterable {
@@ -70,13 +84,16 @@ extension AccountModel.Icon {
 
 extension AccountModel.Icon {
     init?(rawName: String, rawColor: String) {
-        guard
-            let name = Name(rawValue: rawName),
-            let color = Color(rawValue: rawColor)
-        else {
+        guard let color = Color(rawValue: rawColor) else {
             return nil
         }
 
-        self.init(name: name, color: color)
+        if let name = Name(rawValue: rawName) {
+            self.init(nameMode: .named(name), color: color)
+        } else if rawName.count == 1 {
+            self.init(nameMode: .letter(rawName), color: color)
+        }
+
+        return nil
     }
 }

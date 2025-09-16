@@ -7,25 +7,31 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 public struct ReorderableGroupedSection<
     ReorderableModel: Identifiable,
     ReorderableContent: View,
     StaticModel: Identifiable,
     StaticContent: View,
+    AfterSeparatorContentModel: Identifiable,
+    AfterSeparatorContent: View,
     Footer: View,
     Header: View
 >: View {
     // MARK: Dependencies
 
-    @State private var reorderableModels: [ReorderableModel]
+    @Binding private var reorderableModels: [ReorderableModel]
     private let reorderableContent: (ReorderableModel) -> ReorderableContent
 
-    private let staticModels: [StaticModel]
+    private let staticModels: [StaticModel]?
     private let staticContent: (StaticModel) -> StaticContent
 
-    private let header: () -> Header
-    private let footer: () -> Footer
+    private let afterSeparatorContentModels: [AfterSeparatorContentModel]?
+    private let contentAfterSeparator: (AfterSeparatorContentModel) -> AfterSeparatorContent
+
+    private let header: Header
+    private let footer: Footer
 
     private var settings: GroupedSection<
         ReorderableModel,
@@ -33,30 +39,35 @@ public struct ReorderableGroupedSection<
         Footer,
         Header,
         EmptyView
-    >.Settings = .init()
+    >.Settings = .init(interItemSpacing: 8, innerContentPadding: 12)
 
     // MARK: State
 
-    @State private var reorderableRowHeights: [ReorderableModel.ID: CGFloat] = [:]
+    @State private var reorderableRowSizes: [ReorderableModel.ID: CGSize] = [:]
 
     // MARK: Init
 
     public init(
-        reorderableModels: [ReorderableModel],
-        staticModels: [StaticModel],
+        reorderableModels: Binding<[ReorderableModel]>,
         @ViewBuilder reorderableContent: @escaping (ReorderableModel) -> ReorderableContent,
-        @ViewBuilder staticContent: @escaping (StaticModel) -> StaticContent,
-        @ViewBuilder header: @escaping () -> Header = { EmptyView() },
-        @ViewBuilder footer: @escaping () -> Footer = { EmptyView() },
-    ) {
-        self.reorderableModels = reorderableModels
-        self.reorderableContent = reorderableContent
 
+        staticModels: [StaticModel],
+        @ViewBuilder staticContent: @escaping (StaticModel) -> StaticContent,
+
+        afterSeparatorContentModels: [AfterSeparatorContentModel],
+        @ViewBuilder contentAfterSeparator: @escaping (AfterSeparatorContentModel) -> AfterSeparatorContent,
+
+        @ViewBuilder header: @escaping () -> Header = { EmptyView() },
+        @ViewBuilder footer: @escaping () -> Footer = { EmptyView() }
+    ) {
+        _reorderableModels = reorderableModels
+        self.reorderableContent = reorderableContent
         self.staticModels = staticModels
         self.staticContent = staticContent
-
-        self.header = header
-        self.footer = footer
+        self.afterSeparatorContentModels = afterSeparatorContentModels
+        self.contentAfterSeparator = contentAfterSeparator
+        self.header = header()
+        self.footer = footer()
     }
 
     // MARK: Body
@@ -64,22 +75,31 @@ public struct ReorderableGroupedSection<
     public var body: some View {
         VStack(alignment: .leading, spacing: GroupedSectionConstants.footerSpacing) {
             VStack(alignment: settings.contentAlignment, spacing: 0) {
-                header()
+                header
                     .padding(.horizontal, settings.horizontalPadding)
+                    .padding(.top, settings.innerContentPadding)
                     .padding(.bottom, settings.interItemSpacing)
 
                 reorderableList
 
                 staticItemsView
+
+                if let afterSeparatorContentModels {
+                    VStack(spacing: 0) {
+                        Separator(color: Colors.Stroke.primary)
+                            .padding(.horizontal, settings.horizontalPadding)
+
+                        makeContentAfterSeparatorItemsView(models: afterSeparatorContentModels)
+                    }
+                }
             }
-            .padding(.vertical, settings.innerContentPadding)
             .background(
                 settings.backgroundColor
                     .matchedGeometryEffect(settings.backgroundGeometryEffect)
             )
             .cornerRadiusContinuous(GroupedSectionConstants.defaultCornerRadius)
 
-            footer()
+            footer
                 .padding(.horizontal, settings.horizontalPadding)
         }
     }
@@ -103,7 +123,7 @@ public struct ReorderableGroupedSection<
                 .listRowBackground(Color.clear)
             }
             .listStyle(.plain)
-            .frame(height: reorderableRowHeights.values.reduce(0, +))
+            .frame(height: reorderableRowSizes.values.map(\.height).reduce(0, +))
             .scrollDisabledBackport(true)
         }
     }
@@ -113,8 +133,8 @@ public struct ReorderableGroupedSection<
     private var reorderableModelsView: some View {
         ForEach(reorderableModels) { model in
             makeListItem(from: model)
-                .readGeometry(\.frame.height) {
-                    reorderableRowHeights[model.id] = $0
+                .readGeometry(\.frame.size) {
+                    reorderableRowSizes[model.id] = $0
                 }
         }
     }
@@ -122,17 +142,33 @@ public struct ReorderableGroupedSection<
     private func makeListItem(from model: ReorderableModel) -> some View {
         reorderableContent(model)
             .listRowSeparator(.hidden)
-            .padding(.horizontal, settings.horizontalPadding)
             .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .padding(.horizontal, settings.horizontalPadding)
+            .padding(.vertical, settings.innerContentPadding)
             .contentShape([.dragPreview], RoundedRectangle(cornerRadius: 14))
     }
 
     // MARK: Static content
 
+    @ViewBuilder
     private var staticItemsView: some View {
-        ForEach(staticModels) { model in
-            staticContent(model)
+        if let staticModels {
+            ForEach(staticModels) { model in
+                staticContent(model)
+                    .padding(.horizontal, settings.horizontalPadding)
+                    .padding(.vertical, settings.innerContentPadding)
+            }
+        }
+    }
+
+    // MARK: Content after separator
+
+    @ViewBuilder
+    private func makeContentAfterSeparatorItemsView(models: [AfterSeparatorContentModel]) -> some View {
+        ForEach(models) { model in
+            contentAfterSeparator(model)
                 .padding(.horizontal, settings.horizontalPadding)
+                .padding(.vertical, settings.innerContentPadding)
         }
     }
 }

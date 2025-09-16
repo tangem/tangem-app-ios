@@ -8,17 +8,20 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 public struct BaseOneLineRowButton<SecondLeadingView: View, TrailingView: View>: View {
-    private let icon: ImageType
+    private let icon: ImageType?
     private let title: String
     private let shouldShowTrailingIcon: Bool
     private let action: () -> Void
     private let secondLeadingView: () -> SecondLeadingView
     private let trailingView: () -> TrailingView
 
+    private var verticalPadding: CGFloat = 0
+
     public init(
-        icon: ImageType,
+        icon: ImageType?,
         title: String,
         shouldShowTrailingIcon: Bool,
         action: @escaping () -> Void,
@@ -42,9 +45,15 @@ public struct BaseOneLineRowButton<SecondLeadingView: View, TrailingView: View>:
                 trailingView: trailingView
             )
             .shouldShowTrailingIcon(shouldShowTrailingIcon)
-            .padding(.vertical, 12)
+            .padding(.vertical, verticalPadding)
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
+    }
+}
+
+extension BaseOneLineRowButton: Setupable {
+    public func verticalPadding(_ value: CGFloat) -> Self {
+        map { $0.verticalPadding = value }
     }
 }
