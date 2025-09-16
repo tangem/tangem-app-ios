@@ -22,7 +22,7 @@ extension YieldModuleBottomSheetView {
         private let title: String?
         private let subtitle: String?
 
-        private let topPadding: CGFloat
+        private let contentTopPadding: CGFloat
         private let horizontalPadding: CGFloat
         private let buttonTopPadding: CGFloat
 
@@ -44,7 +44,7 @@ extension YieldModuleBottomSheetView {
             @ViewBuilder topContent: () -> TopContent = { EmptyView() },
             @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
             @ViewBuilder content: () -> BodyContent = { EmptyView() },
-            topPadding: CGFloat,
+            contentTopPadding: CGFloat,
             horizontalPadding: CGFloat,
             buttonTopPadding: CGFloat
         ) {
@@ -55,7 +55,7 @@ extension YieldModuleBottomSheetView {
 
             self.title = title
             self.subtitle = subtitle
-            self.topPadding = topPadding
+            self.contentTopPadding = contentTopPadding
             self.button = button
             self.horizontalPadding = horizontalPadding
             self.buttonTopPadding = buttonTopPadding
@@ -80,9 +80,9 @@ extension YieldModuleBottomSheetView {
 
                     subtitleFooter.padding(.top, 26)
 
-                    content.padding(.top, 24)
+                    content.padding(.top, contentTopPadding)
 
-                    button.padding(.top, 32)
+                    button.padding(.top, buttonTopPadding)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
