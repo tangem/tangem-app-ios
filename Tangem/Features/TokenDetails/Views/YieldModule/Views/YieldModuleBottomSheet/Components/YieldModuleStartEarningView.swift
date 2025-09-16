@@ -16,7 +16,7 @@ extension YieldModuleBottomSheetView {
         // MARK: - Properties
 
         let networkFee: String
-        let showFeePolicyAction: () -> Void
+        let showFeePolicyAction: @MainActor @Sendable () -> Void
 
         // MARK: - View Body
 

@@ -64,7 +64,7 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
     }
 
     func onStartEarningTap() {
-        // WIP
+        // [REDACTED_TODO_COMMENT]
     }
 }
 
