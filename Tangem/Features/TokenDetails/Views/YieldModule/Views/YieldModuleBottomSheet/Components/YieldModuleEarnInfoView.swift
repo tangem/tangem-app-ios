@@ -22,11 +22,10 @@ extension YieldModuleBottomSheetView {
         // MARK: - View Body
 
         var body: some View {
-            GroupedScrollView(spacing: 8, showsIndicators: false) {
+            VStack(spacing: 8) {
                 topSection
                 myFundsSection
             }
-            .padding(.horizontal, -16)
         }
 
         // MARK: - Sub Views
@@ -41,7 +40,7 @@ extension YieldModuleBottomSheetView {
             VStack(alignment: .leading, spacing: .zero) {
                 Text(Localization.yieldModuleEarnSheetTotalEarningsTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                    .padding(.top, 18)
+                    .padding(.top, 16)
                     .padding(.bottom, 10)
 
                 Text(data.totalEarnings)
@@ -88,12 +87,12 @@ extension YieldModuleBottomSheetView {
                 VStack(alignment: .leading, spacing: .zero) {
                     Text(Localization.yieldModuleEarnSheetMyFundsTitle)
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                        .padding(.top, 18)
+                        .padding(.top, 16)
                         .padding(.bottom, 10)
 
-                    providerTitle.padding(.bottom, 6)
+                    providerTitle.padding(.bottom, 8)
 
-                    myFundsDescription.padding(.bottom, 13)
+                    myFundsDescription.padding(.bottom, 14)
 
                     row(title: Localization.yieldModuleEarnSheetTransfersTitle, trailing: params.transferMode)
 
@@ -106,7 +105,7 @@ extension YieldModuleBottomSheetView {
 
 private extension YieldModuleBottomSheetView.YieldModuleEarnInfoView {
     private func row(title: String, trailing: String) -> some View {
-        VStack(spacing: 13) {
+        VStack(spacing: 14) {
             Divider().overlay(Colors.Stroke.primary)
 
             HStack {
@@ -120,7 +119,7 @@ private extension YieldModuleBottomSheetView.YieldModuleEarnInfoView {
                     .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                     .lineLimit(1)
             }
-            .padding(.horizontal, 3)
+            .padding(.horizontal, 4)
         }
         .padding(.bottom, 12)
     }
