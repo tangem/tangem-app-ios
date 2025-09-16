@@ -78,7 +78,7 @@ final class YieldModulePromoViewModel {
 
     func makeTosAndPrivacyString() -> AttributedString {
         let string = Localization.yieldModulePromoScreenTermsDisclaimer(
-            "\n\(Localization.commonTermsOfUse)",
+            Localization.commonTermsOfUse,
             Localization.commonPrivacyPolicy
         )
 

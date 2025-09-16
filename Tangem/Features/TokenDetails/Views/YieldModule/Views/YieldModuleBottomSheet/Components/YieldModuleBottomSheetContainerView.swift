@@ -11,15 +11,19 @@ import TangemUI
 import TangemAssets
 
 extension YieldModuleBottomSheetView {
-    struct YieldModuleBottomSheetContainerView<SubtitleFooter: View, BodyContent: View, ToolBarTitle: View, TopContent: View>: View {
+    struct YieldModuleBottomSheetContainerView<
+        SubtitleFooter: View,
+        BodyContent: View,
+        HeaderContent: View,
+        TopContent: View
+    >: View {
         typealias NotificationBanner = YieldModuleParams.YieldModuleBottomSheetNotificationBannerParams
-
         // MARK: - Properties
 
         private let title: String?
         private let subtitle: String?
 
-        private let topPadding: CGFloat
+        private let contentTopPadding: CGFloat
         private let horizontalPadding: CGFloat
         private let buttonTopPadding: CGFloat
 
@@ -28,47 +32,34 @@ extension YieldModuleBottomSheetView {
         private let topContent: TopContent
         private let subtitleFooter: SubtitleFooter
         private let content: BodyContent
-        private let toolBarTitle: ToolBarTitle
-        private let buttonStyle: CallToActionButtonStyle
         private let notificationBanner: NotificationBanner?
-
-        // MARK: - Actions
-
-        private let closeAction: (() -> Void)?
-        private let backAction: (() -> Void)?
-        private let buttonAction: () -> Void
+        private let header: HeaderContent
+        private let button: MainButton
 
         // MARK: - Init
 
         public init(
             title: String? = nil,
             subtitle: String? = nil,
-            buttonStyle: CallToActionButtonStyle,
-            @ViewBuilder toolBarTitle: () -> ToolBarTitle = { EmptyView() },
+            button: MainButton,
+            @ViewBuilder header: () -> HeaderContent = { EmptyView() },
             @ViewBuilder topContent: () -> TopContent = { EmptyView() },
             @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
             @ViewBuilder content: () -> BodyContent = { EmptyView() },
             notificationBanner: NotificationBanner? = nil,
-            closeAction: (() -> Void)? = nil,
-            backAction: (() -> Void)? = nil,
-            buttonAction: @escaping () -> Void,
-            topPadding: CGFloat,
+            contentTopPadding: CGFloat,
             horizontalPadding: CGFloat,
             buttonTopPadding: CGFloat
-
         ) {
-            self.toolBarTitle = toolBarTitle()
+            self.header = header()
             self.topContent = topContent()
             self.subtitleFooter = subtitleFooter()
             self.content = content()
 
             self.title = title
             self.subtitle = subtitle
-            self.buttonStyle = buttonStyle
-            self.closeAction = closeAction
-            self.backAction = backAction
-            self.buttonAction = buttonAction
-            self.topPadding = topPadding
+            self.contentTopPadding = contentTopPadding
+            self.button = button
             self.horizontalPadding = horizontalPadding
             self.buttonTopPadding = buttonTopPadding
             self.notificationBanner = notificationBanner
@@ -77,32 +68,32 @@ extension YieldModuleBottomSheetView {
         // MARK: - View Body
 
         var body: some View {
-            ScrollView {
+            GroupedScrollView {
                 VStack(spacing: .zero) {
-                    toolBar.padding(.bottom, 20)
+                    header
 
-                    topContent.padding(.bottom, 20)
+                    topContent
 
                     titleView
+                        .padding(.top, 20)
                         .padding(.horizontal, 14)
-                        .padding(.bottom, 6)
 
                     subtitleView
+                        .padding(.top, 8)
                         .padding(.horizontal, 16)
-                        .padding(.bottom, 20)
 
-                    subtitleFooter.padding(.bottom, 24)
+                    subtitleFooter.padding(.top, 26)
 
-                    content
+                    content.padding(.top, contentTopPadding)
 
                     if let notificationBanner {
                         YieldModuleBottomSheetNotificationBanner(params: notificationBanner)
                     }
 
-                    bottomButton.padding(.top, buttonTopPadding)
+                    button.padding(.top, buttonTopPadding)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, topPadding)
+                .padding(.top, 8)
+                .padding(.bottom, 18)
             }
         }
 
@@ -121,70 +112,6 @@ extension YieldModuleBottomSheetView {
                 Text(subtitle)
                     .multilineTextAlignment(.center)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
-            }
-        }
-
-        private var toolBar: some View {
-            HStack {
-                if let backAction {
-                    CircleButton.back { backAction() }
-                }
-
-                Spacer()
-
-                if let closeAction {
-                    CircleButton.close { closeAction() }
-                }
-            }
-            .overlay {
-                HStack {
-                    Spacer()
-                    toolBarTitle
-                    Spacer()
-                }
-            }
-        }
-
-        private var bottomButton: some View {
-            Button(action: buttonAction) {
-                buttonStyle.label
-            }
-            .buttonStyle(buttonStyle.tangemButtonStyle)
-        }
-    }
-}
-
-extension YieldModuleBottomSheetView {
-    enum CallToActionButtonStyle {
-        case gray(title: String)
-        case black(title: String)
-        case blackWithTangemIcon(title: String)
-
-        var tangemButtonStyle: TangemButtonStyle {
-            var buttonColorStyle: ButtonColorStyle
-
-            switch self {
-            case .gray:
-                buttonColorStyle = .gray
-            case .black, .blackWithTangemIcon:
-                buttonColorStyle = .black
-            }
-
-            return TangemButtonStyle(colorStyle: buttonColorStyle, layout: .flexibleWidth)
-        }
-
-        @ViewBuilder
-        var label: some View {
-            switch self {
-            case .gray(let title):
-                Text(title)
-            case .black(let title):
-                Text(title)
-            case .blackWithTangemIcon(let title):
-                HStack(spacing: 10) {
-                    Text(title)
-                    Assets.tangemIcon.image
-                }
             }
         }
     }
