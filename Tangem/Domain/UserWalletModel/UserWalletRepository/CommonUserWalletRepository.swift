@@ -81,7 +81,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     func unlock(with method: UserWalletRepositoryUnlockMethod) async throws -> UserWalletModel {
         defer {
             setStartWalletUsageDateIfNeeded()
-            signIn()
+            _locked = false
         }
 
         return switch method {
@@ -252,16 +252,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         if AppSettings.shared.startWalletUsageDate == nil {
             AppSettings.shared.startWalletUsageDate = Date()
-        }
-    }
-
-    private func signIn() {
-        guard _locked else { return }
-
-        _locked = false
-
-        if let selectedModel {
-            AmplitudeWrapper.shared.setUserId(userId: selectedModel.userWalletId)
         }
     }
 
