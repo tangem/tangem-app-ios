@@ -99,7 +99,7 @@ class ManageTokensViewModel: ObservableObject {
 
         adapter
             .needsCardDerivationPublisher
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .assign(to: &$needsCardDerivation)
 
         $searchText
