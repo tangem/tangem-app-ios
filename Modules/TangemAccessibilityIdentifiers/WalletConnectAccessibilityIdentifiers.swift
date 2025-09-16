@@ -51,4 +51,7 @@ public enum WalletConnectAccessibilityIdentifiers {
 
     /// No sessions description in WalletConnections screen
     public static let noSessionsDescription = "walletConnectNoSessionsDescription"
+
+    /// Paste button in new connection screen
+    public static let pasteButton = "walletConnectPasteButton"
 }
