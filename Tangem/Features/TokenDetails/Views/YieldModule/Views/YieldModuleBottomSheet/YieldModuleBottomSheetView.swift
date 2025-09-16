@@ -24,18 +24,14 @@ struct YieldModuleBottomSheetView: View {
 
     @ViewBuilder
     private var contentView: some View {
-
         YieldModuleBottomSheetContainerView(
             title: title,
             subtitle: subtitle,
-            buttonStyle: buttonStyle,
-            toolBarTitle: { toolBarTitle },
+            button: mainButton,
+            header: { makeHeader(flow: viewModel.flow) },
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
             content: { mainContent },
-            closeAction: closeAction,
-            backAction: backAction,
-            buttonAction: ctaButtonAction,
             topPadding: topPadding,
             horizontalPadding: horizontalPadding,
             buttonTopPadding: buttonTopPadding
@@ -121,38 +117,19 @@ struct YieldModuleBottomSheetView: View {
         }
     }
 
-    private var buttonStyle: CallToActionButtonStyle {
+    private var mainButton: MainButton {
         switch viewModel.flow {
         case .rateInfo, .feePolicy:
-            .gray(title: Localization.commonGotIt)
+            .init(settings: .init(title: Localization.commonGotIt, style: .secondary, action: ctaButtonAction))
         case .startEarning:
-            .blackWithTangemIcon(title: Localization.yieldModuleStartEarning)
+            .init(settings: .init(
+                title: Localization.yieldModuleStartEarning,
+                icon: .trailing(Assets.tangemIcon),
+                style: .primary,
+                action: ctaButtonAction
+            ))
         case .earnInfo:
-            .gray(title: Localization.yieldModuleStopEarning)
-        }
-    }
-
-    @ViewBuilder
-    private var toolBarTitle: some View {
-        switch viewModel.flow {
-        case .earnInfo(let params):
-            earnInfoToolbarTitleView(status: params.status)
-        case .startEarning, .feePolicy, .rateInfo:
-            EmptyView()
-        }
-    }
-
-    private func earnInfoToolbarTitleView(status: String) -> some View {
-        VStack(spacing: 3) {
-            Text(Localization.yieldModuleEarnSheetTitle).style(Fonts.Bold.headline, color: Colors.Text.primary1)
-
-            HStack(spacing: 4) {
-                Circle()
-                    .fill(Colors.Icon.accent)
-                    .frame(size: .init(bothDimensions: 8))
-
-                Text(status).style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-            }
+            .init(settings: .init(title: Localization.yieldModuleStopEarning, style: .secondary, action: ctaButtonAction))
         }
     }
 
@@ -180,24 +157,6 @@ struct YieldModuleBottomSheetView: View {
 
         case .earnInfo(let params):
             YieldModuleEarnInfoView(params: params)
-        }
-    }
-
-    private var closeAction: (() -> Void)? {
-        switch viewModel.flow {
-        case .rateInfo, .startEarning, .earnInfo:
-            viewModel.onCloseTapAction
-        case .feePolicy:
-            nil
-        }
-    }
-
-    private var backAction: (() -> Void)? {
-        switch viewModel.flow {
-        case .rateInfo, .startEarning, .earnInfo:
-            nil
-        case .feePolicy:
-            viewModel.onBackAction
         }
     }
 
@@ -238,6 +197,8 @@ private extension YieldModuleBottomSheetView {
     }
 }
 
+// MARK: - Transition
+
 private extension AnyTransition {
     static let content = AnyTransition.asymmetric(
         insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
@@ -245,7 +206,43 @@ private extension AnyTransition {
     )
 }
 
+// MARK: - Animation
+
 private extension Animation {
     static let headerOpacity = Animation.curve(.easeOutStandard, duration: 0.2)
     static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
+}
+
+// MARK: - Header
+
+private extension YieldModuleBottomSheetView {
+    private func earnInfoToolbarTitleView(status: String) -> some View {
+        ZStack {
+            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
+
+            VStack(spacing: 3) {
+                Text(Localization.yieldModuleEarnSheetTitle).style(Fonts.Bold.headline, color: Colors.Text.primary1)
+
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(Colors.Icon.accent)
+                        .frame(size: .init(bothDimensions: 8))
+
+                    Text(status).style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    func makeHeader(flow: YieldModuleBottomSheetViewModel.Flow) -> some View {
+        switch flow {
+        case .feePolicy:
+            BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackAction() } })
+        case .startEarning, .rateInfo:
+            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
+        case .earnInfo(let params):
+            earnInfoToolbarTitleView(status: params.status)
+        }
+    }
 }
