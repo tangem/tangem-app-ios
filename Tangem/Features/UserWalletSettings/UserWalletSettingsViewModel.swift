@@ -25,7 +25,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published private(set) var name: String
-    @Published var accountsSection: [AccountsSectionType] = []
+    @Published var accountsViewModel: UserSettingsAccountsViewModel
     @Published var mobileUpgradeNotificationInput: NotificationViewInput?
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
@@ -72,6 +72,12 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
+        accountsViewModel = UserSettingsAccountsViewModel(
+            accountModels: [],
+            canAddNewAccountPublisher: .just(output: true),
+            archivedAccountsPublisher: .just(output: .standard(.multiple([])))
+        )
+
         bind()
     }
 
@@ -107,6 +113,19 @@ private extension UserWalletSettingsViewModel {
                 }
             }
             .store(in: &bag)
+
+        userWalletModel.accountModelsManager
+            .accountModelsPublisher
+            .withWeakCaptureOf(self)
+            .sink { viewModel, accounts in
+                // [REDACTED_TODO_COMMENT]
+                viewModel.accountsViewModel = UserSettingsAccountsViewModel(
+                    accountModels: accounts,
+                    canAddNewAccountPublisher: .just(output: true),
+                    archivedAccountsPublisher: .just(output: .standard(.multiple([])))
+                )
+            }
+            .store(in: &bag)
     }
 
     func setupView() {
@@ -114,11 +133,6 @@ private extension UserWalletSettingsViewModel {
         // setupAccountsSection()
         setupViewModels()
         setupMobileViewModels()
-    }
-
-    func setupAccountsSection() {
-        // [REDACTED_TODO_COMMENT]
-        accountsSection = []
     }
 
     func resetViewModels() {
@@ -379,26 +393,5 @@ private extension UserWalletSettingsViewModel {
         Analytics.log(.walletSettingsButtonBackup)
 
         coordinator?.openMobileBackupTypes(userWalletModel: userWalletModel)
-    }
-}
-
-// MARK: - Data
-
-extension UserWalletSettingsViewModel {
-    enum AccountsSectionType: Identifiable {
-        case header
-        case account(DefaultRowViewModel) // [REDACTED_TODO_COMMENT]
-        case addNewAccountButton(DefaultRowViewModel)
-
-        var id: Int {
-            switch self {
-            case .header:
-                return "header".hashValue
-            case .account(let viewModel):
-                return viewModel.id.hashValue
-            case .addNewAccountButton(let viewModel):
-                return viewModel.id.hashValue
-            }
-        }
     }
 }

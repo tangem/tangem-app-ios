@@ -1,0 +1,90 @@
+//
+//  UserSettingsAccountsViewModel.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import TangemUI
+import Combine
+import TangemLocalization
+
+final class UserSettingsAccountsViewModel: ObservableObject {
+    @Published var accountRows: [UserSettingsAccountRowViewData] = []
+    @Published private(set) var addNewAccountButton: AddListItemButton.ViewData?
+    @Published private(set) var archivedAccountButton: ArchivedAccountsButtonViewData?
+
+    private let canAddNewAccountPublisher: AnyPublisher<Bool, Never>
+    private let archivedAccountsPublisher: AnyPublisher<AccountModel, Never>
+    private var bag: Set<AnyCancellable> = []
+
+    init(
+        accountModels: [AccountModel],
+        canAddNewAccountPublisher: AnyPublisher<Bool, Never>,
+        archivedAccountsPublisher: AnyPublisher<AccountModel, Never>
+    ) {
+        self.canAddNewAccountPublisher = canAddNewAccountPublisher
+        self.archivedAccountsPublisher = archivedAccountsPublisher
+
+        accountRows = accountModels.flatMap {
+            AccountModelMapper.map(
+                from: $0,
+                onTap: { [weak self] in
+                    self?.onTapAccount(account: $0)
+                }
+            )
+        }
+
+        bind()
+    }
+
+    private func bind() {
+        canAddNewAccountPublisher
+            .withWeakCaptureOf(self)
+            .sink { viewModel, enabled in
+                viewModel.addNewAccountButton = AddListItemButton.ViewData(
+                    text: Localization.accountFormCreateButton,
+                    isEnabled: enabled,
+                    action: {
+                        viewModel.onTapNewAccount()
+                    }
+                )
+            }
+            .store(in: &bag)
+
+        archivedAccountsPublisher
+            .withWeakCaptureOf(self)
+            .sink { viewModel, accountModel in
+                viewModel.archivedAccountButton = ArchivedAccountsButtonViewData(
+                    text: Localization.accountArchivedAccounts,
+                    action: { viewModel.onTapArchivedAccounts(accountModel: accountModel) }
+                )
+            }
+            .store(in: &bag)
+    }
+
+    private func onTapAccount(account: CommonCryptoAccountModel) {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    private func onTapArchivedAccounts(accountModel: AccountModel) {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    private func onTapNewAccount() {
+        // [REDACTED_TODO_COMMENT]
+    }
+}
+
+extension UserSettingsAccountsViewModel {
+    struct ArchivedAccountsButtonViewData: Identifiable {
+        let text: String
+        let action: () -> Void
+
+        var id: String {
+            text
+        }
+    }
+}
