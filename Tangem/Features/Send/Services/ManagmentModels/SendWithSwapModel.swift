@@ -805,7 +805,10 @@ extension SendWithSwapModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openBuyCrypto:
+             .openYieldPromo,
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             assertionFailure("Notification tap not handled")
         }
     }
