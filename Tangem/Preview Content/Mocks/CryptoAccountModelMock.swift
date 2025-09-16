@@ -61,11 +61,11 @@ extension CryptoAccountModelMock: CryptoAccountModel {
         didChangeSubject.eraseToAnyPublisher()
     }
 
-    func setName(_ name: String) async throws {
+    func setName(_ name: String) {
         self.name = name
     }
 
-    func setIcon(_ icon: AccountModel.Icon) async throws {
+    func setIcon(_ icon: AccountModel.Icon) {
         self.icon = icon
     }
 }
