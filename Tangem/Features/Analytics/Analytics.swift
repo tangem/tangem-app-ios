@@ -109,7 +109,7 @@ class Analytics {
         var params = params
 
         switch error {
-        case is WalletConnectV2Error, is WalletConnectServiceError:
+        case is WCTransactionSignError:
             params[.errorDescription] = error.localizedDescription
             let nsError = NSError(
                 domain: "WalletConnect Error",
