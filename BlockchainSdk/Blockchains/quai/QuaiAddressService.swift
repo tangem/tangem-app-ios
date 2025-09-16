@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import CryptoSwift
+import TangemFoundation
 
 struct QuaiAddressService {
     private let evmAddressService = EVMAddressService()
@@ -18,32 +19,14 @@ struct QuaiAddressService {
 
 extension QuaiAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
-        print("blockchainKey: \(publicKey.blockchainKey.hexString)")
-        print("seedKey: \(publicKey.seedKey.hexString)")
-
-        let hdKey = publicKey.derivationType!.hdKey
-        let derivationPath = hdKey.path
-        let extendedPublicKey = publicKey.derivationType!.hdKey.extendedPublicKey
-
-        for idx in 0 ... 32 {
-            let newDerivationPath = derivationPath.extendedPath(with: .nonHardened(UInt32(31)))
-            do {
-                let derivedKey = try publicKey.derivationType?
-                    .hdKey
-                    .extendedPublicKey.derivePublicKey(node: .nonHardened(UInt32(31)))
-
-                print(derivedKey?.publicKey.hexString)
-
-                let publicKey = Wallet.PublicKey(seedKey: derivedKey!.publicKey, derivationType: .none)
-                let address = try evmAddressService.makeAddress(for: publicKey, with: addressType)
-                print("address = \(address.value) for index = \(idx)")
-            } catch {
-                print(error)
-                throw error
-            }
+        guard let extendedPublicKey = publicKey.derivationType?.hdKey.extendedPublicKey else {
+            throw BlockchainSdkError.failedToConvertPublicKey
         }
 
-        return try evmAddressService.makeAddress(for: publicKey, with: addressType)
+        let addressUtility = QuaiAddressUtils(addressService: evmAddressService, expectedZone: .cyprus1)
+        let derivedAddress = try addressUtility.derive(extendendPublicKey: extendedPublicKey, with: addressType)
+
+        return derivedAddress
     }
 }
 
