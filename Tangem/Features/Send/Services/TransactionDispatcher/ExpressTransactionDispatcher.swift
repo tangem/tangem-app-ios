@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 
-class ExpressTransactionDispatcher {
+final class ExpressTransactionDispatcher {
     private let walletModel: any WalletModel
     private let transactionSigner: TangemSigner
     private let sendTransactionDispatcher: TransactionDispatcher

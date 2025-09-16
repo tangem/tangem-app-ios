@@ -12,5 +12,4 @@ public enum AllowanceState: Hashable {
     case permissionRequired(ApproveTransactionData)
     case approveTransactionInProgress
     case enoughAllowance
-    case unsupported
 }

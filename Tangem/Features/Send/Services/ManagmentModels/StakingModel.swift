@@ -120,7 +120,7 @@ private extension StakingModel {
                     stakingFee: estimateFee(amount: amount, validator: validator)
                 )
 
-            case .enoughAllowance, .unsupported:
+            case .enoughAllowance:
                 stopTimer()
             }
         }

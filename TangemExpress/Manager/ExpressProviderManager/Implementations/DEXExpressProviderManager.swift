@@ -114,7 +114,7 @@ private extension DEXExpressProviderManager {
                 let allowanceState = try await request.pair.source.allowanceProvider.allowanceState(request: request, spender: spender)
 
                 switch allowanceState {
-                case .enoughAllowance, .unsupported:
+                case .enoughAllowance:
                     break
                 case .permissionRequired(let approveData):
                     return .permissionRequired(

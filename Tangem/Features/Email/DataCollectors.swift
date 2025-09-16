@@ -188,7 +188,7 @@ struct CompiledExpressDataCollector: EmailDataCollector {
         ])
 
         // The last retry attempt by the host caused an error with txHex string
-        if let exceptionHost = lastError?.lastRetryHost, let txHex = lastError?.tx {
+        if let exceptionHost = lastError?.lastRetryHost {
             data.append(EmailCollectedData(type: .wallet(.exceptionWalletManagerHost), data: exceptionHost))
         }
 

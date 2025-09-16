@@ -51,7 +51,7 @@ struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
 
         return (dataCollector: emailDataCollector, recipient: recipient)
     }
-    
+
     func makeMailData(transactionData: Data, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String) {
         let emailDataCollector = CompiledExpressDataCollector(
             userWalletEmailData: emailDataProvider.emailData,
