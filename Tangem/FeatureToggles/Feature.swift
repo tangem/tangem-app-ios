@@ -13,7 +13,6 @@ enum Feature: String, Hashable, CaseIterable {
     case learnToEarn
     case visa // [REDACTED_TODO_COMMENT]
     case nft
-    case walletConnectUI
     case logs
     case sendViaSwap
     case mobileWallet
@@ -32,7 +31,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return "Learn to Earn"
         case .visa: return "Visa"
         case .nft: return "NFT"
-        case .walletConnectUI: return "WalletConnect UI"
         case .logs: return "Logs"
         case .sendViaSwap: return "Send via Swap"
         case .mobileWallet: return "Mobile wallet"
@@ -53,7 +51,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return .unspecified
         case .visa: return .unspecified
         case .nft: return .version("5.25")
-        case .walletConnectUI: return .version("5.27")
         case .logs: return .version("5.25")
         case .sendViaSwap: return .version("5.28")
         case .mobileWallet: return .unspecified
