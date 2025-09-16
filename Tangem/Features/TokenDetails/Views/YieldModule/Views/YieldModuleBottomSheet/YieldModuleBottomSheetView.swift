@@ -39,7 +39,17 @@ struct YieldModuleBottomSheetView: View {
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
+            configuration.sheetBackgroundColor = sheetBackgroundColor
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
+        }
+    }
+
+    private var sheetBackgroundColor: Color {
+        switch viewModel.flow {
+        case .balanceInfo:
+            Colors.Background.primary
+        default:
+            Colors.Background.secondary
         }
     }
 
@@ -88,6 +98,8 @@ struct YieldModuleBottomSheetView: View {
             Localization.yieldModuleApproveSheetTitle
         case .stopEarning:
             Localization.yieldModuleStopEarning
+        case .balanceInfo(let params):
+            Localization.yieldModuleBalanceInfoSheetTitle(params.tokenName)
         }
     }
 
@@ -105,6 +117,8 @@ struct YieldModuleBottomSheetView: View {
             Localization.yieldModuleApproveSheetSubtitle
         case .stopEarning(let params):
             Localization.yieldModuleStopEarningSheetDescription(params.tokenName)
+        case .balanceInfo:
+            Localization.yieldModuleBalanceInfoSheetSubtitle
         }
     }
 
@@ -113,7 +127,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .rateInfo:
             rateInfoSubtitleFooter
-        case .feePolicy, .startEarning, .approve, .stopEarning, .earnInfo:
+        case .feePolicy, .startEarning, .approve, .stopEarning, .earnInfo, .balanceInfo:
             EmptyView()
         }
     }
@@ -132,7 +146,7 @@ struct YieldModuleBottomSheetView: View {
 
     private var mainButton: MainButton {
         switch viewModel.flow {
-        case .rateInfo, .feePolicy:
+        case .rateInfo, .feePolicy, .balanceInfo:
             .init(settings: .init(title: Localization.commonGotIt, style: .secondary, action: ctaButtonAction))
         case .startEarning:
             .init(settings: .init(
@@ -159,7 +173,9 @@ struct YieldModuleBottomSheetView: View {
         case .rateInfo, .feePolicy, .earnInfo:
             EmptyView()
         case .startEarning(let params):
-            startEarningTopContent(icon: params.tokenIcon)
+            lendingPairIcon(tokenImageUrl: params.tokenImageUrl)
+        case .balanceInfo(let params):
+            lendingPairIcon(tokenImageUrl: params.tokenImageUrl)
         case .stopEarning:
             stopEarningTopContent
         case .approve:
@@ -187,6 +203,9 @@ struct YieldModuleBottomSheetView: View {
 
         case .stopEarning(let params):
             YieldModuleStopEarningView(params: params)
+
+        case .balanceInfo:
+            Color.clear.frame(height: 6)
         }
     }
 
@@ -198,7 +217,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .startEarning:
             viewModel.onStartEarningTap
-        case .rateInfo:
+        case .rateInfo, .balanceInfo:
             viewModel.onCloseTapAction
         case .feePolicy:
             viewModel.onBackAction
@@ -213,13 +232,19 @@ struct YieldModuleBottomSheetView: View {
 // MARK: - Top Content
 
 private extension YieldModuleBottomSheetView {
-    private func startEarningTopContent(icon: Image) -> some View {
+    private func lendingPairIcon(tokenImageUrl: URL?) -> some View {
         ZStack {
-            icon
-                .resizable()
-                .scaledToFit()
-                .frame(width: 48, height: 48)
-                .offset(x: -16)
+            TokenIcon(
+                tokenIconInfo: .init(
+                    name: "",
+                    blockchainIconAsset: nil,
+                    imageURL: tokenImageUrl,
+                    isCustom: false,
+                    customTokenColor: nil
+                ),
+                size: .init(bothDimensions: 48)
+            )
+            .offset(x: -16)
 
             Assets.YieldModule.yieldModuleAaveLogo.image
                 .resizable()
@@ -292,7 +317,7 @@ private extension YieldModuleBottomSheetView {
         switch flow {
         case .feePolicy, .stopEarning, .approve:
             BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackAction() } })
-        case .startEarning, .rateInfo:
+        case .startEarning, .rateInfo, .balanceInfo:
             BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
         case .earnInfo(let params):
             earnInfoHeader(status: params.status.description)

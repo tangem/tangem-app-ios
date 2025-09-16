@@ -24,7 +24,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
         buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
         balanceProvider: self,
-        balanceTypeSelectorProvider: self
+        balanceTypeSelectorProvider: self,
+        showYieldBalanceInfoAction: { [weak self] in
+            self?.openYieldBalanceInfoIfNeeded()
+        }
     )
 
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
@@ -442,7 +445,14 @@ extension TokenDetailsViewModel {
     func openYieldModulePromo() {
         coordinator?.openYieldModulePromoView(
             walletModel: walletModel,
-            info: .init(apy: "WIP", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:], feeCurrencyInfo: feeCurrencyInfo)
+            info: .init(
+                apy: "WIP",
+                networkFee: 0.00034,
+                maximumFee: 8.50,
+                lastYearReturns: [:],
+                feeCurrencyInfo: feeCurrencyInfo,
+                tokenImageUrl: iconUrl
+            )
         )
     }
 
@@ -463,5 +473,9 @@ extension TokenDetailsViewModel {
         )
 
         coordinator?.openYieldEarnInfo(params: params)
+    }
+
+    func openYieldBalanceInfoIfNeeded() {
+        coordinator?.openYieldBalanceInfo(params: .init(tokenName: walletModel.tokenItem.name, tokenImageUrl: iconUrl))
     }
 }
