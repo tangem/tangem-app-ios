@@ -13,24 +13,20 @@ struct PredefinedOnrampParametersBuilder {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let userWalletId: UserWalletId
-    private let expressAPIProvider: any ExpressAPIProvider
-    private let onrampRepository: any OnrampRepository
+    private let onrampPreference: OnrampPreference?
 
-    init(userWalletId: UserWalletId) {
+    private let expressAPIProvider: any ExpressAPIProvider
+
+    init(userWalletId: UserWalletId, onrampPreference: OnrampPreference?) {
         self.userWalletId = userWalletId
+        self.onrampPreference = onrampPreference
 
         expressAPIProvider = ExpressAPIProviderFactory()
             .makeExpressAPIProvider(userWalletId: userWalletId, refcode: .none)
-
-        onrampRepository = TangemExpressFactory().makeOnrampRepository(storage: CommonOnrampStorage())
     }
 
-    func prepare() async -> (bitcoinWalletModel: any WalletModel, parameters: PredefinedOnrampParameters)? {
-        guard moreThanOneWeekAfterFirstWalletUse() else {
-            return nil
-        }
-
-        guard let bitcoinWalletModel = getBitcoinWalletModel() else {
+    func prepare() async -> PredefinedOnrampParameters? {
+        guard moreThanOneDayAfterFirstWalletUse() else {
             return nil
         }
 
@@ -38,37 +34,24 @@ struct PredefinedOnrampParametersBuilder {
             return nil
         }
 
-        return (bitcoinWalletModel: bitcoinWalletModel, parameters: parameters)
+        return parameters
     }
 
-    private func moreThanOneWeekAfterFirstWalletUse() -> Bool {
+    private func moreThanOneDayAfterFirstWalletUse() -> Bool {
         guard let startWalletUsageDate = AppSettings.shared.startWalletUsageDate else {
             return false
         }
 
-        guard let oneWeekLater = Calendar.current.date(byAdding: .day, value: 7, to: startWalletUsageDate) else {
+        guard let oneDayLater = Calendar.current.date(byAdding: .day, value: 1, to: startWalletUsageDate) else {
             return false
         }
 
-        return oneWeekLater < Date.now
-    }
-
-    private func getBitcoinWalletModel() -> (any WalletModel)? {
-        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
-            return nil
-        }
-
-        let walletModels = userWalletModel.walletModelsManager.walletModels
-        let bitcoinWalletModel = walletModels.first(where: {
-            $0.isMainToken && $0.tokenItem.blockchain == .bitcoin(testnet: false)
-        })
-
-        return bitcoinWalletModel
+        return oneDayLater < Date.now
     }
 
     private func getParameters() async -> PredefinedOnrampParameters? {
-        var currency: OnrampFiatCurrency? = onrampRepository.preferenceCurrency
-        var country: OnrampCountry? = onrampRepository.preferenceCountry
+        var currency: OnrampFiatCurrency? = onrampPreference?.currency
+        var country: OnrampCountry? = onrampPreference?.country
 
         let haveToDefine = currency == nil || country == nil
         if haveToDefine {
