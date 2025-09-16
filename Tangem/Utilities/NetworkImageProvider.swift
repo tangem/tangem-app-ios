@@ -190,8 +190,7 @@ struct NetworkImageProvider: NFTChainIconProvider {
         case .hyperliquidEVM:
             filled ? Tokens.hyperliquidFill : Tokens.hyperliquid
         case .quai:
-            // [REDACTED_TODO_COMMENT]
-            filled ? Tokens.ethereumFill : Tokens.ethereum
+            filled ? Tokens.quaiFill : Tokens.quai
         }
     }
 
