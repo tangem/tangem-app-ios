@@ -28,12 +28,10 @@ struct YieldModuleBottomSheetView: View {
             title: title,
             subtitle: subtitle,
             button: mainButton,
-            toolBarTitle: { toolBarTitle },
+            header: { makeHeader(flow: viewModel.flow) },
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
             content: { mainContent },
-            closeAction: closeAction,
-            backAction: backAction,
             horizontalPadding: horizontalPadding
         )
         .transition(.content)
@@ -104,11 +102,6 @@ struct YieldModuleBottomSheetView: View {
         }
     }
 
-    @ViewBuilder
-    private var toolBarTitle: some View {
-        EmptyView()
-    }
-
     private func earnInfoToolbarTitleView(status: String) -> some View {
         VStack(spacing: .zero) {
             Text(Localization.yieldModuleEarnSheetTitle).style(Fonts.Bold.headline, color: Colors.Text.primary1)
@@ -147,24 +140,6 @@ struct YieldModuleBottomSheetView: View {
         }
     }
 
-    private var closeAction: (() -> Void)? {
-        switch viewModel.flow {
-        case .rateInfo, .startEarning:
-            viewModel.onCloseTapAction
-        case .feePolicy:
-            nil
-        }
-    }
-
-    private var backAction: (() -> Void)? {
-        switch viewModel.flow {
-        case .rateInfo, .startEarning:
-            nil
-        case .feePolicy:
-            viewModel.onBackAction
-        }
-    }
-
     private var ctaButtonAction: () -> Void {
         switch viewModel.flow {
         case .startEarning:
@@ -200,6 +175,8 @@ private extension YieldModuleBottomSheetView {
     }
 }
 
+// MARK: - Transition
+
 private extension AnyTransition {
     static let content = AnyTransition.asymmetric(
         insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
@@ -207,7 +184,23 @@ private extension AnyTransition {
     )
 }
 
+// MARK: - Animation
+
 private extension Animation {
     static let headerOpacity = Animation.curve(.easeOutStandard, duration: 0.2)
     static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
+}
+
+// MARK: - Header
+
+private extension YieldModuleBottomSheetView {
+    @ViewBuilder
+    func makeHeader(flow: YieldModuleBottomSheetViewModel.Flow) -> some View {
+        switch flow {
+        case .feePolicy:
+            BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackAction() } })
+        case .startEarning, .rateInfo:
+            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
+        }
+    }
 }
