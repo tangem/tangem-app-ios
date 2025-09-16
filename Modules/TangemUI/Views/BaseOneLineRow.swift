@@ -13,10 +13,10 @@ import TangemUIUtils
 public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View {
     private let icon: ImageType
     private let title: String
-    private let secondLeadingView: () -> SecondLeadingView
-    private let trailingView: () -> TrailingView
+    private let secondLeadingView: SecondLeadingView
+    private let trailingView: TrailingView
 
-    private var isTappable: Bool = true
+    private var shouldShowTrailingIcon: Bool = true
 
     public init(
         icon: ImageType,
@@ -26,8 +26,8 @@ public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View 
     ) {
         self.icon = icon
         self.title = title
-        self.secondLeadingView = secondLeadingView
-        self.trailingView = trailingView
+        self.secondLeadingView = secondLeadingView()
+        self.trailingView = trailingView()
     }
 
     public var body: some View {
@@ -37,9 +37,9 @@ public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View 
             Spacer()
 
             HStack(alignment: .center, spacing: 4) {
-                trailingView()
+                trailingView
 
-                if isTappable {
+                if shouldShowTrailingIcon {
                     trailingIcon
                 }
             }
@@ -54,7 +54,7 @@ public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View 
                 leadingTitle
             }
 
-            secondLeadingView()
+            secondLeadingView
         }
     }
 
@@ -85,7 +85,7 @@ public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View 
 // MARK: - Setupable
 
 extension BaseOneLineRow: Setupable {
-    public func isTappable(_ isTappable: Bool) -> Self {
-        map { $0.isTappable = isTappable }
+    public func shouldShowTrailingIcon(_ shouldShowTrailingIcon: Bool) -> Self {
+        map { $0.shouldShowTrailingIcon = shouldShowTrailingIcon }
     }
 }
