@@ -90,8 +90,10 @@ extension AccountModel.Icon {
 
         if let name = Name(rawValue: rawName) {
             self.init(nameMode: .named(name), color: color)
+            return
         } else if rawName.count == 1 {
             self.init(nameMode: .letter(rawName), color: color)
+            return
         }
 
         return nil
