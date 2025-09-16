@@ -43,6 +43,7 @@ struct NewOnrampView: View {
             if let recent = offers.recent {
                 VStack(alignment: .leading, spacing: 8) {
                     DefaultHeaderView(Localization.onrampRecentlyUsedTitle)
+                        .padding(.leading, 14)
 
                     OnrampOfferView(viewModel: recent)
                 }
@@ -52,6 +53,7 @@ struct NewOnrampView: View {
             if !offers.recommended.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     DefaultHeaderView(Localization.onrampRecommendedTitle)
+                        .padding(.leading, 14)
 
                     ForEach(offers.recommended) {
                         OnrampOfferView(viewModel: $0)
