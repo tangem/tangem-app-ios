@@ -225,7 +225,8 @@ private struct CommonUserWalletModelDependencies {
                 userWalletId: userWalletId,
                 cryptoAccountsRepository: cryptoAccountsRepository,
                 walletModelsManagerFactory: walletModelsManagerFactory,
-                userTokensManagerFactory: userTokensManagerFactory
+                userTokensManagerFactory: userTokensManagerFactory,
+                areHDWalletsSupported: areHDWalletsSupported
             )
         }
 
