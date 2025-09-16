@@ -129,7 +129,7 @@ struct TokenItemView: View {
     }
 
     private var yieldWarningIcon: some View {
-        Assets.WalletConnect.yellowWarningCircle.image
+        Assets.attention.image
             .resizable()
             .frame(width: 12, height: 12)
     }
