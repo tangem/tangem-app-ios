@@ -50,6 +50,11 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         }
     }
 
+    func getArchivedCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> [StoredCryptoAccount] {
+        // [REDACTED_TODO_COMMENT]
+        throw CryptoAccountsNetworkServiceError.underlyingError("Not implemented")
+    }
+
     func save(cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError) {
         do {
             guard let revision = eTagStorage.loadETag(for: userWalletId) else {
