@@ -11,15 +11,21 @@ import Foundation
 import TangemLocalization
 import TangemUIUtils
 import TangemAccounts
+import TangemFoundation
+import SwiftUI
 
-final class AccountFormViewModel: ObservableObject {
+final class AccountFormViewModel: ObservableObject, Identifiable {
     @Published var accountName: String
     @Published var selectedColor: GridItemColor
     @Published var selectedIcon: GridItemImage
     @Published var alert: AlertBinder?
+    let maxNameLength = 20
 
     private var initialStateSnapshot: StateSnapshot = .initial
     private let flowType: FlowType
+    private let closeAction: () -> Void
+    private let accountModelsManager: AccountModelsManager
+    private let accountIndex: Int
 
     let colors: [GridItemColor] = [
         Colors.Accounts.brightBlue,
@@ -59,17 +65,47 @@ final class AccountFormViewModel: ObservableObject {
         Assets.Accounts.package,
         Assets.Accounts.gift,
     ].map {
-        let kind: GridItemImageKind = $0 == Assets.Accounts.letter ? .letter($0) : .image($0)
+        let kind: GridItemImageKind = $0 == Assets.Accounts.letter ? .letter(view: $0) : .image($0)
         return GridItemImage(kind)
     }
 
-    /// NOTE: This hard-code is here until real data is ready
-    /// Until then, I don't know for sure which models will be passed here
-    init(flowType: FlowType) {
-        accountName = ""
-        selectedColor = colors.randomElement()!
-        selectedIcon = images.randomElement()!
+    init(
+        userWalletId: UserWalletId,
+        accountIndex: Int,
+        accountModelsManager: AccountModelsManager,
+        flowType: FlowType,
+        closeAction: @escaping () -> Void
+    ) {
+        switch flowType {
+        case .edit(let account):
+            accountName = account.name
+            selectedColor = GridItemColor(
+                AccountModelMapper.mapAccountColor(account.icon.color)
+            )
+
+            let gridItemImageKind: GridItemImageKind = switch account.icon.nameMode {
+            case .letter:
+                .letter(view: Assets.Accounts.letter)
+
+            case .named(let name):
+                .image(AccountModelMapper.mapAccountImageName(name))
+            }
+
+            selectedIcon = GridItemImage(gridItemImageKind)
+
+        case .create:
+            let color = AccountModelMapper.mapAccountColor(
+                AccountModelUtils.deriveIconColor(from: userWalletId)
+            )
+            selectedColor = GridItemColor(color)
+            selectedIcon = GridItemImage(.letter(view: Assets.Accounts.letter))
+            accountName = ""
+        }
+
         self.flowType = flowType
+        self.closeAction = closeAction
+        self.accountModelsManager = accountModelsManager
+        self.accountIndex = accountIndex
 
         initialStateSnapshot = StateSnapshot(
             name: accountName,
@@ -107,7 +143,6 @@ final class AccountFormViewModel: ObservableObject {
     }
 
     var mainButtonDisabled: Bool {
-        // [REDACTED_TODO_COMMENT]
         accountName.isEmpty
     }
 
@@ -120,9 +155,8 @@ final class AccountFormViewModel: ObservableObject {
         }
     }
 
-    /// Dont know what this text willbe, but it is present in figma
     var bottomText: String {
-        "Placeholder"
+        Localization.accountFormAccountIndex(accountIndex)
     }
 
     var buttonTitle: String {
@@ -136,7 +170,36 @@ final class AccountFormViewModel: ObservableObject {
 
     // MARK: - Actions
 
-    func onMainButtonTap() {}
+    @MainActor
+    func onMainButtonTap() {
+        Task {
+            guard
+                let accountIcon = AccountModelMapper.mapToAccountModelIcon(
+                    selectedIcon,
+                    color: selectedColor,
+                    accountName: accountName
+                )
+            else {
+                assertionFailure("Failed to map account icon. Should never happen")
+                return
+            }
+
+            switch flowType {
+            case .edit(let account):
+                account.setName(accountName)
+                account.setIcon(accountIcon)
+                close()
+
+            case .create:
+                do {
+                    try await accountModelsManager.addCryptoAccount(name: accountName, icon: accountIcon)
+                    close()
+                } catch {
+                    alert = makeUnableToCreateAccountAlert()
+                }
+            }
+        }
+    }
 
     func onClose() {
         let currentSnapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
@@ -155,7 +218,13 @@ final class AccountFormViewModel: ObservableObject {
         close()
     }
 
-    private func close() {}
+    // MARK: - Private methods
+
+    private func close() {
+        closeAction()
+    }
+
+    // MARK: - Alerts
 
     private func makeExitAlert(message: String) -> AlertBinder {
         AlertBuilder.makeExitAlert(
@@ -166,11 +235,20 @@ final class AccountFormViewModel: ObservableObject {
             discardAction: close
         )
     }
+
+    // [REDACTED_TODO_COMMENT]
+    private func makeUnableToCreateAccountAlert() -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: "Something went wrong",
+            message: "We couldn’t create account. Please try again later.",
+            primaryButton: .default(Text(Localization.commonOk))
+        )
+    }
 }
 
 extension AccountFormViewModel {
     enum FlowType {
-        case edit
+        case edit(account: any BaseAccountModel)
         case create
     }
 }
@@ -184,7 +262,7 @@ extension AccountFormViewModel {
         static let initial: Self = StateSnapshot(
             name: "",
             color: .init(.red),
-            image: .init(.letter(Assets.tangemIcon))
+            image: .init(.letter(view: Assets.tangemIcon))
         )
     }
 }

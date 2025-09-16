@@ -121,8 +121,11 @@ private extension UserWalletSettingsViewModel {
                 // [REDACTED_TODO_COMMENT]
                 viewModel.accountsViewModel = UserSettingsAccountsViewModel(
                     accountModels: accounts,
+                    userWalletId: viewModel.userWalletModel.userWalletId,
+                    accountModelsManager: viewModel.userWalletModel.accountModelsManager,
                     canAddNewAccountPublisher: .just(output: true),
-                    archivedAccountsPublisher: .just(output: .standard(.multiple([])))
+                    archivedAccountsPublisher: .just(output: .standard(.multiple([]))),
+                    coordinator: viewModel.coordinator
                 )
             }
             .store(in: &bag)

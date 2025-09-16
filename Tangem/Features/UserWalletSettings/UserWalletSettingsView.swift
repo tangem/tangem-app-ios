@@ -117,6 +117,7 @@ struct UserWalletSettingsView: View {
                         .padding(8)
                         .cornerRadius(10)
                         .imageSize(.init(bothDimensions: 20))
+                        .letterFontStyle(Fonts.BoldStatic.title3)
                 },
                 content: {
                     VStack(alignment: .leading, spacing: 0) {

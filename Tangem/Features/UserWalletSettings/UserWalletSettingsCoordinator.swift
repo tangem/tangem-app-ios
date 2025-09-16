@@ -38,6 +38,7 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
 
     @Published var mobileBackupTypesViewModel: MobileBackupTypesViewModel?
     @Published var mailViewModel: MailViewModel?
+    @Published var accountFormViewModel: AccountFormViewModel?
 
     // MARK: - Helpers
 
@@ -69,8 +70,16 @@ extension UserWalletSettingsCoordinator:
     TransactionNotificationsModalRoutable,
     MobileBackupNeededRoutable,
     MobileBackupTypesRoutable {
-    func openAddNewAccount() {
-        // [REDACTED_TODO_COMMENT]
+    func addNewAccount(userWalletId: UserWalletId, accountIndex: Int, accountModelsManager: any AccountModelsManager) {
+        accountFormViewModel = AccountFormViewModel(
+            userWalletId: userWalletId,
+            accountIndex: accountIndex,
+            accountModelsManager: accountModelsManager,
+            flowType: .create,
+            closeAction: { [weak self] in
+                self?.accountFormViewModel = nil
+            }
+        )
     }
 
     func openOnboardingModal(with options: OnboardingCoordinator.Options) {

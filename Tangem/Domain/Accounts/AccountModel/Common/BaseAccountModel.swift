@@ -15,6 +15,6 @@ protocol BaseAccountModel: Identifiable where ID: AccountModelPersistentIdentifi
     var icon: AccountModel.Icon { get }
     var didChangePublisher: AnyPublisher<Void, Never> { get }
 
-    func setName(_ name: String) async throws
-    func setIcon(_ icon: AccountModel.Icon) async throws
+    func setName(_ name: String)
+    func setIcon(_ icon: AccountModel.Icon)
 }

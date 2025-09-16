@@ -39,6 +39,10 @@ extension AccountModelsManagerMock: AccountModelsManager {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
+    var totalCryptoAccountsCount: Int {
+        cryptoAccounts.count
+    }
+
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws {
         cryptoAccounts.append(CryptoAccountModelMock(isMainAccount: false))
     }
