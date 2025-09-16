@@ -90,7 +90,6 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     private func onTapNewAccount() {
         coordinator?.addNewAccount(
             userWalletId: userWalletId,
-            accountIndex: accountModelsManager.totalCryptoAccountsCount + 1,
             accountModelsManager: accountModelsManager
         )
     }
