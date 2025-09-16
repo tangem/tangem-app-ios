@@ -65,7 +65,7 @@ struct YieldModulePromoView: View {
     }
 
     private var pillInfoButton: some View {
-        Button(action: {}) {
+        Button(action: { viewModel.onInterestRateInfoTap() }) {
             HStack(spacing: 4) {
                 Text(Localization.yieldModulePromoScreenVariableRateInfo).style(Fonts.Bold.caption1, color: Colors.Text.secondary)
 
@@ -112,12 +112,11 @@ struct YieldModulePromoView: View {
     }
 
     private var tosAndPrivacy: some View {
-        Text(viewModel.makeTosAndPrivacyString())
-            .multilineTextAlignment(.center)
+        Text(viewModel.makeTosAndPrivacyString()).multilineTextAlignment(.center)
     }
 
     private var continueButton: some View {
-        MainButton(title: Localization.commonContinue, action: {})
+        MainButton(title: Localization.commonContinue, action: { viewModel.onContinueTap() })
     }
 
     private var bottomStack: some View {
