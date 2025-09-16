@@ -11,25 +11,30 @@ import SwiftUI
 // MARK: - Tangem colors
 
 public extension Color {
-    enum Tangem {}
-}
-
-public extension Color.Tangem {
-    enum Text {}
-    enum Graphic {}
-    enum Status {}
-    enum Button {}
-    enum Surface {}
-    enum Controls {}
-    enum Border {}
-    enum Field {}
-    enum Overlay {}
-    enum Fill {}
-    enum Skeleton {}
-    enum Markers {}
+    enum Tangem {
+        public enum Text {}
+        public enum Graphic {}
+        public enum Status {}
+        public enum Button {}
+        public enum Surface {}
+        public enum Controls {}
+        public enum Border {}
+        public enum Field {}
+        public enum Overlay {}
+        public enum Fill {}
+        public enum Skeleton {}
+        public enum Markers {}
+    }
 }
 
 private typealias Primitives = DesignSystemColors.Primitives
+
+// MARK: - Alphas
+
+extension Primitives {
+    static let lightAlpha: Color = Base.white
+    static let darkAlpha: Color = Darks.dark6
+}
 
 // MARK: - Text
 
@@ -75,7 +80,7 @@ public extension Color.Tangem.Graphic {
 
 public extension Color.Tangem.Button {
     static let backgroundPrimary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Lights.light1)
-    static let backgroundSecondary: Color = .dynamic(light: Primitives.Darks.dark6.opacity(0.1), dark: Primitives.Base.white.opacity(0.1))
+    static let backgroundSecondary: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
     static let backgroundDisabled: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark5)
     static let backgroundPositive: Color = Primitives.Blue.azure
     static let textPrimary: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
@@ -127,7 +132,7 @@ public extension Color.Tangem.Field {
     static let backgroundFocused: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
     static let textPlaceholder: Color = .dynamic(light: Primitives.Darks.dark2, dark: Primitives.Lights.light5)
     static let textDefault: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Base.white)
-    static let textDisabled: Color = Primitives.Darks.dark1
+    static let textDisabled: Color = .dynamic(light: Primitives.Darks.dark1, dark: Primitives.Darks.dark2)
     static let textInvalid: Color = .dynamic(light: Primitives.Red.amaranth, dark: Primitives.Red.flamingo)
     static let borderInvalid: Color = .dynamic(light: Primitives.Red.amaranth, dark: Primitives.Red.flamingo)
     static let iconDefault: Color = .dynamic(light: Primitives.Darks.dark1, dark: Primitives.Darks.dark2)
@@ -137,8 +142,8 @@ public extension Color.Tangem.Field {
 // MARK: - Overlay
 
 public extension Color.Tangem.Overlay {
-    static let primary: Color = Primitives.Overlays.overlay1
-    static let secondary: Color = Primitives.Overlays.overlay2
+    static let overlayPrimary: Color = Primitives.Overlays.overlay1
+    static let overlaySecondary: Color = Primitives.Overlays.overlay2
 }
 
 // MARK: - Fill
@@ -147,7 +152,7 @@ public extension Color.Tangem.Fill {
     enum Neutral {
         public static let primary: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Base.white)
         public static let primaryInverted: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark6)
-        public static let primaryConstant: Color = Primitives.Base.white
+        public static let primaryInvertedConstant: Color = Primitives.Base.white
         public static let secondary: Color = .dynamic(light: Primitives.Darks.dark2, dark: Primitives.Lights.light5)
         public static let tertiaryConstant: Color = Primitives.Darks.dark1
         public static let quaternary: Color = .dynamic(light: Primitives.Lights.light4, dark: Primitives.Darks.dark3)
@@ -160,9 +165,9 @@ public extension Color.Tangem.Fill {
     }
 }
 
-// MARK: - Fill
+// MARK: - Skeleton
 
-public extension Color.Tangem.Fill {
+public extension Color.Tangem.Skeleton {
     static let backgroundPrimary: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
 }
 
@@ -181,12 +186,12 @@ public extension Color.Tangem.Markers {
     static let iconBlue: Color = Primitives.Blue.azure
     static let iconRed: Color = Primitives.Red.amaranth
     static let iconDisabled: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark5)
-    static let borderGray: Color = .dynamic(light: Primitives.Lights.light3, dark: Primitives.Base.white.opacity(0.2))
+    static let borderGray: Color = .dynamic(light: Primitives.Lights.light3, dark: Primitives.lightAlpha.opacity(0.2))
     static let borderTintedBlue: Color = Primitives.Blue.azure.opacity(0.1)
     static let borderTintedRed: Color = Primitives.Red.amaranth.opacity(0.1)
     static let backgroundTintedBlue: Color = Primitives.Blue.azure.opacity(0.1)
     static let backgroundTintedRed: Color = Primitives.Red.amaranth.opacity(0.1)
-    static let backgroundTintedGray: Color = .dynamic(light: Primitives.Darks.dark6.opacity(0.1), dark: Primitives.Base.white.opacity(0.1))
+    static let backgroundTintedGray: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
 }
 
 private extension Color {

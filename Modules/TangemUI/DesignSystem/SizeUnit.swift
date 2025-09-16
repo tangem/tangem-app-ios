@@ -61,3 +61,9 @@ public enum SizeUnit {
         }
     }
 }
+
+public extension CGFloat {
+    static func unit(_ size: SizeUnit) -> CGFloat {
+        size.value
+    }
+}
