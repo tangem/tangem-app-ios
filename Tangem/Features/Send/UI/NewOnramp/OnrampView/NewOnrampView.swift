@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 
@@ -29,7 +30,6 @@ struct NewOnrampView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: .zero) {
             bottomContainer
-                .transition(.offset(y: 500).combined(with: .opacity))
         }
         .animation(.easeOut, value: viewModel.viewState)
     }
@@ -41,7 +41,7 @@ struct NewOnrampView: View {
             EmptyView()
         case .suggestedOffers(let offers):
             if let recent = offers.recent {
-                VStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 8) {
                     DefaultHeaderView(Localization.onrampRecentlyUsedTitle)
 
                     OnrampOfferView(viewModel: recent)
@@ -50,7 +50,7 @@ struct NewOnrampView: View {
             }
 
             if !offers.recommended.isEmpty {
-                VStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 8) {
                     DefaultHeaderView(Localization.onrampRecommendedTitle)
 
                     ForEach(offers.recommended) {
@@ -60,7 +60,7 @@ struct NewOnrampView: View {
                 .padding(.top, 12)
             }
 
-            MainButton(title: Localization.onrampAllOffersButtonTitle) {
+            MainButton(title: Localization.onrampAllOffersButtonTitle, style: .secondary) {
                 viewModel.userDidTapAllOffersButton()
             }
         }
@@ -68,18 +68,25 @@ struct NewOnrampView: View {
 
     @ViewBuilder
     private var bottomContainer: some View {
-        VStack(spacing: 16) {
-            Text(.init("Service is provided by an external provider.\nTangem is not responsible."))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 14)
+        switch viewModel.viewState {
+        case .amount:
+            VStack(spacing: 16) {
+                Text(.init("Service is provided by an external provider.\nTangem is not responsible."))
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 14)
 
-            MainButton(title: Localization.commonContinue) {
-                keyboardActive = false
-                viewModel.usedDidTapContinue()
+                MainButton(title: Localization.commonContinue) {
+                    keyboardActive = false
+                    viewModel.usedDidTapContinue()
+                }
             }
+            .padding(.bottom, 14)
+            .padding(.horizontal, 16)
+            .transition(.offset(y: 500))
+        case .suggestedOffers:
+            EmptyView()
         }
-        .padding(.bottom, 14)
-        .padding(.horizontal, 16)
     }
 
     @ViewBuilder
