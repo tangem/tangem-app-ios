@@ -30,13 +30,11 @@ extension InjectedValues {
 
 class CommonGlobalServicesContext: GlobalServicesContext {
     @Injected(\.wcService) private var wcService: any WCService
-    @Injected(\.walletConnectService) private var walletConnectService: any OldWalletConnectService
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
 
     init() {}
 
     func resetServices() {
-        walletConnectService.reset()
         analyticsContext.clearContext()
     }
 
@@ -46,12 +44,6 @@ class CommonGlobalServicesContext: GlobalServicesContext {
 
     func initializeServices(userWalletModel: UserWalletModel) {
         analyticsContext.setupContext(with: userWalletModel.analyticsContextData)
-
-        guard !FeatureProvider.isAvailable(.walletConnectUI) else {
-            return
-        }
-
-        walletConnectService.initialize(with: userWalletModel)
     }
 
     /// we can initialize it right after scan for more accurate analytics
@@ -68,11 +60,5 @@ class CommonGlobalServicesContext: GlobalServicesContext {
         analyticsContext.setupContext(with: contextData)
     }
 
-    func cleanServicesForWallet(userWalletId: UserWalletId) {
-        if FeatureProvider.isAvailable(.walletConnectUI) {
-            wcService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
-        } else {
-            walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
-        }
-    }
+    func cleanServicesForWallet(userWalletId: UserWalletId) {}
 }
