@@ -20,6 +20,7 @@ final class SuiWalletManager: BaseManager, WalletManager {
     }
 
     override func update(completion: @escaping (Result<Void, any Error>) -> Void) {
+        let tokens = cardTokens
         cancellable = networkService.getBalance(address: wallet.address, coinType: .sui, cursor: nil)
             .sink(receiveCompletion: { [weak self] completionSubscriptions in
                 if case .failure(let error) = completionSubscriptions {
@@ -29,7 +30,7 @@ final class SuiWalletManager: BaseManager, WalletManager {
             }, receiveValue: { [weak self] result in
                 switch result {
                 case .success(let coins):
-                    self?.updateWallet(coins: coins)
+                    self?.updateWallet(coins: coins, tokens: tokens)
                     completion(.success(()))
                 case .failure(let error):
                     self?.wallet.clearAmounts()
@@ -38,7 +39,7 @@ final class SuiWalletManager: BaseManager, WalletManager {
             })
     }
 
-    func updateWallet(coins: [SuiGetCoins.Coin]) {
+    func updateWallet(coins: [SuiGetCoins.Coin], tokens: [Token]) {
         let objects = coins.compactMap {
             try? SuiCoinObject.from($0)
         }
@@ -55,7 +56,7 @@ final class SuiWalletManager: BaseManager, WalletManager {
             wallet.clearPendingTransaction()
         }
 
-        for token in cardTokens {
+        for token in tokens {
             let tokenBalance = objects
                 .filter {
                     do {
