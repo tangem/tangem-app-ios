@@ -26,7 +26,7 @@ extension QuaiAddressService: AddressProvider {
         let addressUtility = QuaiAddressUtils(addressService: evmAddressService, expectedZone: .cyprus1)
         let derivedAddress = try addressUtility.derive(extendendPublicKey: extendedPublicKey, with: addressType)
 
-        return derivedAddress
+        return PlainAddress(value: derivedAddress.value, publicKey: publicKey, type: addressType)
     }
 }
 
