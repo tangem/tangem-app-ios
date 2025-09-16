@@ -428,7 +428,7 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 
 extension TokenDetailsViewModel {
     var feeCurrencyInfo: YieldModuleParams.FeeCurrencyInfo? {
-        if true {
+        if false {
             return .init(
                 feeCurrencyName: walletModel.feeTokenItem.name,
                 feeCurrencyIcon: NetworkImageProvider().provide(by: walletModel.feeTokenItem.blockchain, filled: true).image,
