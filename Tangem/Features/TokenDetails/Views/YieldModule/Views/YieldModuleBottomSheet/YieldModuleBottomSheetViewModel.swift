@@ -34,7 +34,7 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
     // MARK: - Public Implementation
 
     func onCloseTapAction() {
-        Task { @MainActor in
+        Task {
             floatingSheetPresenter.removeActiveSheet()
         }
     }
@@ -68,7 +68,7 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
     }
 
     func onStartEarningTap() {
-        // WIP
+        // [REDACTED_TODO_COMMENT]
     }
 }
 
