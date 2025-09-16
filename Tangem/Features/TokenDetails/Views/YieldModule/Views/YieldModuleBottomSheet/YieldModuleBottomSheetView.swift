@@ -62,11 +62,15 @@ struct YieldModuleBottomSheetView: View {
     }
 
     private var buttonTopPadding: CGFloat {
+        if notificationBanner != nil {
+            return 24
+        }
+
         switch viewModel.flow {
         case .earnInfo:
-            16
+            return 16
         default:
-            32
+            return 32
         }
     }
 
@@ -139,7 +143,7 @@ struct YieldModuleBottomSheetView: View {
             ))
         case .earnInfo:
             .init(settings: .init(title: Localization.yieldModuleStopEarning, style: .secondary, action: ctaButtonAction))
-        case .approve(let params), .stopEarning(let params):
+        case .approve, .stopEarning:
             .init(settings: .init(
                 title: Localization.commonConfirm,
                 icon: .trailing(Assets.tangemIcon),
@@ -228,6 +232,7 @@ private extension YieldModuleBottomSheetView {
                 )
                 .offset(x: 16)
         }
+        .frame(height: 56)
     }
 
     private var approveTopContent: some View {
@@ -238,7 +243,7 @@ private extension YieldModuleBottomSheetView {
     }
 
     private var stopEarningTopContent: some View {
-        Assets.YieldModule.yieldModuleStopEarning.image
+        Assets.attentionHalo.image
             .resizable()
             .scaledToFit()
             .frame(size: .init(bothDimensions: 56))
@@ -285,9 +290,9 @@ private extension YieldModuleBottomSheetView {
     @ViewBuilder
     func makeHeader(flow: YieldModuleBottomSheetViewModel.Flow) -> some View {
         switch flow {
-        case .feePolicy:
+        case .feePolicy, .stopEarning, .approve:
             BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackAction() } })
-        case .startEarning, .rateInfo, .stopEarning, .approve:
+        case .startEarning, .rateInfo:
             BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
         case .earnInfo(let params):
             earnInfoHeader(status: params.status.description)
