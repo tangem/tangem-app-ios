@@ -74,8 +74,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
         self.coordinator = coordinator
         accountsViewModel = UserSettingsAccountsViewModel(
             accountModels: [],
+            userWalletId: userWalletModel.userWalletId,
+            accountModelsManager: userWalletModel.accountModelsManager,
             canAddNewAccountPublisher: .just(output: true),
-            archivedAccountsPublisher: .just(output: .standard(.multiple([])))
+            archivedAccountsPublisher: .just(output: .standard(.multiple([]))),
+            coordinator: coordinator
         )
 
         bind()
