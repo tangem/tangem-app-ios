@@ -47,7 +47,7 @@ public struct ExpandableItemView<
                 onTap: toggleExpanded
             )
             .padding(Constants.padding)
-            // Mikhail Andreev - can't extracto those to reusable properties because then mathchedGeometryEffect behaves funny
+            // Mikhail Andreev - can't extract those to reusable properties because then mathchedGeometryEffect behaves funny
             .background(
                 RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
                     .fill(Colors.Background.action)

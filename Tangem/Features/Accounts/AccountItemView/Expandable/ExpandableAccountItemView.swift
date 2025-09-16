@@ -62,7 +62,7 @@ struct ExpandableAccountItemView: View {
 
 #if DEBUG
 #Preview {
-    var infoProvider: FakeTokenItemInfoProvider = {
+    let infoProvider: FakeTokenItemInfoProvider = {
         let walletManagers: [FakeWalletManager] = [.ethWithTokensManager, .btcManager, .polygonWithTokensManager, .xrpManager]
         InjectedValues.setTokenQuotesRepository(FakeTokenQuotesRepository(walletManagers: walletManagers))
         return FakeTokenItemInfoProvider(walletManagers: walletManagers)

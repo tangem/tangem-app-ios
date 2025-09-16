@@ -11,14 +11,14 @@ import TangemAssets
 import SwiftUI
 
 final class AccountItemViewModel: ObservableObject {
-    @Published var balanceFiat: LoadableTokenBalanceView.State
+    @Published var balanceFiatState: LoadableTokenBalanceView.State
     @Published var priceChangeState: TokenPriceChangeView.State
 
     let name: String
 
     init() {
         // Stubs for testing
-        balanceFiat = .loaded(text: .string("1,23 $"))
+        balanceFiatState = .loaded(text: .string("1,23 $"))
         name = "Main account"
         priceChangeState = .loaded(signType: .positive, text: "1,14 %")
     }

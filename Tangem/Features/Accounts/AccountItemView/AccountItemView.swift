@@ -31,7 +31,7 @@ struct AccountItemView: View {
             },
             primaryTrailingView: {
                 LoadableTokenBalanceView(
-                    state: viewModel.balanceFiat,
+                    state: viewModel.balanceFiatState,
                     style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
                     loader: .init(size: .init(width: 40, height: 12))
                 )
