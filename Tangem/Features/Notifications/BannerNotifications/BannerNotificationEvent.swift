@@ -11,20 +11,9 @@ import TangemAssets
 import TangemLocalization
 
 struct BannerNotificationEvent: NotificationEvent {
-    private let programName: PromotionProgramName
-    private let analytics: BannerNotificationEventAnalyticsParamsBuilder
-
+    let programName: PromotionProgramName
+    let analytics: BannerNotificationEventAnalyticsParamsBuilder
     let buttonAction: NotificationButtonAction?
-
-    init(
-        programName: PromotionProgramName,
-        analytics: BannerNotificationEventAnalyticsParamsBuilder,
-        buttonAction: NotificationButtonAction?
-    ) {
-        self.programName = programName
-        self.analytics = analytics
-        self.buttonAction = buttonAction
-    }
 
     var id: NotificationViewId { programName.hashValue }
     var title: NotificationView.Title? { .string(programName.title) }
@@ -56,7 +45,7 @@ extension PromotionProgramName {
         case .sepa:
             .init(
                 iconType: .image(Assets.sepaBannerImage.image),
-                size: .init(bothDimensions: 48)
+                size: .init(bothDimensions: 54)
             )
         }
     }
