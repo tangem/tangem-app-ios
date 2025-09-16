@@ -64,7 +64,7 @@ extension YieldModuleBottomSheetView {
         // MARK: - View Body
 
         var body: some View {
-            ScrollView {
+            GroupedScrollView {
                 VStack(spacing: .zero) {
                     header
 
@@ -84,7 +84,6 @@ extension YieldModuleBottomSheetView {
 
                     button.padding(.top, buttonTopPadding)
                 }
-                .padding(.horizontal, 16)
                 .padding(.top, 8)
                 .padding(.bottom, 18)
             }
