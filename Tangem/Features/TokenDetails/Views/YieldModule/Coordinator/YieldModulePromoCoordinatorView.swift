@@ -22,6 +22,16 @@ struct YieldModulePromoCoordinatorView: CoordinatorView {
             if let viewModel = coordinator.rootViewModel {
                 YieldModulePromoView(viewModel: viewModel)
             }
+
+            sheets
         }
+    }
+
+    @ViewBuilder
+    private var sheets: some View {
+        NavHolder()
+            .floatingSheetContent(for: YieldModuleBottomSheetViewModel.self) {
+                YieldModuleBottomSheetView(viewModel: $0)
+            }
     }
 }
