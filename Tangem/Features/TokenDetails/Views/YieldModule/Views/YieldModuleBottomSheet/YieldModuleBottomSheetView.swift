@@ -216,7 +216,7 @@ private extension Animation {
 // MARK: - Header
 
 private extension YieldModuleBottomSheetView {
-    private func earnInfoToolbarTitleView(status: String) -> some View {
+    private func earnInfoHeader(status: String) -> some View {
         ZStack {
             BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
 
@@ -242,7 +242,7 @@ private extension YieldModuleBottomSheetView {
         case .startEarning, .rateInfo:
             BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
         case .earnInfo(let params):
-            earnInfoToolbarTitleView(status: params.status)
+            earnInfoHeader(status: params.status)
         }
     }
 }
