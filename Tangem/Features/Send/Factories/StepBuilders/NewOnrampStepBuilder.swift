@@ -11,7 +11,7 @@ import TangemExpress
 
 struct NewOnrampStepBuilder {
     typealias IO = (input: OnrampInput, output: OnrampOutput)
-    typealias ReturnValue = (step: NewOnrampStep, interactor: OnrampInteractor)
+    typealias ReturnValue = (step: NewOnrampStep, interactor: NewOnrampInteractor)
 
     private let walletModel: any WalletModel
 
@@ -26,12 +26,12 @@ struct NewOnrampStepBuilder {
         onrampProvidersCompactViewModel: OnrampProvidersCompactViewModel,
         notificationManager: some NotificationManager
     ) -> ReturnValue {
-        let interactor = CommonOnrampInteractor(input: io.input, output: io.output, providersInput: providersInput)
+        let interactor = CommonNewOnrampInteractor(input: io.input, output: io.output, providersInput: providersInput)
         let viewModel = NewOnrampViewModel(
             onrampAmountViewModel: onrampAmountViewModel,
-            onrampProvidersCompactViewModel: onrampProvidersCompactViewModel,
-            notificationManager: notificationManager,
-            interactor: interactor
+            tokenItem: walletModel.tokenItem,
+            interactor: interactor,
+            notificationManager: notificationManager
         )
         let step = NewOnrampStep(tokenItem: walletModel.tokenItem, viewModel: viewModel, interactor: interactor)
 

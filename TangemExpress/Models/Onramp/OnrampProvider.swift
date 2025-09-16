@@ -12,6 +12,7 @@ public class OnrampProvider {
     public let provider: ExpressProvider
     public let paymentMethod: OnrampPaymentMethod
 
+    public private(set) var processingTimeType: ProcessingTimeType?
     public private(set) var attractiveType: AttractiveType?
 
     private let manager: OnrampProviderManager
@@ -34,6 +35,11 @@ public class OnrampProvider {
 // MARK: - AttractiveType
 
 public extension OnrampProvider {
+    enum ProcessingTimeType: Hashable, CustomStringConvertible {
+        case fastest
+        case time(minutes: Int)
+    }
+
     enum AttractiveType: Hashable, CustomStringConvertible {
         case best
         case loss(percent: Decimal)

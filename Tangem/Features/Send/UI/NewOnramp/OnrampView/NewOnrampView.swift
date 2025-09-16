@@ -13,21 +13,14 @@ import TangemAccessibilityIdentifiers
 
 struct NewOnrampView: View {
     @ObservedObject var viewModel: NewOnrampViewModel
-
-    let transitionService: SendTransitionService
-    let namespace: Namespace
     @FocusState.Binding var keyboardActive: Bool
 
     var body: some View {
-        GroupedScrollView(spacing: 14) {
+        GroupedScrollView(spacing: 12) {
             NewOnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
+                .padding(.top, 12)
 
-            if viewModel.viewState == .offers {
-                OnrampProvidersCompactView(
-                    viewModel: viewModel.onrampProvidersCompactViewModel
-                )
-                .transition(transitionService.newSummaryViewTransition())
-            }
+            providersView
 
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
@@ -42,19 +35,51 @@ struct NewOnrampView: View {
     }
 
     @ViewBuilder
-    private var bottomContainer: some View {
-        if viewModel.viewState == .amount {
-            VStack(spacing: 8) {
-                legalView
+    private var providersView: some View {
+        switch viewModel.viewState {
+        case .amount:
+            EmptyView()
+        case .suggestedOffers(let offers):
+            if let recent = offers.recent {
+                VStack(spacing: 8) {
+                    DefaultHeaderView(Localization.onrampRecentlyUsedTitle)
 
-                MainButton(title: Localization.commonContinue) {
-                    keyboardActive = false
-                    viewModel.usedDidTapContinue()
+                    OnrampOfferView(viewModel: recent)
                 }
+                .padding(.top, 12)
             }
-            .padding(.bottom, 14)
-            .padding(.horizontal, 16)
+
+            if !offers.recommended.isEmpty {
+                VStack(spacing: 8) {
+                    DefaultHeaderView(Localization.onrampRecommendedTitle)
+
+                    ForEach(offers.recommended) {
+                        OnrampOfferView(viewModel: $0)
+                    }
+                }
+                .padding(.top, 12)
+            }
+
+            MainButton(title: Localization.onrampAllOffersButtonTitle) {
+                viewModel.userDidTapAllOffersButton()
+            }
         }
+    }
+
+    @ViewBuilder
+    private var bottomContainer: some View {
+        VStack(spacing: 16) {
+            Text(.init("Service is provided by an external provider.\nTangem is not responsible."))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 14)
+
+            MainButton(title: Localization.commonContinue) {
+                keyboardActive = false
+                viewModel.usedDidTapContinue()
+            }
+        }
+        .padding(.bottom, 14)
+        .padding(.horizontal, 16)
     }
 
     @ViewBuilder

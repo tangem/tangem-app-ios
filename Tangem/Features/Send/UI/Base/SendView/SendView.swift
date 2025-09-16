@@ -43,6 +43,7 @@ struct SendView: View {
             ToolbarItem(placement: .topBarTrailing) { trailingView }
             ToolbarItem(placement: .keyboard) { keyboardToolbarView }
         }
+        .animation(.default, value: focused)
         .animation(SendTransitionService.Constants.defaultAnimation, value: viewModel.step.type)
         .animation(.none, value: viewModel.navigationBarSettings)
         .animation(.none, value: viewModel.bottomBarSettings)
@@ -204,8 +205,6 @@ struct SendView: View {
         case .newOnramp(let onrampViewModel):
             NewOnrampView(
                 viewModel: onrampViewModel,
-                transitionService: transitionService,
-                namespace: .init(id: namespace, names: SendGeometryEffectNames()),
                 keyboardActive: $focused
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }

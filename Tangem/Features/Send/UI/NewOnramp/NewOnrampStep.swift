@@ -12,12 +12,12 @@ import Combine
 final class NewOnrampStep {
     private let tokenItem: TokenItem
     private let viewModel: NewOnrampViewModel
-    private let interactor: OnrampInteractor
+    private let interactor: NewOnrampInteractor
 
     init(
         tokenItem: TokenItem,
         viewModel: NewOnrampViewModel,
-        interactor: OnrampInteractor
+        interactor: NewOnrampInteractor
     ) {
         self.tokenItem = tokenItem
         self.viewModel = viewModel

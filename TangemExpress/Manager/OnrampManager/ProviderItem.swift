@@ -135,4 +135,41 @@ public extension ProvidersList {
             provider.update(supportedMethods: supportedMethods)
         }
     }
+
+    /// Providers will be sorted and their `attractiveType` will be updated
+    func updateAttractiveTypes() {
+        let providers = flatMap { $0.providers }
+
+        // Only if we have more than one providers with quote
+        guard providers.filter(\.isSuccessfullyLoaded).count > 1 else {
+            providers.forEach { $0.update(attractiveType: .none) }
+            return
+        }
+
+        let bestQuote: Decimal? = providers.compactMap { $0.quote?.expectedAmount }.max()
+
+        forEach {
+            $0.sort().forEach { provider in
+                switch provider.state {
+                case .loaded(let quote) where quote.expectedAmount == bestQuote:
+                    provider.update(attractiveType: .best)
+
+                case .loaded(let quote) where bestQuote != nil:
+                    let percent = quote.expectedAmount / bestQuote! - 1
+                    provider.update(attractiveType: .loss(percent: percent))
+
+                default:
+                    provider.update(attractiveType: .none)
+                }
+            }
+        }
+    }
+
+    func best() -> OnrampProvider? {
+        flatMap { $0.providers }.first(where: { $0.attractiveType == .best })
+    }
+
+    func fastest() -> OnrampProvider? {
+        flatMap { $0.providers }.first(where: { $0.processingTimeType == .fastest })
+    }
 }
