@@ -31,12 +31,12 @@ public struct GridItemImage: Identifiable, Equatable {
 
 public enum GridItemImageKind: Equatable {
     case image(ImageType)
-    case letter(ImageType)
+    case letter(view: ImageType)
 
     public var imageType: ImageType {
         switch self {
         case .image(let imageType): imageType
-        case .letter(let imageType): imageType
+        case .letter(let view): view
         }
     }
 }

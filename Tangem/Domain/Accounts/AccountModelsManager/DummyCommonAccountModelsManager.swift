@@ -19,6 +19,10 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         return AnyPublisher.just(output: [])
     }
 
+    var totalCryptoAccountsCount: Int {
+        return 0
+    }
+
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws {
         throw CommonError.notImplemented
     }
