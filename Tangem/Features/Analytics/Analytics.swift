@@ -198,7 +198,9 @@ class Analytics {
             case .amplitude:
                 AmplitudeWrapper.shared.track(eventType: event, eventProperties: params)
             case .appsFlyer:
-                AppsFlyerLib.shared().logEvent(event, withValues: params)
+                let convertedEvent = AppsFlyerAnalyticsEventConverter.convert(event: event)
+                let convertedParams = AppsFlyerAnalyticsEventConverter.convert(params: params)
+                AppsFlyerLib.shared().logEvent(convertedEvent, withValues: convertedParams)
             }
         }
 
