@@ -325,7 +325,7 @@ extension VisaUserWalletModel {
         }
 
         let authorizationTokens: VisaAuthorizationTokens
-        if let savedRefreshToken = visaRefreshTokenRepository.getToken(forCardId: cardId), savedRefreshToken != cardInfoAuthorizationTokens.refreshToken {
+        if let savedRefreshToken = visaRefreshTokenRepository.getToken(forVisaRefreshTokenId: .cardId(cardId)), savedRefreshToken != cardInfoAuthorizationTokens.refreshToken {
             authorizationTokens = .init(accessToken: nil, refreshToken: savedRefreshToken, authorizationType: .cardWallet)
         } else {
             authorizationTokens = cardInfoAuthorizationTokens
@@ -406,8 +406,8 @@ extension VisaUserWalletModel {
 }
 
 extension VisaUserWalletModel: VisaRefreshTokenSaver {
-    func saveRefreshTokenToStorage(refreshToken: String, cardId: String) throws {
-        try visaRefreshTokenRepository.save(refreshToken: refreshToken, cardId: cardId)
+    func saveRefreshTokenToStorage(refreshToken: String, visaRefreshTokenId: VisaRefreshTokenId) throws {
+        try visaRefreshTokenRepository.save(refreshToken: refreshToken, visaRefreshTokenId: visaRefreshTokenId)
     }
 }
 
