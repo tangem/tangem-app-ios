@@ -45,15 +45,7 @@ extension CommonNewOnrampInteractor: NewOnrampInteractor {
         return providersInput
             .onrampProvidersPublisher
             .withWeakCaptureOf(self)
-            .map { interactor, providers in
-                switch providers {
-                case .none, .failure: .success(.empty)
-                case .loading: .loading
-                case .success(let providers): .success(
-                        interactor.mapToSuggestedOffers(providers: providers)
-                    )
-                }
-            }
+            .map { $0.mapToSuggestedOffers(providers: $1) }
             .eraseToAnyPublisher()
     }
 
@@ -84,23 +76,31 @@ extension CommonNewOnrampInteractor: NewOnrampInteractor {
 // MARK: - Private
 
 private extension CommonNewOnrampInteractor {
-    func mapToSuggestedOffers(providers: ProvidersList) -> OnrampInteractorSuggestedOffer {
-        let recent: OnrampProvider? = nil
-        let best = providers.best()
-        let fastest = providers.fastest()
+    func mapToSuggestedOffers(providers: LoadingResult<ProvidersList, Error>?) -> LoadingResult<OnrampInteractorSuggestedOffer, Never> {
+        switch providers {
+        case .none, .failure: return .success(.empty)
+        case .loading: return .loading
+        case .success(let list):
+            // [REDACTED_TODO_COMMENT]
+            let recent: OnrampProvider? = nil
+            let best = list.best()
+            let fastest = list.fastest()
 
-        return .init(
-            recent: recent,
-            recommended: [best, fastest].compactMap { $0 },
-            allOffersButton: providers.hasProviders()
-        )
+            let suggestedOffers = OnrampInteractorSuggestedOffer(
+                recent: recent,
+                recommended: [best, fastest].compactMap { $0 },
+                shouldShowAllOffersButton: list.hasProviders()
+            )
+
+            return .success(suggestedOffers)
+        }
     }
 }
 
 struct OnrampInteractorSuggestedOffer: Hashable {
-    static let empty = OnrampInteractorSuggestedOffer(recent: nil, recommended: [], allOffersButton: false)
+    static let empty = OnrampInteractorSuggestedOffer(recent: nil, recommended: [], shouldShowAllOffersButton: false)
 
     let recent: OnrampProvider?
     let recommended: [OnrampProvider]
-    let allOffersButton: Bool
+    let shouldShowAllOffersButton: Bool
 }

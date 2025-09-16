@@ -55,5 +55,21 @@ public extension OnrampPaymentMethod {
             case .googlePay: return -1
             }
         }
+
+        public var processingTime: ProcessingTime {
+            switch self {
+            case .applePay, .googlePay: .instant
+            case .invoiceRevolutPay: .instant
+            case .card: .minutes(30)
+            case .sepa: .days(3)
+            case .other: .days(1)
+            }
+        }
+    }
+
+    enum ProcessingTime: Hashable, Comparable {
+        case instant
+        case minutes(Int)
+        case days(Int)
     }
 }

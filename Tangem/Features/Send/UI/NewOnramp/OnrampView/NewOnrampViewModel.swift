@@ -20,6 +20,9 @@ final class NewOnrampViewModel: ObservableObject, Identifiable {
     @Published private(set) var notificationButtonIsLoading = false
     @Published private(set) var legalText: AttributedString?
 
+    @Published private var suggestedOffers: SuggestedOffers?
+    var continueButtonIsDisabled: Bool { suggestedOffers == nil }
+
     weak var router: OnrampSummaryRoutable?
 
     private let tokenItem: TokenItem
@@ -29,7 +32,6 @@ final class NewOnrampViewModel: ObservableObject, Identifiable {
     private let formatter: BalanceFormatter = .init()
     private let percentFormatter: PercentFormatter = .init()
 
-    private var suggestedOffers: SuggestedOffers?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -110,14 +112,15 @@ private extension NewOnrampViewModel {
             suggestedOffers = .init(
                 recent: offers.recent.map { mapToOnrampOfferViewModel(provider: $0) },
                 recommended: offers.recommended.map { mapToOnrampOfferViewModel(provider: $0) },
-                allOffersButton: offers.allOffersButton
+                shouldShowAllOffersButton: offers.shouldShowAllOffersButton
             )
         }
     }
 
     func mapToOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
-        let title: OnrampOfferViewModel.Title = switch provider.attractiveType {
-        case .best: .bestRate
+        let title: OnrampOfferViewModel.Title = switch (provider.attractiveType, provider.processingTimeType) {
+        case (.best, _): .bestRate
+        case (_, .fastest): .fastest
         default: .text(Localization.onrampTitleYouGet)
         }
 
@@ -138,10 +141,16 @@ private extension NewOnrampViewModel {
             }
         }()
 
+        let timeFormatted: String = switch provider.paymentMethod.type.processingTime {
+        case .instant: Localization.onrampInstantStatus
+        case .days(let days): Localization.onrampTimingDays(days)
+        case .minutes(let minutes): Localization.onrampTimingMinutes(minutes)
+        }
+
         let provider: OnrampOfferViewModel.Provider = .init(
             name: provider.provider.name,
             paymentType: provider.paymentMethod,
-            timeFormatted: "1-3 min"
+            timeFormatted: timeFormatted
         )
 
         return OnrampOfferViewModel(
@@ -177,10 +186,10 @@ extension NewOnrampViewModel {
     }
 
     struct SuggestedOffers: Hashable {
-        static let empty = SuggestedOffers(recent: nil, recommended: [], allOffersButton: false)
+        static let empty = SuggestedOffers(recent: nil, recommended: [], shouldShowAllOffersButton: false)
 
         let recent: OnrampOfferViewModel?
         let recommended: [OnrampOfferViewModel]
-        let allOffersButton: Bool
+        let shouldShowAllOffersButton: Bool
     }
 }

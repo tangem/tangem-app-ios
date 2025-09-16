@@ -30,6 +30,10 @@ public class OnrampProvider {
     func update(attractiveType: AttractiveType?) {
         self.attractiveType = attractiveType
     }
+
+    func update(processingTimeType: ProcessingTimeType?) {
+        self.processingTimeType = processingTimeType
+    }
 }
 
 // MARK: - AttractiveType
@@ -37,7 +41,6 @@ public class OnrampProvider {
 public extension OnrampProvider {
     enum ProcessingTimeType: Hashable, CustomStringConvertible {
         case fastest
-        case time(minutes: Int)
     }
 
     enum AttractiveType: Hashable, CustomStringConvertible {

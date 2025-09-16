@@ -205,7 +205,8 @@ struct SendView: View {
         case .newOnramp(let onrampViewModel):
             NewOnrampView(
                 viewModel: onrampViewModel,
-                keyboardActive: $focused
+                keyboardActive: $focused,
+                transitionService: transitionService,
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
             .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }

@@ -165,6 +165,20 @@ public extension ProvidersList {
         }
     }
 
+    func updateProcessingTimeTypes() {
+        let providers = flatMap { $0.providers }
+        let fastest = providers.sorted(by: \.paymentMethod.type.processingTime).first
+
+        providers.forEach { provider in
+            switch provider {
+            case let provider where provider == fastest:
+                provider.update(processingTimeType: .fastest)
+            case let provider:
+                provider.update(processingTimeType: .none)
+            }
+        }
+    }
+
     func best() -> OnrampProvider? {
         flatMap { $0.providers }.first(where: { $0.attractiveType == .best })
     }

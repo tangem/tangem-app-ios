@@ -127,6 +127,7 @@ private extension CommonOnrampManager {
 
         // General attractiveTypes
         providers.updateAttractiveTypes()
+        providers.updateProcessingTimeTypes()
 //        providers.forEach { $0.updateAttractiveTypes() }
 
         if let paymentMethodType = preferredValues.paymentMethodType {

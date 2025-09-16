@@ -16,12 +16,15 @@ struct NewOnrampView: View {
     @ObservedObject var viewModel: NewOnrampViewModel
     @FocusState.Binding var keyboardActive: Bool
 
+    let transitionService: SendTransitionService
+
     var body: some View {
         GroupedScrollView(spacing: 12) {
             NewOnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
                 .padding(.top, 12)
 
             providersView
+                .transition(transitionService.newFinishViewTransition())
 
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
@@ -62,8 +65,10 @@ struct NewOnrampView: View {
                 .padding(.top, 12)
             }
 
-            MainButton(title: Localization.onrampAllOffersButtonTitle, style: .secondary) {
-                viewModel.userDidTapAllOffersButton()
+            if offers.shouldShowAllOffersButton {
+                MainButton(title: Localization.onrampAllOffersButtonTitle, style: .secondary) {
+                    viewModel.userDidTapAllOffersButton()
+                }
             }
         }
     }
@@ -78,7 +83,10 @@ struct NewOnrampView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 14)
 
-                MainButton(title: Localization.commonContinue) {
+                MainButton(
+                    title: Localization.commonContinue,
+                    isDisabled: viewModel.continueButtonIsDisabled
+                ) {
                     keyboardActive = false
                     viewModel.usedDidTapContinue()
                 }
