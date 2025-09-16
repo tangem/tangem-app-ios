@@ -135,7 +135,7 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
             }
             return nil
 
-        case .feePolicy, .rateInfo:
+        case .feePolicy, .rateInfo, .balanceInfo:
             return nil
         }
     }
@@ -149,6 +149,7 @@ extension YieldModuleBottomSheetViewModel {
         case earnInfo(params: YieldModuleParams.EarnInfoParams)
         case stopEarning(params: YieldModuleParams.СommonParams)
         case approve(params: YieldModuleParams.СommonParams)
+        case balanceInfo(params: YieldModuleParams.BalanceInfoParams)
 
         // MARK: - Identifiable
 
@@ -166,6 +167,8 @@ extension YieldModuleBottomSheetViewModel {
                 "stopEarning"
             case .approve:
                 "approve"
+            case .balanceInfo:
+                "balanceInfo"
             }
         }
 
