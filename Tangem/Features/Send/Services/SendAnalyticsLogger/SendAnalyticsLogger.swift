@@ -86,6 +86,7 @@ protocol SendDestinationAnalyticsLogger {
 
 protocol SendAmountAnalyticsLogger {
     func logTapMaxAmount()
+    func logTapConvertToAnotherToken()
 
     func logAmountStepOpened()
     func logAmountStepReopened()
