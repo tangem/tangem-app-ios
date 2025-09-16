@@ -12,6 +12,7 @@ extension AccountsDTO.Request {
     struct Accounts: Encodable {
         struct Account: Encodable {
             let id: String
+            /// Nil, if the account uses a locally localized name.
             let name: String?
             let icon: String
             let iconColor: String
