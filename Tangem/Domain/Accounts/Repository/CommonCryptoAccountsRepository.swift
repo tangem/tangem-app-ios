@@ -17,7 +17,7 @@ final class CommonCryptoAccountsRepository {
     private let tokenItemsRepository: TokenItemsRepository
     private let networkService: CryptoAccountsNetworkService
     private let storage: CryptoAccountsPersistentStorage
-    private let storageDidUpdateSubject: StorageDidUpdateSubject
+    private let storageDidUpdateSubject: CryptoAccountsPersistentStorage.StorageDidUpdateSubject
 
     private lazy var _cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> = storageDidUpdateSubject
         .withWeakCaptureOf(self)
@@ -30,7 +30,7 @@ final class CommonCryptoAccountsRepository {
         networkService: CryptoAccountsNetworkService,
         storage: CryptoAccountsPersistentStorage
     ) {
-        storageDidUpdateSubject = StorageDidUpdateSubject()
+        storageDidUpdateSubject = CryptoAccountsPersistentStorage.StorageDidUpdateSubject()
         self.tokenItemsRepository = tokenItemsRepository
         self.networkService = networkService
         self.storage = storage
