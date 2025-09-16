@@ -32,7 +32,7 @@ struct YieldModuleBottomSheetView: View {
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
             content: { mainContent },
-            topPadding: topPadding,
+            contentTopPadding: contentTopPadding,
             horizontalPadding: horizontalPadding,
             buttonTopPadding: buttonTopPadding
         )
@@ -42,10 +42,10 @@ struct YieldModuleBottomSheetView: View {
         }
     }
 
-    private var topPadding: CGFloat {
+    private var contentTopPadding: CGFloat {
         switch viewModel.flow {
         case .earnInfo:
-            18
+            8
         default:
             24
         }
@@ -65,7 +65,7 @@ struct YieldModuleBottomSheetView: View {
         case .earnInfo:
             16
         default:
-            24
+            32
         }
     }
 
