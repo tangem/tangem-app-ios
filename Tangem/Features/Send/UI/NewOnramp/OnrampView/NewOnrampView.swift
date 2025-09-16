@@ -85,6 +85,7 @@ struct NewOnrampView: View {
 
                 MainButton(
                     title: Localization.commonContinue,
+                    isLoading: viewModel.notificationButtonIsLoading,
                     isDisabled: viewModel.continueButtonIsDisabled
                 ) {
                     keyboardActive = false

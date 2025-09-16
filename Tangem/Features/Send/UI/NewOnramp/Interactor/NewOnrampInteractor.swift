@@ -15,6 +15,8 @@ protocol NewOnrampInteractor: AnyObject {
 
     var isLoadingPublisher: AnyPublisher<Bool, Never> { get }
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
+
+    func userDidRequestOnramp(provider: OnrampProvider)
 }
 
 class CommonNewOnrampInteractor {
@@ -70,6 +72,10 @@ extension CommonNewOnrampInteractor: NewOnrampInteractor {
         )
         .map { $0 || $1 }
         .eraseToAnyPublisher()
+    }
+
+    func userDidRequestOnramp(provider: OnrampProvider) {
+        output?.userDidRequestOnramp(provider: provider)
     }
 }
 

@@ -147,17 +147,15 @@ private extension NewOnrampViewModel {
         case .minutes(let minutes): Localization.onrampTimingMinutes(minutes)
         }
 
-        let provider: OnrampOfferViewModel.Provider = .init(
+        let offerProvider: OnrampOfferViewModel.Provider = .init(
             name: provider.provider.name,
             paymentType: provider.paymentMethod,
             timeFormatted: timeFormatted
         )
 
-        return OnrampOfferViewModel(
-            title: title,
-            amount: amount,
-            provider: provider
-        ) {}
+        return OnrampOfferViewModel(title: title, amount: amount, provider: offerProvider) { [weak self] in
+            self?.interactor.userDidRequestOnramp(provider: provider)
+        }
     }
 
     func updateViewState(isLoading: Bool) {

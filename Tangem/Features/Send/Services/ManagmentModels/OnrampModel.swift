@@ -14,6 +14,7 @@ import TangemFoundation
 protocol OnrampModelRoutable: AnyObject {
     func openOnrampCountryBottomSheet(country: OnrampCountry)
     func openOnrampCountrySelectorView()
+    func openOnrampRedirecting()
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void)
     func openFinishStep()
 }
@@ -523,7 +524,12 @@ extension OnrampModel: OnrampInput {
 
 // MARK: - OnrampOutput
 
-extension OnrampModel: OnrampOutput {}
+extension OnrampModel: OnrampOutput {
+    func userDidRequestOnramp(provider: OnrampProvider) {
+        _selectedOnrampProvider.send(.success(provider))
+        router?.openOnrampRedirecting()
+    }
+}
 
 // MARK: - SendFinishInput
 
