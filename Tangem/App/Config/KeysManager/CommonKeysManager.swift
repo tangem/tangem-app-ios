@@ -67,6 +67,10 @@ extension CommonKeysManager: KeysManager {
         keys.amplitudeApiKey
     }
 
+    var appsFlyerConfig: AppsFlyerConfig {
+        keys.appsFlyer
+    }
+
     var utorgSID: String {
         "tangemTEST"
     }
