@@ -58,7 +58,7 @@ extension YieldModuleBottomSheetView {
             case .approveNeeded:
                 return 8
             case .notEnoughFeeCurrency:
-                return 20
+                return 26
             }
         }
 
@@ -108,7 +108,7 @@ extension YieldModuleBottomSheetView {
         private var icon: Image {
             switch params {
             case .approveNeeded:
-                return Assets.WalletConnect.yellowWarningCircle.image
+                return Assets.attention.image
             case .notEnoughFeeCurrency(_, let tokenIcon, _):
                 return tokenIcon
             }
@@ -123,7 +123,7 @@ extension YieldModuleBottomSheetView {
         }
 
         private var button: some View {
-            MainButton(title: buttonTitleText, style: buttonStyleColor, action: buttonAction)
+            MainButton(title: buttonTitleText, style: buttonStyleColor, size: .notification, action: buttonAction)
         }
     }
 }
