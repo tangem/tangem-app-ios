@@ -88,6 +88,8 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     }
 
     func userDidTapReceivedTokenSelection() {
+        analyticsLogger.logTapConvertToAnotherToken()
+
         router?.openReceiveTokensList()
     }
 
