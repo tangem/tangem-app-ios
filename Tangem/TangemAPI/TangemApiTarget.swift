@@ -113,9 +113,9 @@ struct TangemApiTarget: TargetType {
         // MARK: - Accounts
         case .getUserAccounts(let userWalletId),
              .saveUserAccounts(let userWalletId, _, _):
-            return "wallets/\(userWalletId)/accounts"
+            return "/wallets/\(userWalletId)/accounts"
         case .getArchivedUserAccounts(let userWalletId):
-            return "wallets/\(userWalletId)/accounts/archived"
+            return "/wallets/\(userWalletId)/accounts/archived"
         }
     }
 
