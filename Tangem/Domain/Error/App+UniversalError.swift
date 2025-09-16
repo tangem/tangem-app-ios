@@ -162,10 +162,12 @@ extension AccountsAwareUserTokensManager.Error: UniversalError {
             100011001
         case .failedSupportedLongHashesTokens:
             100011002
-        case .derivationPathNotFound:
+        case .derivationNotSupported:
             100011003
-        case .accountDerivationNodeMismatch:
+        case .derivationPathNotFound:
             100011004
+        case .accountDerivationNodeMismatch:
+            100011005
         }
     }
 }
