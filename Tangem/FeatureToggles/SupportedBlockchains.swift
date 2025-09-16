@@ -70,6 +70,7 @@ struct SupportedBlockchains {
         [
             .vanar(testnet: false),
             .zkLinkNova(testnet: false),
+            .quai(testnet: false),
         ]
     }
 
@@ -226,6 +227,7 @@ struct SupportedBlockchains {
             .zkLinkNova(testnet: true),
             .pepecoin(testnet: true),
             .hyperliquidEVM(testnet: true),
+            .quai(testnet: true),
         ]
     }
 
