@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
+import TangemFoundation
 
 final class WalletConnectSolanaSignTransactionHandler {
     private let walletModel: any WalletModel
@@ -95,7 +96,7 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
 
 private extension WalletConnectSolanaSignTransactionHandler {
     func prepareTransactionToSign(_ transaction: String) throws -> (Data, Int) {
-        let data = try Data(transaction.base64Decoded())
+        let data = try transaction.base64DecodedData()
         return try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
     }
 
