@@ -14,4 +14,5 @@ protocol TokenDetailsRoutable: AnyObject {
     func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel)
     func openYieldModulePromoView(walletModel: any WalletModel, info: YieldModuleInfo)
     func openYieldEarnInfo(params: YieldModuleParams.EarnInfoParams)
+    func openYieldBalanceInfo(params: YieldModuleParams.BalanceInfoParams)
 }
