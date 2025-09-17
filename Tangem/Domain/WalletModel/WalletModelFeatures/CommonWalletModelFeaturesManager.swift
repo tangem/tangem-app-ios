@@ -94,14 +94,14 @@ final class CommonWalletModelFeaturesManager {
         if isYieldModuleAvailable,
            let token = tokenItem.token,
            let ethereumNetworkProvider = walletManager as? EthereumNetworkProvider,
-           let yieldTokenService = (walletManager as YieldServiceProvider).yieldService,
+           let yieldSupplyProvider = (walletManager as YieldServiceProvider).yieldSupplyProvider,
            let ethereumTransactionDataBuilder = walletManager as? EthereumTransactionDataBuilder {
             let factory = _yieldModuleManagerFactory ?? CommonYieldModuleWalletManagerFactory(
                 token: token,
                 blockchain: tokenItem.blockchain,
                 signer: userWalletConfig.tangemSigner,
                 ethereumNetworkProvider: ethereumNetworkProvider,
-                yieldTokenService: yieldTokenService,
+                yieldSupplyProvider: yieldSupplyProvider,
                 ethereumTransactionDataBuilder: ethereumTransactionDataBuilder
             )
             _yieldModuleManagerFactory = factory

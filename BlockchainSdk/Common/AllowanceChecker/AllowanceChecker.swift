@@ -95,7 +95,7 @@ public struct AllowanceChecker {
         switch amountType {
         case .coin: blockchain.decimalValue
         case .token(let token): token.decimalValue
-        case .feeResource, .reserve: throw AllowanceCheckerError.wrongAmountType
+        case .feeResource, .reserve, .tokenYieldSupply: throw AllowanceCheckerError.wrongAmountType
         }
     }
 }

@@ -169,7 +169,7 @@ final class YieldTransactionProvider {
         yieldModule: String,
         fee: ExitFee
     ) async throws -> [Transaction] {
-        let method = WithdrawAndDeactivateMethod(yieldTokenAddress: contractAddress)
+        let method = WithdrawAndDeactivateMethod(yieldModuleAddress: contractAddress)
 
         return try await [transaction(contractAddress: yieldModule, txData: method.data, fee: fee.fee)]
     }
@@ -204,7 +204,7 @@ private extension YieldTransactionProvider {
 
     func initModuleTransaction(contractAddress: String, yieldModule: String, fee: Fee) async throws -> Transaction {
         let smartContract = InitYieldTokenMethod(
-            yieldTokenAddress: contractAddress,
+            yieldModuleAddress: contractAddress,
             maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue)!
         )
 
@@ -230,7 +230,7 @@ private extension YieldTransactionProvider {
         fee: Fee
     ) async throws -> Transaction {
         let smartContract = InitYieldTokenMethod(
-            yieldTokenAddress: contractAddress,
+            yieldModuleAddress: contractAddress,
             maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue)!
         )
 
@@ -243,7 +243,7 @@ private extension YieldTransactionProvider {
         fee: Fee
     ) async throws -> Transaction {
         let enterAction = EnterProtocolMethod(
-            yieldTokenAddress: contractAddress
+            yieldModuleAddress: contractAddress
         )
 
         return try await transaction(contractAddress: yieldModule, txData: enterAction.data, fee: fee)
