@@ -46,7 +46,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openOnramp(walletModel: any WalletModel) {
-        coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel)
+        coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel, parameters: .none)
     }
 
     func openSend(walletModel: any WalletModel) {
