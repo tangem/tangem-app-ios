@@ -821,6 +821,7 @@
 "onramp_currency_popular" = "人気の法定通貨";
 "onramp_currency_search" = "通貨で検索";
 "onramp_instant_status" = "即時";
+"onramp_legal_text" = "Service is provided by an external provider.\nTangem is not responsible.";
 "onramp_legal" = "オンランプ機能を使用することにより、プロバイダの%1$@および%2$@に同意するものとします";
 "onramp_max_amount_restriction" = "買付金額は%@以下にしてください";
 "onramp_min_amount_restriction" = "買付金額は少なくとも%@である必要があります";
