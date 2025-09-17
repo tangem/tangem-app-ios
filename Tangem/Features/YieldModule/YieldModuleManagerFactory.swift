@@ -12,7 +12,7 @@ import BlockchainSdk
 protocol YieldModuleWalletManagerFactory {
     func make(
         walletModel: any WalletModel
-    ) -> YieldModuleWalletManager
+    ) throws -> YieldModuleWalletManager
 }
 
 struct CommonYieldModuleWalletManagerFactory: YieldModuleWalletManagerFactory {
@@ -41,14 +41,14 @@ struct CommonYieldModuleWalletManagerFactory: YieldModuleWalletManagerFactory {
 
     func make(
         walletModel: any WalletModel
-    ) -> YieldModuleWalletManager {
+    ) throws -> YieldModuleWalletManager {
         let dispatcher = YieldModuleTransactionDispatcher(
             walletModel: walletModel,
             transactionSigner: signer
         )
 
-        return CommonYieldModuleWalletManager(
-            walletAddress: walletModel.defaultAddressString,
+        return try CommonYieldModuleWalletManager(
+            walletModel: walletModel,
             token: token,
             blockchain: blockchain,
             yieldSupplyProvider: yieldSupplyProvider,

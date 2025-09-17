@@ -205,13 +205,28 @@ extension TokenDetailsViewModel {
         Task {
             do {
                 await manager.updateState()
-                guard let yieldModule = manager.state?.yieldModule else { return }
+                switch manager.state {
+                case .enabled(let state):
+                    let smartContractState = state.yieldSupply
+                    switch state.yieldSupply?.type {
+                    case .none:
+                        let fee = try await manager.enterFee()
+                        let result = try await manager.enter(fee: fee)
+                        print(result)
+                    case .tokenYieldSupply(let supply):
+                        let fee = try await manager.exitFee()
+                        let result = try await manager.exit(fee: fee)
+                        print(result)
+                    default: break
+                    }
+                case .disabled, .none, .loading, .failedToLoad:
+                    let fee = try await manager.enterFee()
+                    let result = try await manager.enter(fee: fee)
+                    print(result)
+                }
 //                let fee = try await manager.exitFee(yieldModule: yieldModule)
 //                let result = try await manager.exit(yieldModule: yieldModule, fee: fee)
 
-                let fee = try await manager.enterFee()
-                let result = try await manager.enter(fee: fee)
-                print(result)
             } catch {
                 print(error)
             }

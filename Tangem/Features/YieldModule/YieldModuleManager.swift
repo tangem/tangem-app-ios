@@ -68,7 +68,7 @@ private extension CommonYieldModuleManager {
                 return features.reduce(into: [TokenItem: YieldModuleWalletManager]()) { partialResult, element in
                     let (walletModel, features) = element
                     let factory = features.compactMap(\.yieldModuleFactory).first
-                    partialResult[walletModel.tokenItem] = currentYieldWalletManagers[walletModel.tokenItem]
+                    partialResult[walletModel.tokenItem] = try? currentYieldWalletManagers[walletModel.tokenItem]
                         ?? factory?.make(walletModel: walletModel)
                 }
             }
