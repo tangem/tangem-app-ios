@@ -821,6 +821,7 @@
 "onramp_currency_popular" = "Beliebte Fiats";
 "onramp_currency_search" = "Suche nach Währung";
 "onramp_instant_status" = "Instant";
+"onramp_legal_text" = "Service is provided by an external provider.\nTangem is not responsible.";
 "onramp_legal" = "Durch die Nutzung der Onramp-Funktionalität stimmst Du den %1$@ und %2$@ des Anbieters zu.";
 "onramp_max_amount_restriction" = "Der Kaufbetrag sollte nicht höher sein als %@";
 "onramp_min_amount_restriction" = "Der zu kaufende Betrag muss mindestens %@ betragen";
