@@ -18,7 +18,7 @@ final class YieldModulePromoViewModel {
     private var lastYearReturns: [String: Double] = [:]
     private let networkFee: Decimal
     private let maximumFee: Decimal
-    private let feeCurrencyInfo: YieldModuleParams.FeeCurrencyInfo?
+    private let feeCurrencyInfo: YieldModuleViewConfigs.FeeCurrencyInfo?
 
     private(set) var tosUrl = URL(string: "https://tangem.com")!
     private(set) var privacyPolicyUrl = URL(string: "https://tangem.com")!
@@ -40,7 +40,7 @@ final class YieldModulePromoViewModel {
         lastYearReturns: [String: Double],
         networkFee: Decimal,
         maximumFee: Decimal,
-        feeCurrencyInfo: YieldModuleParams.FeeCurrencyInfo?,
+        feeCurrencyInfo: YieldModuleViewConfigs.FeeCurrencyInfo?,
         coordinator: YieldModulePromoCoordinator
     ) {
         self.walletModel = walletModel
@@ -105,5 +105,5 @@ struct YieldModuleInfo {
     let networkFee: Decimal
     let maximumFee: Decimal
     let lastYearReturns: [String: Double]
-    let feeCurrencyInfo: YieldModuleParams.FeeCurrencyInfo?
+    let feeCurrencyInfo: YieldModuleViewConfigs.FeeCurrencyInfo?
 }

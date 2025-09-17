@@ -190,7 +190,7 @@ struct YieldModuleBottomSheetView: View {
         }
     }
 
-    private var notificationBanner: YieldModuleParams.YieldModuleBottomSheetNotificationBannerParams? {
+    private var notificationBanner: YieldModuleViewConfigs.YieldModuleBottomSheetNotificationBannerParams? {
         viewModel.createNotificationBannerIfNeeded()
     }
 
