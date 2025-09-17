@@ -44,12 +44,13 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
     }
 
     func onShowFeePolicy(params: YieldModuleParams.StartEarningParams) {
-        flow = .feePolicy(params: .init(
-            tokenName: params.tokenName,
-            networkFee: params.networkFee,
-            maximumFee: params.maximumFee,
-            blockchainName: params.blockchainName
-        )
+        flow = .feePolicy(
+            params: .init(
+                tokenName: params.tokenName,
+                networkFee: params.networkFee,
+                maximumFee: params.maximumFee,
+                blockchainName: params.blockchainName
+            )
         )
     }
 
