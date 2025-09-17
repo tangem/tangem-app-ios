@@ -25,6 +25,7 @@ final class NewAuthViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
+    private let signInAnalyticsLogger = SignInAnalyticsLogger()
     private let unlockOnAppear: Bool
     private weak var coordinator: NewAuthRoutable?
 
@@ -39,10 +40,12 @@ final class NewAuthViewModel: ObservableObject {
 extension NewAuthViewModel {
     func onFirstAppear() {
         setup(state: makeInitialState())
+
+        let walletsCount = userWalletRepository.models.count
+        Analytics.log(event: .signInScreenOpened, params: [.walletCount: String(walletsCount)])
     }
 
     func onAppear() {
-        Analytics.log(.signInScreenOpened)
         incomingActionManager.becomeFirstResponder(self)
     }
 
@@ -128,6 +131,8 @@ private extension NewAuthViewModel {
             let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
             Analytics.beginLoggingCardScan(source: .auth)
             let unlockResult = await unlocker.unlock()
+
+            viewModel.signInAnalyticsLogger.logSignInEvent(signInType: unlocker.analyticsSignInType)
             await viewModel.handleUnlock(result: unlockResult, userWalletModel: userWalletModel)
         }
     }
@@ -198,7 +203,7 @@ private extension NewAuthViewModel {
 
 private extension NewAuthViewModel {
     func onUnlockWithBiometryTap() {
-        Analytics.log(.buttonBiometricSignIn)
+        Analytics.log(.signInButtonUnlockAllWithBiometrics)
         unlockWithBiometry()
     }
 
@@ -207,6 +212,9 @@ private extension NewAuthViewModel {
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
+
+                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
+
                 await viewModel.openMain(userWalletModel: userWalletModel)
             } catch {
                 await viewModel.handleUnlockWithBiometryResult(error: error)
@@ -279,14 +287,17 @@ private extension NewAuthViewModel {
     }
 
     func openCreateWallet() {
+        Analytics.log(.buttonAddWallet, params: [.action: .create])
         coordinator?.openCreateWallet()
     }
 
     func openImportWallet() {
+        Analytics.log(.buttonAddWallet, params: [.action: .import])
         coordinator?.openImportWallet()
     }
 
     func openBuyWallet() {
+        Analytics.log(.buttonAddWallet, params: [.action: .buy])
         Analytics.log(.shopScreenOpened)
         coordinator?.openShop()
     }
