@@ -331,6 +331,8 @@ extension VisaWalletModel: WalletModel {
         let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
         return addressInfos.map { .address($0) }
     }
+
+    var yieldService: YieldTokenService? { nil }
 }
 
 extension VisaWalletModel: Equatable {
