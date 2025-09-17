@@ -32,7 +32,9 @@ struct YieldModuleBottomSheetView: View {
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
             content: { mainContent },
-            horizontalPadding: horizontalPadding
+            contentTopPadding: contentTopPadding,
+            horizontalPadding: horizontalPadding,
+            buttonTopPadding: buttonTopPadding
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
@@ -40,8 +42,31 @@ struct YieldModuleBottomSheetView: View {
         }
     }
 
+    private var contentTopPadding: CGFloat {
+        switch viewModel.flow {
+        case .earnInfo:
+            8
+        default:
+            24
+        }
+    }
+
     private var horizontalPadding: CGFloat {
-        16
+        switch viewModel.flow {
+        case .earnInfo:
+            0
+        default:
+            16
+        }
+    }
+
+    private var buttonTopPadding: CGFloat {
+        switch viewModel.flow {
+        case .earnInfo:
+            16
+        default:
+            32
+        }
     }
 
     private var title: String? {
@@ -52,6 +77,8 @@ struct YieldModuleBottomSheetView: View {
             Localization.yieldModuleStartEarning
         case .feePolicy:
             Localization.yieldModuleFeePolicySheetTitle
+        case .earnInfo:
+            nil
         }
     }
 
@@ -63,6 +90,8 @@ struct YieldModuleBottomSheetView: View {
             Localization.yieldModuleStartEarningSheetDescription(params.tokenName)
         case .feePolicy(let params):
             Localization.yieldModuleFeePolicySheetDescription(params.tokenName)
+        case .earnInfo:
+            nil
         }
     }
 
@@ -71,7 +100,7 @@ struct YieldModuleBottomSheetView: View {
         switch viewModel.flow {
         case .rateInfo:
             rateInfoSubtitleFooter
-        case .feePolicy, .startEarning:
+        case .feePolicy, .startEarning, .earnInfo:
             EmptyView()
         }
     }
@@ -99,27 +128,15 @@ struct YieldModuleBottomSheetView: View {
                 style: .primary,
                 action: ctaButtonAction
             ))
-        }
-    }
-
-    private func earnInfoToolbarTitleView(status: String) -> some View {
-        VStack(spacing: .zero) {
-            Text(Localization.yieldModuleEarnSheetTitle).style(Fonts.Bold.headline, color: Colors.Text.primary1)
-
-            HStack(spacing: 4) {
-                Circle()
-                    .fill(Colors.Icon.accent)
-                    .frame(size: .init(bothDimensions: 8))
-
-                Text(status).style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-            }
+        case .earnInfo:
+            .init(settings: .init(title: Localization.yieldModuleStopEarning, style: .secondary, action: ctaButtonAction))
         }
     }
 
     @ViewBuilder
     private var topContent: some View {
         switch viewModel.flow {
-        case .rateInfo, .feePolicy:
+        case .rateInfo, .feePolicy, .earnInfo:
             EmptyView()
         case .startEarning(let params):
             startEarningTopContent(icon: params.tokenIcon)
@@ -137,6 +154,9 @@ struct YieldModuleBottomSheetView: View {
 
         case .feePolicy(let params):
             YieldModuleFeePolicyView(currentFee: params.networkFee, maximumFee: params.maximumFee, blockchainName: params.blockchainName)
+
+        case .earnInfo(let params):
+            YieldModuleEarnInfoView(params: params)
         }
     }
 
@@ -148,6 +168,8 @@ struct YieldModuleBottomSheetView: View {
             viewModel.onCloseTapAction
         case .feePolicy:
             viewModel.onBackAction
+        case .earnInfo(let params):
+            params.onStopEarningAction
         }
     }
 }
@@ -194,6 +216,26 @@ private extension Animation {
 // MARK: - Header
 
 private extension YieldModuleBottomSheetView {
+    private func earnInfoHeader(status: String) -> some View {
+        ZStack {
+            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
+
+            VStack(spacing: 3) {
+                Text(Localization.yieldModuleEarnSheetTitle)
+                    .style(Fonts.Bold.headline, color: Colors.Text.primary1)
+
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(Colors.Icon.accent)
+                        .frame(size: .init(bothDimensions: 8))
+
+                    Text(status)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                }
+            }
+        }
+    }
+
     @ViewBuilder
     func makeHeader(flow: YieldModuleBottomSheetViewModel.Flow) -> some View {
         switch flow {
@@ -201,6 +243,8 @@ private extension YieldModuleBottomSheetView {
             BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackAction() } })
         case .startEarning, .rateInfo:
             BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
+        case .earnInfo(let params):
+            earnInfoHeader(status: params.status)
         }
     }
 }
