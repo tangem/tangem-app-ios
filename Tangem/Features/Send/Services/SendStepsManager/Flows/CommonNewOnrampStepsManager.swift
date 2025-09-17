@@ -69,7 +69,7 @@ extension CommonNewOnrampStepsManager: SendStepsManager {
 
     var bottomBarSettings: SendStepBottomBarSettings {
         switch currentStep().type {
-        case .newOnramp: .init(action: .action)
+        case .newOnramp: .init(action: .none)
         case .finish: .init(action: .close)
         default: .empty
         }
