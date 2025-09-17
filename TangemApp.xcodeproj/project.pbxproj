@@ -3230,6 +3230,7 @@
 		EA3999392E76DB20008E4932 /* YieldModuleStartEarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3999382E76DB20008E4932 /* YieldModuleStartEarningView.swift */; };
 		EA39993B2E76DB4C008E4932 /* YieldModuleInterestRateInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA39993A2E76DB4C008E4932 /* YieldModuleInterestRateInfoView.swift */; };
 		EA39993D2E76DBC0008E4932 /* YieldModuleFeePolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA39993C2E76DBC0008E4932 /* YieldModuleFeePolicyView.swift */; };
+		EA3999402E770C34008E4932 /* YieldModuleEarnInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA39993F2E770C34008E4932 /* YieldModuleEarnInfoView.swift */; };
 		EA4032352E54C11E00573568 /* PromocodeActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4032332E54C11E00573568 /* PromocodeActivationView.swift */; };
 		EA4032372E54C13C00573568 /* PromocodeActivationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4032362E54C13C00573568 /* PromocodeActivationViewModel.swift */; };
 		EA4032592E55F02E00573568 /* PromoCodeActivationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4032582E55F02E00573568 /* PromoCodeActivationDTO.swift */; };
@@ -7408,6 +7409,7 @@
 		EA3999382E76DB20008E4932 /* YieldModuleStartEarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleStartEarningView.swift; sourceTree = "<group>"; };
 		EA39993A2E76DB4C008E4932 /* YieldModuleInterestRateInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleInterestRateInfoView.swift; sourceTree = "<group>"; };
 		EA39993C2E76DBC0008E4932 /* YieldModuleFeePolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleFeePolicyView.swift; sourceTree = "<group>"; };
+		EA39993F2E770C34008E4932 /* YieldModuleEarnInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleEarnInfoView.swift; sourceTree = "<group>"; };
 		EA4032332E54C11E00573568 /* PromocodeActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationView.swift; sourceTree = "<group>"; };
 		EA4032362E54C13C00573568 /* PromocodeActivationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationViewModel.swift; sourceTree = "<group>"; };
 		EA4032582E55F02E00573568 /* PromoCodeActivationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromoCodeActivationDTO.swift; sourceTree = "<group>"; };
@@ -19024,6 +19026,7 @@
 				EA3999382E76DB20008E4932 /* YieldModuleStartEarningView.swift */,
 				EA39993A2E76DB4C008E4932 /* YieldModuleInterestRateInfoView.swift */,
 				EA39993C2E76DBC0008E4932 /* YieldModuleFeePolicyView.swift */,
+				EA39993F2E770C34008E4932 /* YieldModuleEarnInfoView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -23792,6 +23795,7 @@
 				B0BA266E2BAD71630055C6C1 /* OnboardingAccessCodeViewModel.swift in Sources */,
 				EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */,
 				DAA5E30228D21369003C0E80 /* UserWalletStorageAgreementView.swift in Sources */,
+				EA3999402E770C34008E4932 /* YieldModuleEarnInfoView.swift in Sources */,
 				EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */,
 				EFF459E52E4B41E70050480C /* NewSellFlowBaseBuilder.swift in Sources */,
 				B0E20E122C2B01F600213580 /* PriceChangeUtility.swift in Sources */,
