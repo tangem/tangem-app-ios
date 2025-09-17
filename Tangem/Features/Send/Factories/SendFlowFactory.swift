@@ -31,7 +31,7 @@ struct SendFlowFactory {
         let sendAmountStepBuilder = SendAmountStepBuilder(walletModel: walletModel, builder: builder)
         let sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
         let sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)
-        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
+        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel, coordinator: router)
 
         let baseBuilder = SendFlowBaseBuilder(
             walletModel: walletModel,
@@ -57,7 +57,7 @@ struct SendFlowFactory {
         )
         let sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
         let sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)
-        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
+        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel, coordinator: router)
 
         let baseBuilder = NFTSendFlowBaseBuilder(
             walletModel: walletModel,
@@ -78,7 +78,7 @@ struct SendFlowFactory {
         let nftAssetStepBuilder = NFTAssetStepBuilder(wallet: walletInfo.name, asset: parameters.asset, collection: parameters.collection)
         let sendFeeStepBuilder = SendNewFeeStepBuilder(feeTokenItem: walletModel.feeTokenItem, builder: builder)
         let sendSummaryStepBuilder = SendNewSummaryStepBuilder(tokenItem: walletModel.tokenItem, builder: builder)
-        let sendFinishStepBuilder = SendNewFinishStepBuilder()
+        let sendFinishStepBuilder = SendNewFinishStepBuilder(tokenItem: walletModel.tokenItem, coordinator: router)
 
         let baseBuilder = NewNFTSendFlowBaseBuilder(
             walletModel: walletModel,
@@ -100,7 +100,7 @@ struct SendFlowFactory {
         let sendFeeStepBuilder = SendNewFeeStepBuilder(feeTokenItem: walletModel.feeTokenItem, builder: builder)
         let swapProvidersBuilder = SendSwapProvidersBuilder(tokenItem: walletModel.tokenItem, builder: builder)
         let sendSummaryStepBuilder = SendNewSummaryStepBuilder(tokenItem: walletModel.tokenItem, builder: builder)
-        let sendFinishStepBuilder = SendNewFinishStepBuilder()
+        let sendFinishStepBuilder = SendNewFinishStepBuilder(tokenItem: walletModel.tokenItem, coordinator: router)
 
         let baseBuilder = NewSendFlowBaseBuilder(
             walletModel: walletModel,
@@ -122,7 +122,7 @@ struct SendFlowFactory {
         let sendAmountStepBuilder = SendAmountStepBuilder(walletModel: walletModel, builder: builder)
         let sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
         let sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)
-        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
+        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel, coordinator: router)
 
         let baseBuilder = SellFlowBaseBuilder(
             walletModel: walletModel,
@@ -141,7 +141,7 @@ struct SendFlowFactory {
     func makeNewSellViewModel(sellParameters: PredefinedSellParameters, router: SendRoutable) -> SendViewModel {
         let sendFeeStepBuilder = SendNewFeeStepBuilder(feeTokenItem: walletModel.feeTokenItem, builder: builder)
         let sendSummaryStepBuilder = SendNewSummaryStepBuilder(tokenItem: walletModel.tokenItem, builder: builder)
-        let sendFinishStepBuilder = SendNewFinishStepBuilder()
+        let sendFinishStepBuilder = SendNewFinishStepBuilder(tokenItem: walletModel.tokenItem, coordinator: router)
 
         let baseBuilder = NewSellFlowBaseBuilder(
             walletModel: walletModel,
@@ -160,7 +160,7 @@ struct SendFlowFactory {
         let sendAmountStepBuilder = SendAmountStepBuilder(walletModel: walletModel, builder: builder)
         let sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
         let sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)
-        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
+        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel, coordinator: router)
 
         let baseBuilder = StakingFlowBaseBuilder(
             walletModel: walletModel,
@@ -180,7 +180,7 @@ struct SendFlowFactory {
         let sendAmountStepBuilder = SendAmountStepBuilder(walletModel: walletModel, builder: builder)
         let sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
         let sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)
-        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
+        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel, coordinator: router)
 
         let baseBuilder = UnstakingFlowBaseBuilder(
             walletModel: walletModel,
@@ -200,7 +200,7 @@ struct SendFlowFactory {
         let sendAmountStepBuilder = SendAmountStepBuilder(walletModel: walletModel, builder: builder)
         let sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
         let sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)
-        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
+        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel, coordinator: router)
 
         let baseBuilder = RestakingFlowBaseBuilder(
             walletModel: walletModel,
@@ -220,7 +220,7 @@ struct SendFlowFactory {
         let sendAmountStepBuilder = SendAmountStepBuilder(walletModel: walletModel, builder: builder)
         let sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
         let sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)
-        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
+        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel, coordinator: router)
 
         let baseBuilder = StakingSingleActionFlowBaseBuilder(
             walletModel: walletModel,
@@ -238,7 +238,7 @@ struct SendFlowFactory {
     func makeOnrampViewModel(parameters: PredefinedOnrampParameters, router: SendRoutable) -> SendViewModel {
         let onrampStepBuilder = OnrampStepBuilder(walletModel: walletModel)
         let onrampAmountBuilder = OnrampAmountBuilder(walletModel: walletModel, builder: builder)
-        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
+        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel, coordinator: router)
 
         let baseBuilder = OnrampFlowBaseBuilder(
             walletModel: walletModel,
@@ -255,7 +255,7 @@ struct SendFlowFactory {
     func makeNewOnrampViewModel(parameters: PredefinedOnrampParameters, router: SendRoutable) -> SendViewModel {
         let onrampStepBuilder = NewOnrampStepBuilder(walletModel: walletModel)
         let onrampAmountBuilder = OnrampAmountBuilder(walletModel: walletModel, builder: builder)
-        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
+        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel, coordinator: router)
 
         let baseBuilder = NewOnrampFlowBaseBuilder(
             walletModel: walletModel,
