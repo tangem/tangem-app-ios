@@ -58,6 +58,10 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
         request.stringRepresentation
     }
 
+    func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
+        return transaction
+    }
+
     func handle() async throws -> RPCResult {
         let (unsignedHash, signatureCount) = try prepareTransactionToSign(transaction)
 
