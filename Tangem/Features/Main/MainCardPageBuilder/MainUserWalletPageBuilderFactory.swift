@@ -61,7 +61,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             isUserWalletLocked: model.isUserWalletLocked,
             supplementInfoProvider: model,
             subtitleProvider: subtitleProvider,
-            balanceProvider: balanceProvider
+            balanceProvider: balanceProvider,
+            updatePublisher: model.updatePublisher
         )
 
         let rateAppController = CommonRateAppController(
@@ -108,15 +109,26 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 contextDataProvider: model
             )
 
-            let bannerNotificationManager = model.config.hasFeature(.multiCurrency)
-                ? BannerNotificationManager(userWalletId: model.userWalletId, placement: .main, contextDataProvider: model)
-                : nil
+            let bannerNotificationManager: BannerNotificationManager? = {
+                guard model.config.hasFeature(.multiCurrency) else {
+                    return nil
+                }
+
+                return BannerNotificationManager(
+                    userWallet: model,
+                    placement: .main,
+                    contextDataProvider: model
+                )
+            }()
+
+            let yieldModuleNotificationManager = WalletYieldNotificationManager()
 
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
+                yieldModuleNotificationManager: yieldModuleNotificationManager,
                 rateAppController: rateAppController,
                 tokenSectionsAdapter: sectionsAdapter,
                 tokenRouter: tokenRouter,
@@ -197,7 +209,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
             supplementInfoProvider: visaUserWalletModel,
             subtitleProvider: subtitleProvider,
-            balanceProvider: visaUserWalletModel
+            balanceProvider: visaUserWalletModel,
+            updatePublisher: visaUserWalletModel.updatePublisher
         )
 
         let viewModel = VisaWalletMainContentViewModel(
