@@ -270,7 +270,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .radiant,
              .fact0rn,
              .sui,
-             .pepecoin:
+             .pepecoin,
+             .alephium:
             return true
         default:
             return false

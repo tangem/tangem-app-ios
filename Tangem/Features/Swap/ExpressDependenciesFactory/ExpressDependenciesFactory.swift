@@ -12,4 +12,6 @@ protocol ExpressDependenciesFactory {
     var expressInteractor: ExpressInteractor { get }
     var expressAPIProvider: ExpressAPIProvider { get }
     var expressRepository: ExpressRepository { get }
+
+    var onrampRepository: OnrampRepository { get }
 }
