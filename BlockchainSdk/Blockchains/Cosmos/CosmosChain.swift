@@ -161,9 +161,9 @@ extension CosmosChain {
 
     var allowCW20Tokens: Bool {
         switch self {
-        case .terraV2, .terraV1, .sei:
+        case .terraV2, .sei:
             return true
-        case .cosmos, .gaia:
+        case .cosmos, .terraV1, .gaia:
             return false
         }
     }
