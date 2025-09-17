@@ -11,6 +11,7 @@ import Combine
 import CombineExt
 import TangemNFT
 import TangemFoundation
+import BlockchainSdk
 
 final class CommonWalletModelFeaturesManager {
     @Injected(\.nftAvailabilityProvider) private var nftAvailabilityProvider: NFTAvailabilityProvider
@@ -18,23 +19,12 @@ final class CommonWalletModelFeaturesManager {
     private let userWalletId: UserWalletId
     private let userWalletConfig: UserWalletConfig
     private let tokenItem: TokenItem
+    private let blockchainDataProvider: BlockchainDataProvider
+
+    private let featuresValueSubject: CurrentValueSubject<[WalletModelFeature], Never> = .init([])
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - NFT
-
-    private lazy var nftFeaturePublisher: some Publisher<[WalletModelFeature], Never> = nftAvailabilityProvider
-        .didChangeNFTAvailabilityPublisher
-        .receiveOnMain()
-        .withWeakCaptureOf(self)
-        .map { featuresManager, _ in
-            guard
-                featuresManager.isNFTAvailable,
-                let networkService = featuresManager.nftNetworkService
-            else {
-                return []
-            }
-
-            return [.nft(networkService: networkService)]
-        }
 
     /// Can change its value at runtime.
     private var isNFTEnabledForWallet: Bool {
@@ -61,24 +51,62 @@ final class CommonWalletModelFeaturesManager {
         return _nftNetworkService
     }
 
-    // MARK: - Staking
-
-    // [REDACTED_TODO_COMMENT]
-    private lazy var stakingFeaturePublisher: some Publisher<[WalletModelFeature], Never> = Just([])
-
-    // MARK: - Transaction history
-
-    // [REDACTED_TODO_COMMENT]
-    private lazy var transactionHistoryFeaturePublisher: some Publisher<[WalletModelFeature], Never> = Just([])
+    // MARK: - Init
 
     init(
         userWalletId: UserWalletId,
         userWalletConfig: UserWalletConfig,
-        tokenItem: TokenItem
+        tokenItem: TokenItem,
+        blockchainDataProvider: BlockchainDataProvider
     ) {
         self.userWalletId = userWalletId
         self.userWalletConfig = userWalletConfig
         self.tokenItem = tokenItem
+        self.blockchainDataProvider = blockchainDataProvider
+
+        setupFeatureSubscriptions()
+        updateFeatures()
+    }
+
+    // MARK: - Private Methods
+
+    private func updateFeatures() {
+        var allFeatures: [WalletModelFeature] = []
+
+        // MARK: - NFT
+
+        if let nftNetworkService, isNFTAvailable, isNFTEnabledForWallet {
+            allFeatures.append(contentsOf: [.nft(networkService: nftNetworkService)])
+        }
+
+        // MARK: - Staking
+
+        // [REDACTED_TODO_COMMENT]
+
+        // MARK: - Transaction history
+
+        // [REDACTED_TODO_COMMENT]
+
+        // MARK: - Send
+
+        allFeatures.append(contentsOf: [
+            .send(logger: CommonNetworkProviderAnalyticsLogger(dataProvider: blockchainDataProvider)),
+        ])
+
+        featuresValueSubject.send(allFeatures.compactMap { $0 })
+    }
+
+    private func setupFeatureSubscriptions() {
+        // NFT
+        nftAvailabilityProvider
+            .didChangeNFTAvailabilityPublisher
+            .receiveOnMain()
+            .sink { [weak self] _ in
+                self?.updateFeatures()
+            }
+            .store(in: &cancellables)
+
+        // Any Service Subscriptions
     }
 }
 
@@ -86,12 +114,12 @@ final class CommonWalletModelFeaturesManager {
 
 extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
-        return Publishers.CombineLatest3(
-            nftFeaturePublisher,
-            stakingFeaturePublisher,
-            transactionHistoryFeaturePublisher,
-        )
-        .map { $0.0 + $0.1 + $0.2 }
-        .eraseToAnyPublisher()
+        featuresValueSubject
+            .dropFirst()
+            .eraseToAnyPublisher()
+    }
+
+    var features: [WalletModelFeature] {
+        featuresValueSubject.value
     }
 }
