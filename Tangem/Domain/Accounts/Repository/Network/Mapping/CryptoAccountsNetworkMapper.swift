@@ -44,7 +44,13 @@ struct CryptoAccountsNetworkMapper {
         let nextDerivationIndex = response.wallet.totalAccounts
 
         if accounts.count != nextDerivationIndex {
-            AppLogger.warning("Back-end inconsistency: incorrect next derivation index")
+            AppLogger.warning(
+                String(
+                    format: "Back-end inconsistency: incorrect next derivation index: '%@' vs '%@'",
+                    nextDerivationIndex,
+                    accounts.count
+                )
+            )
         }
 
         return RemoteCryptoAccountsInfo(
@@ -90,10 +96,15 @@ struct CryptoAccountsNetworkMapper {
                 }
 
                 // Duplicate token detected, discarding the duplicate
-                AppLogger.warning("Duplicate token detected, discarding the duplicate with contract address: \(contractAddress)")
+                AppLogger.warning(
+                    String(
+                        format: "Duplicate token detected, discarding the duplicate with contract address: '%@'",
+                        contractAddress
+                    )
+                )
                 return nil
             }
-            .unique()
+            .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
     }
 
     /// - Throws: `HDWalletError` if the derivation path is invalid.
@@ -104,7 +115,7 @@ struct CryptoAccountsNetworkMapper {
             return .unknown(networkId: token.networkId, rawDerivationPath: token.derivationPath)
         }
 
-        // We must fail here if the derivation path is exist but invalid
+        // Mapping must fail here if the derivation path does exist but invalid
         let derivationPath = try token.derivationPath.map(DerivationPath.init(rawPath:))
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
 
