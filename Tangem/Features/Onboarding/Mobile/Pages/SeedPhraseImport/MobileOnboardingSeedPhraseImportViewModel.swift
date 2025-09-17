@@ -38,7 +38,8 @@ extension MobileOnboardingSeedPhraseImportViewModel {
     func onAppear() {
         Analytics.log(
             event: .onboardingSeedImportScreenOpened,
-            params: [.productType: Analytics.ProductType.mobileWallet.rawValue]
+            params: [:],
+            contextParams: .custom(.mobileWallet)
         )
     }
 }
@@ -51,7 +52,8 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 
         Analytics.log(
             event: .onboardingSeedButtonImportWallet,
-            params: [.productType: Analytics.ProductType.mobileWallet.rawValue]
+            params: [:],
+            contextParams: .custom(.mobileWallet)
         )
 
         runTask(in: self) { viewModel in
@@ -108,7 +110,8 @@ private extension MobileOnboardingSeedPhraseImportViewModel {
 
         Analytics.log(
             event: .walletCreatedSuccessfully,
-            params: params
+            params: params,
+            contextParams: .custom(.mobileWallet)
         )
     }
 }
