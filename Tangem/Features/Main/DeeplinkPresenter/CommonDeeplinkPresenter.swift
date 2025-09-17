@@ -107,8 +107,11 @@ private extension CommonDeeplinkPresenter {
         case .marketsTokenDetails(let tokenId):
             return constructMarketsTokenViewController(tokenId: tokenId)
 
-        case .onboardVisa(let entry):
-            return constructOnboardVisaViewController(entry: entry)
+        case .onboardVisa(let deeplinkString, let userWalletModel):
+            return constructTangemPayOnboardViewController(
+                deeplinkString: deeplinkString,
+                userWalletModel: userWalletModel
+            )
 
         case .promo(let promoCode):
             return constructPromoViewController(promoCode: promoCode)
@@ -272,14 +275,21 @@ private extension CommonDeeplinkPresenter {
         )
     }
 
-    private func constructOnboardVisaViewController(entry: String) -> UIViewController {
-        return makeDeeplinkViewController(
-            view: {
-                // [REDACTED_TODO_COMMENT]
-                Text("entry=\(entry)")
-            },
-            embedInNavigationView: false
+    private func constructTangemPayOnboardViewController(
+        deeplinkString: String,
+        userWalletModel: UserWalletModel
+    ) -> UIViewController {
+        let viewModel = TangemPayOnboardingViewModel(
+            deeplinkString: deeplinkString,
+            userWalletModel: userWalletModel,
+            closeOfferScreen: { UIApplication.dismissTop() }
         )
+
+        let view = TangemPayOnboardingView(viewModel: viewModel)
+        let controller = UIHostingController(rootView: view)
+        controller.modalPresentationStyle = .overFullScreen
+
+        return controller
     }
 }
 
