@@ -31,7 +31,7 @@ struct SellCryptoUtility {
             return sellService.canSell(blockchain.currencySymbol, amountType: amountType, blockchain: blockchain)
         case .token(let token):
             return sellService.canSell(token.symbol, amountType: amountType, blockchain: blockchain)
-        case .reserve, .feeResource:
+        case .reserve, .feeResource, .tokenYieldSupply:
             return false
         }
     }
@@ -42,7 +42,7 @@ struct SellCryptoUtility {
             return sellService.getSellUrl(currencySymbol: blockchain.currencySymbol, amountType: amountType, blockchain: blockchain, walletAddress: address)
         case .token(let token):
             return sellService.getSellUrl(currencySymbol: token.symbol, amountType: amountType, blockchain: blockchain, walletAddress: address)
-        case .reserve, .feeResource:
+        case .reserve, .feeResource, .tokenYieldSupply:
             return nil
         }
     }

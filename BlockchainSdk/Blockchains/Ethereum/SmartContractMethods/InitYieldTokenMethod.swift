@@ -10,11 +10,11 @@ import Foundation
 import BigInt
 
 public struct InitYieldTokenMethod {
-    let yieldTokenAddress: String
+    let yieldModuleAddress: String
     let maxNetworkFee: BigUInt
 
-    public init(yieldTokenAddress: String, maxNetworkFee: BigUInt) {
-        self.yieldTokenAddress = yieldTokenAddress
+    public init(yieldModuleAddress: String, maxNetworkFee: BigUInt) {
+        self.yieldModuleAddress = yieldModuleAddress
         self.maxNetworkFee = maxNetworkFee
     }
 }
