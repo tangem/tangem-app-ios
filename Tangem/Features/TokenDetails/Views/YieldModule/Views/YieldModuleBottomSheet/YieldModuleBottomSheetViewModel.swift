@@ -164,9 +164,7 @@ extension YieldModuleBottomSheetViewModel {
             switch self {
             case .startEarning(let params):
                 return params.feeCurrencyInfo
-            case .stopEarning(let params):
-                return params.feeCurrencyInfo
-            case .approve(let params):
+            case .stopEarning(let params), .approve(let params):
                 return params.feeCurrencyInfo
             case .earnInfo(let params):
                 return params.feeCurrencyInfo
