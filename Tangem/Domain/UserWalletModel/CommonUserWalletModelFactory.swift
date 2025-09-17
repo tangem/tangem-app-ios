@@ -202,7 +202,11 @@ private struct CommonUserWalletModelDependencies {
             let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
             let persistentStorage = CommonCryptoAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
             let eTagStorage = CommonCryptoAccountsETagStorage()
-            let mapper = CryptoAccountsNetworkMapper(supportedBlockchains: config.supportedBlockchains)
+            let remoteIdentifierBuilder = CommonCryptoAccountModelBasedRemoteIdentifierBuilder(userWalletId: userWalletId)
+            let mapper = CryptoAccountsNetworkMapper(
+                supportedBlockchains: config.supportedBlockchains,
+                remoteIdentifierBuilder: remoteIdentifierBuilder
+            )
             let networkService = CommonCryptoAccountsNetworkService(
                 userWalletId: userWalletId,
                 eTagStorage: eTagStorage,
@@ -213,7 +217,8 @@ private struct CommonUserWalletModelDependencies {
                 tokenItemsRepository: tokenItemsRepository,
                 networkService: networkService,
                 persistentStorage: persistentStorage,
-                storageController: persistentStorage
+                storageController: persistentStorage,
+                userWalletId: userWalletId
             )
             let walletModelsFactory = config.makeWalletModelsFactory(userWalletId: userWalletId)
             let walletModelsManagerFactory = CommonAccountWalletModelsManagerFactory(
