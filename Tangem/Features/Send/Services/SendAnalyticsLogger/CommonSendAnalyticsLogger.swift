@@ -20,17 +20,32 @@ class CommonSendAnalyticsLogger {
     private let feeTokenItem: TokenItem
     private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
     private let sendType: SendType
+    private let sendWalletModelFeature: WalletModelFeature?
+
+    // MARK: - Extended Properties
+
+    private var networkProviderAnalyticsLogger: NetworkProviderAnalyticsLogger? {
+        if case .send(let logger) = sendWalletModelFeature {
+            return logger
+        }
+
+        return nil
+    }
+
+    // MARK: - Init
 
     init(
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder,
-        sendType: SendType
+        sendType: SendType,
+        sendWalletModelFeature: WalletModelFeature?
     ) {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
         self.sendType = sendType
+        self.sendWalletModelFeature = sendWalletModelFeature
     }
 }
 
@@ -353,6 +368,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             .feeType: feeType.rawValue,
             .memo: additionalFieldAnalyticsParameter.rawValue,
             .walletForm: signerType,
+            .selectedHost: networkProviderAnalyticsLogger?.currentNetworkProviderHost ?? "",
         ])
 
         switch amount?.type {
