@@ -19,6 +19,7 @@ final class PushNotificationsPermissionRequestViewModel: ObservableObject, Ident
     private let permissionManager: PushNotificationsPermissionManager
 
     private weak var delegate: PushNotificationsPermissionRequestDelegate?
+    private var requestResult: PermissionRequestResult = .noInteraction
 
     init(
         permissionManager: PushNotificationsPermissionManager,
@@ -38,20 +39,31 @@ final class PushNotificationsPermissionRequestViewModel: ObservableObject, Ident
     }
 
     func didTapAllow() {
-        runTask(in: self) { viewModel in
-            await viewModel.permissionManager.allowPermissionRequest()
-            await runOnMain {
-                viewModel.delegate?.didFinishPushNotificationOnboarding()
-            }
-        }
+        requestResult = .allow
+        delegate?.didFinishPushNotificationOnboarding()
     }
 
     func didTapLater() {
-        permissionManager.postponePermissionRequest()
+        requestResult = .later
         delegate?.didFinishPushNotificationOnboarding()
     }
 
     func didDismissSheet() {
-        permissionManager.postponePermissionRequest()
+        switch requestResult {
+        case .allow:
+            runTask(in: self) { viewModel in
+                await viewModel.permissionManager.allowPermissionRequest()
+            }
+        case .later, .noInteraction:
+            permissionManager.postponePermissionRequest()
+        }
+    }
+}
+
+extension PushNotificationsPermissionRequestViewModel {
+    enum PermissionRequestResult {
+        case allow
+        case later
+        case noInteraction
     }
 }

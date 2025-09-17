@@ -17,6 +17,7 @@ import TangemFoundation
 // `007` - WalletConnectEstablishDAppConnectionUseCase.FeatureDisabledError
 // `008` - WalletConnectSavedSessionMigrationService.Error
 // `009` - WalletConnectTransactionRequestProcessingError
+// `010` - WalletConnectSignError
 
 extension WalletConnectDAppProposalLoadingError: UniversalError {
     var errorCode: Int {
@@ -145,6 +146,21 @@ extension WalletConnectTransactionRequestProcessingError: UniversalError {
             107009015
         case .userWalletIsLocked:
             107009016
+        case .unsupportedWCVersion:
+            107009017
+        case .missingEthTransactionSigner:
+            107009018
+        case .missingGasLoader:
+            107009019
+        }
+    }
+}
+
+extension WCTransactionSignError: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .signFailed:
+            107010001
         }
     }
 }

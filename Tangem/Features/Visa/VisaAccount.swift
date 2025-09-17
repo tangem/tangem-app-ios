@@ -9,25 +9,38 @@
 import TangemVisa
 import TangemSdk
 
-struct VisaAccount {
-    private let walletModel: any WalletModel
-    private let biometricsStorage = BiometricsStorage()
+final class VisaAccount {
+    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
-    private var storageKey: String {
-        StorageKey.visaCustomerWalletAuthToken.rawValue
+    private let walletModel: any WalletModel
+    private let authorizationTokensHandler: VisaAuthorizationTokensHandler
+
+    private var visaRefreshTokenId: VisaRefreshTokenId {
+        .customerWalletAddress(customerWalletAddress)
+    }
+
+    private var customerWalletAddress: String {
+        walletModel.defaultAddressString
     }
 
     init(walletModel: any WalletModel) {
         assert(walletModel.tokenItem.blockchain == VisaUtilities.visaBlockchain)
         self.walletModel = walletModel
+
+        authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder()
+            .build(
+                customerWalletAddress: walletModel.defaultAddressString,
+                authorizationTokens: nil,
+                refreshTokenSaver: nil
+            )
+
+        // No reference cycle here, self is stored as weak in VisaAuthorizationTokensHandler
+        authorizationTokensHandler.setupRefreshTokenSaver(self)
     }
 
     #if ALPHA || BETA || DEBUG
     func launchKYC() async throws {
-        let tokens = try await getTokens()
-
-        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder()
-            .build(visaAuthorizationTokens: tokens)
+        try await prepareTokensHandler()
 
         let customerInfoManagementService = VisaCustomerCardInfoProviderBuilder()
             .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
@@ -41,30 +54,32 @@ struct VisaAccount {
     }
     #endif // ALPHA || BETA || DEBUG
 
-    private func getTokens() async throws -> VisaAuthorizationTokens {
-        if let savedTokens = try await readSavedAuthTokens() {
-            return savedTokens
+    private func prepareTokensHandler() async throws {
+        if await authorizationTokensHandler.accessToken == nil {
+            let tokens = try await getTokens()
+            try await authorizationTokensHandler.setupTokens(tokens)
         }
 
-        let tokens = try await authorizeWithCustomerWallet()
-
-        if let data = try? JSONEncoder().encode(tokens) {
-            try biometricsStorage.store(data, forKey: storageKey)
+        if await authorizationTokensHandler.refreshTokenExpired {
+            let tokens = try await authorizeWithCustomerWallet()
+            try await authorizationTokensHandler.setupTokens(tokens)
         }
 
-        return tokens
+        if await authorizationTokensHandler.accessTokenExpired {
+            try await authorizationTokensHandler.forceRefreshToken()
+        }
     }
 
-    private func readSavedAuthTokens() async throws -> VisaAuthorizationTokens? {
-        let context = try await UserWalletBiometricsUnlocker().unlock()
-
-        guard let data = try biometricsStorage.get(storageKey, context: context),
-              let decoded = try? JSONDecoder().decode(VisaAuthorizationTokens.self, from: data)
-        else {
-            return nil
+    private func getTokens() async throws -> VisaAuthorizationTokens {
+        if let savedRefreshToken = visaRefreshTokenRepository.getToken(forVisaRefreshTokenId: visaRefreshTokenId) {
+            return VisaAuthorizationTokens(
+                accessToken: nil,
+                refreshToken: savedRefreshToken,
+                authorizationType: .customerWallet
+            )
         }
 
-        return decoded
+        return try await authorizeWithCustomerWallet()
     }
 
     private func authorizeWithCustomerWallet() async throws -> VisaAuthorizationTokens {
@@ -72,7 +87,7 @@ struct VisaAccount {
 
         let task = CustomerWalletAuthorizationTask(
             walletPublicKey: walletModel.publicKey,
-            walletAddress: walletModel.defaultAddressString,
+            walletAddress: customerWalletAddress,
             authorizationService: VisaAPIServiceBuilder().buildAuthorizationService()
         )
 
@@ -91,8 +106,8 @@ struct VisaAccount {
     }
 }
 
-extension VisaAccount {
-    enum StorageKey: String {
-        case visaCustomerWalletAuthToken
+extension VisaAccount: VisaRefreshTokenSaver {
+    func saveRefreshTokenToStorage(refreshToken: String, visaRefreshTokenId: VisaRefreshTokenId) throws {
+        try visaRefreshTokenRepository.save(refreshToken: refreshToken, visaRefreshTokenId: visaRefreshTokenId)
     }
 }
