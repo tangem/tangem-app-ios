@@ -6,18 +6,20 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
+import TangemFoundation
 
 final class WalletYieldNotificationManager {
-    private let analyticsService = NotificationsAnalyticsService()
+    private let analyticsService: NotificationsAnalyticsService
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
-    private var updateSubscription: AnyCancellable?
+    private var bag: Set<AnyCancellable> = []
 
     // MARK: - Init
 
-    init() {
-        analyticsService.setup(with: self, contextDataProvider: nil)
-
+    init(userWalletId: UserWalletId) {
+        analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
+        bind()
 //        show()
     }
 
@@ -27,6 +29,17 @@ final class WalletYieldNotificationManager {
         let event = MultiWalletNotificationEvent.someTokensNeedYieldApprove
         let input = NotificationsFactory().buildNotificationInput(for: event)
         notificationInputsSubject.send([input])
+    }
+
+    private func bind() {
+        notificationPublisher
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { manager, notifications in
+                manager.analyticsService.sendEventsIfNeeded(for: notifications)
+            })
+            .store(in: &bag)
     }
 }
 
