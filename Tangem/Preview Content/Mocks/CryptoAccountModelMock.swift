@@ -48,6 +48,10 @@ extension CryptoAccountModelMock {
     struct AccountId: Hashable, AccountModelPersistentIdentifierConvertible {
         let id = UUID()
 
+        var isMainAccount: Bool {
+            false
+        }
+
         func toPersistentIdentifier() -> UUID {
             id
         }
