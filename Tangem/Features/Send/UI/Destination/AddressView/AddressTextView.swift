@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 // MARK: - SwiftUI view
 
@@ -71,6 +72,7 @@ struct TextViewWrapper: UIViewRepresentable {
             textView.attributedText = attributedText(#fileID)
         }
         textView.attributedText = newAttributedText
+        textView.accessibilityIdentifier = SendAccessibilityIdentifiers.addressTextView
 
         return textView
     }
