@@ -21,24 +21,19 @@ protocol YieldModuleWalletManager {
     func enterFee() async throws -> YieldTransactionFee
     func enter(fee: YieldTransactionFee) async throws -> [String]
 
-    func exitFee(yieldModule: String) async throws -> YieldTransactionFee
-    func exit(yieldModule: String, fee: YieldTransactionFee) async throws -> [String]
+    func exitFee() async throws -> YieldTransactionFee
+    func exit(fee: YieldTransactionFee) async throws -> [String]
 }
 
 enum YieldModuleWalletManagerState {
-    case notEnabled
-    case enabled(LoadingValue<YieldModuleWalletManagerStateInfo>)
+    case disabled
+    case loading
+    case enabled(YieldModuleWalletManagerStateInfo)
+    case failedToLoad(error: String)
 
     var balance: Amount? {
-        if case .enabled(.loaded(let value)) = self {
-            return value.smartContractState.balance
-        }
-        return nil
-    }
-
-    var yieldModule: String? {
-        if case .enabled(.loaded(let value)) = self {
-            return value.smartContractState.yieldModule
+        if case .enabled(let value) = self {
+            return value.yieldSupply
         }
         return nil
     }
@@ -47,11 +42,11 @@ enum YieldModuleWalletManagerState {
 struct YieldModuleWalletManagerStateInfo {
     let apy: Decimal
     let activeState: YieldModuleActiveState
-    let smartContractState: YieldModuleSmartContractState
+    let yieldSupply: Amount?
 }
 
 final class CommonYieldModuleWalletManager {
-    private let walletAddress: String
+    private let walletModel: any WalletModel
     private let token: Token
     private let blockchain: Blockchain
     private let yieldSupplyProvider: YieldSupplyProvider
@@ -64,8 +59,10 @@ final class CommonYieldModuleWalletManager {
 
     private var _state = CurrentValueSubject<YieldModuleWalletManagerState?, Error>(nil)
 
+    private var bag = Set<AnyCancellable>()
+
     init(
-        walletAddress: String,
+        walletModel: any WalletModel,
         token: Token,
         blockchain: Blockchain,
         yieldSupplyProvider: YieldSupplyProvider,
@@ -74,25 +71,28 @@ final class CommonYieldModuleWalletManager {
         ethereumTransactionDataBuilder: EthereumTransactionDataBuilder,
         transactionCreator: TransactionCreator,
         transactionDispatcher: TransactionDispatcher
-    ) {
-        self.walletAddress = walletAddress
+    ) throws {
+        self.walletModel = walletModel
         self.token = token
         self.blockchain = blockchain
         self.yieldSupplyProvider = yieldSupplyProvider
         self.tokenBalanceProvider = tokenBalanceProvider
         self.transactionDispatcher = transactionDispatcher
 
+        let yieldSupplyContractAddresses = try yieldSupplyProvider.getYieldSupplyContractAddresses()
+
         transactionProvider = YieldTransactionProvider(
             token: token,
             blockchain: blockchain,
             transactionCreator: transactionCreator,
-            transactionBuilder: ethereumTransactionDataBuilder
+            transactionBuilder: ethereumTransactionDataBuilder,
+            yieldSupplyContractAddresses: yieldSupplyContractAddresses
         )
 
         allowanceChecker = AllowanceChecker(
             blockchain: blockchain,
             amountType: .token(value: token),
-            walletAddress: walletAddress,
+            walletAddress: walletModel.defaultAddressString,
             ethereumNetworkProvider: ethereumNetworkProvider,
             ethereumTransactionDataBuilder: ethereumTransactionDataBuilder
         )
@@ -101,6 +101,7 @@ final class CommonYieldModuleWalletManager {
             blockchain: blockchain,
             ethereumNetworkProvider: ethereumNetworkProvider,
             allowanceChecker: allowanceChecker,
+            yieldSupplyContractAddresses: yieldSupplyContractAddresses
         )
 
         bind()
@@ -120,20 +121,7 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
     }
 
     func updateState() async {
-        _state.send(.enabled(.loading))
-        async let apy = getAPY()
-        async let yieldModuleState = getYieldModuleState()
-
-        do {
-            let state = try await YieldModuleWalletManagerStateInfo(
-                apy: apy,
-                activeState: .active,
-                smartContractState: yieldModuleState
-            )
-            _state.send(.enabled(.loaded(state)))
-        } catch {
-            _state.send(.enabled(.failedToLoad(error: error)))
-        }
+        walletModel.update(silent: true)
     }
 
     func enterFee() async throws -> YieldTransactionFee {
@@ -142,7 +130,7 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
         switch yieldTokenState {
         case .notDeployed:
             return try await transactionFeeProvider.deployFee(
-                address: walletAddress,
+                address: walletModel.defaultAddressString,
                 contractAddress: token.contractAddress
             )
         case .deployed(let deployed):
@@ -155,19 +143,19 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
             switch deployed.initializationState {
             case .notInitialized:
                 return try await transactionFeeProvider.initializeFee(
-                    address: walletAddress,
+                    address: walletModel.defaultAddressString,
                     yieldModule: deployed.yieldModule,
                     balance: balance
                 )
             case .initialized(.notActive):
                 return try await transactionFeeProvider.reactivateFee(
-                    address: walletAddress,
+                    address: walletModel.defaultAddressString,
                     yieldModule: deployed.yieldModule,
                     balance: balance
                 )
             case .initialized(.active):
                 return try await transactionFeeProvider.enterFee(
-                    address: walletAddress,
+                    address: walletModel.defaultAddressString,
                     yieldModule: deployed.yieldModule,
                     balance: balance
                 )
@@ -192,7 +180,7 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
             let deployTransactions = try await transactionProvider.deployTransactions(
                 yieldModule: yieldModule,
                 balance: balanceBigUInt,
-                address: walletAddress,
+                address: walletModel.defaultAddressString,
                 contractAddress: token.contractAddress,
                 fee: deployEnterFee
             )
@@ -235,11 +223,12 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
             .map(\.hash)
     }
 
-    func exitFee(yieldModule: String) async throws -> any YieldTransactionFee {
-        try await transactionFeeProvider.exitFee(yieldModule: yieldModule, contractAddress: token.contractAddress)
+    func exitFee() async throws -> any YieldTransactionFee {
+        let yieldModule = try await yieldSupplyProvider.getYieldContract()
+        return try await transactionFeeProvider.exitFee(yieldModule: yieldModule, contractAddress: token.contractAddress)
     }
 
-    func exit(yieldModule: String, fee: YieldTransactionFee) async throws -> [String] {
+    func exit(fee: YieldTransactionFee) async throws -> [String] {
         let yieldModuleState = try await getYieldModuleState()
 
         guard case .deployed(let deployedState) = yieldModuleState,
@@ -251,7 +240,7 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
 
         let transactions = try await transactionProvider.exitTransactions(
             contractAddress: token.contractAddress,
-            yieldModule: yieldModule,
+            yieldModule: deployedState.yieldModule,
             fee: exitFee
         )
 
@@ -262,7 +251,44 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
 }
 
 private extension CommonYieldModuleWalletManager {
-    private func bind() {}
+    private func bind() {
+        walletModel.statePublisher
+            .withWeakCaptureOf(self)
+            .asyncMap { yieldModuleWalletManager, input in
+                try? await yieldModuleWalletManager.mapWalletModelState(input)
+            }
+            .replaceError(with: .disabled)
+            .sink { [_state] state in
+                _state.send(state)
+            }
+            .store(in: &bag)
+    }
+
+    func mapWalletModelState(_ walletModelState: WalletModelState) async throws -> YieldModuleWalletManagerState {
+        switch walletModelState {
+        case .created, .loading:
+            return .loading
+        case .loaded(let state):
+            guard let yieldSupply = walletModel.yieldSupply, let yieldSupplyBalance = walletModel.yieldSupplyBalance else {
+                return .disabled
+            }
+            return try await .enabled(
+                .init(
+                    apy: getAPY(),
+                    activeState: .active,
+                    yieldSupply: Amount(
+                        with: blockchain,
+                        type: .tokenYieldSupply(yieldSupply),
+                        value: yieldSupplyBalance
+                    )
+                )
+            )
+        case .noAccount(message: let message, amountToCreate: let amountToCreate):
+            return .disabled
+        case .failed(error: let error):
+            return .failedToLoad(error: error)
+        }
+    }
 
     func getAPY() async throws -> Decimal {
         try await yieldSupplyProvider.getAPY(for: token.contractAddress)

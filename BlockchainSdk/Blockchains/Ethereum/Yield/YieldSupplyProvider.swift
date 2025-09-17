@@ -78,7 +78,13 @@ public final class EthereumYieldSupplyProvider: YieldSupplyProvider {
     }
 
     public func getYieldContract() async throws -> String {
-        let storedYieldContractAddress: String? = await dataStorage.get(key: Constants.yieldContractAddressStorageKey)
+        let storageKey = [
+            wallet.defaultAddress.value,
+            wallet.blockchain.coinId,
+            Constants.yieldContractAddressStorageKey,
+        ].joined(separator: "_")
+
+        let storedYieldContractAddress: String? = await dataStorage.get(key: storageKey)
         switch storedYieldContractAddress {
         case .some(let address):
             return address
@@ -86,7 +92,7 @@ public final class EthereumYieldSupplyProvider: YieldSupplyProvider {
             let method = YieldModuleMethod(address: wallet.address)
 
             let request = YieldSmartContractRequest(
-                contractAddress: YieldConstants.yieldModuleFactoryContractAddress,
+                contractAddress: try getYieldSupplyContractAddresses().factoryContractAddress,
                 method: method
             )
 
@@ -99,7 +105,7 @@ public final class EthereumYieldSupplyProvider: YieldSupplyProvider {
 
             let contractAddress = resultNoHex.stripLeadingZeroes().addHexPrefix()
 
-            await dataStorage.store(key: Constants.yieldContractAddressStorageKey, value: contractAddress)
+            await dataStorage.store(key: storageKey, value: contractAddress)
 
             return contractAddress
         }
@@ -109,7 +115,7 @@ public final class EthereumYieldSupplyProvider: YieldSupplyProvider {
         let method = CalculateYieldModuleAddressMethod(sourceAddress: wallet.address)
 
         let request = YieldSmartContractRequest(
-            contractAddress: YieldConstants.yieldModuleFactoryContractAddress,
+            contractAddress: try getYieldSupplyContractAddresses().factoryContractAddress,
             method: method
         )
 
@@ -144,27 +150,30 @@ public final class EthereumYieldSupplyProvider: YieldSupplyProvider {
         async let allowance = allowance(tokenContractAddress: token.contractAddress)
         async let effectiveBalance = networkService.ethCall(request: effectiveRequest).async()
 
-        let (allowanceResult, effectiveBalanceResult) = try await (allowance, effectiveBalance)
+        do {
+            let (allowanceResult, effectiveBalanceResult) = try await (allowance, effectiveBalance)
+            guard let result = EthereumUtils.parseEthereumDecimal(
+                effectiveBalanceResult,
+                decimalsCount: wallet.blockchain.decimalCount
+            ) else {
+                throw YieldModuleError.unableToParseData
+            }
 
-        guard let result = EthereumUtils.parseEthereumDecimal(
-            effectiveBalanceResult,
-            decimalsCount: wallet.blockchain.decimalCount
-        ) else {
+            return Amount(
+                with: wallet.blockchain,
+                type: .tokenYieldSupply(
+                    TokenYieldSupply(
+                        token: token,
+                        isActive: yieldSupplyStatus.active,
+                        isInitialized: yieldSupplyStatus.active,
+                        allowance: allowanceResult
+                    )
+                ),
+                value: result
+            )
+        } catch {
             throw YieldModuleError.unableToParseData
         }
-
-        return Amount(
-            with: wallet.blockchain,
-            type: .tokenYieldSupply(
-                TokenYieldSupply(
-                    token: token,
-                    isActive: yieldSupplyStatus.active,
-                    isInitialized: yieldSupplyStatus.active,
-                    allowance: allowanceResult
-                )
-            ),
-            value: result
-        )
     }
 
     public func getProtocolBalance(token: Token) async throws -> Decimal {
