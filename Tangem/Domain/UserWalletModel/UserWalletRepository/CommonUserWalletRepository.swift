@@ -25,9 +25,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             return false
         }
 
-        let hasProtected = models
-            .map { UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: $0) }
-            .contains(where: { !$0.canUnlockAutomatically })
+        let hasProtected = models.contains(where: { !$0.isUnprotectedMobileWallet })
 
         return hasProtected
     }
@@ -81,21 +79,18 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func unlock(with method: UserWalletRepositoryUnlockMethod) async throws -> UserWalletModel {
-        switch method {
+        defer {
+            setStartWalletUsageDateIfNeeded()
+            _locked = false
+        }
+
+        return switch method {
         case .biometrics(let context):
-            let model = try handleUnlock(context: context)
-            signInAndLog(method: method)
-            return model
-
+            try handleUnlock(context: context)
         case .biometricsUserWallet(let userWalletId, let context):
-            let model = try await handleUnlock(userWalletId: userWalletId, context: context)
-            signInAndLog(method: method)
-            return model
-
+            try await handleUnlock(userWalletId: userWalletId, context: context)
         case .encryptionKey(let userWalletId, let encryptionKey):
-            let model = try await handleUnlock(userWalletId: userWalletId, encryptionKey: encryptionKey)
-            signInAndLog(method: method)
-            return model
+            try await handleUnlock(userWalletId: userWalletId, encryptionKey: encryptionKey)
         }
     }
 
@@ -222,7 +217,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         let associatedCardIds = models[currentIndex].associatedCardIds
         try? accessCodeRepository.deleteAccessCode(for: Array(associatedCardIds))
         associatedCardIds.forEach {
-            try? visaRefreshTokenRepository.deleteToken(cardId: $0)
+            try? visaRefreshTokenRepository.deleteToken(visaRefreshTokenId: .cardId($0))
         }
 
         models.removeAll { $0.userWalletId == userWalletId }
@@ -250,31 +245,14 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    private func signInAndLog(method: UserWalletRepositoryUnlockMethod) {
-        guard _locked else {
+    private func setStartWalletUsageDateIfNeeded() {
+        guard selectedModel != nil else {
             return
         }
-
-        _locked = false
-
-        guard let selectedModel else {
-            return
-        }
-
-        let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: selectedModel.hasBackupCards)
 
         if AppSettings.shared.startWalletUsageDate == nil {
             AppSettings.shared.startWalletUsageDate = Date()
         }
-
-        AmplitudeWrapper.shared.setUserId(userId: selectedModel.userWalletId)
-
-        Analytics.log(event: .signedIn, params: [
-            .signInType: method.analyticsValue.rawValue,
-            .walletsCount: "\(models.count)",
-            .walletHasBackup: walletHasBackup.rawValue,
-            .walletType: Analytics.ParameterValue.seedState(for: selectedModel.hasImportedWallets).rawValue,
-        ])
     }
 
     private func _handleUnlock(context: LAContext) throws -> Int {
@@ -285,6 +263,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         if sensitiveInfos.isEmpty {
             // clean to prevent double tap
             AccessCodeRepository().clear()
+            Analytics.log(.signInErrorBiometricUpdated)
             throw UserWalletRepositoryError.biometricsChanged
         }
 
@@ -327,6 +306,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         guard !targetUnlockedModel.isUserWalletLocked else {
+            Analytics.log(.signInErrorBiometricUpdated)
             throw UserWalletRepositoryError.biometricsChanged
         }
 
@@ -401,7 +381,11 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func lockInternal() {
-        let lockedModels = models.compactMap { model -> LockedUserWalletModel? in
+        let processedModels = models.compactMap { model -> UserWalletModel? in
+            if model.isUnprotectedMobileWallet {
+                return model
+            }
+
             guard let serialized = model.serializePublic() else {
                 return nil
             }
@@ -409,7 +393,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             return LockedUserWalletModel(with: serialized)
         }
 
-        models = lockedModels
+        models = processedModels
         globalServicesContext.resetServices()
         globalServicesContext.stopAnalyticsSession()
         _locked = true
@@ -440,5 +424,10 @@ private extension UserWalletModel {
 
     var associatedCardIds: Set<String> {
         (self as? AssociatedCardIdsProvider)?.associatedCardIds ?? []
+    }
+
+    var isUnprotectedMobileWallet: Bool {
+        let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: self)
+        return unlocker.canUnlockAutomatically
     }
 }
