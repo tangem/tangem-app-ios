@@ -138,4 +138,47 @@ struct CryptoAccountsNetworkMapper {
     func map(request: [StoredCryptoAccount]) -> AccountsDTO.Request.Accounts {
         fatalError("Not implemented")
     }
+
+    // MARK: - Archived
+
+    func map(response: AccountsDTO.Response.ArchivedAccounts) -> [ArchivedCryptoAccountInfo] {
+        return response.archivedAccounts.compactMap { archivedAccountDTO in
+            let accountId = ArchivedCryptoAccountInfo.AccountId(rawValue: archivedAccountDTO.id)
+            let rawName = archivedAccountDTO.icon
+            let rawColor = archivedAccountDTO.iconColor
+
+            guard let icon = AccountModel.Icon(rawName: rawName, rawColor: rawColor) else {
+                AppLogger.warning(
+                    String(
+                        format: "Unable to map icon: '%@', '%@' for archived account with identifier: '%@'",
+                        rawName,
+                        rawColor,
+                        accountId.rawValue
+                    )
+                )
+                return nil
+            }
+
+            guard let name = archivedAccountDTO.name else {
+                // Main account (the only account type w/o name) cannot be archived by definition
+                AppLogger.warning(
+                    String(
+                        format: "Unable to map name: '%@' for archived account with identifier: '%@'",
+                        String(describing: archivedAccountDTO.name),
+                        accountId.rawValue
+                    )
+                )
+                return nil
+            }
+
+            return ArchivedCryptoAccountInfo(
+                accountId: accountId,
+                name: name,
+                icon: icon,
+                tokensCount: archivedAccountDTO.totalTokens,
+                networksCount: archivedAccountDTO.totalNetworks,
+                derivationIndex: archivedAccountDTO.derivation
+            )
+        }
+    }
 }
