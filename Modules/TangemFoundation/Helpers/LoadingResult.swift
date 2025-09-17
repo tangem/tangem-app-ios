@@ -69,6 +69,18 @@ public extension LoadingResult {
     }
 }
 
+// MARK: - Optional<Success>
+
+public extension LoadingResult where Success: ExpressibleByNilLiteral {
+    /// Value to exclude double optional wrapping. Like `value??.description`
+    var value: Success {
+        switch self {
+        case .success(let value): value
+        case .loading, .failure: nil
+        }
+    }
+}
+
 // MARK: - Equatable
 
 extension LoadingResult: Equatable where Success: Equatable, Failure: Equatable {}
