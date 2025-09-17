@@ -15,7 +15,7 @@ extension YieldModuleBottomSheetView {
     struct YieldModuleApproveView: View {
         // MARK: - Properties
 
-        let params: YieldModuleParams.СommonParams
+        let params: YieldModuleViewConfigs.CommonParams
 
         // MARK: - View Body
 
