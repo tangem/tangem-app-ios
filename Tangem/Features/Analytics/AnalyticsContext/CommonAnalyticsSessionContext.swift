@@ -1,5 +1,5 @@
 //
-//  CommonAnalyticsContext.swift
+//  CommonAnalyticsSessionContext.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,48 +8,37 @@
 
 import Foundation
 import TangemFoundation
+import Combine
 
-class CommonAnalyticsContext: AnalyticsContext {
-    var contextData: AnalyticsContextData? {
-        contextDataContainer.read()
-    }
+class CommonAnalyticsSessionContext: AnalyticsSessionContext {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private let contextDataContainer = ThreadSafeContainer<AnalyticsContextData?>(nil)
     private var analyticsStorage = AnalyticsStorage()
+    private var bag: Set<AnyCancellable> = []
 
-    init() {}
-
-    func setupContext(with contextData: AnalyticsContextData) {
-        contextDataContainer.mutate { $0 = contextData }
+    init() {
+        bind()
     }
 
-    func clearContext() {
-        contextDataContainer.mutate { $0 = nil }
-    }
-
-    func clearSession() {
-        analyticsStorage.clearSessionStorage()
-    }
-
-    func value(forKey: AnalyticsStorageKey, scope: AnalyticsContextScope) -> Any? {
+    func value(forKey: AnalyticsStorageKey, scope: AnalyticsSessionContextScope) -> Any? {
         guard let id = makeId(for: scope) else { return nil }
 
         return analyticsStorage.value(forKey, id: id)
     }
 
-    func set(value: Any, forKey storageKey: AnalyticsStorageKey, scope: AnalyticsContextScope) {
+    func set(value: Any, forKey storageKey: AnalyticsStorageKey, scope: AnalyticsSessionContextScope) {
         guard let id = makeId(for: scope) else { return }
 
         analyticsStorage.set(value, storageKey: storageKey, id: id)
     }
 
-    func removeValue(forKey storageKey: AnalyticsStorageKey, scope: AnalyticsContextScope) {
+    func removeValue(forKey storageKey: AnalyticsStorageKey, scope: AnalyticsSessionContextScope) {
         guard let id = makeId(for: scope) else { return }
 
         analyticsStorage.removeValue(storageKey, id: id)
     }
 
-    private func makeId(for scope: AnalyticsContextScope) -> String? {
+    private func makeId(for scope: AnalyticsSessionContextScope) -> String? {
         switch scope {
         case .userWallet(let userWalletId):
             return userWalletId.stringValue
@@ -57,11 +46,26 @@ class CommonAnalyticsContext: AnalyticsContext {
             return Constants.commonContextId
         }
     }
+
+    private func bind() {
+        userWalletRepository
+            .eventProvider
+            .withWeakCaptureOf(self)
+            .sink { context, event in
+                switch event {
+                case .locked:
+                    context.analyticsStorage.clearSessionStorage()
+                default:
+                    break
+                }
+            }
+            .store(in: &bag)
+    }
 }
 
 // MARK: - Constants
 
-private extension CommonAnalyticsContext {
+private extension CommonAnalyticsSessionContext {
     enum Constants {
         static let commonContextId = "Common"
     }

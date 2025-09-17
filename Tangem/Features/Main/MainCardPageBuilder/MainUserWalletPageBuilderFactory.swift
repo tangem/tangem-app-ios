@@ -76,7 +76,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let userWalletNotificationManager = UserWalletNotificationManager(
             userWalletModel: model,
             rateAppController: rateAppController,
-            contextDataProvider: model,
             referralNotificationController: referralNotificationController
         )
 
@@ -105,8 +104,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 preservesLastSortedOrderOnSwitchToDragAndDrop: false
             )
             let multiWalletNotificationManager = MultiWalletNotificationManager(
-                totalBalanceProvider: model,
-                contextDataProvider: model
+                userWalletId: model.userWalletId,
+                totalBalanceProvider: model
             )
 
             let bannerNotificationManager: BannerNotificationManager? = {
@@ -116,12 +115,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
                 return BannerNotificationManager(
                     userWallet: model,
-                    placement: .main,
-                    contextDataProvider: model
+                    placement: .main
                 )
             }()
 
-            let yieldModuleNotificationManager = WalletYieldNotificationManager()
+            let yieldModuleNotificationManager = WalletYieldNotificationManager(userWalletId: model.userWalletId)
 
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
@@ -151,9 +149,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         }
 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
+            userWalletId: model.userWalletId,
             walletModel: walletModel,
-            walletModelsManager: model.walletModelsManager,
-            contextDataProvider: model
+            walletModelsManager: model.walletModelsManager
         )
 
         let expressFactory = CommonExpressModulesFactory(
