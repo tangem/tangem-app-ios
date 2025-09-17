@@ -52,7 +52,13 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
 
     func getArchivedCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> [ArchivedCryptoAccountInfo] {
         do {
-            let archivedAccountsDTO = try await tangemApiService.getArchivedUserAccounts(userWalletId: userWalletId.stringValue)
+            let (revision, archivedAccountsDTO) = try await tangemApiService.getArchivedUserAccounts(userWalletId: userWalletId.stringValue)
+
+            guard let revision else {
+                throw CryptoAccountsNetworkServiceError.missingRevision
+            }
+
+            eTagStorage.saveETag(revision, for: userWalletId)
 
             return mapper.map(response: archivedAccountsDTO)
         } catch let error as CryptoAccountsNetworkServiceError {
@@ -69,12 +75,17 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
             }
 
             let accountsDTO = mapper.map(request: cryptoAccounts)
-
-            try await tangemApiService.saveUserAccounts(
+            let newRevision = try await tangemApiService.saveUserAccounts(
                 userWalletId: userWalletId.stringValue,
                 revision: revision,
                 accounts: accountsDTO
             )
+
+            guard let newRevision else {
+                throw CryptoAccountsNetworkServiceError.missingRevision
+            }
+
+            eTagStorage.saveETag(newRevision, for: userWalletId)
         } catch let error as CryptoAccountsNetworkServiceError {
             throw error // Just re-throw an original error
         } catch let error as TangemAPIError where error.code == .notFound {
