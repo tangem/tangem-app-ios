@@ -86,15 +86,16 @@ class StellarWalletManager: BaseManager, WalletManager {
     private var lastTrustlineOpenAttemptDate: Date?
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
+        let tokens = cardTokens
         cancellable = networkService
-            .getInfo(accountId: wallet.address, isAsset: !cardTokens.isEmpty)
+            .getInfo(accountId: wallet.address, isAsset: !tokens.isEmpty)
             .sink(receiveCompletion: { [weak self] completionSubscription in
                 if case .failure(let error) = completionSubscription {
                     self?.wallet.clearAmounts()
                     completion(.failure(error))
                 }
             }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response)
+                self?.updateWallet(with: response, tokens: tokens)
                 completion(.success(()))
             })
     }
@@ -172,7 +173,7 @@ class StellarWalletManager: BaseManager, WalletManager {
             .eraseToAnyPublisher()
     }
 
-    private func updateWallet(with response: StellarResponse) {
+    private func updateWallet(with response: StellarResponse, tokens: [Token]) {
         txBuilder.sequence = response.sequence
         let assetBalancesCount = response.assetBalances.count
         let fullReserve = response.baseReserve * Decimal(assetBalancesCount + Constants.baseEntryCount)
@@ -191,7 +192,7 @@ class StellarWalletManager: BaseManager, WalletManager {
                 wallet.add(tokenValue: $0.balance, for: token)
             }
         } else {
-            for token in cardTokens {
+            for token in tokens {
                 // If balance is nil, trustline is not opened — treat as 0 balance
                 let balance = StellarTrustlineUtils.firstMatchingTrustline(in: response.assetBalances, for: token)?.balance
                 wallet.add(tokenValue: balance ?? 0.0, for: token)
