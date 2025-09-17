@@ -386,7 +386,7 @@ private extension WCTransactionViewModel {
             try await transactionData.accept()
 
             onComplete?()
-            analyticsLogger.logSignatureRequestHandled(transactionData: transactionData)
+            analyticsLogger.logSignatureRequestHandled(transactionData: transactionData, simulationState: simulationState)
 
             toastFactory.makeSuccessToast(with: Localization.sendTransactionSuccess)
 

@@ -697,7 +697,11 @@ extension ExpressViewModel: NotificationTapDelegate {
              .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
-             .openMobileUpgrade:
+             .openMobileUpgrade,
+             .openYieldPromo,
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             return
         }
     }
