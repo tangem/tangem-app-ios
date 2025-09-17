@@ -870,7 +870,8 @@ extension CommonWalletModel {
         guard case .token = amountType else { return nil }
 
         return wallet.amounts.compactMap { key, value in
-            if case .tokenYieldSupply(let supplyInfo) = key, supplyInfo.token == tokenItem.token {
+            if case .tokenYieldSupply(let supplyInfo) = key,
+               supplyInfo.token.contractAddress == tokenItem.token?.contractAddress {
                 return supplyInfo
             }
             return nil
