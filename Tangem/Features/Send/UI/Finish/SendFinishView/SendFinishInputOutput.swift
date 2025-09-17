@@ -11,4 +11,9 @@ import Combine
 
 protocol SendFinishInput: AnyObject {
     var transactionSentDate: AnyPublisher<Date, Never> { get }
+    var transactionURL: AnyPublisher<URL?, Never> { get }
+}
+
+extension SendFinishInput {
+    var transactionURL: AnyPublisher<URL?, Never> { .just(output: nil) }
 }
