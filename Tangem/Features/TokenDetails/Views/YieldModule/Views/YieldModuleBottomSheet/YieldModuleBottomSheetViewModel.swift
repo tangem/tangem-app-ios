@@ -43,7 +43,7 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
         // WIP
     }
 
-    func onShowFeePolicy(params: YieldModuleParams.StartEarningParams) {
+    func onShowFeePolicy(params: YieldModuleViewConfigs.StartEarningParams) {
         flow = .feePolicy(
             params: .init(
                 tokenName: params.tokenName,
@@ -96,7 +96,7 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
         // [REDACTED_TODO_COMMENT]
     }
 
-    func createNotificationBannerIfNeeded() -> YieldModuleParams.YieldModuleBottomSheetNotificationBannerParams? {
+    func createNotificationBannerIfNeeded() -> YieldModuleViewConfigs.YieldModuleBottomSheetNotificationBannerParams? {
         switch flow {
         case .startEarning, .approve, .stopEarning:
             guard let info = flow.feeCurrencyInfo else { return nil }
@@ -134,12 +134,12 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
 
 extension YieldModuleBottomSheetViewModel {
     enum Flow: Identifiable, Equatable {
-        case rateInfo(params: YieldModuleParams.RateInfoParams)
-        case feePolicy(params: YieldModuleParams.FeePolicyParams)
-        case startEarning(params: YieldModuleParams.StartEarningParams)
-        case earnInfo(params: YieldModuleParams.EarnInfoParams)
-        case stopEarning(params: YieldModuleParams.СommonParams)
-        case approve(params: YieldModuleParams.СommonParams)
+        case rateInfo(params: YieldModuleViewConfigs.RateInfoParams)
+        case feePolicy(params: YieldModuleViewConfigs.FeePolicyParams)
+        case startEarning(params: YieldModuleViewConfigs.StartEarningParams)
+        case earnInfo(params: YieldModuleViewConfigs.EarnInfoParams)
+        case stopEarning(params: YieldModuleViewConfigs.CommonParams)
+        case approve(params: YieldModuleViewConfigs.CommonParams)
 
         // MARK: - Identifiable
 
@@ -160,7 +160,7 @@ extension YieldModuleBottomSheetViewModel {
             }
         }
 
-        var feeCurrencyInfo: YieldModuleParams.FeeCurrencyInfo? {
+        var feeCurrencyInfo: YieldModuleViewConfigs.FeeCurrencyInfo? {
             switch self {
             case .startEarning(let params):
                 return params.feeCurrencyInfo
