@@ -821,6 +821,7 @@
 "onramp_currency_popular" = "Популярные фиаты";
 "onramp_currency_search" = "Поиск по валюте";
 "onramp_instant_status" = "Моментально";
+"onramp_legal_text" = "Service is provided by an external provider.\nTangem is not responsible.";
 "onramp_legal" = "Пользуясь сервисом покупки, вы соглашаетесь с %1$@ и %2$@";
 "onramp_max_amount_restriction" = "Сумма покупки не может быть больше, чем %@";
 "onramp_min_amount_restriction" = "Сумма покупки должна составлять минимум %@";
