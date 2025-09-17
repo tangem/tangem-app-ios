@@ -76,7 +76,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let userWalletNotificationManager = UserWalletNotificationManager(
             userWalletModel: model,
             rateAppController: rateAppController,
-            contextDataProvider: model,
             referralNotificationController: referralNotificationController
         )
 
@@ -105,15 +104,22 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 preservesLastSortedOrderOnSwitchToDragAndDrop: false
             )
             let multiWalletNotificationManager = MultiWalletNotificationManager(
-                totalBalanceProvider: model,
-                contextDataProvider: model
+                userWalletId: model.userWalletId,
+                totalBalanceProvider: model
             )
 
-            let bannerNotificationManager = model.config.hasFeature(.multiCurrency)
-                ? BannerNotificationManager(userWalletId: model.userWalletId, placement: .main, contextDataProvider: model)
-                : nil
+            let bannerNotificationManager: BannerNotificationManager? = {
+                guard model.config.hasFeature(.multiCurrency) else {
+                    return nil
+                }
 
-            let yieldModuleNotificationManager = WalletYieldNotificationManager()
+                return BannerNotificationManager(
+                    userWallet: model,
+                    placement: .main
+                )
+            }()
+
+            let yieldModuleNotificationManager = WalletYieldNotificationManager(userWalletId: model.userWalletId)
 
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
@@ -143,9 +149,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         }
 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
+            userWalletId: model.userWalletId,
             walletModel: walletModel,
-            walletModelsManager: model.walletModelsManager,
-            contextDataProvider: model
+            walletModelsManager: model.walletModelsManager
         )
 
         let expressFactory = CommonExpressModulesFactory(
