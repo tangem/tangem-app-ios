@@ -252,6 +252,7 @@ extension CommonWalletModel: WalletModel {
     var account: any CryptoAccountModel { _account }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
+    var features: [WalletModelFeature] { featureManager.features }
 
     var name: String {
         switch amountType {
