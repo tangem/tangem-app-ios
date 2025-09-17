@@ -24,7 +24,7 @@ struct TokenDetailsView: View {
     private let coordinateSpaceName = UUID()
 
     var body: some View {
-        RefreshableScrollView(onRefresh: viewModel.onPullToRefresh(completionHandler:)) {
+        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
             VStack(spacing: 14) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
@@ -172,7 +172,11 @@ private extension TokenDetailsView {
     )
     let coordinator = TokenDetailsCoordinator()
 
-    let bannerNotificationManager = BannerNotificationManager(userWalletId: UserWalletId(value: Data()), placement: .tokenDetails(walletModel.tokenItem), contextDataProvider: nil)
+    let bannerNotificationManager = BannerNotificationManager(
+        userWallet: userWalletModel,
+        placement: .tokenDetails(walletModel.tokenItem),
+        contextDataProvider: nil
+    )
 
     TokenDetailsView(viewModel: .init(
         userWalletModel: userWalletModel,
