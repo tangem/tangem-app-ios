@@ -21,7 +21,10 @@ extension YieldModuleBottomSheetView {
 
         private let title: String?
         private let subtitle: String?
+
+        private let contentTopPadding: CGFloat
         private let horizontalPadding: CGFloat
+        private let buttonTopPadding: CGFloat
 
         // MARK: - UI
 
@@ -41,7 +44,9 @@ extension YieldModuleBottomSheetView {
             @ViewBuilder topContent: () -> TopContent = { EmptyView() },
             @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
             @ViewBuilder content: () -> BodyContent = { EmptyView() },
-            horizontalPadding: CGFloat
+            contentTopPadding: CGFloat,
+            horizontalPadding: CGFloat,
+            buttonTopPadding: CGFloat
         ) {
             self.header = header()
             self.topContent = topContent()
@@ -50,14 +55,16 @@ extension YieldModuleBottomSheetView {
 
             self.title = title
             self.subtitle = subtitle
+            self.contentTopPadding = contentTopPadding
             self.button = button
             self.horizontalPadding = horizontalPadding
+            self.buttonTopPadding = buttonTopPadding
         }
 
         // MARK: - View Body
 
         var body: some View {
-            ScrollView {
+            GroupedScrollView {
                 VStack(spacing: .zero) {
                     header
 
@@ -73,11 +80,10 @@ extension YieldModuleBottomSheetView {
 
                     subtitleFooter.padding(.top, 26)
 
-                    content.padding(.top, 24)
+                    content.padding(.top, contentTopPadding)
 
-                    button.padding(.top, 32)
+                    button.padding(.top, buttonTopPadding)
                 }
-                .padding(.horizontal, 16)
                 .padding(.top, 8)
                 .padding(.bottom, 18)
             }
