@@ -149,6 +149,8 @@ private extension MobileOnboardingViewModel {
     }
 
     func onBackupNeedsAlertClose() {
+        Analytics.log(.backupNoticeCanceled)
+
         closeOnboarding()
     }
 
