@@ -21,7 +21,7 @@ extension YieldModuleBottomSheetView {
 
         private let title: String?
         private let subtitle: String?
-        
+
         private let contentTopPadding: CGFloat
         private let horizontalPadding: CGFloat
         private let buttonTopPadding: CGFloat

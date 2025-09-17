@@ -154,7 +154,7 @@ struct YieldModuleBottomSheetView: View {
 
         case .feePolicy(let params):
             YieldModuleFeePolicyView(currentFee: params.networkFee, maximumFee: params.maximumFee, blockchainName: params.blockchainName)
-            
+
         case .earnInfo(let params):
             YieldModuleEarnInfoView(params: params)
         }
