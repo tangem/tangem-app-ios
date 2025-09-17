@@ -41,13 +41,13 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
         )
     }
 
-    func openRateInfoSheet(params: YieldModuleParams.RateInfoParams) {
+    func openRateInfoSheet(params: YieldModuleViewConfigs.RateInfoParams) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .rateInfo(params: params)))
         }
     }
 
-    func openStartEarningSheet(params: YieldModuleParams.StartEarningParams) {
+    func openStartEarningSheet(params: YieldModuleViewConfigs.StartEarningParams) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .startEarning(params: params)))
         }
@@ -63,6 +63,6 @@ extension YieldModulePromoCoordinator {
         let networkFee: Decimal
         let maximumFee: Decimal
         let lastYearReturns: [String: Double]
-        let feeCurrencyInfo: YieldModuleParams.FeeCurrencyInfo?
+        let feeCurrencyInfo: YieldModuleViewConfigs.FeeCurrencyInfo?
     }
 }

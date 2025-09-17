@@ -17,7 +17,7 @@ extension YieldModuleBottomSheetView {
         HeaderContent: View,
         TopContent: View
     >: View {
-        typealias NotificationBanner = YieldModuleParams.YieldModuleBottomSheetNotificationBannerParams
+        typealias NotificationBanner = YieldModuleViewConfigs.YieldModuleBottomSheetNotificationBannerParams
 
         // MARK: - Properties
 
