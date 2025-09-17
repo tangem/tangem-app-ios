@@ -149,7 +149,7 @@ extension MoonPayService: SellService {
             case .token(let value):
                 return $0.networkCode == moonpayNetwork &&
                     $0.contractAddress?.caseInsensitiveCompare(value.contractAddress) == .orderedSame
-            case .reserve, .feeResource:
+            case .reserve, .feeResource, .tokenYieldSupply:
                 return false
             }
         })

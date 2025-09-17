@@ -75,7 +75,7 @@ public final class SolanaNetworkService: MultiNetworkProvider {
 
     func checkAccountExists(amount: Amount, destination: String) -> AnyPublisher<Bool, Error> {
         switch amount.type {
-        case .coin, .feeResource, .reserve:
+        case .coin, .feeResource, .reserve, .tokenYieldSupply:
             return solanaSdk.api.getAccountInfo(account: destination, decodedTo: AccountInfo.self)
                 .map { _ in return true }
                 .tryCatch { error -> AnyPublisher<Bool, Error> in

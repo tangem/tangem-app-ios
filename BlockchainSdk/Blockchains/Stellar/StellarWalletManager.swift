@@ -247,7 +247,7 @@ extension StellarWalletManager: ReserveAmountRestrictable {
             throw ValidationError.reserve(amount: reserveAmount)
         case .token where !account.trustlineCreated:
             throw ValidationError.noTrustlineAtDestination
-        case .reserve, .feeResource, .coin, .token:
+        case .reserve, .feeResource, .coin, .token, .tokenYieldSupply:
             break
         }
     }
@@ -326,7 +326,7 @@ extension StellarWalletManager: AssetRequirementsManager {
                 isProcessing: isTrustlineOperationInProgress
             )
 
-        case .coin, .reserve, .feeResource:
+        case .coin, .reserve, .feeResource, .tokenYieldSupply:
             return nil
         }
     }
