@@ -27,8 +27,6 @@ struct UserTokensManagerMock: UserTokensManager {
 
     func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {}
 
-    func add(_ tokenItem: TokenItem, completion: @escaping (Result<Void, Error>) -> Void) {}
-
     func contains(_ tokenItem: TokenItem) -> Bool {
         return false
     }
@@ -43,10 +41,6 @@ struct UserTokensManagerMock: UserTokensManager {
 
     func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
         false
-    }
-
-    func canRemove(_ tokenItem: TokenItem) -> Bool {
-        return false
     }
 
     func remove(_ tokenItem: TokenItem) {}
