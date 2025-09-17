@@ -85,7 +85,8 @@ final class AuthViewModel: ObservableObject {
 
     func unlockWithCard() {
         isScanningCard = true
-        Analytics.beginLoggingCardScan(source: .auth)
+
+        Analytics.log(Analytics.CardScanSource.auth.cardScanButtonEvent)
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -111,6 +112,7 @@ final class AuthViewModel: ObservableObject {
                 }
 
             case .onboarding(let input, _):
+                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -128,6 +130,7 @@ final class AuthViewModel: ObservableObject {
                 }
 
             case .success(let cardInfo):
+                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
                 let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
                 guard let userWalletId = UserWalletId(config: config),
