@@ -63,6 +63,15 @@ extension OnboardingInput {
             }
         }
 
+        var cardInfo: CardInfo? {
+            switch self {
+            case .cardInfo(let cardInfo):
+                return cardInfo
+            default:
+                return nil
+            }
+        }
+
         var config: UserWalletConfig? {
             switch self {
             case .cardInfo(let cardInfo):

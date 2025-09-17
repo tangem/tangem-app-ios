@@ -517,8 +517,8 @@
 "hw_create_title" = "Mobile Wallet erstellen";
 "hw_import_seed_phrase_already_imported" = "Diese Wiederherstellungsphrase wurde bereits importiert";
 "hw_mobile_wallet" = "Mobile Wallet";
-"hw_upgrade_error_card_already_has_wallet" = "This device can’t be used for upgrade, it already contains another wallet.";
-"hw_upgrade_error_card_key_import" = "Choose another device, this one can’t be used for upgrade.";
+"hw_upgrade_error_card_already_has_wallet" = "Can’t upgrade. A wallet already exists on this device";
+"hw_upgrade_error_card_key_import" = "Pick another device. This one can’t be used for the upgrade.";
 "hw_upgrade_error_wallet2_card_required" = "An error occurred during the operation.";
 "hw_upgrade_funds_access_description" = "Dein Geld bleibt während des gesamten Prozesses sicher und vollständig zugänglich";
 "hw_upgrade_funds_access_title" = "Zugang zu Geldern";
@@ -765,7 +765,7 @@
 "onboarding_linking_error_card_with_wallets" = "Für die Karte oder Ring, die du hinzufügen möchtest, wurde bereits eine andere Wallets erstellt. Wenn du Guthaben auf dieser Wallets hast, hebe es bitte ab, setze diese Karte oder Ring zurück und füge sie als Backup hinzu.";
 "onboarding_navbar_save_wallet" = "Sicher deine Wallet";
 "onboarding_navbar_title_creating_backup" = "Backups anlegen";
-"onboarding_navbar_upgrade_wallet_biometrics" = "Use biometrics";
+"onboarding_navbar_upgrade_wallet_biometrics" = "Biometrics";
 "onboarding_seed_button_read_more" = "Lese mehr über die Seed-Phrase";
 "onboarding_seed_generate_title" = "Deine Seed-Phrase";
 "onboarding_seed_import_message" = "Um deine Wallets zu importieren, gib bitte deine Seed-Phrase in das folgende Feld ein";
@@ -821,6 +821,7 @@
 "onramp_currency_popular" = "Beliebte Fiats";
 "onramp_currency_search" = "Suche nach Währung";
 "onramp_instant_status" = "Instant";
+"onramp_legal_text" = "Service is provided by an external provider.\nTangem is not responsible.";
 "onramp_legal" = "Durch die Nutzung der Onramp-Funktionalität stimmst Du den %1$@ und %2$@ des Anbieters zu.";
 "onramp_max_amount_restriction" = "Der Kaufbetrag sollte nicht höher sein als %@";
 "onramp_min_amount_restriction" = "Der zu kaufende Betrag muss mindestens %@ betragen";

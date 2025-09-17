@@ -43,8 +43,14 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
         // WIP
     }
 
-    func onShowFeePolicy(params: YieldModuleParams.FeePolicyParams) {
-        flow = .feePolicy(params: params)
+    func onShowFeePolicy(params: YieldModuleParams.StartEarningParams) {
+        flow = .feePolicy(params: .init(
+            tokenName: params.tokenName,
+            networkFee: params.networkFee,
+            maximumFee: params.maximumFee,
+            blockchainName: params.blockchainName
+        )
+        )
     }
 
     func onBackAction() {
@@ -81,22 +87,6 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
                 feeCurrencyInfo: params.feeCurrencyInfo,
                 readMoreAction: params.onReadMoreAction,
                 mainAction: params.onStopEarningAction
-            )
-        )
-    }
-
-    func onShowFeePolicyTap() {
-        guard case .startEarning(let params) = flow else {
-            onCloseTapAction()
-            return
-        }
-
-        flow = .feePolicy(
-            params: .init(
-                tokenName: params.tokenName,
-                networkFee: params.networkFee,
-                maximumFee: params.maximumFee,
-                blockchainName: params.blockchainName
             )
         )
     }
