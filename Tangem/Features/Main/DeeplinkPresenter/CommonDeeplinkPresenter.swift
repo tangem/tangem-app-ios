@@ -107,6 +107,9 @@ private extension CommonDeeplinkPresenter {
         case .marketsTokenDetails(let tokenId):
             return constructMarketsTokenViewController(tokenId: tokenId)
 
+        case .onboardVisa(let entry):
+            return constructOnboardVisaViewController(entry: entry)
+
         case .promo(let promoCode):
             return constructPromoViewController(promoCode: promoCode)
 
@@ -266,6 +269,16 @@ private extension CommonDeeplinkPresenter {
                     .environment(\.mainWindowSize, windowSize ?? .zero)
             },
             embedInNavigationView: true
+        )
+    }
+
+    private func constructOnboardVisaViewController(entry: String) -> UIViewController {
+        return makeDeeplinkViewController(
+            view: {
+                // [REDACTED_TODO_COMMENT]
+                Text("entry=\(entry)")
+            },
+            embedInNavigationView: false
         )
     }
 }
