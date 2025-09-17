@@ -10,6 +10,7 @@ import Foundation
 import Combine
 
 final class CryptoAccountModelMock {
+    let id = AccountId()
     let isMainAccount: Bool
     let walletModelsManager: WalletModelsManager = WalletModelsManagerMock()
     let userTokensManager: UserTokensManager = UserTokensManagerMock()
@@ -41,10 +42,26 @@ final class CryptoAccountModelMock {
     }
 }
 
+// MARK: - Auxiliary types
+
+extension CryptoAccountModelMock {
+    struct AccountId: Hashable, AccountModelPersistentIdentifierConvertible {
+        let id = UUID()
+
+        var isMainAccount: Bool {
+            false
+        }
+
+        func toPersistentIdentifier() -> UUID {
+            id
+        }
+    }
+}
+
 // MARK: - CryptoAccountModel protocol conformance
 
 extension CryptoAccountModelMock: CryptoAccountModel {
-    var didChangePublisher: any Publisher<Void, Never> {
+    var didChangePublisher: AnyPublisher<Void, Never> {
         didChangeSubject.eraseToAnyPublisher()
     }
 

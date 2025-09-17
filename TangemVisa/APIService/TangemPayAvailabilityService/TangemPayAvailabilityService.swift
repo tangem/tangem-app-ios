@@ -8,6 +8,7 @@
 
 public protocol TangemPayAvailabilityService {
     func loadEligibility() async throws -> TangemPayAvailabilityResponse
+    func validateDeeplink(deeplinkString: String) async throws -> ValidateDeeplinkResponse
 }
 
 class CommonTangemPayAvailabilityService {
@@ -24,6 +25,15 @@ extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
     func loadEligibility() async throws -> TangemPayAvailabilityResponse {
         try await apiService.request(
             .init(target: .getEligibility, apiType: apiType)
+        )
+    }
+
+    func validateDeeplink(deeplinkString: String) async throws -> ValidateDeeplinkResponse {
+        try await apiService.request(
+            .init(
+                target: .validateDeeplink(deeplinkString: deeplinkString),
+                apiType: apiType
+            )
         )
     }
 }
