@@ -26,7 +26,8 @@ class SolanaWalletManager: BaseManager, WalletManager {
     private var mainAccountRentExemption: Decimal = 0
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = networkService.getInfo(accountId: wallet.address, tokens: cardTokens)
+        let tokens = cardTokens
+        cancellable = networkService.getInfo(accountId: wallet.address, tokens: tokens)
             .sink { [weak self] in
                 switch $0 {
                 case .failure(let error):
@@ -36,19 +37,18 @@ class SolanaWalletManager: BaseManager, WalletManager {
                     completion(.success(()))
                 }
             } receiveValue: { [weak self] info in
-                self?.updateWallet(info: info)
+                self?.updateWallet(info: info, tokens: tokens)
             }
     }
 
-    private func updateWallet(info: SolanaAccountInfoResponse) {
+    private func updateWallet(info: SolanaAccountInfoResponse, tokens: [Token]) {
         mainAccountRentExemption = info.mainAccountRentExemption
 
         // Store token account sizes for define minimal rent when destination token account is not created
         ownerTokenAccountSpacesByMint = info.tokensByMint.reduce(into: [:]) { $0[$1.key] = $1.value.space }
-
         wallet.add(coinValue: info.balance)
 
-        for cardToken in cardTokens {
+        for cardToken in tokens {
             let mintAddress = cardToken.contractAddress
             let balance = info.tokensByMint[mintAddress]?.balance ?? Decimal(0)
             wallet.add(tokenValue: balance, for: cardToken)

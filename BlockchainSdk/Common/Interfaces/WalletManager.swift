@@ -63,6 +63,7 @@ extension WalletProvider {
 // MARK: - WalletUpdater
 
 public protocol WalletUpdater: AnyObject {
+    /// updatePublisher must be called after setNeedsUpdate
     func setNeedsUpdate()
     func updatePublisher() -> AnyPublisher<Void, Never>
 }
