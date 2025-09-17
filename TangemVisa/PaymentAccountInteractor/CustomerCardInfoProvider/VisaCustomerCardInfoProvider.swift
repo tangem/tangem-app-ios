@@ -10,7 +10,15 @@ import Foundation
 import BlockchainSdk
 
 public protocol VisaCustomerCardInfoProvider {
-    func loadPaymentAccount(cardId: String, cardWalletAddress: String) async throws -> VisaCustomerCardInfo
+    func loadPaymentAccount(cardWalletAddress: String) async throws -> VisaCustomerCardInfo
+}
+
+/// For backwards compatibility.
+/// Will be removed in next [REDACTED_INFO]
+public extension VisaCustomerCardInfoProvider {
+    func loadPaymentAccount(cardId: String, cardWalletAddress: String) async throws -> VisaCustomerCardInfo {
+        try await loadPaymentAccount(cardWalletAddress: cardWalletAddress)
+    }
 }
 
 struct CommonCustomerCardInfoProvider {
@@ -30,9 +38,9 @@ struct CommonCustomerCardInfoProvider {
 }
 
 extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
-    func loadPaymentAccount(cardId: String, cardWalletAddress: String) async throws -> VisaCustomerCardInfo {
+    func loadPaymentAccount(cardWalletAddress: String) async throws -> VisaCustomerCardInfo {
         do {
-            return try await loadPaymentAccountFromCIM(cardId: cardId, cardWalletAddress: cardWalletAddress)
+            return try await loadPaymentAccountFromCIM(cardWalletAddress: cardWalletAddress)
         } catch let error as VisaPaymentAccountAddressProviderError {
             VisaLogger.error("Missing information for selected card", error: error)
             if error != .bffIsNotAvailable {
@@ -45,22 +53,20 @@ extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
         let paymentAccount = try await loadPaymentAccountFromRegistry(cardWalletAddress: cardWalletAddress)
         return VisaCustomerCardInfo(
             paymentAccount: paymentAccount,
-            cardId: cardId,
             cardWalletAddress: cardWalletAddress,
             customerInfo: nil
         )
     }
 
-    private func loadPaymentAccountFromCIM(cardId: String, cardWalletAddress: String) async throws -> VisaCustomerCardInfo {
+    private func loadPaymentAccountFromCIM(cardWalletAddress: String) async throws -> VisaCustomerCardInfo {
         guard let customerInfoManagementService else {
             throw VisaPaymentAccountAddressProviderError.bffIsNotAvailable
         }
 
-        let customerInfo = try await customerInfoManagementService.loadCustomerInfo(cardId: cardId)
+        let customerInfo = try await customerInfoManagementService.loadCustomerInfo()
 
         return VisaCustomerCardInfo(
             paymentAccount: customerInfo.paymentAccount.address,
-            cardId: cardId,
             cardWalletAddress: cardWalletAddress,
             customerInfo: customerInfo
         )
