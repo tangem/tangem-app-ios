@@ -254,6 +254,15 @@ public final class SolanaNetworkService: MultiNetworkProvider {
         try await solanaSdk.api.getSlot()
     }
 
+    func getFeeForCompiled(message: String) -> AnyPublisher<Decimal, Error> {
+        solanaSdk.api
+            .getFeeForMessage(message)
+            .map { [blockchain] in
+                Decimal($0.value) / blockchain.decimalValue
+            }
+            .eraseToAnyPublisher()
+    }
+
     // MARK: - Private Implementation
 
     private func getFeeForMessage(
@@ -269,6 +278,7 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             computeUnitLimit: computeUnitLimit,
             computeUnitPrice: computeUnitPrice,
             allowUnfundedRecipient: true,
+            allowCompoundRecipient: true,
             fromPublicKey: fromPublicKey
         )
         .flatMap { [solanaSdk] message, _ -> AnyPublisher<FeeForMessageResult, Error> in

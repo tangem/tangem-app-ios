@@ -161,12 +161,8 @@ private extension DEXExpressProviderManager {
     }
 
     func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressManagerState.Ready {
-        guard let txData = data.txData.map(Data.init(hexString:)) else {
-            throw ExpressProviderError.transactionDataNotFound
-        }
-
         var variants = try await request.pair.source.feeProvider.getFee(
-            amount: .dex(txValue: data.txValue, txData: txData),
+            amount: .dex(fromAmount: request.amount, txValue: data.txValue, txData: data.txData),
             destination: data.destinationAddress
         )
 
