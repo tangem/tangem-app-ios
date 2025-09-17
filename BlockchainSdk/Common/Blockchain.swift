@@ -233,22 +233,7 @@ public indirect enum Blockchain: Equatable, Hashable {
 
     /// Allows to send to your own address
     public var supportsCompound: Bool {
-        switch self {
-        case .bitcoin,
-             .bitcoinCash,
-             .litecoin,
-             .dogecoin,
-             .dash,
-             .kaspa,
-             .ravencoin,
-             .ducatus,
-             .fact0rn,
-             .sui,
-             .pepecoin:
-            return true
-        default:
-            return false
-        }
+        isUTXO
     }
 
     /// Just drop the last node to generate XPUB
