@@ -30,7 +30,7 @@ final class CommonCryptoAccountsNetworkService {
 // MARK: - CryptoAccountsNetworkService protocol conformance
 
 extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
-    func getCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccounts {
+    func getCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo {
         do {
             let (revision, accountsDTO) = try await tangemApiService.getUserAccounts(userWalletId: userWalletId.stringValue)
 

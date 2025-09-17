@@ -19,7 +19,7 @@ struct CryptoAccountsNetworkMapper {
 
     // MARK: - Remote to Stored
 
-    func map(response: AccountsDTO.Response.Accounts) -> RemoteCryptoAccounts {
+    func map(response: AccountsDTO.Response.Accounts) -> RemoteCryptoAccountsInfo {
         let grouping = mapGroupingOption(groupType: response.wallet.group)
         let sorting = mapSortingOption(sortType: response.wallet.sort)
 
@@ -47,7 +47,7 @@ struct CryptoAccountsNetworkMapper {
             AppLogger.warning("Back-end inconsistency: incorrect next derivation index")
         }
 
-        return RemoteCryptoAccounts(
+        return RemoteCryptoAccountsInfo(
             nextDerivationIndex: nextDerivationIndex,
             accounts: accounts,
             legacyTokens: legacyTokens

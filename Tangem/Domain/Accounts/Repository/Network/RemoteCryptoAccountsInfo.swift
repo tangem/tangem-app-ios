@@ -1,5 +1,5 @@
 //
-//  RemoteCryptoAccounts.swift
+//  RemoteCryptoAccountsInfo.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct RemoteCryptoAccounts {
+struct RemoteCryptoAccountsInfo {
     /// Index for the derivation path to be used when creating a new account.
     let nextDerivationIndex: Int
     let accounts: [StoredCryptoAccount]
