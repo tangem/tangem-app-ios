@@ -10,7 +10,6 @@ import Foundation
 
 public struct VisaCustomerCardInfo {
     public let paymentAccount: String
-    public let cardId: String
     public let cardWalletAddress: String
     public let customerInfo: VisaCustomerInfoResponse?
 }
