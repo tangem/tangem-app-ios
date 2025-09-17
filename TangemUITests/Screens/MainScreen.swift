@@ -86,6 +86,24 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func validateDeveloperCardBannerExists() -> Self {
+        XCTContext.runActivity(named: "Validate developer card banner exists") { _ in
+            let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.developerCardBanner]
+            waitAndAssertTrue(bannerElement, "Developer card banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func validateMandatorySecurityUpdateBannerExists() -> Self {
+        XCTContext.runActivity(named: "Validate mandatory security update banner exists") { _ in
+            let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner]
+            waitAndAssertTrue(bannerElement, "Mandatory security update banner should be displayed")
+        }
+        return self
+    }
+
     func getTokensOrder() -> [String] {
         XCTContext.runActivity(named: "Get tokens order from main screen") { _ in
             // Wait for tokens list to be available

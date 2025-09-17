@@ -63,7 +63,7 @@ struct WCTransactionView: View {
 
         switch viewModel.presentationState {
         case .signing, .transactionDetails:
-            title = Localization.wcWalletConnect
+            title = Localization.wcTransactionFlowTitle
             backButtonAction = nil
             closeButtonAction = { viewModel.handleViewAction(.dismissTransactionView) }
         case .requestData:
@@ -116,11 +116,8 @@ struct WCTransactionView: View {
         .padding(16)
         .background {
             ListFooterOverlayShadowView(
-                colors: [
-                    Colors.Background.tertiary.opacity(0.0),
-                    Colors.Background.tertiary.opacity(0.95),
-                    Colors.Background.tertiary,
-                ]
+                color: Colors.Background.tertiary,
+                opacities: [0.0, 0.95, 1]
             )
             .padding(.top, 6)
         }
