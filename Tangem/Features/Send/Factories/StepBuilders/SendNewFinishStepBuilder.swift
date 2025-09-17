@@ -11,6 +11,9 @@ import Foundation
 struct SendNewFinishStepBuilder {
     typealias ReturnValue = SendNewFinishStep
 
+    let tokenItem: TokenItem
+    let coordinator: SendRoutable
+
     func makeSendFinishStep(
         input: SendFinishInput,
         sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
@@ -26,6 +29,8 @@ struct SendNewFinishStepBuilder {
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendFeeFinishViewModel: sendFeeFinishViewModel,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
+            tokenItem: tokenItem,
+            coordinator: coordinator
         )
 
         let step = SendNewFinishStep(viewModel: viewModel)
