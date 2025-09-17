@@ -96,7 +96,7 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
         // [REDACTED_TODO_COMMENT]
     }
 
-    func createNoficiationBannerIfNeeded() -> YieldModuleParams.YieldModuleBottomSheetNotificationBannerParams? {
+    func createNotificationBannerIfNeeded() -> YieldModuleParams.YieldModuleBottomSheetNotificationBannerParams? {
         switch flow {
         case .startEarning, .approve, .stopEarning:
             guard let info = flow.feeCurrencyInfo else { return nil }
