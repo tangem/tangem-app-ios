@@ -41,7 +41,7 @@ extension Analytics.EventLimit {
         }
     }
 
-    var contextScope: AnalyticsContextScope {
+    var contextScope: AnalyticsSessionContextScope {
         switch self {
         case .appSession, .unlimited:
             return .common
