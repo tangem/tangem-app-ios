@@ -16,7 +16,7 @@ struct TangemApiAuthorizationPlugin: PluginType {
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         var request = request
 
-        let apiKey = keysManager.tangemApiKey
+        let apiKey = getApiKey()
         if !apiKey.isEmpty {
             request.headers.add(name: "api-key", value: apiKey)
         }
@@ -28,6 +28,19 @@ struct TangemApiAuthorizationPlugin: PluginType {
         }
 
         return request
+    }
+
+    private func getApiKey() -> String {
+        switch FeatureStorage.instance.tangemAPIType {
+        case .prod:
+            keysManager.tangemApiKey
+        case .dev:
+            keysManager.tangemApiKeyDev
+        case .stage:
+            keysManager.tangemApiKeyStage
+        case .mock:
+            ""
+        }
     }
 }
 

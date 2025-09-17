@@ -11,6 +11,8 @@ import enum BlockchainSdk.Blockchain
 import TangemFoundation
 import TangemLocalization
 import TangemLogger
+import TangemUI
+import TangemAssets
 
 @MainActor
 final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
@@ -297,7 +299,10 @@ extension WalletConnectDAppConnectionRequestViewModel {
             connectionRequestSectionIsExpanded: state.connectionRequestSection.isExpanded,
             selectedUserWalletName: selectedUserWallet.name,
             walletSelectionIsAvailable: state.walletSection.selectionIsAvailable,
-            blockchainsAvailabilityResult: blockchainsAvailabilityResult
+            blockchainsAvailabilityResult: blockchainsAvailabilityResult,
+            verifiedDomainAction: { [weak self] in
+                self?.handle(viewEvent: .verifiedDomainIconTapped)
+            }
         )
     }
 }
@@ -305,7 +310,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
 extension WalletConnectDAppConnectionRequestViewState {
     static func loading(selectedUserWalletName: String, walletSelectionIsAvailable: Bool) -> WalletConnectDAppConnectionRequestViewState {
         WalletConnectDAppConnectionRequestViewState(
-            dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.loading,
+            dAppDescriptionSection: EntitySummaryView.ViewState.loading,
             connectionRequestSection: ConnectionRequestSection.loading,
             dAppVerificationWarningSection: nil,
             walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
@@ -320,16 +325,29 @@ extension WalletConnectDAppConnectionRequestViewState {
         connectionRequestSectionIsExpanded: Bool,
         selectedUserWalletName: String,
         walletSelectionIsAvailable: Bool,
-        blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult
+        blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult,
+        verifiedDomainAction: @escaping () -> Void
     ) -> WalletConnectDAppConnectionRequestViewState {
         let connectButtonIsEnabled = blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty
             && blockchainsAvailabilityResult.retrieveSelectedBlockchains().isNotEmpty
 
+        let verifcationStatusIconConfig = EntitySummaryView.ViewState.TitleInfoConfig(
+            imageType: Assets.Glyphs.verified,
+            foregroundColor: Colors.Icon.accent,
+            onTap: verifiedDomainAction
+        )
+
         return WalletConnectDAppConnectionRequestViewState(
-            dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.content(
-                WalletConnectDAppDescriptionViewModel.ContentState(
-                    dAppData: proposal.dAppData,
-                    verificationStatus: proposal.verificationStatus
+            dAppDescriptionSection: EntitySummaryView.ViewState.content(
+                EntitySummaryView.ViewState.ContentState(
+                    imageLocation: .remote(
+                        EntitySummaryView.ViewState.ContentState.ImageLocation.RemoteImageConfig(iconURL: proposal.dAppData.icon)
+                    ),
+                    title: proposal.dAppData.name,
+                    subtitle: proposal.dAppData.domain.host ?? "",
+                    titleInfoConfig: proposal.verificationStatus.isVerified
+                        ? verifcationStatusIconConfig
+                        : nil
                 )
             ),
             connectionRequestSection: ConnectionRequestSection.content(
