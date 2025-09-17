@@ -60,7 +60,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .accounts: return .unspecified
         case .nftNewSendUI: return .version("5.28")
         case .receiveENS: return .version("5.28")
-        case .sellNewSendUI: return .unspecified
+        case .sellNewSendUI: return .version("5.29")
         case .newOnrampUI: return .unspecified
         }
     }
