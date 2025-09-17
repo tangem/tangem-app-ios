@@ -27,7 +27,7 @@ final class MobileOnboardingSeedPhraseIntroViewModel {
 
 extension MobileOnboardingSeedPhraseIntroViewModel {
     func onFirstAppear() {
-        Analytics.log(.walletSettingsBackupScreenOpened)
+        Analytics.log(.walletSettingsBackupScreenOpened, contextParams: .custom(.mobileWallet))
     }
 
     func onContinueTap() {
