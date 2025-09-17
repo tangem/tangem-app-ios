@@ -221,14 +221,16 @@ private extension YieldModuleBottomSheetView {
             BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
 
             VStack(spacing: 3) {
-                Text(Localization.yieldModuleEarnSheetTitle).style(Fonts.Bold.headline, color: Colors.Text.primary1)
+                Text(Localization.yieldModuleEarnSheetTitle)
+                    .style(Fonts.Bold.headline, color: Colors.Text.primary1)
 
                 HStack(spacing: 4) {
                     Circle()
                         .fill(Colors.Icon.accent)
                         .frame(size: .init(bothDimensions: 8))
 
-                    Text(status).style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    Text(status)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 }
             }
         }
