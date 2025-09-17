@@ -23,7 +23,6 @@ struct AuthCoordinatorView: CoordinatorView {
         NavigationView {
             content
                 .navigationLinks(links)
-                .navigationBarHidden(true)
         }
         .navigationViewStyle(.stack)
     }

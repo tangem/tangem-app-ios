@@ -24,7 +24,10 @@ struct TangemPayOfferView: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(spacing: 24) {
-                    circleCardImageView(circleSize: screenWidth * 0.625)
+                    Assets.Visa.card.image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: screenWidth * 0.5)
 
                     titleSection
                         .padding(.horizontal, 20)
@@ -34,24 +37,10 @@ struct TangemPayOfferView: View {
                 }
             }
 
-            orderButton
+            getCardButton
                 .padding(.horizontal, 16)
         }
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
-    }
-
-    private func circleCardImageView(circleSize: CGFloat) -> some View {
-        Circle()
-            .fill(Colors.Background.tertiary)
-            .frame(width: circleSize, height: circleSize)
-            .padding(.horizontal, 10)
-            .overlay(cardImageView)
-    }
-
-    private var cardImageView: some View {
-        Assets.Visa.card.image
-            .resizable()
-            .aspectRatio(contentMode: .fit)
     }
 
     private var titleSection: some View {
@@ -109,13 +98,13 @@ struct TangemPayOfferView: View {
         }
     }
 
-    private var orderButton: some View {
+    private var getCardButton: some View {
         // [REDACTED_TODO_COMMENT]
         MainButton(
-            title: "Order card",
+            title: "Get card",
             icon: .trailing(Assets.tangemIcon),
             style: .primary,
-            action: viewModel.orderCard
+            action: viewModel.getCard
         )
     }
 }
