@@ -821,6 +821,7 @@
 "onramp_currency_popular" = "Monedas fiduciarias populares";
 "onramp_currency_search" = "Buscar por moneda";
 "onramp_instant_status" = "Instant";
+"onramp_legal_text" = "Service is provided by an external provider.\nTangem is not responsible.";
 "onramp_legal" = "Al utilizar la funcionalidad onramp, acepta %1$@ y %2$@ del proveedor.";
 "onramp_max_amount_restriction" = "El monto de la compra no debe ser mayor a %@";
 "onramp_min_amount_restriction" = "La cantidad a comprar debe ser como mínimo %@";
