@@ -22,7 +22,7 @@ public struct DecodedTransactionDetails: Decodable {
     /// transaction data
     let txData: String?
     /// amount (same as fromAmount)
-    let txValue: String
+    let txValue: String?
     /// Additional fee for dex/bridge
     let otherNativeFee: String?
     /// Estimated gas for txData
