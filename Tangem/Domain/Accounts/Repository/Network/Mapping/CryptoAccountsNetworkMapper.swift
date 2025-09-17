@@ -12,9 +12,14 @@ import struct TangemSdk.DerivationPath
 /// Re-uses some logic from `UserTokenListConverter`.
 struct CryptoAccountsNetworkMapper {
     private let supportedBlockchains: SupportedBlockchainsSet
+    private let remoteIdentifierBuilder: (_ input: StoredCryptoAccount) -> String
 
-    init(supportedBlockchains: SupportedBlockchainsSet) {
+    init<T>(
+        supportedBlockchains: SupportedBlockchainsSet,
+        remoteIdentifierBuilder: T
+    ) where T: CryptoAccountsRemoteIdentifierBuilding, T.Input == StoredCryptoAccount, T.Output == String {
         self.supportedBlockchains = supportedBlockchains
+        self.remoteIdentifierBuilder = remoteIdentifierBuilder.build(from:)
     }
 
     // MARK: - Remote to Stored
@@ -147,7 +152,20 @@ struct CryptoAccountsNetworkMapper {
     // MARK: - Stored to Remote
 
     func map(request: [StoredCryptoAccount]) -> AccountsDTO.Request.Accounts {
-        fatalError("Not implemented")
+        let accounts = request
+            .map { account in
+                let identifier = remoteIdentifierBuilder(account)
+
+                return AccountsDTO.Request.Accounts.Account(
+                    id: identifier,
+                    name: account.name,
+                    icon: account.icon.iconName,
+                    iconColor: account.icon.iconColor,
+                    derivation: account.derivationIndex
+                )
+            }
+
+        return AccountsDTO.Request.Accounts(accounts: accounts)
     }
 
     // MARK: - Archived
