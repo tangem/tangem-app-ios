@@ -1,5 +1,5 @@
 //
-//  AnalyticsContextScope.swift
+//  AnalyticsSessionContextScope.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemFoundation
 
-enum AnalyticsContextScope {
+enum AnalyticsSessionContextScope {
     case common
     case userWallet(UserWalletId)
 }
