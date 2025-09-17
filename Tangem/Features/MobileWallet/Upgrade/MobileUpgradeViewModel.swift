@@ -139,7 +139,6 @@ extension MobileUpgradeViewModel {
 private extension MobileUpgradeViewModel {
     func scanCard() {
         isScanning = true
-        Analytics.beginLoggingCardScan(source: .welcome)
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()

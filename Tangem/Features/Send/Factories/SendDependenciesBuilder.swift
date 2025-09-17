@@ -472,7 +472,10 @@ struct SendDependenciesBuilder {
     }
 
     func makeExpressNotificationManager() -> ExpressNotificationManager {
-        ExpressNotificationManager(expressInteractor: expressDependenciesFactory.expressInteractor)
+        ExpressNotificationManager(
+            userWalletId: input.userWalletInfo.id,
+            expressInteractor: expressDependenciesFactory.expressInteractor
+        )
     }
 
     func makeSendNewNotificationManager(receiveTokenInput: SendReceiveTokenInput?) -> SendNotificationManager {
