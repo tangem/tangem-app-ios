@@ -501,6 +501,7 @@
 		2DD669372E28EDDD006D715A /* SolanaALTSendTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD669362E28EDDD006D715A /* SolanaALTSendTransactionBuilder.swift */; };
 		2DD754D72AE1660D0009CA64 /* GenerateAddressesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */; };
 		2DD91FA62E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD91FA52E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift */; };
+		2DD94BFE2E7AEDB00011DA7C /* NetworkProviderAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD94BFD2E7AEDB00011DA7C /* NetworkProviderAnalyticsLogger.swift */; };
 		2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */; };
 		2DDFA7952C230E2F00E51F7F /* MarketCapFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDFA7942C230E2F00E51F7F /* MarketCapFormatter.swift */; };
 		2DE0BA992CA93100002C09D9 /* BlockHeaderTitleButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BA982CA93100002C09D9 /* BlockHeaderTitleButtonView.swift */; };
@@ -4688,6 +4689,7 @@
 		2DD669362E28EDDD006D715A /* SolanaALTSendTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaALTSendTransactionBuilder.swift; sourceTree = "<group>"; };
 		2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateAddressesViewModel.swift; sourceTree = "<group>"; };
 		2DD91FA52E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorReceiveRoundButtonView.swift; sourceTree = "<group>"; };
+		2DD94BFD2E7AEDB00011DA7C /* NetworkProviderAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkProviderAnalyticsLogger.swift; sourceTree = "<group>"; };
 		2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemMenuActions.swift; sourceTree = "<group>"; };
 		2DDFA7942C230E2F00E51F7F /* MarketCapFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketCapFormatter.swift; sourceTree = "<group>"; };
 		2DE0BA982CA93100002C09D9 /* BlockHeaderTitleButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockHeaderTitleButtonView.swift; sourceTree = "<group>"; };
@@ -11910,6 +11912,7 @@
 				0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */,
 				B6438A0D2D091BE5009439CA /* FirebaseAnalyticsEventConverter.swift */,
 				0A16965A2E4DFCA400FBDA90 /* SignInAnalyticsLogger.swift */,
+				2DD94BFD2E7AEDB00011DA7C /* NetworkProviderAnalyticsLogger.swift */,
 			);
 			path = Analytics;
 			sourceTree = "<group>";
@@ -24471,6 +24474,7 @@
 				DA4055282ABDD3A300353F8A /* AddCustomTokenNetworksListViewModel.swift in Sources */,
 				0FB93BB72E55B9A900DAB673 /* SessionMobileAccessCodeManager.swift in Sources */,
 				B0F1CC3C2C086B20000DE4A0 /* ManageTokensViewModel.swift in Sources */,
+				2DD94BFE2E7AEDB00011DA7C /* NetworkProviderAnalyticsLogger.swift in Sources */,
 				B0CFD6CB2A027E2E009DF4D5 /* TokenQuotesRepository.swift in Sources */,
 				DA7859E12AB0451F004FAE04 /* GenerateAddressesView.swift in Sources */,
 				EFAD40B62A9CB22500364D65 /* SensitiveTextVisibilityViewModel.swift in Sources */,

@@ -384,7 +384,8 @@ struct SendDependenciesBuilder {
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             feeAnalyticsParameterBuilder: makeFeeAnalyticsParameterBuilder(),
-            sendType: sendType
+            sendType: sendType,
+            sendWalletModelFeature: walletModel.features.find(id: .send)
         )
     }
 
