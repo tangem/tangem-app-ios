@@ -33,12 +33,16 @@ final class MobileOnboardingCreateWalletViewModel: ObservableObject {
 
 extension MobileOnboardingCreateWalletViewModel {
     func onAppear() {
-        Analytics.log(.createWalletScreenOpened)
+        Analytics.log(.createWalletScreenOpened, contextParams: .custom(.mobileWallet))
     }
 
     func onCreateTap() {
         isCreating = true
-        Analytics.log(event: .buttonCreateWallet, params: [.productType: Analytics.ProductType.mobileWallet.rawValue])
+        Analytics.log(
+            event: .buttonCreateWallet,
+            params: [:],
+            contextParams: .custom(.mobileWallet)
+        )
 
         runTask(in: self) { viewModel in
             do {
@@ -97,7 +101,8 @@ private extension MobileOnboardingCreateWalletViewModel {
 
         Analytics.log(
             event: .walletCreatedSuccessfully,
-            params: params
+            params: params,
+            contextParams: .custom(.mobileWallet)
         )
     }
 }
