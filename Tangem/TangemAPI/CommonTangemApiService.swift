@@ -44,7 +44,7 @@ class CommonTangemApiService {
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
 
-            return try response.mapAPIResponseAndTangemAPIError(allowRedirectCodes: false, decoder: decoder)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false, decoder: decoder)
         }
     }
 
@@ -395,7 +395,7 @@ extension CommonTangemApiService: TangemApiService {
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
             let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
-            let accounts: AccountsDTO.Response.Accounts = try response.mapAPIResponseAndTangemAPIError(
+            let accounts: AccountsDTO.Response.Accounts = try response.mapAPIResponseThrowingTangemAPIError(
                 allowRedirectCodes: true,
                 decoder: decoder
             )
