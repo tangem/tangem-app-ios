@@ -15,4 +15,5 @@ struct WalletModelFeaturesManagerMock {}
 
 extension WalletModelFeaturesManagerMock: WalletModelFeaturesManager {
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { .just(output: []) }
+    var features: [WalletModelFeature] { [] }
 }

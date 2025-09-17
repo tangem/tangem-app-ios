@@ -139,6 +139,11 @@ extension NFTSendWalletModelProxy: WalletModel {
         .just(output: [])
     }
 
+    var features: [WalletModelFeature] {
+        // Look at featuresPublisher
+        []
+    }
+
     var stakingManager: StakingManager? {
         // No staking for NFT
         nil
