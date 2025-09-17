@@ -97,8 +97,9 @@ private extension CreateWalletSelectorViewModel {
 
 private extension CreateWalletSelectorViewModel {
     func scanCard() {
+        Analytics.log(Analytics.CardScanSource.createWallet.cardScanButtonEvent)
+
         isScanning = true
-        Analytics.beginLoggingCardScan(source: .createWallet)
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -124,6 +125,8 @@ private extension CreateWalletSelectorViewModel {
                 }
 
             case .onboarding(let input, _):
+                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue])
+
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -141,6 +144,8 @@ private extension CreateWalletSelectorViewModel {
                 }
 
             case .success(let cardInfo):
+                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue])
+
                 do {
                     if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
                         walletInfo: .cardWallet(cardInfo),
