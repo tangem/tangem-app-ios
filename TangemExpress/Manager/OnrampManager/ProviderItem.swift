@@ -13,20 +13,32 @@ public typealias ProvidersList = [ProviderItem]
 
 public class ProviderItem {
     public let paymentMethod: OnrampPaymentMethod
+    public let sorter: ProviderItemSorter
+
     public private(set) var providers: [OnrampProvider]
 
-    init(paymentMethod: OnrampPaymentMethod, providers: [OnrampProvider]) {
+    init(
+        paymentMethod: OnrampPaymentMethod,
+        sorter: ProviderItemSorter,
+        providers: [OnrampProvider]
+    ) {
         self.paymentMethod = paymentMethod
+        self.sorter = sorter
         self.providers = providers
     }
 
     public func hasSelectableProviders() -> Bool {
-        providers.filter { $0.isShowable && $0.isSelectable }.isNotEmpty
+        providers.contains { $0.isShowable && $0.isSelectable }
     }
 
     /// Provider which can be showed and selected
     public func maxPriorityProvider() -> OnrampProvider? {
         providers.first(where: { $0.isShowable && $0.isSelectable })
+    }
+
+    /// Provider which can be showed and selected
+    public func preferredProvider(providerId: String) -> OnrampProvider? {
+        providers.first(where: { $0.provider.id == providerId && $0.isShowable && $0.isSelectable })
     }
 
     /// Provider which can be selected by user
@@ -36,7 +48,6 @@ public class ProviderItem {
 
     @discardableResult
     public func sort() -> [OnrampProvider] {
-        let sorter = ProviderItemSorter()
         providers.sort(by: { sorter.sort(lhs: $0, rhs: $1) })
         // Return sorted providers
         return providers
@@ -89,11 +100,11 @@ public extension ProvidersList {
         !flatMap { $0.providers }.isEmpty
     }
 
-    func select(for paymentMethod: OnrampPaymentMethod) -> ProviderItem? {
-        first(where: { $0.paymentMethod == paymentMethod })
+    func select(for paymentMethod: OnrampPaymentMethod.MethodType) -> ProviderItem? {
+        first(where: { $0.paymentMethod.type == paymentMethod })
     }
 
-    func sorted() -> Self {
+    func sorted(sorter: ProviderItemSorter) -> Self {
         forEach { $0.sort() }
 
         return sorted { lhs, rhs in
@@ -104,7 +115,7 @@ public extension ProvidersList {
 
             switch (lhs.providers.first, rhs.providers.first) {
             case (.some(let lhsProvider), .some(let rhsProvider)):
-                return ProviderItemSorter().sort(lhs: lhsProvider, rhs: rhsProvider)
+                return sorter.sort(lhs: lhsProvider, rhs: rhsProvider)
             case (.none, _), (_, .none):
                 return false
             }
