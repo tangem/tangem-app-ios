@@ -50,9 +50,16 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         }
     }
 
-    func getArchivedCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> [StoredCryptoAccount] {
-        // [REDACTED_TODO_COMMENT]
-        throw CryptoAccountsNetworkServiceError.underlyingError("Not implemented")
+    func getArchivedCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> [ArchivedCryptoAccountInfo] {
+        do {
+            let archivedAccountsDTO = try await tangemApiService.getArchivedUserAccounts(userWalletId: userWalletId.stringValue)
+
+            return mapper.map(response: archivedAccountsDTO)
+        } catch let error as CryptoAccountsNetworkServiceError {
+            throw error // Just re-throw an original error
+        } catch {
+            throw CryptoAccountsNetworkServiceError.underlyingError(error)
+        }
     }
 
     func save(cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError) {
