@@ -17,7 +17,6 @@ import struct TangemUIUtils.AlertBinder
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     @Injected(\.userWalletRepository) var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
-    @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
 
     var navbarSize: CGSize { OnboardingLayoutConstants.navbarSize }
     var progressBarHeight: CGFloat { OnboardingLayoutConstants.progressBarHeight }
@@ -154,7 +153,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         let analyticsSourceRawValue = Analytics.ParameterValue.onboarding.rawValue
         let analyticsParams: [Analytics.ParameterKey: String] = [.source: analyticsSourceRawValue]
 
-        Analytics.log(event: .manageTokensScreenOpened, params: analyticsParams)
+        logAnalytics(event: .manageTokensScreenOpened, params: analyticsParams)
 
         let manageTokensAdapter = ManageTokensAdapter(
             settings: .init(
@@ -216,9 +215,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             return
         }
 
-        globalServicesContext.initializeServices(userWalletModel: userWallet)
-
-        Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId)
+        Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId, contextParams: getContextParams())
 
         userWalletModel = userWallet
     }
@@ -301,7 +298,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     func onOnboardingFinished(for cardId: String) {
         if AppSettings.shared.cardsStartedActivation.contains(cardId) {
-            Analytics.log(.onboardingFinished)
+            logAnalytics(.onboardingFinished)
             AppSettings.shared.cardsStartedActivation.remove(cardId)
         }
     }
@@ -361,6 +358,28 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         OnboardingUtils().processSaveUserWalletRequestResult(agreed: agreed)
     }
 
+    func logAnalytics(_ event: Analytics.Event, params: [Analytics.ParameterKey: Analytics.ParameterValue] = [:]) {
+        Analytics.log(event, params: params, contextParams: getContextParams())
+    }
+
+    func logAnalytics(event: Analytics.Event, params: [Analytics.ParameterKey: String] = [:]) {
+        Analytics.log(event: event, params: params, contextParams: getContextParams())
+    }
+
+    func getContextParams() -> Analytics.ContextParams {
+        let contextParams: Analytics.ContextParams
+
+        if let userWalletModel {
+            contextParams = .custom(userWalletModel.analyticsContextData)
+        } else if let cardInfo = input.cardInput.cardInfo {
+            contextParams = .custom(cardInfo.analyticsContextData)
+        } else {
+            contextParams = .default
+        }
+
+        return contextParams
+    }
+
     private func loadMainImage(imageProvider: WalletImageProviding) {
         runTask(in: self) { model in
             let imageValue = await imageProvider.loadLargeImage()
@@ -378,43 +397,42 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             .removeDuplicates()
             .delay(for: 0.1, scheduler: DispatchQueue.main)
             .receiveValue { [weak self] index in
-                guard let steps = self?.steps,
-                      index < steps.count else { return }
+                guard let self, index < steps.count else { return }
 
                 let currentStep = steps[index]
 
                 if let walletStep = currentStep as? WalletOnboardingStep {
                     switch walletStep {
                     case .createWallet, .createWalletSelector:
-                        Analytics.log(.createWalletScreenOpened)
+                        logAnalytics(.createWalletScreenOpened)
                     case .backupIntro:
-                        Analytics.log(.backupScreenOpened)
+                        logAnalytics(.backupScreenOpened)
                     case .selectBackupCards:
-                        Analytics.log(.backupStarted)
+                        logAnalytics(.backupStarted)
                     case .seedPhraseIntro:
-                        Analytics.log(.onboardingSeedIntroScreenOpened)
+                        logAnalytics(.onboardingSeedIntroScreenOpened)
                     case .seedPhraseGeneration:
-                        Analytics.log(.onboardingSeedGenerationScreenOpened)
+                        logAnalytics(.onboardingSeedGenerationScreenOpened)
                     case .seedPhraseUserValidation:
-                        Analytics.log(.onboardingSeedCheckingScreenOpened)
+                        logAnalytics(.onboardingSeedCheckingScreenOpened)
                     case .seedPhraseImport:
-                        Analytics.log(.onboardingSeedImportScreenOpened)
+                        logAnalytics(.onboardingSeedImportScreenOpened)
                     default:
                         break
                     }
                 } else if let singleCardStep = currentStep as? SingleCardOnboardingStep {
                     switch singleCardStep {
                     case .createWallet:
-                        Analytics.log(.createWalletScreenOpened)
+                        logAnalytics(.createWalletScreenOpened)
                     default:
                         break
                     }
                 } else if let twinStep = currentStep as? TwinsOnboardingStep {
                     switch twinStep {
                     case .first:
-                        Analytics.log(.createWalletScreenOpened)
+                        logAnalytics(.createWalletScreenOpened)
                     case .done:
-                        Analytics.log(.twinSetupFinished)
+                        logAnalytics(.twinSetupFinished)
                     default:
                         break
                     }
@@ -432,18 +450,11 @@ extension OnboardingViewModel {
     }
 
     func closeOnboarding() {
-        // reset services before exit
-
-        globalServicesContext.resetServices()
-        if let userWalletModel {
-            globalServicesContext.initializeServices(userWalletModel: userWalletModel)
-        }
-
         coordinator?.closeOnboarding()
     }
 
     func openSupport() {
-        Analytics.log(.requestSupport, params: [.source: .onboarding])
+        logAnalytics(.requestSupport, params: [.source: .onboarding])
 
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
