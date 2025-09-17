@@ -139,7 +139,7 @@ final class VeChainTransactionBuilder {
                 input.value = Data(0x00)
                 input.to = token.contractAddress
                 input.data = tokenMethod.data
-            case .reserve, .feeResource:
+            case .reserve, .feeResource, .tokenYieldSupply:
                 // Not supported
                 throw BlockchainSdkError.failedToBuildTx
             }

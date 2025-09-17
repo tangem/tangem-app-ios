@@ -9,7 +9,7 @@
 import Foundation
 
 public struct EffectiveBalanceMethod {
-    let yieldTokenAddress: String
+    let tokenContractAddress: String
 }
 
 extension EffectiveBalanceMethod: YieldSmartContractMethod {

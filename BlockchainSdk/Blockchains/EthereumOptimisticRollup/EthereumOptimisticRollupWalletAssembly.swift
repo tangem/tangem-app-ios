@@ -16,6 +16,11 @@ struct EthereumOptimisticRollupWalletAssembly: WalletManagerAssembly {
             throw ETHError.chainIdNotFound
         }
 
+        let yieldSupplyProviderFactory = YieldSupplyProviderFactory(
+            wallet: wallet,
+            dataStorage: input.blockchainSdkDependencies.dataStorage
+        )
+
         let providers = networkProviderAssembly.makeEthereumJsonRpcProviders(with: input.networkInput)
         let txBuilder = EthereumTransactionBuilder(
             chainId: chainId,
@@ -25,6 +30,7 @@ struct EthereumOptimisticRollupWalletAssembly: WalletManagerAssembly {
             decimals: wallet.blockchain.decimalCount,
             providers: providers,
             abiEncoder: WalletCoreABIEncoder(),
+            yieldSupplyProviderFactory: yieldSupplyProviderFactory,
             blockchainName: wallet.blockchain.displayName
         )
 
@@ -35,6 +41,7 @@ struct EthereumOptimisticRollupWalletAssembly: WalletManagerAssembly {
             addressConverter: addressConverter,
             txBuilder: txBuilder,
             networkService: networkService,
+            yieldSupplyProvider: yieldSupplyProviderFactory.makeProvider(networkService: networkService),
             allowsFeeSelection: wallet.blockchain.allowsFeeSelection
         )
     }
