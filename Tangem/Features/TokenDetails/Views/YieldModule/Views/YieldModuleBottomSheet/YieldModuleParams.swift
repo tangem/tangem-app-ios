@@ -23,7 +23,7 @@ enum YieldModuleParams {
         @IgnoredEquatable var goToFeeCurrencyAction: @MainActor @Sendable () -> Void
     }
 
-    struct СommonParams: Equatable {
+    struct CommonParams: Equatable {
         let tokenName: String
         let networkFee: String
         let feeCurrencyInfo: FeeCurrencyInfo?
