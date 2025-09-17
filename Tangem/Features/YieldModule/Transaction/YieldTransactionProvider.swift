@@ -15,17 +15,20 @@ final class YieldTransactionProvider {
     private let blockchain: Blockchain
     private let transactionCreator: TransactionCreator
     private let transactionBuilder: EthereumTransactionDataBuilder
+    private let yieldSupplyContractAddresses: YieldSupplyContractAddresses
 
     init(
         token: Token,
         blockchain: Blockchain,
         transactionCreator: TransactionCreator,
-        transactionBuilder: EthereumTransactionDataBuilder
+        transactionBuilder: EthereumTransactionDataBuilder,
+        yieldSupplyContractAddresses: YieldSupplyContractAddresses
     ) {
         self.token = token
         self.blockchain = blockchain
         self.transactionCreator = transactionCreator
         self.transactionBuilder = transactionBuilder
+        self.yieldSupplyContractAddresses = yieldSupplyContractAddresses
     }
 
     // MARK: - Deploy
@@ -39,7 +42,7 @@ final class YieldTransactionProvider {
     ) async throws -> [Transaction] {
         let deployTransaction = try await deployTransaction(
             address: address,
-            contractAddress: YieldConstants.yieldModuleFactoryContractAddress,
+            contractAddress: yieldSupplyContractAddresses.factoryContractAddress,
             fee: fee.deployFee
         )
 
@@ -196,7 +199,7 @@ private extension YieldTransactionProvider {
         )
 
         return try await transaction(
-            contractAddress: YieldConstants.yieldModuleFactoryContractAddress,
+            contractAddress: yieldSupplyContractAddresses.factoryContractAddress,
             txData: deployAction.data,
             fee: fee,
         )
@@ -251,7 +254,7 @@ private extension YieldTransactionProvider {
 
     private func transaction(contractAddress: String, txData: Data, fee: Fee) async throws -> Transaction {
         try await transactionCreator.createTransaction(
-            amount: Amount(with: token, value: .zero),
+            amount: Amount(with: fee.amount, value: .zero),
             fee: fee,
             destinationAddress: contractAddress,
             contractAddress: contractAddress,
