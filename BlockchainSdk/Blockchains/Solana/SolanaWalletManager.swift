@@ -303,3 +303,51 @@ extension SolanaWalletManager: StakeKitTransactionDataBroadcaster {
         ).async()
     }
 }
+
+// MARK: - CompiledTransactionSender & CompiledTransactionFeeProvider
+
+extension SolanaWalletManager: CompiledTransactionSender, CompiledTransactionFeeProvider {
+    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
+        let (buildForSign, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
+
+        let decimalFeeValue = try await networkService.getFeeForCompiled(message: buildForSign.base64EncodedString()).async()
+        let feeAmount = Amount(with: wallet.blockchain, type: .coin, value: decimalFeeValue)
+
+        return [Fee(feeAmount)]
+    }
+
+    func send(compiledTransaction data: Data, signer: any TransactionSigner) async throws -> TransactionSendResult {
+        guard let walletPublicKey = SolanaSwift.PublicKey(data: wallet.publicKey.blockchainKey) else {
+            let error = BlockchainSdkError.failedToBuildTx
+            BSDKLogger.error(error: error)
+            throw error
+        }
+
+        let solanaSigner = SolanaTransactionSigner(
+            transactionSigner: signer,
+            walletPublicKey: wallet.publicKey
+        )
+
+        let transaction: VersionedTransaction
+
+        do {
+            transaction = try VersionedTransaction.deserialize(data: data, isIncludeSignature: true)
+        } catch {
+            BSDKLogger.error(error: error)
+            throw error
+        }
+
+        let buildForSign = try transaction.prepareForSign()
+        let signature = try await solanaSigner.sign(message: buildForSign)
+        let signatures = [Signature(signature: signature, publicKey: walletPublicKey)]
+        try transaction.prepareForSend(signatures: signatures)
+        let buildForSend = try transaction.serialize()
+
+        let hash = try await networkService.sendRaw(
+            base64serializedTransaction: buildForSend.base64EncodedString(),
+            startSendingTimestamp: Date()
+        ).async()
+
+        return TransactionSendResult(hash: hash)
+    }
+}
