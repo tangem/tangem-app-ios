@@ -311,6 +311,10 @@ extension VisaWalletModel: WalletModel {
         .just(output: [])
     }
 
+    var features: [WalletModelFeature] {
+        []
+    }
+
     var stakingManager: (any StakingManager)? { nil }
 
     var stakeKitTransactionSender: (any StakeKitTransactionSender)? { nil }

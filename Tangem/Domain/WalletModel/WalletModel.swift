@@ -46,6 +46,7 @@ protocol WalletModel:
     var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? { get }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { get }
+    var features: [WalletModelFeature] { get }
 
     // MARK: - Staking
 
