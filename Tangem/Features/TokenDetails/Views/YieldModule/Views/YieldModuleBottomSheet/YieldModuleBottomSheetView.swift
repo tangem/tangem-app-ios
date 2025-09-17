@@ -191,7 +191,7 @@ struct YieldModuleBottomSheetView: View {
     }
 
     private var notificationBanner: YieldModuleParams.YieldModuleBottomSheetNotificationBannerParams? {
-        viewModel.createNoficiationBannerIfNeeded()
+        viewModel.createNotificationBannerIfNeeded()
     }
 
     private var ctaButtonAction: () -> Void {
