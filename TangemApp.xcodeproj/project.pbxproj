@@ -9805,15 +9805,15 @@
 			path = Receive;
 			sourceTree = "<group>";
 		};
-		2DE3DF952E72BF6900A687FC /* quai */ = {
+		2DE3DF952E72BF6900A687FC /* Quai */ = {
 			isa = PBXGroup;
 			children = (
-				2DE3DF962E72BF7B00A687FC /* QuaiExternalLinkProvider.swift */,
 				2DE3DF9A2E72C5EF00A687FC /* QuaiAddressService.swift */,
-				2DE3DF9C2E72C6CD00A687FC /* QuaiZoneUtils.swift */,
 				2DE3DFC32E741DB100A687FC /* QuaiAddressUtils.swift */,
+				2DE3DF962E72BF7B00A687FC /* QuaiExternalLinkProvider.swift */,
+				2DE3DF9C2E72C6CD00A687FC /* QuaiZoneUtils.swift */,
 			);
-			path = quai;
+			path = Quai;
 			sourceTree = "<group>";
 		};
 		2DFC27912C78E833009B247E /* TokenItemInfo */ = {
@@ -14143,7 +14143,7 @@
 				B62D3DA72CBC79D900C2460E /* NEAR */,
 				2D53D2432D95796D00865200 /* Pepecoin */,
 				B62D3DD02CBC79D900C2460E /* Polkadot */,
-				2DE3DF952E72BF6900A687FC /* quai */,
+				2DE3DF952E72BF6900A687FC /* Quai */,
 				B62D3DDE2CBC79D900C2460E /* Radiant */,
 				B62D3DED2CBC79D900C2460E /* Ravencoin */,
 				B62D3DF02CBC79D900C2460E /* Rsk */,
