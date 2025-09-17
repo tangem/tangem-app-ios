@@ -30,6 +30,7 @@ class XRPWalletManager: BaseManager, WalletManager {
     private var lastTrustlineOpenAttemptDate: Date?
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
+        let tokens = cardTokens
         cancellable = networkService
             .getInfo(account: wallet.address)
             .sink(receiveCompletion: { [weak self] completionSubscription in
@@ -38,12 +39,12 @@ class XRPWalletManager: BaseManager, WalletManager {
                     completion(.failure(error))
                 }
             }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response)
+                self?.updateWallet(with: response, tokens: tokens)
                 completion(.success(()))
             })
     }
 
-    private func updateWallet(with response: XrpInfoResponse) {
+    private func updateWallet(with response: XrpInfoResponse, tokens: [Token]) {
         var trustlineCount: Decimal = 0
 
         switch response.trustlines {
@@ -73,7 +74,7 @@ class XRPWalletManager: BaseManager, WalletManager {
             wallet.clearPendingTransaction()
         }
 
-        for token in cardTokens {
+        for token in tokens {
             switch response.trustlines {
             case .success:
                 // If the trustline exists, extract the balance.

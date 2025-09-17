@@ -125,7 +125,7 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var emailData: [EmailCollectedData] {
-        CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
+        EmailDataFactory().makeEmailData(for: card, walletData: walletData)
     }
 
     var userWalletIdSeed: Data? {
@@ -229,6 +229,10 @@ extension LegacyConfig: UserWalletConfig {
             return .hidden
         case .isBalanceRestrictionActive:
             return .hidden
+        case .userWalletUpgrade:
+            return .hidden
+        case .cardSettings:
+            return .available
         }
     }
 

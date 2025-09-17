@@ -8,8 +8,10 @@
 
 import Foundation
 
-struct ProviderItemSorter {
-    func sort(lhs: OnrampProvider, rhs: OnrampProvider) -> Bool {
+public struct ProviderItemSorter {
+    public init() {}
+
+    public func sort(lhs: OnrampProvider, rhs: OnrampProvider) -> Bool {
         switch (lhs.state, rhs.state) {
         case (.loaded(let lhsQuote), .loaded(let rhsQuote)):
             return lhsQuote.expectedAmount > rhsQuote.expectedAmount

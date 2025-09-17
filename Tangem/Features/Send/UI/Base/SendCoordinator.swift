@@ -88,8 +88,10 @@ class SendCoordinator: CoordinatorObject {
             rootViewModel = factory.makeRestakingViewModel(manager: manager, action: action, router: self)
         case .stakingSingleAction(let manager, let action):
             rootViewModel = factory.makeStakingSingleActionViewModel(manager: manager, action: action, router: self)
-        case .onramp:
-            rootViewModel = factory.makeOnrampViewModel(router: self)
+        case .onramp(let parameters) where FeatureProvider.isAvailable(.newOnrampUI):
+            rootViewModel = factory.makeNewOnrampViewModel(parameters: parameters, router: self)
+        case .onramp(let parameters):
+            rootViewModel = factory.makeOnrampViewModel(parameters: parameters, router: self)
         }
     }
 

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 
 extension ScrollViewOffsetHandler where T == MarketsNavigationBarTitle.State {
     static func marketTokenDetails(initialState: MarketsNavigationBarTitle.State, labelOffset: CGFloat) -> Self {

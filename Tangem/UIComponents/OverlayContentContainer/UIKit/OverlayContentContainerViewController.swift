@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import TangemUIUtils
 import TangemUI
+import TangemFoundation
 
 final class OverlayContentContainerViewController: UIViewController {
     // MARK: - Dependencies

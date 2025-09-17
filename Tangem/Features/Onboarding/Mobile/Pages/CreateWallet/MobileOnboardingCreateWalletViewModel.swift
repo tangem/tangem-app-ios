@@ -32,8 +32,13 @@ final class MobileOnboardingCreateWalletViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension MobileOnboardingCreateWalletViewModel {
+    func onAppear() {
+        Analytics.log(.createWalletScreenOpened)
+    }
+
     func onCreateTap() {
         isCreating = true
+        Analytics.log(event: .buttonCreateWallet, params: [.productType: Analytics.ProductType.mobileWallet.rawValue])
 
         runTask(in: self) { viewModel in
             do {
@@ -52,7 +57,8 @@ extension MobileOnboardingCreateWalletViewModel {
 
                 await runOnMain {
                     viewModel.isCreating = false
-                    viewModel.handleWalletCreated(newUserWalletModel)
+                    viewModel.trackWalletCreated()
+                    viewModel.delegate?.onCreateWallet(userWalletModel: newUserWalletModel)
                 }
             } catch {
                 AppLogger.error("Failed to create wallet", error: error)
@@ -82,8 +88,17 @@ private extension MobileOnboardingCreateWalletViewModel {
         ]
     }
 
-    func handleWalletCreated(_ newUserWalletModel: UserWalletModel) {
-        delegate?.onCreateWallet(userWalletModel: newUserWalletModel)
+    func trackWalletCreated() {
+        let params: [Analytics.ParameterKey: String] = [
+            .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
+            .seedLength: Constants.seedPhraseLength,
+            .passphrase: Analytics.ParameterValue.empty.rawValue,
+        ]
+
+        Analytics.log(
+            event: .walletCreatedSuccessfully,
+            params: params
+        )
     }
 }
 
@@ -95,5 +110,11 @@ extension MobileOnboardingCreateWalletViewModel {
         let icon: ImageType
         let title: String
         let subtitle: String
+    }
+}
+
+extension MobileOnboardingCreateWalletViewModel {
+    enum Constants {
+        static let seedPhraseLength = "12"
     }
 }
