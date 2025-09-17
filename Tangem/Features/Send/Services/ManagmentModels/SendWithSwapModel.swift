@@ -26,6 +26,7 @@ class SendWithSwapModel {
 
     private let _transaction = CurrentValueSubject<Result<BSDKTransaction, Error>?, Never>(nil)
     private let _transactionTime = PassthroughSubject<Date?, Never>()
+    private let _transactionURL = PassthroughSubject<URL?, Never>()
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
 
     // MARK: - Dependencies
@@ -284,6 +285,7 @@ private extension SendWithSwapModel {
 
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
+        _transactionURL.send(result.url)
 
         analyticsLogger.logTransactionSent(
             amount: _amount.value,
@@ -718,6 +720,10 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
 extension SendWithSwapModel: SendFinishInput {
     var transactionSentDate: AnyPublisher<Date, Never> {
         _transactionTime.compactMap { $0 }.first().eraseToAnyPublisher()
+    }
+
+    var transactionURL: AnyPublisher<URL?, Never> {
+        _transactionURL.eraseToAnyPublisher()
     }
 }
 
