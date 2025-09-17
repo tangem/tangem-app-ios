@@ -821,6 +821,7 @@
 "onramp_currency_popular" = "Devises Fiats Populaires";
 "onramp_currency_search" = "Recherche par devise";
 "onramp_instant_status" = "Instant";
+"onramp_legal_text" = "Service is provided by an external provider.\nTangem is not responsible.";
 "onramp_legal" = "En utilisant la fonctionnalité onramp, vous acceptez %1$@ et %2$@ du fournisseur";
 "onramp_max_amount_restriction" = "Le montant de l'achat ne doit pas dépasser %@";
 "onramp_min_amount_restriction" = "Le montant à acheter doit être au moins %@";
