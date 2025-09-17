@@ -21,17 +21,17 @@ class BannerNotificationManager {
     private let userWallet: UserWalletModel
     private let placement: BannerPromotionPlacement
 
+    private let analyticsService: NotificationsAnalyticsService
     private let activePromotion: CurrentValueSubject<ActivePromotionInfo?, Never> = .init(.none)
-    private let analyticsService = NotificationsAnalyticsService()
     private var promotionUpdateTask: Task<Void, Error>?
+    private var bag: Set<AnyCancellable> = []
     private var activePromotionSubscription: AnyCancellable?
     private var sepaPromotionUpdatingSubscription: AnyCancellable?
 
-    init(userWallet: UserWalletModel, placement: BannerPromotionPlacement, contextDataProvider: AnalyticsContextDataProvider?) {
+    init(userWallet: UserWalletModel, placement: BannerPromotionPlacement) {
         self.userWallet = userWallet
         self.placement = placement
-
-        analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
+        analyticsService = NotificationsAnalyticsService(userWalletId: userWallet.userWalletId)
         bind()
         load()
     }
@@ -46,6 +46,15 @@ class BannerNotificationManager {
     }
 
     private func bind() {
+        notificationPublisher
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { manager, notifications in
+                manager.analyticsService.sendEventsIfNeeded(for: notifications)
+            })
+            .store(in: &bag)
+
         activePromotionSubscription = activePromotion
             .withWeakCaptureOf(self)
             .flatMapLatest { manager, activePromotion -> AnyPublisher<NotificationViewInput?, Never> in

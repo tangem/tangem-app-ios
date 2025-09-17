@@ -132,7 +132,7 @@ private extension MobileOnboardingAccessCodeViewModel {
         guard accessCode.count == codeLength else {
             return
         }
-        Analytics.log(.accessCodeEntered)
+        Analytics.log(.accessCodeEntered, contextParams: .custom(.mobileWallet))
         state = .confirmAccessCode
     }
 
@@ -144,7 +144,7 @@ private extension MobileOnboardingAccessCodeViewModel {
             return
         }
 
-        Analytics.log(.accessCodeReEntered)
+        Analytics.log(.accessCodeReEntered, contextParams: .custom(.mobileWallet))
         handleConfirmed(accessCode: accessCode)
     }
 
@@ -295,7 +295,7 @@ private extension MobileOnboardingAccessCodeViewModel {
             return
         }
 
-        Analytics.log(.backupAccessCodeSkipped)
+        Analytics.log(.backupAccessCodeSkipped, contextParams: .custom(.mobileWallet))
 
         MobileAccessCodeSkipHelper.append(userWalletId: userWalletModel.userWalletId)
         // Workaround to manually trigger update event for userWalletModel publisher

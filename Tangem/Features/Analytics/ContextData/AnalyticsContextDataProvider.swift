@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol AnalyticsContextDataProvider: AnyObject {
+protocol AnalyticsContextDataProvider {
     var analyticsContextData: AnalyticsContextData { get }
 }
