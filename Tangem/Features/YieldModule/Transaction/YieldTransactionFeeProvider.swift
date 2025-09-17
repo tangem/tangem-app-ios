@@ -70,7 +70,7 @@ final class YieldTransactionFeeProvider {
     }
 
     func exitFee(yieldModule: String, contractAddress: String) async throws -> any YieldTransactionFee {
-        let method = WithdrawAndDeactivateMethod(yieldTokenAddress: contractAddress)
+        let method = WithdrawAndDeactivateMethod(yieldModuleAddress: contractAddress)
 
         let fee = try await estimateFee(
             contractAddress: yieldModule,
@@ -92,7 +92,7 @@ private extension YieldTransactionFeeProvider {
         ).async()
 
         guard let fee = fees.last else {
-            throw YieldServiceError.feeNotFound
+            throw YieldModuleError.feeNotFound
         }
 
         return fee

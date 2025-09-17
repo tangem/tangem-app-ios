@@ -154,21 +154,13 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
-    var walletModelState: WalletModelState {
+    var state: WalletModelState {
         tokenBalanceProvider.balanceType.value.map(WalletModelState.loaded) ?? .created
     }
 
-    var walletModelStatePublisher: AnyPublisher<WalletModelState, Never> {
+    var statePublisher: AnyPublisher<WalletModelState, Never> {
         // The presence of an NFT asset implicitly means that all required data is already loaded
-        .just(output: walletModelState)
-    }
-
-    var yieldModuleManagerState: YieldModuleWalletManagerState? {
-        .notEnabled
-    }
-
-    var yieldModuleManagerStatePublisher: AnyPublisher<YieldModuleWalletManagerState, Never> {
-        .just(output: .notEnabled)
+        .just(output: state)
     }
 
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {

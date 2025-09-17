@@ -312,7 +312,7 @@ extension XRPWalletManager: ReserveAmountRestrictable {
                 throw ValidationError.noTrustlineAtDestination
             }
 
-        case .reserve, .feeResource, .coin:
+        case .reserve, .feeResource, .coin, .tokenYieldSupply:
             break
         }
     }
@@ -382,7 +382,7 @@ extension XRPWalletManager: AssetRequirementsManager {
             let reserveAmount = Amount(with: wallet.blockchain, value: Constants.ownerReserveIncrement)
 
             return .requiresTrustline(blockchain: wallet.blockchain, trustlineReserve: reserveAmount, isProcessing: isTrustlineOperationInProgress)
-        case .coin, .reserve, .feeResource:
+        case .coin, .reserve, .feeResource, .tokenYieldSupply:
             return nil
         }
     }

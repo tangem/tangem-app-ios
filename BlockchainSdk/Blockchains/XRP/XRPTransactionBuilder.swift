@@ -150,7 +150,7 @@ class XRPTransactionBuilder {
             let value = transaction.amount.value.decimalNumber.description(withLocale: Locale.posixEnUS)
             return ["currency": currency, "issuer": issuer, "value": value]
 
-        case .feeResource, .reserve:
+        case .feeResource, .reserve, .tokenYieldSupply:
             assertionFailure("We cannot build transactions with fee resource or reserve amount")
             throw BlockchainSdkError.failedToBuildTx
         }

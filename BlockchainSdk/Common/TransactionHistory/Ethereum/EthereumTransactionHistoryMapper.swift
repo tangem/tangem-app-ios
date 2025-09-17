@@ -76,7 +76,7 @@ extension EthereumTransactionHistoryMapper: TransactionHistoryMapper {
                         amountType: amountType,
                         feeValue: feeValue
                     )
-                case .feeResource:
+                case .feeResource, .tokenYieldSupply:
                     throw BlockchainSdkError.notImplemented
                 }
             }

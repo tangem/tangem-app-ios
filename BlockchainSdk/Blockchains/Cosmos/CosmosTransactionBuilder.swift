@@ -141,7 +141,7 @@ class CosmosTransactionBuilder {
             case .feeResource:
                 throw BlockchainSdkError.empty
             }
-        case .reserve, .feeResource:
+        case .reserve, .feeResource, .tokenYieldSupply:
             throw BlockchainSdkError.failedToBuildTx
         }
 
@@ -208,7 +208,7 @@ class CosmosTransactionBuilder {
             }
 
             return tokenDenomination
-        case .reserve, .feeResource:
+        case .reserve, .feeResource, .tokenYieldSupply:
             throw BlockchainSdkError.failedToBuildTx
         }
     }
@@ -224,7 +224,7 @@ class CosmosTransactionBuilder {
             }
 
             return tokenDenomination
-        case .reserve, .feeResource:
+        case .reserve, .feeResource, .tokenYieldSupply:
             throw BlockchainSdkError.failedToBuildTx
         }
     }

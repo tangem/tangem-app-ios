@@ -11,7 +11,7 @@ import Foundation
 extension BlockBookTarget.AddressRequestParameters.FilterType {
     init(amountType: Amount.AmountType) {
         switch amountType {
-        case .coin, .reserve, .feeResource:
+        case .coin, .reserve, .feeResource, .tokenYieldSupply:
             self = .coin
         case .token(let token):
             self = .contract(token.contractAddress)

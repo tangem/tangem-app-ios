@@ -9,9 +9,9 @@
 import Foundation
 
 public protocol YieldServiceProvider {
-    var yieldService: YieldTokenService? { get }
+    var yieldSupplyProvider: YieldSupplyProvider? { get }
 }
 
 public extension YieldServiceProvider {
-    var yieldService: YieldTokenService? { nil }
+    var yieldSupplyProvider: YieldSupplyProvider? { nil }
 }
