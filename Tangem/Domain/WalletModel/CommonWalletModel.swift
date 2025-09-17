@@ -355,6 +355,10 @@ extension CommonWalletModel: WalletModel {
     var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? {
         walletManager as? StakingAccountInitializationStateProvider
     }
+
+    var yieldService: (any YieldTokenService)? {
+        walletManager.yieldService
+    }
 }
 
 // MARK: - Updater
