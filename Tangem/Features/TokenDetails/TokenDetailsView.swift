@@ -147,9 +147,9 @@ private extension TokenDetailsView {
     let walletModel = userWalletModel.walletModelsManager.walletModels.first ?? CommonWalletModel.mockETH
 
     let notifManager = SingleTokenNotificationManager(
+        userWalletId: userWalletModel.userWalletId,
         walletModel: walletModel,
-        walletModelsManager: userWalletModel.walletModelsManager,
-        contextDataProvider: nil
+        walletModelsManager: userWalletModel.walletModelsManager
     )
     let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
         userWalletId: userWalletModel.userWalletId,
@@ -174,8 +174,7 @@ private extension TokenDetailsView {
 
     let bannerNotificationManager = BannerNotificationManager(
         userWallet: userWalletModel,
-        placement: .tokenDetails(walletModel.tokenItem),
-        contextDataProvider: nil
+        placement: .tokenDetails(walletModel.tokenItem)
     )
 
     TokenDetailsView(viewModel: .init(
