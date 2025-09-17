@@ -145,7 +145,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         yieldModulePromoCoordinator = coordinator
     }
 
-    func openYieldEarnInfo(params: YieldModuleParams.EarnInfoParams) {
+    func openYieldEarnInfo(params: YieldModuleViewConfigs.EarnInfoParams) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .earnInfo(params: params)))
         }
