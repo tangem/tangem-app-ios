@@ -68,7 +68,7 @@ extension SolanaWalletManager: TransactionSender {
             sendPublisher = sendSol(transaction, signer: signer)
         case .token(let token):
             sendPublisher = sendSplToken(transaction, token: token, signer: signer)
-        case .reserve, .feeResource:
+        case .reserve, .feeResource, .tokenYieldSupply:
             return .sendTxFail(error: BlockchainSdkError.empty)
         }
 

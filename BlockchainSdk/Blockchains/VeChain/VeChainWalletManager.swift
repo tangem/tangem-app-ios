@@ -169,7 +169,7 @@ final class VeChainWalletManager: BaseManager {
             return .justWithError(output: .zero)
         case .token(let value):
             return networkService.getVMGas(token: value, amount: amount, source: wallet.address, destination: destination)
-        case .reserve, .feeResource:
+        case .reserve, .feeResource, .tokenYieldSupply:
             return .anyFail(error: BlockchainSdkError.failedToGetFee)
         }
     }
