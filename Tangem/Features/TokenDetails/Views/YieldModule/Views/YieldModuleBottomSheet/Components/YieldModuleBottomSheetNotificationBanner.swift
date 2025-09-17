@@ -15,7 +15,7 @@ extension YieldModuleBottomSheetView {
     struct YieldModuleBottomSheetNotificationBanner: View {
         // MARK: - Properties
 
-        let params: YieldModuleParams.YieldModuleBottomSheetNotificationBannerParams
+        let params: YieldModuleViewConfigs.YieldModuleBottomSheetNotificationBannerParams
 
         private var title: String {
             switch params {

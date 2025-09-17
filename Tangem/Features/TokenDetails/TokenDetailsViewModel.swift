@@ -424,7 +424,7 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 }
 
 extension TokenDetailsViewModel {
-    var feeCurrencyInfo: YieldModuleParams.FeeCurrencyInfo? {
+    var feeCurrencyInfo: YieldModuleViewConfigs.FeeCurrencyInfo? {
         if false {
             return .init(
                 feeCurrencyName: walletModel.feeTokenItem.name,
@@ -447,7 +447,7 @@ extension TokenDetailsViewModel {
     }
 
     func openYieldEarnInfo() {
-        let params = YieldModuleParams.EarnInfoParams(
+        let params = YieldModuleViewConfigs.EarnInfoParams(
             earningsData: .init(totalEarnings: "WIP", chartData: [:]),
             status: .active(approveRequired: true),
             apy: "WIP",
