@@ -46,10 +46,7 @@ final class VisaAccount {
             .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
 
         try await KYCService.start(
-            getToken: customerInfoManagementService.loadKYCAccessToken,
-            verificationHandler: { success in
-                // [REDACTED_TODO_COMMENT]
-            }
+            getToken: customerInfoManagementService.loadKYCAccessToken
         )
     }
     #endif // ALPHA || BETA || DEBUG
