@@ -12,6 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemAccessibilityIdentifiers
+import TangemFoundation
 
 /// Same as `DecimalNumberTextField` with  support
 /// - `Suffix`
