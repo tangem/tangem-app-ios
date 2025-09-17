@@ -21,17 +21,20 @@ class EthereumNetworkService: MultiNetworkProvider {
 
     let decimals: Int
     private let abiEncoder: ABIEncoder
+    private let yieldSupplyProviderFactory: YieldSupplyProviderFactory?
 
     init(
         decimals: Int,
         providers: [EthereumJsonRpcProvider],
         abiEncoder: ABIEncoder,
+        yieldSupplyProviderFactory: YieldSupplyProviderFactory? = nil,
         blockchainName: String
     ) {
         self.providers = providers
         self.decimals = decimals
         self.abiEncoder = abiEncoder
         self.blockchainName = blockchainName
+        self.yieldSupplyProviderFactory = yieldSupplyProviderFactory
     }
 
     func send(transaction: String) -> AnyPublisher<String, Error> {
@@ -142,34 +145,50 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
-    func getTokensBalance(_ address: String, tokens: [Token]) -> AnyPublisher<[Token: Result<Decimal, Error>], Error> {
-        tokens
-            .publisher
-            .setFailureType(to: Error.self)
-            .withWeakCaptureOf(self)
-            .flatMap { networkService, token in
-                networkService.providerPublisher { provider -> AnyPublisher<Decimal, Error> in
-                    let method = TokenBalanceERC20TokenMethod(owner: address)
-
-                    return provider
-                        .call(contractAddress: token.contractAddress, encodedData: method.encodedData)
-                        .withWeakCaptureOf(networkService)
-                        .tryMap { networkService, result in
-                            guard let value = EthereumUtils.parseEthereumDecimal(result, decimalsCount: token.decimalCount) else {
-                                throw ETHError.failedToParseBalance(value: result, address: token.contractAddress, decimals: token.decimalCount)
-                            }
-
-                            return value
-                        }
-                        .eraseToAnyPublisher()
-                }
-                .mapToResult()
-                .setFailureType(to: Error.self)
-                .map { (token, $0) }
-                .eraseToAnyPublisher()
+    func getTokensBalance(_ address: String, tokens: [Token]) -> AnyPublisher<[Token: Result<Amount, Error>], Error> {
+        let yieldSupplyProvider = yieldSupplyProviderFactory?.makeProvider(networkService: self)
+        return Just(())
+            .asyncMap { input -> (YieldSupplyProvider, String)? in
+                guard let yieldSupplyProvider,
+                      yieldSupplyProvider.isSupported(),
+                      let contract = try? await yieldSupplyProvider.getYieldContract() else { return nil }
+                return (yieldSupplyProvider, contract)
             }
-            .collect()
-            .map { $0.reduce(into: [Token: Result<Decimal, Error>]()) { $0[$1.0] = $1.1 }}
+            .flatMap { yieldSupplyInfo in
+                tokens
+                    .publisher
+                    .setFailureType(to: Error.self)
+                    .withWeakCaptureOf(self)
+                    .flatMap { networkService, token -> AnyPublisher<(Token, Result<Amount, Error>), Error> in
+                        if let yieldSupplyInfo {
+                            let (yieldSupplyProvider, contract) = yieldSupplyInfo
+                            return Future.async {
+                                let yieldLendingStatus = try await yieldSupplyProvider.getYieldSupplyStatus(
+                                    tokenContractAddress: token.contractAddress
+                                )
+                                if yieldLendingStatus.active {
+                                    do {
+                                        let balance = try await yieldSupplyProvider.getBalance(
+                                            yieldSupplyStatus: yieldLendingStatus,
+                                            token: token
+                                        )
+                                        return (token, Result.success(balance))
+                                    } catch {
+                                        return (token, Result.failure(error))
+                                    }
+                                } else {
+                                    return try await networkService.getTokenBalance(address, token: token).async()
+                                }
+                            }
+                            .eraseToAnyPublisher()
+                        } else {
+                            return networkService.getTokenBalance(address, token: token)
+                        }
+                    }
+                    .collect()
+                    .map { $0.reduce(into: [Token: Result<Amount, Error>]()) { $0[$1.0] = $1.1 }}
+                    .eraseToAnyPublisher()
+            }
             .eraseToAnyPublisher()
     }
 
@@ -233,6 +252,33 @@ class EthereumNetworkService: MultiNetworkProvider {
         return providerPublisher {
             $0.call(contractAddress: target.contactAddress, encodedData: encodedData)
         }
+    }
+}
+
+private extension EthereumNetworkService {
+    func getTokenBalance(
+        _ address: String,
+        token: Token
+    ) -> AnyPublisher<(Token, Result<Amount, Error>), Error> {
+        providerPublisher { provider -> AnyPublisher<Result<Amount, Error>, Error> in
+            let method = TokenBalanceERC20TokenMethod(owner: address)
+
+            return provider
+                .call(contractAddress: token.contractAddress, encodedData: method.encodedData)
+                .withWeakCaptureOf(self)
+                .tryMap { networkService, result in
+                    guard let value = EthereumUtils.parseEthereumDecimal(result, decimalsCount: token.decimalCount) else {
+                        throw ETHError.failedToParseBalance(value: result, address: token.contractAddress, decimals: token.decimalCount)
+                    }
+
+                    return Amount(with: token, value: value)
+                }
+                .mapToResult()
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
+        }
+        .map { (token, $0) }
+        .eraseToAnyPublisher()
     }
 }
 

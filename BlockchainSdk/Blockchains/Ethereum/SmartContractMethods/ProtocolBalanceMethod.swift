@@ -7,7 +7,7 @@
 //
 
 public struct ProtocolBalanceMethod {
-    let yieldTokenAddress: String
+    let tokenContractAddress: String
 }
 
 extension ProtocolBalanceMethod: YieldSmartContractMethod {
