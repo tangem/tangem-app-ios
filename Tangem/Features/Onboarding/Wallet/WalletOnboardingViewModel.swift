@@ -429,14 +429,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         case .createWallet:
             createWallet()
         case .createWalletSelector:
-            Analytics.log(.onboardingSeedButtonOtherCreateWalletOptions)
+            logAnalytics(.onboardingSeedButtonOtherCreateWalletOptions)
             goToStep(.seedPhraseIntro)
         case .seedPhraseIntro:
-            Analytics.log(.onboardingSeedButtonImportWallet)
+            logAnalytics(.onboardingSeedButtonImportWallet)
             importSeedPhraseModel?.resetModel()
             goToStep(.seedPhraseImport)
         case .backupIntro:
-            Analytics.log(.backupSkipped)
+            logAnalytics(.backupSkipped)
             if steps.contains(.saveUserWallet) {
                 goToStep(.saveUserWallet)
             } else if steps.contains(.addTokens) {
@@ -590,7 +590,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     private func createWallet() {
-        Analytics.log(.buttonCreateWallet)
+        logAnalytics(.buttonCreateWallet)
 
         isMainButtonBusy = true
 
@@ -668,7 +668,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                     backupService.setPrimaryCard(primaryCard)
                 }
 
-                Analytics.log(event: .walletCreatedSuccessfully, params: walletCreationType.params)
+                logAnalytics(event: .walletCreatedSuccessfully, params: walletCreationType.params)
                 processPrimaryCardScan()
             case .failure(let error):
                 if !error.toTangemSdkError().isUserCancelled {
@@ -813,7 +813,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                                 pendingBackupManager.onBackupCompleted()
                                 userWalletModel?.update(type: .backupCompleted)
-                                Analytics.log(
+                                logAnalytics(
                                     event: .backupFinished,
                                     params: [.cardsCount: String((updatedCard.backupStatus?.backupCardsCount ?? 0) + 1)]
                                 )
@@ -831,18 +831,20 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             .first()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
+                guard let self else { return }
+
                 if case .failure(let error) = completion {
                     AppLogger.error(error: error)
 
                     let sdkError = error.toTangemSdkError()
                     if !sdkError.isUserCancelled {
-                        self?.alert = sdkError.alertBinder
-                        Analytics.logScanError(error, source: .backup)
+                        alert = sdkError.alertBinder
+                        Analytics.logScanError(error, source: .backup, contextParams: getContextParams())
                     }
 
-                    self?.isMainButtonBusy = false
+                    isMainButtonBusy = false
                 }
-                self?.stepPublisher = nil
+                stepPublisher = nil
             } receiveValue: { [weak self] (_: Void, _: Notification) in
                 self?.updateStep()
                 withAnimation {
@@ -885,14 +887,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             primaryButton: .destructive(Text(Localization.cardSettingsActionSheetReset), action: { [weak self] in
                 self?.resetCard(with: cardId)
             }),
-            secondaryButton: .default(Text(Localization.commonCancel)) {
-                Analytics.log(.backupResetCardNotification, params: [.option: .cancel])
+            secondaryButton: .default(Text(Localization.commonCancel)) { [weak self] in
+                self?.logAnalytics(.backupResetCardNotification, params: [.option: .cancel])
             }
         )
     }
 
     private func resetCard(with cardId: String) {
-        Analytics.log(.backupResetCardNotification, params: [.option: .reset])
+        logAnalytics(.backupResetCardNotification, params: [.option: .reset])
         isMainButtonBusy = true
 
         let interactor = FactorySettingsResettingCardInteractor(with: cardId)
@@ -947,11 +949,11 @@ extension WalletOnboardingViewModel {
         let baseUrl = AppEnvironment.current.tangemComBaseUrl
         let url = baseUrl.appendingPathComponent("seed-phrase-\(Locale.webLanguageCode()).html")
         coordinator?.openWebView(with: url)
-        Analytics.log(.onboardingSeedButtonReadMore)
+        logAnalytics(.onboardingSeedButtonReadMore)
     }
 
     func generateSeedPhrase() {
-        Analytics.log(.onboardingSeedButtonGenerateSeedPhrase)
+        logAnalytics(.onboardingSeedButtonGenerateSeedPhrase)
         do {
             try seedPhraseManager.generateSeedPhrase()
             generateSeedPhraseModel = .init(seedPhraseManager: seedPhraseManager, delegate: self)
@@ -974,7 +976,7 @@ extension WalletOnboardingViewModel {
             }
             .sink { [weak self] _ in
                 self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingSeedScreenshotAlert)
-                Analytics.log(.onboardingSeedScreenCapture)
+                self?.logAnalytics(.onboardingSeedScreenCapture)
             }
             .store(in: &bag)
     }
