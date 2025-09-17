@@ -14,11 +14,18 @@ final class YieldTransactionFeeProvider {
     private let blockchain: Blockchain
     private let ethereumNetworkProvider: EthereumNetworkProvider
     private let allowanceChecker: AllowanceChecker
+    private let yieldSupplyContractAddresses: YieldSupplyContractAddresses
 
-    init(blockchain: Blockchain, ethereumNetworkProvider: EthereumNetworkProvider, allowanceChecker: AllowanceChecker) {
+    init(
+        blockchain: Blockchain,
+        ethereumNetworkProvider: EthereumNetworkProvider,
+        allowanceChecker: AllowanceChecker,
+        yieldSupplyContractAddresses: YieldSupplyContractAddresses
+    ) {
         self.blockchain = blockchain
         self.ethereumNetworkProvider = ethereumNetworkProvider
         self.allowanceChecker = allowanceChecker
+        self.yieldSupplyContractAddresses = yieldSupplyContractAddresses
     }
 
     func deployFee(address: String, contractAddress: String) async throws -> DeployEnterFee {
@@ -29,7 +36,7 @@ final class YieldTransactionFeeProvider {
         )
 
         async let yieldModuleAddressMethodFee = estimateFee(
-            contractAddress: YieldConstants.yieldModuleFactoryContractAddress,
+            contractAddress: yieldSupplyContractAddresses.factoryContractAddress,
             transactionData: yieldModuleAddressMethod.data
         )
 
