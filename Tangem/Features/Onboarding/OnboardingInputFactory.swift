@@ -77,7 +77,11 @@ class OnboardingInputFactory {
             cardInitializer: nil,
             pushNotificationsPermissionManager: nil,
             steps: steps,
-            cardInput: .userWalletModel(userWalletModel, cardId: cardInfo.card.cardId),
+            cardInput: .userWalletModel(
+                userWalletModel,
+                cardId: cardInfo.card.cardId,
+                cardImageProvider: userWalletModel.walletImageProvider
+            ),
             twinData: nil,
             isStandalone: true
         )
@@ -89,7 +93,11 @@ class OnboardingInputFactory {
             walletInfo: .cardWallet(cardInfo),
             keys: .cardWallet(keys: cardInfo.card.wallets)
         ) {
-            return .userWalletModel(userWalletModel, cardId: cardInfo.card.cardId)
+            return .userWalletModel(
+                userWalletModel,
+                cardId: cardInfo.card.cardId,
+                cardImageProvider: userWalletModel.walletImageProvider
+            )
         }
 
         return .cardInfo(cardInfo)

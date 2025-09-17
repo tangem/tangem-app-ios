@@ -13,6 +13,9 @@ struct MobileOnboardingSeedPhraseImportView: View {
 
     var body: some View {
         OnboardingSeedPhraseImportView(viewModel: viewModel.importViewModel)
+            .onAppear {
+                viewModel.onAppear()
+            }
             .flowLoadingOverlay(isPresented: viewModel.isCreating)
     }
 }
