@@ -60,18 +60,18 @@ private extension UIViewController {
         }
 
         if isInitialScreen {
-            rightBarButtonItem.image = closeIcon
+            rightBarButtonItem.image = nil
         } else {
             rightBarButtonItem.image = backIcon
-
-            let closeButton = UIBarButtonItem(
-                image: closeIcon,
-                style: .plain,
-                target: service,
-                action: #selector(KYCService.dismiss)
-            )
-            navigationItem.setLeftBarButton(closeButton, animated: false)
         }
+
+        let closeButton = UIBarButtonItem(
+            image: closeIcon,
+            style: .plain,
+            target: service,
+            action: #selector(KYCService.dismiss)
+        )
+        navigationItem.setLeftBarButton(closeButton, animated: false)
     }
 
     @objc
