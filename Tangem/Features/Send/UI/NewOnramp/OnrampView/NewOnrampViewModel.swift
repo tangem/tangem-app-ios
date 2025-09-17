@@ -12,6 +12,7 @@ import TangemExpress
 
 final class NewOnrampViewModel: ObservableObject, Identifiable {
     @Published private(set) var onrampAmountViewModel: NewOnrampAmountViewModel
+    @Published private(set) var viewState: ViewState = .amount
     @Published private(set) var onrampProvidersCompactViewModel: OnrampProvidersCompactViewModel
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
@@ -38,6 +39,10 @@ final class NewOnrampViewModel: ObservableObject, Identifiable {
         bind()
     }
 
+    func usedDidTapContinue() {
+        viewState = .offers
+    }
+
     func openOnrampSettingsView() {
         router?.openOnrampSettingsView()
     }
@@ -60,6 +65,15 @@ private extension NewOnrampViewModel {
             .store(in: &bag)
 
         interactor
+            .isLoadingPublisher
+            .filter { $0 }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .filter { $0.0.viewState == .offers }
+            .map { _ in .amount }
+            .assign(to: &$viewState)
+
+        interactor
             .selectedLoadedProviderPublisher
             .removeDuplicates()
             .map { $0?.legalText(branch: .onramp) }
@@ -73,4 +87,11 @@ private extension NewOnrampViewModel {
 
 extension NewOnrampViewModel: SendStepViewAnimatable {
     func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
+}
+
+extension NewOnrampViewModel {
+    enum ViewState: Hashable {
+        case amount
+        case offers
+    }
 }

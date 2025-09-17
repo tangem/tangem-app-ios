@@ -472,7 +472,10 @@ struct SendDependenciesBuilder {
     }
 
     func makeExpressNotificationManager() -> ExpressNotificationManager {
-        ExpressNotificationManager(expressInteractor: expressDependenciesFactory.expressInteractor)
+        ExpressNotificationManager(
+            userWalletId: input.userWalletInfo.id,
+            expressInteractor: expressDependenciesFactory.expressInteractor
+        )
     }
 
     func makeSendNewNotificationManager(receiveTokenInput: SendReceiveTokenInput?) -> SendNotificationManager {
@@ -723,15 +726,9 @@ struct SendDependenciesBuilder {
         dataRepository: OnrampDataRepository
     ) {
         let apiProvider = expressDependenciesFactory.expressAPIProvider
+        let repository: OnrampRepository = expressDependenciesFactory.onrampRepository
+
         let factory = TangemExpressFactory()
-
-        // For UI tests, use UITestOnrampRepository with predefined values
-        let repository: OnrampRepository = if AppEnvironment.current.isUITest {
-            UITestOnrampRepository()
-        } else {
-            factory.makeOnrampRepository(storage: CommonOnrampStorage())
-        }
-
         let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
         let manager = factory.makeOnrampManager(
             expressAPIProvider: apiProvider,
