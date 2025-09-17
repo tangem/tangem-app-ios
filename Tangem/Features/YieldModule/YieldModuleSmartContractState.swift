@@ -1,6 +1,6 @@
 //
 //  YieldModuleSmartContractState.swift
-//  BlockchainSdk
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -8,6 +8,7 @@
 
 import Foundation
 import BigInt
+import BlockchainSdk
 
 public enum YieldModuleSmartContractState {
     case notDeployed
@@ -34,7 +35,7 @@ public enum YieldModuleSmartContractState {
     }
 
     public struct ActiveStateInfo {
-        let balance: Decimal?
+        let balance: Amount?
         let maxNetworkFee: BigUInt
     }
 
@@ -58,7 +59,7 @@ public enum YieldModuleSmartContractState {
         }
     }
 
-    public var balance: Decimal? {
+    public var balance: Amount? {
         guard case .deployed(let deployedState) = self,
               case .initialized(let activeState) = deployedState.initializationState,
               case .active(let activeStateInfo) = activeState else {

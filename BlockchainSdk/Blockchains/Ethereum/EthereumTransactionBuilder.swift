@@ -71,7 +71,7 @@ class EthereumTransactionBuilder {
 
             return try buildTxCompilerPreSigningOutput(input: input).data
 
-        case .reserve, .feeResource:
+        case .reserve, .feeResource, .tokenYieldSupply:
             throw BlockchainSdkError.notImplemented
         }
     }
@@ -246,7 +246,7 @@ private extension EthereumTransactionBuilder {
                 data: data
             )
 
-        case .reserve, .feeResource:
+        case .reserve, .feeResource, .tokenYieldSupply:
             throw BlockchainSdkError.notImplemented
         }
     }
