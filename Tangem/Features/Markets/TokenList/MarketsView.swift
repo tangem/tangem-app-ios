@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemFoundation
 
 struct MarketsView: View {
     @ObservedObject var viewModel: MarketsViewModel
