@@ -18,7 +18,7 @@ class BaseTestCase: XCTestCase {
 
     override func setUp() {
         super.setUp()
-
+        setTestLayer("UI Tests")
         continueAfterFailure = false
     }
 

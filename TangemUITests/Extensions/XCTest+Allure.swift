@@ -12,4 +12,7 @@ extension XCTest {
     func setAllureId(_ value: Int) {
         XCTContext.runActivity(named: "allure.id:\(value)") { _ in }
     }
+    func setTestLayer(_ layer: String) {
+        XCTContext.runActivity(named: "allure.layer:\(layer)") { _ in }
+    }
 }
