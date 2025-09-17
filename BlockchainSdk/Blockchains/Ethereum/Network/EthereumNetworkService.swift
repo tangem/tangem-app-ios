@@ -146,44 +146,18 @@ class EthereumNetworkService: MultiNetworkProvider {
     }
 
     func getTokensBalance(_ address: String, tokens: [Token]) -> AnyPublisher<[Token: Result<Amount, Error>], Error> {
-        let yieldSupplyProvider = yieldSupplyProviderFactory?.makeProvider(networkService: self)
-        return Just(())
-            .asyncMap { input -> (YieldSupplyProvider, String)? in
-                guard let yieldSupplyProvider,
-                      yieldSupplyProvider.isSupported(),
-                      let contract = try? await yieldSupplyProvider.getYieldContract() else { return nil }
-                return (yieldSupplyProvider, contract)
-            }
-            .flatMap { yieldSupplyInfo in
+        return Just(yieldSupplyProviderFactory?.makeProvider(networkService: self))
+            .flatMap { yieldSupplyProvider in
                 tokens
                     .publisher
                     .setFailureType(to: Error.self)
                     .withWeakCaptureOf(self)
                     .flatMap { networkService, token -> AnyPublisher<(Token, Result<Amount, Error>), Error> in
-                        if let yieldSupplyInfo {
-                            let (yieldSupplyProvider, contract) = yieldSupplyInfo
-                            return Future.async {
-                                let yieldLendingStatus = try await yieldSupplyProvider.getYieldSupplyStatus(
-                                    tokenContractAddress: token.contractAddress
-                                )
-                                if yieldLendingStatus.active {
-                                    do {
-                                        let balance = try await yieldSupplyProvider.getBalance(
-                                            yieldSupplyStatus: yieldLendingStatus,
-                                            token: token
-                                        )
-                                        return (token, Result.success(balance))
-                                    } catch {
-                                        return (token, Result.failure(error))
-                                    }
-                                } else {
-                                    return try await networkService.getTokenBalance(address, token: token).async()
-                                }
-                            }
-                            .eraseToAnyPublisher()
-                        } else {
-                            return networkService.getTokenBalance(address, token: token)
-                        }
+                        networkService.getTokenBalance(
+                            address: address,
+                            token: token,
+                            yieldSupplyProvider: yieldSupplyProvider
+                        )
                     }
                     .collect()
                     .map { $0.reduce(into: [Token: Result<Amount, Error>]()) { $0[$1.0] = $1.1 }}
@@ -257,6 +231,38 @@ class EthereumNetworkService: MultiNetworkProvider {
 
 private extension EthereumNetworkService {
     func getTokenBalance(
+        address: String,
+        token: Token,
+        yieldSupplyProvider: YieldSupplyProvider?
+    ) -> AnyPublisher<(Token, Result<Amount, Error>), Error> {
+        if let yieldSupplyProvider, yieldSupplyProvider.isSupported() {
+            return Future.async { [weak self] in
+                guard let self else { return (token, Result.failure(BlockchainSdkError.empty)) }
+
+                let yieldLendingStatus = try? await yieldSupplyProvider.getYieldSupplyStatus(
+                    tokenContractAddress: token.contractAddress
+                )
+                if let yieldLendingStatus, yieldLendingStatus.active {
+                    do {
+                        let balance = try await yieldSupplyProvider.getBalance(
+                            yieldSupplyStatus: yieldLendingStatus,
+                            token: token
+                        )
+                        return (token, Result.success(balance))
+                    } catch {
+                        return (token, Result.failure(error))
+                    }
+                } else {
+                    return try await getTokenBalanceInternal(address, token: token).async()
+                }
+            }
+            .eraseToAnyPublisher()
+        } else {
+            return getTokenBalanceInternal(address, token: token)
+        }
+    }
+
+    func getTokenBalanceInternal(
         _ address: String,
         token: Token
     ) -> AnyPublisher<(Token, Result<Amount, Error>), Error> {

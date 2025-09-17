@@ -163,6 +163,10 @@ class CommonWalletModel {
     private func mapState(_ walletManagerState: WalletManagerState) -> WalletModelState {
         switch walletManagerState {
         case .loaded:
+            if let yieldSupplyBalance {
+                return .loaded(yieldSupplyBalance)
+            }
+
             if let balance = wallet.amounts[amountType]?.value {
                 return .loaded(balance)
             }
@@ -856,6 +860,26 @@ extension CommonWalletModel: ReceiveAddressTypesProvider {
 
     var receiveAddressInfos: [ReceiveAddressInfo] {
         _receiveAddressService.addressInfos
+    }
+}
+
+// MARK: - TokenYieldSupplyProvider
+
+extension CommonWalletModel {
+    var yieldSupply: TokenYieldSupply? {
+        guard case .token = amountType else { return nil }
+
+        return wallet.amounts.compactMap { key, value in
+            if case .tokenYieldSupply(let supplyInfo) = key, supplyInfo.token == tokenItem.token {
+                return supplyInfo
+            }
+            return nil
+        }.first
+    }
+
+    var yieldSupplyBalance: Decimal? {
+        guard let yieldSupply else { return nil }
+        return wallet.amounts[.tokenYieldSupply(yieldSupply)]?.value
     }
 }
 
