@@ -97,23 +97,10 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
         }
 
-        guard var txValue = Decimal(string: txDetails.txValue) else {
-            throw ExpressAPIMapperError.mapToDecimalError(txDetails.txValue)
-        }
-
         fromAmount /= pow(10, response.fromDecimals)
         toAmount /= pow(10, response.toDecimals)
 
-        switch item.providerInfo.type {
-        case .cex:
-            // For CEX we have txValue amount as value which have to be sent
-            txValue /= pow(10, item.source.currency.decimalCount)
-        case .dex, .dexBridge:
-            // For DEX we have txValue amount as coin. Because it's EVM
-            txValue /= pow(10, item.source.feeCurrency.decimalCount)
-        case .onramp, .unknown:
-            throw ExpressAPIMapperError.wrongProviderType
-        }
+        let txValue = try mapTxValueToDecimalValue(item: item, txValue: txDetails.txValue)
 
         let otherNativeFee = txDetails.otherNativeFee
             .flatMap(Decimal.init)
@@ -135,6 +122,27 @@ struct ExpressAPIMapper {
             externalTxId: txDetails.externalTxId,
             externalTxUrl: txDetails.externalTxUrl
         )
+    }
+
+    func mapTxValueToDecimalValue(item: ExpressSwappableDataItem, txValue: String?) throws -> Decimal {
+        switch item.providerInfo.type {
+        case .cex:
+            guard let txValue, let decimalTxValue = Decimal(string: txValue) else {
+                throw ExpressAPIMapperError.mapToDecimalError(txValue ?? "")
+            }
+
+            // For CEX we have txValue amount as value which have to be sent
+            return decimalTxValue / pow(10, item.source.currency.decimalCount)
+        case .dex, .dexBridge:
+            if let txValue, let decimalTxValue = Decimal(string: txValue) {
+                // For DEX we have txValue amount as coin. Because it's EVM or Solana DEX
+                return decimalTxValue / pow(10, item.source.feeCurrency.decimalCount)
+            }
+
+            return .zero
+        case .onramp, .unknown:
+            throw ExpressAPIMapperError.wrongProviderType
+        }
     }
 
     func mapToExpressTransaction(response: ExpressDTO.Swap.ExchangeStatus.Response) -> ExpressTransaction {
