@@ -278,6 +278,19 @@ private extension SendViewModel {
                 let builder = try dataBuilder.stakingBuilder()
                 let (emailDataCollector, recipient) = builder.makeMailData(action: stakingTransactionAction, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
+            case .express(let expressTransactionData):
+                let builder = try dataBuilder.sendBuilder()
+
+                let mailData: (dataCollector: EmailDataCollector, recipient: String)
+
+                switch expressTransactionData {
+                case .default(let transaction):
+                    mailData = builder.makeMailData(transaction: transaction, error: error)
+                case .compiled(let transactionData):
+                    mailData = builder.makeMailData(transactionData: transactionData, error: error)
+                }
+
+                coordinator?.openMail(with: mailData.0, recipient: mailData.1)
             }
         } catch {
             showAlert(error.alertBinder)
