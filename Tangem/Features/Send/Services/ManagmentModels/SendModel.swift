@@ -415,7 +415,12 @@ extension SendModel: NotificationTapDelegate {
              .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
-             .unlock:
+             .openMobileUpgrade,
+             .unlock,
+             .openYieldPromo,
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             assertionFailure("Notification tap not handled")
         }
     }
