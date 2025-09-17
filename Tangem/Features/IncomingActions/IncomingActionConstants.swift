@@ -30,6 +30,7 @@ enum IncomingActionConstants {
         static let derivationPath = "derivation_path"
         static let transactionId = "transaction_id"
         static let entry = "entry"
+        static let id = "id"
         static let promoCode = "promo_code"
     }
 
