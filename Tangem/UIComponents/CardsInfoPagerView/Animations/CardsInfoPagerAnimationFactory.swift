@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 
 struct CardsInfoPagerAnimationFactory {
     private let hasValidIndexToSelect: Bool

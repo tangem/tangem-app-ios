@@ -696,7 +696,12 @@ extension ExpressViewModel: NotificationTapDelegate {
              .unlock,
              .openReferralProgram,
              .addTokenTrustline,
-             .openMobileFinishActivation:
+             .openMobileFinishActivation,
+             .openMobileUpgrade,
+             .openYieldPromo,
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             return
         }
     }

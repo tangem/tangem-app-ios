@@ -37,13 +37,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
     var task: Moya.Task {
         switch target {
-        case .getCustomerInfo(let cardId):
-            let params = [
-                "cid": cardId,
-            ]
-            return .requestParameters(parameters: params, encoding: URLEncoding())
-
-        case .getKYCAccessToken:
+        case .getCustomerInfo, .getKYCAccessToken:
             return .requestPlain
         }
     }
@@ -60,7 +54,7 @@ extension CustomerInfoManagementAPITarget {
     enum Target {
         /// Load all available customer info. Can be used for loading data about payment account address
         /// Will be updated later, not fully implemented on BFF
-        case getCustomerInfo(cardId: String)
+        case getCustomerInfo
 
         /// Retrieves an access token for the SumSub KYC flow
         case getKYCAccessToken

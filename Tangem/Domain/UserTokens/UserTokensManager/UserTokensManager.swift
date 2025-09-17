@@ -31,30 +31,29 @@ protocol UserTokensManager: UserTokensReordering {
 
     /// Check condition for adding token
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws
+    /// Default implementation provided
     func add(_ tokenItem: TokenItem, completion: @escaping (Result<Void, Error>) -> Void)
     func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void)
-
     /// Add token and retrieve it's address
     func add(_ tokenItem: TokenItem) async throws -> String
 
     /// Checks whether token can be removed when have pending tokens to add or remove
     func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool
+    /// Default implementation provided
     func canRemove(_ tokenItem: TokenItem) -> Bool
     func remove(_ tokenItem: TokenItem)
 
     func sync(completion: @escaping () -> Void)
 }
 
-extension UserTokensManager {
-    func add(_ tokenItems: [TokenItem]) async throws {
-        return try await withCheckedThrowingContinuation { continuation in
-            add(tokenItems) { result in
-                continuation.resume(with: result)
-            }
-        }
-    }
+// MARK: - Default implementation
 
+extension UserTokensManager {
     func add(_ tokenItem: TokenItem, completion: @escaping (Result<Void, Error>) -> Void) {
         add([tokenItem], completion: completion)
+    }
+
+    func canRemove(_ tokenItem: TokenItem) -> Bool {
+        canRemove(tokenItem, pendingToAddItems: [], pendingToRemoveItems: [])
     }
 }

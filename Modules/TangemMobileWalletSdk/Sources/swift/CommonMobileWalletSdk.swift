@@ -78,6 +78,16 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
         return mnemonic.mnemonicComponents
     }
 
+    public func exportPassphrase(context: MobileWalletContext) throws -> String {
+        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(context: context)
+
+        guard let privateInfo = PrivateInfo(data: privateInfo) else {
+            throw MobileWalletError.failedToExportPassphrase
+        }
+
+        return privateInfo.passphrase
+    }
+
     public func exportBackup(context: MobileWalletContext) throws -> Data {
         // Placeholder for backup export logic
         return Data()
@@ -247,13 +257,26 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
 
         try dataToSign.forEach { dataToSign in
             guard let curve = curves[dataToSign.publicKey] else { return }
-            let signedHashes = try SignUtil.sign(
-                entropy: privateInfo.entropy,
-                passphrase: privateInfo.passphrase,
-                hashes: dataToSign.hashes,
-                curve: curve,
-                derivationPath: dataToSign.derivationPath
-            )
+            var signedHashes: [Data]?
+            switch curve {
+            case .bls12381_G2_AUG:
+                signedHashes = try BLSUtil.sign(
+                    hashes: dataToSign.hashes,
+                    entropy: privateInfo.entropy,
+                    passphrase: privateInfo.passphrase
+                )
+            case .secp256k1, .ed25519, .ed25519_slip0010:
+                signedHashes = try SignUtil.sign(
+                    entropy: privateInfo.entropy,
+                    passphrase: privateInfo.passphrase,
+                    hashes: dataToSign.hashes,
+                    curve: curve,
+                    derivationPath: dataToSign.derivationPath
+                )
+            default:
+                throw MobileWalletError.invalidCurve(curve)
+            }
+
             result[dataToSign.publicKey] = signedHashes
         }
 
