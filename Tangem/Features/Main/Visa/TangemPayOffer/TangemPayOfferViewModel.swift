@@ -10,14 +10,14 @@ import Combine
 
 final class TangemPayOfferViewModel: ObservableObject {
     @Published private(set) var isLoading = false
-    private let visaAccount: VisaAccount
+    private let tangemPayAuthorizer: TangemPayAuthorizer
     private let closeOfferScreen: @MainActor @Sendable () -> Void
 
     init(
-        visaAccount: VisaAccount,
+        tangemPayAuthorizer: TangemPayAuthorizer,
         closeOfferScreen: @escaping @MainActor @Sendable () -> Void
     ) {
-        self.visaAccount = visaAccount
+        self.tangemPayAuthorizer = tangemPayAuthorizer
         self.closeOfferScreen = closeOfferScreen
     }
 
@@ -26,6 +26,8 @@ final class TangemPayOfferViewModel: ObservableObject {
         isLoading = true
         Task {
             do {
+                let tokens = try await tangemPayAuthorizer.authorizeWithCustomerWallet()
+                let visaAccount = VisaAccount(authorizer: tangemPayAuthorizer, tokens: tokens)
                 try await visaAccount.launchKYC()
                 await MainActor.run {
                     isLoading = false

@@ -60,3 +60,54 @@ extension CustomerInfoManagementAPITarget {
         case getKYCAccessToken
     }
 }
+
+import TangemNetworkUtils
+
+extension CustomerInfoManagementAPITarget: TargetTypeLogConvertible {
+    var shouldLogResponseBody: Bool {
+        switch target {
+        case .getCustomerInfo:
+            true
+        default:
+            false
+        }
+    }
+
+    var requestDescription: String {
+        switch target {
+        case .getCustomerInfo:
+            "customer/me [\(curlString(url: baseURL.appendingPathComponent(path).absoluteString, method: method.rawValue, headers: headers ?? [:], body: nil))]"
+        default:
+            ""
+        }
+    }
+}
+
+func curlString(
+    url: String,
+    method: String = "GET",
+    headers: [String: String] = [:],
+    body: Data? = nil
+) -> String {
+    // Start with method and URL
+    var components = ["curl -X \(method) \"\(url)\""]
+
+    // Add headers
+    let headerString = headers.map { key, value in
+        #"-H "\#(key): \#(value)""#
+    }.joined(separator: " ")
+
+    if !headerString.isEmpty {
+        components.append(headerString)
+    }
+
+    // Add body if present
+    if let body = body, let bodyString = String(data: body, encoding: .utf8) {
+        let escapedBody = bodyString
+            .replacingOccurrences(of: "\"", with: "\\\"")
+            .replacingOccurrences(of: "\n", with: "")
+        components.append("-d \"\(escapedBody)\"")
+    }
+
+    return components.joined(separator: " ")
+}

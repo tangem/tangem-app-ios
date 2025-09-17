@@ -41,13 +41,13 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 
         do {
             try await validateDeeplink()
-            let visaAccount = try await makeVisaAccount()
+            let tangemPayAuthorizer = try await makeTangemPayAuthorizer()
 
             try? await minimumLoaderShowingTimeTask.value
 
             await MainActor.run {
                 tangemPayOfferViewModel = TangemPayOfferViewModel(
-                    visaAccount: visaAccount,
+                    tangemPayAuthorizer: tangemPayAuthorizer,
                     closeOfferScreen: closeOfferScreen
                 )
             }
@@ -67,9 +67,9 @@ final class TangemPayOnboardingViewModel: ObservableObject {
         }
     }
 
-    private func makeVisaAccount() async throws -> VisaAccount {
+    private func makeTangemPayAuthorizer() async throws -> TangemPayAuthorizer {
         if let walletModel = userWalletModel.visaWalletModel {
-            return VisaAccount(walletModel: walletModel)
+            return TangemPayAuthorizer(walletModel: walletModel)
         }
 
         let visaBlockchainNetwork = BlockchainNetwork(
@@ -79,7 +79,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
         _ = try await userWalletModel.userTokensManager.add(.blockchain(visaBlockchainNetwork))
 
         if let walletModel = userWalletModel.visaWalletModel {
-            return VisaAccount(walletModel: walletModel)
+            return TangemPayAuthorizer(walletModel: walletModel)
         }
 
         throw TangemPayOnboardingError.unableToCreateRequiredWalletModel
@@ -93,7 +93,7 @@ private extension TangemPayOnboardingViewModel {
     }
 }
 
-private extension UserWalletModel {
+extension UserWalletModel {
     var visaWalletModel: (any WalletModel)? {
         walletModelsManager.walletModels
             .first { $0.tokenItem.blockchain == VisaUtilities.visaBlockchain }

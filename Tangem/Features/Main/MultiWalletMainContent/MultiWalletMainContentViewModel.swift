@@ -28,6 +28,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
     @Published var yieldModuleNotificationInputs: [NotificationViewInput] = []
 
+    @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
+    @Published var tangemPayStatusPolling: Bool = false
+
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
     @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
@@ -82,6 +85,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private var bag = Set<AnyCancellable>()
 
+    private let visaAccount: VisaAccount?
+
     init(
         userWalletModel: UserWalletModel,
         userWalletNotificationManager: NotificationManager,
@@ -110,6 +115,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             userWalletConfig: userWalletModel.config,
             totalBalanceProvider: userWalletModel
         )
+
+        visaAccount = VisaAccount(userWalletModel: userWalletModel)
+
         bind()
     }
 
@@ -270,6 +278,65 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         subscribeToTokenListSync(with: sectionsPublisher)
         nftFeatureLifecycleHandler.startObserving()
+
+        guard let visaAccount else { return }
+
+        visaAccount.customerInfoPublisher
+            .map { customerInfo -> NotificationViewInput? in
+                switch customerInfo.productInstance?.status {
+                case .active:
+                    // [REDACTED_TODO_COMMENT]
+                    return nil
+
+                default:
+                    break
+                }
+
+                switch customerInfo.kyc.status {
+                case .approved:
+                    return NotificationViewInput(
+                        style: .withButtons([.init(
+                            action: { [weak self] _, _ in
+                                // [REDACTED_TODO_COMMENT]
+                                self?.tangemPayStatusPolling = true
+                            },
+                            actionType: .tangemPayCreateAccountAndIssueCard,
+                            isWithLoader: true
+                        )]),
+                        severity: .info,
+                        settings: .init(event: TangemPayNotificationEvent.createAccountAndIssueCard, dismissAction: nil)
+                    )
+
+                default:
+                    return NotificationViewInput(
+                        style: .withButtons([.init(
+                            action: { _, _ in
+                                #if ALPHA || BETA || DEBUG
+                                Task {
+                                    do {
+                                        try await visaAccount.launchKYC()
+                                    } catch {
+                                        // [REDACTED_TODO_COMMENT]
+                                    }
+                                }
+                                #endif // ALPHA || BETA || DEBUG
+                            },
+                            actionType: .tangemPayViewKYCStatus,
+                            isWithLoader: false
+                        )]),
+                        severity: .info,
+                        settings: .init(event: TangemPayNotificationEvent.viewKYCStatus, dismissAction: nil)
+                    )
+                }
+            }
+            .compactMap { notification in
+                guard let notification else {
+                    return []
+                }
+                return [notification]
+            }
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$tangemPayNotificationInputs)
     }
 
     private func convertToSections(
