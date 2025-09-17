@@ -27,9 +27,9 @@ struct SendNewSummaryView: View {
 
             notificationsView
         }
-        .safeAreaInset(edge: .bottom, content: {
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
             descriptionView
-        })
+        }
         .transition(transitionService.newSummaryViewTransition())
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
@@ -97,7 +97,7 @@ struct SendNewSummaryView: View {
             Text(transactionDescription)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
-                .padding(.top, 8)
+                .padding(.vertical, 8)
                 .infinityFrame(axis: .horizontal)
                 .background(Colors.Background.tertiary)
                 .visible(viewModel.transactionDescriptionIsVisible)
