@@ -189,6 +189,7 @@ extension Action {
         computeUnitLimit: UInt32?,
         computeUnitPrice: UInt64?,
         allowUnfundedRecipient: Bool = false,
+        allowCompoundRecipient: Bool = false,
         fromPublicKey: PublicKey
     ) -> AnyPublisher<(String, Date), Error> {
         Deferred {
@@ -204,6 +205,7 @@ extension Action {
                     computeUnitLimit: computeUnitLimit,
                     computeUnitPrice: computeUnitPrice,
                     allowUnfundedRecipient: allowUnfundedRecipient,
+                    allowCompoundRecipient: allowCompoundRecipient,
                     fromPublicKey: fromPublicKey
                 ) {
                     switch $0 {

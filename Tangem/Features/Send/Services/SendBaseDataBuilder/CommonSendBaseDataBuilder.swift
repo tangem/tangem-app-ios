@@ -52,6 +52,19 @@ struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
         return (dataCollector: emailDataCollector, recipient: recipient)
     }
 
+    func makeMailData(transactionData: Data, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String) {
+        let emailDataCollector = CompiledExpressDataCollector(
+            userWalletEmailData: emailDataProvider.emailData,
+            walletModel: walletModel,
+            transactionHex: transactionData.hexString,
+            lastError: error
+        )
+
+        let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
+
+        return (dataCollector: emailDataCollector, recipient: recipient)
+    }
+
     func makeSendReceiveTokensList() throws -> SendReceiveTokensListBuilder {
         guard let sendReceiveTokensListBuilder else {
             throw SendBaseDataBuilderError.notFound("SendReceiveTokensListBuilder")
