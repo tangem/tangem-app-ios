@@ -7,7 +7,7 @@
 //
 
 public struct YieldSupplyContractAddresses {
-    let factoryContractAddress: String
-    let processorContractAddress: String
-    let poolContractAddress: String
+    public let factoryContractAddress: String
+    public let processorContractAddress: String
+    public let poolContractAddress: String
 }
