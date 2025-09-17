@@ -16,6 +16,7 @@ public struct Amount: CustomStringConvertible, Hashable, Comparable {
         case token(value: Token)
         case reserve
         case feeResource(FeeResourceType)
+        case tokenYieldSupply(TokenYieldSupply)
 
         public var token: Token? {
             if case .token(let token) = self {
@@ -171,6 +172,8 @@ extension Amount.AmountType: Hashable {
             hasher.combine(value)
         case .feeResource(let type):
             hasher.combine(type)
+        case .tokenYieldSupply(let supply):
+            hasher.combine(supply)
         }
     }
 
@@ -181,6 +184,8 @@ extension Amount.AmountType: Hashable {
         case (.token(let lValue), .token(let rValue)):
             return lValue == rValue
         case (.feeResource(let ln), .feeResource(let rn)):
+            return ln == rn
+        case (.tokenYieldSupply(let ln), .tokenYieldSupply(let rn)):
             return ln == rn
         default:
             return false

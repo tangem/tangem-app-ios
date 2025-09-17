@@ -19,19 +19,19 @@ public enum YieldResponseMapper {
         let feeRate = BigUInt(data)
 
         guard let feeRateDecimal = feeRate.decimal else {
-            throw YieldServiceError.unableToParseData
+            throw YieldModuleError.unableToParseData
         }
 
         return (feeRateDecimal * Constants.basisPoint) / Decimal(stringValue: "100")!
     }
 
-    public static func mapTokenData(_ result: String) throws -> YieldTokenData {
+    public static func mapSupplyStatus(_ result: String) throws -> YieldSupplyStatus {
         let hexString = result.removeHexPrefix()
 
         let data = Data(hexString: hexString)
 
         guard data.count == 96 else {
-            throw YieldServiceError.unableToParseData
+            throw YieldModuleError.unableToParseData
         }
 
         let initializedData = data.subdata(in: 0 ..< 32)
@@ -42,7 +42,7 @@ public enum YieldResponseMapper {
         let active = BigUInt(activeData) != 0
         let maxNetworkFee = BigUInt(maxNetworkFeeData)
 
-        return YieldTokenData(
+        return YieldSupplyStatus(
             initialized: initialized,
             active: active,
             maxNetworkFee: maxNetworkFee
@@ -55,13 +55,13 @@ public enum YieldResponseMapper {
         let data = Data(hexString: hexString)
 
         guard data.count >= 96 else {
-            throw YieldServiceError.unableToParseData
+            throw YieldModuleError.unableToParseData
         }
 
         let aprValue = BigUInt(data.subdata(in: 64 ..< 96))
 
         guard let aprDecimal = aprValue.decimal else {
-            throw YieldServiceError.unableToParseData
+            throw YieldModuleError.unableToParseData
         }
 
         let apr = aprDecimal / Constants.rayUnit

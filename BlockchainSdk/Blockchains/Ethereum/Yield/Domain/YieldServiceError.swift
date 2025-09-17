@@ -8,8 +8,9 @@
 
 import Foundation
 
-public enum YieldServiceError: Error {
+public enum YieldModuleError: Error {
     case unableToParseData
+    case unsupportedBlockchain
     case feeNotFound
     case balanceNotFound
     case yieldIsAlreadyActive
