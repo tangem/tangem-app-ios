@@ -22,7 +22,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     let isUserWalletLocked: Bool
     private let userWalletUpdatePublisher: AnyPublisher<UpdateResult, Never>
     private let totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
-    private let walletImageProvider: WalletImageProviding
+    private var walletImageProvider: WalletImageProviding
     private var bag: Set<AnyCancellable> = []
 
     convenience init(userWallet: UserWalletModel, tapAction: @escaping () -> Void) {
@@ -64,6 +64,10 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
             return
         }
 
+        reloadImage()
+    }
+
+    func reloadImage() {
         runTask(in: self) { viewModel in
             let image = await viewModel.walletImageProvider.loadSmallImage()
 
@@ -86,6 +90,8 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
                     if case .configurationChanged(let model) = event {
                         let isUserWalletBackupNeeded = model.config.hasFeature(.mnemonicBackup) && model.config.hasFeature(.iCloudBackup)
                         viewModel.isUserWalletBackupNeeded = isUserWalletBackupNeeded
+                        viewModel.walletImageProvider = model.walletImageProvider
+                        viewModel.reloadImage()
                     }
                 }
             }
