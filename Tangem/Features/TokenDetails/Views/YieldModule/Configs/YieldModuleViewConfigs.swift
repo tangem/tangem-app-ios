@@ -1,5 +1,5 @@
 //
-//  YieldModuleParams.swift
+//  YieldModuleViewConfigs.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 import TangemFoundation
 import TangemLocalization
 
-enum YieldModuleParams {
+enum YieldModuleViewConfigs {
     enum YieldModuleBottomSheetNotificationBannerParams {
         case notEnoughFeeCurrency(feeCurrencyName: String, tokenIcon: Image, buttonAction: @MainActor @Sendable () -> Void)
         case approveNeeded(buttonAction: @MainActor @Sendable () -> Void)
