@@ -113,7 +113,8 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         case .coin:
             return sendKaspaCoinTransaction(transaction, signer: signer)
         case .reserve,
-             .feeResource:
+             .feeResource,
+             .tokenYieldSupply:
             // Not supported
             return .anyFail(error: SendTxError(error: BlockchainSdkError.notImplemented))
         }
@@ -499,7 +500,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
 
     private func getIncompleteTokenTransaction(for asset: Asset) -> KaspaKRC20.IncompleteTokenTransactionParams? {
         switch asset {
-        case .coin, .reserve, .feeResource:
+        case .coin, .reserve, .feeResource, .tokenYieldSupply:
             return nil
         case .token(let token):
             return incompleteTokenTransactionsInMemoryStorage[token.asStorageId(walletAddress: wallet.address)]

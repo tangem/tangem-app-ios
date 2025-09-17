@@ -16,6 +16,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     let txBuilder: EthereumTransactionBuilder
     let networkService: EthereumNetworkService
     let addressConverter: EthereumAddressConverter
+    let yieldSupplyProvider: YieldSupplyProvider?
     let allowsFeeSelection: Bool
 
     var currentHost: String { networkService.host }
@@ -25,12 +26,14 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         addressConverter: EthereumAddressConverter,
         txBuilder: EthereumTransactionBuilder,
         networkService: EthereumNetworkService,
+        yieldSupplyProvider: YieldSupplyProvider?,
         allowsFeeSelection: Bool
     ) {
         self.txBuilder = txBuilder
         self.networkService = networkService
         self.addressConverter = addressConverter
         self.allowsFeeSelection = allowsFeeSelection
+        self.yieldSupplyProvider = yieldSupplyProvider
 
         super.init(wallet: wallet)
     }
@@ -208,7 +211,7 @@ extension EthereumWalletManager: EthereumNetworkProvider {
             .eraseToAnyPublisher()
     }
 
-    func getTokensBalance(_ address: String, tokens: [Token]) -> AnyPublisher<[Token: Result<Decimal, Error>], Error> {
+    func getTokensBalance(_ address: String, tokens: [Token]) -> AnyPublisher<[Token: Result<Amount, Error>], Error> {
         addressConverter.convertToETHAddressPublisher(address)
             .withWeakCaptureOf(self)
             .flatMap { walletManager, convertedAddress in
@@ -340,7 +343,7 @@ private extension EthereumWalletManager {
         for tokenBalance in response.tokenBalances {
             switch tokenBalance.value {
             case .success(let value):
-                wallet.add(tokenValue: value, for: tokenBalance.key)
+                wallet.add(amount: value)
             case .failure:
                 wallet.clearAmount(for: tokenBalance.key)
             }
@@ -384,7 +387,7 @@ extension EthereumWalletManager: TransactionFeeProvider {
                     } catch {
                         return .anyFail(error: error)
                     }
-                case .reserve, .feeResource:
+                case .reserve, .feeResource, .tokenYieldSupply:
                     return .anyFail(error: BlockchainSdkError.notImplemented)
                 }
             }
@@ -501,8 +504,4 @@ extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
 
 // MARK: - YieldsServiceProvider
 
-extension EthereumWalletManager: YieldServiceProvider {
-    var yieldService: (any YieldTokenService)? {
-        networkService
-    }
-}
+extension EthereumWalletManager: YieldServiceProvider {}
