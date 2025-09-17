@@ -58,8 +58,6 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
         request.stringRepresentation
     }
 
-    var event: WalletConnectEvent { .sign }
-
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
         return transaction
     }
