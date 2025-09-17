@@ -2329,6 +2329,8 @@
 		B6FCEE752C40E28700CA9252 /* CGPoint+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FCEE742C40E28700CA9252 /* CGPoint+.swift */; };
 		B6FE066D2CFFF35300B5EB22 /* RestakingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FE066C2CFFF35300B5EB22 /* RestakingModel.swift */; };
 		B6FE5B282B93C0FF00B7A76B /* UserCodeRecoveringMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DCD02829DFF04B00C36C84 /* UserCodeRecoveringMock.swift */; };
+		B6FEC5302E7B1A6700280029 /* CommonCryptoAccountModelBasedRemoteIdentifierBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FEC52D2E7B1A6700280029 /* CommonCryptoAccountModelBasedRemoteIdentifierBuilder.swift */; };
+		B6FEC5312E7B1A6700280029 /* CryptoAccountsRemoteIdentifierBuilding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FEC52E2E7B1A6700280029 /* CryptoAccountsRemoteIdentifierBuilding.swift */; };
 		B6FECF4F2C4032930030A8A9 /* PushNotificationsPermissionManagerStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FECF4C2C4032930030A8A9 /* PushNotificationsPermissionManagerStub.swift */; };
 		B6FECF502C4032930030A8A9 /* PushNotificationsPermissionRequestDelegateStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FECF4D2C4032930030A8A9 /* PushNotificationsPermissionRequestDelegateStub.swift */; };
 		B6FECF512C4032930030A8A9 /* PushNotificationsAvailabilityProviderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FECF4E2C4032930030A8A9 /* PushNotificationsAvailabilityProviderStub.swift */; };
@@ -6496,6 +6498,8 @@
 		B6FCEE722C40E16100CA9252 /* CGAffineTransform+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGAffineTransform+.swift"; sourceTree = "<group>"; };
 		B6FCEE742C40E28700CA9252 /* CGPoint+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGPoint+.swift"; sourceTree = "<group>"; };
 		B6FE066C2CFFF35300B5EB22 /* RestakingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestakingModel.swift; sourceTree = "<group>"; };
+		B6FEC52D2E7B1A6700280029 /* CommonCryptoAccountModelBasedRemoteIdentifierBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCryptoAccountModelBasedRemoteIdentifierBuilder.swift; sourceTree = "<group>"; };
+		B6FEC52E2E7B1A6700280029 /* CryptoAccountsRemoteIdentifierBuilding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsRemoteIdentifierBuilding.swift; sourceTree = "<group>"; };
 		B6FECF4C2C4032930030A8A9 /* PushNotificationsPermissionManagerStub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionManagerStub.swift; sourceTree = "<group>"; };
 		B6FECF4D2C4032930030A8A9 /* PushNotificationsPermissionRequestDelegateStub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestDelegateStub.swift; sourceTree = "<group>"; };
 		B6FECF4E2C4032930030A8A9 /* PushNotificationsAvailabilityProviderStub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotificationsAvailabilityProviderStub.swift; sourceTree = "<group>"; };
@@ -15640,6 +15644,7 @@
 		B6F773BD2E74812100F39290 /* Mapping */ = {
 			isa = PBXGroup;
 			children = (
+				B6FEC52F2E7B1A6700280029 /* RemoteIdentifierBuilder */,
 				B6F773BC2E74812100F39290 /* CryptoAccountsNetworkMapper.swift */,
 			);
 			path = Mapping;
@@ -15672,6 +15677,15 @@
 				B669136E2C4194D10016B0EE /* SwiftUI */,
 			);
 			path = OverlayContentContainer;
+			sourceTree = "<group>";
+		};
+		B6FEC52F2E7B1A6700280029 /* RemoteIdentifierBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				B6FEC52E2E7B1A6700280029 /* CryptoAccountsRemoteIdentifierBuilding.swift */,
+				B6FEC52D2E7B1A6700280029 /* CommonCryptoAccountModelBasedRemoteIdentifierBuilder.swift */,
+			);
+			path = RemoteIdentifierBuilder;
 			sourceTree = "<group>";
 		};
 		C207D5DF2DE60CA200A5FB2E /* Shared */ = {
@@ -23685,6 +23699,8 @@
 				2DB4EAD92C41938E00F9E860 /* MarketsPortfolioContainerView.swift in Sources */,
 				B036626B2B63D77D0064E073 /* ISO4217CodeConverter.swift in Sources */,
 				2D3E1EDF2C9D6F96006AF975 /* WalletSelectorRoutable.swift in Sources */,
+				B6FEC5302E7B1A6700280029 /* CommonCryptoAccountModelBasedRemoteIdentifierBuilder.swift in Sources */,
+				B6FEC5312E7B1A6700280029 /* CryptoAccountsRemoteIdentifierBuilding.swift in Sources */,
 				EF4C04642DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift in Sources */,
 				EF4C04652DEF2ACC0059D7AA /* SendNewFeeCompactView.swift in Sources */,
 				C25E10432DFF2DB60050BC26 /* WalletConnectDAppPersistenceError.swift in Sources */,
