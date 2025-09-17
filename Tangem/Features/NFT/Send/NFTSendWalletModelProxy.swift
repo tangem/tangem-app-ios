@@ -363,4 +363,6 @@ extension NFTSendWalletModelProxy: WalletModel {
     var receiveAddressTypes: [ReceiveAddressType] {
         mainTokenWalletModel.receiveAddressTypes
     }
+
+    var yieldService: YieldTokenService? { nil }
 }
