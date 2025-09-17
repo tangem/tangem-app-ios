@@ -12,7 +12,7 @@ import TangemAssets
 import TangemLocalization
 
 struct TangemPayOfferView: View {
-    let viewModel: TangemPayOfferViewModel
+    @ObservedObject var viewModel: TangemPayOfferViewModel
 
     var body: some View {
         GeometryReader { proxy in
@@ -106,5 +106,6 @@ struct TangemPayOfferView: View {
             style: .primary,
             action: viewModel.getCard
         )
+        .setIsLoading(to: viewModel.isLoading)
     }
 }
