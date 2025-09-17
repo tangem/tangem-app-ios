@@ -34,6 +34,13 @@ struct AnalyticsContextData {
 
         return params
     }
+
+    static var mobileWallet = AnalyticsContextData(
+        productType: .mobileWallet,
+        batchId: "",
+        firmware: "",
+        baseCurrency: nil
+    )
 }
 
 extension AnalyticsContextData {
