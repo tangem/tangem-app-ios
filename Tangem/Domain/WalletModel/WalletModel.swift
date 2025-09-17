@@ -119,6 +119,7 @@ protocol WalletModelFeeProvider {
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error>
     func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal
     func hasFeeCurrency(amountType: Amount.AmountType) -> Bool
+    func getFee(compiledTransaction data: Data) async throws -> [Fee]
 }
 
 // MARK: - Dependencies
@@ -131,6 +132,8 @@ protocol WalletModelDependenciesProvider {
     var transactionCreator: TransactionCreator { get }
     var transactionValidator: TransactionValidator { get }
     var transactionSender: TransactionSender { get }
+
+    var compiledTransactionSender: CompiledTransactionSender? { get }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { get }
     var ethereumNetworkProvider: EthereumNetworkProvider? { get }
