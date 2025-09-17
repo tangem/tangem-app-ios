@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct Math {
     func inverseLerp(from lowerBound: Decimal, to upperBound: Decimal, value: Decimal) -> Decimal {
