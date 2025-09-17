@@ -11,4 +11,5 @@ import Combine
 
 protocol WalletModelFeaturesManager {
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { get }
+    var features: [WalletModelFeature] { get }
 }
