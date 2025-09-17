@@ -8,28 +8,38 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 final class MultiWalletNotificationManager {
-    private let analyticsService = NotificationsAnalyticsService()
+    private let analyticsService: NotificationsAnalyticsService
     private let totalBalanceProvider: TotalBalanceProviding
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
-    private var updateSubscription: AnyCancellable?
+    private var bag: Set<AnyCancellable> = []
 
-    init(totalBalanceProvider: TotalBalanceProviding, contextDataProvider: AnalyticsContextDataProvider?) {
+    init(userWalletId: UserWalletId, totalBalanceProvider: TotalBalanceProviding) {
         self.totalBalanceProvider = totalBalanceProvider
-
-        analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
+        analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
         bind()
     }
 
     private func bind() {
-        updateSubscription = totalBalanceProvider
+        notificationPublisher
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { manager, notifications in
+                manager.analyticsService.sendEventsIfNeeded(for: notifications)
+            })
+            .store(in: &bag)
+
+        totalBalanceProvider
             .totalBalancePublisher
             .withWeakCaptureOf(self)
             .sink { manager, state in
                 manager.setup(state: state)
             }
+            .store(in: &bag)
     }
 
     private func setup(state: TotalBalanceState) {
