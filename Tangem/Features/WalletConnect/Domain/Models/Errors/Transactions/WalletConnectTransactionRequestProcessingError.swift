@@ -25,4 +25,7 @@ enum WalletConnectTransactionRequestProcessingError: Error {
     case userWalletRepositoryIsLocked
     case missingActiveUserWalletModel
     case userWalletIsLocked
+    case unsupportedWCVersion
+    case missingEthTransactionSigner
+    case missingGasLoader
 }
