@@ -39,7 +39,7 @@ private extension MobileOnboardingSeedPhraseRevealViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingSeedScreenshotAlert)
-                Analytics.log(.onboardingSeedScreenCapture)
+                Analytics.log(.onboardingSeedScreenCapture, contextParams: .custom(.mobileWallet))
             }
             .store(in: &bag)
     }
