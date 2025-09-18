@@ -11,7 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemLocalization
 
-extension YieldModuleBottomSheetView {
+extension YieldModuleInfoView {
     struct YieldModuleStopEarningView: View {
         // MARK: - Properties
 
@@ -33,12 +33,15 @@ extension YieldModuleBottomSheetView {
             var linkPart = AttributedString(Localization.commonReadMore)
             linkPart.font = Fonts.Regular.footnote
             linkPart.foregroundColor = Colors.Text.accent
-
-            attr.append(" " + linkPart)
+            linkPart.link = URL(string: "")
+            attr.append(AttributedString(" "))
+            attr.append(linkPart)
 
             return Text(attr)
-                .onTapGesture { params.readMoreAction() }
-                .fixedSize(horizontal: false, vertical: true)
+                .environment(\.openURL, OpenURLAction { url in
+                    params.readMoreAction()
+                    return .handled
+                })
         }
 
         private var networkFee: some View {
@@ -48,5 +51,15 @@ extension YieldModuleBottomSheetView {
                 feePolicyText
             }
         }
+    }
+}
+
+extension YieldModuleInfoView {
+    struct FeeModel: Identifiable {
+        var id: String {
+            fee
+        }
+
+        let fee: String
     }
 }

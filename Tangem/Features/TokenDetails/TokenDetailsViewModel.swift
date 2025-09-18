@@ -424,25 +424,10 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 }
 
 extension TokenDetailsViewModel {
-    var feeCurrencyInfo: YieldModuleViewConfigs.FeeCurrencyInfo? {
-        if false {
-            return .init(
-                feeCurrencyName: walletModel.feeTokenItem.name,
-                feeCurrencyIcon: NetworkImageProvider().provide(by: walletModel.feeTokenItem.blockchain, filled: true).image,
-                feeCurrencySymbol: walletModel.feeTokenItem.blockchain.currencySymbol,
-                goToFeeCurrencyAction: { [weak self] in
-                    self?.openFeeCurrency()
-                }
-            )
-        }
-
-        return nil
-    }
-
     func openYieldModulePromo() {
         coordinator?.openYieldModulePromoView(
             walletModel: walletModel,
-            info: .init(apy: "WIP", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:], feeCurrencyInfo: feeCurrencyInfo)
+            info: .init(apy: "WIP", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
         )
     }
 
@@ -456,12 +441,11 @@ extension TokenDetailsViewModel {
             tokenName: walletModel.tokenItem.name,
             tokenSymbol: walletModel.tokenItem.token?.symbol ?? "",
             networkFee: "5.1",
-            feeCurrencyInfo: feeCurrencyInfo,
             onReadMoreAction: {},
             onStopEarningAction: {},
             onApproveAction: {}
         )
 
-        coordinator?.openYieldEarnInfo(params: params)
+        coordinator?.openYieldEarnInfo(params: params, walletModel: walletModel)
     }
 }

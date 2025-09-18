@@ -11,7 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-extension YieldModuleBottomSheetView {
+extension YieldModuleStartView {
     struct YieldModuleFeePolicyView: View {
         let currentFee: String
         let maximumFee: String
@@ -42,7 +42,7 @@ extension YieldModuleBottomSheetView {
     }
 }
 
-extension YieldModuleBottomSheetView {
+extension YieldModuleStartView {
     struct FeeModel: Identifiable {
         var id: String {
             fee
