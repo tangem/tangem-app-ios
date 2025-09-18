@@ -1211,7 +1211,6 @@
 		B6EFF1382D83ACCA00D168AC /* NFTAvailabilityUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EFF1372D83ACCA00D168AC /* NFTAvailabilityUtil.swift */; };
 		B6F06D192E5D40C1003DB0A9 /* AccountsAwareUserTokensManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F06D182E5D40C1003DB0A9 /* AccountsAwareUserTokensManager.swift */; };
 		B6F1AE042CD166D900F99DC9 /* SwiftUITouchPassthroughView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F1AE032CD166D900F99DC9 /* SwiftUITouchPassthroughView.swift */; };
-		B6F271042CC2C10A00A2A5B1 /* SimpleTransactionSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F271032CC2C10A00A2A5B1 /* SimpleTransactionSigner.swift */; };
 		B6F535092E71777F0000CD13 /* AccountsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F535082E71777F0000CD13 /* AccountsDTO.swift */; };
 		B6F5350F2E717C150000CD13 /* AccountsDTO.Request.Accounts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F5350E2E717C150000CD13 /* AccountsDTO.Request.Accounts.swift */; };
 		B6F535112E717CB20000CD13 /* AccountsDTO.Response.Accounts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F535102E717CB20000CD13 /* AccountsDTO.Response.Accounts.swift */; };
@@ -4147,7 +4146,6 @@
 		B6EFF1372D83ACCA00D168AC /* NFTAvailabilityUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAvailabilityUtil.swift; sourceTree = "<group>"; };
 		B6F06D182E5D40C1003DB0A9 /* AccountsAwareUserTokensManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareUserTokensManager.swift; sourceTree = "<group>"; };
 		B6F1AE032CD166D900F99DC9 /* SwiftUITouchPassthroughView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUITouchPassthroughView.swift; sourceTree = "<group>"; };
-		B6F271032CC2C10A00A2A5B1 /* SimpleTransactionSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleTransactionSigner.swift; sourceTree = "<group>"; };
 		B6F535082E71777F0000CD13 /* AccountsDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsDTO.swift; sourceTree = "<group>"; };
 		B6F5350E2E717C150000CD13 /* AccountsDTO.Request.Accounts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsDTO.Request.Accounts.swift; sourceTree = "<group>"; };
 		B6F535102E717CB20000CD13 /* AccountsDTO.Response.Accounts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsDTO.Response.Accounts.swift; sourceTree = "<group>"; };
