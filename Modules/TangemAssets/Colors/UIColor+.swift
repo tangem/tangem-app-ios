@@ -1,5 +1,5 @@
 //
-//  Color+.swift
+//  UIColor+.swift
 //  TangemAssets
 //
 //  Created by [REDACTED_AUTHOR]
@@ -87,32 +87,6 @@ public extension UIColor {
 
     @nonobjc static var tangemGrayDark: UIColor {
         return UIColor(named: "tangem_gray_dark", in: .module, compatibleWith: nil)!
-    }
-}
-
-public extension Color {
-    init?(hex: String) {
-        let r, g, b, a: Double
-
-        var hexColor = hex.replacingOccurrences(of: "#", with: "")
-        if hexColor.count == 6 {
-            hexColor += "FF"
-        }
-
-        let scanner = Scanner(string: hexColor)
-        var hexNumber: UInt64 = 0
-
-        if scanner.scanHexInt64(&hexNumber) {
-            r = Double((hexNumber & 0xff000000) >> 24) / 255
-            g = Double((hexNumber & 0x00ff0000) >> 16) / 255
-            b = Double((hexNumber & 0x0000ff00) >> 8) / 255
-            a = Double(hexNumber & 0x000000ff) / 255
-
-            self.init(.sRGB, red: r, green: g, blue: b, opacity: a)
-            return
-        }
-
-        return nil
     }
 }
 
