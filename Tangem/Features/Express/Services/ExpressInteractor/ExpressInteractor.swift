@@ -35,6 +35,14 @@ class ExpressInteractor {
     private let expressAPIProvider: ExpressAPIProvider
     private let signer: TangemSigner
 
+    private var networkProviderAnalyticsLogger: NetworkProviderAnalyticsLogger? {
+        if case .send(let logger) = initialWallet.sendWalletModelFeature {
+            return logger
+        }
+
+        return nil
+    }
+
     // MARK: - Options
 
     private let _state: CurrentValueSubject<State, Never> = .init(.idle)
@@ -694,6 +702,7 @@ private extension ExpressInteractor {
             .blockchain: data.source.tokenItem.blockchain.displayName,
             .feeType: analyticsFeeType.rawValue,
             .walletForm: signerType,
+            .selectedHost: networkProviderAnalyticsLogger?.currentNetworkProviderHost ?? "",
         ])
     }
 }
