@@ -11,7 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-extension YieldModuleBottomSheetView {
+extension YieldModuleInfoView {
     struct YieldModuleApproveView: View {
         // MARK: - Properties
 
