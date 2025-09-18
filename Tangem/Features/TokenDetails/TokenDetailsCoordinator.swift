@@ -53,9 +53,9 @@ class TokenDetailsCoordinator: CoordinatorObject {
         self.options = options
 
         let notificationManager = SingleTokenNotificationManager(
+            userWalletId: options.userWalletModel.userWalletId,
             walletModel: options.walletModel,
-            walletModelsManager: options.userWalletModel.walletModelsManager,
-            contextDataProvider: options.userWalletModel
+            walletModelsManager: options.userWalletModel.walletModelsManager
         )
 
         let tokenRouter = SingleTokenRouter(
@@ -72,9 +72,16 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
 
-        let bannerNotificationManager = options.userWalletModel.config.hasFeature(.multiCurrency)
-            ? BannerNotificationManager(userWalletId: options.userWalletModel.userWalletId, placement: .tokenDetails(options.walletModel.tokenItem), contextDataProvider: options.userWalletModel)
-            : nil
+        let bannerNotificationManager: BannerNotificationManager? = {
+            guard options.userWalletModel.config.hasFeature(.multiCurrency) else {
+                return nil
+            }
+
+            return BannerNotificationManager(
+                userWallet: options.userWalletModel,
+                placement: .tokenDetails(options.walletModel.tokenItem)
+            )
+        }()
 
         let factory = XPUBGeneratorFactory(cardInteractor: options.userWalletModel.keysDerivingInteractor)
         let xpubGenerator = factory.makeXPUBGenerator(
@@ -135,6 +142,12 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
 
         coordinator.start(with: options)
         yieldModulePromoCoordinator = coordinator
+    }
+
+    func openYieldEarnInfo(params: YieldModuleBottomSheetParams.EarnInfoParams) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .earnInfo(params: params)))
+        }
     }
 }
 
