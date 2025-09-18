@@ -93,7 +93,16 @@ private extension CommonExpressDependenciesFactory {
     /// Be careful to use tokenItem in CommonExpressAnalyticsLogger
     /// Because there will be inly initial tokenItem without updating
     var analyticsLogger: ExpressAnalyticsLogger {
-        CommonExpressAnalyticsLogger(tokenItem: initialWallet.tokenItem)
+        var networkProviderAnalyticsLogger: NetworkProviderAnalyticsLogger?
+
+        if case .send(let networkLogger) = initialWallet.sendWalletModelFeature {
+            networkProviderAnalyticsLogger = networkLogger
+        }
+
+        return CommonExpressAnalyticsLogger(
+            tokenItem: initialWallet.tokenItem,
+            networkProviderAnalyticsLogger: networkProviderAnalyticsLogger
+        )
     }
 
     var expressDestinationService: ExpressDestinationService {
