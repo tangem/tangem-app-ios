@@ -57,6 +57,8 @@ extension NotificationEvent {
             default:
                 return nil
             }
+        } else if let tokenEvent = self as? TokenNotificationEvent {
+            return tokenEvent.accessibilityIdentifier
         }
         return nil
     }
