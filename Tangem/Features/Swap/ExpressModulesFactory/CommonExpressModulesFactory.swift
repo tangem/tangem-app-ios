@@ -180,7 +180,18 @@ private extension CommonExpressModulesFactory {
 
     /// Be careful to use tokenItem in CommonExpressAnalyticsLogger
     /// Becase there will be inly initial tokenItem without updating
-    var analyticsLogger: ExpressAnalyticsLogger { CommonExpressAnalyticsLogger(tokenItem: initialWalletModel.tokenItem) }
+    var analyticsLogger: ExpressAnalyticsLogger {
+        var networkProviderAnalyticsLogger: NetworkProviderAnalyticsLogger?
+
+        if case .send(let networkLogger) = initialWalletModel.features.find(id: .send) {
+            networkProviderAnalyticsLogger = networkLogger
+        }
+
+        return CommonExpressAnalyticsLogger(
+            tokenItem: initialWalletModel.tokenItem,
+            networkProviderAnalyticsLogger: networkProviderAnalyticsLogger
+        )
+    }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
         CommonExpressTokensListAdapter(userWalletModel: userWalletModel)
