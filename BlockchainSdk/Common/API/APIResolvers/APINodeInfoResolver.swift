@@ -61,6 +61,9 @@ struct APINodeInfoResolver {
                 .resolve(providerType: .tangemAlephium, blockchain: blockchain)
         case .blockchair, .blockcypher, .solana:
             return nil
+        case .mock:
+            return MockAPIResolver()
+                .resolve(providerType: providerType, blockchain: blockchain)
         }
     }
 }
