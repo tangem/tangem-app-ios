@@ -123,14 +123,14 @@ public extension AccountFormHeaderType {
             AccountFormHeaderView(
                 accountName: $accountName,
                 placeholderText: "New account",
-                color: Colors.Accounts.darkGreen,
+                color: Colors.Accounts.vitalGreen,
                 previewType: .letter("N")
             )
 
             AccountFormHeaderView(
                 accountName: $accountName,
                 placeholderText: "New account",
-                color: Colors.Accounts.darkGreen,
+                color: Colors.Accounts.ufoGreen,
                 previewType: .image(Assets.Accounts.airplane.image)
             )
         }
