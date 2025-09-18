@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 final class TronTransactionHistoryProvider<Mapper> where
     Mapper: TransactionHistoryMapper,
@@ -31,6 +32,16 @@ final class TronTransactionHistoryProvider<Mapper> where
 // MARK: - TransactionHistoryProvider protocol conformance
 
 extension TronTransactionHistoryProvider: TransactionHistoryProvider {
+    var description: String {
+        return objectDescription(
+            self,
+            userInfo: [
+                "pageNumber": String(describing: page?.number),
+                "totalPageCount": totalPageCount,
+            ]
+        )
+    }
+
     var canFetchHistory: Bool {
         page == nil || (page?.number ?? Constants.initialPageNumber) < totalPageCount
     }
