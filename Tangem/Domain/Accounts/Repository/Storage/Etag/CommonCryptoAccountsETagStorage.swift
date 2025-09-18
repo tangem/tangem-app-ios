@@ -9,7 +9,6 @@
 import Foundation
 import TangemFoundation
 
-// [REDACTED_TODO_COMMENT]
 final class CommonCryptoAccountsETagStorage {
     /// - Note: Despite the name, this inner storage is not limited to BlockchainSDK. It's just a convenient UserDefaults wrapper.
     private let innerStorage: UserDefaultsBlockchainDataStorage
