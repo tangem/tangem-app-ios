@@ -176,6 +176,10 @@ extension VisaWalletModel: WalletModelFeeProvider {
     func hasFeeCurrency(amountType: Amount.AmountType) -> Bool {
         return false
     }
+
+    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
+        return []
+    }
 }
 
 extension VisaWalletModel: WalletModelDependenciesProvider {
@@ -186,6 +190,7 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var transactionCreator: any TransactionCreator { transactionDependency }
     var transactionValidator: any TransactionValidator { transactionDependency }
     var transactionSender: any TransactionSender { transactionDependency }
+    var compiledTransactionSender: (any CompiledTransactionSender)? { transactionDependency }
     var ethereumTransactionDataBuilder: (any EthereumTransactionDataBuilder)? { nil }
     var ethereumNetworkProvider: (any EthereumNetworkProvider)? { nil }
     var ethereumTransactionSigner: (any EthereumTransactionSigner)? { nil }
@@ -335,6 +340,8 @@ extension VisaWalletModel: WalletModel {
         let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
         return addressInfos.map { .address($0) }
     }
+
+    var yieldService: YieldTokenService? { nil }
 }
 
 extension VisaWalletModel: Equatable {
