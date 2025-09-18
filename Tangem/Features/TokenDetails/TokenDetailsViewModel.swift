@@ -200,52 +200,20 @@ extension TokenDetailsViewModel {
     }
 
     func generateXPUBButtonAction() {
-        guard let manager = userWalletModel.yieldModuleManager.yieldWalletManagers[walletModel.tokenItem] else { return }
+        guard let xpubGenerator else { return }
 
-        Task {
+        runTask { [weak self] in
             do {
-                await manager.updateState()
-                switch manager.state {
-                case .enabled(let state):
-                    let smartContractState = state.yieldSupply
-                    switch state.yieldSupply?.type {
-                    case .none:
-                        let fee = try await manager.enterFee()
-                        let result = try await manager.enter(fee: fee)
-                        print(result)
-                    case .tokenYieldSupply(let supply):
-                        let fee = try await manager.exitFee()
-                        let result = try await manager.exit(fee: fee)
-                        print(result)
-                    default: break
-                    }
-                case .disabled, .none, .loading, .failedToLoad:
-                    let fee = try await manager.enterFee()
-                    let result = try await manager.enter(fee: fee)
-                    print(result)
-                }
-//                let fee = try await manager.exitFee(yieldModule: yieldModule)
-//                let result = try await manager.exit(yieldModule: yieldModule, fee: fee)
-
+                let xpub = try await xpubGenerator.generateXPUB()
+                let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
+                AppPresenter.shared.show(viewController)
             } catch {
-                print(error)
+                let sdkError = error.toTangemSdkError()
+                if !sdkError.isUserCancelled {
+                    self?.alert = error.alertBinder
+                }
             }
         }
-
-//        guard let xpubGenerator else { return }
-//
-//        runTask { [weak self] in
-//            do {
-//                let xpub = try await xpubGenerator.generateXPUB()
-//                let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
-//                AppPresenter.shared.show(viewController)
-//            } catch {
-//                let sdkError = error.toTangemSdkError()
-//                if !sdkError.isUserCancelled {
-//                    self?.alert = error.alertBinder
-//                }
-//            }
-//        }
     }
 
     private func showUnableToHideAlert() {
@@ -336,7 +304,7 @@ private extension TokenDetailsViewModel {
             .compactMap { [self] walletManagers -> YieldModuleWalletManager? in
                 walletManagers[walletModel.tokenItem]
             }
-            .first()
+//            .first()
             .eraseToAnyPublisher()
             .flatMap { manager in
                 return manager.statePublisher
@@ -346,7 +314,7 @@ private extension TokenDetailsViewModel {
 
                 },
                 receiveValue: { value in
-                    print("value: \(value)")
+                    print("🙀 value: \(value)")
                 }
             )
             .store(in: &bag)

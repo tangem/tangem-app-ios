@@ -28,11 +28,12 @@ protocol YieldModuleWalletManager {
 enum YieldModuleWalletManagerState {
     case disabled
     case loading
-    case enabled(YieldModuleWalletManagerStateInfo)
+    case notActive(apy: Decimal)
+    case active(YieldModuleWalletManagerStateInfo)
     case failedToLoad(error: String)
 
     var balance: Amount? {
-        if case .enabled(let value) = self {
+        if case .active(let value) = self {
             return value.yieldSupply
         }
         return nil
@@ -121,7 +122,7 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
     }
 
     func updateState() async {
-        walletModel.update(silent: true)
+        walletModel.updateAfterSendingTransaction()
     }
 
     func enterFee() async throws -> YieldTransactionFee {
@@ -252,6 +253,7 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
 
 private extension CommonYieldModuleWalletManager {
     private func bind() {
+        // [REDACTED_TODO_COMMENT]
         walletModel.statePublisher
             .withWeakCaptureOf(self)
             .asyncMap { yieldModuleWalletManager, input in
@@ -265,17 +267,18 @@ private extension CommonYieldModuleWalletManager {
     }
 
     func mapWalletModelState(_ walletModelState: WalletModelState) async throws -> YieldModuleWalletManagerState {
+        async let apy = getAPY()
         switch walletModelState {
         case .created, .loading:
             return .loading
-        case .loaded(let state):
+        case .loaded:
             guard let yieldSupply = walletModel.yieldSupply, let yieldSupplyBalance = walletModel.yieldSupplyBalance else {
-                return .disabled
+                return try await .notActive(apy: apy)
             }
-            return try await .enabled(
+            return try await .active(
                 .init(
-                    apy: getAPY(),
-                    activeState: .active,
+                    apy: apy,
+                    activeState: .active, // will be taken from backend response later
                     yieldSupply: Amount(
                         with: blockchain,
                         type: .tokenYieldSupply(yieldSupply),
@@ -283,7 +286,7 @@ private extension CommonYieldModuleWalletManager {
                     )
                 )
             )
-        case .noAccount(message: let message, amountToCreate: let amountToCreate):
+        case .noAccount:
             return .disabled
         case .failed(error: let error):
             return .failedToLoad(error: error)

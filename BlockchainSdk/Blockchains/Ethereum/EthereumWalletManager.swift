@@ -338,14 +338,13 @@ private extension EthereumWalletManager {
     }
 
     func updateWallet(with response: EthereumInfoResponse) {
+        wallet.clearAmounts()
+
         wallet.add(coinValue: response.balance)
 
         for tokenBalance in response.tokenBalances {
-            switch tokenBalance.value {
-            case .success(let value):
+            if case .success(let value) = tokenBalance.value {
                 wallet.add(amount: value)
-            case .failure:
-                wallet.clearAmount(for: tokenBalance.key)
             }
         }
 

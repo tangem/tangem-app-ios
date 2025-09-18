@@ -265,7 +265,7 @@ private extension YieldTransactionProvider {
 
     private func transaction(contractAddress: String, txData: Data, fee: Fee) async throws -> Transaction {
         try await transactionCreator.createTransaction(
-            amount: Amount(with: fee.amount, value: .zero),
+            amount: Amount(with: blockchain, type: .coin, value: .zero),
             fee: fee,
             destinationAddress: contractAddress,
             contractAddress: contractAddress,
