@@ -50,7 +50,7 @@ actor CommonAccountModelsManager {
 
     private nonisolated func initialize() {
         runTask(in: self, isDetached: true) { manager in
-            await manager.cryptoAccountsRepository.initialize()
+            await manager.cryptoAccountsRepository.initialize(forUserWalletWithId: manager.userWalletId)
         }
     }
 
@@ -202,12 +202,24 @@ extension CommonAccountModelsManager: AccountModelsManager {
         cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: [])
     }
 
-    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws(AccountModelsManagerError) {
+    func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
+        // [REDACTED_TODO_COMMENT]
+        return []
+    }
+
+    func archiveCryptoAccount(
+        withIdentifier identifier: some AccountModelPersistentIdentifierConvertible
+    ) async throws(AccountModelsManagerError) {
         if identifier.isMainAccount {
             throw .cannotArchiveCryptoAccount
         }
 
         cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
+    }
+
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
+        // [REDACTED_TODO_COMMENT]
+        throw .cannotUnarchiveCryptoAccount
     }
 }
 
