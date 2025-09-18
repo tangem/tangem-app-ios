@@ -201,7 +201,6 @@ private struct CommonUserWalletModelDependencies {
         func makeAccountModelsManager() -> AccountModelsManager {
             let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
             let persistentStorage = CommonCryptoAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
-            let eTagStorage = CommonCryptoAccountsETagStorage()
             let remoteIdentifierBuilder = CommonCryptoAccountModelBasedRemoteIdentifierBuilder(userWalletId: userWalletId)
             let mapper = CryptoAccountsNetworkMapper(
                 supportedBlockchains: config.supportedBlockchains,
@@ -209,7 +208,6 @@ private struct CommonUserWalletModelDependencies {
             )
             let networkService = CommonCryptoAccountsNetworkService(
                 userWalletId: userWalletId,
-                eTagStorage: eTagStorage,
                 mapper: mapper
             )
             let storage = CommonCryptoAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)

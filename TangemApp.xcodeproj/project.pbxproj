@@ -2331,6 +2331,7 @@
 		B6FE5B282B93C0FF00B7A76B /* UserCodeRecoveringMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DCD02829DFF04B00C36C84 /* UserCodeRecoveringMock.swift */; };
 		B6FEC5302E7B1A6700280029 /* CommonCryptoAccountModelBasedRemoteIdentifierBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FEC52D2E7B1A6700280029 /* CommonCryptoAccountModelBasedRemoteIdentifierBuilder.swift */; };
 		B6FEC5312E7B1A6700280029 /* CryptoAccountsRemoteIdentifierBuilding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FEC52E2E7B1A6700280029 /* CryptoAccountsRemoteIdentifierBuilding.swift */; };
+		B6FEC5332E7B88C100280029 /* CryptoAccountsETagStorage+InjectedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FEC5322E7B88C100280029 /* CryptoAccountsETagStorage+InjectedValues.swift */; };
 		B6FECF4F2C4032930030A8A9 /* PushNotificationsPermissionManagerStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FECF4C2C4032930030A8A9 /* PushNotificationsPermissionManagerStub.swift */; };
 		B6FECF502C4032930030A8A9 /* PushNotificationsPermissionRequestDelegateStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FECF4D2C4032930030A8A9 /* PushNotificationsPermissionRequestDelegateStub.swift */; };
 		B6FECF512C4032930030A8A9 /* PushNotificationsAvailabilityProviderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FECF4E2C4032930030A8A9 /* PushNotificationsAvailabilityProviderStub.swift */; };
@@ -6500,6 +6501,7 @@
 		B6FE066C2CFFF35300B5EB22 /* RestakingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestakingModel.swift; sourceTree = "<group>"; };
 		B6FEC52D2E7B1A6700280029 /* CommonCryptoAccountModelBasedRemoteIdentifierBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCryptoAccountModelBasedRemoteIdentifierBuilder.swift; sourceTree = "<group>"; };
 		B6FEC52E2E7B1A6700280029 /* CryptoAccountsRemoteIdentifierBuilding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsRemoteIdentifierBuilding.swift; sourceTree = "<group>"; };
+		B6FEC5322E7B88C100280029 /* CryptoAccountsETagStorage+InjectedValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CryptoAccountsETagStorage+InjectedValues.swift"; sourceTree = "<group>"; };
 		B6FECF4C2C4032930030A8A9 /* PushNotificationsPermissionManagerStub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionManagerStub.swift; sourceTree = "<group>"; };
 		B6FECF4D2C4032930030A8A9 /* PushNotificationsPermissionRequestDelegateStub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestDelegateStub.swift; sourceTree = "<group>"; };
 		B6FECF4E2C4032930030A8A9 /* PushNotificationsAvailabilityProviderStub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotificationsAvailabilityProviderStub.swift; sourceTree = "<group>"; };
@@ -15636,6 +15638,7 @@
 			isa = PBXGroup;
 			children = (
 				B6F773B32E7471ED00F39290 /* CryptoAccountsETagStorage.swift */,
+				B6FEC5322E7B88C100280029 /* CryptoAccountsETagStorage+InjectedValues.swift */,
 				B6F773B52E747F1E00F39290 /* CommonCryptoAccountsETagStorage.swift */,
 			);
 			path = Etag;
@@ -24083,6 +24086,7 @@
 				B6A089442DD7AD3D005CBBA2 /* NFTSendWalletModelProxy.swift in Sources */,
 				DC5E6FDC2C906382008A98D0 /* AppLockController.swift in Sources */,
 				2DB3614B2C14FBAB00BB1D38 /* SegmentedPickerView.swift in Sources */,
+				B6FEC5332E7B88C100280029 /* CryptoAccountsETagStorage+InjectedValues.swift in Sources */,
 				EFB23F2D2CBE7F24005A6719 /* OnrampModel.swift in Sources */,
 				EF9448E12ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift in Sources */,
 				EF9E2A532B56A5DF00418559 /* WalletModel+Mock.swift in Sources */,
