@@ -48,6 +48,12 @@ public class OnrampProvider {
 public extension OnrampProvider {
     enum ProcessingTimeType: Hashable, CustomStringConvertible {
         case fastest
+
+        public var description: String {
+            switch self {
+            case .fastest: "Fastest"
+            }
+        }
     }
 
     enum AttractiveType: Hashable, CustomStringConvertible {
