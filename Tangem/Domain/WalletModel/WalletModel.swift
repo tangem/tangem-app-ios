@@ -172,11 +172,9 @@ protocol FeeResourceInfoProvider {
 }
 
 protocol TokenYieldSupplyProvider {
-    var yieldSupply: TokenYieldSupply? { get }
-    var yieldSupplyBalance: Decimal? { get }
+    var yieldSupplyAmount: Amount? { get }
 }
 
 extension WalletModel {
-    var yieldSupply: TokenYieldSupply? { nil }
-    var yieldSupplyBalance: Decimal? { nil }
+    var yieldSupplyAmount: Amount? { nil }
 }

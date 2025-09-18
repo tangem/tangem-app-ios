@@ -49,7 +49,6 @@ struct YieldModuleWalletManagerStateInfo {
 final class CommonYieldModuleWalletManager {
     private let walletModel: any WalletModel
     private let token: Token
-    private let blockchain: Blockchain
     private let yieldSupplyService: YieldSupplyService
     private let tokenBalanceProvider: TokenBalanceProvider
     private let transactionDispatcher: TransactionDispatcher
@@ -62,36 +61,36 @@ final class CommonYieldModuleWalletManager {
 
     private var bag = Set<AnyCancellable>()
 
-    init(
+    init?(
         walletModel: any WalletModel,
-        token: Token,
-        blockchain: Blockchain,
         yieldSupplyService: YieldSupplyService,
         tokenBalanceProvider: TokenBalanceProvider,
         ethereumNetworkProvider: EthereumNetworkProvider,
         ethereumTransactionDataBuilder: EthereumTransactionDataBuilder,
         transactionCreator: TransactionCreator,
         transactionDispatcher: TransactionDispatcher
-    ) throws {
+    ) {
+        guard let token = walletModel.tokenItem.token,
+              let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses() else {
+            return nil
+        }
+
         self.walletModel = walletModel
         self.token = token
-        self.blockchain = blockchain
         self.yieldSupplyService = yieldSupplyService
         self.tokenBalanceProvider = tokenBalanceProvider
         self.transactionDispatcher = transactionDispatcher
 
-        let yieldSupplyContractAddresses = try yieldSupplyService.getYieldSupplyContractAddresses()
-
         transactionProvider = YieldTransactionProvider(
             token: token,
-            blockchain: blockchain,
+            blockchain: walletModel.tokenItem.blockchain,
             transactionCreator: transactionCreator,
             transactionBuilder: ethereumTransactionDataBuilder,
             yieldSupplyContractAddresses: yieldSupplyContractAddresses
         )
 
         allowanceChecker = AllowanceChecker(
-            blockchain: blockchain,
+            blockchain: walletModel.tokenItem.blockchain,
             amountType: .token(value: token),
             walletAddress: walletModel.defaultAddressString,
             ethereumNetworkProvider: ethereumNetworkProvider,
@@ -99,7 +98,7 @@ final class CommonYieldModuleWalletManager {
         )
 
         transactionFeeProvider = YieldTransactionFeeProvider(
-            blockchain: blockchain,
+            blockchain: walletModel.tokenItem.blockchain,
             ethereumNetworkProvider: ethereumNetworkProvider,
             allowanceChecker: allowanceChecker,
             yieldSupplyContractAddresses: yieldSupplyContractAddresses
@@ -139,7 +138,7 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
                 throw YieldModuleError.balanceNotFound
             }
 
-            let balance = balanceValue * blockchain.decimalValue
+            let balance = balanceValue * walletModel.tokenItem.blockchain.decimalValue
 
             switch deployed.initializationState {
             case .notInitialized:
@@ -171,7 +170,7 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
             let yieldModule = try await yieldSupplyService.calculateYieldContract()
 
             guard let balance = tokenBalanceProvider.balanceType.value,
-                  let balanceBigUInt = BigUInt(decimal: balance * blockchain.decimalValue) else {
+                  let balanceBigUInt = BigUInt(decimal: balance * walletModel.tokenItem.blockchain.decimalValue) else {
                 throw YieldModuleError.balanceNotFound
             }
 
@@ -272,18 +271,14 @@ private extension CommonYieldModuleWalletManager {
         case .created, .loading:
             return .loading
         case .loaded:
-            guard let yieldSupply = walletModel.yieldSupply, let yieldSupplyBalance = walletModel.yieldSupplyBalance else {
+            guard let yieldSupplyAmount = walletModel.yieldSupplyAmount else {
                 return try await .notActive(apy: apy)
             }
             return try await .active(
                 .init(
                     apy: apy,
                     activeState: .active, // will be taken from backend response later
-                    yieldSupply: Amount(
-                        with: blockchain,
-                        type: .tokenYieldSupply(yieldSupply),
-                        value: yieldSupplyBalance
-                    )
+                    yieldSupply: yieldSupplyAmount
                 )
             )
         case .noAccount:

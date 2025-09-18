@@ -28,6 +28,13 @@ public struct Amount: CustomStringConvertible, Hashable, Comparable {
         public var isToken: Bool {
             return token != nil
         }
+
+        public var tokenYieldSupply: TokenYieldSupply? {
+            if case .tokenYieldSupply(let tokenYieldSupply) = self {
+                return tokenYieldSupply
+            }
+            return nil
+        }
     }
 
     public let type: AmountType
