@@ -29,4 +29,7 @@ public enum SendAccessibilityIdentifiers {
 
     /// AddressTextView
     public static let addressTextView = "sendAddressTextView"
+
+    /// Notification banners
+    public static let invalidAmountBanner = "sendInvalidAmountBanner"
 }
