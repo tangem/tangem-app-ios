@@ -1,5 +1,5 @@
 {
-  "originHash" : "6ebc7a32dcebc739e8478c1712afb72baa0b538888b94133222d29fe19d7f411",
+  "originHash" : "3954c67d01244d9258f6a9ed277713ad30b0f1d3e8319003224449a3178157e2",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -591,8 +591,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/SwiftBinanceChain.git",
       "state" : {
-        "revision" : "2031ca22cd0c5d8d2c27becd8e2b6a717603c644",
-        "version" : "0.0.16"
+        "revision" : "724dab97d8987a906e52e22f38a7004e9028c38d",
+        "version" : "0.0.17"
       }
     },
     {
@@ -636,8 +636,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "a13fd8338bcbaef35c4f5c08dc645add1abdf6ec",
-        "version" : "3.23.10"
+        "revision" : "d8e3895301c7dfa022c0d1334536b0ecc0f09b9c",
+        "version" : "3.23.11"
       }
     },
     {
