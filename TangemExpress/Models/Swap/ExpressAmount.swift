@@ -13,5 +13,5 @@ public enum ExpressAmount {
     case transfer(amount: Decimal)
 
     /// For `DEX` / `DEX/Bridge` operations
-    case dex(txValue: Decimal, txData: Data)
+    case dex(fromAmount: Decimal, txValue: Decimal, txData: String?)
 }
