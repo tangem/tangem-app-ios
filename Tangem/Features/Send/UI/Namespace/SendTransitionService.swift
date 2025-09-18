@@ -19,6 +19,12 @@ class SendTransitionService {
 
     // MARK: - Destination
 
+    var defaultTransition: AnyTransition {
+        newTransition(direction: .next)
+    }
+
+    // MARK: - Destination
+
     var destinationAuxiliaryViewTransition: AnyTransition {
         .move(edge: .bottom)
             .combined(with: .opacity)
