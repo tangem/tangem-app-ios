@@ -11,6 +11,7 @@ import TangemLocalization
 import SwiftUI
 import TangemAssets
 import struct TangemUI.TokenIconInfo
+import TangemAccessibilityIdentifiers
 
 enum TokenNotificationEvent: Hashable {
     case networkUnreachable(currencySymbol: String)
@@ -254,6 +255,19 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(.stake)
         case .yieldAvailable:
             return .init(.openYieldPromo)
+        }
+    }
+}
+
+// MARK: - Accessibility Identifiers
+
+extension TokenNotificationEvent {
+    var accessibilityIdentifier: String? {
+        switch self {
+        case .noAccount:
+            return TokenAccessibilityIdentifiers.topUpWalletBanner
+        default:
+            return nil
         }
     }
 }
