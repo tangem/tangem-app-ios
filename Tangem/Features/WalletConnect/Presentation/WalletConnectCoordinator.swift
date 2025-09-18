@@ -17,18 +17,12 @@ final class WalletConnectCoordinator: CoordinatorObject {
     // MARK: - Main view model
 
     @MainActor
-    @Published private(set) var legacyViewModel: OldWalletConnectViewModel?
-
-    @MainActor
     @Published private(set) var viewModel: WalletConnectViewModel?
 
     // MARK: - Child coordinators
 
     @MainActor
     @Published var qrScanCoordinator: WalletConnectQRScanCoordinator?
-
-    @MainActor
-    @Published var legacyQRScanViewCoordinator: QRScanViewCoordinator?
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -37,14 +31,10 @@ final class WalletConnectCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         Task { @MainActor in
-            if FeatureProvider.isAvailable(.walletConnectUI) {
-                viewModel = WalletConnectModuleFactory.makeWalletConnectViewModel(
-                    coordinator: self,
-                    prefetchedConnectedDApps: options.prefetchedConnectedDApps
-                )
-            } else {
-                legacyViewModel = OldWalletConnectViewModel(disabledLocalizedReason: options.disabledLocalizedReason, coordinator: self)
-            }
+            viewModel = WalletConnectModuleFactory.makeWalletConnectViewModel(
+                coordinator: self,
+                prefetchedConnectedDApps: options.prefetchedConnectedDApps
+            )
         }
     }
 }
@@ -80,15 +70,5 @@ extension WalletConnectCoordinator: WalletConnectRoutable {
 
         coordinator.start(with: options)
         qrScanCoordinator = coordinator
-    }
-
-    func legacyOpenQRScanner(with codeBinding: Binding<String>) {
-        let coordinator = QRScanViewCoordinator { [weak self] in
-            self?.legacyQRScanViewCoordinator = nil
-        }
-
-        let options = QRScanViewCoordinator.Options(code: codeBinding, text: "")
-        coordinator.start(with: options)
-        legacyQRScanViewCoordinator = coordinator
     }
 }
