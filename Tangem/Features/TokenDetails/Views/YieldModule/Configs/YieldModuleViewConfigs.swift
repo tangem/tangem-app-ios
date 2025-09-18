@@ -9,24 +9,17 @@
 import SwiftUI
 import TangemFoundation
 import TangemLocalization
+import TangemAssets
 
 enum YieldModuleViewConfigs {
-    enum YieldModuleBottomSheetNotificationBannerParams {
-        case notEnoughFeeCurrency(feeCurrencyName: String, tokenIcon: Image, buttonAction: @MainActor @Sendable () -> Void)
+    enum YieldModuleNotificationBannerParams {
+        case notEnoughFeeCurrency(feeCurrencyName: String, tokenIcon: ImageType, buttonAction: @MainActor @Sendable () -> Void)
         case approveNeeded(buttonAction: @MainActor @Sendable () -> Void)
-    }
-
-    struct FeeCurrencyInfo: Equatable {
-        let feeCurrencyName: String
-        let feeCurrencyIcon: Image
-        let feeCurrencySymbol: String
-        @IgnoredEquatable var goToFeeCurrencyAction: @MainActor @Sendable () -> Void
     }
 
     struct CommonParams: Equatable {
         let tokenName: String
         let networkFee: String
-        let feeCurrencyInfo: FeeCurrencyInfo?
 
         @IgnoredEquatable var readMoreAction: @MainActor @Sendable () -> Void
         @IgnoredEquatable var mainAction: @MainActor @Sendable () -> Void
@@ -38,7 +31,6 @@ enum YieldModuleViewConfigs {
         let networkFee: String
         let maximumFee: String
         let blockchainName: String
-        let feeCurrencyInfo: FeeCurrencyInfo?
     }
 
     struct RateInfoParams: Equatable {
@@ -61,8 +53,6 @@ enum YieldModuleViewConfigs {
         let tokenName: String
         let tokenSymbol: String
         let networkFee: String
-
-        let feeCurrencyInfo: FeeCurrencyInfo?
 
         @IgnoredEquatable var onReadMoreAction: @MainActor @Sendable () -> Void
         @IgnoredEquatable var onStopEarningAction: @MainActor @Sendable () -> Void
