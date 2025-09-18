@@ -214,8 +214,7 @@ private struct CommonUserWalletModelDependencies {
                 tokenItemsRepository: tokenItemsRepository,
                 networkService: networkService,
                 persistentStorage: persistentStorage,
-                storageController: persistentStorage,
-                userWalletId: userWalletId
+                storageController: persistentStorage
             )
             let walletModelsFactory = config.makeWalletModelsFactory(userWalletId: userWalletId)
             let walletModelsManagerFactory = CommonAccountWalletModelsManagerFactory(
