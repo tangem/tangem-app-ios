@@ -729,13 +729,24 @@ struct SendDependenciesBuilder {
         let apiProvider = expressDependenciesFactory.expressAPIProvider
         let repository: OnrampRepository = expressDependenciesFactory.onrampRepository
 
+        var networkProviderAnalyticsLogger: NetworkProviderAnalyticsLogger?
+
+        if case .send(let networkLogger) = walletModel.features.find(id: .send) {
+            networkProviderAnalyticsLogger = networkLogger
+        }
+
+        let analyticsLogger = CommonExpressAnalyticsLogger(
+            tokenItem: walletModel.tokenItem,
+            networkProviderAnalyticsLogger: networkProviderAnalyticsLogger
+        )
+
         let factory = TangemExpressFactory()
         let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
         let manager = factory.makeOnrampManager(
             expressAPIProvider: apiProvider,
             onrampRepository: repository,
             dataRepository: dataRepository,
-            analyticsLogger: CommonExpressAnalyticsLogger(tokenItem: walletModel.tokenItem),
+            analyticsLogger: analyticsLogger,
             preferredValues: preferredValues
         )
 
