@@ -1,5 +1,5 @@
 {
-  "originHash" : "741e286033786899ad361840b7312baf1e1c2491e8506ae427e9b6dd97d97142",
+  "originHash" : "3954c67d01244d9258f6a9ed277713ad30b0f1d3e8319003224449a3178157e2",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -591,8 +591,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/SwiftBinanceChain.git",
       "state" : {
-        "revision" : "2031ca22cd0c5d8d2c27becd8e2b6a717603c644",
-        "version" : "0.0.16"
+        "revision" : "724dab97d8987a906e52e22f38a7004e9028c38d",
+        "version" : "0.0.17"
       }
     },
     {
