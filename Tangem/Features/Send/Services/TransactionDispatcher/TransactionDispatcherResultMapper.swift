@@ -30,7 +30,7 @@ struct TransactionDispatcherResultMapper {
         let sendError = error as? SendTxError ?? SendTxError(error: error)
         let internalError = sendError.error
 
-        if internalError.toTangemSdkError().isUserCancelled {
+        if internalError.isCancellationError {
             return .userCancelled
         }
 
