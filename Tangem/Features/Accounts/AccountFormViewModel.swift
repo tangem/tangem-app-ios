@@ -21,47 +21,22 @@ final class AccountFormViewModel: ObservableObject {
     private var initialStateSnapshot: StateSnapshot = .initial
     private let flowType: FlowType
 
-    let colors: [GridItemColor] = [
-        Colors.Accounts.brightBlue,
-        Colors.Accounts.cyan,
-        Colors.Accounts.lavender,
-        Colors.Accounts.purple,
-        Colors.Accounts.magenta,
-        Colors.Accounts.royalBlue,
+    let colors: [GridItemColor] = AccountModel.Icon.Color
+        .allCases
+        .map { iconColor in
+            let color = AccountModelUtils.UI.iconColor(from: iconColor)
 
-        Colors.Accounts.deepPurple,
-        Colors.Accounts.hotPink,
-        Colors.Accounts.coralRed,
-        Colors.Accounts.yellow,
-        Colors.Accounts.mediumGreen,
-        Colors.Accounts.darkGreen,
-    ].map(GridItemColor.init)
+            return GridItemColor(color)
+        }
 
-    let images: [GridItemImage] = [
-        Assets.Accounts.letter,
-        Assets.Accounts.starAccounts,
-        Assets.Accounts.user,
-        Assets.Accounts.family,
-        Assets.Accounts.walletAccounts,
-        Assets.Accounts.money,
+    let images: [GridItemImage] = AccountModel.Icon.Name
+        .allCases
+        .map { iconName in
+            let image = AccountModelUtils.UI.iconAsset(from: iconName)
+            let kind: GridItemImageKind = iconName == .letter ? .letter(image) : .image(image)
 
-        Assets.Accounts.home,
-        Assets.Accounts.safe,
-        Assets.Accounts.beach,
-        Assets.Accounts.airplane,
-        Assets.Accounts.shirt,
-        Assets.Accounts.shoppingBasket,
-
-        Assets.Accounts.favorite,
-        Assets.Accounts.bookmark,
-        Assets.Accounts.startUp,
-        Assets.Accounts.clock,
-        Assets.Accounts.package,
-        Assets.Accounts.gift,
-    ].map {
-        let kind: GridItemImageKind = $0 == Assets.Accounts.letter ? .letter($0) : .image($0)
-        return GridItemImage(kind)
-    }
+            return GridItemImage(kind)
+        }
 
     /// NOTE: This hard-code is here until real data is ready
     /// Until then, I don't know for sure which models will be passed here
