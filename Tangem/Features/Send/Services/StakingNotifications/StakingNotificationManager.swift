@@ -47,7 +47,7 @@ class CommonStakingNotificationManager {
 // MARK: - Bind
 
 private extension CommonStakingNotificationManager {
-    func update(state: StakingModel.State, yield: YieldInfo) {
+    func update(state: StakingModel.State, yield: StakingYieldInfo) {
         switch state {
         case .loading:
             hideErrorNotifications()
@@ -103,7 +103,7 @@ private extension CommonStakingNotificationManager {
         }
     }
 
-    func update(state: UnstakingModel.State, yield: YieldInfo, action: UnstakingModel.Action, stakedBalance: Decimal) {
+    func update(state: UnstakingModel.State, yield: StakingYieldInfo, action: UnstakingModel.Action, stakedBalance: Decimal) {
         switch (state, action.type) {
         case (.ready(_, let stakesCount), .pending(.withdraw)):
             show(events: [.withdraw] + tonNotifications(yield: yield, action: action, stakesCount: stakesCount))
@@ -180,7 +180,7 @@ private extension CommonStakingNotificationManager {
 
 private extension CommonStakingNotificationManager {
     func showCommonUnstakingNotifications(
-        for yield: YieldInfo,
+        for yield: StakingYieldInfo,
         action: StakingAction,
         stakedBalance: Decimal,
         stakesCount: Int? = nil
@@ -211,7 +211,7 @@ private extension CommonStakingNotificationManager {
     }
 
     func tonNotifications(
-        yield: YieldInfo,
+        yield: StakingYieldInfo,
         action: StakingAction,
         stakesCount: Int? = nil
     ) -> [StakingNotificationEvent] {
