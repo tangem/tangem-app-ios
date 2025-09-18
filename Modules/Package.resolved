@@ -1,5 +1,5 @@
 {
-  "originHash" : "05b48789e6b8f115757636493ce12b33e8ec1d4cac6b46e306ecfd4eb17b581d",
+  "originHash" : "c59ea1fffef9c294532714c70466315a24fdda3d7d90e402a72d5b55f6403dd1",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -364,8 +364,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/SwiftBinanceChain.git",
       "state" : {
-        "revision" : "2031ca22cd0c5d8d2c27becd8e2b6a717603c644",
-        "version" : "0.0.16"
+        "revision" : "724dab97d8987a906e52e22f38a7004e9028c38d",
+        "version" : "0.0.17"
       }
     },
     {
