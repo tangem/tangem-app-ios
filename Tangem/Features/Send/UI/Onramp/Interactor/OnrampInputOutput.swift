@@ -7,9 +7,12 @@
 //
 
 import Combine
+import TangemExpress
 
 protocol OnrampInput: AnyObject {
     var isValidToRedirectPublisher: AnyPublisher<Bool, Never> { get }
 }
 
-protocol OnrampOutput: AnyObject {}
+protocol OnrampOutput: AnyObject {
+    func userDidRequestOnramp(provider: OnrampProvider)
+}
