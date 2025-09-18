@@ -36,7 +36,7 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
     func send(transactions: [SendTransactionType]) async throws -> [TransactionDispatcherResult] {
         let transferTransactions = transactions.compactMap { transactionType -> BSDKTransaction? in
             switch transactionType {
-            case .staking: return nil
+            case .staking, .express: return nil
             case .transfer(let transaction): return transaction
             }
         }

@@ -17,7 +17,7 @@ public protocol WalletManager: WalletProvider,
     TransactionSender,
     TransactionCreator,
     TransactionFeeProvider,
-    YieldServiceProvider,
+    YieldSupplyServiceProvider,
     TransactionValidator {}
 
 public enum WalletManagerState {
@@ -111,6 +111,10 @@ public extension TransactionSender {
             .collect()
             .eraseToAnyPublisher()
     }
+}
+
+public protocol CompiledTransactionSender {
+    func send(compiledTransaction data: Data, signer: TransactionSigner) async throws -> TransactionSendResult
 }
 
 // MARK: - TransactionSigner

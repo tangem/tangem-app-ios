@@ -28,10 +28,10 @@ final class YieldTransactionFeeProvider {
         self.yieldSupplyContractAddresses = yieldSupplyContractAddresses
     }
 
-    func deployFee(address: String, contractAddress: String) async throws -> DeployEnterFee {
+    func deployFee(walletAddress: String, tokenContractAddress: String) async throws -> DeployEnterFee {
         let yieldModuleAddressMethod = DeployYieldModuleMethod(
-            sourceAddress: address,
-            tokenAddress: contractAddress,
+            walletAddress: walletAddress,
+            tokenContractAddress: tokenContractAddress,
             maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue)!
         )
 
@@ -49,9 +49,9 @@ final class YieldTransactionFeeProvider {
         )
     }
 
-    func initializeFee(address: String, yieldModule: String, balance: Decimal) async throws -> InitEnterFee {
+    func initializeFee(yieldContractAddress: String, balance: Decimal) async throws -> InitEnterFee {
         async let estimatedFee = estimateFee(gasLimit: YieldConstants.estimatedGasLimit)
-        let approveData = try await approveData(spender: yieldModule, balance: balance)
+        let approveData = try await approveData(spender: yieldContractAddress, balance: balance)
 
         return try await InitEnterFee(
             initFee: estimatedFee,
@@ -59,9 +59,9 @@ final class YieldTransactionFeeProvider {
         )
     }
 
-    func reactivateFee(address: String, yieldModule: String, balance: Decimal) async throws -> ReactivateEnterFee {
+    func reactivateFee(yieldContractAddress: String, balance: Decimal) async throws -> ReactivateEnterFee {
         async let estimatedFee = estimateFee(gasLimit: YieldConstants.estimatedGasLimit)
-        async let approveData = approveData(spender: yieldModule, balance: balance)
+        async let approveData = approveData(spender: yieldContractAddress, balance: balance)
 
         return try await ReactivateEnterFee(
             reactivateFee: estimatedFee,
@@ -69,18 +69,18 @@ final class YieldTransactionFeeProvider {
         )
     }
 
-    func enterFee(address: String, yieldModule: String, balance: Decimal) async throws -> EnterFee {
+    func enterFee(yieldContractAddress: String, balance: Decimal) async throws -> EnterFee {
         async let estimatedFee = estimateFee(gasLimit: YieldConstants.estimatedGasLimit)
-        async let approveData = approveData(spender: yieldModule, balance: balance)
+        async let approveData = approveData(spender: yieldContractAddress, balance: balance)
 
         return try await EnterFee(enterFee: estimatedFee, approveFee: approveData?.fee)
     }
 
-    func exitFee(yieldModule: String, contractAddress: String) async throws -> any YieldTransactionFee {
-        let method = WithdrawAndDeactivateMethod(yieldModuleAddress: contractAddress)
+    func exitFee(yieldContractAddress: String, tokenContractAddress: String) async throws -> any YieldTransactionFee {
+        let method = WithdrawAndDeactivateMethod(tokenContractAddress: tokenContractAddress)
 
         let fee = try await estimateFee(
-            contractAddress: yieldModule,
+            contractAddress: yieldContractAddress,
             transactionData: method.data
         )
 

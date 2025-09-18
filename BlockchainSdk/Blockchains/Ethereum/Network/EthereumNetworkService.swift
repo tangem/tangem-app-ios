@@ -21,20 +21,20 @@ class EthereumNetworkService: MultiNetworkProvider {
 
     let decimals: Int
     private let abiEncoder: ABIEncoder
-    private let yieldSupplyProviderFactory: YieldSupplyProviderFactory?
+    private let yieldSupplyServiceFactory: YieldSupplyServiceFactory?
 
     init(
         decimals: Int,
         providers: [EthereumJsonRpcProvider],
         abiEncoder: ABIEncoder,
-        yieldSupplyProviderFactory: YieldSupplyProviderFactory? = nil,
+        yieldSupplyServiceFactory: YieldSupplyServiceFactory? = nil,
         blockchainName: String
     ) {
         self.providers = providers
         self.decimals = decimals
         self.abiEncoder = abiEncoder
         self.blockchainName = blockchainName
-        self.yieldSupplyProviderFactory = yieldSupplyProviderFactory
+        self.yieldSupplyServiceFactory = yieldSupplyServiceFactory
     }
 
     func send(transaction: String) -> AnyPublisher<String, Error> {
@@ -146,8 +146,8 @@ class EthereumNetworkService: MultiNetworkProvider {
     }
 
     func getTokensBalance(_ address: String, tokens: [Token]) -> AnyPublisher<[Token: Result<Amount, Error>], Error> {
-        return Just(yieldSupplyProviderFactory?.makeProvider(networkService: self))
-            .flatMap { yieldSupplyProvider in
+        return Just(yieldSupplyServiceFactory?.makeProvider(networkService: self))
+            .flatMap { yieldSupplyService in
                 tokens
                     .publisher
                     .setFailureType(to: Error.self)
@@ -156,7 +156,7 @@ class EthereumNetworkService: MultiNetworkProvider {
                         networkService.getTokenBalance(
                             address: address,
                             token: token,
-                            yieldSupplyProvider: yieldSupplyProvider
+                            yieldSupplyService: yieldSupplyService
                         )
                     }
                     .collect()
@@ -233,18 +233,18 @@ private extension EthereumNetworkService {
     func getTokenBalance(
         address: String,
         token: Token,
-        yieldSupplyProvider: YieldSupplyProvider?
+        yieldSupplyService: YieldSupplyService?
     ) -> AnyPublisher<(Token, Result<Amount, Error>), Error> {
-        if let yieldSupplyProvider, yieldSupplyProvider.isSupported() {
+        if let yieldSupplyService, yieldSupplyService.isSupported() {
             return Future.async { [weak self] in
                 guard let self else { return (token, Result.failure(BlockchainSdkError.empty)) }
 
-                let yieldLendingStatus = try? await yieldSupplyProvider.getYieldSupplyStatus(
+                let yieldLendingStatus = try? await yieldSupplyService.getYieldSupplyStatus(
                     tokenContractAddress: token.contractAddress
                 )
                 if let yieldLendingStatus, yieldLendingStatus.active {
                     do {
-                        let balance = try await yieldSupplyProvider.getBalance(
+                        let balance = try await yieldSupplyService.getBalance(
                             yieldSupplyStatus: yieldLendingStatus,
                             token: token
                         )

@@ -53,9 +53,9 @@ class TokenDetailsCoordinator: CoordinatorObject {
         self.options = options
 
         let notificationManager = SingleTokenNotificationManager(
+            userWalletId: options.userWalletModel.userWalletId,
             walletModel: options.walletModel,
-            walletModelsManager: options.userWalletModel.walletModelsManager,
-            contextDataProvider: options.userWalletModel
+            walletModelsManager: options.userWalletModel.walletModelsManager
         )
 
         let tokenRouter = SingleTokenRouter(
@@ -79,8 +79,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
             return BannerNotificationManager(
                 userWallet: options.userWalletModel,
-                placement: .tokenDetails(options.walletModel.tokenItem),
-                contextDataProvider: options.userWalletModel
+                placement: .tokenDetails(options.walletModel.tokenItem)
             )
         }()
 
@@ -143,6 +142,12 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
 
         coordinator.start(with: options)
         yieldModulePromoCoordinator = coordinator
+    }
+
+    func openYieldEarnInfo(params: YieldModuleBottomSheetParams.EarnInfoParams) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .earnInfo(params: params)))
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 //
-//  YieldSupplyProvider.swift
+//  YieldSupplyService.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import BigInt
 
-public protocol YieldSupplyProvider {
+public protocol YieldSupplyService {
     func isSupported() -> Bool
     func getYieldSupplyContractAddresses() throws -> YieldSupplyContractAddresses
     func getAPY(for contractAddress: String) async throws -> Decimal
@@ -20,7 +20,7 @@ public protocol YieldSupplyProvider {
     func allowance(tokenContractAddress: String) async throws -> Decimal
 }
 
-public final class EthereumYieldSupplyProvider: YieldSupplyProvider {
+public final class EthereumYieldSupplyProvider: YieldSupplyService {
     private let networkService: EthereumNetworkService
     private let wallet: Wallet
     private let contractAddressFactory: YieldSupplyContractAddressFactory
@@ -49,7 +49,7 @@ public final class EthereumYieldSupplyProvider: YieldSupplyProvider {
     public func getAPY(for contractAddress: String) async throws -> Decimal {
         let supplyContractAddresses = try getYieldSupplyContractAddresses()
 
-        let supplyAPYMethod = ReservedDataMethod(contractAddress: contractAddress)
+        let supplyAPYMethod = ReserveDataAaveV3Method(contractAddress: contractAddress)
 
         let supplyAPYRequest = YieldSmartContractRequest(
             contractAddress: supplyContractAddresses.poolContractAddress,
@@ -89,7 +89,7 @@ public final class EthereumYieldSupplyProvider: YieldSupplyProvider {
         case .some(let address):
             return address
         case .none:
-            let method = YieldModuleMethod(address: wallet.address)
+            let method = YieldModuleMethod(walletAddress: wallet.address)
 
             let request = YieldSmartContractRequest(
                 contractAddress: try getYieldSupplyContractAddresses().factoryContractAddress,
@@ -127,7 +127,7 @@ public final class EthereumYieldSupplyProvider: YieldSupplyProvider {
     }
 
     public func getYieldSupplyStatus(tokenContractAddress: String) async throws -> YieldSupplyStatus {
-        let method = YieldSupplyStatusMethod(contractAddress: tokenContractAddress)
+        let method = YieldSupplyStatusMethod(tokenContractAddress: tokenContractAddress)
 
         async let request = YieldSmartContractRequest(
             contractAddress: getYieldContract(),

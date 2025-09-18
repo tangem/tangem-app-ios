@@ -10,14 +10,15 @@ import Foundation
 import BigInt
 
 public struct WithdrawAndDeactivateMethod {
-    let yieldModuleAddress: String
+    let tokenContractAddress: String
 
-    public init(yieldModuleAddress: String) {
-        self.yieldModuleAddress = yieldModuleAddress
+    public init(tokenContractAddress: String) {
+        self.tokenContractAddress = tokenContractAddress
     }
 }
 
-extension WithdrawAndDeactivateMethod: YieldSmartContractMethod {
+extension WithdrawAndDeactivateMethod: SmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `withdrawAndDeactivate(address)` method.
     public var methodId: String { "0xc65e6dcf" }
+    public var data: Data { defaultData() }
 }

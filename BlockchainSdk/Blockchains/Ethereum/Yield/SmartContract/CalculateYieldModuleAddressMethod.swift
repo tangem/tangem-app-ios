@@ -16,7 +16,8 @@ public struct CalculateYieldModuleAddressMethod {
     }
 }
 
-extension CalculateYieldModuleAddressMethod: YieldSmartContractMethod {
-    /// - Note: First 4 bytes of Keccak-256 hash for the `calculateYieldModuleAddress(address)` method.
+extension CalculateYieldModuleAddressMethod: SmartContractMethod {
+    /// - Note: First 4 bytes of Keccak-256 hash for the `calculateYieldModuleAddress(address owner)` method.
     public var methodId: String { "0xebd6d0a4" }
+    public var data: Data { defaultData() }
 }

@@ -16,7 +16,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     let txBuilder: EthereumTransactionBuilder
     let networkService: EthereumNetworkService
     let addressConverter: EthereumAddressConverter
-    let yieldSupplyProvider: YieldSupplyProvider?
+    let yieldSupplyService: YieldSupplyService?
     let allowsFeeSelection: Bool
 
     var currentHost: String { networkService.host }
@@ -26,14 +26,14 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         addressConverter: EthereumAddressConverter,
         txBuilder: EthereumTransactionBuilder,
         networkService: EthereumNetworkService,
-        yieldSupplyProvider: YieldSupplyProvider?,
+        yieldSupplyService: YieldSupplyService?,
         allowsFeeSelection: Bool
     ) {
         self.txBuilder = txBuilder
         self.networkService = networkService
         self.addressConverter = addressConverter
+        self.yieldSupplyService = yieldSupplyService
         self.allowsFeeSelection = allowsFeeSelection
-        self.yieldSupplyProvider = yieldSupplyProvider
 
         super.init(wallet: wallet)
     }
@@ -504,4 +504,4 @@ extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
 
 // MARK: - YieldsServiceProvider
 
-extension EthereumWalletManager: YieldServiceProvider {}
+extension EthereumWalletManager: YieldSupplyServiceProvider {}

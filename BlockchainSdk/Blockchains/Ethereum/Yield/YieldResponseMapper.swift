@@ -22,7 +22,7 @@ public enum YieldResponseMapper {
             throw YieldModuleError.unableToParseData
         }
 
-        return (feeRateDecimal * Constants.basisPoint) / Decimal(stringValue: "100")!
+        return (feeRateDecimal * Constants.basisPoint) / Constants.decimalOneHundred
     }
 
     public static func mapSupplyStatus(_ result: String) throws -> YieldSupplyStatus {
@@ -68,21 +68,13 @@ public enum YieldResponseMapper {
 
         return (apr.exp(precision: 30) - 1) * 100
     }
-
-    public static func mapBalances(protocolBalance: String, effectiveBalance: String) -> YieldBalances {
-        let effectiveBalanceValue = BigUInt(Data(hexString: effectiveBalance))
-        let protocolBalanceValue = BigUInt(Data(hexString: protocolBalance))
-
-        return YieldBalances(
-            effective: effectiveBalanceValue,
-            protocol: protocolBalanceValue
-        )
-    }
 }
 
 extension YieldResponseMapper {
     enum Constants {
         static let basisPoint = Decimal(string: "0.01")!
         static let rayUnit = Decimal(string: "1e27")!
+        static let decimalOneHundred = Decimal(string: "100")!
+        static let decimalOne = Decimal(string: "1")!
     }
 }

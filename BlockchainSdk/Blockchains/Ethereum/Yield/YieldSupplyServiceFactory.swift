@@ -1,5 +1,5 @@
 //
-//  YieldSupplyProviderFactory.swift
+//  YieldSupplyServiceFactory.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,16 +8,16 @@
 
 import BigInt
 
-final class YieldSupplyProviderFactory {
+final class YieldSupplyServiceFactory {
     let wallet: Wallet
     let dataStorage: BlockchainDataStorage
 
-    init(wallet: Wallet, dataStorage: BlockchainDataStorage,) {
+    init(wallet: Wallet, dataStorage: BlockchainDataStorage) {
         self.wallet = wallet
         self.dataStorage = dataStorage
     }
 
-    func makeProvider(networkService: EthereumNetworkService) -> YieldSupplyProvider? {
+    func makeProvider(networkService: EthereumNetworkService) -> YieldSupplyService? {
         let contractAddressFactory = YieldSupplyContractAddressFactory(blockchain: wallet.blockchain)
 
         guard contractAddressFactory.isSupported, wallet.blockchain.isEvm else { return nil }

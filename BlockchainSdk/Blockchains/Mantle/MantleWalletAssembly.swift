@@ -16,7 +16,7 @@ struct MantleWalletAssembly: WalletManagerAssembly {
             throw ETHError.chainIdNotFound
         }
 
-        let yieldSupplyProviderFactory = YieldSupplyProviderFactory(
+        let yieldSupplyServiceFactory = YieldSupplyServiceFactory(
             wallet: wallet,
             dataStorage: input.blockchainSdkDependencies.dataStorage
         )
@@ -30,7 +30,7 @@ struct MantleWalletAssembly: WalletManagerAssembly {
             decimals: wallet.blockchain.decimalCount,
             providers: providers,
             abiEncoder: WalletCoreABIEncoder(),
-            yieldSupplyProviderFactory: yieldSupplyProviderFactory,
+            yieldSupplyServiceFactory: yieldSupplyServiceFactory,
             blockchainName: wallet.blockchain.displayName
         )
 
@@ -41,7 +41,7 @@ struct MantleWalletAssembly: WalletManagerAssembly {
             addressConverter: addressConverter,
             txBuilder: txBuilder,
             networkService: networkService,
-            yieldSupplyProvider: yieldSupplyProviderFactory.makeProvider(networkService: networkService),
+            yieldSupplyService: yieldSupplyServiceFactory.makeProvider(networkService: networkService),
             allowsFeeSelection: wallet.blockchain.allowsFeeSelection
         )
     }

@@ -20,7 +20,7 @@ struct CommonYieldModuleWalletManagerFactory: YieldModuleWalletManagerFactory {
     private let blockchain: Blockchain
     private let signer: TangemSigner
     private let ethereumNetworkProvider: EthereumNetworkProvider
-    private let yieldSupplyProvider: YieldSupplyProvider
+    private let yieldSupplyService: YieldSupplyService
     private let ethereumTransactionDataBuilder: EthereumTransactionDataBuilder
 
     init(
@@ -28,14 +28,14 @@ struct CommonYieldModuleWalletManagerFactory: YieldModuleWalletManagerFactory {
         blockchain: Blockchain,
         signer: TangemSigner,
         ethereumNetworkProvider: EthereumNetworkProvider,
-        yieldSupplyProvider: YieldSupplyProvider,
+        yieldSupplyService: YieldSupplyService,
         ethereumTransactionDataBuilder: EthereumTransactionDataBuilder
     ) {
         self.token = token
         self.blockchain = blockchain
         self.signer = signer
         self.ethereumNetworkProvider = ethereumNetworkProvider
-        self.yieldSupplyProvider = yieldSupplyProvider
+        self.yieldSupplyService = yieldSupplyService
         self.ethereumTransactionDataBuilder = ethereumTransactionDataBuilder
     }
 
@@ -51,7 +51,7 @@ struct CommonYieldModuleWalletManagerFactory: YieldModuleWalletManagerFactory {
             walletModel: walletModel,
             token: token,
             blockchain: blockchain,
-            yieldSupplyProvider: yieldSupplyProvider,
+            yieldSupplyService: yieldSupplyService,
             tokenBalanceProvider: walletModel.totalTokenBalanceProvider,
             ethereumNetworkProvider: ethereumNetworkProvider,
             ethereumTransactionDataBuilder: ethereumTransactionDataBuilder,

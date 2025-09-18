@@ -31,7 +31,7 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
             }
         }
 
-        let yieldSupplyProviderFactory = YieldSupplyProviderFactory(
+        let yieldSupplyServiceFactory = YieldSupplyServiceFactory(
             wallet: wallet,
             dataStorage: input.blockchainSdkDependencies.dataStorage
         )
@@ -45,7 +45,7 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
             decimals: blockchain.decimalCount,
             providers: providers,
             abiEncoder: WalletCoreABIEncoder(),
-            yieldSupplyProviderFactory: yieldSupplyProviderFactory,
+            yieldSupplyServiceFactory: yieldSupplyServiceFactory,
             blockchainName: input.wallet.blockchain.displayName
         )
 
@@ -56,7 +56,7 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
             addressConverter: addressConverter,
             txBuilder: txBuilder,
             networkService: networkService,
-            yieldSupplyProvider: yieldSupplyProviderFactory.makeProvider(networkService: networkService),
+            yieldSupplyService: yieldSupplyServiceFactory.makeProvider(networkService: networkService),
             allowsFeeSelection: blockchain.allowsFeeSelection
         )
     }

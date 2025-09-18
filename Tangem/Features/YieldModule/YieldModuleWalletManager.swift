@@ -49,7 +49,7 @@ final class CommonYieldModuleWalletManager {
     private let walletModel: any WalletModel
     private let token: Token
     private let blockchain: Blockchain
-    private let yieldSupplyProvider: YieldSupplyProvider
+    private let yieldSupplyService: YieldSupplyService
     private let tokenBalanceProvider: TokenBalanceProvider
     private let transactionDispatcher: TransactionDispatcher
 
@@ -65,7 +65,7 @@ final class CommonYieldModuleWalletManager {
         walletModel: any WalletModel,
         token: Token,
         blockchain: Blockchain,
-        yieldSupplyProvider: YieldSupplyProvider,
+        yieldSupplyService: YieldSupplyService,
         tokenBalanceProvider: TokenBalanceProvider,
         ethereumNetworkProvider: EthereumNetworkProvider,
         ethereumTransactionDataBuilder: EthereumTransactionDataBuilder,
@@ -75,11 +75,11 @@ final class CommonYieldModuleWalletManager {
         self.walletModel = walletModel
         self.token = token
         self.blockchain = blockchain
-        self.yieldSupplyProvider = yieldSupplyProvider
+        self.yieldSupplyService = yieldSupplyService
         self.tokenBalanceProvider = tokenBalanceProvider
         self.transactionDispatcher = transactionDispatcher
 
-        let yieldSupplyContractAddresses = try yieldSupplyProvider.getYieldSupplyContractAddresses()
+        let yieldSupplyContractAddresses = try yieldSupplyService.getYieldSupplyContractAddresses()
 
         transactionProvider = YieldTransactionProvider(
             token: token,
@@ -130,8 +130,8 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
         switch yieldTokenState {
         case .notDeployed:
             return try await transactionFeeProvider.deployFee(
-                address: walletModel.defaultAddressString,
-                contractAddress: token.contractAddress
+                walletAddress: walletModel.defaultAddressString,
+                tokenContractAddress: token.contractAddress
             )
         case .deployed(let deployed):
             guard let balanceValue = tokenBalanceProvider.balanceType.value else {
@@ -143,20 +143,17 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
             switch deployed.initializationState {
             case .notInitialized:
                 return try await transactionFeeProvider.initializeFee(
-                    address: walletModel.defaultAddressString,
-                    yieldModule: deployed.yieldModule,
+                    yieldContractAddress: deployed.yieldModule,
                     balance: balance
                 )
             case .initialized(.notActive):
                 return try await transactionFeeProvider.reactivateFee(
-                    address: walletModel.defaultAddressString,
-                    yieldModule: deployed.yieldModule,
+                    yieldContractAddress: deployed.yieldModule,
                     balance: balance
                 )
             case .initialized(.active):
                 return try await transactionFeeProvider.enterFee(
-                    address: walletModel.defaultAddressString,
-                    yieldModule: deployed.yieldModule,
+                    yieldContractAddress: deployed.yieldModule,
                     balance: balance
                 )
             }
@@ -170,7 +167,7 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
 
         switch (yieldTokenState, fee) {
         case (.notDeployed, let deployEnterFee as DeployEnterFee):
-            let yieldModule = try await yieldSupplyProvider.calculateYieldContract()
+            let yieldModule = try await yieldSupplyService.calculateYieldContract()
 
             guard let balance = tokenBalanceProvider.balanceType.value,
                   let balanceBigUInt = BigUInt(decimal: balance * blockchain.decimalValue) else {
@@ -178,10 +175,10 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
             }
 
             let deployTransactions = try await transactionProvider.deployTransactions(
-                yieldModule: yieldModule,
+                walletAddress: walletModel.defaultAddressString,
+                tokenContractAddress: token.contractAddress,
+                yieldContractAddress: yieldModule,
                 balance: balanceBigUInt,
-                address: walletModel.defaultAddressString,
-                contractAddress: token.contractAddress,
                 fee: deployEnterFee
             )
 
@@ -190,24 +187,24 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
             switch (deployed.initializationState, fee) {
             case (.notInitialized, let initFee as InitEnterFee):
                 let initTransactions = try await transactionProvider.initTransactions(
-                    contractAddress: token.contractAddress,
-                    yieldModule: deployed.yieldModule,
+                    tokenContractAddress: token.contractAddress,
+                    yieldContractAddress: deployed.yieldModule,
                     fee: initFee
                 )
 
                 transactions.append(contentsOf: initTransactions)
             case (.initialized(.notActive), let reactivateFee as ReactivateEnterFee):
                 let reactivateTransactions = try await transactionProvider.reactivateTransactions(
-                    contractAddress: token.contractAddress,
-                    yieldModule: deployed.yieldModule,
+                    tokenContractAddress: token.contractAddress,
+                    yieldContractAddress: deployed.yieldModule,
                     fee: reactivateFee
                 )
 
                 transactions.append(contentsOf: reactivateTransactions)
             case (.initialized, let enterFee as EnterFee):
                 let enterTransactions = try await transactionProvider.enterTransactions(
-                    contractAddress: token.contractAddress,
-                    yieldModule: deployed.yieldModule,
+                    tokenContractAddress: token.contractAddress,
+                    yieldContractAddress: deployed.yieldModule,
                     fee: enterFee
                 )
 
@@ -224,8 +221,11 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
     }
 
     func exitFee() async throws -> any YieldTransactionFee {
-        let yieldModule = try await yieldSupplyProvider.getYieldContract()
-        return try await transactionFeeProvider.exitFee(yieldModule: yieldModule, contractAddress: token.contractAddress)
+        let yieldContractAddress = try await yieldSupplyService.getYieldContract()
+        return try await transactionFeeProvider.exitFee(
+            yieldContractAddress: yieldContractAddress,
+            tokenContractAddress: token.contractAddress
+        )
     }
 
     func exit(fee: YieldTransactionFee) async throws -> [String] {
@@ -239,8 +239,8 @@ extension CommonYieldModuleWalletManager: YieldModuleWalletManager {
         }
 
         let transactions = try await transactionProvider.exitTransactions(
-            contractAddress: token.contractAddress,
-            yieldModule: deployedState.yieldModule,
+            tokenContractAddress: token.contractAddress,
+            yieldContractAddress: deployedState.yieldModule,
             fee: exitFee
         )
 
@@ -291,14 +291,14 @@ private extension CommonYieldModuleWalletManager {
     }
 
     func getAPY() async throws -> Decimal {
-        try await yieldSupplyProvider.getAPY(for: token.contractAddress)
+        try await yieldSupplyService.getAPY(for: token.contractAddress)
     }
 
     func getYieldModuleState() async throws -> YieldModuleSmartContractState {
-        let yieldModule = try? await yieldSupplyProvider.getYieldContract()
+        let yieldModule = try? await yieldSupplyService.getYieldContract()
 
         if let yieldModule {
-            let yieldSupplyStatus = try await yieldSupplyProvider.getYieldSupplyStatus(
+            let yieldSupplyStatus = try await yieldSupplyService.getYieldSupplyStatus(
                 tokenContractAddress: token.contractAddress
             )
 
@@ -307,7 +307,7 @@ private extension CommonYieldModuleWalletManager {
             let initializationState: YieldModuleSmartContractState.InitializationState
             if yieldSupplyStatus.initialized {
                 if yieldSupplyStatus.active {
-                    let balance = try? await yieldSupplyProvider.getBalance(
+                    let balance = try? await yieldSupplyService.getBalance(
                         yieldSupplyStatus: yieldSupplyStatus,
                         token: token
                     )

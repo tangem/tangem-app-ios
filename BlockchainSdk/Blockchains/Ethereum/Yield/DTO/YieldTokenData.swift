@@ -1,5 +1,5 @@
 //
-//  YieldBalances.swift
+//  YieldTokenData.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,8 @@
 import Foundation
 import BigInt
 
-public struct YieldBalances {
-    public let effective: BigUInt
-    public let `protocol`: BigUInt
+struct YieldTokenData {
+    let initialized: Bool
+    let active: Bool
+    let maxNetworkFee: BigUInt
 }
