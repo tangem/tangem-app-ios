@@ -427,7 +427,23 @@ extension TokenDetailsViewModel {
     func openYieldModulePromo() {
         coordinator?.openYieldModulePromoView(
             walletModel: walletModel,
-            info: .init(apy: "TEST", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
+            info: .init(apy: "WIP", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
         )
+    }
+
+    func openYieldEarnInfo() {
+        let params = YieldModuleBottomSheetParams.EarnInfoParams(
+            earningsData: .init(totalEarnings: "WIP", chartData: [:]),
+            status: "WIP",
+            apy: "WIP",
+            availableFunds: .init(availableBalance: "WIP"),
+            transferMode: "WIP",
+            tokenName: walletModel.tokenItem.name,
+            tokenSymbol: walletModel.tokenItem.token?.symbol ?? "",
+            onReadMoreAction: {},
+            onStopEarningAction: {}
+        )
+
+        coordinator?.openYieldEarnInfo(params: params)
     }
 }

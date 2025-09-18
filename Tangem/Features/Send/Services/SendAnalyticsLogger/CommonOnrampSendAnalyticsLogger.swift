@@ -51,10 +51,6 @@ extension CommonOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
 // MARK: - SendBaseViewAnalyticsLogger
 
 extension CommonOnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
-    func logShareButton() {}
-
-    func logExploreButton() {}
-
     func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {
         switch (type, flow) {
         case (.action, .onramp):
@@ -136,4 +132,7 @@ extension CommonOnrampSendAnalyticsLogger: SendFinishAnalyticsLogger {
             .currency: request.pairItem.fiatCurrency.identity.code,
         ])
     }
+
+    func logShareButton() {}
+    func logExploreButton() {}
 }
