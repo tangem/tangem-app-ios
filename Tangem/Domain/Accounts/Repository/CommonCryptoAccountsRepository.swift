@@ -56,7 +56,7 @@ final class CommonCryptoAccountsRepository {
 
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
         let mainAccountPersistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
-        let storedTokens = tokenItemsRepository.getList().entries
+        /* let storedTokens = tokenItemsRepository.getList().entries */ // [REDACTED_TODO_COMMENT]
         let tokens: [StoredCryptoAccount.Token] = [] // [REDACTED_TODO_COMMENT]
 
         addCryptoAccount(withConfig: mainAccountPersistentConfig, tokens: tokens)
