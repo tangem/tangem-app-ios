@@ -355,6 +355,10 @@ extension CommonWalletModel: WalletModel {
     var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? {
         walletManager as? StakingAccountInitializationStateProvider
     }
+
+    var yieldService: (any YieldTokenService)? {
+        walletManager.yieldService
+    }
 }
 
 // MARK: - Updater
@@ -580,6 +584,10 @@ extension CommonWalletModel: WalletModelFeeProvider {
     func hasFeeCurrency(amountType: BlockchainSdk.Amount.AmountType) -> Bool {
         wallet.hasFeeCurrency(amountType: amountType)
     }
+
+    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
+        try await compiledTransactionFeeProvider?.getFee(compiledTransaction: data) ?? []
+    }
 }
 
 // MARK: - Dependencies
@@ -599,6 +607,14 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var transactionSender: TransactionSender {
         walletManager
+    }
+
+    var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? {
+        walletManager as? CompiledTransactionFeeProvider
+    }
+
+    var compiledTransactionSender: CompiledTransactionSender? {
+        walletManager as? CompiledTransactionSender
     }
 
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {
