@@ -14,7 +14,7 @@ final class CommonCryptoAccountsPersistentStorage {
 
     private let key: PersistentStorageKey
     private let workingQueue: DispatchQueue
-    private var storageDidUpdateSubject: StorageDidUpdateSubject?
+    private var storageDidUpdateSubject: CryptoAccountsPersistentStorage.StorageDidUpdateSubject?
 
     init(storageIdentifier: String) {
         key = .accounts(cid: storageIdentifier)
@@ -44,7 +44,7 @@ final class CommonCryptoAccountsPersistentStorage {
 // MARK: - CryptoAccountsPersistentStorage protocol conformance
 
 extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage {
-    func bind(to storageDidUpdateSubject: StorageDidUpdateSubject) {
+    func bind(to storageDidUpdateSubject: CryptoAccountsPersistentStorage.StorageDidUpdateSubject) {
         self.storageDidUpdateSubject = storageDidUpdateSubject
     }
 

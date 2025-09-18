@@ -28,7 +28,25 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
         self.ethereumNetworkProvider = ethereumNetworkProvider
     }
 
-    func makeTransaction(data: ExpressTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
+    func makeTransaction(data: ExpressTransactionData, fee: Fee) async throws -> ExpressTransactionResult {
+        switch (data.transactionType, tokenItem.blockchain) {
+        case (.swap, .solana):
+            let unsignedRawTransaction = try buildSwapCompiledTransactionRaw(with: data, fee: fee)
+            return .compiled(unsignedRawTransaction)
+        case (.send, _), (.swap, _):
+            let bsdkTransaction = try await makeTransaction(data, fee: fee)
+            return .default(bsdkTransaction)
+        }
+    }
+
+    func makeApproveTransaction(data: ApproveTransactionData, fee: Fee) async throws -> ExpressTransactionResult {
+        let bsdkTransaction = try await makeApproveTransaction(data, fee: fee)
+        return .default(bsdkTransaction)
+    }
+}
+
+private extension CommonExpressTransactionBuilder {
+    func makeTransaction(_ data: ExpressTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
         var transactionParams: TransactionParams?
 
         if let extraDestinationId = data.extraDestinationId, !extraDestinationId.isEmpty {
@@ -59,7 +77,7 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
         return transaction
     }
 
-    func makeApproveTransaction(data: ApproveTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
+    func makeApproveTransaction(_ data: ApproveTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
         guard ethereumNetworkProvider != nil else {
             throw ExpressTransactionBuilderError.approveImpossibleInNotEvmBlockchain
         }
@@ -72,9 +90,24 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
 
         return transaction
     }
-}
 
-private extension CommonExpressTransactionBuilder {
+    func buildSwapCompiledTransactionRaw(with data: ExpressTransactionData, fee: Fee) throws -> Data {
+        guard let txData = data.txData else {
+            throw ExpressTransactionBuilderError.transactionDataForSwapOperationNotFound
+        }
+
+        switch tokenItem.blockchain {
+        case .solana:
+            if let unsignedData = Data(base64Encoded: txData) {
+                return unsignedData
+            }
+
+            throw ExpressTransactionBuilderError.transactionDataForSwapOperationNotFound
+        default:
+            return Data(hexString: txData)
+        }
+    }
+
     func buildTransaction(
         amount: Decimal,
         fee: Fee,
@@ -88,9 +121,4 @@ private extension CommonExpressTransactionBuilder {
             destination: destination
         )
     }
-}
-
-enum ExpressTransactionBuilderError: LocalizedError {
-    case approveImpossibleInNotEvmBlockchain
-    case transactionDataForSwapOperationNotFound
 }

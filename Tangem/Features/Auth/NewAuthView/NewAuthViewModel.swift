@@ -25,6 +25,10 @@ final class NewAuthViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
+    private var isBiometricsUtilAvailable: Bool {
+        BiometricsUtil.isAvailable && AppSettings.shared.useBiometricAuthentication
+    }
+
     private let signInAnalyticsLogger = SignInAnalyticsLogger()
     private let unlockOnAppear: Bool
     private weak var coordinator: NewAuthRoutable?
@@ -62,7 +66,7 @@ private extension NewAuthViewModel {
     }
 
     func makeInitialState() -> State {
-        if unlockOnAppear {
+        if unlockOnAppear, isBiometricsUtilAvailable {
             unlockWithBiometry()
             return makeLockedState()
         } else {
@@ -88,7 +92,7 @@ private extension NewAuthViewModel {
         let wallets = userWalletRepository.models.map(makeWalletItem)
 
         let unlock: UnlockItem?
-        if BiometricsUtil.isAvailable {
+        if isBiometricsUtilAvailable {
             unlock = UnlockItem(
                 title: Localization.userWalletListUnlockAllWith(BiometricAuthorizationUtils.biometryType.name),
                 action: weakify(self, forFunction: NewAuthViewModel.onUnlockWithBiometryTap)
@@ -129,10 +133,19 @@ private extension NewAuthViewModel {
     func unlock(userWalletModel: UserWalletModel) {
         runTask(in: self) { viewModel in
             let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
-            Analytics.beginLoggingCardScan(source: .auth)
+
+            if unlocker.analyticsSignInType == .card {
+                Analytics.log(Analytics.CardScanSource.auth.cardScanButtonEvent)
+            }
+
             let unlockResult = await unlocker.unlock()
 
             viewModel.signInAnalyticsLogger.logSignInEvent(signInType: unlocker.analyticsSignInType)
+
+            if case .success = unlockResult, unlocker.analyticsSignInType == .card {
+                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
+            }
+
             await viewModel.handleUnlock(result: unlockResult, userWalletModel: userWalletModel)
         }
     }
