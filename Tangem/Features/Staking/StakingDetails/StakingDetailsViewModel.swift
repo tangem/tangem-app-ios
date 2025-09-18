@@ -198,7 +198,7 @@ private extension StakingDetailsViewModel {
         }
     }
 
-    func setupView(yield: YieldInfo, balances: [StakingBalance]) {
+    func setupView(yield: StakingYieldInfo, balances: [StakingBalance]) {
         setupHeaderView(hasBalances: !balances.isEmpty)
         setupDetailsSection(yield: yield)
         setupStakes(yield: yield, staking: balances.stakes())
@@ -209,7 +209,7 @@ private extension StakingDetailsViewModel {
         hideStakingInfoBanner = hasBalances
     }
 
-    func setupDetailsSection(yield: YieldInfo) {
+    func setupDetailsSection(yield: StakingYieldInfo) {
         var viewModels = [
             DefaultRowViewModel(
                 title: Localization.stakingDetailsAnnualPercentageRate,
@@ -300,7 +300,7 @@ private extension StakingDetailsViewModel {
         detailsViewModels = viewModels
     }
 
-    func setupRewardView(yield: YieldInfo, balances: [StakingBalance]) {
+    func setupRewardView(yield: StakingYieldInfo, balances: [StakingBalance]) {
         guard !balances.isEmpty else {
             rewardViewData = nil
             return
@@ -342,7 +342,7 @@ private extension StakingDetailsViewModel {
         }
     }
 
-    func setupStakes(yield: YieldInfo, staking: [StakingBalance]) {
+    func setupStakes(yield: StakingYieldInfo, staking: [StakingBalance]) {
         let staking = staking.map { balance in
             stakesBuilder.mapToStakingDetailsStakeViewData(yield: yield, balance: balance) { [weak self] in
                 let tokenCurrencySymbol = self?.tokenItem.currencySymbol ?? ""
@@ -392,7 +392,7 @@ private extension StakingDetailsViewModel {
         }
     }
 
-    private func openRewardsFlow(rewardsBalances: [StakingBalance], yield: YieldInfo) {
+    private func openRewardsFlow(rewardsBalances: [StakingBalance], yield: StakingYieldInfo) {
         if rewardsBalances.count == 1, let rewardsBalance = rewardsBalances.first {
             openFlow(balance: rewardsBalance, validators: yield.validators)
 
@@ -411,7 +411,7 @@ private extension StakingDetailsViewModel {
 
     func showRewardsClaimableWarningIfNeeded(
         balances: [StakingBalance],
-        yield: YieldInfo,
+        yield: StakingYieldInfo,
         rewardsValue: Decimal
     ) {
         let constraint = balances

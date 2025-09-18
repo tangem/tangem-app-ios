@@ -34,13 +34,13 @@ final class YieldModuleBottomSheetViewModel: ObservableObject, FloatingSheetCont
     // MARK: - Public Implementation
 
     func onCloseTapAction() {
-        Task { @MainActor in
+        Task {
             floatingSheetPresenter.removeActiveSheet()
         }
     }
 
-    func onShowFeePolicy(params: YieldModuleBottomSheetParams.FeePolicyParams) {
-        flow = .feePolicy(params: params)
+    func onStopEarningTap() {
+        // WIP
     }
 
     func onBackAction() {
@@ -73,6 +73,7 @@ extension YieldModuleBottomSheetViewModel {
         case rateInfo(params: YieldModuleBottomSheetParams.RateInfoParams)
         case feePolicy(params: YieldModuleBottomSheetParams.FeePolicyParams)
         case startEarning(params: YieldModuleBottomSheetParams.StartEarningParams)
+        case earnInfo(params: YieldModuleBottomSheetParams.EarnInfoParams)
 
         // MARK: - Identifiable
 
@@ -84,6 +85,8 @@ extension YieldModuleBottomSheetViewModel {
                 "feePolicy"
             case .startEarning:
                 "startEarning"
+            case .earnInfo:
+                "earnInfo"
             }
         }
     }
