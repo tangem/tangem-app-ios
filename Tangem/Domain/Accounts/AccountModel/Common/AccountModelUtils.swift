@@ -10,8 +10,23 @@ import Foundation
 import TangemFoundation
 
 enum AccountModelUtils {
-    /// Standard Java hash function.
-    static func deriveIconColor(from userWalletId: UserWalletId) -> AccountModel.Icon.Color {
+    static func mainAccountPersistentConfig(forUserWalletWithId userWalletId: UserWalletId) -> CryptoAccountPersistentConfig {
+        let iconColor = deriveMainAccountIconColor(from: userWalletId)
+
+        return CryptoAccountPersistentConfig(
+            derivationIndex: Constants.mainAccountDerivationIndex,
+            name: nil,
+            iconName: Constants.mainAccountIconName.rawValue,
+            iconColor: iconColor.rawValue
+        )
+    }
+
+    static func isMainAccount(_ derivationIndex: Int) -> Bool {
+        derivationIndex == Constants.mainAccountDerivationIndex
+    }
+
+    /// A standard Java hash function.
+    private static func deriveMainAccountIconColor(from userWalletId: UserWalletId) -> AccountModel.Icon.Color {
         let colors = AccountModel.Icon.Color.allCases
         let hashMultiplier = 31
 
@@ -22,10 +37,6 @@ enum AccountModelUtils {
         let colorIndex = (hash & Int.max) % colors.count
 
         return colors[colorIndex]
-    }
-
-    static func isMainAccount(_ derivationIndex: Int) -> Bool {
-        derivationIndex == Constants.mainAccountDerivationIndex
     }
 }
 
@@ -42,5 +53,6 @@ extension AccountModelUtils {
 private extension AccountModelUtils {
     enum Constants {
         static let mainAccountDerivationIndex = 0
+        static let mainAccountIconName: AccountModel.Icon.Name = .star
     }
 }
