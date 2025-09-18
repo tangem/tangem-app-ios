@@ -11,7 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-extension YieldModuleBottomSheetView {
+extension YieldModuleInfoView {
     struct YieldModuleEarnInfoView: View {
         typealias EarnInfoParams = YieldModuleViewConfigs.EarnInfoParams
 
@@ -97,7 +97,7 @@ extension YieldModuleBottomSheetView {
     }
 }
 
-private extension YieldModuleBottomSheetView.YieldModuleEarnInfoView {
+private extension YieldModuleInfoView.YieldModuleEarnInfoView {
     private func row(title: String, trailing: String) -> some View {
         VStack(spacing: 14) {
             Divider().overlay(Colors.Stroke.primary)
