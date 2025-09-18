@@ -8,42 +8,97 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
+import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 struct NewOnrampView: View {
     @ObservedObject var viewModel: NewOnrampViewModel
-
     let transitionService: SendTransitionService
-    let namespace: Namespace
     @FocusState.Binding var keyboardActive: Bool
 
     var body: some View {
-        GroupedScrollView(spacing: 14) {
+        GroupedScrollView(spacing: 12) {
             NewOnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
+                .padding(.top, 12)
 
-            OnrampProvidersCompactView(
-                viewModel: viewModel.onrampProvidersCompactViewModel
-            )
+            providersView
+                .transition(transitionService.defaultTransition)
 
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
                     .setButtonsLoadingState(to: viewModel.notificationButtonIsLoading)
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            legalView
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
+            bottomContainer
+        }
+        .animation(.easeOut, value: viewModel.viewState)
+    }
+
+    @ViewBuilder
+    private var providersView: some View {
+        switch viewModel.viewState {
+        case .amount:
+            EmptyView()
+        case .suggestedOffers(let offers):
+            if let recent = offers.recent {
+                VStack(alignment: .leading, spacing: 8) {
+                    DefaultHeaderView(Localization.onrampRecentlyUsedTitle)
+                        .padding(.leading, 14)
+
+                    OnrampOfferView(viewModel: recent)
+                }
+                .padding(.top, 12)
+            }
+
+            if !offers.recommended.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    DefaultHeaderView(Localization.onrampRecommendedTitle)
+                        .padding(.leading, 14)
+
+                    ForEach(offers.recommended) {
+                        OnrampOfferView(viewModel: $0)
+                    }
+                }
+                .padding(.top, 12)
+            }
+
+            if offers.shouldShowAllOffersButton {
+                MainButton(title: Localization.onrampAllOffersButtonTitle, style: .secondary) {
+                    viewModel.userDidTapAllOffersButton()
+                }
+            }
         }
     }
 
     @ViewBuilder
-    private var legalView: some View {
-        if let legalText = viewModel.legalText {
-            Text(legalText)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 14)
-                .hidden(keyboardActive)
-                .animation(.default, value: keyboardActive)
-                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerToSLink)
+    private var bottomContainer: some View {
+        switch viewModel.viewState {
+        case .amount:
+            VStack(spacing: 16) {
+                if viewModel.shouldShowLegalText {
+                    Text(.init(Localization.onrampLegalText))
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 14)
+                        .transition(.opacity)
+                }
+
+                MainButton(
+                    title: Localization.commonContinue,
+                    isLoading: viewModel.notificationButtonIsLoading,
+                    isDisabled: viewModel.continueButtonIsDisabled
+                ) {
+                    keyboardActive = false
+                    viewModel.usedDidTapContinue()
+                }
+            }
+            .padding(.bottom, 14)
+            .padding(.horizontal, 16)
+            .transition(transitionService.defaultTransition)
+        case .suggestedOffers:
+            EmptyView()
         }
     }
 }
