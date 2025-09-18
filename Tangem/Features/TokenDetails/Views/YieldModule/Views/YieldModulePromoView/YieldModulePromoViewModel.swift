@@ -18,7 +18,6 @@ final class YieldModulePromoViewModel {
     private var lastYearReturns: [String: Double] = [:]
     private let networkFee: Decimal
     private let maximumFee: Decimal
-    private let feeCurrencyInfo: YieldModuleViewConfigs.FeeCurrencyInfo?
 
     private(set) var tosUrl = URL(string: "https://tangem.com")!
     private(set) var privacyPolicyUrl = URL(string: "https://tangem.com")!
@@ -40,7 +39,6 @@ final class YieldModulePromoViewModel {
         lastYearReturns: [String: Double],
         networkFee: Decimal,
         maximumFee: Decimal,
-        feeCurrencyInfo: YieldModuleViewConfigs.FeeCurrencyInfo?,
         coordinator: YieldModulePromoCoordinator
     ) {
         self.walletModel = walletModel
@@ -49,13 +47,12 @@ final class YieldModulePromoViewModel {
         self.lastYearReturns = lastYearReturns
         self.networkFee = networkFee
         self.maximumFee = maximumFee
-        self.feeCurrencyInfo = feeCurrencyInfo
     }
 
     // MARK: - Public Implementation
 
     func onInterestRateInfoTap() {
-        coordinator?.openRateInfoSheet(params: .init(lastYearReturns: lastYearReturns))
+        coordinator?.openRateInfoSheet(params: .init(lastYearReturns: lastYearReturns), walletModel: walletModel)
     }
 
     func onContinueTap() {
@@ -66,9 +63,9 @@ final class YieldModulePromoViewModel {
                     tokenIcon: NetworkImageProvider().provide(by: walletModel.tokenItem.blockchain, filled: true).image,
                     networkFee: networkFee.formatted(),
                     maximumFee: maximumFee.formatted(),
-                    blockchainName: walletModel.tokenItem.blockchain.displayName,
-                    feeCurrencyInfo: feeCurrencyInfo
-                )
+                    blockchainName: walletModel.tokenItem.blockchain.displayName
+                ),
+                walletModel: walletModel
             )
     }
 
@@ -105,5 +102,4 @@ struct YieldModuleInfo {
     let networkFee: Decimal
     let maximumFee: Decimal
     let lastYearReturns: [String: Double]
-    let feeCurrencyInfo: YieldModuleViewConfigs.FeeCurrencyInfo?
 }
