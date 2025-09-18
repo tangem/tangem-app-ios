@@ -29,7 +29,7 @@ final class MobileOnboardingSeedPhraseValidationViewModel: ObservableObject {
 
 extension MobileOnboardingSeedPhraseValidationViewModel {
     func onAppear() {
-        Analytics.log(.backupSeedCheckingScreenOpened)
+        Analytics.log(.backupSeedCheckingScreenOpened, contextParams: .custom(.mobileWallet))
     }
 
     func onCreateWallet() {
