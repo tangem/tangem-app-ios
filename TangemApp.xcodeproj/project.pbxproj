@@ -16154,6 +16154,7 @@
 		D852F81C2E5C86AB00C71B7F /* Smoke */ = {
 			isa = PBXGroup;
 			children = (
+				D86C16012E79C358005BBD89 /* BlockchainSmokeUITests.swift */,
 				D875922A2E6B5E380088BBEA /* FeedbackUITests.swift */,
 				D852F8152E5C86AB00C71B7F /* MainScreenUITests.swift */,
 				D863E7A72E68B22B00912D52 /* OnboardingUITests.swift */,
