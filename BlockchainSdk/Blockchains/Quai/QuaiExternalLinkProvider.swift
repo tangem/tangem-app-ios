@@ -11,14 +11,14 @@ import Foundation
 struct QuaiExternalLinkProvider {
     private let explorerURL: URL?
 
-    init(isTestnet: Bool) {
+    init() {
         explorerURL = Constants.explorerURL
     }
 }
 
 extension QuaiExternalLinkProvider: ExternalLinkProvider {
     var testnetFaucetURL: URL? {
-        nil
+        Constants.testnetFaucetURL
     }
 
     func url(transaction hash: String) -> URL? {
