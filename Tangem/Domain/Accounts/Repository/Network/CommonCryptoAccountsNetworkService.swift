@@ -11,18 +11,16 @@ import TangemFoundation
 
 final class CommonCryptoAccountsNetworkService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
 
     private let userWalletId: UserWalletId
-    private let eTagStorage: CryptoAccountsETagStorage
     private let mapper: CryptoAccountsNetworkMapper
 
     init(
         userWalletId: UserWalletId,
-        eTagStorage: CryptoAccountsETagStorage,
         mapper: CryptoAccountsNetworkMapper
     ) {
         self.userWalletId = userWalletId
-        self.eTagStorage = eTagStorage
         self.mapper = mapper
     }
 }
