@@ -10,6 +10,7 @@ import Foundation
 import TangemFoundation
 
 protocol CryptoAccountsETagStorage {
-    func loadETag(for userWalletId: UserWalletId) -> String?
-    func saveETag(_ eTag: String, for userWalletId: UserWalletId)
+    func loadETag(for userWalletId: UserWalletId) async -> String?
+    func saveETag(_ eTag: String, for userWalletId: UserWalletId) async
+    func clearETag(for userWalletId: UserWalletId) async
 }
