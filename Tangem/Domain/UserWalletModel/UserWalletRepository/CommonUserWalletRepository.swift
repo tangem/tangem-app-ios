@@ -17,7 +17,6 @@ import TangemFoundation
 import TangemMobileWalletSdk
 
 class CommonUserWalletRepository: UserWalletRepository {
-    @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     var shouldLockOnBackground: Bool {
@@ -81,7 +80,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     func unlock(with method: UserWalletRepositoryUnlockMethod) async throws -> UserWalletModel {
         defer {
             setStartWalletUsageDateIfNeeded()
-            signIn()
+            _locked = false
         }
 
         return switch method {
@@ -199,7 +198,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         selectedUserWalletId = model.userWalletId
         AppSettings.shared.selectedUserWalletId = model.userWalletId.value
-        initializeServicesForSelectedModel()
         sendEvent(.selected(userWalletId: model.userWalletId))
     }
 
@@ -212,7 +210,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         let nextSelectionIndex = currentIndex > 0 ? (currentIndex - 1) : 0
 
         encryptionKeyStorage.clear(userWalletIds: [userWalletId])
-        globalServicesContext.cleanServicesForWallet(userWalletId: userWalletId)
 
         let associatedCardIds = models[currentIndex].associatedCardIds
         try? accessCodeRepository.deleteAccessCode(for: Array(associatedCardIds))
@@ -252,16 +249,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         if AppSettings.shared.startWalletUsageDate == nil {
             AppSettings.shared.startWalletUsageDate = Date()
-        }
-    }
-
-    private func signIn() {
-        guard _locked else { return }
-
-        _locked = false
-
-        if let selectedModel {
-            AmplitudeWrapper.shared.setUserId(userId: selectedModel.userWalletId)
         }
     }
 
@@ -353,7 +340,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         models[userWalletId] = unlockedModel
-        globalServicesContext.initializeServices(userWalletModel: unlockedModel)
         await unlockUnprotectedMobileWalletsIfNeeded()
         sendEvent(.unlocked(userWalletId: userWalletId))
         return unlockedModel
@@ -404,18 +390,8 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         models = processedModels
-        globalServicesContext.resetServices()
-        globalServicesContext.stopAnalyticsSession()
         _locked = true
         sendEvent(.locked)
-    }
-
-    private func initializeServicesForSelectedModel() {
-        globalServicesContext.resetServices()
-
-        guard let selectedModel else { return }
-
-        globalServicesContext.initializeServices(userWalletModel: selectedModel)
     }
 
     private func sendEvent(_ event: UserWalletRepositoryEvent) {
