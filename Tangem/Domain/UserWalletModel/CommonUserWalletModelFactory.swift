@@ -210,7 +210,6 @@ private struct CommonUserWalletModelDependencies {
                 userWalletId: userWalletId,
                 mapper: mapper
             )
-            let storage = CommonCryptoAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
             let cryptoAccountsRepository = CommonCryptoAccountsRepository(
                 tokenItemsRepository: tokenItemsRepository,
                 networkService: networkService,
