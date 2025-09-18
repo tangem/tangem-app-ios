@@ -11,8 +11,8 @@ import Foundation
 struct QuaiExternalLinkProvider {
     private let explorerURL: URL?
 
-    init() {
-        explorerURL = Constants.explorerURL
+    init(isTestnet: Bool) {
+        explorerURL = isTestnet ? Constants.testnetExplorerURL : Constants.mainnetExplorerURL
     }
 }
 
@@ -40,7 +40,8 @@ extension QuaiExternalLinkProvider: ExternalLinkProvider {
 
 private extension QuaiExternalLinkProvider {
     enum Constants {
-        static let explorerURL = URL(string: "https://quaiscan.io/")
+        static let mainnetExplorerURL = URL(string: "https://quaiscan.io/")
+        static let testnetExplorerURL = URL(string: "https://orchard.quaiscan.io/")
         static let testnetFaucetURL = URL(string: "https://orchard.faucet.quai.network/")
     }
 }
