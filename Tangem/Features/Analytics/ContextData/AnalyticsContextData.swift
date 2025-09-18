@@ -12,18 +12,24 @@ import TangemFoundation
 
 struct AnalyticsContextData {
     let productType: Analytics.ProductType
-    let batchId: String
-    let firmware: String
+    let batchId: String?
+    let firmware: String?
     let baseCurrency: String?
     var userWalletId: UserWalletId?
 
     var analyticsParams: [Analytics.ParameterKey: String] {
         var params: [Analytics.ParameterKey: String] = [
             .productType: productType.rawValue,
-            .batch: batchId,
-            .firmware: firmware,
             .basicCurrency: baseCurrency ?? Analytics.ParameterValue.multicurrency.rawValue,
         ]
+
+        if let batchId {
+            params[.batch] = batchId
+        }
+
+        if let firmware {
+            params[.firmware] = firmware
+        }
 
         // You need to send it only if the parameter exists. The default value is not needed.
         if let userWalletId {
@@ -37,8 +43,8 @@ struct AnalyticsContextData {
 
     static var mobileWallet = AnalyticsContextData(
         productType: .mobileWallet,
-        batchId: "",
-        firmware: "",
+        batchId: nil,
+        firmware: nil,
         baseCurrency: nil
     )
 }
