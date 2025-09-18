@@ -20,6 +20,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var hideTokenButton = button(.hideTokenButton)
     private lazy var actionButtons = otherElement(.tokenActionButtons)
     private lazy var stakeNotificationButton = button(.stakeNotificationButton)
+    private lazy var topUpBanner = staticText(.topUpBanner)
 
     // Staking elements
     private lazy var nativeStakingBlock = button(.nativeStakingBlock)
@@ -84,6 +85,23 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             return self
         }
     }
+
+    @discardableResult
+    func validateTopUpWalletBannerExists() -> Self {
+        XCTContext.runActivity(named: "Validate 'Top up your wallet' banner exists") { _ in
+            waitAndAssertTrue(topUpBanner, "Top up wallet banner should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func validateTopUpWalletBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Validate 'Top up your wallet' banner not exists") { _ in
+            topUpBanner.waitForState(state: .doesntExist)
+            XCTAssertFalse(topUpBanner.exists, "Top up wallet banner should not be displayed")
+            return self
+        }
+    }
 }
 
 enum TokenScreenElement: String, UIElement {
@@ -94,6 +112,7 @@ enum TokenScreenElement: String, UIElement {
     case nativeStakingBlock
     case nativeStakingTitle
     case nativeStakingChevron
+    case topUpBanner
 
     var accessibilityIdentifier: String {
         switch self {
@@ -111,6 +130,8 @@ enum TokenScreenElement: String, UIElement {
             return TokenAccessibilityIdentifiers.nativeStakingTitle
         case .nativeStakingChevron:
             return TokenAccessibilityIdentifiers.nativeStakingChevron
+        case .topUpBanner:
+            return TokenAccessibilityIdentifiers.topUpWalletBanner
         }
     }
 }
