@@ -27,6 +27,8 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var expressTransactionBuilder: ExpressTransactionBuilder { get }
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { get }
 
+    var sendWalletModelFeature: WalletModelFeature? { get }
+
     func transactionDispatcher(signer: TangemSigner) -> TransactionDispatcher
     func exploreTransactionURL(for hash: String) -> URL?
 }
