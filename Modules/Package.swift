@@ -47,7 +47,7 @@ let package = Package(
         // Moya
         .package(url: "https://github.com/outfoxx/PotentCodables.git", .upToNextMajor(from: "3.2.0")),
         .package(url: "https://github.com/tesseract-one/ScaleCodec.swift", exact: "0.3.1"),
-        .package(url: "git@github.com:tangem-developments/Solana.Swift.git", exact: "1.2.0-tangem15"),
+        .package(url: "git@github.com:tangem-developments/Solana.Swift.git", exact: "1.2.0-tangem17"),
         .package(url: "git@github.com:tangem-developments/stellar-ios-mac-sdk.git", exact: "3.1.0-tangem1"),
         .package(url: "https://github.com/valpackett/SwiftCBOR.git", exact: "0.5.0"),
         .package(url: "git@github.com:tangem-developments/swift-protobuf-binaries.git", exact: "1.25.2-tangem4"),
