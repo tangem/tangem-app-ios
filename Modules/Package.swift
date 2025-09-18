@@ -38,7 +38,7 @@ let package = Package(
         // [REDACTED_TODO_COMMENT]
         // BSDK only deps:
         // AnyCodable
-        .package(url: "git@github.com:tangem-developments/SwiftBinanceChain.git", exact: "0.0.16"),
+        .package(url: "git@github.com:tangem-developments/SwiftBinanceChain.git", exact: "0.0.17"),
         .package(url: "https://github.com/jedisct1/swift-sodium.git", exact: "0.9.1"),
         // CombineExt
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", exact: "1.8.4"),
