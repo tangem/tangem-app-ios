@@ -45,6 +45,8 @@ extension SendNewDestinationStep: SendStep {
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
+    var shouldShowBottomOverlay: Bool { true }
+
     var isValidPublisher: AnyPublisher<Bool, Never> {
         interactor.allFieldsIsValid.eraseToAnyPublisher()
     }

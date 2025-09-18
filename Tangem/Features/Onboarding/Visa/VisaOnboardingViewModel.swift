@@ -27,7 +27,6 @@ protocol VisaOnboardingRoutable: OnboardingRoutable, OnboardingBrowserRoutable {
 class VisaOnboardingViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
-    @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
 
     @Published var shouldFireConfetti = false
     @Published var currentProgress: CGFloat = 0
@@ -454,11 +453,6 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     }
 
     func closeOnboarding() {
-        globalServicesContext.resetServices()
-        if let userWalletModel {
-            globalServicesContext.initializeServices(userWalletModel: userWalletModel)
-        }
-
         coordinator?.closeOnboarding()
     }
 }

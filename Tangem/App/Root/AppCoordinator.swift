@@ -89,7 +89,7 @@ class AppCoordinator: CoordinatorObject {
         case .launchScreen:
             setupLaunch()
 
-            runTask(in: self) { coordinator in
+            runTask(in: self) { @MainActor coordinator in
                 await coordinator.servicesManager.initializeKeychainSensitiveServices()
                 coordinator.start(with: options)
             }

@@ -240,6 +240,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.getFeeCurrencyBalance(amountType: amountType)
     }
 
+    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
+        try await mainTokenWalletModel.getFee(compiledTransaction: data)
+    }
+
     var blockchainDataProvider: BlockchainDataProvider {
         mainTokenWalletModel.blockchainDataProvider
     }
@@ -262,6 +266,10 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var transactionSender: TransactionSender {
         mainTokenWalletModel.transactionSender
+    }
+
+    var compiledTransactionSender: CompiledTransactionSender? {
+        mainTokenWalletModel.compiledTransactionSender
     }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? {
@@ -363,4 +371,6 @@ extension NFTSendWalletModelProxy: WalletModel {
     var receiveAddressTypes: [ReceiveAddressType] {
         mainTokenWalletModel.receiveAddressTypes
     }
+
+    var yieldService: YieldTokenService? { nil }
 }
