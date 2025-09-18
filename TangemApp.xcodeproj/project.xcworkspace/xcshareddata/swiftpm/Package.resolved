@@ -607,8 +607,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/SwiftBinanceChain.git",
       "state" : {
-        "revision" : "2031ca22cd0c5d8d2c27becd8e2b6a717603c644",
-        "version" : "0.0.16"
+        "revision" : "724dab97d8987a906e52e22f38a7004e9028c38d",
+        "version" : "0.0.17"
       }
     },
     {
