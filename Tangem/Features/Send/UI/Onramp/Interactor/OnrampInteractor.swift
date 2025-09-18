@@ -70,6 +70,7 @@ extension CommonOnrampInteractor: OnrampInteractor {
             providersInput.onrampProvidersPublisher.map { $0?.isLoading ?? false }
         )
         .map { $0 || $1 }
+        .removeDuplicates()
         .eraseToAnyPublisher()
     }
 }
