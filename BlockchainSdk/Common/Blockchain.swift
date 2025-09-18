@@ -992,6 +992,7 @@ public extension Blockchain {
         case .sonic: return true
         case .zkLinkNova: return false // eth_feeHistory method returns error
         case .hyperliquidEVM: return true
+        case .quai: return false
         default:
             assertionFailure("Don't forget about evm here")
             return false

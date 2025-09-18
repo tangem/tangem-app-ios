@@ -17,6 +17,11 @@ struct QuaiAddressUtils {
     private let addressService: EVMAddressService
     private let expectedZone: QuaiZoneType
 
+    // MARK: - Constants
+
+    private static let cyprus1FirstByte: UInt8 = 0x00
+    private static let cyprus1NinthBitMask: UInt8 = 0x01
+
     // MARK: - Init
 
     init(addressService: EVMAddressService, expectedZone: QuaiZoneType) {
@@ -28,6 +33,8 @@ struct QuaiAddressUtils {
 
     func derive(extendendPublicKey: ExtendedPublicKey, with addressType: AddressType) throws -> Address {
         for attempt in 0 ..< Constants.maxDerivationAttempts {
+            print("att = \(attempt)")
+
             let derivedKey = try extendendPublicKey.derivePublicKey(node: .nonHardened(UInt32(attempt)))
 
             let zoneAddress = try addressService.makeAddress(
@@ -44,19 +51,26 @@ struct QuaiAddressUtils {
     }
 
     private func checkAddressZone(address: String, expectedZone: QuaiZoneType) -> Bool {
-        let addressBytes = Data(hex: address)
-        let zoneBits = addressBytes[0] & 0x3F // 6 low bits
+        let cleanAddress = address.removeHexPrefix()
+        let addressBytes = Data(hexString: cleanAddress)
 
+        // Check if address has at least 2 bytes
+        guard addressBytes.count >= 2 else {
+            return false
+        }
+
+        let firstByte = addressBytes[0]
+        let secondByte = addressBytes[1]
+
+        // Validate based on expected zone
         switch expectedZone {
-        case .cyprus1: return zoneBits == 0x00
-        case .cyprus2: return zoneBits == 0x01
-        case .cyprus3: return zoneBits == 0x02
-        case .paxos1: return zoneBits == 0x10
-        case .paxos2: return zoneBits == 0x11
-        case .paxos3: return zoneBits == 0x12
-        case .hydra1: return zoneBits == 0x20
-        case .hydra2: return zoneBits == 0x21
-        case .hydra3: return zoneBits == 0x22
+        case .cyprus1:
+            let hasCorrectFirstByte = firstByte == Self.cyprus1FirstByte
+            let ninthBit = (secondByte & Self.cyprus1NinthBitMask) == 0
+            return hasCorrectFirstByte && ninthBit
+        case .cyprus2, .cyprus3, .paxos1, .paxos2, .paxos3, .hydra1, .hydra2, .hydra3:
+            // For use must be implement. Now use only cyprus1
+            return false
         }
     }
 }
