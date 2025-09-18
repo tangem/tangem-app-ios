@@ -11,9 +11,13 @@ import TangemExpress
 
 struct CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
     private let tokenItem: TokenItem
+    private let networkProviderAnalyticsLogger: NetworkProviderAnalyticsLogger?
 
-    init(tokenItem: TokenItem) {
+    // MARK: - Init
+
+    init(tokenItem: TokenItem, networkProviderAnalyticsLogger: NetworkProviderAnalyticsLogger?) {
         self.tokenItem = tokenItem
+        self.networkProviderAnalyticsLogger = networkProviderAnalyticsLogger
     }
 
     func bestProviderSelected(_ provider: ExpressAvailableProvider) {
@@ -101,6 +105,7 @@ struct CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
             .blockchain: tokenItem.blockchain.displayName,
             .permissionType: permissionType.rawValue,
             .walletForm: signerType,
+            .selectedHost: networkProviderAnalyticsLogger?.currentNetworkProviderHost ?? "",
         ])
     }
 }
