@@ -2232,6 +2232,7 @@
 		B6A2AB9A2E5FF3B200A7CBFF /* AccountUserTokensManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A2AB992E5FF3B200A7CBFF /* AccountUserTokensManagerFactory.swift */; };
 		B6A2AB9C2E5FF3E600A7CBFF /* CommonAccountUserTokensManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A2AB9B2E5FF3E600A7CBFF /* CommonAccountUserTokensManagerFactory.swift */; };
 		B6A373082A45CF2B0076A11C /* UserTokenListUpdateType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A373072A45CF2B0076A11C /* UserTokenListUpdateType.swift */; };
+		B6A733C62E7A21780045F744 /* AccountModelUtils.UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A733C52E7A21780045F744 /* AccountModelUtils.UI.swift */; };
 		B6A89DB82BB1AE2B007A1619 /* BackgroundTaskWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A89DB72BB1AE2B007A1619 /* BackgroundTaskWrapper.swift */; };
 		B6AA13662A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA13652A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift */; };
 		B6AA13682A2A373000B53937 /* CardInfoPagePreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA13672A2A373000B53937 /* CardInfoPagePreviewViewModel.swift */; };
@@ -6440,6 +6441,7 @@
 		B6A2AB992E5FF3B200A7CBFF /* AccountUserTokensManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountUserTokensManagerFactory.swift; sourceTree = "<group>"; };
 		B6A2AB9B2E5FF3E600A7CBFF /* CommonAccountUserTokensManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAccountUserTokensManagerFactory.swift; sourceTree = "<group>"; };
 		B6A373072A45CF2B0076A11C /* UserTokenListUpdateType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListUpdateType.swift; sourceTree = "<group>"; };
+		B6A733C52E7A21780045F744 /* AccountModelUtils.UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountModelUtils.UI.swift; sourceTree = "<group>"; };
 		B6A89DB72BB1AE2B007A1619 /* BackgroundTaskWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskWrapper.swift; sourceTree = "<group>"; };
 		B6AA13652A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerPreviewProvider.swift; sourceTree = "<group>"; };
 		B6AA13672A2A373000B53937 /* CardInfoPagePreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInfoPagePreviewViewModel.swift; sourceTree = "<group>"; };
@@ -12461,6 +12463,7 @@
 				B6C94F142E68B5A000459BF8 /* AccountModelPersistentIdentifierConvertible.swift */,
 				B6BC398D2E3D5ED70043D64E /* BaseAccountModel.swift */,
 				B6CAC2812E4799C7002DFA82 /* AccountModelUtils.swift */,
+				B6A733C52E7A21780045F744 /* AccountModelUtils.UI.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -23141,6 +23144,7 @@
 				B65E1F092A94CFB000A58DDE /* OrganizeTokensDragAndDropActionsCache.swift in Sources */,
 				5D06E040250A5D54004218D0 /* NSRegularExpression+.swift in Sources */,
 				DCB52E812E33D389008B023E /* CommonOnboardingStepsBuilder.swift in Sources */,
+				B6A733C62E7A21780045F744 /* AccountModelUtils.UI.swift in Sources */,
 				B06C08592A73FC3B00D982BC /* MultiWalletMainContentView.swift in Sources */,
 				B041C9672C3FF5BB00CE027A /* Math.swift in Sources */,
 				B61A018C2E6A6AF000A82ECB /* CryptoAccountPersistentConfig.swift in Sources */,
