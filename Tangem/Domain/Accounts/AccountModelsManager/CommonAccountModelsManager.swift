@@ -196,6 +196,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
             icon: icon
         )
         // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
         cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: [])
     }
 
@@ -212,6 +213,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         withIdentifier identifier: some AccountModelPersistentIdentifierConvertible
     ) async throws(AccountModelsManagerError) {
         if identifier.isMainAccount {
+            // Main account cannot be archived by definition
             throw .cannotArchiveCryptoAccount
         }
 
@@ -220,6 +222,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
         if info.id.isMainAccount {
+            // Main account cannot be unarchived by definition
             throw .cannotUnarchiveCryptoAccount
         }
 

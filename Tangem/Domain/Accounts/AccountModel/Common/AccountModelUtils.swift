@@ -15,7 +15,7 @@ enum AccountModelUtils {
 
         return CryptoAccountPersistentConfig(
             derivationIndex: Constants.mainAccountDerivationIndex,
-            name: nil,
+            name: nil, // Main account uses a localized name
             iconName: Constants.mainAccountIconName.rawValue,
             iconColor: iconColor.rawValue
         )
