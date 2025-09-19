@@ -219,8 +219,12 @@ extension CommonAccountModelsManager: AccountModelsManager {
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
-        // [REDACTED_TODO_COMMENT]
-        return []
+        do {
+            return try await archivedCryptoAccountsProvider.getArchivedCryptoAccounts()
+        } catch {
+            AppLogger.error(error: error)
+            throw .cannotFetchArchivedCryptoAccounts
+        }
     }
 
     nonisolated func archiveCryptoAccount(
@@ -233,9 +237,11 @@ extension CommonAccountModelsManager: AccountModelsManager {
         cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
     }
 
-    nonisolated func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
-        // [REDACTED_TODO_COMMENT]
-        throw .cannotUnarchiveCryptoAccount
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
+        let persistentConfig = info.toPersistentConfig()
+        // By definition, unarchiving an account means restoring it with an empty tokens list
+        // The actual token list will be restored from the backend on the next sync
+        cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: [])
     }
 }
 
