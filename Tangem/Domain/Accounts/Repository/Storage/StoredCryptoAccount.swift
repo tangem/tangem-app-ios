@@ -18,7 +18,7 @@ struct StoredCryptoAccount: Codable, Equatable {
     }
 
     let derivationIndex: Int
-    /// Nil, if the account uses a locally localized name.
+    /// Nil, if the account uses a localized name.
     let name: String?
     let icon: Icon
     let tokens: [Token]
