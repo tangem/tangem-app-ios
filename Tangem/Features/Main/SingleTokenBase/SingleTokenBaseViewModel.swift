@@ -49,6 +49,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let tokenActionAvailabilityAnalyticsMapper = TokenActionAvailabilityAnalyticsMapper()
     private let tokenActionAvailabilityProvider: TokenActionAvailabilityProvider
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
+    private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
 
     private var priceChangeFormatter = PriceChangeFormatter()
     private var transactionHistoryBag: AnyCancellable?
@@ -103,6 +104,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         )
         self.notificationManager = notificationManager
         self.pendingExpressTransactionsManager = pendingExpressTransactionsManager
+        balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
+            userWalletConfig: userWalletModel.config,
+            totalBalanceProvider: userWalletModel
+        )
         self.tokenRouter = tokenRouter
 
         prepareSelf()
@@ -296,10 +301,9 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 extension SingleTokenBaseViewModel {
     private func prepareSelf() {
         bind()
-        setupActionButtons()
         setupMiniChart()
-        updateActionButtons()
         performLoadHistory()
+        logIsExchangeDisabledIfNeeded()
     }
 
     private func bind() {
@@ -316,6 +320,20 @@ extension SingleTokenBaseViewModel {
             .receiveValue { [weak self] newState in
                 AppLogger.info(self, "Token details receive new wallet model state: \(newState)")
                 self?.updateActionButtons()
+            }
+            .store(in: &bag)
+
+        balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isActionButtonsAvailable in
+                var availableActions = viewModel.tokenActionAvailabilityProvider.buildAvailableButtonsList()
+                if !isActionButtonsAvailable {
+                    availableActions.removeAll { $0 == .exchange }
+                }
+                viewModel.availableActions = availableActions
+                viewModel.updateActionButtons()
             }
             .store(in: &bag)
 
@@ -396,9 +414,7 @@ extension SingleTokenBaseViewModel {
             .store(in: &bag)
     }
 
-    private func setupActionButtons() {
-        availableActions = tokenActionAvailabilityProvider.buildAvailableButtonsList()
-
+    private func logIsExchangeDisabledIfNeeded() {
         if isButtonDisabled(with: .exchange) {
             Analytics.log(event: .tokenActionButtonDisabled, params: [
                 .token: walletModel.tokenItem.currencySymbol,
