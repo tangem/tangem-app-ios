@@ -432,20 +432,11 @@ extension TokenDetailsViewModel {
     }
 
     func openYieldEarnInfo() {
-        let params = YieldModuleViewConfigs.EarnInfoParams(
-            earningsData: .init(totalEarnings: "WIP", chartData: [:]),
-            status: .active(approveRequired: true),
-            apy: "WIP",
-            availableFunds: .init(availableBalance: "WIP"),
-            transferMode: "WIP",
-            tokenName: walletModel.tokenItem.name,
-            tokenSymbol: walletModel.tokenItem.token?.symbol ?? "",
-            networkFee: "5.1",
-            onReadMoreAction: {},
-            onStopEarningAction: {},
-            onApproveAction: {}
+        coordinator?.openYieldEarnInfo(
+            walletModel: walletModel,
+            openFeeCurrencyAction: { [weak self] in
+                self?.openFeeCurrency()
+            }
         )
-
-        coordinator?.openYieldEarnInfo(params: params, walletModel: walletModel)
     }
 }

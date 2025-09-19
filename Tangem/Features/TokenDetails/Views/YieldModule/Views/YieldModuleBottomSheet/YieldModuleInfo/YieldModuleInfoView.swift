@@ -138,8 +138,10 @@ struct YieldModuleInfoView: View {
         switch viewModel.viewState {
         case .earnInfo:
             viewModel.onShowStopEarningSheet
-        case .stopEarning(let params), .approve(let params):
-            params.mainAction
+        case .stopEarning:
+            viewModel.onStopEarningTap
+        case .approve:
+            viewModel.onApproveTap
         }
     }
 }
@@ -167,7 +169,7 @@ private extension YieldModuleInfoView {
 private extension YieldModuleInfoView {
     private func earnInfoHeader(status: String) -> some View {
         ZStack {
-            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
+            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTap() } })
 
             VStack(spacing: 3) {
                 Text(Localization.yieldModuleEarnSheetTitle)
@@ -189,7 +191,7 @@ private extension YieldModuleInfoView {
     func makeHeader(viewState: YieldModuleInfoViewModel.ViewState) -> some View {
         switch viewState {
         case .stopEarning, .approve:
-            BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackAction() } })
+            BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackTap() } })
         case .earnInfo(let params):
             earnInfoHeader(status: params.status.description)
         }
