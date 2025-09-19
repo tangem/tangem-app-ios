@@ -2121,7 +2121,6 @@
 		B65C07A92AE2973E00127CCE /* OrganizeTokensPreviewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65C07A82AE2973E00127CCE /* OrganizeTokensPreviewConfiguration.swift */; };
 		B65C518C2B7FB1FA006E3C34 /* TangemBaseAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65C518B2B7FB1FA006E3C34 /* TangemBaseAPIError.swift */; };
 		B65C518E2B7FB208006E3C34 /* TangemInputAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65C518D2B7FB208006E3C34 /* TangemInputAPIError.swift */; };
-		B65C8C212E74DC68003A9B40 /* StorableEntriesConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65C8C202E74DC68003A9B40 /* StorableEntriesConverter.swift */; };
 		B65CB3FC2A98A29500C31199 /* UserTokensReordering.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65CB3FB2A98A29500C31199 /* UserTokensReordering.swift */; };
 		B65CB3FE2A98A93F00C31199 /* UserTokensReorderingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65CB3FD2A98A93F00C31199 /* UserTokensReorderingAction.swift */; };
 		B65D3FCB2A67129D00FEEFE8 /* CardsInfoPagerContentAnimationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65D3FCA2A67129D00FEEFE8 /* CardsInfoPagerContentAnimationModifier.swift */; };
@@ -6349,7 +6348,6 @@
 		B65C07A82AE2973E00127CCE /* OrganizeTokensPreviewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensPreviewConfiguration.swift; sourceTree = "<group>"; };
 		B65C518B2B7FB1FA006E3C34 /* TangemBaseAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemBaseAPIError.swift; sourceTree = "<group>"; };
 		B65C518D2B7FB208006E3C34 /* TangemInputAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemInputAPIError.swift; sourceTree = "<group>"; };
-		B65C8C202E74DC68003A9B40 /* StorableEntriesConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorableEntriesConverter.swift; sourceTree = "<group>"; };
 		B65CB3FB2A98A29500C31199 /* UserTokensReordering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokensReordering.swift; sourceTree = "<group>"; };
 		B65CB3FD2A98A93F00C31199 /* UserTokensReorderingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokensReorderingAction.swift; sourceTree = "<group>"; };
 		B65D3FCA2A67129D00FEEFE8 /* CardsInfoPagerContentAnimationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerContentAnimationModifier.swift; sourceTree = "<group>"; };
@@ -12535,7 +12533,6 @@
 				B61A01912E6A700900A82ECB /* CryptoAccountsPersistentStorage.swift */,
 				B6A22EB52E787DE300AF108E /* CryptoAccountsPersistentStorageController.swift */,
 				B61A018F2E6A6D7C00A82ECB /* CommonCryptoAccountsPersistentStorage.swift */,
-				B65C8C202E74DC68003A9B40 /* StorableEntriesConverter.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -23182,7 +23179,6 @@
 				C2459EF32E4FB0820061785C /* WCTransactionAddressRowView.swift in Sources */,
 				B09933A22B554E9F00240CDB /* CommonMainHeaderProviderFactory.swift in Sources */,
 				0FB93D632E58656A00DAB673 /* SessionMobileAccessCodeStorageManager.swift in Sources */,
-				B65C8C212E74DC68003A9B40 /* StorableEntriesConverter.swift in Sources */,
 				B679CAFC2DE488DF00D67364 /* CommonNFTCacheDelegate.swift in Sources */,
 				EF6183802B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift in Sources */,
 				DA90396D2C520E0E002C1E6E /* KoinosSendTransactionSummaryDescriptionBuilder.swift in Sources */,
