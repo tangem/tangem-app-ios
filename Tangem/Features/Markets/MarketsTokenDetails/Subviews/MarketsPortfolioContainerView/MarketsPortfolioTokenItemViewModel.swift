@@ -60,8 +60,11 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     // MARK: - Private Properties
 
     private weak var tokenItemInfoProvider: TokenItemInfoProvider?
+    private weak var balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider?
     private weak var contextActionsProvider: MarketsPortfolioContextActionsProvider?
     private weak var contextActionsDelegate: MarketsPortfolioContextActionsDelegate?
+
+    private let isSwapActionAvailableSubject = CurrentValueSubject<Bool, Never>(false)
 
     private var bag = Set<AnyCancellable>()
 
@@ -74,6 +77,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         tokenIcon: TokenIconInfo,
         tokenItem: TokenItem,
         tokenItemInfoProvider: TokenItemInfoProvider,
+        balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider,
         contextActionsProvider: MarketsPortfolioContextActionsProvider,
         contextActionsDelegate: MarketsPortfolioContextActionsDelegate
     ) {
@@ -83,6 +87,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         self.tokenIcon = tokenIcon
         self.tokenItem = tokenItem
         self.tokenItemInfoProvider = tokenItemInfoProvider
+        self.balanceRestrictionFeatureAvailabilityProvider = balanceRestrictionFeatureAvailabilityProvider
         self.contextActionsProvider = contextActionsProvider
         self.contextActionsDelegate = contextActionsDelegate
 
@@ -138,11 +143,13 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
 
         tokenItemInfoProvider?
             .actionsUpdatePublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.buildContextActions()
+            .combineLatest(isSwapActionAvailableSubject)
+            .receiveOnGlobal()
+            .compactMap { [weak self] _, isActionButtonsAvailable in
+                self?.contextActions(isActionButtonsAvailable: isActionButtonsAvailable)
             }
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$contextActions)
 
         storyAvailabilityService
             .availableStoriesPublisher
@@ -156,6 +163,11 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.main)
             .assign(to: \.hasPendingTransactions, on: self, ownership: .weak)
             .store(in: &bag)
+
+        balanceRestrictionFeatureAvailabilityProvider?.isActionButtonsAvailablePublisher
+            .removeDuplicates()
+            .subscribe(isSwapActionAvailableSubject)
+            .store(in: &bag)
     }
 
     private func setupView(_ type: TokenBalanceType) {
@@ -165,8 +177,6 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         default:
             missingDerivation = false
         }
-
-        buildContextActions()
     }
 
     private func setupBalance(_ type: FormattedTokenBalanceType) {
@@ -177,11 +187,17 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         balanceFiat = LoadableTokenBalanceViewStateBuilder().build(type: type, icon: .leading)
     }
 
-    private func buildContextActions() {
-        contextActions = contextActionsProvider?.buildContextActions(
+    private func contextActions(isActionButtonsAvailable: Bool) -> [TokenActionType] {
+        var contextActions = contextActionsProvider?.buildContextActions(
             tokenItem: tokenItem,
             walletModelId: walletModelId,
             userWalletId: userWalletId
         ) ?? []
+
+        if !isActionButtonsAvailable {
+            contextActions.removeAll { $0 == .exchange }
+        }
+
+        return contextActions
     }
 }

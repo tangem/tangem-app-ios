@@ -185,7 +185,9 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
                     userWalletInfo: MarketsPortfolioTokenItemFactory.UserWalletInfo(
                         userWalletName: userWalletModel.name,
                         userWalletId: userWalletModel.userWalletId
-                    )
+                    ),
+                    userWalletConfig: userWalletModel.config,
+                    totalBalanceProvider: userWalletModel
                 )
 
                 partialResult.append(contentsOf: viewModels)

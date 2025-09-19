@@ -32,7 +32,9 @@ struct MarketsPortfolioTokenItemFactory {
         coinId: String,
         walletModels: [any WalletModel],
         entries: [StoredUserTokenList.Entry],
-        userWalletInfo: UserWalletInfo
+        userWalletInfo: UserWalletInfo,
+        userWalletConfig: UserWalletConfig,
+        totalBalanceProvider: TotalBalanceProviding
     ) -> [MarketsPortfolioTokenItemViewModel] {
         let walletModelsKeyedByIds = walletModels.keyedFirst(by: \.id)
         let blockchainNetworksFromWalletModels = walletModels
@@ -67,18 +69,30 @@ struct MarketsPortfolioTokenItemFactory {
             }
 
         let viewModels = tokenItemTypes.map {
-            makeTokenItemViewModel(from: $0, with: userWalletInfo)
+            makeTokenItemViewModel(
+                tokenItemType: $0,
+                userWalletInfo: userWalletInfo,
+                userWalletConfig: userWalletConfig,
+                totalBalanceProvider: totalBalanceProvider
+            )
         }
 
         return viewModels
     }
 
     private func makeTokenItemViewModel(
-        from tokenItemType: TokenItemType,
-        with userWalletInfo: UserWalletInfo
+        tokenItemType: TokenItemType,
+        userWalletInfo: UserWalletInfo,
+        userWalletConfig: UserWalletConfig,
+        totalBalanceProvider: TotalBalanceProviding
     ) -> MarketsPortfolioTokenItemViewModel {
         let (id, provider, tokenItem, tokenIcon) = tokenItemInfoProviderItemBuilder
             .mapTokenItemViewModel(from: tokenItemType)
+
+        let balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
+            userWalletConfig: userWalletConfig,
+            totalBalanceProvider: totalBalanceProvider
+        )
 
         return MarketsPortfolioTokenItemViewModel(
             walletModelId: id,
@@ -87,6 +101,7 @@ struct MarketsPortfolioTokenItemFactory {
             tokenIcon: tokenIcon,
             tokenItem: tokenItem,
             tokenItemInfoProvider: provider,
+            balanceRestrictionFeatureAvailabilityProvider: balanceRestrictionFeatureAvailabilityProvider,
             contextActionsProvider: contextActionsProvider,
             contextActionsDelegate: contextActionsDelegate
         )
