@@ -11,23 +11,32 @@ import TangemLocalization
 
 final class CommonNewOnrampStepsManager {
     private let onrampStep: NewOnrampStep
+    private let offersSelectorViewModel: OnrampOffersSelectorViewModel
     private let finishStep: SendFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
+    private let onrampBaseDataBuilder: OnrampBaseDataBuilder
     private let shouldActivateKeyboard: Bool
+    private weak var router: SendRoutable?
 
     private var stack: [SendStep]
     private weak var output: SendStepsManagerOutput?
 
     init(
         onrampStep: NewOnrampStep,
+        offersSelectorViewModel: OnrampOffersSelectorViewModel,
         finishStep: SendFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider,
-        shouldActivateKeyboard: Bool
+        onrampBaseDataBuilder: OnrampBaseDataBuilder,
+        shouldActivateKeyboard: Bool,
+        router: SendRoutable?,
     ) {
         self.onrampStep = onrampStep
+        self.offersSelectorViewModel = offersSelectorViewModel
         self.finishStep = finishStep
         self.summaryTitleProvider = summaryTitleProvider
+        self.onrampBaseDataBuilder = onrampBaseDataBuilder
         self.shouldActivateKeyboard = shouldActivateKeyboard
+        self.router = router
 
         stack = [onrampStep]
     }
@@ -81,5 +90,23 @@ extension CommonNewOnrampStepsManager: SendStepsManager {
 
     func performFinish() {
         next(step: finishStep)
+    }
+}
+
+// MARK: - OnrampSummaryRoutable
+
+extension CommonNewOnrampStepsManager: OnrampSummaryRoutable {
+    func onrampStepRequestEditProvider() {
+        router?.openOnrampOffersSelector(viewModel: offersSelectorViewModel)
+    }
+
+    func openOnrampSettingsView() {
+        let (repository, _) = onrampBaseDataBuilder.makeDataForOnrampCountrySelectorView()
+        router?.openOnrampSettings(repository: repository)
+    }
+
+    func openOnrampCurrencySelectorView() {
+        let (repository, dataRepository) = onrampBaseDataBuilder.makeDataForOnrampCountrySelectorView()
+        router?.openOnrampCurrencySelector(repository: repository, dataRepository: dataRepository)
     }
 }
