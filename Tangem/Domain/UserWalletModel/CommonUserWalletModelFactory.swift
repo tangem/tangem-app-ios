@@ -233,6 +233,7 @@ private struct CommonUserWalletModelDependencies {
             return CommonAccountModelsManager(
                 userWalletId: userWalletId,
                 cryptoAccountsRepository: cryptoAccountsRepository,
+                archivedCryptoAccountsProvider: networkService,
                 walletModelsManagerFactory: walletModelsManagerFactory,
                 userTokensManagerFactory: userTokensManagerFactory,
                 areHDWalletsSupported: areHDWalletsSupported
