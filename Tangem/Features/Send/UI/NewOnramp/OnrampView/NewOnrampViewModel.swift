@@ -9,42 +9,59 @@
 import Foundation
 import Combine
 import TangemExpress
+import TangemLocalization
+import TangemFoundation
 
 final class NewOnrampViewModel: ObservableObject, Identifiable {
     @Published private(set) var onrampAmountViewModel: NewOnrampAmountViewModel
     @Published private(set) var viewState: ViewState = .amount
-    @Published private(set) var onrampProvidersCompactViewModel: OnrampProvidersCompactViewModel
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var notificationButtonIsLoading = false
-    @Published private(set) var legalText: AttributedString?
+    @Published private(set) var shouldShowLegalText: Bool = true
+
+    @Published private var suggestedOffers: SuggestedOffers?
+    var continueButtonIsDisabled: Bool { suggestedOffers == nil }
 
     weak var router: OnrampSummaryRoutable?
 
-    private let interactor: OnrampInteractor
+    private let tokenItem: TokenItem
+    private let interactor: NewOnrampInteractor
     private let notificationManager: NotificationManager
+
+    private lazy var onrampOfferViewModelBuilder = OnrampOfferViewModelBuilder(tokenItem: tokenItem)
+
     private var bag: Set<AnyCancellable> = []
 
     init(
         onrampAmountViewModel: NewOnrampAmountViewModel,
-        onrampProvidersCompactViewModel: OnrampProvidersCompactViewModel,
-        notificationManager: NotificationManager,
-        interactor: OnrampInteractor
+        tokenItem: TokenItem,
+        interactor: NewOnrampInteractor,
+        notificationManager: NotificationManager
     ) {
         self.onrampAmountViewModel = onrampAmountViewModel
-        self.onrampProvidersCompactViewModel = onrampProvidersCompactViewModel
-        self.notificationManager = notificationManager
+        self.tokenItem = tokenItem
         self.interactor = interactor
+        self.notificationManager = notificationManager
 
         bind()
     }
 
     func usedDidTapContinue() {
-        viewState = .offers
+        guard let suggestedOffers else {
+            return
+        }
+
+        shouldShowLegalText = false
+        viewState = .suggestedOffers(suggestedOffers)
     }
 
     func openOnrampSettingsView() {
         router?.openOnrampSettingsView()
+    }
+
+    func userDidTapAllOffersButton() {
+        router?.onrampStepRequestEditProvider()
     }
 }
 
@@ -54,32 +71,57 @@ private extension NewOnrampViewModel {
     func bind() {
         notificationManager
             .notificationPublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.notificationInputs, on: self, ownership: .weak)
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$notificationInputs)
 
         interactor
             .isLoadingPublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.notificationButtonIsLoading, on: self, ownership: .weak)
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$notificationButtonIsLoading)
 
         interactor
             .isLoadingPublisher
-            .filter { $0 }
-            .removeDuplicates()
             .withWeakCaptureOf(self)
-            .filter { $0.0.viewState == .offers }
-            .map { _ in .amount }
-            .assign(to: &$viewState)
+            .receiveOnMain()
+            .sink { $0.updateViewState(isLoading: $1) }
+            .store(in: &bag)
 
         interactor
-            .selectedLoadedProviderPublisher
-            .removeDuplicates()
-            .map { $0?.legalText(branch: .onramp) }
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.legalText, on: self, ownership: .weak)
+            .suggestedOffersPublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { $0.setupOnrampOfferViewModels(offers: $1) }
             .store(in: &bag)
+    }
+
+    func setupOnrampOfferViewModels(offers: LoadingResult<OnrampInteractorSuggestedOffer?, Never>) {
+        switch offers {
+        case .loading, .success(.none):
+            suggestedOffers = nil
+
+        case .success(.some(let offers)):
+            suggestedOffers = .init(
+                recent: offers.recent.map { mapToOnrampOfferViewModel(provider: $0) },
+                recommended: offers.recommended.map { mapToOnrampOfferViewModel(provider: $0) },
+                shouldShowAllOffersButton: offers.shouldShowAllOffersButton
+            )
+        }
+    }
+
+    func mapToOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
+        onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
+            self?.interactor.userDidRequestOnramp(provider: provider)
+        }
+    }
+
+    func updateViewState(isLoading: Bool) {
+        switch viewState {
+        case .suggestedOffers where isLoading:
+            viewState = .amount
+        case .amount, .suggestedOffers:
+            // Do nothing
+            break
+        }
     }
 }
 
@@ -89,9 +131,17 @@ extension NewOnrampViewModel: SendStepViewAnimatable {
     func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
 }
 
+// MARK: - SendStepViewAnimatable
+
 extension NewOnrampViewModel {
     enum ViewState: Hashable {
         case amount
-        case offers
+        case suggestedOffers(SuggestedOffers)
+    }
+
+    struct SuggestedOffers: Hashable {
+        let recent: OnrampOfferViewModel?
+        let recommended: [OnrampOfferViewModel]
+        let shouldShowAllOffersButton: Bool
     }
 }

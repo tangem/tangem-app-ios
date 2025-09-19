@@ -22,7 +22,12 @@ final class CommonCryptoAccountsNetworkService {
 // MARK: - CryptoAccountsNetworkService protocol conformance
 
 extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
-    func getCryptoAccounts(for walletId: String) async throws(CryptoAccountsNetworkServiceError) -> [StoredCryptoAccount] {
+    func getCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> [StoredCryptoAccount] {
+        // [REDACTED_TODO_COMMENT]
+        throw CryptoAccountsNetworkServiceError.underlyingError("Not implemented")
+    }
+
+    func getArchivedCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> [StoredCryptoAccount] {
         // [REDACTED_TODO_COMMENT]
         throw CryptoAccountsNetworkServiceError.underlyingError("Not implemented")
     }
