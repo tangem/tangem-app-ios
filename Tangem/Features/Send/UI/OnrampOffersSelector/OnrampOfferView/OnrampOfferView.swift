@@ -74,27 +74,7 @@ struct OnrampOfferView: View {
             Text(viewModel.amount.formatted)
                 .style(Fonts.Bold.callout, color: Colors.Text.primary1)
 
-            switch viewModel.amount.badge {
-            case .none:
-                EmptyView()
-
-            case .best:
-                Assets.Express.bestRateStarIcon.image
-                    .resizable()
-                    .frame(width: 8, height: 8)
-                    .padding(2)
-                    .background(Circle().fill(Colors.Icon.accent))
-
-            case .loss(let percent, let signType):
-                Text(percent)
-                    .style(Fonts.Bold.caption2, color: signType.textColor)
-                    .padding(.vertical, 1)
-                    .padding(.horizontal, 4)
-                    .background(
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .fill(signType.textColor.opacity(0.1))
-                    )
-            }
+            OnrampAmountBadge(badge: viewModel.amount.badge)
         }
     }
 
@@ -132,9 +112,12 @@ struct OnrampOfferView: View {
             Text(Localization.onrampPayWith)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-            viewModel.provider.paymentTypeMethodIcon.image
-                .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.secondary)
+            IconView(url: viewModel.provider.paymentType.image, size: .height(16)) {
+                SkeletonView()
+                    .frame(width: 30, height: 16)
+                    .cornerRadiusContinuous(6)
+            }
+            .foregroundStyle(Colors.Icon.secondary)
         }
     }
 }

@@ -25,6 +25,14 @@ public class ProviderItem {
         self.providers = providers
     }
 
+    public func hasSuccessfullyLoadedProviders() -> Bool {
+        !successfullyLoadedProviders().isEmpty
+    }
+
+    public func successfullyLoadedProviders() -> [OnrampProvider] {
+        providers.filter { $0.isSuccessfullyLoaded }
+    }
+
     public func hasSelectableProviders() -> Bool {
         providers.contains { $0.isShowable && $0.isSelectable }
     }
