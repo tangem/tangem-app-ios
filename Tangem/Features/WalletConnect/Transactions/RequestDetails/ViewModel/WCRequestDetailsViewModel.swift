@@ -8,7 +8,7 @@
 
 import UIKit
 
-final class WCRequestDetailsViewModel: ObservableObject {
+struct WCRequestDetailsViewModel {
     let requestDetails: [WCTransactionDetailsSection]
 
     init(input: WCRequestDetailsInput) {

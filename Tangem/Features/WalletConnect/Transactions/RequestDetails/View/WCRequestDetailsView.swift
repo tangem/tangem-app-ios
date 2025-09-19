@@ -13,13 +13,13 @@ import TangemUI
 import TangemLocalization
 
 struct WCRequestDetailsView: View {
-    @StateObject private var viewModel: WCRequestDetailsViewModel
+    private let viewModel: WCRequestDetailsViewModel
 
     @State private var contentHeight: CGFloat = 0
     @State private var containerHeight: CGFloat = 0
 
     init(input: WCRequestDetailsInput) {
-        _viewModel = .init(wrappedValue: .init(input: input))
+        viewModel = .init(input: input)
     }
 
     var body: some View {

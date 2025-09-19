@@ -56,7 +56,7 @@ extension WCTransactionViewModel {
             case (.customAllowance(let lhsViewModel), .customAllowance(let rhsViewModel)):
                 return lhsViewModel.id == rhsViewModel.id
             case (.securityAlert(let lhsViewModel), .securityAlert(let rhsViewModel)):
-                return lhsViewModel.id == rhsViewModel.id
+                return lhsViewModel == rhsViewModel
             default:
                 return false
             }

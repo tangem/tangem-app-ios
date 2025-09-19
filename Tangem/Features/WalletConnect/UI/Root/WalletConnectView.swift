@@ -61,25 +61,29 @@ struct WalletConnectView: View {
         }
     }
 
+    @ViewBuilder
     private func newConnectionButton(_ proxy: GeometryProxy) -> some View {
-        MainButton(
-            title: viewModel.state.newConnectionButton.title,
-            isLoading: viewModel.state.newConnectionButton.isLoading,
-            action: {
-                viewModel.handle(viewEvent: .newConnectionButtonTapped)
+        if !viewModel.state.contentState.isLoading {
+            MainButton(
+                title: viewModel.state.newConnectionButton.title,
+                isLoading: viewModel.state.newConnectionButton.isLoading,
+                action: {
+                    viewModel.handle(viewEvent: .newConnectionButtonTapped)
+                }
+            )
+            .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.newConnectionButton)
+            .background {
+                if !viewModel.state.contentState.isEmpty {
+                    ListFooterOverlayShadowView(color: Colors.Background.secondary)
+                        .transition(.opacity)
+                }
             }
-        )
-        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.newConnectionButton)
-        .background {
-            if !viewModel.state.contentState.isEmpty {
-                ListFooterOverlayShadowView(color: Colors.Background.secondary)
-                    .transition(.opacity)
-            }
+            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
+            .padding(.horizontal, !viewModel.state.contentState.isContent ? 80 : 16)
+            .padding(.bottom, UIDevice.current.hasHomeScreenIndicator ? .zero : 8)
+            .offset(y: newConnectionButtonYOffset(proxy))
+            .animation(.easeInOut(duration: 0.2), value: viewModel.state.contentState.isEmpty)
         }
-        .padding(.horizontal, !viewModel.state.contentState.isContent ? 80 : 16)
-        .padding(.bottom, UIDevice.current.hasHomeScreenIndicator ? .zero : 8)
-        .offset(y: newConnectionButtonYOffset(proxy))
-        .animation(.easeInOut(duration: 0.2), value: viewModel.state.contentState.isEmpty)
     }
 
     @ViewBuilder
@@ -118,6 +122,7 @@ struct WalletConnectView: View {
 
                 Text(emptyContentState.subtitle)
                     .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                    .multilineTextAlignment(.center)
                     .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.noSessionsDescription)
             }
         }
