@@ -24,6 +24,7 @@ struct MultiWalletTokenItemsSectionFactory {
 
     func makeSectionItemViewModel(
         from sectionItem: TokenSectionsAdapter.SectionItem,
+        balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider,
         contextActionsProvider: TokenItemContextActionsProvider,
         contextActionsDelegate: TokenItemContextActionDelegate,
         tapAction: @escaping (WalletModelId.ID) -> Void
@@ -36,6 +37,7 @@ struct MultiWalletTokenItemsSectionFactory {
             tokenItem: tokenItem,
             tokenIcon: tokenIconInfo,
             infoProvider: provider,
+            balanceRestrictionFeatureAvailabilityProvider: balanceRestrictionFeatureAvailabilityProvider,
             contextActionsProvider: contextActionsProvider,
             contextActionsDelegate: contextActionsDelegate,
             tokenTapped: tapAction

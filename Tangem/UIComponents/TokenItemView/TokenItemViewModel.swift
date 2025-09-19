@@ -66,9 +66,11 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private let priceChangeUtility = PriceChangeUtility()
     private let loadableTokenBalanceViewStateBuilder: LoadableTokenBalanceViewStateBuilder
     private let priceFormatter = TokenItemPriceFormatter()
+    private let isSwapActionAvailableSubject = CurrentValueSubject<Bool, Never>(false)
     private var bag = Set<AnyCancellable>()
 
     private weak var infoProvider: TokenItemInfoProvider?
+    private weak var balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider?
     private weak var contextActionsProvider: TokenItemContextActionsProvider?
     private weak var contextActionsDelegate: TokenItemContextActionDelegate?
 
@@ -79,6 +81,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         tokenItem: TokenItem,
         tokenIcon: TokenIconInfo,
         infoProvider: TokenItemInfoProvider,
+        balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider,
         contextActionsProvider: TokenItemContextActionsProvider,
         contextActionsDelegate: TokenItemContextActionDelegate,
         tokenTapped: @escaping (WalletModelId.ID) -> Void
@@ -87,6 +90,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         self.tokenIcon = tokenIcon
         self.tokenItem = tokenItem
         self.infoProvider = infoProvider
+        self.balanceRestrictionFeatureAvailabilityProvider = balanceRestrictionFeatureAvailabilityProvider
         self.contextActionsProvider = contextActionsProvider
         self.contextActionsDelegate = contextActionsDelegate
         self.tokenTapped = tokenTapped
@@ -141,14 +145,13 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
 
         infoProvider?.actionsUpdatePublisher
-            .receive(on: DispatchQueue.global())
-            .withWeakCaptureOf(self)
-            .map { $0.0.contextActionsProvider?.buildContextActions(for: $0.0) }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] actions in
-                self?.contextActionSections = actions ?? []
+            .combineLatest(isSwapActionAvailableSubject)
+            .receiveOnGlobal()
+            .compactMap { [weak self] _, isSwapActionAvailable in
+                self?.contextActionSections(isSwapActionAvailable: isSwapActionAvailable)
             }
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$contextActionSections)
 
         infoProvider?.isStakedPublisher
             .receive(on: DispatchQueue.main)
@@ -158,6 +161,11 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         infoProvider?.hasPendingTransactions
             .receive(on: DispatchQueue.main)
             .assign(to: \.hasPendingTransactions, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        balanceRestrictionFeatureAvailabilityProvider?.isActionButtonsAvailablePublisher
+            .removeDuplicates()
+            .subscribe(isSwapActionAvailableSubject)
             .store(in: &bag)
     }
 
@@ -194,8 +202,18 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func buildContextActions() {
-        contextActionSections = contextActionsProvider?.buildContextActions(for: self) ?? []
+    private func contextActionSections(isSwapActionAvailable: Bool) -> [TokenContextActionsSection] {
+        var contextActions = contextActionsProvider?.buildContextActions(for: self) ?? []
+
+        if !isSwapActionAvailable {
+            contextActions = contextActions.map { section in
+                TokenContextActionsSection(
+                    items: section.items.filter { $0 != .exchange }
+                )
+            }
+        }
+
+        return contextActions
     }
 }
 

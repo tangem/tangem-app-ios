@@ -30,6 +30,7 @@ class FakeTokenItemInfoProvider: ObservableObject {
                 tokenItem: tokenItem,
                 tokenIcon: tokenIconInfo,
                 infoProvider: provider,
+                balanceRestrictionFeatureAvailabilityProvider: makeBalanceRestrictionFeatureAvailabilityProvider(),
                 contextActionsProvider: self,
                 contextActionsDelegate: self,
                 tokenTapped: modelTapped(with:)
@@ -48,6 +49,14 @@ class FakeTokenItemInfoProvider: ObservableObject {
                 AppLogger.debug("Receive new state \(newState) for \(tappedWalletManager)")
                 withExtendedLifetime(updateSubscription) {}
             }
+    }
+
+    func makeBalanceRestrictionFeatureAvailabilityProvider() -> BalanceRestrictionFeatureAvailabilityProvider {
+        let userWalletModel = FakeUserWalletModel.wallet3Cards
+        return BalanceRestrictionFeatureAvailabilityProvider(
+            userWalletConfig: userWalletModel.config,
+            totalBalanceProvider: userWalletModel
+        )
     }
 }
 

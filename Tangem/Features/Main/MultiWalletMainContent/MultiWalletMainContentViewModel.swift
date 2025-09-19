@@ -372,6 +372,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     ) -> TokenItemViewModel {
         return factory.makeSectionItemViewModel(
             from: sectionItem,
+            balanceRestrictionFeatureAvailabilityProvider: makeBalanceRestrictionFeatureAvailabilityProvider(),
             contextActionsProvider: self,
             contextActionsDelegate: self,
             tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:))
@@ -405,6 +406,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 viewModel.isLoadingTokenList = false
                 withExtendedLifetime(tokenListSyncSubscription) {}
             }
+    }
+
+    private func makeBalanceRestrictionFeatureAvailabilityProvider() -> BalanceRestrictionFeatureAvailabilityProvider {
+        BalanceRestrictionFeatureAvailabilityProvider(
+            userWalletConfig: userWalletModel.config,
+            totalBalanceProvider: userWalletModel
+        )
     }
 
     private func tokenItemTapped(_ walletModelId: WalletModelId.ID) {
