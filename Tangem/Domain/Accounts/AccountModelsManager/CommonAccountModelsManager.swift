@@ -219,6 +219,10 @@ extension CommonAccountModelsManager: AccountModelsManager {
     }
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
+        if info.id.isMainAccount {
+            throw .cannotUnarchiveCryptoAccount
+        }
+
         let persistentConfig = info.toPersistentConfig()
         // By definition, unarchiving an account means restoring it with an empty tokens list
         // The actual token list will be restored from the backend on the next sync
