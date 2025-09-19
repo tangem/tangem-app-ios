@@ -33079,7 +33079,7 @@
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.6.5;
+				version = 1.6.12;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
