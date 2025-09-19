@@ -20,8 +20,8 @@ enum YieldModuleViewConfigs {
     struct CommonParams: Equatable {
         let tokenName: String
         let networkFee: String
+        let readMoreUrl: URL
 
-        @IgnoredEquatable var readMoreAction: @MainActor @Sendable () -> Void
         @IgnoredEquatable var mainAction: @MainActor @Sendable () -> Void
     }
 
@@ -52,11 +52,7 @@ enum YieldModuleViewConfigs {
         let transferMode: String
         let tokenName: String
         let tokenSymbol: String
-        let networkFee: String
-
-        @IgnoredEquatable var onReadMoreAction: @MainActor @Sendable () -> Void
-        @IgnoredEquatable var onStopEarningAction: @MainActor @Sendable () -> Void
-        @IgnoredEquatable var onApproveAction: @MainActor @Sendable () -> Void
+        let readMoreUrl: URL
 
         struct AvailableFundsData: Identifiable, Equatable {
             let availableBalance: String
