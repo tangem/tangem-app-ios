@@ -61,3 +61,15 @@ extension ArchivedCryptoAccountInfo: BaseAccountModel {
         .empty
     }
 }
+
+// MARK: - CryptoAccountPersistentConfigConvertible protocol conformance
+
+extension ArchivedCryptoAccountInfo: CryptoAccountPersistentConfigConvertible {
+    func toPersistentConfig() -> CryptoAccountPersistentConfig {
+        return CryptoAccountPersistentConfig(
+            derivationIndex: derivationIndex,
+            name: name,
+            icon: icon
+        )
+    }
+}
