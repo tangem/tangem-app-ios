@@ -144,9 +144,11 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         yieldModulePromoCoordinator = coordinator
     }
 
-    func openYieldEarnInfo(params: YieldModuleViewConfigs.EarnInfoParams, walletModel: any WalletModel) {
+    func openYieldEarnInfo(walletModel: any WalletModel, openFeeCurrencyAction: @escaping () -> Void) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldModuleInfoViewModel(walletModel: walletModel, viewState: .earnInfo(params: params)))
+            floatingSheetPresenter.enqueue(
+                sheet: YieldModuleInfoViewModel(walletModel: walletModel, openFeeCurrencyAction: openFeeCurrencyAction)
+            )
         }
     }
 }
