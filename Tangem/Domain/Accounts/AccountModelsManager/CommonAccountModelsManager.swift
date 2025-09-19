@@ -21,10 +21,11 @@ actor CommonAccountModelsManager {
     }
 
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
+    private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
     private let walletModelsManagerFactory: AccountWalletModelsManagerFactory
     private let userTokensManagerFactory: AccountUserTokensManagerFactory
-    private let userWalletId: UserWalletId
     private let executor: any SerialExecutor
+    private let userWalletId: UserWalletId
     private let areHDWalletsSupported: Bool
 
     /// - Note: Manual synchronization is used for reads/writes, hence it is safe to mark this as `nonisolated(unsafe)`.
@@ -34,12 +35,14 @@ actor CommonAccountModelsManager {
     init(
         userWalletId: UserWalletId,
         cryptoAccountsRepository: CryptoAccountsRepository,
+        archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         walletModelsManagerFactory: AccountWalletModelsManagerFactory,
         userTokensManagerFactory: AccountUserTokensManagerFactory,
         areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
+        self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
         self.walletModelsManagerFactory = walletModelsManagerFactory
         self.userTokensManagerFactory = userTokensManagerFactory
         self.areHDWalletsSupported = areHDWalletsSupported
