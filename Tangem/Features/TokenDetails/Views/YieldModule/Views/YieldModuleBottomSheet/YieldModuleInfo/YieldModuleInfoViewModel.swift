@@ -21,7 +21,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     @Published
     var viewState: ViewState {
         didSet {
-            previousFlow = oldValue
+            previousState = oldValue
             createNotificationBannerIfNeeded()
         }
     }
@@ -29,7 +29,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     @Published
     var notificationBannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? = nil
 
-    private var previousFlow: ViewState?
+    private var previousState: ViewState?
     private let walletModel: any WalletModel
     private let openFeeCurrencyAction: () -> Void
 
@@ -72,7 +72,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     func onBackTap() {
-        previousFlow.map { viewState = $0 }
+        previousState.map { viewState = $0 }
     }
 
     func onShowStopEarningSheet() {
