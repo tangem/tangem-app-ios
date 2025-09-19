@@ -187,6 +187,7 @@
 		0FBB13EE2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13ED2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift */; };
 		0FBB13F12E015F290086784A /* MobileOnboardingSeedPhraseIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13EA2E015D690086784A /* MobileOnboardingSeedPhraseIntroView.swift */; };
 		0FBB13F32E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13F22E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift */; };
+		0FBF7E6B2E7C49790076A627 /* MobileUnlock+Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBF7E6A2E7C49790076A627 /* MobileUnlock+Notification.swift */; };
 		0FC609152DF344FB0033B946 /* MobileOnboardingCreateWalletDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC609142DF344FB0033B946 /* MobileOnboardingCreateWalletDelegate.swift */; };
 		0FE5884C2DEF124C00E5663E /* MobileOnboardingInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE5884B2DEF124C00E5663E /* MobileOnboardingInput.swift */; };
 		0FE588522DEF2A1500E5663E /* MobileOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE588512DEF2A1500E5663E /* MobileOnboardingViewModel.swift */; };
@@ -4420,6 +4421,7 @@
 		0FBB13EA2E015D690086784A /* MobileOnboardingSeedPhraseIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroView.swift; sourceTree = "<group>"; };
 		0FBB13ED2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroViewModel.swift; sourceTree = "<group>"; };
 		0FBB13F22E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroDelegate.swift; sourceTree = "<group>"; };
+		0FBF7E6A2E7C49790076A627 /* MobileUnlock+Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileUnlock+Notification.swift"; sourceTree = "<group>"; };
 		0FC609142DF344FB0033B946 /* MobileOnboardingCreateWalletDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingCreateWalletDelegate.swift; sourceTree = "<group>"; };
 		0FE5884B2DEF124C00E5663E /* MobileOnboardingInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingInput.swift; sourceTree = "<group>"; };
 		0FE588512DEF2A1500E5663E /* MobileOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingViewModel.swift; sourceTree = "<group>"; };
@@ -8735,6 +8737,7 @@
 			isa = PBXGroup;
 			children = (
 				0F48D8452E41F5A50095D3C8 /* MobileUnlockUtil.swift */,
+				0FBF7E6A2E7C49790076A627 /* MobileUnlock+Notification.swift */,
 				0FB935AC2E4C8D5F00DAB673 /* MobileAuthUtil.swift */,
 				0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */,
 			);
@@ -24212,6 +24215,7 @@
 				EAB55F612DF080730016BF78 /* MainNavigationActionHandler.swift in Sources */,
 				0A0E01772C64AA79009E01F2 /* StakingAmountValidator.swift in Sources */,
 				2D7C45DB2DF2F2E300F0C2A7 /* TransactionPushActionURLHelper.swift in Sources */,
+				0FBF7E6B2E7C49790076A627 /* MobileUnlock+Notification.swift in Sources */,
 				DCE2F7DA2CE351B500BDE145 /* ActionButtonsSellViewModel.swift in Sources */,
 				B0453672264D4B730005B23E /* AppConstants.swift in Sources */,
 				EF5E08392DBBB5D200B553CC /* PendingExpressTxIdCopyButtonView.swift in Sources */,
