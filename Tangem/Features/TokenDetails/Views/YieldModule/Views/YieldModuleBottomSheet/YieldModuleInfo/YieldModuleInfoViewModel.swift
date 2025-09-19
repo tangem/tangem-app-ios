@@ -14,7 +14,6 @@ import TangemFoundation
 final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Injected
 
-    @Injected(\.safariManager) var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - View State
@@ -23,6 +22,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     var viewState: ViewState {
         didSet {
             previousFlow = oldValue
+            createNotificationBannerIfNeeded()
         }
     }
 
@@ -31,82 +31,122 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     private var previousFlow: ViewState?
     private let walletModel: any WalletModel
-    private let readMoreLink = URL(string: "https://tangem.com")!
+    private let openFeeCurrencyAction: () -> Void
 
     // MARK: - Init
 
-    init(walletModel: any WalletModel, viewState: ViewState) {
-        self.viewState = viewState
+    init(walletModel: any WalletModel, openFeeCurrencyAction: @escaping () -> Void) {
         self.walletModel = walletModel
+        self.openFeeCurrencyAction = openFeeCurrencyAction
+
+        viewState = .earnInfo(
+            params: .init(
+                earningsData: .init(totalEarnings: "WIP", chartData: [:]),
+                status: .active(approveRequired: true),
+                apy: "WIP",
+                availableFunds: .init(availableBalance: "WIP"),
+                transferMode: "WIP",
+                tokenName: walletModel.tokenItem.name,
+                tokenSymbol: walletModel.tokenItem.token?.symbol ?? "",
+                readMoreUrl: Constants.earnInfoReadMoreUrl
+            )
+        )
+
+        createNotificationBannerIfNeeded()
     }
 
     // MARK: - Navigation
 
-    func onCloseTapAction() {
+    func onApproveTap() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
+
+    func onStopEarningTap() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
+
+    func onCloseTap() {
         runTask(in: self) { vm in
             vm.floatingSheetPresenter.removeActiveSheet()
         }
     }
 
-    func onBackAction() {
+    func onBackTap() {
         previousFlow.map { viewState = $0 }
-    }
-
-    func onShowApproveSheet() {
-        viewState = .approve(
-            params: .init(
-                tokenName: walletModel.tokenItem.name,
-                networkFee: "5.1", // [REDACTED_TODO_COMMENT]
-                readMoreAction: { [weak self] in
-                    self?.openReadMoreLink()
-                },
-                mainAction: {}
-            )
-        )
     }
 
     func onShowStopEarningSheet() {
         guard case .earnInfo(let params) = viewState else {
-            onCloseTapAction()
+            onCloseTap()
             return
         }
 
         viewState = .stopEarning(
             params: .init(
                 tokenName: params.tokenName,
-                networkFee: params.networkFee,
-                readMoreAction: params.onReadMoreAction,
-                mainAction: params.onStopEarningAction
+                networkFee: "5.1",
+                readMoreUrl: Constants.stopEarningReadMoreUrl, // [REDACTED_TODO_COMMENT]
+                mainAction: { [weak self] in
+                    self?.onStopEarningTap()
+                }
             )
         )
     }
 
     // MARK: - Private Implementation
 
-    private func openReadMoreLink() {
-        safariManager.openURL(readMoreLink)
+    private func createInitialViewState(with walletModel: any WalletModel) -> ViewState {
+        .earnInfo(
+            params: .init(
+                earningsData: .init(totalEarnings: "WIP", chartData: [:]),
+                status: .active(approveRequired: true),
+                apy: "WIP",
+                availableFunds: .init(availableBalance: "WIP"),
+                transferMode: "WIP",
+                tokenName: walletModel.tokenItem.name,
+                tokenSymbol: walletModel.tokenItem.token?.symbol ?? "",
+                readMoreUrl: Constants.earnInfoReadMoreUrl,
+            )
+        )
     }
 
-    private func createNotificationBannerIfNeeded() -> YieldModuleViewConfigs.YieldModuleNotificationBannerParams? {
+    private func showApproveSheet() {
+        viewState = .approve(
+            params: .init(
+                tokenName: walletModel.tokenItem.name,
+                networkFee: "5.1",
+                readMoreUrl: Constants.approveReadMoreUrl, // [REDACTED_TODO_COMMENT]
+                mainAction: {}
+            )
+        )
+    }
+
+    private func createNotificationBannerIfNeeded() {
+        let params: YieldModuleViewConfigs.YieldModuleNotificationBannerParams?
+
         switch viewState {
         case .stopEarning, .approve:
             // [REDACTED_TODO_COMMENT]
-            guard true else { return nil }
+            guard true else { return }
 
-            return YieldAttentionBannerFactory.makeNotEnoughFeeCurrencyBanner(
+            params = YieldAttentionBannerFactory.makeNotEnoughFeeCurrencyBanner(
                 feeTokenItem: walletModel.feeTokenItem,
                 navigationAction: { [weak self] in
-
-                    self?.onCloseTapAction()
+                    self?.onCloseTap()
+                    self?.openFeeCurrencyAction()
                 }
             )
 
         case .earnInfo:
             // [REDACTED_TODO_COMMENT]
             if true {
-                return YieldAttentionBannerFactory.makeApproveRequiredBanner(navigationAction: {})
+                params = YieldAttentionBannerFactory.makeApproveRequiredBanner(navigationAction: { [weak self] in
+                    self?.showApproveSheet()
+                })
             }
         }
+
+        notificationBannerParams = params
     }
 }
 
@@ -132,3 +172,11 @@ extension YieldModuleInfoViewModel {
 // MARK: - FloatingSheetContentViewModel
 
 extension YieldModuleInfoViewModel: FloatingSheetContentViewModel {}
+
+private extension YieldModuleInfoViewModel {
+    enum Constants {
+        static let earnInfoReadMoreUrl = URL(string: "https://tangem.com")!
+        static let stopEarningReadMoreUrl = URL(string: "https://tangem.com")!
+        static let approveReadMoreUrl = URL(string: "https://tangem.com")!
+    }
+}
