@@ -990,7 +990,7 @@
 "send_recipient_address_footer" = "Asegúrese de que la dirección de la billetera receptora esté en **la red %@** para evitar perder sus tokens";
 "send_recipient_label" = "Destinatario";
 "send_recipient_memo_footer_v2_highlighted" = "Atención: La omisión del campo Memo puede provocar la pérdida de fondos.";
-"send_recipient_memo_footer" = "Un Memo/ID de destino es un ID único para diferenciar transacciones enviadas al mismo destinatario en la misma red. Precaución: Omitir un memo puede llevar a la pérdida de fondos";
+"send_recipient_memo_footer" = "Un Memo/ID de destino es un ID único para diferenciar transacciones enviadas al mismo destinatario en la misma red.\n**Precaución: Omitir un memo puede llevar a la pérdida de fondos**";
 "send_recipient_wallets_title" = "Mis billeteras";
 "send_recipient" = "Destinatario";
 "send_satoshi_per_byte_text" = "Una forma de medir las comisiones por transacción de Bitcoin. Indica la cantidad de la unidad de Bitcoin más pequeña (Satoshi) por cada byte virtual en una transacción. Cuanto mayor sea la cantidad, más rápido procesarán la transacción los mineros.";
