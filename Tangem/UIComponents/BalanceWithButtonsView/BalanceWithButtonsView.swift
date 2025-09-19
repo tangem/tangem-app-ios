@@ -43,6 +43,7 @@ struct BalanceWithButtonsView: View {
                         padding: .init(top: 2, leading: 0, bottom: 2, trailing: 0)
                     )
                 )
+                .yieldIdentificationIfNeeded(false, showInfoAction: viewModel.showYieldBalanceInfoAction ?? {})
             }
 
             ScrollableButtonsView(itemsHorizontalOffset: 14, itemsVerticalOffset: 3, buttonsInfo: viewModel.buttons)
