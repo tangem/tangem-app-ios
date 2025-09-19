@@ -32694,7 +32694,7 @@
 			repositoryURL = "git@github.com:tangem-developments/SwiftBinanceChain.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.0.16;
+				version = 0.0.17;
 			};
 		};
 		B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */ = {
