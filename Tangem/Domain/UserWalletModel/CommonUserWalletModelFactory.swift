@@ -66,7 +66,6 @@ struct CommonUserWalletModelFactory {
             userTokensManager: dependencies.userTokensManager,
             userTokenListManager: dependencies.userTokenListManager,
             nftManager: dependencies.nftManager,
-            yieldModuleManager: dependencies.yieldModuleManager,
             keysRepository: dependencies.keysRepository,
             derivationManager: dependencies.derivationManager,
             totalBalanceProvider: dependencies.totalBalanceProvider,
@@ -113,7 +112,6 @@ private struct CommonUserWalletModelDependencies {
     let totalBalanceProvider: TotalBalanceProvider
     let userTokensManager: CommonUserTokensManager
     let nftManager: NFTManager
-    let yieldModuleManager: YieldModuleManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
@@ -187,11 +185,6 @@ private struct CommonUserWalletModelDependencies {
                     Analytics.log(event: .nftErrors, params: [.errorCode: errorCode, .errorDescription: description])
                 }
             )
-        )
-
-        yieldModuleManager = CommonYieldModuleManager(
-            userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager
         )
 
         let userTokensPushNotificationsManager = CommonUserTokensPushNotificationsManager(

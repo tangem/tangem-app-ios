@@ -51,6 +51,7 @@ class CommonWalletModel {
     private let tokenBalancesRepository: TokenBalancesRepository
     private let walletManager: WalletManager
     private let _stakingManager: StakingManager?
+    private lazy var _yieldModuleManager = makeYieldModuleManager()
     private let _transactionHistoryService: TransactionHistoryService?
     private let _receiveAddressService: ReceiveAddressService
     private let featureManager: WalletModelFeaturesManager
@@ -106,7 +107,7 @@ class CommonWalletModel {
         )
 
         let tokenItem = switch amountType {
-        case .coin, .reserve, .feeResource, .tokenYieldSupply:
+        case .coin, .reserve, .feeResource:
             TokenItem.blockchain(blockchainNetwork)
         case .token(let token):
             TokenItem.token(token, blockchainNetwork)
@@ -163,14 +164,9 @@ class CommonWalletModel {
     private func mapState(_ walletManagerState: WalletManagerState) -> WalletModelState {
         switch walletManagerState {
         case .loaded:
-            if let yieldSupplyAmount {
-                return .loaded(yieldSupplyAmount.value)
-            }
-
             if let balance = wallet.amounts[amountType]?.value {
                 return .loaded(balance)
             }
-
             return .failed(error: WalletModelError.balanceNotFound.localizedDescription)
         case .failed(BlockchainSdkError.noAccount(let message, let amountToCreate)):
             return .noAccount(message: message, amountToCreate: amountToCreate)
@@ -187,6 +183,10 @@ class CommonWalletModel {
         AppLogger.info(self, "Updating state. New state is \(state)")
         DispatchQueue.main.async { [weak self] in // captured as weak at call stack
             self?._state.value = state
+        }
+
+        Task { [_yieldModuleManager, wallet, amountType] in
+            await _yieldModuleManager?.updateState(walletModelState: state, balance: wallet.amounts[amountType])
         }
     }
 
@@ -259,7 +259,7 @@ extension CommonWalletModel: WalletModel {
 
     var name: String {
         switch amountType {
-        case .coin, .reserve, .feeResource, .tokenYieldSupply:
+        case .coin, .reserve, .feeResource:
             return wallet.blockchain.displayName
         case .token(let token):
             return token.name
@@ -276,7 +276,7 @@ extension CommonWalletModel: WalletModel {
 
     var isMainToken: Bool {
         switch amountType {
-        case .coin, .reserve, .feeResource, .tokenYieldSupply:
+        case .coin, .reserve, .feeResource:
             return true
         case .token:
             return false
@@ -350,6 +350,10 @@ extension CommonWalletModel: WalletModel {
 
     var stakingManager: StakingManager? {
         _stakingManager
+    }
+
+    var yieldModuleManager: (any YieldModuleManager)? {
+        _yieldModuleManager
     }
 
     var stakeKitTransactionSender: StakeKitTransactionSender? {
@@ -558,6 +562,22 @@ extension CommonWalletModel: WalletModelHelpers {
             )
 
         return subject.eraseToAnyPublisher()
+    }
+
+    func makeYieldModuleManager() -> (YieldModuleManager & YieldModuleManagerUpdater)? {
+        guard case .token(let token, _) = tokenItem,
+              let yieldSupplyService = walletManager.yieldSupplyService,
+              let ethereumNetworkProvider, let ethereumTransactionDataBuilder else { return nil }
+        return CommonYieldModuleManager(
+            walletAddress: wallet.defaultAddress.value,
+            token: token,
+            blockchain: wallet.blockchain,
+            yieldSupplyService: yieldSupplyService,
+            tokenBalanceProvider: totalTokenBalanceProvider,
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            ethereumTransactionDataBuilder: ethereumTransactionDataBuilder,
+            transactionCreator: transactionCreator,
+        )
     }
 }
 
@@ -879,15 +899,7 @@ extension CommonWalletModel: ReceiveAddressTypesProvider {
 
 extension CommonWalletModel {
     var yieldSupplyAmount: Amount? {
-        guard case .token(let token) = amountType else { return nil }
-
-        return wallet.amounts.compactMap { key, value in
-            if case .tokenYieldSupply(let supplyInfo) = key,
-               supplyInfo.token.contractAddress == token.contractAddress {
-                return value
-            }
-            return nil
-        }.first
+        fatalError()
     }
 }
 

@@ -163,7 +163,7 @@ final class TONTransactionBuilder {
                 bounce: bounce,
                 jettonTransfer: jettonTransfer
             )
-        case .feeResource, .tokenYieldSupply:
+        case .feeResource:
             throw BlockchainSdkError.notImplemented
         }
 

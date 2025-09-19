@@ -26,6 +26,7 @@ public extension TokenMetadata {
     enum Kind: Hashable, Codable {
         case fungible
         case nonFungible(assetIdentifier: String, contractType: ContractType)
+        case yield(supplyInfo: TokenYieldSupply)
     }
 
     enum ContractType: Hashable, Codable {

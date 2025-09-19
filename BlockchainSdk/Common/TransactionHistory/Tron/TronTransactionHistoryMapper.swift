@@ -26,7 +26,7 @@ final class TronTransactionHistoryMapper {
         }
 
         switch amountType {
-        case .coin, .reserve, .feeResource, .tokenYieldSupply:
+        case .coin, .reserve, .feeResource:
             return transactions
         case .token(let value):
             // Another fix for a horrible Tron Blockbook API: sometimes API returns transaction history
@@ -266,7 +266,7 @@ extension TronTransactionHistoryMapper: TransactionHistoryMapper {
                 }
 
                 switch amountType {
-                case .coin, .reserve, .feeResource, .tokenYieldSupply:
+                case .coin, .reserve, .feeResource:
                     if let transactionInfo = extractTransactionInfo(
                         from: transaction,
                         sourceAddress: sourceAddress,

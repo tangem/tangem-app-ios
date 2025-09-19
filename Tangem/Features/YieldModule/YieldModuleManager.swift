@@ -7,83 +7,315 @@
 //
 
 import Foundation
-import TangemFoundation
+import BlockchainSdk
+import BigInt
 import Combine
+import TangemFoundation
 
 protocol YieldModuleManager {
-    var yieldWalletManagers: [TokenItem: YieldModuleWalletManager] { get }
-    var yieldWalletManagersPublisher: AnyPublisher<[TokenItem: YieldModuleWalletManager], Never> { get }
+    var state: YieldModuleManagerState? { get }
+    var statePublisher: AnyPublisher<YieldModuleManagerState?, Never> { get }
+
+    func enterFee() async throws -> YieldTransactionFee
+    func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
+
+    func exitFee() async throws -> YieldTransactionFee
+    func exit(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
+}
+
+protocol YieldModuleManagerUpdater {
+    func updateState(walletModelState: WalletModelState, balance: Amount?) async
+}
+
+enum YieldModuleManagerState {
+    case disabled
+    case loading
+    case notActive(apy: Decimal)
+    case active(YieldModuleManagerStateInfo)
+    case failedToLoad(error: String)
+
+    var balance: Amount? {
+        if case .active(let value) = self {
+            return value.yieldSupply
+        }
+        return nil
+    }
+}
+
+struct YieldModuleManagerStateInfo {
+    let apy: Decimal
+    let activeState: YieldModuleActiveState
+    let yieldSupply: Amount?
 }
 
 final class CommonYieldModuleManager {
-    @Injected(\.tangemApiService) var tangemApiService: TangemApiService
+    private let walletAddress: String
+    private let token: Token
+    private let blockchain: Blockchain
+    private let yieldSupplyService: YieldSupplyService
+    private let tokenBalanceProvider: TokenBalanceProvider
 
-    private let walletModelsManager: WalletModelsManager
-    private let userWalletId: UserWalletId
+    private let allowanceChecker: AllowanceChecker
+    private let transactionProvider: YieldTransactionProvider
+    private let transactionFeeProvider: YieldTransactionFeeProvider
 
-    private let _yieldWalletManagers = CurrentValueSubject<[TokenItem: YieldModuleWalletManager], Never>([:])
+    private var _state = CurrentValueSubject<YieldModuleManagerState?, Never>(nil)
 
-    private var bag: Set<AnyCancellable> = []
+    private var bag = Set<AnyCancellable>()
 
-    init(
-        userWalletId: UserWalletId,
-        walletModelsManager: WalletModelsManager,
+    init?(
+        walletAddress: String,
+        token: Token,
+        blockchain: Blockchain,
+        yieldSupplyService: YieldSupplyService,
+        tokenBalanceProvider: TokenBalanceProvider,
+        ethereumNetworkProvider: EthereumNetworkProvider,
+        ethereumTransactionDataBuilder: EthereumTransactionDataBuilder,
+        transactionCreator: TransactionCreator
     ) {
-        self.walletModelsManager = walletModelsManager
-        self.userWalletId = userWalletId
+        guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses() else {
+            return nil
+        }
 
-        bind()
+        self.walletAddress = walletAddress
+        self.token = token
+        self.blockchain = blockchain
+        self.yieldSupplyService = yieldSupplyService
+        self.tokenBalanceProvider = tokenBalanceProvider
+
+        transactionProvider = YieldTransactionProvider(
+            token: token,
+            blockchain: blockchain,
+            transactionCreator: transactionCreator,
+            transactionBuilder: ethereumTransactionDataBuilder,
+            yieldSupplyContractAddresses: yieldSupplyContractAddresses
+        )
+
+        allowanceChecker = AllowanceChecker(
+            blockchain: blockchain,
+            amountType: .token(value: token),
+            walletAddress: walletAddress,
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            ethereumTransactionDataBuilder: ethereumTransactionDataBuilder
+        )
+
+        transactionFeeProvider = YieldTransactionFeeProvider(
+            blockchain: blockchain,
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            allowanceChecker: allowanceChecker,
+            yieldSupplyContractAddresses: yieldSupplyContractAddresses
+        )
     }
 }
 
-extension CommonYieldModuleManager: YieldModuleManager {
-    var yieldWalletManagers: [TokenItem: any YieldModuleWalletManager] {
-        _yieldWalletManagers.value
+extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdater {
+    var state: YieldModuleManagerState? {
+        _state.value
     }
 
-    var yieldWalletManagersPublisher: AnyPublisher<[TokenItem: any YieldModuleWalletManager], Never> {
-        _yieldWalletManagers.eraseToAnyPublisher()
+    var statePublisher: AnyPublisher<YieldModuleManagerState?, Never> {
+        _state
+            .receiveOnMain()
+            .eraseToAnyPublisher()
+    }
+
+    func updateState(walletModelState: WalletModelState, balance: Amount?) async {
+        do {
+            let newState = try await mapWalletModelState(walletModelState, balance: balance)
+            _state.send(newState)
+        } catch {
+            _state.send(.failedToLoad(error: error.localizedDescription))
+        }
+    }
+
+    func enterFee() async throws -> YieldTransactionFee {
+        let yieldTokenState = try await getYieldModuleState()
+
+        switch yieldTokenState {
+        case .notDeployed:
+            return try await transactionFeeProvider.deployFee(
+                walletAddress: walletAddress,
+                tokenContractAddress: token.contractAddress
+            )
+        case .deployed(let deployed):
+            guard let balanceValue = tokenBalanceProvider.balanceType.value else {
+                throw YieldModuleError.balanceNotFound
+            }
+
+            let balance = balanceValue * blockchain.decimalValue
+
+            switch deployed.initializationState {
+            case .notInitialized:
+                return try await transactionFeeProvider.initializeFee(
+                    yieldContractAddress: deployed.yieldModule,
+                    balance: balance
+                )
+            case .initialized(.notActive):
+                return try await transactionFeeProvider.reactivateFee(
+                    yieldContractAddress: deployed.yieldModule,
+                    balance: balance
+                )
+            case .initialized(.active):
+                return try await transactionFeeProvider.enterFee(
+                    yieldContractAddress: deployed.yieldModule,
+                    balance: balance
+                )
+            }
+        }
+    }
+
+    func enter(fee: any YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] {
+        let yieldTokenState = try await getYieldModuleState()
+
+        var transactions = [Transaction]()
+
+        switch (yieldTokenState, fee) {
+        case (.notDeployed, let deployEnterFee as DeployEnterFee):
+            let yieldModule = try await yieldSupplyService.calculateYieldContract()
+
+            guard let balance = tokenBalanceProvider.balanceType.value,
+                  let balanceBigUInt = BigUInt(decimal: balance * blockchain.decimalValue) else {
+                throw YieldModuleError.balanceNotFound
+            }
+
+            let deployTransactions = try await transactionProvider.deployTransactions(
+                walletAddress: walletAddress,
+                tokenContractAddress: token.contractAddress,
+                yieldContractAddress: yieldModule,
+                balance: balanceBigUInt,
+                fee: deployEnterFee
+            )
+
+            transactions.append(contentsOf: deployTransactions)
+        case (.deployed(let deployed), let fee):
+            switch (deployed.initializationState, fee) {
+            case (.notInitialized, let initFee as InitEnterFee):
+                let initTransactions = try await transactionProvider.initTransactions(
+                    tokenContractAddress: token.contractAddress,
+                    yieldContractAddress: deployed.yieldModule,
+                    fee: initFee
+                )
+
+                transactions.append(contentsOf: initTransactions)
+            case (.initialized(.notActive), let reactivateFee as ReactivateEnterFee):
+                let reactivateTransactions = try await transactionProvider.reactivateTransactions(
+                    tokenContractAddress: token.contractAddress,
+                    yieldContractAddress: deployed.yieldModule,
+                    fee: reactivateFee
+                )
+
+                transactions.append(contentsOf: reactivateTransactions)
+            case (.initialized, let enterFee as EnterFee):
+                let enterTransactions = try await transactionProvider.enterTransactions(
+                    tokenContractAddress: token.contractAddress,
+                    yieldContractAddress: deployed.yieldModule,
+                    fee: enterFee
+                )
+
+                transactions.append(contentsOf: enterTransactions)
+            default:
+                throw YieldModuleError.inconsistentState
+            }
+        default: throw YieldModuleError.inconsistentState
+        }
+
+        return try await transactionDispatcher
+            .send(transactions: transactions.map(SendTransactionType.transfer))
+            .map(\.hash)
+    }
+
+    func exitFee() async throws -> any YieldTransactionFee {
+        let yieldContractAddress = try await yieldSupplyService.getYieldContract()
+        return try await transactionFeeProvider.exitFee(
+            yieldContractAddress: yieldContractAddress,
+            tokenContractAddress: token.contractAddress
+        )
+    }
+
+    func exit(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] {
+        let yieldModuleState = try await getYieldModuleState()
+
+        guard case .deployed(let deployedState) = yieldModuleState,
+              case .initialized(let activeState) = deployedState.initializationState,
+              case .active = activeState,
+              let exitFee = fee as? ExitFee else {
+            throw YieldModuleError.yieldIsNotActive
+        }
+
+        let transactions = try await transactionProvider.exitTransactions(
+            tokenContractAddress: token.contractAddress,
+            yieldContractAddress: deployedState.yieldModule,
+            fee: exitFee
+        )
+
+        return try await transactionDispatcher
+            .send(transactions: transactions.map(SendTransactionType.transfer))
+            .map(\.hash)
     }
 }
 
 private extension CommonYieldModuleManager {
-    func bind() {
-        let walletModelsPublisher = walletModelsManager
-            .walletModelsPublisher
-            .removeDuplicates()
-
-        walletModelsPublisher
-            .flatMapLatest { walletModels in
-                walletModels
-                    .map { walletModel in
-                        walletModel
-                            .featuresPublisher
-                            .map { (walletModel, $0) }
-                    }
-                    .merge()
-                    // Debounced `collect` is used to collect all outputs from an undetermined number of wallet models with features
-                    .collect(debouncedTime: 1.0, scheduler: DispatchQueue.main)
+    func mapWalletModelState(_ walletModelState: WalletModelState, balance: Amount?) async throws -> YieldModuleManagerState {
+        async let apy = getAPY()
+        switch walletModelState {
+        case .created, .loading:
+            return .loading
+        case .loaded:
+            guard let balance, case .token = balance.type else {
+                return try await .notActive(apy: apy)
             }
-            .map { [currentYieldWalletManagers = _yieldWalletManagers.value] features in
-                return features.reduce(into: [TokenItem: YieldModuleWalletManager]()) { partialResult, element in
-                    let (walletModel, features) = element
-                    let factory = features.compactMap(\.yieldModuleFactory).first
-                    partialResult[walletModel.tokenItem] = currentYieldWalletManagers[walletModel.tokenItem]
-                        ?? factory?.make(walletModel: walletModel)
-                }
-            }
-            .sink { [weak self] result in
-                self?._yieldWalletManagers.send(result)
-            }
-            .store(in: &bag)
-    }
-}
-
-extension WalletModelFeature {
-    var yieldModuleFactory: YieldModuleWalletManagerFactory? {
-        if case .yieldModule(let factory) = self {
-            return factory
+            return try await .active(
+                .init(
+                    apy: apy,
+                    activeState: .active, // will be taken from backend response later
+                    yieldSupply: balance
+                )
+            )
+        case .noAccount:
+            return .disabled
+        case .failed(error: let error):
+            return .failedToLoad(error: error)
         }
-        return nil
+    }
+
+    func getAPY() async throws -> Decimal {
+        try await yieldSupplyService.getAPY(for: token.contractAddress)
+    }
+
+    func getYieldModuleState() async throws -> YieldModuleSmartContractState {
+        let yieldModule = try? await yieldSupplyService.getYieldContract()
+
+        if let yieldModule {
+            let yieldSupplyStatus = try await yieldSupplyService.getYieldSupplyStatus(
+                tokenContractAddress: token.contractAddress
+            )
+
+            let maxNetworkFee = yieldSupplyStatus.maxNetworkFee
+
+            let initializationState: YieldModuleSmartContractState.InitializationState
+            if yieldSupplyStatus.initialized {
+                if yieldSupplyStatus.active {
+                    let balance = try? await yieldSupplyService.getBalance(
+                        yieldSupplyStatus: yieldSupplyStatus,
+                        token: token
+                    )
+                    initializationState = .initialized(
+                        activeState: .active(
+                            info: YieldModuleSmartContractState.ActiveStateInfo(
+                                balance: balance,
+                                maxNetworkFee: maxNetworkFee
+                            )
+                        )
+                    )
+                } else {
+                    initializationState = .initialized(activeState: .notActive)
+                }
+            } else {
+                initializationState = .notInitialized
+            }
+            return .deployed(.init(yieldModule: yieldModule, initializationState: initializationState))
+        } else {
+            return .notDeployed
+        }
     }
 }

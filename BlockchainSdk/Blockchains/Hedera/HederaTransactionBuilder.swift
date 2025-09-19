@@ -156,7 +156,7 @@ final class HederaTransactionBuilder {
             return TransferTransaction()
                 .tokenTransfer(tokenId, sourceAccountId, -transactionAmount)
                 .tokenTransfer(tokenId, destinationAccountId, transactionAmount)
-        case .reserve, .feeResource, .tokenYieldSupply:
+        case .reserve, .feeResource:
             throw BlockchainSdkError.failedToBuildTx
         }
     }

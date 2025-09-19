@@ -60,6 +60,19 @@ public extension Token {
     }
 }
 
+public extension Token {
+    func withMetadata(_ metadata: TokenMetadata) -> Self {
+        Token(
+            name: name,
+            symbol: symbol,
+            contractAddress: contractAddress,
+            decimalCount: decimalCount,
+            id: id,
+            metadata: metadata
+        )
+    }
+}
+
 extension Token: Decodable {
     /// - Note: Custom `Decodable` implementation is used to perform migration for already stored tokens without `metadata`.
     public init(from decoder: any Decoder) throws {

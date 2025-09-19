@@ -318,6 +318,8 @@ extension VisaWalletModel: WalletModel {
 
     var stakingManager: (any StakingManager)? { nil }
 
+    var yieldModuleManager: (any YieldModuleManager)? { nil }
+
     var stakeKitTransactionSender: (any StakeKitTransactionSender)? { nil }
 
     var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? { nil }

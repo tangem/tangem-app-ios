@@ -161,12 +161,17 @@ public final class EthereumYieldSupplyProvider: YieldSupplyService {
 
             return Amount(
                 with: wallet.blockchain,
-                type: .tokenYieldSupply(
-                    TokenYieldSupply(
-                        token: token,
-                        isActive: yieldSupplyStatus.active,
-                        isInitialized: yieldSupplyStatus.active,
-                        allowance: allowanceResult
+                type: .token(
+                    value: token.withMetadata(
+                        TokenMetadata(
+                            kind: .yield(
+                                supplyInfo: TokenYieldSupply(
+                                    isActive: yieldSupplyStatus.active,
+                                    isInitialized: yieldSupplyStatus.active,
+                                    allowance: allowanceResult
+                                )
+                            )
+                        )
                     )
                 ),
                 value: result

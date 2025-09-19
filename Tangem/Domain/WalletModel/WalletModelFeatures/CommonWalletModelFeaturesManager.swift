@@ -11,16 +11,13 @@ import Combine
 import CombineExt
 import TangemNFT
 import TangemFoundation
-import BlockchainSdk
 
 final class CommonWalletModelFeaturesManager {
     @Injected(\.nftAvailabilityProvider) private var nftAvailabilityProvider: NFTAvailabilityProvider
-    @Injected(\.yieldModuleAvailabilityProvider) private var yieldModuleAvailabilityProvider: YieldModuleAvailabilityProvider
 
     private let userWalletId: UserWalletId
     private let userWalletConfig: UserWalletConfig
     private let tokenItem: TokenItem
-    private let walletManager: WalletManager
 
     // MARK: - NFT
 
@@ -74,51 +71,14 @@ final class CommonWalletModelFeaturesManager {
     // [REDACTED_TODO_COMMENT]
     private lazy var transactionHistoryFeaturePublisher: some Publisher<[WalletModelFeature], Never> = Just([])
 
-    // MARK: - Yield module
-
-    private lazy var yieldModuleFeaturePublisher: some Publisher<[WalletModelFeature], Never> = {
-        let publisher: Just<[WalletModelFeature]> = if let factory = yieldModuleManagerFactory {
-            Just([WalletModelFeature.yieldModule(factory: factory)])
-        } else {
-            Just([])
-        }
-        return publisher.eraseToAnyPublisher()
-    }()
-
-    private var isYieldModuleAvailable: Bool {
-        yieldModuleAvailabilityProvider.isYieldModuleAvailable(for: tokenItem)
-    }
-
-    private var _yieldModuleManagerFactory: YieldModuleWalletManagerFactory?
-    private var yieldModuleManagerFactory: YieldModuleWalletManagerFactory? {
-        if isYieldModuleAvailable,
-           let ethereumNetworkProvider = walletManager as? EthereumNetworkProvider,
-           let yieldSupplyService = (walletManager as YieldSupplyServiceProvider).yieldSupplyService,
-           let ethereumTransactionDataBuilder = walletManager as? EthereumTransactionDataBuilder {
-            let factory = _yieldModuleManagerFactory ?? CommonYieldModuleWalletManagerFactory(
-                signer: userWalletConfig.tangemSigner,
-                ethereumNetworkProvider: ethereumNetworkProvider,
-                yieldSupplyService: yieldSupplyService,
-                ethereumTransactionDataBuilder: ethereumTransactionDataBuilder
-            )
-            _yieldModuleManagerFactory = factory
-        } else {
-            _yieldModuleManagerFactory = nil
-        }
-
-        return _yieldModuleManagerFactory
-    }
-
     init(
         userWalletId: UserWalletId,
         userWalletConfig: UserWalletConfig,
-        tokenItem: TokenItem,
-        walletManager: WalletManager
+        tokenItem: TokenItem
     ) {
         self.userWalletId = userWalletId
         self.userWalletConfig = userWalletConfig
         self.tokenItem = tokenItem
-        self.walletManager = walletManager
     }
 }
 
@@ -126,13 +86,12 @@ final class CommonWalletModelFeaturesManager {
 
 extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
-        return Publishers.CombineLatest4(
+        return Publishers.CombineLatest3(
             nftFeaturePublisher,
             stakingFeaturePublisher,
             transactionHistoryFeaturePublisher,
-            yieldModuleFeaturePublisher,
         )
-        .map { $0.0 + $0.1 + $0.2 + $0.3 }
+        .map { $0.0 + $0.1 + $0.2 }
         .eraseToAnyPublisher()
     }
 }

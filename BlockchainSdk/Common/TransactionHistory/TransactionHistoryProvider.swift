@@ -22,7 +22,7 @@ public extension TransactionHistoryProvider {
         switch amountType {
         case .coin where record.type == .transfer:
             break
-        case .coin, .reserve, .feeResource, .tokenYieldSupply:
+        case .coin, .reserve, .feeResource:
             return true
         case .token:
             break

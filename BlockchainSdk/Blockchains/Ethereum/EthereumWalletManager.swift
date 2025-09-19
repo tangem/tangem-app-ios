@@ -386,7 +386,7 @@ extension EthereumWalletManager: TransactionFeeProvider {
                     } catch {
                         return .anyFail(error: error)
                     }
-                case .reserve, .feeResource, .tokenYieldSupply:
+                case .reserve, .feeResource:
                     return .anyFail(error: BlockchainSdkError.notImplemented)
                 }
             }
@@ -452,7 +452,7 @@ extension EthereumWalletManager: TransactionValidator {
         BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
 
         switch amount.type.token?.metadata.kind {
-        case .fungible, .none:
+        case .fungible, .yield, .none:
             // Just calling the default implementation for the `TransactionValidator.validate(amount:fee:)` method
             try validateAmounts(amount: amount, fee: fee.amount)
         case .nonFungible:

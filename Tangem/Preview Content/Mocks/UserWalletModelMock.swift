@@ -46,8 +46,6 @@ class UserWalletModelMock: UserWalletModel {
 
     var nftManager: NFTManager { NFTManagerStub() }
 
-    var yieldModuleManager: any YieldModuleManager { NotSupportedYieldModuleManager() }
-
     var signer: TangemSigner { fatalError("TangemSignerMock doesn't exist") }
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()

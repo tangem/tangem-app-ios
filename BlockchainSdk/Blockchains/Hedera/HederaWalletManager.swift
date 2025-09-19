@@ -402,7 +402,7 @@ final class HederaWalletManager: BaseManager {
 
     private func assetRequiresAssociation(_ asset: Asset) -> Bool {
         switch asset {
-        case .coin, .reserve, .feeResource, .tokenYieldSupply:
+        case .coin, .reserve, .feeResource:
             return false
         case .token(let token):
             return !(associatedTokens ?? []).contains(token.contractAddress)
@@ -422,7 +422,7 @@ final class HederaWalletManager: BaseManager {
             tokenCustomFeesPublisher = networkService.getTokensCustomFeesInfo(tokenAddress: token.contractAddress)
                 .map(Optional.init)
                 .eraseToAnyPublisher()
-        case .reserve, .feeResource, .tokenYieldSupply:
+        case .reserve, .feeResource:
             return .anyFail(error: BlockchainSdkError.failedToGetFee)
         }
 
@@ -567,7 +567,7 @@ extension HederaWalletManager: AssetRequirementsManager {
         }
 
         switch asset {
-        case .coin, .reserve, .feeResource, .tokenYieldSupply:
+        case .coin, .reserve, .feeResource:
             return nil
         case .token:
             guard let tokenAssociationFeeExchangeRate else {
@@ -590,7 +590,7 @@ extension HederaWalletManager: AssetRequirementsManager {
         }
 
         switch asset {
-        case .coin, .reserve, .feeResource, .tokenYieldSupply:
+        case .coin, .reserve, .feeResource:
             return .justWithError(output: ())
         case .token(let token):
             return sendCompiledTransaction(signedUsing: signer) { [weak self] validStartDate in

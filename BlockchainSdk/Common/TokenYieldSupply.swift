@@ -8,8 +8,7 @@
 
 import Foundation
 
-public struct TokenYieldSupply: Hashable, Equatable {
-    public let token: Token
+public struct TokenYieldSupply: Hashable, Equatable, Codable {
     public let isActive: Bool
     public let isInitialized: Bool
     public let allowance: Decimal

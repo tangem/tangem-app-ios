@@ -13,7 +13,7 @@ enum SendAnalyticsHelper {
         switch tokenItem.token?.metadata.kind {
         case .nonFungible:
             Analytics.ParameterValue.nft.rawValue
-        case .fungible, .none:
+        case .fungible, .yield, .none:
             tokenItem.currencySymbol
         }
     }

@@ -298,26 +298,14 @@ private extension TokenDetailsViewModel {
             }
             .store(in: &bag)
 
-        userWalletModel.yieldModuleManager.yieldWalletManagersPublisher
-            .setFailureType(to: Error.self)
-            .receiveOnMain()
-            .compactMap { [self] walletManagers -> YieldModuleWalletManager? in
-                walletManagers[walletModel.tokenItem]
-            }
-//            .first()
-            .eraseToAnyPublisher()
-            .flatMap { manager in
-                return manager.statePublisher
-            }
-            .sink(
-                receiveCompletion: { _ in
-
-                },
-                receiveValue: { value in
+        if let yieldModuleManager = walletModel.yieldModuleManager {
+            yieldModuleManager.statePublisher
+                .replaceError(with: .disabled)
+                .sink { value in
                     print("🙀 value: \(value)")
                 }
-            )
-            .store(in: &bag)
+                .store(in: &bag)
+        }
     }
 
     private func updateStaking(state: StakingManagerState) {

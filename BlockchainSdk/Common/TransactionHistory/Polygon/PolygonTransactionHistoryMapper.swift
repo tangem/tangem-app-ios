@@ -27,7 +27,7 @@ final class PolygonTransactionHistoryMapper {
 
         let decimalValue: Decimal
         switch amountType {
-        case .coin, .reserve, .feeResource, .tokenYieldSupply:
+        case .coin, .reserve, .feeResource:
             decimalValue = blockchain.decimalValue
         case .token(let value):
             decimalValue = value.decimalValue
@@ -85,7 +85,6 @@ final class PolygonTransactionHistoryMapper {
         case .coin,
              .token,
              .reserve,
-             .tokenYieldSupply,
              .feeResource:
             // All other transactions are considered simple & plain transfers
             return .transfer
@@ -114,7 +113,7 @@ final class PolygonTransactionHistoryMapper {
         switch amountType {
         case .token where amount.isZero:
             return true
-        case .coin, .reserve, .token, .feeResource, .tokenYieldSupply:
+        case .coin, .reserve, .token, .feeResource:
             return false
         }
     }

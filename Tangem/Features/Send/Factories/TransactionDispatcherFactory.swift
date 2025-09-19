@@ -28,4 +28,11 @@ struct TransactionDispatcherFactory {
             sendTransactionDispatcher: makeSendDispatcher()
         )
     }
+
+    func makeYieldModuleDispatcher() -> YieldModuleTransactionDispatcher {
+        YieldModuleTransactionDispatcher(
+            walletModel: walletModel,
+            transactionSigner: signer
+        )
+    }
 }

@@ -213,7 +213,7 @@ private extension SendModel {
         }
 
         switch token.metadata.kind {
-        case .fungible:
+        case .fungible, .yield:
             UserWalletFinder().addToken(
                 token,
                 in: tokenItem.blockchain,

@@ -74,7 +74,7 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
 extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorContentViewModelAnalytics {
     func logFeeStepOpened() {
         switch tokenItem.token?.metadata.kind {
-        case .fungible, .none:
+        case .fungible, .yield, .none:
             Analytics.log(.sendFeeScreenOpened)
         case .nonFungible:
             Analytics.log(.nftCommissionScreenOpened)
@@ -85,7 +85,7 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorContentV
         switch tokenItem.token?.metadata.kind {
         case .nonFungible:
             Analytics.log(.nftCommissionScreenOpened)
-        case .fungible, .none:
+        case .fungible, .yield, .none:
             Analytics.log(.sendScreenReopened, params: [.source: .fee])
         }
     }
@@ -98,7 +98,7 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorContentV
 
         let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: feeOption)
         let event: Analytics.Event = switch tokenItem.token?.metadata.kind {
-        case .fungible, .none: .sendFeeSelected
+        case .fungible, .yield, .none: .sendFeeSelected
         case .nonFungible: .nftFeeSelected
         }
 
@@ -200,7 +200,7 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
 extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
     func logSummaryStepOpened() {
         switch tokenItem.token?.metadata.kind {
-        case .fungible, .none:
+        case .fungible, .yield, .none:
             Analytics.log(.sendConfirmScreenOpened)
         case .nonFungible:
             Analytics.log(

@@ -125,7 +125,7 @@ class StellarTransactionBuilder {
             let serializedOperation = try serializeOperation(operation, sourceKeyPair: sourceKeyPair, memo: memo)
             return serializedOperation
 
-        case .reserve, .feeResource, .tokenYieldSupply:
+        case .reserve, .feeResource:
             throw BlockchainSdkError.failedToBuildTx
         }
     }

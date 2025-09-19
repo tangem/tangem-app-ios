@@ -228,7 +228,7 @@ extension TransactionValidator where Self: RentExtemptionRestrictable {
 
     func validate(amount: Amount, fee: Fee) throws {
         switch amount.type.token?.metadata.kind {
-        case .fungible, .none:
+        case .fungible, .yield, .none:
             try validateAmounts(amount: amount, fee: fee.amount)
         case .nonFungible:
             // We can't validate amounts for non-fungible tokens, therefore performing only the fee validation

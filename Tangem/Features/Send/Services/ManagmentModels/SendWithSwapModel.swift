@@ -316,7 +316,7 @@ private extension SendWithSwapModel {
         }
 
         switch token.metadata.kind {
-        case .fungible:
+        case .fungible, .yield:
             UserWalletFinder().addToken(
                 token,
                 in: sourceToken.tokenItem.blockchain,

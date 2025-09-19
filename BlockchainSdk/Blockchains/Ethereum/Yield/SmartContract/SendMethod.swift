@@ -10,7 +10,7 @@ import Foundation
 import BigInt
 
 public struct SendMethod {
-    let yieldContractAddress: String
+    let tokenContractAddress: String
     let destination: String
     let amount: BigUInt
 }

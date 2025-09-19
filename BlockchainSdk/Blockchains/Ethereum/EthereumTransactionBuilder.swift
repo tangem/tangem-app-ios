@@ -71,7 +71,7 @@ class EthereumTransactionBuilder {
 
             return try buildTxCompilerPreSigningOutput(input: input).data
 
-        case .reserve, .feeResource, .tokenYieldSupply:
+        case .reserve, .feeResource:
             throw BlockchainSdkError.notImplemented
         }
     }
@@ -246,7 +246,7 @@ private extension EthereumTransactionBuilder {
                 data: data
             )
 
-        case .reserve, .feeResource, .tokenYieldSupply:
+        case .reserve, .feeResource:
             throw BlockchainSdkError.notImplemented
         }
     }
@@ -261,6 +261,9 @@ private extension EthereumTransactionBuilder {
         switch token.metadata.kind {
         case .fungible:
             return TransferERC20TokenMethod(destination: destination, amount: amount)
+
+        case .yield:
+            return SendMethod(tokenContractAddress: token.contractAddress, destination: destination, amount: amount)
 
         case .nonFungible(let assetIdentifier, .erc721):
             let source = sourceAddress.value
