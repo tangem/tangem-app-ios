@@ -9,7 +9,10 @@
 import Foundation
 
 struct StoredCryptoAccount: Codable, Equatable {
+    // [REDACTED_TODO_COMMENT]
     typealias Grouping = StoredUserTokenList.Grouping
+
+    // [REDACTED_TODO_COMMENT]
     typealias Sorting = StoredUserTokenList.Sorting
 
     struct Icon: Codable, Equatable {
