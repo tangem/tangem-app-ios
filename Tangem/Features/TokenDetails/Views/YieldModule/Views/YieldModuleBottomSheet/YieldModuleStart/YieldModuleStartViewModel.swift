@@ -21,7 +21,8 @@ final class YieldModuleStartViewModel: ObservableObject {
     @Published
     var viewState: ViewState {
         didSet {
-            viewState = oldValue
+            previousState = oldValue
+            createNotificationBannerIfNeeded()
         }
     }
 
@@ -36,6 +37,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     init(walletModel: any WalletModel, viewState: ViewState) {
         self.viewState = viewState
         self.walletModel = walletModel
+        createNotificationBannerIfNeeded()
     }
 
     // MARK: - Navigation
@@ -65,12 +67,12 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     // MARK: - Private Implementation
 
-    private func createNotificationBannerIfNeeded() -> YieldModuleViewConfigs.YieldModuleNotificationBannerParams? {
+    private func createNotificationBannerIfNeeded() {
         if case .startEarning = viewState {
             // [REDACTED_TODO_COMMENT]
-            guard true else { return nil }
+            guard true else { return }
 
-            return YieldAttentionBannerFactory.makeNotEnoughFeeCurrencyBanner(
+            notificationBannerParams = YieldAttentionBannerFactory.makeNotEnoughFeeCurrencyBanner(
                 feeTokenItem: walletModel.feeTokenItem,
                 navigationAction: { [weak self] in
 
@@ -79,7 +81,7 @@ final class YieldModuleStartViewModel: ObservableObject {
             )
         }
 
-        return nil
+        notificationBannerParams = nil
     }
 }
 
