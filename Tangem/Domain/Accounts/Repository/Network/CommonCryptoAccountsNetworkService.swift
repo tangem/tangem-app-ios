@@ -32,11 +32,9 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         do {
             let (revision, accountsDTO) = try await tangemApiService.getUserAccounts(userWalletId: userWalletId.stringValue)
 
-            guard let revision else {
-                throw CryptoAccountsNetworkServiceError.missingRevision
+            if let revision {
+                await eTagStorage.saveETag(revision, for: userWalletId)
             }
-
-            await eTagStorage.saveETag(revision, for: userWalletId)
 
             return mapper.map(response: accountsDTO)
         } catch let error as CryptoAccountsNetworkServiceError {
@@ -52,11 +50,9 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         do {
             let (revision, archivedAccountsDTO) = try await tangemApiService.getArchivedUserAccounts(userWalletId: userWalletId.stringValue)
 
-            guard let revision else {
-                throw CryptoAccountsNetworkServiceError.missingRevision
+            if let revision {
+                await eTagStorage.saveETag(revision, for: userWalletId)
             }
-
-            await eTagStorage.saveETag(revision, for: userWalletId)
 
             return mapper.map(response: archivedAccountsDTO)
         } catch let error as CryptoAccountsNetworkServiceError {
@@ -79,11 +75,9 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
                 accounts: accountsDTO
             )
 
-            guard let newRevision else {
-                throw CryptoAccountsNetworkServiceError.missingRevision
+            if let newRevision {
+                await eTagStorage.saveETag(newRevision, for: userWalletId)
             }
-
-            await eTagStorage.saveETag(newRevision, for: userWalletId)
         } catch let error as CryptoAccountsNetworkServiceError {
             throw error // Just re-throw an original error
         } catch let error as TangemAPIError where error.code == .notFound {
