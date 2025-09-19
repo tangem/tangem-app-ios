@@ -33,12 +33,12 @@ extension YieldModuleInfoView {
             var linkPart = AttributedString(Localization.commonReadMore)
             linkPart.font = Fonts.Regular.footnote
             linkPart.foregroundColor = Colors.Text.accent
+            linkPart.link = params.readMoreUrl
 
-            attr.append(" " + linkPart)
+            attr.append(AttributedString(" "))
+            attr.append(linkPart)
 
             return Text(attr)
-                .onTapGesture { params.readMoreAction() }
-                .fixedSize(horizontal: false, vertical: true)
         }
 
         private var networkFee: some View {
