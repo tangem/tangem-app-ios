@@ -13,6 +13,7 @@ protocol OnrampRoutable {
     func openOnrampCountrySelector(repository: OnrampRepository, dataRepository: OnrampDataRepository)
     func openOnrampSettings(repository: OnrampRepository)
     func openOnrampCurrencySelector(repository: OnrampRepository, dataRepository: OnrampDataRepository)
+    func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel)
     func openOnrampProviders(providersBuilder: OnrampProvidersBuilder, paymentMethodsBuilder: OnrampPaymentMethodsBuilder)
     func openOnrampRedirecting(onrampRedirectingBuilder: OnrampRedirectingBuilder)
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void)

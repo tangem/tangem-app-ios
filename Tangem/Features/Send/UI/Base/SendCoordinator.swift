@@ -295,6 +295,12 @@ extension SendCoordinator: OnrampRoutable {
         )
     }
 
+    func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openOnrampProviders(providersBuilder: OnrampProvidersBuilder, paymentMethodsBuilder: OnrampPaymentMethodsBuilder) {
         let coordinator = OnrampProvidersCoordinator(
             onrampProvidersBuilder: providersBuilder,
