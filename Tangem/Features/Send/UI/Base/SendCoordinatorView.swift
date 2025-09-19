@@ -72,6 +72,9 @@ struct SendCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: HighPriceImpactWarningSheetViewModel.self) {
                 HighPriceImpactWarningSheetView(viewModel: $0)
             }
+            .floatingSheetContent(for: OnrampOffersSelectorViewModel.self) {
+                OnrampOffersSelectorView(viewModel: $0)
+            }
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
             }
