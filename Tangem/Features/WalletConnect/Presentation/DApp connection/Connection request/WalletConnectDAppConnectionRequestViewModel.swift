@@ -100,17 +100,20 @@ extension WalletConnectDAppConnectionRequestViewModel {
         hapticFeedbackGenerator.prepareNotificationFeedback()
         dAppLoadingTask?.cancel()
 
-        dAppLoadingTask = Task { [weak self, getDAppConnectionProposal = interactor.getDAppConnectionProposal, analyticsLogger] in
+        dAppLoadingTask = Task { [weak self, getDAppConnectionProposal = interactor.getDAppConnectionProposal, logger, analyticsLogger] in
             // [REDACTED_USERNAME], due to Task's operation closure error erasing nature in current language version,
             // it is required to explicitly define error type in order to compile :/
             do throws(WalletConnectDAppProposalLoadingError) {
                 analyticsLogger.logSessionInitiated()
                 let dAppProposal = try await getDAppConnectionProposal()
                 self?.handleLoadedDAppProposal(dAppProposal)
+            } catch WalletConnectDAppProposalLoadingError.cancelledByUser {
+                logger.info("DApp proposal loading canceled by user.")
             } catch {
+                analyticsLogger.logSessionFailed(with: error)
+                logger.error("Failed to load dApp proposal", error: error)
                 self?.hapticFeedbackGenerator.errorNotificationOccurred()
                 self?.coordinator?.display(proposalLoadingError: error)
-                analyticsLogger.logSessionFailed(with: error)
             }
         }
     }
@@ -146,6 +149,9 @@ extension WalletConnectDAppConnectionRequestViewModel {
                 selectedBlockchains: selectedBlockchains.map(\.blockchain),
                 selectedUserWallet: selectedUserWallet
             )
+        } catch WalletConnectDAppProposalApprovalError.cancelledByUser {
+            logger.info("\(proposal.dAppData.name) dApp proposal approval canceled by user.")
+            return
         } catch {
             analyticsLogger.logDAppConnectionFailed(with: error)
             logger.error("Failed to approve \(proposal.dAppData.name) dApp proposal", error: error)
@@ -179,6 +185,8 @@ extension WalletConnectDAppConnectionRequestViewModel {
             Task { [rejectDAppProposal = interactor.rejectDAppProposal, logger] in
                 do {
                     try await rejectDAppProposal(proposalID: loadedDAppProposal.sessionProposal.id)
+                } catch WalletConnectDAppProposalApprovalError.cancelledByUser {
+                    logger.info("\(loadedDAppProposal.dAppData.name) dApp proposal rejection canceled by user.")
                 } catch {
                     logger.error("Failed to reject \(loadedDAppProposal.dAppData.name) dApp proposal", error: error)
                 }
