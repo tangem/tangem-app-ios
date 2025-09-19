@@ -16,7 +16,7 @@ struct OnrampPaymentMethodIconView: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Colors.Background.tertiary)
+                .fill(Colors.Field.focused)
                 .frame(size: CGSize(width: 36, height: 36))
                 // Background should be aways white
                 .environment(\.colorScheme, .light)
