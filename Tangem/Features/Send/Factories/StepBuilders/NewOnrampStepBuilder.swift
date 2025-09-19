@@ -24,7 +24,6 @@ struct NewOnrampStepBuilder {
         providersInput: some OnrampProvidersInput,
         recentOnrampProviderFinder: some RecentOnrampProviderFinder,
         onrampAmountViewModel: NewOnrampAmountViewModel,
-        onrampProvidersCompactViewModel: OnrampProvidersCompactViewModel,
         notificationManager: some NotificationManager
     ) -> ReturnValue {
         let interactor = CommonNewOnrampInteractor(
