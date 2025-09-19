@@ -26,7 +26,7 @@ extension YieldModuleStartView {
 
         private var currentFeeSection: some View {
             GroupedSection(FeeModel(fee: currentFee)) { fee in
-                DefaultRowView(viewModel: .init(title: Localization.yieldModuleFeePolicySheetCurrentFeeTitle, detailsType: .text(fee.fee)))
+                DefaultRowView(viewModel: .init(title: Localization.commonNetworkFeeTitle, detailsType: .text(fee.fee)))
             } footer: {
                 DefaultFooterView(Localization.yieldModuleFeePolicySheetCurrentFeeNote(blockchainName))
             }
