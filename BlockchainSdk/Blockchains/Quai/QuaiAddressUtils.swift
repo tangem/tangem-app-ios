@@ -33,8 +33,6 @@ struct QuaiAddressUtils {
 
     func derive(extendendPublicKey: ExtendedPublicKey, with addressType: AddressType) throws -> Address {
         for attempt in 0 ..< Constants.maxDerivationAttempts {
-            print("att = \(attempt)")
-
             let derivedKey = try extendendPublicKey.derivePublicKey(node: .nonHardened(UInt32(attempt)))
 
             let zoneAddress = try addressService.makeAddress(
