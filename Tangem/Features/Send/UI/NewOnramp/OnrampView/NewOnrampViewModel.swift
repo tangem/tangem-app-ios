@@ -29,8 +29,7 @@ final class NewOnrampViewModel: ObservableObject, Identifiable {
     private let interactor: NewOnrampInteractor
     private let notificationManager: NotificationManager
 
-    private let formatter: BalanceFormatter = .init()
-    private let percentFormatter: PercentFormatter = .init()
+    private lazy var onrampOfferViewModelBuilder = OnrampOfferViewModelBuilder(tokenItem: tokenItem)
 
     private var bag: Set<AnyCancellable> = []
 
@@ -110,45 +109,7 @@ private extension NewOnrampViewModel {
     }
 
     func mapToOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
-        let title: OnrampOfferViewModel.Title = switch (provider.globalAttractiveType, provider.processingTimeType) {
-        case (.best, _): .bestRate
-        case (_, .fastest): .fastest
-        default: .text(Localization.onrampTitleYouGet)
-        }
-
-        let amount: OnrampOfferViewModel.Amount = {
-            let formattedAmount = formatter.formatCryptoBalance(
-                provider.quote?.expectedAmount,
-                currencyCode: tokenItem.currencySymbol
-            )
-
-            switch provider.attractiveType {
-            case .best:
-                return .init(formatted: formattedAmount, badge: .best)
-            case .loss(let percent):
-                let formattedPercent = percentFormatter.format(percent, option: .express)
-                return .init(formatted: formattedAmount, badge: .loss(percent: formattedPercent, signType: .negative))
-            case .none:
-                return .init(formatted: formattedAmount, badge: .none)
-            }
-        }()
-
-        let timeFormatted: String = switch provider.paymentMethod.type.processingTime {
-        case .instant:
-            Localization.onrampInstantStatus
-        case .days(let days):
-            Localization.onrampTimingDays(days)
-        case .minutes(let min, let max):
-            Localization.onrampTimingMinutes("\(min)\(AppConstants.enDashSign)\(max)")
-        }
-
-        let offerProvider: OnrampOfferViewModel.Provider = .init(
-            name: provider.provider.name,
-            paymentType: provider.paymentMethod,
-            timeFormatted: timeFormatted
-        )
-
-        return OnrampOfferViewModel(title: title, amount: amount, provider: offerProvider) { [weak self] in
+        onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
             self?.interactor.userDidRequestOnramp(provider: provider)
         }
     }
