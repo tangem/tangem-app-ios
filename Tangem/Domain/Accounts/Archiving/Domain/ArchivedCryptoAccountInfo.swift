@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import TangemLocalization
 
 /// Not a full-fledged account model, just represents some info about an archived crypto account.
@@ -43,6 +44,23 @@ struct ArchivedCryptoAccountInfo {
 extension ArchivedCryptoAccountInfo: Identifiable {
     var id: AccountId {
         accountId
+    }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension ArchivedCryptoAccountInfo: CustomStringConvertible {
+    var description: String {
+        objectDescription(
+            String(describing: Self.self),
+            userInfo: [
+                "name": name,
+                "icon": icon,
+                "id": id,
+                "derivationIndex": derivationIndex,
+                "counters": "\(tokensCount) tokens, \(networksCount) networks",
+            ]
+        )
     }
 }
 
