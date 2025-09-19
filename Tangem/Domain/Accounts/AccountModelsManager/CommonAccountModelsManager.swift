@@ -198,8 +198,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         let persistentConfig = CryptoAccountPersistentConfig(
             derivationIndex: newDerivationIndex,
             name: name,
-            iconName: icon.name.rawValue,
-            iconColor: icon.color.rawValue
+            icon: icon
         )
         // [REDACTED_TODO_COMMENT]
         cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: [])
