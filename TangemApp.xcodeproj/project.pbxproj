@@ -2128,6 +2128,7 @@
 		B65E1F092A94CFB000A58DDE /* OrganizeTokensDragAndDropActionsCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65E1F082A94CFB000A58DDE /* OrganizeTokensDragAndDropActionsCache.swift */; };
 		B660157D2C7F3A3A0013D92D /* MarketsHistoryChartYAxisValueFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B660157C2C7F3A3A0013D92D /* MarketsHistoryChartYAxisValueFormatter.swift */; };
 		B660E23D2E1431060069A5E8 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = B660E23C2E1431060069A5E8 /* ZIPFoundation */; };
+		B66383F42E7DEFB60033380D /* CryptoAccountPersistentConfigConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66383F32E7DEFB60033380D /* CryptoAccountPersistentConfigConvertible.swift */; };
 		B6654ACC2B5EB73200249008 /* CommonRateAppController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6654ACB2B5EB73200249008 /* CommonRateAppController.swift */; };
 		B665F6752E665E3600A0A9BF /* CryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6742E665E3600A0A9BF /* CryptoAccountsNetworkService.swift */; };
 		B665F6772E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B665F6762E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift */; };
@@ -6364,6 +6365,7 @@
 		B65DB33D2BB4101000BE0501 /* AccountHealthChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountHealthChecker.swift; sourceTree = "<group>"; };
 		B65E1F082A94CFB000A58DDE /* OrganizeTokensDragAndDropActionsCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensDragAndDropActionsCache.swift; sourceTree = "<group>"; };
 		B660157C2C7F3A3A0013D92D /* MarketsHistoryChartYAxisValueFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsHistoryChartYAxisValueFormatter.swift; sourceTree = "<group>"; };
+		B66383F32E7DEFB60033380D /* CryptoAccountPersistentConfigConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountPersistentConfigConvertible.swift; sourceTree = "<group>"; };
 		B6654ACB2B5EB73200249008 /* CommonRateAppController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonRateAppController.swift; sourceTree = "<group>"; };
 		B665F6742E665E3600A0A9BF /* CryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
 		B665F6762E665EB800A0A9BF /* CryptoAccountsNetworkServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkServiceError.swift; sourceTree = "<group>"; };
@@ -15687,6 +15689,7 @@
 				B665F6732E665E0900A0A9BF /* Network */,
 				B61A018E2E6A6D5800A82ECB /* Storage */,
 				B61A018B2E6A6AF000A82ECB /* CryptoAccountPersistentConfig.swift */,
+				B66383F32E7DEFB60033380D /* CryptoAccountPersistentConfigConvertible.swift */,
 				B6CAC21A2E46C66D002DFA82 /* CryptoAccountsRepository.swift */,
 				B6CAC21C2E46C673002DFA82 /* CommonCryptoAccountsRepository.swift */,
 			);
@@ -23160,6 +23163,7 @@
 				EFA5683E2C480F6C0064EBA1 /* StakingTransactionInfo+Mock.swift in Sources */,
 				DCA8CDFE2E055B2A00C034C3 /* WCEthTransactionDetailsModel.swift in Sources */,
 				B06F03442B5A993800F04F0E /* VisaUserWalletModel.swift in Sources */,
+				B66383F42E7DEFB60033380D /* CryptoAccountPersistentConfigConvertible.swift in Sources */,
 				DAC53CFC27BE63830027147D /* AweStoryPage.swift in Sources */,
 				B60976AD2C738AE100778E71 /* UIRectCorner+.swift in Sources */,
 				B65591ED2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift in Sources */,

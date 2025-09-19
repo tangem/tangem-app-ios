@@ -61,3 +61,15 @@ extension ArchivedCryptoAccountInfo: BaseAccountModel {
         throw "Archived account is read-only"
     }
 }
+
+// MARK: - CryptoAccountPersistentConfigConvertible protocol conformance
+
+extension ArchivedCryptoAccountInfo: CryptoAccountPersistentConfigConvertible {
+    func toPersistentConfig() -> CryptoAccountPersistentConfig {
+        return CryptoAccountPersistentConfig(
+            derivationIndex: derivationIndex,
+            name: name,
+            icon: icon
+        )
+    }
+}
