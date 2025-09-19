@@ -9,6 +9,7 @@
 import Foundation
 import TangemFoundation
 
+/// Conforms to both `CryptoAccountsNetworkService` and `ArchivedCryptoAccountsProvider` protocols.
 final class CommonCryptoAccountsNetworkService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
@@ -46,22 +47,6 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         }
     }
 
-    func getArchivedCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> [ArchivedCryptoAccountInfo] {
-        do {
-            let (revision, archivedAccountsDTO) = try await tangemApiService.getArchivedUserAccounts(userWalletId: userWalletId.stringValue)
-
-            if let revision {
-                await eTagStorage.saveETag(revision, for: userWalletId)
-            }
-
-            return mapper.map(response: archivedAccountsDTO)
-        } catch let error as CryptoAccountsNetworkServiceError {
-            throw error // Just re-throw an original error
-        } catch {
-            throw CryptoAccountsNetworkServiceError.underlyingError(error)
-        }
-    }
-
     func save(cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError) {
         do {
             guard let revision = await eTagStorage.loadETag(for: userWalletId) else {
@@ -86,6 +71,26 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
             throw CryptoAccountsNetworkServiceError.inconsistentState
         } catch {
             throw .underlyingError(error)
+        }
+    }
+}
+
+// MARK: - ArchivedCryptoAccountsProvider protocol conformance
+
+extension CommonCryptoAccountsNetworkService: ArchivedCryptoAccountsProvider {
+    func getArchivedCryptoAccounts() async throws -> [ArchivedCryptoAccountInfo] {
+        do {
+            let (revision, archivedAccountsDTO) = try await tangemApiService.getArchivedUserAccounts(userWalletId: userWalletId.stringValue)
+
+            if let revision {
+                await eTagStorage.saveETag(revision, for: userWalletId)
+            }
+
+            return mapper.map(response: archivedAccountsDTO)
+        } catch let error as CryptoAccountsNetworkServiceError {
+            throw error // Just re-throw an original error
+        } catch {
+            throw CryptoAccountsNetworkServiceError.underlyingError(error)
         }
     }
 }
