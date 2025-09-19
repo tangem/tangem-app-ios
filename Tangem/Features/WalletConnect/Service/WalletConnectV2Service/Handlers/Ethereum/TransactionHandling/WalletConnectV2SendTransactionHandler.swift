@@ -23,12 +23,22 @@ class WalletConnectV2SendTransactionHandler {
 
     private var transactionToSend: Transaction?
 
+    private var networkProviderAnalyticsLogger: NetworkProviderAnalyticsLogger? {
+        if case .send(let logger) = walletModel.features.find(id: .send) {
+            return logger
+        }
+
+        return nil
+    }
+
+    // MARK: - Init
+
     init(
         requestParams: AnyCodable,
         blockchainId: String,
         transactionBuilder: WCEthTransactionBuilder,
         signer: TangemSigner,
-        walletModelProvider: WalletConnectWalletModelProvider,
+        walletModelProvider: WalletConnectWalletModelProvider
     ) throws {
         do {
             let params = try requestParams.get([WalletConnectEthTransaction].self)
@@ -77,6 +87,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: walletModel.tokenItem),
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .walletForm: result.signerType,
+            .selectedHost: networkProviderAnalyticsLogger?.currentNetworkProviderHost ?? "",
         ])
 
         return RPCResult.response(AnyCodable(result.hash.lowercased()))
