@@ -990,7 +990,7 @@
 "send_recipient_address_footer" = "Assurez-vous que l'adresse du portefeuille de réception est sur **le réseau %@** pour éviter de perdre vos jetons";
 "send_recipient_label" = "Envoyer à";
 "send_recipient_memo_footer_v2_highlighted" = "Attention : l'absence de Memo peut entraîner une perte de fonds.";
-"send_recipient_memo_footer" = "Un Memo/Destination Tag est un identifiant unique permettant de différencier les transactions envoyées au même destinataire sur le même réseau. Attention : L'omission d'un mémo peut entraîner des fonds mal placés";
+"send_recipient_memo_footer" = "Un Memo/Destination Tag est un identifiant unique permettant de différencier les transactions envoyées au même destinataire sur le même réseau.\n**Attention : L'omission d'un mémo peut entraîner des fonds mal placés**";
 "send_recipient_wallets_title" = "Mes portefeuilles";
 "send_recipient" = "Destinataire";
 "send_satoshi_per_byte_text" = "Un moyen de mesurer les frais de transaction Bitcoin. Il indique le nombre de la plus petite unité de Bitcoin (Satoshi) pour chaque octet virtuel dans une transaction. Plus le nombre est élevé, plus la transaction sera traitée rapidement par les mineurs.";
