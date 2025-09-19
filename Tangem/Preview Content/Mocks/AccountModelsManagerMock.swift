@@ -48,8 +48,24 @@ extension AccountModelsManagerMock: AccountModelsManager {
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
-        // [REDACTED_TODO_COMMENT]
-        return []
+        return [
+            ArchivedCryptoAccountInfo(
+                accountId: .init(rawValue: UUID().uuidString),
+                name: "Archived crypto account #1",
+                icon: .init(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
+                tokensCount: 3,
+                networksCount: 1,
+                derivationIndex: 10
+            ),
+            ArchivedCryptoAccountInfo(
+                accountId: .init(rawValue: UUID().uuidString),
+                name: "Archived crypto account #2",
+                icon: .init(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
+                tokensCount: 10,
+                networksCount: 10,
+                derivationIndex: 20
+            ),
+        ]
     }
 
     func archiveCryptoAccount(
@@ -59,7 +75,16 @@ extension AccountModelsManagerMock: AccountModelsManager {
     }
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
-        // [REDACTED_TODO_COMMENT]
-        throw .cannotUnarchiveCryptoAccount
+        do {
+            let persistentConfig = info.toPersistentConfig()
+            let isMainAccount = AccountModelUtils.isMainAccount(persistentConfig.derivationIndex)
+            let unarchivedCryptoAccount = CryptoAccountModelMock(isMainAccount: isMainAccount)
+
+            try await unarchivedCryptoAccount.setIcon(info.icon)
+            try await unarchivedCryptoAccount.setName(info.name)
+            cryptoAccounts.append(unarchivedCryptoAccount)
+        } catch {
+            throw .cannotUnarchiveCryptoAccount
+        }
     }
 }
