@@ -990,7 +990,7 @@
 "send_recipient_address_footer" = "Ensure the recipient's address is on **the %@ network** to avoid losing your funds";
 "send_recipient_label" = "Send to";
 "send_recipient_memo_footer_v2_highlighted" = "Caution: Missing a memo may lead to fund loss.";
-"send_recipient_memo_footer" = "A Memo/Destination Tag is a unique ID for differentiating transactions sent to the same recipient on the same network. Caution: Omitting a memo may lead to misplaced funds";
+"send_recipient_memo_footer" = "A Memo/Destination Tag is a unique ID for differentiating transactions sent to the same recipient on the same network.\n**Caution: Omitting a memo may lead to misplaced funds**";
 "send_recipient_wallets_title" = "My wallets";
 "send_recipient" = "Recipient";
 "send_satoshi_per_byte_text" = "A way of measuring Bitcoin transaction fees. It indicates the number of the smallest Bitcoin unit (Satoshi) for each virtual byte in a transaction. The higher the number, the faster the transaction will be processed by miners.";

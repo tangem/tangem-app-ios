@@ -990,7 +990,7 @@
 "send_recipient_address_footer" = "Stelle sicher, dass sich die empfangende Wallet-Adresse im **%@ -Netzwerk** befindet, um den Verlust Deiner Token zu vermeiden.";
 "send_recipient_label" = "Senden an";
 "send_recipient_memo_footer_v2_highlighted" = "Achtung: Das Fehlen eines Memos kann zum Verlust von Geldern führen.";
-"send_recipient_memo_footer" = "Ein Memo/Destination Tag ist eine eindeutige ID zur Unterscheidung von Transaktionen, die an denselben Empfänger im selben Netzwerk gesendet werden. Vorsicht! Das Weglassen eines Vermerks kann dazu führen, dass Gelder für immer verloren sind!";
+"send_recipient_memo_footer" = "Ein Memo/Destination Tag ist eine eindeutige ID zur Unterscheidung von Transaktionen, die an denselben Empfänger im selben Netzwerk gesendet werden.\n**Vorsicht! Das Weglassen eines Vermerks kann dazu führen, dass Gelder für immer verloren sind!**";
 "send_recipient_wallets_title" = "Meine Wallet";
 "send_recipient" = "Empfänger";
 "send_satoshi_per_byte_text" = "Eine Möglichkeit, Bitcoin-Transaktionsgebühren zu messen. Du gibst die Anzahl der kleinsten Bitcoin-Einheiten (Satoshi) für jedes virtuelle Byte in einer Transaktion an. Je höher die Zahl, desto schneller wird die Transaktion von den Minern verarbeitet.";
