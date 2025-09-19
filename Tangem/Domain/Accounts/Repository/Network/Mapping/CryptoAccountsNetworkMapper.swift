@@ -51,7 +51,7 @@ struct CryptoAccountsNetworkMapper {
         if accounts.count != nextDerivationIndex {
             AppLogger.warning(
                 String(
-                    format: "Back-end inconsistency: incorrect next derivation index: '%@' vs '%@'",
+                    format: "Back-end inconsistency: incorrect next derivation index: '%d' vs '%d'",
                     nextDerivationIndex,
                     accounts.count
                 )
