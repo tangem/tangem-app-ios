@@ -34,7 +34,7 @@ extension YieldModuleStartView {
             var linkPart = AttributedString(Localization.yieldModuleStartEarningSheetFeePolicy)
             linkPart.font = Fonts.Regular.footnote
             linkPart.foregroundColor = Colors.Text.accent
-            linkPart.link = URL(string: "")
+            linkPart.link = URL(string: " ")
 
             attr.append(AttributedString(" "))
             attr.append(linkPart)
