@@ -37,6 +37,7 @@ struct YieldModuleStartView: View {
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
+            configuration.sheetBackgroundColor = Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
     }
@@ -113,7 +114,7 @@ struct YieldModuleStartView: View {
         case .rateInfo, .feePolicy:
             EmptyView()
         case .startEarning(let params):
-            startEarningTopContent(icon: params.tokenIcon)
+            LendingPairIcon(tokenImageUrl: params.tokenImageUrl)
         }
     }
 
@@ -156,31 +157,6 @@ private extension AnyTransition {
 
 private extension Animation {
     static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
-}
-
-// MARK: - Top Content
-
-private extension YieldModuleStartView {
-    private func startEarningTopContent(icon: Image) -> some View {
-        ZStack {
-            icon
-                .resizable()
-                .scaledToFit()
-                .frame(size: IconViewSizeSettings.tokenDetails.iconSize)
-                .offset(x: -16)
-
-            Assets.YieldModule.yieldModuleAaveLogo.image
-                .resizable()
-                .scaledToFit()
-                .frame(size: IconViewSizeSettings.tokenDetails.iconSize)
-                .background(
-                    Circle()
-                        .fill(Colors.Background.tertiary)
-                        .frame(width: 50, height: 50)
-                )
-                .offset(x: 16)
-        }
-    }
 }
 
 // MARK: - Header
