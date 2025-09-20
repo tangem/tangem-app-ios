@@ -16,7 +16,6 @@ enum Feature: String, Hashable, CaseIterable {
     case logs
     case sendViaSwap
     case mobileWallet
-    case pushTransactionNotifications
     case deeplink
     case wcSolanaALT
     case accounts
@@ -24,6 +23,7 @@ enum Feature: String, Hashable, CaseIterable {
     case receiveENS
     case sellNewSendUI
     case newOnrampUI
+    case pushPermissionNotificationBanner
 
     var name: String {
         switch self {
@@ -34,7 +34,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .logs: return "Logs"
         case .sendViaSwap: return "Send via Swap"
         case .mobileWallet: return "Mobile wallet"
-        case .pushTransactionNotifications: return "Push Transaction Notifications"
         case .deeplink: return "Deeplink"
         case .wcSolanaALT: return "WalletConnect Solana ALT"
         case .accounts: return "Accounts"
@@ -42,6 +41,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .receiveENS: return "Receive (ENS)"
         case .sellNewSendUI: return "Sell on New Send UI"
         case .newOnrampUI: return "Onramp on new UI"
+        case .pushPermissionNotificationBanner: return "Push Permission Notification Banner"
         }
     }
 
@@ -54,7 +54,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .logs: return .version("5.25")
         case .sendViaSwap: return .version("5.28")
         case .mobileWallet: return .unspecified
-        case .pushTransactionNotifications: return .version("5.26.3")
         case .deeplink: return .version("5.25")
         case .wcSolanaALT: return .version("5.28")
         case .accounts: return .unspecified
@@ -62,6 +61,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .receiveENS: return .version("5.28")
         case .sellNewSendUI: return .version("5.29")
         case .newOnrampUI: return .unspecified
+        case .pushPermissionNotificationBanner: return .unspecified
         }
     }
 }
