@@ -39,6 +39,7 @@ final class UserWalletNotificationManager {
     private var shownAppRateNotificationId: NotificationViewId?
 
     private lazy var supportSeedNotificationInteractor: SupportSeedNotificationManager = makeSupportSeedNotificationsManager()
+    private lazy var pushPermissionNotificationInteractor: PushPermissionNotificationManager = makePushPermissionNotificationsManager()
 
     init(
         userWalletModel: UserWalletModel,
@@ -133,6 +134,7 @@ final class UserWalletNotificationManager {
         createIfNeededAndShowSupportSeedNotification()
         showMobileActivationNotificationIfNeeded()
         showMobileUpgradeNotificationIfNeeded()
+        createIfNeededAndShowPushPermissionNotification()
     }
 
     private func createIfNeededAndShowSupportSeedNotification() {
@@ -146,6 +148,14 @@ final class UserWalletNotificationManager {
         }
 
         supportSeedNotificationInteractor.showSupportSeedNotificationIfNeeded()
+    }
+
+    private func createIfNeededAndShowPushPermissionNotification() {
+        guard FeatureProvider.isAvailable(.pushPermissionNotificationBanner) else {
+            return
+        }
+
+        pushPermissionNotificationInteractor.showPushPermissionNotificationIfNeeded()
     }
 
     private func hideNotification(with id: NotificationViewId) {
@@ -346,6 +356,10 @@ final class UserWalletNotificationManager {
             notificationTapDelegate: delegate
         )
     }
+
+    private func makePushPermissionNotificationsManager() -> PushPermissionNotificationManager {
+        CommonPushPermissionNotificationManager(displayDelegate: self, notificationTapDelegate: delegate)
+    }
 }
 
 extension UserWalletNotificationManager: NotificationManager {
@@ -390,8 +404,18 @@ extension UserWalletNotificationManager: NotificationManager {
     }
 }
 
+// MARK: - SupportSeedNotificationDelegate
+
 extension UserWalletNotificationManager: SupportSeedNotificationDelegate {
     func showSupportSeedNotification(input: NotificationViewInput) {
+        addInputIfNeeded(input)
+    }
+}
+
+// MARK: - PushPermissionNotificationDelegate
+
+extension UserWalletNotificationManager: PushPermissionNotificationDelegate {
+    func showPushPermissionNotification(input: NotificationViewInput) {
         addInputIfNeeded(input)
     }
 }
