@@ -33,6 +33,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case referralProgram
     case mobileFinishActivation(needsAttention: Bool, hasBackup: Bool)
     case mobileUpgrade
+    case pushNotificationsPermissionRequest
 }
 
 /// For Notifications
@@ -95,6 +96,9 @@ extension GeneralNotificationEvent: NotificationEvent {
             }
         case .mobileUpgrade:
             return .string(Localization.hwUpgradeToColdBannerTitle)
+        case .pushNotificationsPermissionRequest:
+            // [REDACTED_TODO_COMMENT]
+            return .string("Don’t Miss a Transaction")
         }
     }
 
@@ -145,6 +149,9 @@ extension GeneralNotificationEvent: NotificationEvent {
             return hasBackup ? Localization.hwActivationNeedWarningDescription : Localization.hwActivationNeedDescription
         case .mobileUpgrade:
             return Localization.hwUpgradeToColdBannerDescription
+        case .pushNotificationsPermissionRequest:
+            // [REDACTED_TODO_COMMENT]
+            return "Enable push notifications and we’ll notify you instantly when funds arrive"
         }
     }
 
@@ -158,7 +165,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .referralProgram,
              .backupErrors,
              .mobileFinishActivation,
-             .mobileUpgrade:
+             .mobileUpgrade,
+             .pushNotificationsPermissionRequest:
             return .primary
         default:
             return .secondary
@@ -191,6 +199,9 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(iconType: .image(imageType.image), size: CGSize(width: 16, height: 18))
         case .mobileUpgrade:
             return .init(iconType: .image(Assets.tangemInCircle.image), size: CGSize(width: 36, height: 36))
+        case .pushNotificationsPermissionRequest:
+            // [REDACTED_TODO_COMMENT]
+            return .init(iconType: .image(Assets.tangemInCircle.image), size: CGSize(width: 54, height: 54))
         }
     }
 
@@ -209,7 +220,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingDerivation,
              .referralProgram,
              .rateApp,
-             .mobileUpgrade:
+             .mobileUpgrade,
+             .pushNotificationsPermissionRequest:
             return .info
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
@@ -248,7 +260,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .systemDeprecationTemporary,
              .referralProgram,
              .rateApp,
-             .mobileUpgrade:
+             .mobileUpgrade,
+             .pushNotificationsPermissionRequest:
             return true
         }
     }
@@ -358,6 +371,7 @@ extension GeneralNotificationEvent {
         case .referralProgram: return .mainReferralProgram
         case .mobileFinishActivation: return nil
         case .mobileUpgrade: return nil
+        case .pushNotificationsPermissionRequest: return nil
         }
     }
 
