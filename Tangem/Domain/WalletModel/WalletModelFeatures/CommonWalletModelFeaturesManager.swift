@@ -105,7 +105,7 @@ final class CommonWalletModelFeaturesManager {
             }
             .store(in: &cancellables)
 
-        // Any Service Subscriptions
+        // Add subscriptions for additional wallet features here (e.g., staking, transaction history) as they are implemented.
     }
 }
 
