@@ -58,4 +58,20 @@ struct TokenIconInfoBuilder {
             customTokenColor: nil
         )
     }
+
+    func build(from tokenId: String?) -> TokenIconInfo {
+        var imageURL: URL?
+
+        if let id = tokenId {
+            imageURL = IconURLBuilder().tokenIconURL(id: id, size: .large)
+        }
+
+        return TokenIconInfo(
+            name: "",
+            blockchainIconAsset: nil,
+            imageURL: imageURL,
+            isCustom: false,
+            customTokenColor: nil
+        )
+    }
 }
