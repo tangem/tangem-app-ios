@@ -63,14 +63,13 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private let tokenIcon: TokenIconInfo
+    private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
     private let priceChangeUtility = PriceChangeUtility()
     private let loadableTokenBalanceViewStateBuilder: LoadableTokenBalanceViewStateBuilder
     private let priceFormatter = TokenItemPriceFormatter()
-    private let isSwapActionAvailableSubject = CurrentValueSubject<Bool, Never>(false)
     private var bag = Set<AnyCancellable>()
 
     private weak var infoProvider: TokenItemInfoProvider?
-    private weak var balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider?
     private weak var contextActionsProvider: TokenItemContextActionsProvider?
     private weak var contextActionsDelegate: TokenItemContextActionDelegate?
 
@@ -144,8 +143,12 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
+        let isSwapActionAvailablePublisher = balanceRestrictionFeatureAvailabilityProvider
+            .isActionButtonsAvailablePublisher
+            .removeDuplicates()
+
         infoProvider?.actionsUpdatePublisher
-            .combineLatest(isSwapActionAvailableSubject)
+            .combineLatest(isSwapActionAvailablePublisher)
             .receiveOnGlobal()
             .compactMap { [weak self] _, isSwapActionAvailable in
                 self?.contextActionSections(isSwapActionAvailable: isSwapActionAvailable)
@@ -161,11 +164,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         infoProvider?.hasPendingTransactions
             .receive(on: DispatchQueue.main)
             .assign(to: \.hasPendingTransactions, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        balanceRestrictionFeatureAvailabilityProvider?.isActionButtonsAvailablePublisher
-            .removeDuplicates()
-            .subscribe(isSwapActionAvailableSubject)
             .store(in: &bag)
     }
 

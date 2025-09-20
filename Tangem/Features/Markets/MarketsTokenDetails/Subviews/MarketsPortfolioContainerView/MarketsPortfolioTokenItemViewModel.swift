@@ -60,11 +60,10 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     // MARK: - Private Properties
 
     private weak var tokenItemInfoProvider: TokenItemInfoProvider?
-    private weak var balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider?
     private weak var contextActionsProvider: MarketsPortfolioContextActionsProvider?
     private weak var contextActionsDelegate: MarketsPortfolioContextActionsDelegate?
 
-    private let isSwapActionAvailableSubject = CurrentValueSubject<Bool, Never>(false)
+    private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
 
     private var bag = Set<AnyCancellable>()
 
@@ -141,9 +140,13 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
+        let isSwapActionAvailablePublisher = balanceRestrictionFeatureAvailabilityProvider
+            .isActionButtonsAvailablePublisher
+            .removeDuplicates()
+
         tokenItemInfoProvider?
             .actionsUpdatePublisher
-            .combineLatest(isSwapActionAvailableSubject)
+            .combineLatest(isSwapActionAvailablePublisher)
             .receiveOnGlobal()
             .compactMap { [weak self] _, isActionButtonsAvailable in
                 self?.contextActions(isActionButtonsAvailable: isActionButtonsAvailable)
@@ -162,11 +165,6 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         tokenItemInfoProvider?.hasPendingTransactions
             .receive(on: DispatchQueue.main)
             .assign(to: \.hasPendingTransactions, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        balanceRestrictionFeatureAvailabilityProvider?.isActionButtonsAvailablePublisher
-            .removeDuplicates()
-            .subscribe(isSwapActionAvailableSubject)
             .store(in: &bag)
     }
 
