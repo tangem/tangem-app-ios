@@ -11,6 +11,7 @@ import TangemLocalization
 
 struct ReceiveBottomSheetNotificationInputsFactory {
     let flow: ReceiveFlow
+    let yieldModuleData: (isActive: Bool, networkFee: String)? // WIP - This will be injected from a Yield Module Service
 
     func makeNotificationInputs(for tokenItem: TokenItem) -> [NotificationViewInput] {
         let assetSymbol = switch flow {
@@ -33,6 +34,23 @@ struct ReceiveBottomSheetNotificationInputsFactory {
                 )
             ),
         ]
+
+        switch (yieldModuleData, tokenItem) {
+        case (.some((true, let networkFee)), .token):
+            return [
+                NotificationViewInput(
+                    style: .plain,
+                    severity: .warning,
+                    settings: .init(
+                        event: ReceiveNotificationEvent.yieldModuleNotification(token: tokenItem, networkFee: networkFee),
+                        dismissAction: nil
+                    )
+                ),
+            ] + baseNotificationInputs
+
+        default:
+            break
+        }
 
         switch (flow, tokenItem.blockchain) {
         case (.nft, .solana):
