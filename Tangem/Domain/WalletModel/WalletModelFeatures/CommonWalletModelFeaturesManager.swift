@@ -115,7 +115,6 @@ final class CommonWalletModelFeaturesManager {
 extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
         featuresValueSubject
-            .dropFirst()
             .eraseToAnyPublisher()
     }
 
