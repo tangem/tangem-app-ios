@@ -38,7 +38,7 @@ class WalletConnectV2SendTransactionHandler {
         blockchainId: String,
         transactionBuilder: WCEthTransactionBuilder,
         signer: TangemSigner,
-        walletModelProvider: WalletConnectWalletModelProvider
+        walletModelProvider: WalletConnectWalletModelProvider,
     ) throws {
         do {
             let params = try requestParams.get([WalletConnectEthTransaction].self)
