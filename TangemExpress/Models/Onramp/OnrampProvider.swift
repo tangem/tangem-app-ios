@@ -12,7 +12,11 @@ public class OnrampProvider {
     public let provider: ExpressProvider
     public let paymentMethod: OnrampPaymentMethod
 
+    @available(iOS, deprecated: 100000.0, message: "Use globalAttractiveType")
     public private(set) var attractiveType: AttractiveType?
+
+    public private(set) var processingTimeType: ProcessingTimeType?
+    public private(set) var globalAttractiveType: AttractiveType?
 
     private let manager: OnrampProviderManager
 
@@ -29,11 +33,29 @@ public class OnrampProvider {
     func update(attractiveType: AttractiveType?) {
         self.attractiveType = attractiveType
     }
+
+    func update(globalAttractiveType: AttractiveType?) {
+        self.globalAttractiveType = globalAttractiveType
+    }
+
+    func update(processingTimeType: ProcessingTimeType?) {
+        self.processingTimeType = processingTimeType
+    }
 }
 
 // MARK: - AttractiveType
 
 public extension OnrampProvider {
+    enum ProcessingTimeType: Hashable, CustomStringConvertible {
+        case fastest
+
+        public var description: String {
+            switch self {
+            case .fastest: "Fastest"
+            }
+        }
+    }
+
     enum AttractiveType: Hashable, CustomStringConvertible {
         case best
         case loss(percent: Decimal)
