@@ -11,11 +11,11 @@ import TangemSdk
 
 // MARK: - Quai Address Derivation
 
-struct QuaiAddressUtils {
+public struct QuaiAddressUtils {
     // MARK: - Private Properties
 
-    private let addressService: EVMAddressService
-    private let expectedZone: QuaiZoneType
+    private let addressService = EVMAddressService()
+    private let expectedZone: QuaiZoneType = .cyprus1
 
     // MARK: - Constants
 
@@ -24,14 +24,11 @@ struct QuaiAddressUtils {
 
     // MARK: - Init
 
-    init(addressService: EVMAddressService, expectedZone: QuaiZoneType) {
-        self.addressService = addressService
-        self.expectedZone = expectedZone
-    }
+    public init() {}
 
-    // MARK: - Implementation
+    // MARK: - Public Implementation
 
-    func derive(extendendPublicKey: ExtendedPublicKey, with addressType: AddressType) throws -> Address {
+    public func derive(extendendPublicKey: ExtendedPublicKey, with addressType: AddressType) throws -> ExtendedPublicKey {
         for attempt in 0 ..< Constants.maxDerivationAttempts {
             let derivedKey = try extendendPublicKey.derivePublicKey(node: .nonHardened(UInt32(attempt)))
 
@@ -41,12 +38,14 @@ struct QuaiAddressUtils {
             )
 
             if checkAddressZone(address: zoneAddress.value, expectedZone: expectedZone) {
-                return zoneAddress
+                return derivedKey
             }
         }
 
         throw BlockchainSdkError.addressesIsEmpty
     }
+
+    // MARK: - Private Implementation
 
     private func checkAddressZone(address: String, expectedZone: QuaiZoneType) -> Bool {
         let cleanAddress = address.removeHexPrefix()

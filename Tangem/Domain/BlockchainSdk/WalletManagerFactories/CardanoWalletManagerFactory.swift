@@ -53,3 +53,6 @@ struct CardanoWalletManagerFactory: AnyWalletManagerFactory {
         return walletManager
     }
 }
+
+// Делать Factory Wallet Manager
+// Оптимизация (?) hedera посмотреть

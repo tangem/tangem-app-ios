@@ -203,6 +203,7 @@
 		0FFA350E2E058FD400ACB48F /* MobileOnboardingAccessCodeDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA350A2E058FD400ACB48F /* MobileOnboardingAccessCodeDelegate.swift */; };
 		0FFA350F2E058FD400ACB48F /* MobileOnboardingAccessCodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA350C2E058FD400ACB48F /* MobileOnboardingAccessCodeViewModel.swift */; };
 		0FFA35102E058FD400ACB48F /* MobileOnboardingAccessCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA350B2E058FD400ACB48F /* MobileOnboardingAccessCodeView.swift */; };
+		2D1103DF2E7D71E70066310D /* QuaiWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1103DE2E7D71E70066310D /* QuaiWalletManagerFactory.swift */; };
 		2D1366192D036737000AE1C4 /* TONTransactionInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1366172D036737000AE1C4 /* TONTransactionInput.swift */; };
 		2D13661A2D036737000AE1C4 /* TONError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1366162D036737000AE1C4 /* TONError.swift */; };
 		2D1400CA2C43F79F00B75A42 /* MarketsPortfolioContextActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1400C82C43F4FD00B75A42 /* MarketsPortfolioContextActions.swift */; };
@@ -532,7 +533,6 @@
 		2DE0BB602CAD41E3002C09D9 /* BlockHeaderTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BB5F2CAD41E3002C09D9 /* BlockHeaderTitleView.swift */; };
 		2DE0BBB42CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BBB32CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift */; };
 		2DE3DF972E72BF7B00A687FC /* QuaiExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE3DF962E72BF7B00A687FC /* QuaiExternalLinkProvider.swift */; };
-		2DE3DF9B2E72C5EF00A687FC /* QuaiAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE3DF9A2E72C5EF00A687FC /* QuaiAddressService.swift */; };
 		2DE3DF9D2E72C6CD00A687FC /* QuaiZoneUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE3DF9C2E72C6CD00A687FC /* QuaiZoneUtils.swift */; };
 		2DE3DFC42E741DB100A687FC /* QuaiAddressUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE3DFC32E741DB100A687FC /* QuaiAddressUtils.swift */; };
 		2DF1D92A2C2C519C00B1CEE7 /* MarketsChartModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF1D9292C2C519C00B1CEE7 /* MarketsChartModel.swift */; };
@@ -4421,6 +4421,7 @@
 		0FFA350A2E058FD400ACB48F /* MobileOnboardingAccessCodeDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingAccessCodeDelegate.swift; sourceTree = "<group>"; };
 		0FFA350B2E058FD400ACB48F /* MobileOnboardingAccessCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingAccessCodeView.swift; sourceTree = "<group>"; };
 		0FFA350C2E058FD400ACB48F /* MobileOnboardingAccessCodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingAccessCodeViewModel.swift; sourceTree = "<group>"; };
+		2D1103DE2E7D71E70066310D /* QuaiWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiWalletManagerFactory.swift; sourceTree = "<group>"; };
 		2D1366162D036737000AE1C4 /* TONError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONError.swift; sourceTree = "<group>"; };
 		2D1366172D036737000AE1C4 /* TONTransactionInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONTransactionInput.swift; sourceTree = "<group>"; };
 		2D1400C82C43F4FD00B75A42 /* MarketsPortfolioContextActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsPortfolioContextActions.swift; sourceTree = "<group>"; };
@@ -4750,7 +4751,6 @@
 		2DE0BB5F2CAD41E3002C09D9 /* BlockHeaderTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockHeaderTitleView.swift; sourceTree = "<group>"; };
 		2DE0BBB32CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenDescriptionBottomSheetView.swift; sourceTree = "<group>"; };
 		2DE3DF962E72BF7B00A687FC /* QuaiExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiExternalLinkProvider.swift; sourceTree = "<group>"; };
-		2DE3DF9A2E72C5EF00A687FC /* QuaiAddressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiAddressService.swift; sourceTree = "<group>"; };
 		2DE3DF9C2E72C6CD00A687FC /* QuaiZoneUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiZoneUtils.swift; sourceTree = "<group>"; };
 		2DE3DFC32E741DB100A687FC /* QuaiAddressUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiAddressUtils.swift; sourceTree = "<group>"; };
 		2DF1D9292C2C519C00B1CEE7 /* MarketsChartModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsChartModel.swift; sourceTree = "<group>"; };
@@ -9814,7 +9814,6 @@
 		2DE3DF952E72BF6900A687FC /* Quai */ = {
 			isa = PBXGroup;
 			children = (
-				2DE3DF9A2E72C5EF00A687FC /* QuaiAddressService.swift */,
 				2DE3DFC32E741DB100A687FC /* QuaiAddressUtils.swift */,
 				2DE3DF962E72BF7B00A687FC /* QuaiExternalLinkProvider.swift */,
 				2DE3DF9C2E72C6CD00A687FC /* QuaiZoneUtils.swift */,
@@ -18749,6 +18748,7 @@
 				DCBF4D172D8B497F002C2B8E /* CardanoWalletManagerFactory.swift */,
 				DCBF4D182D8B497F002C2B8E /* GenericWalletManagerFactory.swift */,
 				DCBF4D192D8B497F002C2B8E /* HDWalletManagerFactory.swift */,
+				2D1103DE2E7D71E70066310D /* QuaiWalletManagerFactory.swift */,
 				DCBF4D1A2D8B497F002C2B8E /* SimpleWalletManagerFactory.swift */,
 				DCBF4D1B2D8B497F002C2B8E /* TwinWalletManagerFactory.swift */,
 				DCBF4D1C2D8B497F002C2B8E /* VisaWalletManagerFactory.swift */,
@@ -25165,6 +25165,7 @@
 				EF3138B12E43B65D0060FEE6 /* NewNFTSendStepsManager.swift in Sources */,
 				EF6883092CF87DA300658644 /* OnrampCountryDetectionCoordinator.swift in Sources */,
 				DA10101D2CDA4D7F00EE0D05 /* OnrampCountryView.swift in Sources */,
+				2D1103DF2E7D71E70066310D /* QuaiWalletManagerFactory.swift in Sources */,
 				B6FB04EB2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift in Sources */,
 				B06C08502A73FB4E00D982BC /* MainRoutable.swift in Sources */,
 				B01149412B56B66E00695FCD /* VisaNotificationEvent.swift in Sources */,
@@ -26376,7 +26377,6 @@
 				B62D420A2CBC79DB00C2460E /* XRPLResponse.swift in Sources */,
 				B62D40EE2CBC79DA00C2460E /* HederaAPIResolver.swift in Sources */,
 				B62D40962CBC79DA00C2460E /* EthereumTransactionDataBuilder.swift in Sources */,
-				2DE3DF9B2E72C5EF00A687FC /* QuaiAddressService.swift in Sources */,
 				B62D3FD72CBC79DA00C2460E /* OP_MIN.swift in Sources */,
 				EF38050E2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift in Sources */,
 				B62D401E2CBC79DA00C2460E /* OP_SWAP.swift in Sources */,
