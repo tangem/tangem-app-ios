@@ -192,7 +192,9 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel
+            addressTypesProvider: walletModel,
+            // [REDACTED_TODO_COMMENT]
+            yieldModuleData: nil
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
