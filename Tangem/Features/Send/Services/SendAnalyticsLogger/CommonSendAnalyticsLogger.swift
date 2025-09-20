@@ -341,6 +341,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             .token: tokenItem.currencySymbol,
             .errorCode: "\(error.universalErrorCode)",
             .blockchain: tokenItem.blockchain.displayName,
+            .selectedHost: networkProviderAnalyticsLogger?.currentNetworkProviderHost ?? "",
         ])
     }
 
