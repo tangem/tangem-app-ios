@@ -65,7 +65,6 @@ final class CommonWalletModelFeaturesManager {
         self.blockchainDataProvider = blockchainDataProvider
 
         setupFeatureSubscriptions()
-        updateFeatures()
     }
 
     // MARK: - Private Methods
