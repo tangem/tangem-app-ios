@@ -93,7 +93,7 @@ final class CommonWalletModelFeaturesManager {
             .send(logger: CommonNetworkProviderAnalyticsLogger(dataProvider: blockchainDataProvider)),
         ])
 
-        featuresValueSubject.send(allFeatures.compactMap { $0 })
+        featuresValueSubject.send(allFeatures)
     }
 
     private func setupFeatureSubscriptions() {
