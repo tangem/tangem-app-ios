@@ -165,6 +165,10 @@ extension CommonUserTokensPushNotificationsService: UserTokensPushNotificationsS
     /// After successful initialization, sends a synchronization event.
     func initialize() {
         runTask(in: self) { service in
+            guard FeatureProvider.isAvailable(.pushTransactionNotifications) else {
+                return
+            }
+
             let fcmToken = Messaging.messaging().fcmToken ?? ""
 
             switch service.defineInitializeType() {
