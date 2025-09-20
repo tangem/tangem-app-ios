@@ -69,7 +69,8 @@ public struct AddressServiceFactory {
              .sonic,
              .vanar,
              .zkLinkNova,
-             .hyperliquidEVM:
+             .hyperliquidEVM,
+             .quai:
             return EVMAddressService()
         case .rsk:
             return RskAddressService()
@@ -156,8 +157,8 @@ public struct AddressServiceFactory {
             return AlephiumAddressService()
         case .pepecoin:
             return PepecoinAddressService(isTestnet: isTestnet)
-        case .quai:
-            return QuaiAddressService()
+//        case .quai:
+//            return QuaiAddressService()
         }
     }
 }
