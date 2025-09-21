@@ -18,6 +18,7 @@ final class TokenAlertReceiveAssetsViewModel: ObservableObject, Identifiable {
 
     let tokenIconInfo: TokenIconInfo
     let networkName: String
+    let currencySymbol: String
 
     // MARK: - Private Properties
 
@@ -36,6 +37,7 @@ final class TokenAlertReceiveAssetsViewModel: ObservableObject, Identifiable {
 
         tokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: false)
         networkName = tokenItem.blockchain.displayName.capitalizingFirstLetter()
+        currencySymbol = tokenItem.currencySymbol
     }
 
     func onViewAppear() {
