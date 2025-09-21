@@ -36,7 +36,7 @@ struct ReceiveBottomSheetNotificationInputsFactory {
         ]
 
         switch (yieldModuleData, tokenItem) {
-        case (.some(true), .token):
+        case (true, .token):
             return [
                 NotificationViewInput(
                     style: .plain,
