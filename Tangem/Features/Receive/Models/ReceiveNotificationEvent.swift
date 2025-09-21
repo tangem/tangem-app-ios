@@ -12,7 +12,7 @@ import TangemLocalization
 enum ReceiveNotificationEvent {
     case irreversibleLossNotification(assetSymbol: String, networkName: String)
     case unsupportedTokenWarning(title: String, description: String, tokenItem: TokenItem)
-    case yieldModuleNotification(token: TokenItem, networkFee: String)
+    case yieldModuleNotification(token: TokenItem)
 }
 
 // MARK: - NotificationEvent protocol conformance
@@ -27,9 +27,8 @@ extension ReceiveNotificationEvent: NotificationEvent {
             hasher.combine(networkName)
         case .unsupportedTokenWarning(_, _, let tokenItem):
             hasher.combine(tokenItem)
-        case .yieldModuleNotification(let assetSymbol, let networkFee):
-            hasher.combine(assetSymbol)
-            hasher.combine(networkFee)
+        case .yieldModuleNotification(let tokenItmem):
+            hasher.combine(tokenItmem)
         }
 
         return hasher.finalize()
@@ -41,9 +40,8 @@ extension ReceiveNotificationEvent: NotificationEvent {
             return .string(Localization.receiveBottomSheetWarningTitle(assetSymbol, networkName))
         case .unsupportedTokenWarning(let title, _, _):
             return .string(title)
-        case .yieldModuleNotification(let token, _):
-            // [REDACTED_TODO_COMMENT]
-            return .string("Your \(token.currencySymbol) is deposited in AAVE")
+        case .yieldModuleNotification(let token):
+            return .string(Localization.yieldModuleAlertTitle(token.currencySymbol))
         }
     }
 
@@ -53,9 +51,8 @@ extension ReceiveNotificationEvent: NotificationEvent {
             return Localization.receiveBottomSheetWarningMessageDescription
         case .unsupportedTokenWarning(_, let description, _):
             return description
-        case .yieldModuleNotification(_, let networkFee):
-            // [REDACTED_TODO_COMMENT]
-            return "When you top up, funds go to Aave to earn interest, minus a \(networkFee) transaction fee."
+        case .yieldModuleNotification(let token):
+            return Localization.yieldModuleEarnSheetProviderDescription(token.currencySymbol, token.currencySymbol)
         }
     }
 
@@ -69,7 +66,7 @@ extension ReceiveNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .unsupportedTokenWarning:
             return .init(iconType: .image(Assets.warningIcon.image))
-        case .yieldModuleNotification(let token, _):
+        case .yieldModuleNotification(let token):
             return .init(iconType: .yieldModuleIcon(TokenIconInfoBuilder().build(from: token.id)))
         }
     }
