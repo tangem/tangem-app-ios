@@ -69,7 +69,7 @@ final class CommonPushNotificationsInteractor {
             return .stories
         case .walletOnboarding:
             return .onboarding
-        case .afterLogin:
+        case .afterLogin, .afterLoginBanner:
             return .main
         }
     }
@@ -99,6 +99,9 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
                 && !didPostponeAuthorizationRequestOnWalletOnboarding
         case .afterLogin:
             return hasSavedWalletsFromPreviousVersion ?? false
+        case .afterLoginBanner:
+            // [REDACTED_TODO_COMMENT]
+            return true
         }
     }
 
@@ -119,7 +122,7 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
             didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = true
         case .walletOnboarding:
             didPostponeAuthorizationRequestOnWalletOnboarding = true
-        case .afterLogin:
+        case .afterLogin, .afterLoginBanner:
             // Stop all future authorization requests
             canRequestAuthorization = false
             _permissionRequestEventSubject.send(.postpone(flow))

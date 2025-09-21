@@ -32,7 +32,7 @@ final class CommonPushPermissionNotificationManager: PushPermissionNotificationM
 
     private lazy var permissionManager: PushNotificationsPermissionManager = factory.makePermissionManagerForAfterLogin(using: pushNotificationsInteractor)
 
-    private lazy var pushNotificationsAvailabilityProvider = factory.makeAvailabilityProviderForAfterLogin(using: pushNotificationsInteractor)
+    private lazy var pushNotificationsAvailabilityProvider = factory.makeAvailabilityProviderForAfterLoginBanner(using: pushNotificationsInteractor)
 
     // MARK: - Init
 
