@@ -14,9 +14,6 @@ class ReceiveTokenWithdrawNoticeInteractor {
     @AppStorageCompat(StorageKeys.shownWithdrawalAlerts)
     private var shownWithdrawalAlerts: [String: Bool] = [:]
 
-    @AppStorageCompat(StorageKeys.shownYieldModuleAlerts)
-    private var shownYieldModuleAlerts: [String: Bool] = [:]
-
     // MARK: - Public Implementation
 
     func shouldShowWithdrawalAlert(for tokenItem: TokenItem) -> Bool {
@@ -35,33 +32,22 @@ class ReceiveTokenWithdrawNoticeInteractor {
         return !displayed
     }
 
-    /// Shows the yield module alert only once per token.
-    /// - If the alert has already been shown (value is true or nil), return false.
-    /// - On first show, mark both yield and withdrawal alerts as shown,
-    ///   so withdrawal alert will never appear afterwards.
-    func shouldShowYieldModuleAlert(for tokenItem: TokenItem) -> Bool {
-        if case .token(let token, let blockchainNetwork) = tokenItem {
-            let objectRepresentable = "yield_receive_shown_withdrawal_token_\(token.contractAddress)_\(blockchainNetwork.blockchain.networkId)"
+    func markWithdrawalAlertShown(for tokenItem: TokenItem) {
+        let objectRepresentable: String
 
-            guard shownYieldModuleAlerts[objectRepresentable] == false else {
-                return false
-            }
-
-            let withdrawalKey = "receive_shown_withdrawal_token_\(token.contractAddress)_\(blockchainNetwork.blockchain.networkId)"
-
-            shownYieldModuleAlerts[objectRepresentable] = true
-            shownWithdrawalAlerts[withdrawalKey] = true
-
-            return true
+        switch tokenItem {
+        case .blockchain(let network):
+            objectRepresentable = "receive_shown_withdrawal_blockchain_\(network.blockchain.networkId)"
+        case .token(let token, let blockchainNetwork):
+            objectRepresentable = "receive_shown_withdrawal_token_\(token.contractAddress)_\(blockchainNetwork.blockchain.networkId)"
         }
 
-        return false
+        shownWithdrawalAlerts[objectRepresentable] = true
     }
 }
 
 private extension ReceiveTokenWithdrawNoticeInteractor {
     enum StorageKeys: String, RawRepresentable {
         case shownWithdrawalAlerts = "receive_shown_withdrawal_token_alerts"
-        case shownYieldModuleAlerts = "yield_receive_shown_withdrawal_token_alerts"
     }
 }
