@@ -27,8 +27,8 @@ extension ReceiveNotificationEvent: NotificationEvent {
             hasher.combine(networkName)
         case .unsupportedTokenWarning(_, _, let tokenItem):
             hasher.combine(tokenItem)
-        case .yieldModuleNotification(let tokenItmem):
-            hasher.combine(tokenItmem)
+        case .yieldModuleNotification(let tokenItem):
+            hasher.combine(tokenItem)
         }
 
         return hasher.finalize()
