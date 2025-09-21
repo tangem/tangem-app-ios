@@ -36,7 +36,7 @@ class ReceiveMainViewModel: ObservableObject {
         addressTypesProvider: options.addressTypesProvider,
         coordinator: self,
         // [REDACTED_TODO_COMMENT]
-        yieldModuleData: (true, "0.15 USD")
+        yieldModuleData: options.yieldModuleData
     )
 
     private let receiveTokenWithdrawNoticeInteractor = ReceiveTokenWithdrawNoticeInteractor()
@@ -106,7 +106,7 @@ extension ReceiveMainViewModel {
         let flow: ReceiveFlow
         let addressTypesProvider: ReceiveAddressTypesProvider
         // [REDACTED_TODO_COMMENT]
-        let yieldModuleData: (isActive: Bool, networkFee: String)?
+        let yieldModuleData: Bool?
     }
 }
 
