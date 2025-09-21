@@ -14,7 +14,7 @@ struct AvailabilityReceiveFlowFactory {
     private let tokenItem: TokenItem
     private let addressTypesProvider: ReceiveAddressTypesProvider
     // [REDACTED_TODO_COMMENT]
-    private let yieldModuleData: (isActive: Bool, networkFee: String)?
+    private let yieldModuleData: Bool?
 
     // MARK: - Init
 
@@ -23,7 +23,7 @@ struct AvailabilityReceiveFlowFactory {
         tokenItem: TokenItem,
         addressTypesProvider: ReceiveAddressTypesProvider,
         // [REDACTED_TODO_COMMENT]
-        yieldModuleData: (isActive: Bool, networkFee: String)?
+        yieldModuleData: Bool?
     ) {
         self.flow = flow
         self.tokenItem = tokenItem
