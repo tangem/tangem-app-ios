@@ -27,6 +27,11 @@ public extension TokenMetadata {
         case fungible
         case nonFungible(assetIdentifier: String, contractType: ContractType)
         case yield(supplyInfo: TokenYieldSupply)
+
+        var supplyInfo: TokenYieldSupply? {
+            guard case .yield(let supplyInfo) = self else { return nil }
+            return supplyInfo
+        }
     }
 
     enum ContractType: Hashable, Codable {

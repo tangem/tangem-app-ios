@@ -19,7 +19,7 @@ protocol WalletModel:
     WalletModelHelpers, WalletModelFeeProvider, WalletModelDependenciesProvider,
     WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider,
-    ReceiveAddressTypesProvider, TokenYieldSupplyProvider {
+    ReceiveAddressTypesProvider {
     var id: WalletModelId { get }
     var userWalletId: UserWalletId { get }
     var name: String { get }
@@ -174,12 +174,4 @@ protocol ExistentialDepositInfoProvider {
 protocol FeeResourceInfoProvider {
     var feeResourceBalance: Decimal? { get }
     var maxResourceBalance: Decimal? { get }
-}
-
-protocol TokenYieldSupplyProvider {
-    var yieldSupplyAmount: Amount? { get }
-}
-
-extension WalletModel {
-    var yieldSupplyAmount: Amount? { nil }
 }

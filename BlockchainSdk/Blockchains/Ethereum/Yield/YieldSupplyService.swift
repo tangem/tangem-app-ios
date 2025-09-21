@@ -159,13 +159,14 @@ public final class EthereumYieldSupplyProvider: YieldSupplyService {
                 throw YieldModuleError.unableToParseData
             }
 
-            return Amount(
+            return try await Amount(
                 with: wallet.blockchain,
                 type: .token(
                     value: token.withMetadata(
                         TokenMetadata(
                             kind: .yield(
                                 supplyInfo: TokenYieldSupply(
+                                    yieldContractAddress: getYieldContract(),
                                     isActive: yieldSupplyStatus.active,
                                     isInitialized: yieldSupplyStatus.active,
                                     allowance: allowanceResult

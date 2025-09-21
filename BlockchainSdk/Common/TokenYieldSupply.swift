@@ -9,6 +9,7 @@
 import Foundation
 
 public struct TokenYieldSupply: Hashable, Equatable, Codable {
+    public let yieldContractAddress: String
     public let isActive: Bool
     public let isInitialized: Bool
     public let allowance: Decimal

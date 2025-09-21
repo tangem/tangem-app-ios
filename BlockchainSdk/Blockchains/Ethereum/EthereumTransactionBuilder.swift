@@ -230,7 +230,11 @@ private extension EthereumTransactionBuilder {
             )
 
         case .token(let token):
-            let contract = transaction.contractAddress ?? token.contractAddress
+            let contract = if case .yield(let supplyInfo) = token.metadata.kind {
+                supplyInfo.yieldContractAddress
+            } else {
+                transaction.contractAddress ?? token.contractAddress
+            }
             let method = try makeTokenTransferSmartContractMethod(
                 destination: transaction.destinationAddress,
                 amount: amountValue,

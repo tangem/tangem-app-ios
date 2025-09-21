@@ -433,7 +433,8 @@ struct SendDependenciesBuilder {
             fiatAvailableBalanceProvider: walletModel.fiatAvailableBalanceProvider,
             transactionValidator: walletModel.transactionValidator,
             transactionCreator: walletModel.transactionCreator,
-            transactionDispatcher: makeTransactionDispatcher()
+            transactionDispatcher: makeTransactionDispatcher(),
+            yieldModuleManager: walletModel.yieldModuleManager
         )
     }
 

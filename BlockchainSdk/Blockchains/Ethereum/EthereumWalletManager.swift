@@ -80,35 +80,11 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     /// - Parameters:
     /// - Returns: The hex of the raw transaction ready to be sent over the network
     func sign(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<String, Error> {
-        Publishers.Zip(
-            addressConverter.convertToETHAddressesPublisher(in: transaction),
-            networkService.getPendingTxCount(transaction.sourceAddress)
-        )
-        .map { convertedTransaction, pendingNonce in
-            Self.enrichTransactionWithNonce(transaction: convertedTransaction, pendingNonce: pendingNonce)
-        }
-        .withWeakCaptureOf(self)
-        .flatMap { walletManager, convertedTransaction in
-            Result {
-                try walletManager.txBuilder.buildForSign(transaction: convertedTransaction)
+        signMultiple([transaction], signer: signer)
+            .compactMap { signedTransactions in
+                signedTransactions.first
             }
-            .publisher
-            .withWeakCaptureOf(walletManager)
-            .flatMap { walletManager, hashToSign in
-                signer.sign(hash: hashToSign, walletPublicKey: walletManager.wallet.publicKey)
-            }
-            .withWeakCaptureOf(walletManager)
-            .tryMap { walletManager, signatureInfo -> String in
-                try walletManager.txBuilder
-                    .buildForSend(
-                        transaction: convertedTransaction,
-                        signatureInfo: signatureInfo
-                    )
-                    .hex()
-                    .addHexPrefix()
-            }
-        }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     func signMultiple(_ transactions: [Transaction], signer: TransactionSigner) -> AnyPublisher<[String], Error> {
@@ -125,13 +101,15 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
                     )
                 }
 
-                let hashesToSign = try enrichedTransactions.map { try txBuilder.buildForSign(transaction: $0) }
+                let hashesToSign = try enrichedTransactions.map {
+                    try txBuilder.buildForSign(transaction: Self.sanitizeTransaction($0, wallet: wallet))
+                }
 
                 let signatures = try await signer.sign(hashes: hashesToSign, walletPublicKey: wallet.publicKey).async()
 
                 return try zip(signatures, enrichedTransactions).map { signatureInfo, transaction in
                     try txBuilder.buildForSend(
-                        transaction: transaction,
+                        transaction: Self.sanitizeTransaction(transaction, wallet: wallet),
                         signatureInfo: signatureInfo
                     )
                     .hex()
@@ -172,6 +150,22 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         let ethParams = mutableTransaction.params as? EthereumTransactionParams
         mutableTransaction.params = ethParams?.with(nonce: nonce) ?? EthereumTransactionParams(nonce: nonce)
         return mutableTransaction
+    }
+
+    private static func sanitizeAmount(_ amount: Amount, wallet: Wallet) -> Amount {
+        if case .token = amount.type, let sanitizedAmount = wallet.amounts[amount.type] {
+            return Amount(
+                with: wallet.blockchain,
+                type: sanitizedAmount.type,
+                value: amount.value
+            )
+        } else {
+            return amount
+        }
+    }
+
+    private static func sanitizeTransaction(_ transaction: Transaction, wallet: Wallet) -> Transaction {
+        transaction.withAmount(sanitizeAmount(transaction.amount, wallet: wallet))
     }
 }
 
@@ -372,17 +366,23 @@ extension EthereumWalletManager: TransactionFeeProvider {
         addressConverter.convertToETHAddressPublisher(destination)
             .withWeakCaptureOf(self)
             .flatMap { walletManager, convertedDestination -> AnyPublisher<[Fee], Error> in
-                switch amount.type {
+                let sanitizedAmount = Self.sanitizeAmount(amount, wallet: walletManager.wallet)
+                switch sanitizedAmount.type {
                 case .coin:
-                    guard let hexAmount = amount.encodedForSend else {
+                    guard let hexAmount = sanitizedAmount.encodedForSend else {
                         return .anyFail(error: BlockchainSdkError.failedToLoadFee)
                     }
 
                     return walletManager.getFee(destination: convertedDestination, value: hexAmount, data: nil)
                 case .token(let token):
                     do {
-                        let transferData = try walletManager.buildForTokenTransfer(destination: convertedDestination, amount: amount)
-                        return walletManager.getFee(destination: token.contractAddress, value: nil, data: transferData)
+                        let transferData = try walletManager.buildForTokenTransfer(
+                            destination: convertedDestination,
+                            amount: sanitizedAmount
+                        )
+
+                        let contractAddress = token.metadata.kind.supplyInfo.flatMap { $0.yieldContractAddress } ?? token.contractAddress
+                        return walletManager.getFee(destination: contractAddress, value: nil, data: transferData)
                     } catch {
                         return .anyFail(error: error)
                     }

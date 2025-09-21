@@ -261,7 +261,8 @@ private extension CommonYieldModuleManager {
         case .created, .loading:
             return .loading
         case .loaded:
-            guard let balance, case .token = balance.type else {
+            guard let balance, case .token(let token) = balance.type,
+                  case .yield(let supply) = token.metadata.kind else {
                 return try await .notActive(apy: apy)
             }
             return try await .active(
