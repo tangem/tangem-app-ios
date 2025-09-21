@@ -40,6 +40,7 @@ class ReceiveMainViewModel: ObservableObject {
     )
 
     private let receiveTokenWithdrawNoticeInteractor = ReceiveTokenWithdrawNoticeInteractor()
+    private var yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Helpers
 
@@ -70,6 +71,8 @@ class ReceiveMainViewModel: ObservableObject {
 
     func getInitialViewState() -> ViewState? {
         if isNeedDisplayYieldAlert() {
+            receiveTokenWithdrawNoticeInteractor.markWithdrawalAlertShown(for: options.tokenItem)
+
             let vm = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel()
             return .yieldTokenAlert(viewModel: vm)
         }
@@ -86,7 +89,7 @@ class ReceiveMainViewModel: ObservableObject {
     private func isNeedDisplayYieldAlert() -> Bool {
         return false
         // [REDACTED_TODO_COMMENT]
-//        receiveTokenWithdrawNoticeInteractor.shouldShowYieldModuleAlert(for: options.tokenItem)
+//        yieldModuleNotificationInteractor.shouldShowYieldModuleAlert(for: options.tokenItem)
     }
 
     func isNeedDisplayTokenAlert() -> Bool {
