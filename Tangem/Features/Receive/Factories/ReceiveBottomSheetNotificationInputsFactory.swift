@@ -42,7 +42,7 @@ struct ReceiveBottomSheetNotificationInputsFactory {
                     style: .plain,
                     severity: .warning,
                     settings: .init(
-                        event: ReceiveNotificationEvent.yieldModuleNotification(token: tokenItem, networkFee: networkFee),
+                        event: ReceiveNotificationEvent.yieldModuleNotification(token: tokenItem),
                         dismissAction: nil
                     )
                 ),
