@@ -14,7 +14,7 @@ struct ReceiveDependenciesBuilder {
     private let tokenItem: TokenItem
     private let addressTypesProvider: ReceiveAddressTypesProvider
     // [REDACTED_TODO_COMMENT]
-    private let yieldModuleData: (isActive: Bool, networkFee: String)?
+    private let yieldModuleData: Bool?
 
     // MARK: - Init
 
@@ -22,7 +22,7 @@ struct ReceiveDependenciesBuilder {
         flow: ReceiveFlow,
         tokenItem: TokenItem,
         addressTypesProvider: ReceiveAddressTypesProvider,
-        yieldModuleData: (isActive: Bool, networkFee: String)? = nil // WIP - This will be a Yield Module service with a state inside
+        yieldModuleData: Bool? = nil // WIP - This will be a Yield Module service with a state inside
     ) {
         self.flow = flow
         self.tokenItem = tokenItem
