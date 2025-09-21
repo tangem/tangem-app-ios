@@ -3288,6 +3288,7 @@
 		EAF6A6852DF9C44A0094B883 /* IncomingActionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF6A6802DF9C44A0094B883 /* IncomingActionsTests.swift */; };
 		EAF8436B2E606AED000F7F5B /* WalletYieldNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF843692E606AED000F7F5B /* WalletYieldNotificationManager.swift */; };
 		EAF8436D2E607F81000F7F5B /* FakeWalletYieldNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF8436C2E607F81000F7F5B /* FakeWalletYieldNotificationManager.swift */; };
+		EAF8FDE12E8013C60025D2F1 /* YieldModuleNoticeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF8FDE02E8013C60025D2F1 /* YieldModuleNoticeInteractor.swift */; };
 		EAFC9E422E2F8EA2005AE9BF /* XRPAddressValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFC9E412E2F8EA2005AE9BF /* XRPAddressValidationTests.swift */; };
 		EAFDDCA32E6EFC790079F1C7 /* YieldStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFDDCA12E6EFC790079F1C7 /* YieldStatusView.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
@@ -7500,6 +7501,7 @@
 		EAF6A6802DF9C44A0094B883 /* IncomingActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingActionsTests.swift; sourceTree = "<group>"; };
 		EAF843692E606AED000F7F5B /* WalletYieldNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletYieldNotificationManager.swift; sourceTree = "<group>"; };
 		EAF8436C2E607F81000F7F5B /* FakeWalletYieldNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeWalletYieldNotificationManager.swift; sourceTree = "<group>"; };
+		EAF8FDE02E8013C60025D2F1 /* YieldModuleNoticeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleNoticeInteractor.swift; sourceTree = "<group>"; };
 		EAFC9E412E2F8EA2005AE9BF /* XRPAddressValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddressValidationTests.swift; sourceTree = "<group>"; };
 		EAFDDCA12E6EFC790079F1C7 /* YieldStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldStatusView.swift; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
@@ -19162,6 +19164,7 @@
 		EA4216442E7460EA00B36D39 /* YieldModule */ = {
 			isa = PBXGroup;
 			children = (
+				EAF8FDDF2E8013B50025D2F1 /* Services */,
 				EAD5E7F92E7C1C4E00E30DF3 /* Factories */,
 				EAD5E7EC2E7B114100E30DF3 /* Configs */,
 				EA4216482E7460FE00B36D39 /* Views */,
@@ -19317,6 +19320,14 @@
 				EAF8436C2E607F81000F7F5B /* FakeWalletYieldNotificationManager.swift */,
 			);
 			path = YieldModuleNotifications;
+			sourceTree = "<group>";
+		};
+		EAF8FDDF2E8013B50025D2F1 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				EAF8FDE02E8013C60025D2F1 /* YieldModuleNoticeInteractor.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		EAFDDCA22E6EFC790079F1C7 /* YieldAccountStatusView */ = {
@@ -24508,6 +24519,7 @@
 				EF3F754E2E324EFD00334E51 /* AlertPresenter.swift in Sources */,
 				B6A089402DD7AB9B005CBBA2 /* NFTNavigationInput.swift in Sources */,
 				B6180C862A80F76300144452 /* OrganizeTokensPreviewViewModelFactory.swift in Sources */,
+				EAF8FDE12E8013C60025D2F1 /* YieldModuleNoticeInteractor.swift in Sources */,
 				5D49035227BE9D550072C642 /* Data+.swift in Sources */,
 				B09310582A0B76C100F6043A /* ButtonWithLeadingIcon.swift in Sources */,
 				EF7672DC2E0C511C00A8900E /* SwapManagerDestinationWallet.swift in Sources */,

@@ -31,6 +31,7 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     private var previousState: ViewState?
     private let walletModel: any WalletModel
+    private var yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Init
 
@@ -59,7 +60,9 @@ final class YieldModuleStartViewModel: ObservableObject {
         )
     }
 
-    func onStartEarningTap() {}
+    func onStartEarningTap() {
+        yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: walletModel.tokenItem)
+    }
 
     func onBackAction() {
         previousState.map { viewState = $0 }
