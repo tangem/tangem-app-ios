@@ -17,8 +17,8 @@ struct YieldAlertReceiveAssetsView: View {
     var body: some View {
         // [REDACTED_TODO_COMMENT]
         YieldModuleBottomSheetContainerView(
-            title: "Your USDT is deposited in Aave ",
-            subtitle: "When you top up, your funds will be automatically sent to Aave to start earning interest. A small fee equal to $0.15 will be deducted to cover the transaction.",
+            title: Localization.yieldModuleAlertTitle(viewModel.currencySymbol),
+            subtitle: Localization.yieldModuleAlertDescription,
             button: .init(settings: .init(title: Localization.commonGotIt, style: .secondary, action: viewModel.onGotItTapAction)),
             topContent: { lendingPairIcon }
         )
