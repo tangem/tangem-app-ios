@@ -90,13 +90,15 @@ class StellarWalletManager: BaseManager, WalletManager {
         cancellable = networkService
             .getInfo(accountId: wallet.address, isAsset: !tokens.isEmpty)
             .sink(receiveCompletion: { [weak self] completionSubscription in
-                if case .failure(let error) = completionSubscription {
+                switch completionSubscription {
+                case .finished:
+                    completion(.success(()))
+                case .failure(let error):
                     self?.wallet.clearAmounts()
                     completion(.failure(error))
                 }
             }, receiveValue: { [weak self] response in
                 self?.updateWallet(with: response, tokens: tokens)
-                completion(.success(()))
             })
     }
 
@@ -211,20 +213,34 @@ extension StellarWalletManager: TransactionSender {
     var allowsFeeSelection: Bool { true }
 
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        networkService
-            .checkTargetAccount(address: transaction.destinationAddress, token: transaction.amount.type.token)
-            .withWeakCaptureOf(self)
-            .tryMap { manager, response in
-                let result = try manager.txBuilder.buildForSign(targetAccountResponse: response, transaction: transaction)
-                return result
-            }
-            .withWeakCaptureOf(self)
-            .mapSendTxError()
-            .flatMap { manager, txBuiltForSign in
-                let (hash, transactionXDR) = txBuiltForSign
-                return manager.signAndSend(transaction: transaction, signer: signer, hash: hash, transactionXDR: transactionXDR)
-            }
-            .eraseToAnyPublisher()
+        let tokens = cardTokens
+        
+        let accountInfoPublisher = networkService.getInfo(accountId: wallet.address, isAsset: !tokens.isEmpty)
+        let checkTargetAccountPublisher = networkService.checkTargetAccount(address: transaction.destinationAddress, token: transaction.amount.type.token)
+        
+        return Publishers.Zip(
+            accountInfoPublisher,
+            checkTargetAccountPublisher
+        )
+        .withWeakCaptureOf(self)
+        .tryMap { manager, responses in
+            let (sourceAccountResponse, targetAccountResponse) = responses
+            
+            // Update sequence number for actual state builder
+            manager.txBuilder.sequence = sourceAccountResponse.sequence
+            
+            let result = try manager.txBuilder
+                .buildForSign(targetAccountResponse: targetAccountResponse, transaction: transaction)
+            
+            return result
+        }
+        .withWeakCaptureOf(self)
+        .mapSendTxError()
+        .flatMap { manager, txBuiltForSign in
+            let (hash, transactionXDR) = txBuiltForSign
+            return manager.signAndSend(transaction: transaction, signer: signer, hash: hash, transactionXDR: transactionXDR)
+        }
+        .eraseToAnyPublisher()
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
