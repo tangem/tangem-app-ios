@@ -234,21 +234,9 @@ public indirect enum Blockchain: Equatable, Hashable {
     /// Allows to send to your own address
     public var supportsCompound: Bool {
         switch self {
-        case .bitcoin,
-             .bitcoinCash,
-             .litecoin,
-             .dogecoin,
-             .dash,
-             .kaspa,
-             .ravencoin,
-             .ducatus,
-             .fact0rn,
-             .sui,
-             .pepecoin,
-             .ton:
-            return true
-        default:
-            return false
+        case .ton: true
+        case _ where isUTXO: true
+        default: false
         }
     }
 
