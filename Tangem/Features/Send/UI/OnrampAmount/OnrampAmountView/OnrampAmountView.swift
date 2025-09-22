@@ -13,17 +13,10 @@ import TangemAccessibilityIdentifiers
 
 struct OnrampAmountView: View {
     @ObservedObject var viewModel: OnrampAmountViewModel
-    let namespace: SendAmountView.Namespace
 
     var body: some View {
         amountContent
-            .defaultRoundedBackground(
-                with: Colors.Background.action,
-                geometryEffect: .init(
-                    id: namespace.names.amountContainer,
-                    namespace: namespace.id
-                )
-            )
+            .defaultRoundedBackground(with: Colors.Background.action)
     }
 
     private var amountContent: some View {
@@ -60,7 +53,6 @@ struct OnrampAmountView: View {
         }
         .disabled(viewModel.isLoading)
         .accessibilityIdentifier(OnrampAccessibilityIdentifiers.currencySelectorButton)
-        .matchedGeometryEffect(id: namespace.names.tokenIcon, in: namespace.id)
     }
 
     private var textView: some View {
@@ -70,7 +62,6 @@ struct OnrampAmountView: View {
                 .prefixSuffixOptions(viewModel.currentFieldOptions)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.amountInputField)
-                .matchedGeometryEffect(id: namespace.names.amountCryptoText, in: namespace.id)
                 .skeletonable(isShown: viewModel.isLoading, width: 100, height: 28)
                 .disabled(viewModel.isLoading)
 
@@ -82,7 +73,6 @@ struct OnrampAmountView: View {
                 lineLimit: 2
             )
             .multilineTextAlignment(.center)
-            .matchedGeometryEffect(id: namespace.names.amountFiatText, in: namespace.id)
             .accessibilityIdentifier(OnrampAccessibilityIdentifiers.cryptoAmountLabel)
         }
     }
