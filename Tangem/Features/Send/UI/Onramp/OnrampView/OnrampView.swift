@@ -12,22 +12,14 @@ import TangemAccessibilityIdentifiers
 
 struct OnrampView: View {
     @ObservedObject var viewModel: OnrampViewModel
-
-    let transitionService: SendTransitionService
-    let namespace: Namespace
     @FocusState.Binding var keyboardActive: Bool
 
     var body: some View {
         ZStack(alignment: .bottom) {
             GroupedScrollView(spacing: 14) {
-                OnrampAmountView(
-                    viewModel: viewModel.onrampAmountViewModel,
-                    namespace: .init(id: namespace.id, names: namespace.names)
-                )
+                OnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
 
-                OnrampProvidersCompactView(
-                    viewModel: viewModel.onrampProvidersCompactViewModel
-                )
+                OnrampProvidersCompactView(viewModel: viewModel.onrampProvidersCompactViewModel)
 
                 ForEach(viewModel.notificationInputs) { input in
                     NotificationView(input: input)
@@ -49,12 +41,5 @@ struct OnrampView: View {
                 .animation(.default, value: keyboardActive)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerToSLink)
         }
-    }
-}
-
-extension OnrampView {
-    struct Namespace {
-        let id: SwiftUI.Namespace.ID
-        let names: any SendSummaryViewGeometryEffectNames
     }
 }
