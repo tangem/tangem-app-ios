@@ -121,6 +121,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             openFeeCurrency()
         case .swap:
             openExchange()
+        case .openYieldPromo:
+            openYieldModulePromo()
         case .generateAddresses,
              .backupCard,
              .buyCrypto,
@@ -146,7 +148,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
              .tangemPayViewKYCStatus:
@@ -419,5 +420,30 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
         case .failure, .loading, .loaded:
             return true
         }
+    }
+}
+
+extension TokenDetailsViewModel {
+    func openYieldModulePromo() {
+        coordinator?.openYieldModulePromoView(
+            walletModel: walletModel,
+            info: .init(apy: "WIP", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
+        )
+    }
+
+    func openYieldEarnInfo() {
+        let params = YieldModuleBottomSheetParams.EarnInfoParams(
+            earningsData: .init(totalEarnings: "WIP", chartData: [:]),
+            status: "WIP",
+            apy: "WIP",
+            availableFunds: .init(availableBalance: "WIP"),
+            transferMode: "WIP",
+            tokenName: walletModel.tokenItem.name,
+            tokenSymbol: walletModel.tokenItem.token?.symbol ?? "",
+            onReadMoreAction: {},
+            onStopEarningAction: {}
+        )
+
+        coordinator?.openYieldEarnInfo(params: params)
     }
 }
