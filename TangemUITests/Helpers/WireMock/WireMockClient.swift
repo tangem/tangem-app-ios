@@ -9,7 +9,7 @@
 import Foundation
 import XCTest
 
-class WireMockClient {
+final class WireMockClient {
     private let baseURL: String
 
     init(baseURL: String = "https://wiremock.tests-d.com") {

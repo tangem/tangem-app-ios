@@ -102,6 +102,14 @@ extension CommonKeysManager: KeysManager {
     var tangemApiKey: String {
         keys.tangemApiKey
     }
+
+    var tangemApiKeyDev: String {
+        keys.tangemApiKeyDev
+    }
+
+    var tangemApiKeyStage: String {
+        keys.tangemApiKeyStage
+    }
 }
 
 extension CommonKeysManager {
@@ -140,5 +148,7 @@ extension CommonKeysManager {
         let moralisApiKey: String
         let blockaidApiKey: String
         let tangemApiKey: String
+        let tangemApiKeyDev: String
+        let tangemApiKeyStage: String
     }
 }

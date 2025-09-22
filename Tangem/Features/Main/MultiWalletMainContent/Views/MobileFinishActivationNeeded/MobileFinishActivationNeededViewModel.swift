@@ -50,14 +50,17 @@ final class MobileFinishActivationNeededViewModel {
 
 extension MobileFinishActivationNeededViewModel {
     func onCloseTap() {
+        Analytics.log(.backupSkipped)
         routable?.dismissMobileFinishActivationNeeded()
     }
 
     func onLaterTap() {
+        Analytics.log(.backupSkipped)
         routable?.dismissMobileFinishActivationNeeded()
     }
 
     func onBackupTap() {
+        Analytics.log(.backupStarted)
         routable?.dismissMobileFinishActivationNeeded()
         routable?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
     }

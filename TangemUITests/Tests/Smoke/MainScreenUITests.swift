@@ -22,4 +22,24 @@ final class MainScreenUITests: BaseTestCase {
 
         mainScreen.validateTokenNotExists(token)
     }
+
+    func testScanWallet2_DeveloperCardBannerDisplayed() {
+        setAllureId(898)
+        launchApp()
+
+        let mainScreen = StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+
+        mainScreen.validateDeveloperCardBannerExists()
+    }
+
+    func testScanRing_MandatorySecurityUpdateBannerDisplayed() {
+        setAllureId(227)
+        launchApp(tangemApiType: .mock)
+
+        let mainScreen = StoriesScreen(app)
+            .scanMockWallet(name: .ring)
+
+        mainScreen.validateMandatorySecurityUpdateBannerExists()
+    }
 }

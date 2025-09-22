@@ -12,6 +12,7 @@ import TangemAssets
 import TangemUIUtils
 import TangemUI
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 struct ResetToFactoryView: View {
     @ObservedObject private var viewModel: ResetToFactoryViewModel
@@ -90,6 +91,7 @@ struct ResetToFactoryView: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityIdentifier(warningAccessibilityIdentifier(for: warning.type))
     }
 
     private var actionButton: some View {
@@ -100,6 +102,16 @@ struct ResetToFactoryView: View {
             action: viewModel.didTapMainButton
         )
         .padding(.horizontal, 16)
+        .accessibilityIdentifier(CardSettingsAccessibilityIdentifiers.resetCardButton)
+    }
+
+    private func warningAccessibilityIdentifier(for warningType: ResetToFactoryViewModel.WarningType) -> String {
+        switch warningType {
+        case .accessToCard:
+            return CardSettingsAccessibilityIdentifiers.accessToCard
+        case .accessCodeRecovery:
+            return CardSettingsAccessibilityIdentifiers.accessCodeRecovery
+        }
     }
 }
 

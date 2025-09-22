@@ -254,6 +254,15 @@ public final class SolanaNetworkService: MultiNetworkProvider {
         try await solanaSdk.api.getSlot()
     }
 
+    func getFeeForCompiled(message: String) -> AnyPublisher<Decimal, Error> {
+        solanaSdk.api
+            .getFeeForMessage(message)
+            .map { [blockchain] in
+                Decimal($0.value) / blockchain.decimalValue
+            }
+            .eraseToAnyPublisher()
+    }
+
     // MARK: - Private Implementation
 
     private func getFeeForMessage(
@@ -269,6 +278,7 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             computeUnitLimit: computeUnitLimit,
             computeUnitPrice: computeUnitPrice,
             allowUnfundedRecipient: true,
+            allowCompoundRecipient: true,
             fromPublicKey: fromPublicKey
         )
         .flatMap { [solanaSdk] message, _ -> AnyPublisher<FeeForMessageResult, Error> in
@@ -330,7 +340,8 @@ public final class SolanaNetworkService: MultiNetworkProvider {
         let tokenInfoResponses: [SolanaTokenAccountInfoResponse] = tokenAccountsInfo.compactMap {
             guard
                 let info = $0.account.data.value?.parsed.info,
-                let integerAmount = Decimal(stringValue: info.tokenAmount.amount)
+                let integerAmount = Decimal(stringValue: info.tokenAmount.amount),
+                let token = tokens.first(where: { $0.contractAddress == info.mint })
             else {
                 return nil
             }
@@ -339,8 +350,7 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             let mint = info.mint
 
             // 1 for NFT
-            let token = tokens.first(where: { $0.contractAddress == info.mint })
-            let amount = token.map { (integerAmount / $0.decimalValue).rounded(scale: $0.decimalCount) } ?? integerAmount
+            let amount = (integerAmount / token.decimalValue).rounded(scale: token.decimalCount)
             return SolanaTokenAccountInfoResponse(address: address, mint: mint, balance: amount, space: $0.account.space)
         }
 

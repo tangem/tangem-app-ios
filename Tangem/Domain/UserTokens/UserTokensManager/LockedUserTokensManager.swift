@@ -27,8 +27,6 @@ struct LockedUserTokensManager: UserTokensManager {
 
     func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {}
 
-    func add(_ tokenItem: TokenItem, completion: @escaping (Result<Void, Error>) -> Void) {}
-
     func contains(_ tokenItem: TokenItem) -> Bool {
         return false
     }
@@ -39,10 +37,6 @@ struct LockedUserTokensManager: UserTokensManager {
 
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
         return []
-    }
-
-    func canRemove(_ tokenItem: TokenItem) -> Bool {
-        return false
     }
 
     func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {

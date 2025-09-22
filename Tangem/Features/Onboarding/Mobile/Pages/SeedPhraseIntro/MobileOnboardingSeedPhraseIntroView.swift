@@ -33,6 +33,9 @@ struct MobileOnboardingSeedPhraseIntroView: View {
                 action: viewModel.onContinueTap
             )
         }
+        .onFirstAppear {
+            viewModel.onFirstAppear()
+        }
         .padding(.top, 32)
         .padding(.horizontal, 16)
         .padding(.bottom, 6)

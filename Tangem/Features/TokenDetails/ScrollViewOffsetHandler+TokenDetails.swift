@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import CombineExt
 import TangemUI
+import TangemFoundation
 
 extension ScrollViewOffsetHandler where T == Double {
     static func tokenDetails(tokenIconSizeSettings: IconViewSizeSettings, headerTopPadding: CGFloat) -> Self {

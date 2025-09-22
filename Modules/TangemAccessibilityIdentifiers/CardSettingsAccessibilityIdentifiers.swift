@@ -10,4 +10,12 @@ import Foundation
 
 public enum CardSettingsAccessibilityIdentifiers {
     public static let referralProgramButton = "referralProgramButton"
+    public static let deviceSettingsButton = "deviceSettingsButton"
+
+    // MARK: - Reset Card
+
+    public static let resetToFactorySettingsButton = "cardSettingsResetToFactorySettingsButton"
+    public static let resetCardButton = "cardSettingsResetCardButton"
+    public static let accessToCard = "cardSettingsAccessToCardCheckbox"
+    public static let accessCodeRecovery = "cardSettingsAccessCodeRecovery"
 }
