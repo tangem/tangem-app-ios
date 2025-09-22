@@ -12,7 +12,7 @@ import Combine
 struct LockedWalletModelsManager: WalletModelsManager {
     var isInitialized: Bool { true }
     var walletModels: [any WalletModel] { [] }
-    var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { .just(output: []) }
+    var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { .just(output: walletModels) }
 
     func updateAll(silent: Bool, completion: @escaping () -> Void) {
         completion()
