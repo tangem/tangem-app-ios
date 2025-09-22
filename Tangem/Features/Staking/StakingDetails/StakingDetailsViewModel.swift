@@ -14,6 +14,7 @@ import TangemStaking
 import TangemFoundation
 import TangemLocalization
 import TangemAccessibilityIdentifiers
+import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
 
@@ -33,6 +34,13 @@ final class StakingDetailsViewModel: ObservableObject {
     @Published var actionButtonType: ActionButtonType?
     @Published var actionSheet: ActionSheetBinder?
     @Published var alert: AlertBinder?
+
+    private(set) lazy var scrollViewStateObject: RefreshScrollViewStateObject = .init(
+        settings: .init(stopRefreshingDelay: .zero),
+        refreshable: { [weak self] in
+            await self?.refresh()
+        }
+    )
 
     lazy var legalText = makeLegalText()
 
@@ -67,25 +75,6 @@ final class StakingDetailsViewModel: ObservableObject {
         self.accountInitializedStateProvider = accountInitializedStateProvider
 
         bind()
-    }
-
-    func refresh(completion: @escaping () -> Void = {}) {
-        runTask(in: self) { viewModel in
-            async let updateState: Void = viewModel.stakingManager.updateState(loadActions: true)
-
-            guard let accountInitializedStateProvider = viewModel.accountInitializedStateProvider else {
-                await updateState
-                completion()
-                return
-            }
-
-            async let isAccountInitialized = try? await accountInitializedStateProvider.isAccountInitialized()
-            let result = await (isAccountInitialized, updateState)
-
-            viewModel.isAccountInitialized = result.0 ?? true
-
-            completion()
-        }
     }
 
     func userDidTapBanner() {
@@ -123,7 +112,8 @@ final class StakingDetailsViewModel: ObservableObject {
     }
 
     func onAppear() {
-        refresh()
+        runTask(in: self) { await $0.refresh() }
+
         let balances = stakingManager.balances.flatMap { String($0.count) } ?? String(0)
         Analytics.log(
             event: .stakingInfoScreenOpened,
@@ -134,6 +124,8 @@ final class StakingDetailsViewModel: ObservableObject {
         )
     }
 }
+
+// MARK: - Private
 
 private extension StakingDetailsViewModel {
     func bind() {
@@ -155,6 +147,19 @@ private extension StakingDetailsViewModel {
                 viewModel.setupMainActionButton(state: state)
             }
             .store(in: &bag)
+    }
+
+    func refresh() async {
+        async let updateState: Void = stakingManager.updateState(loadActions: true)
+
+        guard let accountInitializedStateProvider = accountInitializedStateProvider else {
+            return await updateState
+        }
+
+        async let isAccountInitialized = try? await accountInitializedStateProvider.isAccountInitialized()
+        let result = await (isAccountInitialized, updateState)
+
+        self.isAccountInitialized = result.0 ?? true
     }
 
     func setupMainActionButton(state: TokenBalanceType) {
@@ -193,7 +198,7 @@ private extension StakingDetailsViewModel {
         }
     }
 
-    func setupView(yield: YieldInfo, balances: [StakingBalance]) {
+    func setupView(yield: StakingYieldInfo, balances: [StakingBalance]) {
         setupHeaderView(hasBalances: !balances.isEmpty)
         setupDetailsSection(yield: yield)
         setupStakes(yield: yield, staking: balances.stakes())
@@ -204,7 +209,7 @@ private extension StakingDetailsViewModel {
         hideStakingInfoBanner = hasBalances
     }
 
-    func setupDetailsSection(yield: YieldInfo) {
+    func setupDetailsSection(yield: StakingYieldInfo) {
         var viewModels = [
             DefaultRowViewModel(
                 title: Localization.stakingDetailsAnnualPercentageRate,
@@ -295,7 +300,7 @@ private extension StakingDetailsViewModel {
         detailsViewModels = viewModels
     }
 
-    func setupRewardView(yield: YieldInfo, balances: [StakingBalance]) {
+    func setupRewardView(yield: StakingYieldInfo, balances: [StakingBalance]) {
         guard !balances.isEmpty else {
             rewardViewData = nil
             return
@@ -337,7 +342,7 @@ private extension StakingDetailsViewModel {
         }
     }
 
-    func setupStakes(yield: YieldInfo, staking: [StakingBalance]) {
+    func setupStakes(yield: StakingYieldInfo, staking: [StakingBalance]) {
         let staking = staking.map { balance in
             stakesBuilder.mapToStakingDetailsStakeViewData(yield: yield, balance: balance) { [weak self] in
                 let tokenCurrencySymbol = self?.tokenItem.currencySymbol ?? ""
@@ -387,7 +392,7 @@ private extension StakingDetailsViewModel {
         }
     }
 
-    private func openRewardsFlow(rewardsBalances: [StakingBalance], yield: YieldInfo) {
+    private func openRewardsFlow(rewardsBalances: [StakingBalance], yield: StakingYieldInfo) {
         if rewardsBalances.count == 1, let rewardsBalance = rewardsBalances.first {
             openFlow(balance: rewardsBalance, validators: yield.validators)
 
@@ -406,7 +411,7 @@ private extension StakingDetailsViewModel {
 
     func showRewardsClaimableWarningIfNeeded(
         balances: [StakingBalance],
-        yield: YieldInfo,
+        yield: StakingYieldInfo,
         rewardsValue: Decimal
     ) {
         let constraint = balances
