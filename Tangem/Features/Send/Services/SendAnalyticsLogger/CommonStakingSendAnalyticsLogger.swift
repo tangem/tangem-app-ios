@@ -49,6 +49,8 @@ extension CommonStakingSendAnalyticsLogger: SendAmountAnalyticsLogger {
         Analytics.log(event: .stakingButtonMax, params: [.token: tokenItem.currencySymbol])
     }
 
+    func logTapConvertToAnotherToken() {}
+
     func logAmountStepOpened() {
         Analytics.log(event: .stakingAmountScreenOpened, params: [.token: tokenItem.currencySymbol])
     }
