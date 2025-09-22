@@ -7,36 +7,17 @@
 //
 
 import Foundation
-import Combine
+import TangemFoundation
 
 class NotificationsAnalyticsService {
-    private weak var notificationManager: NotificationManager?
-    private weak var contextDataProvider: AnalyticsContextDataProvider?
-
-    private var subscription: AnyCancellable?
     private var alreadyTrackedEvents: Set<Analytics.Event> = []
+    private let userWalletId: UserWalletId
 
-    init() {}
-
-    func setup(with notificationManager: NotificationManager, contextDataProvider: AnalyticsContextDataProvider?) {
-        self.notificationManager = notificationManager
-        self.contextDataProvider = contextDataProvider
-
-        bind()
+    init(userWalletId: UserWalletId) {
+        self.userWalletId = userWalletId
     }
 
-    private func bind() {
-        guard subscription == nil else {
-            return
-        }
-
-        subscription = notificationManager?.notificationPublisher
-            .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: weakify(self, forFunction: NotificationsAnalyticsService.sendEventsIfNeeded(for:)))
-    }
-
-    private func sendEventsIfNeeded(for notifications: [NotificationViewInput]) {
+    func sendEventsIfNeeded(for notifications: [NotificationViewInput]) {
         notifications.forEach(sendEventIfNeeded(for:))
     }
 
@@ -46,16 +27,17 @@ class NotificationsAnalyticsService {
             return
         }
 
-        var notificationParams = notification.settings.event.analyticsParams
-        if let contextData = contextDataProvider?.analyticsContextData {
-            notificationParams.merge(contextData.analyticsParams, uniquingKeysWith: { old, new in old })
-        }
+        let notificationParams = notification.settings.event.analyticsParams
 
         if event.isOneShotAnalyticsEvent, alreadyTrackedEvents.contains(analyticsEvent) {
             return
         }
 
-        Analytics.log(event: analyticsEvent, params: notificationParams)
+        Analytics.log(
+            event: analyticsEvent,
+            params: notificationParams,
+            contextParams: .userWallet(userWalletId)
+        )
 
         if event.isOneShotAnalyticsEvent {
             alreadyTrackedEvents.insert(analyticsEvent)
