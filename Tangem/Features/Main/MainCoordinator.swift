@@ -15,6 +15,7 @@ import TangemVisa
 import TangemNFT
 import TangemFoundation
 import TangemUI
+import TangemMobileWalletSdk
 
 class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
@@ -53,6 +54,7 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var actionButtonsBuyCoordinator: ActionButtonsBuyCoordinator? = nil
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
     @Published var actionButtonsSwapCoordinator: ActionButtonsSwapCoordinator? = nil
+    @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -282,6 +284,22 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             )
         }
     }
+
+    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext) {
+        Task { @MainActor in
+            let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
+                switch options {
+                case .dismiss, .finish:
+                    self?.mobileUpgradeCoordinator = nil
+                }
+            }
+
+            let coordinator = MobileUpgradeCoordinator(dismissAction: dismissAction)
+            let inputOptions = MobileUpgradeCoordinator.InputOptions(userWalletModel: userWalletModel, context: context)
+            coordinator.start(with: inputOptions)
+            mobileUpgradeCoordinator = coordinator
+        }
+    }
 }
 
 // MARK: - SingleTokenBaseRoutable
@@ -409,11 +427,11 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         marketsTokenDetailsCoordinator = coordinator
     }
 
-    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel) {
+    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
-            type: .onramp,
+            type: .onramp(parameters: parameters),
             source: .main
         )
         coordinator.start(with: options)
@@ -659,6 +677,7 @@ extension MainCoordinator {
         case marketsTokenDetails(tokenId: String)
         case externalLink(url: URL)
         case market
+        case onboardVisa(deeplinkString: String, userWalletModel: UserWalletModel)
         case promo(code: String)
     }
 }
