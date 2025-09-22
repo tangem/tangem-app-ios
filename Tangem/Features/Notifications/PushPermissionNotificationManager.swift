@@ -30,9 +30,11 @@ final class CommonPushPermissionNotificationManager: PushPermissionNotificationM
 
     private let factory = PushNotificationsHelpersFactory()
 
-    private lazy var permissionManager: PushNotificationsPermissionManager = factory.makePermissionManagerForAfterLogin(using: pushNotificationsInteractor)
+    private lazy var permissionManager: PushNotificationsPermissionManager = factory.makePermissionManagerForAfterLoginBanner(using: pushNotificationsInteractor)
 
     private lazy var pushNotificationsAvailabilityProvider = factory.makeAvailabilityProviderForAfterLoginBanner(using: pushNotificationsInteractor)
+
+    private var prepareNotificationTask: Task<Void, Never>?
 
     // MARK: - Init
 
@@ -44,7 +46,24 @@ final class CommonPushPermissionNotificationManager: PushPermissionNotificationM
     // MARK: - Public Implementation
 
     func showPushPermissionNotificationIfNeeded() {
+        prepareNotificationTask?.cancel()
+
+        prepareNotificationTask = runTask(in: self) { @MainActor manager in
+            await manager.prepareAndDisplayNotification()
+        }
+    }
+
+    // MARK: - Private Implementation
+
+    private func prepareAndDisplayNotification() async {
         guard pushNotificationsAvailabilityProvider.isAvailable else {
+            return
+        }
+
+        let shownDate = await AppSettings.shared.pushNotificationPermissionRequestBannerDate
+
+        // If user previosly interact with first support seed notification and the time has not come yet for display
+        if let shownDate, Date().timeIntervalSince(shownDate) < Constants.durationDisplayNotification {
             return
         }
 
@@ -82,11 +101,24 @@ final class CommonPushPermissionNotificationManager: PushPermissionNotificationM
                 event: GeneralNotificationEvent.pushNotificationsPermissionRequest,
                 dismissAction: { [weak self] _ in
                     guard let self else { return }
+                    saveDisplayNotificationDate()
                     permissionManager.postponePermissionRequest()
                 }
             )
         )
 
         displayDelegate?.showPushPermissionNotification(input: input)
+    }
+
+    private func saveDisplayNotificationDate() {
+        AppSettings.shared.supportSeedNotificationShownDate = Date()
+    }
+}
+
+extension CommonPushPermissionNotificationManager {
+    enum Constants {
+        /// One minute
+        // [REDACTED_TODO_COMMENT]
+        static let durationDisplayNotification: TimeInterval = 1 * 60
     }
 }
