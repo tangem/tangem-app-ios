@@ -75,19 +75,21 @@ final class CommonPushNotificationsInteractor {
     }
 
     private let _permissionRequestEventSubject: PassthroughSubject<PushNotificationsPermissionRequest, Never> = .init()
+
+    private func preconditionAvailable(in flow: PushNotificationsPermissionRequestFlow) -> Bool {
+        guard !AppEnvironment.current.isUITest else {
+            return false
+        }
+
+        return canRequestAuthorization
+    }
 }
 
 // MARK: - PushNotificationsInteractor protocol conformance
 
 extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
     func isAvailable(in flow: PushNotificationsPermissionRequestFlow) -> Bool {
-        guard !AppEnvironment.current.isUITest else {
-            return false
-        }
-
-        guard
-            canRequestAuthorization
-        else {
+        guard preconditionAvailable(in: flow) else {
             return false
         }
 
@@ -122,10 +124,13 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
             didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = true
         case .walletOnboarding:
             didPostponeAuthorizationRequestOnWalletOnboarding = true
-        case .afterLogin, .afterLoginBanner:
+        case .afterLogin:
             // Stop all future authorization requests
             canRequestAuthorization = false
             _permissionRequestEventSubject.send(.postpone(flow))
+        case .afterLoginBanner:
+            // [REDACTED_TODO_COMMENT]
+            break
         }
 
         logPostponedRequest(in: flow)
