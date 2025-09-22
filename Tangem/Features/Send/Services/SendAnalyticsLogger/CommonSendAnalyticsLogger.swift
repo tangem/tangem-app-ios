@@ -126,6 +126,17 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
         Analytics.log(event: .sendMaxAmountTapped, params: params)
     }
 
+    func logTapConvertToAnotherToken() {
+        var params: [Analytics.ParameterKey: String] = [:]
+
+        if let token = sendSourceTokenInput?.sourceToken {
+            params[.token] = token.tokenItem.currencySymbol
+            params[.blockchain] = token.tokenItem.blockchain.displayName
+        }
+
+        Analytics.log(event: .sendButtonConvertToken, params: params)
+    }
+
     func logAmountStepOpened() {
         Analytics.log(.sendAmountScreenOpened)
     }
@@ -304,19 +315,7 @@ extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
 
     func logSendBaseViewOpened() {}
 
-    func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {
-        switch (type, flow) {
-        case (.action, .send):
-            if let token = sendReceiveTokenInput?.receiveToken.receiveToken {
-                Analytics.log(event: .sendButtonConvertToken, params: [
-                    .token: token.tokenItem.currencySymbol,
-                    .blockchain: token.tokenItem.blockchain.displayName,
-                ])
-            }
-        default:
-            break
-        }
-    }
+    func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {}
 }
 
 // MARK: - SendManagementModelAnalyticsLogger
