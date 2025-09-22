@@ -472,7 +472,10 @@ struct SendDependenciesBuilder {
     }
 
     func makeExpressNotificationManager() -> ExpressNotificationManager {
-        ExpressNotificationManager(expressInteractor: expressDependenciesFactory.expressInteractor)
+        ExpressNotificationManager(
+            userWalletId: input.userWalletInfo.id,
+            expressInteractor: expressDependenciesFactory.expressInteractor
+        )
     }
 
     func makeSendNewNotificationManager(receiveTokenInput: SendReceiveTokenInput?) -> SendNotificationManager {
@@ -703,7 +706,8 @@ struct SendDependenciesBuilder {
         onrampManager: some OnrampManager,
         onrampDataRepository: some OnrampDataRepository,
         onrampRepository: some OnrampRepository,
-        analyticsLogger: some OnrampSendAnalyticsLogger
+        analyticsLogger: some OnrampSendAnalyticsLogger,
+        predefinedValues: OnrampModel.PredefinedValues
     ) -> OnrampModel {
         OnrampModel(
             userWalletId: input.userWalletInfo.id.stringValue,
@@ -711,32 +715,27 @@ struct SendDependenciesBuilder {
             onrampManager: onrampManager,
             onrampDataRepository: onrampDataRepository,
             onrampRepository: onrampRepository,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            predefinedValues: predefinedValues
         )
     }
 
-    func makeOnrampDependencies() -> (
+    func makeOnrampDependencies(preferredValues: PreferredValues) -> (
         manager: OnrampManager,
         repository: OnrampRepository,
         dataRepository: OnrampDataRepository
     ) {
         let apiProvider = expressDependenciesFactory.expressAPIProvider
+        let repository: OnrampRepository = expressDependenciesFactory.onrampRepository
+
         let factory = TangemExpressFactory()
-
-        // For UI tests, use UITestOnrampRepository with predefined values
-        let repository: OnrampRepository
-        if AppEnvironment.current.isUITest {
-            repository = UITestOnrampRepository()
-        } else {
-            repository = factory.makeOnrampRepository(storage: CommonOnrampStorage())
-        }
-
         let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
         let manager = factory.makeOnrampManager(
             expressAPIProvider: apiProvider,
             onrampRepository: repository,
             dataRepository: dataRepository,
-            analyticsLogger: CommonExpressAnalyticsLogger(tokenItem: walletModel.tokenItem)
+            analyticsLogger: CommonExpressAnalyticsLogger(tokenItem: walletModel.tokenItem),
+            preferredValues: preferredValues
         )
 
         return (
