@@ -13,7 +13,6 @@ import TangemAccessibilityIdentifiers
 
 struct SendAmountCompactContentView: View {
     @ObservedObject var viewModel: SendAmountCompactContentViewModel
-    let namespace: SendAmountView.Namespace
 
     var body: some View {
         VStack(spacing: 18) {
@@ -23,7 +22,6 @@ struct SendAmountCompactContentView: View {
                 // Kingfisher shows a grey background even if there has a cached image
                 forceKingfisher: false
             )
-            .matchedGeometryEffect(id: namespace.names.tokenIcon, in: namespace.id)
 
             VStack(alignment: .center, spacing: 6) {
                 ZStack {
@@ -32,7 +30,6 @@ struct SendAmountCompactContentView: View {
                         .alignment(.center)
                         .prefixSuffixOptions(viewModel.amountFieldOptions)
                         .minTextScale(SendAmountStep.Constants.amountMinTextScale)
-                        .matchedGeometryEffect(id: namespace.names.amountCryptoText, in: namespace.id)
                         .allowsHitTesting(false) // This text field is read-only
                 }
                 // We have to keep frame until SendDecimalNumberTextField size fix
@@ -43,7 +40,6 @@ struct SendAmountCompactContentView: View {
                 Text(viewModel.alternativeAmount ?? " ")
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .lineLimit(1)
-                    .matchedGeometryEffect(id: namespace.names.amountFiatText, in: namespace.id)
             }
             .infinityFrame(axis: .horizontal, alignment: .center)
         }
