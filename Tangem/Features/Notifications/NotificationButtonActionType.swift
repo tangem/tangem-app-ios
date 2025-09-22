@@ -172,8 +172,10 @@ enum NotificationButtonActionType: Identifiable {
         case .tangemPayViewKYCStatus:
             // [REDACTED_TODO_COMMENT]
             return "View Status"
-        case .allowPushPermissionRequest, .postponePushPermissionRequest:
-            return .empty
+        case .allowPushPermissionRequest:
+            return Localization.commonEnable
+        case .postponePushPermissionRequest:
+            return Localization.commonLater
         }
     }
 
