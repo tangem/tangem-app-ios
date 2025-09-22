@@ -8,6 +8,6 @@
 
 import Foundation
 
-enum ExpressProviderError: LocalizedError {
+public enum ExpressProviderError: LocalizedError {
     case transactionDataNotFound
 }
