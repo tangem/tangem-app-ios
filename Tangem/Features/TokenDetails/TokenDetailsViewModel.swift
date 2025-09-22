@@ -16,7 +16,6 @@ import TangemFoundation
 import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
-import BigInt
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
@@ -297,15 +296,6 @@ private extension TokenDetailsViewModel {
                 self?.updateStaking(state: state)
             }
             .store(in: &bag)
-
-        if let yieldModuleManager = walletModel.yieldModuleManager {
-            yieldModuleManager.statePublisher
-                .replaceError(with: .disabled)
-                .sink { value in
-                    print("🙀 value: \(value)")
-                }
-                .store(in: &bag)
-        }
     }
 
     private func updateStaking(state: StakingManagerState) {

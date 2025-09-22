@@ -119,7 +119,6 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 userWalletConfig: config,
                 tokenItem: tokenItem
             )
-
             let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: .coin)
             let mainCoinModel = CommonWalletModel(
                 userWalletId: userWalletId,

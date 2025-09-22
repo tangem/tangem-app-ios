@@ -895,14 +895,6 @@ extension CommonWalletModel: ReceiveAddressTypesProvider {
     }
 }
 
-// MARK: - TokenYieldSupplyProvider
-
-extension CommonWalletModel {
-    var yieldSupplyAmount: Amount? {
-        fatalError()
-    }
-}
-
 // MARK: - WalletModelError
 
 enum WalletModelError: LocalizedError {

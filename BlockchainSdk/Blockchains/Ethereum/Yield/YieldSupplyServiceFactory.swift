@@ -22,7 +22,7 @@ final class YieldSupplyServiceFactory {
 
         guard contractAddressFactory.isSupported, wallet.blockchain.isEvm else { return nil }
 
-        return EthereumYieldSupplyProvider(
+        return EthereumYieldSupplyService(
             networkService: networkService,
             wallet: wallet,
             contractAddressFactory: contractAddressFactory,

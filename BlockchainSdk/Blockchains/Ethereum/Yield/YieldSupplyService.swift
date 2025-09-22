@@ -20,7 +20,7 @@ public protocol YieldSupplyService {
     func allowance(tokenContractAddress: String) async throws -> Decimal
 }
 
-public final class EthereumYieldSupplyProvider: YieldSupplyService {
+public final class EthereumYieldSupplyService: YieldSupplyService {
     private let networkService: EthereumNetworkService
     private let wallet: Wallet
     private let contractAddressFactory: YieldSupplyContractAddressFactory
@@ -220,7 +220,7 @@ public final class EthereumYieldSupplyProvider: YieldSupplyService {
     }
 }
 
-extension EthereumYieldSupplyProvider {
+extension EthereumYieldSupplyService {
     enum Constants {
         static let yieldContractAddressStorageKey = "yieldContractAddressStorageKey"
     }
