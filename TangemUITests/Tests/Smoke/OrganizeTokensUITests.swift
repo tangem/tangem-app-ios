@@ -24,7 +24,7 @@ final class OrganizeTokensUITests: BaseTestCase {
 
     func testSortTokensByBalance_TokensSortedOnMain() {
         setAllureId(2754)
-        let expectedTokensOrder: [String] = ["Polygon", "Bitcoin", "Ethereum"]
+        let expectedTokensOrder: [String] = ["Ethereum", "POL (ex-MATIC)", "Polygon", "Bitcoin"]
         launchApp(tangemApiType: .mock)
 
         StoriesScreen(app)
@@ -40,7 +40,7 @@ final class OrganizeTokensUITests: BaseTestCase {
 
     func testChangeTokensOrder_TokensOrderChangedOnMain() {
         setAllureId(2753)
-        let expectedTokensOrder: [String] = ["Bitcoin", "Polygon", "Ethereum"]
+        let expectedTokensOrder: [String] = ["Bitcoin", "Polygon", "Ethereum", "POL (ex-MATIC)"]
         launchApp(tangemApiType: .mock)
 
         StoriesScreen(app)

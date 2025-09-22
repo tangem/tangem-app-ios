@@ -30,6 +30,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
+    @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -52,9 +53,9 @@ class TokenDetailsCoordinator: CoordinatorObject {
         self.options = options
 
         let notificationManager = SingleTokenNotificationManager(
+            userWalletId: options.userWalletModel.userWalletId,
             walletModel: options.walletModel,
-            walletModelsManager: options.userWalletModel.walletModelsManager,
-            contextDataProvider: options.userWalletModel
+            walletModelsManager: options.userWalletModel.walletModelsManager
         )
 
         let tokenRouter = SingleTokenRouter(
@@ -71,9 +72,16 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
 
-        let bannerNotificationManager = options.userWalletModel.config.hasFeature(.multiCurrency)
-            ? BannerNotificationManager(userWalletId: options.userWalletModel.userWalletId, placement: .tokenDetails(options.walletModel.tokenItem), contextDataProvider: options.userWalletModel)
-            : nil
+        let bannerNotificationManager: BannerNotificationManager? = {
+            guard options.userWalletModel.config.hasFeature(.multiCurrency) else {
+                return nil
+            }
+
+            return BannerNotificationManager(
+                userWallet: options.userWalletModel,
+                placement: .tokenDetails(options.walletModel.tokenItem)
+            )
+        }()
 
         let factory = XPUBGeneratorFactory(cardInteractor: options.userWalletModel.keysDerivingInteractor)
         let xpubGenerator = factory.makeXPUBGenerator(
@@ -120,7 +128,28 @@ extension TokenDetailsCoordinator {
 
 // MARK: - TokenDetailsRoutable
 
-extension TokenDetailsCoordinator: TokenDetailsRoutable {}
+extension TokenDetailsCoordinator: TokenDetailsRoutable {
+    func openYieldModulePromoView(walletModel: any WalletModel, info: YieldModuleInfo) {
+        let coordinator = YieldModulePromoCoordinator()
+
+        let options = YieldModulePromoCoordinator.Options(
+            walletModel: walletModel,
+            apy: info.apy,
+            networkFee: info.networkFee,
+            maximumFee: info.maximumFee,
+            lastYearReturns: info.lastYearReturns,
+        )
+
+        coordinator.start(with: options)
+        yieldModulePromoCoordinator = coordinator
+    }
+
+    func openYieldEarnInfo(params: YieldModuleBottomSheetParams.EarnInfoParams) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .earnInfo(params: params)))
+        }
+    }
+}
 
 // MARK: - PendingExpressTxStatusRoutable
 
@@ -273,11 +302,11 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         marketsTokenDetailsCoordinator = coordinator
     }
 
-    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel) {
+    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
-            type: .onramp,
+            type: .onramp(parameters: parameters),
             source: .tokenDetails
         )
         coordinator.start(with: options)
