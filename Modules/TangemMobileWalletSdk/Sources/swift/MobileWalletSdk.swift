@@ -39,6 +39,12 @@ public protocol MobileWalletSdk {
     /// - Throws: An error if export fails or authentication is invalid.
     func exportMnemonic(context: MobileWalletContext) throws -> [String]
 
+    /// Exports the passphrase for a mobile wallet.
+    /// - Parameter context: The wallet context containing authentication information.
+    /// - Returns: The passphrase for the wallet as `String`.
+    /// - Throws: An error if export fails or authentication is invalid.
+    func exportPassphrase(context: MobileWalletContext) throws -> String
+
     /// Exports the backup data for a mobile wallet.
     /// - Parameter context: The wallet context containing authentication information.
     /// - Returns: Backup data for the wallet as `Data`.

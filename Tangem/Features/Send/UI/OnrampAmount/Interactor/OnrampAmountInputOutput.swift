@@ -14,6 +14,7 @@ protocol OnrampAmountInput: AnyObject {
     var fiatCurrency: OnrampFiatCurrency? { get }
     var fiatCurrencyPublisher: AnyPublisher<OnrampFiatCurrency?, Never> { get }
 
+    var amount: Decimal? { get }
     var amountPublisher: AnyPublisher<Decimal?, Never> { get }
 }
 
