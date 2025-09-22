@@ -57,7 +57,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     func onAppear() {
         sendFinishAnalyticsLogger.logFinishStepOpened()
 
-        withAnimation(SendTransitionService.Constants.defaultAnimation) {
+        withAnimation(SendTransitions.animation) {
             showHeader = true
         }
     }
@@ -82,7 +82,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
             }
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] time in
-                withAnimation(SendTransitionService.Constants.defaultAnimation) {
+                withAnimation(SendTransitions.animation) {
                     self?.transactionSentTime = time
                 }
             })
