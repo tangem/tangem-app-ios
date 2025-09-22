@@ -212,10 +212,10 @@ extension StellarWalletManager: TransactionSender {
 
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         let tokens = cardTokens
-        
+
         let accountInfoPublisher = networkService.getInfo(accountId: wallet.address, isAsset: !tokens.isEmpty)
         let checkTargetAccountPublisher = networkService.checkTargetAccount(address: transaction.destinationAddress, token: transaction.amount.type.token)
-        
+
         return Publishers.Zip(
             accountInfoPublisher,
             checkTargetAccountPublisher
@@ -223,13 +223,13 @@ extension StellarWalletManager: TransactionSender {
         .withWeakCaptureOf(self)
         .tryMap { manager, responses in
             let (sourceAccountResponse, targetAccountResponse) = responses
-            
-            // Create a new builder instance with the updated sequence number to avoid mutating shared state
-            let txBuilder = manager.txBuilder.withSequence(sourceAccountResponse.sequence)
-            
-            let result = try txBuilder
+
+            // Change builder instance with the updated sequence number
+            manager.txBuilder.sequence = sourceAccountResponse.sequence
+
+            let result = try manager.txBuilder
                 .buildForSign(targetAccountResponse: targetAccountResponse, transaction: transaction)
-            
+
             return result
         }
         .withWeakCaptureOf(self)
