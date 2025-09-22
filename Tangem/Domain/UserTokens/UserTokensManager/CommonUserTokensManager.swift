@@ -13,10 +13,12 @@ import Foundation
 import TangemFoundation
 import TangemSdk
 
-class CommonUserTokensManager {
+@available(iOS, deprecated: 100000.0, message: "Superseded by 'AccountsAwareUserTokensManager', will be removed in the future")
+final class CommonUserTokensManager {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
     let derivationManager: DerivationManager?
+    weak var keysDerivingProvider: KeysDerivingProvider?
 
     private let userWalletId: UserWalletId
     private let shouldLoadExpressAvailability: Bool
@@ -25,10 +27,8 @@ class CommonUserTokensManager {
     private let derivationStyle: DerivationStyle?
     private let existingCurves: [EllipticCurve]
     private let longHashesSupported: Bool
-
-    weak var keysDerivingProvider: KeysDerivingProvider?
-
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
+
     init(
         userWalletId: UserWalletId,
         shouldLoadExpressAvailability: Bool,
@@ -93,7 +93,9 @@ class CommonUserTokensManager {
     }
 
     private func loadSwapAvailabilityStateIfNeeded(forceReload: Bool) {
-        guard shouldLoadExpressAvailability else { return }
+        guard shouldLoadExpressAvailability else {
+            return
+        }
 
         let converter = StorageEntryConverter()
         let tokenItems = converter.convertToTokenItem(userTokenListManager.userTokensList.entries)
@@ -131,8 +133,10 @@ class CommonUserTokensManager {
 
 extension CommonUserTokensManager: UserTokensManager {
     func deriveIfNeeded(completion: @escaping (Result<Void, Swift.Error>) -> Void) {
-        guard let derivationManager,
-              let interactor = keysDerivingProvider?.keysDerivingInteractor else {
+        guard
+            let derivationManager,
+            let interactor = keysDerivingProvider?.keysDerivingInteractor
+        else {
             completion(.success(()))
             return
         }
@@ -165,7 +169,9 @@ extension CommonUserTokensManager: UserTokensManager {
             $0.blockchainNetwork.blockchain.networkId == tokenItem.blockchainNetwork.blockchain.networkId
         }
 
-        guard targetsEntry.isNotEmpty else { return false }
+        guard targetsEntry.isNotEmpty else {
+            return false
+        }
 
         switch tokenItem {
         case .blockchain:
@@ -212,7 +218,7 @@ extension CommonUserTokensManager: UserTokensManager {
         let walletModelId = WalletModelId(tokenItem: tokenItem)
 
         guard let walletModel = walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
-            throw CommonUserTokensManager.Error.addressNotFound
+            throw Error.addressNotFound
         }
 
         return walletModel.defaultAddressString
@@ -238,7 +244,9 @@ extension CommonUserTokensManager: UserTokensManager {
 
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        guard let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork }) else {
+        guard
+            let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork })
+        else {
             return false
         }
 
@@ -257,21 +265,6 @@ extension CommonUserTokensManager: UserTokensManager {
 
         // We can remove token if there is no items in `tokenList`
         return tokenList.isEmpty
-    }
-
-    func canRemove(_ tokenItem: TokenItem) -> Bool {
-        guard tokenItem.isBlockchain else {
-            return true
-        }
-
-        let tokenItem = withBlockchainNetwork(tokenItem)
-
-        guard let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork }) else {
-            return false
-        }
-
-        let hasNoTokens = entry.tokens.isEmpty
-        return hasNoTokens
     }
 
     func remove(_ tokenItem: TokenItem) {
