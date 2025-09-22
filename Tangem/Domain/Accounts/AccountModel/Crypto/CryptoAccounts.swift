@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// - Warning: DO NOT create a helper/property like `accounts: [CryptoAccountModel]`, as it defeats the purpose of this enum.
 enum CryptoAccounts {
     /// A single (i.e. invisible) crypto account per single wallet, should not be rendered in the UI.
     case single(any CryptoAccountModel)
@@ -26,7 +27,6 @@ extension CryptoAccounts: ExpressibleByArrayLiteral {
 
 // MARK: - Convenience extensions
 
-/// - Warning: DO NOT create a helper/property like `accounts: [CryptoAccountModel]`, as it defeats the purpose of this enum.
 extension CryptoAccounts {
     init(accounts: [any CryptoAccountModel]) {
         switch accounts.count {
