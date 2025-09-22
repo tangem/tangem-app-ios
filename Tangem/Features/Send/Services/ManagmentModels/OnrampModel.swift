@@ -14,6 +14,7 @@ import TangemFoundation
 protocol OnrampModelRoutable: AnyObject {
     func openOnrampCountryBottomSheet(country: OnrampCountry)
     func openOnrampCountrySelectorView()
+    func openOnrampRedirecting()
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void)
     func openFinishStep()
 }
@@ -31,7 +32,9 @@ class OnrampModel {
 
     // MARK: - Dependencies
 
-    @Injected(\.onrampPendingTransactionsRepository) private var onrampPendingTransactionsRepository: OnrampPendingTransactionRepository
+    @Injected(\.onrampPendingTransactionsRepository)
+    private var onrampPendingTransactionsRepository: OnrampPendingTransactionRepository
+
     weak var router: OnrampModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
 
@@ -434,6 +437,31 @@ extension OnrampModel: OnrampProvidersOutput {
     }
 }
 
+// MARK: - OnrampProvidersOutput
+
+extension OnrampModel: RecentOnrampProviderFinder {
+    var recentOnrampProvider: OnrampProvider? {
+        guard let providers = _onrampProviders.value?.value else {
+            return nil
+        }
+
+        guard let recentTransaction = onrampPendingTransactionsRepository.recentTransaction else {
+            return nil
+        }
+
+        let relatedToWallet = recentTransaction.destinationTokenTxInfo.tokenItem == walletModel.tokenItem
+        guard relatedToWallet else {
+            return nil
+        }
+
+        let recent = providers.flatMap { $0.providers }.first(where: { provider in
+            provider.provider.id == recentTransaction.provider.id
+        })
+
+        return recent
+    }
+}
+
 // MARK: - OnrampPaymentMethodsInput
 
 extension OnrampModel: OnrampPaymentMethodsInput {
@@ -523,7 +551,12 @@ extension OnrampModel: OnrampInput {
 
 // MARK: - OnrampOutput
 
-extension OnrampModel: OnrampOutput {}
+extension OnrampModel: OnrampOutput {
+    func userDidRequestOnramp(provider: OnrampProvider) {
+        _selectedOnrampProvider.send(.success(provider))
+        router?.openOnrampRedirecting()
+    }
+}
 
 // MARK: - SendFinishInput
 

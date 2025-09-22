@@ -12,4 +12,6 @@ import BlockchainSdk
 protocol TokenDetailsRoutable: AnyObject {
     func dismiss()
     func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel)
+    func openYieldModulePromoView(walletModel: any WalletModel, info: YieldModuleInfo)
+    func openYieldEarnInfo(params: YieldModuleBottomSheetParams.EarnInfoParams)
 }

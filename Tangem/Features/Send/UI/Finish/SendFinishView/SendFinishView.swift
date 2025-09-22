@@ -64,6 +64,11 @@ struct SendFinishView: View {
                 OnrampStatusCompactView(viewModel: onrampStatusCompactViewModel)
             }
         }
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
+            if let url = viewModel.transactionURL {
+                bottomButtons(url: url)
+            }
+        }
         .onAppear(perform: viewModel.onAppear)
     }
 
@@ -86,5 +91,26 @@ struct SendFinishView: View {
         .transition(.move(edge: .top).combined(with: .opacity))
         .padding(.top, 4)
         .padding(.bottom, 10)
+    }
+
+    @ViewBuilder
+    private func bottomButtons(url: URL) -> some View {
+        HStack(spacing: 8) {
+            MainButton(
+                title: Localization.commonExplore,
+                icon: .leading(Assets.Glyphs.explore),
+                style: .secondary,
+                action: { viewModel.explore(url: url) }
+            )
+            MainButton(
+                title: Localization.commonShare,
+                icon: .leading(Assets.share),
+                style: .secondary,
+                action: { viewModel.share(url: url) }
+            )
+        }
+        .padding(.bottom, 8)
+        .padding(.horizontal, 16)
+        .transition(.opacity.animation(SendTransitionService.Constants.newAnimation))
     }
 }
