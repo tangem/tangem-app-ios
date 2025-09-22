@@ -177,7 +177,7 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        if FeatureProvider.isAvailable(.pushTransactionNotifications), userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
+        if userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
             pushNotificationsViewModel = TransactionNotificationsRowToggleViewModel(
                 userTokensPushNotificationsManager: userWalletModel.userTokensPushNotificationsManager,
                 coordinator: coordinator,
