@@ -19,7 +19,7 @@ class EthereumNetworkService: MultiNetworkProvider {
 
     let blockchainName: String
 
-    let decimals: Int
+    private let decimals: Int
     private let abiEncoder: ABIEncoder
 
     init(

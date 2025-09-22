@@ -47,7 +47,7 @@ public enum EthereumUtils {
         return balanceEth as Decimal
     }
 
-    public static func mapToBigUInt(_ decimal: Decimal) -> BigUInt {
+    static func mapToBigUInt(_ decimal: Decimal) -> BigUInt {
         if decimal == .zero {
             return .zero
         } else if decimal == .greatestFiniteMagnitude {

@@ -22,7 +22,6 @@ struct SendSourceToken {
     let transactionValidator: TransactionValidator
     let transactionCreator: TransactionCreator
     let transactionDispatcher: TransactionDispatcher
-    let yieldModuleManager: YieldModuleManager?
 }
 
 // MARK: - Equatable

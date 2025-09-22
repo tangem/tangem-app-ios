@@ -66,7 +66,7 @@ public enum YieldResponseMapper {
 
         let apr = aprDecimal / Constants.rayUnit
 
-        return (apr.exp(precision: 30) - 1) * 100
+        return (apr.exp() - Constants.decimalOne) * Constants.decimalOneHundred
     }
 }
 
