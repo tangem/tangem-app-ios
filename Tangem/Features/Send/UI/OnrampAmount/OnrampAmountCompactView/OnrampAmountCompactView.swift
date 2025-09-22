@@ -12,17 +12,10 @@ import TangemUI
 
 struct OnrampAmountCompactView: View {
     @ObservedObject var viewModel: OnrampAmountCompactViewModel
-    let namespace: SendAmountView.Namespace
 
     var body: some View {
         amountContent
-            .defaultRoundedBackground(
-                with: Colors.Background.action,
-                geometryEffect: .init(
-                    id: namespace.names.amountContainer,
-                    namespace: namespace.id
-                )
-            )
+            .defaultRoundedBackground(with: Colors.Background.action)
     }
 
     private var amountContent: some View {
@@ -33,7 +26,6 @@ struct OnrampAmountCompactView: View {
                 // Kingfisher shows a gray background even if it has a cached image
                 forceKingfisher: false
             )
-            .matchedGeometryEffect(id: namespace.names.tokenIcon, in: namespace.id)
 
             VStack(spacing: 12) {
                 textView
@@ -50,14 +42,12 @@ struct OnrampAmountCompactView: View {
                 .alignment(.center)
                 .prefixSuffixOptions(viewModel.currentFieldOptions)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
-                .matchedGeometryEffect(id: namespace.names.amountCryptoText, in: namespace.id)
                 .disabled(true) // TextField is read only
 
             // Keep empty text so that the view maintains its place in the layout
             Text(viewModel.alternativeAmount ?? " ")
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
-                .matchedGeometryEffect(id: namespace.names.amountFiatText, in: namespace.id)
         }
     }
 

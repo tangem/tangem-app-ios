@@ -13,7 +13,6 @@ import TangemUI
 
 struct SendNewDestinationView: View {
     @ObservedObject var viewModel: SendNewDestinationViewModel
-    let transitionService: SendTransitionService
 
     var body: some View {
         GroupedScrollView(spacing: 20) {
@@ -45,15 +44,10 @@ struct SendNewDestinationView: View {
             if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
                 if viewModel.shouldShowSuggestedDestination {
                     SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
-                        .transition(transitionService.newDestinationSuggestedViewTransition)
+                        .transition(.opacity.animation(SendTransitions.animation))
                 }
             }
         }
-        .transition(transitionService.transitionToNewDestinationStep())
         .onAppear(perform: viewModel.onAppear)
     }
-}
-
-extension SendNewDestinationView {
-    typealias Namespace = SendDestinationView.Namespace
 }
