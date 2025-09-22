@@ -13,7 +13,6 @@ import TangemUI
 
 struct SendNewFinishView: View {
     @ObservedObject var viewModel: SendNewFinishViewModel
-    let transitionService: SendTransitionService
 
     var body: some View {
         GroupedScrollView(spacing: 14) {
@@ -43,7 +42,6 @@ struct SendNewFinishView: View {
                 bottomButtons(url: url)
             }
         }
-        .transition(transitionService.newFinishViewTransition())
     }
 
     // MARK: - Header
@@ -64,7 +62,11 @@ struct SendNewFinishView: View {
             }
             .lineLimit(1)
         }
-        .transition(.offset(y: -30).combined(with: .opacity).animation(SendTransitionService.Constants.newAnimation))
+        .transition(
+            .offset(y: -30)
+                .combined(with: .opacity)
+                .animation(SendTransitions.animation)
+        )
         .padding(.bottom, 10)
     }
 
@@ -86,6 +88,8 @@ struct SendNewFinishView: View {
         }
         .padding(.bottom, 8)
         .padding(.horizontal, 16)
-        .transition(.opacity.animation(SendTransitionService.Constants.newAnimation))
+        .transition(
+            .opacity.animation(SendTransitions.animation)
+        )
     }
 }

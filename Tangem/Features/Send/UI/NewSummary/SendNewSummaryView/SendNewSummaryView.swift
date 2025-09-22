@@ -13,7 +13,6 @@ import TangemUI
 
 struct SendNewSummaryView: View {
     @ObservedObject var viewModel: SendNewSummaryViewModel
-    let transitionService: SendTransitionService
 
     var body: some View {
         GroupedScrollView(spacing: 14) {
@@ -30,7 +29,6 @@ struct SendNewSummaryView: View {
         .safeAreaInset(edge: .bottom, spacing: .zero) {
             descriptionView
         }
-        .transition(transitionService.newSummaryViewTransition())
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
     }
