@@ -27,9 +27,13 @@ class BaseTestCase: XCTestCase {
         app.launchEnvironment.removeAll()
         app.terminate()
 
-        // Reset WireMock scenarios after each test
+        // Reset only active WireMock scenarios after each test
         if !activeScenarios.isEmpty {
-            wireMockClient.resetAllScenariosSync()
+            XCTContext.runActivity(named: "Reset active WireMock scenarios") { _ in
+                for scenarioName in activeScenarios.keys {
+                    wireMockClient.resetScenarioSync(scenarioName)
+                }
+            }
             activeScenarios.removeAll()
         }
 
@@ -66,22 +70,26 @@ class BaseTestCase: XCTestCase {
 
     // MARK: - WireMock Scenario Management
 
-    /// Setup WireMock scenarios before app launch
-    private func setupWireMockScenarios(_ scenarios: [ScenarioConfig]) {
+    func setupWireMockScenarios(_ scenarios: [ScenarioConfig]) {
         guard !scenarios.isEmpty else { return }
 
         XCTContext.runActivity(named: "Setup WireMock scenarios") { _ in
-            // First reset all scenarios
-            wireMockClient.resetAllScenariosSync()
-
             // Set initial states for specified scenarios
             for scenario in scenarios {
+                wireMockClient.setScenarioStateSync(scenario.name, state: scenario.initialState)
+
                 if scenario.initialState != "Started" {
-                    wireMockClient.setScenarioStateSync(scenario.name, state: scenario.initialState)
+                    activeScenarios[scenario.name] = scenario.initialState
                 }
-                activeScenarios[scenario.name] = scenario.initialState
             }
         }
+    }
+
+    func pullToRefresh() {
+        let startCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+        let finishCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
+
+        startCoordinate.press(forDuration: 0.05, thenDragTo: finishCoordinate)
     }
 }
 
