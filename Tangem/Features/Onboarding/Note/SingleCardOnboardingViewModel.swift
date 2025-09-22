@@ -148,7 +148,7 @@ class SingleCardOnboardingViewModel: OnboardingViewModel<SingleCardOnboardingSte
         guard let cardInitializer = input.cardInitializer else { return }
 
         AppSettings.shared.cardsStartedActivation.insert(input.primaryCardId)
-        Analytics.log(.buttonCreateWallet)
+        logAnalytics(.buttonCreateWallet)
         isMainButtonBusy = true
 
         cardInitializer.initializeCard(mnemonic: nil, passphrase: nil) { [weak self] result in
@@ -158,7 +158,7 @@ class SingleCardOnboardingViewModel: OnboardingViewModel<SingleCardOnboardingSte
             case .success(let result):
                 initializeUserWallet(from: result)
 
-                Analytics.log(.walletCreatedSuccessfully, params: [.creationType: .walletCreationTypePrivateKey])
+                logAnalytics(.walletCreatedSuccessfully, params: [.creationType: .walletCreationTypePrivateKey])
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.goToNextStep()
@@ -170,7 +170,7 @@ class SingleCardOnboardingViewModel: OnboardingViewModel<SingleCardOnboardingSte
 
             case .failure(let error):
                 AppLogger.error(error: error)
-                Analytics.logScanError(error, source: .onboarding)
+                Analytics.logScanError(error, source: .onboarding, contextParams: getContextParams())
                 alert = error.alertBinder
             }
 
