@@ -15,37 +15,22 @@ import TangemAccessibilityIdentifiers
 struct SendAmountView: View {
     @ObservedObject var viewModel: SendAmountViewModel
 
-    let transitionService: SendTransitionService
-    let namespace: Namespace
-
     var body: some View {
         GroupedScrollView(spacing: 14) {
             amountContainer
 
-            if viewModel.auxiliaryViewsVisible {
-                segmentControl
-            }
+            segmentControl
         }
-        .id(viewModel.id)
-        .animation(SendTransitionService.Constants.defaultAnimation, value: viewModel.auxiliaryViewsVisible)
-        .transition(transitionService.transitionToAmountStep(isEditMode: viewModel.isEditMode))
         .onAppear(perform: viewModel.onAppear)
     }
 
     private var amountContainer: some View {
         VStack(spacing: 32) {
             walletInfoView
-                .visible(viewModel.auxiliaryViewsVisible)
 
             amountContent
         }
-        .defaultRoundedBackground(
-            with: Colors.Background.action,
-            geometryEffect: .init(
-                id: namespace.names.amountContainer,
-                namespace: namespace.id
-            )
-        )
+        .defaultRoundedBackground(with: Colors.Background.action)
     }
 
     private var walletInfoView: some View {
@@ -53,12 +38,10 @@ struct SendAmountView: View {
             Text(viewModel.walletHeaderText)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
-                .matchedGeometryEffect(id: namespace.names.walletName, in: namespace.id)
 
             SensitiveText(viewModel.balance)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
-                .matchedGeometryEffect(id: namespace.names.walletBalance, in: namespace.id)
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.balanceLabel)
         }
         // Because the top padding have to be is 16 to the white background
@@ -74,7 +57,6 @@ struct SendAmountView: View {
                 // Kingfisher shows a gray background even if it has a cached image
                 forceKingfisher: false
             )
-            .matchedGeometryEffect(id: namespace.names.tokenIcon, in: namespace.id)
 
             VStack(spacing: 6) {
                 SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
@@ -82,13 +64,11 @@ struct SendAmountView: View {
                     .alignment(.center)
                     .prefixSuffixOptions(viewModel.currentFieldOptions)
                     .minTextScale(SendAmountStep.Constants.amountMinTextScale)
-                    .matchedGeometryEffect(id: namespace.names.amountCryptoText, in: namespace.id)
 
                 // Keep empty text so that the view maintains its place in the layout
                 Text(viewModel.alternativeAmount ?? " ")
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .lineLimit(1)
-                    .matchedGeometryEffect(id: namespace.names.amountFiatText, in: namespace.id)
 
                 bottomInfoText
             }
@@ -128,37 +108,5 @@ struct SendAmountView: View {
                 .frame(width: proxy.size.width / 3)
             }
         }
-        .transition(transitionService.amountAuxiliaryViewTransition)
     }
 }
-
-extension SendAmountView {
-    struct Namespace {
-        let id: SwiftUI.Namespace.ID
-        let names: any SendAmountViewGeometryEffectNames
-    }
-}
-
-/*
- struct SendAmountView_Previews: PreviewProvider {
-     static let viewModel = SendAmountViewModel(
-         inputModel: SendDependenciesBuilder (userWalletName: "Wallet", wallet: .mockETH).makeStakingAmountInput(),
-         cryptoFiatAmountConverter: .init(),
-         input: StakingAmountInputMock(),
-         output: StakingAmountOutputMock()
-     )
-
-     @Namespace static var namespace
-
-     static var previews: some View {
-         ZStack {
-             Colors.Background.tertiary.ignoresSafeArea()
-
-             SendAmountView(
-                 viewModel: viewModel,
-                 namespace: .init(id: namespace, names: StakingViewNamespaceID())
-             )
-         }
-     }
- }
- */
