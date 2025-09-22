@@ -251,9 +251,10 @@ final class VisaUserWalletModel {
 
             tokenItem = .token(interactor.visaToken, .init(blockchain, derivationPath: nil))
             if let authorizationTokensHandler,
-               let customerInfo = customerCardInfo.customerInfo {
+               let customerInfo = customerCardInfo.customerInfo,
+               let productInstance = customerInfo.productInstance {
                 setupTransactionHistoryService(
-                    productInstanceId: customerInfo.productInstance.id,
+                    productInstanceId: productInstance.id,
                     authorizationTokensHandler: authorizationTokensHandler
                 )
             }
