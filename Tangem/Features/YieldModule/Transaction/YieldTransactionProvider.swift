@@ -37,12 +37,11 @@ final class YieldTransactionProvider {
         walletAddress: String,
         tokenContractAddress: String,
         yieldContractAddress: String,
-        balance: BigUInt,
         fee: DeployEnterFee
     ) async throws -> [Transaction] {
         let deployTransaction = try await deployTransaction(
             walletAddress: walletAddress,
-            tokenContractAddress: yieldSupplyContractAddresses.factoryContractAddress,
+            tokenContractAddress: tokenContractAddress,
             fee: fee.deployFee
         )
 
@@ -231,19 +230,6 @@ private extension YieldTransactionProvider {
         fee: Fee
     ) async throws -> Transaction {
         let smartContract = ReactivateTokenMethod(
-            tokenContractAddress: tokenContractAddress,
-            maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue)!
-        )
-
-        return try await transaction(contractAddress: yieldContractAddress, txData: smartContract.data, fee: fee)
-    }
-
-    private func initTokenTransaction(
-        tokenContractAddress: String,
-        yieldContractAddress: String,
-        fee: Fee
-    ) async throws -> Transaction {
-        let smartContract = InitYieldTokenMethod(
             tokenContractAddress: tokenContractAddress,
             maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue)!
         )

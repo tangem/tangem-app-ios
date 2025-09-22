@@ -142,8 +142,10 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
     public func getBalance(yieldSupplyStatus: YieldSupplyStatus, token: Token) async throws -> Amount {
         let effectiveMethod = EffectiveBalanceMethod(tokenContractAddress: token.contractAddress)
 
+        async let yieldContract = getYieldContract()
+
         let effectiveRequest = try await YieldSmartContractRequest(
-            contractAddress: getYieldContract(),
+            contractAddress: yieldContract,
             method: effectiveMethod
         )
 
@@ -159,14 +161,14 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
                 throw YieldModuleError.unableToParseData
             }
 
-            return try await Amount(
+            return Amount(
                 with: wallet.blockchain,
                 type: .token(
                     value: token.withMetadata(
                         TokenMetadata(
                             kind: .yield(
                                 supplyInfo: TokenYieldSupply(
-                                    yieldContractAddress: getYieldContract(),
+                                    yieldContractAddress: try await yieldContract,
                                     isActive: yieldSupplyStatus.active,
                                     isInitialized: yieldSupplyStatus.active,
                                     allowance: allowanceResult

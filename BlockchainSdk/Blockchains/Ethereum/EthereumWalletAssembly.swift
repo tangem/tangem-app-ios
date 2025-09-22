@@ -45,7 +45,6 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
             decimals: blockchain.decimalCount,
             providers: providers,
             abiEncoder: WalletCoreABIEncoder(),
-            yieldSupplyServiceFactory: yieldSupplyServiceFactory,
             blockchainName: input.wallet.blockchain.displayName
         )
 

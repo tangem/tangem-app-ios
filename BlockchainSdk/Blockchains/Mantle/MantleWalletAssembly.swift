@@ -30,7 +30,6 @@ struct MantleWalletAssembly: WalletManagerAssembly {
             decimals: wallet.blockchain.decimalCount,
             providers: providers,
             abiEncoder: WalletCoreABIEncoder(),
-            yieldSupplyServiceFactory: yieldSupplyServiceFactory,
             blockchainName: wallet.blockchain.displayName
         )
 

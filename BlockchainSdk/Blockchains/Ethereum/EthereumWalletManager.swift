@@ -41,9 +41,14 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
         cancellable = addressConverter.convertToETHAddressPublisher(wallet.address)
             .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedAddress in
+            .flatMap { walletManager,
+                convertedAddress in
                 walletManager.networkService
-                    .getInfo(address: convertedAddress, tokens: walletManager.cardTokens)
+                    .getInfo(
+                        address: convertedAddress,
+                        tokens: walletManager.cardTokens,
+                        yieldSupplyService: walletManager.yieldSupplyService
+                    )
             }
             .sink(receiveCompletion: { [weak self] completionSubscription in
                 if case .failure(let error) = completionSubscription {
@@ -209,7 +214,11 @@ extension EthereumWalletManager: EthereumNetworkProvider {
         addressConverter.convertToETHAddressPublisher(address)
             .withWeakCaptureOf(self)
             .flatMap { walletManager, convertedAddress in
-                walletManager.networkService.getTokensBalance(convertedAddress, tokens: tokens)
+                walletManager.networkService.getTokensBalance(
+                    convertedAddress,
+                    tokens: tokens,
+                    yieldSupplyService: walletManager.yieldSupplyService
+                )
             }
             .eraseToAnyPublisher()
     }
@@ -337,7 +346,7 @@ private extension EthereumWalletManager {
         for tokenBalance in response.tokenBalances {
             switch tokenBalance.value {
             case .success(let value):
-                wallet.add(tokenValue: value, for: tokenBalance.key)
+                wallet.add(amount: value)
             case .failure:
                 wallet.clearAmount(for: tokenBalance.key)
             }

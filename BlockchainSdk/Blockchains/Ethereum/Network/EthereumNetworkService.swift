@@ -21,20 +21,17 @@ class EthereumNetworkService: MultiNetworkProvider {
 
     let decimals: Int
     private let abiEncoder: ABIEncoder
-    private let yieldSupplyServiceFactory: YieldSupplyServiceFactory?
 
     init(
         decimals: Int,
         providers: [EthereumJsonRpcProvider],
         abiEncoder: ABIEncoder,
-        yieldSupplyServiceFactory: YieldSupplyServiceFactory? = nil,
         blockchainName: String
     ) {
         self.providers = providers
         self.decimals = decimals
         self.abiEncoder = abiEncoder
         self.blockchainName = blockchainName
-        self.yieldSupplyServiceFactory = yieldSupplyServiceFactory
     }
 
     func send(transaction: String) -> AnyPublisher<String, Error> {
@@ -43,10 +40,14 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
-    func getInfo(address: String, tokens: [Token]) -> AnyPublisher<EthereumInfoResponse, Error> {
+    func getInfo(
+        address: String,
+        tokens: [Token],
+        yieldSupplyService: YieldSupplyService?
+    ) -> AnyPublisher<EthereumInfoResponse, Error> {
         Publishers.Zip4(
             getBalance(address),
-            getTokensBalance(address, tokens: tokens),
+            getTokensBalance(address, tokens: tokens, yieldSupplyService: yieldSupplyService),
             getTxCount(address),
             getPendingTxCount(address)
         )
@@ -145,24 +146,24 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
-    func getTokensBalance(_ address: String, tokens: [Token]) -> AnyPublisher<[Token: Result<Amount, Error>], Error> {
-        return Just(yieldSupplyServiceFactory?.makeProvider(networkService: self))
-            .flatMap { yieldSupplyService in
-                tokens
-                    .publisher
-                    .setFailureType(to: Error.self)
-                    .withWeakCaptureOf(self)
-                    .flatMap { networkService, token -> AnyPublisher<(Token, Result<Amount, Error>), Error> in
-                        networkService.getTokenBalance(
-                            address: address,
-                            token: token,
-                            yieldSupplyService: yieldSupplyService
-                        )
-                    }
-                    .collect()
-                    .map { $0.reduce(into: [Token: Result<Amount, Error>]()) { $0[$1.0] = $1.1 }}
-                    .eraseToAnyPublisher()
+    func getTokensBalance(
+        _ address: String,
+        tokens: [Token],
+        yieldSupplyService: YieldSupplyService?
+    ) -> AnyPublisher<[Token: Result<Amount, Error>], Error> {
+        tokens
+            .publisher
+            .setFailureType(to: Error.self)
+            .withWeakCaptureOf(self)
+            .flatMap { networkService, token -> AnyPublisher<(Token, Result<Amount, Error>), Error> in
+                networkService.getTokenBalance(
+                    address: address,
+                    token: token,
+                    yieldSupplyService: yieldSupplyService
+                )
             }
+            .collect()
+            .map { $0.reduce(into: [Token: Result<Amount, Error>]()) { $0[$1.0] = $1.1 }}
             .eraseToAnyPublisher()
     }
 

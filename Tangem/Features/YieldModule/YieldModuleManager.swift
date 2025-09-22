@@ -182,7 +182,6 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                 walletAddress: walletAddress,
                 tokenContractAddress: token.contractAddress,
                 yieldContractAddress: yieldModule,
-                balance: balanceBigUInt,
                 fee: deployEnterFee
             )
 
@@ -263,7 +262,7 @@ private extension CommonYieldModuleManager {
         case .loaded:
             guard let balance, case .token(let token) = balance.type,
                   case .yield(let supply) = token.metadata.kind else {
-                return try await .notActive(apy: apy)
+                return .notActive(apy: try await apy)
             }
             return try await .active(
                 .init(
