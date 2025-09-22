@@ -29,6 +29,8 @@ enum IncomingActionConstants {
         static let walletId = "wallet_id"
         static let derivationPath = "derivation_path"
         static let transactionId = "transaction_id"
+        static let entry = "entry"
+        static let id = "id"
         static let promoCode = "promo_code"
     }
 
@@ -42,6 +44,7 @@ enum IncomingActionConstants {
         case swap
         case sell
         case link
+        case onboardVisa = "onboard-visa"
         case promo
     }
 
