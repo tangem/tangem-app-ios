@@ -13,7 +13,7 @@ import TangemUIUtils
 struct AuthCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AuthCoordinator
 
-    private var namespace: Namespace.ID?
+    private var geometryEffect: GeometryEffectPropertiesModel?
 
     init(coordinator: AuthCoordinator) {
         self.coordinator = coordinator
@@ -32,7 +32,7 @@ struct AuthCoordinatorView: CoordinatorView {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 AuthView(viewModel: rootViewModel)
-                    .setNamespace(namespace)
+                    .setGeometryEffect(geometryEffect)
             }
 
             if let rootViewModel = coordinator.newRootViewModel {
@@ -64,7 +64,7 @@ struct AuthCoordinatorView: CoordinatorView {
 }
 
 extension AuthCoordinatorView: Setupable {
-    func setNamespace(_ namespace: Namespace.ID) -> Self {
-        map { $0.namespace = namespace }
+    func setGeometryEffect(_ geometryEffect: GeometryEffectPropertiesModel) -> Self {
+        map { $0.geometryEffect = geometryEffect }
     }
 }
