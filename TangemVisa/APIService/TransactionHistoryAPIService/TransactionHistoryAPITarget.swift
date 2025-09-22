@@ -35,12 +35,14 @@ struct TransactionHistoryAPITarget: TargetType {
     var task: Task {
         switch target {
         case .txHistoryPage(let request):
-            let requestParams = [
-                VisaConstants.cardIdKey: request.cardId,
+            var requestParams: [String: String] = [
                 VisaConstants.productInstanceIdKey: request.productInstanceId,
                 ParameterKey.offset.rawValue: "\(request.offset)",
                 ParameterKey.limit.rawValue: "\(request.numberOfItems)",
             ]
+            if let cardId = request.cardId {
+                requestParams[VisaConstants.cardIdKey] = cardId
+            }
             return .requestParameters(parameters: requestParams, encoding: URLEncoding.default)
         }
     }
