@@ -74,6 +74,9 @@ class MobileWalletAddressesTests {
 
             let address = try addressService.makeAddress(for: walletPublicKey, with: .default)
 
+            // Did you add new blockchain and got failure here?
+            // generate address for seedphrase "tiny escape drive pupil flavor endless love walk gadget match filter luxury"
+            // and put it to test_addresses.json file
             #expect(json[blockchain.networkId] == address.value)
         }
     }
