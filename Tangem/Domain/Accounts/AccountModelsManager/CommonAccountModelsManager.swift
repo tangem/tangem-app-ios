@@ -180,6 +180,10 @@ extension CommonAccountModelsManager: AccountModelsManager {
         areHDWalletsSupported
     }
 
+    nonisolated var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+        .just(output: true)
+    }
+
     nonisolated var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         makeOrGetAccountModelsPublisher()
     }

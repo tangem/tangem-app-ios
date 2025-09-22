@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import CombineExt
 import TangemLocalization
 import TangemFoundation
 import TangemAccessibilityIdentifiers
@@ -25,7 +26,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published private(set) var name: String
-    @Published var accountsViewModel: UserSettingsAccountsViewModel
+    @Published var accountsViewModel: UserSettingsAccountsViewModel?
     @Published var mobileUpgradeNotificationInput: NotificationViewInput?
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
@@ -117,14 +118,13 @@ private extension UserWalletSettingsViewModel {
         userWalletModel.accountModelsManager
             .accountModelsPublisher
             .withWeakCaptureOf(self)
-            .sink { viewModel, accounts in
-                // [REDACTED_TODO_COMMENT]
-                viewModel.accountsViewModel = UserSettingsAccountsViewModel(
+            .map { viewModel, accounts in
+                UserSettingsAccountsViewModel(
                     accountModels: accounts,
-                    canAddNewAccountPublisher: .just(output: true),
-                    archivedAccountsPublisher: .just(output: .standard(.multiple([])))
+                    accountModelsManager: viewModel.userWalletModel.accountModelsManager
                 )
             }
+            .assign(to: \.accountsViewModel, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
