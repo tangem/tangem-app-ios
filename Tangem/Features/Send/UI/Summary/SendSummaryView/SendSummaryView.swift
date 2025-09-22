@@ -163,6 +163,7 @@ struct SendSummaryView: View {
             Text(transactionDescription)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
+                .padding(.vertical, 8)
                 .visible(viewModel.transactionDescriptionIsVisible)
         }
     }

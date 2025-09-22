@@ -17,14 +17,14 @@ struct OnrampOffersSelectorView: View {
     var backButtonVisible: Bool {
         switch viewModel.viewState {
         case .paymentMethods: false
-        case .providers: true
+        case .offers: true
         }
     }
 
     var subtitle: String {
         switch viewModel.viewState {
         case .paymentMethods: Localization.onrampPaymentMethodSubtitle
-        case .providers: Localization.onrampProvidersSubtitle
+        case .offers: Localization.onrampProvidersSubtitle
         }
     }
 
@@ -50,6 +50,7 @@ struct OnrampOffersSelectorView: View {
             .animation(.contentFrameUpdate, value: viewModel.viewState)
             .padding(.bottom, 16)
         }
+        .onDisappear(perform: viewModel.onDisappear)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
@@ -60,11 +61,11 @@ struct OnrampOffersSelectorView: View {
     @ViewBuilder
     var content: some View {
         switch viewModel.viewState {
-        case .paymentMethods:
-            ForEach(viewModel.paymentMethods) {
+        case .paymentMethods(let paymentMethods):
+            ForEach(paymentMethods) {
                 OnrampProviderItemView(viewModel: $0)
             }
-        case .providers(let providers):
+        case .offers(let providers):
             ForEach(providers) {
                 OnrampOfferView(viewModel: $0)
             }

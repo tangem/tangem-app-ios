@@ -730,11 +730,17 @@ struct SendDependenciesBuilder {
 
         let factory = TangemExpressFactory()
         let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
+        let sortType: ProviderItemSorter.SortType = if FeatureProvider.isAvailable(.newOnrampUI) { .byOnrampProviderExpectedAmount
+        } else {
+            .byPaymentMethodPriority
+        }
+
         let manager = factory.makeOnrampManager(
             expressAPIProvider: apiProvider,
             onrampRepository: repository,
             dataRepository: dataRepository,
             analyticsLogger: CommonExpressAnalyticsLogger(tokenItem: walletModel.tokenItem),
+            providerItemSorter: ProviderItemSorter(sortType: sortType),
             preferredValues: preferredValues
         )
 
