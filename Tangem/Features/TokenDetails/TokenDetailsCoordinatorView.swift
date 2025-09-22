@@ -40,6 +40,9 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.marketsTokenDetailsCoordinator) {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.yieldModulePromoCoordinator) {
+                YieldModulePromoCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -68,6 +71,9 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
+            }
+            .floatingSheetContent(for: YieldModuleBottomSheetViewModel.self) {
+                YieldModuleBottomSheetView(viewModel: $0)
             }
     }
 }

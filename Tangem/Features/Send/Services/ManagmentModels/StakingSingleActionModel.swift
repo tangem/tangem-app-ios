@@ -24,6 +24,7 @@ class StakingSingleActionModel {
 
     private let _state = CurrentValueSubject<State, Never>(.loading)
     private let _transactionTime = PassthroughSubject<Date?, Never>()
+    private let _transactionURL = PassthroughSubject<URL?, Never>()
     private let _isLoading = CurrentValueSubject<Bool, Never>(false)
 
     // MARK: - Dependencies
@@ -165,6 +166,7 @@ private extension StakingSingleActionModel {
 
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
+        _transactionURL.send(result.url)
         analyticsLogger.logTransactionSent(fee: selectedFee, signerType: result.signerType)
     }
 
@@ -287,6 +289,10 @@ extension StakingSingleActionModel: StakingValidatorsInput {
 extension StakingSingleActionModel: SendFinishInput {
     var transactionSentDate: AnyPublisher<Date, Never> {
         _transactionTime.compactMap { $0 }.first().eraseToAnyPublisher()
+    }
+
+    var transactionURL: AnyPublisher<URL?, Never> {
+        _transactionURL.eraseToAnyPublisher()
     }
 }
 
