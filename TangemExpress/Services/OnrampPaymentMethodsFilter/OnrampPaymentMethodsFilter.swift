@@ -19,7 +19,7 @@ struct OnrampPaymentMethodsFilter {
             // We cannot check if the user has an setup card
             // because this requires the turning on of the "ApplePay" function
             // In capabilities which gives us additional trouble
-            // The we use the `canMakePayments()` method which return flag about
+            // Then we are using the `canMakePayments()` method which return flag about
             // the hardware and parental controls allow making payments
             return PKPaymentAuthorizationViewController.canMakePayments()
         }

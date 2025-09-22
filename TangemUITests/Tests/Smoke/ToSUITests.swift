@@ -17,6 +17,6 @@ final class ToSUITests: BaseTestCase {
         tosPage
             .acceptAgreement()
             .scanMockWallet(name: .wallet2)
-            .validate()
+            .validate(cardType: .wallet2)
     }
 }

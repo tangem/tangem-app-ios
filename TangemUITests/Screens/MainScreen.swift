@@ -17,22 +17,40 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var tokensList = otherElement(.tokensList)
     private lazy var organizeTokensButton = button(.organizeTokensButton)
     private lazy var detailsButton = button(.detailsButton)
+    private lazy var actionButtonsList = otherElement(.actionButtonsList)
+    private lazy var headerCardImage = image(.headerCardImage)
 
-    func validate() {
-        XCTContext.runActivity(named: "Validate MainPage") { _ in
-            XCTAssertTrue(buyTitle.waitForExistence(timeout: .robustUIUpdate))
-            XCTAssertTrue(exchangeTitle.exists)
-            XCTAssertTrue(sellTitle.exists)
+    func validate(cardType: CardMockAccessibilityIdentifiers) {
+        XCTContext.runActivity(named: "Validate MainPage for card type: \(cardType.rawValue)") { _ in
+            validateHeaderCardImage(for: cardType)
+
+            switch cardType {
+            case .twin, .xrpNote, .xlmBird:
+                XCTAssertTrue(actionButtonsList.waitForExistence(timeout: .robustUIUpdate), "Action buttons list should exist for twin cards")
+
+                let buttonTexts = actionButtonsList.buttons.allElementsBoundByIndex.map { $0.label }
+                XCTAssertTrue(buttonTexts.contains("Buy"), "Buy button should exist")
+                XCTAssertTrue(buttonTexts.contains("Receive"), "Receive button should exist")
+            case .wallet, .wallet2, .walletDemo, .wallet2Demo, .shiba, .four12, .v3seckp, .ring:
+                XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
+                XCTAssertTrue(buyTitle.waitForExistence(timeout: .robustUIUpdate), "Buy button should exist for wallet cards")
+                XCTAssertTrue(exchangeTitle.exists, "Exchange button should exist for wallet cards")
+                XCTAssertTrue(sellTitle.exists, "Sell button should exist for wallet cards")
+            default:
+                XCTFail("Provide card verification methods for card type: \(String(describing: cardType))")
+            }
         }
     }
 
     func tapToken(_ label: String) -> TokenScreen {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
+            XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
             tokensList.staticTextByLabel(label: label).waitAndTap()
             return TokenScreen(app)
         }
     }
 
+    @discardableResult
     func organizeTokens() -> OrganizeTokensScreen {
         XCTContext.runActivity(named: "Open organize tokens screen") { _ in
             // Ensure tokens list is loaded first
@@ -66,6 +84,24 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             let tokenElement = tokensList.staticTextByLabel(label: label)
             XCTAssertFalse(tokenElement.exists, "Token with label '\(label)' should not exist in the list")
         }
+    }
+
+    @discardableResult
+    func validateDeveloperCardBannerExists() -> Self {
+        XCTContext.runActivity(named: "Validate developer card banner exists") { _ in
+            let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.developerCardBanner]
+            waitAndAssertTrue(bannerElement, "Developer card banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func validateMandatorySecurityUpdateBannerExists() -> Self {
+        XCTContext.runActivity(named: "Validate mandatory security update banner exists") { _ in
+            let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner]
+            waitAndAssertTrue(bannerElement, "Mandatory security update banner should be displayed")
+        }
+        return self
     }
 
     func getTokensOrder() -> [String] {
@@ -140,6 +176,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         return self
     }
 
+    @discardableResult
     func openDetails() -> DetailsScreen {
         XCTContext.runActivity(named: "Open details screen") { _ in
             detailsButton.waitAndTap()
@@ -166,6 +203,8 @@ enum MainScreenElement: String, UIElement {
     case tokensList
     case organizeTokensButton
     case detailsButton
+    case actionButtonsList
+    case headerCardImage
 
     var accessibilityIdentifier: String {
         switch self {
@@ -181,6 +220,26 @@ enum MainScreenElement: String, UIElement {
             MainAccessibilityIdentifiers.organizeTokensButton
         case .detailsButton:
             MainAccessibilityIdentifiers.detailsButton
+        case .actionButtonsList:
+            TokenAccessibilityIdentifiers.actionButtonsList
+        case .headerCardImage:
+            MainAccessibilityIdentifiers.headerCardImage
+        }
+    }
+}
+
+extension MainScreen {
+    private func validateHeaderCardImage(for cardType: CardMockAccessibilityIdentifiers) {
+        XCTContext.runActivity(named: "Validate header card image for card type: \(cardType.rawValue)") { _ in
+            switch cardType {
+            case .xlmBird, .v3seckp:
+                break
+            default:
+                XCTAssertTrue(
+                    headerCardImage.waitForExistence(timeout: .robustUIUpdate),
+                    "Header card image should be present for card type: \(cardType.rawValue)"
+                )
+            }
         }
     }
 }
