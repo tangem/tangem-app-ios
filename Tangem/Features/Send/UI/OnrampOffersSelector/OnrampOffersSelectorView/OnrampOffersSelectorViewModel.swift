@@ -14,8 +14,17 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
 
-    @Published private(set) var viewState: ViewState = .paymentMethods
-    @Published private(set) var paymentMethods: [OnrampProviderItemViewModel] = []
+    var viewState: ViewState {
+        switch selectedProviderItem {
+        case .some(let item):
+            return .offers(mapToOnrampOfferViewModels(item: item))
+        case .none:
+            return .paymentMethods(mapToOnrampPaymentMethodRowViewData(providers: providersList))
+        }
+    }
+
+    @Published private var providersList: ProvidersList = []
+    @Published private var selectedProviderItem: ProviderItem?
 
     private let tokenItem: TokenItem
 
@@ -32,14 +41,17 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
         bind()
     }
 
+    func onDisappear() {
+        selectedProviderItem = nil
+    }
+
     func back() {
-        viewState = .paymentMethods
+        selectedProviderItem = nil
     }
 
     func close() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
-            viewState = .paymentMethods
         }
     }
 }
@@ -50,25 +62,26 @@ private extension OnrampOffersSelectorViewModel {
     func bind() {
         input?.onrampProvidersPublisher
             .compactMap { $0?.value }
-            .withWeakCaptureOf(self)
-            .map { $0.mapToOnrampPaymentMethodRowViewData(providers: $1) }
+            .map { providers in
+                providers
+                    .sorted { $0.paymentMethod.type.priority > $1.paymentMethod.type.priority }
+                    .filter { $0.hasSuccessfullyLoadedProviders() }
+            }
             .receiveOnMain()
-            .assign(to: &$paymentMethods)
+            .assign(to: &$providersList)
     }
 
     func mapToOnrampPaymentMethodRowViewData(providers: ProvidersList) -> [OnrampProviderItemViewModel] {
-        providers
-            .filter { $0.hasSuccessfullyLoadedProviders() }
-            .map { providerItem in
-                onrampProvidersItemViewModelBuilder.mapToOnrampProviderItemViewModel(
-                    providerItem: providerItem
-                ) { [weak self] in
-                    self?.updateViewState(item: providerItem)
-                }
+        providers.map { providerItem in
+            onrampProvidersItemViewModelBuilder.mapToOnrampProviderItemViewModel(
+                providerItem: providerItem
+            ) { [weak self] in
+                self?.selectedProviderItem = providerItem
             }
+        }
     }
 
-    func updateViewState(item: ProviderItem) {
+    func mapToOnrampOfferViewModels(item: ProviderItem) -> [OnrampOfferViewModel] {
         let offers = item.successfullyLoadedProviders().map { provider in
             onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
                 self?.close()
@@ -76,13 +89,13 @@ private extension OnrampOffersSelectorViewModel {
             }
         }
 
-        viewState = .providers(offers)
+        return offers
     }
 }
 
 extension OnrampOffersSelectorViewModel {
     enum ViewState: Hashable {
-        case paymentMethods
-        case providers([OnrampOfferViewModel])
+        case paymentMethods([OnrampProviderItemViewModel])
+        case offers([OnrampOfferViewModel])
     }
 }
