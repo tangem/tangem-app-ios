@@ -12,7 +12,6 @@ import TangemUI
 struct SendAmountCompactView: View {
     let viewModel: SendAmountCompactViewModel
     let type: SendCompactViewEditableType
-    let namespace: SendAmountView.Namespace
 
     var body: some View {
         GroupedSection(viewModel) { _ in
@@ -20,7 +19,6 @@ struct SendAmountCompactView: View {
         }
         .innerContentPadding(16)
         .backgroundColor(type.background)
-        .geometryEffect(.init(id: namespace.names.amountContainer, namespace: namespace.id))
         .readGeometry(\.size, onChange: { viewModel.viewSize = $0 })
         .contentShape(Rectangle())
         .onTapGesture {
@@ -34,7 +32,7 @@ struct SendAmountCompactView: View {
     private var amountContent: some View {
         switch viewModel.conventViewModel {
         case .default(let viewModel):
-            SendAmountCompactContentView(viewModel: viewModel, namespace: namespace)
+            SendAmountCompactContentView(viewModel: viewModel)
         case .nft(let viewModel):
             NFTSendAmountCompactContentView(viewModel: viewModel, borderColor: type.background)
         }

@@ -13,7 +13,6 @@ import TangemUI
 
 struct SendFinishView: View {
     @ObservedObject var viewModel: SendFinishViewModel
-    let namespace: SendSummaryView.Namespace
 
     var body: some View {
         GroupedScrollView(spacing: 14) {
@@ -24,39 +23,34 @@ struct SendFinishView: View {
             if let sendDestinationCompactViewModel = viewModel.sendDestinationCompactViewModel {
                 SendDestinationCompactView(
                     viewModel: sendDestinationCompactViewModel,
-                    type: .enabled(),
-                    namespace: .init(id: namespace.id, names: namespace.names)
+                    type: .enabled()
                 )
             }
 
             if let sendAmountCompactViewModel = viewModel.sendAmountCompactViewModel {
                 SendAmountCompactView(
                     viewModel: sendAmountCompactViewModel,
-                    type: .enabled(),
-                    namespace: .init(id: namespace.id, names: namespace.names)
+                    type: .enabled()
                 )
             }
 
             if let onrampAmountCompactViewModel = viewModel.onrampAmountCompactViewModel {
                 OnrampAmountCompactView(
-                    viewModel: onrampAmountCompactViewModel,
-                    namespace: .init(id: namespace.id, names: namespace.names)
+                    viewModel: onrampAmountCompactViewModel
                 )
             }
 
             if let stakingValidatorsCompactViewModel = viewModel.stakingValidatorsCompactViewModel {
                 StakingValidatorsCompactView(
                     viewModel: stakingValidatorsCompactViewModel,
-                    type: .enabled(),
-                    namespace: .init(id: namespace.id, names: namespace.names)
+                    type: .enabled()
                 )
             }
 
             if let sendFeeCompactViewModel = viewModel.sendFeeCompactViewModel {
                 SendFeeCompactView(
                     viewModel: sendFeeCompactViewModel,
-                    type: .enabled(),
-                    namespace: .init(id: namespace.id, names: namespace.names)
+                    type: .enabled()
                 )
             }
 
@@ -111,6 +105,6 @@ struct SendFinishView: View {
         }
         .padding(.bottom, 8)
         .padding(.horizontal, 16)
-        .transition(.opacity.animation(SendTransitionService.Constants.newAnimation))
+        .transition(.opacity.animation(SendTransitions.animation))
     }
 }

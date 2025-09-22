@@ -11,18 +11,13 @@ import SwiftUI
 import Combine
 import struct TangemUI.TokenIconInfo
 
-class SendAmountViewModel: ObservableObject {
+class SendAmountViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     let walletHeaderText: String
     let balance: String
     let tokenIconInfo: TokenIconInfo
     let currencyPickerData: SendCurrencyPickerData
-
-    @Published var id: UUID = .init()
-
-    @Published var auxiliaryViewsVisible: Bool = true
-    @Published var isEditMode: Bool = false
 
     @Published var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published var alternativeAmount: String?
@@ -79,9 +74,7 @@ class SendAmountViewModel: ObservableObject {
         bind()
     }
 
-    func onAppear() {
-        auxiliaryViewsVisible = true
-    }
+    func onAppear() {}
 
     func userDidTapMaxAmount() {
         analyticsLogger.logTapMaxAmount()
@@ -176,29 +169,7 @@ private extension SendAmountViewModel {
 // MARK: - SendStepViewAnimatable
 
 extension SendAmountViewModel: SendStepViewAnimatable {
-    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {
-        switch state {
-        case .appearing(.destination(_)):
-            // Have to be always visible
-            auxiliaryViewsVisible = true
-            isEditMode = false
-        case .appearing(.summary(_)):
-            // Will be shown with animation
-            auxiliaryViewsVisible = false
-            isEditMode = true
-        case .disappearing(.summary(_)):
-            // Have to use this HACK to force re-render view with the new transition
-            // Will look at it "if" later
-            if !isEditMode {
-                isEditMode = true
-                id = UUID()
-            } else {
-                auxiliaryViewsVisible = false
-            }
-        default:
-            break
-        }
-    }
+    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
 }
 
 extension SendAmountViewModel {

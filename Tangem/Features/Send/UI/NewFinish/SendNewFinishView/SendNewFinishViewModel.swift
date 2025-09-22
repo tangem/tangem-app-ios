@@ -50,7 +50,7 @@ class SendNewFinishViewModel: ObservableObject, Identifiable {
     func onAppear() {
         sendFinishAnalyticsLogger.logFinishStepOpened()
 
-        withAnimation(SendTransitionService.Constants.newAnimation) {
+        withAnimation(SendTransitions.animation) {
             showHeader = true
         }
     }
