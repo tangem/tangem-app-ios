@@ -14,6 +14,7 @@ import TangemFoundation
 protocol OnrampModelRoutable: AnyObject {
     func openOnrampCountryBottomSheet(country: OnrampCountry)
     func openOnrampCountrySelectorView()
+    func openOnrampRedirecting()
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void)
     func openFinishStep()
 }
@@ -22,7 +23,7 @@ class OnrampModel {
     // MARK: - Data
 
     private let _currency: CurrentValueSubject<LoadingResult<OnrampFiatCurrency, Error>, Never>
-    private let _amount: CurrentValueSubject<Decimal?, Never> = .init(.none)
+    private let _amount: CurrentValueSubject<Decimal?, Never>
     private let _onrampProviders: CurrentValueSubject<LoadingResult<ProvidersList, Error>?, Never> = .init(.none)
     private let _selectedOnrampProvider: CurrentValueSubject<LoadingResult<OnrampProvider, Never>?, Never> = .init(.none)
     private let _isLoading: CurrentValueSubject<Bool, Never> = .init(false)
@@ -31,7 +32,9 @@ class OnrampModel {
 
     // MARK: - Dependencies
 
-    @Injected(\.onrampPendingTransactionsRepository) private var onrampPendingTransactionsRepository: OnrampPendingTransactionRepository
+    @Injected(\.onrampPendingTransactionsRepository)
+    private var onrampPendingTransactionsRepository: OnrampPendingTransactionRepository
+
     weak var router: OnrampModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
 
@@ -55,7 +58,8 @@ class OnrampModel {
         onrampManager: OnrampManager,
         onrampDataRepository: OnrampDataRepository,
         onrampRepository: OnrampRepository,
-        analyticsLogger: OnrampSendAnalyticsLogger
+        analyticsLogger: OnrampSendAnalyticsLogger,
+        predefinedValues: PredefinedValues,
     ) {
         self.userWalletId = userWalletId
         self.walletModel = walletModel
@@ -64,6 +68,7 @@ class OnrampModel {
         self.onrampRepository = onrampRepository
         self.analyticsLogger = analyticsLogger
 
+        _amount = .init(predefinedValues.amount)
         _currency = .init(
             onrampRepository.preferenceCurrency.map { .success($0) } ?? .loading
         )
@@ -383,6 +388,10 @@ private extension OnrampModel {
 // MARK: - OnrampAmountInput
 
 extension OnrampModel: OnrampAmountInput {
+    var amount: Decimal? {
+        _amount.value
+    }
+
     var amountPublisher: AnyPublisher<Decimal?, Never> {
         _amount.eraseToAnyPublisher()
     }
@@ -425,6 +434,31 @@ extension OnrampModel: OnrampProvidersInput {
 extension OnrampModel: OnrampProvidersOutput {
     func userDidSelect(provider: OnrampProvider) {
         _selectedOnrampProvider.send(.success(provider))
+    }
+}
+
+// MARK: - OnrampProvidersOutput
+
+extension OnrampModel: RecentOnrampProviderFinder {
+    var recentOnrampProvider: OnrampProvider? {
+        guard let providers = _onrampProviders.value?.value else {
+            return nil
+        }
+
+        guard let recentTransaction = onrampPendingTransactionsRepository.recentTransaction else {
+            return nil
+        }
+
+        let relatedToWallet = recentTransaction.destinationTokenTxInfo.tokenItem == walletModel.tokenItem
+        guard relatedToWallet else {
+            return nil
+        }
+
+        let recent = providers.flatMap { $0.providers }.first(where: { provider in
+            provider.provider.id == recentTransaction.provider.id
+        })
+
+        return recent
     }
 }
 
@@ -517,7 +551,12 @@ extension OnrampModel: OnrampInput {
 
 // MARK: - OnrampOutput
 
-extension OnrampModel: OnrampOutput {}
+extension OnrampModel: OnrampOutput {
+    func userDidRequestOnramp(provider: OnrampProvider) {
+        _selectedOnrampProvider.send(.success(provider))
+        router?.openOnrampRedirecting()
+    }
+}
 
 // MARK: - SendFinishInput
 
@@ -652,5 +691,11 @@ extension OnrampModel {
             case success
             case cancel
         }
+    }
+}
+
+extension OnrampModel {
+    struct PredefinedValues: Hashable {
+        let amount: Decimal?
     }
 }

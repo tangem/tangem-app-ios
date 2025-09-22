@@ -12,26 +12,64 @@ import Combine
 import TangemFoundation
 import JWTDecode
 
+public enum VisaRefreshTokenId: RawRepresentable, Hashable {
+    private enum Key: String {
+        case cardId
+        case customerWalletAddress
+    }
+
+    case cardId(String)
+    case customerWalletAddress(String)
+
+    public init?(rawValue: String) {
+        let components = rawValue.components(separatedBy: "_")
+        guard components.count == 2 else {
+            return nil
+        }
+
+        switch (components[0], components[1]) {
+        case (Key.cardId.rawValue, let cardId):
+            self = .cardId(cardId)
+
+        case (Key.customerWalletAddress.rawValue, let customerWalletAddress):
+            self = .customerWalletAddress(customerWalletAddress)
+
+        default:
+            return nil
+        }
+    }
+
+    public var rawValue: String {
+        switch self {
+        case .cardId(let cardId):
+            "\(Key.cardId.rawValue)_\(cardId)"
+
+        case .customerWalletAddress(let customerWalletAddress):
+            "\(Key.customerWalletAddress.rawValue)_\(customerWalletAddress)"
+        }
+    }
+}
+
 /// A protocol defining an interface to persist a Visa refresh token to storage.
 /// Used to save the refresh token locally in a secure  manner.
 public protocol VisaRefreshTokenSaver: AnyObject {
-    func saveRefreshTokenToStorage(refreshToken: String, cardId: String) throws
+    func saveRefreshTokenToStorage(refreshToken: String, visaRefreshTokenId: VisaRefreshTokenId) throws
 }
 
 /// A protocol that extends `VisaRefreshTokenSaver` with full CRUD operations for Visa refresh tokens.
 /// Also handles secure and biometric storage and memory persistence.
 public protocol VisaRefreshTokenRepository: VisaRefreshTokenSaver {
-    func save(refreshToken: String, cardId: String) throws
-    func deleteToken(cardId: String) throws
+    func save(refreshToken: String, visaRefreshTokenId: VisaRefreshTokenId) throws
+    func deleteToken(visaRefreshTokenId: VisaRefreshTokenId) throws
     func clearPersistent()
     func fetch(using context: LAContext)
-    func getToken(forCardId cardId: String) -> String?
+    func getToken(forVisaRefreshTokenId visaRefreshTokenId: VisaRefreshTokenId) -> String?
     func lock()
 }
 
 public extension VisaRefreshTokenRepository {
-    func saveRefreshTokenToStorage(refreshToken: String, cardId: String) throws {
-        try save(refreshToken: refreshToken, cardId: cardId)
+    func saveRefreshTokenToStorage(refreshToken: String, visaRefreshTokenId: VisaRefreshTokenId) throws {
+        try save(refreshToken: refreshToken, visaRefreshTokenId: visaRefreshTokenId)
     }
 }
 
@@ -65,7 +103,7 @@ final class CommonVisaAuthorizationTokensHandler {
     private let tokenRefreshService: VisaAuthorizationTokenRefreshService
     private weak var refreshTokenSaver: VisaRefreshTokenSaver?
 
-    private let cardId: String
+    private let visaRefreshTokenId: VisaRefreshTokenId
     private let scheduler: AsyncTaskScheduler = .init()
 
     private let authorizationTokensHolder: AuthorizationTokensHolder
@@ -74,12 +112,12 @@ final class CommonVisaAuthorizationTokensHandler {
     private let minSecondsBeforeExpiration: TimeInterval = 60.0
 
     init(
-        cardId: String,
+        visaRefreshTokenId: VisaRefreshTokenId,
         authorizationTokensHolder: AuthorizationTokensHolder,
         tokenRefreshService: VisaAuthorizationTokenRefreshService,
         refreshTokenSaver: VisaRefreshTokenSaver?
     ) {
-        self.cardId = cardId
+        self.visaRefreshTokenId = visaRefreshTokenId
         self.authorizationTokensHolder = authorizationTokensHolder
         self.tokenRefreshService = tokenRefreshService
         self.refreshTokenSaver = refreshTokenSaver
@@ -228,11 +266,14 @@ final class CommonVisaAuthorizationTokensHandler {
     private func saveTokens(authTokens: InternalAuthorizationTokens) async throws {
         try await authorizationTokensHolder.setTokens(authorizationTokens: authTokens)
 
-        guard authTokens.bffTokens.authorizationType == .cardWallet else {
+        switch authTokens.bffTokens.authorizationType {
+        case .cardWallet, .customerWallet:
+            break
+        case .cardId:
             return
         }
 
-        try refreshTokenSaver?.saveRefreshTokenToStorage(refreshToken: authTokens.bffTokens.refreshToken, cardId: cardId)
+        try refreshTokenSaver?.saveRefreshTokenToStorage(refreshToken: authTokens.bffTokens.refreshToken, visaRefreshTokenId: visaRefreshTokenId)
     }
 }
 
@@ -306,7 +347,7 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
 
                 try refreshTokenSaver.saveRefreshTokenToStorage(
                     refreshToken: tokens.bffTokens.refreshToken,
-                    cardId: handler.cardId
+                    visaRefreshTokenId: handler.visaRefreshTokenId
                 )
             } catch {
                 VisaLogger.error("Failed to save refresh token after saver setup", error: error)
