@@ -16,26 +16,6 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     @Published var stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?
     @Published var sendFeeCompactViewModel: SendFeeCompactViewModel?
 
-    @Published var sendDestinationCompactViewModelId: UUID = .init()
-    @Published var sendAmountCompactViewModelId: UUID = .init()
-    @Published var stakingValidatorsCompactViewModelId: UUID = .init()
-    @Published var sendFeeCompactViewModelId: UUID = .init()
-
-    @Published var destinationExpanding = false
-    @Published var amountExpanding = false
-    @Published var validatorExpanding = false
-    @Published var feeExpanding = false
-
-    @Published var destinationEditMode = false
-    @Published var amountEditMode = false
-    @Published var validatorEditMode = false
-    @Published var feeEditMode = false
-
-    @Published var destinationVisible = true
-    @Published var amountVisible = true
-    @Published var validatorVisible = true
-    @Published var feeVisible = true
-
     @Published var showHint = false
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var notificationButtonIsLoading = false
@@ -97,15 +77,15 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        destinationVisible = true
-        amountVisible = true
-        validatorVisible = true
-        feeVisible = true
         transactionDescriptionIsVisible = true
 
         // For the sake of simplicity we're assuming that notifications aren't going to be created after the screen has been displayed
         if notificationInputs.isEmpty, !AppSettings.shared.userDidTapSendScreenSummary {
-            withAnimation(SendTransitionService.Constants.defaultAnimation.delay(SendTransitionService.Constants.animationDuration * 2)) {
+            withAnimation(
+                SendTransitions.animation.delay(
+                    SendTransitions.animationDuration * 2
+                )
+            ) {
                 self.showHint = true
             }
         }
@@ -114,31 +94,16 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     func onDisappear() {}
 
     func userDidTapDestination() {
-        destinationExpanding = true
-        amountExpanding = false
-        validatorExpanding = false
-        feeExpanding = false
-
         didTapSummary()
         router?.summaryStepRequestEditDestination()
     }
 
     func userDidTapAmount() {
-        destinationExpanding = false
-        amountExpanding = true
-        validatorExpanding = false
-        feeExpanding = false
-
         didTapSummary()
         router?.summaryStepRequestEditAmount()
     }
 
     func userDidTapValidator() {
-        destinationExpanding = false
-        amountExpanding = false
-        validatorExpanding = true
-        feeExpanding = false
-
         didTapSummary()
 
         analyticsLogger.logUserDidTapOnValidator()
@@ -146,11 +111,6 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func userDidTapFee() {
-        destinationExpanding = false
-        amountExpanding = false
-        validatorExpanding = false
-        feeExpanding = true
-
         didTapSummary()
         router?.summaryStepRequestEditFee()
     }
@@ -190,58 +150,18 @@ extension SendSummaryViewModel: SendStepViewAnimatable {
     func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {
         switch state {
         case .appearing(.destination(_)):
-            destinationEditMode = true
-            amountEditMode = false
-            validatorEditMode = false
-            feeEditMode = false
-
-            destinationVisible = false
-            amountVisible = true
-            validatorVisible = true
-            feeVisible = true
-
             showHint = false
             transactionDescriptionIsVisible = false
 
         case .appearing(.amount(_)):
-            destinationEditMode = false
-            amountEditMode = true
-            validatorEditMode = false
-            feeEditMode = false
-
-            destinationVisible = true
-            amountVisible = false
-            validatorVisible = true
-            feeVisible = true
-
             showHint = false
             transactionDescriptionIsVisible = false
 
         case .appearing(.validators(_)):
-            destinationEditMode = false
-            amountEditMode = false
-            validatorEditMode = true
-            feeEditMode = false
-
-            destinationVisible = true
-            amountVisible = true
-            validatorVisible = false
-            feeVisible = true
-
             showHint = false
             transactionDescriptionIsVisible = false
 
         case .appearing(.fee(_)):
-            destinationEditMode = false
-            amountEditMode = false
-            validatorEditMode = false
-            feeEditMode = true
-
-            destinationVisible = true
-            amountVisible = true
-            validatorVisible = true
-            feeVisible = false
-
             showHint = false
             transactionDescriptionIsVisible = false
 
@@ -249,12 +169,6 @@ extension SendSummaryViewModel: SendStepViewAnimatable {
             // Do not update ids
             return
         }
-
-        // Force to update the compact view transition
-        sendDestinationCompactViewModelId = .init()
-        sendAmountCompactViewModelId = .init()
-        stakingValidatorsCompactViewModelId = .init()
-        sendFeeCompactViewModelId = .init()
     }
 }
 
