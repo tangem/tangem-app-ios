@@ -263,12 +263,6 @@ private extension DetailsViewModel {
         setupWalletConnectRowViewModel()
         setupUserWalletViewModels()
         setupBuyWalletViewModel()
-
-        // [REDACTED_TODO_COMMENT]
-//        tangemPayRowViewModel = TangemPayRowViewModel(isKYCInProgress: false) { [weak coordinator] in
-//            coordinator?.openTangemPayOfferViewModel()
-//        }
-
         setupAppSettingsViewModel()
         setupSupportSectionModels()
         setupEnvironmentSetupSection()
@@ -314,7 +308,7 @@ private extension DetailsViewModel {
 
     func setupUserWalletViewModels() {
         userWalletsViewModels = userWalletRepository.models.map { userWallet in
-            .init(userWallet: userWallet) { [weak self] in
+            SettingsUserWalletRowViewModel(userWallet: userWallet) { [weak self] in
                 self?.coordinator?.openWalletSettings(options: userWallet)
             }
         }
@@ -379,8 +373,8 @@ private extension DetailsViewModel {
     }
 
     func addOrScanNewUserWallet() {
-        Analytics.beginLoggingCardScan(source: .settings)
         isScanning = true
+        Analytics.log(Analytics.CardScanSource.settings.cardScanButtonEvent)
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -403,6 +397,8 @@ private extension DetailsViewModel {
                 }
 
             case .onboarding(let input, _):
+                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.settings.cardWasScannedParameterValue])
+
                 await runOnMain {
                     viewModel.isScanning = false
                     viewModel.openOnboarding(with: input)
@@ -417,6 +413,8 @@ private extension DetailsViewModel {
                 }
 
             case .success(let cardInfo):
+                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.settings.cardWasScannedParameterValue])
+
                 do {
                     let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
