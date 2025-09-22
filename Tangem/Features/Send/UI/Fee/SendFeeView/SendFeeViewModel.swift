@@ -18,8 +18,6 @@ class SendFeeViewModel: ObservableObject, Identifiable {
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var customFeeModels: [SendCustomFeeInputFieldModel] = []
 
-    @Published private(set) var auxiliaryViewsVisible: Bool = true
-
     @Published private(set) var networkFeeUnreachableNotificationViewInput: NotificationViewInput?
 
     var feeSelectorFooterText: String {
@@ -65,9 +63,7 @@ class SendFeeViewModel: ObservableObject, Identifiable {
         bind()
     }
 
-    func onAppear() {
-        auxiliaryViewsVisible = true
-    }
+    func onAppear() {}
 
     func openFeeExplanation() {
         router?.openFeeExplanation(url: feeExplanationUrl)
@@ -167,17 +163,7 @@ class SendFeeViewModel: ObservableObject, Identifiable {
 // MARK: - SendStepViewAnimatable
 
 extension SendFeeViewModel: SendStepViewAnimatable {
-    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {
-        switch state {
-        case .appearing(.summary(_)):
-            // Will be shown with animation
-            auxiliaryViewsVisible = false
-        case .disappearing(.summary(_)):
-            auxiliaryViewsVisible = false
-        default:
-            break
-        }
-    }
+    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
 }
 
 extension SendFeeViewModel {
