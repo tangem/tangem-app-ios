@@ -16,8 +16,6 @@ struct SendDestinationAddressSummaryView: View {
     @ObservedObject var addressTextViewHeightModel: AddressTextViewHeightModel
     let address: String
 
-    private var namespace: Namespace?
-
     init(addressTextViewHeightModel: AddressTextViewHeightModel, address: String) {
         self.addressTextViewHeightModel = addressTextViewHeightModel
         self.address = address
@@ -27,11 +25,9 @@ struct SendDestinationAddressSummaryView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(Localization.sendRecipient)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                .matchedGeometryEffect(namespace.map { .init(id: $0.names.addressTitle, namespace: $0.id) })
 
             HStack(spacing: 12) {
                 AddressIconView(viewModel: AddressIconViewModel(address: address))
-                    .matchedGeometryEffect(namespace.map { .init(id: $0.names.addressIcon, namespace: $0.id) })
                     .frame(size: CGSize(bothDimensions: 36))
                     .padding(.vertical, 10)
 
@@ -43,31 +39,16 @@ struct SendDestinationAddressSummaryView: View {
                     color: .textPrimary1
                 )
                 .disabled(true)
-                .matchedGeometryEffect(namespace.map { .init(id: $0.names.addressText, namespace: $0.id) })
                 .padding(.vertical, 8)
 
                 Assets.clear.image
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
                     .opacity(0)
-                    .matchedGeometryEffect(namespace.map { .init(id: $0.names.addressClearButton, namespace: $0.id) })
             }
         }
         .padding(.top, 12)
         .padding(.bottom, 2)
-    }
-}
-
-extension SendDestinationAddressSummaryView: Setupable {
-    func namespace(_ namespace: Namespace) -> Self {
-        map { $0.namespace = namespace }
-    }
-}
-
-extension SendDestinationAddressSummaryView {
-    struct Namespace {
-        let id: SwiftUI.Namespace.ID
-        let names: any SendDestinationViewGeometryEffectNames
     }
 }
 
