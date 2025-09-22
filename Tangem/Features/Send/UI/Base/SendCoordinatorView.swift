@@ -20,7 +20,6 @@ struct SendCoordinatorView: CoordinatorView {
                 if let rootViewModel = coordinator.rootViewModel {
                     SendView(
                         viewModel: rootViewModel,
-                        transitionService: .init(),
                         interactiveDismissDisabled: $interactiveDismissDisabled
                     )
                     .navigationLinks(links)
