@@ -37,21 +37,9 @@ enum WalletInfo: Codable {
     var analyticsContextData: AnalyticsContextData {
         switch self {
         case .cardWallet(let cardInfo):
-            let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
-            return AnalyticsContextData(
-                card: cardInfo.card,
-                productType: config.productType,
-                embeddedEntry: config.embeddedBlockchain,
-                userWalletId: UserWalletId(config: config)
-            )
-
-        case .mobileWallet:
-            return AnalyticsContextData(
-                productType: .mobileWallet,
-                batchId: "",
-                firmware: "",
-                baseCurrency: nil
-            )
+            cardInfo.analyticsContextData
+        case .mobileWallet(let info):
+            info.analyticsContextData
         }
     }
 
@@ -80,14 +68,18 @@ enum WalletInfo: Codable {
     }
 }
 
-struct MobileWalletInfo: Codable {
+struct MobileWalletInfo: Codable, AnalyticsContextDataProvider {
     var hasMnemonicBackup: Bool
     var hasICloudBackup: Bool
     var isAccessCodeSet: Bool
     var keys: [KeyInfo]
+
+    var analyticsContextData: AnalyticsContextData {
+        AnalyticsContextData.mobileWallet
+    }
 }
 
-struct CardInfo: Codable {
+struct CardInfo: Codable, AnalyticsContextDataProvider {
     var card: CardDTO
     var walletData: DefaultWalletData
     var primaryCard: PrimaryCard?
@@ -99,5 +91,17 @@ struct CardInfo: Codable {
         } else {
             return AppCardIdFormatter(cid: card.cardId).formatted()
         }
+    }
+
+    var analyticsContextData: AnalyticsContextData {
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: self)
+        let data = AnalyticsContextData(
+            card: card,
+            productType: config.productType,
+            embeddedEntry: config.embeddedBlockchain,
+            userWalletId: UserWalletId(config: config)
+        )
+
+        return data
     }
 }
