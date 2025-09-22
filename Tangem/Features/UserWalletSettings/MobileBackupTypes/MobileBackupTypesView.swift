@@ -29,26 +29,44 @@ struct MobileBackupTypesView: View {
 private extension MobileBackupTypesView {
     var content: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 8) {
-                ForEach(viewModel.backupItems) {
-                    backupItemView($0)
+            VStack(spacing: 20) {
+                ForEach(viewModel.sections) {
+                    sectionView(model: $0)
                 }
             }
             .padding(.top, 16)
         }
     }
 
-    func backupItemView(_ item: ViewModel.BackupItem) -> some View {
-        Button(action: item.action) {
+    func sectionView(model: ViewModel.Section) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            model.title.map {
+                Text($0)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .padding(.leading, 14)
+            }
+
+            VStack(spacing: 8) {
+                ForEach(model.items) {
+                    itemView(model: $0)
+                }
+            }
+        }
+    }
+
+    func itemView(model: ViewModel.Item) -> some View {
+        Button(action: model.action) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
-                    Text(item.title)
+                    Text(model.title)
                         .style(Fonts.Bold.body, color: Colors.Text.primary1)
 
-                    BadgeView(item: item.badge)
+                    model.badge.map {
+                        BadgeView(item: $0)
+                    }
                 }
 
-                Text(item.description)
+                Text(model.description)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
@@ -60,6 +78,6 @@ private extension MobileBackupTypesView {
             .cornerRadius(14, corners: .allCorners)
         }
         .buttonStyle(.plain)
-        .disabled(!item.isEnabled)
+        .disabled(!model.isEnabled)
     }
 }
