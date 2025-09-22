@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct OnboardingMessagesView: View {
     let title: String
@@ -26,6 +27,7 @@ struct OnboardingMessagesView: View {
                 .padding(.bottom, 14)
                 .transition(.opacity)
                 .id("onboarding_title_\(title)")
+                .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.title)
 
             Text(subtitle)
                 .frame(maxWidth: .infinity)
@@ -38,6 +40,7 @@ struct OnboardingMessagesView: View {
                 .transition(.opacity)
                 .padding(.horizontal, 20)
                 .id("onboarding_subtitle_\(subtitle)")
+                .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.description)
         }
     }
 }
