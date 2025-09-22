@@ -73,11 +73,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
-        accountsViewModel = UserSettingsAccountsViewModel(
-            accountModels: [],
-            canAddNewAccountPublisher: .just(output: true),
-            archivedAccountsPublisher: .just(output: .standard(.multiple([])))
-        )
 
         bind()
     }
