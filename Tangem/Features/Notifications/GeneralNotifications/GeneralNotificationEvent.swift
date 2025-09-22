@@ -97,8 +97,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .mobileUpgrade:
             return .string(Localization.hwUpgradeToColdBannerTitle)
         case .pushNotificationsPermissionRequest:
-            // [REDACTED_TODO_COMMENT]
-            return .string("Don’t Miss a Transaction")
+            return .string(Localization.userPushNotificationBannerTitle)
         }
     }
 
@@ -150,8 +149,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .mobileUpgrade:
             return Localization.hwUpgradeToColdBannerDescription
         case .pushNotificationsPermissionRequest:
-            // [REDACTED_TODO_COMMENT]
-            return "Enable push notifications and we’ll notify you instantly when funds arrive"
+            return Localization.userPushNotificationBannerSubtitle
         }
     }
 
@@ -200,8 +198,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .mobileUpgrade:
             return .init(iconType: .image(Assets.tangemInCircle.image), size: CGSize(width: 36, height: 36))
         case .pushNotificationsPermissionRequest:
-            // [REDACTED_TODO_COMMENT]
-            return .init(iconType: .image(Assets.tangemInCircle.image), size: CGSize(width: 54, height: 54))
+            return .init(iconType: .image(Assets.pushNotifyBannerIcon.image), size: CGSize(width: 54, height: 54))
         }
     }
 
