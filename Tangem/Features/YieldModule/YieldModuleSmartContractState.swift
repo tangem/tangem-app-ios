@@ -35,8 +35,8 @@ public enum YieldModuleSmartContractState {
     }
 
     public struct ActiveStateInfo {
-        let balance: Amount?
-        let maxNetworkFee: BigUInt
+        public let balance: Amount?
+        public let maxNetworkFee: BigUInt
     }
 
     public var yieldModule: String? {

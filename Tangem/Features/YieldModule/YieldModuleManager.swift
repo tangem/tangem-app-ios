@@ -73,7 +73,8 @@ final class CommonYieldModuleManager {
         ethereumTransactionDataBuilder: EthereumTransactionDataBuilder,
         transactionCreator: TransactionCreator
     ) {
-        guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses() else {
+        guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses(),
+              let maxNetworkFee = BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue) else {
             return nil
         }
 
@@ -88,7 +89,8 @@ final class CommonYieldModuleManager {
             blockchain: blockchain,
             transactionCreator: transactionCreator,
             transactionBuilder: ethereumTransactionDataBuilder,
-            yieldSupplyContractAddresses: yieldSupplyContractAddresses
+            yieldSupplyContractAddresses: yieldSupplyContractAddresses,
+            maxNetworkFee: maxNetworkFee
         )
 
         allowanceChecker = AllowanceChecker(
@@ -103,7 +105,8 @@ final class CommonYieldModuleManager {
             blockchain: blockchain,
             ethereumNetworkProvider: ethereumNetworkProvider,
             allowanceChecker: allowanceChecker,
-            yieldSupplyContractAddresses: yieldSupplyContractAddresses
+            yieldSupplyContractAddresses: yieldSupplyContractAddresses,
+            maxNetworkFee: maxNetworkFee
         )
     }
 }
@@ -138,11 +141,9 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                 tokenContractAddress: token.contractAddress
             )
         case .deployed(let deployed):
-            guard let balanceValue = tokenBalanceProvider.balanceType.value else {
+            guard let balance = tokenBalanceProvider.balanceType.value else {
                 throw YieldModuleError.balanceNotFound
             }
-
-            let balance = balanceValue * blockchain.decimalValue
 
             switch deployed.initializationState {
             case .notInitialized:
@@ -156,10 +157,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                     balance: balance
                 )
             case .initialized(.active):
-                return try await transactionFeeProvider.enterFee(
-                    yieldContractAddress: deployed.yieldModule,
-                    balance: balance
-                )
+                throw YieldModuleError.yieldIsAlreadyActive
             }
         }
     }
@@ -172,11 +170,6 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         switch (yieldTokenState, fee) {
         case (.notDeployed, let deployEnterFee as DeployEnterFee):
             let yieldModule = try await yieldSupplyService.calculateYieldContract()
-
-            guard let balance = tokenBalanceProvider.balanceType.value,
-                  let balanceBigUInt = BigUInt(decimal: balance * blockchain.decimalValue) else {
-                throw YieldModuleError.balanceNotFound
-            }
 
             let deployTransactions = try await transactionProvider.deployTransactions(
                 walletAddress: walletAddress,
@@ -205,13 +198,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
                 transactions.append(contentsOf: reactivateTransactions)
             case (.initialized, let enterFee as EnterFee):
-                let enterTransactions = try await transactionProvider.enterTransactions(
-                    tokenContractAddress: token.contractAddress,
-                    yieldContractAddress: deployed.yieldModule,
-                    fee: enterFee
-                )
-
-                transactions.append(contentsOf: enterTransactions)
+                throw YieldModuleError.yieldIsAlreadyActive
             default:
                 throw YieldModuleError.inconsistentState
             }
@@ -260,13 +247,14 @@ private extension CommonYieldModuleManager {
         case .created, .loading:
             return .loading
         case .loaded:
-            guard let balance, case .token(let token) = balance.type,
-                  case .yield(let supply) = token.metadata.kind else {
+            guard let balance,
+                  case .token(let token) = balance.type,
+                  case .yield = token.metadata.kind else {
                 return .notActive(apy: try await apy)
             }
-            return try await .active(
+            return .active(
                 .init(
-                    apy: apy,
+                    apy: try await apy,
                     activeState: .active, // will be taken from backend response later
                     yieldSupply: balance
                 )

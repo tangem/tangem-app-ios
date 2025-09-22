@@ -170,7 +170,7 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
                                 supplyInfo: TokenYieldSupply(
                                     yieldContractAddress: try await yieldContract,
                                     isActive: yieldSupplyStatus.active,
-                                    isInitialized: yieldSupplyStatus.active,
+                                    isInitialized: yieldSupplyStatus.initialized,
                                     allowance: allowanceResult
                                 )
                             )

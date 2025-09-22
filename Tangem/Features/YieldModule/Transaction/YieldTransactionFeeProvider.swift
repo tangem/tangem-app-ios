@@ -15,24 +15,27 @@ final class YieldTransactionFeeProvider {
     private let ethereumNetworkProvider: EthereumNetworkProvider
     private let allowanceChecker: AllowanceChecker
     private let yieldSupplyContractAddresses: YieldSupplyContractAddresses
+    private let maxNetworkFee: BigUInt
 
     init(
         blockchain: Blockchain,
         ethereumNetworkProvider: EthereumNetworkProvider,
         allowanceChecker: AllowanceChecker,
-        yieldSupplyContractAddresses: YieldSupplyContractAddresses
+        yieldSupplyContractAddresses: YieldSupplyContractAddresses,
+        maxNetworkFee: BigUInt
     ) {
         self.blockchain = blockchain
         self.ethereumNetworkProvider = ethereumNetworkProvider
         self.allowanceChecker = allowanceChecker
         self.yieldSupplyContractAddresses = yieldSupplyContractAddresses
+        self.maxNetworkFee = maxNetworkFee
     }
 
     func deployFee(walletAddress: String, tokenContractAddress: String) async throws -> DeployEnterFee {
         let yieldModuleAddressMethod = DeployYieldModuleMethod(
             walletAddress: walletAddress,
             tokenContractAddress: tokenContractAddress,
-            maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue)!
+            maxNetworkFee: maxNetworkFee
         )
 
         async let yieldModuleAddressMethodFee = estimateFee(

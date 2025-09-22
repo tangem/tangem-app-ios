@@ -16,19 +16,22 @@ final class YieldTransactionProvider {
     private let transactionCreator: TransactionCreator
     private let transactionBuilder: EthereumTransactionDataBuilder
     private let yieldSupplyContractAddresses: YieldSupplyContractAddresses
+    private let maxNetworkFee: BigUInt
 
     init(
         token: Token,
         blockchain: Blockchain,
         transactionCreator: TransactionCreator,
         transactionBuilder: EthereumTransactionDataBuilder,
-        yieldSupplyContractAddresses: YieldSupplyContractAddresses
+        yieldSupplyContractAddresses: YieldSupplyContractAddresses,
+        maxNetworkFee: BigUInt
     ) {
         self.token = token
         self.blockchain = blockchain
         self.transactionCreator = transactionCreator
         self.transactionBuilder = transactionBuilder
         self.yieldSupplyContractAddresses = yieldSupplyContractAddresses
+        self.maxNetworkFee = maxNetworkFee
     }
 
     // MARK: - Deploy
@@ -201,7 +204,7 @@ private extension YieldTransactionProvider {
         let deployAction = DeployYieldModuleMethod(
             walletAddress: walletAddress,
             tokenContractAddress: tokenContractAddress,
-            maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue)!
+            maxNetworkFee: maxNetworkFee
         )
 
         return try await transaction(
@@ -218,7 +221,7 @@ private extension YieldTransactionProvider {
     ) async throws -> Transaction {
         let smartContract = InitYieldTokenMethod(
             tokenContractAddress: tokenContractAddress,
-            maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue)!
+            maxNetworkFee: maxNetworkFee
         )
 
         return try await transaction(contractAddress: yieldContractAddress, txData: smartContract.data, fee: fee)
@@ -231,7 +234,7 @@ private extension YieldTransactionProvider {
     ) async throws -> Transaction {
         let smartContract = ReactivateTokenMethod(
             tokenContractAddress: tokenContractAddress,
-            maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue)!
+            maxNetworkFee: maxNetworkFee
         )
 
         return try await transaction(contractAddress: yieldContractAddress, txData: smartContract.data, fee: fee)
