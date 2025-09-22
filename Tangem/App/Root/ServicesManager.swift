@@ -55,7 +55,7 @@ class CommonServicesManager {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
         storyDataPrefetchService = StoryDataPrefetchService()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
-        mobileAccessCodeCleaner = MobileAccessCodeCleaner(manager: CommonMobileAccessCodeStorageManager())
+        mobileAccessCodeCleaner = MobileAccessCodeCleaner()
     }
 
     /// - Warning: DO NOT enable in debug mode.
@@ -102,7 +102,7 @@ class CommonServicesManager {
         return initialLaunches
     }
 
-    private func handleUITestingArguments() {
+    private func configureForUITests() {
         // Only process UI testing arguments when running in UI test mode
         guard AppEnvironment.current.isUITest else { return }
 
@@ -130,7 +130,7 @@ extension CommonServicesManager: ServicesManager {
 
         SettingsMigrator.migrateIfNeeded()
 
-        handleUITestingArguments()
+        configureForUITests()
 
         TangemLoggerConfigurator().initialize()
 
@@ -156,10 +156,7 @@ extension CommonServicesManager: ServicesManager {
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         ukGeoDefiner.initialize()
-
-        if FeatureProvider.isAvailable(.walletConnectUI) {
-            wcService.initialize()
-        }
+        wcService.initialize()
 
         mobileAccessCodeCleaner.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()

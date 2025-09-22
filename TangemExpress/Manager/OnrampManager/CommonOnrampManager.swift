@@ -13,17 +13,23 @@ public actor CommonOnrampManager {
     private let onrampRepository: OnrampRepository
     private let dataRepository: OnrampDataRepository
     private let analyticsLogger: ExpressAnalyticsLogger
+    private let sorter: ProviderItemSorter
+    private let preferredValues: PreferredValues
 
     public init(
         apiProvider: ExpressAPIProvider,
         onrampRepository: OnrampRepository,
         dataRepository: OnrampDataRepository,
-        analyticsLogger: ExpressAnalyticsLogger
+        analyticsLogger: ExpressAnalyticsLogger,
+        sorter: ProviderItemSorter = .init(),
+        preferredValues: PreferredValues
     ) {
         self.apiProvider = apiProvider
         self.onrampRepository = onrampRepository
         self.dataRepository = dataRepository
         self.analyticsLogger = analyticsLogger
+        self.sorter = sorter
+        self.preferredValues = preferredValues
     }
 }
 
@@ -60,7 +66,7 @@ extension CommonOnrampManager: OnrampManager {
         OnrampLogger.info(self, "The quotes was updated for amount: \(amount)")
 
         providers.updateSupportedPaymentMethods()
-        let sorted = providers.sorted()
+        let sorted = providers.sorted(sorter: sorter)
         let suggestProvider = try suggestProvider(in: sorted)
         return (list: sorted, provider: suggestProvider)
     }
@@ -68,7 +74,7 @@ extension CommonOnrampManager: OnrampManager {
     public func suggestProvider(in providers: ProvidersList, paymentMethod: OnrampPaymentMethod) throws -> OnrampProvider {
         OnrampLogger.info(self, "Payment method was updated by user to: \(paymentMethod.name)")
 
-        guard let providerItem = providers.select(for: paymentMethod) else {
+        guard let providerItem = providers.select(for: paymentMethod.type) else {
             throw OnrampManagerError.noProviderForPaymentMethod
         }
 
@@ -119,8 +125,31 @@ private extension CommonOnrampManager {
     func suggestProvider(in providers: ProvidersList) throws -> OnrampProvider {
         OnrampLogger.info(self, "Start to find the best provider")
 
+        // Global types
+        providers.updateAttractiveTypes()
+        providers.updateProcessingTimeTypes()
+
+        // Internal attractive types
+        providers.forEach { $0.updateAttractiveTypes() }
+
+        if let paymentMethodType = preferredValues.paymentMethodType {
+            OnrampLogger.info(self, "Has preferredValues \(preferredValues)")
+
+            if let providerItem = providers.select(for: paymentMethodType) {
+                if let providerId = preferredValues.providerId,
+                   let maxPriorityProvider = providerItem.preferredProvider(providerId: providerId) {
+                    OnrampLogger.info(self, "The selected preferred provider is \(preferredValues)")
+                    return maxPriorityProvider
+                }
+
+                if let maxPriorityProvider = providerItem.maxPriorityProvider() {
+                    OnrampLogger.info(self, "The selected max priority provider for preferred paymentMethodType is \(maxPriorityProvider)")
+                    return maxPriorityProvider
+                }
+            }
+        }
+
         for provider in providers {
-            provider.updateAttractiveTypes()
             OnrampLogger.info(self, "Providers for paymentMethod: \(provider.paymentMethod.name) was sorted to order: \(provider.providers)")
 
             if let maxPriorityProvider = provider.maxPriorityProvider() {
@@ -176,7 +205,7 @@ private extension CommonOnrampManager {
                     )
                 )
             }
-            return ProviderItem(paymentMethod: paymentMethod, providers: providers)
+            return ProviderItem(paymentMethod: paymentMethod, sorter: sorter, providers: providers)
         }
 
         OnrampLogger.info(self, "Built providers \(availableProviders)")

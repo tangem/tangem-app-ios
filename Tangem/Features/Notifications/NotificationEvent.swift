@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAccessibilityIdentifiers
 
 protocol NotificationEvent: Identifiable {
     var id: NotificationViewId { get }
@@ -28,5 +29,37 @@ extension NotificationEvent where Self: Hashable {
     /// Unique ID. Overwrite if hash value is not enough (may be influenced by associated values)
     var id: NotificationViewId {
         hashValue
+    }
+}
+
+extension NotificationEvent {
+    var accessibilityIdentifier: String? {
+        if let generalEvent = self as? GeneralNotificationEvent {
+            switch generalEvent {
+            case .devCard:
+                return MainAccessibilityIdentifiers.developerCardBanner
+            case .seedSupport:
+                return MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner
+            default:
+                return nil
+            }
+        } else if let validationErrorEvent = self as? ValidationErrorEvent {
+            switch validationErrorEvent {
+            case .dustRestriction:
+                return SendAccessibilityIdentifiers.invalidAmountBanner
+            default:
+                return nil
+            }
+        } else if let sendNotificationEvent = self as? SendNotificationEvent {
+            switch sendNotificationEvent {
+            case .validationErrorEvent(let event):
+                return event.accessibilityIdentifier
+            default:
+                return nil
+            }
+        } else if let tokenEvent = self as? TokenNotificationEvent {
+            return tokenEvent.accessibilityIdentifier
+        }
+        return nil
     }
 }
