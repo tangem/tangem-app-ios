@@ -179,7 +179,7 @@ class TwinsOnboardingViewModel: OnboardingViewModel<TwinsOnboardingStep, Onboard
     }
 
     override func playInitialAnim(includeInInitialAnim: (() -> Void)? = nil) {
-        Analytics.log(.twinningScreenOpened)
+        logAnalytics(.twinningScreenOpened)
         super.playInitialAnim {
             self.displayTwinImages = true
         }
@@ -209,7 +209,7 @@ class TwinsOnboardingViewModel: OnboardingViewModel<TwinsOnboardingStep, Onboard
                 AppSettings.shared.cardsStartedActivation.insert(twinsService.firstTwinCid)
             }
 
-            Analytics.log(.twinSetupStarted)
+            logAnalytics(.twinSetupStarted)
 
             // [REDACTED_TODO_COMMENT]
             if case .first = twinsService.step.value {} else {
@@ -266,13 +266,14 @@ class TwinsOnboardingViewModel: OnboardingViewModel<TwinsOnboardingStep, Onboard
         twinsService
             .occuredError
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] error in
+            .withWeakCaptureOf(self)
+            .sink { viewModel, error in
                 if error.isCancellationError {
                     return
                 }
 
-                Analytics.logScanError(error, source: .onboarding)
-                self?.alert = error.alertBinder
+                Analytics.logScanError(error, source: .onboarding, contextParams: viewModel.getContextParams())
+                viewModel.alert = error.alertBinder
             }
             .store(in: &bag)
 
