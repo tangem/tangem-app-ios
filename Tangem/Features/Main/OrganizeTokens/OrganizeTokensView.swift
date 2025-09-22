@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemFoundation
 import TangemAccessibilityIdentifiers
 
 struct OrganizeTokensView: View {
@@ -202,7 +203,7 @@ struct OrganizeTokensView: View {
                     ForEach(indexed: sectionViewModel.items.indexed()) { itemIndex, itemViewModel in
                         let indexPath = IndexPath(item: itemIndex, section: sectionIndex)
                         let identifier = itemViewModel.id
-                        let isDragged = identifier.asAnyHashable == dragAndDropSourceViewModelIdentifier
+                        let isDragged = identifier.toAnyHashable() == dragAndDropSourceViewModelIdentifier
 
                         makeCell(
                             viewModel: itemViewModel,
