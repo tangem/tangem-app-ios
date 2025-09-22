@@ -14,13 +14,17 @@ import struct TangemUIUtils.AlertBinder
 class SendNewFinishViewModel: ObservableObject, Identifiable {
     @Published var showHeader = false
     @Published var transactionSentTime: String?
+    @Published private(set) var transactionURL: URL?
 
     @Published private(set) var sendAmountFinishViewModel: SendNewAmountFinishViewModel?
     @Published private(set) var nftAssetCompactViewModel: NFTAssetCompactViewModel?
     @Published private(set) var sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?
     @Published private(set) var sendFeeFinishViewModel: SendFeeFinishViewModel?
 
-    private var sendFinishAnalyticsLogger: SendFinishAnalyticsLogger
+    private let sendFinishAnalyticsLogger: SendFinishAnalyticsLogger
+    private let tokenItem: TokenItem
+
+    private weak var coordinator: SendRoutable?
 
     init(
         input: SendFinishInput,
@@ -29,12 +33,16 @@ class SendNewFinishViewModel: ObservableObject, Identifiable {
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         sendFeeFinishViewModel: SendFeeFinishViewModel?,
         sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
+        tokenItem: TokenItem,
+        coordinator: SendRoutable
     ) {
         self.sendAmountFinishViewModel = sendAmountFinishViewModel
         self.nftAssetCompactViewModel = nftAssetCompactViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
         self.sendFeeFinishViewModel = sendFeeFinishViewModel
         self.sendFinishAnalyticsLogger = sendFinishAnalyticsLogger
+        self.tokenItem = tokenItem
+        self.coordinator = coordinator
 
         bind(input: input)
     }
@@ -47,7 +55,17 @@ class SendNewFinishViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func bind(input: SendFinishInput) {
+    func share(url: URL) {
+        sendFinishAnalyticsLogger.logShareButton()
+        coordinator?.openShareSheet(url: url)
+    }
+
+    func explore(url: URL) {
+        sendFinishAnalyticsLogger.logExploreButton()
+        coordinator?.openExplorer(url: url)
+    }
+
+    private func bind(input: SendFinishInput) {
         input.transactionSentDate
             .map { date in
                 let formatter = DateFormatter()
@@ -57,6 +75,15 @@ class SendNewFinishViewModel: ObservableObject, Identifiable {
             }
             .receiveOnMain()
             .assign(to: &$transactionSentTime)
+
+        guard !tokenItem.blockchain.isTransactionAsync else {
+            return
+        }
+
+        input
+            .transactionURL
+            .receiveOnMain()
+            .assign(to: &$transactionURL)
     }
 }
 

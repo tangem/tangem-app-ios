@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 struct SendNewAmountView: View {
     @ObservedObject var viewModel: SendNewAmountViewModel
@@ -100,6 +101,7 @@ struct SendNewAmountView: View {
         switch viewModel.amountType {
         case .crypto:
             SendDecimalNumberTextField(viewModel: viewModel.cryptoTextFieldViewModel)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.decimalNumberTextField)
                 .prefixSuffixOptions(viewModel.cryptoTextFieldOptions)
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
@@ -109,6 +111,7 @@ struct SendNewAmountView: View {
                 .transition(Constants.textFieldTransition)
         case .fiat:
             SendDecimalNumberTextField(viewModel: viewModel.fiatTextFieldViewModel)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.decimalNumberTextField)
                 .prefixSuffixOptions(viewModel.fiatTextFieldOptions)
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)

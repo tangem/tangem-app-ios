@@ -81,7 +81,7 @@ extension ExpressInteractorWalletWrapper: ExpressInteractorSourceWallet {
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { walletModel.withdrawalNotificationProvider }
 
     func transactionDispatcher(signer: TangemSigner) -> any TransactionDispatcher {
-        TransactionDispatcherFactory(walletModel: walletModel, signer: signer).makeSendDispatcher()
+        TransactionDispatcherFactory(walletModel: walletModel, signer: signer).makeExpressDispatcher()
     }
 
     func exploreTransactionURL(for hash: String) -> URL? {
