@@ -69,7 +69,10 @@ extension MainCoordinator {
                 return routeSwapAction(userWalletId: navigationAction.params.userWalletId)
 
             case .onboardVisa:
-                return routeOnboardVisaAction(params: navigationAction.params)
+                return routeOnboardVisaAction(
+                    params: navigationAction.params,
+                    deeplinkString: navigationAction.deeplinkString
+                )
 
             case .promo:
                 return routePromoAction(params: navigationAction.params)
@@ -260,16 +263,26 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeOnboardVisaAction(params: DeeplinkNavigationAction.Params) -> Bool {
-            guard let coordinator,
-                  let entry = params.entry,
-                  FeatureProvider.isAvailable(.visa)
+        private func routeOnboardVisaAction(
+            params: DeeplinkNavigationAction.Params,
+            deeplinkString: String
+        ) -> Bool {
+            guard FeatureProvider.isAvailable(.visa),
+                  let coordinator,
+                  let userWalletModel = userWalletRepository.models.first,
+                  // If it's not nil - user already received and accepted Tangem Pay offer
+                  TangemPayAccount(userWalletModel: userWalletModel) == nil
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
 
-            coordinator.openDeepLink(.onboardVisa(entry: entry))
+            coordinator.openDeepLink(
+                .onboardVisa(
+                    deeplinkString: deeplinkString,
+                    userWalletModel: userWalletModel
+                )
+            )
             return true
         }
     }

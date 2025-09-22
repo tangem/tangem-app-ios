@@ -15,15 +15,29 @@ struct DummyCommonAccountModelsManager {}
 // MARK: - AccountModelsManager protocol conformance
 
 extension DummyCommonAccountModelsManager: AccountModelsManager {
+    var canAddCryptoAccounts: Bool {
+        return false
+    }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         return AnyPublisher.just(output: [])
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws {
-        throw CommonError.notImplemented
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
+        throw .addingCryptoAccountsNotSupported
     }
 
-    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws {
-        throw CommonError.notImplemented
+    func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
+        return []
+    }
+
+    func archiveCryptoAccount(
+        withIdentifier identifier: some AccountModelPersistentIdentifierConvertible
+    ) async throws(AccountModelsManagerError) {
+        throw .cannotArchiveCryptoAccount
+    }
+
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
+        throw .cannotUnarchiveCryptoAccount
     }
 }
