@@ -8,11 +8,21 @@
 import Foundation
 
 public enum IPhoneModel {
+    @available(iOS, obsoleted: 16.0, message: "iPhone 6S does not support iOS 16.0 or newer. Remove this case")
     case iPhone6S
+
+    @available(iOS, obsoleted: 16.0, message: "iPhone 6S Plus does not support iOS 16.0 or newer. Remove this case")
     case iPhone6SPlus
+
+    @available(iOS, obsoleted: 16.0, message: "iPhone SE (1st generation) does not support iOS 16.0 or newer. Remove this case")
     case iPhoneSE
+
+    @available(iOS, obsoleted: 16.0, message: "iPhone 7 does not support iOS 16.0 or newer. Remove this case")
     case iPhone7
+
+    @available(iOS, obsoleted: 16.0, message: "iPhone 7 Plus does not support iOS 16.0 or newer. Remove this case")
     case iPhone7Plus
+
     case iPhone8
     case iPhone8Plus
     case iPhoneX
@@ -44,6 +54,10 @@ public enum IPhoneModel {
     case iPhone16Plus
     case iPhone16Pro
     case iPhone16ProMax
+    case iPhone17
+    case iPhone17Pro
+    case iPhone17ProMax
+    case iPhoneAir
 
     public var name: String {
         switch self {
@@ -83,6 +97,10 @@ public enum IPhoneModel {
         case .iPhone16Plus: return "iPhone 16 Plus"
         case .iPhone16Pro: return "iPhone 16 Pro"
         case .iPhone16ProMax: return "iPhone 16 Pro Max"
+        case .iPhone17: return "iPhone 17"
+        case .iPhone17Pro: return "iPhone 17 Pro"
+        case .iPhone17ProMax: return "iPhone 17 Pro Max"
+        case .iPhoneAir: return "iPhone Air"
         }
     }
 
@@ -136,6 +154,10 @@ public enum IPhoneModel {
         case "iPhone17,2": self = .iPhone16ProMax
         case "iPhone17,3": self = .iPhone16
         case "iPhone17,4": self = .iPhone16Plus
+        case "iPhone18,1": self = .iPhone17Pro
+        case "iPhone18,2": self = .iPhone17ProMax
+        case "iPhone18,3": self = .iPhone17
+        case "iPhone18,4": self = .iPhoneAir
         default:
             return nil
         }
