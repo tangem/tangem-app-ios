@@ -591,7 +591,7 @@ private extension RewardRateValues {
         case .single(let value):
             formatter.format(value, option: .staking)
         case .interval(let min, let max):
-            formatter.formatInterval(min: min, max: max, option: .staking)
+            formatter.formatInterval(min: min, max: max)
         }
     }
 }
