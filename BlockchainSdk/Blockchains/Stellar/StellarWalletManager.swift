@@ -90,15 +90,13 @@ class StellarWalletManager: BaseManager, WalletManager {
         cancellable = networkService
             .getInfo(accountId: wallet.address, isAsset: !tokens.isEmpty)
             .sink(receiveCompletion: { [weak self] completionSubscription in
-                switch completionSubscription {
-                case .finished:
-                    completion(.success(()))
-                case .failure(let error):
+                if case .failure(let error) = completionSubscription {
                     self?.wallet.clearAmounts()
                     completion(.failure(error))
                 }
             }, receiveValue: { [weak self] response in
                 self?.updateWallet(with: response, tokens: tokens)
+                completion(.success(()))
             })
     }
 
