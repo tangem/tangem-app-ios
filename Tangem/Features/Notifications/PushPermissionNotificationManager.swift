@@ -60,13 +60,6 @@ final class CommonPushPermissionNotificationManager: PushPermissionNotificationM
             return
         }
 
-        let shownDate = await AppSettings.shared.pushNotificationPermissionRequestBannerDate
-
-        // If user previosly interact with first support seed notification and the time has not come yet for display
-        if let shownDate, Date().timeIntervalSince(shownDate) < Constants.durationDisplayNotification {
-            return
-        }
-
         let buttonActionYes: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
             guard let self else { return }
 
@@ -112,13 +105,5 @@ final class CommonPushPermissionNotificationManager: PushPermissionNotificationM
 
     private func saveDisplayNotificationDate() {
         AppSettings.shared.supportSeedNotificationShownDate = Date()
-    }
-}
-
-extension CommonPushPermissionNotificationManager {
-    enum Constants {
-        /// One minute
-        // [REDACTED_TODO_COMMENT]
-        static let durationDisplayNotification: TimeInterval = 1 * 60
     }
 }
