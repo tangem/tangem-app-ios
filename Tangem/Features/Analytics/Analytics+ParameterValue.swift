@@ -43,6 +43,7 @@ extension Analytics {
 
         case card = "Card"
         case ring = "Ring"
+        case sepa = "Sepa"
         case mobileWallet = "MobileWallet"
         case visa = "Visa"
 
@@ -249,6 +250,15 @@ extension Analytics {
         // MARK: - NFT
 
         case nft = "NFT"
+
+        // MARK: - Mobile Wallet
+
+        case `import` = "Import"
+        case create = "Create Wallet"
+        case importWallet = "Import Wallet"
+
+        case set = "Set"
+        case changing = "Changing"
 
         // MARK: - Common
 
