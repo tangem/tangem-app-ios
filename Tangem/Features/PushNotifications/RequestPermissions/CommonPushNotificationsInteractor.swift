@@ -31,6 +31,9 @@ final class CommonPushNotificationsInteractor {
     @AppStorageCompat(StorageKeys.resetPushNotificationsAuthorizationRequestCounter)
     private var resetPushNotificationsAuthorizationRequestCounter: Int = ResetVersion.default.rawValue
 
+    @AppStorageCompat(StorageKeys.didPostponeOnboardingCompletionDate)
+    private var didPostponeOnboardingCompletionDate: Date? = nil
+
     private var didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = false
 
     private func updateSavedWalletsStatusIfNeeded() {
@@ -95,6 +98,7 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
 
         switch flow {
         case .welcomeOnboarding:
+            didPostponeOnboardingCompletionDate = Date()
             return !didPostponeAuthorizationRequestOnWelcomeOnboarding
         case .walletOnboarding:
             return !didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession
@@ -102,7 +106,14 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         case .afterLogin:
             return hasSavedWalletsFromPreviousVersion ?? false
         case .afterLoginBanner:
-            // [REDACTED_TODO_COMMENT]
+            guard
+                !isAvailable(in: .afterLogin), // Need exclude if display is required bottom sheet permission request
+                let didPostponeOnboardingCompletionDate,
+                Date().timeIntervalSince(didPostponeOnboardingCompletionDate) > Constants.showDurationAfterLoginBanner
+            else {
+                return false
+            }
+
             return true
         }
     }
@@ -124,13 +135,10 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
             didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = true
         case .walletOnboarding:
             didPostponeAuthorizationRequestOnWalletOnboarding = true
-        case .afterLogin:
+        case .afterLogin, .afterLoginBanner:
             // Stop all future authorization requests
             canRequestAuthorization = false
             _permissionRequestEventSubject.send(.postpone(flow))
-        case .afterLoginBanner:
-            // [REDACTED_TODO_COMMENT]
-            break
         }
 
         logPostponedRequest(in: flow)
@@ -175,6 +183,7 @@ private extension CommonPushNotificationsInteractor {
         case didPostponeAuthorizationRequestOnWelcomeOnboarding = "did_postpone_authorization_request_on_welcome_onboarding"
         case didPostponeAuthorizationRequestOnWalletOnboarding = "did_postpone_authorization_request_on_wallet_onboarding"
         case resetPushNotificationsAuthorizationRequestCounter = "reset_push_notifications_authorization_request_counter"
+        case didPostponeOnboardingCompletionDate = "did_postpone_onboarding_completion_date"
     }
 
     enum ResetVersion: Int {
@@ -190,5 +199,8 @@ private extension CommonPushNotificationsInteractor {
 
     enum Constants {
         static let canRequestAuthorizationDefaultValue = true
+
+        /// One week
+        static let showDurationAfterLoginBanner: TimeInterval = 7 * 24 * 60 * 60
     }
 }
