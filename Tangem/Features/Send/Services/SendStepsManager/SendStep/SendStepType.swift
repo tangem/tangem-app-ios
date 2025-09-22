@@ -47,26 +47,32 @@ enum SendStepType {
     }
 }
 
-extension SendStepType: Hashable {
-    func hash(into hasher: inout Hasher) {
+// MARK: - Identifiable
+
+extension SendStepType: Identifiable {
+    var id: ObjectIdentifier {
         switch self {
-        case .amount(let viewModel): hasher.combine(viewModel.id)
-        case .newAmount(let viewModel): hasher.combine(viewModel.id)
-        case .destination(let viewModel): hasher.combine(viewModel.id)
-        case .newDestination(let viewModel): hasher.combine(viewModel.id)
-        case .fee(let viewModel): hasher.combine(viewModel.id)
-        case .validators(let viewModel): hasher.combine(viewModel.id)
-        case .summary(let viewModel): hasher.combine(viewModel.id)
-        case .newSummary(let viewModel): hasher.combine(viewModel.id)
-        case .finish(let viewModel): hasher.combine(viewModel.id)
-        case .newFinish(let viewModel): hasher.combine(viewModel.id)
-        case .onramp(let viewModel): hasher.combine(viewModel.id)
-        case .newOnramp(let viewModel): hasher.combine(viewModel.id)
+        case .amount(let viewModel): viewModel.id
+        case .newAmount(let viewModel): viewModel.id
+        case .destination(let viewModel): viewModel.id
+        case .newDestination(let viewModel): viewModel.id
+        case .fee(let viewModel): viewModel.id
+        case .validators(let viewModel): viewModel.id
+        case .summary(let viewModel): viewModel.id
+        case .newSummary(let viewModel): viewModel.id
+        case .finish(let viewModel): viewModel.id
+        case .newFinish(let viewModel): viewModel.id
+        case .onramp(let viewModel): viewModel.id
+        case .newOnramp(let viewModel): viewModel.id
         }
     }
+}
 
+// MARK: - Equatable
+
+extension SendStepType: Equatable {
     static func == (lhs: SendStepType, rhs: SendStepType) -> Bool {
-        lhs.hashValue == rhs.hashValue
+        lhs.id == rhs.id
     }
 }
 

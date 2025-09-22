@@ -22,24 +22,20 @@ struct ValidatorCompactViewData: Identifiable, Hashable {
 
 struct ValidatorCompactView: View {
     let data: ValidatorCompactViewData
-    let namespace: StakingValidatorsView.Namespace
 
     var body: some View {
         HStack(spacing: 12) {
             IconView(url: data.imageURL, size: CGSize(width: 24, height: 24))
-                .matchedGeometryEffect(id: namespace.names.validatorIcon(id: data.address), in: namespace.id)
 
             HStack(spacing: 0) {
                 Text(data.name)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-                    .matchedGeometryEffect(id: namespace.names.validatorTitle(id: data.address), in: namespace.id)
 
                 if let aprFormatted = data.aprFormatted {
                     Spacer()
 
                     Text(aprFormatted)
                         .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-                        .matchedGeometryEffect(id: namespace.names.validatorDetailsView(id: data.address), in: namespace.id)
                         .animation(nil, value: aprFormatted)
                 }
             }

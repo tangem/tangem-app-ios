@@ -15,7 +15,6 @@ final class StakingValidatorsViewModel: ObservableObject, Identifiable {
 
     @Published var validators: [ValidatorViewData] = []
     @Published var selectedValidator: String = ""
-    @Published var auxiliaryViewsVisible: Bool = true
 
     private var initialSelectedValidator: String?
 
@@ -34,12 +33,9 @@ final class StakingValidatorsViewModel: ObservableObject, Identifiable {
         bind()
     }
 
-    func onAppear() {
-        auxiliaryViewsVisible = true
-    }
+    func onAppear() {}
 
     func onDisappear() {
-        auxiliaryViewsVisible = false
         if selectedValidator != initialSelectedValidator, validators.contains(where: { $0.address == selectedValidator }) {
             analyticsLogger.logStakingValidatorChosen()
         }
@@ -101,17 +97,7 @@ private extension StakingValidatorsViewModel {
 // MARK: - SendStepViewAnimatable
 
 extension StakingValidatorsViewModel: SendStepViewAnimatable {
-    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {
-        switch state {
-        case .appearing(.summary(_)):
-            // Will be shown with animation
-            auxiliaryViewsVisible = false
-        case .disappearing(.summary(_)):
-            auxiliaryViewsVisible = false
-        default:
-            break
-        }
-    }
+    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
 }
 
 extension StakingValidatorsViewModel {
