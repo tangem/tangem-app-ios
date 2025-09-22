@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SendNewDestinationAddressView: View {
     @ObservedObject var viewModel: SendNewDestinationAddressViewModel
