@@ -12,7 +12,7 @@ protocol SendStepViewAnimatable {
     func viewDidChangeVisibilityState(_ state: SendStepVisibilityState)
 }
 
-enum SendStepVisibilityState: Hashable {
+enum SendStepVisibilityState: Equatable {
     case appearing(previousStep: SendStepType)
     case appeared
     case disappearing(nextStep: SendStepType)
