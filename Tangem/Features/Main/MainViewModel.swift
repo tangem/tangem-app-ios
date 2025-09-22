@@ -377,8 +377,7 @@ final class MainViewModel: ObservableObject {
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
-        guard pushNotificationsAvailabilityProvider.isAvailable,
-              !FeatureProvider.isAvailable(.pushPermissionNotificationBanner) else {
+        guard pushNotificationsAvailabilityProvider.isAvailable else {
             return
         }
 
