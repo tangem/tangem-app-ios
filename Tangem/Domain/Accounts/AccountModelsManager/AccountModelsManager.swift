@@ -11,14 +11,13 @@ import Combine
 
 // [REDACTED_TODO_COMMENT]
 protocol AccountModelsManager {
+    /// Indicates whether the user can add more additional (not `Main`) crypto accounts to the wallet.
+    var canAddCryptoAccounts: Bool { get }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { get }
 
     /// - Note: This method is also responsible for moving custom tokens into the newly created account if they have a matching derivation.
-    /// - Returns: The created account model.
-    @discardableResult
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> any CryptoAccountModel
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError)
 
-    /// - Returns: The archived account model.
-    @discardableResult
-    func archiveCryptoAccount(with index: Int) async throws -> any CryptoAccountModel
+    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws(AccountModelsManagerError)
 }
