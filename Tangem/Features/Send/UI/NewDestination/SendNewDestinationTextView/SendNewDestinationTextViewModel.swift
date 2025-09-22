@@ -23,7 +23,7 @@ class SendNewDestinationAddressViewModel: ObservableObject, Identifiable {
         .init(
             root: self, default: "",
             get: { $0.address.string },
-            set: { $0.address = .init(string: $1, source: .textField) }
+            set: { $0.address = .init(string: $1.trimmed(), source: .textField) }
         )
     }
 
@@ -52,7 +52,7 @@ class SendNewDestinationAddressViewModel: ObservableObject, Identifiable {
 
     func didTapPasteButton(string: String) {
         FeedbackGenerator.heavy()
-        address = .init(string: string, source: .pasteButton)
+        address = .init(string: string.trimmed(), source: .pasteButton)
     }
 
     func didTapClearButton() {
