@@ -77,7 +77,7 @@ struct TestnetAPINodeInfoProvider {
             ]
         case .ethereum:
             return [
-                .init(url: URL(string: "https://ethereum-sepolia-rpc.publicnode.com/")!),
+                .init(url: URL(string: "https://eth-goerli.nownodes.io/\(keysConfig.nowNodesApiKey)")!),
                 .init(url: URL(string: "https://goerli.infura.io/v3/\(keysConfig.infuraProjectId)")!),
             ]
         case .ethereumClassic:
