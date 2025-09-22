@@ -14,12 +14,19 @@ import TangemFoundation
 
 final class NewOnrampViewModel: ObservableObject, Identifiable {
     @Published private(set) var onrampAmountViewModel: NewOnrampAmountViewModel
-    @Published private(set) var viewState: ViewState = .amount
+    var viewState: ViewState {
+        if suggestedOffersIsVisible, let suggestedOffers {
+            return .suggestedOffers(suggestedOffers)
+        }
+
+        return .amount
+    }
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var notificationButtonIsLoading = false
     @Published private(set) var shouldShowLegalText: Bool = true
 
+    @Published private var suggestedOffersIsVisible: Bool = false
     @Published private var suggestedOffers: SuggestedOffers?
     var continueButtonIsDisabled: Bool { suggestedOffers == nil }
 
@@ -48,12 +55,8 @@ final class NewOnrampViewModel: ObservableObject, Identifiable {
     }
 
     func usedDidTapContinue() {
-        guard let suggestedOffers else {
-            return
-        }
-
         shouldShowLegalText = false
-        viewState = .suggestedOffers(suggestedOffers)
+        suggestedOffersIsVisible = true
     }
 
     func openOnrampSettingsView() {
@@ -115,12 +118,8 @@ private extension NewOnrampViewModel {
     }
 
     func updateViewState(isLoading: Bool) {
-        switch viewState {
-        case .suggestedOffers where isLoading:
-            viewState = .amount
-        case .amount, .suggestedOffers:
-            // Do nothing
-            break
+        if suggestedOffersIsVisible, isLoading {
+            suggestedOffersIsVisible = false
         }
     }
 }
