@@ -49,5 +49,4 @@ enum StorageType: String {
     case useBiometricAuthentication = "use_biometric_authentication"
     case settingsVersion = "settings_version"
     case userWalletIdsWithSkippedAccessCode = "user_wallet_ids_with_skipped_access_code"
-    case pushNotificationPermissionRequestBanner = "push_notification_permission_request_banner"
 }
