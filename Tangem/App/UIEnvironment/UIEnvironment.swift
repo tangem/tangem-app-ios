@@ -11,6 +11,7 @@ private final class UIEnvironment {
     let viewHierarchySnapshottingAdapter = ViewHierarchySnapshottingContainerViewControllerAdapter()
     let floatingSheetViewModel = FloatingSheetViewModel()
     let alertPresenter = AlertPresenterViewModel()
+    let shareActivitiesPresenter = ShareActivitiesViewModel()
 }
 
 private struct UIEnvironmentKey: InjectionKey {
@@ -73,5 +74,13 @@ extension InjectedValues {
 
     var alertPresenter: any AlertPresenter {
         environment.alertPresenter
+    }
+
+    var overlayShareActivitiesViewModel: ShareActivitiesViewModel {
+        environment.shareActivitiesPresenter
+    }
+
+    var overlayShareActivitiesPresenter: any ShareActivitiesPresenter {
+        environment.shareActivitiesPresenter
     }
 }

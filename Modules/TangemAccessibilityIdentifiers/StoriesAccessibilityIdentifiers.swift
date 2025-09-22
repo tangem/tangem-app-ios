@@ -10,5 +10,5 @@ import Foundation
 
 public enum StoriesAccessibilityIdentifiers {
     public static let scanButton = "storiesScanButton"
-    public static let buyCardButton = "storiesBuyCardButton"
+    public static let closeButton = "storiesCloseButton"
 }

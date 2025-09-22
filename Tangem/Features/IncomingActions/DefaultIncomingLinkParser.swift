@@ -38,7 +38,9 @@ struct DefaultIncomingLinkParser {
             userWalletId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.userWalletId],
             derivationPath: keyedQueryItems[IncomingActionConstants.DeeplinkParams.derivationPath],
             transactionId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.transactionId],
-            promoCode: keyedQueryItems[IncomingActionConstants.DeeplinkParams.promoCode]
+            promoCode: keyedQueryItems[IncomingActionConstants.DeeplinkParams.promoCode],
+            entry: keyedQueryItems[IncomingActionConstants.DeeplinkParams.entry],
+            id: keyedQueryItems[IncomingActionConstants.DeeplinkParams.id],
         )
     }
 
@@ -51,7 +53,11 @@ struct DefaultIncomingLinkParser {
             return .start
         }
 
-        let navAction = DeeplinkNavigationAction(destination: .link, params: .init(url: url))
+        let navAction = DeeplinkNavigationAction(
+            destination: .link,
+            params: .init(url: url),
+            deeplinkString: url.absoluteString
+        )
         return .navigation(navAction)
     }
 
@@ -63,7 +69,11 @@ struct DefaultIncomingLinkParser {
         }
 
         let params = getDeeplinkParams(from: url)
-        let deeplinkNavAction = DeeplinkNavigationAction(destination: destination, params: params)
+        let deeplinkNavAction = DeeplinkNavigationAction(
+            destination: destination,
+            params: params,
+            deeplinkString: url.absoluteString
+        )
 
         guard deeplinkValidator.hasMinimumDataForHandling(deeplink: deeplinkNavAction) else {
             return nil

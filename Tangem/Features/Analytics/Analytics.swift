@@ -14,7 +14,7 @@ import TangemSdk
 import TangemFoundation
 
 class Analytics {
-    @Injected(\.analyticsContext) private static var analyticsContext: AnalyticsContext
+    @Injected(\.analyticsContext) private static var analyticsContext: AnalyticsSessionContext
 
     private static let firebaseLoggingQueue = DispatchQueue(
         label: "com.tangem.Analytics.firebaseLoggingQueue",
@@ -23,31 +23,14 @@ class Analytics {
 
     private init() {}
 
-    // MARK: - Scan
-
-    static func beginLoggingCardScan(source: CardScanSource) {
-        analyticsContext.set(value: source, forKey: .scanSource, scope: .common)
-        logEventInternal(source.cardScanButtonEvent)
-    }
-
-    static func endLoggingCardScan() {
-        guard let source = analyticsContext.value(forKey: .scanSource, scope: .common) as? CardScanSource else {
-            assertionFailure("Don't forget to call beginLoggingCardScan")
-            return
-        }
-
-        analyticsContext.removeValue(forKey: .scanSource, scope: .common)
-        logEventInternal(.cardWasScanned, params: [.source: source.cardWasScannedParameterValue.rawValue])
-    }
-
     // MARK: - Others
 
-    static func logTopUpIfNeeded(balance: Decimal, for userWalletId: UserWalletId) {
+    static func logTopUpIfNeeded(balance: Decimal, for userWalletId: UserWalletId, contextParams: Analytics.ContextParams = .default) {
         let hasPreviousPositiveBalance = analyticsContext.value(forKey: .hasPositiveBalance, scope: .userWallet(userWalletId)) as? Bool
 
         // Send only first topped up event. Do not send the event to analytics on following topup events.
         if balance > 0, hasPreviousPositiveBalance == false {
-            logEventInternal(.toppedUp)
+            logEventInternal(.toppedUp, contextParams: contextParams)
             analyticsContext.set(value: true, forKey: .hasPositiveBalance, scope: .userWallet(userWalletId))
         } else if hasPreviousPositiveBalance == nil { // Do not save in a withdrawal case
             // Register the first app launch with balance.
@@ -68,37 +51,59 @@ class Analytics {
         Analytics.log(event: event, params: params)
     }
 
-    static func logScanError(_ error: Error, source: Analytics.ScanErrorsSource) {
+    static func logScanError(_ error: Error, source: Analytics.ScanErrorsSource, contextParams: Analytics.ContextParams = .default) {
         let error = error.toTangemSdkError()
 
-        Analytics.log(event: .scanErrors, params: [
-            .errorCode: "\(error.code)",
-            .errorMessage: error.localizedDescription,
-            .source: source.parameterValue.rawValue,
-        ])
+        Analytics.log(
+            event: .scanErrors,
+            params: [
+                .errorCode: "\(error.code)",
+                .errorMessage: error.localizedDescription,
+                .source: source.parameterValue.rawValue,
+            ],
+            contextParams: contextParams
+        )
     }
 
     // MARK: - Common
 
-    static func log(_ event: Event, params: [ParameterKey: ParameterValue] = [:], limit: Analytics.EventLimit = .unlimited) {
-        log(event: event, params: params.mapValues { $0.rawValue }, limit: limit)
+    static func log(
+        _ event: Event,
+        params: [ParameterKey: ParameterValue] = [:],
+        contextParams: Analytics.ContextParams = .default,
+        limit: Analytics.EventLimit = .unlimited
+    ) {
+        log(
+            event: event,
+            params: params.mapValues { $0.rawValue },
+            contextParams: contextParams,
+            limit: limit
+        )
     }
 
     static func log(
         event: Event,
         params: [ParameterKey: String],
         analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics],
+        contextParams: Analytics.ContextParams = .default,
         limit: Analytics.EventLimit = .unlimited
     ) {
         assert(event.canBeLoggedDirectly)
 
-        logEventInternal(event, params: params, analyticsSystems: analyticsSystems, limit: limit)
+        logEventInternal(
+            event,
+            params: params,
+            analyticsSystems: analyticsSystems,
+            contextParams: contextParams,
+            limit: limit
+        )
     }
 
-    static func debugLog(eventInfo: any AnalyticsDebugEvent) {
+    static func debugLog(eventInfo: any AnalyticsDebugEvent, contextParams: Analytics.ContextParams = .default) {
         logInternal(
             eventInfo.title,
             params: eventInfo.analyticsParams,
+            contextParams: contextParams,
             analyticsSystems: [.crashlytics]
         )
     }
@@ -109,7 +114,7 @@ class Analytics {
         var params = params
 
         switch error {
-        case is WalletConnectV2Error, is WalletConnectServiceError:
+        case is WCTransactionSignError:
             params[.errorDescription] = error.localizedDescription
             let nsError = NSError(
                 domain: "WalletConnect Error",
@@ -155,6 +160,7 @@ class Analytics {
         _ event: Event,
         params: [ParameterKey: String] = [:],
         analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics],
+        contextParams: Analytics.ContextParams,
         limit: Analytics.EventLimit = .unlimited
     ) {
         if AppEnvironment.current.isXcodePreview {
@@ -168,6 +174,7 @@ class Analytics {
         logInternal(
             event.rawValue,
             params: params.dictionaryParams,
+            contextParams: contextParams,
             analyticsSystems: analyticsSystems
         )
     }
@@ -175,6 +182,7 @@ class Analytics {
     private static func logInternal(
         _ event: String,
         params: [String: Any] = [:],
+        contextParams: Analytics.ContextParams,
         analyticsSystems: [Analytics.AnalyticsSystem]
     ) {
         if AppEnvironment.current.isXcodePreview {
@@ -183,9 +191,7 @@ class Analytics {
 
         var params = params
 
-        if let contextualParams = analyticsContext.contextData?.analyticsParams.dictionaryParams {
-            params.merge(contextualParams, uniquingKeysWith: { old, _ in old })
-        }
+        params.merge(contextParams.analyticsParams.dictionaryParams, uniquingKeysWith: { old, _ in old })
 
         for system in analyticsSystems {
             switch system {
@@ -230,11 +236,7 @@ private extension Dictionary where Key == Analytics.ParameterKey, Value == Strin
 private extension Analytics.Event {
     var canBeLoggedDirectly: Bool {
         switch self {
-        case .introductionProcessButtonScanCard,
-             .buttonScanNewCardSettings,
-             .buttonCardSignIn,
-             .cardWasScanned,
-             .toppedUp,
+        case .toppedUp,
              .purchased:
             return false
         default:

@@ -24,6 +24,7 @@ enum TokenNotificationEvent: Hashable {
     case staking(tokenIconInfo: TokenIconInfo, earnUpToFormatted: String)
     case manaLevel(currentMana: String, maxMana: String)
     case maticMigration
+    case yieldAvailable(configuration: YieldAvailableConfiguration)
 
     static func event(
         for reason: TransactionSendAvailabilityProvider.SendingRestrictions,
@@ -77,6 +78,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.koinosManaLevelTitle)
         case .maticMigration:
             return .string(Localization.warningMaticMigrationTitle)
+        case .yieldAvailable(let configuration):
+            return .string(Localization.yieldModuleTokenDetailsEarnNotificationTitle(configuration.apy))
         }
     }
 
@@ -127,6 +130,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return Localization.koinosManaLevelDescription(currentMana, maxMana)
         case .maticMigration:
             return Localization.warningMaticMigrationMessage
+        case .yieldAvailable:
+            return Localization.yieldModuleTokenDetailsEarnNotificationDescription
         }
     }
 
@@ -146,7 +151,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
              .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction),
              .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
-             .staking:
+             .staking,
+             .yieldAvailable:
             return .primary
         }
     }
@@ -171,6 +177,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(iconType: .image(trustlineInfo.icon.image))
         case .staking(let tokenIconInfo, _):
             return .init(iconType: .icon(tokenIconInfo))
+        case .yieldAvailable:
+            return .init(iconType: .image(Assets.blueCircleWarning.image))
         }
     }
 
@@ -181,7 +189,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .existentialDepositWarning,
              .staking,
              .manaLevel,
-             .maticMigration:
+             .maticMigration,
+             .yieldAvailable:
             return .info
         case .networkUnreachable,
              .networkNotUpdated,
@@ -209,7 +218,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
              .staking,
              .manaLevel,
-             .maticMigration:
+             .maticMigration,
+             .yieldAvailable:
             return false
         }
     }
@@ -242,6 +252,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(.addTokenTrustline, withLoader: true, isDisabled: config.trustlineOperationInProgress)
         case .staking:
             return .init(.stake)
+        case .yieldAvailable:
+            return .init(.openYieldPromo)
         }
     }
 }
@@ -293,6 +305,10 @@ extension TokenNotificationEvent {
         case incompleteKaspaTokenTransaction(revealTransaction: KaspaTokenRevealTransaction)
         case missingTokenTrustline(MissingTrustlineInfo)
     }
+
+    struct YieldAvailableConfiguration: Hashable {
+        let apy: String
+    }
 }
 
 // MARK: Analytics info
@@ -313,6 +329,7 @@ extension TokenNotificationEvent {
         case .staking: return nil
         case .manaLevel: return nil
         case .maticMigration: return nil
+        case .yieldAvailable: return nil
         }
     }
 
@@ -333,7 +350,8 @@ extension TokenNotificationEvent {
              .staking,
              .manaLevel,
              .maticMigration,
-             .networkNotUpdated:
+             .networkNotUpdated,
+             .yieldAvailable:
             return [:]
         }
     }
