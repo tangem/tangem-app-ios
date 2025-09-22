@@ -38,6 +38,11 @@ struct SendNewFinishView: View {
             }
         }
         .onAppear(perform: viewModel.onAppear)
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
+            if let url = viewModel.transactionURL {
+                bottomButtons(url: url)
+            }
+        }
         .transition(transitionService.newFinishViewTransition())
     }
 
@@ -61,5 +66,26 @@ struct SendNewFinishView: View {
         }
         .transition(.offset(y: -30).combined(with: .opacity).animation(SendTransitionService.Constants.newAnimation))
         .padding(.bottom, 10)
+    }
+
+    @ViewBuilder
+    private func bottomButtons(url: URL) -> some View {
+        HStack(spacing: 8) {
+            MainButton(
+                title: Localization.commonExplore,
+                icon: .leading(Assets.Glyphs.explore),
+                style: .secondary,
+                action: { viewModel.explore(url: url) }
+            )
+            MainButton(
+                title: Localization.commonShare,
+                icon: .leading(Assets.share),
+                style: .secondary,
+                action: { viewModel.share(url: url) }
+            )
+        }
+        .padding(.bottom, 8)
+        .padding(.horizontal, 16)
+        .transition(.opacity.animation(SendTransitionService.Constants.newAnimation))
     }
 }

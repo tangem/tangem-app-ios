@@ -27,9 +27,13 @@ class BaseTestCase: XCTestCase {
         app.launchEnvironment.removeAll()
         app.terminate()
 
-        // Reset WireMock scenarios after each test
+        // Reset only active WireMock scenarios after each test
         if !activeScenarios.isEmpty {
-            wireMockClient.resetAllScenariosSync()
+            XCTContext.runActivity(named: "Reset active WireMock scenarios") { _ in
+                for scenarioName in activeScenarios.keys {
+                    wireMockClient.resetScenarioSync(scenarioName)
+                }
+            }
             activeScenarios.removeAll()
         }
 
