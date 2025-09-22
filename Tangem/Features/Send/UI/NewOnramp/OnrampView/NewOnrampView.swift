@@ -20,7 +20,6 @@ struct NewOnrampView: View {
     var body: some View {
         GroupedScrollView(spacing: 12) {
             NewOnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
-                .padding(.top, 12)
 
             providersView
                 .transition(transitionService.defaultTransition)
@@ -66,6 +65,7 @@ struct NewOnrampView: View {
 
             if offers.shouldShowAllOffersButton {
                 MainButton(title: Localization.onrampAllOffersButtonTitle, style: .secondary) {
+                    keyboardActive = false
                     viewModel.userDidTapAllOffersButton()
                 }
             }
