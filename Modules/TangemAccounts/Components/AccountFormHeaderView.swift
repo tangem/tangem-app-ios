@@ -85,14 +85,14 @@ public struct AccountFormHeaderView: View {
                 accountName: $accountName,
                 placeholderText: "New account",
                 color: Colors.Accounts.vitalGreen,
-                previewType: .letter("N")
+                nameMode: .letter("N")
             )
 
             AccountFormHeaderView(
                 accountName: $accountName,
                 placeholderText: "New account",
                 color: Colors.Accounts.ufoGreen,
-                previewType: .image(Assets.Accounts.airplane.image)
+                nameMode: .imageType(Assets.Accounts.airplane)
             )
         }
         .padding(.horizontal, 16)

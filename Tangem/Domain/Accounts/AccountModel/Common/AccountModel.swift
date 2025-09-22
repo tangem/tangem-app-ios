@@ -28,8 +28,8 @@ extension AccountModel {
 
         var nameOrLetter: String {
             switch nameMode {
-            case .letter(let letter):
-                return letter
+            case .letter:
+                return Constants.letterIconNameKey
             case .named(let name):
                 return name.rawValue
             }
@@ -55,7 +55,7 @@ extension AccountModel.Icon {
     }
 
     enum NameMode: Equatable {
-        case letter(String)
+        case letter
         case named(Name)
     }
 
@@ -81,6 +81,12 @@ extension AccountModel.Icon {
     }
 }
 
+extension AccountModel.Icon {
+    private enum Constants {
+        static let letterIconNameKey = "Letter"
+    }
+}
+
 // MARK: - Convenience extensions
 
 extension AccountModel.Icon {
@@ -92,8 +98,8 @@ extension AccountModel.Icon {
         if let name = Name(rawValue: rawName) {
             self.init(nameMode: .named(name), color: color)
             return
-        } else if rawName.count == 1 {
-            self.init(nameMode: .letter(rawName), color: color)
+        } else if rawName == Constants.letterIconNameKey {
+            self.init(nameMode: .letter, color: color)
             return
         }
 
