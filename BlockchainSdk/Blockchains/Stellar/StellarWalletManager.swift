@@ -174,7 +174,6 @@ class StellarWalletManager: BaseManager, WalletManager {
     }
 
     private func updateWallet(with response: StellarResponse, tokens: [Token]) {
-        txBuilder.sequence = response.sequence
         let assetBalancesCount = response.assetBalances.count
         let fullReserve = response.baseReserve * Decimal(assetBalancesCount + Constants.baseEntryCount)
 
