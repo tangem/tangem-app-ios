@@ -106,41 +106,43 @@ class MockedCardScanner {
 
 extension MockedCardScanner: CardScanner {
     func scanCard(completion: @escaping (Result<AppScanTaskResponse, TangemSdkError>) -> Void) {
-        selectOption { result in
-            switch result {
-            case .success(let option):
-                switch option {
-                case .scan(let response):
-                    completion(.success(response))
-                case .cardMock(let mock):
-                    let response = AppScanTaskResponse(
-                        card: mock.card,
-                        walletData: mock.walletData,
-                        primaryCard: nil
-                    )
-
-                    completion(.success(response))
-                case .json(let jsonString):
-                    guard let jsonData = jsonString.data(using: .utf8) else {
-                        completion(.failure(.underlying(error: Error.jsonToDataError)))
-                        return
-                    }
-
-                    do {
-                        let decodedCard = try JSONDecoder.tangemSdkDecoder.decode(Card.self, from: jsonData)
+        DispatchQueue.main.async {
+            self.selectOption { result in
+                switch result {
+                case .success(let option):
+                    switch option {
+                    case .scan(let response):
+                        completion(.success(response))
+                    case .cardMock(let mock):
                         let response = AppScanTaskResponse(
-                            card: decodedCard,
-                            walletData: .none,
+                            card: mock.card,
+                            walletData: mock.walletData,
                             primaryCard: nil
                         )
 
                         completion(.success(response))
-                    } catch {
-                        completion(.failure(.underlying(error: error)))
+                    case .json(let jsonString):
+                        guard let jsonData = jsonString.data(using: .utf8) else {
+                            completion(.failure(.underlying(error: Error.jsonToDataError)))
+                            return
+                        }
+
+                        do {
+                            let decodedCard = try JSONDecoder.tangemSdkDecoder.decode(Card.self, from: jsonData)
+                            let response = AppScanTaskResponse(
+                                card: decodedCard,
+                                walletData: .none,
+                                primaryCard: nil
+                            )
+
+                            completion(.success(response))
+                        } catch {
+                            completion(.failure(.underlying(error: error)))
+                        }
                     }
+                case .failure(let error):
+                    completion(.failure(error))
                 }
-            case .failure(let error):
-                completion(.failure(error))
             }
         }
     }

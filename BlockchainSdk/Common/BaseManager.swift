@@ -21,7 +21,8 @@ class BaseManager {
 
     private let _updateQueue: DispatchQueue
     private var _latestUpdateTime: Date?
-    private var _updatingPublisher: AnyPublisher<Void, Never>?
+    private var _updatingPublisher: PassthroughSubject<Void, Never>?
+    private var _updatingSubscription: Cancellable?
 
     var cancellable: Cancellable?
 
@@ -53,6 +54,8 @@ class BaseManager {
 extension BaseManager: WalletUpdater {
     func setNeedsUpdate() {
         _latestUpdateTime = nil
+        _updatingSubscription?.cancel()
+        _updatingSubscription = nil
     }
 
     func updatePublisher() -> AnyPublisher<Void, Never> {
@@ -63,7 +66,7 @@ extension BaseManager: WalletUpdater {
             let walletName = "wallet \(wallet.blockchain.displayName)"
 
             // If updating already in process return updating Publisher
-            if let updatePublisher = _updatingPublisher {
+            if _updatingSubscription != nil, let updatePublisher = _updatingPublisher {
                 logger.info(self, "Double updating request for \(walletName). Return existing updating publisher")
                 return updatePublisher.eraseToAnyPublisher()
             }
@@ -76,32 +79,48 @@ extension BaseManager: WalletUpdater {
             }
 
             logger.info(self, "Start updating \(walletName)")
-            let updatePublisher = Future<Void, Never> { [weak self] promise in
-                self?._state.send(.loading)
+            _state.send(.loading)
 
-                self?.update { [weak self] result in
-                    switch result {
-                    case .success:
-                        logger.info(self, "Updating \(walletName) is success")
+            _updatingSubscription = makeUpdatePublisher()
+                .sink(receiveCompletion: { [weak self] completion in
+                    guard let self else { return }
 
-                        self?._state.send(.loaded)
-                        self?._latestUpdateTime = Date()
-
+                    switch completion {
                     case .failure(let error):
                         logger.error(self, "Updating \(walletName) is error", error: error)
-
-                        self?._state.send(.failed(error))
+                        _state.send(.failed(error))
+                    case .finished:
+                        logger.info(self, "Updating \(walletName) is success")
+                        _state.send(.loaded)
+                        _latestUpdateTime = Date()
                     }
+                    _updatingPublisher?.send(())
+                    _updatingSubscription = nil
+                    _updatingPublisher = nil
+                }, receiveValue: { _ in })
 
-                    self?._updatingPublisher = nil
+            if let _updatingPublisher {
+                return _updatingPublisher.eraseToAnyPublisher()
+            }
+
+            let updatePublisher = PassthroughSubject<Void, Never>()
+            _updatingPublisher = updatePublisher
+            return updatePublisher.eraseToAnyPublisher()
+        }
+    }
+
+    private func makeUpdatePublisher() -> AnyPublisher<Void, Error> {
+        return Future<Void, Error> { [weak self] promise in
+            self?.update { result in
+                switch result {
+                case .success:
                     promise(.success(()))
+                case .failure(let error):
+                    promise(.failure(error))
                 }
             }
-            .eraseToAnyPublisher()
-
-            _updatingPublisher = updatePublisher
-            return updatePublisher
         }
+        .eraseToAnyPublisher()
     }
 }
 
