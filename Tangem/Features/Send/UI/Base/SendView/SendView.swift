@@ -47,7 +47,7 @@ struct SendView: View {
         .animation(.none, value: viewModel.navigationBarSettings)
         .animation(.none, value: viewModel.bottomBarSettings)
         .scrollDismissesKeyboardCompat(.immediately)
-        .safeAreaInset(edge: .bottom) { bottomContainer }
+        .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
         .onReceive(viewModel.$isKeyboardActive, perform: { focused = $0 })
         .onChange(of: viewModel.shouldShowDismissAlert) { interactiveDismissDisabled = $0 }
         .onAppear(perform: viewModel.onAppear)
@@ -125,7 +125,6 @@ struct SendView: View {
 
                 HideKeyboardButton(focused: $focused)
             }
-            .infinityFrame(axis: .horizontal)
         }
     }
 
@@ -202,6 +201,14 @@ struct SendView: View {
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
             .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+        case .newOnramp(let onrampViewModel):
+            NewOnrampView(
+                viewModel: onrampViewModel,
+                transitionService: transitionService,
+                keyboardActive: $focused,
+            )
+            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .finish(let sendFinishViewModel):
             SendFinishView(
                 viewModel: sendFinishViewModel,
@@ -221,25 +228,7 @@ struct SendView: View {
 
     @ViewBuilder
     private var bottomContainer: some View {
-        VStack(spacing: 10) {
-            if let url = viewModel.transactionURL, viewModel.shouldShowShareExploreButtons {
-                HStack(spacing: 8) {
-                    MainButton(
-                        title: Localization.commonExplore,
-                        icon: .leading(Assets.Glyphs.explore),
-                        style: .secondary,
-                        action: { viewModel.explore(url: url) }
-                    )
-                    MainButton(
-                        title: Localization.commonShare,
-                        icon: .leading(Assets.share),
-                        style: .secondary,
-                        action: { viewModel.share(url: url) }
-                    )
-                }
-                .transition(.opacity.animation(SendTransitionService.Constants.newAnimation))
-            }
-
+        if let mainButtonType = viewModel.bottomBarSettings.action {
             HStack(spacing: 8) {
                 if viewModel.bottomBarSettings.backButtonVisible {
                     SendViewBackButton(
@@ -252,25 +241,26 @@ struct SendView: View {
                 }
 
                 MainButton(
-                    title: viewModel.bottomBarSettings.action.title(action: viewModel.flowActionType),
-                    icon: viewModel.bottomBarSettings.action.icon(action: viewModel.flowActionType),
+                    title: mainButtonType.title(action: viewModel.flowActionType),
+                    icon: mainButtonType.icon(action: viewModel.flowActionType),
                     style: .primary,
                     size: .default,
                     isLoading: viewModel.mainButtonLoading,
                     isDisabled: !viewModel.actionIsAvailable,
-                    action: viewModel.userDidTapActionButton
+                    action: {
+                        viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
+                    }
                 )
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
             }
             .animation(SendTransitionService.Constants.auxiliaryViewAnimation, value: viewModel.bottomBarSettings.backButtonVisible)
+            .padding(.bottom, 14)
+            .padding(.horizontal, 16)
         }
-        .padding(.top, 8)
-        .padding(.bottom, 14)
-        .padding(.horizontal, 16)
     }
 
     private var bottomOverlay: some View {
-        ListFooterOverlayShadowView()
+        ListFooterOverlayShadowView(opacities: [0, 0.95, 1])
             .frame(height: bottomGradientHeight)
             .visible(viewModel.shouldShowBottomOverlay)
     }

@@ -75,7 +75,7 @@ class WelcomeViewModel: ObservableObject {
 
     func scanCard() {
         isScanningCard.send(true)
-        Analytics.beginLoggingCardScan(source: .welcome)
+        Analytics.log(Analytics.CardScanSource.welcome.cardScanButtonEvent)
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -101,6 +101,7 @@ class WelcomeViewModel: ObservableObject {
                 }
 
             case .onboarding(let input, _):
+                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue])
                 viewModel.incomingActionManager.discardIncomingAction(if: { !$0.isPromoDeeplink })
 
                 await runOnMain {
@@ -118,6 +119,8 @@ class WelcomeViewModel: ObservableObject {
                 }
 
             case .success(let cardInfo):
+                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue])
+
                 let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
                 guard let userWalletId = UserWalletId(config: config),
@@ -197,10 +200,12 @@ extension WelcomeViewModel: StoriesDelegate {
     }
 
     func createWallet() {
+        Analytics.log(.introductionProcessButtonCreateNewWallet)
         coordinator?.openCreateWallet()
     }
 
     func importWallet() {
+        Analytics.log(.introductionProcessButtonAddExistingWallet)
         coordinator?.openImportWallet()
     }
 

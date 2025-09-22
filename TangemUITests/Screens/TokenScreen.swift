@@ -13,12 +13,14 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     enum TokenAction: String {
         case buy = "Buy"
         case swap = "Swap"
+        case send = "Send"
     }
 
     private lazy var moreButton = otherElement(.moreButton)
     private lazy var hideTokenButton = button(.hideTokenButton)
     private lazy var actionButtons = otherElement(.tokenActionButtons)
     private lazy var stakeNotificationButton = button(.stakeNotificationButton)
+    private lazy var topUpBanner = staticText(.topUpBanner)
 
     // Staking elements
     private lazy var nativeStakingBlock = button(.nativeStakingBlock)
@@ -35,7 +37,11 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     @discardableResult
     func tapActionButton(_ action: TokenAction) -> Self {
         XCTContext.runActivity(named: "Tap token action button: \(action.rawValue)") { _ in
-            actionButtons.buttons[action.rawValue].waitAndTap()
+            XCTAssertTrue(actionButtons.waitForExistence(timeout: .robustUIUpdate), "Action buttons container should exist")
+
+            let button = actionButtons.buttons[action.rawValue]
+
+            button.waitAndTap()
             return self
         }
     }
@@ -45,9 +51,14 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         return OnrampScreen(app)
     }
 
-    func tapSwapButton() -> SwapScreen {
+    func tapSwapButton() -> SwapStoriesScreen {
         tapActionButton(.swap)
-        return SwapScreen(app)
+        return SwapStoriesScreen(app)
+    }
+
+    func tapSendButton() -> SendScreen {
+        tapActionButton(.send)
+        return SendScreen(app)
     }
 
     func openStakeDetails() -> StakingDetailsScreen {
@@ -74,6 +85,23 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             return self
         }
     }
+
+    @discardableResult
+    func validateTopUpWalletBannerExists() -> Self {
+        XCTContext.runActivity(named: "Validate 'Top up your wallet' banner exists") { _ in
+            waitAndAssertTrue(topUpBanner, "Top up wallet banner should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func validateTopUpWalletBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Validate 'Top up your wallet' banner not exists") { _ in
+            topUpBanner.waitForState(state: .doesntExist)
+            XCTAssertFalse(topUpBanner.exists, "Top up wallet banner should not be displayed")
+            return self
+        }
+    }
 }
 
 enum TokenScreenElement: String, UIElement {
@@ -84,6 +112,7 @@ enum TokenScreenElement: String, UIElement {
     case nativeStakingBlock
     case nativeStakingTitle
     case nativeStakingChevron
+    case topUpBanner
 
     var accessibilityIdentifier: String {
         switch self {
@@ -101,6 +130,8 @@ enum TokenScreenElement: String, UIElement {
             return TokenAccessibilityIdentifiers.nativeStakingTitle
         case .nativeStakingChevron:
             return TokenAccessibilityIdentifiers.nativeStakingChevron
+        case .topUpBanner:
+            return TokenAccessibilityIdentifiers.topUpWalletBanner
         }
     }
 }

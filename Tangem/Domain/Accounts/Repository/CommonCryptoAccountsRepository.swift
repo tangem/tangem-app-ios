@@ -8,13 +8,57 @@
 
 import Foundation
 import Combine
+import CombineExt
+import TangemFoundation
 
 final class CommonCryptoAccountsRepository {
-    // [REDACTED_TODO_COMMENT]
-    private let tokenItemsRepository: TokenItemsRepository
+    private typealias StorageDidUpdateSubject = PassthroughSubject<Void, Never>
 
-    init(tokenItemsRepository: TokenItemsRepository) {
+    private let tokenItemsRepository: TokenItemsRepository
+    private let networkService: CryptoAccountsNetworkService
+    private let persistentStorage: CryptoAccountsPersistentStorage
+    private let storageController: CryptoAccountsPersistentStorageController
+    private let storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject
+
+    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
+    private lazy var _cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> = storageDidUpdateSubject
+        .prepend(())
+        .withWeakCaptureOf(self)
+        .map { $0.0.persistentStorage.getList() }
+        .share(replay: 1)
+        .eraseToAnyPublisher()
+
+    init(
+        tokenItemsRepository: TokenItemsRepository,
+        networkService: CryptoAccountsNetworkService,
+        persistentStorage: CryptoAccountsPersistentStorage,
+        storageController: CryptoAccountsPersistentStorageController
+    ) {
+        storageDidUpdateSubject = .init()
         self.tokenItemsRepository = tokenItemsRepository
+        self.networkService = networkService
+        self.persistentStorage = persistentStorage
+        self.storageController = storageController
+        storageController.bind(to: storageDidUpdateSubject)
+    }
+
+    private func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [StoredCryptoAccount.Token]) {
+        let storedAccount = StoredCryptoAccount(
+            derivationIndex: config.derivationIndex,
+            name: config.name,
+            icon: .init(iconName: config.iconName, iconColor: config.iconColor),
+            tokens: tokens,
+            grouping: Constants.defaultGroupingType, // [REDACTED_TODO_COMMENT]
+            sorting: Constants.defaultSortingType // [REDACTED_TODO_COMMENT]
+        )
+        persistentStorage.appendNewOrUpdateExisting(account: storedAccount)
+    }
+
+    private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
+        let mainAccountPersistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
+        let storedTokens = tokenItemsRepository.getList().entries
+
+        addCryptoAccount(withConfig: mainAccountPersistentConfig, tokens: storedTokens)
     }
 }
 
@@ -22,43 +66,35 @@ final class CommonCryptoAccountsRepository {
 
 extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     var totalCryptoAccountsCount: Int {
-        // [REDACTED_TODO_COMMENT]
-        return 1
+        persistentStorage.getList().count
     }
 
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> {
-        // [REDACTED_TODO_COMMENT]
-        return .just(output: getAccounts())
+        _cryptoAccountsPublisher
     }
 
-    func getAccounts() -> [StoredCryptoAccount] {
-        // [REDACTED_TODO_COMMENT]
-        return [
-            StoredCryptoAccount(
-                derivationIndex: Constants.mainAccountDerivationIndex,
-                name: Constants.mainAccountName,
-                icon: .init(
-                    iconName: Constants.mainAccountIconName,
-                    iconColor: Constants.mainAccountIconColor
-                ),
-                tokenList: tokenItemsRepository.getList()
-            ),
-        ]
+    func initialize(forUserWalletWithId userWalletId: UserWalletId) {
+        if storageController.isMigrationNeeded() {
+            migrateStorage(forUserWalletWithId: userWalletId)
+        }
     }
 
-    func addCryptoAccount(_ cryptoAccountModel: any CryptoAccountModel) {
+    func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [TokenItem]) {
         // [REDACTED_TODO_COMMENT]
+        let storedTokens: [StoredCryptoAccount.Token] = []
+        addCryptoAccount(withConfig: config, tokens: storedTokens)
+    }
+
+    func removeCryptoAccount(withIdentifier identifier: AnyHashable) {
+        persistentStorage.removeAll { $0.derivationIndex.toAnyHashable() == identifier }
     }
 }
 
 // MARK: - Constants
 
-// [REDACTED_TODO_COMMENT]
-/** private */ extension CommonCryptoAccountsRepository {
+private extension CommonCryptoAccountsRepository {
     enum Constants {
-        static let mainAccountDerivationIndex = 0
-        static let mainAccountName = "Main Account" // [REDACTED_TODO_COMMENT]
-        static let mainAccountIconName = AccountModel.Icon.Name.star.rawValue
-        static let mainAccountIconColor = AccountModel.Icon.Color.brightBlue.rawValue
+        static let defaultGroupingType: StoredCryptoAccount.Grouping = .none
+        static let defaultSortingType: StoredCryptoAccount.Sorting = .manual
     }
 }

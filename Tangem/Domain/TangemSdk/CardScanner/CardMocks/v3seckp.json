@@ -1,0 +1,80 @@
+{
+    "cardId" : "AC07000000035437",
+    "cardPublicKey" : "0000",
+    "isPasscodeSet": false,
+    "wallets": [
+        {
+            "chainCode": "28B5F94F998EA087C81591C03A9178D0BC7554B204A7CAA4E9F01D05E531AB0F",
+            "settings": {
+                "isPermanent": false
+            },
+            "curve": "secp256k1",
+            "publicKey": "027145A57C26832421FF8D7BB34F248DF1231462E9EA16D7643FB22DC041C86C50",
+            "index": 0,
+            "totalSignedHashes": 0,
+            "isImported": false,
+            "hasBackup": true,
+            "derivedKeys": {
+                "m/0'/1": {
+                    "publicKey": "037B710002048D83A9EE80546EC773EF1E297740106FD4B0F60196BE03D0EF7C39",
+                    "chainCode": "A3814F2174AFBE16B0E0F124AE95B8D1F540D4E1FD78D50E84CB228E2E5C40A7",
+                    "depth": 0,
+                    "parentFingerprint": "00000000",
+                    "childNumber": 0
+                }
+            }
+        }
+    ],
+    "attestation": {
+        "firmwareAttestation": "skipped",
+        "walletKeysAttestation": "skipped",
+        "cardKeyAttestation": "failed",
+        "cardUniquenessAttestation": "skipped"
+    },
+    "linkedTerminalStatus": "none",
+    "batchId": "0045",
+    "settings": {
+        "isSettingPasscodeAllowed": true,
+        "isRemovingUserCodesAllowed": true,
+        "isBackupAllowed": false,
+        "isSettingAccessCodeAllowed": false,
+        "maxWalletsCount": 1,
+        "isLinkedTerminalEnabled": true,
+        "isFilesAllowed": true,
+        "isKeysImportAllowed": false,
+        "securityDelay": 15000,
+        "supportedEncryptionModes": [
+            "strong",
+            "fast",
+            "none"
+        ],
+        "isHDWalletAllowed": false,
+        "isPermanentWallet": false,
+        "isOverwritingIssuerExtraDataRestricted" : false,
+        "isIssuerDataProtectedAgainstReplay": true,
+        "isSelectBlockchainAllowed": true
+    },
+    "firmwareVersion": {
+        "stringValue": "3.05d SDK",
+        "type": "d SDK",
+        "major": 3,
+        "patch": 0,
+        "minor": 5
+    },
+    "isAccessCodeSet": false,
+    "manufacturer": {
+        "name": "TANGEM",
+        "manufactureDate": "2020-01-14",
+        "signature" : "0000"
+    },
+    "supportedCurves": [
+        "secp256k1"
+    ],
+    "issuer": {
+        "name": "TANGEM SDK",
+        "publicKey": "0000"
+    },
+    "userSettings": {
+        "isUserCodeRecoveryAllowed": false
+    }
+}
