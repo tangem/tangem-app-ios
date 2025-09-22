@@ -13,7 +13,6 @@ import BlockchainSdk
 import SwiftUI
 
 class SendDestinationViewModel: ObservableObject, Identifiable {
-    @Published var auxiliaryViewsVisible: Bool = true
     @Published var isEditMode: Bool = false
 
     @Published var addressViewModel: SendDestinationTextViewModel?
@@ -82,7 +81,6 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        auxiliaryViewsVisible = true
         interactor.preloadTransactionsHistoryIfNeeded()
     }
 
@@ -211,14 +209,11 @@ extension SendDestinationViewModel: SendStepViewAnimatable {
         switch state {
         case .appearing(.amount(_)):
             // Have to be always visible
-            auxiliaryViewsVisible = true
             isEditMode = false
         case .appearing(.summary(_)):
             // Will be shown with animation
-            auxiliaryViewsVisible = false
             isEditMode = true
         case .disappearing(.summary(_)):
-            auxiliaryViewsVisible = false
             isEditMode = true
         default:
             break
