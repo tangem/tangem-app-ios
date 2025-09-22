@@ -226,10 +226,10 @@ extension StellarWalletManager: TransactionSender {
         .tryMap { manager, responses in
             let (sourceAccountResponse, targetAccountResponse) = responses
             
-            // Update sequence number for actual state builder
-            manager.txBuilder.sequence = sourceAccountResponse.sequence
+            // Create a new builder instance with the updated sequence number to avoid mutating shared state
+            let txBuilder = manager.txBuilder.withSequence(sourceAccountResponse.sequence)
             
-            let result = try manager.txBuilder
+            let result = try txBuilder
                 .buildForSign(targetAccountResponse: targetAccountResponse, transaction: transaction)
             
             return result
