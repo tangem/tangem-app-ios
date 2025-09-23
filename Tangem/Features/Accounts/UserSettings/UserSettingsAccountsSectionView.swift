@@ -27,24 +27,11 @@ struct UserSettingsAccountsSectionView: View {
             staticContent: { viewData in
                 AddListItemButton(viewData: viewData)
             },
-            afterSeparatorContentModels: [
-                viewModel.archivedAccountButton,
-            ].compactMap { $0 },
-            contentAfterSeparator: { model in
-                BaseOneLineRowButton(
-                    icon: nil,
-                    title: model.text,
-                    shouldShowTrailingIcon: false,
-                    action: model.action,
-                    trailingView: {
-                        Assets.chevronRight.image
-                            .renderingMode(.template)
-                            .foregroundStyle(Colors.Icon.informative)
-                    }
-                )
-            },
-            header: {
+            sectionHeader: {
                 accountsSectionHeader
+            },
+            sectionFooter: viewModel.archivedAccountButton.map {
+                makeSectionFooter(from: $0)
             },
             footer: {
                 // We dont have reordering on iOS below 16.0
@@ -86,5 +73,19 @@ struct UserSettingsAccountsSectionView: View {
     private var accountsSectionHeader: some View {
         Text(Localization.commonAccounts)
             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+    }
+
+    private func makeSectionFooter(from buttonModel: UserSettingsAccountsViewModel.ArchivedAccountsButtonViewData) -> some View {
+        BaseOneLineRowButton(
+            icon: nil,
+            title: buttonModel.text,
+            shouldShowTrailingIcon: false,
+            action: buttonModel.action,
+            trailingView: {
+                Assets.chevronRight.image
+                    .renderingMode(.template)
+                    .foregroundStyle(Colors.Icon.informative)
+            }
+        )
     }
 }
