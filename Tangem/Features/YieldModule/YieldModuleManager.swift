@@ -197,7 +197,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                 )
 
                 transactions.append(contentsOf: reactivateTransactions)
-            case (.initialized, let enterFee as EnterFee):
+            case (.initialized, _):
                 throw YieldModuleError.yieldIsAlreadyActive
             default:
                 throw YieldModuleError.inconsistentState
