@@ -40,7 +40,7 @@ class ReceiveMainViewModel: ObservableObject {
     )
 
     private let receiveTokenWithdrawNoticeInteractor = ReceiveTokenWithdrawNoticeInteractor()
-    private var yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
+    private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Helpers
 
