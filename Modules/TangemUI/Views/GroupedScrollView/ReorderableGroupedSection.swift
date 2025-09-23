@@ -14,10 +14,9 @@ public struct ReorderableGroupedSection<
     ReorderableContent: View,
     StaticModel: Identifiable,
     StaticContent: View,
-    AfterSeparatorContentModel: Identifiable,
-    AfterSeparatorContent: View,
-    Footer: View,
-    Header: View
+    SectionHeader: View,
+    SectionFooter: View,
+    Footer: View
 >: View {
     // MARK: Dependencies
 
@@ -27,17 +26,16 @@ public struct ReorderableGroupedSection<
     private let staticModels: [StaticModel]?
     private let staticContent: (StaticModel) -> StaticContent
 
-    private let afterSeparatorContentModels: [AfterSeparatorContentModel]?
-    private let contentAfterSeparator: (AfterSeparatorContentModel) -> AfterSeparatorContent
+    private let sectionHeader: SectionHeader
+    private let sectionFooter: SectionFooter?
 
-    private let header: Header
     private let footer: Footer
 
     private var settings: GroupedSection<
         ReorderableModel,
         ReorderableContent,
         Footer,
-        Header,
+        SectionHeader,
         EmptyView
     >.Settings = .init(interItemSpacing: 8, innerContentPadding: 12)
 
@@ -54,19 +52,18 @@ public struct ReorderableGroupedSection<
         staticModels: [StaticModel],
         @ViewBuilder staticContent: @escaping (StaticModel) -> StaticContent,
 
-        afterSeparatorContentModels: [AfterSeparatorContentModel],
-        @ViewBuilder contentAfterSeparator: @escaping (AfterSeparatorContentModel) -> AfterSeparatorContent,
+        @ViewBuilder sectionHeader: @escaping () -> SectionHeader = { EmptyView() },
+        sectionFooter: SectionFooter? = nil,
 
-        @ViewBuilder header: @escaping () -> Header = { EmptyView() },
         @ViewBuilder footer: @escaping () -> Footer = { EmptyView() }
     ) {
         _reorderableModels = reorderableModels
         self.reorderableContent = reorderableContent
         self.staticModels = staticModels
         self.staticContent = staticContent
-        self.afterSeparatorContentModels = afterSeparatorContentModels
-        self.contentAfterSeparator = contentAfterSeparator
-        self.header = header()
+        self.sectionHeader = sectionHeader()
+        self.sectionFooter = sectionFooter
+
         self.footer = footer()
     }
 
@@ -75,7 +72,7 @@ public struct ReorderableGroupedSection<
     public var body: some View {
         VStack(alignment: .leading, spacing: GroupedSectionConstants.footerSpacing) {
             VStack(alignment: settings.contentAlignment, spacing: 0) {
-                header
+                sectionHeader
                     .padding(.horizontal, settings.horizontalPadding)
                     .padding(.top, settings.innerContentPadding)
                     .padding(.bottom, settings.interItemSpacing)
@@ -84,13 +81,14 @@ public struct ReorderableGroupedSection<
 
                 staticItemsView
 
-                if let afterSeparatorContentModels {
+                if let sectionFooter {
                     VStack(spacing: 0) {
                         Separator(color: Colors.Stroke.primary)
-                            .padding(.horizontal, settings.horizontalPadding)
 
-                        makeContentAfterSeparatorItemsView(models: afterSeparatorContentModels)
+                        sectionFooter
+                            .padding(.vertical, settings.innerContentPadding)
                     }
+                    .padding(.horizontal, settings.horizontalPadding)
                 }
             }
             .background(
@@ -158,17 +156,6 @@ public struct ReorderableGroupedSection<
                     .padding(.horizontal, settings.horizontalPadding)
                     .padding(.vertical, settings.innerContentPadding)
             }
-        }
-    }
-
-    // MARK: Content after separator
-
-    @ViewBuilder
-    private func makeContentAfterSeparatorItemsView(models: [AfterSeparatorContentModel]) -> some View {
-        ForEach(models) { model in
-            contentAfterSeparator(model)
-                .padding(.horizontal, settings.horizontalPadding)
-                .padding(.vertical, settings.innerContentPadding)
         }
     }
 }
