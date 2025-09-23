@@ -137,20 +137,12 @@ struct SendView: View {
             SendDestinationView(viewModel: sendDestinationViewModel)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
-        case .newDestination(let sendDestinationViewModel):
-            SendNewDestinationView(viewModel: sendDestinationViewModel)
-                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .amount(let sendAmountViewModel):
             SendAmountView(viewModel: sendAmountViewModel)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .newAmount(let sendAmountViewModel):
             SendNewAmountView(viewModel: sendAmountViewModel)
-                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
-        case .fee(let sendFeeViewModel):
-            SendFeeView(viewModel: sendFeeViewModel)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .validators(let stakingValidatorsViewModel):
