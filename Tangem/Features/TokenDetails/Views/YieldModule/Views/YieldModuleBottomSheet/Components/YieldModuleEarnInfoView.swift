@@ -11,9 +11,9 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-extension YieldModuleBottomSheetView {
+extension YieldModuleInfoView {
     struct YieldModuleEarnInfoView: View {
-        typealias EarnInfoParams = YieldModuleBottomSheetParams.EarnInfoParams
+        typealias EarnInfoParams = YieldModuleViewConfigs.EarnInfoParams
 
         // MARK: - Properties
 
@@ -64,16 +64,25 @@ extension YieldModuleBottomSheetView {
         }
 
         private var myFundsDescription: some View {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(Localization.yieldModuleEarnSheetProviderDescription(params.tokenName, params.tokenSymbol))
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                    .multilineTextAlignment(.leading)
+            var attr = AttributedString(
+                Localization.yieldModuleEarnSheetProviderDescription(
+                    params.tokenName,
+                    params.tokenSymbol
+                )
+            )
+            attr.font = Fonts.Regular.caption1
+            attr.foregroundColor = Colors.Text.tertiary
 
-                Button(action: params.onReadMoreAction) {
-                    Text(Localization.commonReadMore)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.accent)
-                }
-            }
+            var linkPart = AttributedString(Localization.commonReadMore)
+            linkPart.font = Fonts.Regular.caption1
+            linkPart.foregroundColor = Colors.Text.accent
+            linkPart.link = params.readMoreUrl
+
+            attr.append(AttributedString(" "))
+            attr.append(linkPart)
+
+            return Text(attr)
+                .multilineTextAlignment(.leading)
         }
 
         private var myFundsSection: some View {
@@ -97,7 +106,7 @@ extension YieldModuleBottomSheetView {
     }
 }
 
-private extension YieldModuleBottomSheetView.YieldModuleEarnInfoView {
+private extension YieldModuleInfoView.YieldModuleEarnInfoView {
     private func row(title: String, trailing: String) -> some View {
         VStack(spacing: 14) {
             Divider().overlay(Colors.Stroke.primary)
