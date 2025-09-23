@@ -1,0 +1,65 @@
+// swiftlint:disable all
+// Generated using SwiftGen — https://github.com/SwiftGen/SwiftGen
+// Based on: https://github.com/SwiftGen/SwiftGen/blob/stable/Documentation/templates/xcassets/swift5.md
+
+{% if catalogs %}
+{% set enumName %}{{param.enumName|default:"Asset"}}{% endset %}
+{% set colorType %}{{param.colorTypeName|default:"Color"}}{% endset %}
+{% set forceNamespaces %}{{param.forceProvidesNamespaces|default:"false"}}{% endset %}
+{% set accessModifier %}{% if param.publicAccess %}public{% else %}internal{% endif %}{% endset %}
+import SwiftUI
+
+// MARK: - Asset Catalogs
+
+{% macro enumBlock assets %}
+    {% call casesBlock assets "" %}
+    {% if param.allValues %}
+
+    {{accessModifier}} static let allColors: [{{colorType}}] = [
+        {% filter indent:4 %}{% call allValuesBlock assets "color" "" %}{% endfilter %}
+    ]
+    {% endif %}
+{% endmacro %}
+{% macro casesBlock assets folderName %}
+    {% for asset in assets %}
+    {% if asset.type == "color" %}
+    {{accessModifier}} static let {{asset.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{colorType}}(name: "{{asset.value}}")
+    {% elif asset.items and ( forceNamespaces == "true" or asset.isNamespaced == "true" ) %}
+    {{accessModifier}} enum {{asset.name|swiftIdentifier:"pretty"|escapeReservedKeywords}} {
+        {% filter indent:4 %}{% call casesBlock asset.items asset.name %}{% endfilter %}
+    }
+    {% elif asset.items %}
+    {% call casesBlock asset.items "" %}
+    {% endif %}
+    {% endfor %}
+{% endmacro %}
+{% macro allValuesBlock assets filter prefix %}
+    {% for asset in assets %}
+    {% if asset.type == filter %}
+    {{prefix}}{{asset.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}},
+    {% elif asset.items and ( forceNamespaces == "true" or asset.isNamespaced == "true" ) %}
+    {% set prefix2 %}{{prefix}}{{asset.name|swiftIdentifier:"pretty"|escapeReservedKeywords}}.{% endset %}
+    {% call allValuesBlock asset.items filter prefix2 %}
+    {% elif asset.items %}
+    {% call allValuesBlock asset.items filter prefix %}
+    {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+{{accessModifier}} enum {{catalogs.first.name|swiftIdentifier:"pretty"|escapeReservedKeywords}} {
+    {% filter indent:0 %}{% call enumBlock catalogs.first.assets %}{% endfilter %}
+}
+
+// MARK: - Implementation Details
+
+fileprivate extension Color {
+    /// Creates a named color.
+    /// - Parameter name: the color resource to lookup.
+    init(name: String) {
+        self.init(name, bundle: .module)
+    }
+}
+
+{% else %}
+// No assets found
+{% endif %}

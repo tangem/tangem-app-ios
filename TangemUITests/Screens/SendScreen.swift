@@ -14,6 +14,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var amountTextField = textField(.amountTextField)
     private lazy var destinationTextView = textView(.destinationTextView)
     private lazy var nextButton = button(.nextButton)
+    private lazy var invalidAmountBanner = staticText(.invalidAmountBanner)
 
     @discardableResult
     func validate() -> Self {
@@ -51,6 +52,14 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         }
         return self
     }
+
+    @discardableResult
+    func waitForInvalidAmountBanner() -> Self {
+        XCTContext.runActivity(named: "Validate invalid amount banner exists") { _ in
+            waitAndAssertTrue(invalidAmountBanner, "Invalid amount banner should be displayed")
+        }
+        return self
+    }
 }
 
 enum SendScreenElement: String, UIElement {
@@ -58,6 +67,7 @@ enum SendScreenElement: String, UIElement {
     case amountTextField
     case destinationTextView
     case nextButton
+    case invalidAmountBanner
 
     var accessibilityIdentifier: String {
         switch self {
@@ -69,6 +79,8 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.addressTextView
         case .nextButton:
             return SendAccessibilityIdentifiers.sendViewNextButton
+        case .invalidAmountBanner:
+            return SendAccessibilityIdentifiers.invalidAmountBanner
         }
     }
 }
