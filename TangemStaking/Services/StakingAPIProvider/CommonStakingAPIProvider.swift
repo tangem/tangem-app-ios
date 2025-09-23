@@ -17,13 +17,13 @@ class CommonStakingAPIProvider: StakingAPIProvider {
         self.mapper = mapper
     }
 
-    func enabledYields() async throws -> [YieldInfo] {
+    func enabledYields() async throws -> [StakingYieldInfo] {
         let response = try await service.enabledYields()
         let yieldInfos = try response.data.map(mapper.mapToYieldInfo(from:))
         return yieldInfos
     }
 
-    func yield(integrationId: String) async throws -> YieldInfo {
+    func yield(integrationId: String) async throws -> StakingYieldInfo {
         let response = try await service.getYield(id: integrationId, request: .init())
         let yieldInfo = try mapper.mapToYieldInfo(from: response)
         return yieldInfo

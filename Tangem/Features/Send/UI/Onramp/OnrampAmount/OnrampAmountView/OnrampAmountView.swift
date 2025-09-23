@@ -1,0 +1,79 @@
+//
+//  OnrampAmountView.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2024 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+import TangemAssets
+import TangemUI
+import TangemAccessibilityIdentifiers
+
+struct OnrampAmountView: View {
+    @ObservedObject var viewModel: OnrampAmountViewModel
+
+    var body: some View {
+        amountContent
+            .defaultRoundedBackground(with: Colors.Background.action)
+    }
+
+    private var amountContent: some View {
+        VStack(spacing: 16) {
+            tokenIconView
+
+            textView
+        }
+        .padding(.vertical, 20)
+    }
+
+    @ViewBuilder
+    private var tokenIconView: some View {
+        let chevronSize: CGFloat = 9
+
+        Button(action: viewModel.onChangeCurrencyTap) {
+            HStack(spacing: 8) {
+                // Use the `Spacer` for center `IconView`
+                FixedSpacer(width: chevronSize)
+
+                IconView(
+                    url: viewModel.fiatIconURL,
+                    size: CGSize(width: 36, height: 36),
+                    // Kingfisher shows a gray background even if it has a cached image
+                    forceKingfisher: false
+                )
+
+                Assets.chevronDownMini.image
+                    .resizable()
+                    .frame(size: .init(bothDimensions: chevronSize))
+                    .foregroundColor(Colors.Icon.informative)
+                    .hidden(viewModel.isLoading)
+            }
+        }
+        .disabled(viewModel.isLoading)
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.currencySelectorButton)
+    }
+
+    private var textView: some View {
+        VStack(spacing: 6) {
+            SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
+                .alignment(.center)
+                .prefixSuffixOptions(viewModel.currentFieldOptions)
+                .minTextScale(SendAmountStep.Constants.amountMinTextScale)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.amountInputField)
+                .skeletonable(isShown: viewModel.isLoading, width: 100, height: 28)
+                .disabled(viewModel.isLoading)
+
+            LoadableTextView(
+                state: viewModel.bottomInfoText.state,
+                font: Fonts.Regular.footnote,
+                textColor: viewModel.bottomInfoText.isError ? Colors.Text.warning : Colors.Text.tertiary,
+                loaderSize: CGSize(width: 80, height: 13),
+                lineLimit: 2
+            )
+            .multilineTextAlignment(.center)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.cryptoAmountLabel)
+        }
+    }
+}
