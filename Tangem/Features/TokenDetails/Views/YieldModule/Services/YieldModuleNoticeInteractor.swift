@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct YieldModuleNoticeInteractor {
+final class YieldModuleNoticeInteractor {
     @AppStorageCompat(StorageKey.shownYieldModuleAlerts)
     private var shownYieldModuleAlerts: [String: Bool] = [:]
 
@@ -17,7 +17,9 @@ struct YieldModuleNoticeInteractor {
     /// Returns true only on the first show if the stored value is `false`.
     /// If the value is `true` or missing (`nil`), returns false.
     /// If the value is `false` marks the alert as shown
-    mutating func shouldShowYieldModuleAlert(for tokenItem: TokenItem) -> Bool {
+    func shouldShowYieldModuleAlert(for tokenItem: TokenItem) -> Bool {
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
         guard case .token(let token, let blockchainNetwork) = tokenItem else {
             return false
         }
@@ -32,7 +34,7 @@ struct YieldModuleNoticeInteractor {
         return true
     }
 
-    mutating func markWithdrawalAlertShouldShow(for tokenItem: TokenItem) {
+    func markWithdrawalAlertShouldShow(for tokenItem: TokenItem) {
         guard case .token(let token, let blockchainNetwork) = tokenItem else {
             return
         }
