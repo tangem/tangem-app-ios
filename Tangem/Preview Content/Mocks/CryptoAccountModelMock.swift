@@ -25,7 +25,7 @@ final class CryptoAccountModelMock {
     }
 
     private(set) var icon = AccountModel.Icon(
-        nameMode: .named(AccountModel.Icon.Name.allCases.randomElement()!),
+        name: AccountModel.Icon.Name.allCases.randomElement()!,
         color: .allCases.randomElement()!
     ) {
         didSet {
@@ -47,6 +47,10 @@ final class CryptoAccountModelMock {
 extension CryptoAccountModelMock {
     struct AccountId: Hashable, AccountModelPersistentIdentifierConvertible {
         let id = UUID()
+
+        var isMainAccount: Bool {
+            false
+        }
 
         func toPersistentIdentifier() -> UUID {
             id

@@ -54,15 +54,25 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
     }
 
     func getFee(amount: ExpressAmount, destination: String) async throws -> ExpressFee.Variants {
-        switch amount {
-        case .transfer(let amount):
+        switch (amount, tokenItem.blockchain) {
+        case (.transfer(let amount), _):
             let amount = makeAmount(amount: amount, item: tokenItem)
             let fees = try await feeProvider.getFee(amount: amount, destination: destination).async()
             return try mapToExpressFee(fees: fees)
+        case (.dex(_, _, let txData), .solana):
+            guard let txData, let transactionData = Data(base64Encoded: txData) else {
+                throw ExpressProviderError.transactionDataNotFound
+            }
 
-        case .dex(let txValue, let txData):
+            let fees = try await feeProvider.getFee(compiledTransaction: transactionData)
+            return try mapToExpressFee(fees: fees)
+        case (.dex(_, let txValue, let txData), _):
+            guard let txData = txData.map(Data.init(hexString:)) else {
+                throw ExpressProviderError.transactionDataNotFound
+            }
+
             // For DEX have to use `txData` when calculate fee
-            guard let ethereumNetworkProvider = ethereumNetworkProvider else {
+            guard let ethereumNetworkProvider else {
                 throw ExpressFeeProviderError.ethereumNetworkProviderNotFound
             }
 
@@ -112,9 +122,4 @@ private extension CommonExpressFeeProvider {
         let amount = Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: feeValue)
         return Fee(amount, parameters: newParameters)
     }
-}
-
-enum ExpressFeeProviderError: Error {
-    case feeNotFound
-    case ethereumNetworkProviderNotFound
 }

@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import CombineExt
 import TangemLocalization
 import TangemFoundation
 import TangemAccessibilityIdentifiers
@@ -25,7 +26,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published private(set) var name: String
-    @Published var accountsViewModel: UserSettingsAccountsViewModel
+    @Published var accountsViewModel: UserSettingsAccountsViewModel?
     @Published var mobileUpgradeNotificationInput: NotificationViewInput?
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
@@ -72,14 +73,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
-        accountsViewModel = UserSettingsAccountsViewModel(
-            accountModels: [],
-            userWalletId: userWalletModel.userWalletId,
-            accountModelsManager: userWalletModel.accountModelsManager,
-            canAddNewAccountPublisher: .just(output: true),
-            archivedAccountsPublisher: .just(output: .standard(.multiple([]))),
-            coordinator: coordinator
-        )
 
         bind()
     }
@@ -120,17 +113,15 @@ private extension UserWalletSettingsViewModel {
         userWalletModel.accountModelsManager
             .accountModelsPublisher
             .withWeakCaptureOf(self)
-            .sink { viewModel, accounts in
-                // [REDACTED_TODO_COMMENT]
-                viewModel.accountsViewModel = UserSettingsAccountsViewModel(
+            .map { viewModel, accounts in
+                UserSettingsAccountsViewModel(
                     accountModels: accounts,
                     userWalletId: viewModel.userWalletModel.userWalletId,
                     accountModelsManager: viewModel.userWalletModel.accountModelsManager,
-                    canAddNewAccountPublisher: .just(output: true),
-                    archivedAccountsPublisher: .just(output: .standard(.multiple([]))),
                     coordinator: viewModel.coordinator
                 )
             }
+            .assign(to: \.accountsViewModel, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -197,7 +188,7 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        if FeatureProvider.isAvailable(.pushTransactionNotifications), userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
+        if userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
             pushNotificationsViewModel = TransactionNotificationsRowToggleViewModel(
                 userTokensPushNotificationsManager: userWalletModel.userTokensPushNotificationsManager,
                 coordinator: coordinator,
