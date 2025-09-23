@@ -29,8 +29,12 @@ final class YieldModuleStartViewModel: ObservableObject {
     @Published
     var notificationBannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? = nil
 
+    @Published
+    private(set) var networkFeeState: NetworkFeeSection.State = .loading
+
     private var previousState: ViewState?
-    private let walletModel: any WalletModel
+    private(set) var walletModel: any WalletModel
+    private(set) var maximumFee = 0
     private var yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Init
@@ -49,15 +53,8 @@ final class YieldModuleStartViewModel: ObservableObject {
         }
     }
 
-    func onShowFeePolicy(params: YieldModuleViewConfigs.StartEarningParams) {
-        viewState = .feePolicy(
-            params: .init(
-                tokenName: params.tokenName,
-                networkFee: params.networkFee,
-                maximumFee: params.maximumFee,
-                blockchainName: params.blockchainName
-            )
-        )
+    func onShowFeePolicy() {
+        viewState = .feePolicy
     }
 
     func onStartEarningTap() {
@@ -68,7 +65,13 @@ final class YieldModuleStartViewModel: ObservableObject {
         previousState.map { viewState = $0 }
     }
 
+    // MARK: - Public Implementation
+
+    func onStartEarningSheetAppear() {}
+
     // MARK: - Private Implementation
+
+    private func getNetworkFee() {}
 
     private func createNotificationBannerIfNeeded() {
         if case .startEarning = viewState {
@@ -88,9 +91,9 @@ final class YieldModuleStartViewModel: ObservableObject {
 
 extension YieldModuleStartViewModel {
     enum ViewState: Identifiable, Equatable {
-        case rateInfo(params: YieldModuleViewConfigs.RateInfoParams)
-        case feePolicy(params: YieldModuleViewConfigs.FeePolicyParams)
-        case startEarning(params: YieldModuleViewConfigs.StartEarningParams)
+        case rateInfo
+        case feePolicy
+        case startEarning
 
         // MARK: - Identifiable
 

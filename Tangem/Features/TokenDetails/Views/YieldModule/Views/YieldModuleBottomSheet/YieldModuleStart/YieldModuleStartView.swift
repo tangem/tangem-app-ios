@@ -65,10 +65,10 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetDescription
-        case .startEarning(let params):
-            Localization.yieldModuleStartEarningSheetDescription(params.tokenName)
-        case .feePolicy(let params):
-            Localization.yieldModuleFeePolicySheetDescription(params.tokenName)
+        case .startEarning:
+            Localization.yieldModuleStartEarningSheetDescription(viewModel.walletModel.tokenItem.name)
+        case .feePolicy:
+            Localization.yieldModuleFeePolicySheetDescription(viewModel.walletModel.tokenItem.name)
         }
     }
 
@@ -103,7 +103,8 @@ struct YieldModuleStartView: View {
                 title: Localization.yieldModuleStartEarning,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
-                action: ctaButtonAction
+                isDisabled: !viewModel.networkFeeState.isLoaded,
+                action: ctaButtonAction,
             ))
         }
     }
@@ -113,22 +114,37 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .rateInfo, .feePolicy:
             EmptyView()
-        case .startEarning(let params):
-            LendingPairIcon(tokenImageUrl: params.tokenImageUrl)
+        case .startEarning:
+            // [REDACTED_TODO_COMMENT]
+            LendingPairIcon(tokenImageUrl: nil)
         }
     }
 
     @ViewBuilder
     private var mainContent: some View {
         switch viewModel.viewState {
-        case .rateInfo(let params):
-            YieldModuleInterestRateInfoView(lastYearReturns: params.lastYearReturns)
+        case .rateInfo:
+            EmptyView()
 
-        case .startEarning(let params):
-            YieldModuleStartEarningView(networkFee: params.networkFee, showFeePolicyAction: { viewModel.onShowFeePolicy(params: params) })
+        case .startEarning:
+            NetworkFeeSection(
+                leadingTitle: Localization.commonNetworkFeeTitle,
+                state: viewModel.networkFeeState,
+                footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
+                linkTitle: Localization.yieldModuleStartEarningSheetFeePolicy,
+                urlString: nil,
+                onLinkTapAction: viewModel.onShowFeePolicy
+            )
+            .onAppear {
+                viewModel.onStartEarningSheetAppear()
+            }
 
-        case .feePolicy(let params):
-            YieldModuleFeePolicyView(currentFee: params.networkFee, maximumFee: params.maximumFee, blockchainName: params.blockchainName)
+        case .feePolicy:
+            YieldModuleFeePolicyView(
+                networkFeeState: viewModel.networkFeeState,
+                maximumFee: viewModel.maximumFee.formatted(),
+                blockchainName: viewModel.walletModel.tokenItem.blockchain.displayName,
+            )
         }
     }
 
