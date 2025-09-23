@@ -306,7 +306,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
 extension MainCoordinator: SingleTokenBaseRoutable {
     func openViaYieldNotice(tokenItem: TokenItem, action: @escaping () -> Void) {
-        let viewModel = SendYieldNoticeStepViewModel(tokenItem: tokenItem, action: action)
+        let viewModel = YieldNoticeViewModel(tokenItem: tokenItem, action: action)
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)

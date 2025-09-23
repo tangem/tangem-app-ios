@@ -34,7 +34,7 @@ struct ReceiveMainView: View {
             case .tokenAlert(let viewModel):
                 TokenAlertReceiveAssetsView(viewModel: viewModel)
             case .yieldTokenAlert(let viewModel):
-                YieldAlertReceiveAssetsView(viewModel: viewModel)
+                YieldNoticeReceiveView(viewModel: viewModel)
             case .none:
                 EmptyView()
             }

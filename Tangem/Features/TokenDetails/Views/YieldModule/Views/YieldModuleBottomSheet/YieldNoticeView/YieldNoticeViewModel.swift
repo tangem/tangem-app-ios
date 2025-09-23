@@ -1,5 +1,5 @@
 //
-//  SendYieldNoticeStepViewModel.swift
+//  YieldNoticeViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemUI
 
-final class SendYieldNoticeStepViewModel {
+final class YieldNoticeViewModel {
     @Injected(\.floatingSheetPresenter) var floatingSheetPresenter: FloatingSheetPresenter
 
     private(set) var currencySymbol: String
@@ -36,4 +36,4 @@ final class SendYieldNoticeStepViewModel {
     }
 }
 
-extension SendYieldNoticeStepViewModel: FloatingSheetContentViewModel {}
+extension YieldNoticeViewModel: FloatingSheetContentViewModel {}

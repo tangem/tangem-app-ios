@@ -137,8 +137,8 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }
-            .floatingSheetContent(for: SendYieldNoticeStepViewModel.self) {
-                SendYieldNoticeView(viewModel: $0)
+            .floatingSheetContent(for: YieldNoticeViewModel.self) {
+                YieldNoticeView(viewModel: $0)
             }
 
         NavHolder()

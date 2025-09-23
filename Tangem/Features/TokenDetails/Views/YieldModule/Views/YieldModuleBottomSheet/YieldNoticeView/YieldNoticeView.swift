@@ -1,5 +1,5 @@
 //
-//  YieldModuleActivationNoticeView.swift
+//  YieldNoticeView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,21 +7,19 @@
 //
 
 import SwiftUI
-import TangemUI
 import TangemLocalization
+import TangemUI
 import TangemAssets
 
-struct YieldModuleActivationNoticeView: View {
-    let currencySymbol: String
-    let buttonAction: () -> Void
-    let tokenIconInfo: TokenIconInfo
+struct YieldNoticeView: View {
+    let viewModel: YieldNoticeViewModel
 
     var body: some View {
-        // [REDACTED_TODO_COMMENT]
         YieldModuleBottomSheetContainerView(
-            title: Localization.yieldModuleAlertTitle(currencySymbol),
+            title: Localization.yieldModuleAlertTitle(viewModel.currencySymbol),
             subtitle: Localization.yieldModuleAlertDescription,
-            button: MainButton(settings: .init(title: Localization.commonGotIt, style: .secondary, action: buttonAction)),
+            button: MainButton(settings: .init(title: Localization.commonGotIt, style: .secondary, action: viewModel.didTapButton)),
+            header: { BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.didTapClose() }}) },
             topContent: { lendingPairIcon }
         )
     }
@@ -29,7 +27,7 @@ struct YieldModuleActivationNoticeView: View {
     private var lendingPairIcon: some View {
         ZStack {
             TokenIcon(
-                tokenIconInfo: tokenIconInfo,
+                tokenIconInfo: viewModel.tokenIconInfo,
                 size: IconViewSizeSettings.tokenDetails.iconSize
             )
             .offset(x: -16)

@@ -183,7 +183,7 @@ extension MarketsTokenDetailsCoordinator {
             }
         }
 
-        let viewModel = SendYieldNoticeStepViewModel(tokenItem: walletModel.tokenItem, action: action)
+        let viewModel = YieldNoticeViewModel(tokenItem: walletModel.tokenItem, action: action)
 
         Task { @MainActor [floatingSheetPresenter] in
             floatingSheetPresenter.enqueue(sheet: viewModel)

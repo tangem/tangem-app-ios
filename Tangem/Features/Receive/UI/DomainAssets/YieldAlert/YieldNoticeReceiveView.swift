@@ -1,5 +1,5 @@
 //
-//  SendYieldNoticeView.swift
+//  YieldNoticeReceiveView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,15 +11,20 @@ import TangemLocalization
 import TangemUI
 import TangemAssets
 
-struct SendYieldNoticeView: View {
-    let viewModel: SendYieldNoticeStepViewModel
+struct YieldNoticeReceiveView: View {
+    @ObservedObject var viewModel: TokenAlertReceiveAssetsViewModel
 
     var body: some View {
         YieldModuleBottomSheetContainerView(
             title: Localization.yieldModuleAlertTitle(viewModel.currencySymbol),
             subtitle: Localization.yieldModuleAlertDescription,
-            button: MainButton(settings: .init(title: Localization.commonGotIt, style: .secondary, action: viewModel.didTapButton)),
-            header: { BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.didTapClose() }}) },
+            button: MainButton(
+                settings: .init(
+                    title: Localization.commonGotIt,
+                    style: .secondary,
+                    action: viewModel.onGotItTapAction
+                )
+            ),
             topContent: { lendingPairIcon }
         )
     }
@@ -27,7 +32,7 @@ struct SendYieldNoticeView: View {
     private var lendingPairIcon: some View {
         ZStack {
             TokenIcon(
-                tokenIconInfo: viewModel.tokenIconInfo,
+                tokenIconInfo: viewModel.yieldNoticeTokenIconInfo,
                 size: IconViewSizeSettings.tokenDetails.iconSize
             )
             .offset(x: -16)
