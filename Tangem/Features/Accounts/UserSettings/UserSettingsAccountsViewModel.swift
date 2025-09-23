@@ -9,6 +9,7 @@
 import Foundation
 import TangemUI
 import Combine
+import CombineExt
 import TangemLocalization
 import TangemFoundation
 
@@ -19,31 +20,23 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     @Published private(set) var addNewAccountButton: AddListItemButton.ViewData?
     @Published private(set) var archivedAccountButton: ArchivedAccountsButtonViewData?
 
-    // MARK: - Dependencies
-
-    private weak var coordinator: UserSettingsAccountsRoutable?
-    private let canAddNewAccountPublisher: AnyPublisher<Bool, Never>
-    private let archivedAccountsPublisher: AnyPublisher<AccountModel, Never>
+    private let accountModelsManager: AccountModelsManager
     private let userWalletId: UserWalletId
-    private let accountModelsManager: any AccountModelsManager
-    private var bag: Set<AnyCancellable> = []
+    private weak var coordinator: UserSettingsAccountsRoutable?
+    private var bag = Set<AnyCancellable>()
 
     init(
         accountModels: [AccountModel],
         userWalletId: UserWalletId,
-        accountModelsManager: any AccountModelsManager,
-        canAddNewAccountPublisher: AnyPublisher<Bool, Never>,
-        archivedAccountsPublisher: AnyPublisher<AccountModel, Never>,
+        accountModelsManager: AccountModelsManager,
         coordinator: UserSettingsAccountsRoutable?
     ) {
-        self.canAddNewAccountPublisher = canAddNewAccountPublisher
-        self.archivedAccountsPublisher = archivedAccountsPublisher
-        self.coordinator = coordinator
-        self.userWalletId = userWalletId
         self.accountModelsManager = accountModelsManager
+        self.userWalletId = userWalletId
+        self.coordinator = coordinator
 
         accountRows = accountModels.flatMap {
-            AccountModelMapper.map(
+            AccountModelToUserSettingsViewDataMapper.map(
                 from: $0,
                 onTap: { [weak self] in
                     self?.onTapAccount(account: $0)
@@ -55,10 +48,10 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func bind() {
-        canAddNewAccountPublisher
+        Just(accountModelsManager.canAddCryptoAccounts)
             .withWeakCaptureOf(self)
-            .sink { viewModel, enabled in
-                viewModel.addNewAccountButton = AddListItemButton.ViewData(
+            .map { viewModel, enabled in
+                AddListItemButton.ViewData(
                     text: Localization.accountFormCreateButton,
                     isEnabled: enabled,
                     action: {
@@ -66,31 +59,34 @@ final class UserSettingsAccountsViewModel: ObservableObject {
                     }
                 )
             }
+            .assign(to: \.addNewAccountButton, on: self, ownership: .weak)
             .store(in: &bag)
 
-        archivedAccountsPublisher
+        accountModelsManager.hasArchivedCryptoAccounts
             .withWeakCaptureOf(self)
-            .sink { viewModel, accountModel in
-                viewModel.archivedAccountButton = ArchivedAccountsButtonViewData(
-                    text: Localization.accountArchivedAccounts,
-                    action: { viewModel.onTapArchivedAccounts(accountModel: accountModel) }
-                )
+            .map { viewModel, hasArchivedAccounts in
+                hasArchivedAccounts
+                    ? ArchivedAccountsButtonViewData(text: Localization.accountArchivedAccounts, action: viewModel.onTapArchivedAccounts)
+                    : nil
             }
+            .assign(to: \.archivedAccountButton, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
-    private func onTapAccount(account: CommonCryptoAccountModel) {
+    private func onTapAccount(account: any BaseAccountModel) {
         // [REDACTED_TODO_COMMENT]
     }
 
-    private func onTapArchivedAccounts(accountModel: AccountModel) {
+    private func onTapArchivedAccounts() {
         // [REDACTED_TODO_COMMENT]
     }
 
     private func onTapNewAccount() {
         coordinator?.addNewAccount(
             userWalletId: userWalletId,
-            accountModelsManager: accountModelsManager
+            accountModelsManager: accountModelsManager,
+            // active + archive should go here
+            accountsCount: accountRows.count
         )
     }
 }

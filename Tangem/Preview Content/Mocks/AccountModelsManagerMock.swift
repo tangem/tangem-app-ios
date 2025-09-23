@@ -35,19 +35,35 @@ final class AccountModelsManagerMock {
 // MARK: - AccountModelsManager protocol conformance
 
 extension AccountModelsManagerMock: AccountModelsManager {
+    var canAddCryptoAccounts: Bool {
+        true
+    }
+
+    var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
-    var totalCryptoAccountsCount: Int {
-        cryptoAccounts.count
-    }
-
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws {
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
         cryptoAccounts.append(CryptoAccountModelMock(isMainAccount: false))
     }
 
-    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws {
+    func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
+        // [REDACTED_TODO_COMMENT]
+        return []
+    }
+
+    func archiveCryptoAccount(
+        withIdentifier identifier: some AccountModelPersistentIdentifierConvertible
+    ) async throws(AccountModelsManagerError) {
         removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier().toAnyHashable())
+    }
+
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
+        // [REDACTED_TODO_COMMENT]
+        throw .cannotUnarchiveCryptoAccount
     }
 }
