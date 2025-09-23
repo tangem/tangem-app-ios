@@ -22,16 +22,20 @@ class BannerNotificationManager {
     private let placement: BannerPromotionPlacement
 
     private let analyticsService: NotificationsAnalyticsService
+    private let predefinedOnrampParametersBuilder: PredefinedOnrampParametersBuilder
+
     private let activePromotion: CurrentValueSubject<ActivePromotionInfo?, Never> = .init(.none)
     private var promotionUpdateTask: Task<Void, Error>?
-    private var bag: Set<AnyCancellable> = []
+    private var analyticsSubscription: AnyCancellable?
     private var activePromotionSubscription: AnyCancellable?
-    private var sepaPromotionUpdatingSubscription: AnyCancellable?
 
     init(userWallet: UserWalletModel, placement: BannerPromotionPlacement) {
         self.userWallet = userWallet
         self.placement = placement
+
+        predefinedOnrampParametersBuilder = .init(userWalletId: userWallet.userWalletId)
         analyticsService = NotificationsAnalyticsService(userWalletId: userWallet.userWalletId)
+
         bind()
         load()
     }
@@ -46,14 +50,13 @@ class BannerNotificationManager {
     }
 
     private func bind() {
-        notificationPublisher
+        analyticsSubscription = notificationPublisher
             .debounce(for: 0.1, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink(receiveValue: { manager, notifications in
                 manager.analyticsService.sendEventsIfNeeded(for: notifications)
             })
-            .store(in: &bag)
 
         activePromotionSubscription = activePromotion
             .withWeakCaptureOf(self)
@@ -133,17 +136,12 @@ class BannerNotificationManager {
 
         return Publishers
             .CombineLatest(bitcoinWalletModel, preferencePublisher)
-            .asyncMap { [userWalletId = userWallet.userWalletId] bitcoinWalletModel, preference in
-                guard let bitcoinWalletModel else {
+            .asyncMap { [weak self] bitcoinWalletModel, preference in
+                guard let self, let bitcoinWalletModel else {
                     return nil
                 }
 
-                let builder = PredefinedOnrampParametersBuilder(
-                    userWalletId: userWalletId,
-                    onrampPreference: preference
-                )
-
-                guard let parameters = await builder.prepare() else {
+                guard let parameters = await predefinedOnrampParametersBuilder.prepare(bitcoinWalletModel: bitcoinWalletModel) else {
                     return nil
                 }
 
