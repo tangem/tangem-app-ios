@@ -348,6 +348,7 @@ extension Analytics {
         case stakingSelectedCurrency = "[Staking] Selected Currency"
         case stakingButtonShare = "[Staking] Button - Share"
         case stakingButtonExplore = "[Staking] Button - Explore"
+        case stakingNoticeUninitializedAddress = "[Staking] Notice - Uninitialized Address"
 
         // MARK: - Markets
 
