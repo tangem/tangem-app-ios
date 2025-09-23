@@ -15,10 +15,8 @@ import TangemAccessibilityIdentifiers
 
 struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
-    let transitionService: SendTransitionService
     @Binding var interactiveDismissDisabled: Bool
 
-    @Namespace private var namespace
     @FocusState private var focused: Bool
 
     private let backButtonStyle: MainButton.Style = .secondary
@@ -30,11 +28,18 @@ struct SendView: View {
             Colors.Background.tertiary.ignoresSafeArea()
 
             currentPage
+                // Important!!
+                // When the currentPage has removal transition
+                // It immediately disappears below `Colors.Background.tertiary.ignoresSafeArea()`
+                // Because lost the `zIndex`
+                .zIndex(1)
                 .focused($focused)
                 .allowsHitTesting(!viewModel.isUserInteractionDisabled)
+                .transition(SendTransitions.transition)
 
             bottomOverlay
         }
+        .animation(SendTransitions.animation, value: viewModel.step.type)
         .navigationBarBackButtonHidden()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -43,9 +48,6 @@ struct SendView: View {
             ToolbarItem(placement: .topBarTrailing) { trailingView }
             ToolbarItem(placement: .keyboard) { keyboardToolbarView }
         }
-        .animation(SendTransitionService.Constants.defaultAnimation, value: viewModel.step.type)
-        .animation(.none, value: viewModel.navigationBarSettings)
-        .animation(.none, value: viewModel.bottomBarSettings)
         .scrollDismissesKeyboardCompat(.immediately)
         .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
         .onReceive(viewModel.$isKeyboardActive, perform: { focused = $0 })
@@ -132,98 +134,45 @@ struct SendView: View {
     private var currentPage: some View {
         switch viewModel.step.type {
         case .destination(let sendDestinationViewModel):
-            SendDestinationView(
-                viewModel: sendDestinationViewModel,
-                transitionService: transitionService,
-                namespace: .init(id: namespace, names: SendGeometryEffectNames())
-            )
-            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
-        case .newDestination(let sendDestinationViewModel):
-            SendNewDestinationView(
-                viewModel: sendDestinationViewModel,
-                transitionService: transitionService
-            )
-            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+            SendDestinationView(viewModel: sendDestinationViewModel)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .amount(let sendAmountViewModel):
-            SendAmountView(
-                viewModel: sendAmountViewModel,
-                transitionService: transitionService,
-                namespace: .init(id: namespace, names: SendGeometryEffectNames())
-            )
-            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+            SendAmountView(viewModel: sendAmountViewModel)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .newAmount(let sendAmountViewModel):
-            SendNewAmountView(
-                viewModel: sendAmountViewModel,
-                transitionService: transitionService
-            )
-            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
-        case .fee(let sendFeeViewModel):
-            SendFeeView(
-                viewModel: sendFeeViewModel,
-                transitionService: transitionService,
-                namespace: .init(id: namespace, names: SendGeometryEffectNames())
-            )
-            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+            SendNewAmountView(viewModel: sendAmountViewModel)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .validators(let stakingValidatorsViewModel):
-            StakingValidatorsView(
-                viewModel: stakingValidatorsViewModel,
-                transitionService: transitionService,
-                namespace: .init(id: namespace, names: SendGeometryEffectNames())
-            )
-            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+            StakingValidatorsView(viewModel: stakingValidatorsViewModel)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .summary(let sendSummaryViewModel):
-            SendSummaryView(
-                viewModel: sendSummaryViewModel,
-                transitionService: transitionService,
-                namespace: .init(id: namespace, names: SendGeometryEffectNames())
-            )
-            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+            SendSummaryView(viewModel: sendSummaryViewModel)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .newSummary(let sendSummaryViewModel):
-            SendNewSummaryView(
-                viewModel: sendSummaryViewModel,
-                transitionService: transitionService
-            )
-            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+            SendNewSummaryView(viewModel: sendSummaryViewModel)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .onramp(let onrampViewModel):
-            OnrampView(
-                viewModel: onrampViewModel,
-                transitionService: transitionService,
-                namespace: .init(id: namespace, names: SendGeometryEffectNames()),
-                keyboardActive: $focused
-            )
-            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+            OnrampView(viewModel: onrampViewModel, keyboardActive: $focused)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .newOnramp(let onrampViewModel):
-            NewOnrampView(
-                viewModel: onrampViewModel,
-                transitionService: transitionService,
-                namespace: .init(id: namespace, names: SendGeometryEffectNames()),
-                keyboardActive: $focused
-            )
-            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+            NewOnrampView(viewModel: onrampViewModel, keyboardActive: $focused)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .finish(let sendFinishViewModel):
-            SendFinishView(
-                viewModel: sendFinishViewModel,
-                namespace: .init(id: namespace, names: SendGeometryEffectNames())
-            )
-            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+            SendFinishView(viewModel: sendFinishViewModel)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .newFinish(let sendFinishViewModel):
-            SendNewFinishView(
-                viewModel: sendFinishViewModel,
-                transitionService: transitionService
-            )
-            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+            SendNewFinishView(viewModel: sendFinishViewModel)
+                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         }
     }
 
@@ -254,7 +203,6 @@ struct SendView: View {
                 )
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
             }
-            .animation(SendTransitionService.Constants.auxiliaryViewAnimation, value: viewModel.bottomBarSettings.backButtonVisible)
             .padding(.bottom, 14)
             .padding(.horizontal, 16)
         }
