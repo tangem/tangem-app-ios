@@ -199,53 +199,20 @@ extension TokenDetailsViewModel {
     }
 
     func generateXPUBButtonAction() {
-        let factory = TransactionDispatcherFactory(walletModel: walletModel, signer: userWalletModel.signer)
-        let dispatcher = factory.makeYieldModuleDispatcher()
-        guard let manager = walletModel.yieldModuleManager else { return }
+        guard let xpubGenerator else { return }
 
-        Task {
+        runTask { [weak self] in
             do {
-                switch manager.state {
-                case .active(let state):
-                    let smartContractState = state.yieldSupply
-                    switch state.yieldSupply?.type {
-                    case .none:
-                        let fee = try await manager.enterFee()
-                        let result = try await manager.enter(fee: fee, transactionDispatcher: dispatcher)
-                        print(result)
-                    case .token(let token):
-                        let fee = try await manager.exitFee()
-                        let result = try await manager.exit(fee: fee, transactionDispatcher: dispatcher)
-                        print(result)
-                    default: break
-                    }
-                case .notActive:
-                    let fee = try await manager.enterFee()
-                    let result = try await manager.enter(fee: fee, transactionDispatcher: dispatcher)
-                case .disabled, .none, .loading, .failedToLoad:
-                    let fee = try await manager.enterFee()
-                    let result = try await manager.enter(fee: fee, transactionDispatcher: dispatcher)
-                    print(result)
-                }
-
+                let xpub = try await xpubGenerator.generateXPUB()
+                let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
+                AppPresenter.shared.show(viewController)
             } catch {
-                print(error)
+                let sdkError = error.toTangemSdkError()
+                if !sdkError.isUserCancelled {
+                    self?.alert = error.alertBinder
+                }
             }
         }
-//        guard let xpubGenerator else { return }
-//
-//        runTask { [weak self] in
-//            do {
-//                let xpub = try await xpubGenerator.generateXPUB()
-//                let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
-//                AppPresenter.shared.show(viewController)
-//            } catch {
-//                let sdkError = error.toTangemSdkError()
-//                if !sdkError.isUserCancelled {
-//                    self?.alert = error.alertBinder
-//                }
-//            }
-//        }
     }
 
     private func showUnableToHideAlert() {
