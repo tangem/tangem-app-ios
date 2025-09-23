@@ -27,7 +27,17 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         throw .addingCryptoAccountsNotSupported
     }
 
-    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws(AccountModelsManagerError) {
+    func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
+        return []
+    }
+
+    func archiveCryptoAccount(
+        withIdentifier identifier: some AccountModelPersistentIdentifierConvertible
+    ) async throws(AccountModelsManagerError) {
         throw .cannotArchiveCryptoAccount
+    }
+
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
+        throw .cannotUnarchiveCryptoAccount
     }
 }

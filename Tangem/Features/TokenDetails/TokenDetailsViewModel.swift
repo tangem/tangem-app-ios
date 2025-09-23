@@ -427,7 +427,16 @@ extension TokenDetailsViewModel {
     func openYieldModulePromo() {
         coordinator?.openYieldModulePromoView(
             walletModel: walletModel,
-            info: .init(apy: "TEST", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
+            info: .init(apy: "WIP", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
+        )
+    }
+
+    func openYieldEarnInfo() {
+        coordinator?.openYieldEarnInfo(
+            walletModel: walletModel,
+            openFeeCurrencyAction: { [weak self] in
+                self?.openFeeCurrency()
+            }
         )
     }
 }
