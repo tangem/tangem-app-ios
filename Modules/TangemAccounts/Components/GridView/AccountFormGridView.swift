@@ -68,22 +68,22 @@ public enum AccountFormGridViewConstants {
 #if DEBUG
 @available(iOS 17.0, *)
 #Preview {
-    @Previewable @State var selectedColor = GridItemColor(Colors.Accounts.brightBlue)
+    @Previewable @State var selectedColor = GridItemColor(Colors.Accounts.caribbeanBlue)
     @Previewable @State var selectedImage = GridItemImage(.image(Assets.Accounts.airplane))
 
     let colors = [
-        Colors.Accounts.brightBlue,
-        Colors.Accounts.coralRed,
-        Colors.Accounts.cyan,
-        Colors.Accounts.darkGreen,
-        Colors.Accounts.deepPurple,
-        Colors.Accounts.hotPink,
-        Colors.Accounts.lavender,
-        Colors.Accounts.magenta,
-        Colors.Accounts.mediumGreen,
-        Colors.Accounts.purple,
-        Colors.Accounts.royalBlue,
-        Colors.Accounts.yellow,
+        Colors.Accounts.azureBlue,
+        Colors.Accounts.candyGrapeFizz,
+        Colors.Accounts.caribbeanBlue,
+        Colors.Accounts.dullLavender,
+        Colors.Accounts.fuchsiaNebula,
+        Colors.Accounts.mexicanPink,
+        Colors.Accounts.palatinateBlue,
+        Colors.Accounts.pattypan,
+        Colors.Accounts.pelati,
+        Colors.Accounts.sweetDesire,
+        Colors.Accounts.ufoGreen,
+        Colors.Accounts.vitalGreen,
     ].map(GridItemColor.init)
 
     let images = [

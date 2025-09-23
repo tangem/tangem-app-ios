@@ -109,6 +109,13 @@ struct TangemApiTarget: TargetType {
         // MARK: - Promo Code
         case .activatePromoCode:
             return "/promo-codes/activate"
+
+        // MARK: - Accounts
+        case .getUserAccounts(let userWalletId),
+             .saveUserAccounts(let userWalletId, _, _):
+            return "/wallets/\(userWalletId)/accounts"
+        case .getArchivedUserAccounts(let userWalletId):
+            return "/wallets/\(userWalletId)/accounts/archived"
         }
     }
 
@@ -134,10 +141,13 @@ struct TangemApiTarget: TargetType {
              .seedNotifyGetStatusConfirmed,
              .story,
              .pushNotificationsEligible,
+             .getUserAccounts,
+             .getArchivedUserAccounts,
              .getUserWallets,
              .getUserWallet:
             return .get
         case .saveUserWalletTokens,
+             .saveUserAccounts,
              .seedNotifySetStatus,
              .seedNotifySetStatusConfirmed:
             return .put
@@ -263,10 +273,67 @@ struct TangemApiTarget: TargetType {
         // MARK: - Promo Code
         case .activatePromoCode(let requestModel):
             return .requestJSONEncodable(requestModel)
+
+        // MARK: - Accounts
+        case .getUserAccounts:
+            return .requestPlain
+        case .saveUserAccounts(_, _, let accounts):
+            return .requestJSONEncodable(accounts)
+        case .getArchivedUserAccounts:
+            return .requestPlain
         }
     }
 
-    var headers: [String: String]? { nil }
+    var headers: [String: String]? {
+        switch type {
+        case .saveUserAccounts(_, let revision, _):
+            // This endpoint uses manual ETags for optimistic locking during mutations
+            return [
+                TangemAPIHeaders.ifMatch.rawValue: revision,
+            ]
+        case .rawData,
+             .currencies,
+             .coins,
+             .quotes,
+             .geo,
+             .features,
+             .getUserWalletTokens,
+             .saveUserWalletTokens,
+             .loadReferralProgramInfo,
+             .participateInReferralProgram,
+             .createAccount,
+             .promotion,
+             .validateNewUserPromotionEligibility,
+             .validateOldUserPromotionEligibility,
+             .awardNewUser,
+             .awardOldUser,
+             .resetAward,
+             .activatePromoCode,
+             .story,
+             .coinsList,
+             .coinsHistoryChartPreview,
+             .tokenMarketsDetails,
+             .historyChart,
+             .tokenExchangesList,
+             .hotCrypto,
+             .apiList,
+             .seedNotifyGetStatus,
+             .seedNotifySetStatus,
+             .seedNotifyGetStatusConfirmed,
+             .seedNotifySetStatusConfirmed,
+             .walletInitialized,
+             .pushNotificationsEligible,
+             .createUserWalletsApplication,
+             .updateUserWalletsApplication,
+             .getUserWallets,
+             .getUserWallet,
+             .updateUserWallet,
+             .createAndConnectUserWallet,
+             .getUserAccounts,
+             .getArchivedUserAccounts:
+            return nil
+        }
+    }
 }
 
 extension TangemApiTarget {
@@ -330,6 +397,11 @@ extension TangemApiTarget {
         case getUserWallet(userWalletId: String)
         case updateUserWallet(userWalletId: String, requestModel: UserWalletDTO.Update.Request)
         case createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>)
+
+        // Accounts
+        case getUserAccounts(userWalletId: String)
+        case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
+        case getArchivedUserAccounts(userWalletId: String)
     }
 }
 
@@ -351,10 +423,48 @@ extension TangemApiTarget: TargetTypeLogConvertible {
 
     var shouldLogResponseBody: Bool {
         switch type {
-        case .currencies, .coins, .quotes, .apiList, .coinsList, .coinsHistoryChartPreview,
-             .historyChart, .tokenMarketsDetails, .tokenExchangesList, .story, .rawData, .hotCrypto, .createUserWalletsApplication, .updateUserWalletsApplication, .getUserWallets, .getUserWallet, .updateUserWallet, .createAndConnectUserWallet:
+        case .currencies,
+             .coins,
+             .quotes,
+             .apiList,
+             .coinsList,
+             .coinsHistoryChartPreview,
+             .historyChart,
+             .tokenMarketsDetails,
+             .tokenExchangesList,
+             .story,
+             .rawData,
+             .hotCrypto,
+             .createUserWalletsApplication,
+             .updateUserWalletsApplication,
+             .getUserWallets,
+             .getUserWallet,
+             .updateUserWallet,
+             .createAndConnectUserWallet:
             return false
-        case .geo, .features, .getUserWalletTokens, .saveUserWalletTokens, .loadReferralProgramInfo, .participateInReferralProgram, .createAccount, .promotion, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser, .resetAward, .seedNotifyGetStatus, .seedNotifySetStatus, .seedNotifyGetStatusConfirmed, .seedNotifySetStatusConfirmed, .walletInitialized, .pushNotificationsEligible, .activatePromoCode:
+        case .geo,
+             .features,
+             .getUserWalletTokens,
+             .saveUserWalletTokens,
+             .loadReferralProgramInfo,
+             .participateInReferralProgram,
+             .createAccount,
+             .promotion,
+             .validateNewUserPromotionEligibility,
+             .validateOldUserPromotionEligibility,
+             .awardNewUser,
+             .awardOldUser,
+             .resetAward,
+             .seedNotifyGetStatus,
+             .seedNotifySetStatus,
+             .seedNotifyGetStatusConfirmed,
+             .seedNotifySetStatusConfirmed,
+             .walletInitialized,
+             .pushNotificationsEligible,
+             .getUserAccounts,
+             .saveUserAccounts,
+             .getArchivedUserAccounts,
+             .activatePromoCode:
             return true
         }
     }
