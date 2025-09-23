@@ -1,6 +1,6 @@
 //
 //  NFTSendFlowBaseBuilder.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -11,73 +11,69 @@ import Foundation
 struct NFTSendFlowBaseBuilder {
     let walletModel: any WalletModel
     let coordinatorSource: SendCoordinator.Source
-    let sendAmountStepBuilder: NFTSendAmountStepBuilder
+    let nftAssetStepBuilder: NFTAssetStepBuilder
     let sendDestinationStepBuilder: SendDestinationStepBuilder
-    let sendFeeStepBuilder: SendFeeStepBuilder
-    let sendSummaryStepBuilder: SendSummaryStepBuilder
-    let sendFinishStepBuilder: SendFinishStepBuilder
+    let sendFeeStepBuilder: SendNewFeeStepBuilder
+    let sendSummaryStepBuilder: SendNewSummaryStepBuilder
+    let sendFinishStepBuilder: SendNewFinishStepBuilder
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
         let notificationManager = builder.makeSendNotificationManager()
         let analyticsLogger = builder.makeSendAnalyticsLogger(sendType: .nft)
         let sendQRCodeService = builder.makeSendQRCodeService()
-        let sendModel = builder.makeSendModel(analyticsLogger: analyticsLogger)
+        let swapManager = builder.makeSwapManager()
+        let predefinedValues = builder.makePredefinedNFTValues()
+        let sendModel = builder.makeSendWithSwapModel(
+            swapManager: swapManager,
+            analyticsLogger: analyticsLogger,
+            predefinedValues: predefinedValues
+        )
         let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
         let customFeeService = builder.makeCustomFeeService(input: sendModel)
-
-        let fee = sendFeeStepBuilder.makeFeeSendStep(
-            io: (input: sendModel, output: sendModel),
-            notificationManager: notificationManager,
-            analyticsLogger: analyticsLogger,
-            sendFeeProvider: sendFeeProvider,
-            customFeeService: customFeeService,
-            router: router
-        )
-
-        let amount = sendAmountStepBuilder.makeSendAmountStep(
-            io: (input: sendModel, output: sendModel),
-            actionType: .send,
-            sendQRCodeService: sendQRCodeService,
-            sendAmountValidator: builder.makeNFTSendAmountValidator(),
-            analyticsLogger: analyticsLogger,
-            amountModifier: builder.makeNFTSendAmountModifier()
-        )
+        let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel()
 
         let destination = sendDestinationStepBuilder.makeSendDestinationStep(
             io: (input: sendModel, output: sendModel),
-            sendFeeProvider: sendFeeProvider,
+            receiveTokenInput: sendModel,
             sendQRCodeService: sendQRCodeService,
             analyticsLogger: analyticsLogger,
             router: router
+        )
+
+        let fee = sendFeeStepBuilder.makeSendFee(
+            io: (input: sendModel, output: sendModel),
+            feeProvider: sendFeeProvider,
+            analyticsLogger: analyticsLogger,
+            customFeeService: customFeeService
         )
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
-            actionType: .send,
-            notificationManager: notificationManager,
+            receiveTokenAmountInput: sendModel,
+            sendFeeProvider: sendFeeProvider,
             destinationEditableType: .editable,
-            amountEditableType: .noEditable, // Amount is fixed for NFTs
+            // Amount is fixed for NFTs
+            amountEditableType: .noEditable,
+            notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: destination.compact,
-            sendAmountCompactViewModel: amount.compact,
-            stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact,
-            analyticsLogger: analyticsLogger
+            sendAmountCompactViewModel: .none,
+            nftAssetCompactViewModel: nftAssetCompactViewModel,
+            stakingValidatorsCompactViewModel: .none,
+            sendFeeCompactViewModel: fee.compact
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
             sendFinishAnalyticsLogger: analyticsLogger,
+            sendAmountFinishViewModel: .none,
+            nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: destination.compact,
-            sendAmountCompactViewModel: amount.compact,
-            onrampAmountCompactViewModel: .none,
-            stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact,
-            onrampStatusCompactViewModel: .none
+            sendFeeFinishViewModel: fee.finish
         )
 
         // We have to set dependencies here after all setups is completed
-        sendModel.sendAmountInteractor = amount.interactor
         sendModel.sendFeeProvider = sendFeeProvider
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
             input: sendModel, output: sendModel, provider: sendFeeProvider
@@ -90,16 +86,17 @@ struct NFTSendFlowBaseBuilder {
 
         // We have to do it after sendModel fully setup
         fee.compact.bind(input: sendModel)
+        fee.finish.bind(input: sendModel)
 
-        let stepsManager = NFTSendStepsManager(
+        let stepsManager = CommonNFTSendStepsManager(
             destinationStep: destination.step,
-            feeStep: fee.step,
-            summaryStep: summary.step,
+            feeSelector: fee.feeSelector,
+            summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: builder.makeSendSummaryTitleProvider()
         )
 
-        summary.step.set(router: stepsManager)
+        summary.set(router: stepsManager)
         destination.step.set(stepRouter: stepsManager)
 
         let interactor = CommonSendBaseInteractor(input: sendModel, output: sendModel)
@@ -117,7 +114,8 @@ struct NFTSendFlowBaseBuilder {
         )
 
         stepsManager.set(output: viewModel)
-        fee.step.set(alertPresenter: viewModel)
+        stepsManager.router = router
+
         sendModel.router = viewModel
 
         return viewModel
