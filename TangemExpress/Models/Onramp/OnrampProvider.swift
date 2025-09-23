@@ -84,6 +84,47 @@ extension OnrampProvider: Hashable {
     }
 }
 
+// MARK: - Comparable
+
+extension OnrampProvider: Comparable {
+    public static func < (lhs: OnrampProvider, rhs: OnrampProvider) -> Bool {
+        !(lhs > rhs)
+    }
+
+    public static func > (lhs: OnrampProvider, rhs: OnrampProvider) -> Bool {
+        switch (lhs.state, rhs.state) {
+        case (.loaded(let lhsQuote), .loaded(let rhsQuote)) where lhsQuote == rhsQuote:
+            return lhs.paymentMethod.type.priority > rhs.paymentMethod.type.priority
+
+        case (.loaded(let lhsQuote), .loaded(let rhsQuote)):
+            return lhsQuote.expectedAmount > rhsQuote.expectedAmount
+
+        // All cases which is not `loaded` have to be ordered after
+        case (_, .loaded):
+            return false
+
+        // All cases which is `loaded` have to be ordered before `rhs`
+        // Exclude case where `rhs == .loaded`. This case processed above
+        case (.loaded, _):
+            return true
+
+        case (.restriction(let lhsRestriction), .restriction(let rhsRestriction)):
+            let lhsDiff = (lhs.amount ?? 0) - lhsRestriction.amount
+            let rhsDiff = (rhs.amount ?? 0) - rhsRestriction.amount
+            return abs(lhsDiff) < abs(rhsDiff)
+
+        case (.restriction, _):
+            return true
+
+        case (_, .restriction):
+            return false
+
+        default:
+            return false
+        }
+    }
+}
+
 // MARK: - OnrampProviderManagerProxy
 
 extension OnrampProvider: OnrampProviderManager {
