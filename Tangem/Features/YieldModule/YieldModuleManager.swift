@@ -206,7 +206,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         }
 
         return try await transactionDispatcher
-            .send(transactions: transactions.map(SendTransactionType.transfer))
+            .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
     }
 
@@ -235,7 +235,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         )
 
         return try await transactionDispatcher
-            .send(transactions: transactions.map(SendTransactionType.transfer))
+            .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
     }
 }
