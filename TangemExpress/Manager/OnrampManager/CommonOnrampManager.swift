@@ -21,7 +21,7 @@ public actor CommonOnrampManager {
         onrampRepository: OnrampRepository,
         dataRepository: OnrampDataRepository,
         analyticsLogger: ExpressAnalyticsLogger,
-        sorter: ProviderItemSorter = .init(),
+        sorter: ProviderItemSorter,
         preferredValues: PreferredValues
     ) {
         self.apiProvider = apiProvider
@@ -205,7 +205,7 @@ private extension CommonOnrampManager {
                     )
                 )
             }
-            return ProviderItem(paymentMethod: paymentMethod, sorter: sorter, providers: providers)
+            return ProviderItem(paymentMethod: paymentMethod, providers: providers)
         }
 
         OnrampLogger.info(self, "Built providers \(availableProviders)")

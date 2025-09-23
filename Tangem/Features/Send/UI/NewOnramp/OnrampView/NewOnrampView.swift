@@ -14,16 +14,14 @@ import TangemAccessibilityIdentifiers
 
 struct NewOnrampView: View {
     @ObservedObject var viewModel: NewOnrampViewModel
-    let transitionService: SendTransitionService
     @FocusState.Binding var keyboardActive: Bool
 
     var body: some View {
         GroupedScrollView(spacing: 12) {
             NewOnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
-                .padding(.top, 12)
 
             providersView
-                .transition(transitionService.defaultTransition)
+                .transition(SendTransitions.transition)
 
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
@@ -66,6 +64,7 @@ struct NewOnrampView: View {
 
             if offers.shouldShowAllOffersButton {
                 MainButton(title: Localization.onrampAllOffersButtonTitle, style: .secondary) {
+                    keyboardActive = false
                     viewModel.userDidTapAllOffersButton()
                 }
             }
@@ -96,16 +95,9 @@ struct NewOnrampView: View {
             }
             .padding(.bottom, 14)
             .padding(.horizontal, 16)
-            .transition(transitionService.defaultTransition)
+            .transition(SendTransitions.transition)
         case .suggestedOffers:
             EmptyView()
         }
-    }
-}
-
-extension NewOnrampView {
-    struct Namespace {
-        let id: SwiftUI.Namespace.ID
-        let names: any SendSummaryViewGeometryEffectNames
     }
 }
