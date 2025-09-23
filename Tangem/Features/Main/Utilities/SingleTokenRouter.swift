@@ -13,8 +13,8 @@ import TangemExpress
 
 protocol SingleTokenRoutable {
     func openReceive(walletModel: any WalletModel)
-    func openSend(walletModel: any WalletModel)
-    func openExchange(walletModel: any WalletModel)
+    func openSend(walletModel: any WalletModel, isViaYieldNotice: Bool)
+    func openExchange(walletModel: any WalletModel, isViaYieldNotice: Bool)
     func openStaking(walletModel: any WalletModel)
     func openSell(for walletModel: any WalletModel)
     func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel)
@@ -49,13 +49,28 @@ final class SingleTokenRouter: SingleTokenRoutable {
         coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel, parameters: .none)
     }
 
-    func openSend(walletModel: any WalletModel) {
-        coordinator?.openSend(userWalletModel: userWalletModel, walletModel: walletModel)
+    func openSend(walletModel: any WalletModel, isViaYieldNotice: Bool) {
+        if isViaYieldNotice {
+            coordinator?.openViaYieldNotice(tokenItem: walletModel.tokenItem, action: { [weak self] in
+                guard let self else { return }
+                coordinator?.openSend(userWalletModel: userWalletModel, walletModel: walletModel)
+            })
+        } else {
+            coordinator?.openSend(userWalletModel: userWalletModel, walletModel: walletModel)
+        }
     }
 
-    func openExchange(walletModel: any WalletModel) {
+    func openExchange(walletModel: any WalletModel, isViaYieldNotice: Bool) {
         let input = CommonExpressModulesFactory.InputModel(userWalletModel: userWalletModel, initialWalletModel: walletModel)
-        coordinator?.openExpress(input: input)
+
+        if isViaYieldNotice {
+            coordinator?.openViaYieldNotice(tokenItem: walletModel.tokenItem, action: { [weak self] in
+                guard let self else { return }
+                coordinator?.openExpress(input: input)
+            })
+        } else {
+            coordinator?.openExpress(input: input)
+        }
     }
 
     func openStaking(walletModel: any WalletModel) {

@@ -10,7 +10,7 @@ import Foundation
 
 protocol MarketsPortfolioContainerRoutable: AnyObject {
     func openReceive(walletModel: any WalletModel)
-    func openExchange(for walletModel: any WalletModel, with userWalletModel: UserWalletModel)
+    func openExchange(for walletModel: any WalletModel, with userWalletModel: UserWalletModel, isViaYieldNotice: Bool)
     func openOnramp(for walletModel: any WalletModel, with userWalletModel: UserWalletModel)
     func openStaking(for walletModel: any WalletModel, with userWalletModel: UserWalletModel)
 }

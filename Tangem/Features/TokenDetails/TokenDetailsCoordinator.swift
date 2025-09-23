@@ -188,6 +188,14 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
 }
 
 extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
+    func openViaYieldNotice(tokenItem: TokenItem, action: @escaping () -> Void) {
+        let viewModel = SendYieldNoticeStepViewModel(tokenItem: tokenItem, action: action)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openReceiveScreen(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
