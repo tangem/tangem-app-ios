@@ -87,6 +87,7 @@ final class StakingDetailsViewModel: ObservableObject {
                 title: Localization.commonAttention,
                 message: Localization.stakingNotificationTonActivateAccount
             )
+            Analytics.log(event: .stakingNoticeUninitializedAddress, params: [.token: tokenItem.currencySymbol])
             return
         }
 
