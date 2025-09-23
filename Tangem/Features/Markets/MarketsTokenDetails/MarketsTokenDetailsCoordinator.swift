@@ -150,27 +150,43 @@ extension MarketsTokenDetailsCoordinator {
         }
     }
 
-    func openExchange(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.expressCoordinator = nil
-        }
-
-        let openSwapBlock = { [weak self] in
+    func openExchange(
+        for walletModel: any WalletModel,
+        with userWalletModel: UserWalletModel,
+        isViaYieldNotice: Bool
+    ) {
+        let action = { [weak self] in
             guard let self else { return }
-            expressCoordinator = portfolioCoordinatorFactory.makeExpressCoordinator(
-                for: walletModel,
-                with: userWalletModel,
-                dismissAction: dismissAction,
-                popToRootAction: popToRootAction
-            )
+
+            let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
+                self?.expressCoordinator = nil
+            }
+
+            let openSwapBlock = { [weak self] in
+                guard let self else { return }
+                Task { @MainActor in
+                    self.expressCoordinator = self.portfolioCoordinatorFactory.makeExpressCoordinator(
+                        for: walletModel,
+                        with: userWalletModel,
+                        dismissAction: dismissAction,
+                        popToRootAction: self.popToRootAction
+                    )
+                }
+            }
+
+            Task { @MainActor [tangemStoriesPresenter] in
+                tangemStoriesPresenter.present(
+                    story: .swap(.initialWithoutImages),
+                    analyticsSource: .markets,
+                    presentCompletion: openSwapBlock
+                )
+            }
         }
 
-        Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
-                analyticsSource: .markets,
-                presentCompletion: openSwapBlock
-            )
+        let viewModel = SendYieldNoticeStepViewModel(tokenItem: walletModel.tokenItem, action: action)
+
+        Task { @MainActor [floatingSheetPresenter] in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
