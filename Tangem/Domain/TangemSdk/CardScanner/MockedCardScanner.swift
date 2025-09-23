@@ -36,6 +36,13 @@ class MockedCardScanner {
         )
         vc.addAction(action)
 
+        let hybridAction = UIAlertAction(
+            title: "Hybrid Attestation",
+            style: .default,
+            handler: { [weak self] _ in self?.promptHybridAttestation(handler) }
+        )
+        vc.addAction(hybridAction)
+
         for mock in CardMock.allCases {
             let action = UIAlertAction(
                 title: mock.rawValue,
@@ -102,6 +109,43 @@ class MockedCardScanner {
             }
         }
     }
+
+    private func promptHybridAttestation(_ handler: @escaping SelectionHandler) {
+        let vc = UIAlertController(
+            title: "Select Mock Card for Real Attestation",
+            message: "This will perform real attestation requests to backend with mock card data",
+            preferredStyle: .actionSheet
+        )
+
+        for mock in CardMock.allCases {
+            let action = UIAlertAction(
+                title: "\(mock.rawValue) (Real Backend Attestation)",
+                style: .default,
+                handler: { _ in handler(.success(.realAttestation(mock))) }
+            )
+            action.accessibilityIdentifier = "\(mock.accessibilityIdentifier)_real_attestation"
+            vc.addAction(action)
+        }
+
+        vc.addAction(
+            UIAlertAction(
+                title: Localization.commonCancel,
+                style: .cancel,
+                handler: { _ in handler(.failure(TangemSdkError.userCancelled)) }
+            ))
+
+        AppPresenter.shared.show(vc)
+    }
+
+    private func performRealAttestation(with mock: CardMock, completion: @escaping (Result<AppScanTaskResponse, TangemSdkError>) -> Void) {
+        // Create a scanner that performs real attestation requests to backend
+        let realAttestationScanner = RealAttestationMockScanner()
+
+        realAttestationScanner.scanCard { result in
+            // Just pass through the real result - no mock data manipulation
+            completion(result)
+        }
+    }
 }
 
 extension MockedCardScanner: CardScanner {
@@ -139,6 +183,8 @@ extension MockedCardScanner: CardScanner {
                         } catch {
                             completion(.failure(.underlying(error: error)))
                         }
+                    case .realAttestation(let mock):
+                        self.performRealAttestation(with: mock, completion: completion)
                     }
                 case .failure(let error):
                     completion(.failure(error))
@@ -162,6 +208,7 @@ extension MockedCardScanner {
         case scan(AppScanTaskResponse)
         case cardMock(CardMock)
         case json(String)
+        case realAttestation(CardMock)
     }
 
     enum Error: String, Swift.Error, LocalizedError {
