@@ -9,22 +9,26 @@
 import Foundation
 import TangemFoundation
 
-public typealias ProvidersList = [ProviderItem]
+public class ProviderItem: Identifiable {
+    public var id: String { paymentMethod.id }
 
-public class ProviderItem {
     public let paymentMethod: OnrampPaymentMethod
-    public let sorter: ProviderItemSorter
-
     public private(set) var providers: [OnrampProvider]
 
     init(
         paymentMethod: OnrampPaymentMethod,
-        sorter: ProviderItemSorter,
         providers: [OnrampProvider]
     ) {
         self.paymentMethod = paymentMethod
-        self.sorter = sorter
         self.providers = providers
+    }
+
+    public func hasSuccessfullyLoadedProviders() -> Bool {
+        !successfullyLoadedProviders().isEmpty
+    }
+
+    public func successfullyLoadedProviders() -> [OnrampProvider] {
+        providers.filter { $0.isSuccessfullyLoaded }
     }
 
     public func hasSelectableProviders() -> Bool {
@@ -48,7 +52,7 @@ public class ProviderItem {
 
     @discardableResult
     public func sort() -> [OnrampProvider] {
-        providers.sort(by: { sorter.sort(lhs: $0, rhs: $1) })
+        providers.sort(by: >)
         // Return sorted providers
         return providers
     }
@@ -90,49 +94,5 @@ extension ProviderItem: CustomDebugStringConvertible {
                 "providerName: \($0.provider.name), state: \($0.state)"
             },
         ])
-    }
-}
-
-// MARK: - Array<ProviderItem>
-
-public extension ProvidersList {
-    func hasProviders() -> Bool {
-        !flatMap { $0.providers }.isEmpty
-    }
-
-    func select(for paymentMethod: OnrampPaymentMethod.MethodType) -> ProviderItem? {
-        first(where: { $0.paymentMethod.type == paymentMethod })
-    }
-
-    func sorted(sorter: ProviderItemSorter) -> Self {
-        forEach { $0.sort() }
-
-        return sorted { lhs, rhs in
-            // If paymentMethod has same priority (e.g. SEPA and Revolut Pay)
-            guard lhs.paymentMethod.type.priority == rhs.paymentMethod.type.priority else {
-                return lhs.paymentMethod.type.priority > rhs.paymentMethod.type.priority
-            }
-
-            switch (lhs.providers.first, rhs.providers.first) {
-            case (.some(let lhsProvider), .some(let rhsProvider)):
-                return sorter.sort(lhs: lhsProvider, rhs: rhsProvider)
-            case (.none, _), (_, .none):
-                return false
-            }
-        }
-    }
-
-    func updateSupportedPaymentMethods() {
-        flatMap { $0.providers }.forEach { provider in
-            guard case .notSupported(.paymentMethod) = provider.state else {
-                return
-            }
-
-            let supportedMethods = flatMap { $0.providers }
-                .filter { $0.provider == provider.provider && $0.isLoaded }
-                .map(\.paymentMethod)
-
-            provider.update(supportedMethods: supportedMethods)
-        }
     }
 }

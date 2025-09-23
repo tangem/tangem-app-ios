@@ -52,7 +52,7 @@ final class YieldModulePromoViewModel {
     // MARK: - Public Implementation
 
     func onInterestRateInfoTap() {
-        coordinator?.openRateInfoSheet(params: .init(lastYearReturns: lastYearReturns))
+        coordinator?.openRateInfoSheet(params: .init(lastYearReturns: lastYearReturns), walletModel: walletModel)
     }
 
     func onContinueTap() {
@@ -64,7 +64,8 @@ final class YieldModulePromoViewModel {
                     networkFee: networkFee.formatted(),
                     maximumFee: maximumFee.formatted(),
                     blockchainName: walletModel.tokenItem.blockchain.displayName
-                )
+                ),
+                walletModel: walletModel
             )
     }
 

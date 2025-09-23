@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-extension YieldModuleBottomSheetView {
+extension YieldModuleStartView {
     struct YieldModuleInterestRateInfoView: View {
         let lastYearReturns: [String: Double]
 

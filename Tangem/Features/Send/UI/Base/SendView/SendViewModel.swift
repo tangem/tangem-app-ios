@@ -143,7 +143,7 @@ final class SendViewModel: ObservableObject {
         // if the destination's TextField will be support @FocusState
         // case (_, .destination):
         //    isKeyboardActive = true
-        case (_, .amount), (_, .newAmount), (_, .newDestination):
+        case (_, .amount), (_, .newAmount), (_, .destination):
             isKeyboardActive = true
         default:
             break
@@ -265,7 +265,7 @@ private extension SendViewModel {
         }
     }
 
-    func openMail(transaction: SendTransactionType, error: SendTxError) {
+    func openMail(transaction: TransactionDispatcherTransactionType, error: SendTxError) {
         analyticsLogger.logRequestSupport()
 
         do {
@@ -392,6 +392,11 @@ extension SendViewModel: OnrampModelRoutable {
         } catch {
             showAlert(error.alertBinder)
         }
+    }
+
+    func openOnrampRedirecting() {
+        // The new onramp performed straight from onramp model
+        performOnramp()
     }
 
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {
