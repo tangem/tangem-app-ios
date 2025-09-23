@@ -27,7 +27,7 @@ final class PolygonTransactionHistoryProvider<Mapper> where
         targetConfiguration: PolygonTransactionHistoryTarget.Configuration
     ) {
         self.mapper = mapper
-        networkProvider = .init(configuration: networkConfiguration)
+        networkProvider = .init(configuration: .init(logOptions: .verbose))
         self.targetConfiguration = targetConfiguration
     }
 
