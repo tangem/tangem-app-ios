@@ -30,25 +30,6 @@ enum YieldModuleViewConfigs {
         @IgnoredEquatable var mainAction: @MainActor @Sendable () -> Void
     }
 
-    struct StartEarningParams: Equatable {
-        let tokenName: String
-        let tokenImageUrl: URL?
-        let networkFee: String
-        let maximumFee: String
-        let blockchainName: String
-    }
-
-    struct RateInfoParams: Equatable {
-        let lastYearReturns: [String: Double]
-    }
-
-    struct FeePolicyParams: Equatable {
-        let tokenName: String
-        let networkFee: String
-        let maximumFee: String
-        let blockchainName: String
-    }
-
     struct EarnInfoParams: Equatable {
         let earningsData: EarningsData
         let status: Status

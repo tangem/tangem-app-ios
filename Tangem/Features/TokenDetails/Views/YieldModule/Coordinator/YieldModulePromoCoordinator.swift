@@ -41,13 +41,13 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
         )
     }
 
-    func openRateInfoSheet(params: YieldModuleViewConfigs.RateInfoParams, walletModel: any WalletModel) {
+    func openRateInfoSheet(walletModel: any WalletModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: YieldModuleStartViewModel(walletModel: walletModel, viewState: .rateInfo))
         }
     }
 
-    func openStartEarningSheet(params: YieldModuleViewConfigs.StartEarningParams, walletModel: any WalletModel) {
+    func openStartEarningSheet(walletModel: any WalletModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: YieldModuleStartViewModel(walletModel: walletModel, viewState: .startEarning))
         }
