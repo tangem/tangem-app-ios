@@ -24,7 +24,8 @@ struct NewOnrampStepBuilder {
         providersInput: some OnrampProvidersInput,
         recentOnrampProviderFinder: some RecentOnrampProviderFinder,
         onrampAmountViewModel: NewOnrampAmountViewModel,
-        notificationManager: some NotificationManager
+        notificationManager: some NotificationManager,
+        analyticsLogger: some SendOnrampOffersAnalyticsLogger
     ) -> ReturnValue {
         let interactor = CommonNewOnrampInteractor(
             input: io.input,
@@ -36,7 +37,8 @@ struct NewOnrampStepBuilder {
             onrampAmountViewModel: onrampAmountViewModel,
             tokenItem: walletModel.tokenItem,
             interactor: interactor,
-            notificationManager: notificationManager
+            notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger
         )
         let step = NewOnrampStep(tokenItem: walletModel.tokenItem, viewModel: viewModel, interactor: interactor)
 

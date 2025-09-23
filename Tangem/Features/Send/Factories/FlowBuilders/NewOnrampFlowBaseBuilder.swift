@@ -73,11 +73,13 @@ struct NewOnrampFlowBaseBuilder {
             providersInput: onrampModel,
             recentOnrampProviderFinder: onrampModel,
             onrampAmountViewModel: onrampAmountViewModel,
-            notificationManager: notificationManager
+            notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger
         )
 
         let offersSelectorViewModel = OnrampOffersSelectorViewModel(
             tokenItem: walletModel.tokenItem,
+            analyticsLogger: analyticsLogger,
             input: onrampModel,
             output: onrampModel
         )
