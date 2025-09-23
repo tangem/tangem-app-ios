@@ -15,13 +15,6 @@ import TangemUI
 struct SendDestinationTextView: View {
     @ObservedObject var viewModel: SendDestinationTextViewModel
 
-    private var namespace: Namespace.ID?
-    private var containerNamespaceId: String?
-    private var iconNamespaceId: String?
-    private var titleNamespaceId: String?
-    private var textNamespaceId: String?
-    private var clearButtonNamespaceId: String?
-
     private let inputFieldFont = Fonts.Regular.subheadline
     private let inputFieldUIFont = UIFonts.Regular.subheadline
 
@@ -89,7 +82,6 @@ struct SendDestinationTextView: View {
         } else {
             Text(viewModel.name)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                .matchedGeometryEffectOptional(id: titleNamespaceId, in: namespace)
         }
     }
 
@@ -105,7 +97,6 @@ struct SendDestinationTextView: View {
                 AddressIconView(viewModel: AddressIconViewModel(address: viewModel.text))
             }
         }
-        .matchedGeometryEffectOptional(id: iconNamespaceId, in: namespace)
         .frame(size: CGSize(bothDimensions: 36))
     }
 
@@ -143,11 +134,9 @@ struct SendDestinationTextView: View {
                 .autocapitalization(.none)
                 .keyboardType(.asciiCapable)
                 .disableAutocorrection(true)
-                .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
 
                 Button(action: viewModel.clearInput) {
                     clearIcon
-                        .matchedGeometryEffectOptional(id: clearButtonNamespaceId, in: namespace)
                 }
                 .hidden(viewModel.text.isEmpty)
                 .disabled(viewModel.text.isEmpty)
@@ -186,32 +175,6 @@ struct SendDestinationTextView: View {
             }
             .disabled(!viewModel.hasTextInClipboard)
         }
-    }
-}
-
-extension SendDestinationTextView: Setupable {
-    func setNamespace(_ namespace: Namespace.ID) -> Self {
-        map { $0.namespace = namespace }
-    }
-
-    func setContainerNamespaceId(_ containerNamespaceId: String) -> Self {
-        map { $0.containerNamespaceId = containerNamespaceId }
-    }
-
-    func setIconNamespaceId(_ iconNamespaceId: String) -> Self {
-        map { $0.iconNamespaceId = iconNamespaceId }
-    }
-
-    func setTitleNamespaceId(_ titleNamespaceId: String) -> Self {
-        map { $0.titleNamespaceId = titleNamespaceId }
-    }
-
-    func setTextNamespaceId(_ textNamespaceId: String) -> Self {
-        map { $0.textNamespaceId = textNamespaceId }
-    }
-
-    func setClearButtonNamespaceId(_ clearButtonNamespaceId: String) -> Self {
-        map { $0.clearButtonNamespaceId = clearButtonNamespaceId }
     }
 }
 
