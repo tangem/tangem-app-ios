@@ -26,19 +26,17 @@ extension YieldModuleInfoView {
         // MARK: - Sub Views
 
         private var feePolicyText: some View {
-            var attr = AttributedString(Localization.yieldModuleStopEarningSheetFeeNote)
-            attr.font = Fonts.Regular.footnote
-            attr.foregroundColor = Colors.Text.tertiary
+            var attrString = AttributedString(Localization.yieldModuleStopEarningSheetFeeNote + " " + Localization.commonReadMore)
+            attrString.font = Fonts.Regular.footnote
+            attrString.foregroundColor = Colors.Text.tertiary
 
-            var linkPart = AttributedString(Localization.commonReadMore)
-            linkPart.font = Fonts.Regular.footnote
-            linkPart.foregroundColor = Colors.Text.accent
-            linkPart.link = params.readMoreUrl
+            if let range = attrString.range(of: Localization.commonReadMore) {
+                attrString[range].font = Fonts.Regular.footnote
+                attrString[range].foregroundColor = Colors.Text.accent
+                attrString[range].link = params.readMoreUrl
+            }
 
-            attr.append(AttributedString(" "))
-            attr.append(linkPart)
-
-            return Text(attr)
+            return Text(attrString)
         }
 
         private var networkFee: some View {
