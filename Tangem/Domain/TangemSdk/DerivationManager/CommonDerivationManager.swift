@@ -57,15 +57,20 @@ extension CommonDerivationManager: DerivationManager {
             .eraseToAnyPublisher()
     }
 
-    func needsDerivation(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork], interactor: KeysDeriving) -> Bool {
-        guard interactor.isKeysDerivedByCard else {
+    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork], interactor: KeysDeriving) -> Bool {
+        guard interactor.requiresCard else {
             return false
         }
 
         let keys = keysRepository.keys
         let addingDerivations = networksToAdd.compactMap { pendingDerivation(network: $0, keys: keys) }
+
+        // Filter pending derivations by removing those that belong to networks scheduled for removal.
+        // This ensures we only consider derivations that will still be relevant after the update.
         let filteredPendingDerivations = pendingDerivations.value.filter { !networksToRemove.contains($0.network) }
 
+        // Derivation is needed if the user adds networks requiring a card,
+        // or if unresolved derivations remain for existing networks.
         return addingDerivations.isNotEmpty || filteredPendingDerivations.isNotEmpty
     }
 

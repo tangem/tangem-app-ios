@@ -288,8 +288,8 @@ private extension ManageTokensAdapter {
         ))
     }
 
-    func updateExpanded(state isExapanded: Bool, for coinId: String) {
-        if isExapanded {
+    func updateExpanded(state isExpanded: Bool, for coinId: String) {
+        if isExpanded {
             expandedCoinIds.insert(coinId)
         } else {
             expandedCoinIds.remove(coinId)

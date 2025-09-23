@@ -228,15 +228,13 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         }
         .store(in: &bag)
 
-        $selectedBlockchainNetworkId
-            .combineLatest($contractAddress)
-            .combineLatest($name)
-            .combineLatest($symbol)
-            .combineLatest($decimals)
-            .combineLatest($addButtonDisabled)
-            .receiveOnMain()
+        $addButtonDisabled
             .withWeakCaptureOf(self)
-            .map { viewModel, _ in
+            .map { viewModel, isAddButtonDisabled in
+                guard !isAddButtonDisabled else {
+                    return false
+                }
+
                 do {
                     let tokenItem = try viewModel.enteredTokenItem()
                     return viewModel.userWalletModel.userTokensManager.needsCardDerivation(

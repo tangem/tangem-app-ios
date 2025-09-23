@@ -35,7 +35,7 @@ class FakeDerivationManager: DerivationManager {
         }
     }
 
-    func needsDerivation(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork], interactor: KeysDeriving) -> Bool {
+    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork], interactor: KeysDeriving) -> Bool {
         true
     }
 }

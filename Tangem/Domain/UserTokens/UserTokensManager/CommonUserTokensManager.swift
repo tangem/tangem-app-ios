@@ -196,6 +196,7 @@ extension CommonUserTokensManager: UserTokensManager {
             return false
         }
 
+        // Filter only blockchains because we don't care about removing tokens from network.
         let networksToRemove = itemsToRemove
             .filter { $0.isBlockchain }
             .map { withBlockchainNetwork($0) }
@@ -205,7 +206,7 @@ extension CommonUserTokensManager: UserTokensManager {
             .map { withBlockchainNetwork($0) }
             .map(\.blockchainNetwork)
 
-        return derivationManager.needsDerivation(
+        return derivationManager.shouldDeriveKeys(
             networksToRemove: networksToRemove,
             networksToAdd: networksToAdd,
             interactor: keysDerivingProvider.keysDerivingInteractor
