@@ -56,7 +56,6 @@ struct UnstakingFlowBaseBuilder {
             notificationManager: notificationManager,
             destinationEditableType: isPartialUnstakeAllowed ? .editable : .noEditable,
             amountEditableType: isPartialUnstakeAllowed ? .editable : .noEditable,
-            sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: .none,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
@@ -66,7 +65,6 @@ struct UnstakingFlowBaseBuilder {
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: unstakingModel,
             sendFinishAnalyticsLogger: analyticsLogger,
-            sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: amount.compact,
             onrampAmountCompactViewModel: .none,
             stakingValidatorsCompactViewModel: .none,
