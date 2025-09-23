@@ -14,8 +14,6 @@ final class PushNotificationsPermissionRequestViewModel: ObservableObject, Ident
     @Published private(set) var allowButtonTitle: String
     @Published private(set) var laterButtonTitle: String
 
-    let isPushTransactionsAvailable: Bool
-
     private let permissionManager: PushNotificationsPermissionManager
 
     private weak var delegate: PushNotificationsPermissionRequestDelegate?
@@ -30,8 +28,6 @@ final class PushNotificationsPermissionRequestViewModel: ObservableObject, Ident
 
         allowButtonTitle = Localization.commonAllow
         laterButtonTitle = Localization.commonLater
-
-        isPushTransactionsAvailable = FeatureProvider.isAvailable(.pushTransactionNotifications)
     }
 
     func onViewAppear() {
