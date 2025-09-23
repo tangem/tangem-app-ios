@@ -18,6 +18,8 @@ final class YieldModuleNoticeInteractor {
     /// If the value is `true` or missing (`nil`), returns false.
     /// If the value is `false` marks the alert as shown
     func shouldShowYieldModuleAlert(for tokenItem: TokenItem) -> Bool {
+        return false
+
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
         guard case .token(let token, let blockchainNetwork) = tokenItem else {
