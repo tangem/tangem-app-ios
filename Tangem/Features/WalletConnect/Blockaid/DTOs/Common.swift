@@ -26,6 +26,7 @@ extension BlockaidDTO {
     enum Option: String, Encodable {
         case simulation
         case validation
+        case gasEstimation = "gas_estimation"
     }
 
     struct Validation: Decodable {

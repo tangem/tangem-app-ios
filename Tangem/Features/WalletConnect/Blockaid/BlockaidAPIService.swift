@@ -29,4 +29,9 @@ protocol BlockaidAPIService {
         transactions: [String],
         domain: URL
     ) async throws -> BlockaidDTO.SolanaScan.Response
+
+    func scanEvmTransactionBulk(
+        blockchain: BlockchainSdk.Blockchain,
+        transactions: [(from: String, to: String, value: String, data: String)]
+    ) async throws -> BlockaidDTO.EvmTransactionBulkScan.Response
 }

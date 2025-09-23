@@ -156,7 +156,7 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
             let (allowanceResult, effectiveBalanceResult) = try await (allowance, effectiveBalance)
             guard let result = EthereumUtils.parseEthereumDecimal(
                 effectiveBalanceResult,
-                decimalsCount: wallet.blockchain.decimalCount
+                decimalsCount: token.decimalCount
             ) else {
                 throw YieldModuleError.unableToParseData
             }

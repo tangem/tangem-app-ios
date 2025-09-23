@@ -17,7 +17,8 @@ class YieldSupplyContractAddressFactory {
 
     var isSupported: Bool {
         switch blockchain {
-        case .ethereum(let testnet) where testnet: true
+        case .ethereum(let testnet): testnet
+        case .polygon(let testnet): !testnet
         default: false
         }
     }

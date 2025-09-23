@@ -11,6 +11,7 @@
 		0A0412B92D7727A6000D3A63 /* KaspaTransactionHistoryMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0412B82D7727A6000D3A63 /* KaspaTransactionHistoryMapper.swift */; };
 		0A04FCA52E03009800ABB6B0 /* ImageProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A04FCA42E03009800ABB6B0 /* ImageProviderFactory.swift */; };
 		0A0D889B2E82980A00877140 /* YieldModuleTransactionDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0D889A2E82980A00877140 /* YieldModuleTransactionDispatcher.swift */; };
+		0A0D889D2E829CCF00877140 /* EvmTransactionBulkScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0D889C2E829CCF00877140 /* EvmTransactionBulkScan.swift */; };
 		0A0DB6E82C479A6900003450 /* ActiveStakingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0DB6E72C479A6900003450 /* ActiveStakingView.swift */; };
 		0A0DB7582C48FB0000003450 /* RewardRateValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0DB7572C48FAFF00003450 /* RewardRateValues.swift */; };
 		0A0E01772C64AA79009E01F2 /* StakingAmountValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0E01762C64AA79009E01F2 /* StakingAmountValidator.swift */; };
@@ -4229,6 +4230,7 @@
 		0A0412B82D7727A6000D3A63 /* KaspaTransactionHistoryMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryMapper.swift; sourceTree = "<group>"; };
 		0A04FCA42E03009800ABB6B0 /* ImageProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProviderFactory.swift; sourceTree = "<group>"; };
 		0A0D889A2E82980A00877140 /* YieldModuleTransactionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleTransactionDispatcher.swift; sourceTree = "<group>"; };
+		0A0D889C2E829CCF00877140 /* EvmTransactionBulkScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvmTransactionBulkScan.swift; sourceTree = "<group>"; };
 		0A0DB6E72C479A6900003450 /* ActiveStakingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveStakingView.swift; sourceTree = "<group>"; };
 		0A0DB7572C48FAFF00003450 /* RewardRateValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardRateValues.swift; sourceTree = "<group>"; };
 		0A0E01762C64AA79009E01F2 /* StakingAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAmountValidator.swift; sourceTree = "<group>"; };
@@ -16766,6 +16768,7 @@
 				DC0002692DC2090600305FB6 /* EvmScan.swift */,
 				DC00026A2DC2090600305FB6 /* SiteScan.swift */,
 				DC00026B2DC2090600305FB6 /* SolanaScan.swift */,
+				0A0D889C2E829CCF00877140 /* EvmTransactionBulkScan.swift */,
 			);
 			path = DTOs;
 			sourceTree = "<group>";
@@ -24315,6 +24318,7 @@
 				0F48DC8C2E45EAE50095D3C8 /* MobileAccessCodeCleaner.swift in Sources */,
 				B0323F2C258C041D005C7CD5 /* SignerUtils.swift in Sources */,
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
+				0A0D889D2E829CCF00877140 /* EvmTransactionBulkScan.swift in Sources */,
 				EF435A052C2B124A00B627EB /* SendDestinationInputOutput.swift in Sources */,
 				DC3B49F62893E51B00C207EA /* UserWalletConfig.swift in Sources */,
 				EFC990032CD3A6890098B7C8 /* OnrampPaymentMethodsBuilder.swift in Sources */,
