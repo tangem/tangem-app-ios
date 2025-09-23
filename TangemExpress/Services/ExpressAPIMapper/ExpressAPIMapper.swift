@@ -150,6 +150,8 @@ struct ExpressAPIMapper {
             providerId: .init(response.providerId),
             externalStatus: response.status,
             refundedCurrency: mapToRefundedExpressCurrency(response: response),
+            externalTxId: response.externalTxId,
+            externalTxUrl: response.externalTxUrl,
             averageDuration: response.averageDuration,
             createdAt: response.createdAt
         )

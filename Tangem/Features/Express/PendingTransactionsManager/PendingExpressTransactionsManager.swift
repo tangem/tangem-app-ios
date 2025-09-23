@@ -211,14 +211,8 @@ class CommonPendingExpressTransactionsManager {
             let expressTransaction = try await expressAPIProvider.exchangeStatus(transactionId: transactionRecord.expressTransactionId)
             let refundedTokenItem = await handleRefundedTokenIfNeeded(for: expressTransaction, providerType: transactionRecord.provider.type)
 
-            let transactionParams = PendingExpressTransactionParams(
-                externalStatus: expressTransaction.externalStatus,
-                averageDuration: expressTransaction.averageDuration,
-                createdAt: expressTransaction.createdAt
-            )
-
             let pendingTransaction = pendingTransactionFactory.buildPendingExpressTransaction(
-                with: transactionParams,
+                expressTransaction: expressTransaction,
                 refundedTokenItem: refundedTokenItem,
                 for: transactionRecord
             )
