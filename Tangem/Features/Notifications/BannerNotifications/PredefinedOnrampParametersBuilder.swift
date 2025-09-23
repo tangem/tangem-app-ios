@@ -6,35 +6,60 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
-struct PredefinedOnrampParametersBuilder {
+class PredefinedOnrampParametersBuilder {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.onrampRepository) private var onrampRepository: OnrampRepository
 
     private let userWalletId: UserWalletId
-    private let onrampPreference: OnrampPreference?
 
-    private let expressAPIProvider: any ExpressAPIProvider
+    private lazy var expressAPIProvider: ExpressAPIProvider = ExpressAPIProviderFactory()
+        .makeExpressAPIProvider(userWalletId: userWalletId, refcode: .none)
 
-    init(userWalletId: UserWalletId, onrampPreference: OnrampPreference?) {
+    private lazy var onrampDataRepository: OnrampDataRepository = TangemExpressFactory().makeOnrampDataRepository(expressAPIProvider: expressAPIProvider)
+
+    private lazy var onrampManager: any OnrampManager = TangemExpressFactory().makeOnrampManager(
+        expressAPIProvider: expressAPIProvider,
+        onrampRepository: onrampRepository,
+        dataRepository: onrampDataRepository,
+        analyticsLogger: MockExpressAnalyticsLogger(),
+        providerItemSorter: .init(sortType: .byPaymentMethodPriority),
+        preferredValues: .init(paymentMethodType: .sepa)
+    )
+
+    init(userWalletId: UserWalletId) {
         self.userWalletId = userWalletId
-        self.onrampPreference = onrampPreference
-
-        expressAPIProvider = ExpressAPIProviderFactory()
-            .makeExpressAPIProvider(userWalletId: userWalletId, refcode: .none)
     }
 
-    func prepare() async -> PredefinedOnrampParameters? {
+    func prepare(bitcoinWalletModel: any WalletModel) async -> PredefinedOnrampParameters? {
         guard moreThanOneDayAfterFirstWalletUse() else {
             return nil
         }
 
-        guard let parameters = await getParameters() else {
+        guard let (country, currency) = await getPreference() else {
             return nil
         }
 
-        return parameters
+        // Check the banner is available in user's country
+        guard PredefinedOnrampParametersBuilder.countries.contains(where: { $0.caseInsensitiveEquals(to: country.identity.name) }) else {
+            return nil
+        }
+
+        // Check the banner is available in user's currency
+        guard let fiat = PredefinedOnrampParametersBuilder.fiatPairs[currency.identity.code] else {
+            return nil
+        }
+
+        // Check the banner is available in express
+        guard await sepaProviderIsAvailable(wallet: bitcoinWalletModel, country: country, fiatCurrency: currency) else {
+            return nil
+        }
+
+        let preferredValues = PreferredValues(paymentMethodType: .sepa)
+        return PredefinedOnrampParameters(amount: fiat, preferredValues: preferredValues)
     }
 
     private func moreThanOneDayAfterFirstWalletUse() -> Bool {
@@ -49,13 +74,13 @@ struct PredefinedOnrampParametersBuilder {
         return oneDayLater < Date.now
     }
 
-    private func getParameters() async -> PredefinedOnrampParameters? {
-        var currency: OnrampFiatCurrency? = onrampPreference?.currency
-        var country: OnrampCountry? = onrampPreference?.country
+    private func getPreference() async -> (country: OnrampCountry, currency: OnrampFiatCurrency)? {
+        var currency: OnrampFiatCurrency? = onrampRepository.preferenceCurrency
+        var country: OnrampCountry? = onrampRepository.preferenceCountry
 
         let haveToDefine = currency == nil || country == nil
         if haveToDefine {
-            let definied = try? await expressAPIProvider.onrampCountryByIP()
+            let definied = try? await onrampManager.initialSetupCountry()
             if currency == nil {
                 currency = definied?.currency
             }
@@ -69,38 +94,30 @@ struct PredefinedOnrampParametersBuilder {
             return nil
         }
 
-        // Check the banner is available in user's country
-        guard PredefinedOnrampParametersBuilder.countries.contains(where: { $0.caseInsensitiveEquals(to: country.identity.name) }) else {
-            return nil
-        }
+        return (country: country, currency: currency)
+    }
 
-        // Check the banner is available in user's currency
-        guard let fiat = PredefinedOnrampParametersBuilder.fiatPairs[currency.identity.code] else {
-            return nil
-        }
+    private func sepaProviderIsAvailable(wallet: any WalletModel, country: OnrampCountry, fiatCurrency: OnrampFiatCurrency) async -> Bool {
+        do {
+            let request = OnrampPairRequestItem(
+                fiatCurrency: fiatCurrency,
+                country: country,
+                destination: wallet.tokenItem.expressCurrency,
+                address: wallet.defaultAddressString
+            )
 
-        let preferredValues = PreferredValues(paymentMethodType: .sepa)
-        return PredefinedOnrampParameters(amount: fiat, preferredValues: preferredValues)
+            let providersList = try await onrampManager.setupProviders(request: request)
+            let selectableProvider = providersList.select(for: .sepa)?.selectableProvider()
+            return selectableProvider != nil
+        } catch {
+            return false
+        }
     }
 }
 
 private extension PredefinedOnrampParametersBuilder {
     static let fiatPairs: [String: Decimal] = [
-        "ALL": 10000,
         "EUR": 100,
-        "BGN": 200,
-        "CZK": 2500,
-        "DKK": 800,
-        "HUF": 40000,
-        "ISK": 14000,
-        "CHF": 100,
-        "MDL": 2000,
-        "MKD": 6000,
-        "NOK": 1000,
-        "PLN": 400,
-        "RSD": 12000,
-        "SEK": 1000,
-        "GBP": 100,
     ]
 
     static let countries: [String] = [
@@ -146,4 +163,20 @@ private extension PredefinedOnrampParametersBuilder {
         "United Kingdom",
         "Vatican City",
     ]
+}
+
+struct MockExpressAnalyticsLogger: ExpressAnalyticsLogger {
+    func bestProviderSelected(_ provider: TangemExpress.ExpressAvailableProvider) {}
+
+    func logExpressError(_ error: TangemExpress.ExpressAPIError, provider: TangemExpress.ExpressProvider?) {}
+
+    func logSwapTransactionAnalyticsEvent(destination: String?) {}
+
+    func logApproveTransactionAnalyticsEvent(policy: BlockchainSdk.ApprovePolicy, destination: String?) {}
+
+    func logApproveTransactionSentAnalyticsEvent(policy: BlockchainSdk.ApprovePolicy, signerType: String) {}
+
+    func logAppError(_ error: any Error, provider: TangemExpress.ExpressProvider) {}
+
+    func logExpressAPIError(_ error: TangemExpress.ExpressAPIError, provider: TangemExpress.ExpressProvider, paymentMethod: TangemExpress.OnrampPaymentMethod) {}
 }
