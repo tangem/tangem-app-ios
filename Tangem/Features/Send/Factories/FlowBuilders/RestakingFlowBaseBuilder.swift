@@ -54,7 +54,6 @@ struct RestakingFlowBaseBuilder {
             notificationManager: notificationManager,
             destinationEditableType: .noEditable,
             amountEditableType: .noEditable,
-            sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: validatorsCompact,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
@@ -64,7 +63,6 @@ struct RestakingFlowBaseBuilder {
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: restakingModel,
             sendFinishAnalyticsLogger: analyticsLogger,
-            sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             onrampAmountCompactViewModel: .none,
             stakingValidatorsCompactViewModel: validatorsCompact,
