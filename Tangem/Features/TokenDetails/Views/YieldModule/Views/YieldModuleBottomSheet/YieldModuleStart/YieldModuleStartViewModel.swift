@@ -83,6 +83,8 @@ final class YieldModuleStartViewModel: ObservableObject {
                 }
             )
         }
+
+        notificationBannerParams = nil
     }
 }
 

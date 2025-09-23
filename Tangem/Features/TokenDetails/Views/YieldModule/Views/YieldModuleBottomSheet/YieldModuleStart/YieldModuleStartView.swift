@@ -114,7 +114,7 @@ struct YieldModuleStartView: View {
         case .rateInfo, .feePolicy:
             EmptyView()
         case .startEarning(let params):
-            LendingPairIcon(tokenImageUrl: params.tokenImageUrl)
+            LendingPairIcon(tokenId: params.tokenId)
         }
     }
 
