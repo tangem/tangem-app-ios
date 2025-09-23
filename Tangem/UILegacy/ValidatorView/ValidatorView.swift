@@ -54,9 +54,6 @@ struct ValidatorView: View {
                 Spacer(minLength: 12)
 
                 detailsView(detailsType: detailsType)
-                    .matchedGeometryEffect(
-                        namespace.map { .init(id: $0.names.validatorDetailsView(id: data.address), namespace: $0.id) }
-                    )
             }
         }
         .lineLimit(1)
@@ -66,18 +63,12 @@ struct ValidatorView: View {
 
     private var image: some View {
         IconView(url: data.imageURL, size: CGSize(width: 36, height: 36))
-            .matchedGeometryEffect(
-                namespace.map { .init(id: $0.names.validatorIcon(id: data.address), namespace: $0.id) }
-            )
     }
 
     private var topLineView: some View {
         HStack(alignment: .top, spacing: 0) {
             Text(data.name)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-                .matchedGeometryEffect(
-                    namespace.map { .init(id: $0.names.validatorTitle(id: data.address), namespace: $0.id) }
-                )
 
             if data.isPartner {
                 FixedSpacer(width: 6)
@@ -104,9 +95,6 @@ struct ValidatorView: View {
         HStack(alignment: .bottom, spacing: 0) {
             if let subtitle = data.subtitle {
                 Text(subtitle)
-                    .matchedGeometryEffect(
-                        namespace.map { .init(id: $0.names.validatorSubtitle(id: data.address), namespace: $0.id) }
-                    )
 
                 if case .balance(let balance, _) = data.detailsType {
                     Spacer(minLength: 4)
@@ -135,13 +123,6 @@ struct ValidatorView: View {
 extension ValidatorView: Setupable {
     func geometryEffect(_ namespace: Namespace) -> Self {
         map { $0.namespace = namespace }
-    }
-}
-
-extension ValidatorView {
-    struct Namespace {
-        let id: SwiftUI.Namespace.ID
-        let names: any StakingValidatorsViewGeometryEffectNames
     }
 }
 
