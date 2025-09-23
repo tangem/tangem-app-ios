@@ -10,101 +10,105 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 
-extension YieldModuleBottomSheetView {
-    struct YieldModuleBottomSheetContainerView<
-        SubtitleFooter: View,
-        BodyContent: View,
-        HeaderContent: View,
-        TopContent: View
-    >: View {
-        // MARK: - Properties
+struct YieldModuleBottomSheetContainerView<
+    SubtitleFooter: View,
+    BodyContent: View,
+    HeaderContent: View,
+    TopContent: View
+>: View {
+    typealias NotificationBanner = YieldModuleViewConfigs.YieldModuleNotificationBannerParams
 
-        private let title: String?
-        private let subtitle: String?
+    // MARK: - Properties
 
-        private let contentTopPadding: CGFloat
-        private let horizontalPadding: CGFloat
-        private let buttonTopPadding: CGFloat
+    private let title: String?
+    private let subtitle: String?
 
-        // MARK: - UI
+    private let contentTopPadding: CGFloat
+    private let buttonTopPadding: CGFloat
 
-        private let topContent: TopContent
-        private let subtitleFooter: SubtitleFooter
-        private let content: BodyContent
-        private let header: HeaderContent
-        private let button: MainButton
+    // MARK: - UI
 
-        // MARK: - Init
+    private let topContent: TopContent
+    private let subtitleFooter: SubtitleFooter
+    private let content: BodyContent
+    private let notificationBanner: NotificationBanner?
+    private let header: HeaderContent
+    private let button: MainButton
 
-        public init(
-            title: String? = nil,
-            subtitle: String? = nil,
-            button: MainButton,
-            @ViewBuilder header: () -> HeaderContent = { EmptyView() },
-            @ViewBuilder topContent: () -> TopContent = { EmptyView() },
-            @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
-            @ViewBuilder content: () -> BodyContent = { EmptyView() },
-            contentTopPadding: CGFloat,
-            horizontalPadding: CGFloat,
-            buttonTopPadding: CGFloat
-        ) {
-            self.header = header()
-            self.topContent = topContent()
-            self.subtitleFooter = subtitleFooter()
-            self.content = content()
+    // MARK: - Init
 
-            self.title = title
-            self.subtitle = subtitle
-            self.contentTopPadding = contentTopPadding
-            self.button = button
-            self.horizontalPadding = horizontalPadding
-            self.buttonTopPadding = buttonTopPadding
-        }
+    public init(
+        title: String? = nil,
+        subtitle: String? = nil,
+        button: MainButton,
+        @ViewBuilder header: () -> HeaderContent = { EmptyView() },
+        @ViewBuilder topContent: () -> TopContent = { EmptyView() },
+        @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
+        @ViewBuilder content: () -> BodyContent = { EmptyView() },
+        notificationBanner: NotificationBanner? = nil,
+        contentTopPadding: CGFloat = 24,
+        buttonTopPadding: CGFloat = 32
+    ) {
+        self.header = header()
+        self.topContent = topContent()
+        self.subtitleFooter = subtitleFooter()
+        self.content = content()
 
-        // MARK: - View Body
+        self.title = title
+        self.subtitle = subtitle
+        self.contentTopPadding = contentTopPadding
+        self.button = button
+        self.buttonTopPadding = buttonTopPadding
+        self.notificationBanner = notificationBanner
+    }
 
-        var body: some View {
-            GroupedScrollView {
-                VStack(spacing: .zero) {
-                    header
+    // MARK: - View Body
 
-                    topContent
+    var body: some View {
+        GroupedScrollView {
+            VStack(spacing: .zero) {
+                header
 
-                    titleView
-                        .padding(.top, 20)
-                        .padding(.horizontal, 14)
+                topContent
 
-                    subtitleView
-                        .padding(.top, 8)
-                        .padding(.horizontal, 16)
+                titleView
+                    .padding(.top, 14)
+                    .padding(.horizontal, 14)
 
-                    subtitleFooter.padding(.top, 26)
+                subtitleView
+                    .padding(.top, 8)
+                    .padding(.horizontal, 16)
 
-                    content.padding(.top, contentTopPadding)
+                subtitleFooter.padding(.top, 26)
 
-                    button.padding(.top, buttonTopPadding)
+                content.padding(.top, contentTopPadding)
+
+                if let notificationBanner {
+                    YieldModuleBottomSheetNotificationBanner(params: notificationBanner)
                 }
-                .padding(.top, 8)
-                .padding(.bottom, 18)
+
+                button.padding(.top, buttonTopPadding)
             }
+            .padding(.top, 8)
+            .padding(.bottom, 18)
         }
+    }
 
-        // MARK: - Sub Views
+    // MARK: - Sub Views
 
-        @ViewBuilder
-        private var titleView: some View {
-            if let title {
-                Text(title).style(Fonts.Bold.title2, color: Colors.Text.primary1)
-            }
+    @ViewBuilder
+    private var titleView: some View {
+        if let title {
+            Text(title).style(Fonts.Bold.title2, color: Colors.Text.primary1)
         }
+    }
 
-        @ViewBuilder
-        private var subtitleView: some View {
-            if let subtitle {
-                Text(subtitle)
-                    .multilineTextAlignment(.center)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
-            }
+    @ViewBuilder
+    private var subtitleView: some View {
+        if let subtitle {
+            Text(subtitle)
+                .multilineTextAlignment(.center)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
         }
     }
 }
