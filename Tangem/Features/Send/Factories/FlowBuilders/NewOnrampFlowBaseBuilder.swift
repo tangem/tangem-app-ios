@@ -58,7 +58,6 @@ struct NewOnrampFlowBaseBuilder {
             coordinator: router
         )
 
-        let onrampProvidersCompactViewModel = providersBuilder.makeOnrampProvidersCompactViewModel()
         let onrampAmountCompactViewModel = onrampAmountBuilder.makeOnrampAmountCompactViewModel(
             onrampAmountInput: onrampModel,
             onrampProvidersInput: onrampModel
@@ -72,29 +71,25 @@ struct NewOnrampFlowBaseBuilder {
         let onramp = onrampStepBuilder.makeOnrampStep(
             io: (input: onrampModel, output: onrampModel),
             providersInput: onrampModel,
+            recentOnrampProviderFinder: onrampModel,
             onrampAmountViewModel: onrampAmountViewModel,
-            onrampProvidersCompactViewModel: onrampProvidersCompactViewModel,
             notificationManager: notificationManager
+        )
+
+        let offersSelectorViewModel = OnrampOffersSelectorViewModel(
+            tokenItem: walletModel.tokenItem,
+            input: onrampModel,
+            output: onrampModel
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: onrampModel,
             sendFinishAnalyticsLogger: analyticsLogger,
-            sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: .none,
             onrampAmountCompactViewModel: onrampAmountCompactViewModel,
             stakingValidatorsCompactViewModel: .none,
             sendFeeCompactViewModel: .none,
             onrampStatusCompactViewModel: onrampStatusCompactViewModel
-        )
-
-        let stepsManager = CommonNewOnrampStepsManager(
-            onrampStep: onramp.step,
-            finishStep: finish,
-            summaryTitleProvider: builder.makeOnrampSummaryTitleProvider(),
-            // If user already has saved country in the repository then the bottom sheet will not show
-            // And we can show keyboard safely
-            shouldActivateKeyboard: onrampRepository.preferenceCountry != nil
         )
 
         let dataBuilder = builder.makeOnrampBaseDataBuilder(
@@ -103,6 +98,18 @@ struct NewOnrampFlowBaseBuilder {
             providersBuilder: providersBuilder,
             paymentMethodsBuilder: paymentMethodsBuilder,
             onrampRedirectingBuilder: onrampRedirectingBuilder
+        )
+
+        let stepsManager = CommonNewOnrampStepsManager(
+            onrampStep: onramp.step,
+            offersSelectorViewModel: offersSelectorViewModel,
+            finishStep: finish,
+            summaryTitleProvider: builder.makeOnrampSummaryTitleProvider(),
+            onrampBaseDataBuilder: dataBuilder,
+            // If user already has saved country in the repository then the bottom sheet will not show
+            // And we can show keyboard safely
+            shouldActivateKeyboard: onrampRepository.preferenceCountry != nil,
+            router: router
         )
 
         let interactor = CommonSendBaseInteractor(input: onrampModel, output: onrampModel)
@@ -119,9 +126,7 @@ struct NewOnrampFlowBaseBuilder {
         )
 
         stepsManager.set(output: viewModel)
-
-        onrampProvidersCompactViewModel.router = viewModel
-        onramp.step.set(router: viewModel)
+        onramp.step.set(router: stepsManager)
 
         onrampModel.router = viewModel
         onrampModel.alertPresenter = viewModel
