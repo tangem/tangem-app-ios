@@ -63,7 +63,7 @@ public struct AddListItemButton: View {
 public extension AddListItemButton {
     struct ViewData: Identifiable {
         public var id: String {
-            text + "_" + isEnabled.description
+            text
         }
 
         let text: String

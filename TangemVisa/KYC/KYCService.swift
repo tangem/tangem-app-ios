@@ -19,7 +19,7 @@ public final class KYCService {
     @discardableResult
     private init(
         getToken: @escaping () async throws -> VisaKYCAccessTokenResponse,
-        verificationHandler: @escaping (Bool) -> Void
+        onDidDismiss: @escaping () -> Void
     ) async throws {
         guard Self.shared == nil else {
             throw KYCServiceError.alreadyPresent
@@ -41,6 +41,7 @@ public final class KYCService {
         Self.shared = self
         sdk.onDidDismiss { _ in
             Self.shared = nil
+            onDidDismiss()
         }
 
         sdk.tokenExpirationHandler { onComplete in
@@ -49,15 +50,11 @@ public final class KYCService {
             }
         }
 
-        sdk.verificationHandler { isApproved in
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_INFO]
-        }
-
         configureSDKTheme()
 
         // Swizzle lifecycle methods to override SDK view controllers behavior
         UIViewController.toggleKYCSDKControllersSwizzling()
+        sdk.mainVC.modalTransitionStyle = .crossDissolve
         sdk.present()
     }
 
@@ -117,11 +114,11 @@ extension KYCService {
 public extension KYCService {
     static func start(
         getToken: @escaping () async throws -> VisaKYCAccessTokenResponse,
-        verificationHandler: @escaping (Bool) -> Void
+        onDidDismiss: @escaping () -> Void
     ) async throws {
         try await KYCService(
             getToken: getToken,
-            verificationHandler: verificationHandler
+            onDidDismiss: onDidDismiss
         )
     }
 }

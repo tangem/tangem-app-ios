@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol CryptoAccountModel: BaseAccountModel, WalletModelBalancesProvider, AnyObject {
+protocol CryptoAccountModel: BaseAccountModel, EditableAccountModel, WalletModelBalancesProvider, AnyObject {
     var isMainAccount: Bool { get }
 
     var walletModelsManager: WalletModelsManager { get }

@@ -10,6 +10,8 @@ import TangemExpress
 import TangemFoundation
 
 class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
+    @Injected(\.onrampRepository) private var _onrampRepository: OnrampRepository
+
     private let input: Input
     private let initialWallet: any ExpressInteractorSourceWallet
     private let destinationWallet: ExpressInteractor.Destination?
@@ -23,6 +25,7 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private(set) lazy var expressInteractor = makeExpressInteractor()
     private(set) lazy var expressAPIProvider = makeExpressAPIProvider()
     private(set) lazy var expressRepository = makeExpressRepository()
+    private(set) lazy var onrampRepository = makeOnrampRepository()
 
     init(
         input: Input,
@@ -76,6 +79,15 @@ private extension CommonExpressDependenciesFactory {
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
         expressAPIProviderFactory.makeExpressAPIProvider(userWalletId: input.userWalletId, refcode: input.refcode)
+    }
+
+    func makeOnrampRepository() -> OnrampRepository {
+        // For UI tests, use UITestOnrampRepository with predefined values
+        if AppEnvironment.current.isUITest {
+            return UITestOnrampRepository()
+        }
+
+        return _onrampRepository
     }
 
     /// Be careful to use tokenItem in CommonExpressAnalyticsLogger
