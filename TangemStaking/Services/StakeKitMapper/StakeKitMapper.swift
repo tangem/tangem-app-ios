@@ -297,7 +297,7 @@ struct StakeKitMapper {
 
     // MARK: - Yield
 
-    func mapToYieldInfo(from response: StakeKitDTO.Yield.Info.Response) throws -> YieldInfo {
+    func mapToYieldInfo(from response: StakeKitDTO.Yield.Info.Response) throws -> StakingYieldInfo {
         guard let enterAction = response.args.enter,
               let exitAction = response.args.exit else {
             throw StakeKitMapperError.noData("Enter or exit action is not found")
@@ -323,7 +323,7 @@ struct StakeKitMapper {
 
         let item = try mapToStakingTokenItem(from: response.token)
 
-        return try YieldInfo(
+        return try StakingYieldInfo(
             id: response.id,
             isAvailable: response.isAvailable,
             rewardType: mapToRewardType(from: response.rewardType),
