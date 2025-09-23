@@ -143,6 +143,14 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         coordinator.start(with: options)
         yieldModulePromoCoordinator = coordinator
     }
+
+    func openYieldEarnInfo(walletModel: any WalletModel, openFeeCurrencyAction: @escaping () -> Void) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: YieldModuleInfoViewModel(walletModel: walletModel, openFeeCurrencyAction: openFeeCurrencyAction)
+            )
+        }
+    }
 }
 
 // MARK: - PendingExpressTxStatusRoutable
