@@ -1,5 +1,5 @@
 //
-//  YieldModuleStartEarningView.swift
+//  YieldModuleApproveView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,47 +7,42 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemAssets
 import TangemUI
-import TangemLocalization
 
-extension YieldModuleStartView {
-    struct YieldModuleStartEarningView: View {
+extension YieldModuleInfoView {
+    struct YieldModuleApproveView: View {
         // MARK: - Properties
 
-        let networkFee: String
-        let showFeePolicyAction: () -> Void
+        let params: YieldModuleViewConfigs.CommonParams
 
         // MARK: - View Body
 
         var body: some View {
-            networkFeeView
+            networkFee
         }
 
         // MARK: - Sub Views
 
         private var feePolicyText: some View {
-            var attr = AttributedString(Localization.yieldModuleStartEarningSheetNextDeposits)
+            var attr = AttributedString(Localization.yieldModuleApproveSheetFeeNote)
             attr.font = Fonts.Regular.footnote
             attr.foregroundColor = Colors.Text.tertiary
 
-            var linkPart = AttributedString(Localization.yieldModuleStartEarningSheetFeePolicy)
+            var linkPart = AttributedString(Localization.commonReadMore)
             linkPart.font = Fonts.Regular.footnote
             linkPart.foregroundColor = Colors.Text.accent
-            linkPart.link = URL(string: " ")
+            linkPart.link = params.readMoreUrl
 
             attr.append(AttributedString(" "))
             attr.append(linkPart)
 
             return Text(attr)
-                .environment(\.openURL, OpenURLAction { url in
-                    showFeePolicyAction()
-                    return .handled
-                })
         }
 
-        private var networkFeeView: some View {
-            GroupedSection(FeeModel(fee: networkFee)) { fee in
+        private var networkFee: some View {
+            GroupedSection(FeeModel(fee: params.networkFee)) { fee in
                 DefaultRowView(viewModel: .init(title: Localization.commonNetworkFeeTitle, detailsType: .text(fee.fee)))
             } footer: {
                 feePolicyText
