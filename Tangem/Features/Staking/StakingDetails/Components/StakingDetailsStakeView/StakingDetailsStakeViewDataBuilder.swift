@@ -23,7 +23,7 @@ class StakingDetailsStakeViewDataBuilder {
         self.tokenItem = tokenItem
     }
 
-    func mapToStakingDetailsStakeViewData(yield: YieldInfo, balance: StakingBalance, action: @escaping () -> Void) -> StakingDetailsStakeViewData {
+    func mapToStakingDetailsStakeViewData(yield: StakingYieldInfo, balance: StakingBalance, action: @escaping () -> Void) -> StakingDetailsStakeViewData {
         let validator = balance.validatorType.validator
         let inProgress = balance.inProgress
 
