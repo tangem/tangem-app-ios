@@ -26,6 +26,7 @@ class PredefinedOnrampParametersBuilder {
         onrampRepository: onrampRepository,
         dataRepository: onrampDataRepository,
         analyticsLogger: MockExpressAnalyticsLogger(),
+        providerItemSorter: .init(sortType: .byPaymentMethodPriority),
         preferredValues: .init(paymentMethodType: .sepa)
     )
 
