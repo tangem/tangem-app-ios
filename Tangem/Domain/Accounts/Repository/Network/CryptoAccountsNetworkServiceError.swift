@@ -10,6 +10,6 @@ import Foundation
 
 enum CryptoAccountsNetworkServiceError: Error {
     case noAccountsCreated
-    case inconsistentState // [REDACTED_TODO_COMMENT]
+    case inconsistentState
     case underlyingError(Error)
 }
