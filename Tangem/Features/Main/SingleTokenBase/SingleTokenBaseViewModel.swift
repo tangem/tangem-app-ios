@@ -49,6 +49,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let tokenActionAvailabilityAnalyticsMapper = TokenActionAvailabilityAnalyticsMapper()
     private let tokenActionAvailabilityProvider: TokenActionAvailabilityProvider
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
+    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     private var priceChangeFormatter = PriceChangeFormatter()
     private var transactionHistoryBag: AnyCancellable?
@@ -565,7 +566,10 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        tokenRouter.openSend(walletModel: walletModel)
+        tokenRouter.openSend(
+            walletModel: walletModel,
+            isViaYieldNotice: yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem)
+        )
     }
 
     func openExchange() {
@@ -574,7 +578,10 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        tokenRouter.openExchange(walletModel: walletModel)
+        tokenRouter.openExchange(
+            walletModel: walletModel,
+            isViaYieldNotice: yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem)
+        )
     }
 
     func openStaking() {
