@@ -72,8 +72,8 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }
-            .floatingSheetContent(for: YieldModuleBottomSheetViewModel.self) {
-                YieldModuleBottomSheetView(viewModel: $0)
+            .floatingSheetContent(for: YieldModuleInfoViewModel.self) {
+                YieldModuleInfoView(viewModel: $0)
             }
     }
 }

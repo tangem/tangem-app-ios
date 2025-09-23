@@ -85,7 +85,6 @@ struct NewOnrampFlowBaseBuilder {
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: onrampModel,
             sendFinishAnalyticsLogger: analyticsLogger,
-            sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: .none,
             onrampAmountCompactViewModel: onrampAmountCompactViewModel,
             stakingValidatorsCompactViewModel: .none,
