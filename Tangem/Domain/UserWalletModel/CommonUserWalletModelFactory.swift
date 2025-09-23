@@ -201,11 +201,12 @@ private struct CommonUserWalletModelDependencies {
         func makeAccountModelsManager() -> AccountModelsManager {
             let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
             let networkService = CommonCryptoAccountsNetworkService(userWalletId: userWalletId)
-            let storage = CommonCryptoAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
+            let persistentStorage = CommonCryptoAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
             let cryptoAccountsRepository = CommonCryptoAccountsRepository(
                 tokenItemsRepository: tokenItemsRepository,
                 networkService: networkService,
-                storage: storage
+                persistentStorage: persistentStorage,
+                storageController: persistentStorage
             )
             let walletModelsFactory = config.makeWalletModelsFactory(userWalletId: userWalletId)
             let walletModelsManagerFactory = CommonAccountWalletModelsManagerFactory(
