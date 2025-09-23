@@ -79,10 +79,14 @@ public struct TransactionHistoryProviderFactory {
                 mapper: TronTransactionHistoryMapper(blockchain: blockchain)
             )
         case .polygon:
+            guard let chainId = blockchain.chainId else {
+                return nil
+            }
+
             return PolygonTransactionHistoryProvider(
                 mapper: PolygonTransactionHistoryMapper(blockchain: blockchain),
                 networkConfiguration: input.tangemProviderConfig,
-                targetConfiguration: .polygonScan(isTestnet: blockchain.isTestnet, apiKey: keysConfig.polygonScanApiKey)
+                targetConfiguration: .etherscan(chainId: chainId, apiKey: keysConfig.etherscanApiKey)
             )
         case .algorand(_, let isTestnet):
             let node: NodeInfo
