@@ -444,6 +444,6 @@ extension TokenDetailsViewModel {
     }
 
     func openYieldBalanceInfo() {
-        coordinator?.openYieldBalanceInfo(params: .init(tokenName: walletModel.tokenItem.name, tokenImageUrl: iconUrl))
+        coordinator?.openYieldBalanceInfo(params: .init(tokenName: walletModel.tokenItem.name, tokenId: walletModel.tokenItem.id))
     }
 }

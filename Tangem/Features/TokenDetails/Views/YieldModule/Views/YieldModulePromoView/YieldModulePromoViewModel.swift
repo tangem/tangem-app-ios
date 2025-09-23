@@ -63,7 +63,7 @@ final class YieldModulePromoViewModel {
             .openStartEarningSheet(
                 params: .init(
                     tokenName: walletModel.tokenItem.name,
-                    tokenImageUrl: tokenImageUrl,
+                    tokenId: walletModel.tokenItem.id,
                     networkFee: networkFee.formatted(),
                     maximumFee: maximumFee.formatted(),
                     blockchainName: walletModel.tokenItem.blockchain.displayName

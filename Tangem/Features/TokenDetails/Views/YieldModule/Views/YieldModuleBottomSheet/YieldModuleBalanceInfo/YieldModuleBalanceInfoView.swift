@@ -24,7 +24,7 @@ struct YieldModuleBalanceInfoView: View {
             subtitle: Localization.yieldModuleBalanceInfoSheetSubtitle,
             button: .init(settings: .init(title: Localization.commonGotIt, style: .secondary, action: viewModel.onCloseTap)),
             header: { BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTap() } }) },
-            topContent: { LendingPairIcon(tokenImageUrl: viewModel.params.tokenImageUrl) },
+            topContent: { LendingPairIcon(tokenId: viewModel.params.tokenId) },
             content: { Color.clear.frame(height: 6) }
         )
         .floatingSheetConfiguration { configuration in

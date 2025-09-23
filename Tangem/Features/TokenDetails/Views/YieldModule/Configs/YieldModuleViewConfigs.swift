@@ -14,7 +14,7 @@ import TangemAssets
 enum YieldModuleViewConfigs {
     struct BalanceInfoParams: Equatable {
         let tokenName: String
-        let tokenImageUrl: URL?
+        let tokenId: String?
     }
 
     enum YieldModuleNotificationBannerParams {
@@ -32,7 +32,7 @@ enum YieldModuleViewConfigs {
 
     struct StartEarningParams: Equatable {
         let tokenName: String
-        let tokenImageUrl: URL?
+        let tokenId: String?
         let networkFee: String
         let maximumFee: String
         let blockchainName: String

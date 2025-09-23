@@ -11,32 +11,27 @@ import TangemAssets
 import TangemUI
 
 struct LendingPairIcon: View {
-    let tokenImageUrl: URL?
+    let tokenId: String?
 
     var body: some View {
         ZStack {
-            TokenIcon(
-                tokenIconInfo: .init(
-                    name: "",
-                    blockchainIconAsset: nil,
-                    imageURL: tokenImageUrl,
-                    isCustom: false,
-                    customTokenColor: nil
-                ),
-                size: .init(bothDimensions: 48)
-            )
-            .offset(x: -16)
+            TokenIcon(tokenIconInfo: TokenIconInfoBuilder().build(from: tokenId), size: IconViewSizeSettings.tokenDetails.iconSize)
+                .offset(x: -16)
 
-            Assets.YieldModule.yieldModuleAaveLogo.image
-                .resizable()
-                .scaledToFit()
-                .frame(size: IconViewSizeSettings.tokenDetails.iconSize)
-                .background(
-                    Circle()
-                        .fill(Colors.Background.tertiary)
-                        .frame(width: 50, height: 50)
-                )
+            aaveLogo
                 .offset(x: 16)
         }
+    }
+
+    private var aaveLogo: some View {
+        Assets.YieldModule.yieldModuleAaveLogo.image
+            .resizable()
+            .scaledToFit()
+            .frame(size: IconViewSizeSettings.tokenDetails.iconSize)
+            .background(
+                Circle()
+                    .fill(Colors.Background.tertiary)
+                    .frame(width: 50, height: 50)
+            )
     }
 }
