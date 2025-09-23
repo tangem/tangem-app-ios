@@ -20,14 +20,14 @@ struct PendingExpressTransactionFactory {
     private let pausedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .paused]
 
     func buildPendingExpressTransaction(
-        with params: PendingExpressTransactionParams,
+        expressTransaction: ExpressTransaction,
         refundedTokenItem: TokenItem?,
         for transactionRecord: ExpressPendingTransactionRecord
     ) -> PendingExpressTransaction {
         let currentStatus: PendingExpressTransactionStatus
         var statusesList: [PendingExpressTransactionStatus] = defaultStatusesList
         var transactionRecord = transactionRecord
-        switch params.externalStatus {
+        switch expressTransaction.externalStatus {
         case .created, .waiting, .exchangeTxSent:
             currentStatus = .awaitingDeposit
         case .confirming:
@@ -67,8 +67,11 @@ struct PendingExpressTransactionFactory {
         transactionRecord.transactionStatus = currentStatus
         transactionRecord.refundedTokenItem = refundedTokenItem
 
-        transactionRecord.averageDuration = params.averageDuration
-        transactionRecord.createdAt = params.createdAt
+        transactionRecord.externalTxId = expressTransaction.externalTxId
+        transactionRecord.externalTxURL = expressTransaction.externalTxUrl
+
+        transactionRecord.averageDuration = expressTransaction.averageDuration
+        transactionRecord.createdAt = expressTransaction.createdAt
 
         return .init(transactionRecord: transactionRecord, statuses: statusesList)
     }
