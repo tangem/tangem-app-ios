@@ -24,6 +24,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
     // MARK: - Private Properties
 
     private let walletDataProvider: MarketsWalletDataProvider
+    private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
 
     private weak var coordinator: MarketsPortfolioContainerRoutable?
     private var addTokenTapAction: (() -> Void)?
@@ -282,7 +283,11 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-            coordinator.openExchange(for: walletModel, with: userWalletModel)
+            coordinator.openExchange(
+                for: walletModel,
+                with: userWalletModel,
+                isViaYieldNotice: yieldModuleNotificationInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem)
+            )
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             coordinator.openStaking(for: walletModel, with: userWalletModel)
