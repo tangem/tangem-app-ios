@@ -237,7 +237,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
 extension AccountFormViewModel {
     enum FlowType {
-        case edit(account: any BaseEditableAccountModel)
+        case edit(account: any BaseAccountModel)
         case create
     }
 }
