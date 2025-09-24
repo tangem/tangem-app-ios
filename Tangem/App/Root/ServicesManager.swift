@@ -102,6 +102,14 @@ class CommonServicesManager {
         return initialLaunches
     }
 
+    private func recordStartAppUsageDate() {
+        guard AppSettings.shared.startAppUsageDate == nil else {
+            return
+        }
+
+        AppSettings.shared.startAppUsageDate = Date()
+    }
+
     private func configureForUITests() {
         // Only process UI testing arguments when running in UI test mode
         guard AppEnvironment.current.isUITest else { return }
@@ -134,6 +142,7 @@ extension CommonServicesManager: ServicesManager {
 
         TangemLoggerConfigurator().initialize()
 
+        recordStartAppUsageDate()
         let initialLaunches = recordAppLaunch()
 
         if initialLaunches == 0 {
