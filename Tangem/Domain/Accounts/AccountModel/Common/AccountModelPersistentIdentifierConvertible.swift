@@ -16,3 +16,10 @@ protocol AccountModelPersistentIdentifierConvertible where PersistentIdentifier:
 
     func toPersistentIdentifier() -> PersistentIdentifier
 }
+
+extension AccountModelPersistentIdentifierConvertible {
+    /// Type-erases the persistent identifier to `AnyHashable` to interop with APIs expecting it.
+    func toAnyHashablePersistentIdentifier() -> AnyHashable {
+        AnyHashable(toPersistentIdentifier())
+    }
+}
