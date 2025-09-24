@@ -34,10 +34,7 @@ struct AccountDetailsView: View {
                     backgroundColor: viewModel.accountIconColor,
                     nameMode: viewModel.accountIconNameMode
                 )
-                .padding(8)
-                .cornerRadius(10)
-                .letterFontStyle(Fonts.BoldStatic.title3)
-                .size(.init(bothDimensions: 20))
+                .setMiddleSizedIconSettings()
             },
             content: {
                 VStack(alignment: .leading, spacing: .zero) {
