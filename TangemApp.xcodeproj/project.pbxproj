@@ -3676,6 +3676,7 @@
 		EF9156152D3E8CA40037521D /* GeoDefiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9156142D3E8CA40037521D /* GeoDefiner.swift */; };
 		EF9180502C74A3DD001D2122 /* ValidatorCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF91804F2C74A3DD001D2122 /* ValidatorCompactView.swift */; };
 		EF9241362934E25900C28551 /* IconURLBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241352934E25900C28551 /* IconURLBuilder.swift */; };
+		EF92BA542E840F290078F00E /* SendFlowFactory2.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92BA532E840F290078F00E /* SendFlowFactory2.swift */; };
 		EF92E2B829954B3200DD9B06 /* config_beta.json in Resources */ = {isa = PBXBuildFile; fileRef = EF92E2B729954B3100DD9B06 /* config_beta.json */; };
 		EF92E2BA29963E7400DD9B06 /* ExpressKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92E2B929963E7400DD9B06 /* ExpressKeys.swift */; };
 		EF9448E02ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9448DB2ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift */; };
@@ -7869,6 +7870,7 @@
 		EF9156142D3E8CA40037521D /* GeoDefiner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoDefiner.swift; sourceTree = "<group>"; };
 		EF91804F2C74A3DD001D2122 /* ValidatorCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorCompactView.swift; sourceTree = "<group>"; };
 		EF9241352934E25900C28551 /* IconURLBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconURLBuilder.swift; sourceTree = "<group>"; };
+		EF92BA532E840F290078F00E /* SendFlowFactory2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFlowFactory2.swift; sourceTree = "<group>"; };
 		EF92E2B729954B3100DD9B06 /* config_beta.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_beta.json; path = "tangem-app-config/config_beta.json"; sourceTree = SOURCE_ROOT; };
 		EF92E2B929963E7400DD9B06 /* ExpressKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressKeys.swift; sourceTree = "<group>"; };
 		EF9448DB2ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationHiddenBalancesView.swift; sourceTree = "<group>"; };
@@ -21925,6 +21927,7 @@
 		EFC84B082C37FAB500546882 /* Factories */ = {
 			isa = PBXGroup;
 			children = (
+				EF92BA532E840F290078F00E /* SendFlowFactory2.swift */,
 				EFC84B062C37FAB500546882 /* SendFlowFactory.swift */,
 				EFC84B072C37FAB500546882 /* SendDependenciesBuilder.swift */,
 				EF665E392CBD22BE00F79B87 /* FlowBuilders */,
@@ -23186,6 +23189,7 @@
 				B06C08672A73FCDE00D982BC /* SingleWalletMainContentView.swift in Sources */,
 				EFC98FF02CD39A660098B7C8 /* OnrampProvidersBuilder.swift in Sources */,
 				B0BE7D952AC2EB580012D9EE /* ExpressAvailabilityProvider.swift in Sources */,
+				EF92BA542E840F290078F00E /* SendFlowFactory2.swift in Sources */,
 				DAB5E334297E8CBF00A4E9CF /* AmountRoundingType.swift in Sources */,
 				EF68830B2CF87DC000658644 /* OnrampCountryDetectionCoordinatorView.swift in Sources */,
 				B0C4F77F26F0C0BF0086D815 /* TransitionWithoutOpacity.swift in Sources */,
@@ -24173,7 +24177,6 @@
 				DC8B159D2B681FE500DBBE9E /* PendingExpressTxStatusRoutable.swift in Sources */,
 				DC295B4A2861C4CB006CB7B6 /* DetailsCoordinatorView.swift in Sources */,
 				B012A1172AA5CDBD0079BAB4 /* NotificationEvent.swift in Sources */,
-				DA8C67282B0B44EF00E1C9B8 /* SendDestinationAddressSummaryView.swift in Sources */,
 				EA3999352E76D884008E4932 /* YieldModuleStartViewModel.swift in Sources */,
 				B6CAC21B2E46C66D002DFA82 /* CryptoAccountsRepository.swift in Sources */,
 				EFC597BD2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift in Sources */,

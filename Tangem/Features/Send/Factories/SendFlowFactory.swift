@@ -33,17 +33,7 @@ class StakingFlowFactory {
     lazy var sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)
     lazy var sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel, coordinator: router)
 
-    func makeBaseViewModel() {
-        
-    }
-}
-
-class SendFlowFactory2 {
-    private let walletModel: any WalletModel
-    private let router: any SendRoutable
-
-    // Sharing
-
+    func makeBaseViewModel() {}
 }
 
 struct SendFlowFactory {

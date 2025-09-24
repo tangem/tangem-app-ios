@@ -71,37 +71,42 @@ extension SendDestinationStepBuilder {
 import Foundation
 import BlockchainSdk
 
-struct SendDestinationStepBuilder2 {
-    typealias IO = (input: SendDestinationInput, output: SendDestinationOutput)
+enum SendDestinationStepBuilder2 {
+    struct IO {
+        let input: SendDestinationInput
+        let output: SendDestinationOutput
+        let receiveTokenInput: SendReceiveTokenInput
+    }
+
+    struct Dependencies {
+        let sendQRCodeService: any SendQRCodeService
+        let analyticsLogger: any SendDestinationAnalyticsLogger
+        let destinationInteractorDependenciesProvider: SendDestinationInteractorDependenciesProvider
+    }
+
     typealias ReturnValue = (
         step: SendDestinationStep,
         externalUpdater: SendDestinationExternalUpdater,
         compact: SendDestinationCompactViewModel
     )
 
-    let builder: SendDependenciesBuilder
-
-    func makeSendDestinationStep(
+    static func make(
         io: IO,
-        receiveTokenInput: SendReceiveTokenInput,
-        sendQRCodeService: SendQRCodeService,
-        analyticsLogger: any SendDestinationAnalyticsLogger,
+        dependencies: Dependencies,
         router: SendDestinationRoutable
     ) -> ReturnValue {
         let interactorSaver = CommonSendDestinationInteractorSaver(input: io.input, output: io.output)
         let interactor = CommonSendDestinationInteractor(
             input: io.input,
-            receiveTokenInput: receiveTokenInput,
+            receiveTokenInput: io.receiveTokenInput,
             saver: interactorSaver,
-            dependenciesBuilder: builder.makeSendDestinationInteractorDependenciesProvider(
-                analyticsLogger: analyticsLogger
-            ),
+            dependenciesBuilder: dependencies.destinationInteractorDependenciesProvider
         )
 
         let viewModel = SendDestinationViewModel(
             interactor: interactor,
-            sendQRCodeService: sendQRCodeService,
-            analyticsLogger: analyticsLogger,
+            sendQRCodeService: dependencies.sendQRCodeService,
+            analyticsLogger: dependencies.analyticsLogger,
             router: router
         )
 
@@ -109,23 +114,14 @@ struct SendDestinationStepBuilder2 {
             viewModel: viewModel,
             interactor: interactor,
             interactorSaver: interactorSaver,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: dependencies.analyticsLogger
         )
+
         let externalUpdater = SendDestinationExternalUpdater(viewModel: viewModel)
         let compact = SendDestinationCompactViewModel(input: io.input)
 
         interactorSaver.updater = externalUpdater
 
         return (step: step, externalUpdater: externalUpdater, compact: compact)
-    }
-
-    func makeSendDestinationCompactViewModel(input: SendDestinationInput) -> SendDestinationCompactViewModel {
-        .init(input: input)
-    }
-}
-
-extension SendDestinationStepBuilder2 {
-    protocol DataProvider {
-        func makeSendDestinationInteractorDependenciesProvider(analyticsLogger: any SendDestinationAnalyticsLogger) -> SendDestinationInteractorDependenciesProvider
     }
 }
