@@ -149,6 +149,8 @@ extension Analytics {
         case sendProviderChosen = "[Token / Send] Provider Chosen"
         case sendSendWithSwapInProgressScreenOpened = "[Token / Send] Send With Swap In Progress Screen Opened"
         case sendNoticeCantSwapThisToken = "[Token / Send] Notice - Can't Swap This Token"
+        case sendNoticeNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
+        case sendNoticeNetworkFeeCoverage = "[Token / Send] Notice - Network Fee Coverage"
 
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
         case p2PScreenOpened = "[Token / Topup] P2P Screen Opened"
