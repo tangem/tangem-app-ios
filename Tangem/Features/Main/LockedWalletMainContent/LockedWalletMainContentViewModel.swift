@@ -110,7 +110,7 @@ private extension LockedWalletMainContentViewModel {
 
         do {
             let context = try await UserWalletBiometricsUnlocker().unlock()
-            let method = UserWalletRepositoryUnlockMethod.biometrics(context)
+            let method = UserWalletRepositoryUnlockMethod.biometricsUserWallet(userWalletId: userWalletModel.userWalletId, context: context)
             _ = try await userWalletRepository.unlock(with: method)
         } catch where error.isCancellationError {
             await unlockWithFallback()
