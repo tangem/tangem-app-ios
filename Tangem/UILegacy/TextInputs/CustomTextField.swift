@@ -235,8 +235,6 @@ struct CustomTextField: UIViewRepresentable {
         DispatchQueue.main.async {
             if isResponder ?? false {
                 uiView.becomeFirstResponder()
-            } else {
-                uiView.resignFirstResponder()
             }
         }
     }
