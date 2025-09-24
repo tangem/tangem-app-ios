@@ -104,8 +104,7 @@ final class MainViewModel: ObservableObject {
     // MARK: - Internal functions
 
     func openDetails() {
-        let userWalletModel = userWalletRepository.models[selectedCardIndex]
-        coordinator?.openDetails(for: userWalletModel)
+        coordinator?.openDetails()
     }
 
     /// Handles `SwiftUI.View.onAppear(perform:)`.
