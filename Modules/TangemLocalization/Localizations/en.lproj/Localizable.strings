@@ -1096,7 +1096,7 @@
 "staking_notification_restake_rewards_text" = "Reinvests your earned rewards in your staked amount, increasing potential earnings.";
 "staking_notification_restake_text" = "Restake lets you move your funds from one validator to another without the need to unstake";
 "staking_notification_stake_entire_balance_text" = "You’re about to stake your entire balance. We recommend leaving a small amount to cover network fees for unstaking or claiming rewards.";
-"staking_notification_ton_activate_account" = "To start staking in TON, first make an outgoing transaction of any amount — this will activate your wallet.";
+"staking_notification_ton_activate_account" = "To start staking in TON, first send a small transaction to your own address — this will activate your wallet.";
 "staking_notification_ton_extra_reserve_info" = "Up to 0.2 TON may be required in addition to the network fee to complete the transaction. Any unused amount will be refunded.";
 "staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
 "staking_notification_ton_extra_reserve_title" = "TON reserve required";
