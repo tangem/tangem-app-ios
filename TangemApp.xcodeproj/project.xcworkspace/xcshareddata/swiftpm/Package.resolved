@@ -1,5 +1,5 @@
 {
-  "originHash" : "3954c67d01244d9258f6a9ed277713ad30b0f1d3e8319003224449a3178157e2",
+  "originHash" : "b89ac4fe5c9261975866cfaee5657a41a406dbc0af800bd023cc514a51451d5d",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -555,8 +555,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/swift-protobuf-binaries.git",
       "state" : {
-        "revision" : "2e9fbb639e4c70334d48b9bfcc2a343e731bf208",
-        "version" : "1.25.2-tangem4"
+        "branch" : "feature/AND-12365_sync_wallet_core",
+        "revision" : "c3c848389fd32751efc9accd65b13133c0b0662d"
       }
     },
     {
@@ -681,8 +681,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/wallet-core-binaries-ios.git",
       "state" : {
-        "revision" : "d882a521e9951f38d525f1656f584a59e8d077ab",
-        "version" : "4.1.20-tangem7"
+        "branch" : "feature/AND-12365_sync_wallet_core",
+        "revision" : "36665cfe7da303ed6f9583a8edd4a44786754e7b"
       }
     },
     {
