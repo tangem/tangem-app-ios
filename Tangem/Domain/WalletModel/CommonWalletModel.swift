@@ -164,8 +164,8 @@ class CommonWalletModel {
     private func mapState(_ walletManagerState: WalletManagerState) -> WalletModelState {
         switch walletManagerState {
         case .loaded:
-            if let balance = wallet.amounts[amountType]?.value {
-                return .loaded(balance)
+            if let balance = wallet.amounts[amountType] {
+                return .loaded(balance.value)
             }
             return .failed(error: WalletModelError.balanceNotFound.localizedDescription)
         case .failed(BlockchainSdkError.noAccount(let message, let amountToCreate)):
@@ -181,12 +181,9 @@ class CommonWalletModel {
 
     private func updateState(_ state: WalletModelState) {
         AppLogger.info(self, "Updating state. New state is \(state)")
-        DispatchQueue.main.async { [weak self] in // captured as weak at call stack
-            self?._state.value = state
-        }
-
-        Task { [_yieldModuleManager, wallet, amountType] in
-            await _yieldModuleManager?.updateState(walletModelState: state, balance: wallet.amounts[amountType])
+        DispatchQueue.main.async { [_state, _yieldModuleManager, wallet, amountType] in // captured as weak at call stack
+            _state.value = state
+            _yieldModuleManager?.updateState(walletModelState: state, balance: wallet.amounts[amountType])
         }
     }
 

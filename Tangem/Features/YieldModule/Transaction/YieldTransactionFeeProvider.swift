@@ -255,7 +255,7 @@ private extension YieldTransactionFeeProvider {
                     return [Fee(gasAmount, parameters: parameters)]
                 }
             }
-            
+
             var fees = [Fee]()
             for try await result in group {
                 guard let fee = try? result.normalFee() else { continue }
@@ -395,7 +395,7 @@ private extension YieldTransactionFeeProvider {
 
 // MARK: - Helper
 
-fileprivate extension Array where Element == Fee {
+private extension Array where Element == Fee {
     func normalFee() throws -> Fee {
         guard let lastFee = last else {
             throw YieldModuleError.feeNotFound

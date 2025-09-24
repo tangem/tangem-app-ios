@@ -133,6 +133,11 @@ protocol TangemApiService: AnyObject {
     func getUserAccounts(userWalletId: String) async throws -> (revision: String, accounts: AccountsDTO.Response.Accounts)
     func saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts) async throws
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts
+
+    // MARK: - Yield module
+
+    func getYieldMarkets() async throws -> YieldModuleDTO.Response.MarketsInfo
+    func getTokenPositionInfo(tokenContractAddress: String) async throws -> YieldModuleDTO.Response.PositionInfo
 }
 
 private struct TangemApiServiceKey: InjectionKey {

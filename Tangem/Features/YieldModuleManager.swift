@@ -24,31 +24,12 @@ protocol YieldModuleManager {
 }
 
 protocol YieldModuleManagerUpdater {
-    func updateState(walletModelState: WalletModelState, balance: Amount?) async
-}
-
-enum YieldModuleManagerState {
-    case disabled
-    case loading
-    case notActive(apy: Decimal)
-    case active(YieldModuleManagerStateInfo)
-    case failedToLoad(error: String)
-
-    var balance: Amount? {
-        if case .active(let value) = self {
-            return value.yieldSupply
-        }
-        return nil
-    }
-}
-
-struct YieldModuleManagerStateInfo {
-    let apy: Decimal
-    let activeState: YieldModuleActiveState
-    let yieldSupply: Amount?
+    func updateState(walletModelState: WalletModelState, balance: Amount?)
 }
 
 final class CommonYieldModuleManager {
+    @Injected(\.yieldModuleMarketsManager) private var yieldModuleMarketsManager: YieldModuleMarketsManager
+
     private let walletAddress: String
     private let token: Token
     private let blockchain: Blockchain
@@ -59,6 +40,7 @@ final class CommonYieldModuleManager {
     private let transactionFeeProvider: YieldTransactionFeeProvider
 
     private var _state = CurrentValueSubject<YieldModuleManagerState?, Never>(nil)
+    private var _walletModelState = CurrentValueSubject<(WalletModelState, Amount?)?, Never>(nil)
 
     private var bag = Set<AnyCancellable>()
 
@@ -101,6 +83,8 @@ final class CommonYieldModuleManager {
             yieldSupplyContractAddresses: yieldSupplyContractAddresses,
             maxNetworkFee: maxNetworkFee
         )
+
+        bind()
     }
 }
 
@@ -115,13 +99,8 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             .eraseToAnyPublisher()
     }
 
-    func updateState(walletModelState: WalletModelState, balance: Amount?) async {
-        do {
-            let newState = try await mapWalletModelState(walletModelState, balance: balance)
-            _state.send(newState)
-        } catch {
-            _state.send(.failedToLoad(error: error.localizedDescription))
-        }
+    func updateState(walletModelState: WalletModelState, balance: Amount?) {
+        _walletModelState.send((walletModelState, balance))
     }
 
     func enterFee() async throws -> YieldTransactionFee {
@@ -237,27 +216,46 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 }
 
 private extension CommonYieldModuleManager {
-    func mapWalletModelState(_ walletModelState: WalletModelState, balance: Amount?) async throws -> YieldModuleManagerState {
-        async let apy = getAPY()
-        switch walletModelState {
-        case .created, .loading:
-            return .loading
-        case .loaded:
-            guard let balance,
-                  case .token(let token) = balance.type,
-                  case .yield = token.metadata.kind else {
-                return .notActive(apy: try await apy)
-            }
-            return .active(
-                .init(
-                    apy: try await apy,
-                    activeState: .active, // will be taken from backend response later
-                    yieldSupply: balance
+    func bind() {
+        _walletModelState
+            .compactMap { $0 }
+            .combineLatest(yieldModuleMarketsManager.marketsPublisher.removeDuplicates())
+            .withWeakCaptureOf(self)
+            .map { result -> YieldModuleManagerState in
+                let (moduleManager, (walletModelState, marketsInfo)) = result
+                return moduleManager.mapWalletModelState(
+                    walletModelState.0,
+                    balance: walletModelState.1,
+                    marketsInfo: marketsInfo
                 )
-            )
-        case .noAccount:
+            }
+            .sink { [_state] result in
+                _state.send(result)
+            }
+            .store(in: &bag)
+    }
+
+    func mapWalletModelState(
+        _ walletModelState: WalletModelState,
+        balance: Amount?,
+        marketsInfo: [YieldModuleMarketInfo]
+    ) -> YieldModuleManagerState {
+        let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress })
+
+        switch (walletModelState, marketInfo) {
+        case (_, .some(let marketInfo)) where !marketInfo.isActive:
             return .disabled
-        case .failed(error: let error):
+        case (.created, _), (.loading, _):
+            return .loading
+        case (.loaded, let marketInfo):
+            guard case .token(let token) = balance?.type,
+                  case .yield = token.metadata.kind else {
+                return .notActive(apy: marketInfo?.apy)
+            }
+            return .active(.init(marketInfo: marketInfo, amount: balance))
+        case (.noAccount, _):
+            return .disabled
+        case (.failed(error: let error), _):
             return .failedToLoad(error: error)
         }
     }
