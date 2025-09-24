@@ -12,11 +12,6 @@ import TangemLocalization
 import TangemAssets
 
 enum YieldModuleViewConfigs {
-    struct BalanceInfoParams: Equatable {
-        let tokenName: String
-        let tokenImageUrl: URL?
-    }
-
     enum YieldModuleNotificationBannerParams {
         case notEnoughFeeCurrency(feeCurrencyName: String, tokenIcon: ImageType, buttonAction: @MainActor @Sendable () -> Void)
         case approveNeeded(buttonAction: @MainActor @Sendable () -> Void)
