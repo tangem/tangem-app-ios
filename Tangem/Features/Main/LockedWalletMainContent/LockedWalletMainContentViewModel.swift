@@ -97,11 +97,22 @@ class LockedWalletMainContentViewModel: ObservableObject {
 private extension LockedWalletMainContentViewModel {
     func unlock() {
         runTask(in: self) { viewModel in
-            if BiometricsUtil.isAvailable, await AppSettings.shared.useBiometricAuthentication {
+            if viewModel.canUnlockWithBiometry() {
                 await viewModel.unlockWithBiometry()
             } else {
                 await viewModel.unlockWithFallback()
             }
+        }
+    }
+
+    func canUnlockWithBiometry() -> Bool {
+        guard BiometricsUtil.isAvailable else {
+            return false
+        }
+        if FeatureProvider.isAvailable(.mobileWallet) {
+            return AppSettings.shared.useBiometricAuthentication
+        } else {
+            return AppSettings.shared.saveUserWallets
         }
     }
 
