@@ -1,5 +1,5 @@
 //
-//  PolygonTransactionHistoryProvider.swift
+//  EtherscanTransactionHistoryProvider.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,12 +11,12 @@ import Combine
 import TangemNetworkUtils
 import TangemFoundation
 
-final class PolygonTransactionHistoryProvider<Mapper> where
+final class EtherscanTransactionHistoryProvider<Mapper> where
     Mapper: TransactionHistoryMapper,
-    Mapper.Response == PolygonTransactionHistoryResult {
+    Mapper.Response == EtherscanTransactionHistoryResult {
     private let mapper: Mapper
-    private let networkProvider: TangemProvider<PolygonTransactionHistoryTarget>
-    private let targetConfiguration: PolygonTransactionHistoryTarget.Configuration
+    private let networkProvider: TangemProvider<EtherscanTransactionHistoryTarget>
+    private let targetConfiguration: EtherscanTransactionHistoryTarget.Configuration
 
     private var page: TransactionHistoryIndexPage?
     private var hasReachedEnd = false
@@ -24,7 +24,7 @@ final class PolygonTransactionHistoryProvider<Mapper> where
     init(
         mapper: Mapper,
         networkConfiguration: TangemProviderConfiguration,
-        targetConfiguration: PolygonTransactionHistoryTarget.Configuration
+        targetConfiguration: EtherscanTransactionHistoryTarget.Configuration
     ) {
         self.mapper = mapper
         networkProvider = .init(configuration: .init(logOptions: .verbose))
@@ -34,8 +34,8 @@ final class PolygonTransactionHistoryProvider<Mapper> where
     private func makeTarget(
         for request: TransactionHistory.Request,
         requestedPageNumber: Int
-    ) -> PolygonTransactionHistoryTarget {
-        let target: PolygonTransactionHistoryTarget.Target
+    ) -> EtherscanTransactionHistoryTarget {
+        let target: EtherscanTransactionHistoryTarget.Target
         if let contractAddress = request.amountType.token?.contractAddress {
             target = .getTokenTransactionHistory(
                 address: request.address,
@@ -51,7 +51,7 @@ final class PolygonTransactionHistoryProvider<Mapper> where
             )
         }
 
-        return PolygonTransactionHistoryTarget(configuration: targetConfiguration, target: target)
+        return EtherscanTransactionHistoryTarget(configuration: targetConfiguration, target: target)
     }
 
     /// Provides exponential backoff with random jitter using standard formula `base * pow(2, retryAttempt) ± jitter`.
@@ -92,7 +92,7 @@ final class PolygonTransactionHistoryProvider<Mapper> where
                         .networkProvider
                         .requestPublisher(target)
                         .filterSuccessfulStatusAndRedirectCodes()
-                        .map(PolygonTransactionHistoryResult.self)
+                        .map(EtherscanTransactionHistoryResult.self)
                         .eraseError()
                 }
                 .switchToLatest()
@@ -134,7 +134,7 @@ final class PolygonTransactionHistoryProvider<Mapper> where
         requestedPageNumber: Int,
         retryAttempt: Int
     ) -> AnyPublisher<TransactionHistory.Response, Error> {
-        guard let error = error as? PolygonScanAPIError else {
+        guard let error = error as? EtherscanAPIError else {
             return .anyFail(error: error)
         }
 
@@ -165,7 +165,7 @@ final class PolygonTransactionHistoryProvider<Mapper> where
 
 // MARK: - TransactionHistoryProvider protocol conformance
 
-extension PolygonTransactionHistoryProvider: TransactionHistoryProvider {
+extension EtherscanTransactionHistoryProvider: TransactionHistoryProvider {
     var description: String {
         return objectDescription(
             self,
@@ -193,7 +193,7 @@ extension PolygonTransactionHistoryProvider: TransactionHistoryProvider {
 
 // MARK: - Constants
 
-private extension PolygonTransactionHistoryProvider {
+private extension EtherscanTransactionHistoryProvider {
     enum Constants {
         // - Note: Tx history API has 1-based indexing (not 0-based indexing)
         static var initialPageNumber: Int { 1 }
