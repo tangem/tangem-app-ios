@@ -203,22 +203,15 @@ private extension YieldTransactionFeeProvider {
                 data: transaction.data
             ).async()
 
-            guard let lastFee = fees.last else {
-                throw YieldModuleError.feeNotFound
-            }
-
-            let fee = fees[safe: 1] ?? lastFee
+            let fee = try fees.normalFee()
 
             return [fee]
         }
         do {
             let gasLimits = try await blockaidGasLimits(transactions: transactions)
-            return try await getFees(transactions: transactions, gasLimits: gasLimits)
+            return try await getFees(gasLimits: gasLimits)
         } catch {
-            return try await getFees(
-                transactions: transactions,
-                gasLimits: [BigUInt](repeating: defaultGasLimit, count: transactions.count)
-            )
+            return try await getFees(gasLimits: [BigUInt](repeating: defaultGasLimit, count: transactions.count))
         }
     }
 
@@ -236,21 +229,20 @@ private extension YieldTransactionFeeProvider {
             }
         )
 
-        let parsed = result.compactMap {
+        let gasLimits = result.compactMap {
             BigUInt(Data(hexString: $0.gasEstimation.estimate))
         }
 
-        guard parsed.count == transactions.count else {
+        guard gasLimits.count == transactions.count else {
             throw YieldModuleError.feeNotFound
         }
 
-        return parsed
+        return gasLimits
     }
 
-    private func getFees(transactions: [TransactionData], gasLimits: [BigUInt]) async throws -> [Fee] {
+    private func getFees(gasLimits: [BigUInt]) async throws -> [Fee] {
         try await withThrowingTaskGroup(of: [Fee].self) { [blockchain, ethereumNetworkProvider] group in
-            var fees = [Fee]()
-            for (transaction, gasLimit) in zip(transactions, gasLimits) {
+            for gasLimit in gasLimits {
                 group.addTask {
                     let parameters = try await ethereumNetworkProvider.getFee(
                         gasLimit: gasLimit,
@@ -263,11 +255,11 @@ private extension YieldTransactionFeeProvider {
                     return [Fee(gasAmount, parameters: parameters)]
                 }
             }
-
+            
+            var fees = [Fee]()
             for try await result in group {
-                guard let lastFee = result.last else { continue }
+                guard let fee = try? result.normalFee() else { continue }
 
-                let fee = result[safe: 1] ?? lastFee
                 fees.append(fee)
             }
 
@@ -398,5 +390,17 @@ private extension YieldTransactionFeeProvider {
     struct TransactionData {
         let to: String
         let data: Data
+    }
+}
+
+// MARK: - Helper
+
+fileprivate extension Array where Element == Fee {
+    func normalFee() throws -> Fee {
+        guard let lastFee = last else {
+            throw YieldModuleError.feeNotFound
+        }
+
+        return self[safe: 1] ?? lastFee
     }
 }
