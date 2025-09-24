@@ -21,18 +21,15 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     @Published private(set) var archivedAccountButton: ArchivedAccountsButtonViewData?
 
     private let accountModelsManager: AccountModelsManager
-    private let userWalletId: UserWalletId
     private weak var coordinator: UserSettingsAccountsRoutable?
     private var bag = Set<AnyCancellable>()
 
     init(
         accountModels: [AccountModel],
-        userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
         coordinator: UserSettingsAccountsRoutable?
     ) {
         self.accountModelsManager = accountModelsManager
-        self.userWalletId = userWalletId
         self.coordinator = coordinator
 
         accountRows = accountModels.flatMap {
@@ -74,7 +71,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func onTapAccount(account: any BaseAccountModel) {
-        // [REDACTED_TODO_COMMENT]
+        coordinator?.openAccountDetails(account: account, accountModelsManager: accountModelsManager)
     }
 
     private func onTapArchivedAccounts() {
@@ -83,7 +80,6 @@ final class UserSettingsAccountsViewModel: ObservableObject {
 
     private func onTapNewAccount() {
         coordinator?.addNewAccount(
-            userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
             // active + archive should go here
             accountsCount: accountRows.count

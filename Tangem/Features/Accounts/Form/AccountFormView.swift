@@ -163,7 +163,6 @@ struct AccountFormView: View {
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @ObservedObject var viewModel = AccountFormViewModel(
-        userWalletId: .init(value: Data()),
         accountIndex: 1,
         accountModelsManager: AccountModelsManagerMock(),
         flowType: .create,

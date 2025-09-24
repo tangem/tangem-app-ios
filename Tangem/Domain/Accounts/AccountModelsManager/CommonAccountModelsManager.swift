@@ -211,17 +211,17 @@ extension CommonAccountModelsManager: AccountModelsManager {
         return []
     }
 
-    func archiveCryptoAccount(
-        withIdentifier identifier: some AccountModelPersistentIdentifierConvertible
-    ) async throws(AccountModelsManagerError) {
+    nonisolated func archiveCryptoAccount(
+        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
+    ) throws(AccountModelsManagerError) {
         if identifier.isMainAccount {
             throw .cannotArchiveCryptoAccount
         }
 
-        cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
+        cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toAnyHashablePersistentIdentifier())
     }
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
+    nonisolated func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
         // [REDACTED_TODO_COMMENT]
         throw .cannotUnarchiveCryptoAccount
     }
