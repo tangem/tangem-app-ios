@@ -24173,7 +24173,6 @@
 				DC8B159D2B681FE500DBBE9E /* PendingExpressTxStatusRoutable.swift in Sources */,
 				DC295B4A2861C4CB006CB7B6 /* DetailsCoordinatorView.swift in Sources */,
 				B012A1172AA5CDBD0079BAB4 /* NotificationEvent.swift in Sources */,
-				DA8C67282B0B44EF00E1C9B8 /* SendDestinationAddressSummaryView.swift in Sources */,
 				EA3999352E76D884008E4932 /* YieldModuleStartViewModel.swift in Sources */,
 				B6CAC21B2E46C66D002DFA82 /* CryptoAccountsRepository.swift in Sources */,
 				EFC597BD2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift in Sources */,
