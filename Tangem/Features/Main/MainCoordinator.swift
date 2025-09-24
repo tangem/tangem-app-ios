@@ -191,7 +191,7 @@ extension MainCoordinator: MainRoutable {
         }
     }
 
-    func openDetails(for userWalletModel: UserWalletModel) {
+    func openDetails() {
         mainBottomSheetUIManager.hide()
 
         let dismissAction: Action<Void> = { [weak self] _ in
