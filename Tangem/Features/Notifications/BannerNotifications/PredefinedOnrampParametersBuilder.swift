@@ -19,7 +19,9 @@ class PredefinedOnrampParametersBuilder {
     private lazy var expressAPIProvider: ExpressAPIProvider = ExpressAPIProviderFactory()
         .makeExpressAPIProvider(userWalletId: userWalletId, refcode: .none)
 
-    private lazy var onrampDataRepository: OnrampDataRepository = TangemExpressFactory().makeOnrampDataRepository(expressAPIProvider: expressAPIProvider)
+    private lazy var onrampDataRepository: OnrampDataRepository = TangemExpressFactory().makeOnrampDataRepository(
+        expressAPIProvider: expressAPIProvider
+    )
 
     private lazy var onrampManager: any OnrampManager = TangemExpressFactory().makeOnrampManager(
         expressAPIProvider: expressAPIProvider,
@@ -62,15 +64,15 @@ class PredefinedOnrampParametersBuilder {
     }
 
     private func moreThanOneDayAfterFirstWalletUse() -> Bool {
-        guard let startWalletUsageDate = AppSettings.shared.startWalletUsageDate else {
+        guard let startAppUsageDate = AppSettings.shared.startAppUsageDate else {
             return false
         }
 
-        guard let oneDayLater = Calendar.current.date(byAdding: .day, value: 1, to: startWalletUsageDate) else {
+        guard let oneDayLater = Calendar.current.date(byAdding: .day, value: 1, to: startAppUsageDate) else {
             return false
         }
 
-        return oneDayLater < Date.now
+        return oneDayLater <= Date.now
     }
 
     private func getPreference() async -> (country: OnrampCountry, currency: OnrampFiatCurrency)? {
