@@ -1,5 +1,5 @@
 //
-//  PolygonTransactionHistoryTarget.swift
+//  EtherscanTransactionHistoryTarget.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,14 +10,14 @@ import Foundation
 import Moya
 import TangemNetworkUtils
 
-struct PolygonTransactionHistoryTarget {
+struct EtherscanTransactionHistoryTarget {
     let configuration: Configuration
     let target: Target
 }
 
 // MARK: - Auxiliary types
 
-extension PolygonTransactionHistoryTarget {
+extension EtherscanTransactionHistoryTarget {
     enum Configuration {
         case etherscan(chainId: Int, apiKey: String)
     }
@@ -30,7 +30,7 @@ extension PolygonTransactionHistoryTarget {
 
 // MARK: - TargetType protocol conformance
 
-extension PolygonTransactionHistoryTarget: TargetType {
+extension EtherscanTransactionHistoryTarget: TargetType {
     var baseURL: URL {
         switch configuration {
         case .etherscan:
@@ -99,7 +99,7 @@ extension PolygonTransactionHistoryTarget: TargetType {
     }
 }
 
-extension PolygonTransactionHistoryTarget: TargetTypeLogConvertible {
+extension EtherscanTransactionHistoryTarget: TargetTypeLogConvertible {
     var requestDescription: String {
         path
     }
