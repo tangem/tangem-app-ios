@@ -244,7 +244,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .ducatus,
              .fact0rn,
              .sui,
-             .pepecoin:
+             .pepecoin,
+             .ton:
             return true
         default:
             return false
