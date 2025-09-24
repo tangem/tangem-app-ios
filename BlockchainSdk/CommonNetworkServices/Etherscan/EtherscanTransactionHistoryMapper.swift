@@ -1,5 +1,5 @@
 //
-//  PolygonTransactionHistoryMapper.swift
+//  EtherscanTransactionHistoryMapper.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemFoundation
 
-final class PolygonTransactionHistoryMapper {
+final class EtherscanTransactionHistoryMapper {
     private let blockchain: Blockchain
     private var transactionIndicesCounter: [String: Int] = [:]
 
@@ -18,7 +18,7 @@ final class PolygonTransactionHistoryMapper {
     }
 
     private func mapAmount(
-        from transaction: PolygonTransactionHistoryResult.Transaction,
+        from transaction: EtherscanTransactionHistoryResult.Transaction,
         amountType: Amount.AmountType
     ) -> Decimal? {
         guard let transactionValue = Decimal(stringValue: transaction.value) else {
@@ -36,7 +36,7 @@ final class PolygonTransactionHistoryMapper {
         return transactionValue / decimalValue
     }
 
-    private func mapFee(_ transaction: PolygonTransactionHistoryResult.Transaction) -> Fee {
+    private func mapFee(_ transaction: EtherscanTransactionHistoryResult.Transaction) -> Fee {
         guard
             let gasUsed = Decimal(stringValue: transaction.gasUsed),
             let gasPrice = Decimal(stringValue: transaction.gasPrice)
@@ -52,7 +52,7 @@ final class PolygonTransactionHistoryMapper {
     }
 
     private func mapStatus(
-        _ transaction: PolygonTransactionHistoryResult.Transaction
+        _ transaction: EtherscanTransactionHistoryResult.Transaction
     ) -> TransactionRecord.TransactionStatus {
         if transaction.isError?.isBooleanTrue == true {
             return .failed
@@ -70,7 +70,7 @@ final class PolygonTransactionHistoryMapper {
     }
 
     private func mapType(
-        _ transaction: PolygonTransactionHistoryResult.Transaction,
+        _ transaction: EtherscanTransactionHistoryResult.Transaction,
         amountType: Amount.AmountType
     ) -> TransactionRecord.TransactionType {
         switch amountType {
@@ -91,12 +91,12 @@ final class PolygonTransactionHistoryMapper {
         }
     }
 
-    private func mapToAPIError(_ result: PolygonTransactionHistoryResult) -> PolygonScanAPIError {
+    private func mapToAPIError(_ result: EtherscanTransactionHistoryResult) -> EtherscanAPIError {
         switch result.result {
         case .description(let description) where description.lowercased().starts(with: Constants.maxRateLimitReachedResultPrefix):
             return .maxRateLimitReached
         case .transactions(let transactions) where transactions.isEmpty:
-            // There is no `totalPageCount` or similar field in the PolygonScan transaction history API,
+            // There is no `totalPageCount` or similar field in the Etherscan transaction history API,
             // so we determine the end of the transaction history by receiving an empty response
             return .endOfTransactionHistoryReached
         default:
@@ -121,9 +121,9 @@ final class PolygonTransactionHistoryMapper {
 
 // MARK: - TransactionHistoryMapper protocol conformance
 
-extension PolygonTransactionHistoryMapper: TransactionHistoryMapper {
+extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
     func mapToTransactionRecords(
-        _ response: PolygonTransactionHistoryResult,
+        _ response: EtherscanTransactionHistoryResult,
         walletAddress: String,
         amountType: Amount.AmountType
     ) throws -> [TransactionRecord] {
@@ -201,7 +201,7 @@ extension PolygonTransactionHistoryMapper: TransactionHistoryMapper {
 
 // MARK: - Constants
 
-private extension PolygonTransactionHistoryMapper {
+private extension EtherscanTransactionHistoryMapper {
     enum Constants {
         static let maxRateLimitReachedResultPrefix = "max rate limit reached"
         /// Method names in the API look like `swap(address executor,tuple desc,bytes permit,bytes data)`,
@@ -212,14 +212,14 @@ private extension PolygonTransactionHistoryMapper {
 
 // MARK: - Convenience extensions
 
-private extension PolygonTransactionHistoryResult.Transaction {
+private extension EtherscanTransactionHistoryResult.Transaction {
     var isContractInteraction: Bool {
         return contractAddress?.nilIfEmpty != nil || functionName?.nilIfEmpty != nil
     }
 }
 
-private extension PolygonTransactionHistoryResult.Result {
-    var transactions: [PolygonTransactionHistoryResult.Transaction]? {
+private extension EtherscanTransactionHistoryResult.Result {
+    var transactions: [EtherscanTransactionHistoryResult.Transaction]? {
         if case .transactions(let transactions) = self {
             return transactions
         }
