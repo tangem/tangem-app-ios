@@ -7,6 +7,7 @@
 //
 
 import Combine
+import Foundation
 
 struct TangemPayOrderIdStorage {
     var savedOrderIdPublisher: AnyPublisher<String?, Never> {
@@ -33,9 +34,7 @@ struct TangemPayOrderIdStorage {
     }
 
     func deleteSavedOrderId() {
-        if let orderId = userDefaults.string(forKey: storageKey) {
-            userDefaults.removeObject(forKey: orderId)
-        }
+        userDefaults.removeObject(forKey: storageKey)
         savedOrderIdSubject.send(nil)
     }
 }
