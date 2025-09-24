@@ -77,15 +77,18 @@ struct SendNewDestinationAddressView: View {
     }
 
     private var scanQRButton: some View {
-        RoundedButton(image: Assets.Glyphs.scanQrIcon) {
+        CircleButton(image: Assets.Glyphs.scanQrIcon) {
             viewModel.didTapScanQRButton()
         }
+        .size(.medium)
+        .readGeometry(onChange: { print("->> scanQRButton", $0.size) })
     }
 
     private var pasteButton: some View {
-        StringPasteButton(style: .custom) { string in
+        StringPasteButton(style: .native) { string in
             viewModel.didTapPasteButton(string: string)
         }
+        .readGeometry(onChange: { print("->> pasteButton", $0.size) })
     }
 
     private var clearButton: some View {
