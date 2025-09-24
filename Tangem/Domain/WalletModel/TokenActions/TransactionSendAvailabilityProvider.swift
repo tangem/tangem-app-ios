@@ -51,6 +51,8 @@ struct TransactionSendAvailabilityProvider {
             let feeAmountTypeIconAsset = networkIconProvider.provide(by: walletModel.feeTokenItem.blockchain, filled: true)
             return .zeroFeeCurrencyBalance(
                 configuration: .init(
+                    amountCurrencySymbol: walletModel.tokenItem.currencySymbol,
+                    amountCurrencyBlockchainName: walletModel.tokenItem.blockchain.displayName,
                     transactionAmountTypeName: walletModel.tokenItem.name,
                     feeAmountTypeName: walletModel.feeTokenItem.name,
                     feeAmountTypeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
@@ -77,6 +79,8 @@ extension TransactionSendAvailabilityProvider {
         case oldCard
 
         struct NotEnoughFeeConfiguration: Hashable {
+            let amountCurrencySymbol: String
+            let amountCurrencyBlockchainName: String
             let transactionAmountTypeName: String
             let feeAmountTypeName: String
             let feeAmountTypeCurrencySymbol: String
