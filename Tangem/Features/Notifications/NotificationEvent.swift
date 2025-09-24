@@ -43,22 +43,25 @@ extension NotificationEvent {
             default:
                 return nil
             }
-        } else if let validationErrorEvent = self as? ValidationErrorEvent {
-            switch validationErrorEvent {
-            case .dustRestriction:
-                return SendAccessibilityIdentifiers.invalidAmountBanner
-            default:
-                return nil
-            }
         } else if let sendNotificationEvent = self as? SendNotificationEvent {
             switch sendNotificationEvent {
             case .validationErrorEvent(let event):
-                return event.accessibilityIdentifier
+                switch event {
+                case .dustRestriction:
+                    return SendAccessibilityIdentifiers.invalidAmountBanner
+                default:
+                    return nil
+                }
             default:
                 return nil
             }
         } else if let tokenEvent = self as? TokenNotificationEvent {
-            return tokenEvent.accessibilityIdentifier
+            switch tokenEvent {
+            case .noAccount:
+                return TokenAccessibilityIdentifiers.topUpWalletBanner
+            default:
+                return nil
+            }
         }
         return nil
     }
