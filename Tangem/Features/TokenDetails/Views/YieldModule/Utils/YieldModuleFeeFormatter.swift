@@ -41,14 +41,15 @@ struct YieldModuleFeeFormatter {
     }
 
     func makeFeeInTokenString(from networkFee: Decimal) async -> String? {
-        guard let (tokenAmount, fiatAmount) = await convertFeeToToken(networkFee: networkFee),
-              let tokenId = token.id
-        else {
+        guard let (tokenAmount, fiatAmount) = await convertFeeToToken(networkFee: networkFee) else {
             return nil
         }
 
         let formattedFiatFee = balanceFormatter.formatFiatBalance(fiatAmount, currencyCode: AppConstants.usdCurrencyCode)
-        let formattedCryptoFee = balanceFormatter.formatCryptoBalance(tokenAmount, currencyCode: feeCurrency.currencySymbol)
+        let formattedCryptoFee = balanceFormatter.formatCryptoBalance(
+            tokenAmount, currencyCode: token.currencySymbol,
+            formattingOptions: .defaultFiatFormattingOptions
+        )
 
         return "\(formattedCryptoFee) · \(formattedFiatFee)"
     }

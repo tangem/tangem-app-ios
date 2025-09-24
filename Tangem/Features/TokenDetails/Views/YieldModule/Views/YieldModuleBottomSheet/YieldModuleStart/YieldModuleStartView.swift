@@ -32,7 +32,7 @@ struct YieldModuleStartView: View {
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
             content: { mainContent },
-            notificationBanner: viewModel.notificationBannerParams,
+            notificationBanner: bannerParams,
             buttonTopPadding: buttonTopPadding
         )
         .transition(.content)
@@ -48,6 +48,14 @@ struct YieldModuleStartView: View {
         }
 
         return 32
+    }
+
+    private var bannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? {
+        if case .startEarning = viewModel.viewState {
+            return viewModel.notificationBannerParams
+        }
+
+        return nil
     }
 
     private var title: String? {
@@ -127,7 +135,7 @@ struct YieldModuleStartView: View {
             EmptyView()
 
         case .startEarning:
-            NetworkFeeSection(
+            YieldFeeSection(
                 leadingTitle: Localization.commonNetworkFeeTitle,
                 state: viewModel.networkFeeState,
                 footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
@@ -136,12 +144,12 @@ struct YieldModuleStartView: View {
                 onLinkTapAction: viewModel.onShowFeePolicy
             )
             .task {
-                await viewModel.onStartEarningSheetAppear()
+                await viewModel.fetchNetworkFee()
             }
 
         case .feePolicy:
             YieldModuleFeePolicyView(
-                networkFeeState: viewModel.networkFeeState,
+                tokenFeeState: viewModel.tokenFeeState,
                 maximumFee: viewModel.maximumFee.formatted(),
                 blockchainName: viewModel.walletModel.tokenItem.blockchain.displayName,
             )
@@ -153,7 +161,7 @@ struct YieldModuleStartView: View {
         case .startEarning:
             viewModel.onStartEarningTap
         case .rateInfo:
-            viewModel.onCloseTapAction
+            viewModel.onCloseTap
         case .feePolicy:
             viewModel.onBackAction
         }
@@ -184,7 +192,7 @@ private extension YieldModuleStartView {
         case .feePolicy:
             BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackAction() } })
         case .startEarning, .rateInfo:
-            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
+            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTap() } })
         }
     }
 }

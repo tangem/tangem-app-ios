@@ -14,7 +14,7 @@ import TangemLocalization
 extension YieldModuleStartView {
     struct YieldModuleFeePolicyView: View {
         // It is called "Current Fee" in this view
-        let tokenFee: String
+        let tokenFeeState: YieldFeeSection.State
         let maximumFee: String
         let blockchainName: String
 
@@ -26,11 +26,14 @@ extension YieldModuleStartView {
         }
 
         private var currentFeeSection: some View {
-            GroupedSection(FeeModel(fee: tokenFee)) { fee in
-                DefaultRowView(viewModel: .init(title: Localization.yieldModuleFeePolicySheetCurrentFeeTitle, detailsType: .text(fee.fee)))
-            } footer: {
-                DefaultFooterView(Localization.yieldModuleFeePolicySheetCurrentFeeNote(blockchainName))
-            }
+            YieldFeeSection(
+                leadingTitle: Localization.yieldModuleFeePolicySheetCurrentFeeTitle,
+                state: tokenFeeState,
+                footerText: Localization.yieldModuleFeePolicySheetCurrentFeeNote(blockchainName),
+                linkTitle: nil,
+                urlString: nil,
+                onLinkTapAction: {}
+            )
         }
 
         private var maximumFeeSection: some View {

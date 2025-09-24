@@ -129,7 +129,7 @@ struct YieldModuleInfoView: View {
             YieldModuleEarnInfoView(params: params)
 
         case .approve:
-            NetworkFeeSection(
+            YieldFeeSection(
                 leadingTitle: Localization.commonNetworkFeeTitle,
                 state: viewModel.networkFeeState,
                 footerText: Localization.yieldModuleApproveSheetFeeNote,
@@ -142,7 +142,7 @@ struct YieldModuleInfoView: View {
             }
 
         case .stopEarning:
-            NetworkFeeSection(
+            YieldFeeSection(
                 leadingTitle: Localization.commonNetworkFeeTitle,
                 state: viewModel.networkFeeState,
                 footerText: Localization.yieldModuleStopEarningSheetFeeNote,

@@ -37,10 +37,10 @@ final class YieldModuleStartViewModel: ObservableObject {
     private(set) var notificationBannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? = nil
 
     @Published
-    private(set) var networkFeeState: NetworkFeeSection.State = .loading
+    private(set) var networkFeeState: YieldFeeSection.State = .loading
 
     @Published
-    private(set) var tokenFeeState: NetworkFeeSection.State = .loading
+    private(set) var tokenFeeState: YieldFeeSection.State = .loading
 
     // MARK: - Dependencies
 
@@ -94,6 +94,7 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     func fetchNetworkFee() async {
         networkFeeState = .loading
+        tokenFeeState = .loading
         notificationBannerParams = nil
 
         try! await Task.sleep(seconds: 2)
@@ -103,6 +104,8 @@ final class YieldModuleStartViewModel: ObservableObject {
             let networkFee: Decimal = 0.12
             if let converted = await feeConverter.createFeeString(from: networkFee) {
                 networkFeeState = .loaded(fee: converted)
+
+                await getTokenFee(from: networkFee)
 
                 if networkFee > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
                     showNotEnoughFeeNotification()
@@ -119,6 +122,17 @@ final class YieldModuleStartViewModel: ObservableObject {
     }
 
     // MARK: - Private Implementation
+
+    private func getTokenFee(from networkFee: Decimal) async {
+        tokenFeeState = .loading
+
+        guard let fee = await feeConverter.makeFeeInTokenString(from: networkFee) else {
+            tokenFeeState = .error
+            return
+        }
+
+        tokenFeeState = .loaded(fee: fee)
+    }
 
     private func showNotEnoughFeeNotification() {
         notificationBannerParams = .notEnoughFeeCurrency(

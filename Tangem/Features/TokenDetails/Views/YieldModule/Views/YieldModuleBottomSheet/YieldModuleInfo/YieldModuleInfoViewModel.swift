@@ -38,7 +38,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     var notificationBannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? = nil
 
     @Published
-    private(set) var networkFeeState: NetworkFeeSection.State = .loading
+    private(set) var networkFeeState: YieldFeeSection.State = .loading
 
     // MARK: - Dependencies
 

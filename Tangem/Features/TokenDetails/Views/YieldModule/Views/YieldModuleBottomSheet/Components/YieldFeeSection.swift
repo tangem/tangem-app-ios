@@ -1,5 +1,5 @@
 //
-//  NetworkFeeSection.swift
+//  YieldFeeSection.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-struct NetworkFeeSection: View {
+struct YieldFeeSection: View {
     let leadingTitle: String
     let state: State
     let footerText: String
@@ -21,7 +21,7 @@ struct NetworkFeeSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            LoadableNetworkFeeRowView(leadingTitle: leadingTitle, state: state)
+            LoadableFeeRowView(leadingTitle: leadingTitle, state: state)
                 .padding(.horizontal, 4)
                 .defaultRoundedBackground(verticalPadding: 14)
 
@@ -33,7 +33,7 @@ struct NetworkFeeSection: View {
 
 // MARK: - State
 
-extension NetworkFeeSection {
+extension YieldFeeSection {
     enum State {
         case loading
         case loaded(fee: String)
@@ -51,8 +51,8 @@ extension NetworkFeeSection {
 
 // MARK: - LoadableNetworkFeeRowView
 
-extension NetworkFeeSection {
-    struct LoadableNetworkFeeRowView: View {
+extension YieldFeeSection {
+    struct LoadableFeeRowView: View {
         let leadingTitle: String
         var state: State
 
@@ -90,7 +90,7 @@ extension NetworkFeeSection {
 
 // MARK: - FooterText
 
-extension NetworkFeeSection {
+extension YieldFeeSection {
     struct FooterText: View {
         let footerText: String
         let linkTitle: String?
