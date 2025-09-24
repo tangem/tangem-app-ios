@@ -82,7 +82,7 @@ extension AccountIconView: Setupable {
         map { $0.cornerRadius = value }
     }
 
-    public func imageSize(_ value: CGSize) -> Self {
+    public func size(_ value: CGSize) -> Self {
         map { $0.size = value }
     }
 

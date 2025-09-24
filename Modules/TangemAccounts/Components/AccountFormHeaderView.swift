@@ -53,7 +53,7 @@ public struct AccountFormHeaderView: View {
             AccountIconView(backgroundColor: color, nameMode: nameMode)
                 .cornerRadius(24)
                 .padding(24)
-                .imageSize(.init(bothDimensions: 40))
+                .size(.init(bothDimensions: 40))
             Spacer()
         }
     }
