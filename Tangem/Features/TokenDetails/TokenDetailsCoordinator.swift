@@ -129,33 +129,24 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
-    func openYieldModulePromoView(walletModel: any WalletModel, info: YieldModuleInfo) {
+    func openYieldModulePromoView(walletModel: any WalletModel, apy: String) {
         let coordinator = YieldModulePromoCoordinator()
-
-        let options = YieldModulePromoCoordinator.Options(
-            walletModel: walletModel,
-            apy: info.apy,
-            networkFee: info.networkFee,
-            maximumFee: info.maximumFee,
-            lastYearReturns: info.lastYearReturns,
-            tokenImageUrl: info.tokenImageUrl,
-        )
+        let options = YieldModulePromoCoordinator.Options(walletModel: walletModel, apy: apy, feeCurrencyNavigator: self)
 
         coordinator.start(with: options)
+
         yieldModulePromoCoordinator = coordinator
     }
 
-    func openYieldEarnInfo(walletModel: any WalletModel, openFeeCurrencyAction: @escaping () -> Void) {
+    func openYieldEarnInfo(walletModel: any WalletModel) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(
-                sheet: YieldModuleInfoViewModel(walletModel: walletModel, openFeeCurrencyAction: openFeeCurrencyAction)
-            )
+            floatingSheetPresenter.enqueue(sheet: YieldModuleInfoViewModel(walletModel: walletModel, feeCurrencyNavigator: self))
         }
     }
 
-    func openYieldBalanceInfo(params: YieldModuleViewConfigs.BalanceInfoParams) {
+    func openYieldBalanceInfo(tokenName: String, tokenId: String?) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldModuleBalanceInfoViewModel(params: params))
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBalanceInfoViewModel(tokenName: tokenName, tokenId: tokenId))
         }
     }
 }

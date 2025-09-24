@@ -11,14 +11,18 @@ import SwiftUI
 final class YieldModulePromoCoordinator: CoordinatorObject {
     // MARK: - Injected
 
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.floatingSheetPresenter)
+    private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - Propeties
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
-    @Published var rootViewModel: YieldModulePromoViewModel? = nil
+    @Published
+    var rootViewModel: YieldModulePromoViewModel? = nil
+
+    private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
 
     // MARK: - Init
 
@@ -33,12 +37,10 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
         rootViewModel = .init(
             walletModel: options.walletModel,
             apy: options.apy,
-            lastYearReturns: options.lastYearReturns,
-            networkFee: options.networkFee,
-            maximumFee: options.maximumFee,
-            tokenImageUrl: options.tokenImageUrl,
             coordinator: self
         )
+
+        feeCurrencyNavigator = options.feeCurrencyNavigator
     }
 
     func openRateInfoSheet(walletModel: any WalletModel) {
@@ -49,7 +51,15 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 
     func openStartEarningSheet(walletModel: any WalletModel) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldModuleStartViewModel(walletModel: walletModel, viewState: .startEarning))
+            floatingSheetPresenter.enqueue(
+                sheet: YieldModuleStartViewModel(
+                    walletModel: walletModel,
+                    viewState: .startEarning,
+                    openFeeCurrencyAction: { [weak self] feeWalletModel, selectedUserModel in
+                        self?.feeCurrencyNavigator?.openFeeCurrency(for: feeWalletModel, userWalletModel: selectedUserModel)
+                    }
+                )
+            )
         }
     }
 }
@@ -60,9 +70,6 @@ extension YieldModulePromoCoordinator {
     struct Options {
         let walletModel: any WalletModel
         let apy: String
-        let networkFee: Decimal
-        let maximumFee: Decimal
-        let lastYearReturns: [String: Double]
-        let tokenImageUrl: URL?
+        let feeCurrencyNavigator: any FeeCurrencyNavigating
     }
 }

@@ -16,12 +16,14 @@ final class YieldModuleBalanceInfoViewModel {
 
     @Injected(\.floatingSheetPresenter) var floatingSheetPresenter: FloatingSheetPresenter
 
-    private(set) var params: YieldModuleViewConfigs.BalanceInfoParams
+    private(set) var tokenName: String
+    private let tokenId: String?
 
     // MARK: - Init
 
-    init(params: YieldModuleViewConfigs.BalanceInfoParams) {
-        self.params = params
+    init(tokenName: String, tokenId: String?) {
+        self.tokenName = tokenName
+        self.tokenId = tokenId
     }
 
     // MARK: - Public Implementation

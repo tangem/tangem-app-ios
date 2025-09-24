@@ -14,7 +14,11 @@ import TangemFoundation
 final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Injected
 
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.floatingSheetPresenter)
+    private var floatingSheetPresenter: any FloatingSheetPresenter
+
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: any UserWalletRepository
 
     // MARK: - View State
 
@@ -22,32 +26,53 @@ final class YieldModuleStartViewModel: ObservableObject {
     var viewState: ViewState {
         didSet {
             previousState = oldValue
-            createNotificationBannerIfNeeded()
         }
     }
 
+    private var previousState: ViewState?
+
+    // MARK: - Published
+
     @Published
-    var notificationBannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? = nil
+    private(set) var notificationBannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? = nil
 
     @Published
     private(set) var networkFeeState: NetworkFeeSection.State = .loading
 
-    private var previousState: ViewState?
+    @Published
+    private(set) var tokenFeeState: NetworkFeeSection.State = .loading
+
+    // MARK: - Dependencies
+
     private(set) var walletModel: any WalletModel
-    private(set) var maximumFee = 0
     private var yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
+
+    private lazy var feeConverter = YieldModuleFeeFormatter(
+        feeCurrency: walletModel.feeTokenItem,
+        token: walletModel.tokenItem,
+        maximumFee: maximumFee
+    )
+
+    // MARK: - Properties
+
+    private(set) var maximumFee: Decimal = 0
+    private let openFeeCurrencyAction: (any WalletModel, any UserWalletModel) -> Void
 
     // MARK: - Init
 
-    init(walletModel: any WalletModel, viewState: ViewState) {
+    init(
+        walletModel: any WalletModel,
+        viewState: ViewState,
+        openFeeCurrencyAction: @escaping (any WalletModel, any UserWalletModel) -> Void = { _, _ in }
+    ) {
         self.viewState = viewState
         self.walletModel = walletModel
-        createNotificationBannerIfNeeded()
+        self.openFeeCurrencyAction = openFeeCurrencyAction
     }
 
     // MARK: - Navigation
 
-    func onCloseTapAction() {
+    func onCloseTap() {
         runTask(in: self) { vm in
             vm.floatingSheetPresenter.removeActiveSheet()
         }
@@ -67,27 +92,71 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     // MARK: - Public Implementation
 
-    func onStartEarningSheetAppear() async {}
+    func fetchNetworkFee() async {
+        networkFeeState = .loading
+        notificationBannerParams = nil
+
+        try! await Task.sleep(seconds: 2)
+
+        if Bool.random() {
+            // [REDACTED_TODO_COMMENT]
+            let networkFee: Decimal = 0.12
+            if let converted = await feeConverter.createFeeString(from: networkFee) {
+                networkFeeState = .loaded(fee: converted)
+
+                if networkFee > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
+                    showNotEnoughFeeNotification()
+                }
+
+            } else {
+                showFeeErrorNotification()
+                networkFeeState = .error
+            }
+        } else {
+            showFeeErrorNotification()
+            networkFeeState = .error
+        }
+    }
 
     // MARK: - Private Implementation
 
-    private func getNetworkFee() {}
-
-    private func createNotificationBannerIfNeeded() {
-        if case .startEarning = viewState {
-            // [REDACTED_TODO_COMMENT]
-            guard true else { return }
-
-            notificationBannerParams = YieldAttentionBannerFactory.makeNotEnoughFeeCurrencyBanner(
-                feeTokenItem: walletModel.feeTokenItem,
-                navigationAction: { [weak self] in
-
-                    self?.onCloseTapAction()
-                }
-            )
+    private func showNotEnoughFeeNotification() {
+        notificationBannerParams = .notEnoughFeeCurrency(
+            feeCurrencyName: walletModel.feeTokenItem.name,
+            tokenIcon: NetworkImageProvider().provide(by: walletModel.feeTokenItem.blockchain, filled: true)
+        ) { [weak self] in
+            if let selectedUserWalletModel = self?.userWalletRepository.selectedModel,
+               let feeWalletModel = self?.getFeeCurrencyWalletModel(in: selectedUserWalletModel) {
+                self?.onCloseTap()
+                self?.openFeeCurrencyAction(feeWalletModel, selectedUserWalletModel)
+            }
         }
     }
+
+    private func showFeeErrorNotification() {
+        notificationBannerParams = .feeUnreachable { [weak self] in
+            guard let self else { return }
+            runTask(in: self) { vm in
+                await vm.fetchNetworkFee()
+            }
+        }
+    }
+
+    private func getFeeCurrencyWalletModel(in userWalletModel: any UserWalletModel) -> (any WalletModel)? {
+        guard let selectedUserModel = userWalletRepository.selectedModel,
+              let feeCurrencyWalletModel = selectedUserModel.walletModelsManager.walletModels.first(where: {
+                  $0.tokenItem == walletModel.feeTokenItem
+              })
+        else {
+            assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
+            return nil
+        }
+
+        return feeCurrencyWalletModel
+    }
 }
+
+// MARK: - View State
 
 extension YieldModuleStartViewModel {
     enum ViewState: Identifiable, Equatable {

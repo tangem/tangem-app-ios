@@ -428,22 +428,14 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 
 extension TokenDetailsViewModel {
     func openYieldModulePromo() {
-        coordinator?.openYieldModulePromoView(
-            walletModel: walletModel,
-            info: .init(apy: "WIP", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:], tokenImageUrl: iconUrl)
-        )
+        coordinator?.openYieldModulePromoView(walletModel: walletModel, apy: "5.1")
     }
 
     func openYieldEarnInfo() {
-        coordinator?.openYieldEarnInfo(
-            walletModel: walletModel,
-            openFeeCurrencyAction: { [weak self] in
-                self?.openFeeCurrency()
-            }
-        )
+        coordinator?.openYieldEarnInfo(walletModel: walletModel)
     }
 
     func openYieldBalanceInfo() {
-        coordinator?.openYieldBalanceInfo(params: .init(tokenName: walletModel.tokenItem.name, tokenImageUrl: iconUrl))
+        coordinator?.openYieldBalanceInfo(tokenName: walletModel.tokenItem.name, tokenId: walletModel.tokenItem.id)
     }
 }

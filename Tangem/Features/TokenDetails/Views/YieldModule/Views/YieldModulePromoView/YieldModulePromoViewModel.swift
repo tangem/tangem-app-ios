@@ -11,45 +11,33 @@ import TangemLocalization
 import TangemAssets
 
 final class YieldModulePromoViewModel {
-    // MARK: - Properties
+    // MARK: - Injected
+
+    @Injected(\.safariManager)
+    private var safariManager: SafariManager
+
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: UserWalletRepository
+
+    // MARK: - Dependencies
 
     private let walletModel: any WalletModel
-    private(set) var apy: String
-    private var lastYearReturns: [String: Double] = [:]
-    private let networkFee: Decimal
-    private let maximumFee: Decimal
-    private let tokenImageUrl: URL?
+    private weak var coordinator: YieldModulePromoCoordinator?
+    private weak var tokenDetailsCoordinator: TokenDetailsRoutable?
 
+    // MARK: - Properties
+
+    private(set) var apy: String
     private(set) var tosUrl = URL(string: "https://tangem.com")!
     private(set) var privacyPolicyUrl = URL(string: "https://tangem.com")!
     private(set) var howIrWorksUrl = URL(string: "https://tangem.com")!
 
-    // MARK: - Injected
-
-    @Injected(\.safariManager) private var safariManager: SafariManager
-
-    // MARK: - Dependencies
-
-    private weak var coordinator: YieldModulePromoCoordinator?
-
     // MARK: - Init
 
-    init(
-        walletModel: any WalletModel,
-        apy: String,
-        lastYearReturns: [String: Double],
-        networkFee: Decimal,
-        maximumFee: Decimal,
-        tokenImageUrl: URL?,
-        coordinator: YieldModulePromoCoordinator
-    ) {
+    init(walletModel: any WalletModel, apy: String, coordinator: YieldModulePromoCoordinator) {
         self.walletModel = walletModel
         self.coordinator = coordinator
         self.apy = apy
-        self.lastYearReturns = lastYearReturns
-        self.networkFee = networkFee
-        self.maximumFee = maximumFee
-        self.tokenImageUrl = tokenImageUrl
     }
 
     // MARK: - Public Implementation
@@ -88,12 +76,4 @@ final class YieldModulePromoViewModel {
 
         return attributedString
     }
-}
-
-struct YieldModuleInfo {
-    let apy: String
-    let networkFee: Decimal
-    let maximumFee: Decimal
-    let lastYearReturns: [String: Double]
-    let tokenImageUrl: URL?
 }
