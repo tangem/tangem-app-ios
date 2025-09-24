@@ -259,19 +259,6 @@ extension TokenNotificationEvent: NotificationEvent {
     }
 }
 
-// MARK: - Accessibility Identifiers
-
-extension TokenNotificationEvent {
-    var accessibilityIdentifier: String? {
-        switch self {
-        case .noAccount:
-            return TokenAccessibilityIdentifiers.topUpWalletBanner
-        default:
-            return nil
-        }
-    }
-}
-
 // MARK: - Auxiliary types
 
 extension TokenNotificationEvent {
