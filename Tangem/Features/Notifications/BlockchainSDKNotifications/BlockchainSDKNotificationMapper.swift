@@ -40,6 +40,8 @@ struct BlockchainSDKNotificationMapper {
         case .feeExceedsBalance:
             return .insufficientBalanceForFee(
                 configuration: .init(
+                    amountCurrencySymbol: tokenItem.currencySymbol,
+                    amountCurrencyBlockchainName: tokenItem.blockchain.displayName,
                     transactionAmountTypeName: tokenItem.name,
                     feeAmountTypeName: feeTokenItem.name,
                     feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol,
