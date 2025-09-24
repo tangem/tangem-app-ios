@@ -135,8 +135,8 @@ struct YieldModuleStartView: View {
                 urlString: nil,
                 onLinkTapAction: viewModel.onShowFeePolicy
             )
-            .onAppear {
-                viewModel.onStartEarningSheetAppear()
+            .task {
+                await viewModel.onStartEarningSheetAppear()
             }
 
         case .feePolicy:

@@ -98,15 +98,16 @@ extension NetworkFeeSection {
         let onLinkTapAction: (() -> Void)?
 
         var body: some View {
-            var attr = makeFeePolicyAttributedString()
+            let attr = makeFeePolicyAttributedString()
 
             return Text(attr)
                 .environment(\.openURL, OpenURLAction { _ in
                     if let onLinkTapAction {
                         onLinkTapAction()
+                        return .handled
                     }
 
-                    return .handled
+                    return .systemAction
                 })
         }
 

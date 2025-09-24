@@ -67,7 +67,7 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     // MARK: - Public Implementation
 
-    func onStartEarningSheetAppear() {}
+    func onStartEarningSheetAppear() async {}
 
     // MARK: - Private Implementation
 
