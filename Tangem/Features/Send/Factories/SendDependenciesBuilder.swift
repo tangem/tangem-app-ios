@@ -320,7 +320,7 @@ struct SendDependenciesBuilder {
 
     func makeSendBaseDataBuilder(
         input: SendBaseDataBuilderInput,
-        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder? = .none
+        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder
     ) -> SendBaseDataBuilder {
         CommonSendBaseDataBuilder(
             input: input,

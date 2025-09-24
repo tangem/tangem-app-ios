@@ -111,7 +111,14 @@ struct SellFlowBaseBuilder {
             interactor: interactor,
             stepsManager: stepsManager,
             alertBuilder: builder.makeSendAlertBuilder(),
-            dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
+            dataBuilder: builder.makeSendBaseDataBuilder(
+                input: sendModel,
+                sendReceiveTokensListBuilder: builder.makeSendReceiveTokensListBuilder(
+                    sendSourceTokenInput: sendModel,
+                    receiveTokenOutput: sendModel,
+                    analyticsLogger: analyticsLogger
+                )
+            ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper(),
             tokenItem: walletModel.tokenItem,

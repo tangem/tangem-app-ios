@@ -65,7 +65,6 @@ struct SendNewFeeStepBuilder {
     }
 }
 
-
 enum SendNewFeeStepBuilder2 {
     struct IO {
         let input: SendFeeInput

@@ -20,13 +20,13 @@ struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
     private let input: SendBaseDataBuilderInput
     private let walletModel: any WalletModel
     private let emailDataProvider: EmailDataProvider
-    private let sendReceiveTokensListBuilder: SendReceiveTokensListBuilder?
+    private let sendReceiveTokensListBuilder: SendReceiveTokensListBuilder
 
     init(
         input: SendBaseDataBuilderInput,
         walletModel: any WalletModel,
         emailDataProvider: EmailDataProvider,
-        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder?
+        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder
     ) {
         self.input = input
         self.walletModel = walletModel
@@ -65,11 +65,7 @@ struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
         return (dataCollector: emailDataCollector, recipient: recipient)
     }
 
-    func makeSendReceiveTokensList() throws -> SendReceiveTokensListBuilder {
-        guard let sendReceiveTokensListBuilder else {
-            throw SendBaseDataBuilderError.notFound("SendReceiveTokensListBuilder")
-        }
-
+    func makeSendReceiveTokensList() -> SendReceiveTokensListBuilder {
         return sendReceiveTokensListBuilder
     }
 

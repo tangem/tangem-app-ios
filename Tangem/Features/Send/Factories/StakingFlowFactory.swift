@@ -1,30 +1,34 @@
 //
-//  SendFlowFactory2.swift
+//  StakingFlowFactory.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-class SendFlowFactory2 {
+import Foundation
+import TangemStaking
+
+class StakingFlowFactory2 {
     private let walletModel: any WalletModel
+    private let manager: any StakingManager
     private let router: any SendRoutable
 
     private let builder: SendDependenciesBuilder
 
     // Sharing
 
-    lazy var sendQRCodeService = builder.makeSendQRCodeService()
-    lazy var swapManager: SwapManager = builder.makeSwapManager()
-    lazy var analyticsLogger = builder.makeSendAnalyticsLogger(sendType: .send)
-    lazy var sendModel = builder.makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger)
-    lazy var notificationManager = builder.makeSendNewNotificationManager(receiveTokenInput: sendModel)
-    lazy var sendFeeProvider = builder.makeSendWithSwapFeeProvider(
-        receiveTokenInput: sendModel,
-        sendFeeProvider: builder.makeSendFeeProvider(input: sendModel),
-        swapFeeProvider: builder.makeSwapFeeProvider(swapManager: swapManager)
-    )
-    lazy var customFeeService = builder.makeCustomFeeService(input: sendModel)
+//    lazy var sendQRCodeService = builder.makeSendQRCodeService()
+//    lazy var swapManager: SwapManager = builder.makeSwapManager()
+    lazy var analyticsLogger = builder.makeStakingSendAnalyticsLogger(actionType: .stake)
+    lazy var stakingModel = builder.makeStakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
+    lazy var notificationManager = builder.makeStakingNotificationManager()
+//    lazy var sendFeeProvider = builder.makeSendWithSwapFeeProvider(
+//        receiveTokenInput: sendModel,
+//        sendFeeProvider: builder.makeSendFeeProvider(input: sendModel),
+//        swapFeeProvider: builder.makeSwapFeeProvider(swapManager: swapManager)
+//    )
+//    lazy var customFeeService = builder.makeCustomFeeService(input: sendModel)
 
     init(walletModel: any WalletModel, router: any SendRoutable, input: SendDependenciesBuilder.Input) {
         self.walletModel = walletModel
@@ -34,23 +38,106 @@ class SendFlowFactory2 {
     }
 
     func make() -> SendViewModel {
-//        let sendFeeStepBuilder = SendNewFeeStepBuilder(feeTokenItem: walletModel.feeTokenItem, builder: builder)
-//        let swapProvidersBuilder = SendSwapProvidersBuilder(tokenItem: walletModel.tokenItem, builder: builder)
-//        let sendSummaryStepBuilder = SendNewSummaryStepBuilder(tokenItem: walletModel.tokenItem, builder: builder)
-//        let sendFinishStepBuilder = SendNewFinishStepBuilder(tokenItem: walletModel.tokenItem, coordinator: router)
+//        let analyticsLogger = builder.makeStakingSendAnalyticsLogger(actionType: .stake)
+//        let stakingModel = builder.makeStakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
+//        let notificationManager = builder.makeStakingNotificationManager()
+        notificationManager.setup(provider: stakingModel, input: stakingModel)
+        notificationManager.setupManager(with: stakingModel)
 
-//        let sendQRCodeService = builder.makeSendQRCodeService()
-//        let swapManager: SwapManager = builder.makeSwapManager()
-//        let analyticsLogger = builder.makeSendAnalyticsLogger(sendType: .send)
-//        let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger)
-//        let notificationManager = builder.makeSendNewNotificationManager(receiveTokenInput: sendModel)
-//        let customFeeService = builder.makeCustomFeeService(input: sendModel)
+        let sendFeeCompactViewModel = SendNewFeeStepBuilder2.makeSendNewFeeCompactViewModel(
+            input: stakingModel,
+            types: .init(feeTokenItem: walletModel.feeTokenItem, isFeeApproximate: builder.isFeeApproximate())
+        )
+        sendFeeCompactViewModel.bind(input: stakingModel)
 
-//        let sendFeeProvider = builder.makeSendWithSwapFeeProvider(
-//            receiveTokenInput: sendModel,
-//            sendFeeProvider: builder.makeSendFeeProvider(input: sendModel),
-//            swapFeeProvider: builder.makeSwapFeeProvider(swapManager: swapManager)
-//        )
+        let amount = makeSendAmountStep() sendAmountStepBuilder.makeSendAmountStep(
+            io: (input: stakingModel, output: stakingModel),
+            actionType: .stake,
+            sendFeeProvider: stakingModel,
+            sendQRCodeService: .none,
+            sendAmountValidator: builder.makeStakingSendAmountValidator(stakingManager: manager),
+            amountModifier: builder.makeStakingAmountModifier(actionType: .stake),
+            analyticsLogger: analyticsLogger
+        )
+
+        let validators = stakingValidatorsStepBuilder.makeStakingValidatorsStep(
+            io: (input: stakingModel, output: stakingModel),
+            manager: manager,
+            actionType: .stake,
+            sendFeeProvider: stakingModel,
+            analyticsLogger: analyticsLogger
+        )
+
+        let summary = sendSummaryStepBuilder.makeSendSummaryStep(
+            io: (input: stakingModel, output: stakingModel),
+            actionType: .stake,
+            notificationManager: notificationManager,
+            destinationEditableType: .editable,
+            amountEditableType: .editable,
+            sendAmountCompactViewModel: amount.compact,
+            stakingValidatorsCompactViewModel: validators.compact,
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            analyticsLogger: analyticsLogger
+        )
+
+        let finish = sendFinishStepBuilder.makeSendFinishStep(
+            input: stakingModel,
+            sendFinishAnalyticsLogger: analyticsLogger,
+            sendAmountCompactViewModel: amount.compact,
+            onrampAmountCompactViewModel: .none,
+            stakingValidatorsCompactViewModel: validators.compact,
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            onrampStatusCompactViewModel: .none
+        )
+
+        let stepsManager = CommonStakingStepsManager(
+            provider: stakingModel,
+            amountStep: amount.step,
+            validatorsStep: validators.step,
+            summaryStep: summary.step,
+            finishStep: finish,
+            summaryTitleProvider: builder.makeStakingSummaryTitleProvider(actionType: .stake)
+        )
+
+        summary.step.set(router: stepsManager)
+
+        let interactor = CommonSendBaseInteractor(input: stakingModel, output: stakingModel)
+
+        let viewModel = SendViewModel(
+            interactor: interactor,
+            stepsManager: stepsManager,
+            alertBuilder: builder.makeStakingAlertBuilder(),
+            dataBuilder: builder.makeStakingBaseDataBuilder(input: stakingModel),
+            analyticsLogger: analyticsLogger,
+            blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper(),
+            tokenItem: walletModel.tokenItem,
+            source: source,
+            coordinator: router
+        )
+        stepsManager.set(output: viewModel)
+        stakingModel.router = viewModel
+
+        return viewModel
+    }
+
+    func make() -> SendViewModel {
+        //        let sendFeeStepBuilder = SendNewFeeStepBuilder(feeTokenItem: walletModel.feeTokenItem, builder: builder)
+        //        let swapProvidersBuilder = SendSwapProvidersBuilder(tokenItem: walletModel.tokenItem, builder: builder)
+        //        let sendSummaryStepBuilder = SendNewSummaryStepBuilder(tokenItem: walletModel.tokenItem, builder: builder)
+        //        let sendFinishStepBuilder = SendNewFinishStepBuilder(tokenItem: walletModel.tokenItem, coordinator: router)
+
+        //        let sendQRCodeService = builder.makeSendQRCodeService()
+        //        let swapManager: SwapManager = builder.makeSwapManager()
+        //        let analyticsLogger = builder.makeSendAnalyticsLogger(sendType: .send)
+        //        let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger)
+        //        let notificationManager = builder.makeSendNewNotificationManager(receiveTokenInput: sendModel)
+        //        let customFeeService = builder.makeCustomFeeService(input: sendModel)
+
+        //        let sendFeeProvider = builder.makeSendWithSwapFeeProvider(
+        //            receiveTokenInput: sendModel,
+        //            sendFeeProvider: builder.makeSendFeeProvider(input: sendModel),
+        //            swapFeeProvider: builder.makeSwapFeeProvider(swapManager: swapManager)
+        //        )
 
         let amount = makeSendAmountStep()
         let destination = makeSendDestinationStep()

@@ -121,7 +121,6 @@ struct SendNewAmountStepBuilder {
     }
 }
 
-
 import Foundation
 import TangemExpress
 

@@ -14,7 +14,7 @@ import TangemFoundation
 protocol SendBaseDataBuilder: SendGenericBaseDataBuilder {
     func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
     func makeMailData(transactionData: Data, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
-    func makeSendReceiveTokensList() throws -> SendReceiveTokensListBuilder
+    func makeSendReceiveTokensList() -> SendReceiveTokensListBuilder
     func makeFeeCurrencyData() -> (userWalletId: UserWalletId, feeTokenItem: TokenItem)
 }
 
