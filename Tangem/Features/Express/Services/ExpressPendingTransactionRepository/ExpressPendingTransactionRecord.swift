@@ -21,8 +21,10 @@ struct ExpressPendingTransactionRecord: Codable, Equatable {
     let feeString: String
     let provider: Provider
     let date: Date
-    let externalTxId: String?
-    let externalTxURL: String?
+
+    // These properties can be changed while status is changed
+    var externalTxId: String?
+    var externalTxURL: String?
 
     /// Average duration of transaction processing in seconds based on historical data.
     /// If nil, there is not enough data to calculate average duration.
