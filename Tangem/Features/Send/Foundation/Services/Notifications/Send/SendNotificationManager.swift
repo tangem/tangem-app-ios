@@ -30,10 +30,11 @@ class CommonSendNotificationManager {
 
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private var bag: Set<AnyCancellable> = []
-
+    private let analyticsService: NotificationsAnalyticsService
     private weak var delegate: NotificationTapDelegate?
 
     init(
+        userWalletId: UserWalletId,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         withdrawalNotificationProvider: WithdrawalNotificationProvider?
@@ -41,6 +42,7 @@ class CommonSendNotificationManager {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.withdrawalNotificationProvider = withdrawalNotificationProvider
+        analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
     }
 }
 
@@ -48,6 +50,15 @@ class CommonSendNotificationManager {
 
 private extension CommonSendNotificationManager {
     func bind(input: SendNotificationManagerInput) {
+        notificationPublisher
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { manager, notifications in
+                manager.analyticsService.sendEventsIfNeeded(for: notifications)
+            })
+            .store(in: &bag)
+
         input.selectedFeePublisher
             .filter { !$0.value.isLoading }
             .withWeakCaptureOf(self)
@@ -180,18 +191,6 @@ private extension CommonSendNotificationManager {
     }
 
     func updateFeeInclusionEvent(isFeeIncluded: Bool, feeCryptoValue: Decimal) {
-        let isAmountIsLessThanRentFeeNotificationVisible = notificationInputsSubject.value.contains(where: { input in
-            guard let event = input.settings.event as? ValidationErrorEvent else {
-                return false
-            }
-            if case .remainingAmountIsLessThanRentExemption = event {
-                return true
-            }
-            return false
-        })
-        guard !isAmountIsLessThanRentFeeNotificationVisible else {
-            return
-        }
         if isFeeIncluded {
             let feeFiatValue = feeTokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(feeCryptoValue, currencyId: $0) }
 
@@ -201,7 +200,8 @@ private extension CommonSendNotificationManager {
 
             show(notification: .feeWillBeSubtractFromSendingAmount(
                 cryptoAmountFormatted: cryptoAmountFormatted,
-                fiatAmountFormatted: fiatAmountFormatted
+                fiatAmountFormatted: fiatAmountFormatted,
+                amountCurrencySymbol: feeTokenItem.currencySymbol
             ))
         } else {
             hideFeeWillBeSubtractedNotification()
