@@ -10,6 +10,42 @@ import Foundation
 import TangemStaking
 import TangemFoundation
 
+class StakingFlowFactory {
+    private let walletModel: any WalletModel
+    private let manager: any StakingManager
+    private let router: any SendRoutable
+
+    private let builder: SendDependenciesBuilder
+
+    init(walletModel: any WalletModel, manager: any StakingManager, router: any SendRoutable, input: SendDependenciesBuilder.Input) {
+        self.walletModel = walletModel
+        self.manager = manager
+        self.router = router
+
+        builder = .init(input: input)
+    }
+
+    // Sharing
+
+    lazy var stakingValidatorsStepBuilder = StakingValidatorsStepBuilder()
+    lazy var sendAmountStepBuilder = SendAmountStepBuilder(walletModel: walletModel, builder: builder)
+    lazy var sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
+    lazy var sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)
+    lazy var sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel, coordinator: router)
+
+    func makeBaseViewModel() {
+        
+    }
+}
+
+class SendFlowFactory2 {
+    private let walletModel: any WalletModel
+    private let router: any SendRoutable
+
+    // Sharing
+
+}
+
 struct SendFlowFactory {
     private let walletInfo: SendWalletInfo
     private let walletModel: any WalletModel

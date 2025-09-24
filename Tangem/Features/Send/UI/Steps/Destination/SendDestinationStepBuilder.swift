@@ -27,11 +27,13 @@ struct SendDestinationStepBuilder {
         router: SendDestinationRoutable
     ) -> ReturnValue {
         let interactorSaver = CommonSendDestinationInteractorSaver(input: io.input, output: io.output)
-        let interactor = makeSendDestinationInteractor(
-            io: io,
+        let interactor = CommonSendDestinationInteractor(
+            input: io.input,
             receiveTokenInput: receiveTokenInput,
-            interactorSaver: interactorSaver,
-            analyticsLogger: analyticsLogger
+            saver: interactorSaver,
+            dependenciesBuilder: builder.makeSendDestinationInteractorDependenciesProvider(
+                analyticsLogger: analyticsLogger
+            ),
         )
 
         let viewModel = SendDestinationViewModel(
@@ -60,14 +62,34 @@ struct SendDestinationStepBuilder {
     }
 }
 
-private extension SendDestinationStepBuilder {
-    func makeSendDestinationInteractor(
+extension SendDestinationStepBuilder {
+    protocol DataProvider {
+        func makeSendDestinationInteractorDependenciesProvider(analyticsLogger: any SendDestinationAnalyticsLogger) -> SendDestinationInteractorDependenciesProvider
+    }
+}
+
+import Foundation
+import BlockchainSdk
+
+struct SendDestinationStepBuilder2 {
+    typealias IO = (input: SendDestinationInput, output: SendDestinationOutput)
+    typealias ReturnValue = (
+        step: SendDestinationStep,
+        externalUpdater: SendDestinationExternalUpdater,
+        compact: SendDestinationCompactViewModel
+    )
+
+    let builder: SendDependenciesBuilder
+
+    func makeSendDestinationStep(
         io: IO,
         receiveTokenInput: SendReceiveTokenInput,
-        interactorSaver: any SendDestinationInteractorSaver,
-        analyticsLogger: SendDestinationAnalyticsLogger
-    ) -> SendDestinationInteractor {
-        CommonSendDestinationInteractor(
+        sendQRCodeService: SendQRCodeService,
+        analyticsLogger: any SendDestinationAnalyticsLogger,
+        router: SendDestinationRoutable
+    ) -> ReturnValue {
+        let interactorSaver = CommonSendDestinationInteractorSaver(input: io.input, output: io.output)
+        let interactor = CommonSendDestinationInteractor(
             input: io.input,
             receiveTokenInput: receiveTokenInput,
             saver: interactorSaver,
@@ -75,5 +97,35 @@ private extension SendDestinationStepBuilder {
                 analyticsLogger: analyticsLogger
             ),
         )
+
+        let viewModel = SendDestinationViewModel(
+            interactor: interactor,
+            sendQRCodeService: sendQRCodeService,
+            analyticsLogger: analyticsLogger,
+            router: router
+        )
+
+        let step = SendDestinationStep(
+            viewModel: viewModel,
+            interactor: interactor,
+            interactorSaver: interactorSaver,
+            analyticsLogger: analyticsLogger
+        )
+        let externalUpdater = SendDestinationExternalUpdater(viewModel: viewModel)
+        let compact = SendDestinationCompactViewModel(input: io.input)
+
+        interactorSaver.updater = externalUpdater
+
+        return (step: step, externalUpdater: externalUpdater, compact: compact)
+    }
+
+    func makeSendDestinationCompactViewModel(input: SendDestinationInput) -> SendDestinationCompactViewModel {
+        .init(input: input)
+    }
+}
+
+extension SendDestinationStepBuilder2 {
+    protocol DataProvider {
+        func makeSendDestinationInteractorDependenciesProvider(analyticsLogger: any SendDestinationAnalyticsLogger) -> SendDestinationInteractorDependenciesProvider
     }
 }
