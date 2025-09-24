@@ -23,7 +23,7 @@ public enum DerivationUtil {
         return try deriveKeys(entropy: entropy, passphrase: passphrase, derivationPath: derivationPath, curve: curve)
     }
 
-    static func deriveKeys(
+    public static func deriveKeys(
         entropy: Data,
         passphrase: String = "",
         derivationPath: DerivationPath?,

@@ -940,6 +940,22 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
         }
     }
+
+    private func ensureWalletIsNotAlreadyAdded(mnemonic: Mnemonic, passphrase: String) throws {
+        let extendedPublicKey = try DerivationUtil.deriveKeys(
+            entropy: mnemonic.getEntropy(),
+            passphrase: passphrase,
+            derivationPath: nil,
+            curve: .secp256k1
+        )
+
+        let seedKey = extendedPublicKey.publicKey
+        let userWalletId = UserWalletId(with: seedKey)
+
+        guard !userWalletRepository.models.contains(where: { $0.userWalletId == userWalletId }) else {
+            throw UserWalletRepositoryError.duplicateWalletAdded
+        }
+    }
 }
 
 // MARK: - Seed phrase related
@@ -1012,15 +1028,21 @@ extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
 
 extension WalletOnboardingViewModel: SeedPhraseImportDelegate {
     func importSeedPhrase(mnemonic: Mnemonic, passphrase: String) {
-        let isWithPassphrase = !passphrase.isEmpty
-        createWalletOnPrimaryCard(
-            using: mnemonic,
-            mnemonicPassphrase: passphrase,
-            walletCreationType: .seedImport(
-                length: mnemonic.mnemonicComponents.count,
-                isWithPassphrase: isWithPassphrase
+        do {
+            try ensureWalletIsNotAlreadyAdded(mnemonic: mnemonic, passphrase: passphrase)
+
+            let isWithPassphrase = !passphrase.isEmpty
+            createWalletOnPrimaryCard(
+                using: mnemonic,
+                mnemonicPassphrase: passphrase,
+                walletCreationType: .seedImport(
+                    length: mnemonic.mnemonicComponents.count,
+                    isWithPassphrase: isWithPassphrase
+                )
             )
-        )
+        } catch {
+            alert = error.alertBinder
+        }
     }
 }
 
