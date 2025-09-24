@@ -6,8 +6,10 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import protocol Foundation.LocalizedError
+
 /// Error that may occur during the fetching or validation of a dApp connection proposal.
-enum WalletConnectDAppProposalLoadingError: Error {
+enum WalletConnectDAppProposalLoadingError: LocalizedError {
     /// Attempted to pair with a URI that has already been used or is currently active.
     /// - Note: This may occur if the user scans the same QR code multiple times without refreshing.
     case uriAlreadyUsed
@@ -33,6 +35,34 @@ enum WalletConnectDAppProposalLoadingError: Error {
 
     /// The dApp connection proposal loading was explicitly cancelled by user.
     case cancelledByUser
+
+    var errorDescription: String? {
+        switch self {
+        case .uriAlreadyUsed:
+            "Attempted to pair with a URI that has already been used or is currently active."
+
+        case .pairingFailed(let underlyingError):
+            "An untyped error thrown during session pairing: \(underlyingError.localizedDescription)"
+
+        case .invalidDomainURL(let rawDomainString):
+            "The dApp URL string is not a valid ``URL``. Raw value: \(rawDomainString)"
+
+        case .unsupportedDomain(let error):
+            "The \(error.dAppName) dApp domain: \(error.dAppRawURL) is not supported by the Tangem app."
+
+        case .unsupportedBlockchains(let error):
+            "The \(error.dAppName) dApp has required blockchains that are not supported by the Tangem app. Blockchains: \(error.blockchainNames)"
+
+        case .noBlockchainsProvidedByDApp(let error):
+            "The \(error.dAppName) dApp does not specify any blockchains — neither required nor optional."
+
+        case .pairingTimeout:
+            "The session pairing operation timed out."
+
+        case .cancelledByUser:
+            "The dApp connection proposal loading was explicitly cancelled by user."
+        }
+    }
 }
 
 extension WalletConnectDAppProposalLoadingError {
