@@ -555,8 +555,6 @@
 		3027D32F2E82C049001E15FB /* ExpandableAccountItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3027D3282E82C049001E15FB /* ExpandableAccountItemView.swift */; };
 		3027D3302E82C049001E15FB /* ExpandableAccountItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3027D3292E82C049001E15FB /* ExpandableAccountItemViewModel.swift */; };
 		3027D3312E82C049001E15FB /* AccountItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3027D32B2E82C049001E15FB /* AccountItemView.swift */; };
-		3027D3332E82D84C001E15FB /* EditableAccountModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3027D3322E82D843001E15FB /* EditableAccountModel.swift */; };
-		3027D3352E82D920001E15FB /* BaseEditableAccountModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3027D3342E82D917001E15FB /* BaseEditableAccountModel.swift */; };
 		303D556F2D7873B300FA859D /* VeChainAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303D556E2D7873AD00FA859D /* VeChainAddressTests.swift */; };
 		303D55712D78754000FA859D /* XRPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303D55702D78753900FA859D /* XRPAddressTests.swift */; };
 		303DE11E2E7975160077F895 /* UserSettingsAccountsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DE11D2E79750D0077F895 /* UserSettingsAccountsRoutable.swift */; };
@@ -4774,8 +4772,6 @@
 		3027D3292E82C049001E15FB /* ExpandableAccountItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableAccountItemViewModel.swift; sourceTree = "<group>"; };
 		3027D32B2E82C049001E15FB /* AccountItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountItemView.swift; sourceTree = "<group>"; };
 		3027D32C2E82C049001E15FB /* AccountItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountItemViewModel.swift; sourceTree = "<group>"; };
-		3027D3322E82D843001E15FB /* EditableAccountModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableAccountModel.swift; sourceTree = "<group>"; };
-		3027D3342E82D917001E15FB /* BaseEditableAccountModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseEditableAccountModel.swift; sourceTree = "<group>"; };
 		303D556E2D7873AD00FA859D /* VeChainAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VeChainAddressTests.swift; sourceTree = "<group>"; };
 		303D55702D78753900FA859D /* XRPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddressTests.swift; sourceTree = "<group>"; };
 		303DE11D2E79750D0077F895 /* UserSettingsAccountsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsAccountsRoutable.swift; sourceTree = "<group>"; };
@@ -9871,16 +9867,6 @@
 			path = AccountItemView;
 			sourceTree = "<group>";
 		};
-		3027D3362E82D96F001E15FB /* Protocols */ = {
-			isa = PBXGroup;
-			children = (
-				B6BC398D2E3D5ED70043D64E /* BaseAccountModel.swift */,
-				3027D3322E82D843001E15FB /* EditableAccountModel.swift */,
-				3027D3342E82D917001E15FB /* BaseEditableAccountModel.swift */,
-			);
-			path = Protocols;
-			sourceTree = "<group>";
-		};
 		30440D742D79A11C00460D15 /* Polygon */ = {
 			isa = PBXGroup;
 			children = (
@@ -12499,7 +12485,7 @@
 		B60F98CA2E3BC81300141CA5 /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				3027D3362E82D96F001E15FB /* Protocols */,
+				B6BC398D2E3D5ED70043D64E /* BaseAccountModel.swift */,
 				B60F98BF2E3BC72800141CA5 /* AccountModel.swift */,
 				B6C94F142E68B5A000459BF8 /* AccountModelPersistentIdentifierConvertible.swift */,
 				B6CAC2812E4799C7002DFA82 /* AccountModelUtils.swift */,
@@ -23268,7 +23254,6 @@
 				0FB93D632E58656A00DAB673 /* SessionMobileAccessCodeStorageManager.swift in Sources */,
 				B679CAFC2DE488DF00D67364 /* CommonNFTCacheDelegate.swift in Sources */,
 				EF6183802B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift in Sources */,
-				3027D3352E82D920001E15FB /* BaseEditableAccountModel.swift in Sources */,
 				DA90396D2C520E0E002C1E6E /* KoinosSendTransactionSummaryDescriptionBuilder.swift in Sources */,
 				5D96BD2827F60AC5000AA797 /* BlockchainNetwork.swift in Sources */,
 				DC8E03202DE187A7008967D8 /* WCRequestDetailsInput.swift in Sources */,
@@ -23582,7 +23567,6 @@
 				B66AB8B72BBC7AF200C8F3E7 /* UserTokensReorderingLogger.swift in Sources */,
 				EF4BEF7F28AB872E00C5D1BE /* UserTokenList.swift in Sources */,
 				0F48DC4E2E44EAE40095D3C8 /* MobileOnboardingSeedPhraseImportDelegate.swift in Sources */,
-				3027D3332E82D84C001E15FB /* EditableAccountModel.swift in Sources */,
 				DC0A5806282501530031BECC /* KeysManager.swift in Sources */,
 				EF5E5A852B7100D700D19BBB /* ExpressPromotion.swift in Sources */,
 				DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */,
