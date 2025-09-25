@@ -32969,8 +32969,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/swift-protobuf-binaries.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = "1.25.2-tangem1";
+				branch = "feature/AND-12365_sync_wallet_core";
+				kind = branch;
 			};
 		};
 		B68E1F942CBC451D0043E598 /* XCRemoteSwiftPackageReference "ScaleCodec" */ = {
@@ -33025,8 +33025,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/grpc-swift.git";
 			requirement = {
-				kind = exactVersion;
-				version = "1.21.0-tangem3";
+				branch = "feature/IOS-11057_update_wallet_core_and_other_libs";
+				kind = branch;
 			};
 		};
 		B6DDDE732CF39079008DEA94 /* XCRemoteSwiftPackageReference "BlockiesSwift" */ = {
