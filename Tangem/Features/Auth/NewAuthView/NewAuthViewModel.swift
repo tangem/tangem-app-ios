@@ -30,6 +30,8 @@ final class NewAuthViewModel: ObservableObject {
     }
 
     private let signInAnalyticsLogger = SignInAnalyticsLogger()
+    private let cardScanAnalyticsLogger = CardScanAnalyticsLogger()
+
     private let unlockOnAppear: Bool
     private weak var coordinator: NewAuthRoutable?
 
@@ -135,7 +137,7 @@ private extension NewAuthViewModel {
             let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
 
             if unlocker.analyticsSignInType == .card {
-                Analytics.log(Analytics.CardScanSource.auth.cardScanButtonEvent)
+                viewModel.cardScanAnalyticsLogger.log(action: .cardScanButton, source: .auth)
             }
 
             let unlockResult = await unlocker.unlock()
@@ -143,7 +145,7 @@ private extension NewAuthViewModel {
             viewModel.signInAnalyticsLogger.logSignInEvent(signInType: unlocker.analyticsSignInType)
 
             if case .success = unlockResult, unlocker.analyticsSignInType == .card {
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
+                viewModel.cardScanAnalyticsLogger.log(action: .cardWasScanned, source: .auth)
             }
 
             await viewModel.handleUnlock(result: unlockResult, userWalletModel: userWalletModel)
