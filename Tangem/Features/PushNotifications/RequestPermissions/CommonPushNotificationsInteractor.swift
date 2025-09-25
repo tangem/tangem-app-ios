@@ -103,8 +103,8 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
                 let didPostponeOnboardingCompletionDate,
                 Date().timeIntervalSince(didPostponeOnboardingCompletionDate) > Constants.showDurationAfterLoginBanner
             else {
-            }
                 return false
+            }
 
             return true
         }
