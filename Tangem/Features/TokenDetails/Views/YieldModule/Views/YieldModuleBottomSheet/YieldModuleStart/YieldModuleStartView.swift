@@ -113,7 +113,7 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .rateInfo, .feePolicy:
             EmptyView()
-        case .startEarning(let params):
+        case .startEarning:
             LendingPairIcon(tokenIconInfo: viewModel.getTokenIconInfo(), iconsSize: IconViewSizeSettings.tokenDetails.iconSize)
         }
     }
