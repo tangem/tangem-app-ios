@@ -11,16 +11,15 @@ import TangemFoundation
 import Combine
 
 final class CommonPushNotificationsInteractor {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.pushNotificationsPermission) private var pushNotificationsPermissionsService: PushNotificationsPermissionService
-
-    /// Optional bool because this property is updated only once,
-    /// on the very first launch of the app version with push notifications support.
-    @AppStorageCompat(StorageKeys.hasSavedWalletsFromPreviousVersion)
-    private var hasSavedWalletsFromPreviousVersion: Bool? = nil
 
     @AppStorageCompat(StorageKeys.canRequestAuthorization)
     private var canRequestAuthorization = Constants.canRequestAuthorizationDefaultValue
+
+    /// Optional bool because this property is updated only once,
+    /// on the very first launch of the app version with push notifications support.
+    @AppStorageCompat(StorageKeys.didRequestAuthorizationOnAfterLogin)
+    private var canRequestAuthorizationOnAfterLogin: Bool? = nil
 
     @AppStorageCompat(StorageKeys.didPostponeAuthorizationRequestOnWalletOnboarding)
     private var didPostponeAuthorizationRequestOnWalletOnboarding = false
@@ -35,15 +34,7 @@ final class CommonPushNotificationsInteractor {
     private var didPostponeOnboardingCompletionDate: Date? = nil
 
     private var didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = false
-
-    private func updateSavedWalletsStatusIfNeeded() {
-        // Runs only once per installation
-        guard hasSavedWalletsFromPreviousVersion == nil else {
-            return
-        }
-
-        hasSavedWalletsFromPreviousVersion = userWalletRepository.models.isNotEmpty
-    }
+    private var didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession = false
 
     private func registerIfPossible() {
         runTask(in: self) { interactor in
@@ -104,15 +95,16 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
             return !didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession
                 && !didPostponeAuthorizationRequestOnWalletOnboarding
         case .afterLogin:
-            return hasSavedWalletsFromPreviousVersion ?? false
+            let currentRequestState = canRequestAuthorizationOnAfterLogin ?? true
+            canRequestAuthorizationOnAfterLogin = true
         case .afterLoginBanner:
             guard
                 !isAvailable(in: .afterLogin), // Need exclude if display is required bottom sheet permission request
                 let didPostponeOnboardingCompletionDate,
                 Date().timeIntervalSince(didPostponeOnboardingCompletionDate) > Constants.showDurationAfterLoginBanner
             else {
-                return false
             }
+                return false
 
             return true
         }
@@ -135,6 +127,7 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
             didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = true
         case .walletOnboarding:
             didPostponeAuthorizationRequestOnWalletOnboarding = true
+            didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession = true
         case .afterLogin, .afterLoginBanner:
             // Stop all future authorization requests
             canRequestAuthorization = false
@@ -159,7 +152,6 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
 extension CommonPushNotificationsInteractor: Initializable {
     func initialize() {
         resetPushNotificationsAuthorizationRequestCounterIfNeeded()
-        updateSavedWalletsStatusIfNeeded()
         registerIfPossible()
     }
 
@@ -167,7 +159,7 @@ extension CommonPushNotificationsInteractor: Initializable {
         let currentVersion = ResetVersion.current.rawValue
 
         if resetPushNotificationsAuthorizationRequestCounter < currentVersion {
-            hasSavedWalletsFromPreviousVersion = AppSettings.shared.saveUserWallets
+            canRequestAuthorizationOnAfterLogin = nil
             canRequestAuthorization = Constants.canRequestAuthorizationDefaultValue
             resetPushNotificationsAuthorizationRequestCounter = currentVersion
         }
@@ -178,10 +170,10 @@ extension CommonPushNotificationsInteractor: Initializable {
 
 private extension CommonPushNotificationsInteractor {
     enum StorageKeys: String, RawRepresentable {
-        case hasSavedWalletsFromPreviousVersion = "has_saved_wallets_from_previous_version"
         case canRequestAuthorization = "can_request_authorization"
         case didPostponeAuthorizationRequestOnWelcomeOnboarding = "did_postpone_authorization_request_on_welcome_onboarding"
         case didPostponeAuthorizationRequestOnWalletOnboarding = "did_postpone_authorization_request_on_wallet_onboarding"
+        case didRequestAuthorizationOnAfterLogin = "did_request_authorization_on_after_login"
         case resetPushNotificationsAuthorizationRequestCounter = "reset_push_notifications_authorization_request_counter"
         case didPostponeOnboardingCompletionDate = "did_postpone_onboarding_completion_date"
     }
