@@ -142,7 +142,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
                 walletModel.defaultAddressString.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
         }
     }
-    
+
     func startTransactionSimulation() async {
         simulationState = .loading
 
