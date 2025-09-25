@@ -22,17 +22,20 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     private let buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never>
     private weak var balanceProvider: BalanceWithButtonsViewModelBalanceProvider?
     private weak var balanceTypeSelectorProvider: BalanceTypeSelectorProvider?
+    private(set) var showYieldBalanceInfoAction: (() -> Void)?
 
     private var bag = Set<AnyCancellable>()
 
     init(
         buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never>,
         balanceProvider: BalanceWithButtonsViewModelBalanceProvider,
-        balanceTypeSelectorProvider: BalanceTypeSelectorProvider
+        balanceTypeSelectorProvider: BalanceTypeSelectorProvider,
+        showYieldBalanceInfoAction: (() -> Void)? = nil
     ) {
         self.buttonsPublisher = buttonsPublisher
         self.balanceProvider = balanceProvider
         self.balanceTypeSelectorProvider = balanceTypeSelectorProvider
+        self.showYieldBalanceInfoAction = showYieldBalanceInfoAction
 
         bind()
     }
