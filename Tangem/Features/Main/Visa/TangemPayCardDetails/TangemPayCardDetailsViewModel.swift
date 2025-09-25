@@ -92,10 +92,11 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             )
     }
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
     private func revealRequest() async throws -> TangemPayCardDetailsData {
-        let session = try SessionCrypto.generateSessionId(environment: .dev)
+        let devPublicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCAP192809jZyaw62g/eTzJ3P9H+RmT88sXUYjQ0K8Bx+rJ83f22+9isKx+lo5UuV8tvOlKwvdDS/pVbzpG7D7NO45c0zkLOXwDHZkou8fuj8xhDO5Tq3GzcrabNLRLVz3dkx0znfzGOhnY4lkOMIdKxlQbLuVM/dGDC9UpulF+UwIDAQAB"
+        let prodPublicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCeZ9uCoxi2XvOw1VmvVLo88TLkGE+OO1j3fa8HhYlJZZ7CCIAsaCorrU+ZpD5PUTnmME3DJk+JyY1BB3p8XI+C5unoQucrbxFbkM1lgR10ewz/LcuhleG0mrXL/bzUZbeJqI6v3c9bXvLPKlsordPanYBGFZkmBPxc8QEdRgH4awIDAQAB"
+
+        let session = try SessionCrypto.generateSessionId(publicKey: devPublicKey)
         let sessionId = session.sessionId
         let secretKey = session.secretKey
 
@@ -155,224 +156,90 @@ import CryptoKit
 import Security
 
 public enum EncryptionUtils {
-    public enum EncryptionError: Error {
-        case encryptionFailed
-        case invalidKeyData
+    enum EncryptionError: Error {
+        case invalidData
     }
 
-    public struct EncryptedData {
-        public let ciphertext: Data
-        public let tag: Data
-        public let nonce: Data
-
-        public init(ciphertext: Data, tag: Data, nonce: Data) {
-            self.ciphertext = ciphertext
-            self.tag = tag
-            self.nonce = nonce
-        }
-    }
-
-    public static func encryptAESGCM(plaintext: String, secretKey: String) throws -> EncryptedData {
-        guard let plaintextData = plaintext.data(using: .utf8),
-              let secretKeyData = Data(hex: secretKey) else {
-            throw EncryptionError.invalidKeyData
+    public static func encryptAESGCM(plaintext: String, secretKey: String) throws -> (ciphertext: Data, tag: Data, nonce: Data) {
+        guard let plaintextData = plaintext.data(using: .utf8) else {
+            throw EncryptionError.invalidData
         }
 
+        let secretKeyData = Data(hexString: secretKey)
         let key = SymmetricKey(data: secretKeyData)
         let nonce = AES.GCM.Nonce()
 
-        do {
-            let sealedBox = try AES.GCM.seal(plaintextData, using: key, nonce: nonce)
-            return EncryptedData(
-                ciphertext: sealedBox.ciphertext,
-                tag: sealedBox.tag,
-                nonce: Data(nonce)
-            )
-        } catch {
-            throw EncryptionError.encryptionFailed
-        }
+        let sealedBox = try AES.GCM.seal(plaintextData, using: key, nonce: nonce)
+        return (sealedBox.ciphertext, sealedBox.tag, Data(nonce))
     }
 
-    public static func encryptAESGCM(plaintext: String, secretKey: String, nonce: Data) throws -> EncryptedData {
-        guard let plaintextData = plaintext.data(using: .utf8),
-              let secretKeyData = Data(hex: secretKey) else {
-            throw EncryptionError.invalidKeyData
+    public static func encryptAESGCM(plaintext: String, secretKey: String, nonce: Data) throws -> (ciphertext: Data, tag: Data, nonce: Data) {
+        guard let plaintextData = plaintext.data(using: .utf8) else {
+            throw EncryptionError.invalidData
         }
 
+        let secretKeyData = Data(hexString: secretKey)
         let key = SymmetricKey(data: secretKeyData)
+        let gcmNonce = try AES.GCM.Nonce(data: nonce)
 
-        do {
-            let gcmNonce = try AES.GCM.Nonce(data: nonce)
-            let sealedBox = try AES.GCM.seal(plaintextData, using: key, nonce: gcmNonce)
-            return EncryptedData(
-                ciphertext: sealedBox.ciphertext,
-                tag: sealedBox.tag,
-                nonce: nonce
-            )
-        } catch {
-            throw EncryptionError.encryptionFailed
-        }
+        let sealedBox = try AES.GCM.seal(plaintextData, using: key, nonce: gcmNonce)
+        return (sealedBox.ciphertext, sealedBox.tag, nonce)
     }
 
-    public static func formatForDecryption(encryptedData: EncryptedData) -> (base64Secret: String, base64Iv: String) {
+    public static func formatForDecryption(ciphertext: Data, tag: Data, nonce: Data) -> (base64Secret: String, base64Iv: String) {
         var combinedData = Data()
-        combinedData.append(encryptedData.ciphertext)
-        combinedData.append(encryptedData.tag)
+        combinedData.append(ciphertext)
+        combinedData.append(tag)
 
-        let base64Secret = combinedData.base64EncodedString()
-        let base64Iv = encryptedData.nonce.base64EncodedString()
-
-        return (base64Secret, base64Iv)
+        return (combinedData.base64EncodedString(), nonce.base64EncodedString())
     }
 }
 
 public enum SessionCrypto {
-    public enum Environment {
-        case dev
-        case prod
-
-        var keyFileName: String {
-            switch self {
-            case .dev:
-                return "dev_public_key.pem"
-            case .prod:
-                return "prod_public_key.pem"
-            }
-        }
+    enum SessionError: Error {
+        case invalidData
     }
 
-    public struct SessionResult {
-        public let secretKey: String
-        public let sessionId: String
-
-        public init(secretKey: String, sessionId: String) {
-            self.secretKey = secretKey
-            self.sessionId = sessionId
-        }
-    }
-
-    public enum SessionCryptoError: Error {
-        case pemRequired
-        case secretMustBeHexString
-        case base64SecretRequired
-        case base64IvRequired
-        case secretKeyMustBeHexString
-        case invalidPEMFormat
-        case encryptionFailed
-        case decryptionFailed
-        case resourceNotFound
-        case invalidKeyData
-    }
-
-    public static func generateSessionId(pem: String, secret: String? = nil) throws -> SessionResult {
-        guard !pem.isEmpty else {
-            throw SessionCryptoError.pemRequired
-        }
-
-        if let secret = secret, !isHexString(secret) {
-            throw SessionCryptoError.secretMustBeHexString
-        }
-
+    public static func generateSessionId(publicKey: String, secret: String? = nil) throws -> (secretKey: String, sessionId: String) {
         let secretKey = secret ?? UUID().uuidString.replacingOccurrences(of: "-", with: "")
-
-        guard let secretKeyData = Data(hex: secretKey) else {
-            throw SessionCryptoError.secretMustBeHexString
+        let secretKeyData = Data(hexString: secretKey)
+        guard let secretKeyBase64Data = secretKeyData.base64EncodedString().data(using: .utf8) else {
+            throw SessionError.invalidData
         }
 
-        let secretKeyBase64 = secretKeyData.base64EncodedString()
-        guard let secretKeyBase64Data = secretKeyBase64.data(using: .utf8) else {
-            throw SessionCryptoError.encryptionFailed
-        }
-
-        let publicKey = try parsePublicKey(from: pem)
+        let publicKey = try parsePublicKey(from: publicKey)
         let encryptedData = try encryptWithPublicKey(data: secretKeyBase64Data, publicKey: publicKey)
-        let sessionId = encryptedData.base64EncodedString()
 
-        return SessionResult(secretKey: secretKey, sessionId: sessionId)
-    }
-
-    public static func generateSessionId(environment: Environment, secret: String? = nil) throws -> SessionResult {
-        let pem = try loadPublicKey(for: environment)
-        return try generateSessionId(pem: pem, secret: secret)
+        return (secretKey, encryptedData.base64EncodedString())
     }
 
     public static func decryptSecret(base64Secret: String, base64Iv: String, secretKey: String) throws -> String {
-        guard !base64Secret.isEmpty else {
-            throw SessionCryptoError.base64SecretRequired
-        }
-
-        guard !base64Iv.isEmpty else {
-            throw SessionCryptoError.base64IvRequired
-        }
-
-        guard !secretKey.isEmpty, isHexString(secretKey) else {
-            throw SessionCryptoError.secretKeyMustBeHexString
-        }
-
         guard let secretData = Data(base64Encoded: base64Secret),
-              let ivData = Data(base64Encoded: base64Iv),
-              let secretKeyData = Data(hex: secretKey) else {
-            throw SessionCryptoError.decryptionFailed
+              let ivData = Data(base64Encoded: base64Iv)
+        else {
+            throw SessionError.invalidData
         }
 
-        // AES-GCM typically uses a 128-bit (16-byte) authentication tag
+        let secretKeyData = Data(hexString: secretKey)
         let tagLength = 16
-
-        guard secretData.count >= tagLength else {
-            throw SessionCryptoError.decryptionFailed
-        }
-
         let ciphertext = secretData.dropLast(tagLength)
         let authTag = secretData.suffix(tagLength)
 
-        do {
-            let symmetricKey = SymmetricKey(data: secretKeyData)
-            let nonce = try AES.GCM.Nonce(data: ivData)
-            let sealedBox = try AES.GCM.SealedBox(nonce: nonce, ciphertext: ciphertext, tag: authTag)
-            let decryptedData = try AES.GCM.open(sealedBox, using: symmetricKey)
+        let symmetricKey = SymmetricKey(data: secretKeyData)
+        let nonce = try AES.GCM.Nonce(data: ivData)
+        let sealedBox = try AES.GCM.SealedBox(nonce: nonce, ciphertext: ciphertext, tag: authTag)
+        let decryptedData = try AES.GCM.open(sealedBox, using: symmetricKey)
 
-            guard let decryptedString = String(data: decryptedData, encoding: .utf8) else {
-                throw SessionCryptoError.decryptionFailed
-            }
-
-            return decryptedString.trimmingCharacters(in: .whitespacesAndNewlines)
-        } catch {
-            throw SessionCryptoError.decryptionFailed
-        }
-    }
-
-    // MARK: - Private Helper Methods
-
-    private static func isHexString(_ string: String) -> Bool {
-        let hexRegex = "^[0-9A-Fa-f]+$"
-        return NSPredicate(format: "SELF MATCHES %@", hexRegex).evaluate(with: string)
-    }
-
-    private static func loadPublicKey(for environment: Environment) throws -> String {
-        guard let resourceURL = Bundle.main.url(forResource: environment.keyFileName.replacingOccurrences(of: ".pem", with: ""), withExtension: "pem") else {
-            throw SessionCryptoError.resourceNotFound
+        guard let decryptedString = String(data: decryptedData, encoding: .utf8) else {
+            throw SessionError.invalidData
         }
 
-        do {
-            return try String(contentsOf: resourceURL)
-        } catch {
-            throw SessionCryptoError.resourceNotFound
-        }
+        return decryptedString.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private static func parsePublicKey(from pem: String) throws -> SecKey {
-        let pemHeader = "-----BEGIN PUBLIC KEY-----"
-        let pemFooter = "-----END PUBLIC KEY-----"
-
-        let pemBody = pem
-            .replacingOccurrences(of: pemHeader, with: "")
-            .replacingOccurrences(of: pemFooter, with: "")
-            .replacingOccurrences(of: "\n", with: "")
-            .replacingOccurrences(of: "\r", with: "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard let keyData = Data(base64Encoded: pemBody) else {
-            throw SessionCryptoError.invalidPEMFormat
+    private static func parsePublicKey(from publicKey: String) throws -> SecKey {
+        guard let keyData = Data(base64Encoded: publicKey) else {
+            throw SessionError.invalidData
         }
 
         let keyAttributes: [String: Any] = [
@@ -380,9 +247,8 @@ public enum SessionCrypto {
             kSecAttrKeyClass as String: kSecAttrKeyClassPublic,
         ]
 
-        var error: Unmanaged<CFError>?
-        guard let publicKey = SecKeyCreateWithData(keyData as CFData, keyAttributes as CFDictionary, &error) else {
-            throw SessionCryptoError.invalidKeyData
+        guard let publicKey = SecKeyCreateWithData(keyData as CFData, keyAttributes as CFDictionary, nil) else {
+            throw SessionError.invalidData
         }
 
         return publicKey
@@ -390,38 +256,9 @@ public enum SessionCrypto {
 
     private static func encryptWithPublicKey(data: Data, publicKey: SecKey) throws -> Data {
         let algorithm = SecKeyAlgorithm.rsaEncryptionOAEPSHA1
-
-        guard SecKeyIsAlgorithmSupported(publicKey, .encrypt, algorithm) else {
-            throw SessionCryptoError.encryptionFailed
+        guard let encryptedData = SecKeyCreateEncryptedData(publicKey, algorithm, data as CFData, nil) else {
+            throw SessionError.invalidData
         }
-
-        var error: Unmanaged<CFError>?
-        guard let encryptedData = SecKeyCreateEncryptedData(publicKey, algorithm, data as CFData, &error) else {
-            throw SessionCryptoError.encryptionFailed
-        }
-
         return encryptedData as Data
-    }
-}
-
-// MARK: - Data Extension for Hex Conversion
-
-private extension Data {
-    init?(hex: String) {
-        let length = hex.count
-        guard length % 2 == 0 else { return nil }
-
-        var data = Data()
-        var index = hex.startIndex
-
-        for _ in 0 ..< (length / 2) {
-            let nextIndex = hex.index(index, offsetBy: 2)
-            let hexByte = String(hex[index ..< nextIndex])
-            guard let byte = UInt8(hexByte, radix: 16) else { return nil }
-            data.append(byte)
-            index = nextIndex
-        }
-
-        self = data
     }
 }
