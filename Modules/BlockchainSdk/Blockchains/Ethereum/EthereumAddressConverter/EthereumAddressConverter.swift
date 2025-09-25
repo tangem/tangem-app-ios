@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol EthereumAddressConverter {
+public protocol EthereumAddressConverter {
     func convertToETHAddress(_ address: String) throws -> String
 }
 
