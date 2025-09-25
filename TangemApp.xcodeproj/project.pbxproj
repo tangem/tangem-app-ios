@@ -10745,7 +10745,7 @@
 		B036625C2B6384670064E073 /* Visa */ = {
 			isa = PBXGroup;
 			children = (
-				DAD212B82E822F5300097D16 /* CardDetails */,
+				DAD212B82E822F5300097D16 /* TangemPayCardDetails */,
 				DAEE39842E74098E006BE201 /* TangemPayOnboarding */,
 				DAAA28C02E66DA890002D5A1 /* TangemPayAccountView.swift */,
 				DA9C94922E3BD5100052CCEE /* TangemPayRow */,
@@ -16638,7 +16638,7 @@
 			path = Pages;
 			sourceTree = "<group>";
 		};
-		DAD212B82E822F5300097D16 /* CardDetails */ = {
+		DAD212B82E822F5300097D16 /* TangemPayCardDetails */ = {
 			isa = PBXGroup;
 			children = (
 				DAD212B92E822F5B00097D16 /* TangemPayCardDetailsData.swift */,
@@ -16646,7 +16646,7 @@
 				DAD212BB2E822F6B00097D16 /* TangemPayCardDetailsViewModel.swift */,
 				DAD212B62E822F3D00097D16 /* TangemPayCardDetailsView.swift */,
 			);
-			path = CardDetails;
+			path = TangemPayCardDetails;
 			sourceTree = "<group>";
 		};
 		DAD98A752AB2E3240051CFBE /* Markets */ = {
