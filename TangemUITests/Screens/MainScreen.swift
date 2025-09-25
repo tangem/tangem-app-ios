@@ -87,10 +87,19 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
-    func validateDeveloperCardBannerExists() -> Self {
-        XCTContext.runActivity(named: "Validate developer card banner exists") { _ in
+    func waitDeveloperCardBannerExists() -> Self {
+        XCTContext.runActivity(named: "Wait developer card banner exists") { _ in
             let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.developerCardBanner]
             waitAndAssertTrue(bannerElement, "Developer card banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitDeveloperCardBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Wait developer card banner not exists") { _ in
+            let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.developerCardBanner]
+            XCTAssertFalse(bannerElement.exists, "Developer card banner should not be displayed")
         }
         return self
     }
