@@ -138,15 +138,24 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
             networkFee: info.networkFee,
             maximumFee: info.maximumFee,
             lastYearReturns: info.lastYearReturns,
+            tokenImageUrl: info.tokenImageUrl,
         )
 
         coordinator.start(with: options)
         yieldModulePromoCoordinator = coordinator
     }
 
-    func openYieldEarnInfo(params: YieldModuleBottomSheetParams.EarnInfoParams) {
+    func openYieldEarnInfo(walletModel: any WalletModel, openFeeCurrencyAction: @escaping () -> Void) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .earnInfo(params: params)))
+            floatingSheetPresenter.enqueue(
+                sheet: YieldModuleInfoViewModel(walletModel: walletModel, openFeeCurrencyAction: openFeeCurrencyAction)
+            )
+        }
+    }
+
+    func openYieldBalanceInfo(params: YieldModuleViewConfigs.BalanceInfoParams) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBalanceInfoViewModel(params: params))
         }
     }
 }
