@@ -27,7 +27,7 @@ struct WalletConnectSolanaSignMessageHandler {
 
         do {
             guard let walletModel = walletModelProvider.getModel(with: blockchainId) else {
-                throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainId)
+                throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
             }
 
             message = parameters.message
@@ -35,7 +35,7 @@ struct WalletConnectSolanaSignMessageHandler {
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.error("Failed to create sign handler", error: error)
-            throw WalletConnectTransactionRequestProcessingError.dataInWrongFormat(stringRepresentation)
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload(stringRepresentation)
         }
 
         self.signer = signer
