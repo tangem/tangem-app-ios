@@ -18,8 +18,6 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     @Published private(set) var cardDetailsData: TangemPayCardDetailsData
 
     private let customerInfoManagementService: any CustomerInfoManagementService
-    private let sessionId: String
-    private let secretKey: String
 
     private var cancellable: Cancellable?
     private var cardDetailsExposureTask: Task<Void, Never>?
@@ -27,10 +25,6 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     init(lastFourDigits: String, customerInfoManagementService: any CustomerInfoManagementService) {
         cardDetailsData = .hidden(lastFourDigits: lastFourDigits)
         self.customerInfoManagementService = customerInfoManagementService
-
-        let session = try! SessionCrypto.generateSessionId(environment: .dev)
-        sessionId = session.sessionId
-        secretKey = session.secretKey
 
         $state
             .map { state -> TangemPayCardDetailsData in
@@ -101,9 +95,13 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     private func revealRequest() async throws -> TangemPayCardDetailsData {
-        let cardDetails = try! await customerInfoManagementService.getCardDetails(sessionId: sessionId)
+        let session = try SessionCrypto.generateSessionId(environment: .dev)
+        let sessionId = session.sessionId
+        let secretKey = session.secretKey
 
-        let decryptedPan = try! SessionCrypto.decryptSecret(
+        let cardDetails = try await customerInfoManagementService.getCardDetails(sessionId: sessionId)
+
+        let decryptedPan = try SessionCrypto.decryptSecret(
             base64Secret: cardDetails.pan.secret,
             base64Iv: cardDetails.pan.iv,
             secretKey: secretKey
@@ -115,9 +113,12 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             secretKey: secretKey
         )
 
+        let formattedPan = formatPan(decryptedPan)
+        let formattedExpiryDate = formatExpiryDate(month: cardDetails.expirationMonth, year: cardDetails.expirationYear)
+
         return TangemPayCardDetailsData(
-            number: decryptedPan,
-            expirationDate: "\(cardDetails.expirationMonth)/\(cardDetails.expirationYear)",
+            number: formattedPan,
+            expirationDate: formattedExpiryDate,
             cvc: decryptedCVV
         )
     }
@@ -126,6 +127,27 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
 private extension TangemPayCardDetailsViewModel {
     enum Constants {
         static let cardDetailsVisibilityPeriodInSeconds: TimeInterval = 30
+    }
+
+    func formatPan(_ pan: String) -> String {
+        let cleanPan = pan.replacingOccurrences(of: " ", with: "")
+        var formattedPan = ""
+
+        for (index, character) in cleanPan.enumerated() {
+            if index > 0, index % 4 == 0 {
+                formattedPan += " "
+            }
+            formattedPan += String(character)
+        }
+
+        return formattedPan
+    }
+
+    func formatExpiryDate(month: String, year: String) -> String {
+        let monthInt = Int(month) ?? 0
+        let formattedMonth = String(format: "%02d", monthInt)
+        let formattedYear = String(year).suffix(2)
+        return "\(formattedMonth)/\(formattedYear)"
     }
 }
 
