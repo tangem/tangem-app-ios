@@ -12,6 +12,10 @@ import TangemLocalization
 import TangemAssets
 
 enum YieldModuleViewConfigs {
+    struct BalanceInfoParams: Equatable {
+        let tokenItem: TokenItem
+    }
+
     enum YieldModuleNotificationBannerParams {
         case notEnoughFeeCurrency(feeCurrencyName: String, tokenIcon: ImageType, buttonAction: @MainActor @Sendable () -> Void)
         case approveNeeded(buttonAction: @MainActor @Sendable () -> Void)
@@ -27,7 +31,7 @@ enum YieldModuleViewConfigs {
 
     struct StartEarningParams: Equatable {
         let tokenName: String
-        let tokenIcon: Image
+        let tokenId: String?
         let networkFee: String
         let maximumFee: String
         let blockchainName: String
