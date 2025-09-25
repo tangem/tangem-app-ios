@@ -93,8 +93,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     }
 
     private func revealRequest() async throws -> TangemPayCardDetailsData {
-        let devPublicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCAP192809jZyaw62g/eTzJ3P9H+RmT88sXUYjQ0K8Bx+rJ83f22+9isKx+lo5UuV8tvOlKwvdDS/pVbzpG7D7NO45c0zkLOXwDHZkou8fuj8xhDO5Tq3GzcrabNLRLVz3dkx0znfzGOhnY4lkOMIdKxlQbLuVM/dGDC9UpulF+UwIDAQAB"
-        let prodPublicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCeZ9uCoxi2XvOw1VmvVLo88TLkGE+OO1j3fa8HhYlJZZ7CCIAsaCorrU+ZpD5PUTnmME3DJk+JyY1BB3p8XI+C5unoQucrbxFbkM1lgR10ewz/LcuhleG0mrXL/bzUZbeJqI6v3c9bXvLPKlsordPanYBGFZkmBPxc8QEdRgH4awIDAQAB"
+        let devPublicKey = try VisaConfigProvider.shared().getRainRSAPublicKey(apiType: .dev)
 
         let session = try SessionCrypto.generateSessionId(publicKey: devPublicKey)
         let sessionId = session.sessionId
@@ -154,46 +153,6 @@ private extension TangemPayCardDetailsViewModel {
 
 import CryptoKit
 import Security
-
-public enum EncryptionUtils {
-    enum EncryptionError: Error {
-        case invalidData
-    }
-
-    public static func encryptAESGCM(plaintext: String, secretKey: String) throws -> (ciphertext: Data, tag: Data, nonce: Data) {
-        guard let plaintextData = plaintext.data(using: .utf8) else {
-            throw EncryptionError.invalidData
-        }
-
-        let secretKeyData = Data(hexString: secretKey)
-        let key = SymmetricKey(data: secretKeyData)
-        let nonce = AES.GCM.Nonce()
-
-        let sealedBox = try AES.GCM.seal(plaintextData, using: key, nonce: nonce)
-        return (sealedBox.ciphertext, sealedBox.tag, Data(nonce))
-    }
-
-    public static func encryptAESGCM(plaintext: String, secretKey: String, nonce: Data) throws -> (ciphertext: Data, tag: Data, nonce: Data) {
-        guard let plaintextData = plaintext.data(using: .utf8) else {
-            throw EncryptionError.invalidData
-        }
-
-        let secretKeyData = Data(hexString: secretKey)
-        let key = SymmetricKey(data: secretKeyData)
-        let gcmNonce = try AES.GCM.Nonce(data: nonce)
-
-        let sealedBox = try AES.GCM.seal(plaintextData, using: key, nonce: gcmNonce)
-        return (sealedBox.ciphertext, sealedBox.tag, nonce)
-    }
-
-    public static func formatForDecryption(ciphertext: Data, tag: Data, nonce: Data) -> (base64Secret: String, base64Iv: String) {
-        var combinedData = Data()
-        combinedData.append(ciphertext)
-        combinedData.append(tag)
-
-        return (combinedData.base64EncodedString(), nonce.base64EncodedString())
-    }
-}
 
 public enum SessionCrypto {
     enum SessionError: Error {

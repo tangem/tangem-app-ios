@@ -8,7 +8,7 @@
 
 import Foundation
 
-class VisaConfigProvider {
+public class VisaConfigProvider {
     private static var instance: VisaConfigProvider?
 
     private let fileName = "visa_config"
@@ -22,7 +22,7 @@ class VisaConfigProvider {
         config = try JSONDecoder().decode(VisaConfig.self, from: Data(contentsOf: path))
     }
 
-    static func shared() throws -> VisaConfigProvider {
+    public static func shared() throws -> VisaConfigProvider {
         guard let instance else {
             let instance = try VisaConfigProvider()
             Self.instance = instance
@@ -48,6 +48,15 @@ class VisaConfigProvider {
             return config.rsaPublicKey.dev
         }
     }
+
+    public func getRainRSAPublicKey(apiType: VisaAPIType) -> String {
+        switch apiType {
+        case .prod:
+            return config.rainRSAPublicKey.prod
+        case .stage, .dev:
+            return config.rainRSAPublicKey.dev
+        }
+    }
 }
 
 private struct VisaConfig: Decodable {
@@ -65,4 +74,5 @@ private struct VisaConfig: Decodable {
     let mainnet: Addresses
     let txHistoryAPIAdditionalHeaders: [String: String]
     let rsaPublicKey: RSAPublicKeys
+    let rainRSAPublicKey: RSAPublicKeys
 }
