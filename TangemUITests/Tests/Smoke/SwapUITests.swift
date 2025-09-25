@@ -8,6 +8,7 @@
 
 import XCTest
 
+// Excluded: [REDACTED_INFO]
 final class SwapUITests: BaseTestCase {
     let token = "Polygon"
     let amountToEnter = "100"
