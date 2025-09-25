@@ -18,36 +18,10 @@ struct YieldNoticeReceiveView: View {
         YieldModuleBottomSheetContainerView(
             title: Localization.yieldModuleAlertTitle(viewModel.currencySymbol),
             subtitle: Localization.yieldModuleAlertDescription,
-            button: MainButton(
-                settings: .init(
-                    title: Localization.commonGotIt,
-                    style: .secondary,
-                    action: viewModel.onGotItTapAction
-                )
-            ),
-            topContent: { lendingPairIcon }
+            button: MainButton(settings: .init(title: Localization.commonGotIt, style: .secondary, action: viewModel.onGotItTapAction)),
+            topContent: {
+                LendingPairIcon(tokenIconInfo: viewModel.yieldNoticeTokenIconInfo, iconsSize: IconViewSizeSettings.tokenDetails.iconSize)
+            }
         )
-    }
-
-    private var lendingPairIcon: some View {
-        ZStack {
-            TokenIcon(
-                tokenIconInfo: viewModel.yieldNoticeTokenIconInfo,
-                size: IconViewSizeSettings.tokenDetails.iconSize
-            )
-            .offset(x: -16)
-
-            Assets.YieldModule.yieldModuleAaveLogo.image
-                .resizable()
-                .scaledToFit()
-                .frame(width: 48, height: 48)
-                .background(
-                    Circle()
-                        .fill(Colors.Background.tertiary)
-                        .frame(width: 50, height: 50)
-                )
-                .offset(x: 16)
-        }
-        .frame(height: 56)
     }
 }

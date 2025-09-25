@@ -137,7 +137,7 @@ extension MarketsTokenDetailsCoordinator {
             tokenItem: walletModel.tokenItem,
             addressTypesProvider: walletModel,
             // [REDACTED_TODO_COMMENT]
-            yieldModuleData: nil
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {

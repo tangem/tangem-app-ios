@@ -18,7 +18,7 @@ final class YieldNoticeViewModel {
 
     init(tokenItem: TokenItem, action: @escaping () -> Void) {
         currencySymbol = tokenItem.currencySymbol
-        tokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem.id)
+        tokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: false)
         self.action = action
     }
 

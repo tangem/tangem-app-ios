@@ -37,7 +37,7 @@ final class TokenAlertReceiveAssetsViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         tokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: false)
-        yieldNoticeTokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem.id)
+        yieldNoticeTokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: false)
         networkName = tokenItem.blockchain.displayName.capitalizingFirstLetter()
         currencySymbol = tokenItem.currencySymbol
     }

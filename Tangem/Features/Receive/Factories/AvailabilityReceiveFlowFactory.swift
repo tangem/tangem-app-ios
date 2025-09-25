@@ -14,7 +14,7 @@ struct AvailabilityReceiveFlowFactory {
     private let tokenItem: TokenItem
     private let addressTypesProvider: ReceiveAddressTypesProvider
     // [REDACTED_TODO_COMMENT]
-    private let yieldModuleData: Bool?
+    private let isYieldModuleActive: Bool
 
     // MARK: - Init
 
@@ -23,12 +23,12 @@ struct AvailabilityReceiveFlowFactory {
         tokenItem: TokenItem,
         addressTypesProvider: ReceiveAddressTypesProvider,
         // [REDACTED_TODO_COMMENT]
-        yieldModuleData: Bool?
+        isYieldModuleActive: Bool = false
     ) {
         self.flow = flow
         self.tokenItem = tokenItem
         self.addressTypesProvider = addressTypesProvider
-        self.yieldModuleData = yieldModuleData
+        self.isYieldModuleActive = isYieldModuleActive
     }
 
     // MARK: Implementation
@@ -40,7 +40,7 @@ struct AvailabilityReceiveFlowFactory {
                 flow: flow,
                 addressTypesProvider: addressTypesProvider,
                 // [REDACTED_TODO_COMMENT]
-                yieldModuleData: yieldModuleData
+                isYieldModuleActive: isYieldModuleActive
             )
 
             let receiveMainViewModel = ReceiveMainViewModel(options: options)
@@ -56,7 +56,10 @@ struct AvailabilityReceiveFlowFactory {
     func makeBottomSheetViewModel() -> ReceiveBottomSheetViewModel {
         let dependencies = makeDependenciesBuilder()
         let receiveBottomSheetNotificationInputsFactory = dependencies.makeReceiveBottomSheetNotificationInputsFactory()
-        let notificationInputs = receiveBottomSheetNotificationInputsFactory.makeNotificationInputs(for: tokenItem)
+        let notificationInputs = receiveBottomSheetNotificationInputsFactory.makeNotificationInputs(
+            for: tokenItem,
+            isYieldModuleActive: isYieldModuleActive
+        )
 
         return ReceiveBottomSheetViewModel(
             flow: flow,
@@ -73,7 +76,8 @@ struct AvailabilityReceiveFlowFactory {
         ReceiveDependenciesBuilder(
             flow: flow,
             tokenItem: tokenItem,
-            addressTypesProvider: addressTypesProvider
+            addressTypesProvider: addressTypesProvider,
+            isYieldModuleActive: isYieldModuleActive
         )
     }
 }

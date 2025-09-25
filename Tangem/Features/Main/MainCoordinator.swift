@@ -319,7 +319,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             tokenItem: walletModel.tokenItem,
             addressTypesProvider: walletModel,
             // [REDACTED_TODO_COMMENT]
-            yieldModuleData: nil
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -491,7 +491,7 @@ extension MainCoordinator: VisaWalletRoutable {
             tokenItem: tokenItem,
             addressTypesProvider: addressTypesProvider,
             // [REDACTED_TODO_COMMENT]
-            yieldModuleData: nil
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {

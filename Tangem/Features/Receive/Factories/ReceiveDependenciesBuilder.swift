@@ -14,7 +14,7 @@ struct ReceiveDependenciesBuilder {
     private let tokenItem: TokenItem
     private let addressTypesProvider: ReceiveAddressTypesProvider
     // [REDACTED_TODO_COMMENT]
-    private let yieldModuleData: Bool?
+    private let isYieldModuleActive: Bool
 
     // MARK: - Init
 
@@ -22,18 +22,18 @@ struct ReceiveDependenciesBuilder {
         flow: ReceiveFlow,
         tokenItem: TokenItem,
         addressTypesProvider: ReceiveAddressTypesProvider,
-        yieldModuleData: Bool? = nil // WIP - This will be a Yield Module service with a state inside
+        isYieldModuleActive: Bool
     ) {
         self.flow = flow
         self.tokenItem = tokenItem
         self.addressTypesProvider = addressTypesProvider
-        self.yieldModuleData = yieldModuleData
+        self.isYieldModuleActive = isYieldModuleActive
     }
 
     // MARK: - Builder
 
     func makeSelectorReceiveAssetsInteractor() -> SelectorReceiveAssetsInteractor {
-        let notificationInputsFactory = ReceiveBottomSheetNotificationInputsFactory(flow: flow, yieldModuleData: yieldModuleData)
+        let notificationInputsFactory = ReceiveBottomSheetNotificationInputsFactory(flow: flow)
         let notificationInputs = notificationInputsFactory.makeNotificationInputs(for: tokenItem)
 
         return CommonSelectorReceiveAssetsInteractor(
@@ -43,7 +43,7 @@ struct ReceiveDependenciesBuilder {
     }
 
     func makeReceiveBottomSheetNotificationInputsFactory() -> ReceiveBottomSheetNotificationInputsFactory {
-        ReceiveBottomSheetNotificationInputsFactory(flow: flow, yieldModuleData: yieldModuleData)
+        ReceiveBottomSheetNotificationInputsFactory(flow: flow)
     }
 
     func makeAnalyticsLogger() -> ReceiveAnalyticsLogger {
