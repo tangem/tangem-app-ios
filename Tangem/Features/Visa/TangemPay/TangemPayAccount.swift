@@ -15,13 +15,15 @@ final class TangemPayAccount {
     let tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never>
     let tangemPayCardIssuingInProgress: AnyPublisher<Bool, Never>
 
+    let tangemPayCardNumberEnd: AnyPublisher<String?, Never>
+
     let tangemPayNotificationManager: TangemPayNotificationManager
 
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let authorizer: TangemPayAuthorizer
-    private let customerInfoManagementService: any CustomerInfoManagementService
+    let customerInfoManagementService: any CustomerInfoManagementService
     private let orderIdStorage: TangemPayOrderIdStorage
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
@@ -53,6 +55,10 @@ final class TangemPayAccount {
         tangemPayCardIssuingInProgress = orderIdStorage.savedOrderIdPublisher
             .map { $0 != nil }
             .merge(with: didTapIssueOrderSubject.mapToValue(true))
+            .eraseToAnyPublisher()
+
+        tangemPayCardNumberEnd = customerInfoSubject
+            .map(\.?.card?.cardNumberEnd)
             .eraseToAnyPublisher()
 
         tangemPayNotificationManager = TangemPayNotificationManager(tangemPayStatusPublisher: tangemPayStatusPublisher)

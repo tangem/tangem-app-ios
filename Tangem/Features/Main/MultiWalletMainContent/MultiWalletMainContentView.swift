@@ -23,6 +23,10 @@ struct MultiWalletMainContentView: View {
                 ActionButtonsView(viewModel: actionButtonsViewModel)
             }
 
+            if let viewModel = viewModel.tangemPayCardDetailsViewModel {
+                TangemPayCardDetailsView(viewModel: viewModel)
+            }
+
             ForEach(viewModel.tangemPayNotificationInputs) { input in
                 NotificationView(input: input)
                     .if(input.id == TangemPayNotificationEvent.createAccountAndIssueCard.id) {

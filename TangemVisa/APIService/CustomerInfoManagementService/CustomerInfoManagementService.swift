@@ -9,12 +9,26 @@
 import Foundation
 import Moya
 
+public struct TangemPayCardDetailsResponse: Decodable {
+    public struct Secret: Decodable {
+        public let secret: String
+        public let iv: String
+    }
+
+    public let expirationMonth: String
+    public let expirationYear: String
+    public let pan: Secret
+    public let cvv: Secret
+}
+
 public protocol CustomerInfoManagementService {
     func loadCustomerInfo() async throws -> VisaCustomerInfoResponse
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse
 
     func placeOrder(walletAddress: String) async throws -> TangemPayOrderResponse
     func getOrder(orderId: String) async throws -> TangemPayOrderResponse
+
+    func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse
 }
 
 /// For backwards compatibility.
@@ -63,6 +77,12 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
         try await apiService.request(
             makeRequest(for: .getKYCAccessToken)
+        )
+    }
+
+    func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse {
+        try await apiService.request(
+            makeRequest(for: .getCardDetails(sessionId: sessionId))
         )
     }
 

@@ -37,6 +37,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var error: AlertBinder? = nil
     @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
 
+    @Published private(set) var tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel?
+
     weak var delegate: MultiWalletMainContentDelegate?
 
     var footerViewModel: MainFooterViewModel?
@@ -133,6 +135,18 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             tangemPayAccount.tangemPayCardIssuingInProgress
                 .receive(on: DispatchQueue.main)
                 .assign(to: &$tangemPayCardIssuingInProgress)
+
+            tangemPayAccount.tangemPayCardNumberEnd
+                .map { cardNumberEnd in
+                    cardNumberEnd.map { cardNumberEnd in
+                        TangemPayCardDetailsViewModel(
+                            lastFourDigits: cardNumberEnd,
+                            customerInfoManagementService: tangemPayAccount.customerInfoManagementService
+                        )
+                    }
+                }
+                .receive(on: DispatchQueue.main)
+                .assign(to: &$tangemPayCardDetailsViewModel)
 
             self.tangemPayAccount = tangemPayAccount
         }
