@@ -15,30 +15,42 @@ struct CustomerInfoManagementAPITarget: TargetType {
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.baseURL.appendingPathComponent("customer/")
+        apiType.baseURL
     }
 
     var path: String {
         switch target {
         case .getCustomerInfo:
-            return "me"
+            "customer/me"
         case .getKYCAccessToken:
-            return "kyc"
+            "customer/kyc"
+        case .placeOrder:
+            "order"
+        case .getOrder(let orderId):
+            "order/\(orderId)"
         }
     }
 
     var method: Moya.Method {
         switch target {
         case .getCustomerInfo,
-             .getKYCAccessToken:
-            return .get
+             .getKYCAccessToken,
+             .getOrder:
+            .get
+
+        case .placeOrder:
+            .post
         }
     }
 
     var task: Moya.Task {
         switch target {
-        case .getCustomerInfo, .getKYCAccessToken:
+        case .getCustomerInfo, .getKYCAccessToken, .getOrder:
             return .requestPlain
+
+        case .placeOrder(let walletAddress):
+            let requestData = TangemPayPlaceOrderRequest(walletAddress: walletAddress)
+            return .requestJSONEncodable(requestData)
         }
     }
 
@@ -58,5 +70,8 @@ extension CustomerInfoManagementAPITarget {
 
         /// Retrieves an access token for the SumSub KYC flow
         case getKYCAccessToken
+
+        case placeOrder(walletAddress: String)
+        case getOrder(orderId: String)
     }
 }
