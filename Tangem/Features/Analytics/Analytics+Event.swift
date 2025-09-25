@@ -102,7 +102,7 @@ extension Analytics {
 
         // MARK: - Main screen
 
-        case mainScreenOpened = "[Main Screen] Screen opened"
+        case mainScreenOpened = "[Main Screen] Main Screen Opened"
         case noticeRateTheAppButtonTapped = "[Main Screen] Notice - Rate The App Button Tapped"
         case noticeFinishActivation = "[Main Screen] Notice - Finish Activation"
         case mainButtonReceive = "[Main Screen] Button - Receive"
