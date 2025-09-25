@@ -259,19 +259,6 @@ extension TokenNotificationEvent: NotificationEvent {
     }
 }
 
-// MARK: - Accessibility Identifiers
-
-extension TokenNotificationEvent {
-    var accessibilityIdentifier: String? {
-        switch self {
-        case .noAccount:
-            return TokenAccessibilityIdentifiers.topUpWalletBanner
-        default:
-            return nil
-        }
-    }
-}
-
 // MARK: - Auxiliary types
 
 extension TokenNotificationEvent {
@@ -352,7 +339,10 @@ extension TokenNotificationEvent {
         case .networkUnreachable(let currencySymbol):
             return [.token: currencySymbol]
         case .notEnoughFeeForTransaction(let configuration):
-            return [.token: configuration.eventConfiguration.feeAmountTypeCurrencySymbol]
+            return [
+                .token: configuration.eventConfiguration.amountCurrencySymbol,
+                .blockchain: configuration.eventConfiguration.amountCurrencyBlockchainName,
+            ]
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction(let revealTransaction)):
             return [.token: revealTransaction.currencySymbol, .blockchain: revealTransaction.blockchainName]
         case .rentFee,
