@@ -283,11 +283,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-            coordinator.openExchange(
-                for: walletModel,
-                with: userWalletModel,
-                isViaYieldNotice: yieldModuleNotificationInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem)
-            )
+            coordinator.openExchange(for: walletModel, with: userWalletModel)
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             coordinator.openStaking(for: walletModel, with: userWalletModel)

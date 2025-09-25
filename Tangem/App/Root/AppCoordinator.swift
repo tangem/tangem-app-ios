@@ -351,13 +351,11 @@ extension AppCoordinator {
         let coordinatorFactory = CommonMainCoordinatorChildFactory()
         let navigationActionHandler = MainCoordinator.MainNavigationActionHandler()
         let deeplinkPresenter = CommonDeeplinkPresenter(coordinatorFactory: coordinatorFactory)
-        let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
         let coordinator = MainCoordinator(
             coordinatorFactory: coordinatorFactory,
             navigationActionHandler: navigationActionHandler,
             deeplinkPresenter: deeplinkPresenter,
-            yieldModuleNoticeInteractor: yieldModuleNoticeInteractor,
             dismissAction: { _ in },
             popToRootAction: popToRootAction
         )

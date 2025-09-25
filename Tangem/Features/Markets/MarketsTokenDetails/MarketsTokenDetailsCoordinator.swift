@@ -38,6 +38,7 @@ class MarketsTokenDetailsCoordinator: CoordinatorObject {
     private var safariHandle: SafariHandle?
 
     private let portfolioCoordinatorFactory = MarketsTokenDetailsPortfolioCoordinatorFactory()
+    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Init
 
@@ -150,11 +151,7 @@ extension MarketsTokenDetailsCoordinator {
         }
     }
 
-    func openExchange(
-        for walletModel: any WalletModel,
-        with userWalletModel: UserWalletModel,
-        isViaYieldNotice: Bool
-    ) {
+    func openExchange(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
         let action = { [weak self] in
             guard let self else { return }
 
@@ -183,10 +180,10 @@ extension MarketsTokenDetailsCoordinator {
             }
         }
 
-        let viewModel = YieldNoticeViewModel(tokenItem: walletModel.tokenItem, action: action)
-
-        Task { @MainActor [floatingSheetPresenter] in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
+            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: action)
+        } else {
+            action()
         }
     }
 
@@ -216,6 +213,13 @@ extension MarketsTokenDetailsCoordinator {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 walletModel.update(silent: true)
             }
+        }
+    }
+
+    func openViaYieldNotice(tokenItem: TokenItem, action: @escaping () -> Void) {
+        let viewModel = YieldNoticeViewModel(tokenItem: tokenItem, action: action)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 }

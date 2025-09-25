@@ -32,7 +32,7 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     private let coordinatorFactory: MainCoordinatorChildFactory
     private let navigationActionHandler: MainNavigationActionHandler
     private let deeplinkPresenter: DeeplinkPresenter
-    private let yieldModuleNoticeInteractor: YieldModuleNoticeInteractor
+    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Root view model
 
@@ -84,14 +84,12 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         coordinatorFactory: MainCoordinatorChildFactory,
         navigationActionHandler: MainNavigationActionHandler,
         deeplinkPresenter: DeeplinkPresenter,
-        yieldModuleNoticeInteractor: YieldModuleNoticeInteractor,
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.coordinatorFactory = coordinatorFactory
         self.navigationActionHandler = navigationActionHandler
         self.deeplinkPresenter = deeplinkPresenter
-        self.yieldModuleNoticeInteractor = yieldModuleNoticeInteractor
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }

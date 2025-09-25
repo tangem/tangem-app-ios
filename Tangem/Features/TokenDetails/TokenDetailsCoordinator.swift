@@ -41,6 +41,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
     private var safariHandle: SafariHandle?
     private var options: Options?
 
+    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
+
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -238,7 +240,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             sendCoordinator = coordinator
         }
 
-        if YieldModuleNoticeInteractor().shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
             openViaYieldNotice(tokenItem: walletModel.tokenItem, action: action)
         } else {
             action()
@@ -297,7 +299,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             }
         }
 
-        if YieldModuleNoticeInteractor().shouldShowYieldModuleAlert(for: input.initialWalletModel.tokenItem) {
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.initialWalletModel.tokenItem) {
             openViaYieldNotice(tokenItem: input.initialWalletModel.tokenItem, action: action)
         } else {
             action()
