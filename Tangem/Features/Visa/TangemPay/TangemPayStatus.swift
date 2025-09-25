@@ -8,17 +8,15 @@
 
 enum TangemPayStatus {
     case kycRequired
-    case readyToIssue
-    case didTapIssueCard
-    case issuing
+    case readyToIssueOrIssuing
     case active
 
-    var isIssuingInProgress: Bool {
+    var isActive: Bool {
         switch self {
-        case .didTapIssueCard, .issuing:
-            true
-        case .kycRequired, .readyToIssue, .active:
+        case .kycRequired, .readyToIssueOrIssuing:
             false
+        case .active:
+            true
         }
     }
 }
