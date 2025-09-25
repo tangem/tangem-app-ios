@@ -9,20 +9,26 @@
 import Foundation
 import TangemFoundation
 
-public class ProviderItem {
-    public let paymentMethod: OnrampPaymentMethod
-    public let sorter: ProviderItemSorter
+public class ProviderItem: Identifiable {
+    public var id: String { paymentMethod.id }
 
+    public let paymentMethod: OnrampPaymentMethod
     public private(set) var providers: [OnrampProvider]
 
     init(
         paymentMethod: OnrampPaymentMethod,
-        sorter: ProviderItemSorter,
         providers: [OnrampProvider]
     ) {
         self.paymentMethod = paymentMethod
-        self.sorter = sorter
         self.providers = providers
+    }
+
+    public func hasSuccessfullyLoadedProviders() -> Bool {
+        !successfullyLoadedProviders().isEmpty
+    }
+
+    public func successfullyLoadedProviders() -> [OnrampProvider] {
+        providers.filter { $0.isSuccessfullyLoaded }
     }
 
     public func hasSelectableProviders() -> Bool {
@@ -46,7 +52,7 @@ public class ProviderItem {
 
     @discardableResult
     public func sort() -> [OnrampProvider] {
-        providers.sort(by: { sorter.sort(lhs: $0, rhs: $1) })
+        providers.sort(by: >)
         // Return sorted providers
         return providers
     }

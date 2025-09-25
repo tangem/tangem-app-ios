@@ -59,7 +59,7 @@ class TezosTransactionBuilder {
                 counter: counter.description,
                 gasLimit: "10000",
                 storageLimit: "0",
-                publicKey: encodePublicKey(), // checkit
+                publicKey: encodePublicKey(),
                 destination: nil,
                 amount: nil
             )
@@ -111,6 +111,10 @@ class TezosTransactionBuilder {
             try content.publicKey.map {
                 let encoded = try $0.encodePublicKey()
                 forged += encoded
+
+                // For tz1/tz2/tz3 addresses (implicit accounts), the Tezos protocol requires the proof field in the reveal operation to be empty.
+                // An empty proof field is encoded as a single byte with value 0x00 (i.e., "00" in hex) according to the Tezos binary encoding specification.
+                forged += "00"
             }
 
             // transaction operation only
