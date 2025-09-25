@@ -19,6 +19,12 @@ final class ToSScreen: ScreenBase<ToSPageUIElement> {
             return StoriesScreen(app)
         }
     }
+
+    func waitForToSAcceptButton() {
+        XCTContext.runActivity(named: "Wait for ToS accept button") { _ in
+            waitAndAssertTrue(acceptButton)
+        }
+    }
 }
 
 enum ToSPageUIElement: String, UIElement {
