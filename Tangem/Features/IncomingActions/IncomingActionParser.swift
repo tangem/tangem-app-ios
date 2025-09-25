@@ -19,7 +19,7 @@ public class IncomingActionParser {
         WalletConnectURLParser(),
         BlockchainURLSchemesParser(),
         OnrampIncomingActionURLParser(),
-        DefaultIncomingLinkParser(isFeatureAvailable: FeatureProvider.isAvailable(.deeplink)),
+        DefaultIncomingLinkParser(),
     ]
 
     private let urlValidator: IncomingURLValidator
