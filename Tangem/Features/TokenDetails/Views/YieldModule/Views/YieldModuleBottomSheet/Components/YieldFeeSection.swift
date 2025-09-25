@@ -16,7 +16,7 @@ struct YieldFeeSection: View {
     let state: State
     let footerText: String
     let linkTitle: String?
-    let urlString: String?
+    let url: URL?
     let onLinkTapAction: (() -> Void)?
 
     var body: some View {
@@ -25,7 +25,7 @@ struct YieldFeeSection: View {
                 .padding(.horizontal, 4)
                 .defaultRoundedBackground(verticalPadding: 14)
 
-            FooterText(footerText: footerText, linkTitle: linkTitle, urlString: urlString, onLinkTapAction: onLinkTapAction)
+            FooterText(footerText: footerText, linkTitle: linkTitle, url: url, onLinkTapAction: onLinkTapAction)
                 .padding(.horizontal, 14)
         }
     }
@@ -94,7 +94,7 @@ extension YieldFeeSection {
     struct FooterText: View {
         let footerText: String
         let linkTitle: String?
-        let urlString: String?
+        let url: URL?
         let onLinkTapAction: (() -> Void)?
 
         var body: some View {
@@ -125,9 +125,9 @@ extension YieldFeeSection {
             attr.font = Fonts.Regular.footnote
             attr.foregroundColor = Colors.Text.tertiary
 
-            if let linkTitle, let range = attr.range(of: linkTitle) {
+            if let url, let linkTitle, let range = attr.range(of: linkTitle) {
                 attr[range].foregroundColor = Colors.Text.accent
-                attr[range].link = URL(string: urlString ?? " ")
+                attr[range].link = url
             }
 
             return attr

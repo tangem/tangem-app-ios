@@ -54,18 +54,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Properties
 
     private(set) var maximumFee: Decimal = 0
-
-    // [REDACTED_TODO_COMMENT]
-    var readMoreURLString: String {
-        switch viewState {
-        case .earnInfo:
-            "https://tangem.com"
-        case .stopEarning:
-            "https://tangem.com"
-        case .approve:
-            "https://tangem.com"
-        }
-    }
+    private(set) var readMoreURLString: URL = TangemBlogUrlBuilder().url(post: .fee)
 
     var isButtonEnabled: Bool {
         switch viewState {

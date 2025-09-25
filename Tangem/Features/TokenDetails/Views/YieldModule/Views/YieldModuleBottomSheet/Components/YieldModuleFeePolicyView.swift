@@ -31,7 +31,7 @@ extension YieldModuleStartView {
                 state: tokenFeeState,
                 footerText: Localization.yieldModuleFeePolicySheetCurrentFeeNote(blockchainName),
                 linkTitle: nil,
-                urlString: nil,
+                url: nil,
                 onLinkTapAction: {}
             )
         }

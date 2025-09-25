@@ -134,7 +134,7 @@ struct YieldModuleInfoView: View {
                 state: viewModel.networkFeeState,
                 footerText: Localization.yieldModuleApproveSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
-                urlString: viewModel.readMoreURLString,
+                url: viewModel.readMoreURLString,
                 onLinkTapAction: nil
             )
             .task {
@@ -147,7 +147,7 @@ struct YieldModuleInfoView: View {
                 state: viewModel.networkFeeState,
                 footerText: Localization.yieldModuleStopEarningSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
-                urlString: viewModel.readMoreURLString,
+                url: viewModel.readMoreURLString,
                 onLinkTapAction: nil
             )
             .task {

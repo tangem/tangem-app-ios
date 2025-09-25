@@ -140,7 +140,7 @@ struct YieldModuleStartView: View {
                 state: viewModel.networkFeeState,
                 footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
                 linkTitle: Localization.yieldModuleStartEarningSheetFeePolicy,
-                urlString: nil,
+                url: nil,
                 onLinkTapAction: viewModel.onShowFeePolicy
             )
             .task {
