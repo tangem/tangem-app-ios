@@ -163,6 +163,8 @@
 		0F84C1222E15910500DC7FB1 /* MobileOnboardingFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F84C1212E15910500DC7FB1 /* MobileOnboardingFlow.swift */; };
 		0F84C1252E16859C00DC7FB1 /* MobileOnboardingSeedPhraseRevealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F84C1242E16859C00DC7FB1 /* MobileOnboardingSeedPhraseRevealView.swift */; };
 		0F84C1272E1685A500DC7FB1 /* MobileOnboardingSeedPhraseRevealViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F84C1262E1685A500DC7FB1 /* MobileOnboardingSeedPhraseRevealViewModel.swift */; };
+		0F9822F82E859AEB00B4F458 /* CardScanAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9822F72E859AEB00B4F458 /* CardScanAnalyticsLogger.swift */; };
+		0F9822FA2E859E1B00B4F458 /* Analytics+CardScanAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9822F92E859E1B00B4F458 /* Analytics+CardScanAction.swift */; };
 		0FA453B62E1D3AFE0055B5BB /* MobileWrongAccessCodeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA453AA2E1D3AFE0055B5BB /* MobileWrongAccessCodeStore.swift */; };
 		0FA453B82E1D3AFE0055B5BB /* MobileUnlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA453B32E1D3AFE0055B5BB /* MobileUnlockView.swift */; };
 		0FA453BA2E1D3AFE0055B5BB /* MobileAccessCodeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA453A52E1D3AFE0055B5BB /* MobileAccessCodeState.swift */; };
@@ -4422,6 +4424,8 @@
 		0F84C1212E15910500DC7FB1 /* MobileOnboardingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlow.swift; sourceTree = "<group>"; };
 		0F84C1242E16859C00DC7FB1 /* MobileOnboardingSeedPhraseRevealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseRevealView.swift; sourceTree = "<group>"; };
 		0F84C1262E1685A500DC7FB1 /* MobileOnboardingSeedPhraseRevealViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseRevealViewModel.swift; sourceTree = "<group>"; };
+		0F9822F72E859AEB00B4F458 /* CardScanAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardScanAnalyticsLogger.swift; sourceTree = "<group>"; };
+		0F9822F92E859E1B00B4F458 /* Analytics+CardScanAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+CardScanAction.swift"; sourceTree = "<group>"; };
 		0FA453A52E1D3AFE0055B5BB /* MobileAccessCodeState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileAccessCodeState.swift; sourceTree = "<group>"; };
 		0FA453A72E1D3AFE0055B5BB /* CommonMobileAccessCodeStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonMobileAccessCodeStorageManager.swift; sourceTree = "<group>"; };
 		0FA453A82E1D3AFE0055B5BB /* MobileAccessCodeStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileAccessCodeStorageManager.swift; sourceTree = "<group>"; };
@@ -12167,6 +12171,7 @@
 				DCBC94502993FE9A0050BC35 /* Analytics+AnalyticsSystem.swift */,
 				2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */,
 				DCBC94522993FEC80050BC35 /* Analytics+CardScanSource.swift */,
+				0F9822F92E859E1B00B4F458 /* Analytics+CardScanAction.swift */,
 				DC0DE7802D48004000492A0B /* Analytics+ScanErrorsSource.swift */,
 				DCE402B72A31E69100D40C77 /* Analytics+DestinationAddressSource.swift */,
 				B0D1AC312906719300584E6C /* Analytics+Event.swift */,
@@ -12185,6 +12190,7 @@
 				0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */,
 				B6438A0D2D091BE5009439CA /* FirebaseAnalyticsEventConverter.swift */,
 				0A16965A2E4DFCA400FBDA90 /* SignInAnalyticsLogger.swift */,
+				0F9822F72E859AEB00B4F458 /* CardScanAnalyticsLogger.swift */,
 			);
 			path = Analytics;
 			sourceTree = "<group>";
@@ -23777,6 +23783,7 @@
 				EFD678332E27C7ED0065AD50 /* CommonStakingSendAnalyticsLogger.swift in Sources */,
 				2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */,
 				EF9CA6102D424060009549E2 /* LogsView.swift in Sources */,
+				0F9822F82E859AEB00B4F458 /* CardScanAnalyticsLogger.swift in Sources */,
 				DA4055272ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift in Sources */,
 				EF5A5ACF28D86089002544AC /* TotalBalanceProvider.swift in Sources */,
 				B656FCE62C46F3E8002B5BF2 /* OverlayContentStateObserverViewModifier.swift in Sources */,
@@ -24628,6 +24635,7 @@
 				B6DF90652CA317A70099FED5 /* MainBottomSheetFooterShadowView.swift in Sources */,
 				B6E9A8C92A9A410A005CF137 /* CardsInfoPagerView+.swift in Sources */,
 				0F48DC8C2E45EAE50095D3C8 /* MobileAccessCodeCleaner.swift in Sources */,
+				0F9822FA2E859E1B00B4F458 /* Analytics+CardScanAction.swift in Sources */,
 				B0323F2C258C041D005C7CD5 /* SignerUtils.swift in Sources */,
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
 				0A0D889D2E829CCF00877140 /* EvmTransactionBulkScan.swift in Sources */,

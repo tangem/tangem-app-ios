@@ -78,6 +78,7 @@ class DetailsViewModel: ObservableObject {
 
     // MARK: - Private
 
+    private let cardScanAnalyticsLogger = CardScanAnalyticsLogger()
     private var bag = Set<AnyCancellable>()
     private weak var coordinator: DetailsRoutable?
 
@@ -374,7 +375,7 @@ private extension DetailsViewModel {
 
     func addOrScanNewUserWallet() {
         isScanning = true
-        Analytics.log(Analytics.CardScanSource.settings.cardScanButtonEvent)
+        cardScanAnalyticsLogger.log(action: .cardScanButton, source: .settings)
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -397,7 +398,7 @@ private extension DetailsViewModel {
                 }
 
             case .onboarding(let input, _):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.settings.cardWasScannedParameterValue])
+                viewModel.cardScanAnalyticsLogger.log(action: .cardWasScanned, source: .settings)
 
                 await runOnMain {
                     viewModel.isScanning = false
@@ -413,7 +414,7 @@ private extension DetailsViewModel {
                 }
 
             case .success(let cardInfo):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.settings.cardWasScannedParameterValue])
+                viewModel.cardScanAnalyticsLogger.log(action: .cardWasScanned, source: .settings)
 
                 do {
                     let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)

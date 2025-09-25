@@ -30,6 +30,7 @@ final class AuthViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
+    private let cardScanAnalyticsLogger = CardScanAnalyticsLogger()
     private weak var coordinator: AuthRoutable?
 
     private var unlockOnAppear: Bool
@@ -86,7 +87,7 @@ final class AuthViewModel: ObservableObject {
     func unlockWithCard() {
         isScanningCard = true
 
-        Analytics.log(Analytics.CardScanSource.auth.cardScanButtonEvent)
+        cardScanAnalyticsLogger.log(action: .cardScanButton, source: .auth)
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -112,7 +113,7 @@ final class AuthViewModel: ObservableObject {
                 }
 
             case .onboarding(let input, _):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
+                viewModel.cardScanAnalyticsLogger.log(action: .cardWasScanned, source: .auth)
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -130,7 +131,7 @@ final class AuthViewModel: ObservableObject {
                 }
 
             case .success(let cardInfo):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
+                viewModel.cardScanAnalyticsLogger.log(action: .cardWasScanned, source: .auth)
                 let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
                 guard let userWalletId = UserWalletId(config: config),
