@@ -12,10 +12,8 @@ enum Feature: String, Hashable, CaseIterable {
     case disableFirmwareVersionLimit
     case learnToEarn
     case visa // [REDACTED_TODO_COMMENT]
-    case nft
     case logs
     case mobileWallet
-    case deeplink
     case wcSolanaALT
     case accounts
     case receiveENS
@@ -27,10 +25,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .learnToEarn: return "Learn to Earn"
         case .visa: return "Visa"
-        case .nft: return "NFT"
         case .logs: return "Logs"
         case .mobileWallet: return "Mobile wallet"
-        case .deeplink: return "Deeplink"
         case .wcSolanaALT: return "WalletConnect Solana ALT"
         case .accounts: return "Accounts"
         case .receiveENS: return "Receive (ENS)"
@@ -44,10 +40,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .disableFirmwareVersionLimit: return .unspecified
         case .learnToEarn: return .unspecified
         case .visa: return .unspecified
-        case .nft: return .version("5.25")
         case .logs: return .version("5.25")
         case .mobileWallet: return .unspecified
-        case .deeplink: return .version("5.25")
         case .wcSolanaALT: return .version("5.28")
         case .accounts: return .unspecified
         case .receiveENS: return .version("5.28")
