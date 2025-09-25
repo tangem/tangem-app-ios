@@ -318,7 +318,7 @@ private extension CardanoTransactionBuilder {
         let txInputData = try input.serializedData()
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
-        let preSigningOutput = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
+        let preSigningOutput = try TxCompilerPreSigningOutput(serializedBytes: preImageHashes)
 
         if preSigningOutput.error != .ok {
             BSDKLogger.error("CardanoPreSigningOutput has a error", error: preSigningOutput.errorMessage)
@@ -350,7 +350,7 @@ private extension CardanoTransactionBuilder {
             publicKeys: publicKeysVector
         )
 
-        let output = try CardanoSigningOutput(serializedData: compileWithSignatures)
+        let output = try CardanoSigningOutput(serializedBytes: compileWithSignatures)
 
         if output.error != .ok {
             BSDKLogger.error("CardanoPreSigningOutput has a error", error: output.errorMessage)

@@ -71,7 +71,7 @@ final class TONTransactionBuilder {
         let txInputData = try txInput.serializedData()
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: .ton, txInputData: txInputData)
-        let preSigningOutput = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
+        let preSigningOutput = try TxCompilerPreSigningOutput(serializedBytes: preImageHashes)
 
         guard preSigningOutput.error == .ok, !preSigningOutput.data.isEmpty else {
             BSDKLogger.error(error: "TONPreSigningOutput has a error: \(preSigningOutput.errorMessage)")
@@ -105,7 +105,7 @@ final class TONTransactionBuilder {
             publicKeys: wallet.publicKey.blockchainKey.asDataVector()
         )
 
-        let signingOutput = try TheOpenNetworkSigningOutput(serializedData: compiledTransaction)
+        let signingOutput = try TheOpenNetworkSigningOutput(serializedBytes: compiledTransaction)
 
         guard signingOutput.error == .ok, !signingOutput.encoded.isEmpty else {
             BSDKLogger.error(error: "TONSigningOutput has a error: \(signingOutput.errorMessage)")
