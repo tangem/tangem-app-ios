@@ -130,7 +130,7 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.settingsVersion)
     var settingsVersion: Int = 0
-    
+
     @AppStorageCompat(StorageType.tangemPayOrderIdForCustomerWalletAddress)
     var tangemPayOrderIdForCustomerWalletAddress: [String: String] = [:]
 

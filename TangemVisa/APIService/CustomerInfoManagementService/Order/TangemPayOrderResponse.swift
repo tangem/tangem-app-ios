@@ -23,7 +23,7 @@ public extension TangemPayOrderResponse {
         case completed = "COMPLETED"
         case canceled = "CANCELED"
     }
-    
+
     struct Data: Decodable {
         public let type: String
         public let specificationName: String
