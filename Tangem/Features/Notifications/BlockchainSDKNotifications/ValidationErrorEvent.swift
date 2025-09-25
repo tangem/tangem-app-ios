@@ -37,7 +37,7 @@ enum ValidationErrorEvent: Hashable {
     case noTrustlineAtDestination
 }
 
-extension ValidationErrorEvent: NotificationEvent {
+extension ValidationErrorEvent {
     var id: Int {
         switch self {
         case .invalidNumber: "invalidNumber".hashValue
@@ -229,21 +229,5 @@ extension ValidationErrorEvent {
              .noTrustlineAtDestination:
             return nil
         }
-    }
-}
-
-// MARK: Analytics
-
-extension ValidationErrorEvent {
-    var analyticsEvent: Analytics.Event? {
-        return nil
-    }
-
-    var analyticsParams: [Analytics.ParameterKey: String] {
-        return [:]
-    }
-
-    var isOneShotAnalyticsEvent: Bool {
-        return false
     }
 }
