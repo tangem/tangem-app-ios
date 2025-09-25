@@ -35,10 +35,10 @@ final class MainScreenUITests: BaseTestCase {
 
     func testScanRing_MandatorySecurityUpdateBannerDisplayed() {
         setAllureId(227)
-        launchApp(tangemApiType: .mock)
+        launchApp()
 
         let mainScreen = StoriesScreen(app)
-            .scanMockWallet(name: .ring)
+            .scanMockWallet(name: .wallet2Imported)
 
         mainScreen.validateMandatorySecurityUpdateBannerExists()
     }
