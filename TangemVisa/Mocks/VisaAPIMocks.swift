@@ -337,6 +337,44 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
         VisaKYCAccessTokenResponse(token: "", locale: "")
     }
+
+    func getOrder(orderId: String) async throws -> TangemPayOrderResponse {
+        TangemPayOrderResponse(
+            id: "",
+            customerId: "",
+            type: "",
+            status: .new,
+            step: "",
+            data: .init(
+                type: "",
+                specificationName: "",
+                customerWalletAddress: "",
+                embossName: nil,
+                productInstanceId: nil,
+                paymentAccountId: nil
+            ),
+            stepChangeCode: 0
+        )
+    }
+
+    func placeOrder(walletAddress: String) async throws -> TangemPayOrderResponse {
+        TangemPayOrderResponse(
+            id: "",
+            customerId: "",
+            type: "",
+            status: .new,
+            step: "",
+            data: .init(
+                type: "",
+                specificationName: "",
+                customerWalletAddress: "",
+                embossName: nil,
+                productInstanceId: nil,
+                paymentAccountId: nil
+            ),
+            stepChangeCode: 0
+        )
+    }
 }
 
 private struct RandomBytesGenerator {
