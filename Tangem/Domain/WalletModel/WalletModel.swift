@@ -134,6 +134,8 @@ protocol WalletModelDependenciesProvider {
     var transactionValidator: TransactionValidator { get }
     var transactionSender: TransactionSender { get }
 
+    var multipleTransactionsSender: MultipleTransactionsSender? { get }
+
     var compiledTransactionSender: CompiledTransactionSender? { get }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { get }

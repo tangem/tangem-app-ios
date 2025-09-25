@@ -98,19 +98,16 @@ extension BlockchainDataProvider {
 
 public protocol TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError>
-    func send(_ transactions: [Transaction], signer: TransactionSigner) -> AnyPublisher<[TransactionSendResult], SendTxError>
 }
 
-public extension TransactionSender {
+// MARK: - MultipleTransactionSender
+
+/// transactions expected to be signed in one tap and sent in initially provided order
+public protocol MultipleTransactionsSender {
     func send(
         _ transactions: [Transaction],
         signer: TransactionSigner
-    ) -> AnyPublisher<[TransactionSendResult], SendTxError> {
-        transactions.publisher
-            .flatMap { send($0, signer: signer) }
-            .collect()
-            .eraseToAnyPublisher()
-    }
+    ) -> AnyPublisher<[TransactionSendResult], SendTxError>
 }
 
 public protocol CompiledTransactionSender {

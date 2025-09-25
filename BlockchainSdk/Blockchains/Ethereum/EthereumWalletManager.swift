@@ -26,7 +26,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         addressConverter: EthereumAddressConverter,
         txBuilder: EthereumTransactionBuilder,
         networkService: EthereumNetworkService,
-        yieldSupplyService: YieldSupplyService?,
+        yieldSupplyService: YieldSupplyService? = nil,
         allowsFeeSelection: Bool
     ) {
         self.txBuilder = txBuilder
@@ -86,9 +86,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     /// - Returns: The hex of the raw transaction ready to be sent over the network
     func sign(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<String, Error> {
         signMultiple([transaction], signer: signer)
-            .compactMap { signedTransactions in
-                signedTransactions.first
-            }
+            .compactMap { $0.first }
             .eraseToAnyPublisher()
     }
 
@@ -206,19 +204,6 @@ extension EthereumWalletManager: EthereumNetworkProvider {
             .withWeakCaptureOf(self)
             .flatMap { walletManager, convertedAddress in
                 walletManager.networkService.getBalance(convertedAddress)
-            }
-            .eraseToAnyPublisher()
-    }
-
-    func getTokensBalance(_ address: String, tokens: [Token]) -> AnyPublisher<[Token: Result<Amount, Error>], Error> {
-        addressConverter.convertToETHAddressPublisher(address)
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedAddress in
-                walletManager.networkService.getTokensBalance(
-                    convertedAddress,
-                    tokens: tokens,
-                    yieldSupplyService: walletManager.yieldSupplyService
-                )
             }
             .eraseToAnyPublisher()
     }
@@ -344,11 +329,15 @@ private extension EthereumWalletManager {
         wallet.add(coinValue: response.balance)
 
         for tokenBalance in response.tokenBalances {
-            switch tokenBalance.value {
-            case .success(let value):
-                wallet.add(amount: value)
-            case .failure:
-                wallet.clearAmount(for: tokenBalance.key)
+            if case .success(.some(let amount)) = response.yieldBalances[tokenBalance.key] {
+                wallet.add(amount: amount)
+            } else {
+                switch tokenBalance.value {
+                case .success(let value):
+                    wallet.add(tokenValue: value, for: tokenBalance.key)
+                case .failure:
+                    wallet.clearAmount(for: tokenBalance.key)
+                }
             }
         }
 
@@ -408,28 +397,15 @@ extension EthereumWalletManager: TransactionFeeProvider {
 
 extension EthereumWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        return addressConverter.convertToETHAddressesPublisher(in: transaction)
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedTransaction in
-                walletManager.sign(convertedTransaction, signer: signer)
-            }
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, rawTransaction in
-                walletManager.networkService.send(transaction: rawTransaction)
-                    .mapAndEraseSendTxError(tx: rawTransaction)
-            }
-            .withWeakCaptureOf(self)
-            .tryMap { walletManager, hash in
-                let mapper = PendingTransactionRecordMapper()
-                let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                walletManager.wallet.addPendingTransaction(record)
-
-                return TransactionSendResult(hash: hash)
-            }
-            .mapSendTxError()
+        send([transaction], signer: signer)
+            .compactMap { $0.first }
             .eraseToAnyPublisher()
     }
+}
 
+// MARK: - MultipleTransactionSender
+
+extension EthereumWalletManager: MultipleTransactionsSender {
     func send(_ transactions: [Transaction], signer: any TransactionSigner) -> AnyPublisher<[TransactionSendResult], SendTxError> {
         signMultiple(transactions, signer: signer)
             .withWeakCaptureOf(self)

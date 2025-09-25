@@ -272,6 +272,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.transactionSender
     }
 
+    var multipleTransactionsSender: (any MultipleTransactionsSender)? {
+        mainTokenWalletModel.multipleTransactionsSender
+    }
+
     var compiledTransactionSender: CompiledTransactionSender? {
         mainTokenWalletModel.compiledTransactionSender
     }

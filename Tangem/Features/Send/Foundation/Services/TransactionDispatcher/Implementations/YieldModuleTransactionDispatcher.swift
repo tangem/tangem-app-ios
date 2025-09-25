@@ -7,16 +7,23 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 class YieldModuleTransactionDispatcher {
-    private let walletModel: any WalletModel
+    private let blockchain: Blockchain
+    private let walletModelUpdater: WalletModelUpdater
     private let transactionSigner: TangemSigner
+    private let transactionsSender: MultipleTransactionsSender
 
     init(
-        walletModel: any WalletModel,
+        blockchain: Blockchain,
+        walletModelUpdater: WalletModelUpdater,
+        transactionsSender: MultipleTransactionsSender,
         transactionSigner: TangemSigner
     ) {
-        self.walletModel = walletModel
+        self.blockchain = blockchain
+        self.walletModelUpdater = walletModelUpdater
+        self.transactionsSender = transactionsSender
         self.transactionSigner = transactionSigner
     }
 }
@@ -48,16 +55,17 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
         let mapper = TransactionDispatcherResultMapper()
 
         do {
-            let hashes = try await walletModel.transactionSender.send(
+            let hashes = try await transactionsSender.send(
                 transferTransactions,
                 signer: transactionSigner
             ).async()
-            walletModel.updateAfterSendingTransaction()
+
+            walletModelUpdater.updateAfterSendingTransaction()
 
             return hashes.map { hash in
                 mapper.mapResult(
                     hash,
-                    blockchain: walletModel.tokenItem.blockchain,
+                    blockchain: blockchain,
                     signer: transactionSigner.latestSignerType
                 )
             }

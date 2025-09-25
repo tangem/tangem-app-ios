@@ -79,7 +79,6 @@
 		0AA322562E7953C60090B803 /* TokenYieldSupply.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA322552E7953C60090B803 /* TokenYieldSupply.swift */; };
 		0AA322582E795A500090B803 /* YieldSupplyContractAddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA322572E795A500090B803 /* YieldSupplyContractAddressFactory.swift */; };
 		0AA3225A2E795AB20090B803 /* YieldSupplyContractAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA322592E795AB20090B803 /* YieldSupplyContractAddresses.swift */; };
-		0AA3225C2E795BDB0090B803 /* AaveV3YieldSupplyContractAddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA3225B2E795BDB0090B803 /* AaveV3YieldSupplyContractAddressFactory.swift */; };
 		0AA322602E7999B00090B803 /* YieldSupplyServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA3225F2E7999B00090B803 /* YieldSupplyServiceFactory.swift */; };
 		0AA322622E79C3740090B803 /* YieldModuleSmartContractState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA322612E79C3740090B803 /* YieldModuleSmartContractState.swift */; };
 		0AA6A79D2DBA6D83008F5D43 /* ReferralProgramURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA6A79C2DBA6D83008F5D43 /* ReferralProgramURLParser.swift */; };
@@ -4303,7 +4302,6 @@
 		0AA322552E7953C60090B803 /* TokenYieldSupply.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenYieldSupply.swift; sourceTree = "<group>"; };
 		0AA322572E795A500090B803 /* YieldSupplyContractAddressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSupplyContractAddressFactory.swift; sourceTree = "<group>"; };
 		0AA322592E795AB20090B803 /* YieldSupplyContractAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSupplyContractAddresses.swift; sourceTree = "<group>"; };
-		0AA3225B2E795BDB0090B803 /* AaveV3YieldSupplyContractAddressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaveV3YieldSupplyContractAddressFactory.swift; sourceTree = "<group>"; };
 		0AA3225F2E7999B00090B803 /* YieldSupplyServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSupplyServiceFactory.swift; sourceTree = "<group>"; };
 		0AA322612E79C3740090B803 /* YieldModuleSmartContractState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleSmartContractState.swift; sourceTree = "<group>"; };
 		0AA6A79C2DBA6D83008F5D43 /* ReferralProgramURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralProgramURLParser.swift; sourceTree = "<group>"; };
@@ -8573,7 +8571,6 @@
 				0A3F47162E7C07CC00F3DCEC /* YieldSupplyService.swift */,
 				0A8E6CE32E697F85004ABC72 /* YieldModuleError.swift */,
 				0AA3225F2E7999B00090B803 /* YieldSupplyServiceFactory.swift */,
-				0AA3225B2E795BDB0090B803 /* AaveV3YieldSupplyContractAddressFactory.swift */,
 				0AA322572E795A500090B803 /* YieldSupplyContractAddressFactory.swift */,
 				0A92AE992E65D86200CDB659 /* YieldConstants.swift */,
 			);
@@ -26552,7 +26549,6 @@
 				EF3805182D71BC4B00273B1B /* RavencoinTransactionRecordMapper.swift in Sources */,
 				B62D42002CBC79DB00C2460E /* XDCAddressService.swift in Sources */,
 				B62D40912CBC79DA00C2460E /* EthereumAddressConverterError.swift in Sources */,
-				0AA3225C2E795BDB0090B803 /* AaveV3YieldSupplyContractAddressFactory.swift in Sources */,
 				2DB200632D34F57700E499A3 /* Fact0rnNetworkProvider.swift in Sources */,
 				EA93432E2E24F9BF0082FA71 /* XRPAssetIdParser.swift in Sources */,
 				B62D41CB2CBC79DB00C2460E /* market_contract.pb.swift in Sources */,

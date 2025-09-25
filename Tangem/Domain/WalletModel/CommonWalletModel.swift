@@ -185,8 +185,11 @@ class CommonWalletModel {
             self?._state.value = state
         }
 
-        Task { [_yieldModuleManager, wallet, amountType] in
-            await _yieldModuleManager?.updateState(walletModelState: state, balance: wallet.amounts[amountType])
+        runTask(in: self) { walletModel in
+            await walletModel._yieldModuleManager?.updateState(
+                walletModelState: state,
+                balance: walletModel.wallet.amounts[walletModel.amountType]
+            )
         }
     }
 
@@ -627,6 +630,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var transactionSender: TransactionSender {
         walletManager
+    }
+
+    var multipleTransactionsSender: (any MultipleTransactionsSender)? {
+        walletManager as? (any MultipleTransactionsSender)
     }
 
     var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? {
