@@ -41,7 +41,10 @@ final class TangemPayAccount {
         customerInfoManagementService = VisaCustomerCardInfoProviderBuilder()
             .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
 
-        orderIdStorage = TangemPayOrderIdStorage(userDefaults: .standard, customerWalletAddress: authorizer.walletModel.defaultAddressString)
+        orderIdStorage = TangemPayOrderIdStorage(
+            customerWalletAddress: authorizer.walletModel.defaultAddressString,
+            appSettings: .shared
+        )
 
         tangemPayStatusPublisher = customerInfoSubject
             .compactMap(\.self?.tangemPayStatus)

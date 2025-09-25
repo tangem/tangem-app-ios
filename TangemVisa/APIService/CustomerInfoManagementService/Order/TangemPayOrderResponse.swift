@@ -7,22 +7,6 @@
 //
 
 public struct TangemPayOrderResponse: Decodable {
-    public enum Status: String, Decodable {
-        case new = "NEW"
-        case processing = "PROCESSING"
-        case completed = "COMPLETED"
-        case canceled = "CANCELED"
-    }
-
-    public struct Data: Decodable {
-        public let type: String
-        public let specificationName: String
-        public let customerWalletAddress: String
-        public let embossName: String?
-        public let productInstanceId: String?
-        public let paymentAccountId: String?
-    }
-
     public let id: String
     public let customerId: String
     public let type: String
@@ -30,4 +14,22 @@ public struct TangemPayOrderResponse: Decodable {
     public let step: String
     public let data: Data
     public let stepChangeCode: Int
+}
+
+public extension TangemPayOrderResponse {
+    enum Status: String, Decodable {
+        case new = "NEW"
+        case processing = "PROCESSING"
+        case completed = "COMPLETED"
+        case canceled = "CANCELED"
+    }
+    
+    struct Data: Decodable {
+        public let type: String
+        public let specificationName: String
+        public let customerWalletAddress: String
+        public let embossName: String?
+        public let productInstanceId: String?
+        public let paymentAccountId: String?
+    }
 }

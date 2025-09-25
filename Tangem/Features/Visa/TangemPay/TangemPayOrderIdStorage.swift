@@ -10,31 +10,25 @@ import Combine
 import Foundation
 
 struct TangemPayOrderIdStorage {
-    var savedOrderIdPublisher: AnyPublisher<String?, Never> {
-        savedOrderIdSubject.eraseToAnyPublisher()
-    }
+    let savedOrderIdPublisher: AnyPublisher<String?, Never>
 
-    private let userDefaults: UserDefaults
+    private let appSettings: AppSettings
     private let customerWalletAddress: String
-    private let storageKey: String
 
-    private let savedOrderIdSubject: CurrentValueSubject<String?, Never>
-
-    init(userDefaults: UserDefaults, customerWalletAddress: String) {
-        self.userDefaults = userDefaults
+    init(customerWalletAddress: String, appSettings: AppSettings) {
         self.customerWalletAddress = customerWalletAddress
+        self.appSettings = appSettings
 
-        storageKey = "tangem_pay_order_id_for_customer_wallet_address_\(customerWalletAddress)"
-        savedOrderIdSubject = CurrentValueSubject(userDefaults.string(forKey: storageKey))
+        savedOrderIdPublisher = appSettings.$tangemPayOrderIdForCustomerWalletAddress
+            .map { $0[customerWalletAddress] }
+            .eraseToAnyPublisher()
     }
 
     func saveOrderId(_ orderId: String) {
-        userDefaults.set(orderId, forKey: storageKey)
-        savedOrderIdSubject.send(orderId)
+        appSettings.tangemPayOrderIdForCustomerWalletAddress[customerWalletAddress] = orderId
     }
 
     func deleteSavedOrderId() {
-        userDefaults.removeObject(forKey: storageKey)
-        savedOrderIdSubject.send(nil)
+        appSettings.tangemPayOrderIdForCustomerWalletAddress[customerWalletAddress] = nil
     }
 }
