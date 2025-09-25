@@ -6,8 +6,10 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import protocol Foundation.LocalizedError
+
 /// Error that may occur during the approval or rejection of a dApp connection proposal.
-enum WalletConnectDAppProposalApprovalError: Error {
+enum WalletConnectDAppProposalApprovalError: LocalizedError {
     /// Indicates an issue in Tangem app connection request building logic.
     /// - Warning: If you received this error, your logic is probably bugged. See ``ReownWalletConnectDAppDataService``.
     case invalidConnectionRequest(any Error)
@@ -24,4 +26,23 @@ enum WalletConnectDAppProposalApprovalError: Error {
 
     /// The dApp connection proposal approval or rejection was explicitly cancelled by the user.
     case cancelledByUser
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidConnectionRequest(let underlyingError):
+            "Indicates an issue in Tangem app connection request building logic. Underlying error: \(underlyingError.localizedDescription)"
+
+        case .proposalExpired:
+            "The dApp connection proposal has expired."
+
+        case .approvalFailed(let underlyingError):
+            "An untyped error thrown during dApp connection proposal approval. Underlying error: \(underlyingError.localizedDescription)"
+
+        case .rejectionFailed(let underlyingError):
+            "An untyped error thrown during dApp connection proposal rejection. Underlying error: \(underlyingError.localizedDescription)"
+
+        case .cancelledByUser:
+            "The dApp connection proposal approval or rejection was explicitly cancelled by the user."
+        }
+    }
 }

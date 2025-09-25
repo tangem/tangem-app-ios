@@ -46,7 +46,7 @@ struct ConfigUtils {
                 kaspaSecondaryApiUrl: keys.kaspaSecondaryApiUrl,
                 tronGridApiKey: keys.tronGridApiKey,
                 hederaArkhiaApiKey: keys.hederaArkhiaKey,
-                polygonScanApiKey: keys.polygonScanApiKey,
+                etherscanApiKey: keys.etherscanApiKey,
                 koinosProApiKey: keys.koinosProApiKey,
                 tonCenterApiKeys: .init(mainnetApiKey: keys.tonCenterApiKey.mainnet, testnetApiKey: keys.tonCenterApiKey.testnet),
                 fireAcademyApiKeys: .init(mainnetApiKey: keys.chiaFireAcademyApiKey, testnetApiKey: keys.chiaFireAcademyApiKey),
@@ -67,7 +67,7 @@ struct ConfigUtils {
                 kaspaSecondaryApiUrl: nil,
                 tronGridApiKey: "",
                 hederaArkhiaApiKey: "",
-                polygonScanApiKey: "",
+                etherscanApiKey: "",
                 koinosProApiKey: "",
                 tonCenterApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
                 fireAcademyApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
@@ -197,7 +197,7 @@ struct Keys: Decodable {
     let quiknodeSubdomain: String
     let bscQuiknodeApiKey: String
     let bscQuiknodeSubdomain: String
-    let polygonScanApiKey: String
+    let etherscanApiKey: String
     let koinosProApiKey: String
     let bittensorDwellirKey: String
     let bittensorOnfinalityKey: String
