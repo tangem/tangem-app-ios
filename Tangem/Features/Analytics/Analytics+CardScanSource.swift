@@ -1,5 +1,5 @@
 //
-//  AnalyticsEvent.swift
+//  Analytics+CardScanSource.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -16,35 +16,5 @@ extension Analytics {
         case settings
         case createWallet
         case importWallet
-
-        var cardScanButtonEvent: Analytics.Event {
-            switch self {
-            case .welcome, .createWallet, .importWallet:
-                return .introductionProcessButtonScanCard
-            case .auth:
-                return .buttonCardSignIn
-            case .settings:
-                return .buttonScanNewCardSettings
-            case .mainUnlock:
-                return .buttonUnlockWithCardScan
-            }
-        }
-
-        var cardWasScannedParameterValue: Analytics.ParameterValue {
-            switch self {
-            case .welcome:
-                return .introduction
-            case .auth:
-                return .signIn
-            case .mainUnlock:
-                return .main
-            case .settings:
-                return .settings
-            case .createWallet:
-                return .createWallet
-            case .importWallet:
-                return .importWallet
-            }
-        }
     }
 }

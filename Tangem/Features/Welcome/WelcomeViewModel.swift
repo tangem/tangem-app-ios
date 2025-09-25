@@ -25,6 +25,7 @@ class WelcomeViewModel: ObservableObject {
 
     let isScanningCard: CurrentValueSubject<Bool, Never> = .init(false)
 
+    private let cardScanAnalyticsLogger = CardScanAnalyticsLogger()
     private weak var coordinator: WelcomeRoutable?
 
     init(coordinator: WelcomeRoutable, storiesModel: StoriesViewModel) {
@@ -75,7 +76,7 @@ class WelcomeViewModel: ObservableObject {
 
     func scanCard() {
         isScanningCard.send(true)
-        Analytics.log(Analytics.CardScanSource.welcome.cardScanButtonEvent)
+        cardScanAnalyticsLogger.log(action: .cardScanButton, source: .welcome)
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -101,7 +102,7 @@ class WelcomeViewModel: ObservableObject {
                 }
 
             case .onboarding(let input, _):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue])
+                viewModel.cardScanAnalyticsLogger.log(action: .cardWasScanned, source: .welcome)
                 viewModel.incomingActionManager.discardIncomingAction(if: { !$0.isPromoDeeplink })
 
                 await runOnMain {
@@ -119,7 +120,7 @@ class WelcomeViewModel: ObservableObject {
                 }
 
             case .success(let cardInfo):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue])
+                viewModel.cardScanAnalyticsLogger.log(action: .cardWasScanned, source: .welcome)
 
                 let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
