@@ -39,7 +39,7 @@ final class VeChainTransactionBuilder {
         }
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
-        let output = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
+        let output = try TxCompilerPreSigningOutput(serializedBytes: preImageHashes)
 
         guard output.error == .ok else {
             throw BlockchainSdkError.failedToBuildTx
@@ -74,7 +74,7 @@ final class VeChainTransactionBuilder {
             publicKeys: publicKey.asDataVector()
         )
 
-        let output = try VeChainSigningOutput(serializedData: compiledTransaction)
+        let output = try VeChainSigningOutput(serializedBytes: compiledTransaction)
 
         guard output.error == .ok else {
             throw BlockchainSdkError.failedToBuildTx

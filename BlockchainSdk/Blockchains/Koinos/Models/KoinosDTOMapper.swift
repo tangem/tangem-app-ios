@@ -36,7 +36,7 @@ enum KoinosDTOMapper {
         guard let result = dto.result, let decodedResult = result.base64URLDecodedData() else {
             return 0
         }
-        return try Koinos_Contracts_Token_balance_of_result(serializedData: decodedResult).value
+        return try Koinos_Contracts_Token_balance_of_result(serializedBytes: decodedResult).value
     }
 
     static func convertAccountRC(_ dto: KoinosMethod.GetAccountRC.Response) -> UInt64 {
@@ -53,7 +53,7 @@ enum KoinosDTOMapper {
             throw KoinosError.failedToMapKoinosDTO
         }
 
-        let type = try Koinos_Chain_value_type(serializedData: data)
+        let type = try Koinos_Chain_value_type(serializedBytes: data)
         return KoinosAccountNonce(nonce: type.uint64Value)
     }
 
@@ -66,7 +66,7 @@ enum KoinosDTOMapper {
             throw KoinosError.failedToMapKoinosDTO
         }
 
-        let decodedEvent = try Koinos_Contracts_Token_transfer_event(serializedData: data)
+        let decodedEvent = try Koinos_Contracts_Token_transfer_event(serializedBytes: data)
 
         return KoinosTransactionEntry(
             id: dto.id,
