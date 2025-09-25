@@ -125,30 +125,43 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
-        if let tangemPayAccount = TangemPayAccount(userWalletModel: userWalletModel), FeatureProvider.isAvailable(.visa) {
-            tangemPayAccount
-                .tangemPayNotificationManager
-                .notificationPublisher
+        if FeatureProvider.isAvailable(.visa) {
+            let tangemPayAccountPublisher = userWalletModel.walletModelsManager
+                .walletModelsPublisher
+                .map(\.visaWalletModel)
+                .removeDuplicates(by: { $0?.defaultAddressString == $1?.defaultAddressString })
+                .compactMap { visaWalletModel in
+                    visaWalletModel.flatMap { visaWalletModel in
+                        TangemPayAccount(walletModel: visaWalletModel)
+                    }
+                }
+                .merge(with: createdTangemPayAccount)
+                .share(replay: 1)
+
+            tangemPayAccountPublisher
+                .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
                 .receive(on: DispatchQueue.main)
                 .assign(to: &$tangemPayNotificationInputs)
 
-            tangemPayAccount.tangemPayCardIssuingInProgress
+            tangemPayAccountPublisher
+                .flatMapLatest(\.tangemPayCardIssuingInProgress)
                 .receive(on: DispatchQueue.main)
                 .assign(to: &$tangemPayCardIssuingInProgress)
 
-            tangemPayAccount.tangemPayCardNumberEnd
-                .map { cardNumberEnd in
-                    cardNumberEnd.map { cardNumberEnd in
-                        TangemPayCardDetailsViewModel(
-                            lastFourDigits: cardNumberEnd,
-                            customerInfoManagementService: tangemPayAccount.customerInfoManagementService
-                        )
-                    }
+            tangemPayAccountPublisher
+                .flatMapLatest { tangemPayAccount in
+                    tangemPayAccount.tangemPayCardNumberEnd
+                        .map { cardNumberEnd in
+                            cardNumberEnd.map { cardNumberEnd in
+                                TangemPayCardDetailsViewModel(
+                                    lastFourDigits: cardNumberEnd,
+                                    customerInfoManagementService: tangemPayAccount.customerInfoManagementService
+                                )
+                            }
+                        }
                 }
                 .receive(on: DispatchQueue.main)
                 .assign(to: &$tangemPayCardDetailsViewModel)
-
-            self.tangemPayAccount = tangemPayAccount
         }
     }
 

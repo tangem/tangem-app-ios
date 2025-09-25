@@ -30,6 +30,8 @@ final class TangemPayOfferViewModel: ObservableObject {
         runTask(in: self) { viewModel in
             do {
                 let tangemPayAccount = try await viewModel.makeTangemPayAccount()
+                createdTangemPayAccount.send(tangemPayAccount)
+
                 let tangemPayStatus = try await tangemPayAccount.getTangemPayStatus()
 
                 // [REDACTED_TODO_COMMENT]
@@ -80,3 +82,5 @@ private extension TangemPayOfferViewModel {
         case unableToCreateRequiredWalletModel
     }
 }
+
+let createdTangemPayAccount = PassthroughSubject<TangemPayAccount, Never>()
