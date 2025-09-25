@@ -30,8 +30,8 @@ struct YieldModulePromoCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .floatingSheetContent(for: YieldModuleBottomSheetViewModel.self) {
-                YieldModuleBottomSheetView(viewModel: $0)
+            .floatingSheetContent(for: YieldModuleStartViewModel.self) {
+                YieldModuleStartView(viewModel: $0)
             }
     }
 }
