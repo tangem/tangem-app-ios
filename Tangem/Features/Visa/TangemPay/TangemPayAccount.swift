@@ -13,6 +13,8 @@ import TangemFoundation
 
 final class TangemPayAccount {
     let tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never>
+    let tangemPayCardIssuingInProgress: AnyPublisher<Bool, Never>
+
     let tangemPayNotificationManager: TangemPayNotificationManager
 
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
@@ -20,9 +22,10 @@ final class TangemPayAccount {
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let authorizer: TangemPayAuthorizer
     private let customerInfoManagementService: any CustomerInfoManagementService
+    private let orderIdStorage: TangemPayOrderIdStorage
 
-    private let tangemPayStatusSubject = CurrentValueSubject<TangemPayStatus?, Never>(nil)
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
+    private let didTapIssueOrderSubject = PassthroughSubject<Void, Never>()
     private var customerInfoPollingTask: Task<Void, Never>?
 
     init(authorizer: TangemPayAuthorizer, tokens: VisaAuthorizationTokens) {
@@ -38,10 +41,18 @@ final class TangemPayAccount {
         customerInfoManagementService = VisaCustomerCardInfoProviderBuilder()
             .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
 
+        orderIdStorage = TangemPayOrderIdStorage(
+            customerWalletAddress: authorizer.walletModel.defaultAddressString,
+            appSettings: .shared
+        )
+
         tangemPayStatusPublisher = customerInfoSubject
-            .map(\.?.tangemPayStatus)
-            .merge(with: tangemPayStatusSubject)
-            .compactMap(\.self)
+            .compactMap(\.self?.tangemPayStatus)
+            .eraseToAnyPublisher()
+
+        tangemPayCardIssuingInProgress = orderIdStorage.savedOrderIdPublisher
+            .map { $0 != nil }
+            .merge(with: didTapIssueOrderSubject.mapToValue(true))
             .eraseToAnyPublisher()
 
         tangemPayNotificationManager = TangemPayNotificationManager(tangemPayStatusPublisher: tangemPayStatusPublisher)
@@ -114,7 +125,16 @@ final class TangemPayAccount {
             for await result in polling {
                 switch result {
                 case .success(let customerInfo):
+                    guard let customerInfo else {
+                        tangemPayAccount.customerInfoPollingTask?.cancel()
+                        return
+                    }
+
                     tangemPayAccount.customerInfoSubject.send(customerInfo)
+                    if customerInfo.tangemPayStatus.isActive {
+                        tangemPayAccount.orderIdStorage.deleteSavedOrderId()
+                        tangemPayAccount.customerInfoPollingTask?.cancel()
+                    }
 
                 case .failure:
                     // [REDACTED_TODO_COMMENT]
@@ -144,6 +164,17 @@ final class TangemPayAccount {
 
         if await authorizationTokensHandler.accessTokenExpired {
             try await authorizationTokensHandler.forceRefreshToken()
+        }
+    }
+
+    private func createOrder() async {
+        do {
+            try await prepareTokensHandler()
+            let order = try await customerInfoManagementService.placeOrder(walletAddress: authorizer.walletModel.defaultAddressString)
+
+            orderIdStorage.saveOrderId(order.id)
+        } catch {
+            // [REDACTED_TODO_COMMENT]
         }
     }
 
@@ -179,8 +210,10 @@ extension TangemPayAccount: NotificationTapDelegate {
             #endif // ALPHA || BETA || DEBUG
 
         case .tangemPayCreateAccountAndIssueCard:
-            // [REDACTED_TODO_COMMENT]
-            tangemPayStatusSubject.send(.didTapIssueCard)
+            didTapIssueOrderSubject.send(())
+            runTask(in: self) { tangemPayAccount in
+                await tangemPayAccount.createOrder()
+            }
 
         default:
             break
@@ -196,16 +229,10 @@ private extension VisaCustomerInfoResponse {
             return .active
         }
 
-        // [REDACTED_TODO_COMMENT]
-//        if (product order is created) {
-//            return.issuing
-//        }
-
-        switch kyc.status {
-        case .approved:
-            return .readyToIssue
-        default:
+        guard case .approved = kyc.status else {
             return .kycRequired
         }
+
+        return .readyToIssueOrIssuing
     }
 }
