@@ -526,6 +526,9 @@
 		2DD669372E28EDDD006D715A /* SolanaALTSendTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD669362E28EDDD006D715A /* SolanaALTSendTransactionBuilder.swift */; };
 		2DD754D72AE1660D0009CA64 /* GenerateAddressesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */; };
 		2DD91FA62E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD91FA52E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift */; };
+		2DDD3EE72E8591FB00C164AF /* QuaiProtobufUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDD3EE62E8591FB00C164AF /* QuaiProtobufUtils.swift */; };
+		2DDD3EE92E859F5700C164AF /* QuaiTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDD3EE82E859F5700C164AF /* QuaiTransactionBuilder.swift */; };
+		2DDD3EEB2E85A54700C164AF /* QuaiWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDD3EEA2E85A54700C164AF /* QuaiWalletAssembly.swift */; };
 		2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */; };
 		2DDFA7952C230E2F00E51F7F /* MarketCapFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDFA7942C230E2F00E51F7F /* MarketCapFormatter.swift */; };
 		2DE0BA992CA93100002C09D9 /* BlockHeaderTitleButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BA982CA93100002C09D9 /* BlockHeaderTitleButtonView.swift */; };
@@ -4755,6 +4758,9 @@
 		2DD669362E28EDDD006D715A /* SolanaALTSendTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaALTSendTransactionBuilder.swift; sourceTree = "<group>"; };
 		2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateAddressesViewModel.swift; sourceTree = "<group>"; };
 		2DD91FA52E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorReceiveRoundButtonView.swift; sourceTree = "<group>"; };
+		2DDD3EE62E8591FB00C164AF /* QuaiProtobufUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiProtobufUtils.swift; sourceTree = "<group>"; };
+		2DDD3EE82E859F5700C164AF /* QuaiTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiTransactionBuilder.swift; sourceTree = "<group>"; };
+		2DDD3EEA2E85A54700C164AF /* QuaiWalletAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiWalletAssembly.swift; sourceTree = "<group>"; };
 		2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemMenuActions.swift; sourceTree = "<group>"; };
 		2DDFA7942C230E2F00E51F7F /* MarketCapFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketCapFormatter.swift; sourceTree = "<group>"; };
 		2DE0BA982CA93100002C09D9 /* BlockHeaderTitleButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockHeaderTitleButtonView.swift; sourceTree = "<group>"; };
@@ -9832,7 +9838,10 @@
 			children = (
 				2DE3DFC32E741DB100A687FC /* QuaiAddressUtils.swift */,
 				2DE3DF962E72BF7B00A687FC /* QuaiExternalLinkProvider.swift */,
+				2DDD3EE62E8591FB00C164AF /* QuaiProtobufUtils.swift */,
 				2DE3DF9C2E72C6CD00A687FC /* QuaiZoneUtils.swift */,
+				2DDD3EE82E859F5700C164AF /* QuaiTransactionBuilder.swift */,
+				2DDD3EEA2E85A54700C164AF /* QuaiWalletAssembly.swift */,
 			);
 			path = Quai;
 			sourceTree = "<group>";
@@ -25820,6 +25829,7 @@
 				B62D41222CBC79DA00C2460E /* KoinosExternalLinkProvider.swift in Sources */,
 				B62D425D2CBC79DB00C2460E /* BlockchainSdkDependencies.swift in Sources */,
 				B62D414D2CBC79DA00C2460E /* PolkadotTransaction.swift in Sources */,
+				2DDD3EE72E8591FB00C164AF /* QuaiProtobufUtils.swift in Sources */,
 				B62D42D92CBC79DB00C2460E /* String+.swift in Sources */,
 				B62D42712CBC79DB00C2460E /* BitcoinTransactionFeeCalculator.swift in Sources */,
 				B62D422B2CBC79DB00C2460E /* BlockBookResponses.swift in Sources */,
@@ -26321,6 +26331,7 @@
 				B62D42642CBC79DB00C2460E /* WalletFactory.swift in Sources */,
 				B62D3FED2CBC79DA00C2460E /* OP_CHECKSIGVERIFY.swift in Sources */,
 				B62D40E02CBC79DA00C2460E /* HederaNetworkResult.AccountHbarBalance.swift in Sources */,
+				2DDD3EEB2E85A54700C164AF /* QuaiWalletAssembly.swift in Sources */,
 				B62D41562CBC79DA00C2460E /* SubscanAPIResult.ExtrinsicsList.swift in Sources */,
 				DC2F88F92E14582A0034D437 /* SolanaBSDKError.swift in Sources */,
 				B62D42492CBC79DB00C2460E /* DwellirAPIResolver.swift in Sources */,
@@ -26502,6 +26513,7 @@
 				B62D40BA2CBC79DA00C2460E /* PolygonExternalLinkProvider.swift in Sources */,
 				B62D40622CBC79DA00C2460E /* ChiaWalletAssembly.swift in Sources */,
 				B62D41462CBC79DA00C2460E /* NEARExternalLinkProvider.swift in Sources */,
+				2DDD3EE92E859F5700C164AF /* QuaiTransactionBuilder.swift in Sources */,
 				B62D42B62CBC79DB00C2460E /* StakeKitTransaction.swift in Sources */,
 				B62D42612CBC79DB00C2460E /* ExternalLinkProviderFactory.swift in Sources */,
 				B62D41822CBC79DA00C2460E /* RavencoinTestNetworkParams.swift in Sources */,

@@ -11,8 +11,24 @@ import BigInt
 import TangemSdk
 import WalletCore
 
+// MARK: - EthereumTransactionBuilder
+
+protocol EthereumTransactionBuilder {
+    func buildForSign(transaction: Transaction) throws -> Data
+    func buildForSend(transaction: Transaction, signatureInfo: SignatureInfo) throws -> Data
+    func buildDummyTransactionForL1(destination: String, value: String?, data: Data?, fee: Fee) throws -> Data
+    func buildTxCompilerPreSigningOutput(input: EthereumSigningInput) throws -> TxCompilerPreSigningOutput
+    func buildSigningOutput(input: EthereumSigningInput, signatureInfo: SignatureInfo) throws -> EthereumSigningOutput
+    func buildSigningInput(destination: String, coinAmount: BigUInt, fee: Fee, nonce: Int, data: Data?) throws -> EthereumSigningInput
+    func buildSigningInput(transaction: Transaction) throws -> EthereumSigningInput
+    func buildForTokenTransfer(destination: String, amount: Amount) throws -> Data
+    func buildForApprove(spender: String, amount: Decimal) -> Data
+}
+
+// MARK: - CommonEthereumTransactionBuilder
+
 // Decoder: https://rawtxdecode.in
-class EthereumTransactionBuilder {
+class CommonEthereumTransactionBuilder: EthereumTransactionBuilder {
     private let chainId: Int
     private let coinType: CoinType
     private let sourceAddress: Address
@@ -203,9 +219,7 @@ class EthereumTransactionBuilder {
 
         return output
     }
-}
 
-private extension EthereumTransactionBuilder {
     func buildSigningInput(transaction: Transaction) throws -> EthereumSigningInput {
         guard let amountValue = transaction.amount.bigUIntValue else {
             throw EthereumTransactionBuilderError.invalidAmount
@@ -252,7 +266,7 @@ private extension EthereumTransactionBuilder {
     }
 }
 
-private extension EthereumTransactionBuilder {
+private extension CommonEthereumTransactionBuilder {
     func makeTokenTransferSmartContractMethod(
         destination: String,
         amount: BigUInt,
@@ -287,7 +301,7 @@ private extension EthereumTransactionBuilder {
     }
 }
 
-private extension EthereumTransactionBuilder {
+private extension CommonEthereumTransactionBuilder {
     enum Constants {
         static let signatureSize = 64
     }
