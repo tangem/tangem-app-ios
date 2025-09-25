@@ -29,17 +29,7 @@ public extension ProvidersList {
         forEach { $0.sort() }
 
         return sorted { lhs, rhs in
-            // If paymentMethod has same priority (e.g. SEPA and Revolut Pay)
-            guard lhs.paymentMethod.type.priority == rhs.paymentMethod.type.priority else {
-                return lhs.paymentMethod.type.priority > rhs.paymentMethod.type.priority
-            }
-
-            switch (lhs.providers.first, rhs.providers.first) {
-            case (.some(let lhsProvider), .some(let rhsProvider)):
-                return sorter.sort(lhs: lhsProvider, rhs: rhsProvider)
-            case (.none, _), (_, .none):
-                return false
-            }
+            sorter.sort(lhs: lhs, rhs: rhs)
         }
     }
 
@@ -67,12 +57,13 @@ public extension ProvidersList {
             return
         }
 
-        let bestQuote: Decimal? = providers.compactMap { $0.quote?.expectedAmount }.max()
+        let bestProvider: OnrampProvider? = providers.max()
+        let bestQuote: Decimal? = bestProvider?.quote?.expectedAmount
 
         forEach {
             $0.sort().forEach { provider in
                 switch provider.state {
-                case .loaded(let quote) where quote.expectedAmount == bestQuote:
+                case .loaded where provider == bestProvider:
                     provider.update(globalAttractiveType: .best)
 
                 case .loaded(let quote) where bestQuote != nil:
