@@ -28,4 +28,5 @@ public enum CardMockAccessibilityIdentifiers: String {
     case shibaNoWallets = "CardMockShibaNoWallets"
     case wallet2NoWallets = "CardMockWallet2NoWallets"
     case walletNoBackup = "CardMockWalletNoBackup"
+    case wallet2Imported = "CardMockWallet2Imported"
 }
