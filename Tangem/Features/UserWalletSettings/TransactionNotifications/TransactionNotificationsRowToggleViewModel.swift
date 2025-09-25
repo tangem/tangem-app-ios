@@ -105,7 +105,7 @@ private extension TransactionNotificationsRowToggleViewModel {
 
 private extension TransactionNotificationsRowToggleViewModel {
     func displayPermissionWarningIfNeeded(for status: UserWalletPushNotifyStatus) {
-        if case .unavailable(let reason, _) = status, reason == .permissionDenied {
+        if case .unavailable(let reason, let enabledRemote) = status, enabledRemote, reason == .permissionDenied {
             warningPermissionViewModel = DefaultWarningRowViewModel(
                 title: Localization.transactionNotificationsWarningTitle,
                 subtitle: Localization.transactionNotificationsWarningDescription,
