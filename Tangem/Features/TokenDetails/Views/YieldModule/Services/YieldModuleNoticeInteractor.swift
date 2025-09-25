@@ -22,18 +22,18 @@ final class YieldModuleNoticeInteractor {
 
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
-        guard case .token(let token, let blockchainNetwork) = tokenItem else {
-            return false
-        }
-
-        let key = yieldKey(contractAddress: token.contractAddress, networkId: blockchainNetwork.blockchain.networkId)
-
-        guard shownYieldModuleAlerts[key] == false else {
-            return false
-        }
-
-        shownYieldModuleAlerts[key] = true
-        return true
+//        guard case .token(let token, let blockchainNetwork) = tokenItem else {
+//            return false
+//        }
+//
+//        let key = yieldKey(contractAddress: token.contractAddress, networkId: blockchainNetwork.blockchain.networkId)
+//
+//        guard shownYieldModuleAlerts[key] == false else {
+//            return false
+//        }
+//
+//        shownYieldModuleAlerts[key] = true
+//        return true
     }
 
     func markWithdrawalAlertShouldShow(for tokenItem: TokenItem) {
