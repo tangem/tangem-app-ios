@@ -41,7 +41,7 @@ final class AlgorandTransactionBuilder {
         }
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
-        let preSigningOutput = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
+        let preSigningOutput = try TxCompilerPreSigningOutput(serializedBytes: preImageHashes)
 
         guard preSigningOutput.error == .ok, !preSigningOutput.data.isEmpty else {
             BSDKLogger.error("AlgorandPreSigningOutput has a error", error: preSigningOutput.errorMessage)
@@ -66,7 +66,7 @@ final class AlgorandTransactionBuilder {
             publicKeys: publicKey.asDataVector()
         )
 
-        let signingOutput = try AlgorandSigningOutput(serializedData: compiledTransaction)
+        let signingOutput = try AlgorandSigningOutput(serializedBytes: compiledTransaction)
 
         guard signingOutput.error == .ok, !signingOutput.encoded.isEmpty else {
             BSDKLogger.error("AlgorandSigningOutput has a error", error: signingOutput.errorMessage)
