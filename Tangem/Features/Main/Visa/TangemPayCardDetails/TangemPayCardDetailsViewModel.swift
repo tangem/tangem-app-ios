@@ -94,24 +94,31 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
 
     private func revealRequest() async throws -> TangemPayCardDetailsData {
         let devPublicKey = try VisaConfigProvider.shared().getRainRSAPublicKey(apiType: .dev)
+        let secretKey = UUID().uuidString.replacingOccurrences(of: "-", with: "")
 
-        let session = try SessionCrypto.generateSessionId(publicKey: devPublicKey)
-        let sessionId = session.sessionId
-        let secretKey = session.secretKey
+        guard let sessionId = SessionCrypto.generateSessionId(publicKey: devPublicKey, secretKey: secretKey) else {
+            // [REDACTED_TODO_COMMENT]
+            fatalError()
+        }
 
         let cardDetails = try await customerInfoManagementService.getCardDetails(sessionId: sessionId)
 
-        let decryptedPan = try SessionCrypto.decryptSecret(
+        let decryptedPan = SessionCrypto.decryptSecret(
             base64Secret: cardDetails.pan.secret,
             base64Iv: cardDetails.pan.iv,
             secretKey: secretKey
         )
 
-        let decryptedCVV = try SessionCrypto.decryptSecret(
+        let decryptedCVV = SessionCrypto.decryptSecret(
             base64Secret: cardDetails.cvv.secret,
             base64Iv: cardDetails.cvv.iv,
             secretKey: secretKey
         )
+
+        guard let decryptedPan, let decryptedCVV else {
+            // [REDACTED_TODO_COMMENT]
+            fatalError()
+        }
 
         let formattedPan = formatPan(decryptedPan)
         let formattedExpiryDate = formatExpiryDate(month: cardDetails.expirationMonth, year: cardDetails.expirationYear)
@@ -154,70 +161,40 @@ private extension TangemPayCardDetailsViewModel {
 import CryptoKit
 import Security
 
-public enum SessionCrypto {
-    enum SessionError: Error {
-        case invalidData
-    }
-
-    public static func generateSessionId(publicKey: String, secret: String? = nil) throws -> (secretKey: String, sessionId: String) {
-        let secretKey = secret ?? UUID().uuidString.replacingOccurrences(of: "-", with: "")
-        let secretKeyData = Data(hexString: secretKey)
-        guard let secretKeyBase64Data = secretKeyData.base64EncodedString().data(using: .utf8) else {
-            throw SessionError.invalidData
-        }
-
-        let publicKey = try parsePublicKey(from: publicKey)
-        let encryptedData = try encryptWithPublicKey(data: secretKeyBase64Data, publicKey: publicKey)
-
-        return (secretKey, encryptedData.base64EncodedString())
-    }
-
-    public static func decryptSecret(base64Secret: String, base64Iv: String, secretKey: String) throws -> String {
-        guard let secretData = Data(base64Encoded: base64Secret),
-              let ivData = Data(base64Encoded: base64Iv)
-        else {
-            throw SessionError.invalidData
-        }
-
-        let secretKeyData = Data(hexString: secretKey)
-        let tagLength = 16
-        let ciphertext = secretData.dropLast(tagLength)
-        let authTag = secretData.suffix(tagLength)
-
-        let symmetricKey = SymmetricKey(data: secretKeyData)
-        let nonce = try AES.GCM.Nonce(data: ivData)
-        let sealedBox = try AES.GCM.SealedBox(nonce: nonce, ciphertext: ciphertext, tag: authTag)
-        let decryptedData = try AES.GCM.open(sealedBox, using: symmetricKey)
-
-        guard let decryptedString = String(data: decryptedData, encoding: .utf8) else {
-            throw SessionError.invalidData
-        }
-
-        return decryptedString.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private static func parsePublicKey(from publicKey: String) throws -> SecKey {
-        guard let keyData = Data(base64Encoded: publicKey) else {
-            throw SessionError.invalidData
-        }
-
+enum SessionCrypto {
+    private static let tagLength: Int = 16
+    
+    private static var keyAttributes: CFDictionary {
         let keyAttributes: [String: Any] = [
             kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
             kSecAttrKeyClass as String: kSecAttrKeyClassPublic,
         ]
-
-        guard let publicKey = SecKeyCreateWithData(keyData as CFData, keyAttributes as CFDictionary, nil) else {
-            throw SessionError.invalidData
-        }
-
-        return publicKey
+        return keyAttributes as CFDictionary
     }
 
-    private static func encryptWithPublicKey(data: Data, publicKey: SecKey) throws -> Data {
-        let algorithm = SecKeyAlgorithm.rsaEncryptionOAEPSHA1
-        guard let encryptedData = SecKeyCreateEncryptedData(publicKey, algorithm, data as CFData, nil) else {
-            throw SessionError.invalidData
+    static func generateSessionId(publicKey: String, secretKey: String) -> String? {
+        guard let secretKeyBase64Data = Data(hexString: secretKey).base64EncodedString().data(using: .utf8),
+              let keyData = Data(base64Encoded: publicKey),
+              let publicKey = SecKeyCreateWithData(keyData as CFData, keyAttributes, nil),
+              let encryptedData = SecKeyCreateEncryptedData(publicKey, .rsaEncryptionOAEPSHA1, secretKeyBase64Data as CFData, nil)
+        else {
+            return nil
         }
-        return encryptedData as Data
+
+        return (encryptedData as Data).base64EncodedString()
+    }
+
+    static func decryptSecret(base64Secret: String, base64Iv: String, secretKey: String) -> String? {
+        guard let secretData = Data(base64Encoded: base64Secret),
+              let ivData = Data(base64Encoded: base64Iv),
+              let nonce = try? AES.GCM.Nonce(data: ivData),
+              let sealedBox = try? AES.GCM.SealedBox(nonce: nonce, ciphertext: secretData.dropLast(tagLength), tag: secretData.suffix(tagLength)),
+              let decryptedData = try? AES.GCM.open(sealedBox, using: SymmetricKey(data: Data(hexString: secretKey))),
+              let decryptedString = String(data: decryptedData, encoding: .utf8)
+        else {
+            return nil
+        }
+
+        return decryptedString.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
