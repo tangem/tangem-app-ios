@@ -31,6 +31,14 @@ struct CommonWalletModelsFactory {
     }
 
     private func makeTransactionHistoryService(tokenItem: TokenItem, addresses: [String]) -> TransactionHistoryService? {
+        var addresses = addresses
+
+        if tokenItem.blockchain.isEvm {
+            let converter = EthereumAddressConverterFactory().makeConverter(for: tokenItem.blockchainNetwork.blockchain)
+            let convertedAddresses = addresses.map { (try? converter.convertToETHAddress($0)) ?? $0 }
+            addresses = Array(Set(convertedAddresses))
+        }
+
         if addresses.count == 1, let address = addresses.first {
             let factory = TransactionHistoryFactoryProvider().factory
 
