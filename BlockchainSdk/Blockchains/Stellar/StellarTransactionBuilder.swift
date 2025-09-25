@@ -166,10 +166,9 @@ class StellarTransactionBuilder {
         _ operation: stellarsdk.Operation,
         sourceKeyPair: KeyPair,
         memo: Memo,
-        sequence: Int64?
+        sequence: Int64
     ) throws -> (hash: Data, transaction: stellarsdk.TransactionXDR) {
-        guard let xdrOperation = try? operation.toXDR(),
-              let seqNumber = sequence else {
+        guard let xdrOperation = try? operation.toXDR() else {
             throw BlockchainSdkError.failedToBuildTx
         }
 
@@ -182,7 +181,7 @@ class StellarTransactionBuilder {
         let cond: PreconditionsXDR = useTimebounds ? .time(TimeBoundsXDR(minTime: UInt64(minTime), maxTime: UInt64(maxTime))) : .none
         let tx = TransactionXDR(
             sourceAccount: sourceKeyPair.publicKey,
-            seqNum: seqNumber + 1,
+            seqNum: sequence + 1,
             cond: cond,
             memo: memo.toXDR(),
             operations: [xdrOperation]
