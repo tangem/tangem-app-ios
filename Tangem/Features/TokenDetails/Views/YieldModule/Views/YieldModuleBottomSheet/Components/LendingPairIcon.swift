@@ -11,27 +11,27 @@ import TangemAssets
 import TangemUI
 
 struct LendingPairIcon: View {
-    let tokenId: String?
+    let tokenIconInfo: TokenIconInfo
+    let iconsSize: CGSize
+
+    private var overlap: CGFloat { iconsSize.width * 0.4 }
+    private let halo: CGFloat = 2
 
     var body: some View {
-        ZStack {
-            TokenIcon(tokenIconInfo: TokenIconInfoBuilder().build(from: tokenId), size: IconViewSizeSettings.tokenDetails.iconSize)
-                .offset(x: -16)
-
+        HStack(spacing: -overlap) {
+            IconView(url: tokenIconInfo.imageURL, size: iconsSize, forceKingfisher: true)
             aaveLogo
-                .offset(x: 16)
         }
+        .padding(.horizontal, overlap / 2)
+        .accessibilityHidden(true)
     }
 
     private var aaveLogo: some View {
         Assets.YieldModule.yieldModuleAaveLogo.image
             .resizable()
             .scaledToFit()
-            .frame(size: IconViewSizeSettings.tokenDetails.iconSize)
-            .background(
-                Circle()
-                    .fill(Colors.Background.tertiary)
-                    .frame(width: 50, height: 50)
-            )
+            .frame(size: iconsSize)
+            .padding(halo)
+            .background(Circle().fill(Colors.Background.tertiary))
     }
 }

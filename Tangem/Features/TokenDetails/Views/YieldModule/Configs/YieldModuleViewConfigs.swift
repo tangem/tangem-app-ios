@@ -13,8 +13,7 @@ import TangemAssets
 
 enum YieldModuleViewConfigs {
     struct BalanceInfoParams: Equatable {
-        let tokenName: String
-        let tokenId: String?
+        let tokenItem: TokenItem
     }
 
     enum YieldModuleNotificationBannerParams {

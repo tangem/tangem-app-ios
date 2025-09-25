@@ -31,6 +31,10 @@ final class YieldModuleBalanceInfoViewModel {
             vm.floatingSheetPresenter.removeActiveSheet()
         }
     }
+
+    func getTokenIconInfo() -> TokenIconInfo {
+        TokenIconInfoBuilder().build(from: params.tokenItem, isCustom: false)
+    }
 }
 
 extension YieldModuleBalanceInfoViewModel: FloatingSheetContentViewModel {}
