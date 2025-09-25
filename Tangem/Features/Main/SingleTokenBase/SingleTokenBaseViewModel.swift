@@ -566,10 +566,7 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        tokenRouter.openSend(
-            walletModel: walletModel,
-            isViaYieldNotice: yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem)
-        )
+        tokenRouter.openSend(walletModel: walletModel)
     }
 
     func openExchange() {
@@ -578,10 +575,7 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        tokenRouter.openExchange(
-            walletModel: walletModel,
-            isViaYieldNotice: yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem)
-        )
+        tokenRouter.openExchange(walletModel: walletModel)
     }
 
     func openStaking() {

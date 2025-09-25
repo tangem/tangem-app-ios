@@ -27,5 +27,4 @@ protocol SingleTokenBaseRoutable: AnyObject {
         userWalletModel: UserWalletModel,
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
-    func openViaYieldNotice(tokenItem: TokenItem, action: @escaping () -> Void)
 }

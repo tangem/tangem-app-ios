@@ -72,7 +72,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let rateAppController: RateAppInteractionController
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
     private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
-    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     private var canManageTokens: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
 
@@ -639,10 +638,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .buy:
             tokenRouter.openOnramp(walletModel: walletModel)
         case .send:
-            tokenRouter.openSend(
-                walletModel: walletModel,
-                isViaYieldNotice: yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem)
-            )
+            tokenRouter.openSend(walletModel: walletModel)
         case .receive:
             tokenRouter.openReceive(walletModel: walletModel)
         case .sell:
@@ -652,10 +648,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             UIPasteboard.general.string = walletModel.defaultAddressString
             delegate?.displayAddressCopiedToast()
         case .exchange:
-            tokenRouter.openExchange(
-                walletModel: walletModel,
-                isViaYieldNotice: yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem)
-            )
+            tokenRouter.openExchange(walletModel: walletModel)
         case .stake:
             tokenRouter.openStaking(walletModel: walletModel)
         case .marketsDetails, .hide:

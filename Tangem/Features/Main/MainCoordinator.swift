@@ -32,6 +32,7 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     private let coordinatorFactory: MainCoordinatorChildFactory
     private let navigationActionHandler: MainNavigationActionHandler
     private let deeplinkPresenter: DeeplinkPresenter
+    private let yieldModuleNoticeInteractor: YieldModuleNoticeInteractor
 
     // MARK: - Root view model
 
@@ -83,12 +84,14 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         coordinatorFactory: MainCoordinatorChildFactory,
         navigationActionHandler: MainNavigationActionHandler,
         deeplinkPresenter: DeeplinkPresenter,
+        yieldModuleNoticeInteractor: YieldModuleNoticeInteractor,
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.coordinatorFactory = coordinatorFactory
         self.navigationActionHandler = navigationActionHandler
         self.deeplinkPresenter = deeplinkPresenter
+        self.yieldModuleNoticeInteractor = yieldModuleNoticeInteractor
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -160,6 +163,13 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             withAnimation(.easeInOut(duration: Constants.tooltipAnimationDuration)) {
                 self.isMarketsTooltipVisible = !AppSettings.shared.marketsTooltipWasShown
             }
+        }
+    }
+
+    private func openViaYieldNotice(tokenItem: TokenItem, action: @escaping () -> Void) {
+        let viewModel = YieldNoticeViewModel(tokenItem: tokenItem, action: action)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 }
@@ -305,14 +315,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 // MARK: - SingleTokenBaseRoutable
 
 extension MainCoordinator: SingleTokenBaseRoutable {
-    func openViaYieldNotice(tokenItem: TokenItem, action: @escaping () -> Void) {
-        let viewModel = YieldNoticeViewModel(tokenItem: tokenItem, action: action)
-
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-
     func openReceiveScreen(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
@@ -351,18 +353,26 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openSend(userWalletModel: UserWalletModel, walletModel: any WalletModel) {
-        guard SendFeatureProvider.shared.isAvailable else {
-            return
+        let action = { [weak self] in
+            guard let self, SendFeatureProvider.shared.isAvailable else {
+                return
+            }
+
+            let coordinator = makeSendCoordinator()
+            let options = SendCoordinator.Options(
+                input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+                type: .send,
+                source: .main
+            )
+            coordinator.start(with: options)
+            sendCoordinator = coordinator
         }
 
-        let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
-            type: .send,
-            source: .main
-        )
-        coordinator.start(with: options)
-        sendCoordinator = coordinator
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
+            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: action)
+        } else {
+            action()
+        }
     }
 
     func openSendToSell(userWalletModel: UserWalletModel, walletModel: any WalletModel, sellParameters: PredefinedSellParameters) {
@@ -382,35 +392,45 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openExpress(input: CommonExpressModulesFactory.InputModel) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.expressCoordinator = nil
+        let action = { [weak self] in
+            guard let self else { return }
 
-            guard let navigationInfo else {
-                return
+            let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
+                self?.expressCoordinator = nil
+
+                guard let navigationInfo else {
+                    return
+                }
+
+                self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
             }
 
-            self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
-        }
-
-        let factory = CommonExpressModulesFactory(inputModel: input)
-        let coordinator = ExpressCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
-
-        let openExpressBlock = { [weak self] in
-            guard let self else { return }
-            coordinator.start(with: .default)
-            expressCoordinator = coordinator
-        }
-
-        Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
-                analyticsSource: .tokenListContextMenu,
-                presentCompletion: openExpressBlock
+            let factory = CommonExpressModulesFactory(inputModel: input)
+            let coordinator = ExpressCoordinator(
+                factory: factory,
+                dismissAction: dismissAction,
+                popToRootAction: popToRootAction
             )
+
+            let openExpressBlock = { [weak self] in
+                guard let self else { return }
+                coordinator.start(with: .default)
+                expressCoordinator = coordinator
+            }
+
+            Task { @MainActor [tangemStoriesPresenter] in
+                tangemStoriesPresenter.present(
+                    story: .swap(.initialWithoutImages),
+                    analyticsSource: .tokenListContextMenu,
+                    presentCompletion: openExpressBlock
+                )
+            }
+        }
+
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.initialWalletModel.tokenItem) {
+            openViaYieldNotice(tokenItem: input.initialWalletModel.tokenItem, action: action)
+        } else {
+            action()
         }
     }
 

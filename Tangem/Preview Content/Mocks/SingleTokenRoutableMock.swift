@@ -17,9 +17,9 @@ class SingleTokenRoutableMock: SingleTokenRoutable {
 
     func openBuy(walletModel: any WalletModel) {}
 
-    func openSend(walletModel: any WalletModel, isViaYieldNotice: Bool) {}
+    func openSend(walletModel: any WalletModel) {}
 
-    func openExchange(walletModel: any WalletModel, isViaYieldNotice: Bool) {}
+    func openExchange(walletModel: any WalletModel) {}
 
     func openStaking(walletModel: any WalletModel) {}
 
