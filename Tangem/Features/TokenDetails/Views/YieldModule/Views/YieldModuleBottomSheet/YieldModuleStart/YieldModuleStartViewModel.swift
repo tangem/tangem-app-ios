@@ -65,6 +65,10 @@ final class YieldModuleStartViewModel: ObservableObject {
         previousState.map { viewState = $0 }
     }
 
+    func getTokenIconInfo() -> TokenIconInfo {
+        TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: false)
+    }
+
     // MARK: - Private Implementation
 
     private func createNotificationBannerIfNeeded() {
