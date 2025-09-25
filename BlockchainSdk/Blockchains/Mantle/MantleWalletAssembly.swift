@@ -16,11 +16,6 @@ struct MantleWalletAssembly: WalletManagerAssembly {
             throw ETHError.chainIdNotFound
         }
 
-        let yieldSupplyServiceFactory = YieldSupplyServiceFactory(
-            wallet: wallet,
-            dataStorage: input.blockchainSdkDependencies.dataStorage
-        )
-
         let providers = networkProviderAssembly.makeEthereumJsonRpcProviders(with: input.networkInput)
         let txBuilder = EthereumTransactionBuilder(
             chainId: chainId,
@@ -40,7 +35,6 @@ struct MantleWalletAssembly: WalletManagerAssembly {
             addressConverter: addressConverter,
             txBuilder: txBuilder,
             networkService: networkService,
-            yieldSupplyService: yieldSupplyServiceFactory.makeProvider(networkService: networkService),
             allowsFeeSelection: wallet.blockchain.allowsFeeSelection
         )
     }

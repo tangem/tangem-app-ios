@@ -47,14 +47,17 @@ class EthereumNetworkService: MultiNetworkProvider {
     ) -> AnyPublisher<EthereumInfoResponse, Error> {
         Publishers.Zip4(
             getBalance(address),
-            getTokensBalance(address, tokens: tokens, yieldSupplyService: yieldSupplyService),
+            getTokensBalance(address, tokens: tokens),
             getTxCount(address),
             getPendingTxCount(address)
         )
-        .map { balance, tokenBalances, txCount, pendingTxCount in
-            EthereumInfoResponse(
+        .zip(getYieldTokensBalance(address: address, tokens: tokens, yieldSupplyService: yieldSupplyService))
+        .map { result in
+            let ((balance, tokenBalances, txCount, pendingTxCount), yieldBalances) = result
+            return EthereumInfoResponse(
                 balance: balance,
                 tokenBalances: tokenBalances,
+                yieldBalances: yieldBalances,
                 txCount: txCount,
                 pendingTxCount: pendingTxCount,
                 pendingTxs: []
@@ -148,23 +151,65 @@ class EthereumNetworkService: MultiNetworkProvider {
 
     func getTokensBalance(
         _ address: String,
-        tokens: [Token],
-        yieldSupplyService: YieldSupplyService?
-    ) -> AnyPublisher<[Token: Result<Amount, Error>], Error> {
+        tokens: [Token]
+    ) -> AnyPublisher<[Token: Result<Decimal, Error>], Error> {
         tokens
             .publisher
             .setFailureType(to: Error.self)
             .withWeakCaptureOf(self)
-            .flatMap { networkService, token -> AnyPublisher<(Token, Result<Amount, Error>), Error> in
+            .flatMap { networkService, token -> AnyPublisher<(Token, Result<Decimal, Error>), Error> in
                 networkService.getTokenBalance(
                     address: address,
-                    token: token,
-                    yieldSupplyService: yieldSupplyService
+                    token: token
                 )
             }
             .collect()
-            .map { $0.reduce(into: [Token: Result<Amount, Error>]()) { $0[$1.0] = $1.1 }}
+            .map { $0.reduce(into: [Token: Result<Decimal, Error>]()) { $0[$1.0] = $1.1 }}
             .eraseToAnyPublisher()
+    }
+
+    func getYieldTokensBalance(
+        address: String,
+        tokens: [Token],
+        yieldSupplyService: YieldSupplyService?
+    ) -> AnyPublisher<[Token: Result<Amount?, Error>], Error> {
+        Future.async {
+            guard let yieldSupplyService, yieldSupplyService.isSupported() else {
+                return [:]
+            }
+
+            return try await withThrowingTaskGroup(of: (Token, Result<Amount?, Error>).self) { group in
+                for token in tokens {
+                    group.addTask {
+                        do {
+                            let yieldLendingStatus = try await yieldSupplyService.getYieldSupplyStatus(
+                                tokenContractAddress: token.contractAddress
+                            )
+                            if yieldLendingStatus.active {
+                                let balance = try await yieldSupplyService.getBalance(
+                                    yieldSupplyStatus: yieldLendingStatus,
+                                    token: token
+                                )
+                                return (token, .success(balance))
+                            } else {
+                                return (token, .success(nil))
+                            }
+                        } catch {
+                            return (token, .failure(error))
+                        }
+                    }
+                }
+
+                var result = [Token: Result<Amount?, Error>]()
+
+                for try await element in group {
+                    result[element.0] = element.1
+                }
+
+                return result
+            }
+        }
+        .eraseToAnyPublisher()
     }
 
     func getAllowance(owner: String, spender: String, contractAddress: String) -> AnyPublisher<String, Error> {
@@ -233,41 +278,9 @@ class EthereumNetworkService: MultiNetworkProvider {
 private extension EthereumNetworkService {
     func getTokenBalance(
         address: String,
-        token: Token,
-        yieldSupplyService: YieldSupplyService?
-    ) -> AnyPublisher<(Token, Result<Amount, Error>), Error> {
-        if let yieldSupplyService, yieldSupplyService.isSupported() {
-            return Future.async { [weak self] in
-                guard let self else { return (token, Result.failure(BlockchainSdkError.empty)) }
-
-                let yieldLendingStatus = try? await yieldSupplyService.getYieldSupplyStatus(
-                    tokenContractAddress: token.contractAddress
-                )
-                if let yieldLendingStatus, yieldLendingStatus.active {
-                    do {
-                        let balance = try await yieldSupplyService.getBalance(
-                            yieldSupplyStatus: yieldLendingStatus,
-                            token: token
-                        )
-                        return (token, Result.success(balance))
-                    } catch {
-                        return (token, Result.failure(error))
-                    }
-                } else {
-                    return try await getTokenBalanceInternal(address, token: token).async()
-                }
-            }
-            .eraseToAnyPublisher()
-        } else {
-            return getTokenBalanceInternal(address, token: token)
-        }
-    }
-
-    func getTokenBalanceInternal(
-        _ address: String,
         token: Token
-    ) -> AnyPublisher<(Token, Result<Amount, Error>), Error> {
-        providerPublisher { provider -> AnyPublisher<Result<Amount, Error>, Error> in
+    ) -> AnyPublisher<(Token, Result<Decimal, Error>), Error> {
+        providerPublisher { provider -> AnyPublisher<Result<Decimal, Error>, Error> in
             let method = TokenBalanceERC20TokenMethod(owner: address)
 
             return provider
@@ -278,7 +291,7 @@ private extension EthereumNetworkService {
                         throw ETHError.failedToParseBalance(value: result, address: token.contractAddress, decimals: token.decimalCount)
                     }
 
-                    return Amount(with: token, value: value)
+                    return value
                 }
                 .mapToResult()
                 .setFailureType(to: Error.self)

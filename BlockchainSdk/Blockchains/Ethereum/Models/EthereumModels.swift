@@ -12,7 +12,8 @@ import BigInt
 /// Final Ethereum response that contain all information about address
 struct EthereumInfoResponse {
     let balance: Decimal
-    let tokenBalances: [Token: Result<Amount, Error>]
+    let tokenBalances: [Token: Result<Decimal, Error>]
+    let yieldBalances: [Token: Result<Amount?, Error>]
     let txCount: Int
     let pendingTxCount: Int
     var pendingTxs: [PendingTransaction]

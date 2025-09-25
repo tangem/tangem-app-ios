@@ -1,5 +1,5 @@
 //
-//  PolygonTransactionHistoryResult.swift
+//  EtherscanTransactionHistoryResult.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct PolygonTransactionHistoryResult {
+struct EtherscanTransactionHistoryResult {
     enum Result {
         case description(_ description: String)
         case transactions(_ transactions: [Transaction])
@@ -39,7 +39,7 @@ struct PolygonTransactionHistoryResult {
 
 // MARK: - Decodable protocol conformance
 
-extension PolygonTransactionHistoryResult: Decodable {
+extension EtherscanTransactionHistoryResult: Decodable {
     enum CodingKeys: CodingKey {
         case status
         case message
@@ -61,7 +61,7 @@ extension PolygonTransactionHistoryResult: Decodable {
     }
 }
 
-extension PolygonTransactionHistoryResult.Transaction: Decodable {
+extension EtherscanTransactionHistoryResult.Transaction: Decodable {
     private enum CodingKeys: String, CodingKey {
         case confirmations
         case contractAddress
