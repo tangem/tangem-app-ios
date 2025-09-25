@@ -33,6 +33,7 @@ final class ImportWalletSelectorViewModel: ObservableObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
 
+    private let cardScanAnalyticsLogger = CardScanAnalyticsLogger()
     private weak var coordinator: ImportWalletSelectorRoutable?
 
     init(coordinator: ImportWalletSelectorRoutable) {
@@ -106,7 +107,7 @@ private extension ImportWalletSelectorViewModel {
 private extension ImportWalletSelectorViewModel {
     func scanCard() {
         isScanning = true
-        Analytics.log(Analytics.CardScanSource.welcome.cardScanButtonEvent)
+        cardScanAnalyticsLogger.log(action: .cardScanButton, source: .welcome)
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -132,7 +133,7 @@ private extension ImportWalletSelectorViewModel {
                 }
 
             case .onboarding(let input, _):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue])
+                viewModel.cardScanAnalyticsLogger.log(action: .cardWasScanned, source: .welcome)
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -150,7 +151,7 @@ private extension ImportWalletSelectorViewModel {
                 }
 
             case .success(let cardInfo):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue])
+                viewModel.cardScanAnalyticsLogger.log(action: .cardWasScanned, source: .welcome)
 
                 do {
                     if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
