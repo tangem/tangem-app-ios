@@ -78,7 +78,6 @@ private extension SendAmountStepBuilder {
             tokenIconInfo: builder.makeTokenIconInfo(),
             balanceFormatted: builder.formattedBalance(for: io.input.amount, actionType: actionType),
             currencyPickerData: builder.makeCurrencyPickerData(),
-            actionType: actionType
         )
 
         return SendAmountViewModel(

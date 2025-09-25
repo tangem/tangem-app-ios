@@ -341,8 +341,7 @@ struct SendDependenciesBuilder {
     func makeSendFeeLoader() -> SendFeeLoader {
         CommonSendFeeLoader(
             tokenItem: walletModel.tokenItem,
-            walletModelFeeProvider: walletModel,
-            shouldShowFeeSelector: walletModel.shouldShowFeeSelector
+            walletModelFeeProvider: walletModel
         )
     }
 
@@ -776,7 +775,8 @@ extension SendDependenciesBuilder {
                 name: userWalletModel.name,
                 id: userWalletModel.userWalletId,
                 config: userWalletModel.config,
-                signer: userWalletModel.signer
+                signer: userWalletModel.signer,
+                emailDataProvider: userWalletModel
             )
 
             emailDataProvider = userWalletModel as EmailDataProvider

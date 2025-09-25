@@ -9,86 +9,56 @@
 import Foundation
 import TangemStaking
 
-class StakingFlowFactory2 {
-    private let walletModel: any WalletModel
+class StakingFlowFactory {
+    private let tokenItem: TokenItem
+    private let feeTokenItem: TokenItem
     private let manager: any StakingManager
-    private let router: any SendRoutable
 
     private let builder: SendDependenciesBuilder
 
     // Sharing
 
-//    lazy var sendQRCodeService = builder.makeSendQRCodeService()
-//    lazy var swapManager: SwapManager = builder.makeSwapManager()
     lazy var analyticsLogger = builder.makeStakingSendAnalyticsLogger(actionType: .stake)
     lazy var stakingModel = builder.makeStakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
     lazy var notificationManager = builder.makeStakingNotificationManager()
-//    lazy var sendFeeProvider = builder.makeSendWithSwapFeeProvider(
-//        receiveTokenInput: sendModel,
-//        sendFeeProvider: builder.makeSendFeeProvider(input: sendModel),
-//        swapFeeProvider: builder.makeSwapFeeProvider(swapManager: swapManager)
-//    )
-//    lazy var customFeeService = builder.makeCustomFeeService(input: sendModel)
 
-    init(walletModel: any WalletModel, router: any SendRoutable, input: SendDependenciesBuilder.Input) {
-        self.walletModel = walletModel
-        self.router = router
+    init(walletModel: any WalletModel, manager: any StakingManager, input: SendDependenciesBuilder.Input) {
+        self.tokenItem = walletModel.tokenItem
+        self.feeTokenItem = walletModel.feeTokenItem
+        self.manager = manager
 
         builder = .init(input: input)
     }
 
-    func make() -> SendViewModel {
-//        let analyticsLogger = builder.makeStakingSendAnalyticsLogger(actionType: .stake)
-//        let stakingModel = builder.makeStakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
-//        let notificationManager = builder.makeStakingNotificationManager()
-        notificationManager.setup(provider: stakingModel, input: stakingModel)
-        notificationManager.setupManager(with: stakingModel)
-
-        let sendFeeCompactViewModel = SendNewFeeStepBuilder2.makeSendNewFeeCompactViewModel(
+    func make(router: any SendRoutable) -> SendViewModel {
+        let sendFeeCompactViewModel = SendFeeCompactViewModel(
             input: stakingModel,
-            types: .init(feeTokenItem: walletModel.feeTokenItem, isFeeApproximate: builder.isFeeApproximate())
+            feeTokenItem: feeTokenItem,
+            isFeeApproximate: builder.isFeeApproximate()
         )
+
+        let amount = makeSendAmountStep()
+        let validators = makeStakingValidatorsStep()
+
+        let summary = makeSendSummaryStep(
+            stakingValidatorsCompactViewModel: validators.compact,
+            sendAmountCompactViewModel: amount.compact,
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+        )
+
+        let finish = makeSendFinishStep(
+            sendAmountCompactViewModel: amount.compact,
+            stakingValidatorsCompactViewModel: validators.compact,
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            router: router
+        )
+
+        // Steps
         sendFeeCompactViewModel.bind(input: stakingModel)
 
-        let amount = makeSendAmountStep() sendAmountStepBuilder.makeSendAmountStep(
-            io: (input: stakingModel, output: stakingModel),
-            actionType: .stake,
-            sendFeeProvider: stakingModel,
-            sendQRCodeService: .none,
-            sendAmountValidator: builder.makeStakingSendAmountValidator(stakingManager: manager),
-            amountModifier: builder.makeStakingAmountModifier(actionType: .stake),
-            analyticsLogger: analyticsLogger
-        )
-
-        let validators = stakingValidatorsStepBuilder.makeStakingValidatorsStep(
-            io: (input: stakingModel, output: stakingModel),
-            manager: manager,
-            actionType: .stake,
-            sendFeeProvider: stakingModel,
-            analyticsLogger: analyticsLogger
-        )
-
-        let summary = sendSummaryStepBuilder.makeSendSummaryStep(
-            io: (input: stakingModel, output: stakingModel),
-            actionType: .stake,
-            notificationManager: notificationManager,
-            destinationEditableType: .editable,
-            amountEditableType: .editable,
-            sendAmountCompactViewModel: amount.compact,
-            stakingValidatorsCompactViewModel: validators.compact,
-            sendFeeCompactViewModel: sendFeeCompactViewModel,
-            analyticsLogger: analyticsLogger
-        )
-
-        let finish = sendFinishStepBuilder.makeSendFinishStep(
-            input: stakingModel,
-            sendFinishAnalyticsLogger: analyticsLogger,
-            sendAmountCompactViewModel: amount.compact,
-            onrampAmountCompactViewModel: .none,
-            stakingValidatorsCompactViewModel: validators.compact,
-            sendFeeCompactViewModel: sendFeeCompactViewModel,
-            onrampStatusCompactViewModel: .none
-        )
+        // Notifications setup
+        notificationManager.setup(provider: stakingModel, input: stakingModel)
+        notificationManager.setupManager(with: stakingModel)
 
         let stepsManager = CommonStakingStepsManager(
             provider: stakingModel,
@@ -99,340 +69,127 @@ class StakingFlowFactory2 {
             summaryTitleProvider: builder.makeStakingSummaryTitleProvider(actionType: .stake)
         )
 
+        let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
+
         summary.step.set(router: stepsManager)
 
-        let interactor = CommonSendBaseInteractor(input: stakingModel, output: stakingModel)
-
-        let viewModel = SendViewModel(
-            interactor: interactor,
-            stepsManager: stepsManager,
-            alertBuilder: builder.makeStakingAlertBuilder(),
-            dataBuilder: builder.makeStakingBaseDataBuilder(input: stakingModel),
-            analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper(),
-            tokenItem: walletModel.tokenItem,
-            source: source,
-            coordinator: router
-        )
-        stepsManager.set(output: viewModel)
         stakingModel.router = viewModel
 
         return viewModel
     }
 
-    func make() -> SendViewModel {
-        //        let sendFeeStepBuilder = SendNewFeeStepBuilder(feeTokenItem: walletModel.feeTokenItem, builder: builder)
-        //        let swapProvidersBuilder = SendSwapProvidersBuilder(tokenItem: walletModel.tokenItem, builder: builder)
-        //        let sendSummaryStepBuilder = SendNewSummaryStepBuilder(tokenItem: walletModel.tokenItem, builder: builder)
-        //        let sendFinishStepBuilder = SendNewFinishStepBuilder(tokenItem: walletModel.tokenItem, coordinator: router)
+    func makeStakingValidatorsStep() -> StakingValidatorsStepBuilder2.ReturnValue {
+        let io = StakingValidatorsStepBuilder2.IO(input: stakingModel, output: stakingModel)
 
-        //        let sendQRCodeService = builder.makeSendQRCodeService()
-        //        let swapManager: SwapManager = builder.makeSwapManager()
-        //        let analyticsLogger = builder.makeSendAnalyticsLogger(sendType: .send)
-        //        let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger)
-        //        let notificationManager = builder.makeSendNewNotificationManager(receiveTokenInput: sendModel)
-        //        let customFeeService = builder.makeCustomFeeService(input: sendModel)
+        let types = StakingValidatorsStepBuilder2.Types(actionType: .stake, currentValidator: .none)
 
-        //        let sendFeeProvider = builder.makeSendWithSwapFeeProvider(
-        //            receiveTokenInput: sendModel,
-        //            sendFeeProvider: builder.makeSendFeeProvider(input: sendModel),
-        //            swapFeeProvider: builder.makeSwapFeeProvider(swapManager: swapManager)
-        //        )
-
-        let amount = makeSendAmountStep()
-        let destination = makeSendDestinationStep()
-        let fee = makeSendFeeStep()
-        let providers = makeSwapProviders()
-
-        let summary = makeSendSummaryStep(
-            sendDestinationCompactViewModel: destination.compact,
-            sendAmountCompactViewModel: amount.compact,
-            sendFeeCompactViewModel: fee.compact
-        )
-
-        let finish = makeSendFinishStep(
-            sendAmountFinishViewModel: amount.finish,
-            sendDestinationCompactViewModel: destination.compact,
-            sendFeeFinishViewModel: fee.finish,
-        )
-
-        // Model setup
-
-        // We have to set dependencies here after all setups is completed
-        sendModel.externalAmountUpdater = amount.amountUpdater
-        sendModel.externalDestinationUpdater = destination.externalUpdater
-        sendModel.sendFeeProvider = sendFeeProvider
-        sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
-            input: sendModel, output: sendModel, provider: sendFeeProvider
-        )
-
-        // Steps setup
-
-        fee.compact.bind(input: sendModel)
-        fee.finish.bind(input: sendModel)
-
-        // Notifications setup
-
-        notificationManager.setup(input: sendModel)
-        notificationManager.setupManager(with: sendModel)
-
-        // Logger setup
-
-        analyticsLogger.setup(sendFeeInput: sendModel)
-        analyticsLogger.setup(sendSourceTokenInput: sendModel)
-        analyticsLogger.setup(sendReceiveTokenInput: sendModel)
-        analyticsLogger.setup(sendSwapProvidersInput: sendModel)
-
-        let stepsManager = CommonSendStepsManager(
-            amountStep: amount.step,
-            destinationStep: destination.step,
-            summaryStep: summary,
-            finishStep: finish,
-            feeSelector: fee.feeSelector,
-            providersSelector: providers,
-            summaryTitleProvider: builder.makeSendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel)
-        )
-
-        let dataBuilder = builder.makeSendBaseDataBuilder(
-            input: sendModel,
-            sendReceiveTokensListBuilder: builder.makeSendReceiveTokensListBuilder(
-                sendSourceTokenInput: sendModel,
-                receiveTokenOutput: sendModel,
-                analyticsLogger: analyticsLogger,
-            )
-        )
-
-        let navigationRouter = SendNavigationRouter(
-            stepsManager: stepsManager,
-            sendBaseDataBuilder: dataBuilder,
-            feeSelector: fee.feeSelector,
-            providersSelector: providers,
-            router: router
-        )
-
-        amount.step.set(router: navigationRouter)
-        destination.step.set(stepRouter: navigationRouter)
-        summary.set(router: navigationRouter)
-
-        let viewModel = makeSendViewModel(stepsManager: stepsManager)
-
-        sendModel.router = navigationRouter
-        sendModel.alertPresenter = viewModel
-
-        return viewModel
-    }
-
-    func makeSendAmountStep() -> SendNewAmountStepBuilder.ReturnValue {
-        let io = SendNewAmountStepBuilder2.IO(
-            sourceIO: (input: sendModel, output: sendModel),
-            sourceAmountIO: (input: sendModel, output: sendModel),
-            receiveIO: (input: sendModel, output: sendModel),
-            receiveAmountIO: (input: sendModel, output: sendModel),
-            swapProvidersInput: sendModel,
-        )
-
-        let dependencies = SendNewAmountStepBuilder2.Dependencies(
-            sendAmountValidator: builder.makeSendSourceTokenAmountValidator(input: sendModel),
-            amountModifier: .none,
-            notificationService: notificationManager as? SendAmountNotificationService,
+        let dependencies = StakingValidatorsStepBuilder2.Dependencies(
+            manager: manager,
+            sendFeeProvider: stakingModel,
             analyticsLogger: analyticsLogger
         )
 
-        return SendNewAmountStepBuilder2.make(io: io, dependencies: dependencies)
+        return StakingValidatorsStepBuilder2.make(io: io, types: types, dependencies: dependencies)
     }
+}
 
-    func makeSendDestinationStep() -> SendDestinationStepBuilder2.ReturnValue {
-        let io = SendDestinationStepBuilder2.IO(input: sendModel, output: sendModel, receiveTokenInput: sendModel)
+// MARK: - SendBaseBuildable
 
-        let dependencies = SendDestinationStepBuilder2.Dependencies(
-            sendQRCodeService: sendQRCodeService,
-            analyticsLogger: analyticsLogger,
-            destinationInteractorDependenciesProvider: builder.makeSendDestinationInteractorDependenciesProvider(
-                analyticsLogger: analyticsLogger
-            ),
-        )
-
-        return SendDestinationStepBuilder2.make(io: io, dependencies: dependencies, router: router)
+extension StakingFlowFactory: SendBaseBuildable {
+    var baseIO: SendViewModelBuilder.IO {
+        SendViewModelBuilder.IO(input: stakingModel, output: stakingModel)
     }
-
-    func makeSendFeeStep() -> SendNewFeeStepBuilder2.ReturnValue {
-        let io = SendNewFeeStepBuilder2.IO(input: sendModel, output: sendModel)
-        let types = SendNewFeeStepBuilder2.Types(feeTokenItem: walletModel.feeTokenItem, isFeeApproximate: builder.isFeeApproximate())
-        let dependencies = SendNewFeeStepBuilder2.Dependencies(
-            feeProvider: sendFeeProvider,
-            analyticsLogger: analyticsLogger,
-            customFeeService: customFeeService
-        )
-
-        return SendNewFeeStepBuilder2.make(io: io, types: types, dependencies: dependencies, router: router)
+    
+    var baseTypes: SendViewModelBuilder.Types {
+        SendViewModelBuilder.Types(tokenItem: tokenItem)
     }
-
-    func makeSwapProviders() -> SendSwapProvidersBuilder2.ReturnValue {
-        let io = SendSwapProvidersBuilder2.IO(input: sendModel, output: sendModel, receiveTokenInput: sendModel)
-        let types = SendSwapProvidersBuilder2.Types(tokenItem: walletModel.tokenItem)
-        let dependencies = SendSwapProvidersBuilder2.Dependencies(
-            analyticsLogger: analyticsLogger,
-            expressProviderFormatter: .init(balanceFormatter: .init()),
-            priceChangeFormatter: .init(percentFormatter: .init())
-        )
-
-        return SendSwapProvidersBuilder2.make(
-            io: .init(input: sendModel, output: sendModel, receiveTokenInput: sendModel),
-            types: .init(tokenItem: walletModel.tokenItem),
-            dependencies: .init(
-                analyticsLogger: analyticsLogger,
-                expressProviderFormatter: .init(balanceFormatter: .init()),
-                priceChangeFormatter: .init(percentFormatter: .init())
-            )
-        )
-    }
-
-    func makeSendSummaryStep(
-        sendDestinationCompactViewModel: SendDestinationCompactViewModel,
-        sendAmountCompactViewModel: SendNewAmountCompactViewModel,
-        sendFeeCompactViewModel: SendNewFeeCompactViewModel
-    ) -> SendNewSummaryStepBuilder2.ReturnValue {
-        let io = SendNewSummaryStepBuilder2.IO(input: sendModel, output: sendModel, receiveTokenAmountInput: sendModel)
-
-        let dependencies = SendNewSummaryStepBuilder2.Dependencies(
-            sendFeeProvider: sendFeeProvider,
-            notificationManager: notificationManager,
-            analyticsLogger: analyticsLogger,
-            sendDescriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
-            swapDescriptionBuilder: builder.makeSwapTransactionSummaryDescriptionBuilder()
-        )
-
-        return SendNewSummaryStepBuilder2.make(
-            io: io,
-            dependencies: dependencies,
-            destinationEditableType: .editable,
-            amountEditableType: .editable,
-            sendDestinationCompactViewModel: sendDestinationCompactViewModel,
-            sendAmountCompactViewModel: sendAmountCompactViewModel,
-            nftAssetCompactViewModel: .none,
-            stakingValidatorsCompactViewModel: .none,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
-        )
-    }
-
-    func makeSendFinishStep(
-        sendAmountFinishViewModel: SendNewAmountFinishViewModel,
-        sendDestinationCompactViewModel: SendDestinationCompactViewModel,
-        sendFeeFinishViewModel: SendFeeFinishViewModel
-    ) -> SendNewFinishStepBuilder2.ReturnValue {
-        let io = SendNewFinishStepBuilder2.IO(input: sendModel)
-        let types = SendNewFinishStepBuilder2.Types(tokenItem: walletModel.tokenItem)
-
-        let dependencies = SendNewFinishStepBuilder2.Dependencies(
-            analyticsLogger: analyticsLogger,
-        )
-
-        return SendNewFinishStepBuilder2.make(
-            io: io,
-            types: types,
-            dependencies: dependencies,
-            sendAmountFinishViewModel: sendAmountFinishViewModel,
-            nftAssetCompactViewModel: .none,
-            sendDestinationCompactViewModel: sendDestinationCompactViewModel,
-            sendFeeFinishViewModel: sendFeeFinishViewModel,
-            router: router
-        )
-    }
-
-    func makeSendViewModel(
-        stepsManager: any SendStepsManager,
-    ) -> SendViewModelBuilder.ReturnValue {
-        let io = SendViewModelBuilder.IO(input: sendModel, output: sendModel)
-        let types = SendViewModelBuilder.Types(tokenItem: walletModel.tokenItem)
-
-        let dependencies = SendViewModelBuilder.Dependencies(
-            stepsManager: stepsManager,
-            alertBuilder: builder.makeSendAlertBuilder(),
-            dataBuilder: builder.makeSendBaseDataBuilder(
-                input: sendModel,
-                sendReceiveTokensListBuilder: builder.makeSendReceiveTokensListBuilder(
-                    sendSourceTokenInput: sendModel,
-                    receiveTokenOutput: sendModel,
-                    analyticsLogger: analyticsLogger,
-                )
-            ),
+    
+    var baseDependencies: SendViewModelBuilder.Dependencies {
+        SendViewModelBuilder.Dependencies(
+            alertBuilder: builder.makeStakingAlertBuilder(),
+            dataBuilder: builder.makeStakingBaseDataBuilder(input: stakingModel),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper()
         )
+    }
+}
 
-        return SendViewModelBuilder.make(
-            io: io,
-            types: types,
-            dependencies: dependencies,
-            router: router
+// MARK: - SendAmountStepBuildable
+
+extension StakingFlowFactory: SendAmountStepBuildable {
+    var amountIO: SendAmountStepBuilder2.IO {
+        SendAmountStepBuilder2.IO(input: stakingModel, output: stakingModel)
+    }
+    
+    var amountTypes: SendAmountStepBuilder2.Types {
+        SendAmountStepBuilder2.Types(
+            tokenItem: tokenItem,
+            feeTokenItem: feeTokenItem,
+            maxAmount: builder.maxAmount(for: stakingModel.amount, actionType: .stake),
+            settings: .init(
+                walletHeaderText: builder.walletHeaderText(for: .stake),
+                tokenItem: tokenItem,
+                tokenIconInfo: builder.makeTokenIconInfo(),
+                balanceFormatted: builder.formattedBalance(for: stakingModel.amount, actionType: .stake),
+                currencyPickerData: builder.makeCurrencyPickerData()
+            )
+        )
+    }
+    
+    var amountDependencies: SendAmountStepBuilder2.Dependencies {
+        SendAmountStepBuilder2.Dependencies(
+            sendFeeProvider: stakingModel,
+            sendQRCodeService: .none,
+            sendAmountValidator: builder.makeStakingSendAmountValidator(stakingManager: manager),
+            amountModifier: builder.makeStakingAmountModifier(actionType: .stake),
+            analyticsLogger: analyticsLogger
         )
     }
 }
 
-class SendNavigationRouter {
-    let stepsManager: any SendStepsManager
-    let sendBaseDataBuilder: any SendBaseDataBuilder
-    let feeSelector: FeeSelectorContentViewModel
-    let providersSelector: SendSwapProvidersSelectorViewModel
-    weak var router: (any SendRoutable)?
+// MARK: - SendAmountStepBuildable
 
-    init(
-        stepsManager: any SendStepsManager,
-        sendBaseDataBuilder: any SendBaseDataBuilder,
-        feeSelector: FeeSelectorContentViewModel,
-        providersSelector: SendSwapProvidersSelectorViewModel,
-        router: any SendRoutable
-    ) {
-        self.stepsManager = stepsManager
-        self.sendBaseDataBuilder = sendBaseDataBuilder
-        self.feeSelector = feeSelector
-        self.providersSelector = providersSelector
-        self.router = router
+extension StakingFlowFactory: SendSummaryStepBuildable {
+    var summaryIO: SendSummaryStepBuilder2.IO {
+        SendSummaryStepBuilder2.IO(input: stakingModel, output: stakingModel)
+    }
+    
+    var summaryTypes: SendSummaryStepBuilder2.Types {
+        SendSummaryStepBuilder2.Types(
+            settings: .init(
+                tokenItem: tokenItem,
+                destinationEditableType: .editable,
+                amountEditableType: .editable,
+                actionType: .stake
+            )
+        )
+    }
+    
+    var summaryDependencies: SendSummaryStepBuilder2.Dependencies {
+        SendSummaryStepBuilder2.Dependencies(
+            sendFeeProvider: stakingModel,
+            notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger,
+            sendDescriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
+            stakingDescriptionBuilder: builder.makeStakingTransactionSummaryDescriptionBuilder()
+        )
     }
 }
 
-extension SendNavigationRouter: SendSummaryStepsRoutable {
-    func summaryStepRequestEditDestination() {
-        (stepsManager as? SendSummaryStepsRoutable)?.summaryStepRequestEditDestination()
-    }
+// MARK: - SendAmountStepBuildable
 
-    func summaryStepRequestEditAmount() {
-        (stepsManager as? SendSummaryStepsRoutable)?.summaryStepRequestEditAmount()
+extension StakingFlowFactory: SendFinishStepBuildable {
+    var finishIO: SendFinishStepBuilder2.IO {
+        SendFinishStepBuilder2.IO(input: stakingModel)
     }
-
-    func summaryStepRequestEditFee() {
-        router?.openFeeSelector(viewModel: feeSelector)
+    
+    var finishTypes: SendFinishStepBuilder2.Types {
+        SendFinishStepBuilder2.Types(tokenItem: tokenItem)
     }
-
-    func summaryStepRequestEditProviders() {
-        router?.openSwapProvidersSelector(viewModel: providersSelector)
-    }
-}
-
-extension SendNavigationRouter: SendDestinationStepRoutable {
-    func destinationStepFulfilled() {
-        (stepsManager as? SendDestinationStepRoutable)?.destinationStepFulfilled()
-    }
-}
-
-extension SendNavigationRouter: SendNewAmountRoutable {
-    func openReceiveTokensList() {
-        let tokensListBuilder = sendBaseDataBuilder.makeSendReceiveTokensList()
-        router?.openReceiveTokensList(tokensListBuilder: tokensListBuilder)
-    }
-}
-
-extension SendNavigationRouter: SendModelRoutable {
-    func openNetworkCurrency() {
-        let (userWalletId, feeTokenItem) = sendBaseDataBuilder.makeFeeCurrencyData()
-        router?.openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem)
-    }
-
-    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {
-        router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
-    }
-
-    func resetFlow() {
-        stepsManager.resetFlow()
+    
+    var finishDependencies: SendFinishStepBuilder2.Dependencies {
+        SendFinishStepBuilder2.Dependencies(
+            analyticsLogger: analyticsLogger,
+        )
     }
 }

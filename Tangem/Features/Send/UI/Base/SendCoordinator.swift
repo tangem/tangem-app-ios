@@ -69,7 +69,12 @@ class SendCoordinator: CoordinatorObject {
         case .send(let parameters) where parameters.nonFungibleTokenParameters != nil:
             rootViewModel = factory.makeNFTSendViewModel(parameters: parameters.nonFungibleTokenParameters!, router: self)
         case .send:
-            rootViewModel = factory.makeSendViewModel(router: self)
+            let newFactory = SendFlowFactory2(
+                walletModel: options.input.walletModel,
+                userWalletInfo: options.input.userWalletInfo,
+                expressInput: options.input.expressInput
+            )
+            rootViewModel = newFactory.make(router: self)
         case .sell(let parameters):
             rootViewModel = factory.makeSellViewModel(sellParameters: parameters, router: self)
         case .staking(let manager) where stakingParams.isStakingAmountEditable:
