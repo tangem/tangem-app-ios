@@ -1,9 +1,9 @@
 //
 //  SellFlowBaseBuilder.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
@@ -11,59 +11,69 @@ import Foundation
 struct SellFlowBaseBuilder {
     let walletModel: any WalletModel
     let coordinatorSource: SendCoordinator.Source
-    let sendDestinationStepBuilder: SendDestinationStepBuilder
-    let sendAmountStepBuilder: SendAmountStepBuilder
-    let sendFeeStepBuilder: SendFeeStepBuilder
-    let sendSummaryStepBuilder: SendSummaryStepBuilder
-    let sendFinishStepBuilder: SendFinishStepBuilder
+    let sendFeeStepBuilder: SendNewFeeStepBuilder
+    let sendSummaryStepBuilder: SendNewSummaryStepBuilder
+    let sendFinishStepBuilder: SendNewFinishStepBuilder
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(sellParameters: PredefinedSellParameters, router: SendRoutable) -> SendViewModel {
         let notificationManager = builder.makeSendNotificationManager()
         let analyticsLogger = builder.makeSendAnalyticsLogger(sendType: .sell)
-        let sendModel = builder.makeSendModel(analyticsLogger: analyticsLogger, predefinedSellParameters: sellParameters)
+        let predefinedValues = builder.mapToPredefinedValues(sellParameters: sellParameters)
+        let swapManager = builder.makeSwapManager()
+        let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger, predefinedValues: predefinedValues)
         let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
         let customFeeService = builder.makeCustomFeeService(input: sendModel)
 
-        let sendDestinationCompactViewModel = sendDestinationStepBuilder.makeSendDestinationCompactViewModel(
+        let sendDestinationCompactViewModel = SendDestinationCompactViewModel(
             input: sendModel
         )
 
-        let sendAmountCompactViewModel = sendAmountStepBuilder.makeSendAmountCompactViewModel(
-            input: sendModel
+        let sendAmountCompactViewModel = SendNewAmountCompactViewModel(
+            sourceTokenInput: sendModel,
+            sourceTokenAmountInput: sendModel,
+            receiveTokenInput: sendModel,
+            receiveTokenAmountInput: sendModel,
+            swapProvidersInput: sendModel
         )
 
-        let fee = sendFeeStepBuilder.makeFeeSendStep(
+        let sendAmountFinishViewModel = SendNewAmountFinishViewModel(
+            sourceTokenInput: sendModel,
+            sourceTokenAmountInput: sendModel,
+            receiveTokenInput: sendModel,
+            receiveTokenAmountInput: sendModel,
+            swapProvidersInput: sendModel
+        )
+
+        let fee = sendFeeStepBuilder.makeSendFee(
             io: (input: sendModel, output: sendModel),
-            notificationManager: notificationManager,
+            feeProvider: sendFeeProvider,
             analyticsLogger: analyticsLogger,
-            sendFeeProvider: sendFeeProvider,
-            customFeeService: customFeeService,
-            router: router
+            customFeeService: customFeeService
         )
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
-            actionType: .send,
-            notificationManager: notificationManager,
+            receiveTokenAmountInput: sendModel,
+            sendFeeProvider: sendFeeProvider,
             destinationEditableType: .disable,
             amountEditableType: .disable,
+            notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
-            stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact,
-            analyticsLogger: analyticsLogger
+            nftAssetCompactViewModel: .none,
+            stakingValidatorsCompactViewModel: .none,
+            sendFeeCompactViewModel: fee.compact
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
             sendFinishAnalyticsLogger: analyticsLogger,
+            sendAmountFinishViewModel: sendAmountFinishViewModel,
+            nftAssetCompactViewModel: .none,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
-            sendAmountCompactViewModel: sendAmountCompactViewModel,
-            onrampAmountCompactViewModel: .none,
-            stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact,
-            onrampStatusCompactViewModel: .none
+            sendFeeFinishViewModel: fee.finish
         )
 
         // We have to set dependencies here after all setups is completed
@@ -78,17 +88,22 @@ struct SellFlowBaseBuilder {
         notificationManager.setup(input: sendModel)
         notificationManager.setupManager(with: sendModel)
 
+        analyticsLogger.setup(sendFeeInput: sendModel)
+        analyticsLogger.setup(sendSourceTokenInput: sendModel)
+        analyticsLogger.setup(sendReceiveTokenInput: sendModel)
+        analyticsLogger.setup(sendSwapProvidersInput: sendModel)
+
         // We have to do it after sendModel fully setup
         fee.compact.bind(input: sendModel)
+        fee.finish.bind(input: sendModel)
 
         let stepsManager = CommonSellStepsManager(
-            feeStep: fee.step,
-            summaryStep: summary.step,
-            finishStep: finish,
-            summaryTitleProvider: builder.makeSellSendSummaryTitleProvider()
+            feeSelector: fee.feeSelector,
+            summaryStep: summary,
+            finishStep: finish
         )
 
-        summary.step.set(router: stepsManager)
+        summary.set(router: stepsManager)
 
         let interactor = CommonSendBaseInteractor(input: sendModel, output: sendModel)
 
@@ -103,10 +118,12 @@ struct SellFlowBaseBuilder {
             source: coordinatorSource,
             coordinator: router
         )
-        stepsManager.set(output: viewModel)
 
-        fee.step.set(alertPresenter: viewModel)
+        stepsManager.set(output: viewModel)
+        stepsManager.router = router
+
         sendModel.router = viewModel
+        sendModel.alertPresenter = viewModel
 
         return viewModel
     }
