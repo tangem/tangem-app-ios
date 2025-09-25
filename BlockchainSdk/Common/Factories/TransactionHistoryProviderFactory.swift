@@ -78,11 +78,30 @@ public struct TransactionHistoryProviderFactory {
                 blockBookProvider: networkAssembly.makeBlockBookUTXOProvider(with: input, for: .nowNodes),
                 mapper: TronTransactionHistoryMapper(blockchain: blockchain)
             )
-        case .polygon:
-            return PolygonTransactionHistoryProvider(
-                mapper: PolygonTransactionHistoryMapper(blockchain: blockchain),
+        case .apeChain,
+             .base,
+             .blast,
+             .gnosis,
+             .hyperliquidEVM,
+             .mantle,
+             .moonbeam,
+             .moonriver,
+             .optimism,
+             .polygon,
+             .polygonZkEVM,
+             .sonic,
+             .xdc,
+             .zkSync:
+            // https://docs.etherscan.io/supported-chains
+
+            guard let chainId = blockchain.chainId else {
+                return nil
+            }
+
+            return EtherscanTransactionHistoryProvider(
+                mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
                 networkConfiguration: input.tangemProviderConfig,
-                targetConfiguration: .polygonScan(isTestnet: blockchain.isTestnet, apiKey: keysConfig.polygonScanApiKey)
+                targetConfiguration: .etherscan(chainId: chainId, apiKey: keysConfig.etherscanApiKey)
             )
         case .algorand(_, let isTestnet):
             let node: NodeInfo
