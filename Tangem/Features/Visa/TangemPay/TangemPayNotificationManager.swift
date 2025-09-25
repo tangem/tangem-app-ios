@@ -78,7 +78,7 @@ private extension TangemPayStatus {
         case .kycRequired:
             .viewKYCStatus
 
-        case .readyToIssue, .issuing, .didTapIssueCard:
+        case .readyToIssueOrIssuing:
             .createAccountAndIssueCard
 
         case .active:
