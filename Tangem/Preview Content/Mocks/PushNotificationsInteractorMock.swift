@@ -26,5 +26,7 @@ class PushNotificationsInteractorMock: PushNotificationsInteractor {
         completion(.success(()))
     }
 
+    func completeInitializeWhenUserWalletRepositoryDidLoad() {}
+
     var permissionRequestPublisher: AnyPublisher<PushNotificationsPermissionRequest, Never> { .just(output: .allow(.walletOnboarding)) }
 }
