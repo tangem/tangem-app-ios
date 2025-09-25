@@ -18,6 +18,7 @@ final class YieldModulePromoViewModel {
     private var lastYearReturns: [String: Double] = [:]
     private let networkFee: Decimal
     private let maximumFee: Decimal
+    private let tokenImageUrl: URL?
 
     private(set) var tosUrl = URL(string: "https://tangem.com")!
     private(set) var privacyPolicyUrl = URL(string: "https://tangem.com")!
@@ -39,6 +40,7 @@ final class YieldModulePromoViewModel {
         lastYearReturns: [String: Double],
         networkFee: Decimal,
         maximumFee: Decimal,
+        tokenImageUrl: URL?,
         coordinator: YieldModulePromoCoordinator
     ) {
         self.walletModel = walletModel
@@ -47,6 +49,7 @@ final class YieldModulePromoViewModel {
         self.lastYearReturns = lastYearReturns
         self.networkFee = networkFee
         self.maximumFee = maximumFee
+        self.tokenImageUrl = tokenImageUrl
     }
 
     // MARK: - Public Implementation
@@ -60,7 +63,7 @@ final class YieldModulePromoViewModel {
             .openStartEarningSheet(
                 params: .init(
                     tokenName: walletModel.tokenItem.name,
-                    tokenIcon: NetworkImageProvider().provide(by: walletModel.tokenItem.blockchain, filled: true).image,
+                    tokenId: walletModel.tokenItem.id,
                     networkFee: networkFee.formatted(),
                     maximumFee: maximumFee.formatted(),
                     blockchainName: walletModel.tokenItem.blockchain.displayName
@@ -102,4 +105,5 @@ struct YieldModuleInfo {
     let networkFee: Decimal
     let maximumFee: Decimal
     let lastYearReturns: [String: Double]
+    let tokenImageUrl: URL?
 }
