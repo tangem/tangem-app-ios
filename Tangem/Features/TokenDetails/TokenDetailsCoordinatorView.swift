@@ -75,5 +75,8 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: YieldModuleInfoViewModel.self) {
                 YieldModuleInfoView(viewModel: $0)
             }
+            .floatingSheetContent(for: YieldModuleBalanceInfoViewModel.self) {
+                YieldModuleBalanceInfoView(viewModel: $0)
+            }
     }
 }
