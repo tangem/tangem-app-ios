@@ -35,7 +35,7 @@ class StellarTransactionBuilder {
     func buildChangeTrustOperationForSign(
         transaction: Transaction,
         limit: ChangeTrustOperation.ChangeTrustLimit,
-        sequenceNumber: Int64?
+        sequenceNumber: Int64
     ) throws -> (hash: Data, transaction: stellarsdk.TransactionXDR) {
         guard let assetId = transaction.contractAddress else {
             throw BlockchainSdkError.failedToBuildTx
