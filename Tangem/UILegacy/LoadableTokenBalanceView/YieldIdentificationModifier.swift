@@ -12,7 +12,7 @@ import TangemAssets
 
 struct YieldIdentificationModifier: ViewModifier {
     let state: LoadableTokenBalanceView.State
-    let showInfoAction: (() -> Void)?
+    let showInfoAction: () -> Void
 
     func body(content: Content) -> some View {
         if case .loaded = state {
@@ -37,12 +37,10 @@ struct YieldIdentificationModifier: ViewModifier {
 
     @ViewBuilder
     private var infoButton: some View {
-        if let showInfoAction {
-            Button(action: { showInfoAction() }) {
-                Assets.infoCircle16.image
-                    .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.informative)
-            }
+        Button(action: { showInfoAction() }) {
+            Assets.infoCircle16.image
+                .renderingMode(.template)
+                .foregroundStyle(Colors.Icon.informative)
         }
     }
 }
@@ -50,7 +48,7 @@ struct YieldIdentificationModifier: ViewModifier {
 // MARK: - Convenience
 
 extension LoadableTokenBalanceView {
-    func yieldIdentificationIfNeeded(showInfoAction: (() -> Void)?) -> some View {
+    func yieldIdentificationIfNeeded(showInfoAction: @escaping () -> Void) -> some View {
         modifier(YieldIdentificationModifier(state: state, showInfoAction: showInfoAction))
     }
 }
