@@ -54,6 +54,14 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 
     @discardableResult
+    func tapSendButton() -> Self {
+        XCTContext.runActivity(named: "Tap Send button") { _ in
+            app.buttons["Send"].firstMatch.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForInvalidAmountBanner() -> Self {
         XCTContext.runActivity(named: "Validate invalid amount banner exists") { _ in
             waitAndAssertTrue(invalidAmountBanner, "Invalid amount banner should be displayed")
