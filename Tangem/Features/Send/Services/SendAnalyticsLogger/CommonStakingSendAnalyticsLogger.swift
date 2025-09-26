@@ -217,7 +217,7 @@ extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             Analytics.log(
                 event: .stakingSelectedCurrency,
                 params: [
-                    .commonType: Analytics.ParameterValue.token.rawValue,
+                    .type: Analytics.ParameterValue.token.rawValue,
                     .token: tokenItem.currencySymbol,
                 ]
             )
@@ -226,7 +226,7 @@ extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             Analytics.log(
                 event: .stakingSelectedCurrency,
                 params: [
-                    .commonType: Analytics.ParameterValue.selectedCurrencyApp.rawValue,
+                    .type: Analytics.ParameterValue.selectedCurrencyApp.rawValue,
                     .token: tokenItem.currencySymbol,
                 ]
             )
