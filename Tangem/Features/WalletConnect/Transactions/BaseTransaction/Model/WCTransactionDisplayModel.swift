@@ -67,7 +67,7 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
     var primaryActionButtonTitle: String {
         if case .simulationSucceeded(let result) = viewModel?.simulationState {
             switch result.validationStatus {
-            case .malicious, .warning:
+            case .malicious, .warning, .error:
                 return Localization.commonContinue
             case .benign, .none:
                 break
