@@ -8,7 +8,7 @@
 
 struct WCTransactionSecurityAlertInput {
     let validationStatus: BlockaidChainScanResult.ValidationStatus
-    let validationDescription: String?
+    let validationDescription: String
     let primaryAction: () -> Void
     let secondaryAction: () async -> Void
     let backAction: () -> Void
