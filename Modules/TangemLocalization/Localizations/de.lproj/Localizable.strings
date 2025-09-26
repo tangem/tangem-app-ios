@@ -18,6 +18,8 @@
 "account_archived_accounts" = "Archivierte Konten";
 "account_archived_recover_dialog_description" = "Du bist dabei, dich zu erholen \"%1$@”.";
 "account_archived_recover_dialog_title" = "Konto wiederherstellen";
+"account_archived_recover_error_message" = "You have already exceeded the limit of 20 active accounts. Archive one to recover";
+"account_archived_recover_error_title" = "Can't recover account";
 "account_archived_recover" = "Wiederherstellen";
 "account_archived_title" = "Archiviert";
 "account_could_not_create" = "We couldn’t create account. Please try again later.";
@@ -1175,6 +1177,7 @@
 "story_web3_title" = "Web 3.0-kompatibel";
 "sui_not_enough_coin_for_fee_description" = "Zum Fortfahren ist eine eingehende Transaktion von mindestens %1$@ erforderlich";
 "sui_not_enough_coin_for_fee_title" = "Unzureichende Mittel";
+"swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
 "swap_fixed_rate" = "Fester Zinssatz";
 "swap_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Sie die Verwendung Ihres Tokens für den Swap genehmigen.";
 "swap_promo_text" = "Tausche mehr Token zu besseren Kursen direkt in deiner Brieftasche.";
