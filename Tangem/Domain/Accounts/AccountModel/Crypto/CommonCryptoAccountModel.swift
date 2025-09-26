@@ -115,6 +115,10 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         fatalError()
     }
 
+    var descriptionString: String {
+        "\(derivationIndex)"
+    }
+
     func setName(_ name: String) {
         _name = name
     }

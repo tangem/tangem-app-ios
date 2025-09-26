@@ -79,11 +79,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func onTapNewAccount() {
-        coordinator?.addNewAccount(
-            accountModelsManager: accountModelsManager,
-            // active + archive should go here
-            accountsCount: accountRows.count
-        )
+        coordinator?.addNewAccount(accountModelsManager: accountModelsManager)
     }
 }
 
