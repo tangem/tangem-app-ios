@@ -24,7 +24,7 @@ final class CommonWCTransactionSecurityManager: WCTransactionSecurityManager {
         case .simulationSucceeded(let result):
             if let validationStatus = result.validationStatus {
                 switch validationStatus {
-                case .malicious, .warning:
+                case .malicious, .warning, .error:
                     return result
                 case .benign:
                     return nil
