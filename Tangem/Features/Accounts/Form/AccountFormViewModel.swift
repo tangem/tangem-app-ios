@@ -20,10 +20,11 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     // MARK: - Dynamic State
 
     @Published var accountName: String
+
     @Published var selectedColor: GridItemColor<AccountModel.Icon.Color>
     @Published var selectedIcon: GridItemImage<AccountModel.Icon.Name>
     @Published var alert: AlertBinder?
-    @Published private var accountIndex: Int
+    @Published var description: String?
 
     // MARK: - Static state
 
@@ -47,7 +48,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
-    private var initialStateSnapshot: StateSnapshot = .initial
+    private let initialStateSnapshot: StateSnapshot
     private let flowType: FlowType
     private let closeAction: () -> Void
     private let accountModelsManager: AccountModelsManager
@@ -56,11 +57,14 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     init(
         userWalletId: UserWalletId,
-        accountIndex: Int,
         accountModelsManager: AccountModelsManager,
         flowType: FlowType,
         closeAction: @escaping () -> Void
     ) {
+        let accountName: String
+        let selectedColor: GridItemColor<AccountModel.Icon.Color>
+        let selectedIcon: GridItemImage<AccountModel.Icon.Name>
+
         switch flowType {
         case .edit(let account):
             accountName = account.name
@@ -81,7 +85,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             selectedIcon = GridItemImage(id: account.icon.name, kind: gridItemImageKind)
 
         case .create:
-            let randomAccountColor = AccountModel.Icon.Color.allCases.randomElement() ?? .azure
+            let randomAccountColor = AccountModelUtils.UI.getRadomColor()
             let color = AccountModelUtils.UI.iconColor(from: randomAccountColor)
             selectedColor = GridItemColor(id: randomAccountColor, color: color)
             selectedIcon = GridItemImage(
@@ -91,16 +95,15 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             accountName = ""
         }
 
+        self.accountName = accountName
+        self.selectedColor = selectedColor
+        self.selectedIcon = selectedIcon
         self.flowType = flowType
         self.closeAction = closeAction
         self.accountModelsManager = accountModelsManager
-        self.accountIndex = accountIndex
 
-        initialStateSnapshot = StateSnapshot(
-            name: accountName,
-            color: selectedColor,
-            image: selectedIcon
-        )
+        let snapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
+        initialStateSnapshot = snapshot
 
         bind()
     }
@@ -144,10 +147,6 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         case .create:
             Localization.accountFormTitleCreate
         }
-    }
-
-    var bottomText: String {
-        Localization.accountFormAccountIndex(accountIndex)
     }
 
     var buttonTitle: String {
@@ -207,9 +206,18 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        accountModelsManager.accountModelsPublisher
-            .map { $0.count + 1 }
-            .assign(to: \.accountIndex, on: self, ownership: .weak)
+        accountModelsManager.totalAccountsAmount
+            .withWeakCaptureOf(self)
+            .map { viewModel, amount in
+                switch viewModel.flowType {
+                case .create:
+                    return Localization.accountFormAccountIndex(amount)
+
+                case .edit(let account):
+                    return Localization.accountFormAccountIndex(account.descriptionString)
+                }
+            }
+            .assign(to: \.description, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -247,11 +255,5 @@ extension AccountFormViewModel {
         let name: String
         let color: GridItemColor<AccountModel.Icon.Color>
         let image: GridItemImage<AccountModel.Icon.Name>
-
-        static let initial: Self = StateSnapshot(
-            name: "",
-            color: .init(id: .azure, color: Colors.Accounts.azureBlue),
-            image: .init(id: .letter, kind: .letter(visualImageRepresentation: Assets.tangemIcon))
-        )
     }
 }

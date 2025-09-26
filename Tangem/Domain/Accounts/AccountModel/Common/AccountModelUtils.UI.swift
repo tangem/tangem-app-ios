@@ -82,35 +82,8 @@ extension AccountModelUtils {
             }
         }
 
-        static func accountIconColor(from color: Color) -> AccountModel.Icon.Color? {
-            switch color {
-            case Colors.Accounts.azureBlue:
-                return .azure
-            case Colors.Accounts.caribbeanBlue:
-                return .caribbeanBlue
-            case Colors.Accounts.dullLavender:
-                return .dullLavender
-            case Colors.Accounts.candyGrapeFizz:
-                return .candyGrapeFizz
-            case Colors.Accounts.sweetDesire:
-                return .sweetDesire
-            case Colors.Accounts.palatinateBlue:
-                return .palatinateBlue
-            case Colors.Accounts.fuchsiaNebula:
-                return .fuchsiaNebula
-            case Colors.Accounts.mexicanPink:
-                return .mexicanPink
-            case Colors.Accounts.pelati:
-                return .pelati
-            case Colors.Accounts.pattypan:
-                return .pattypan
-            case Colors.Accounts.ufoGreen:
-                return .ufoGreen
-            case Colors.Accounts.vitalGreen:
-                return .vitalGreen
-            default:
-                return nil
-            }
+        static func getRadomColor() -> AccountModel.Icon.Color {
+            AccountModel.Icon.Color.allCases.randomElement() ?? .azure
         }
     }
 }

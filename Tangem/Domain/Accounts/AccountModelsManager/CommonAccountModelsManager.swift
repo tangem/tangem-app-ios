@@ -184,6 +184,11 @@ extension CommonAccountModelsManager: AccountModelsManager {
         .just(output: true)
     }
 
+    // [REDACTED_TODO_COMMENT]
+    nonisolated var totalAccountsAmount: AnyPublisher<Int, Never> {
+        .just(output: 0)
+    }
+
     nonisolated var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         makeOrGetAccountModelsPublisher()
     }

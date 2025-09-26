@@ -16,11 +16,15 @@ struct DummyCommonAccountModelsManager {}
 
 extension DummyCommonAccountModelsManager: AccountModelsManager {
     var canAddCryptoAccounts: Bool {
-        return false
+        return true
     }
 
     var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
         return .just(output: false)
+    }
+
+    var totalAccountsAmount: AnyPublisher<Int, Never> {
+        .just(output: 0)
     }
 
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
