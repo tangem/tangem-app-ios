@@ -56,7 +56,6 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     private var bag = Set<AnyCancellable>()
 
     init(
-        userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
         flowType: FlowType,
         closeAction: @escaping () -> Void

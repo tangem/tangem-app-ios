@@ -116,7 +116,6 @@ private extension UserWalletSettingsViewModel {
             .map { viewModel, accounts in
                 UserSettingsAccountsViewModel(
                     accountModels: accounts,
-                    userWalletId: viewModel.userWalletModel.userWalletId,
                     accountModelsManager: viewModel.userWalletModel.accountModelsManager,
                     coordinator: viewModel.coordinator
                 )

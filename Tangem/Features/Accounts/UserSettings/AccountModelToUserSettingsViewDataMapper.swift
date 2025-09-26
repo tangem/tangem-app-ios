@@ -32,7 +32,7 @@ enum AccountModelToUserSettingsViewDataMapper {
             ]
 
         case .multiple(let cryptoAccountModel):
-            return cryptoAccountModel.compactMap { accountModel in
+            return cryptoAccountModel.map { accountModel in
                 mapAccount(
                     accountModel,
                     onTap: { model in
@@ -47,20 +47,19 @@ enum AccountModelToUserSettingsViewDataMapper {
         _ accountModel: any BaseAccountModel,
         onTap: @escaping (any BaseAccountModel) -> Void
     ) -> UserSettingsAccountRowViewData {
-        let iconName = accountModel.icon.name
-
-        let iconNameMode: AccountIconView.NameMode = switch iconName {
+        let iconNameMode: AccountIconView.NameMode = switch accountModel.icon.name {
         case .letter:
             .letter(String(accountModel.name.first ?? "_"))
 
         default:
-            .imageType(AccountModelUtils.UI.iconAsset(from: iconName))
+            .imageType(AccountModelUtils.UI.iconAsset(from: accountModel.icon.name))
         }
 
         return UserSettingsAccountRowViewData(
-            id: "\(accountModel.id.hashValue)",
+            id: "\(accountModel.id)",
             name: accountModel.name,
             iconNameMode: iconNameMode,
+            // [REDACTED_TODO_COMMENT]
             description: "",
             iconColor: AccountModelUtils.UI.iconColor(from: accountModel.icon.color),
             onTap: {

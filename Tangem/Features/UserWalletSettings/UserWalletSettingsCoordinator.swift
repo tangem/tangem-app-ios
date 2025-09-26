@@ -70,12 +70,8 @@ extension UserWalletSettingsCoordinator:
     TransactionNotificationsModalRoutable,
     MobileBackupNeededRoutable,
     MobileBackupTypesRoutable {
-    func addNewAccount(
-        userWalletId: UserWalletId,
-        accountModelsManager: any AccountModelsManager
-    ) {
+    func addNewAccount(accountModelsManager: any AccountModelsManager) {
         accountFormViewModel = AccountFormViewModel(
-            userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
             flowType: .create,
             closeAction: { [weak self] in

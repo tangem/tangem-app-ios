@@ -6,8 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import TangemAssets
-import TangemLocalization
 import SwiftUI
 import TangemAccounts
 
