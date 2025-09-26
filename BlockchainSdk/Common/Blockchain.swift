@@ -1611,8 +1611,7 @@ extension Blockchain {
              .sonic,
              .vanar,
              .zkLinkNova,
-             .hyperliquidEVM,
-             .quai:
+             .hyperliquidEVM:
             return EthereumWalletAssembly()
         case .optimism,
              .manta,
@@ -1682,6 +1681,8 @@ extension Blockchain {
             return AlephiumWalletAssembly()
         case .pepecoin:
             return PepecoinWalletAssembly()
+        case .quai:
+            return QuaiWalletAssembly()
         }
     }
 }

@@ -28,9 +28,15 @@ public struct QuaiAddressUtils {
 
     // MARK: - Public Implementation
 
-    public func derive(extendendPublicKey: ExtendedPublicKey, with addressType: AddressType) throws -> ExtendedPublicKey {
+    public func derive(
+        extendendPublicKey: ExtendedPublicKey,
+        with addressType: AddressType
+    ) throws -> (ExtendedPublicKey, DerivationNode) {
         for attempt in 0 ..< Constants.maxDerivationAttempts {
-            let derivedKey = try extendendPublicKey.derivePublicKey(node: .nonHardened(UInt32(attempt)))
+            let derivedNode: DerivationNode = .nonHardened(UInt32(attempt))
+            let derivedKey = try extendendPublicKey.derivePublicKey(node: derivedNode)
+
+            print(derivedKey.publicKey)
 
             let zoneAddress = try addressService.makeAddress(
                 for: .init(seedKey: derivedKey.publicKey, derivationType: .none),
@@ -38,7 +44,7 @@ public struct QuaiAddressUtils {
             )
 
             if checkAddressZone(address: zoneAddress.value, expectedZone: expectedZone) {
-                return derivedKey
+                return (derivedKey, derivedNode)
             }
         }
 

@@ -49,8 +49,9 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
         }
 
         let zoneDerivedKey = try executeDerivedKey(derivedKey)
+        let zoneDerivationPath = derivationPath.extendedPath(with: .nonHardened(31))
 
-        let derivationKey = Wallet.PublicKey.HDKey(path: derivationPath, extendedPublicKey: zoneDerivedKey)
+        let derivationKey = Wallet.PublicKey.HDKey(path: zoneDerivationPath, extendedPublicKey: zoneDerivedKey)
         let publicKey = Wallet.PublicKey(seedKey: seedKey, derivationType: .plain(derivationKey))
 
         let factory = WalletManagerFactoryProvider(apiList: apiList).factory
@@ -62,12 +63,12 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
 
     // MARK: - Private Implementation
 
-    private func deriveByZone(extendendPublicKey: ExtendedPublicKey) throws -> ExtendedPublicKey {
+    private func deriveByZone(extendendPublicKey: ExtendedPublicKey) throws -> (ExtendedPublicKey, DerivationNode) {
         let quaiAddressUtils = QuaiAddressUtils()
         return try quaiAddressUtils.derive(extendendPublicKey: extendendPublicKey, with: .default)
     }
 
-    private func executeDerivedKey(_ derivedKey: ExtendedPublicKey) throws -> ExtendedPublicKey {
+    private func executeDerivedKey(_ derivedKey: ExtendedPublicKey) throws -> (ExtendedPublicKey, DerivationNode) {
         var storedKey: ExtendedPublicKey?
         var error: Error?
         let semaphore = DispatchSemaphore(value: 0)
@@ -75,16 +76,17 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
         Task {
             do {
                 let storageKeySuffix = derivedKey.publicKey.getSha256().hexString
-
                 let cacheDerivedKey: ExtendedPublicKey? = await dataStorage.get(key: storageKeySuffix)
+                
+                derivedKey.derivePublicKey(node: .nonHardened(<#T##UInt32#>))
 
-                if let cacheDerivedKey {
-                    storedKey = cacheDerivedKey
-                } else {
-                    let savedDerivedKey = try deriveByZone(extendendPublicKey: derivedKey)
-                    await dataStorage.store(key: storageKeySuffix, value: savedDerivedKey)
-                    storedKey = savedDerivedKey
-                }
+//                if let cacheDerivedKey {
+//                    storedKey = cacheDerivedKey
+//                } else {
+                let savedDerivedKey = try deriveByZone(extendendPublicKey: derivedKey)
+                await dataStorage.store(key: storageKeySuffix, value: savedDerivedKey.0)
+                storedKey = savedDerivedKey.0
+//                }
             } catch let e {
                 error = e
             }

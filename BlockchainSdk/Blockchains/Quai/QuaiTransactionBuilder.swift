@@ -29,17 +29,19 @@ final class QuaiTransactionBuilder {
 extension QuaiTransactionBuilder: EthereumTransactionBuilder {
     func buildForSign(transaction: Transaction) throws -> Data {
         let input = try buildSigningInput(transaction: transaction)
-        let unsignedProto = protoUtil.buildUnsignedProto(signingInput: input)
-        let hashForSign = unsignedProto.sha3(.keccak256)
-        return hashForSign
+        let buildForSign = try convertToHashSigning(input: input)
+        return buildForSign
     }
 
     func buildForSend(transaction: Transaction, signatureInfo: SignatureInfo) throws -> Data {
         let input = try buildSigningInput(transaction: transaction)
-        let signature = try Secp256k1Signature(with: signatureInfo.signature)
-        let unmarshalSignature = try signature.unmarshal(with: signatureInfo.publicKey, hash: Data())
 
-        let vBytes = unmarshalSignature.v
+        let decompressed = try Secp256k1Key(with: signatureInfo.publicKey).decompress()
+        let secp256k1Signature = try Secp256k1Signature(with: signatureInfo.signature)
+        let unmarshalSignature = try secp256k1Signature.unmarshal(with: decompressed, hash: signatureInfo.hash)
+
+        let v = BigUInt(unmarshalSignature.v) - 27
+        let vBytes = v == .zero ? Data([UInt8.zero]) : v.serialize()
         let rBytes = unmarshalSignature.r
         let sBytes = unmarshalSignature.s
 
@@ -79,5 +81,13 @@ extension QuaiTransactionBuilder: EthereumTransactionBuilder {
 
     func buildForApprove(spender: String, amount: Decimal) -> Data {
         ethereumTransactionBuilder.buildForApprove(spender: spender, amount: amount)
+    }
+}
+
+private extension QuaiTransactionBuilder {
+    private func convertToHashSigning(input: EthereumSigningInput) throws -> Data {
+        let unsignedProto = protoUtil.buildUnsignedProto(signingInput: input)
+        let hashForSign = unsignedProto.sha3(.keccak256)
+        return hashForSign
     }
 }

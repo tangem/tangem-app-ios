@@ -79,7 +79,7 @@ struct QuaiProtobufUtils {
         result.append(encodeBytes(fieldNumber: Constants.field7ChainId, value: chainIdBytes))
 
         // "GasPrice" (field 8) - bytes (unsigned, minimal)
-        let gasPriceBytesSigned = signingInput.gasPrice
+        let gasPriceBytesSigned = stripLeadingZeros(signingInput.gasPrice)
         result.append(encodeBytes(fieldNumber: Constants.field8GasPrice, value: gasPriceBytesSigned))
 
         // "AccessList" (field 9) - empty for now
