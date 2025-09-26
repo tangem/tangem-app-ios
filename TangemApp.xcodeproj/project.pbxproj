@@ -3067,7 +3067,6 @@
 		DC8E03132DE16AF7008967D8 /* WCHandleTransactionDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8E03122DE16AF7008967D8 /* WCHandleTransactionDTO.swift */; };
 		DC8E03152DE16B08008967D8 /* WCHandleTransactionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8E03142DE16B08008967D8 /* WCHandleTransactionData.swift */; };
 		DC8E03192DE180F7008967D8 /* WCRequestDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8E03182DE180F1008967D8 /* WCRequestDetailsView.swift */; };
-		DC8E031E2DE18744008967D8 /* WCRequestDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8E031D2DE18744008967D8 /* WCRequestDetailsViewModel.swift */; };
 		DC8E03202DE187A7008967D8 /* WCRequestDetailsInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8E031F2DE187A7008967D8 /* WCRequestDetailsInput.swift */; };
 		DC8E03222DE18851008967D8 /* WCTransactionDetailsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8E03212DE18851008967D8 /* WCTransactionDetailsSection.swift */; };
 		DC8E03252DE1893D008967D8 /* WCRequestDetailsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8E03242DE18938008967D8 /* WCRequestDetailsBuilder.swift */; };
@@ -3099,6 +3098,8 @@
 		DC9A4A2D2AB4ADD30031C7C2 /* UserCodeRecovering.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9A4A2C2AB4ADD30031C7C2 /* UserCodeRecovering.swift */; };
 		DC9A4A302AB4AE320031C7C2 /* UserCodeRecoveringCardInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9A4A2F2AB4AE320031C7C2 /* UserCodeRecoveringCardInteractor.swift */; };
 		DC9C0A492DE2E46700E1E786 /* WCSolanaSignAllTransactionsDetailsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9C0A482DE2E45A00E1E786 /* WCSolanaSignAllTransactionsDetailsModel.swift */; };
+		DC9E1DF22E5E2BF500AA9DE2 /* WCRequestDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9E1DF02E5E2BF500AA9DE2 /* WCRequestDetailsViewModel.swift */; };
+		DC9E1DF42E5E3B2800AA9DE2 /* WCFeeSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9E1DF32E5E3B2800AA9DE2 /* WCFeeSelectorView.swift */; };
 		DCA19BEA2DDD611A0057BDA5 /* WCHandlersService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA19BE92DDD61160057BDA5 /* WCHandlersService.swift */; };
 		DCA19BEC2DDD7F8D0057BDA5 /* WCTransactionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA19BEB2DDD7F8B0057BDA5 /* WCTransactionRoutable.swift */; };
 		DCA19BF12DDD95B00057BDA5 /* WCTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA19BF02DDD95A10057BDA5 /* WCTransactionView.swift */; };
@@ -7255,7 +7256,6 @@
 		DC8E03122DE16AF7008967D8 /* WCHandleTransactionDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCHandleTransactionDTO.swift; sourceTree = "<group>"; };
 		DC8E03142DE16B08008967D8 /* WCHandleTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCHandleTransactionData.swift; sourceTree = "<group>"; };
 		DC8E03182DE180F1008967D8 /* WCRequestDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestDetailsView.swift; sourceTree = "<group>"; };
-		DC8E031D2DE18744008967D8 /* WCRequestDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestDetailsViewModel.swift; sourceTree = "<group>"; };
 		DC8E031F2DE187A7008967D8 /* WCRequestDetailsInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestDetailsInput.swift; sourceTree = "<group>"; };
 		DC8E03212DE18851008967D8 /* WCTransactionDetailsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionDetailsSection.swift; sourceTree = "<group>"; };
 		DC8E03242DE18938008967D8 /* WCRequestDetailsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestDetailsBuilder.swift; sourceTree = "<group>"; };
@@ -7287,6 +7287,8 @@
 		DC9A4A2C2AB4ADD30031C7C2 /* UserCodeRecovering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCodeRecovering.swift; sourceTree = "<group>"; };
 		DC9A4A2F2AB4AE320031C7C2 /* UserCodeRecoveringCardInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCodeRecoveringCardInteractor.swift; sourceTree = "<group>"; };
 		DC9C0A482DE2E45A00E1E786 /* WCSolanaSignAllTransactionsDetailsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCSolanaSignAllTransactionsDetailsModel.swift; sourceTree = "<group>"; };
+		DC9E1DF02E5E2BF500AA9DE2 /* WCRequestDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestDetailsViewModel.swift; sourceTree = "<group>"; };
+		DC9E1DF32E5E3B2800AA9DE2 /* WCFeeSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCFeeSelectorView.swift; sourceTree = "<group>"; };
 		DCA19BE92DDD61160057BDA5 /* WCHandlersService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCHandlersService.swift; sourceTree = "<group>"; };
 		DCA19BEB2DDD7F8B0057BDA5 /* WCTransactionRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionRoutable.swift; sourceTree = "<group>"; };
 		DCA19BF02DDD95A10057BDA5 /* WCTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionView.swift; sourceTree = "<group>"; };
@@ -18358,10 +18360,10 @@
 			children = (
 				DC145B5D2E2E3E3F00E04F5C /* Factory */,
 				DC075F8F2DE1A43E0092457A /* SolanaDefaultTransactionDetails */,
-				DC8E031C2DE18419008967D8 /* ViewModel */,
 				DC8E031B2DE18413008967D8 /* View */,
 				DC8E031A2DE1840F008967D8 /* Model */,
 				DC8E03232DE1892A008967D8 /* Service */,
+				DC9E1DF12E5E2BF500AA9DE2 /* ViewModel */,
 			);
 			path = RequestDetails;
 			sourceTree = "<group>";
@@ -18381,14 +18383,6 @@
 				DC8E03182DE180F1008967D8 /* WCRequestDetailsView.swift */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		DC8E031C2DE18419008967D8 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				DC8E031D2DE18744008967D8 /* WCRequestDetailsViewModel.swift */,
-			);
-			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		DC8E03232DE1892A008967D8 /* Service */ = {
@@ -18439,6 +18433,7 @@
 		DC8F7BCD2E0C919F00B3F5DB /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				DC9E1DF32E5E3B2800AA9DE2 /* WCFeeSelectorView.swift */,
 				DC8F7BCB2E0C919F00B3F5DB /* WCEthTransactionDetailsView.swift */,
 				DC60913B2E3A3A8D00A842EE /* WCFeeRowView.swift */,
 				DC60913C2E3A3A8D00A842EE /* WCFeeRowViewModel.swift */,
@@ -18623,6 +18618,14 @@
 				DC9A4A2F2AB4AE320031C7C2 /* UserCodeRecoveringCardInteractor.swift */,
 			);
 			path = UserCodeRecovering;
+			sourceTree = "<group>";
+		};
+		DC9E1DF12E5E2BF500AA9DE2 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				DC9E1DF02E5E2BF500AA9DE2 /* WCRequestDetailsViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		DCA19BE82DDD60FD0057BDA5 /* TransactionHandlers */ = {
@@ -24064,7 +24067,6 @@
 				B09684B42D82BA1900A4512D /* App+UniversalError.swift in Sources */,
 				B696109A2A428CA300CF88B7 /* OrganizeTokensListItemView.swift in Sources */,
 				DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */,
-				DC8E031E2DE18744008967D8 /* WCRequestDetailsViewModel.swift in Sources */,
 				EFA154822CD2542700A0642C /* OnrampAmountBuilder.swift in Sources */,
 				EF41A3CC2D38089B00FA7020 /* TokenBalancesStorage.swift in Sources */,
 				B020FFB425DE7F9300EF422C /* DataCollectors.swift in Sources */,
@@ -24597,6 +24599,7 @@
 				0F3D64212E0ECFAF00670DC9 /* MobileBackupNeededViewModel.swift in Sources */,
 				B06C08412A73E11000D982BC /* SingleWalletMainHeaderSubtitleProvider.swift in Sources */,
 				EF9F9090299FAE84006F638F /* SupportChatInputModel.swift in Sources */,
+				DC9E1DF22E5E2BF500AA9DE2 /* WCRequestDetailsViewModel.swift in Sources */,
 				EF9E2A572B56A9B100418559 /* SentExpressTransactionData+Mock.swift in Sources */,
 				5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */,
 				2D96E9602E55D25300B69F91 /* ReceiveAddressInfo.swift in Sources */,
@@ -25021,6 +25024,7 @@
 				EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */,
 				2D5DCC2E2C3309F1000EE379 /* MarketsTokensNetworkSelectorItemView.swift in Sources */,
 				B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */,
+				DC9E1DF42E5E3B2800AA9DE2 /* WCFeeSelectorView.swift in Sources */,
 				0AA6A79D2DBA6D83008F5D43 /* ReferralProgramURLParser.swift in Sources */,
 				DC2891692CD4ADD400F57F59 /* CommonBuyTokenAvailabilitySorter.swift in Sources */,
 				DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */,
