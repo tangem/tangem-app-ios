@@ -21,9 +21,8 @@ extension Analytics {
         case errorKey = "Tangem SDK error key"
         case source = "Source"
         case period = "Period"
-        case type
         case currency = "Currency Type" // fiat
-        case success
+        case success = "Success"
         case token = "Token"
         case tokens = "Tokens"
         case tokensCount = "Tokens Count"
@@ -46,14 +45,14 @@ extension Analytics {
         case productType = "Product Type"
         case sendToken = "Send Token"
         case receiveToken = "Receive Token"
-        case commonType = "Type"
+        case type = "Type"
         case signInType = "Sign in type"
         case balance = "Balance"
         case balanceState = "Balance State"
         case creationType = "Creation Type"
         case seedLength = "Seed Phrase Length"
         case status = "Status"
-        case option
+        case option = "Option"
         case feeType = "Fee Type"
         case ensAddress = "ENS Address"
         case nonce = "Nonce"
@@ -65,7 +64,7 @@ extension Analytics {
         case walletType = "Wallet Type"
         case exceptionHost = "exception_host"
         case selectedHost = "selected_host"
-        case region
+        case region = "Region"
         case clientType = "Client Type"
         case programName = "Program Name"
         case networks = "Networks"
@@ -105,7 +104,6 @@ extension Analytics {
 
         case walletConnectDAppName = "DApp Name"
         case walletConnectDAppUrl = "DApp Url"
-        case walletConnectBlockchain = "Blockchain"
         case walletConnectDAppDomainVerification = "Domain Verification"
         case walletConnectTransactionEmulationStatus = "Emulation Status"
 
