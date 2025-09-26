@@ -113,5 +113,9 @@ extension Analytics {
         case nftAssetsCount = "Nft"
         case nftStandard = "Standard"
         case nftDummyCollectionsCount = "No collection"
+
+        // MARK: - Mobile Wallet
+
+        case mobileWallet = "Mobile Wallet"
     }
 }

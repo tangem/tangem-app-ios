@@ -113,8 +113,8 @@ final class MainViewModel: ObservableObject {
             var analyticsParameters: [Analytics.ParameterKey: Analytics.ParameterValue] = [:]
 
             if let userWalletModel = userWalletRepository.selectedModel {
-                let walletType = Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets)
-                analyticsParameters[.walletType] = walletType
+                let isMobileWallet = userWalletModel.config.productType == .mobileWallet
+                analyticsParameters[.mobileWallet] = .affirmativeOrNegative(for: isMobileWallet)
             }
 
             Analytics.log(.mainScreenOpened, params: analyticsParameters)
