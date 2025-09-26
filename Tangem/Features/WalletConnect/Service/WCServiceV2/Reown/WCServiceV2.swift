@@ -329,7 +329,7 @@ extension WCServiceV2 {
             .methodName: request.method,
             .walletConnectDAppName: connectedDApp.dAppData.name,
             .walletConnectDAppUrl: connectedDApp.dAppData.domain.absoluteString,
-            .walletConnectBlockchain: blockchainName,
+            .blockchain: blockchainName,
             .errorCode: "\(error.universalErrorCode)",
         ]
 
