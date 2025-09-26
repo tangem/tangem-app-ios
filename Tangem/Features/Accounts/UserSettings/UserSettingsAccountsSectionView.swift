@@ -62,9 +62,7 @@ struct UserSettingsAccountsSectionView: View {
                     }
                 },
                 trailingIcon: {
-                    Assets.chevronRight.image
-                        .renderingMode(.template)
-                        .foregroundStyle(Colors.Icon.informative)
+                    trailingChevron
                 }
             )
         }
@@ -82,10 +80,14 @@ struct UserSettingsAccountsSectionView: View {
             shouldShowTrailingIcon: false,
             action: buttonModel.action,
             trailingView: {
-                Assets.chevronRight.image
-                    .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.informative)
+                trailingChevron
             }
         )
+    }
+
+    private var trailingChevron: some View {
+        Assets.chevronRight.image
+            .renderingMode(.template)
+            .foregroundStyle(Colors.Icon.informative)
     }
 }

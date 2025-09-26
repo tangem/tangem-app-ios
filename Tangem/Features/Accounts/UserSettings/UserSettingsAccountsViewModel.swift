@@ -21,18 +21,15 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     @Published private(set) var archivedAccountButton: ArchivedAccountsButtonViewData?
 
     private let accountModelsManager: AccountModelsManager
-    private let userWalletId: UserWalletId
     private weak var coordinator: UserSettingsAccountsRoutable?
     private var bag = Set<AnyCancellable>()
 
     init(
         accountModels: [AccountModel],
-        userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
         coordinator: UserSettingsAccountsRoutable?
     ) {
         self.accountModelsManager = accountModelsManager
-        self.userWalletId = userWalletId
         self.coordinator = coordinator
 
         accountRows = accountModels.flatMap {
@@ -54,8 +51,8 @@ final class UserSettingsAccountsViewModel: ObservableObject {
                 AddListItemButton.ViewData(
                     text: Localization.accountFormCreateButton,
                     isEnabled: enabled,
-                    action: {
-                        viewModel.onTapNewAccount()
+                    action: { [weak self] in
+                        self?.onTapNewAccount()
                     }
                 )
             }
@@ -82,10 +79,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func onTapNewAccount() {
-        coordinator?.addNewAccount(
-            userWalletId: userWalletId,
-            accountModelsManager: accountModelsManager
-        )
+        coordinator?.addNewAccount(accountModelsManager: accountModelsManager)
     }
 }
 

@@ -180,6 +180,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         areHDWalletsSupported
     }
 
+    // [REDACTED_TODO_COMMENT]
     nonisolated var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
         .just(output: true)
     }
