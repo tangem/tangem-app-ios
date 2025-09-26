@@ -28,9 +28,9 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .methodName: transactionData.method.rawValue,
             .walletConnectDAppName: transactionData.dAppData.name,
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
-            .walletConnectBlockchain: transactionData.blockchain.displayName,
+            .blockchain: transactionData.blockchain.displayName,
             .walletConnectTransactionEmulationStatus: emulationStatus.rawValue,
-            .commonType: simulationResult.rawValue,
+            .type: simulationResult.rawValue,
         ]
 
         Analytics.log(event: signatureRequestReceivedEvent, params: signatureRequestReceivedParams)
@@ -44,8 +44,8 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .methodName: transactionData.method.rawValue,
             .walletConnectDAppName: transactionData.dAppData.name,
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
-            .walletConnectBlockchain: transactionData.blockchain.displayName,
-            .commonType: simulationResult.rawValue,
+            .blockchain: transactionData.blockchain.displayName,
+            .type: simulationResult.rawValue,
         ]
 
         Analytics.log(event: event, params: params)
@@ -57,7 +57,7 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .methodName: transactionData.method.rawValue,
             .walletConnectDAppName: transactionData.dAppData.name,
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
-            .walletConnectBlockchain: transactionData.blockchain.displayName,
+            .blockchain: transactionData.blockchain.displayName,
             .errorCode: "\(error.universalErrorCode)",
             .errorDescription: error.localizedDescription,
         ]
@@ -71,7 +71,7 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .methodName: transactionData.method.rawValue,
             .walletConnectDAppName: transactionData.dAppData.name,
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
-            .walletConnectBlockchain: transactionData.blockchain.displayName,
+            .blockchain: transactionData.blockchain.displayName,
         ]
 
         Analytics.log(event: event, params: params)
@@ -82,7 +82,7 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
     }
 
     func logCancelButtonTapped() {
-        Analytics.log(.walletConnectCancelButtonTapped, params: [.commonType: .sign])
+        Analytics.log(.walletConnectCancelButtonTapped, params: [.type: .sign])
     }
 
     private func getSimulationResult(from simulationState: TransactionSimulationState) -> Analytics.ParameterValue {
