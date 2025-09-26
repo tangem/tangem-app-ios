@@ -66,21 +66,16 @@ class SendCoordinator: CoordinatorObject {
         let stakingParams = StakingBlockchainParams(blockchain: options.input.walletModel.tokenItem.blockchain)
 
         switch options.type {
-        case .send(let parameters) where parameters.nonFungibleTokenParameters != nil && FeatureProvider.isAvailable(.nftNewSendUI):
-            rootViewModel = factory.makeNewNFTSendViewModel(parameters: parameters.nonFungibleTokenParameters!, router: self)
         case .send(let parameters) where parameters.nonFungibleTokenParameters != nil:
             rootViewModel = factory.makeNFTSendViewModel(parameters: parameters.nonFungibleTokenParameters!, router: self)
-        case .send where FeatureProvider.isAvailable(.sendViaSwap):
-            rootViewModel = factory.makeNewSendViewModel(router: self)
         case .send:
             rootViewModel = factory.makeSendViewModel(router: self)
-        case .sell(let parameters) where FeatureProvider.isAvailable(.sellNewSendUI):
-            rootViewModel = factory.makeNewSellViewModel(sellParameters: parameters, router: self)
         case .sell(let parameters):
             rootViewModel = factory.makeSellViewModel(sellParameters: parameters, router: self)
         case .staking(let manager) where stakingParams.isStakingAmountEditable:
             rootViewModel = factory.makeStakingViewModel(manager: manager, router: self)
-        case .staking(let manager): // we are using restaking flow here because it doesn't allow to edit amount
+        case .staking(let manager):
+            // We are using restaking flow here because it doesn't allow to edit amount
             rootViewModel = factory.makeRestakingViewModel(manager: manager, router: self)
         case .unstaking(let manager, let action):
             rootViewModel = factory.makeUnstakingViewModel(manager: manager, action: action, router: self)
@@ -146,14 +141,6 @@ extension SendCoordinator {
             case .onboarding: .onboarding
             }
         }
-    }
-}
-
-// MARK: - SendFeeRoutable
-
-extension SendCoordinator: SendFeeRoutable {
-    func openFeeExplanation(url: URL) {
-        safariManager.openURL(url)
     }
 }
 
