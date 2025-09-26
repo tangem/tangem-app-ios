@@ -26,7 +26,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
     private let securityManager: WCTransactionSecurityManager
     private let customAllowanceManager: WCCustomAllowanceManager
     private let requestDetailsInputFactory: WCRequestDetailsInputFactory
-    private let toastFactory: WCToastFactory
+    private let toastFactory = WCToastFactory()
     private let notificationManager: WCNotificationManager
     private let validationService: WCTransactionValidationService
 
@@ -64,7 +64,6 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
         securityManager: WCTransactionSecurityManager = CommonWCTransactionSecurityManager(),
         customAllowanceManager: WCCustomAllowanceManager = CommonWCCustomAllowanceManager(),
         requestDetailsInputFactory: WCRequestDetailsInputFactory = CommonWCRequestDetailsInputFactory(),
-        toastFactory: WCToastFactory = CommonWCToastFactory(),
         notificationManager: WCNotificationManager = WCNotificationManager(),
         validationService: WCTransactionValidationService = CommonWCTransactionValidationService(),
         analyticsLogger: some WalletConnectTransactionAnalyticsLogger
@@ -76,7 +75,6 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
         self.securityManager = securityManager
         self.customAllowanceManager = customAllowanceManager
         self.requestDetailsInputFactory = requestDetailsInputFactory
-        self.toastFactory = toastFactory
         self.notificationManager = notificationManager
         self.validationService = validationService
         self.analyticsLogger = analyticsLogger
@@ -144,9 +142,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
                 walletModel.defaultAddressString.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
         }
     }
-}
 
-private extension WCTransactionViewModel {
     func startTransactionSimulation() async {
         simulationState = .loading
 
@@ -250,7 +246,9 @@ private extension WCTransactionViewModel {
             return
         }
 
-        presentationState = .customAllowance(input)
+        let viewModel = WCCustomAllowanceViewModel(input: input)
+
+        presentationState = .customAllowance(viewModel)
     }
 
     func updateApprovalTransaction(approvalInfo: ApprovalInfo, newAmount: BigUInt) async {
@@ -320,7 +318,12 @@ private extension WCTransactionViewModel {
                     return
                 }
 
-                presentationState = .securityAlert(state: securityAlert.state, input: securityAlert.input)
+                let viewModel = WCTransactionSecurityAlertViewModel(
+                    state: securityAlert.state,
+                    input: securityAlert.input
+                )
+
+                presentationState = .securityAlert(viewModel)
             } else {
                 await validateAndSignTransaction()
             }
