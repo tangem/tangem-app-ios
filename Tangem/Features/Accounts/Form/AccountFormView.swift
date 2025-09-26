@@ -47,8 +47,11 @@ struct AccountFormView: View {
             VStack(alignment: .leading, spacing: 8) {
                 mainContent
 
-                Text(viewModel.bottomText)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                if let description = viewModel.description {
+                    Text(description)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .transition(.opacity)
+                }
             }
             .readGeometry(\.size.height) { height in
                 contentHeight = height
@@ -63,6 +66,7 @@ struct AccountFormView: View {
         .readGeometry(\.size.height) { height in
             containerHeight = height
         }
+        .animation(.default, value: viewModel.description)
     }
 
     private var overlayButtonView: some View {
@@ -163,7 +167,6 @@ struct AccountFormView: View {
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @ObservedObject var viewModel = AccountFormViewModel(
-        accountIndex: 1,
         accountModelsManager: AccountModelsManagerMock(),
         flowType: .create,
         closeAction: {}

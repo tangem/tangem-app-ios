@@ -72,11 +72,9 @@ extension UserWalletSettingsCoordinator:
     MobileBackupNeededRoutable,
     MobileBackupTypesRoutable {
     func addNewAccount(
-        accountModelsManager: any AccountModelsManager,
-        accountsCount: Int
+        accountModelsManager: any AccountModelsManager
     ) {
         accountFormViewModel = AccountFormViewModel(
-            accountIndex: accountsCount + 1,
             accountModelsManager: accountModelsManager,
             flowType: .create,
             closeAction: { [weak self] in
