@@ -40,13 +40,7 @@ final class MarketsListChartsHistoryProvider {
         Task(priority: .medium) { [weak self] in
             guard let strongSelf = self else { return }
 
-            guard let filteredItems = self?.filterItemsToRequest(
-                coinIds,
-                fromItems: await strongSelf.items,
-                interval: interval
-            ) else {
-                return
-            }
+            let filteredItems = strongSelf.filterItemsToRequest(coinIds, fromItems: await strongSelf.items, interval: interval)
 
             do {
                 if filteredItems.isEmpty {
@@ -65,8 +59,8 @@ final class MarketsListChartsHistoryProvider {
                     }
                 }
 
-                await MainActor.run { [weak self, copyItems] in
-                    self?.items = copyItems
+                await MainActor.run { [copyItems] in
+                    strongSelf.items = copyItems
                 }
             } catch {
                 strongSelf.logger.info("Loaded charts history preview list tokens did receive error \(error.localizedDescription)")
