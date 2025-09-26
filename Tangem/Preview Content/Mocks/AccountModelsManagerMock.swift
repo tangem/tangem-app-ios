@@ -39,6 +39,10 @@ extension AccountModelsManagerMock: AccountModelsManager {
         true
     }
 
+    var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         accountModelsSubject.eraseToAnyPublisher()
     }

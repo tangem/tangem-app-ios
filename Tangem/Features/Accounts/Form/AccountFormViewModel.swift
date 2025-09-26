@@ -55,19 +55,19 @@ final class AccountFormViewModel: ObservableObject {
 
     // MARK: - ViewData
 
-    var headerType: AccountFormHeaderType {
+    var nameMode: AccountIconView.NameMode {
         switch selectedIcon.kind {
         case .image(let imageType):
-            return .image(imageType.image)
+            return .imageType(imageType)
 
         case .letter:
             if let firstLetter = accountName.first {
                 return .letter(String(firstLetter))
             }
 
-            return .image(
-                Assets.tangemIcon.image,
-                config: AccountFormHeaderType.ImageConfig(opacity: 0.4)
+            return .imageType(
+                Assets.tangemIcon,
+                AccountIconView.NameMode.ImageConfig(opacity: 0.4)
             )
         }
     }
