@@ -11,7 +11,7 @@ import TangemAssets
 import TangemUIUtils
 
 public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View {
-    private let icon: ImageType
+    private let icon: ImageType?
     private let title: String
     private let secondLeadingView: SecondLeadingView
     private let trailingView: TrailingView
@@ -19,7 +19,7 @@ public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View 
     private var shouldShowTrailingIcon: Bool = true
 
     public init(
-        icon: ImageType,
+        icon: ImageType?,
         title: String,
         @ViewBuilder secondLeadingView: @escaping () -> SecondLeadingView = EmptyView.init,
         @ViewBuilder trailingView: @escaping () -> TrailingView
@@ -59,7 +59,7 @@ public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View 
     }
 
     var leadingIcon: some View {
-        icon.image
+        icon?.image
             .resizable()
             .renderingMode(.template)
             .foregroundStyle(Colors.Icon.accent)
