@@ -15,4 +15,6 @@ protocol UserSettingsAccountsRoutable: AnyObject {
     )
 
     func openAccountDetails(account: any BaseAccountModel, accountModelsManager: AccountModelsManager)
+
+    func openArchivedAccounts(accountModelsManager: AccountModelsManager)
 }
