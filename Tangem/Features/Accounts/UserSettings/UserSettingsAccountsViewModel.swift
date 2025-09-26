@@ -84,9 +84,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     private func onTapNewAccount() {
         coordinator?.addNewAccount(
             userWalletId: userWalletId,
-            accountModelsManager: accountModelsManager,
-            // active + archive should go here
-            accountsCount: accountRows.count
+            accountModelsManager: accountModelsManager
         )
     }
 }

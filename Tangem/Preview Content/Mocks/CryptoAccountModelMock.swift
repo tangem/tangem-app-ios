@@ -65,6 +65,10 @@ extension CryptoAccountModelMock: CryptoAccountModel {
         didChangeSubject.eraseToAnyPublisher()
     }
 
+    var descriptionString: String {
+        ""
+    }
+
     func setName(_ name: String) {
         self.name = name
     }
