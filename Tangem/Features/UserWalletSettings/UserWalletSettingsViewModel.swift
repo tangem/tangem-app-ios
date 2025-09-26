@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import CombineExt
 import TangemLocalization
 import TangemFoundation
 import TangemAccessibilityIdentifiers
@@ -25,7 +26,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published private(set) var name: String
-    @Published var accountsSection: [AccountsSectionType] = []
+    @Published var accountsViewModel: UserSettingsAccountsViewModel?
     @Published var mobileUpgradeNotificationInput: NotificationViewInput?
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
@@ -72,6 +73,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
+
         bind()
     }
 
@@ -107,6 +109,18 @@ private extension UserWalletSettingsViewModel {
                 }
             }
             .store(in: &bag)
+
+        userWalletModel.accountModelsManager
+            .accountModelsPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, accounts in
+                UserSettingsAccountsViewModel(
+                    accountModels: accounts,
+                    accountModelsManager: viewModel.userWalletModel.accountModelsManager
+                )
+            }
+            .assign(to: \.accountsViewModel, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     func setupView() {
@@ -114,11 +128,6 @@ private extension UserWalletSettingsViewModel {
         // setupAccountsSection()
         setupViewModels()
         setupMobileViewModels()
-    }
-
-    func setupAccountsSection() {
-        // [REDACTED_TODO_COMMENT]
-        accountsSection = []
     }
 
     func resetViewModels() {
@@ -379,26 +388,5 @@ private extension UserWalletSettingsViewModel {
         Analytics.log(.walletSettingsButtonBackup)
 
         coordinator?.openMobileBackupTypes(userWalletModel: userWalletModel)
-    }
-}
-
-// MARK: - Data
-
-extension UserWalletSettingsViewModel {
-    enum AccountsSectionType: Identifiable {
-        case header
-        case account(DefaultRowViewModel) // [REDACTED_TODO_COMMENT]
-        case addNewAccountButton(DefaultRowViewModel)
-
-        var id: Int {
-            switch self {
-            case .header:
-                return "header".hashValue
-            case .account(let viewModel):
-                return viewModel.id.hashValue
-            case .addNewAccountButton(let viewModel):
-                return viewModel.id.hashValue
-            }
-        }
     }
 }
