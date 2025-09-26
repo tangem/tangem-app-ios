@@ -64,7 +64,6 @@ extension AccountDetailsCoordinator: BaseEditableAccountDetailsRoutable {
         guard let options else { return }
 
         editAccountViewModel = AccountFormViewModel(
-            accountIndex: 0,
             accountModelsManager: options.accountModelsManager,
             flowType: .edit(account: options.account),
             closeAction: { [weak self] in
