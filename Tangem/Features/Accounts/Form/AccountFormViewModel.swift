@@ -232,11 +232,10 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
     private func makeUnableToCreateAccountAlert() -> AlertBinder {
         AlertBuilder.makeAlert(
-            title: "Something went wrong",
-            message: "We couldn’t create account. Please try again later.",
+            title: Localization.commonSomethingWentWrong,
+            message: Localization.accountCouldNotCreate,
             primaryButton: .default(Text(Localization.commonOk))
         )
     }
