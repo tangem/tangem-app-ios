@@ -10,7 +10,7 @@ import Foundation
 
 extension Analytics {
     enum ParameterKey: String {
-        case blockchain
+        case blockchain = "Blockchain"
         case firmware = "Firmware"
         case action = "Action"
         case errorDescription = "Error Description"
