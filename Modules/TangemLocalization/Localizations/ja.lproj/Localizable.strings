@@ -18,6 +18,8 @@
 "account_archived_accounts" = "アーカイブされたアカウント";
 "account_archived_recover_dialog_description" = "「 %1$@ 」を回復しようとしています。";
 "account_archived_recover_dialog_title" = "アカウントを回復する";
+"account_archived_recover_error_message" = "You have already exceeded the limit of 20 active accounts. Archive one to recover";
+"account_archived_recover_error_title" = "Can't recover account";
 "account_archived_recover" = "回復する";
 "account_archived_title" = "アーカイブ済み";
 "account_could_not_create" = "アカウントを作成できませんでした。しばらくしてからもう一度お試しください。";
@@ -1175,6 +1177,7 @@
 "story_web3_title" = "Web3.0対応";
 "sui_not_enough_coin_for_fee_description" = "続行するには少なくとも%1$@の受信取引が必要です";
 "sui_not_enough_coin_for_fee_title" = "残高不足";
+"swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
 "swap_fixed_rate" = "固定レート";
 "swap_give_permission_fee_footer" = "ネットワークは、あなたがトークンのスワップを承認していることを確認するために、トークン承認手数料を請求します。";
 "swap_promo_text" = "より多くのトークンをより良いレートで、ウォレット内にて直接交換します。";
@@ -1653,8 +1656,8 @@
 "yield_module_fee_policy_sheet_title" = "手数料ポリシー";
 "yield_module_main_view_approve_notification_description" = "ここに説明を入力してください。1〜3行が理想的です。[プレースホルダー]";
 "yield_module_main_view_approve_notification_title" = "トークン承認が必要";
-"yield_module_network_fee_unreachable_notification_description" = "Check your network connection";
-"yield_module_network_fee_unreachable_notification_title" = "Network fee info unreachable";
+"yield_module_network_fee_unreachable_notification_description" = "ネットワーク接続を確認してください";
+"yield_module_network_fee_unreachable_notification_title" = "ネットワーク手数料についての情報にアクセスできません";
 "yield_module_promo_screen_auto_balance_subtitle" = "アカウントへの入金はすべて自動的にAaveに貸し出されます。";
 "yield_module_promo_screen_auto_balance_title" = "残高は自動的に計算されます";
 "yield_module_promo_screen_cash_out_subtitle" = "いつでも、即座に資金を送信、交換、売却できます。";
