@@ -118,6 +118,7 @@ struct WalletConnectDAppConnectionRequestView: View {
             action: { viewModel.handle(viewEvent: .networksRowTapped) },
             trailingView: { networkSectionTrailingView }
         )
+        .verticalPadding(12)
         .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.networksLabel)
         .allowsHitTesting(viewModel.state.networksSection.state != .loading)
     }

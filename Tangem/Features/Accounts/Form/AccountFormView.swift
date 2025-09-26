@@ -88,7 +88,7 @@ struct AccountFormView: View {
                 accountName: $viewModel.accountName,
                 placeholderText: viewModel.placeholder,
                 color: viewModel.selectedColor.color,
-                previewType: viewModel.headerType
+                nameMode: viewModel.nameMode
             )
 
             AccountFormGridView(
