@@ -14,6 +14,7 @@ final class WalletConnectQRScanViewModel: ObservableObject {
     private let openSystemSettingsAction: () -> Void
     private let coordinator: any WalletConnectQRScanRoutable
     private let uriParser = WalletConnectURLParser()
+    private let feedbackGenerator = WalletConnectUIFeedbackGenerator()
 
     private var requestCameraAccessTask: Task<Void, Never>?
 
@@ -91,6 +92,7 @@ extension WalletConnectQRScanViewModel {
             let qrURI = try uriParser.parse(uriString: rawQRCode)
             coordinator.dismiss(with: .fromQRCode(qrURI))
         } catch {
+            feedbackGenerator.errorNotificationOccurred()
             coordinator.display(error: error)
         }
     }
@@ -102,6 +104,7 @@ extension WalletConnectQRScanViewModel {
             let clipboardURI = try uriParser.parse(uriString: rawClipboardString)
             coordinator.dismiss(with: .fromClipboard(clipboardURI))
         } catch {
+            feedbackGenerator.errorNotificationOccurred()
             coordinator.display(error: error)
         }
     }
