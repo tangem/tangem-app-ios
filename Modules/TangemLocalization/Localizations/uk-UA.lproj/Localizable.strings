@@ -18,6 +18,8 @@
 "account_archived_accounts" = "Archived accounts";
 "account_archived_recover_dialog_description" = "You’re about to recover “%1$@”.";
 "account_archived_recover_dialog_title" = "Recover account";
+"account_archived_recover_error_message" = "You have already exceeded the limit of 20 active accounts. Archive one to recover";
+"account_archived_recover_error_title" = "Can't recover account";
 "account_archived_recover" = "Recover";
 "account_archived_title" = "Archived";
 "account_could_not_create" = "We couldn’t create account. Please try again later.";
@@ -1175,6 +1177,7 @@
 "story_web3_title" = "Web 3.0 сумісність";
 "sui_not_enough_coin_for_fee_description" = "Для відправки потрібна вхідна транзакція на суму не менше %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостатньо коштів";
+"swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
 "swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "Мережа стягує комісію за схвалення токену за підтвердження, що саме ви дозволяєте використовувати ваш токен для обміну.";
 "swap_promo_text" = "Обмінюйте більше токенів за вигіднішим курсом прямо у своєму гаманці.";
