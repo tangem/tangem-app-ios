@@ -19,7 +19,7 @@ enum ValidationErrorEvent: Hashable {
 
     // Blockchain specific notifications
     case dustRestriction(minimumAmountFormatted: String, minimumChangeFormatted: String)
-    case existentialDeposit(amount: Decimal, amountFormatted: String)
+    case existentialDeposit(amount: Decimal, amountFormatted: String, canLeaveAmount: Bool)
     case amountExceedMaximumUTXO(amount: Decimal, amountFormatted: String, blockchainName: String, maxUTXO: Int)
     case insufficientAmountToReserveAtDestination(minimumAmountFormatted: String)
     case cardanoCannotBeSentBecauseHasTokens
@@ -37,7 +37,7 @@ enum ValidationErrorEvent: Hashable {
     case noTrustlineAtDestination
 }
 
-extension ValidationErrorEvent: NotificationEvent {
+extension ValidationErrorEvent {
     var id: Int {
         switch self {
         case .invalidNumber: "invalidNumber".hashValue
@@ -111,7 +111,7 @@ extension ValidationErrorEvent: NotificationEvent {
             )
         case .dustRestriction(let minimumAmountText, let minimumChangeText):
             return Localization.sendNotificationInvalidMinimumAmountText(minimumAmountText, minimumChangeText)
-        case .existentialDeposit(_, let amountFormatted):
+        case .existentialDeposit(_, let amountFormatted, _):
             return Localization.sendNotificationExistentialDepositText(amountFormatted)
         case .amountExceedMaximumUTXO(_, let amountFormatted, let blockchainName, let maxUtxo):
             return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
@@ -210,8 +210,8 @@ extension ValidationErrorEvent {
             return .init(.openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol))
         case .amountExceedMaximumUTXO(let amount, let amountFormatted, _, _):
             return .init(.reduceAmountTo(amount: amount, amountFormatted: amountFormatted))
-        case .existentialDeposit(let amount, let amountFormatted):
-            return .init(.leaveAmount(amount: amount, amountFormatted: amountFormatted))
+        case .existentialDeposit(let amount, let amountFormatted, let canLeaveAmount):
+            return .init(.leaveAmount(amount: amount, amountFormatted: amountFormatted), isDisabled: !canLeaveAmount)
         case .manaLimit(let available):
             return .init(.reduceAmountTo(amount: available, amountFormatted: "\(available)"))
         case .invalidNumber,
@@ -229,21 +229,5 @@ extension ValidationErrorEvent {
              .noTrustlineAtDestination:
             return nil
         }
-    }
-}
-
-// MARK: Analytics
-
-extension ValidationErrorEvent {
-    var analyticsEvent: Analytics.Event? {
-        return nil
-    }
-
-    var analyticsParams: [Analytics.ParameterKey: String] {
-        return [:]
-    }
-
-    var isOneShotAnalyticsEvent: Bool {
-        return false
     }
 }
