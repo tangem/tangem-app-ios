@@ -19,6 +19,10 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         return false
     }
 
+    var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+        return .just(output: false)
+    }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         return AnyPublisher.just(output: [])
     }
