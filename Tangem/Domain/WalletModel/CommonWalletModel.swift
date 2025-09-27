@@ -102,18 +102,11 @@ class CommonWalletModel {
         _stakingManager = stakingManager
         _transactionHistoryService = transactionHistoryService
         _receiveAddressService = receiveAddressService
+        self.tokenItem = tokenItem
         self.isCustom = isCustom
         self.sendAvailabilityProvider = sendAvailabilityProvider
         self.tokenBalancesRepository = tokenBalancesRepository
 
-//        let tokenItem = switch amountType {
-//        case .coin, .reserve, .feeResource:
-//            TokenItem.blockchain(blockchainNetwork)
-//        case .token(let token):
-//            TokenItem.token(token, blockchainNetwork)
-//        }
-
-        self.tokenItem = tokenItem
         id = WalletModelId(tokenItem: tokenItem)
 
         bind()
