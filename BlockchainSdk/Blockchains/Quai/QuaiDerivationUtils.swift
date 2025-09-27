@@ -67,7 +67,7 @@ public struct QuaiDerivationUtils {
             let ninthBit = (secondByte & Self.cyprus1NinthBitMask) == 0
             return hasCorrectFirstByte && ninthBit
         case .cyprus2, .cyprus3, .paxos1, .paxos2, .paxos3, .hydra1, .hydra2, .hydra3:
-            // For use must be implement. Now use only cyprus1
+            // To be implemented for future use. Currently, only cyprus1 is used.
             return false
         }
     }
