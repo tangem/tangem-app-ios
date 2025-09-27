@@ -38,6 +38,22 @@ final class UserWalletNotificationManager {
     private var showAppRateNotification = false
     private var shownAppRateNotificationId: NotificationViewId?
 
+    // MARK: - Mobile Wallet
+
+    private var needsMobileFinishActivation: Bool {
+        needsMobileBackup || needsMobileAccessCode
+    }
+
+    private var needsMobileBackup: Bool {
+        let config = userWalletModel.config
+        return config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
+    }
+
+    private var needsMobileAccessCode: Bool {
+        let config = userWalletModel.config
+        return config.hasFeature(.userWalletAccessCode) && !MobileAccessCodeSkipHelper.has(userWalletId: userWalletModel.userWalletId)
+    }
+
     private lazy var supportSeedNotificationInteractor: SupportSeedNotificationManager = makeSupportSeedNotificationsManager()
 
     init(
@@ -198,11 +214,7 @@ final class UserWalletNotificationManager {
     }
 
     private func showMobileActivationNotificationIfNeeded() {
-        let config = userWalletModel.config
-        let needBackup = config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
-        let needAccessCode = config.hasFeature(.userWalletAccessCode) && !MobileAccessCodeSkipHelper.has(userWalletId: userWalletModel.userWalletId)
-
-        guard needBackup || needAccessCode else {
+        guard needsMobileFinishActivation else {
             return
         }
 
@@ -218,13 +230,8 @@ final class UserWalletNotificationManager {
 
         let hasPositiveBalance = userWalletModel.totalBalance.hasPositiveBalance
 
-        Analytics.log(
-            .noticeFinishActivation,
-            params: [.balanceState: hasPositiveBalance ? .full : .empty]
-        )
-
         let input = factory.buildNotificationInput(
-            for: .mobileFinishActivation(needsAttention: hasPositiveBalance, hasBackup: !needBackup),
+            for: .mobileFinishActivation(needsAttention: hasPositiveBalance, hasBackup: !needsMobileBackup),
             action: action,
             buttonAction: buttonAction,
             dismissAction: dismissAction
@@ -317,6 +324,7 @@ final class UserWalletNotificationManager {
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink(receiveValue: { manager, _ in
+                manager.logMobileFinishActivationIfNeeded()
                 manager.createNotifications()
             })
             .store(in: &bag)
@@ -329,6 +337,17 @@ final class UserWalletNotificationManager {
 
         numberOfPendingDerivations = pendingDerivationsCount
         createNotifications()
+    }
+
+    private func logMobileFinishActivationIfNeeded() {
+        guard needsMobileFinishActivation else {
+            return
+        }
+        let hasPositiveBalance = userWalletModel.totalBalance.hasPositiveBalance
+        Analytics.log(
+            .noticeFinishActivation,
+            params: [.balanceState: hasPositiveBalance ? .full : .empty]
+        )
     }
 
     private func recordUserWalletHashesCountValidation() {
