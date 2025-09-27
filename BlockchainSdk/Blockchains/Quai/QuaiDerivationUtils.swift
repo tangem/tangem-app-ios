@@ -1,5 +1,5 @@
 //
-//  QuaiAddressUtils.swift
+//  QuaiDerivationUtils.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import TangemSdk
 
 // MARK: - Quai Address Derivation
 
-public struct QuaiAddressUtils {
+public struct QuaiDerivationUtils {
     // MARK: - Private Properties
 
     private let addressService = EVMAddressService()
@@ -28,15 +28,10 @@ public struct QuaiAddressUtils {
 
     // MARK: - Public Implementation
 
-    public func derive(
-        extendendPublicKey: ExtendedPublicKey,
-        with addressType: AddressType
-    ) throws -> (ExtendedPublicKey, DerivationNode) {
+    public func derive(extendendPublicKey: ExtendedPublicKey, with addressType: AddressType) throws -> (ExtendedPublicKey, DerivationNode) {
         for attempt in 0 ..< Constants.maxDerivationAttempts {
             let derivedNode: DerivationNode = .nonHardened(UInt32(attempt))
             let derivedKey = try extendendPublicKey.derivePublicKey(node: derivedNode)
-
-            print(derivedKey.publicKey)
 
             let zoneAddress = try addressService.makeAddress(
                 for: .init(seedKey: derivedKey.publicKey, derivationType: .none),
@@ -78,7 +73,7 @@ public struct QuaiAddressUtils {
     }
 }
 
-extension QuaiAddressUtils {
+extension QuaiDerivationUtils {
     enum Constants {
         static let maxDerivationAttempts: UInt32 = 10_000_000
     }

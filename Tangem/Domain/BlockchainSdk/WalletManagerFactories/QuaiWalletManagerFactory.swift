@@ -15,6 +15,7 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
 
     private let dataStorage: BlockchainDataStorage
     private let evmAddressService = EVMAddressService()
+    private let quaiDerivationUtils = QuaiDerivationUtils()
 
     // MARK: - Init
 
@@ -48,11 +49,8 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
             throw AnyWalletManagerFactoryError.noDerivation
         }
 
-        let zoneDerivedKey = try executeDerivedKey(derivedKey)
-        let zoneDerivationPath = derivationPath.extendedPath(with: .nonHardened(31))
-
-        let derivationKey = Wallet.PublicKey.HDKey(path: zoneDerivationPath, extendedPublicKey: zoneDerivedKey)
-        let publicKey = Wallet.PublicKey(seedKey: seedKey, derivationType: .plain(derivationKey))
+        let zoneDerivedKey = try zoneDerived(key: derivedKey, with: derivationPath)
+        let publicKey = Wallet.PublicKey(seedKey: seedKey, derivationType: .plain(zoneDerivedKey))
 
         let factory = WalletManagerFactoryProvider(apiList: apiList).factory
         let walletManager = try factory.makeWalletManager(blockchain: blockchain, publicKey: publicKey)
@@ -63,30 +61,27 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
 
     // MARK: - Private Implementation
 
-    private func deriveByZone(extendendPublicKey: ExtendedPublicKey) throws -> (ExtendedPublicKey, DerivationNode) {
-        let quaiAddressUtils = QuaiAddressUtils()
-        return try quaiAddressUtils.derive(extendendPublicKey: extendendPublicKey, with: .default)
-    }
-
-    private func executeDerivedKey(_ derivedKey: ExtendedPublicKey) throws -> (ExtendedPublicKey, DerivationNode) {
-        var storedKey: ExtendedPublicKey?
+    private func zoneDerived(key: ExtendedPublicKey, with derivationPath: DerivationPath) throws -> Wallet.PublicKey.HDKey {
+        var storedKey: Wallet.PublicKey.HDKey?
         var error: Error?
         let semaphore = DispatchSemaphore(value: 0)
 
         Task {
             do {
-                let storageKeySuffix = derivedKey.publicKey.getSha256().hexString
-                let cacheDerivedKey: ExtendedPublicKey? = await dataStorage.get(key: storageKeySuffix)
-                
-                derivedKey.derivePublicKey(node: .nonHardened(<#T##UInt32#>))
+                let storageKeySuffix = key.publicKey.getSha256().hexString
+                let cacheDerivedKey: Wallet.PublicKey.HDKey? = await dataStorage.get(key: storageKeySuffix)
 
-//                if let cacheDerivedKey {
-//                    storedKey = cacheDerivedKey
-//                } else {
-                let savedDerivedKey = try deriveByZone(extendendPublicKey: derivedKey)
-                await dataStorage.store(key: storageKeySuffix, value: savedDerivedKey.0)
-                storedKey = savedDerivedKey.0
-//                }
+                if let cacheDerivedKey {
+                    storedKey = cacheDerivedKey
+                } else {
+                    let zoneDerivedResult = try quaiDerivationUtils.derive(extendendPublicKey: key, with: .default)
+                    let zoneDerivationPath = derivationPath.extendedPath(with: zoneDerivedResult.1)
+
+                    let derivedHDKey = Wallet.PublicKey.HDKey(path: zoneDerivationPath, extendedPublicKey: zoneDerivedResult.0)
+
+                    await dataStorage.store(key: storageKeySuffix, value: derivedHDKey)
+                    storedKey = derivedHDKey
+                }
             } catch let e {
                 error = e
             }
