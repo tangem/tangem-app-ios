@@ -97,7 +97,7 @@ extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
             completion.map { $0() }
             return
         }
-        
+
         Task { @MainActor in
             let vm = YieldNoticeViewModel(tokenItem: walletModel.tokenItem) { [weak self] in
                 self?.floatingSheetPresenter.removeActiveSheet()
