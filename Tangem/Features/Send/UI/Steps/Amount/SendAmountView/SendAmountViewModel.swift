@@ -46,7 +46,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let sendQRCodeService: SendQRCodeService?
     private let analyticsLogger: SendAmountAnalyticsLogger
     private let prefixSuffixOptionsFactory: SendDecimalNumberTextField.PrefixSuffixOptionsFactory
-    private let actionType: SendFlowActionType
 
     private var bag: Set<AnyCancellable> = []
 
@@ -61,7 +60,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         balance = initial.balanceFormatted
         tokenIconInfo = initial.tokenIconInfo
         currencyPickerData = initial.currencyPickerData
-        actionType = initial.actionType
 
         prefixSuffixOptionsFactory = .init()
         currentFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: initial.tokenItem.currencySymbol)
@@ -179,7 +177,6 @@ extension SendAmountViewModel {
         let tokenIconInfo: TokenIconInfo
         let balanceFormatted: String
         let currencyPickerData: SendCurrencyPickerData
-        let actionType: SendFlowActionType
     }
 
     enum BottomInfoTextType: Hashable {
