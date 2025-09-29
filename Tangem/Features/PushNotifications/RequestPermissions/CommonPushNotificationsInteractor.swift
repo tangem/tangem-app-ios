@@ -79,7 +79,8 @@ final class CommonPushNotificationsInteractor {
         switch flow {
         // This workflow is required for mandatory display of the updated content to users from previous versions.
         case .afterLoginBanner where
-            canRequestAuthorization == false && requestAuthorizationOnAfterLoginBannerCompletionDate == nil:
+            canRequestAuthorization == false &&
+            requestAuthorizationOnAfterLoginBannerCompletionDate == nil:
             return true
         default:
             return canRequestAuthorization
@@ -122,7 +123,7 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         await pushNotificationsPermissionsService.requestAuthorizationAndRegister()
         await logAuthorizationStatus()
         runOnMain {
-            canRequestAuthorization = false
+            stopAllFeatureAuthorizationRequests()
             _permissionRequestEventSubject.send(.allow(flow))
         }
     }
@@ -137,7 +138,7 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
             didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession = true
         case .afterLogin, .afterLoginBanner:
             // Stop all future authorization requests
-            canRequestAuthorization = false
+            stopAllFeatureAuthorizationRequests()
             _permissionRequestEventSubject.send(.postpone(flow))
         }
 
@@ -151,6 +152,13 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
 
     var permissionRequestPublisher: AnyPublisher<PushNotificationsPermissionRequest, Never> {
         _permissionRequestEventSubject.eraseToAnyPublisher()
+    }
+
+    // MARK: - Private Implementation
+
+    func stopAllFeatureAuthorizationRequests() {
+        requestAuthorizationOnAfterLoginBannerCompletionDate = Date()
+        canRequestAuthorization = false
     }
 }
 
@@ -198,8 +206,5 @@ private extension CommonPushNotificationsInteractor {
 
     enum Constants {
         static let canRequestAuthorizationDefaultValue = true
-
-        /// One week
-        static let showDurationAfterLoginBanner: TimeInterval = 7 * 24 * 60 * 60
     }
 }
