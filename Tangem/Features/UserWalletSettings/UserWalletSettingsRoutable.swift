@@ -9,8 +9,7 @@
 import Foundation
 import TangemMobileWalletSdk
 
-protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggleRoutable {
-    func openAddNewAccount()
+protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggleRoutable, UserSettingsAccountsRoutable {
     func openOnboardingModal(with options: OnboardingCoordinator.Options)
 
     func openScanCardSettings(with input: ScanCardSettingsViewModel.Input)
