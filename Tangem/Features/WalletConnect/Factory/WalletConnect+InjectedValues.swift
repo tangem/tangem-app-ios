@@ -21,7 +21,8 @@ private final class WalletConnectEnvironment {
 
     private lazy var handlersFactory = WalletConnectHandlersFactory(
         ethTransactionBuilder: CommonWCEthTransactionBuilder(),
-        walletNetworkServiceFactoryProvider: walletNetworkServiceFactoryProvider
+        walletNetworkServiceFactoryProvider: walletNetworkServiceFactoryProvider,
+        analyticsProvider: CommonWalletConnectServiceAnalyticsProvider()
     )
 
     private lazy var handlersService = CommonWCHandlersService(wcHandlersFactory: handlersFactory)
