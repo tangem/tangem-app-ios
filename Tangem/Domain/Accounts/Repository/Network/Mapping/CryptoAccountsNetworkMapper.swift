@@ -11,15 +11,17 @@ import struct TangemSdk.DerivationPath
 
 /// Re-uses some logic from `UserTokenListConverter`.
 struct CryptoAccountsNetworkMapper {
-    private let supportedBlockchains: SupportedBlockchainsSet
-    private let remoteIdentifierBuilder: (_ input: StoredCryptoAccount) -> String
+    typealias RemoteIdentifierBuilder = (StoredCryptoAccount) -> String
 
-    init<T>(
+    private let supportedBlockchains: SupportedBlockchainsSet
+    private let remoteIdentifierBuilder: RemoteIdentifierBuilder
+
+    init(
         supportedBlockchains: SupportedBlockchainsSet,
-        remoteIdentifierBuilder: T
-    ) where T: CryptoAccountsRemoteIdentifierBuilding, T.Input == StoredCryptoAccount, T.Output == String {
+        remoteIdentifierBuilder: @escaping RemoteIdentifierBuilder
+    ) {
         self.supportedBlockchains = supportedBlockchains
-        self.remoteIdentifierBuilder = remoteIdentifierBuilder.build(from:)
+        self.remoteIdentifierBuilder = remoteIdentifierBuilder
     }
 
     // MARK: - Remote to Stored
