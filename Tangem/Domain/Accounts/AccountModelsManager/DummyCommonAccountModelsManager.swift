@@ -23,7 +23,7 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         return .just(output: false)
     }
 
-    var totalAccountsAmount: AnyPublisher<Int, Never> {
+    var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
         .just(output: 0)
     }
 
