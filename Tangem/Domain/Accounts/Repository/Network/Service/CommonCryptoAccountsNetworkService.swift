@@ -47,22 +47,6 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         }
     }
 
-    func getArchivedCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> [ArchivedCryptoAccountInfo] {
-        do {
-            let (revision, archivedAccountsDTO) = try await tangemApiService.getArchivedUserAccounts(userWalletId: userWalletId.stringValue)
-
-            if let revision {
-                eTagStorage.saveETag(revision, for: userWalletId)
-            }
-
-            return mapper.map(response: archivedAccountsDTO)
-        } catch let error as CryptoAccountsNetworkServiceError {
-            throw error // Just re-throw an original error
-        } catch {
-            throw CryptoAccountsNetworkServiceError.underlyingError(error)
-        }
-    }
-
     func save(cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError) {
         do {
             guard let revision = eTagStorage.loadETag(for: userWalletId) else {
@@ -99,7 +83,7 @@ extension CommonCryptoAccountsNetworkService: ArchivedCryptoAccountsProvider {
             let (revision, archivedAccountsDTO) = try await tangemApiService.getArchivedUserAccounts(userWalletId: userWalletId.stringValue)
 
             if let revision {
-                await eTagStorage.saveETag(revision, for: userWalletId)
+                eTagStorage.saveETag(revision, for: userWalletId)
             }
 
             return mapper.map(response: archivedAccountsDTO)
