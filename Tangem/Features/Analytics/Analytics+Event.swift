@@ -211,6 +211,8 @@ extension Analytics {
         case walletConnectTransactionDetailsOpened = "[Wallet Connect] Transaction Details Opened"
         case walletConnectTransactionSignButtonTapped = "[Wallet Connect] Button - Sign"
 
+        case walletConnectTransactionSolanaLargeStatus = "[Wallet Connect] Solana Large Transaction Status"
+
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
 
