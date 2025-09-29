@@ -14,6 +14,8 @@ protocol AccountModelsManager {
     /// Indicates whether the user can add more additional (not `Main`) crypto accounts to the wallet.
     var canAddCryptoAccounts: Bool { get }
 
+    var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> { get }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { get }
 
     /// - Note: This method is also responsible for moving custom tokens into the newly created account if they have a matching derivation.
