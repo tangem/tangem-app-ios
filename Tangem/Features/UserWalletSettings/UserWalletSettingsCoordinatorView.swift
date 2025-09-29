@@ -70,5 +70,12 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: MobileBackupNeededViewModel.self) {
                 MobileBackupNeededView(viewModel: $0)
             }
+            .sheet(item: $coordinator.accountFormViewModel) { viewModel in
+                NavigationView {
+                    AccountFormView(viewModel: viewModel)
+                }
+                .presentation(onDismissalAttempt: viewModel.onClose)
+                .presentationCornerRadiusBackport(24)
+            }
     }
 }
