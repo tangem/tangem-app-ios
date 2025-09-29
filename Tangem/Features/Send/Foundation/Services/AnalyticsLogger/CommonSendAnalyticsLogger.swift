@@ -357,8 +357,8 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
 
         switch amount?.type {
         case .none: break
-        case .typical: Analytics.log(.sendSelectedCurrency, params: [.commonType: .token])
-        case .alternative: Analytics.log(.sendSelectedCurrency, params: [.commonType: .selectedCurrencyApp])
+        case .typical: Analytics.log(.sendSelectedCurrency, params: [.type: .token])
+        case .alternative: Analytics.log(.sendSelectedCurrency, params: [.type: .selectedCurrencyApp])
         }
     }
 }
