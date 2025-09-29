@@ -9,12 +9,7 @@
 import Foundation
 import TangemUI
 
-protocol WCToastFactory {
-    func makeWarningToast(with text: String)
-    func makeSuccessToast(with text: String)
-}
-
-final class CommonWCToastFactory: WCToastFactory {
+final class WCToastFactory {
     func makeWarningToast(with text: String) {
         Toast(view: WarningToast(text: text))
             .present(

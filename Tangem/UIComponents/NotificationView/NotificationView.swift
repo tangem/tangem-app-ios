@@ -154,10 +154,30 @@ struct NotificationView: View {
                     .foregroundColor(Colors.Icon.informative)
             case .placeholder:
                 Color.clear
+            case .yieldModuleIcon(let iconInfo):
+                yieldModuleIcon(iconInfo: iconInfo)
             }
         }
         .frame(size: settings.event.icon.size)
         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationIcon)
+    }
+
+    @ViewBuilder
+    private func yieldModuleIcon(iconInfo: TokenIconInfo) -> some View {
+        TokenIcon(tokenIconInfo: iconInfo, size: settings.event.icon.yieldModuleIconSize)
+            .frame(size: settings.event.icon.size, alignment: .topLeading)
+            .overlay(
+                Assets.YieldModule.yieldModuleAaveLogo.image
+                    .resizable()
+                    .scaledToFit()
+                    .frame(size: settings.event.icon.yieldModuleIconSize)
+                    .background(
+                        Circle()
+                            .fill(Colors.Background.tertiary)
+                            .frame(size: settings.event.icon.yieldModuleIconSize + CGSize(bothDimensions: 2))
+                    ),
+                alignment: .bottomTrailing
+            )
     }
 }
 

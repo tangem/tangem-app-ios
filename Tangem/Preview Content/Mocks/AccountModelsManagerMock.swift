@@ -12,10 +12,12 @@ import TangemFoundation
 
 final class AccountModelsManagerMock {
     private let accountModelsSubject = PassthroughSubject<[AccountModel], Never>()
+    private let totalAccountsCountSubject = PassthroughSubject<Int, Never>()
 
     private var cryptoAccounts: [CryptoAccountModelMock] = [] {
         didSet {
             accountModelsSubject.send([.standard(.init(accounts: cryptoAccounts))])
+            totalAccountsCountSubject.send(cryptoAccounts.count)
         }
     }
 
@@ -39,6 +41,14 @@ extension AccountModelsManagerMock: AccountModelsManager {
         true
     }
 
+    var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+
+    var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+        totalAccountsCountSubject.eraseToAnyPublisher()
+    }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         accountModelsSubject.eraseToAnyPublisher()
     }
@@ -47,7 +57,19 @@ extension AccountModelsManagerMock: AccountModelsManager {
         cryptoAccounts.append(CryptoAccountModelMock(isMainAccount: false))
     }
 
-    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws(AccountModelsManagerError) {
+    func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
+        // [REDACTED_TODO_COMMENT]
+        return []
+    }
+
+    func archiveCryptoAccount(
+        withIdentifier identifier: some AccountModelPersistentIdentifierConvertible
+    ) async throws(AccountModelsManagerError) {
         removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier().toAnyHashable())
+    }
+
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
+        // [REDACTED_TODO_COMMENT]
+        throw .cannotUnarchiveCryptoAccount
     }
 }
