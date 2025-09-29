@@ -38,7 +38,7 @@ class CommonWalletManagersRepository {
 
     private func bind() {
         Publishers.CombineLatest3(
-            userTokenListManager.userTokensPublisher,
+            userTokenListManager.userTokensPublisher, // [REDACTED_TODO_COMMENT]
             keysProvider.keysPublisher,
             apiListProvider.apiListPublisher
         )

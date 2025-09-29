@@ -51,7 +51,7 @@ protocol UserWalletModel:
     @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokensManager' instead")
     var userTokensManager: UserTokensManager { get }
 
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokenListManager' instead")
+    @available(*, deprecated, message: "Use account-specific 'userTokenListManager' instead")
     var userTokenListManager: UserTokenListManager { get }
 }
 

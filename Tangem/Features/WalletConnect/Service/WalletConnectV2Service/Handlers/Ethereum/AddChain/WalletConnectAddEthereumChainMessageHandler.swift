@@ -126,7 +126,7 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
 
         guard userWallet
             .userTokenListManager
-            .userTokensList
+            .userTokensList // [REDACTED_TODO_COMMENT]
             .entries
             .contains(where: { $0.blockchainNetwork.blockchain.networkId == blockchain.networkId })
         else {

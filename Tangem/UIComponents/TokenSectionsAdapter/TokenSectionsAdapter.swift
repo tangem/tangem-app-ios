@@ -47,7 +47,7 @@ final class TokenSectionsAdapter {
     ) -> some Publisher<[Section], Never> {
         return walletModels
             .combineLatest(
-                userTokenListManager.userTokensListPublisher,
+                userTokenListManager.userTokensListPublisher, // [REDACTED_TODO_COMMENT]
                 optionsProviding.groupingOption,
                 optionsProviding.sortingOption
             )
