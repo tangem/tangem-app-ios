@@ -23,13 +23,16 @@ protocol WalletConnectHandlersCreator: AnyObject {
 final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
     private let ethTransactionBuilder: WCEthTransactionBuilder
     private let walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider
+    private let analyticsProvider: WalletConnectServiceAnalyticsProvider
 
     init(
         ethTransactionBuilder: WCEthTransactionBuilder,
-        walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider
+        walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider,
+        analyticsProvider: WalletConnectServiceAnalyticsProvider
     ) {
         self.ethTransactionBuilder = ethTransactionBuilder
         self.walletNetworkServiceFactoryProvider = walletNetworkServiceFactoryProvider
+        self.analyticsProvider = analyticsProvider
     }
 
     func createHandler(
@@ -103,7 +106,8 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 blockchainId: blockchainNetworkID,
                 signer: signer,
                 walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
-                walletModelProvider: walletModelProvider
+                walletModelProvider: walletModelProvider,
+                analyticsProvider: analyticsProvider
             )
 
         case .solanaSignAllTransactions:
