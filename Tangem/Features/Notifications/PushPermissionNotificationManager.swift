@@ -21,6 +21,7 @@ protocol PushPermissionNotificationManager: AnyObject {
 final class CommonPushPermissionNotificationManager: PushPermissionNotificationManager {
     // MARK: Injected
 
+    @Injected(\.pushNotificationsPermission) private var pushNotificationsPermissionsService: PushNotificationsPermissionService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     // MARK: - Private Properties
@@ -56,7 +57,10 @@ final class CommonPushPermissionNotificationManager: PushPermissionNotificationM
     // MARK: - Private Implementation
 
     private func prepareAndDisplayNotification() async {
-        guard pushNotificationsAvailabilityProvider.isAvailable else {
+        guard
+            await pushNotificationsPermissionsService.isAuthorized == false,
+            pushNotificationsAvailabilityProvider.isAvailable
+        else {
             return
         }
 
