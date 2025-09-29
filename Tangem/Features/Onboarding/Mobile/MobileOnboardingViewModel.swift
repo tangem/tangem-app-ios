@@ -105,7 +105,10 @@ private extension MobileOnboardingViewModel {
         AlertBuilder.makeAlert(
             title: Localization.hwBackupAlertTitle,
             message: Localization.hwBackupCloseDescription,
-            primaryButton: .cancel(Text(Localization.commonNo)),
+            primaryButton: .cancel(
+                Text(Localization.commonNo),
+                action: weakify(self, forFunction: MobileOnboardingViewModel.onBackupNeedsAlertResume)
+            ),
             secondaryButton: .destructive(
                 Text(Localization.commonYes),
                 action: weakify(self, forFunction: MobileOnboardingViewModel.onBackupNeedsAlertClose)
@@ -148,9 +151,20 @@ private extension MobileOnboardingViewModel {
         closeOnboarding()
     }
 
-    func onBackupNeedsAlertClose() {
-        Analytics.log(.backupNoticeCanceled, contextParams: .custom(.mobileWallet))
+    func onBackupNeedsAlertResume() {
+        Analytics.log(
+            .backupNoticeCanceled,
+            params: [.action: .resume],
+            contextParams: .custom(.mobileWallet)
+        )
+    }
 
+    func onBackupNeedsAlertClose() {
+        Analytics.log(
+            .backupNoticeCanceled,
+            params: [.action: .cancel],
+            contextParams: .custom(.mobileWallet)
+        )
         closeOnboarding()
     }
 
