@@ -15,17 +15,20 @@ public struct AccountFormHeaderView: View {
     @Binding var accountName: String
     @State private var originalTextFieldHeight: CGFloat = 0
 
+    private let maxCharacters: Int
     private let placeholderText: String
     private let color: Color
     private let nameMode: AccountIconView.NameMode
 
     public init(
         accountName: Binding<String>,
+        maxCharacters: Int,
         placeholderText: String,
         color: Color,
         nameMode: AccountIconView.NameMode
     ) {
         _accountName = accountName
+        self.maxCharacters = maxCharacters
         self.placeholderText = placeholderText
         self.color = color
         self.nameMode = nameMode
@@ -50,7 +53,7 @@ public struct AccountFormHeaderView: View {
             AccountIconView(backgroundColor: color, nameMode: nameMode)
                 .cornerRadius(24)
                 .padding(24)
-                .frame(width: 40, height: 40)
+                .imageSize(.init(bothDimensions: 40))
             Spacer()
         }
     }
@@ -70,6 +73,11 @@ public struct AccountFormHeaderView: View {
             )
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
             .frame(height: originalTextFieldHeight)
+            // Mikhail Andreev - Needed to be constrained from here coz for some reason it
+            // is not possible to doit from ViewModel
+            .onChange(of: accountName) { newValue in
+                accountName = String(newValue.prefix(maxCharacters))
+            }
     }
 }
 
@@ -83,6 +91,7 @@ public struct AccountFormHeaderView: View {
         VStack {
             AccountFormHeaderView(
                 accountName: $accountName,
+                maxCharacters: 20,
                 placeholderText: "New account",
                 color: Colors.Accounts.vitalGreen,
                 nameMode: .letter("N")
@@ -90,6 +99,7 @@ public struct AccountFormHeaderView: View {
 
             AccountFormHeaderView(
                 accountName: $accountName,
+                maxCharacters: 20,
                 placeholderText: "New account",
                 color: Colors.Accounts.ufoGreen,
                 nameMode: .imageType(Assets.Accounts.airplane)
