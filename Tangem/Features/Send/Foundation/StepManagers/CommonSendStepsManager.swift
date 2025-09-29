@@ -19,7 +19,7 @@ class CommonSendStepsManager {
     private let summaryTitleProvider: SendSummaryTitleProvider
 
     private var stack: [SendStep]
-    weak var router: SendRoutable?
+    private weak var router: SendRoutable?
     private weak var output: SendStepsManagerOutput?
 
     private var isEditAction: Bool {
@@ -33,7 +33,8 @@ class CommonSendStepsManager {
         finishStep: SendNewFinishStep,
         feeSelector: FeeSelectorContentViewModel,
         providersSelector: SendSwapProvidersSelectorViewModel,
-        summaryTitleProvider: SendSummaryTitleProvider
+        summaryTitleProvider: SendSummaryTitleProvider,
+        router: SendRoutable
     ) {
         self.amountStep = amountStep
         self.destinationStep = destinationStep
@@ -42,6 +43,7 @@ class CommonSendStepsManager {
         self.feeSelector = feeSelector
         self.providersSelector = providersSelector
         self.summaryTitleProvider = summaryTitleProvider
+        self.router = router
 
         stack = [amountStep]
     }
@@ -91,9 +93,9 @@ extension CommonSendStepsManager: SendStepsManager {
         case .newAmount:
             return .init(title: Localization.commonAmount, trailingViewType: .closeButton)
         case .destination where isEditAction:
-            return .init(title: Localization.wcCommonAddress, trailingViewType: .closeButton)
+            return .init(title: Localization.commonAddress, trailingViewType: .closeButton)
         case .destination:
-            return .init(title: Localization.wcCommonAddress, leadingViewType: .backButton, trailingViewType: .closeButton)
+            return .init(title: Localization.commonAddress, leadingViewType: .backButton, trailingViewType: .closeButton)
         case .newSummary:
             return .init(title: summaryTitleProvider.title, leadingViewType: .backButton, trailingViewType: .closeButton)
         case .newFinish:

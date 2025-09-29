@@ -17,12 +17,10 @@ protocol SendFeeLoader {
 struct CommonSendFeeLoader: SendFeeLoader {
     private let tokenItem: TokenItem
     private let walletModelFeeProvider: any WalletModelFeeProvider
-    private let shouldShowFeeSelector: Bool
 
-    init(tokenItem: TokenItem, walletModelFeeProvider: any WalletModelFeeProvider, shouldShowFeeSelector: Bool) {
+    init(tokenItem: TokenItem, walletModelFeeProvider: any WalletModelFeeProvider) {
         self.tokenItem = tokenItem
         self.walletModelFeeProvider = walletModelFeeProvider
-        self.shouldShowFeeSelector = shouldShowFeeSelector
     }
 
     func getFee(amount: Decimal, destination: String) -> AnyPublisher<[Fee], any Error> {
