@@ -162,7 +162,7 @@ private extension CommonStakingManager {
         }
     }
 
-    func state(balances: [StakingBalanceInfo], yield: YieldInfo, actions: [PendingAction]?) -> StakingManagerState {
+    func state(balances: [StakingBalanceInfo], yield: StakingYieldInfo, actions: [PendingAction]?) -> StakingManagerState {
         guard yield.isAvailable else {
             return .temporaryUnavailable(yield)
         }
@@ -350,7 +350,7 @@ private extension CommonStakingManager {
         )
     }
 
-    func mapToStakingBalance(balance: StakingBalanceInfo, yield: YieldInfo) -> StakingBalance {
+    func mapToStakingBalance(balance: StakingBalanceInfo, yield: StakingYieldInfo) -> StakingBalance {
         let validatorType: StakingValidatorType = {
             guard let validatorAddress = balance.validatorAddress else {
                 return .empty
@@ -374,7 +374,7 @@ private extension CommonStakingManager {
 
     func mapToStakingBalance(
         action: PendingAction,
-        yield: YieldInfo,
+        yield: StakingYieldInfo,
         balanceType: StakingBalanceType
     ) -> StakingBalance {
         let validatorType: StakingValidatorType = {
