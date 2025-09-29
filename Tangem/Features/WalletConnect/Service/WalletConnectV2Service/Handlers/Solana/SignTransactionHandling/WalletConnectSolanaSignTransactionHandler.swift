@@ -15,6 +15,7 @@ final class WalletConnectSolanaSignTransactionHandler {
     private let walletModel: any WalletModel
     private let signer: TangemSigner
     private let walletNetworkServiceFactory: WalletNetworkServiceFactory
+    private let analyticsProvider: WalletConnectServiceAnalyticsProvider
     private let transaction: String
     private let request: AnyCodable
     private let encoder = JSONEncoder()
@@ -24,7 +25,8 @@ final class WalletConnectSolanaSignTransactionHandler {
         blockchainId: String,
         signer: TangemSigner,
         walletNetworkServiceFactory: WalletNetworkServiceFactory,
-        walletModelProvider: WalletConnectWalletModelProvider
+        walletModelProvider: WalletConnectWalletModelProvider,
+        analyticsProvider: WalletConnectServiceAnalyticsProvider
     ) throws {
         let parameters = try request.get(WalletConnectSolanaSignTransactionDTO.Response.self)
 
@@ -43,6 +45,7 @@ final class WalletConnectSolanaSignTransactionHandler {
 
         self.signer = signer
         self.walletNetworkServiceFactory = walletNetworkServiceFactory
+        self.analyticsProvider = analyticsProvider
         self.request = request
     }
 }
@@ -80,8 +83,16 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
                 signer: signer
             )
 
-            try await transactionService.send(transactionData: unsignedHash)
+            let altResult: Bool
 
+            do {
+                try await transactionService.send(transactionData: unsignedHash)
+                altResult = true
+            } catch {
+                altResult = false
+            }
+
+            analyticsProvider.logCompleteHandleSolanaALTTransactionRequest(isSuccess: altResult)
             throw WalletConnectTransactionRequestProcessingError.missingTransaction
         }
     }
