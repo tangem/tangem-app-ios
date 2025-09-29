@@ -302,12 +302,12 @@ private extension NewAuthViewModel {
     }
 
     func openCreateWallet() {
-        Analytics.log(.buttonAddWallet, params: [.action: .create])
+        Analytics.log(.buttonAddWallet, params: [.action: .createWallet])
         coordinator?.openCreateWallet()
     }
 
     func openImportWallet() {
-        Analytics.log(.buttonAddWallet, params: [.action: .import])
+        Analytics.log(.buttonAddWallet, params: [.action: .importWallet])
         coordinator?.openImportWallet()
     }
 
