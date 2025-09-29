@@ -497,6 +497,7 @@
 		2DCDE4612DE60F14007ECD34 /* ApplicationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */; };
 		2DCDE4622DE60F14007ECD34 /* NotificationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45D2DE60F14007ECD34 /* NotificationDTO.swift */; };
 		2DD367342D7F374900BB8DCF /* RequiredMemoRestrictable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD367332D7F374900BB8DCF /* RequiredMemoRestrictable.swift */; };
+		2DD4EB442E8AECE000DD3784 /* WalletConnectServiceAnalyticsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD4EB432E8AECDF00DD3784 /* WalletConnectServiceAnalyticsProvider.swift */; };
 		2DD5C39A2C4EA6570000658D /* MarketsListPrefetchDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD5C3982C4EA6570000658D /* MarketsListPrefetchDataSource.swift */; };
 		2DD5C39B2C4EA6570000658D /* MarketsListDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD5C3992C4EA6570000658D /* MarketsListDataController.swift */; };
 		2DD669352E28D0DC006D715A /* SolanaALTLookupTableDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD669342E28D0DC006D715A /* SolanaALTLookupTableDispatcher.swift */; };
@@ -4686,6 +4687,7 @@
 		2DCDE45D2DE60F14007ECD34 /* NotificationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDTO.swift; sourceTree = "<group>"; };
 		2DCDE45E2DE60F14007ECD34 /* UserWalletDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletDTO.swift; sourceTree = "<group>"; };
 		2DD367332D7F374900BB8DCF /* RequiredMemoRestrictable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequiredMemoRestrictable.swift; sourceTree = "<group>"; };
+		2DD4EB432E8AECDF00DD3784 /* WalletConnectServiceAnalyticsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceAnalyticsProvider.swift; sourceTree = "<group>"; };
 		2DD5C3982C4EA6570000658D /* MarketsListPrefetchDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsListPrefetchDataSource.swift; sourceTree = "<group>"; };
 		2DD5C3992C4EA6570000658D /* MarketsListDataController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsListDataController.swift; sourceTree = "<group>"; };
 		2DD669342E28D0DC006D715A /* SolanaALTLookupTableDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaALTLookupTableDispatcher.swift; sourceTree = "<group>"; };
@@ -9639,6 +9641,14 @@
 				2D212AD62E729E2400D07326 /* ShareActivitiesViewModel.swift */,
 			);
 			path = ShareActivitiesPresenter;
+			sourceTree = "<group>";
+		};
+		2DD4EB422E8AECB900DD3784 /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				2DD4EB432E8AECDF00DD3784 /* WalletConnectServiceAnalyticsProvider.swift */,
+			);
+			path = Analytics;
 			sourceTree = "<group>";
 		};
 		2DD754D52AE166000009CA64 /* GenerateAddressesView */ = {
@@ -16754,6 +16764,7 @@
 		DC0002D12DC2090600305FB6 /* WalletConnectV2Service */ = {
 			isa = PBXGroup;
 			children = (
+				2DD4EB422E8AECB900DD3784 /* Analytics */,
 				DC0002C82DC2090600305FB6 /* Handlers */,
 				DC0002CB2DC2090600305FB6 /* Models */,
 				DC0002D02DC2090600305FB6 /* Utilities */,
@@ -23407,6 +23418,7 @@
 				C2300ED32D66152D00EBEA64 /* StoryAnalyticsService.swift in Sources */,
 				2DA100282E55E7C200EC2257 /* ReceiveTokenWithdrawNoticeInteractor.swift in Sources */,
 				C2FF4FFC2DD6710B00FE1D9E /* WalletConnectDAppConnectionRequestViewModel.swift in Sources */,
+				2DD4EB442E8AECE000DD3784 /* WalletConnectServiceAnalyticsProvider.swift in Sources */,
 				B6AA13722A2A378300B53937 /* CardInfoPageWarningIconOnlyCellPreviewViewModel.swift in Sources */,
 				C24A19702DEDEEE900B995E6 /* WalletConnectRejectDAppProposalUseCase.swift in Sources */,
 				EFE54CDE2D0B118900D803EB /* ExpressProvider+LegalText.swift in Sources */,
