@@ -13,7 +13,6 @@ import Combine
 protocol BaseAccountModel: Identifiable where ID: AccountModelPersistentIdentifierConvertible {
     var name: String { get }
     var icon: AccountModel.Icon { get }
-    var descriptionString: String { get }
 
     func setName(_ name: String)
     func setIcon(_ icon: AccountModel.Icon)

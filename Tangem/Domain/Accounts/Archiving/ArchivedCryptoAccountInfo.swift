@@ -57,10 +57,6 @@ extension ArchivedCryptoAccountInfo: BaseAccountModel {
         assertionFailure("Should never be called")
     }
 
-    var descriptionString: String {
-        ""
-    }
-
     var didChangePublisher: AnyPublisher<Void, Never> {
         .empty
     }

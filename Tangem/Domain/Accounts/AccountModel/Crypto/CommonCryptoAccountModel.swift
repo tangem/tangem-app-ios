@@ -116,7 +116,7 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
     }
 
     var descriptionString: String {
-        "\(derivationIndex)"
+        Localization.accountFormAccountIndex(derivationIndex)
     }
 
     func setName(_ name: String) {

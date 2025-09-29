@@ -163,12 +163,12 @@ struct AccountFormView: View {
     }
 }
 
-// #if DEBUG
+#if DEBUG
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @ObservedObject var viewModel = AccountFormViewModel(
         accountModelsManager: AccountModelsManagerMock(),
-        flowType: .create,
+        flowType: .create(.crypto),
         closeAction: {}
     )
 
@@ -179,5 +179,4 @@ struct AccountFormView: View {
             }
         }
 }
-
-// #endif
+#endif
