@@ -32,7 +32,7 @@ final class WalletConnectSolanaSignTransactionHandler {
 
         do {
             guard let walletModel = walletModelProvider.getModel(with: blockchainId) else {
-                throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainId)
+                throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
             }
 
             self.walletModel = walletModel
@@ -40,7 +40,7 @@ final class WalletConnectSolanaSignTransactionHandler {
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.error("Failed to create sign handler", error: error)
-            throw WalletConnectTransactionRequestProcessingError.dataInWrongFormat(stringRepresentation)
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload(stringRepresentation)
         }
 
         self.signer = signer
@@ -73,7 +73,7 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
             return try await defaultHandleTransaction(unsignedHash: unsignedHash)
         case .alt:
             guard signatureCount == 1 else {
-                throw WalletConnectTransactionRequestProcessingError.dataInWrongFormat("Signature count > 1")
+                throw WalletConnectTransactionRequestProcessingError.invalidPayload("Signature count > 1")
             }
 
             analyticsProvider.logReceiveHandleSolanaALTTransactionRequest()
@@ -95,7 +95,8 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
             }
 
             analyticsProvider.logCompleteHandleSolanaALTTransactionRequest(isSuccess: altResult)
-            throw WalletConnectTransactionRequestProcessingError.missingTransaction
+            
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload("Solana ALT handling error for request: \(request.description)")
         }
     }
 }
