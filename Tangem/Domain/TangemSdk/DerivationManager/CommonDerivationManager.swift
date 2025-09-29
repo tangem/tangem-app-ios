@@ -24,7 +24,7 @@ class CommonDerivationManager {
     }
 
     private func bind() {
-        userTokenListManager.userTokensPublisher
+        userTokenListManager.userTokensPublisher // [REDACTED_TODO_COMMENT]
             .combineLatest(keysRepository.keysPublisher)
             .sink { [weak self] entries, keys in
                 self?.process(entries, keys)

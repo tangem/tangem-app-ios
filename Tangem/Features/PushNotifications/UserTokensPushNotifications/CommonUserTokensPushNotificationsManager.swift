@@ -59,7 +59,7 @@ class CommonUserTokensPushNotificationsManager {
 
     private func bind() {
         let readyUserTokenListPublisher = userTokenListManager
-            .userTokensListPublisher
+            .userTokensListPublisher // [REDACTED_TODO_COMMENT]
             .dropFirst()
 
         userTokensPushNotificationsService
@@ -133,7 +133,7 @@ class CommonUserTokensPushNotificationsManager {
     }
 
     private func syncRemoteStatus() {
-        userTokenListManager.upload()
+        userTokenListManager.upload() // [REDACTED_TODO_COMMENT]
     }
 
     @MainActor
