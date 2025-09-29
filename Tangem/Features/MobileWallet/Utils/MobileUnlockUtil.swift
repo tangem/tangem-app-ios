@@ -79,6 +79,7 @@ private extension MobileUnlockUtil {
             return .canceled
 
         case .dismissed:
+            await notifyUnlockFinish()
             return .canceled
 
         case .unavailableDueToDeletion:
@@ -96,6 +97,7 @@ private extension MobileUnlockUtil {
         let hostingVC = UIHostingController(rootView: view)
         presentedAccessCodeController = hostingVC
         AppPresenter.shared.show(hostingVC)
+        notifyUnlockStart()
     }
 
     func dismissAccessCode() {
@@ -105,6 +107,15 @@ private extension MobileUnlockUtil {
                 self?.presentedAccessCodeController = nil
             }
         )
+        notifyUnlockFinish()
+    }
+
+    func notifyUnlockStart() {
+        NotificationCenter.default.post(name: .mobileUnlockDidStart, object: self)
+    }
+
+    func notifyUnlockFinish() {
+        NotificationCenter.default.post(name: .mobileUnlockDidFinish, object: self)
     }
 }
 

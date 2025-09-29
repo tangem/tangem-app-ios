@@ -45,6 +45,7 @@ public struct TangemExpressFactory {
         onrampRepository: OnrampRepository,
         dataRepository: OnrampDataRepository,
         analyticsLogger: ExpressAnalyticsLogger,
+        providerItemSorter: ProviderItemSorter,
         preferredValues: PreferredValues,
     ) -> OnrampManager {
         CommonOnrampManager(
@@ -52,6 +53,7 @@ public struct TangemExpressFactory {
             onrampRepository: onrampRepository,
             dataRepository: dataRepository,
             analyticsLogger: analyticsLogger,
+            sorter: providerItemSorter,
             preferredValues: preferredValues
         )
     }

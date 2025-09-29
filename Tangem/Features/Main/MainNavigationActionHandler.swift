@@ -267,9 +267,11 @@ extension MainCoordinator {
             params: DeeplinkNavigationAction.Params,
             deeplinkString: String
         ) -> Bool {
-            guard let coordinator,
+            guard FeatureProvider.isAvailable(.visa),
+                  let coordinator,
                   let userWalletModel = userWalletRepository.models.first,
-                  FeatureProvider.isAvailable(.visa)
+                  // If it's not nil - user already received and accepted Tangem Pay offer
+                  TangemPayAccount(userWalletModel: userWalletModel) == nil
             else {
                 incomingActionManager.discardIncomingAction()
                 return false

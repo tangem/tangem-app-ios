@@ -7,20 +7,27 @@
 //
 
 import Foundation
+import struct ReownWalletKit.WalletConnectURI
 
 public struct WalletConnectURLParser {
-    func parse(uriString: String) throws -> WalletConnectRequestURI {
+    func parse(uriString: String) throws(WalletConnectURIParsingError) -> WalletConnectRequestURI {
         let separatedURI = uriString.components(separatedBy: "@")
 
         // Parse wc version, u can see wc uri signature "wc:\(topic)@\(version)?\(queryString)"
         if separatedURI.last?.first == "1" {
-            throw WalletConnectTransactionRequestProcessingError.unsupportedWCVersion
+            throw WalletConnectURIParsingError.unsupportedWalletConnectVersion(version: "1")
         }
 
-        return .v2(try WalletConnectV2URI(uriString: uriString))
+        do {
+            return .v2(try WalletConnectV2URI(uriString: uriString))
+        } catch WalletConnectURI.Errors.expired {
+            throw WalletConnectURIParsingError.expired
+        } catch {
+            throw WalletConnectURIParsingError.invalidFormat(uriString)
+        }
     }
 
-    func parse(url: URL) throws -> WalletConnectRequestURI? {
+    func parse(url: URL) throws(WalletConnectURIParsingError) -> WalletConnectRequestURI? {
         guard let uri = extractURI(from: url) else {
             return nil
         }
