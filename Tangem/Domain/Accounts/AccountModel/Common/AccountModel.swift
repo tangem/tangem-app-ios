@@ -23,23 +23,14 @@ enum AccountModel {
 
 extension AccountModel {
     struct Icon: Equatable {
-        let nameMode: NameMode
+        let name: Name
         let color: Color
-
-        var nameOrLetter: String {
-            switch nameMode {
-            case .letter:
-                return Constants.letterIconNameKey
-            case .named(let name):
-                return name.rawValue
-            }
-        }
     }
 }
 
 /// https://github.com/tangem-developments/tangem-app-android/blob/develop/common/ui/src/main/java/com/tangem/common/ui/account/CryptoPortfolioIconExt.kt
 extension AccountModel.Icon {
-    enum Color: String, CaseIterable {
+    enum Color: String, CaseIterable, Hashable {
         case azure
         case caribbeanBlue
         case dullLavender
@@ -54,12 +45,7 @@ extension AccountModel.Icon {
         case vitalGreen
     }
 
-    enum NameMode: Equatable {
-        case letter
-        case named(Name)
-    }
-
-    enum Name: String, CaseIterable {
+    enum Name: String, CaseIterable, Hashable {
         case airplaneMode
         case beach
         case bookmark
@@ -81,28 +67,17 @@ extension AccountModel.Icon {
     }
 }
 
-extension AccountModel.Icon {
-    private enum Constants {
-        static let letterIconNameKey = "Letter"
-    }
-}
-
 // MARK: - Convenience extensions
 
 extension AccountModel.Icon {
     init?(rawName: String, rawColor: String) {
-        guard let color = Color(rawValue: rawColor) else {
+        guard
+            let color = Color(rawValue: rawColor),
+            let name = Name(rawValue: rawName)
+        else {
             return nil
         }
 
-        if let name = Name(rawValue: rawName) {
-            self.init(nameMode: .named(name), color: color)
-            return
-        } else if rawName == Constants.letterIconNameKey {
-            self.init(nameMode: .letter, color: color)
-            return
-        }
-
-        return nil
+        self.init(name: name, color: color)
     }
 }
