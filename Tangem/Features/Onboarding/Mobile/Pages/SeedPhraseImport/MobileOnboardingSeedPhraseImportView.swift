@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct MobileOnboardingSeedPhraseImportView: View {
     @ObservedObject var viewModel: MobileOnboardingSeedPhraseImportViewModel
@@ -17,5 +18,6 @@ struct MobileOnboardingSeedPhraseImportView: View {
             .background {
                 Color.clear.alert(item: $viewModel.alert) { $0.alert }
             }
+            .onFirstAppear(perform: viewModel.onAppear)
     }
 }
