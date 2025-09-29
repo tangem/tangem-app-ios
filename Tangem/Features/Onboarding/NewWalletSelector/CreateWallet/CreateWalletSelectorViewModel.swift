@@ -185,7 +185,7 @@ private extension CreateWalletSelectorViewModel {
     }
 
     func openHardwareWallet() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .create])
+        Analytics.log(.onboardingButtonBuy, params: [.source: .createWallet])
         safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
     }
 

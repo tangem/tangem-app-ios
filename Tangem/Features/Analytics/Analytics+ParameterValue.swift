@@ -167,7 +167,8 @@ extension Analytics {
         case walletConnectTxSend = "wallet_connect_tx_sign"
         case readPinSettings = "read_pin_settings"
         case changeSecOptions = "change_sec_options"
-        case createWallet = "create_wallet"
+        case createWallet = "Create Wallet"
+        case importWallet = "Import Wallet"
         case purgeWallet = "purge_wallet"
         case deriveKeys = "derive_keys"
         case preparePrimary = "prepare_primary"
@@ -254,10 +255,6 @@ extension Analytics {
         case nft = "NFT"
 
         // MARK: - Mobile Wallet
-
-        case `import` = "Import"
-        case create = "Create Wallet"
-        case importWallet = "Import Wallet"
 
         case set = "Set"
         case changing = "Changing"
