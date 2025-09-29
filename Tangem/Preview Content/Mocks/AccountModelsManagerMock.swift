@@ -43,6 +43,10 @@ extension AccountModelsManagerMock: AccountModelsManager {
         .just(output: false)
     }
 
+    var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: cryptoAccounts.count)
+    }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         accountModelsSubject.eraseToAnyPublisher()
     }

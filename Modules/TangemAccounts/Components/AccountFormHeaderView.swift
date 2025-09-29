@@ -73,7 +73,9 @@ public struct AccountFormHeaderView: View {
             )
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
             .frame(height: originalTextFieldHeight)
-            .onReceive(accountName.publisher.collect()) { newValue in
+            // Mikhail Andreev - Needed to be constrained from here coz for some reason it
+            // is not possible to doit from ViewModel
+            .onChange(of: accountName) { newValue in
                 accountName = String(newValue.prefix(maxCharacters))
             }
     }

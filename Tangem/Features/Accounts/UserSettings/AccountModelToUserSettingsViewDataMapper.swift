@@ -35,7 +35,7 @@ enum AccountModelToUserSettingsViewDataMapper {
             ]
 
         case .multiple(let cryptoAccountModel):
-            return cryptoAccountModel.compactMap { accountModel in
+            return cryptoAccountModel.map { accountModel in
                 mapAccount(
                     accountModel,
                     onTap: { model in
@@ -58,9 +58,10 @@ enum AccountModelToUserSettingsViewDataMapper {
         )
 
         return UserSettingsAccountRowViewData(
-            id: "\(accountModel.id.hashValue)",
+            id: "\(accountModel.id)",
             name: accountModel.name,
             iconNameMode: iconNameMode,
+            // [REDACTED_TODO_COMMENT]
             description: "",
             iconColor: AccountModelUtils.UI.iconColor(from: accountModel.icon.color),
             onTap: {
