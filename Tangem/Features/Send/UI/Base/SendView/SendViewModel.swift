@@ -44,18 +44,12 @@ final class SendViewModel: ObservableObject {
         stepsManager.shouldShowDismissAlert
     }
 
-    var shouldShowShareExploreButtons: Bool {
-        !tokenItem.blockchain.isTransactionAsync
-    }
-
     private let interactor: SendBaseInteractor
     private let stepsManager: SendStepsManager
     private let alertBuilder: SendAlertBuilder
     private let dataBuilder: SendGenericBaseDataBuilder
     private let analyticsLogger: SendBaseViewAnalyticsLogger
     private let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
-    private let tokenItem: TokenItem
-    private let source: SendCoordinator.Source
     private weak var coordinator: SendRoutable?
 
     private var bag: Set<AnyCancellable> = []
@@ -72,8 +66,6 @@ final class SendViewModel: ObservableObject {
         dataBuilder: SendGenericBaseDataBuilder,
         analyticsLogger: SendBaseViewAnalyticsLogger,
         blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper,
-        tokenItem: TokenItem,
-        source: SendCoordinator.Source,
         coordinator: SendRoutable
     ) {
         self.interactor = interactor
@@ -81,9 +73,7 @@ final class SendViewModel: ObservableObject {
         self.alertBuilder = alertBuilder
         self.analyticsLogger = analyticsLogger
         self.blockchainSDKNotificationMapper = blockchainSDKNotificationMapper
-        self.tokenItem = tokenItem
         self.dataBuilder = dataBuilder
-        self.source = source
         self.coordinator = coordinator
 
         step = stepsManager.initialStep
@@ -93,6 +83,7 @@ final class SendViewModel: ObservableObject {
         bind()
         bind(step: stepsManager.initialStep)
 
+        stepsManager.set(output: self)
         stepsManager.initialStep.initialAppear()
     }
 
@@ -274,23 +265,21 @@ private extension SendViewModel {
                 let builder = try dataBuilder.sendBuilder()
                 let (emailDataCollector, recipient) = builder.makeMailData(transaction: transaction, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
+
             case .staking(let stakingTransactionAction):
                 let builder = try dataBuilder.stakingBuilder()
                 let (emailDataCollector, recipient) = builder.makeMailData(action: stakingTransactionAction, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
-            case .express(let expressTransactionData):
+
+            case .express(.default(let transaction)):
                 let builder = try dataBuilder.sendBuilder()
+                let (emailDataCollector, recipient) = builder.makeMailData(transaction: transaction, error: error)
+                coordinator?.openMail(with: emailDataCollector, recipient: recipient)
 
-                let mailData: (dataCollector: EmailDataCollector, recipient: String)
-
-                switch expressTransactionData {
-                case .default(let transaction):
-                    mailData = builder.makeMailData(transaction: transaction, error: error)
-                case .compiled(let transactionData):
-                    mailData = builder.makeMailData(transactionData: transactionData, error: error)
-                }
-
-                coordinator?.openMail(with: mailData.0, recipient: mailData.1)
+            case .express(.compiled(let transactionData)):
+                let builder = try dataBuilder.sendBuilder()
+                let (emailDataCollector, recipient) = builder.makeMailData(transactionData: transactionData, error: error)
+                coordinator?.openMail(with: emailDataCollector, recipient: recipient)
             }
         } catch {
             showAlert(error.alertBinder)
@@ -359,7 +348,7 @@ extension SendViewModel: SendNewAmountRoutable {
         do {
             isKeyboardActive = false
             let builder = try dataBuilder.sendBuilder()
-            let tokensListBuilder = try builder.makeSendReceiveTokensList()
+            let tokensListBuilder = builder.makeSendReceiveTokensList()
             coordinator?.openReceiveTokensList(tokensListBuilder: tokensListBuilder)
         } catch {
             showAlert(error.alertBinder)
