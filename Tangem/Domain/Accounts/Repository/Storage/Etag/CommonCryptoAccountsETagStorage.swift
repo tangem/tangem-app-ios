@@ -25,21 +25,20 @@ final class CommonCryptoAccountsETagStorage {
 // MARK: - CryptoAccountsETagStorage protocol conformance
 
 extension CommonCryptoAccountsETagStorage: CryptoAccountsETagStorage {
-    func loadETag(for userWalletId: UserWalletId) async -> String? {
+    func loadETag(for userWalletId: UserWalletId) -> String? {
         let key = makeKey(for: userWalletId)
-        let eTag: String? = await innerStorage.get(key: key)
 
-        return eTag
+        return innerStorage.get(key: key)
     }
 
-    func saveETag(_ eTag: String, for userWalletId: UserWalletId) async {
+    func saveETag(_ eTag: String, for userWalletId: UserWalletId) {
         let key = makeKey(for: userWalletId)
-        await innerStorage.store(key: key, value: eTag)
+        innerStorage.store(key: key, value: eTag)
     }
 
-    func clearETag(for userWalletId: UserWalletId) async {
+    func clearETag(for userWalletId: UserWalletId) {
         let key = makeKey(for: userWalletId)
         let value: String? = nil
-        await innerStorage.store(key: key, value: value)
+        innerStorage.store(key: key, value: value)
     }
 }
