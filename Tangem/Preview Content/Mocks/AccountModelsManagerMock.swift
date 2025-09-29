@@ -90,11 +90,9 @@ extension AccountModelsManagerMock: AccountModelsManager {
             let isMainAccount = AccountModelUtils.isMainAccount(persistentConfig.derivationIndex)
             let unarchivedCryptoAccount = CryptoAccountModelMock(isMainAccount: isMainAccount)
 
-            try await unarchivedCryptoAccount.setIcon(info.icon)
-            try await unarchivedCryptoAccount.setName(info.name)
+            unarchivedCryptoAccount.setIcon(info.icon)
+            unarchivedCryptoAccount.setName(info.name)
             cryptoAccounts.append(unarchivedCryptoAccount)
-        } catch {
-            throw .cannotUnarchiveCryptoAccount
         }
     }
 }
