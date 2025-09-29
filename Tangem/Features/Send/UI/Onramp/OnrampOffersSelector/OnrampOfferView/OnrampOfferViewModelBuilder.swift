@@ -16,12 +16,18 @@ struct OnrampOfferViewModelBuilder {
     private let amountBadgeBuilder: OnrampAmountBadgeBuilder = .init()
     private let processingTimeFormatter: OnrampProviderProcessingTimeFormatter = .init()
 
-    func mapToOnrampOfferViewModel(provider: OnrampProvider, buyAction: @escaping () -> Void) -> OnrampOfferViewModel {
+    func mapToOnrampOfferViewModelTitle(provider: OnrampProvider) -> OnrampOfferViewModel.Title {
         let title: OnrampOfferViewModel.Title = switch (provider.globalAttractiveType, provider.processingTimeType) {
         case (.best, _): .bestRate
         case (_, .fastest): .fastest
         default: .text(Localization.onrampTitleYouGet)
         }
+
+        return title
+    }
+
+    func mapToOnrampOfferViewModel(provider: OnrampProvider, buyAction: @escaping () -> Void) -> OnrampOfferViewModel {
+        let title = mapToOnrampOfferViewModelTitle(provider: provider)
 
         let amount: OnrampOfferViewModel.Amount = {
             let formattedAmount = formatter.formatCryptoBalance(
