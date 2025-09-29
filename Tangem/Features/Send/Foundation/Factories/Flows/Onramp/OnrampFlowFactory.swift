@@ -113,6 +113,7 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
         let onramp = makeOnrampStep(router: router)
         let offersSelectorViewModel = OnrampOffersSelectorViewModel(
             tokenItem: tokenItem,
+            analyticsLogger: analyticsLogger,
             input: onrampModel,
             output: onrampModel
         )
@@ -197,7 +198,10 @@ extension OnrampFlowFactory: NewOnrampStepBuildable {
     }
 
     var onrampDependencies: NewOnrampStepBuilder2.Dependencies {
-        .init(notificationManager: notificationManager)
+        NewOnrampStepBuilder2.Dependencies(
+            notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger
+        )
     }
 }
 
