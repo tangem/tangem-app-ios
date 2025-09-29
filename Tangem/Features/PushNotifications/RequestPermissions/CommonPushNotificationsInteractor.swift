@@ -21,6 +21,9 @@ final class CommonPushNotificationsInteractor {
     @AppStorageCompat(StorageKeys.didRequestAuthorizationOnAfterLogin)
     private var canRequestAuthorizationOnAfterLogin: Bool? = nil
 
+    @AppStorageCompat(StorageKeys.didPostponeOnboardingCompletionDate)
+    private var requestAuthorizationOnAfterLoginBannerCompletionDate: Date? = nil
+
     @AppStorageCompat(StorageKeys.didPostponeAuthorizationRequestOnWalletOnboarding)
     private var didPostponeAuthorizationRequestOnWalletOnboarding = false
 
@@ -29,9 +32,6 @@ final class CommonPushNotificationsInteractor {
 
     @AppStorageCompat(StorageKeys.resetPushNotificationsAuthorizationRequestCounter)
     private var resetPushNotificationsAuthorizationRequestCounter: Int = ResetVersion.default.rawValue
-
-    @AppStorageCompat(StorageKeys.didPostponeOnboardingCompletionDate)
-    private var didPostponeOnboardingCompletionDate: Date? = nil
 
     private var didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = false
     private var didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession = false
@@ -75,7 +75,14 @@ final class CommonPushNotificationsInteractor {
             return false
         }
 
-        return canRequestAuthorization
+        switch flow {
+        // This workflow is required for mandatory display of the updated content to users from previous versions.
+        case .afterLoginBanner where
+            canRequestAuthorization == false && requestAuthorizationOnAfterLoginBannerCompletionDate == nil:
+            return true
+        default:
+            return canRequestAuthorization
+        }
     }
 }
 
@@ -89,7 +96,6 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
 
         switch flow {
         case .welcomeOnboarding:
-            didPostponeOnboardingCompletionDate = Date()
             return !didPostponeAuthorizationRequestOnWelcomeOnboarding
         case .walletOnboarding:
             return !didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession
@@ -97,14 +103,23 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         case .afterLogin:
             let currentRequestState = canRequestAuthorizationOnAfterLogin ?? true
             canRequestAuthorizationOnAfterLogin = true
+            return currentRequestState
         case .afterLoginBanner:
-            guard
-                !isAvailable(in: .afterLogin), // Need exclude if display is required bottom sheet permission request
-                let didPostponeOnboardingCompletionDate,
-                Date().timeIntervalSince(didPostponeOnboardingCompletionDate) > Constants.showDurationAfterLoginBanner
-            else {
+            // Need exclude if display is required bottom sheet permission request
+            guard !isAvailable(in: .afterLogin) else {
                 return false
             }
+
+            requestAuthorizationOnAfterLoginBannerCompletionDate = Date()
+
+            /*
+              A solution is required from Product Team
+
+              if let didPostponeOnboardingCompletionDate {
+                  let needDisplayBannerAfterLogin: Bool = Date().timeIntervalSince(didPostponeOnboardingCompletionDate) > Constants.showDurationAfterLoginBanner
+                  return needDisplayBannerAfterLogin
+              }
+             */
 
             return true
         }
