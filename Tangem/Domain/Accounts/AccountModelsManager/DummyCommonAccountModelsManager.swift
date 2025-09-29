@@ -23,6 +23,10 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         return .just(output: false)
     }
 
+    var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: 0)
+    }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         return AnyPublisher.just(output: [])
     }
