@@ -554,6 +554,7 @@
 		3027D3312E82C049001E15FB /* AccountItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3027D32B2E82C049001E15FB /* AccountItemView.swift */; };
 		303D556F2D7873B300FA859D /* VeChainAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303D556E2D7873AD00FA859D /* VeChainAddressTests.swift */; };
 		303D55712D78754000FA859D /* XRPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303D55702D78753900FA859D /* XRPAddressTests.swift */; };
+		303DE11E2E7975160077F895 /* UserSettingsAccountsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DE11D2E79750D0077F895 /* UserSettingsAccountsRoutable.swift */; };
 		304017442DB672C4007F5D69 /* NFTFeatureLifecycleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304017432DB672C4007F5D69 /* NFTFeatureLifecycleHandler.swift */; };
 		30410B3F2D7740270044C703 /* NEARAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30410B3E2D7740200044C703 /* NEARAddressTests.swift */; };
 		30410B412D7743FF0044C703 /* PolkadotAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30410B402D7743F80044C703 /* PolkadotAddressTests.swift */; };
@@ -4795,6 +4796,7 @@
 		3027D32C2E82C049001E15FB /* AccountItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountItemViewModel.swift; sourceTree = "<group>"; };
 		303D556E2D7873AD00FA859D /* VeChainAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VeChainAddressTests.swift; sourceTree = "<group>"; };
 		303D55702D78753900FA859D /* XRPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddressTests.swift; sourceTree = "<group>"; };
+		303DE11D2E79750D0077F895 /* UserSettingsAccountsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsAccountsRoutable.swift; sourceTree = "<group>"; };
 		304017432DB672C4007F5D69 /* NFTFeatureLifecycleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTFeatureLifecycleHandler.swift; sourceTree = "<group>"; };
 		30410B3E2D7740200044C703 /* NEARAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NEARAddressTests.swift; sourceTree = "<group>"; };
 		30410B402D7743F80044C703 /* PolkadotAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkadotAddressTests.swift; sourceTree = "<group>"; };
@@ -10097,6 +10099,7 @@
 		30C9C3272E76BFC500DC913B /* UserSettings */ = {
 			isa = PBXGroup;
 			children = (
+				303DE11D2E79750D0077F895 /* UserSettingsAccountsRoutable.swift */,
 				30C9C3292E76BFF400DC913B /* AccountModelToUserSettingsViewDataMapper.swift */,
 				30C08EAA2E75562F0092F72F /* UserSettingsAccountRowViewData.swift */,
 				30C9C3252E76BF0400DC913B /* UserSettingsAccountsViewModel.swift */,
@@ -12535,9 +12538,9 @@
 		B60F98CA2E3BC81300141CA5 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				B6BC398D2E3D5ED70043D64E /* BaseAccountModel.swift */,
 				B60F98BF2E3BC72800141CA5 /* AccountModel.swift */,
 				B6C94F142E68B5A000459BF8 /* AccountModelPersistentIdentifierConvertible.swift */,
-				B6BC398D2E3D5ED70043D64E /* BaseAccountModel.swift */,
 				B6CAC2812E4799C7002DFA82 /* AccountModelUtils.swift */,
 				B6A733C52E7A21780045F744 /* AccountModelUtils.UI.swift */,
 			);
@@ -23677,6 +23680,7 @@
 				2D212AD72E729E2400D07326 /* ShareActivitiesViewModel.swift in Sources */,
 				B6FCEE752C40E28700CA9252 /* CGPoint+.swift in Sources */,
 				B06C083D2A73E0E900D982BC /* MainHeaderSubtitleInfo.swift in Sources */,
+				303DE11E2E7975160077F895 /* UserSettingsAccountsRoutable.swift in Sources */,
 				EF0E1DAB2CE3A255003D47AA /* OnrampRedirectingInteractor.swift in Sources */,
 				B6780CBE2DCA13BF009B5431 /* MarketsTokenDetailsViewModel.swift in Sources */,
 				5D6784D925EBA1D800149995 /* TokenItems+Array.swift in Sources */,
