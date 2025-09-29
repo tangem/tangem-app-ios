@@ -21,7 +21,7 @@ public actor CommonOnrampManager {
         onrampRepository: OnrampRepository,
         dataRepository: OnrampDataRepository,
         analyticsLogger: ExpressAnalyticsLogger,
-        sorter: ProviderItemSorter = .init(),
+        sorter: ProviderItemSorter,
         preferredValues: PreferredValues
     ) {
         self.apiProvider = apiProvider
@@ -125,8 +125,12 @@ private extension CommonOnrampManager {
     func suggestProvider(in providers: ProvidersList) throws -> OnrampProvider {
         OnrampLogger.info(self, "Start to find the best provider")
 
-        providers
-            .forEach { $0.updateAttractiveTypes() }
+        // Global types
+        providers.updateAttractiveTypes()
+        providers.updateProcessingTimeTypes()
+
+        // Internal attractive types
+        providers.forEach { $0.updateAttractiveTypes() }
 
         if let paymentMethodType = preferredValues.paymentMethodType {
             OnrampLogger.info(self, "Has preferredValues \(preferredValues)")
@@ -201,7 +205,7 @@ private extension CommonOnrampManager {
                     )
                 )
             }
-            return ProviderItem(paymentMethod: paymentMethod, sorter: sorter, providers: providers)
+            return ProviderItem(paymentMethod: paymentMethod, providers: providers)
         }
 
         OnrampLogger.info(self, "Built providers \(availableProviders)")
