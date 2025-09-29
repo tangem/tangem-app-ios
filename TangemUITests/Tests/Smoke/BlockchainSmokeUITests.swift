@@ -10,6 +10,8 @@ import XCTest
 
 final class BlockchainSmokeUITests: BaseTestCase {
     func testSendCardanoWithInvalidAmount_ShowsInvalidAmountBanner() {
+        setAllureId(3644)
+
         let network = "Cardano"
         let cardanoScenario = ScenarioConfig(
             name: "user_tokens_api",
@@ -28,7 +30,7 @@ final class BlockchainSmokeUITests: BaseTestCase {
             .tapActionButton(.send)
 
         SendScreen(app)
-            .enterAmount("0,4")
+            .enterAmount("0.4")
             .tapNextButton()
             .enterDestination(destinationAddress)
             .tapNextButton()
