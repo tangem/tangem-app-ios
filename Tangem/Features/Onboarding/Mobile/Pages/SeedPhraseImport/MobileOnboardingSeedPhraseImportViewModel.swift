@@ -37,7 +37,7 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
 extension MobileOnboardingSeedPhraseImportViewModel {
     func onAppear() {
         Analytics.log(
-            event: .onboardingSeedImportScreenOpened,
+            event: .onboardingSeedImportWalletScreenOpened,
             params: [:],
             contextParams: .custom(.mobileWallet)
         )
