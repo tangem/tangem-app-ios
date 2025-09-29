@@ -15,14 +15,16 @@ class StakingValidatorsCompactViewModel: ObservableObject, Identifiable {
     // Use the estimated size as initial value
     @Published var viewSize: CGSize = .init(width: 361, height: 88)
     @Published var selectedValidator: ValidatorCompactViewData?
+    @Published var canEditValidator: Bool
 
-    private weak var input: StakingValidatorsInput?
+    private let preferredValidatorsCount: Int
 
     private let percentFormatter = PercentFormatter()
     private var bag: Set<AnyCancellable> = []
 
-    init(input: StakingValidatorsInput) {
-        self.input = input
+    init(input: StakingValidatorsInput, preferredValidatorsCount: Int) {
+        self.preferredValidatorsCount = preferredValidatorsCount
+        canEditValidator = preferredValidatorsCount > 1
 
         bind(input: input)
     }

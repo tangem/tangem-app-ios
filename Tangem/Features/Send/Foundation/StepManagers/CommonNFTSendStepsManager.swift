@@ -15,9 +15,9 @@ final class CommonNFTSendStepsManager {
     private let summaryStep: SendNewSummaryStep
     private let finishStep: SendNewFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
+    private weak var router: SendRoutable?
 
     private var stack: [SendStep]
-    weak var router: SendRoutable?
     private weak var output: SendStepsManagerOutput?
 
     private var isEditAction: Bool {
@@ -29,13 +29,15 @@ final class CommonNFTSendStepsManager {
         feeSelector: FeeSelectorContentViewModel,
         summaryStep: SendNewSummaryStep,
         finishStep: SendNewFinishStep,
-        summaryTitleProvider: SendSummaryTitleProvider
+        summaryTitleProvider: SendSummaryTitleProvider,
+        router: SendRoutable
     ) {
         self.destinationStep = destinationStep
         self.feeSelector = feeSelector
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.summaryTitleProvider = summaryTitleProvider
+        self.router = router
 
         stack = [destinationStep]
     }
