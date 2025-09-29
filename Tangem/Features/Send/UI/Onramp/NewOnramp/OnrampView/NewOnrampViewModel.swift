@@ -35,6 +35,7 @@ final class NewOnrampViewModel: ObservableObject, Identifiable {
     private let tokenItem: TokenItem
     private let interactor: NewOnrampInteractor
     private let notificationManager: NotificationManager
+    private let analyticsLogger: SendOnrampOffersAnalyticsLogger
 
     private lazy var onrampOfferViewModelBuilder = OnrampOfferViewModelBuilder(tokenItem: tokenItem)
 
@@ -44,12 +45,14 @@ final class NewOnrampViewModel: ObservableObject, Identifiable {
         onrampAmountViewModel: NewOnrampAmountViewModel,
         tokenItem: TokenItem,
         interactor: NewOnrampInteractor,
-        notificationManager: NotificationManager
+        notificationManager: NotificationManager,
+        analyticsLogger: SendOnrampOffersAnalyticsLogger
     ) {
         self.onrampAmountViewModel = onrampAmountViewModel
         self.tokenItem = tokenItem
         self.interactor = interactor
         self.notificationManager = notificationManager
+        self.analyticsLogger = analyticsLogger
 
         bind()
     }
@@ -64,6 +67,7 @@ final class NewOnrampViewModel: ObservableObject, Identifiable {
     }
 
     func userDidTapAllOffersButton() {
+        analyticsLogger.logOnrampButtonAllOffers()
         router?.onrampStepRequestEditProvider()
     }
 }
@@ -112,9 +116,22 @@ private extension NewOnrampViewModel {
     }
 
     func mapToOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
-        onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
+        let title = onrampOfferViewModelBuilder.mapToOnrampOfferViewModelTitle(provider: provider)
+        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
+            switch title {
+            case .bestRate:
+                self?.analyticsLogger.logOnrampBestRateClicked(provider: provider)
+            case .fastest:
+                self?.analyticsLogger.logOnrampFastestMethodClicked(provider: provider)
+            case .text:
+                break
+            }
+
+            self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
             self?.interactor.userDidRequestOnramp(provider: provider)
         }
+
+        return viewModel
     }
 
     func updateViewState(isLoading: Bool) {
