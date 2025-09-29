@@ -102,8 +102,6 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
             type: .seedPhaseBackupContinue,
             onAppear: {},
             onComplete: { [weak self] in
-                Analytics.log(.settingAccessCodeStarted)
-
                 self?.openNext()
             }
         )
@@ -115,6 +113,7 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
         let accessCodeStep = MobileOnboardingAccessCodeStep(delegate: self)
         accessCodeStep.configureNavBar(title: Localization.accessCodeNavtitle)
         append(step: accessCodeStep)
+        Analytics.log(.settingAccessCodeStarted, contextParams: .custom(.mobileWallet))
     }
 }
 
