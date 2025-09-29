@@ -97,13 +97,6 @@ extension ScreenBase {
         app.scrollViews[element.accessibilityIdentifier].firstMatch
     }
 
-    func pullToRefresh() {
-        let startCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
-        let finishCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
-
-        startCoordinate.press(forDuration: 0.05, thenDragTo: finishCoordinate)
-    }
-
     func gentleSwipeUp() {
 //        log.debug("Gently swiping up...")
         let startCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
