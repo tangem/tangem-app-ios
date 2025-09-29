@@ -36,6 +36,7 @@ protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
 }
 
 protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
+    SendOnrampOffersAnalyticsLogger,
     SendOnrampProvidersAnalyticsLogger,
     SendOnrampPaymentMethodAnalyticsLogger,
     SendFinishAnalyticsLogger {
@@ -108,6 +109,16 @@ protocol SendFeeAnalyticsLogger {
 
 protocol SendValidatorsAnalyticsLogger {
     func logStakingValidatorChosen()
+}
+
+protocol SendOnrampOffersAnalyticsLogger: SendOnrampProvidersAnalyticsLogger,
+    SendOnrampPaymentMethodAnalyticsLogger {
+    func logOnrampOfferButtonBuy(provider: OnrampProvider)
+    func logOnrampRecentlyUsedClicked(provider: OnrampProvider)
+    func logOnrampFastestMethodClicked(provider: OnrampProvider)
+    func logOnrampBestRateClicked(provider: OnrampProvider)
+
+    func logOnrampButtonAllOffers()
 }
 
 protocol SendOnrampProvidersAnalyticsLogger {
