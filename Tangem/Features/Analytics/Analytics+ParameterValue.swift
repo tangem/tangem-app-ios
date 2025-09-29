@@ -87,6 +87,7 @@ extension Analytics {
         case reset = "Reset"
         case allow = "Allow"
         case cancel = "Cancel"
+        case resume = "Resume"
 
         case errorCode = "Error Code"
 
