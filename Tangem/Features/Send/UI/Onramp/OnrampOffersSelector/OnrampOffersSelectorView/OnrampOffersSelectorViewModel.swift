@@ -27,18 +27,29 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     @Published private var selectedProviderItem: ProviderItem?
 
     private let tokenItem: TokenItem
+    private let analyticsLogger: SendOnrampOffersAnalyticsLogger
 
     private lazy var onrampOfferViewModelBuilder = OnrampOfferViewModelBuilder(tokenItem: tokenItem)
     private lazy var onrampProvidersItemViewModelBuilder = OnrampProviderItemViewModelBuilder(tokenItem: tokenItem)
     private weak var input: OnrampProvidersInput?
     private weak var output: OnrampOutput?
 
-    init(tokenItem: TokenItem, input: OnrampProvidersInput, output: OnrampOutput) {
+    init(
+        tokenItem: TokenItem,
+        analyticsLogger: SendOnrampOffersAnalyticsLogger,
+        input: OnrampProvidersInput,
+        output: OnrampOutput,
+    ) {
         self.tokenItem = tokenItem
+        self.analyticsLogger = analyticsLogger
         self.input = input
         self.output = output
 
         bind()
+    }
+
+    func onAppear() {
+        analyticsLogger.logOnrampPaymentMethodScreenOpened()
     }
 
     func onDisappear() {
@@ -76,6 +87,8 @@ private extension OnrampOffersSelectorViewModel {
             onrampProvidersItemViewModelBuilder.mapToOnrampProviderItemViewModel(
                 providerItem: providerItem
             ) { [weak self] in
+                self?.analyticsLogger.logOnrampPaymentMethodChosen(paymentMethod: providerItem.paymentMethod)
+                self?.analyticsLogger.logOnrampProvidersScreenOpened()
                 self?.selectedProviderItem = providerItem
             }
         }
@@ -85,6 +98,8 @@ private extension OnrampOffersSelectorViewModel {
         let offers = item.successfullyLoadedProviders().map { provider in
             onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
                 self?.close()
+                self?.analyticsLogger.logOnrampProviderChosen(provider: provider.provider)
+                self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
                 self?.output?.userDidRequestOnramp(provider: provider)
             }
         }
