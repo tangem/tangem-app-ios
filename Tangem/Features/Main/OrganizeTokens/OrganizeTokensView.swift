@@ -246,6 +246,7 @@ struct OrganizeTokensView: View {
                 }
             )
         }
+        .padding(.vertical, Constants.contentVerticalInset)
     }
 
     private var tokenListHeader: some View {
