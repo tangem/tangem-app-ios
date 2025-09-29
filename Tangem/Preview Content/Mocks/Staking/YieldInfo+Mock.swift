@@ -1,5 +1,5 @@
 //
-//  YieldInfo+Mock.swift
+//  StakingYieldInfo+Mock.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import TangemStaking
 
-extension YieldInfo {
-    static let mock: YieldInfo = .init(
+extension StakingYieldInfo {
+    static let mock: StakingYieldInfo = .init(
         id: "tron-trx-native-staking",
         isAvailable: true,
         rewardType: .apr,
