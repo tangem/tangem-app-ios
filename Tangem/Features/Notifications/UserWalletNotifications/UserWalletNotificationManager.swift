@@ -132,7 +132,6 @@ final class UserWalletNotificationManager {
         showAppRateNotificationIfNeeded()
         createIfNeededAndShowSupportSeedNotification()
         showMobileActivationNotificationIfNeeded()
-        showMobileUpgradeNotificationIfNeeded()
     }
 
     private func createIfNeededAndShowSupportSeedNotification() {
@@ -234,6 +233,7 @@ final class UserWalletNotificationManager {
         addInputIfNeeded(input)
     }
 
+    // [REDACTED_TODO_COMMENT]
     private func showMobileUpgradeNotificationIfNeeded() {
         let isDismissed = dismissedNotifications.has(userWalletId: userWalletModel.userWalletId, notification: .mobileUpgradeFromMain)
 
