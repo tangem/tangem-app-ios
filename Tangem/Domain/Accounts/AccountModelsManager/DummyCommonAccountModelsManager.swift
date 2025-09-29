@@ -16,7 +16,7 @@ struct DummyCommonAccountModelsManager {}
 
 extension DummyCommonAccountModelsManager: AccountModelsManager {
     var canAddCryptoAccounts: Bool {
-        return true
+        return false
     }
 
     var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
