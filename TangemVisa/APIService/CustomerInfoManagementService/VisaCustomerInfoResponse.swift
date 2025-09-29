@@ -12,8 +12,8 @@ public struct VisaCustomerInfoResponse: Decodable {
     public let id: String
     public let state: CustomerState
     public let createdAt: Date
-    public let productInstance: ProductInstance
-    public let paymentAccount: PaymentAccount
+    public let productInstance: ProductInstance?
+    public let paymentAccount: PaymentAccount?
     public let kyc: KYCInfo
 }
 

@@ -49,6 +49,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let tokenActionAvailabilityAnalyticsMapper = TokenActionAvailabilityAnalyticsMapper()
     private let tokenActionAvailabilityProvider: TokenActionAvailabilityProvider
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
+    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     private var priceChangeFormatter = PriceChangeFormatter()
     private var transactionHistoryBag: AnyCancellable?

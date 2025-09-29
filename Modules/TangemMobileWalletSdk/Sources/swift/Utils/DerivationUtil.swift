@@ -56,7 +56,7 @@ public enum DerivationUtil {
             }
 
         if curve == nil, (try? BLSUtil.publicKey(entropy: entropy, passphrase: passphrase).publicKey) == masterKey {
-            return .bls12381_G2
+            return .bls12381_G2_AUG
         }
 
         return curve

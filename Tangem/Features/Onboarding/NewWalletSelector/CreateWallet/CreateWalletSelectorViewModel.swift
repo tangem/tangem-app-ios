@@ -190,7 +190,7 @@ private extension CreateWalletSelectorViewModel {
     }
 
     func openWhatToChoose() {
-        // [REDACTED_TODO_COMMENT]
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .mobileVsHardware))
     }
 
     func openOnboarding(options: OnboardingCoordinator.Options) {

@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import protocol Foundation.LocalizedError
+
 final class WalletConnectEstablishDAppConnectionUseCase {
     private let userWalletRepository: any UserWalletRepository
     private let cameraAccessProvider: any WalletConnectCameraAccessProvider
@@ -57,7 +59,11 @@ extension WalletConnectEstablishDAppConnectionUseCase {
         case canOpenQRScanner
     }
 
-    struct FeatureDisabledError: Swift.Error {
+    struct FeatureDisabledError: LocalizedError {
         let reason: String?
+
+        var errorDescription: String? {
+            "WalletConnect feature is disabled for user wallet. Reason \(reason ?? "is unknown")."
+        }
     }
 }
