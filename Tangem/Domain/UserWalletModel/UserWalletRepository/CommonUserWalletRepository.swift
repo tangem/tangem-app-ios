@@ -18,7 +18,6 @@ import TangemMobileWalletSdk
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
-    @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
 
     var shouldLockOnBackground: Bool {
         if isLocked {
@@ -231,8 +230,6 @@ class CommonUserWalletRepository: UserWalletRepository {
             let newModel = models[nextSelectionIndex]
             select(userWalletId: newModel.userWalletId)
         }
-
-        eTagStorage.clearETag(for: userWalletId)
     }
 
     private func savePrivateData(userWalletModel: UserWalletModel, encryptionKey: UserWalletEncryptionKey) {
