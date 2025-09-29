@@ -11,20 +11,26 @@ import TangemUI
 import Combine
 import CombineExt
 import TangemLocalization
+import TangemFoundation
 
 final class UserSettingsAccountsViewModel: ObservableObject {
+    // MARK: - State
+
     @Published var accountRows: [UserSettingsAccountRowViewData] = []
     @Published private(set) var addNewAccountButton: AddListItemButton.ViewData?
     @Published private(set) var archivedAccountButton: ArchivedAccountsButtonViewData?
 
     private let accountModelsManager: AccountModelsManager
+    private weak var coordinator: UserSettingsAccountsRoutable?
     private var bag = Set<AnyCancellable>()
 
     init(
         accountModels: [AccountModel],
         accountModelsManager: AccountModelsManager,
+        coordinator: UserSettingsAccountsRoutable?
     ) {
         self.accountModelsManager = accountModelsManager
+        self.coordinator = coordinator
 
         accountRows = accountModels.flatMap {
             AccountModelToUserSettingsViewDataMapper.map(
@@ -73,7 +79,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func onTapNewAccount() {
-        // [REDACTED_TODO_COMMENT]
+        coordinator?.addNewAccount(accountModelsManager: accountModelsManager)
     }
 }
 
