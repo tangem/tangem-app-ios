@@ -81,6 +81,10 @@ extension AccountModelUtils {
                 return Assets.Accounts.walletAccounts
             }
         }
+
+        static func getRadomColor() -> AccountModel.Icon.Color {
+            AccountModel.Icon.Color.allCases.randomElement() ?? .azure
+        }
     }
 }
 
