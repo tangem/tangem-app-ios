@@ -232,9 +232,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             select(userWalletId: newModel.userWalletId)
         }
 
-        runTask(in: self, isDetached: true) { repository in
-            await repository.eTagStorage.clearETag(for: userWalletId)
-        }
+        eTagStorage.clearETag(for: userWalletId)
     }
 
     private func savePrivateData(userWalletModel: UserWalletModel, encryptionKey: UserWalletEncryptionKey) {
