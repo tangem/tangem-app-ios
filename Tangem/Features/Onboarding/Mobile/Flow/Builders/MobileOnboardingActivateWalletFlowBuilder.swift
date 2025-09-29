@@ -72,8 +72,11 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
             .configureNavBar(
                 title: Localization.commonBackup,
                 leadingAction: .close(handler: { [weak self] in
-                    Analytics.log(.backupNoticeCanceled)
-
+                    Analytics.log(
+                        .backupNoticeCanceled,
+                        params: [.action: .cancel],
+                        contextParams: .custom(.mobileWallet)
+                    )
                     self?.closeOnboarding()
                 })
             )
