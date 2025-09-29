@@ -17,4 +17,6 @@ public enum TokenAccessibilityIdentifiers {
     public static let nativeStakingBlock = "tokenNativeStakingBlock"
     public static let nativeStakingTitle = "tokenNativeStakingTitle"
     public static let nativeStakingChevron = "tokenNativeStakingChevron"
+
+    public static let topUpWalletBanner = "tokenTopUpWalletBanner"
 }
