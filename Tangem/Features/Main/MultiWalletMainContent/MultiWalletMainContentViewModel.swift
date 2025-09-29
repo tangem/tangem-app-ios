@@ -130,8 +130,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 .receive(on: DispatchQueue.main)
                 .assign(to: &$tangemPayNotificationInputs)
 
-            tangemPayAccount.tangemPayStatusPublisher
-                .map(\.isIssuingInProgress)
+            tangemPayAccount.tangemPayCardIssuingInProgress
                 .receive(on: DispatchQueue.main)
                 .assign(to: &$tangemPayCardIssuingInProgress)
 

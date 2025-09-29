@@ -36,6 +36,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
             lastYearReturns: options.lastYearReturns,
             networkFee: options.networkFee,
             maximumFee: options.maximumFee,
+            tokenImageUrl: options.tokenImageUrl,
             coordinator: self
         )
     }
@@ -62,5 +63,6 @@ extension YieldModulePromoCoordinator {
         let networkFee: Decimal
         let maximumFee: Decimal
         let lastYearReturns: [String: Double]
+        let tokenImageUrl: URL?
     }
 }
