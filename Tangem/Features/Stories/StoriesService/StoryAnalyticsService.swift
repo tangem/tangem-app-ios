@@ -19,7 +19,7 @@ final class StoryAnalyticsService {
     func reportLoadingFailed(_ storyId: TangemStory.ID) {
         let event = Analytics.Event.storiesError
         let params = [
-            Analytics.ParameterKey.commonType: storyId.asAnalyticsType.rawValue,
+            Analytics.ParameterKey.type: storyId.asAnalyticsType.rawValue,
         ]
 
         Analytics.log(event: event, params: params)

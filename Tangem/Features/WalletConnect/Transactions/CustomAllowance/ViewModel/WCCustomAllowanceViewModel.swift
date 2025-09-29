@@ -10,7 +10,9 @@ import Foundation
 import Combine
 import BigInt
 
-final class WCCustomAllowanceViewModel: ObservableObject {
+final class WCCustomAllowanceViewModel: ObservableObject, Identifiable {
+    let id = UUID()
+
     @Published var amountText: String = ""
     @Published var isUnlimited: Bool = false
     @Published private(set) var isValidAmount: Bool = false
@@ -44,8 +46,6 @@ final class WCCustomAllowanceViewModel: ObservableObject {
     @MainActor
     func handleViewAction(_ action: ViewAction) async {
         switch action {
-        case .back:
-            input.backAction()
         case .done:
             await handleDoneAction()
         case .unlimitedToggled(let isUnlimited):
@@ -118,7 +118,6 @@ final class WCCustomAllowanceViewModel: ObservableObject {
 
 extension WCCustomAllowanceViewModel {
     enum ViewAction {
-        case back
         case done
         case unlimitedToggled(Bool)
     }
