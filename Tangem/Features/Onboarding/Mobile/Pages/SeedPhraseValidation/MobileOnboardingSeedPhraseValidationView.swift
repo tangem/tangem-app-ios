@@ -33,6 +33,7 @@ private extension MobileOnboardingSeedPhraseValidationView {
                 secondWord: item.second,
                 seventhWord: item.seventh,
                 eleventhWord: item.eleventh,
+                onAppear: viewModel.onAppear,
                 createWalletAction: viewModel.onCreateWallet
             )
         ))

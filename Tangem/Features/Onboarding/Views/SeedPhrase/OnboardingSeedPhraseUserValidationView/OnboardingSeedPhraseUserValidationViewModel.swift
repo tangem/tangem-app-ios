@@ -17,6 +17,7 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
         let secondWord: String
         let seventhWord: String
         let eleventhWord: String
+        let onAppear: () -> Void
         let createWalletAction: () -> Void
     }
 
@@ -52,6 +53,10 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
         input = validationInput
 
         bind()
+    }
+
+    func onAppear() {
+        input.onAppear()
     }
 
     func createWallet() {
