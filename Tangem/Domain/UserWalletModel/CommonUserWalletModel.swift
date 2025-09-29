@@ -108,7 +108,7 @@ class CommonUserWalletModel {
             return
         }
 
-        userTokenListManager.update(.append(persistentBlockchains), shouldUpload: true)
+        userTokenListManager.update(.append(persistentBlockchains), shouldUpload: true) // [REDACTED_TODO_COMMENT]
     }
 
     private func updateConfiguration(walletInfo: WalletInfo) {
@@ -315,7 +315,7 @@ extension CommonUserWalletModel: MainHeaderSupplementInfoProvider {
 extension CommonUserWalletModel: MainHeaderUserWalletStateInfoProvider {
     var isUserWalletLocked: Bool { false }
 
-    var isTokensListEmpty: Bool { userTokenListManager.userTokensList.entries.isEmpty }
+    var isTokensListEmpty: Bool { userTokenListManager.userTokensList.entries.isEmpty } // [REDACTED_TODO_COMMENT]
 
     var hasImportedWallets: Bool {
         keysRepository.keys.contains(where: { $0.isImported ?? false })
