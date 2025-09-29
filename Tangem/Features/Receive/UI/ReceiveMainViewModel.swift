@@ -34,10 +34,13 @@ class ReceiveMainViewModel: ObservableObject {
         flow: options.flow,
         tokenItem: options.tokenItem,
         addressTypesProvider: options.addressTypesProvider,
-        coordinator: self
+        coordinator: self,
+        // [REDACTED_TODO_COMMENT]
+        isYieldModuleActive: options.isYieldModuleActive
     )
 
     private let receiveTokenWithdrawNoticeInteractor = ReceiveTokenWithdrawNoticeInteractor()
+    private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Helpers
 
@@ -67,13 +70,20 @@ class ReceiveMainViewModel: ObservableObject {
     // MARK: - Private Implementation
 
     func getInitialViewState() -> ViewState? {
+        if yieldModuleNotificationInteractor.shouldShowYieldModuleAlert(for: options.tokenItem) {
+            receiveTokenWithdrawNoticeInteractor.markWithdrawalAlertShown(for: options.tokenItem)
+
+            let vm = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel()
+            return .yieldTokenAlert(viewModel: vm)
+        }
+
         if isNeedDisplayTokenAlert() {
             let viewModel = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel()
             return .tokenAlert(viewModel: viewModel)
-        } else {
-            let viewModel = receiveFlowFactory.makeSelectorReceiveAssetViewModel()
-            return .selector(viewModel: viewModel)
         }
+
+        let viewModel = receiveFlowFactory.makeSelectorReceiveAssetViewModel()
+        return .selector(viewModel: viewModel)
     }
 
     func isNeedDisplayTokenAlert() -> Bool {
@@ -92,6 +102,8 @@ extension ReceiveMainViewModel {
         let tokenItem: TokenItem
         let flow: ReceiveFlow
         let addressTypesProvider: ReceiveAddressTypesProvider
+        // [REDACTED_TODO_COMMENT]
+        let isYieldModuleActive: Bool
     }
 }
 
@@ -135,6 +147,7 @@ extension ReceiveMainViewModel {
         case selector(viewModel: SelectorReceiveAssetsViewModel)
         case tokenAlert(viewModel: TokenAlertReceiveAssetsViewModel)
         case qrCode(viewModel: QRCodeReceiveAssetsViewModel)
+        case yieldTokenAlert(viewModel: TokenAlertReceiveAssetsViewModel)
 
         // MARK: - Identifiable
 
@@ -146,12 +159,14 @@ extension ReceiveMainViewModel {
                 "qrCode"
             case .tokenAlert:
                 "tokenAlert"
+            case .yieldTokenAlert:
+                "yieldTokenAlert"
             }
         }
 
         var backgroundColor: Color {
             switch self {
-            case .selector, .tokenAlert:
+            case .selector, .tokenAlert, .yieldTokenAlert:
                 return Colors.Background.tertiary
             case .qrCode:
                 return Colors.Background.primary
