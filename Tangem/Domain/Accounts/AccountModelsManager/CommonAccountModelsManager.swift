@@ -164,7 +164,7 @@ actor CommonAccountModelsManager {
         let persistentConfig = CryptoAccountPersistentConfig(
             derivationIndex: cryptoAccount.id.toPersistentIdentifier(),
             name: cryptoAccount.name,
-            iconName: cryptoAccount.icon.nameOrLetter,
+            iconName: cryptoAccount.icon.name.rawValue,
             iconColor: cryptoAccount.icon.color.rawValue,
         )
         // [REDACTED_TODO_COMMENT]
@@ -185,6 +185,11 @@ extension CommonAccountModelsManager: AccountModelsManager {
         .just(output: true)
     }
 
+    // [REDACTED_TODO_COMMENT]
+    nonisolated var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: 0)
+    }
+
     nonisolated var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         makeOrGetAccountModelsPublisher()
     }
@@ -200,7 +205,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         let persistentConfig = CryptoAccountPersistentConfig(
             derivationIndex: newDerivationIndex,
             name: name,
-            iconName: icon.nameOrLetter,
+            iconName: icon.name.rawValue,
             iconColor: icon.color.rawValue
         )
         // [REDACTED_TODO_COMMENT]
