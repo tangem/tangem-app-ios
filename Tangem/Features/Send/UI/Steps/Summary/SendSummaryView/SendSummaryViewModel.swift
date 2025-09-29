@@ -24,17 +24,15 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
 
     var destinationCompactViewType: SendCompactViewEditableType {
         switch destinationEditableType {
-        case .disable: .disabled
         case .editable: .enabled(action: userDidTapDestination)
-        case .noEditable: .enabled()
+        case .noEditable: .disabled
         }
     }
 
     var amountCompactViewType: SendCompactViewEditableType {
         switch amountEditableType {
-        case .disable: .disabled
         case .editable: .enabled(action: userDidTapAmount)
-        case .noEditable: .enabled()
+        case .noEditable: .disabled
         }
     }
 
@@ -169,9 +167,7 @@ extension SendSummaryViewModel {
         let actionType: SendFlowActionType
     }
 
-    /// - Note: The only difference between `.disable` and `.noEditable` is the background color in the UI.
     enum EditableType: Hashable {
-        case disable
         case editable
         case noEditable
     }
