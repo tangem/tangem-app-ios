@@ -463,6 +463,10 @@ extension Analytics {
         case onrampOnrampStatusOpened = "[Onramp] Onramp Status Opened"
         case onrampButtonGoToProvider = "[Onramp] Button - Go To Provider"
         case onrampOnrampStatus = "[Onramp] Onramp Status"
+        case onrampRecentlyUsedClicked = "[Onramp] Recently Used Clicked"
+        case onrampFastestMethodClicked = "[Onramp] Fastest Method Clicked"
+        case onrampBestRateClicked = "[Onramp] Best Rate Clicked"
+        case onrampButtonAllOffers = "[Onramp] Button - All Offers"
 
         // MARK: - Action Buttons
 
