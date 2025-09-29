@@ -23,16 +23,13 @@ protocol WalletConnectHandlersCreator: AnyObject {
 final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
     private let ethTransactionBuilder: WCEthTransactionBuilder
     private let walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider
-    private let analyticsProvider: WalletConnectServiceAnalyticsProvider
 
     init(
         ethTransactionBuilder: WCEthTransactionBuilder,
-        walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider,
-        analyticsProvider: WalletConnectServiceAnalyticsProvider
+        walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider
     ) {
         self.ethTransactionBuilder = ethTransactionBuilder
         self.walletNetworkServiceFactoryProvider = walletNetworkServiceFactoryProvider
-        self.analyticsProvider = analyticsProvider
     }
 
     func createHandler(
@@ -107,7 +104,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 signer: signer,
                 walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
                 walletModelProvider: walletModelProvider,
-                analyticsProvider: analyticsProvider
+                analyticsProvider: makeAnalyticsProvider(with: connectedDApp?.dAppData)
             )
 
         case .solanaSignAllTransactions:
@@ -127,5 +124,11 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             // This page https://www.bnbchain.org/en/staking has WalletConnect in status 'Coming Soon'
             throw WalletConnectTransactionRequestProcessingError.unsupportedMethod("BNB methods")
         }
+    }
+
+    // MARK: - Private Implementation
+
+    private func makeAnalyticsProvider(with dAppData: WalletConnectDAppData?) -> WalletConnectServiceAnalyticsProvider {
+        CommonWalletConnectServiceAnalyticsProvider(dAppData: dAppData)
     }
 }
