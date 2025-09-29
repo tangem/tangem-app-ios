@@ -82,6 +82,7 @@ struct OnboardingSeedPhraseUserValidationView: View {
         }
         .animation(isButtonPositionAnimationEnabled ? .easeOut(duration: 0.35) : nil, value: containerSize)
         .padding(.horizontal, 16)
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 
@@ -151,6 +152,7 @@ struct OnboardingSeedPhraseUserValidationView_Previews: PreviewProvider {
             secondWord: "tree",
             seventhWord: "lunar",
             eleventhWord: "banana",
+            onAppear: {},
             createWalletAction: {}
         )
     )

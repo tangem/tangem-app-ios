@@ -1015,6 +1015,9 @@ extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
                 secondWord: words[1],
                 seventhWord: words[6],
                 eleventhWord: words[10],
+                onAppear: {
+                    Analytics.log(.backupSeedCheckingScreenOpened)
+                },
                 createWalletAction: { [weak self, mnemonic] in
                     self?.createWalletOnPrimaryCard(using: mnemonic, mnemonicPassphrase: nil, walletCreationType: .newSeed)
                 }
