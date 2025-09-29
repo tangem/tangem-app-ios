@@ -24468,7 +24468,6 @@
 				EFA23E732DEF6CBE004ADD0A /* SendNewFinishStep.swift in Sources */,
 				EA4032592E55F02E00573568 /* PromoCodeActivationDTO.swift in Sources */,
 				B0431B412919538700F84DEF /* IconWithBackground.swift in Sources */,
-				B619DFEA2E77AE0A00ECA8F7 /* ArchivedCryptoAccountInfo.AccountId.swift in Sources */,
 				EFF8F1EC2E85B53D00A5EF0C /* RestakingFlowFactory.swift in Sources */,
 				2DC46BA02C945C4400749F7C /* BasicTooltipView.swift in Sources */,
 				DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */,
