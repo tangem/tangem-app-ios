@@ -343,14 +343,14 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         guard
             providerType == .cex,
             currentStatus.isProcessingExchange,
-            let averageDuration = pendingTransaction.averageDuration,
             let createdAt = pendingTransaction.createdAt
         else {
             return
         }
 
-        // Check current time interval in seconds more then x5 average duration
-        if Date().timeIntervalSince(createdAt) > (averageDuration * 5) {
+        // Check the current swap transaction has already taken more than 15 minutes
+        let fifteenMinutes: TimeInterval = 15 * 60
+        if Date().timeIntervalSince(createdAt) > fifteenMinutes {
             let input = notificationFactory.buildNotificationInput(
                 for: ExpressNotificationEvent.longTimeAverageDuration,
                 buttonAction: weakify(self, forFunction: PendingExpressTxStatusBottomSheetViewModel.didTapNotification(with:action:))
