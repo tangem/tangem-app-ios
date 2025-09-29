@@ -24,8 +24,6 @@ final class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBui
             .configureNavBar(
                 title: Localization.commonBackup,
                 leadingAction: .close(handler: { [weak self] in
-                    Analytics.log(.backupNoticeCanceled)
-
                     self?.closeOnboarding()
                 })
             )
