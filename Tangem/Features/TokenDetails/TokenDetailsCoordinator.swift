@@ -41,10 +41,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     private var safariHandle: SafariHandle?
     private var options: Options?
 
-    required init(
-        dismissAction: @escaping Action<Void>,
-        popToRootAction: @escaping Action<PopToRootOptions>
-    ) {
+    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -58,9 +55,12 @@ class TokenDetailsCoordinator: CoordinatorObject {
             walletModelsManager: options.userWalletModel.walletModelsManager
         )
 
+        let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
+
         let tokenRouter = SingleTokenRouter(
             userWalletModel: options.userWalletModel,
-            coordinator: self
+            coordinator: self,
+            yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         )
 
         let expressFactory = CommonExpressModulesFactory(
@@ -138,10 +138,25 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
             networkFee: info.networkFee,
             maximumFee: info.maximumFee,
             lastYearReturns: info.lastYearReturns,
+            tokenImageUrl: info.tokenImageUrl,
         )
 
         coordinator.start(with: options)
         yieldModulePromoCoordinator = coordinator
+    }
+
+    func openYieldEarnInfo(walletModel: any WalletModel, openFeeCurrencyAction: @escaping () -> Void) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: YieldModuleInfoViewModel(walletModel: walletModel, openFeeCurrencyAction: openFeeCurrencyAction)
+            )
+        }
+    }
+
+    func openYieldBalanceInfo(params: YieldModuleViewConfigs.BalanceInfoParams) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBalanceInfoViewModel(params: params))
+        }
     }
 }
 
@@ -177,7 +192,9 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel
+            addressTypesProvider: walletModel,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -215,9 +232,13 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.sendWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(userWalletModel: userWalletModel)
+            ),
             type: .send,
-            source: .tokenDetails
+            source: .main
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
@@ -231,7 +252,11 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
 
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.sendWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(userWalletModel: userWalletModel)
+            ),
             type: .sell(parameters: sellParameters),
             source: .tokenDetails
         )
@@ -299,7 +324,11 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.sendWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(userWalletModel: userWalletModel)
+            ),
             type: .onramp(parameters: parameters),
             source: .tokenDetails
         )

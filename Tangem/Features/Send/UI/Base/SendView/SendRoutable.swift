@@ -12,7 +12,7 @@ import TangemExpress
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
-protocol SendRoutable: SendFeeRoutable, SendDestinationRoutable, OnrampRoutable, OnrampAmountRoutable, AnyObject {
+protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, OnrampAmountRoutable, AnyObject {
     func dismiss(reason: SendDismissReason)
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
     func openQRScanner(with codeBinding: Binding<String>, networkName: String)

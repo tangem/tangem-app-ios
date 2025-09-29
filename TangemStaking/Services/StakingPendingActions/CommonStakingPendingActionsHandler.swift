@@ -12,7 +12,7 @@ struct CommonStakingPendingActionsHandler: StakingPendingActionsHandler {
     func mergeBalancesAndPendingActions(
         balances: [StakingBalance],
         actions: [PendingAction]?,
-        yield: YieldInfo
+        yield: StakingYieldInfo
     ) -> [StakingBalance] {
         guard let actions, !actions.isEmpty else { return balances }
         var result = balances

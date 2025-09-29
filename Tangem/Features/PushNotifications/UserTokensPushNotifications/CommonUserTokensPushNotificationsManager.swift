@@ -30,10 +30,6 @@ class CommonUserTokensPushNotificationsManager {
     private var updateTask: Task<Void, Error>?
     private var cancellables = Set<AnyCancellable>()
 
-    private var isAvailableFeatureToggle: Bool {
-        FeatureProvider.isAvailable(.pushTransactionNotifications)
-    }
-
     private var currentEntry: ApplicationWalletEntry? {
         userTokensPushNotificationsService.entries.first(where: { $0.id == userWalletId.stringValue })
     }
@@ -221,6 +217,6 @@ extension CommonUserTokensPushNotificationsManager: UserTokenListExternalParamet
     }
 
     func provideTokenListNotifyStatusValue() -> Bool? {
-        isAvailableFeatureToggle ? status.isActive : nil
+        status.isActive
     }
 }

@@ -393,7 +393,7 @@ extension XRPError: UniversalError {
     }
 }
 
-extension PolygonScanAPIError: UniversalError {
+extension EtherscanAPIError: UniversalError {
     public var errorCode: Int {
         switch self {
         case .endOfTransactionHistoryReached:

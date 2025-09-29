@@ -9,34 +9,34 @@
 import SwiftUI
 import TangemAssets
 
-public struct GridItemColor: Identifiable, Equatable {
-    public let id: String
+public struct GridItemColor<ID: Hashable>: Identifiable, Equatable {
+    public let id: ID
     public let color: Color
 
-    public init(_ color: Color) {
+    public init(id: ID, color: Color) {
+        self.id = id
         self.color = color
-        id = color.description
     }
 }
 
-public struct GridItemImage: Identifiable, Equatable {
-    public let id: String
+public struct GridItemImage<ID: Hashable>: Identifiable, Equatable {
+    public let id: ID
     public let kind: GridItemImageKind
 
-    public init(_ kind: GridItemImageKind) {
+    public init(id: ID, kind: GridItemImageKind) {
+        self.id = id
         self.kind = kind
-        id = "\(kind.imageType.hashValue)"
     }
 }
 
 public enum GridItemImageKind: Equatable {
     case image(ImageType)
-    case letter(ImageType)
+    case letter(visualImageRepresentation: ImageType)
 
     public var imageType: ImageType {
         switch self {
         case .image(let imageType): imageType
-        case .letter(let imageType): imageType
+        case .letter(let visualImageRepresentation): visualImageRepresentation
         }
     }
 }
