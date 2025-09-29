@@ -18,47 +18,110 @@ struct WCTransactionView: View {
     let kingfisherImageCache: ImageCache
 
     var body: some View {
+        floatingSheetContent
+            .safeAreaInset(edge: .top, spacing: 12) {
+                header
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                footer
+            }
+            .allowsHitTesting(viewModel.presentationState != .signing)
+            .animation(.contentFrameUpdate, value: viewModel.presentationState)
+            .floatingSheetConfiguration { configuration in
+                configuration.sheetBackgroundColor = Colors.Background.tertiary
+                configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
+                configuration.backgroundInteractionBehavior = .consumeTouches
+            }
+    }
+
+    private var floatingSheetContent: some View {
         ZStack {
             switch viewModel.presentationState {
             case .signing, .transactionDetails:
-                transactionDetails
-                    .transition(topEdgeTransition)
+                scrollableSections
+                    .transition(.content)
             case .requestData(let input):
                 WCRequestDetailsView(input: input)
-                    .transition(requestDetailsTransition)
+                    .transition(.content)
             case .feeSelector(let viewModel):
-                FeeSelectorContentView(viewModel: viewModel)
-                    .transition(topEdgeTransition)
-            case .customAllowance(let input):
-                WCCustomAllowanceView(input: input)
-                    .transition(bottomEdgeTransition)
-            case .securityAlert(let state, let input):
-                WCTransactionSecurityAlertView(state: state, input: input)
-                    .transition(bottomEdgeTransition)
+                WCFeeSelectorView(viewModel: viewModel)
+                    .transition(.content)
+            case .customAllowance(let viewModel):
+                WCCustomAllowanceView(viewModel: viewModel)
+                    .transition(.content)
+            case .securityAlert(let viewModel):
+                WCTransactionSecurityAlertView(viewModel: viewModel)
+                    .transition(.content)
             }
-        }
-        .allowsHitTesting(viewModel.presentationState != .signing)
-        .animation(.contentFrameUpdate, value: viewModel.presentationState)
-        .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.tertiary
-            configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-            configuration.backgroundInteractionBehavior = .consumeTouches
         }
     }
 
-    private var transactionDetails: some View {
-        ZStack(alignment: .bottom) {
-            VStack(spacing: 12) {
-                WalletConnectNavigationBarView(
-                    title: Localization.wcWalletConnect,
-                    closeButtonAction: { viewModel.handleViewAction(.dismissTransactionView) }
-                )
+    private var header: some View {
+        let title: String?
+        var backButtonAction: (() -> Void)? = { viewModel.handleViewAction(.returnTransactionDetails) }
+        var closeButtonAction: (() -> Void)? = nil
 
-                scrollableSections
-            }
-
-            actionButtons
+        switch viewModel.presentationState {
+        case .signing, .transactionDetails:
+            title = Localization.wcTransactionFlowTitle
+            backButtonAction = nil
+            closeButtonAction = { viewModel.handleViewAction(.dismissTransactionView) }
+        case .requestData:
+            title = Localization.wcTransactionRequestTitle
+        case .feeSelector:
+            title = Localization.commonNetworkFeeTitle
+        case .customAllowance:
+            title = Localization.wcCustomAllowanceTitle
+        case .securityAlert:
+            title = nil
         }
+
+        return WalletConnectNavigationBarView(
+            title: title,
+            backgroundColor: Colors.Background.tertiary,
+            backButtonAction: backButtonAction,
+            closeButtonAction: closeButtonAction
+        )
+        .id(viewModel.presentationState.stateId)
+        .transition(.opacity)
+        .transformEffect(.identity)
+        .animation(.headerOpacity.delay(0.2), value: viewModel.presentationState)
+    }
+
+    private var footer: some View {
+        ZStack {
+            switch viewModel.presentationState {
+            case .signing, .transactionDetails:
+                actionButtons
+                    .transformEffect(.identity)
+                    .transition(.footer)
+            case .requestData(let input):
+                requestDetailsFooter(input)
+                    .transformEffect(.identity)
+                    .transition(.footer)
+            case .feeSelector(let viewModel):
+                feeSelectorFooter(viewModel)
+                    .transformEffect(.identity)
+                    .transition(.footer)
+            case .customAllowance(let viewModel):
+                customAllowanceFooter(viewModel)
+                    .transformEffect(.identity)
+                    .transition(.footer)
+            case .securityAlert(let viewModel):
+                securityAlertFooter(viewModel: viewModel)
+                    .transformEffect(.identity)
+                    .transition(.footer)
+            }
+        }
+        .padding(16)
+        .background {
+            ListFooterOverlayShadowView(
+                color: Colors.Background.tertiary,
+                opacities: [0.0, 0.95, 1]
+            )
+            .padding(.top, 6)
+        }
+        .animation(.contentFrameUpdate, value: viewModel.presentationState.stateId)
     }
 
     private var actionButtons: some View {
@@ -81,10 +144,62 @@ struct WCTransactionView: View {
                 )
             )
         }
-        .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
-        .background(
-            ListFooterOverlayShadowView()
-                .padding(.top, -50)
+    }
+
+    private func requestDetailsFooter(_ input: WCRequestDetailsInput) -> some View {
+        MainButton(
+            title: Localization.wcCopyDataButtonText,
+            icon: .trailing(Assets.Glyphs.copy),
+            style: .primary,
+            size: .default,
+            action: input.copyTransactionData
+        )
+    }
+
+    private func customAllowanceFooter(_ viewModel: WCCustomAllowanceViewModel) -> some View {
+        MainButton(
+            title: Localization.commonDone,
+            isDisabled: !viewModel.canSubmit,
+            action: {
+                Task {
+                    await viewModel.handleViewAction(.done)
+                }
+            }
+        )
+    }
+
+    private func feeSelectorFooter(_ viewModel: FeeSelectorContentViewModel) -> some View {
+        MainButton(title: Localization.commonDone, action: viewModel.done)
+    }
+
+    private func securityAlertFooter(viewModel: WCTransactionSecurityAlertViewModel) -> some View {
+        VStack(spacing: 8) {
+            makeSecurityAlertButton(
+                from: viewModel.state.primaryButton,
+                action: { viewModel.handleViewAction(.primaryButtonTapped) }
+            )
+
+            makeSecurityAlertButton(
+                from: viewModel.state.secondaryButton,
+                icon: .trailing(Assets.tangemIcon),
+                action: { viewModel.handleViewAction(.secondaryButtonTapped) }
+            )
+        }
+    }
+
+    private func makeSecurityAlertButton(
+        from state: WCTransactionSecurityAlertState.ButtonSettings,
+        icon: MainButton.Icon? = nil,
+        action: @escaping () -> Void
+    ) -> MainButton {
+        MainButton(
+            settings: .init(
+                title: state.title,
+                icon: icon,
+                style: state.style,
+                isLoading: state.isLoading,
+                action: action
+            )
         )
     }
 }
@@ -100,7 +215,6 @@ private extension WCTransactionView {
                 }
 
                 simulationResultSection
-                    .transition(bottomEdgeTransition)
 
                 transactionDetailsContent
 
@@ -108,7 +222,7 @@ private extension WCTransactionView {
                     NotificationView(input: $0)
                 }
             }
-            .padding(.init(top: 0, leading: 16, bottom: Constants.scrollContentBottomPadding, trailing: 16))
+            .padding(.horizontal, 16)
         }
         .scrollBounceBehaviorBackport(.basedOnSize)
     }
@@ -190,66 +304,24 @@ private extension WCTransactionView {
     }
 }
 
-private extension WCTransactionView {
-    func makeDefaultAnimationCurve(duration: TimeInterval) -> Animation {
-        .curve(.easeOutStandard, duration: duration)
-    }
+private extension Animation {
+    static let headerOpacity = Animation.curve(.easeOutStandard, duration: 0.2)
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
+    static let footerOpacity = Animation.curve(.easeOutEmphasized, duration: 0.3)
+}
 
-    var transactionDetailsTransition: AnyTransition {
-        switch viewModel.transactionData.method {
-        case .personalSign, .solanaSignMessage:
-            bottomEdgeTransition
-        case .solanaSignTransaction, .solanaSignAllTransactions:
-            topEdgeTransition
-        case .signTypedData, .signTypedDataV4:
-            topEdgeTransition
-        default:
-            bottomEdgeTransition
-        }
-    }
+private extension AnyTransition {
+    static let content = AnyTransition.asymmetric(
+        insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
+        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
+    )
 
-    var requestDetailsTransition: AnyTransition {
-        switch viewModel.transactionData.method {
-        case .personalSign, .solanaSignMessage:
-            topEdgeTransition
-        case .solanaSignTransaction, .solanaSignAllTransactions:
-            bottomEdgeTransition
-        case .signTypedData, .signTypedDataV4:
-            bottomEdgeTransition
-        case .sendTransaction, .signTransaction:
-            bottomEdgeTransition
-        default:
-            topEdgeTransition
-        }
-    }
-
-    var bottomEdgeTransition: AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: .bottom).combined(with: mainContentOpacityTransitionWithDelay),
-            removal: .move(edge: .bottom).combined(with: mainContentOpacityTransition)
-        )
-    }
-
-    var topEdgeTransition: AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: .top).combined(with: mainContentOpacityTransitionWithDelay),
-            removal: .move(edge: .top).combined(with: mainContentOpacityTransition)
-        )
-    }
-
-    var mainContentOpacityTransition: AnyTransition {
-        .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
-    }
-
-    var mainContentOpacityTransitionWithDelay: AnyTransition {
-        .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2))
-    }
+    static let footer = AnyTransition.asymmetric(
+        insertion: .offset(y: 200).combined(with: .opacity.animation(.footerOpacity.delay(0.2))),
+        removal: .offset(y: 200).combined(with: .opacity.animation(.footerOpacity))
+    )
 }
 
 private enum Constants {
     static var scrollContentBottomPadding: CGFloat { MainButton.Size.default.height + 28 }
-}
-
-private extension Animation {
-    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
 }

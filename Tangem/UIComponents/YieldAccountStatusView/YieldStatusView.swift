@@ -82,8 +82,7 @@ struct YieldStatusView: View {
     }
 
     private var warning: some View {
-        Assets.WalletConnect.yellowWarningCircle.image
-            .frame(size: .init(bothDimensions: 20))
+        Assets.attention20.image
     }
 
     private var chevron: some View {
