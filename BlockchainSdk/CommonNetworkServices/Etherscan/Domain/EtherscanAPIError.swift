@@ -1,5 +1,5 @@
 //
-//  PolygonScanAPIError.swift
+//  EtherscanAPIError.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum PolygonScanAPIError: Error {
+enum EtherscanAPIError: Error {
     case maxRateLimitReached
     case endOfTransactionHistoryReached
     case unknown

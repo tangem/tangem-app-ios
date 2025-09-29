@@ -51,8 +51,8 @@ final class UserSettingsAccountsViewModel: ObservableObject {
                 AddListItemButton.ViewData(
                     text: Localization.accountFormCreateButton,
                     isEnabled: enabled,
-                    action: {
-                        viewModel.onTapNewAccount()
+                    action: { [weak self] in
+                        self?.onTapNewAccount()
                     }
                 )
             }

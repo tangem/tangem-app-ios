@@ -40,6 +40,7 @@ enum StorageType: String {
     case showReferralProgramOnMain = "tangem_show_referral_program_on_main"
     case marketsTooltipWasShown = "tangem_markets_tooltip_was_shown"
     case startWalletUsageDate = "tangem_start_wallet_usage_date"
+    case startAppUsageDate = "tangem_start_app_usage_date"
     case tronWarningWithdrawTokenDisplayed = "tron_warning_withdraw_token_displayed"
     case applicationUid = "application_uid"
     case lastStoredFCMToken = "last_stored_FCM_token"
@@ -49,4 +50,5 @@ enum StorageType: String {
     case useBiometricAuthentication = "use_biometric_authentication"
     case settingsVersion = "settings_version"
     case userWalletIdsWithSkippedAccessCode = "user_wallet_ids_with_skipped_access_code"
+    case tangemPayOrderIdForCustomerWalletAddress = "tangem_pay_order_id_for_customer_wallet_address"
 }

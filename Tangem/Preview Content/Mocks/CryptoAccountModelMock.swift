@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemLocalization
 
 final class CryptoAccountModelMock {
     let id = AccountId()
@@ -66,7 +67,7 @@ extension CryptoAccountModelMock: CryptoAccountModel {
     }
 
     var descriptionString: String {
-        ""
+        Localization.accountFormAccountIndex(0)
     }
 
     func setName(_ name: String) {

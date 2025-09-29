@@ -100,9 +100,13 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         self.flowType = flowType
         self.closeAction = closeAction
         self.accountModelsManager = accountModelsManager
+        description = if let cryptoAccount = flowType.account as? any CryptoAccountModel {
+            cryptoAccount.descriptionString
+        } else {
+            nil
+        }
 
-        let snapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
-        initialStateSnapshot = snapshot
+        initialStateSnapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
 
         bind()
     }
@@ -205,15 +209,13 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        accountModelsManager.totalAccountsAmount
+        accountModelsManager.totalAccountsCountPublisher
             .withWeakCaptureOf(self)
             .map { viewModel, amount in
-                switch viewModel.flowType {
-                case .create:
-                    return Localization.accountFormAccountIndex(amount)
-
-                case .edit(let account):
-                    return Localization.accountFormAccountIndex(account.descriptionString)
+                if case .create(let createdAccountType) = viewModel.flowType {
+                    Localization.accountFormAccountIndex(amount)
+                } else {
+                    nil
                 }
             }
             .assign(to: \.description, on: self, ownership: .weak)
@@ -232,11 +234,10 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
     private func makeUnableToCreateAccountAlert() -> AlertBinder {
         AlertBuilder.makeAlert(
-            title: "Something went wrong",
-            message: "We couldn’t create account. Please try again later.",
+            title: Localization.commonSomethingWentWrong,
+            message: Localization.accountCouldNotCreate,
             primaryButton: .default(Text(Localization.commonOk))
         )
     }
@@ -245,7 +246,26 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 extension AccountFormViewModel {
     enum FlowType {
         case edit(account: any BaseAccountModel)
-        case create
+        case create(CreatedAccountType)
+
+        var account: (any BaseAccountModel)? {
+            switch self {
+            case .create: nil
+            case .edit(let account): account
+            }
+        }
+    }
+}
+
+extension AccountFormViewModel.FlowType {
+    enum CreatedAccountType {
+        case crypto
+
+        @available(*, unavailable, message: "This account type is not implemented yet")
+        case smart
+
+        @available(*, unavailable, message: "This account type is not implemented yet")
+        case visa
     }
 }
 

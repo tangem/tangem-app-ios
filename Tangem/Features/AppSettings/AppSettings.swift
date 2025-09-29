@@ -15,6 +15,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.numberOfAppLaunches)
     var numberOfLaunches: Int = 0
 
+    @AppStorageCompat(StorageType.startAppUsageDate)
+    var startAppUsageDate: Date? = nil
+
     @AppStorageCompat(StorageType.cardsStartedActivation)
     var cardsStartedActivation: [String] = []
 
@@ -127,6 +130,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.settingsVersion)
     var settingsVersion: Int = 0
+
+    @AppStorageCompat(StorageType.tangemPayOrderIdForCustomerWalletAddress)
+    var tangemPayOrderIdForCustomerWalletAddress: [String: String] = [:]
 
     static let shared: AppSettings = .init()
 

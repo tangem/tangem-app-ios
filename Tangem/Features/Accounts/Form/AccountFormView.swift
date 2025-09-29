@@ -168,7 +168,7 @@ struct AccountFormView: View {
 #Preview {
     @Previewable @ObservedObject var viewModel = AccountFormViewModel(
         accountModelsManager: AccountModelsManagerMock(),
-        flowType: .create,
+        flowType: .create(.crypto),
         closeAction: {}
     )
 
