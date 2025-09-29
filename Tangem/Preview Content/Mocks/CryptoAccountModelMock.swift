@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemLocalization
 
 final class CryptoAccountModelMock {
     let id = AccountId()
@@ -25,7 +26,7 @@ final class CryptoAccountModelMock {
     }
 
     private(set) var icon = AccountModel.Icon(
-        name: .allCases.randomElement()!,
+        name: AccountModel.Icon.Name.allCases.randomElement()!,
         color: .allCases.randomElement()!
     ) {
         didSet {
@@ -65,11 +66,15 @@ extension CryptoAccountModelMock: CryptoAccountModel {
         didChangeSubject.eraseToAnyPublisher()
     }
 
-    func setName(_ name: String) async throws {
+    var descriptionString: String {
+        Localization.accountFormAccountIndex(0)
+    }
+
+    func setName(_ name: String) {
         self.name = name
     }
 
-    func setIcon(_ icon: AccountModel.Icon) async throws {
+    func setIcon(_ icon: AccountModel.Icon) {
         self.icon = icon
     }
 }
