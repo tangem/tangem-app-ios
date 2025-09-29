@@ -12,10 +12,12 @@ import TangemFoundation
 
 final class AccountModelsManagerMock {
     private let accountModelsSubject = PassthroughSubject<[AccountModel], Never>()
+    private let totalAccountsCountSubject = PassthroughSubject<Int, Never>()
 
     private var cryptoAccounts: [CryptoAccountModelMock] = [] {
         didSet {
             accountModelsSubject.send([.standard(.init(accounts: cryptoAccounts))])
+            totalAccountsCountSubject.send(cryptoAccounts.count)
         }
     }
 
@@ -41,6 +43,10 @@ extension AccountModelsManagerMock: AccountModelsManager {
 
     var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
         .just(output: false)
+    }
+
+    var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+        totalAccountsCountSubject.eraseToAnyPublisher()
     }
 
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {

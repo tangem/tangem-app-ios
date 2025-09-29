@@ -17,6 +17,7 @@ public struct AccountIconView: View {
     private var padding: CGFloat = 0
     private var cornerRadius: CGFloat = 0
     private var size: CGSize = .init(bothDimensions: 16)
+    private var letterFontStyle: Font = Fonts.Bold.largeTitle
 
     public init(backgroundColor: Color, nameMode: NameMode) {
         self.backgroundColor = backgroundColor
@@ -25,6 +26,7 @@ public struct AccountIconView: View {
 
     public var body: some View {
         label
+            .frame(size: size)
             .roundedBackground(with: backgroundColor, padding: padding, radius: cornerRadius)
             .animation(.default, value: nameMode)
     }
@@ -34,13 +36,12 @@ public struct AccountIconView: View {
         switch nameMode {
         case .letter(let letter):
             Text(letter)
-                .style(Fonts.Bold.largeTitle, color: Colors.Text.constantWhite)
+                .style(letterFontStyle, color: Colors.Text.constantWhite)
 
         case .imageType(let imageType, let config):
             imageType.image
                 .renderingMode(.template)
                 .resizable()
-                .frame(size: size)
                 .foregroundStyle(Colors.Text.constantWhite)
                 .opacity(config.opacity)
         }
@@ -83,5 +84,9 @@ extension AccountIconView: Setupable {
 
     public func imageSize(_ value: CGSize) -> Self {
         map { $0.size = value }
+    }
+
+    public func letterFontStyle(_ value: Font) -> Self {
+        map { $0.letterFontStyle = value }
     }
 }
