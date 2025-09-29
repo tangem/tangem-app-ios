@@ -68,8 +68,14 @@ public enum AccountFormGridViewConstants {
 #if DEBUG
 @available(iOS 17.0, *)
 #Preview {
-    @Previewable @State var selectedColor = GridItemColor(Colors.Accounts.caribbeanBlue)
-    @Previewable @State var selectedImage = GridItemImage(.image(Assets.Accounts.airplane))
+    @Previewable @State var selectedColor = GridItemColor(
+        id: Colors.Accounts.caribbeanBlue.description,
+        color: Colors.Accounts.caribbeanBlue
+    )
+    @Previewable @State var selectedImage = GridItemImage(
+        id: Assets.Accounts.airplane.hashValue,
+        kind: .image(Assets.Accounts.airplane)
+    )
 
     let colors = [
         Colors.Accounts.azureBlue,
@@ -84,7 +90,7 @@ public enum AccountFormGridViewConstants {
         Colors.Accounts.sweetDesire,
         Colors.Accounts.ufoGreen,
         Colors.Accounts.vitalGreen,
-    ].map(GridItemColor.init)
+    ].map { GridItemColor(id: $0.description, color: $0) }
 
     let images = [
         Assets.Accounts.letter,
@@ -106,8 +112,10 @@ public enum AccountFormGridViewConstants {
         Assets.Accounts.user,
         Assets.Accounts.walletAccounts,
     ].map {
-        let kind: GridItemImageKind = $0 == Assets.Accounts.letter ? .letter($0) : .image($0)
-        return GridItemImage(kind)
+        let kind: GridItemImageKind = $0 == Assets.Accounts.letter
+            ? .letter(visualImageRepresentation: $0)
+            : .image($0)
+        return GridItemImage(id: $0.hashValue, kind: kind)
     }
 
     ZStack {
