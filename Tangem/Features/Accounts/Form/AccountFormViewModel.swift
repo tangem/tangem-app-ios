@@ -212,7 +212,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         accountModelsManager.totalAccountsCountPublisher
             .withWeakCaptureOf(self)
             .map { viewModel, amount in
-                if case .create(let createdAccountType) = viewModel.flowType {
+                if case .create = viewModel.flowType {
                     Localization.accountFormAccountIndex(amount)
                 } else {
                     nil
