@@ -62,42 +62,23 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
     // MARK: - Private Implementation
 
     private func zoneDerived(key: ExtendedPublicKey, with derivationPath: DerivationPath) throws -> Wallet.PublicKey.HDKey {
-        var storedKey: Wallet.PublicKey.HDKey?
-        var error: Error?
-        let semaphore = DispatchSemaphore(value: 0)
+        var storedKey: Wallet.PublicKey.HDKey
 
-        Task {
-            do {
-                let storageKeySuffix = key.publicKey.getSha256().hexString
-                let cacheDerivedKey: Wallet.PublicKey.HDKey? = await dataStorage.get(key: storageKeySuffix)
+        let storageKeySuffix = key.publicKey.getSha256().hexString
+        let cacheDerivedKey: Wallet.PublicKey.HDKey? = dataStorage.get(key: storageKeySuffix)
 
-                if let cacheDerivedKey {
-                    storedKey = cacheDerivedKey
-                } else {
-                    let zoneDerivedResult = try quaiDerivationUtils.derive(extendendPublicKey: key, with: .default)
-                    let zoneDerivationPath = derivationPath.extendedPath(with: zoneDerivedResult.1)
-
-                    let derivedHDKey = Wallet.PublicKey.HDKey(path: zoneDerivationPath, extendedPublicKey: zoneDerivedResult.0)
-
-                    await dataStorage.store(key: storageKeySuffix, value: derivedHDKey)
-                    storedKey = derivedHDKey
-                }
-            } catch let e {
-                error = e
-            }
-            semaphore.signal()
-        }
-
-        semaphore.wait()
-
-        if let error {
-            throw error
-        }
-
-        if let storedKey {
-            return storedKey
+        if let cacheDerivedKey {
+            storedKey = cacheDerivedKey
         } else {
-            throw BlockchainSdkError.failedToConvertPublicKey
+            let zoneDerivedResult = try quaiDerivationUtils.derive(extendendPublicKey: key, with: .default)
+            let zoneDerivationPath = derivationPath.extendedPath(with: zoneDerivedResult.1)
+
+            let derivedHDKey = Wallet.PublicKey.HDKey(path: zoneDerivationPath, extendedPublicKey: zoneDerivedResult.0)
+
+            dataStorage.store(key: storageKeySuffix, value: derivedHDKey)
+            storedKey = derivedHDKey
         }
+
+        return storedKey
     }
 }

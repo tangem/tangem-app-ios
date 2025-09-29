@@ -12,6 +12,14 @@ import BlockchainSdk
 final class FakeBlockchainDataStorage: BlockchainDataStorage {
     private var storage: [String: Any] = [:]
 
+    func get<BlockchainData>(key: String) -> BlockchainData? where BlockchainData: Decodable {
+        return storage[key] as? BlockchainData
+    }
+
+    func store<BlockchainData>(key: String, value: BlockchainData?) where BlockchainData: Encodable {
+        storage[key] = value
+    }
+
     func get<BlockchainData>(key: String) async -> BlockchainData? where BlockchainData: Decodable {
         return storage[key] as? BlockchainData
     }

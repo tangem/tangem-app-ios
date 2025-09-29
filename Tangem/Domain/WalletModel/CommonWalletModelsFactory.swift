@@ -117,7 +117,6 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         let currentBlockchain = blockchainNetwork.blockchain
         let currentDerivation = blockchainNetwork.derivationPath
         let isMainCoinCustom = !isDerivationDefault(blockchain: currentBlockchain, derivationPath: currentDerivation)
-        let blockchainNetwork = BlockchainNetwork(currentBlockchain, derivationPath: currentDerivation)
         let sendAvailabilityProvider = TransactionSendAvailabilityProvider(isSendingSupportedByCard: config.hasFeature(.send))
         let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
 

@@ -14,13 +14,7 @@ import TangemSdk
 public struct QuaiDerivationUtils {
     // MARK: - Private Properties
 
-    private let addressService = EVMAddressService()
-    private let expectedZone: QuaiZoneType = .cyprus1
-
-    // MARK: - Constants
-
-    private static let cyprus1FirstByte: UInt8 = 0x00
-    private static let cyprus1NinthBitMask: UInt8 = 0x01
+    private let addressService = QuaiAddressService()
 
     // MARK: - Init
 
@@ -38,43 +32,18 @@ public struct QuaiDerivationUtils {
                 with: addressType
             )
 
-            if checkAddressZone(address: zoneAddress.value, expectedZone: expectedZone) {
+            if addressService.isAddressZoneValid(address: zoneAddress.value) {
                 return (derivedKey, derivedNode)
             }
         }
 
         throw BlockchainSdkError.addressesIsEmpty
     }
-
-    // MARK: - Private Implementation
-
-    private func checkAddressZone(address: String, expectedZone: QuaiZoneType) -> Bool {
-        let cleanAddress = address.removeHexPrefix()
-        let addressBytes = Data(hexString: cleanAddress)
-
-        // Check if address has at least 2 bytes
-        guard addressBytes.count >= 2 else {
-            return false
-        }
-
-        let firstByte = addressBytes[0]
-        let secondByte = addressBytes[1]
-
-        // Validate based on expected zone
-        switch expectedZone {
-        case .cyprus1:
-            let hasCorrectFirstByte = firstByte == Self.cyprus1FirstByte
-            let ninthBit = (secondByte & Self.cyprus1NinthBitMask) == 0
-            return hasCorrectFirstByte && ninthBit
-        case .cyprus2, .cyprus3, .paxos1, .paxos2, .paxos3, .hydra1, .hydra2, .hydra3:
-            // To be implemented for future use. Currently, only cyprus1 is used.
-            return false
-        }
-    }
 }
 
 extension QuaiDerivationUtils {
     enum Constants {
+        /// https://github.com/dominant-strategies/quais.js/blob/master/src/wallet/bip44/bip44.ts#L18
         static let maxDerivationAttempts: UInt32 = 10_000_000
     }
 }

@@ -17,12 +17,20 @@ import Foundation
  */
 enum QuaiZoneType: String, CaseIterable {
     case cyprus1 = "0x00"
-    case cyprus2 = "0x01"
-    case cyprus3 = "0x02"
-    case paxos1 = "0x10"
-    case paxos2 = "0x11"
-    case paxos3 = "0x12"
-    case hydra1 = "0x20"
-    case hydra2 = "0x21"
-    case hydra3 = "0x22"
+
+    // MARK: - Constants
+
+    var cyprus1FirstByte: UInt8 {
+        switch self {
+        case .cyprus1:
+            return 0x00
+        }
+    }
+
+    var cyprus1NinthBitMask: UInt8 {
+        switch self {
+        case .cyprus1:
+            return 0x01
+        }
+    }
 }

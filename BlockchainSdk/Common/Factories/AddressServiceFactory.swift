@@ -157,8 +157,6 @@ public struct AddressServiceFactory {
             return AlephiumAddressService()
         case .pepecoin:
             return PepecoinAddressService(isTestnet: isTestnet)
-//        case .quai:
-//            return QuaiAddressService()
         }
     }
 }

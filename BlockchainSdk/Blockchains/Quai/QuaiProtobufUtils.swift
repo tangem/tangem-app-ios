@@ -34,16 +34,9 @@ struct QuaiProtobufUtils {
         sSignature32: Data // must be 32 bytes
     ) -> Data {
         var result = buildCommonTransactionFields(signingInput: signingInput)
-
-        // "V" (field 10) - bytes (yParity: 0x00 or 0x01)
         result.append(encodeBytes(fieldNumber: Constants.field10AccessV, value: vSignature))
-
-        // "R" (field 11) - bytes (signature 32 bytes)
         result.append(encodeBytes(fieldNumber: Constants.field11AccessR, value: rSignature32))
-
-        // "S" (field 12) - bytes (signature 32 bytes)
         result.append(encodeBytes(fieldNumber: Constants.field12AccessS, value: sSignature32))
-
         return result
     }
 
@@ -52,37 +45,28 @@ struct QuaiProtobufUtils {
     private func buildCommonTransactionFields(signingInput: EthereumSigningInput) -> Data {
         var result = Data()
 
-        // "Type" (field 1) - uint64 (QuaiTxType = 0)
         result.append(encodeVarInt(fieldNumber: Constants.field1Type, value: UInt64(0)))
 
-        // "To" (field 2) - bytes (20 bytes address from hex)
         let toAddress = Data(hex: signingInput.toAddress)
         result.append(encodeBytes(fieldNumber: Constants.field2To, value: toAddress))
 
-        // "Nonce" (field 3) - uint64
         let nonceValue = BigUInt(signingInput.nonce)
         result.append(encodeVarInt(fieldNumber: Constants.field3Nonce, value: nonceValue))
 
-        // "Value" (field 4) - bytes (unsigned, no leading 0x00s)
         let valueBytes = stripLeadingZeros(signingInput.transaction.contractGeneric.amount)
         result.append(encodeBytes(fieldNumber: Constants.field4Value, value: valueBytes))
 
-        // "Gas" (field 5) - uint64
         let gasValue = BigUInt(signingInput.gasLimit)
         result.append(encodeVarInt(fieldNumber: Constants.field5Gas, value: gasValue))
 
-        // "Data" (field 6) - bytes
         result.append(encodeBytes(fieldNumber: Constants.field6Data, value: signingInput.transaction.contractGeneric.data))
 
-        // "ChainId" (field 7) - bytes (unsigned, minimal)
         let chainIdBytes = stripLeadingZeros(signingInput.chainID)
         result.append(encodeBytes(fieldNumber: Constants.field7ChainId, value: chainIdBytes))
 
-        // "GasPrice" (field 8) - bytes (unsigned, minimal)
         let gasPriceBytesSigned = stripLeadingZeros(signingInput.gasPrice)
         result.append(encodeBytes(fieldNumber: Constants.field8GasPrice, value: gasPriceBytesSigned))
 
-        // "AccessList" (field 9) - empty for now
         result.append(encodeBytes(fieldNumber: Constants.field9AccessList, value: Data()))
 
         return result

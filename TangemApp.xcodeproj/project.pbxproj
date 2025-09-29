@@ -522,6 +522,8 @@
 		2DCDE4612DE60F14007ECD34 /* ApplicationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */; };
 		2DCDE4622DE60F14007ECD34 /* NotificationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45D2DE60F14007ECD34 /* NotificationDTO.swift */; };
 		2DD367342D7F374900BB8DCF /* RequiredMemoRestrictable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD367332D7F374900BB8DCF /* RequiredMemoRestrictable.swift */; };
+		2DD4EB152E8ABA0600DD3784 /* CommonEthereumTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD4EB142E8ABA0600DD3784 /* CommonEthereumTransactionBuilder.swift */; };
+		2DD4EB172E8AC34100DD3784 /* QuaiAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD4EB162E8AC34100DD3784 /* QuaiAddressService.swift */; };
 		2DD5C39A2C4EA6570000658D /* MarketsListPrefetchDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD5C3982C4EA6570000658D /* MarketsListPrefetchDataSource.swift */; };
 		2DD5C39B2C4EA6570000658D /* MarketsListDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD5C3992C4EA6570000658D /* MarketsListDataController.swift */; };
 		2DD669352E28D0DC006D715A /* SolanaALTLookupTableDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD669342E28D0DC006D715A /* SolanaALTLookupTableDispatcher.swift */; };
@@ -4765,6 +4767,8 @@
 		2DCDE45D2DE60F14007ECD34 /* NotificationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDTO.swift; sourceTree = "<group>"; };
 		2DCDE45E2DE60F14007ECD34 /* UserWalletDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletDTO.swift; sourceTree = "<group>"; };
 		2DD367332D7F374900BB8DCF /* RequiredMemoRestrictable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequiredMemoRestrictable.swift; sourceTree = "<group>"; };
+		2DD4EB142E8ABA0600DD3784 /* CommonEthereumTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonEthereumTransactionBuilder.swift; sourceTree = "<group>"; };
+		2DD4EB162E8AC34100DD3784 /* QuaiAddressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuaiAddressService.swift; sourceTree = "<group>"; };
 		2DD5C3982C4EA6570000658D /* MarketsListPrefetchDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsListPrefetchDataSource.swift; sourceTree = "<group>"; };
 		2DD5C3992C4EA6570000658D /* MarketsListDataController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsListDataController.swift; sourceTree = "<group>"; };
 		2DD669342E28D0DC006D715A /* SolanaALTLookupTableDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaALTLookupTableDispatcher.swift; sourceTree = "<group>"; };
@@ -9874,6 +9878,7 @@
 				2DE3DF9C2E72C6CD00A687FC /* QuaiZoneUtils.swift */,
 				2DDD3EE82E859F5700C164AF /* QuaiTransactionBuilder.swift */,
 				2DDD3EEA2E85A54700C164AF /* QuaiWalletAssembly.swift */,
+				2DD4EB162E8AC34100DD3784 /* QuaiAddressService.swift */,
 			);
 			path = Quai;
 			sourceTree = "<group>";
@@ -13348,6 +13353,7 @@
 				B62D3D082CBC79D900C2460E /* EthereumWalletAssembly.swift */,
 				B62D3D092CBC79D900C2460E /* EthereumWalletManager.swift */,
 				2D9FAB922E13E118005AE305 /* EVMAddressService.swift */,
+				2DD4EB142E8ABA0600DD3784 /* CommonEthereumTransactionBuilder.swift */,
 				B62D3CC22CBC79D900C2460E /* ABI */,
 				2D9FAB9B2E13E51D005AE305 /* ENS */,
 				B62D3CCD2CBC79D900C2460E /* EthereumAddressConverter */,
@@ -24782,7 +24788,6 @@
 				2D5DCC312C3309F1000EE379 /* MarketsTokensNetworkSelectorViewModel.swift in Sources */,
 				DA4055292ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift in Sources */,
 				DAE4BB102CD7965A0020CE3F /* OnrampSettingsViewModel.swift in Sources */,
-				EF0FBB6A2C53BE1E0095A6BD /* SendDestinationCompactViewModel.swift in Sources */,
 				EA7D8D0A2E7D7E98004EC19A /* YieldNoticeReceiveView.swift in Sources */,
 				B6934E8D2B5EAF88004AA300 /* RateAppControllerStub.swift in Sources */,
 				B6F535112E717CB20000CD13 /* AccountsDTO.Response.Accounts.swift in Sources */,
@@ -25903,6 +25908,7 @@
 				B62D42A32CBC79DB00C2460E /* BlockchainSdkKeysConfig.swift in Sources */,
 				B62D41572CBC79DA00C2460E /* SubscanAPIResult.swift in Sources */,
 				B62D406C2CBC79DA00C2460E /* CosmosProtoMessage.pb.swift in Sources */,
+				2DD4EB152E8ABA0600DD3784 /* CommonEthereumTransactionBuilder.swift in Sources */,
 				B62D41492CBC79DA00C2460E /* NEARTransactionParams.swift in Sources */,
 				B62D40AD2CBC79DA00C2460E /* EthereumPoWExternalLinkProvider.swift in Sources */,
 				EFF3038F2DA6B07600F3DC5E /* BitcoinScript.swift in Sources */,
@@ -26421,6 +26427,7 @@
 				B62D3FF72CBC79DA00C2460E /* OP_NOP.swift in Sources */,
 				B62D3FB12CBC79DA00C2460E /* AptosNetworkProvider.swift in Sources */,
 				B62D40492CBC79DA00C2460E /* CardanoAssetFilter.swift in Sources */,
+				2DD4EB172E8AC34100DD3784 /* QuaiAddressService.swift in Sources */,
 				B62D42632CBC79DB00C2460E /* TransactionHistoryProviderFactory.swift in Sources */,
 				B62D426C2CBC79DB00C2460E /* MaximumAmountRestrictable.swift in Sources */,
 				B62D40362CBC79DA00C2460E /* BitcoinCashNetworkService.swift in Sources */,
