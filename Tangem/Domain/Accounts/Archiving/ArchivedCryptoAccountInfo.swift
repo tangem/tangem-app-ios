@@ -49,15 +49,15 @@ extension ArchivedCryptoAccountInfo: Identifiable {
 // MARK: - BaseAccountModel protocol conformance
 
 extension ArchivedCryptoAccountInfo: BaseAccountModel {
+    func setIcon(_ icon: AccountModel.Icon) {
+        assertionFailure("Should never be called")
+    }
+
+    func setName(_ name: String) {
+        assertionFailure("Should never be called")
+    }
+
     var didChangePublisher: AnyPublisher<Void, Never> {
         .empty
-    }
-
-    func setName(_ name: String) async throws {
-        throw "Archived account is read-only"
-    }
-
-    func setIcon(_ icon: AccountModel.Icon) async throws {
-        throw "Archived account is read-only"
     }
 }
