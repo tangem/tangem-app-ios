@@ -28,8 +28,8 @@ struct ImportWalletSelectorView: View {
             .background(Colors.Background.primary.ignoresSafeArea(edges: .vertical))
             .ignoresSafeArea(.keyboard)
             .readGeometry(\.frame.maxY, inCoordinateSpace: .global, bindTo: $screenMaxY)
-            .onAppear(perform: viewModel.onAppear)
             .background(Colors.Background.primary)
+            .onFirstAppear(perform: viewModel.onAppear)
             .alert(item: $viewModel.error, content: { $0.alert })
             .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
             .sheet(item: $viewModel.mailViewModel) {
