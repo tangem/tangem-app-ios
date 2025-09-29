@@ -265,6 +265,7 @@ extension Analytics {
         case onboardingSeedImportScreenOpened = "[Onboarding / Seed Phrase] Import Seed Phrase Screen Opened"
 
         case onboardingSeedScreenCapture = "[Onboarding / Seed Phrase] Screen Capture"
+        case onboardingSeedImportWalletScreenOpened = "[Onboarding / Seed Phrase] Import Wallet Screen Opened"
 
         // MARK: Express
 
