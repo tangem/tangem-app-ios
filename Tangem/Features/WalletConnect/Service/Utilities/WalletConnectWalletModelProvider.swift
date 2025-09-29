@@ -40,7 +40,7 @@ struct CommonWalletConnectWalletModelProvider: WalletConnectWalletModelProvider 
                     && $0.defaultAddressString.caseInsensitiveCompare(address) == .orderedSame
             })
         else {
-            throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainId)
+            throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
         }
 
         return model
@@ -57,7 +57,7 @@ struct CommonWalletConnectWalletModelProvider: WalletConnectWalletModelProvider 
 
 struct NotSupportedWalletConnectWalletModelProvider: WalletConnectWalletModelProvider {
     func getModel(with address: String, blockchainId: String) throws -> any WalletModel {
-        throw WalletConnectTransactionRequestProcessingError.wrongCardSelected
+        throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
     }
 
     func getModels(with blockchainId: String) -> [any WalletModel] {
