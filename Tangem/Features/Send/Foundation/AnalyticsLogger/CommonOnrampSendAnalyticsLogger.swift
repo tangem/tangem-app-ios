@@ -18,6 +18,21 @@ class CommonOnrampSendAnalyticsLogger {
         self.tokenItem = tokenItem
         self.source = source
     }
+
+    private func logOnrampButtonBuy(provider: OnrampProvider?) {
+        guard let provider, let request = try? provider.makeOnrampQuotesRequestItem() else {
+            return
+        }
+
+        Analytics.log(
+            event: .onrampButtonBuy,
+            params: [
+                .provider: provider.provider.name,
+                .currency: request.pairItem.fiatCurrency.identity.code,
+                .token: tokenItem.currencySymbol,
+            ]
+        )
+    }
 }
 
 // MARK: - SendBaseViewAnalyticsLogger
@@ -54,17 +69,7 @@ extension CommonOnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
     func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {
         switch (type, flow) {
         case (.action, .onramp):
-            if let provider = onrampProvidersInput?.selectedOnrampProvider,
-               let request = try? provider.makeOnrampQuotesRequestItem() {
-                Analytics.log(
-                    event: .onrampButtonBuy,
-                    params: [
-                        .provider: provider.provider.name,
-                        .currency: request.pairItem.fiatCurrency.identity.code,
-                        .token: tokenItem.currencySymbol,
-                    ]
-                )
-            }
+            logOnrampButtonBuy(provider: onrampProvidersInput?.selectedOnrampProvider)
         default:
             break
         }
@@ -83,6 +88,51 @@ extension CommonOnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
 
     func logCloseButton(stepType: SendStepType, isAvailableToAction: Bool) {
         Analytics.log(.onrampButtonClose)
+    }
+}
+
+// MARK: - SendOnrampOffersAnalyticsLogger
+
+extension CommonOnrampSendAnalyticsLogger: SendOnrampOffersAnalyticsLogger {
+    func logOnrampOfferButtonBuy(provider: OnrampProvider) {
+        logOnrampButtonBuy(provider: provider)
+    }
+
+    func logOnrampRecentlyUsedClicked(provider: OnrampProvider) {
+        Analytics.log(
+            event: .onrampRecentlyUsedClicked,
+            params: [
+                .token: tokenItem.currencySymbol,
+                .provider: provider.provider.name,
+                .paymentMethod: provider.paymentMethod.name,
+            ]
+        )
+    }
+
+    func logOnrampBestRateClicked(provider: OnrampProvider) {
+        Analytics.log(
+            event: .onrampBestRateClicked,
+            params: [
+                .token: tokenItem.currencySymbol,
+                .provider: provider.provider.name,
+                .paymentMethod: provider.paymentMethod.name,
+            ]
+        )
+    }
+
+    func logOnrampFastestMethodClicked(provider: OnrampProvider) {
+        Analytics.log(
+            event: .onrampFastestMethodClicked,
+            params: [
+                .token: tokenItem.currencySymbol,
+                .provider: provider.provider.name,
+                .paymentMethod: provider.paymentMethod.name,
+            ]
+        )
+    }
+
+    func logOnrampButtonAllOffers() {
+        Analytics.log(.onrampButtonAllOffers)
     }
 }
 
