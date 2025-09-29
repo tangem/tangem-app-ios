@@ -107,11 +107,11 @@ private extension MobileOnboardingViewModel {
             message: Localization.hwBackupCloseDescription,
             primaryButton: .cancel(
                 Text(Localization.commonNo),
-                action: weakify(self, forFunction: MobileOnboardingViewModel.onBackupNeedsAlertResume)
+                action: weakify(self, forFunction: MobileOnboardingViewModel.onBackupNeedsAlertNoAction)
             ),
             secondaryButton: .destructive(
                 Text(Localization.commonYes),
-                action: weakify(self, forFunction: MobileOnboardingViewModel.onBackupNeedsAlertClose)
+                action: weakify(self, forFunction: MobileOnboardingViewModel.onBackupNeedsAlertYesAction)
             )
         )
     }
@@ -151,18 +151,18 @@ private extension MobileOnboardingViewModel {
         closeOnboarding()
     }
 
-    func onBackupNeedsAlertResume() {
+    func onBackupNeedsAlertNoAction() {
         Analytics.log(
             .backupNoticeCanceled,
-            params: [.action: .resume],
+            params: [.action: .cancel],
             contextParams: .custom(.mobileWallet)
         )
     }
 
-    func onBackupNeedsAlertClose() {
+    func onBackupNeedsAlertYesAction() {
         Analytics.log(
             .backupNoticeCanceled,
-            params: [.action: .cancel],
+            params: [.action: .resume],
             contextParams: .custom(.mobileWallet)
         )
         closeOnboarding()
