@@ -30,6 +30,7 @@ enum CardMock: String, CaseIterable {
     case shibaNoWallets
     case wallet2NoWallets
     case walletNoBackup
+    case wallet2Imported
 
     var accessibilityIdentifier: String {
         switch self {
@@ -71,6 +72,8 @@ enum CardMock: String, CaseIterable {
             return CardMockAccessibilityIdentifiers.wallet2NoWallets.rawValue
         case .walletNoBackup:
             return CardMockAccessibilityIdentifiers.walletNoBackup.rawValue
+        case .wallet2Imported:
+            return CardMockAccessibilityIdentifiers.wallet2Imported.rawValue
         }
     }
 
@@ -127,6 +130,8 @@ enum CardMock: String, CaseIterable {
             return .none
         case .walletNoBackup:
             return .none
+        case .wallet2Imported:
+            return .none
         }
     }
 
@@ -170,6 +175,8 @@ enum CardMock: String, CaseIterable {
             return url(fileName: "wallet2NoWallets")
         case .walletNoBackup:
             return url(fileName: "walletNoBackup")
+        case .wallet2Imported:
+            return url(fileName: "wallet2Imported")
         }
     }
 
