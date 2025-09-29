@@ -309,7 +309,9 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel
+            addressTypesProvider: walletModel,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -351,6 +353,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             type: .send,
             source: .main
         )
+
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
@@ -479,7 +482,9 @@ extension MainCoordinator: VisaWalletRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: tokenItem,
-            addressTypesProvider: addressTypesProvider
+            addressTypesProvider: addressTypesProvider,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
