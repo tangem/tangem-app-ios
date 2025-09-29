@@ -118,7 +118,13 @@ struct CryptoAccountsNetworkMapper {
     private func mapBlockchainNetworkContainer(
         token: AccountsDTO.Response.Accounts.Token
     ) throws -> StoredCryptoAccount.Token.BlockchainNetworkContainer {
+        // Unknown blockchain
         guard let blockchain = supportedBlockchains[token.networkId] else {
+            return .unknown(networkId: token.networkId, rawDerivationPath: token.derivationPath)
+        }
+
+        // Known blockchain, but w/o tokens support
+        if !blockchain.canHandleTokens, token.contractAddress != nil {
             return .unknown(networkId: token.networkId, rawDerivationPath: token.derivationPath)
         }
 
