@@ -24,6 +24,7 @@ class CommonExpressModulesFactory {
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
     private lazy var expressRepository = makeExpressRepository()
+    private lazy var providersFilter = makeProvidersFilterIfRequired()
 
     init(inputModel: InputModel) {
         userWalletModel = inputModel.userWalletModel
@@ -195,10 +196,17 @@ private extension CommonExpressModulesFactory {
 
     // MARK: - Methods
 
+    func makeProvidersFilterIfRequired() -> ((ExpressProvider) -> Bool)? {
+        // guard case .active = initialWalletModel.yieldModuleManager.state else { return nil }
+        guard false else { return nil }
+        return { $0.type == .cex }
+    }
+
     func makeExpressRepository() -> ExpressRepository {
         CommonExpressRepository(
             walletModelsManager: walletModelsManager,
-            expressAPIProvider: expressAPIProvider
+            expressAPIProvider: expressAPIProvider,
+            providersFilter: providersFilter
         )
     }
 

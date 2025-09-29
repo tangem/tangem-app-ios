@@ -12,6 +12,7 @@ import TangemExpress
 actor CommonExpressRepository {
     private let walletModelsManager: WalletModelsManager
     private let expressAPIProvider: ExpressAPIProvider
+    private let providersFilter: ((ExpressProvider) -> Bool)?
 
     private var providers: [ExpressProvider] = []
     private var pairs: Set<ExpressPair> = []
@@ -21,10 +22,12 @@ actor CommonExpressRepository {
 
     init(
         walletModelsManager: WalletModelsManager,
-        expressAPIProvider: ExpressAPIProvider
+        expressAPIProvider: ExpressAPIProvider,
+        providersFilter: ((ExpressProvider) -> Bool)? = nil
     ) {
         self.walletModelsManager = walletModelsManager
         self.expressAPIProvider = expressAPIProvider
+        self.providersFilter = providersFilter
     }
 }
 
@@ -34,7 +37,12 @@ extension CommonExpressRepository: ExpressRepository {
             return providers
         }
 
-        let providers = try await expressAPIProvider.providers(branch: .swap)
+        var providers = try await expressAPIProvider.providers(branch: .swap)
+
+        if let providersFilter {
+            providers = providers.filter(providersFilter)
+        }
+
         self.providers = providers
         return providers
     }
