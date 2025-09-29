@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import Kingfisher
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 public struct EntitySummaryView: View {
     private let viewState: ViewState
@@ -104,6 +105,7 @@ public struct EntitySummaryView: View {
             Text(contentState.title)
                 .lineLimit(2)
                 .style(Fonts.Bold.title3.weight(.semibold), color: Colors.Text.primary1)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.entityProviderName)
                 .transition(.opacity)
 
         case .loading:
