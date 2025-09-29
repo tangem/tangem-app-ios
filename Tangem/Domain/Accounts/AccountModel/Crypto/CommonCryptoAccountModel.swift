@@ -115,11 +115,15 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         fatalError()
     }
 
-    func setName(_ name: String) async throws {
+    var descriptionString: String {
+        Localization.accountFormAccountIndex(derivationIndex)
+    }
+
+    func setName(_ name: String) {
         _name = name
     }
 
-    func setIcon(_ icon: AccountModel.Icon) async throws {
+    func setIcon(_ icon: AccountModel.Icon) {
         self.icon = icon
     }
 }
