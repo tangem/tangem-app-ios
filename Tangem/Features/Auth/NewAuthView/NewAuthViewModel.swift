@@ -142,23 +142,30 @@ private extension NewAuthViewModel {
 
             let unlockResult = await unlocker.unlock()
 
-            viewModel.signInAnalyticsLogger.logSignInEvent(signInType: unlocker.analyticsSignInType)
-
             if case .success = unlockResult, unlocker.analyticsSignInType == .card {
                 viewModel.cardScanAnalyticsLogger.log(action: .cardWasScanned, source: .auth)
             }
 
-            await viewModel.handleUnlock(result: unlockResult, userWalletModel: userWalletModel)
+            await viewModel.handleUnlock(
+                result: unlockResult,
+                userWalletModel: userWalletModel,
+                analyticsSignInType: unlocker.analyticsSignInType
+            )
         }
     }
 
-    func handleUnlock(result: UserWalletModelUnlockerResult, userWalletModel: UserWalletModel) async {
+    func handleUnlock(
+        result: UserWalletModelUnlockerResult,
+        userWalletModel: UserWalletModel,
+        analyticsSignInType: Analytics.SignInType
+    ) async {
         switch result {
         case .success(let userWalletId, let encryptionKey):
             do {
                 let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                 let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
                 await openMain(userWalletModel: userWalletModel)
+                signInAnalyticsLogger.logSignInEvent(signInType: analyticsSignInType)
             } catch {
                 incomingActionManager.discardIncomingAction()
                 await runOnMain {
@@ -227,10 +234,8 @@ private extension NewAuthViewModel {
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
-
-                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
-
                 await viewModel.openMain(userWalletModel: userWalletModel)
+                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
             } catch {
                 await viewModel.handleUnlockWithBiometryResult(error: error)
             }
