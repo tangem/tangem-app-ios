@@ -76,6 +76,8 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
                 throw WalletConnectTransactionRequestProcessingError.dataInWrongFormat("Signature count > 1")
             }
 
+            analyticsProvider.logReceiveHandleSolanaALTTransactionRequest()
+
             let transactionService = try SolanaALTTransactionService(
                 blockchain: walletModel.tokenItem.blockchain,
                 walletPublicKey: walletModel.publicKey,
