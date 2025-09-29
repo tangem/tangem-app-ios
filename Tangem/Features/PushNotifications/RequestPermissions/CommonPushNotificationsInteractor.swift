@@ -21,6 +21,7 @@ final class CommonPushNotificationsInteractor {
     @AppStorageCompat(StorageKeys.didRequestAuthorizationOnAfterLogin)
     private var canRequestAuthorizationOnAfterLogin: Bool? = nil
 
+    /// A solution is required date type from request feature Product Team.
     @AppStorageCompat(StorageKeys.didPostponeOnboardingCompletionDate)
     private var requestAuthorizationOnAfterLoginBannerCompletionDate: Date? = nil
 
@@ -111,15 +112,6 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
             }
 
             requestAuthorizationOnAfterLoginBannerCompletionDate = Date()
-
-            /*
-              A solution is required from Product Team
-
-              if let didPostponeOnboardingCompletionDate {
-                  let needDisplayBannerAfterLogin: Bool = Date().timeIntervalSince(didPostponeOnboardingCompletionDate) > Constants.showDurationAfterLoginBanner
-                  return needDisplayBannerAfterLogin
-              }
-             */
 
             return true
         }
