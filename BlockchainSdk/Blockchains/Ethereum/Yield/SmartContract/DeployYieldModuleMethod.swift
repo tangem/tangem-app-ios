@@ -10,13 +10,13 @@ import Foundation
 import BigInt
 
 public struct DeployYieldModuleMethod {
-    let sourceAddress: String
-    let tokenAddress: String
+    let walletAddress: String
+    let tokenContractAddress: String
     let maxNetworkFee: BigUInt
 
-    public init(sourceAddress: String, tokenAddress: String, maxNetworkFee: BigUInt) {
-        self.sourceAddress = sourceAddress
-        self.tokenAddress = tokenAddress
+    public init(walletAddress: String, tokenContractAddress: String, maxNetworkFee: BigUInt) {
+        self.walletAddress = walletAddress
+        self.tokenContractAddress = tokenContractAddress
         self.maxNetworkFee = maxNetworkFee
     }
 }
