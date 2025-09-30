@@ -47,8 +47,8 @@ struct AccountDetailsView: View {
             },
             trailingIcon: {
                 if viewModel.canBeEdited {
-                    RoundedButton(
-                        style: .string(Localization.commonEdit),
+                    CircleButton(
+                        content: .title(icon: .none, title: Localization.commonEdit),
                         action: viewModel.openEditAccount
                     )
                 }

@@ -108,8 +108,4 @@ extension AccountIconView: Setupable {
     public func letterFontStyle(_ value: Font) -> Self {
         map { $0.settings.letterFontStyle = value }
     }
-
-    public func letterFontStyle(_ value: Font) -> Self {
-        map { $0.letterFontStyle = value }
-    }
 }
