@@ -130,9 +130,20 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - Accounts
 
-    func getUserAccounts(userWalletId: String) async throws -> (revision: String, accounts: AccountsDTO.Response.Accounts)
-    func saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts) async throws
-    func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts
+    /// - Returns: New revision for optimistic locking and the list of active accounts.
+    func getUserAccounts(
+        userWalletId: String
+    ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts)
+
+    /// - Returns: New revision for optimistic locking.
+    func saveUserAccounts(
+        userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts
+    ) async throws -> String?
+
+    /// - Returns: New revision for optimistic locking and the list of archived accounts.
+    func getArchivedUserAccounts(
+        userWalletId: String
+    ) async throws -> (revision: String?, archivedAccounts: AccountsDTO.Response.ArchivedAccounts)
 }
 
 private struct TangemApiServiceKey: InjectionKey {

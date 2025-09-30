@@ -45,7 +45,7 @@ actor CommonAccountModelsManager {
         self.areHDWalletsSupported = areHDWalletsSupported
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
-        initialize() // [REDACTED_TODO_COMMENT]
+        initialize()
     }
 
     private nonisolated func initialize() {
