@@ -723,7 +723,7 @@
 "notification_referral_promo_text" = "Teile Deinen Code – verdiene 5 USDT pro Verkauf. Deine Freunde erhalten 10 %% Rabatt.";
 "notification_referral_promo_title" = "Erhalte BELOHNUNGEN für jeden Freund!";
 "notification_sepa_button" = "Krypto kaufen";
-"notification_sepa_text" = "Profitiere von null Gebühren beim Kauf von Kryptowährungen per SEPA-Überweisung.";
+"notification_sepa_text" = "Profitiere von **0 %% Gebühren** beim Kauf von Kryptowährungen per SEPA-Überweisung.";
 "notification_sepa_title" = "Krypto mit SEPA kaufen";
 "onboarding_access_code_feature_1_description" = "Du musst einen einzigen Zugangscode einrichten, um alle deine Geräte zu schützen";
 "onboarding_access_code_feature_1_title" = "Schützen";
@@ -1049,6 +1049,7 @@
 "staking_details_annual_percentage_yield_info" = "APY shows the validator’s annual percentage yield based on its performance";
 "staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "Effektiver Jahreszins";
+"staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Belohnungen sammeln sich täglich automatisch in deinem Staking-Konto an.";
 "staking_details_available" = "Verfügbar";
 "staking_details_average_reward_rate" = "Durchschnittliche Belohnungsquote";
@@ -1697,3 +1698,5 @@
 "yield_module_transfer_mode_automatic" = "Automatic";
 "yield_module_unable_to_cover_fee_description" = "Deposit some %1$@ %2$@ to cover the network fee for transactions";
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
+"yield_module_unavailable_subtitle" = "The interest service isn’t available at the moment. Please try again later.";
+"yield_module_unavailable_title" = "Earnings unavailable";
