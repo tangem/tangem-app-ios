@@ -12,7 +12,7 @@ import XCTest
 final class WireMockClient {
     private let baseURL: String
 
-    init(baseURL: String = "http://localhost:8081") {
+    init(baseURL: String = "http://wiremock.tests-d.com") {
         self.baseURL = baseURL
     }
 
