@@ -249,7 +249,10 @@ final class MainViewModel: ObservableObject {
                 guard let userWalletId = viewModel.pages[safe: newIndex]?.id else {
                     return
                 }
-                viewModel.userWalletRepository.select(userWalletId: userWalletId)
+
+                if viewModel.userWalletRepository.selectedModel?.userWalletId != userWalletId {
+                    viewModel.userWalletRepository.select(userWalletId: userWalletId)
+                }
             }
             .store(in: &bag)
 
