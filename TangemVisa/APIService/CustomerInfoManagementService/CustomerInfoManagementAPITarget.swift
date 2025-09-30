@@ -24,6 +24,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/me"
         case .getKYCAccessToken:
             "customer/kyc"
+        case .getCardDetails:
+            "customer/card/details"
         case .placeOrder:
             "order"
         case .getOrder(let orderId):
@@ -38,7 +40,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getOrder:
             .get
 
-        case .placeOrder:
+        case .placeOrder,
+             .getCardDetails:
             .post
         }
     }
@@ -47,6 +50,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
         switch target {
         case .getCustomerInfo, .getKYCAccessToken, .getOrder:
             return .requestPlain
+
+        case .getCardDetails(let sessionId):
+            let requestData = TangemPayCardDetailsRequest(sessionId: sessionId)
+            return .requestJSONEncodable(requestData)
 
         case .placeOrder(let walletAddress):
             let requestData = TangemPayPlaceOrderRequest(walletAddress: walletAddress)
@@ -73,5 +80,7 @@ extension CustomerInfoManagementAPITarget {
 
         case placeOrder(walletAddress: String)
         case getOrder(orderId: String)
+
+        case getCardDetails(sessionId: String)
     }
 }
