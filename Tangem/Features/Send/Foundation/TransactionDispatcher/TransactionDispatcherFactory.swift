@@ -46,4 +46,15 @@ struct TransactionDispatcherFactory {
             transactionStatusProvider: CommonStakeKitTransactionStatusProvider(stakingManager: stakingManger)
         )
     }
+
+    func makeYieldModuleDispatcher() -> YieldModuleTransactionDispatcher? {
+        guard let transactionsSender = walletModel.multipleTransactionsSender else { return nil }
+
+        return YieldModuleTransactionDispatcher(
+            blockchain: walletModel.tokenItem.blockchain,
+            walletModelUpdater: walletModel,
+            transactionsSender: transactionsSender,
+            transactionSigner: signer
+        )
+    }
 }
