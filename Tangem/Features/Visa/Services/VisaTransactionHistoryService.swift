@@ -12,34 +12,16 @@ import TangemVisa
 import TangemFoundation
 
 class VisaTransactionHistoryService {
-    private let storage: ThreadSafeContainer<[VisaTransactionRecord]> = []
-    private var apiService: VisaTransactionHistoryAPIService?
+    private let storage: ThreadSafeContainer<[TangemPayTransactionHistoryResponse.Transaction]> = []
+    private let apiService: CustomerInfoManagementService
 
-    private let cardId: String?
     private let numberOfItemsOnPage: Int = 20
-    private var currentOffset = 0
     private var reachEndOfHistoryList = false
-    private var productInstanceId: String?
 
     private let stateSubject = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
+    private let itemsSubject = CurrentValueSubject<[TangemPayTransactionHistoryResponse.Transaction], Never>([])
 
-    init(cardId: String?) {
-        self.cardId = cardId
-    }
-
-    init(
-        cardId: String?,
-        productInstanceId: String,
-        apiService: VisaTransactionHistoryAPIService
-    ) {
-        self.cardId = cardId
-        self.productInstanceId = productInstanceId
-        self.apiService = apiService
-    }
-
-    func setupApiService(productInstanceId: String, apiService: VisaTransactionHistoryAPIService) {
-        VisaLogger.debug("Setup Visa tx history using new service. Product instance id: \(productInstanceId)")
-        self.productInstanceId = productInstanceId
+    init(apiService: CustomerInfoManagementService) {
         self.apiService = apiService
     }
 }
@@ -53,8 +35,12 @@ extension VisaTransactionHistoryService {
         stateSubject.eraseToAnyPublisher()
     }
 
-    var items: [VisaTransactionRecord] {
+    var items: [TangemPayTransactionHistoryResponse.Transaction] {
         storage.read()
+    }
+
+    var itemsPublisher: AnyPublisher<[TangemPayTransactionHistoryResponse.Transaction], Never> {
+        itemsSubject.eraseToAnyPublisher()
     }
 
     var canFetchMoreHistory: Bool {
@@ -67,7 +53,7 @@ extension VisaTransactionHistoryService {
         VisaLogger.info("Attempting to reload history. Is storage empty: \(firstItemsInStorage.isEmpty)")
 
         do {
-            let itemsOnServer = try await loadRecordsPage(offset: 0)
+            let itemsOnServer = try await apiService.getTransactionHistory(limit: numberOfItemsOnPage, cursor: nil).transactions
             if firstItemsInStorage == itemsOnServer {
                 VisaLogger.info("First \(firstItemsInStorage.count) items in storage are the same as first items on server, no need to update history")
                 stateSubject.send(.loaded)
@@ -76,8 +62,7 @@ extension VisaTransactionHistoryService {
 
             VisaLogger.info("History on server is not same as history on device. Clearing storage and saving new loaded history. New number of items in storage: \(itemsOnServer.count)")
             clearHistory()
-            currentOffset = itemsOnServer.count
-            reachEndOfHistoryList = currentOffset % numberOfItemsOnPage != 0
+            reachEndOfHistoryList = itemsOnServer.count % numberOfItemsOnPage != 0
             saveRecordsInStorage(records: itemsOnServer)
             AppLogger.info("Reach end of history: \(reachEndOfHistoryList)")
             stateSubject.send(.loaded)
@@ -93,13 +78,13 @@ extension VisaTransactionHistoryService {
         }
 
         stateSubject.send(.loading)
-        VisaLogger.info("Attempting to load next page. Current history offset: \(currentOffset)")
+//        VisaLogger.info("Attempting to load next page. Current history cursor: \(currentOffset)")
         do {
-            let loadedRecords = try await loadRecordsPage(offset: currentOffset)
+//            VisaLogger.info("Attempting to load history page with request, offset: \(offset), numberOfItemsOnPage: \(numberOfItemsOnPage)")
+            let loadedRecords = try await apiService.getTransactionHistory(limit: numberOfItemsOnPage, cursor: storage.read().last?.id).transactions
             reachEndOfHistoryList = loadedRecords.count != numberOfItemsOnPage
-            currentOffset += loadedRecords.count
             saveRecordsInStorage(records: loadedRecords)
-            VisaLogger.info("History loaded sucessfully. Number of new items: \(loadedRecords.count). New offset: \(currentOffset)")
+//            VisaLogger.info("History loaded sucessfully. Number of new items: \(loadedRecords.count). New offset: \(currentOffset)")
             stateSubject.send(.loaded)
         } catch {
             VisaLogger.error("Failed to load tx history page", error: error)
@@ -108,34 +93,16 @@ extension VisaTransactionHistoryService {
     }
 
     func clearHistory() {
+        itemsSubject.send([])
         storage.mutate { value in
             value.removeAll()
         }
     }
 
-    func saveRecordsInStorage(records: [VisaTransactionRecord]) {
+    func saveRecordsInStorage(records: [TangemPayTransactionHistoryResponse.Transaction]) {
         storage.mutate { value in
             value.append(contentsOf: records)
         }
-    }
-}
-
-private extension VisaTransactionHistoryService {
-    func loadRecordsPage(offset: Int) async throws -> [VisaTransactionRecord] {
-        guard
-            let apiService,
-            let productInstanceId
-        else {
-            throw "Missing mandatory info"
-        }
-
-        VisaLogger.info("Attempting to load history page with request, offset: \(offset), numberOfItemsOnPage: \(numberOfItemsOnPage)")
-        let response = try await apiService.loadHistoryPage(
-            productInstanceId: productInstanceId,
-            cardId: cardId,
-            offset: offset,
-            numberOfItemsPerPage: numberOfItemsOnPage
-        )
-        return response.transactions
+        itemsSubject.send(storage.read())
     }
 }

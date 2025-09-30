@@ -14,12 +14,29 @@ struct TransactionView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            viewModel.icon
-                .renderingMode(.template)
-                .foregroundColor(viewModel.iconColor)
-                .padding(10)
-                .background(viewModel.iconBackgroundColor)
-                .cornerRadiusContinuous(20)
+            if let iconURL = viewModel.iconURL {
+                AsyncImage(url: iconURL) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(size: .init(bothDimensions: 40))
+                        .cornerRadiusContinuous(20)
+                } placeholder: {
+                    viewModel.icon
+                        .renderingMode(.template)
+                        .foregroundColor(viewModel.iconColor)
+                        .padding(10)
+                        .background(viewModel.iconBackgroundColor)
+                        .cornerRadiusContinuous(20)
+                }
+            } else {
+                viewModel.icon
+                    .renderingMode(.template)
+                    .foregroundColor(viewModel.iconColor)
+                    .padding(10)
+                    .background(viewModel.iconBackgroundColor)
+                    .cornerRadiusContinuous(20)
+            }
 
             textContent
                 .lineLimit(1)
