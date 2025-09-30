@@ -876,7 +876,7 @@
 "receive_bottom_sheet_warning_message" = "%3$@ネットワーク上の%1$@ ( %2$@ )";
 "receive_bottom_sheet_warning_title" = "%2$@ネットワークの%1$@のみを送信してください";
 "receive_token_description" = "ウォレットや取引所から資金を送金する";
-"referral_address_for_rewards" = "Address for rewards";
+"referral_address_for_rewards" = "報酬の送付先アドレス";
 "referral_button_participate" = "参加する";
 "referral_error_failed_to_load_info_with_reason" = "紹介プログラムに関する情報を読み込めませんでした。エラー コード: %@ 。しばらくしてからもう一度お試しください。";
 "referral_error_failed_to_load_info" = "紹介プログラムに関する情報を読み込めませんでした。しばらくしてからもう一度お試しください。";
@@ -1046,6 +1046,8 @@
 "staking_details_account_fee" = "ステーキングアカウント手数料";
 "staking_details_annual_percentage_rate_info" = "ステーキングに参加することで得られる年間収益率。";
 "staking_details_annual_percentage_rate" = "年率";
+"staking_details_annual_percentage_yield_info" = "APY shows the validator’s annual percentage yield based on its performance";
+"staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "APR";
 "staking_details_auto_claiming_rewards_daily_text" = "報酬は毎日自動的にステーキング残高に蓄積されます。";
 "staking_details_available" = "利用可能";
@@ -1379,11 +1381,11 @@
 "wallet_balance_missing_derivation" = "カードまたはリングをスキャン";
 "wallet_been_activated_message" = "このウォレットはすでに有効化されています。\nあなたが行ったのでない場合は、サポートに連絡してください。\nTangemは、事前に生成されたアクセスコードと一緒にウォレットを販売することはありません。";
 "wallet_connect_error_timeout" = "WalletConnectセッションの確立に失敗しました：タイムアウトエラー。しばらくしてもう一度お試しください。";
-"wallet_connect_multiple_transactions_description" = "このプロセスを完了するには、Tangemデバイスを数回タップする必要があります。";
-"wallet_connect_multiple_transactions" = "複数の取引";
+"wallet_connect_multiple_transactions_description" = "正常に処理するため、取引は複数に分割されます。完了するにはカードを数回タップする必要があります。";
+"wallet_connect_multiple_transactions" = "マルチパート取引";
 "wallet_connect_paste_from_clipboard" = "クリップボードから貼り付け";
-"wallet_connect_sending_multiple_explanation" = "取引を処理中です";
-"wallet_connect_sending_multiple_tx" = "送金しています...";
+"wallet_connect_sending_multiple_explanation" = "取引を処理中です。完了するにはカードを複数回タップしてください。";
+"wallet_connect_sending_multiple_tx" = "取引進行中";
 "wallet_connect_subtitle" = "dAppsに接続する";
 "wallet_connect_title" = "WalletConnect";
 "wallet_create_hardware_badge" = "%@から";
@@ -1640,6 +1642,7 @@
 "yield_module_approve_sheet_title" = "承認を確定する";
 "yield_module_balance_info_sheet_subtitle" = "資産残高に関するテキスト [プレースホルダー]";
 "yield_module_balance_info_sheet_title" = "あなたの%@はAaveに預けられています";
+"yield_module_deposit_error_notification_title" = "受け取った金額%1$@ %2$@はAaveに入金されませんでした。";
 "yield_module_earn_badge" = "%1$@%% を獲得";
 "yield_module_earn_sheet_available_title" = "利用可能";
 "yield_module_earn_sheet_current_apy_title" = "現在のAPY";
@@ -1655,6 +1658,7 @@
 "yield_module_fee_policy_sheet_max_fee_note" = "ネットワーク手数料が上限手数料を超えた場合、手数料が下がるまで取引は成立しません。この制限は後で変更できます。";
 "yield_module_fee_policy_sheet_max_fee_title" = "最大手数料";
 "yield_module_fee_policy_sheet_title" = "手数料ポリシー";
+"yield_module_high_fee_error" = "ネットワーク手数料が現在高すぎます。設定した上限を下回るまで待機しています。";
 "yield_module_main_view_approve_notification_description" = "ここに説明を入力してください。1〜3行が理想的です。[プレースホルダー]";
 "yield_module_main_view_approve_notification_title" = "トークン承認が必要";
 "yield_module_network_fee_unreachable_notification_description" = "ネットワーク接続を確認してください";
