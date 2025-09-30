@@ -169,7 +169,7 @@ final class ActionButtonsSwapViewModel: ObservableObject {
         ActionButtonsAnalyticsService.trackTokenClicked(.swap, tokenSymbol: token.infoProvider.tokenItem.currencySymbol)
 
         sourceToken = token
-        coordinator?.showYieldNotoifcationIfNeeded(for: token.walletModel, completion: nil)
+        coordinator?.showYieldNotificationIfNeeded(for: token.walletModel, completion: nil)
         await updatePairs(for: token, userWalletModel: userWalletModel)
     }
 
@@ -191,7 +191,7 @@ final class ActionButtonsSwapViewModel: ObservableObject {
             }
         }
 
-        coordinator?.showYieldNotoifcationIfNeeded(for: token.walletModel, completion: openExpressAction)
+        coordinator?.showYieldNotificationIfNeeded(for: token.walletModel, completion: openExpressAction)
     }
 }
 
