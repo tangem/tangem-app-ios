@@ -112,8 +112,6 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
                 return false
             }
 
-            requestAuthorizationOnAfterLoginBannerCompletionDate = Date()
-
             return true
         }
     }
