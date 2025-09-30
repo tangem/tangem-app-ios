@@ -95,7 +95,7 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
             }
 
             analyticsProvider.logCompleteHandleSolanaALTTransactionRequest(isSuccess: altResult)
-            
+
             throw WalletConnectTransactionRequestProcessingError.invalidPayload("Solana ALT handling error for request: \(request.description)")
         }
     }
