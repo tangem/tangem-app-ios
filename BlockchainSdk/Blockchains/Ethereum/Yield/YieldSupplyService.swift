@@ -177,6 +177,8 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
                         } else {
                             return (token, nil)
                         }
+                    } catch YieldModuleError.unsupportedBlockchain {
+                        return (token, nil)
                     } catch {
                         return (token, .failure(error))
                     }
