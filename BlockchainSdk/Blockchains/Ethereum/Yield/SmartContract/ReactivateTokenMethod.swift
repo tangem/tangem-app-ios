@@ -7,17 +7,20 @@
 //
 
 import Foundation
+import BigInt
 
 public struct ReactivateTokenMethod {
-    let contractAddress: String
+    let tokenContractAddress: String
+    let maxNetworkFee: BigUInt
 
-    public init(contractAddress: String) {
-        self.contractAddress = contractAddress
+    public init(tokenContractAddress: String, maxNetworkFee: BigUInt) {
+        self.tokenContractAddress = tokenContractAddress
+        self.maxNetworkFee = maxNetworkFee
     }
 }
 
 extension ReactivateTokenMethod: SmartContractMethod {
-    /// - Note: First 4 bytes of Keccak-256 hash for the `reactivateToken(address)` method.
-    public var methodId: String { "0x0d31916f" }
+    /// - Note: First 4 bytes of Keccak-256 hash for the `reactivateToken(address yieldToken, uint240 maxNetworkFee)` method.
+    public var methodId: String { "0xc478e956" }
     public var data: Data { defaultData() }
 }
