@@ -10,15 +10,15 @@ import Foundation
 import BigInt
 
 public struct EnterProtocolMethod {
-    let yieldTokenAddress: String
+    let tokenContractAddress: String
 
-    public init(yieldTokenAddress: String) {
-        self.yieldTokenAddress = yieldTokenAddress
+    public init(tokenContractAddress: String) {
+        self.tokenContractAddress = tokenContractAddress
     }
 }
 
 extension EnterProtocolMethod: SmartContractMethod {
-    /// - Note: First 4 bytes of Keccak-256 hash for the `enterProtocolByOwner(address)` method.
+    /// - Note: First 4 bytes of Keccak-256 hash for the `enterProtocolByOwner(address yieldToken)` method.
     public var methodId: String { "0x79be55f7" }
     public var data: Data { defaultData() }
 }

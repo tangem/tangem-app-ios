@@ -61,7 +61,8 @@ protocol WalletModel:
 
     // MARK: - Yield
 
-    var yieldService: YieldTokenService? { get }
+    // [REDACTED_TODO_COMMENT]
+    var yieldModuleManager: YieldModuleManager? { get }
 }
 
 extension WalletModel {
@@ -132,6 +133,8 @@ protocol WalletModelDependenciesProvider {
     var transactionCreator: TransactionCreator { get }
     var transactionValidator: TransactionValidator { get }
     var transactionSender: TransactionSender { get }
+
+    var multipleTransactionsSender: MultipleTransactionsSender? { get }
 
     var compiledTransactionSender: CompiledTransactionSender? { get }
 
