@@ -1049,6 +1049,7 @@
 "staking_details_annual_percentage_yield_info" = "APY shows the validator’s annual percentage yield based on its performance";
 "staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "APR";
+"staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Les récompenses s'accumulent automatiquement sur votre solde de staking quotidiennement.";
 "staking_details_available" = "Disponible";
 "staking_details_average_reward_rate" = "Taux de récompense moyen";
@@ -1697,3 +1698,5 @@
 "yield_module_transfer_mode_automatic" = "Automatic";
 "yield_module_unable_to_cover_fee_description" = "Deposit some %1$@ %2$@ to cover the network fee for transactions";
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
+"yield_module_unavailable_subtitle" = "The interest service isn’t available at the moment. Please try again later.";
+"yield_module_unavailable_title" = "Earnings unavailable";
