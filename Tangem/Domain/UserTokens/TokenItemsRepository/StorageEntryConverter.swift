@@ -94,15 +94,4 @@ struct StorageEntryConverter {
             return .token(token, $0.blockchainNetwork)
         }
     }
-
-    func convertToTokenItems(_ entries: [StorageEntry]) -> [TokenItem] {
-        entries.flatMap { entry in
-            let blockchainToken = TokenItem.blockchain(entry.blockchainNetwork)
-            let tokens = entry.tokens.map {
-                TokenItem.token($0, entry.blockchainNetwork)
-            }
-
-            return [blockchainToken] + tokens
-        }
-    }
 }

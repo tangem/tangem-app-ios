@@ -13,6 +13,46 @@ import TangemSdk
 import TangemFoundation
 import TangemLocalization
 
+// [REDACTED_TODO_COMMENT]
+struct _StorageEntryConverter {
+    func convertToTokenItems(_ entries: [StoredCryptoAccount.Token]) -> [TokenItem] {
+        entries.compactMap { entry -> TokenItem? in
+            let blockchainNetwork: BlockchainNetwork
+            switch entry.blockchainNetwork {
+            case .known(let _blockchainNetwork):
+                blockchainNetwork = _blockchainNetwork
+            case .unknown(networkId: let networkId, rawDerivationPath: let rawDerivationPath):
+                // Unsupported, filtering it out
+                return nil
+            }
+
+            guard let contractAddress = entry.contractAddress else {
+                return .blockchain(blockchainNetwork)
+            }
+
+            let token = Token(
+                name: entry.name,
+                symbol: entry.symbol,
+                contractAddress: contractAddress,
+                decimalCount: entry.decimalCount,
+                id: entry.id
+            )
+            return .token(token, blockchainNetwork)
+        }
+    }
+}
+
+// [REDACTED_TODO_COMMENT]
+protocol _UserTokenListManager {
+    var cryptoAccountPublisher: AnyPublisher<StoredCryptoAccount, Never> { get }
+    var cryptoAccount: StoredCryptoAccount { get }
+
+    func update(_ type: UserTokenListUpdateType, shouldUpload: Bool)
+    func update(with userTokenList: StoredUserTokenList)
+    func updateLocalRepositoryFromServer(_ completion: @escaping (Result<Void, any Error>) -> Void)
+    func upload()
+}
+
 /// Copy-paste of `CommonUserTokensManager`, but with accounts support.
 final class AccountsAwareUserTokensManager {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
@@ -20,7 +60,7 @@ final class AccountsAwareUserTokensManager {
     weak var keysDerivingProvider: KeysDerivingProvider?
 
     private let userWalletId: UserWalletId
-    private let userTokenListManager: UserTokenListManager
+    private let userTokenListManager: _UserTokenListManager
     private let walletModelsManager: WalletModelsManager
     private let derivationInfo: DerivationInfo
     private let existingCurves: [EllipticCurve]
@@ -34,7 +74,7 @@ final class AccountsAwareUserTokensManager {
 
     init(
         userWalletId: UserWalletId,
-        userTokenListManager: UserTokenListManager,
+        userTokenListManager: _UserTokenListManager,
         walletModelsManager: WalletModelsManager,
         derivationInfo: DerivationInfo,
         existingCurves: [EllipticCurve],
@@ -109,8 +149,8 @@ final class AccountsAwareUserTokensManager {
             return
         }
 
-        let converter = StorageEntryConverter()
-        let tokenItems = converter.convertToTokenItem(userTokenListManager.userTokensList.entries)
+        let converter = _StorageEntryConverter()
+        let tokenItems = converter.convertToTokenItems(userTokenListManager.cryptoAccount.tokens)
 
         expressAvailabilityProvider.updateExpressAvailability(
             for: tokenItems,
