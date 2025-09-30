@@ -154,7 +154,7 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
 
     // MARK: - Private Implementation
 
-    func stopAllFeatureAuthorizationRequests() {
+    private func stopAllFeatureAuthorizationRequests() {
         requestAuthorizationOnAfterLoginBannerCompletionDate = Date()
         canRequestAuthorization = false
     }
