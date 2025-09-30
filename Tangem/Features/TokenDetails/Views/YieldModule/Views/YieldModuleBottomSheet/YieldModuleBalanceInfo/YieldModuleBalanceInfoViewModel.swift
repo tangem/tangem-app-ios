@@ -16,12 +16,14 @@ final class YieldModuleBalanceInfoViewModel {
 
     @Injected(\.floatingSheetPresenter) var floatingSheetPresenter: FloatingSheetPresenter
 
-    private(set) var params: YieldModuleViewConfigs.BalanceInfoParams
+    private(set) var tokenName: String
+    private(set) var tokenId: String?
 
     // MARK: - Init
 
-    init(params: YieldModuleViewConfigs.BalanceInfoParams) {
-        self.params = params
+    init(tokenName: String, tokenId: String?) {
+        self.tokenName = tokenName
+        self.tokenId = tokenId
     }
 
     // MARK: - Public Implementation
@@ -30,10 +32,6 @@ final class YieldModuleBalanceInfoViewModel {
         runTask(in: self) { vm in
             vm.floatingSheetPresenter.removeActiveSheet()
         }
-    }
-
-    func getTokenIconInfo() -> TokenIconInfo {
-        TokenIconInfoBuilder().build(from: params.tokenItem, isCustom: false)
     }
 }
 

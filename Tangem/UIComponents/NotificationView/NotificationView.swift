@@ -154,8 +154,8 @@ struct NotificationView: View {
                     .foregroundColor(Colors.Icon.informative)
             case .placeholder:
                 Color.clear
-            case .yieldModuleIcon(let iconInfo):
-                yieldModuleIcon(iconInfo: iconInfo)
+            case .yieldModuleIcon(let id):
+                yieldModuleIcon(tokenId: id)
             }
         }
         .frame(size: settings.event.icon.size)
@@ -163,8 +163,10 @@ struct NotificationView: View {
     }
 
     @ViewBuilder
-    private func yieldModuleIcon(iconInfo: TokenIconInfo) -> some View {
-        TokenIcon(tokenIconInfo: iconInfo, size: settings.event.icon.yieldModuleIconSize)
+    private func yieldModuleIcon(tokenId: String?) -> some View {
+        let iconUrl: URL? = tokenId.map { IconURLBuilder().tokenIconURL(id: $0, size: .large) }
+
+        IconView(url: iconUrl, size: settings.event.icon.yieldModuleIconSize)
             .frame(size: settings.event.icon.size, alignment: .topLeading)
             .overlay(
                 Assets.YieldModule.yieldModuleAaveLogo.image
