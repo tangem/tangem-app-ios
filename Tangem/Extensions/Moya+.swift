@@ -43,7 +43,7 @@ class TimeoutIntervalPlugin: PluginType {
 }
 
 extension Response {
-    func mapAPIResponseAndTangemAPIError<D: Decodable>(allowRedirectCodes: Bool, decoder: JSONDecoder = .init()) throws -> D {
+    func filterResponseThrowingTangemAPIError(allowRedirectCodes: Bool) throws -> Moya.Response {
         let filteredResponse: Response
 
         do {
@@ -59,6 +59,12 @@ extension Response {
         if let tangemAPIError = TangemAPIErrorMapper.map(response: filteredResponse) {
             throw tangemAPIError
         }
+
+        return filteredResponse
+    }
+
+    func mapAPIResponseThrowingTangemAPIError<D: Decodable>(allowRedirectCodes: Bool, decoder: JSONDecoder = .init()) throws -> D {
+        let filteredResponse = try filterResponseThrowingTangemAPIError(allowRedirectCodes: allowRedirectCodes)
 
         return try filteredResponse.map(D.self, using: decoder)
     }
