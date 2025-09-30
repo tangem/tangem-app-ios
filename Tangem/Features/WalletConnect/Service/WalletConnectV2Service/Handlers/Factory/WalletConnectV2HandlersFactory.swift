@@ -104,7 +104,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 signer: signer,
                 walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
                 walletModelProvider: walletModelProvider,
-                analyticsProvider: makeAnalyticsProvider(with: connectedDApp?.dAppData)
+                analyticsProvider: makeAnalyticsProvider(with: connectedDApp.dAppData)
             )
 
         case .solanaSignAllTransactions:
