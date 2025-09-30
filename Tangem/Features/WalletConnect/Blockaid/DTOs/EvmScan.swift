@@ -29,13 +29,6 @@ extension BlockaidDTO {
                 let params: [AnyCodable]
                 let method: String
             }
-
-            struct TransactionParams: Codable {
-                let from: String
-                let to: String
-                let data: String
-                let value: String
-            }
         }
 
         struct Response: Decodable {
