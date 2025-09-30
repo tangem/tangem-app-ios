@@ -20,9 +20,7 @@ protocol UserTokensManager: UserTokensReordering {
 
     func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void)
 
-    func contains(_ tokenItem: TokenItem) -> Bool
-    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool
-    func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token]
+    func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool
 
     /// Update storage with derivation
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void)
