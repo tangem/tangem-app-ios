@@ -385,9 +385,20 @@ final class MainViewModel: ObservableObject {
 
     @MainActor
     private func onPullToRefresh() async {
+        defer {
+            isHorizontalScrollDisabled = false
+        }
+
         isHorizontalScrollDisabled = true
 
-        let page = pages[selectedCardIndex]
+        guard
+            let selectedUserWalletID = userWalletRepository.selectedModel?.userWalletId,
+            let index = pages.firstIndex(where: { $0.id == selectedUserWalletID })
+        else {
+            return
+        }
+
+        let page = pages[index]
 
         switch page {
         case .singleWallet(_, _, let viewModel):
@@ -399,8 +410,6 @@ final class MainViewModel: ObservableObject {
         case .visaWallet(_, _, let viewModel):
             await viewModel.onPullToRefresh()
         }
-
-        isHorizontalScrollDisabled = false
     }
 }
 
