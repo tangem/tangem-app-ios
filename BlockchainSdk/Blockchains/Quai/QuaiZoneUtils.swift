@@ -30,7 +30,7 @@ enum QuaiZoneType: String, CaseIterable {
     var cyprus1NinthBitMask: UInt8 {
         switch self {
         case .cyprus1:
-            return 0x01
+            return 0x80
         }
     }
 }
