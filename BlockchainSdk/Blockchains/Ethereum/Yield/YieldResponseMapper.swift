@@ -9,8 +9,8 @@
 import Foundation
 import BigInt
 
-enum YieldResponseMapper {
-    static func mapFeeRate(_ result: String) throws -> Decimal {
+public enum YieldResponseMapper {
+    public static func mapFeeRate(_ result: String) throws -> Decimal {
         let hexString = result.removeHexPrefix()
 
         let data = Data(hex: hexString)
@@ -19,19 +19,19 @@ enum YieldResponseMapper {
         let feeRate = BigUInt(data)
 
         guard let feeRateDecimal = feeRate.decimal else {
-            throw YieldServiceError.unableToParseData
+            throw YieldModuleError.unableToParseData
         }
 
-        return (feeRateDecimal * Constants.decimalBasisPoint) / Constants.decimalPercent
+        return (feeRateDecimal * Constants.basisPoint) / Constants.decimalOneHundred
     }
 
-    static func mapTokenData(_ result: String) throws -> YieldTokenData {
+    public static func mapSupplyStatus(_ result: String) throws -> YieldSupplyStatus {
         let hexString = result.removeHexPrefix()
 
         let data = Data(hexString: hexString)
 
         guard data.count == 96 else {
-            throw YieldServiceError.unableToParseData
+            throw YieldModuleError.unableToParseData
         }
 
         let initializedData = data.subdata(in: 0 ..< 32)
@@ -42,39 +42,39 @@ enum YieldResponseMapper {
         let active = BigUInt(activeData) != 0
         let maxNetworkFee = BigUInt(maxNetworkFeeData)
 
-        return YieldTokenData(
+        return YieldSupplyStatus(
             initialized: initialized,
             active: active,
             maxNetworkFee: maxNetworkFee
         )
     }
 
-    static func mapAPY(_ result: String) throws -> Decimal {
+    public static func mapAPY(_ result: String) throws -> Decimal {
         let hexString = result.removeHexPrefix()
 
         let data = Data(hexString: hexString)
 
         guard data.count >= 96 else {
-            throw YieldServiceError.unableToParseData
+            throw YieldModuleError.unableToParseData
         }
 
         let aprValue = BigUInt(data.subdata(in: 64 ..< 96))
 
         guard let aprDecimal = aprValue.decimal else {
-            throw YieldServiceError.unableToParseData
+            throw YieldModuleError.unableToParseData
         }
 
-        let apr = aprDecimal / Constants.decimalRayUnit
+        let apr = aprDecimal / Constants.rayUnit
 
-        return (apr.exp() - Constants.decimalOne) * Constants.decimalPercent
+        return (apr.exp() - Constants.decimalOne) * Constants.decimalOneHundred
     }
 }
 
-private extension YieldResponseMapper {
+extension YieldResponseMapper {
     enum Constants {
-        static let decimalBasisPoint = Decimal(string: "0.01")!
-        static let decimalRayUnit = Decimal(string: "1e27")!
-        static let decimalPercent = Decimal(string: "100")!
+        static let basisPoint = Decimal(string: "0.01")!
+        static let rayUnit = Decimal(string: "1e27")!
+        static let decimalOneHundred = Decimal(string: "100")!
         static let decimalOne = Decimal(string: "1")!
     }
 }
