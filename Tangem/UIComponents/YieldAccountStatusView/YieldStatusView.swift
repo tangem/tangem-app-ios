@@ -25,7 +25,7 @@ struct YieldStatusView: View {
 
     var body: some View {
         switch status {
-        case .processing:
+        case .processing, .closing:
             content
         case .active(_, _, _, let tapAction):
             Button(action: tapAction) {
@@ -110,6 +110,10 @@ struct YieldStatusView: View {
                 Text(annualYield + "%" + " " + Localization.yieldModuleTokenDetailsEarnNotificationApy)
                     .style(Fonts.Bold.callout, color: Colors.Text.tertiary)
             }
+
+        case .closing:
+            Text(Localization.yieldModuleStopEarning)
+                .style(Fonts.Regular.callout, color: Colors.Text.primary1)
         }
     }
 
@@ -128,5 +132,6 @@ extension YieldStatusView {
     enum Status {
         case processing
         case active(income: String, annualYield: String, isApproveNeeded: Bool, tapAction: () -> Void)
+        case closing
     }
 }
