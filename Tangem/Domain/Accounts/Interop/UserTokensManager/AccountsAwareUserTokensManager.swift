@@ -291,13 +291,13 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         }
     }
 
-    func contains(_ tokenItem: TokenItem) -> Bool {
+    func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
         let tokenItem = withBlockchainNetwork(tokenItem)
+        let tokens = userTokenListManager.cryptoAccount.tokens
 
-        let filteredTokens = userTokenListManager
-            .cryptoAccount
-            .tokens
-            .filter { $0.blockchainNetwork.knownValue == tokenItem.blockchainNetwork }
+        let filteredTokens = derivationInsensitive
+            ? tokens.filter { $0.blockchainNetwork.knownValue?.blockchain.networkId == tokenItem.blockchainNetwork.blockchain.networkId }
+            : tokens.filter { $0.blockchainNetwork.knownValue == tokenItem.blockchainNetwork }
 
         switch tokenItem {
         case .blockchain:
@@ -305,30 +305,6 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         case .token(let token, _):
             return filteredTokens.contains { $0.isEqualTo(token) }
         }
-    }
-
-    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
-        let tokenItem = withBlockchainNetwork(tokenItem)
-
-        let filteredTokens = userTokenListManager
-            .cryptoAccount
-            .tokens
-            .filter { $0.blockchainNetwork.knownValue?.blockchain.networkId == tokenItem.blockchainNetwork.blockchain.networkId }
-
-        switch tokenItem {
-        case .blockchain:
-            return filteredTokens.isNotEmpty
-        case .token(let token, _):
-            return filteredTokens.contains { $0.isEqualTo(token) }
-        }
-    }
-
-    func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
-        return userTokenListManager
-            .cryptoAccount
-            .tokens
-            .filter { $0.blockchainNetwork.knownValue == blockchainNetwork }
-            .compactMap { $0.toBSDKToken() }
     }
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {

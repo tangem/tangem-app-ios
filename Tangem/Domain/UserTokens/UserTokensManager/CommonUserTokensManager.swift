@@ -147,48 +147,24 @@ extension CommonUserTokensManager: UserTokensManager {
         }
     }
 
-    func contains(_ tokenItem: TokenItem) -> Bool {
+    func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
         let tokenItem = withBlockchainNetwork(tokenItem)
+        let userTokens = userTokenListManager.userTokens
 
-        guard let targetEntry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork }) else {
-            return false
-        }
+        let targetEntries = derivationInsensitive
+            ? userTokens
+            .filter { $0.blockchainNetwork.blockchain.networkId == tokenItem.blockchainNetwork.blockchain.networkId }
+            : userTokens
+            .first { $0.blockchainNetwork == tokenItem.blockchainNetwork }
+            .toArray()
+            .compactMap { $0 }
 
         switch tokenItem {
         case .blockchain:
-            return true
+            return targetEntries.isNotEmpty
         case .token(let token, _):
-            return targetEntry.tokens.contains(token)
+            return targetEntries.flatMap(\.tokens).contains(token)
         }
-    }
-
-    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
-        let tokenItem = withBlockchainNetwork(tokenItem)
-
-        let targetsEntry = userTokenListManager.userTokens.filter {
-            $0.blockchainNetwork.blockchain.networkId == tokenItem.blockchainNetwork.blockchain.networkId
-        }
-
-        guard targetsEntry.isNotEmpty else {
-            return false
-        }
-
-        switch tokenItem {
-        case .blockchain:
-            return true
-        case .token(let token, _):
-            return targetsEntry.flatMap(\.tokens).contains(token)
-        }
-    }
-
-    func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
-        let items = userTokenListManager.userTokens
-
-        if let network = items.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
-            return network.tokens
-        }
-
-        return []
     }
 
     func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {

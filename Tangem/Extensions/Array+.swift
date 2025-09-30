@@ -34,6 +34,12 @@ extension Swift.Array where Element: Equatable {
     }
 }
 
+extension Optional {
+    func toArray() -> [Self] {
+        return [self]
+    }
+}
+
 extension Array {
     func toDictionary<Key: Hashable>(keyedBy keyPath: KeyPath<Element, Key>, useLatestValue: Bool = true) -> [Key: Element] {
         reduce(into: [:]) {

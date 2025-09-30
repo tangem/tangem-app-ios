@@ -345,7 +345,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private func checkLocalStorage() throws {
         guard let tokenItem = try? enteredTokenItem() else { return }
 
-        if userWalletModel.userTokensManager.contains(tokenItem) {
+        if userWalletModel.userTokensManager.contains(tokenItem, derivationInsensitive: false) {
             throw TokenSearchError.alreadyAdded
         }
     }
