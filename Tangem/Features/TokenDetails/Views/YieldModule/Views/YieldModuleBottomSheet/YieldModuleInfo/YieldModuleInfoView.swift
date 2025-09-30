@@ -90,8 +90,8 @@ struct YieldModuleInfoView: View {
             nil
         case .approve:
             Localization.yieldModuleApproveSheetSubtitle
-        case .stopEarning(let params):
-            Localization.yieldModuleStopEarningSheetDescription(params.tokenName)
+        case .stopEarning:
+            Localization.yieldModuleStopEarningSheetDescription(viewModel.walletModel.tokenItem.name)
         }
     }
 
@@ -104,6 +104,7 @@ struct YieldModuleInfoView: View {
                 title: Localization.commonConfirm,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
+                isDisabled: !viewModel.isButtonEnabled,
                 action: ctaButtonAction
             ))
         }
@@ -127,11 +128,31 @@ struct YieldModuleInfoView: View {
         case .earnInfo(let params):
             YieldModuleEarnInfoView(params: params)
 
-        case .approve(let params):
-            YieldModuleApproveView(params: params)
+        case .approve:
+            YieldFeeSection(
+                leadingTitle: Localization.commonNetworkFeeTitle,
+                state: viewModel.networkFeeState,
+                footerText: Localization.yieldModuleApproveSheetFeeNote,
+                linkTitle: Localization.commonReadMore,
+                url: viewModel.readMoreURLString,
+                onLinkTapAction: nil
+            )
+            .task {
+                await viewModel.fetchNetworkFee()
+            }
 
-        case .stopEarning(let params):
-            YieldModuleStopEarningView(params: params)
+        case .stopEarning:
+            YieldFeeSection(
+                leadingTitle: Localization.commonNetworkFeeTitle,
+                state: viewModel.networkFeeState,
+                footerText: Localization.yieldModuleStopEarningSheetFeeNote,
+                linkTitle: Localization.commonReadMore,
+                url: viewModel.readMoreURLString,
+                onLinkTapAction: nil
+            )
+            .task {
+                await viewModel.fetchNetworkFee()
+            }
         }
     }
 
