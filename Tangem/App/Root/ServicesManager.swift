@@ -238,6 +238,7 @@ extension CommonServicesManager: ServicesManager {
         }
 
         await userWalletRepository.initialize()
+
         _initialized = true
     }
 }

@@ -32,11 +32,12 @@ struct YieldModuleStartView: View {
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
             content: { mainContent },
-            notificationBanner: viewModel.notificationBannerParams,
+            notificationBanner: bannerParams,
             buttonTopPadding: buttonTopPadding
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
+            configuration.sheetBackgroundColor = Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
     }
@@ -47,6 +48,14 @@ struct YieldModuleStartView: View {
         }
 
         return 32
+    }
+
+    private var bannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? {
+        if case .startEarning = viewModel.viewState {
+            return viewModel.notificationBannerParams
+        }
+
+        return nil
     }
 
     private var title: String? {
@@ -64,10 +73,10 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetDescription
-        case .startEarning(let params):
-            Localization.yieldModuleStartEarningSheetDescription(params.tokenName)
-        case .feePolicy(let params):
-            Localization.yieldModuleFeePolicySheetDescription(params.tokenName)
+        case .startEarning:
+            Localization.yieldModuleStartEarningSheetDescription(viewModel.walletModel.tokenItem.name)
+        case .feePolicy:
+            Localization.yieldModuleFeePolicySheetDescription(viewModel.walletModel.tokenItem.name)
         }
     }
 
@@ -96,13 +105,19 @@ struct YieldModuleStartView: View {
     private var mainButton: MainButton {
         switch viewModel.viewState {
         case .rateInfo, .feePolicy:
-            .init(settings: .init(title: Localization.commonGotIt, style: .secondary, action: ctaButtonAction))
+            .init(settings: .init(
+                title: Localization.commonGotIt,
+                style: .secondary,
+                isDisabled: !viewModel.isButtonEnabled,
+                action: ctaButtonAction
+            ))
         case .startEarning:
             .init(settings: .init(
                 title: Localization.yieldModuleStartEarning,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
-                action: ctaButtonAction
+                isDisabled: !viewModel.isButtonEnabled,
+                action: ctaButtonAction,
             ))
         }
     }
@@ -112,31 +127,45 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .rateInfo, .feePolicy:
             EmptyView()
-        case .startEarning(let params):
-            startEarningTopContent(icon: params.tokenIcon)
+        case .startEarning:
+            LendingPairIcon(tokenId: viewModel.walletModel.tokenItem.id, iconsSize: IconViewSizeSettings.tokenDetails.iconSize)
         }
     }
 
     @ViewBuilder
     private var mainContent: some View {
         switch viewModel.viewState {
-        case .rateInfo(let params):
-            YieldModuleInterestRateInfoView(lastYearReturns: params.lastYearReturns)
+        case .rateInfo:
+            EmptyView()
 
-        case .startEarning(let params):
-            YieldModuleStartEarningView(networkFee: params.networkFee, showFeePolicyAction: { viewModel.onShowFeePolicy(params: params) })
+        case .startEarning:
+            YieldFeeSection(
+                leadingTitle: Localization.commonNetworkFeeTitle,
+                state: viewModel.networkFeeState,
+                footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
+                linkTitle: Localization.yieldModuleStartEarningSheetFeePolicy,
+                url: nil,
+                onLinkTapAction: viewModel.onShowFeePolicy
+            )
+            .task {
+                await viewModel.fetchNetworkFee()
+            }
 
-        case .feePolicy(let params):
-            YieldModuleFeePolicyView(currentFee: params.networkFee, maximumFee: params.maximumFee, blockchainName: params.blockchainName)
+        case .feePolicy:
+            YieldModuleFeePolicyView(
+                tokenFeeState: viewModel.tokenFeeState,
+                maximumFee: viewModel.maximumFee.formatted(),
+                blockchainName: viewModel.walletModel.tokenItem.blockchain.displayName,
+            )
         }
     }
 
     private var ctaButtonAction: () -> Void {
         switch viewModel.viewState {
         case .startEarning:
-            viewModel.onStartEarningTap
+            viewModel.onStartEarnTap
         case .rateInfo:
-            viewModel.onCloseTapAction
+            viewModel.onCloseTap
         case .feePolicy:
             viewModel.onBackAction
         }
@@ -158,31 +187,6 @@ private extension Animation {
     static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
 }
 
-// MARK: - Top Content
-
-private extension YieldModuleStartView {
-    private func startEarningTopContent(icon: Image) -> some View {
-        ZStack {
-            icon
-                .resizable()
-                .scaledToFit()
-                .frame(size: IconViewSizeSettings.tokenDetails.iconSize)
-                .offset(x: -16)
-
-            Assets.YieldModule.yieldModuleAaveLogo.image
-                .resizable()
-                .scaledToFit()
-                .frame(size: IconViewSizeSettings.tokenDetails.iconSize)
-                .background(
-                    Circle()
-                        .fill(Colors.Background.tertiary)
-                        .frame(width: 50, height: 50)
-                )
-                .offset(x: 16)
-        }
-    }
-}
-
 // MARK: - Header
 
 private extension YieldModuleStartView {
@@ -192,7 +196,7 @@ private extension YieldModuleStartView {
         case .feePolicy:
             BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackAction() } })
         case .startEarning, .rateInfo:
-            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
+            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTap() } })
         }
     }
 }
