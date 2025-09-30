@@ -58,17 +58,4 @@ struct TokenIconInfoBuilder {
             customTokenColor: nil
         )
     }
-
-    /// Creates a `TokenIconInfo` for the given token without attaching a blockchain badge.
-    /// - Parameter tokenId: Optional token identifier.
-    /// - Returns: A `TokenIconInfo` containing only the token image URL.
-    func build(from tokenId: String?) -> TokenIconInfo {
-        TokenIconInfo(
-            name: "",
-            blockchainIconAsset: nil,
-            imageURL: IconURLBuilder().tokenIconURL(optionalId: tokenId),
-            isCustom: false,
-            customTokenColor: nil
-        )
-    }
 }
