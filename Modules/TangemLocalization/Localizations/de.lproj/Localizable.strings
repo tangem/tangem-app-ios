@@ -1046,6 +1046,8 @@
 "staking_details_account_fee" = "Gebühr für das Staking-Konto";
 "staking_details_annual_percentage_rate_info" = "Die jährliche prozentuale Rendite, die du durch die Teilnahme am Staking erzielen kannst.";
 "staking_details_annual_percentage_rate" = "Jährliche prozentuale Rendite";
+"staking_details_annual_percentage_yield_info" = "APY shows the validator’s annual percentage yield based on its performance";
+"staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "Effektiver Jahreszins";
 "staking_details_auto_claiming_rewards_daily_text" = "Belohnungen sammeln sich täglich automatisch in deinem Staking-Konto an.";
 "staking_details_available" = "Verfügbar";
@@ -1379,11 +1381,11 @@
 "wallet_balance_missing_derivation" = "Karte oder Ring scannen";
 "wallet_been_activated_message" = "Dieses Wallet wurde bereits früher aktiviert. \n Wenn dies nicht von Dir durchgeführt wurde, wende Dich bitte an den Support. \n Tangem verkauft niemals Wallets zusammen mit vorgenerierten Zugangscodes.";
 "wallet_connect_error_timeout" = "WalletConnect-Sitzung konnte nicht aufgebaut werden: Timeout-Fehler. Bitte versuche es später noch einmal.";
-"wallet_connect_multiple_transactions_description" = "You’ll need to tap your Tangem device a few times to complete this process.";
-"wallet_connect_multiple_transactions" = "Multiple transactions";
+"wallet_connect_multiple_transactions_description" = "To process successfully, your transaction will be split into multiple parts. You'll need to tap your card several times to complete it.";
+"wallet_connect_multiple_transactions" = "Multi-Part Transaction";
 "wallet_connect_paste_from_clipboard" = "Einfügen aus der Zwischenablage";
-"wallet_connect_sending_multiple_explanation" = "We're processing the transaction";
-"wallet_connect_sending_multiple_tx" = "Sending your funds...";
+"wallet_connect_sending_multiple_explanation" = "The transaction is being processed. Please tap your card multiple times to complete it.";
+"wallet_connect_sending_multiple_tx" = "Transaction in progress";
 "wallet_connect_subtitle" = "Mit dApps verbinden";
 "wallet_connect_title" = "WalletConnect";
 "wallet_create_hardware_badge" = "Von %@";
@@ -1640,6 +1642,7 @@
 "yield_module_approve_sheet_title" = "Confirm approval";
 "yield_module_balance_info_sheet_subtitle" = "Text about your money in balance [PLACEHOLDER]";
 "yield_module_balance_info_sheet_title" = "Your %@ is deposited in Aave";
+"yield_module_deposit_error_notification_title" = "The amount received, %1$@ %2$@ was not deposited to Aave.";
 "yield_module_earn_badge" = "Earn %1$@%%";
 "yield_module_earn_sheet_available_title" = "Available";
 "yield_module_earn_sheet_current_apy_title" = "Current APY";
@@ -1655,6 +1658,7 @@
 "yield_module_fee_policy_sheet_max_fee_note" = "If network fees rise above maximum fee, the transaction won’t go through until they decrease. You can change this limit later.";
 "yield_module_fee_policy_sheet_max_fee_title" = "Maximum fee";
 "yield_module_fee_policy_sheet_title" = "Fee policy";
+"yield_module_high_fee_error" = "Network fee is too high right now. Waiting until it falls below your limit.";
 "yield_module_main_view_approve_notification_description" = "Write description here. In one, two or three lines will be awesome. [PLACEHOLDER]";
 "yield_module_main_view_approve_notification_title" = "Some token approve needed";
 "yield_module_network_fee_unreachable_notification_description" = "Check your network connection";
