@@ -577,6 +577,7 @@ extension CommonWalletModel: WalletModelHelpers {
             ethereumNetworkProvider: ethereumNetworkProvider,
             ethereumTransactionDataBuilder: ethereumTransactionDataBuilder,
             transactionCreator: transactionCreator,
+            blockaidApiService: BlockaidFactory().makeBlockaidAPIService()
         )
     }
 }
