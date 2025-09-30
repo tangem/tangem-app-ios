@@ -221,7 +221,6 @@ final class TangemPayMainViewModel: ObservableObject {
             .itemsPublisher
             .map { items in
                 let items = items
-                    .compactMap(\.spend)
                     .enumerated()
                     .map { index, item in
                         item.transactionViewModel(index: index)
@@ -305,6 +304,27 @@ struct TangemPayMainView: View {
 }
 
 import TangemVisa
+
+private extension TangemPayTransactionHistoryResponse.Transaction {
+    func transactionViewModel(index: Int) -> TransactionViewModel {
+        switch record {
+        case .spend(let spend):
+            spend.transactionViewModel(index: index)
+
+        case .collateral(let collateral):
+            // [REDACTED_TODO_COMMENT]
+            fatalError()
+
+        case .payment(let payment):
+            // [REDACTED_TODO_COMMENT]
+            fatalError()
+
+        case .fee(let fee):
+            // [REDACTED_TODO_COMMENT]
+            fatalError()
+        }
+    }
+}
 
 private extension TangemPayTransactionHistoryResponse.Spend {
     func transactionViewModel(index: Int) -> TransactionViewModel {
