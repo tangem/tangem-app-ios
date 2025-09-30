@@ -98,16 +98,11 @@ final class CommonPushPermissionNotificationManager: PushPermissionNotificationM
                 event: GeneralNotificationEvent.pushNotificationsPermissionRequest,
                 dismissAction: { [weak self] _ in
                     guard let self else { return }
-                    saveDisplayNotificationDate()
                     permissionManager.postponePermissionRequest()
                 }
             )
         )
 
         displayDelegate?.showPushPermissionNotification(input: input)
-    }
-
-    private func saveDisplayNotificationDate() {
-        AppSettings.shared.supportSeedNotificationShownDate = Date()
     }
 }
