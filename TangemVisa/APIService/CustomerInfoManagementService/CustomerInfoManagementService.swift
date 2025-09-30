@@ -108,12 +108,41 @@ public struct TangemPayTransactionHistoryResponse: Decodable {
 public extension TangemPayTransactionHistoryResponse {
     struct Transaction: Decodable, Equatable {
         public let id: String
-        public let type: TransactionType
+        public let record: Record
 
-        public let spend: Spend?
-        public let collateral: Collateral?
-        public let payment: Payment?
-        public let fee: Fee?
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+
+            id = try container.decode(String.self, forKey: .id)
+
+            let transactionType = try container.decode(TransactionType.self, forKey: .type)
+            switch transactionType {
+            case .spend:
+                record = .spend(try container.decode(Spend.self, forKey: .spend))
+            case .collateral:
+                record = .collateral(try container.decode(Collateral.self, forKey: .collateral))
+            case .payment:
+                record = .payment(try container.decode(Payment.self, forKey: .payment))
+            case .fee:
+                record = .fee(try container.decode(Fee.self, forKey: .fee))
+            }
+        }
+
+        enum CodingKeys: CodingKey {
+            case id
+            case type
+            case spend
+            case collateral
+            case payment
+            case fee
+        }
+    }
+
+    enum Record: Equatable {
+        case spend(Spend)
+        case collateral(Collateral)
+        case payment(Payment)
+        case fee(Fee)
     }
 
     enum TransactionType: String, Decodable, Equatable {
