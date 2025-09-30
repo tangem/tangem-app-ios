@@ -13,12 +13,12 @@ final class YieldNoticeViewModel {
     @Injected(\.floatingSheetPresenter) var floatingSheetPresenter: FloatingSheetPresenter
 
     private(set) var currencySymbol: String
-    private(set) var tokenIconInfo: TokenIconInfo
+    private(set) var tokenId: String?
     private let action: () -> Void
 
     init(tokenItem: TokenItem, action: @escaping () -> Void) {
         currencySymbol = tokenItem.currencySymbol
-        tokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: false)
+        tokenId = tokenItem.id
         self.action = action
     }
 
