@@ -65,6 +65,8 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
 
+    @Published var tangemPayMainViewModel: TangemPayMainViewModel?
+
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
@@ -299,6 +301,11 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             coordinator.start(with: inputOptions)
             mobileUpgradeCoordinator = coordinator
         }
+    }
+
+    func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
+        mainBottomSheetUIManager.hide()
+        tangemPayMainViewModel = TangemPayMainViewModel(tangemPayAccount: tangemPayAccount)
     }
 }
 

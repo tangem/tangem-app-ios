@@ -331,7 +331,8 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
                 reviewAnswer: .undefined,
                 createdAt: Date()
             ),
-            card: nil
+            card: nil,
+            balance: nil
         )
     }
 
@@ -346,6 +347,14 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
             pan: .init(secret: "", iv: ""),
             cvv: .init(secret: "", iv: "")
         )
+    }
+
+    func getBalance() async throws -> TangemPayBalance {
+        .init(currency: "", availableBalance: .zero)
+    }
+
+    func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse {
+        TangemPayTransactionHistoryResponse(transactions: [])
     }
 
     func getOrder(orderId: String) async throws -> TangemPayOrderResponse {

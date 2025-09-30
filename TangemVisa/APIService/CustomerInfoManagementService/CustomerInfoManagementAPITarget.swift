@@ -24,8 +24,12 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/me"
         case .getKYCAccessToken:
             "customer/kyc"
+        case .getBalance:
+            "customer/balance"
         case .getCardDetails:
             "customer/card/details"
+        case .getTransactionHistory:
+            "customer/transactions"
         case .placeOrder:
             "order"
         case .getOrder(let orderId):
@@ -37,7 +41,9 @@ struct CustomerInfoManagementAPITarget: TargetType {
         switch target {
         case .getCustomerInfo,
              .getKYCAccessToken,
-             .getOrder:
+             .getOrder,
+             .getBalance,
+             .getTransactionHistory:
             .get
 
         case .placeOrder,
@@ -48,8 +54,20 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
     var task: Moya.Task {
         switch target {
-        case .getCustomerInfo, .getKYCAccessToken, .getOrder:
+        case .getCustomerInfo,
+             .getKYCAccessToken,
+             .getOrder,
+             .getBalance:
             return .requestPlain
+
+        case .getTransactionHistory(let limit, let cursor):
+            var requestParams = [
+                "limit": "\(limit)",
+            ]
+            if let cursor {
+                requestParams["cursor"] = cursor
+            }
+            return .requestParameters(parameters: requestParams, encoding: URLEncoding.default)
 
         case .getCardDetails(let sessionId):
             let requestData = TangemPayCardDetailsRequest(sessionId: sessionId)
@@ -78,9 +96,23 @@ extension CustomerInfoManagementAPITarget {
         /// Retrieves an access token for the SumSub KYC flow
         case getKYCAccessToken
 
+        case getBalance
+        case getCardDetails(sessionId: String)
+        case getTransactionHistory(limit: Int, cursor: String?)
+
         case placeOrder(walletAddress: String)
         case getOrder(orderId: String)
+    }
+}
 
-        case getCardDetails(sessionId: String)
+import TangemNetworkUtils
+
+extension CustomerInfoManagementAPITarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        baseURL.appendingPathComponent(path).absoluteString + "[token: \((headers ?? [:])["Authorization"] ?? "nothing")]"
+    }
+
+    var shouldLogResponseBody: Bool {
+        true
     }
 }
