@@ -86,7 +86,7 @@ extension PercentFormatter.Option {
     static let interval = PercentFormatter.Option(fractionDigits: 2, prefix: .empty, suffix: .empty)
 
     static let express = PercentFormatter.Option(fractionDigits: 1, prefix: .default, suffix: .default)
-    static let onramp = PercentFormatter.Option(fractionDigits: 1, prefix: .onlyMinus, suffix: .default)
+    static let onramp = PercentFormatter.Option(fractionDigits: 2, prefix: .onlyMinus, suffix: .default)
 }
 
 // MARK: Options
