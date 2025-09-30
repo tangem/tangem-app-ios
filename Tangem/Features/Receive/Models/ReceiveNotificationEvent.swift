@@ -68,7 +68,7 @@ extension ReceiveNotificationEvent: NotificationEvent {
         case .unsupportedTokenWarning:
             return .init(iconType: .image(Assets.warningIcon.image))
         case .yieldModuleNotification(_, let id):
-            return .init(iconType: .yieldModuleIcon(TokenIconInfoBuilder().build(from: id)))
+            return .init(iconType: .yieldModuleIcon(tokenId: id))
         }
     }
 
