@@ -325,6 +325,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
         Analytics.log(event: .sendErrorTransactionRejected, params: [
             .token: tokenItem.currencySymbol,
             .errorCode: "\(error.universalErrorCode)",
+            .errorDescription: error.localizedDescription,
             .blockchain: tokenItem.blockchain.displayName,
         ])
     }
