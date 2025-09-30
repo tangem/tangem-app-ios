@@ -21,9 +21,9 @@ class YieldSupplyContractAddressFactory {
 
     func getYieldSupplyContractAddresses() throws -> YieldSupplyContractAddresses {
         switch blockchain {
-        case .ethereum(false):
+        case .ethereum(true):
             AaveV3Constants.ethereumTestnetAddresses
-        case .polygon(true):
+        case .polygon(false):
             AaveV3Constants.polygonMainnetAddresses
         default:
             throw YieldModuleError.unsupportedBlockchain
