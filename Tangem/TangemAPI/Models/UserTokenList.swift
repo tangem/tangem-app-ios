@@ -10,6 +10,7 @@ import Foundation
 import struct TangemSdk.DerivationPath
 
 /// The API model for the`user-tokens/:key/` routing
+@available(iOS, deprecated: 100000.0, message: "Superseded by 'AccountsDTO.Response.Accounts', will be removed in the future")
 struct UserTokenList: Codable {
     var tokens: [Token]
     var group: GroupType
@@ -53,6 +54,7 @@ extension UserTokenList {
 }
 
 extension UserTokenList {
+    @available(iOS, deprecated: 100000.0, message: "Superseded by 'AccountsDTO.Response.Accounts.Token', will be removed in the future")
     struct Token: Codable, Hashable {
         let id: String?
         let networkId: String
