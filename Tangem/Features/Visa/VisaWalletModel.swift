@@ -190,6 +190,7 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var transactionCreator: any TransactionCreator { transactionDependency }
     var transactionValidator: any TransactionValidator { transactionDependency }
     var transactionSender: any TransactionSender { transactionDependency }
+    var multipleTransactionsSender: (any MultipleTransactionsSender)? { nil }
     var compiledTransactionSender: (any CompiledTransactionSender)? { transactionDependency }
     var ethereumTransactionDataBuilder: (any EthereumTransactionDataBuilder)? { nil }
     var ethereumNetworkProvider: (any EthereumNetworkProvider)? { nil }
@@ -318,6 +319,8 @@ extension VisaWalletModel: WalletModel {
 
     var stakingManager: (any StakingManager)? { nil }
 
+    var yieldModuleManager: (any YieldModuleManager)? { nil }
+
     var stakeKitTransactionSender: (any StakeKitTransactionSender)? { nil }
 
     var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? { nil }
@@ -336,8 +339,6 @@ extension VisaWalletModel: WalletModel {
         let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
         return addressInfos.map { .address($0) }
     }
-
-    var yieldService: YieldTokenService? { nil }
 }
 
 extension VisaWalletModel: Equatable {
