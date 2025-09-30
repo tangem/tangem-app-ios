@@ -21,10 +21,18 @@ struct AccountDetailsCoordinatorView: View {
                     .navigationTitle(Localization.accountDetailsTitle)
                     .padding(.horizontal, 16)
                     .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+                    .navigationLinks(links)
             }
 
             sheets
         }
+    }
+
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.manageTokensCoordinator) {
+                ManageTokensCoordinatorView(coordinator: $0)
+            }
     }
 
     private var sheets: some View {
