@@ -55,7 +55,6 @@ final class CommonYieldModuleManager {
     private let yieldSupplyService: YieldSupplyService
     private let tokenBalanceProvider: TokenBalanceProvider
 
-    private let allowanceChecker: AllowanceChecker
     private let transactionProvider: YieldTransactionProvider
     private let transactionFeeProvider: YieldTransactionFeeProvider
 
@@ -71,10 +70,11 @@ final class CommonYieldModuleManager {
         tokenBalanceProvider: TokenBalanceProvider,
         ethereumNetworkProvider: EthereumNetworkProvider,
         ethereumTransactionDataBuilder: EthereumTransactionDataBuilder,
-        transactionCreator: TransactionCreator
+        transactionCreator: TransactionCreator,
+        blockaidApiService: BlockaidAPIService
     ) {
         guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses(),
-              let maxNetworkFee = BigUInt(decimal: YieldConstants.maxNetworkFee * blockchain.decimalValue) else {
+              let maxNetworkFee = BigUInt(decimal: Constants.maxNetworkFee * blockchain.decimalValue) else {
             return nil
         }
 
@@ -93,19 +93,11 @@ final class CommonYieldModuleManager {
             maxNetworkFee: maxNetworkFee
         )
 
-        allowanceChecker = AllowanceChecker(
-            blockchain: blockchain,
-            amountType: .token(value: token),
-            walletAddress: walletAddress,
-            ethereumNetworkProvider: ethereumNetworkProvider,
-            ethereumTransactionDataBuilder: ethereumTransactionDataBuilder
-        )
-
         transactionFeeProvider = YieldTransactionFeeProvider(
             walletAddress: walletAddress,
             blockchain: blockchain,
             ethereumNetworkProvider: ethereumNetworkProvider,
-            allowanceChecker: allowanceChecker,
+            blockaidApiService: blockaidApiService,
             yieldSupplyContractAddresses: yieldSupplyContractAddresses,
             maxNetworkFee: maxNetworkFee
         )
@@ -137,8 +129,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
         switch yieldTokenState {
         case .notDeployed:
+            let yieldContractAddress = try await yieldSupplyService.calculateYieldContract()
+
             return try await transactionFeeProvider.deployFee(
-                walletAddress: walletAddress,
+                yieldContractAddress: yieldContractAddress,
                 tokenContractAddress: token.contractAddress
             )
         case .deployed(let deployed):
@@ -151,7 +145,6 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                 return try await transactionFeeProvider.initializeFee(
                     yieldContractAddress: deployed.yieldModule,
                     tokenContractAddress: token.contractAddress,
-                    balance: balance
                 )
             case .initialized(.notActive):
                 return try await transactionFeeProvider.reactivateFee(
@@ -304,5 +297,11 @@ private extension CommonYieldModuleManager {
         } else {
             return .notDeployed
         }
+    }
+}
+
+extension CommonYieldModuleManager {
+    enum Constants {
+        static let maxNetworkFee = Decimal(stringValue: "0.5")! // temp value, will be taken from backend response later
     }
 }
