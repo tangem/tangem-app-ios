@@ -70,7 +70,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .swap: Localization.commonSwap
         case .approve: Localization.commonApproval
         case .unknownOperation: Localization.transactionHistoryOperation
-        case .operation(name: let name): name
+        case .operation(name: let name, _): name
         case .stake: Localization.commonStake
         case .unstake: Localization.commonUnstake
         case .vote: Localization.stakingVote
@@ -97,6 +97,13 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .claimRewards:
             return Assets.dollarMini.image
         }
+    }
+
+    var iconURL: URL? {
+        if case .operation(_, let url) = transactionType {
+            return url
+        }
+        return nil
     }
 
     var iconColor: Color {
@@ -183,7 +190,7 @@ extension TransactionViewModel {
         case claimRewards
         case restake
         case unknownOperation
-        case operation(name: String)
+        case operation(name: String, icon: URL? = nil)
     }
 
     enum Status {
