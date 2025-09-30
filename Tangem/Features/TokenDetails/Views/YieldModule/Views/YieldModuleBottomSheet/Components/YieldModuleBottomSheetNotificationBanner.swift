@@ -24,6 +24,8 @@ struct YieldModuleBottomSheetNotificationBanner: View {
             return Localization.yieldModuleApproveNeededNotificationTitle
         case .notEnoughFeeCurrency(let feeCurrencyName, _, _):
             return Localization.yieldModuleUnableToCoverFeeTitle(feeCurrencyName)
+        case .feeUnreachable:
+            return Localization.yieldModuleNetworkFeeUnreachableNotificationTitle
         }
     }
 
@@ -33,6 +35,8 @@ struct YieldModuleBottomSheetNotificationBanner: View {
             return Localization.yieldModuleApproveNeededNotificationDescription
         case .notEnoughFeeCurrency(let feeCurrencyName, _, _):
             return Localization.yieldModuleUnableToCoverFeeDescription(feeCurrencyName, "")
+        case .feeUnreachable:
+            return Localization.yieldModuleNetworkFeeUnreachableNotificationDescription
         }
     }
 
@@ -42,6 +46,8 @@ struct YieldModuleBottomSheetNotificationBanner: View {
             Localization.yieldModuleApproveNeededNotificationCta
         case .notEnoughFeeCurrency(let feeCurrencyName, _, _):
             Localization.commonBuyCurrency(feeCurrencyName)
+        case .feeUnreachable:
+            Localization.warningButtonRefresh
         }
     }
 
@@ -51,15 +57,8 @@ struct YieldModuleBottomSheetNotificationBanner: View {
             return action
         case .notEnoughFeeCurrency(_, _, let action):
             return action
-        }
-    }
-
-    private var topPadding: CGFloat {
-        switch params {
-        case .approveNeeded:
-            return 8
-        case .notEnoughFeeCurrency:
-            return 26
+        case .feeUnreachable(let action):
+            return action
         }
     }
 
@@ -67,7 +66,7 @@ struct YieldModuleBottomSheetNotificationBanner: View {
         switch params {
         case .approveNeeded:
             return .primary
-        case .notEnoughFeeCurrency:
+        case .notEnoughFeeCurrency, .feeUnreachable:
             return .secondary
         }
     }
@@ -85,7 +84,7 @@ struct YieldModuleBottomSheetNotificationBanner: View {
             button
         }
         .defaultRoundedBackground()
-        .padding(.top, topPadding)
+        .padding(.top, 26)
     }
 
     // MARK: - Sub Views
@@ -100,7 +99,7 @@ struct YieldModuleBottomSheetNotificationBanner: View {
     }
 
     private var message: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 4) {
             titleView
             descriptionView
         }
@@ -108,7 +107,7 @@ struct YieldModuleBottomSheetNotificationBanner: View {
 
     private var icon: Image {
         switch params {
-        case .approveNeeded:
+        case .approveNeeded, .feeUnreachable:
             return Assets.attention.image
         case .notEnoughFeeCurrency(_, let tokenIcon, _):
             return tokenIcon.image
