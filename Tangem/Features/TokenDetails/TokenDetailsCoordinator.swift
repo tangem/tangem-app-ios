@@ -129,33 +129,43 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
-    func openYieldModulePromoView(walletModel: any WalletModel, info: YieldModuleInfo) {
-        let coordinator = YieldModulePromoCoordinator()
+    func openYieldModulePromoView(walletModel: any WalletModel, apy: String, startEarnAction: @escaping () -> Void) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.yieldModulePromoCoordinator = nil
+        }
 
+        let coordinator = YieldModulePromoCoordinator(dismissAction: dismissAction)
         let options = YieldModulePromoCoordinator.Options(
             walletModel: walletModel,
-            apy: info.apy,
-            networkFee: info.networkFee,
-            maximumFee: info.maximumFee,
-            lastYearReturns: info.lastYearReturns,
-            tokenImageUrl: info.tokenImageUrl,
+            apy: apy,
+            feeCurrencyNavigator: self,
+            startEarnAction: startEarnAction
         )
 
         coordinator.start(with: options)
         yieldModulePromoCoordinator = coordinator
     }
 
-    func openYieldEarnInfo(walletModel: any WalletModel, openFeeCurrencyAction: @escaping () -> Void) {
+    func openYieldEarnInfo(
+        walletModel: any WalletModel,
+        onGiveApproveAction: @escaping () -> Void,
+        onStopEarnAction: @escaping () -> Void
+    ) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
-                sheet: YieldModuleInfoViewModel(walletModel: walletModel, openFeeCurrencyAction: openFeeCurrencyAction)
+                sheet: YieldModuleInfoViewModel(
+                    walletModel: walletModel,
+                    feeCurrencyNavigator: self,
+                    onGiveApproveAction: onGiveApproveAction,
+                    onStopEarnAction: onStopEarnAction
+                )
             )
         }
     }
 
-    func openYieldBalanceInfo(params: YieldModuleViewConfigs.BalanceInfoParams) {
+    func openYieldBalanceInfo(tokenName: String, tokenId: String?) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldModuleBalanceInfoViewModel(params: params))
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBalanceInfoViewModel(tokenName: tokenName, tokenId: tokenId))
         }
     }
 }
