@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import Kingfisher
 
 struct TransactionView: View {
     let viewModel: TransactionViewModel
@@ -15,20 +16,19 @@ struct TransactionView: View {
     var body: some View {
         HStack(spacing: 12) {
             if let iconURL = viewModel.iconURL {
-                AsyncImage(url: iconURL) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(size: .init(bothDimensions: 40))
-                        .cornerRadiusContinuous(20)
-                } placeholder: {
-                    viewModel.icon
-                        .renderingMode(.template)
-                        .foregroundColor(viewModel.iconColor)
-                        .padding(10)
-                        .background(viewModel.iconBackgroundColor)
-                        .cornerRadiusContinuous(20)
-                }
+                KFImage(iconURL)
+                    .resizable()
+                    .placeholder {
+                        viewModel.icon
+                            .renderingMode(.template)
+                            .foregroundColor(viewModel.iconColor)
+                            .padding(10)
+                            .background(viewModel.iconBackgroundColor)
+                            .cornerRadiusContinuous(20)
+                    }
+                    .aspectRatio(contentMode: .fit)
+                    .frame(size: .init(bothDimensions: 40))
+                    .cornerRadiusContinuous(20)
             } else {
                 viewModel.icon
                     .renderingMode(.template)
