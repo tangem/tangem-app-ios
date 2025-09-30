@@ -117,7 +117,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
                 return simulationFailed
             }
 
-            let transactionParams = BlockaidDTO.EvmScan.Request.TransactionParams(
+            let transactionParams = BlockaidDTO.TransactionParams(
                 from: transaction.from,
                 to: transaction.to,
                 data: transaction.data ?? "0x",
