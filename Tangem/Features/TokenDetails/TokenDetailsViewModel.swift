@@ -432,20 +432,16 @@ extension TokenDetailsViewModel {
     func openYieldModulePromo() {
         coordinator?.openYieldModulePromoView(
             walletModel: walletModel,
-            info: .init(apy: "WIP", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:], tokenImageUrl: iconUrl)
+            apy: "5.1",
+            startEarnAction: {}
         )
     }
 
     func openYieldEarnInfo() {
-        coordinator?.openYieldEarnInfo(
-            walletModel: walletModel,
-            openFeeCurrencyAction: { [weak self] in
-                self?.openFeeCurrency()
-            }
-        )
+        coordinator?.openYieldEarnInfo(walletModel: walletModel, onGiveApproveAction: {}, onStopEarnAction: {})
     }
 
     func openYieldBalanceInfo() {
-        coordinator?.openYieldBalanceInfo(params: .init(tokenItem: walletModel.tokenItem))
+        coordinator?.openYieldBalanceInfo(tokenName: walletModel.tokenItem.name, tokenId: walletModel.tokenItem.id)
     }
 }
