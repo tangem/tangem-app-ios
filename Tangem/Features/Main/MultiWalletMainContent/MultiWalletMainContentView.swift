@@ -47,6 +47,10 @@ struct MultiWalletMainContentView: View {
                 NotificationView(input: input)
             }
 
+            if let viewModel = viewModel.tangemPayAccountViewModel {
+                TangemPayAccountView(viewModel: viewModel)
+            }
+
             tokensContent
                 .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
 

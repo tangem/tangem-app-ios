@@ -83,6 +83,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.nftCollectionsCoordinator) {
                 NFTCollectionsCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.tangemPayMainViewModel) {
+                TangemPayMainView(viewModel: $0)
+            }
     }
 
     @ViewBuilder
@@ -172,6 +175,151 @@ struct MainCoordinatorView: CoordinatorView {
             onHideAction: coordinator.hideMarketsTooltip,
             title: Localization.marketsTooltipTitle,
             message: Localization.marketsTooltipMessage
+        )
+    }
+}
+
+import TangemFoundation
+
+final class TangemPayMainViewModel: ObservableObject {
+    let mainHeaderViewModel: MainHeaderViewModel
+    @Published private(set) var tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel?
+    @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
+
+    private let tangemPayAccount: TangemPayAccount
+    private let transactionHistoryService: VisaTransactionHistoryService
+
+    private var historyReloadTask: Task<Void, Never>?
+
+    init(tangemPayAccount: TangemPayAccount) {
+        self.tangemPayAccount = tangemPayAccount
+
+        mainHeaderViewModel = MainHeaderViewModel(
+            isUserWalletLocked: false,
+            supplementInfoProvider: tangemPayAccount,
+            subtitleProvider: tangemPayAccount,
+            balanceProvider: tangemPayAccount,
+            updatePublisher: .empty
+        )
+
+        transactionHistoryService = VisaTransactionHistoryService(apiService: tangemPayAccount.customerInfoManagementService)
+
+        tangemPayAccount.tangemPayCardDetailsPublisher
+            .map { cardDetails -> TangemPayCardDetailsViewModel? in
+                guard let (card, _) = cardDetails else {
+                    return nil
+                }
+                return TangemPayCardDetailsViewModel(
+                    lastFourDigits: card.cardNumberEnd,
+                    customerInfoManagementService: tangemPayAccount.customerInfoManagementService
+                )
+            }
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$tangemPayCardDetailsViewModel)
+
+        transactionHistoryService
+            .itemsPublisher
+            .map { items in
+                let items = items
+                    .compactMap(\.spend)
+                    .enumerated()
+                    .map { index, item in
+                        item.transactionViewModel(index: index)
+                    }
+
+                return .loaded(
+                    [
+                        .init(
+                            header: "All transactions",
+                            items: items
+                        ),
+                    ]
+                )
+            }
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$tangemPayTransactionHistoryState)
+    }
+
+    func fetchNextTransactionHistoryPage() -> FetchMore? {
+        guard transactionHistoryService.canFetchMoreHistory else {
+            return nil
+        }
+
+        return FetchMore { [weak self] in
+            self?.loadNextHistoryPage()
+        }
+    }
+
+    private func reloadHistory() {
+        guard historyReloadTask == nil else {
+            return
+        }
+
+        historyReloadTask = Task { [weak self] in
+            await self?.transactionHistoryService.reloadHistory()
+            self?.historyReloadTask = nil
+        }
+    }
+
+    private func loadNextHistoryPage() {
+        guard historyReloadTask == nil else {
+            return
+        }
+
+        historyReloadTask = Task { [weak self] in
+            await self?.transactionHistoryService.loadNextPage()
+            self?.historyReloadTask = nil
+        }
+    }
+}
+
+struct TangemPayMainView: View {
+    @ObservedObject var viewModel: TangemPayMainViewModel
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 14) {
+                MainHeaderView(viewModel: viewModel.mainHeaderViewModel)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if let tangemPayCardDetailsViewModel = viewModel.tangemPayCardDetailsViewModel {
+                    TangemPayCardDetailsView(viewModel: tangemPayCardDetailsViewModel)
+                }
+
+                TransactionsListView(
+                    state: viewModel.tangemPayTransactionHistoryState,
+                    exploreAction: nil,
+                    exploreTransactionAction: { _ in },
+                    reloadButtonAction: {},
+                    isReloadButtonBusy: false,
+                    fetchMore: viewModel.fetchNextTransactionHistoryPage()
+                )
+
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+        }
+        .background(Colors.Background.secondary)
+    }
+}
+
+import TangemVisa
+
+private extension TangemPayTransactionHistoryResponse.Spend {
+    func transactionViewModel(index: Int) -> TransactionViewModel {
+        TransactionViewModel(
+            hash: "N/A",
+            index: index,
+            interactionAddress: .custom(message: enrichedMerchantCategory ?? merchantCategory ?? "mapByMCC(\(merchantCategoryCode))"),
+            timeFormatted: postedAt?.formatted(date: .omitted, time: .shortened),
+            amount: "\(-amount) \(currency)",
+            isOutgoing: true,
+            transactionType: .operation(
+                name: enrichedMerchantName ?? merchantName ?? "Card payment",
+                icon: enrichedMerchantIcon
+            ),
+            status: .confirmed
         )
     }
 }
