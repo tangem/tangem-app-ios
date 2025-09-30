@@ -1049,6 +1049,7 @@
 "staking_details_annual_percentage_yield_info" = "APY shows the validator’s annual percentage yield based on its performance";
 "staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "APR";
+"staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "報酬は毎日自動的にステーキング残高に蓄積されます。";
 "staking_details_available" = "利用可能";
 "staking_details_average_reward_rate" = "平均報酬率";
@@ -1697,3 +1698,5 @@
 "yield_module_transfer_mode_automatic" = "自動";
 "yield_module_unable_to_cover_fee_description" = "取引のネットワーク手数料をカバーするために、 %1$@ %2$@を入金してください";
 "yield_module_unable_to_cover_fee_title" = "%@手数料を支払えません";
+"yield_module_unavailable_subtitle" = "The interest service isn’t available at the moment. Please try again later.";
+"yield_module_unavailable_title" = "Earnings unavailable";
