@@ -102,6 +102,7 @@ extension Analytics {
 
         case success = "Success"
         case fail = "Fail"
+        case failed = "Failed"
 
         /// SelectedCurrency
         case selectedCurrencyApp = "App Currency"
@@ -276,6 +277,10 @@ extension Analytics {
 
         static func seedState(for boolean: Bool) -> ParameterValue {
             return boolean ? .seedphrase : .seedless
+        }
+
+        static func successOrFailed(for boolean: Bool) -> ParameterValue {
+            return boolean ? .success : .failed
         }
     }
 }
