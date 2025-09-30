@@ -71,8 +71,9 @@ final class VisaUserWalletModel {
     }
 
     var transactionHistoryItems: [TransactionListItem] {
-        let historyMapper = VisaTransactionHistoryMapper(currencySymbol: currencySymbol)
-        return historyMapper.mapTransactionListItem(from: transactionHistoryService.items)
+//        let historyMapper = VisaTransactionHistoryMapper(currencySymbol: currencySymbol)
+//        return historyMapper.mapTransactionListItem(from: transactionHistoryService.items)
+        fatalError()
     }
 
     var canFetchMoreTransactionHistory: Bool {
@@ -115,7 +116,8 @@ final class VisaUserWalletModel {
     init(userWalletModel: UserWalletModel, cardInfo: CardInfo) {
         self.userWalletModel = userWalletModel
         self.cardInfo = cardInfo
-        transactionHistoryService = .init(cardId: cardInfo.card.cardId)
+//        transactionHistoryService = .init(cardId: cardInfo.card.cardId)
+        fatalError()
 
         let cardWalletAddress = VisaUtilities.makeAddress(using: userWalletModel.keysRepository.keys)?.value
         self.cardWalletAddress = cardWalletAddress
@@ -134,7 +136,8 @@ final class VisaUserWalletModel {
     }
 
     func transaction(with id: UInt64) -> VisaTransactionRecord? {
-        transactionHistoryService.items.first(where: { $0.id == id })
+//        transactionHistoryService.items.first(where: { $0.id == id })
+        fatalError()
     }
 
     func generalUpdateAsync() async {
@@ -402,7 +405,8 @@ extension VisaUserWalletModel {
         let apiService = VisaAPIServiceBuilder()
             .buildTransactionHistoryService(authorizationTokensHandler: authorizationTokensHandler)
 
-        transactionHistoryService.setupApiService(productInstanceId: productInstanceId, apiService: apiService)
+//        transactionHistoryService.setupApiService(productInstanceId: productInstanceId, apiService: apiService)
+        fatalError()
     }
 }
 

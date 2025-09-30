@@ -10,10 +10,14 @@ import Combine
 import TangemVisa
 import TangemSdk
 import TangemFoundation
+import TangemAssets
 
 final class TangemPayAccount {
     let tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never>
-    let tangemPayCardIssuingInProgress: AnyPublisher<Bool, Never>
+    let tangemPayCardIssuingInProgressPublisher: AnyPublisher<Bool, Never>
+
+    let tangemPayCardDetailsPublisher: AnyPublisher<(VisaCustomerInfoResponse.Card, TangemPayBalance)?, Never>
+    let tangemPayBalancePublisher: AnyPublisher<TangemPayBalance?, Never>
 
     let tangemPayNotificationManager: TangemPayNotificationManager
 
@@ -21,10 +25,13 @@ final class TangemPayAccount {
 
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let authorizer: TangemPayAuthorizer
-    private let customerInfoManagementService: any CustomerInfoManagementService
+    let customerInfoManagementService: any CustomerInfoManagementService
     private let orderIdStorage: TangemPayOrderIdStorage
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
+    private let balanceSubject = CurrentValueSubject<TangemPayBalance?, Never>(nil)
+    private let transactionHistorySubject = CurrentValueSubject<TangemPayTransactionHistoryResponse?, Never>(nil)
+
     private let didTapIssueOrderSubject = PassthroughSubject<Void, Never>()
     private var customerInfoPollingTask: Task<Void, Never>?
 
@@ -50,9 +57,23 @@ final class TangemPayAccount {
             .compactMap(\.self?.tangemPayStatus)
             .eraseToAnyPublisher()
 
-        tangemPayCardIssuingInProgress = orderIdStorage.savedOrderIdPublisher
+        tangemPayCardIssuingInProgressPublisher = orderIdStorage.savedOrderIdPublisher
             .map { $0 != nil }
             .merge(with: didTapIssueOrderSubject.mapToValue(true))
+            .eraseToAnyPublisher()
+
+        tangemPayCardDetailsPublisher = customerInfoSubject
+            .map { customerInfo in
+                guard let card = customerInfo?.card, let balance = customerInfo?.balance else {
+                    return nil
+                }
+                return (card, balance)
+            }
+            .eraseToAnyPublisher()
+
+        tangemPayBalancePublisher = balanceSubject
+            .merge(with: customerInfoSubject.map(\.?.balance))
+            .removeDuplicates()
             .eraseToAnyPublisher()
 
         tangemPayNotificationManager = TangemPayNotificationManager(tangemPayStatusPublisher: tangemPayStatusPublisher)
@@ -111,6 +132,19 @@ final class TangemPayAccount {
         try await getCustomerInfo().tangemPayStatus
     }
 
+    func loadBalance() {
+        runTask(in: self) { tangemPayAccount in
+            do {
+                try await tangemPayAccount.prepareTokensHandler()
+                let balance = try! await tangemPayAccount.customerInfoManagementService.getBalance()
+                tangemPayAccount.balanceSubject.send(balance)
+            } catch {
+                // [REDACTED_TODO_COMMENT]
+                assertionFailure(error.localizedDescription)
+            }
+        }
+    }
+
     private func startCustomerInfoPolling() {
         customerInfoPollingTask?.cancel()
 
@@ -156,7 +190,7 @@ final class TangemPayAccount {
         return try await customerInfoManagementService.loadCustomerInfo()
     }
 
-    private func prepareTokensHandler() async throws {
+    func prepareTokensHandler() async throws {
         if await authorizationTokensHandler.refreshTokenExpired {
             let tokens = try await authorizer.authorizeWithCustomerWallet()
             try await authorizationTokensHandler.setupTokens(tokens)
@@ -218,6 +252,62 @@ extension TangemPayAccount: NotificationTapDelegate {
         default:
             break
         }
+    }
+}
+
+extension TangemPayAccount: MainHeaderSupplementInfoProvider {
+    var name: String {
+        "Tangem Pay"
+    }
+
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+        .just(output: nil)
+    }
+
+    var updatePublisher: AnyPublisher<UpdateResult, Never> {
+        .empty
+    }
+}
+
+extension TangemPayAccount: MainHeaderSubtitleProvider {
+    var isLoadingPublisher: AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+
+    var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> {
+        tangemPayBalancePublisher
+            .map { balance -> MainHeaderSubtitleInfo in
+                guard let balance else {
+                    return .init(messages: [], formattingOption: .default)
+                }
+
+                return .init(messages: ["\(balance.availableBalance.description) \(balance.currency)"], formattingOption: .default)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var containsSensitiveInfo: Bool {
+        false
+    }
+}
+
+extension TangemPayAccount: MainHeaderBalanceProvider {
+    var balance: LoadableTokenBalanceView.State {
+        guard let balance = balanceSubject.value ?? customerInfoSubject.value?.balance else {
+            return .loading(cached: nil)
+        }
+        return .loaded(text: .string("$" + balance.availableBalance.description))
+    }
+
+    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
+        tangemPayBalancePublisher
+            .map { balance in
+                guard let balance else {
+                    return .loading(cached: nil)
+                }
+                return .loaded(text: .string("$" + balance.availableBalance.description))
+            }
+            .eraseToAnyPublisher()
     }
 }
 
