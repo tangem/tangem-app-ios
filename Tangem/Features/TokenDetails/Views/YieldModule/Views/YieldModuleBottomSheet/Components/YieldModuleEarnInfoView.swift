@@ -45,9 +45,6 @@ extension YieldModuleInfoView {
                     .padding(.bottom, 18)
 
                 // [REDACTED_TODO_COMMENT]
-                Rectangle()
-                    .fill(.white)
-                    .frame(height: 120)
             }
             .defaultRoundedBackground()
         }
@@ -76,7 +73,6 @@ extension YieldModuleInfoView {
             var linkPart = AttributedString(Localization.commonReadMore)
             linkPart.font = Fonts.Regular.caption1
             linkPart.foregroundColor = Colors.Text.accent
-            linkPart.link = params.readMoreUrl
 
             attr.append(AttributedString(" "))
             attr.append(linkPart)
