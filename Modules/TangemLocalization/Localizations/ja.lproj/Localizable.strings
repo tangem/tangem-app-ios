@@ -18,8 +18,8 @@
 "account_archived_accounts" = "アーカイブされたアカウント";
 "account_archived_recover_dialog_description" = "「 %1$@ 」を回復しようとしています。";
 "account_archived_recover_dialog_title" = "アカウントを回復する";
-"account_archived_recover_error_message" = "You have already exceeded the limit of 20 active accounts. Archive one to recover";
-"account_archived_recover_error_title" = "Can't recover account";
+"account_archived_recover_error_message" = "すでにアクティブアカウント数の上限（20件）を超えています。復元するには1件アーカイブしてください。";
+"account_archived_recover_error_title" = "アカウントを復元できません";
 "account_archived_recover" = "回復する";
 "account_archived_title" = "アーカイブ済み";
 "account_could_not_create" = "アカウントを作成できませんでした。しばらくしてからもう一度お試しください。";
@@ -876,6 +876,7 @@
 "receive_bottom_sheet_warning_message" = "%3$@ネットワーク上の%1$@ ( %2$@ )";
 "receive_bottom_sheet_warning_title" = "%2$@ネットワークの%1$@のみを送信してください";
 "receive_token_description" = "ウォレットや取引所から資金を送金する";
+"referral_address_for_rewards" = "Address for rewards";
 "referral_button_participate" = "参加する";
 "referral_error_failed_to_load_info_with_reason" = "紹介プログラムに関する情報を読み込めませんでした。エラー コード: %@ 。しばらくしてからもう一度お試しください。";
 "referral_error_failed_to_load_info" = "紹介プログラムに関する情報を読み込めませんでした。しばらくしてからもう一度お試しください。";
@@ -1177,7 +1178,7 @@
 "story_web3_title" = "Web3.0対応";
 "sui_not_enough_coin_for_fee_description" = "続行するには少なくとも%1$@の受信取引が必要です";
 "sui_not_enough_coin_for_fee_title" = "残高不足";
-"swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
+"swap_approve_description" = "承認すると、このスマートコントラクトが今後の取引でトークンを利用できるようになります。";
 "swap_fixed_rate" = "固定レート";
 "swap_give_permission_fee_footer" = "ネットワークは、あなたがトークンのスワップを承認していることを確認するために、トークン承認手数料を請求します。";
 "swap_promo_text" = "より多くのトークンをより良いレートで、ウォレット内にて直接交換します。";
@@ -1639,7 +1640,7 @@
 "yield_module_approve_sheet_title" = "承認を確定する";
 "yield_module_balance_info_sheet_subtitle" = "資産残高に関するテキスト [プレースホルダー]";
 "yield_module_balance_info_sheet_title" = "あなたの%@はAaveに預けられています";
-"yield_module_earn_badge" = "%@%を獲得";
+"yield_module_earn_badge" = "%1$@%% を獲得";
 "yield_module_earn_sheet_available_title" = "利用可能";
 "yield_module_earn_sheet_current_apy_title" = "現在のAPY";
 "yield_module_earn_sheet_my_funds_title" = "私の資金";
