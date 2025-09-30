@@ -56,9 +56,10 @@ final class CommonCryptoAccountsRepository {
 
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
         let mainAccountPersistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
-        let storedTokens = tokenItemsRepository.getList().entries
+        let legacyStoredTokens = tokenItemsRepository.getList().entries
+        let tokens = LegacyStorableEntriesConverter.convert(legacyStoredTokens: legacyStoredTokens)
 
-        addCryptoAccount(withConfig: mainAccountPersistentConfig, tokens: storedTokens)
+        addCryptoAccount(withConfig: mainAccountPersistentConfig, tokens: tokens)
     }
 }
 
@@ -96,5 +97,24 @@ private extension CommonCryptoAccountsRepository {
     enum Constants {
         static let defaultGroupingType: StoredCryptoAccount.Grouping = .none
         static let defaultSortingType: StoredCryptoAccount.Sorting = .manual
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension CommonCryptoAccountsRepository {
+    enum LegacyStorableEntriesConverter {
+        static func convert(legacyStoredTokens: [StoredUserTokenList.Entry]) -> [StoredCryptoAccount.Token] {
+            return legacyStoredTokens.map { entry in
+                StoredCryptoAccount.Token(
+                    id: entry.id,
+                    name: entry.name,
+                    symbol: entry.symbol,
+                    decimalCount: entry.decimalCount,
+                    blockchainNetwork: .known(blockchainNetwork: entry.blockchainNetwork),
+                    contractAddress: entry.contractAddress
+                )
+            }
+        }
     }
 }
