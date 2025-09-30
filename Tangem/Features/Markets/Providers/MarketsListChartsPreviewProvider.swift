@@ -15,8 +15,8 @@ final class MarketsListChartsHistoryProvider {
     private static let maxNumberOfItemsPerRequest = 200
 
     private let lock = Lock(isRecursive: false)
+    private let logger = AppLogger.tag("\(MarketsListChartsHistoryProvider.self)")
 
-    private lazy var logger = AppLogger.tag(String(describing: self))
     private var requestedItemsDictionary: [MarketsPriceIntervalType: Set<String>] = [:]
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
