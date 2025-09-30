@@ -20,7 +20,7 @@ struct YieldNoticeView: View {
             subtitle: Localization.yieldModuleAlertDescription,
             button: MainButton(settings: .init(title: Localization.commonGotIt, style: .secondary, action: viewModel.didTapButton)),
             header: { BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.didTapClose() }}) },
-            topContent: { LendingPairIcon(tokenIconInfo: viewModel.tokenIconInfo, iconsSize: IconViewSizeSettings.tokenDetails.iconSize) }
+            topContent: { LendingPairIcon(tokenId: viewModel.tokenId, iconsSize: IconViewSizeSettings.tokenDetails.iconSize) }
         )
     }
 }
