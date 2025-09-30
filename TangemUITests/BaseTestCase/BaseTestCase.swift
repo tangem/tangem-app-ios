@@ -47,6 +47,7 @@ class BaseTestCase: XCTestCase {
         expressApiType: ExpressAPI? = nil,
         stakingApiType: StakingAPI? = nil,
         skipToS: Bool = true,
+        clearStorage: Bool = false,
         scenarios: [ScenarioConfig] = []
     ) {
         var arguments = ["--uitesting", "--alpha"]
@@ -59,6 +60,10 @@ class BaseTestCase: XCTestCase {
 
         if skipToS {
             arguments.append("-uitest-skip-tos")
+        }
+
+        if clearStorage {
+            arguments.append("-uitest-clear-storage")
         }
 
         app.launchArguments = arguments

@@ -151,6 +151,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
 
         launchApp(
             tangemApiType: .mock,
+            clearStorage: true,
             scenarios: [quotesErrorScenario, coinsListErrorScenario]
         )
 
@@ -174,6 +175,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
 
         launchApp(
             tangemApiType: .mock,
+            clearStorage: true,
             scenarios: [coinsListDelayScenario, quotesDelayScenario]
         )
 
