@@ -33,6 +33,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
     @Published var tangemPayCardIssuingInProgress: Bool = false
 
+    @Published var tangemPayAccountViewModel: TangemPayAccountViewModel?
+
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
     @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
@@ -130,9 +132,26 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 .receive(on: DispatchQueue.main)
                 .assign(to: &$tangemPayNotificationInputs)
 
-            tangemPayAccount.tangemPayCardIssuingInProgress
+            tangemPayAccount.tangemPayCardIssuingInProgressPublisher
                 .receive(on: DispatchQueue.main)
                 .assign(to: &$tangemPayCardIssuingInProgress)
+
+            tangemPayAccount.tangemPayCardDetailsPublisher
+                .withWeakCaptureOf(self)
+                .map { viewModel, cardDetails in
+                    guard let (card, balance) = cardDetails else {
+                        return nil
+                    }
+                    return TangemPayAccountViewModel(
+                        card: card,
+                        balance: balance,
+                        tapAction: {
+                            viewModel.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
+                        }
+                    )
+                }
+                .receive(on: DispatchQueue.main)
+                .assign(to: &$tangemPayAccountViewModel)
 
             self.tangemPayAccount = tangemPayAccount
         }
@@ -415,6 +434,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+    }
+
+    private func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
+        coordinator?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
     }
 }
 
