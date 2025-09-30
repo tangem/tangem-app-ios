@@ -19,6 +19,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var detailsButton = button(.detailsButton)
     private lazy var actionButtonsList = otherElement(.actionButtonsList)
     private lazy var headerCardImage = image(.headerCardImage)
+    private lazy var totalBalance = staticText(.totalBalance)
+    private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
 
     func validate(cardType: CardMockAccessibilityIdentifiers) {
         XCTContext.runActivity(named: "Validate MainPage for card type: \(cardType.rawValue)") { _ in
@@ -184,6 +186,115 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func longPressWalletHeader() -> Self {
+        XCTContext.runActivity(named: "Long press wallet header") { _ in
+            XCTAssertTrue(headerCardImage.waitForExistence(timeout: .robustUIUpdate), "Header card image should exist")
+            headerCardImage.press(forDuration: 1.0)
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForNoRenameButton() -> Self {
+        XCTContext.runActivity(named: "Wait for no rename button exists") { _ in
+            let renameButton = app.buttons["Rename"]
+            XCTAssertFalse(renameButton.exists, "Rename button should not exist in context menu")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForDeleteButtonExists() -> Self {
+        XCTContext.runActivity(named: "Wait for delete button exists") { _ in
+            let deleteButton = app.buttons["Delete"]
+            XCTAssertTrue(deleteButton.waitForExistence(timeout: .robustUIUpdate), "Delete button should exist in context menu")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForTotalBalanceDisplayedAsDash() -> Self {
+        XCTContext.runActivity(named: "Wait for total balance displayed as dash") { _ in
+            XCTAssertTrue(totalBalance.waitForExistence(timeout: .robustUIUpdate), "Total balance element should exist")
+            XCTAssertTrue(totalBalance.label.contains("–"), "Total balance should be displayed as dash")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForTotalBalanceDisplayed() -> Self {
+        XCTContext.runActivity(named: "Wait for total balance displayed") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance should be displayed")
+            return self
+        }
+    }
+
+    func getTotalBalanceValue() -> String {
+        XCTContext.runActivity(named: "Get total balance value") { _ in
+            XCTAssertTrue(totalBalance.waitForExistence(timeout: .robustUIUpdate), "Total balance element should exist")
+            return totalBalance.label
+        }
+    }
+
+    func getTokenBalance(tokenName: String) -> String {
+        XCTContext.runActivity(named: "Get balance for token: \(tokenName)") { _ in
+            XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
+
+            let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)]
+
+            XCTAssertTrue(balanceElement.waitForExistence(timeout: .robustUIUpdate), "Balance element should exist for token '\(tokenName)'")
+
+            return balanceElement.label
+        }
+    }
+
+    @discardableResult
+    func validateTotalBalanceContainsCurrency(_ currencySymbol: String) -> Self {
+        XCTContext.runActivity(named: "Validate total balance contains currency symbol: \(currencySymbol)") { _ in
+            XCTAssertTrue(totalBalance.waitForExistence(timeout: .robustUIUpdate), "Total balance element should exist")
+            let balanceText = totalBalance.label
+            XCTAssertTrue(balanceText.contains(currencySymbol), "Total balance should contain '\(currencySymbol)' but was '\(balanceText)'")
+            return self
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForTotalBalanceShimmer() -> Self {
+        XCTContext.runActivity(named: "Wait for total balance shimmer effect") { _ in
+            // Wait for shimmer element to appear with specific identifier
+            XCTAssertTrue(totalBalanceShimmer.waitForExistence(timeout: .robustUIUpdate), "Total balance shimmer should be displayed")
+            return self
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForTotalBalanceShimmerToDisappear() -> Self {
+        XCTContext.runActivity(named: "Wait for total balance shimmer to disappear") { _ in
+            // Wait for shimmer element to disappear
+            XCTAssertTrue(totalBalanceShimmer.waitForNonExistence(timeout: .robustUIUpdate), "Total balance shimmer should disappear")
+            return self
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForTotalBalanceShimmerToComplete() -> Self {
+        XCTContext.runActivity(named: "Wait for total balance shimmer to complete and show final content") { _ in
+            // First wait for shimmer to disappear
+            XCTAssertTrue(totalBalanceShimmer.waitForNonExistence(timeout: .robustUIUpdate), "Total balance shimmer should disappear")
+
+            // Then wait for final content to appear
+            XCTAssertTrue(totalBalance.waitForExistence(timeout: .robustUIUpdate), "Total balance should be displayed")
+            XCTAssertFalse(totalBalance.label.isEmpty, "Total balance should have content")
+
+            return self
+        }
+        return self
+    }
+
     private func isGrouped() -> Bool {
         let networkHeaders = tokensList.descendants(matching: .staticText)
             .allElementsBoundByIndex
@@ -205,6 +316,8 @@ enum MainScreenElement: String, UIElement {
     case detailsButton
     case actionButtonsList
     case headerCardImage
+    case totalBalance
+    case totalBalanceShimmer
 
     var accessibilityIdentifier: String {
         switch self {
@@ -224,6 +337,10 @@ enum MainScreenElement: String, UIElement {
             TokenAccessibilityIdentifiers.actionButtonsList
         case .headerCardImage:
             MainAccessibilityIdentifiers.headerCardImage
+        case .totalBalance:
+            MainAccessibilityIdentifiers.totalBalance
+        case .totalBalanceShimmer:
+            "\(MainAccessibilityIdentifiers.totalBalance)Shimmer"
         }
     }
 }
