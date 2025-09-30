@@ -12,40 +12,10 @@ import TangemLocalization
 import TangemAssets
 
 enum YieldModuleViewConfigs {
-    struct BalanceInfoParams: Equatable {
-        let tokenItem: TokenItem
-    }
-
     enum YieldModuleNotificationBannerParams {
         case notEnoughFeeCurrency(feeCurrencyName: String, tokenIcon: ImageType, buttonAction: @MainActor @Sendable () -> Void)
         case approveNeeded(buttonAction: @MainActor @Sendable () -> Void)
-    }
-
-    struct CommonParams: Equatable {
-        let tokenName: String
-        let networkFee: String
-        let readMoreUrl: URL
-
-        @IgnoredEquatable var mainAction: @MainActor @Sendable () -> Void
-    }
-
-    struct StartEarningParams: Equatable {
-        let tokenName: String
-        let tokenId: String?
-        let networkFee: String
-        let maximumFee: String
-        let blockchainName: String
-    }
-
-    struct RateInfoParams: Equatable {
-        let lastYearReturns: [String: Double]
-    }
-
-    struct FeePolicyParams: Equatable {
-        let tokenName: String
-        let networkFee: String
-        let maximumFee: String
-        let blockchainName: String
+        case feeUnreachable(buttonAction: @MainActor @Sendable () -> Void)
     }
 
     struct EarnInfoParams: Equatable {
@@ -56,7 +26,6 @@ enum YieldModuleViewConfigs {
         let transferMode: String
         let tokenName: String
         let tokenSymbol: String
-        let readMoreUrl: URL
 
         struct AvailableFundsData: Identifiable, Equatable {
             let availableBalance: String
