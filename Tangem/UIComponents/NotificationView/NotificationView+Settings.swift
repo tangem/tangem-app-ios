@@ -131,7 +131,7 @@ extension NotificationView {
         case icon(TokenIconInfo)
         case progressView
         case placeholder
-        case yieldModuleIcon(TokenIconInfo)
+        case yieldModuleIcon(tokenId: String?)
     }
 
     struct MessageIcon {
