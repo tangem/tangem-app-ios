@@ -14,9 +14,11 @@ public struct TokenMetadata: Hashable, Codable {
     }
 
     public let kind: Kind
+    public let yieldSupply: TokenYieldSupply?
 
-    public init(kind: Kind) {
+    public init(kind: Kind, yieldSupply: TokenYieldSupply? = nil) {
         self.kind = kind
+        self.yieldSupply = yieldSupply
     }
 }
 

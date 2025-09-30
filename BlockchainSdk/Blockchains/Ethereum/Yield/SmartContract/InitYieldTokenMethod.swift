@@ -10,17 +10,17 @@ import Foundation
 import BigInt
 
 public struct InitYieldTokenMethod {
-    let yieldTokenAddress: String
+    let tokenContractAddress: String
     let maxNetworkFee: BigUInt
 
-    public init(yieldTokenAddress: String, maxNetworkFee: BigUInt) {
-        self.yieldTokenAddress = yieldTokenAddress
+    public init(tokenContractAddress: String, maxNetworkFee: BigUInt) {
+        self.tokenContractAddress = tokenContractAddress
         self.maxNetworkFee = maxNetworkFee
     }
 }
 
 extension InitYieldTokenMethod: SmartContractMethod {
-    /// - Note: First 4 bytes of Keccak-256 hash for the `initYieldToken(address,uint240)` method.
+    /// - Note: First 4 bytes of Keccak-256 hash for the `initYieldToken(address yieldToken, uint240 maxNetworkFee)` method.
     public var methodId: String { "0xebd4b81c" }
     public var data: Data { defaultData() }
 }
