@@ -58,7 +58,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         let mainScreen = appSettingsScreen
             .goBackToDetails()
             .goBackToMain()
-            .validateTotalBalanceContainsCurrency("₽")
+            .waitForTotalBalanceContainsCurrency("₽")
 
         let updatedAppSettingsScreen = mainScreen
             .openDetails()
@@ -69,7 +69,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         updatedAppSettingsScreen
             .goBackToDetails()
             .goBackToMain()
-            .validateTotalBalanceContainsCurrency("$")
+            .waitForTotalBalanceContainsCurrency("$")
     }
 
     func testTotalBalancePersistsAfterAppMinimizeAndMaximize() {

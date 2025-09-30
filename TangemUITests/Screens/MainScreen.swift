@@ -259,7 +259,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
-    func validateTotalBalanceContainsCurrency(_ currencySymbol: String) -> Self {
+    func waitForTotalBalanceContainsCurrency(_ currencySymbol: String) -> Self {
         XCTContext.runActivity(named: "Validate total balance contains currency symbol: \(currencySymbol)") { _ in
             XCTAssertTrue(totalBalance.waitForExistence(timeout: .robustUIUpdate), "Total balance element should exist")
             let balanceText = totalBalance.label
