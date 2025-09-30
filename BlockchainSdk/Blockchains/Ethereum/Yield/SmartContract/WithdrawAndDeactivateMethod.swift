@@ -10,10 +10,10 @@ import Foundation
 import BigInt
 
 public struct WithdrawAndDeactivateMethod {
-    let yieldTokenAddress: String
+    let tokenContractAddress: String
 
-    public init(yieldTokenAddress: String) {
-        self.yieldTokenAddress = yieldTokenAddress
+    public init(tokenContractAddress: String) {
+        self.tokenContractAddress = tokenContractAddress
     }
 }
 
