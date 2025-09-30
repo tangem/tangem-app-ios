@@ -20,7 +20,7 @@ struct YieldNoticeReceiveView: View {
             subtitle: Localization.yieldModuleAlertDescription,
             button: MainButton(settings: .init(title: Localization.commonGotIt, style: .secondary, action: viewModel.onGotItTapAction)),
             topContent: {
-                LendingPairIcon(tokenIconInfo: viewModel.yieldNoticeTokenIconInfo, iconsSize: IconViewSizeSettings.tokenDetails.iconSize)
+                LendingPairIcon(tokenId: viewModel.tokenId, iconsSize: IconViewSizeSettings.tokenDetails.iconSize)
             }
         )
     }
