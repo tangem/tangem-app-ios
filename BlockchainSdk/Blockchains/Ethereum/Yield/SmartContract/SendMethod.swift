@@ -10,13 +10,13 @@ import Foundation
 import BigInt
 
 public struct SendMethod {
-    let yieldTokenAddress: String
+    let tokenContractAddress: String
     let destination: String
     let amount: BigUInt
 }
 
 extension SendMethod: SmartContractMethod {
-    /// - Note: First 4 bytes of Keccak-256 hash for the `send(address,address,uint256)` method.
-    public var methodId: String { "0x9bd9bbc6" }
+    /// - Note: First 4 bytes of Keccak-256 hash for the `send(address yieldToken, address to, uint amount)` method.
+    public var methodId: String { "0x0779afe6" }
     public var data: Data { defaultData() }
 }
