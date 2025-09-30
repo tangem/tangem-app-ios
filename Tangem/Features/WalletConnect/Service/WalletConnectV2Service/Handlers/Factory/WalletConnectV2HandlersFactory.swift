@@ -103,7 +103,8 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 blockchainId: blockchainNetworkID,
                 signer: signer,
                 walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
-                walletModelProvider: walletModelProvider
+                walletModelProvider: walletModelProvider,
+                analyticsProvider: makeAnalyticsProvider(with: connectedDApp.dAppData)
             )
 
         case .solanaSignAllTransactions:
@@ -123,5 +124,11 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             // This page https://www.bnbchain.org/en/staking has WalletConnect in status 'Coming Soon'
             throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
         }
+    }
+
+    // MARK: - Private Implementation
+
+    private func makeAnalyticsProvider(with dAppData: WalletConnectDAppData?) -> WalletConnectServiceAnalyticsProvider {
+        CommonWalletConnectServiceAnalyticsProvider(dAppData: dAppData)
     }
 }
