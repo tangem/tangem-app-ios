@@ -14,6 +14,41 @@ import TangemFoundation
 import TangemLocalization
 
 // [REDACTED_TODO_COMMENT]
+private extension StoredCryptoAccount.Token.BlockchainNetworkContainer {
+    var knownValue: BlockchainNetwork? {
+        switch self {
+        case .known(let blockchainNetwork):
+            return blockchainNetwork
+        case .unknown:
+            return nil
+        }
+    }
+}
+
+// [REDACTED_TODO_COMMENT]
+private extension StoredCryptoAccount.Token {
+    func isEqualTo(_ bsdkToken: Token) -> Bool {
+        // Matches the `Equatable` implementation of the `BlockchainSdk.Token`
+        return contractAddress == bsdkToken.contractAddress
+    }
+
+    func toBSDKToken() -> Token? {
+        guard let contractAddress else {
+            return nil
+        }
+
+        return Token(
+            name: name,
+            symbol: symbol,
+            contractAddress: contractAddress,
+            decimalCount: decimalCount,
+            id: id,
+            metadata: .fungibleTokenMetadata // By definition, in the domain layer we're dealing only with fungible tokens
+        )
+    }
+}
+
+// [REDACTED_TODO_COMMENT]
 struct _StorageEntryConverter {
     func convertToTokenItems(_ entries: [StoredCryptoAccount.Token]) -> [TokenItem] {
         entries.compactMap { entry -> TokenItem? in
@@ -21,7 +56,7 @@ struct _StorageEntryConverter {
             switch entry.blockchainNetwork {
             case .known(let _blockchainNetwork):
                 blockchainNetwork = _blockchainNetwork
-            case .unknown(networkId: let networkId, rawDerivationPath: let rawDerivationPath):
+            case .unknown:
                 // Unsupported, filtering it out
                 return nil
             }
@@ -259,45 +294,41 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     func contains(_ tokenItem: TokenItem) -> Bool {
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        guard let targetEntry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork }) else {
-            return false
-        }
+        let filteredTokens = userTokenListManager
+            .cryptoAccount
+            .tokens
+            .filter { $0.blockchainNetwork.knownValue == tokenItem.blockchainNetwork }
 
         switch tokenItem {
         case .blockchain:
-            return true
+            return filteredTokens.isNotEmpty
         case .token(let token, _):
-            return targetEntry.tokens.contains(token)
+            return filteredTokens.contains { $0.isEqualTo(token) }
         }
     }
 
     func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        let targetsEntry = userTokenListManager.userTokens.filter {
-            $0.blockchainNetwork.blockchain.networkId == tokenItem.blockchainNetwork.blockchain.networkId
-        }
-
-        guard targetsEntry.isNotEmpty else {
-            return false
-        }
+        let filteredTokens = userTokenListManager
+            .cryptoAccount
+            .tokens
+            .filter { $0.blockchainNetwork.knownValue?.blockchain.networkId == tokenItem.blockchainNetwork.blockchain.networkId }
 
         switch tokenItem {
         case .blockchain:
-            return true
+            return filteredTokens.isNotEmpty
         case .token(let token, _):
-            return targetsEntry.flatMap(\.tokens).contains(token)
+            return filteredTokens.contains { $0.isEqualTo(token) }
         }
     }
 
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
-        let items = userTokenListManager.userTokens
-
-        if let network = items.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
-            return network.tokens
-        }
-
-        return []
+        return userTokenListManager
+            .cryptoAccount
+            .tokens
+            .filter { $0.blockchainNetwork.knownValue == blockchainNetwork }
+            .compactMap { $0.toBSDKToken() }
     }
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
