@@ -24,6 +24,9 @@ struct LendingPairIcon: View {
     var body: some View {
         HStack(spacing: -overlap) {
             IconView(url: iconUrl, size: iconsSize, forceKingfisher: true)
+                .frame(size: iconsSize)
+                .clipShape(Circle())
+
             aaveLogo
         }
         .padding(.horizontal, overlap / 2)
