@@ -132,7 +132,8 @@ final class TangemPayAccount {
         try await getCustomerInfo().tangemPayStatus
     }
 
-    func loadBalance() {
+    @discardableResult
+    func loadBalance() -> Task<Void, Never> {
         runTask(in: self) { tangemPayAccount in
             do {
                 try await tangemPayAccount.prepareTokensHandler()
