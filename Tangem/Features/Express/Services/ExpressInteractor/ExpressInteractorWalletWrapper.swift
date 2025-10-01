@@ -60,7 +60,8 @@ extension ExpressInteractorWalletWrapper: ExpressInteractorSourceWallet {
     var id: WalletModelId { walletModel.id }
     var isCustom: Bool { walletModel.isCustom }
     var isMainToken: Bool { walletModel.isMainToken }
-    var supportedProviders: [ExpressProviderType] { [.dex] }
+    var supportedProviders: [ExpressProviderType] { if case .active? = walletModel.yieldModuleManager?.state { .yieldActive } else { .swap } }
+
     var tokenItem: TokenItem { walletModel.tokenItem }
     var feeTokenItem: TokenItem { walletModel.feeTokenItem }
 
