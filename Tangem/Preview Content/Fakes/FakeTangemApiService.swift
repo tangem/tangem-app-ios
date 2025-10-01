@@ -208,6 +208,14 @@ class FakeTangemApiService: TangemApiService {
     ) async throws -> (revision: String?, archivedAccounts: AccountsDTO.Response.ArchivedAccounts) {
         throw "Not implemented"
     }
+
+    func getYieldMarkets() async throws -> YieldModuleDTO.Response.MarketsInfo {
+        throw "Not implemented"
+    }
+
+    func getTokenPositionInfo(tokenContractAddress: String) async throws -> YieldModuleDTO.Response.PositionInfo {
+        throw "Not implemented"
+    }
 }
 
 private struct FakeCoinListProvider {
