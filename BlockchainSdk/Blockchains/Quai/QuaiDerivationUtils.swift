@@ -22,7 +22,10 @@ public struct QuaiDerivationUtils {
 
     // MARK: - Public Implementation
 
-    public func derive(extendedPublicKey: ExtendedPublicKey, with addressType: AddressType) throws -> (ExtendedPublicKey, DerivationNode) {
+    public func derive(extendedPublicKey: ExtendedPublicKey, with addressType: AddressType) throws -> (
+        key: ExtendedPublicKey,
+        node: DerivationNode
+    ) {
         for attempt in 0 ..< Constants.maxDerivationAttempts {
             let derivedNode: DerivationNode = .nonHardened(UInt32(attempt))
             let derivedKey = try extendedPublicKey.derivePublicKey(node: derivedNode)

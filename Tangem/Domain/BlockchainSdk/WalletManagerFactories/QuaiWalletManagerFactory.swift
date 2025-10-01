@@ -49,7 +49,7 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
             throw AnyWalletManagerFactoryError.noDerivation
         }
 
-        let zoneDerivedKey = try zoneDerived(key: derivedKey, with: derivationPath)
+        let zoneDerivedKey = try deriveZone(extendedPublicKey: derivedKey, with: derivationPath)
         let publicKey = Wallet.PublicKey(seedKey: seedKey, derivationType: .plain(zoneDerivedKey))
 
         let factory = WalletManagerFactoryProvider(apiList: apiList).factory
@@ -61,24 +61,28 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
 
     // MARK: - Private Implementation
 
-    private func zoneDerived(key: ExtendedPublicKey, with derivationPath: DerivationPath) throws -> Wallet.PublicKey.HDKey {
-        var storedKey: Wallet.PublicKey.HDKey
+    private func deriveZone(extendedPublicKey: ExtendedPublicKey, with derivationPath: DerivationPath) throws -> Wallet.PublicKey.HDKey {
+        var zoneExtendedPublicKey: ExtendedPublicKey
+        var zoneDerivationPath: DerivationPath
 
-        let storageKeySuffix = key.publicKey.getSha256().hexString
-        let cacheDerivedKey: Wallet.PublicKey.HDKey? = dataStorage.get(key: storageKeySuffix)
+        let storageKeyIndexSuffix = extendedPublicKey.publicKey.getSha256().hexString
 
-        if let cacheDerivedKey {
-            storedKey = cacheDerivedKey
+        if let cacheDerivedNodeIndex: UInt32 = dataStorage.get(key: storageKeyIndexSuffix) {
+            let derivedNode: DerivationNode = .nonHardened(UInt32(cacheDerivedNodeIndex))
+            
+            zoneExtendedPublicKey = try extendedPublicKey.derivePublicKey(node: derivedNode)
+            zoneDerivationPath = derivationPath.extendedPath(with: .nonHardened(cacheDerivedNodeIndex))
         } else {
-            let zoneDerivedResult = try quaiDerivationUtils.derive(extendedPublicKey: key, with: .default)
-            let zoneDerivationPath = derivationPath.extendedPath(with: zoneDerivedResult.1)
+            let zoneDerivedResult = try quaiDerivationUtils.derive(extendedPublicKey: extendedPublicKey, with: .default)
+            
+            dataStorage.store(key: storageKeyIndexSuffix, value: zoneDerivedResult.node.index)
 
-            let derivedHDKey = Wallet.PublicKey.HDKey(path: zoneDerivationPath, extendedPublicKey: zoneDerivedResult.0)
-
-            dataStorage.store(key: storageKeySuffix, value: derivedHDKey)
-            storedKey = derivedHDKey
+            zoneExtendedPublicKey = zoneDerivedResult.key
+            zoneDerivationPath = derivationPath.extendedPath(with: zoneDerivedResult.node)
         }
 
-        return storedKey
+        let resultHDKey = Wallet.PublicKey.HDKey(path: zoneDerivationPath, extendedPublicKey: zoneExtendedPublicKey)
+
+        return resultHDKey
     }
 }
