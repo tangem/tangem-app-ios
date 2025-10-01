@@ -26,7 +26,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 
     // MARK: - Init
 
-    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>,) {
+    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
