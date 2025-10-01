@@ -125,10 +125,8 @@ struct QuaiProtobufUtils {
         }
 
         var start = 0
-        if data[0] == 0 {
-            while start < data.count - 1, data[start] == 0 {
-                start += 1
-            }
+        while start < data.count - 1, data[start] == 0 {
+            start += 1
         }
 
         return data.subdata(in: start ..< data.count)
