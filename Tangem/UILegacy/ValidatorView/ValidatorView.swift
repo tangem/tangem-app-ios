@@ -144,7 +144,7 @@ extension ValidatorView: Setupable {
                         address: "2",
                         name: "Coinbase",
                         imageURL: URL(string: "https://assets.stakek.it/validators/coinbase.png"),
-                        subtitleType: .selection(percentFormatted: "0.08%"),
+                        subtitleType: .selection(formatted: "0.08%"),
                         detailsType: .checkmark
                     ),
                 ]) {
@@ -157,7 +157,7 @@ extension ValidatorView: Setupable {
                         address: UUID().uuidString,
                         name: "InfStones",
                         imageURL: URL(string: "https://assets.stakek.it/validators/infstones.png"),
-                        subtitleType: .selection(percentFormatted: "0.08%"),
+                        subtitleType: .selection(formatted: "0.08%"),
                         detailsType: .balance(.init(crypto: "543 USD", fiat: "5 SOL"), action: nil)
                     ),
                 ]) {
