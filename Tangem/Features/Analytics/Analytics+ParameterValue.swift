@@ -280,5 +280,9 @@ extension Analytics {
         static func successOrFailed(for boolean: Bool) -> ParameterValue {
             return boolean ? .success : .failed
         }
+
+        static func enabledState(for boolean: Bool) -> ParameterValue {
+            return boolean ? .enabled : .disabled
+        }
     }
 }
