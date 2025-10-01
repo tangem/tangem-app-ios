@@ -119,8 +119,7 @@ struct EstimationFeeAddressFactory {
         case .pepecoin:
             return "PgbtQfZaNzLtwQ3hXBrj1KWhxBgaUEM7G6"
         case .quai:
-            #warning("Need to receive from A. Belyatko address")
-            return ""
+            return "0x001895747a462F3cDEc145d565645D7fcEbe275d"
         }
     }
 }
