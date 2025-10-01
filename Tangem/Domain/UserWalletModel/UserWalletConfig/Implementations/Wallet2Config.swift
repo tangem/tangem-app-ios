@@ -326,6 +326,8 @@ extension Wallet2Config: UserWalletConfig {
         // Hyper Blue summer collection
         case "AF990026", "AF990027", "AF990028":
             return cardsCount == 2 ? Assets.Cards.hyperBlueDouble : Assets.Cards.hyperBlueTriple
+        case "AF990053", "AF990054", "AF990055":
+            return cardsCount == 2 ? Assets.Cards.winterSakuraDouble : Assets.Cards.winterSakuraTriple
         // Tangem Wallet 2.0
         default:
             var isUserWalletWithRing = false
