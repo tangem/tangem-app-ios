@@ -7,6 +7,7 @@
 //
 
 import TangemStaking
+import BlockchainSdk
 
 class CommonStakingSendAnalyticsLogger {
     private let tokenItem: TokenItem
@@ -192,11 +193,12 @@ extension CommonStakingSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
 // MARK: - SendManagementModelAnalyticsLogger
 
 extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
-    func logTransactionRejected(error: Error) {
+    func logTransactionRejected(error: SendTxError) {
         Analytics.log(event: .stakingErrorTransactionRejected, params: [
             .token: tokenItem.currencySymbol,
             .errorCode: "\(error.universalErrorCode)",
             .blockchain: tokenItem.blockchain.displayName,
+            .selectedHost: error.lastRetryHost ?? "",
         ])
     }
 

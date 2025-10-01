@@ -8,6 +8,7 @@
 
 import TangemStaking
 import TangemExpress
+import BlockchainSdk
 
 protocol SendAnalyticsLogger: SendManagementModelAnalyticsLogger,
     SendBaseViewAnalyticsLogger,
@@ -48,7 +49,7 @@ protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
 // MARK: - ManagementModel
 
 protocol SendManagementModelAnalyticsLogger {
-    func logTransactionRejected(error: Error)
+    func logTransactionRejected(error: SendTxError)
     func logTransactionSent(amount: SendAmount?, additionalField: SendDestinationAdditionalField?, fee: SendFee, signerType: String)
 }
 
