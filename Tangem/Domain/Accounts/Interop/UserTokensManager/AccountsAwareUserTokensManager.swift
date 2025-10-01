@@ -46,6 +46,18 @@ private extension StoredCryptoAccount.Token {
             metadata: .fungibleTokenMetadata // By definition, in the domain layer we're dealing only with fungible tokens
         )
     }
+
+    var walletModelId: WalletModelId? {
+        guard let blockchainNetwork = blockchainNetwork.knownValue else {
+            return nil
+        }
+
+        if let token = toBSDKToken() {
+            return WalletModelId(tokenItem: .token(token, blockchainNetwork))
+        }
+
+        return WalletModelId(tokenItem: .blockchain(blockchainNetwork))
+    }
 }
 
 // [REDACTED_TODO_COMMENT]
@@ -360,11 +372,11 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
 
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        guard
-            let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork })
-        else {
-            return false
-        }
+        let existingTokens = userTokenListManager
+            .cryptoAccount
+            .tokens
+            .filter { $0.blockchainNetwork.knownValue == tokenItem.blockchainNetwork }
+            .compactMap { $0.toBSDKToken() }
 
         let tokensToAdd = pendingToAddItems
             .map(withBlockchainNetwork)
@@ -377,7 +389,7 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
             .compactMap(\.token)
 
         // Append to list of saved user tokens items that are pending addition, and delete the items that are pending removing
-        let tokenList = (entry.tokens + tokensToAdd).filter { !tokensToRemove.contains($0) }
+        let tokenList = (existingTokens + tokensToAdd).filter { !tokensToRemove.contains($0) }
 
         // We can remove token if there is no items in `tokenList`
         return tokenList.isEmpty
@@ -437,15 +449,20 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
 extension AccountsAwareUserTokensManager: UserTokensReordering {
     var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> {
         return userTokenListManager
-            .userTokensListPublisher
-            .map { $0.entries.map(\.walletModelId.id) }
+            .cryptoAccountPublisher
+            .map { cryptoAccount in
+                return cryptoAccount
+                    .tokens
+                    .compactMap { $0.toWalletModelId() }
+                    .map(\.id)
+            }
             .eraseToAnyPublisher()
     }
 
     var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokenListManager
-            .userTokensListPublisher
+            .cryptoAccountPublisher
             .map { converter.convert($0.grouping) }
             .eraseToAnyPublisher()
     }
@@ -453,7 +470,7 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
     var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokenListManager
-            .userTokensListPublisher
+            .cryptoAccountPublisher
             .map { converter.convert($0.sorting) }
             .eraseToAnyPublisher()
     }
