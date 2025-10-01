@@ -15,7 +15,7 @@ final class YieldModuleFlowFactory {
     private let yieldModuleManager: any YieldModuleManager
     private let transactionDispatcher: YieldModuleTransactionDispatcher
     private let yieldPromoCoordinator: YieldModulePromoCoordinator
-    private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
+    private let feeCurrencyNavigator: (any FeeCurrencyNavigating)?
 
     // MARK: - Init
 
@@ -34,10 +34,11 @@ final class YieldModuleFlowFactory {
 
         yieldModuleManager = manager
         transactionDispatcher = dispatcher
-
         yieldPromoCoordinator = YieldModulePromoCoordinator(dismissAction: dismissAction)
+
         self.walletModel = walletModel
         self.apy = apy
+        self.feeCurrencyNavigator = feeCurrencyNavigator
     }
 
     // MARK: - Public Implementation
