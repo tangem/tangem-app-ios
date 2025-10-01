@@ -27,7 +27,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         switch transactionType {
         case .approve, .vote, .withdraw:
             return nil
-        case .transfer, .swap, .operation, .unknownOperation, .stake, .unstake, .claimRewards, .restake:
+        case .transfer, .swap, .operation, .unknownOperation, .stake, .unstake, .claimRewards, .restake, .tangemPay, .tangemPayTransfer:
             return amount
         }
     }
@@ -70,13 +70,15 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .swap: Localization.commonSwap
         case .approve: Localization.commonApproval
         case .unknownOperation: Localization.transactionHistoryOperation
-        case .operation(name: let name, _): name
+        case .operation(name: let name): name
         case .stake: Localization.commonStake
         case .unstake: Localization.commonUnstake
         case .vote: Localization.stakingVote
         case .withdraw: Localization.stakingWithdraw
         case .claimRewards: Localization.commonClaimRewards
         case .restake: Localization.stakingRestake
+        case .tangemPay(name: let name, _): name
+        case .tangemPayTransfer(name: let name): name
         }
     }
 
@@ -88,7 +90,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         switch transactionType {
         case .approve:
             return Assets.approve.image
-        case .transfer, .swap, .operation, .unknownOperation:
+        case .transfer, .swap, .operation, .unknownOperation, .tangemPayTransfer:
             return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
         case .stake, .vote, .restake:
             return Assets.TokenItemContextMenu.menuStaking.image
@@ -96,11 +98,13 @@ struct TransactionViewModel: Hashable, Identifiable {
             return Assets.unstakedIcon.image
         case .claimRewards:
             return Assets.dollarMini.image
+        case .tangemPay:
+            return Assets.Visa.otherTransaction.image
         }
     }
 
     var iconURL: URL? {
-        if case .operation(_, let url) = transactionType {
+        if case .tangemPay(_, let url) = transactionType {
             return url
         }
         return nil
@@ -190,7 +194,10 @@ extension TransactionViewModel {
         case claimRewards
         case restake
         case unknownOperation
-        case operation(name: String, icon: URL? = nil)
+        case operation(name: String)
+
+        case tangemPay(name: String, icon: URL?)
+        case tangemPayTransfer(name: String)
     }
 
     enum Status {
