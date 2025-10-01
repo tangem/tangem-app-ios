@@ -133,7 +133,7 @@ final class UserWalletNotificationManager {
         showAppRateNotificationIfNeeded()
         createIfNeededAndShowSupportSeedNotification()
         showMobileActivationNotificationIfNeeded()
-        createIfNeededAndShowPushPermissionNotification()
+        createAndShowPushPermissionNotificationIfNeeded()
     }
 
     private func createIfNeededAndShowSupportSeedNotification() {
@@ -149,7 +149,7 @@ final class UserWalletNotificationManager {
         supportSeedNotificationInteractor.showSupportSeedNotificationIfNeeded()
     }
 
-    private func createIfNeededAndShowPushPermissionNotification() {
+    private func createAndShowPushPermissionNotificationIfNeeded() {
         guard FeatureProvider.isAvailable(.pushPermissionNotificationBanner) else {
             return
         }
