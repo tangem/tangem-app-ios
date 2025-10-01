@@ -3318,7 +3318,7 @@
 		EA9D0CEC2E84EF5F00B1A968 /* YieldIdentificationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9D0CEB2E84EF5F00B1A968 /* YieldIdentificationModifier.swift */; };
 		EAA7DBFD2E8D1340003F9885 /* YieldModuleStartFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA7DBFC2E8D1340003F9885 /* YieldModuleStartFlowFactory.swift */; };
 		EAA877152E8BF984003AF427 /* YieldModuleFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA877142E8BF984003AF427 /* YieldModuleFlowFactory.swift */; };
-		EAA877172E8C0FE5003AF427 /* YieldInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA877162E8C0FE5003AF427 /* YieldInteractor.swift */; };
+		EAA877172E8C0FE5003AF427 /* YieldManagerInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA877162E8C0FE5003AF427 /* YieldManagerInteractor.swift */; };
 		EAB55F5F2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F5E2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift */; };
 		EAB55F612DF080730016BF78 /* MainNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F602DF080730016BF78 /* MainNavigationActionHandler.swift */; };
 		EAB55F632DF0C3990016BF78 /* MainCoordinatorChildFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F622DF0C3990016BF78 /* MainCoordinatorChildFactory.swift */; };
@@ -7587,7 +7587,7 @@
 		EA9D0CEB2E84EF5F00B1A968 /* YieldIdentificationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldIdentificationModifier.swift; sourceTree = "<group>"; };
 		EAA7DBFC2E8D1340003F9885 /* YieldModuleStartFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleStartFlowFactory.swift; sourceTree = "<group>"; };
 		EAA877142E8BF984003AF427 /* YieldModuleFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleFlowFactory.swift; sourceTree = "<group>"; };
-		EAA877162E8C0FE5003AF427 /* YieldInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldInteractor.swift; sourceTree = "<group>"; };
+		EAA877162E8C0FE5003AF427 /* YieldManagerInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldManagerInteractor.swift; sourceTree = "<group>"; };
 		EAB55F5E2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIncomingLinkParser.swift; sourceTree = "<group>"; };
 		EAB55F602DF080730016BF78 /* MainNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationActionHandler.swift; sourceTree = "<group>"; };
 		EAB55F622DF0C3990016BF78 /* MainCoordinatorChildFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinatorChildFactory.swift; sourceTree = "<group>"; };
@@ -19654,7 +19654,7 @@
 			isa = PBXGroup;
 			children = (
 				EAF8FDE02E8013C60025D2F1 /* YieldModuleNoticeInteractor.swift */,
-				EAA877162E8C0FE5003AF427 /* YieldInteractor.swift */,
+				EAA877162E8C0FE5003AF427 /* YieldManagerInteractor.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -24097,7 +24097,7 @@
 				DC2AB6D92C08CF6C0050796C /* WelcomeOnboardingCoordinatorView.swift in Sources */,
 				DC8E03252DE1893D008967D8 /* WCRequestDetailsBuilder.swift in Sources */,
 				DC2AB6DA2C08CF6C0050796C /* WelcomeOnboardingView.swift in Sources */,
-				EAA877172E8C0FE5003AF427 /* YieldInteractor.swift in Sources */,
+				EAA877172E8C0FE5003AF427 /* YieldManagerInteractor.swift in Sources */,
 				DC2AB6DB2C08CF6C0050796C /* WelcomeOnboardingViewModel.swift in Sources */,
 				0FA453C82E1D597C0055B5BB /* BadgeView+.swift in Sources */,
 				0F3D641F2E0ECF9C00670DC9 /* MobileBackupNeededView.swift in Sources */,
