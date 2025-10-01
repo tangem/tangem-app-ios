@@ -17,13 +17,10 @@ class StakingValidatorsCompactViewModel: ObservableObject, Identifiable {
     @Published var selectedValidator: ValidatorCompactViewData?
     @Published var canEditValidator: Bool
 
-    private let preferredValidatorsCount: Int
-
-    private let percentFormatter = PercentFormatter()
+    private let rewardRateFormatter = StakingValidatorRewardRateFormatter()
     private var bag: Set<AnyCancellable> = []
 
     init(input: StakingValidatorsInput, preferredValidatorsCount: Int) {
-        self.preferredValidatorsCount = preferredValidatorsCount
         canEditValidator = preferredValidatorsCount > 1
 
         bind(input: input)
@@ -46,9 +43,7 @@ class StakingValidatorsCompactViewModel: ObservableObject, Identifiable {
             address: validator.address,
             name: validator.name,
             imageURL: validator.iconURL,
-            aprFormatted: validator.apr.map {
-                "\(Localization.stakingDetailsApr) \(percentFormatter.format($0, option: .staking))"
-            }
+            aprFormatted: rewardRateFormatter.format(validator: validator, type: .short)
         )
     }
 }
