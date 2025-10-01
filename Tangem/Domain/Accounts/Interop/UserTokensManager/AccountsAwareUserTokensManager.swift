@@ -14,7 +14,7 @@ import TangemFoundation
 import TangemLocalization
 
 // [REDACTED_TODO_COMMENT]
-private extension StoredCryptoAccount.Token.BlockchainNetworkContainer {
+extension StoredCryptoAccount.Token.BlockchainNetworkContainer {
     var knownValue: BlockchainNetwork? {
         switch self {
         case .known(let blockchainNetwork):
@@ -69,7 +69,7 @@ struct _StorageEntryConverter {
             case .known(let _blockchainNetwork):
                 blockchainNetwork = _blockchainNetwork
             case .unknown:
-                // Unsupported, filtering it out
+                // Unsupported network and/or token, filtering it out
                 return nil
             }
 

@@ -60,3 +60,16 @@ extension StoredCryptoAccount.Token {
         }
     }
 }
+
+// MARK: - CryptoAccountPersistentConfigConvertible protocol conformance
+
+extension StoredCryptoAccount: CryptoAccountPersistentConfigConvertible {
+    func toPersistentConfig() -> CryptoAccountPersistentConfig {
+        return CryptoAccountPersistentConfig(
+            derivationIndex: derivationIndex,
+            name: name,
+
+            icon: .init(rawName: icon.iconName, rawColor: icon.iconColor)! // [REDACTED_TODO_COMMENT]
+        )
+    }
+}
