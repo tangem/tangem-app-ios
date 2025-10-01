@@ -123,66 +123,10 @@ class CommonServicesManager {
         }
 
         if let _ = arguments.firstIndex(of: "-uitest-clear-storage") {
-            clearStorageForUITests()
+            StorageCleaner.clearCachedFiles()
         }
 
         UIView.setAnimationsEnabled(false)
-    }
-
-    private func clearStorageForUITests() {
-        AppLogger.info("Clearing storage for UI tests")
-
-        // Clear keychain data
-        KeychainCleaner.cleanAllData()
-
-        // Clear UserDefaults for the app
-        if let bundleId = Bundle.main.bundleIdentifier {
-            UserDefaults.standard.removePersistentDomain(forName: bundleId)
-        }
-
-        // Clear blockchain data storage
-        let blockchainDataStorageSuiteName = AppEnvironment.current.blockchainDataStorageSuiteName
-        UserDefaults(suiteName: blockchainDataStorageSuiteName)?.removePersistentDomain(forName: blockchainDataStorageSuiteName)
-
-        // Clear cached files from caches directory
-        clearCachedFiles()
-
-        AppLogger.info("Storage cleared for UI tests")
-    }
-
-    private func clearCachedFiles() {
-        let fileManager = FileManager.default
-        let cachesDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-
-        let cacheFiles = [
-            "cached_balances.json",
-            "cached_quotes.json",
-            "cached_express_availability.json",
-        ]
-
-        for cacheFile in cacheFiles {
-            let fileURL = cachesDirectory.appendingPathComponent(cacheFile)
-            if fileManager.fileExists(atPath: fileURL.path) {
-                do {
-                    try fileManager.removeItem(at: fileURL)
-                    AppLogger.info("Cleared cache file: \(cacheFile)")
-                } catch {
-                    AppLogger.error(error: "Failed to clear cache file \(cacheFile): \(error)")
-                }
-            }
-        }
-
-        // Clear any NFT assets cache files
-        do {
-            let contents = try fileManager.contentsOfDirectory(at: cachesDirectory, includingPropertiesForKeys: nil)
-            let nftCacheFiles = contents.filter { $0.lastPathComponent.hasPrefix("nft_assets_cache_") }
-            for nftCacheFile in nftCacheFiles {
-                try fileManager.removeItem(at: nftCacheFile)
-                AppLogger.info("Cleared NFT cache file: \(nftCacheFile.lastPathComponent)")
-            }
-        } catch {
-            AppLogger.error(error: "Failed to clear NFT cache files: \(error)")
-        }
     }
 }
 

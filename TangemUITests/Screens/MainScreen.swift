@@ -200,8 +200,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Long press wallet header") { _ in
             waitAndAssertTrue(headerCardImage, "Header card image should exist")
             headerCardImage.press(forDuration: 1.0)
-            return self
         }
+        return self
     }
 
     @discardableResult
@@ -209,8 +209,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait for no rename button exists") { _ in
             let renameButton = app.buttons["Rename"]
             XCTAssertFalse(renameButton.exists, "Rename button should not exist in context menu")
-            return self
         }
+        return self
     }
 
     @discardableResult
@@ -218,8 +218,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait for delete button exists") { _ in
             let deleteButton = app.buttons["Delete"]
             waitAndAssertTrue(deleteButton, "Delete button should exist in context menu")
-            return self
         }
+        return self
     }
 
     @discardableResult
@@ -261,7 +261,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(totalBalance, "Total balance element should exist")
             let balanceText = totalBalance.label
             XCTAssertTrue(balanceText.contains(currencySymbol), "Total balance should contain '\(currencySymbol)' but was '\(balanceText)'")
-            return self
         }
         return self
     }
@@ -270,7 +269,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func waitForTotalBalanceShimmer() -> Self {
         XCTContext.runActivity(named: "Wait for total balance shimmer effect") { _ in
             waitAndAssertTrue(totalBalanceShimmer, "Total balance shimmer should be displayed")
-            return self
         }
         return self
     }
@@ -279,7 +277,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func waitForTotalBalanceShimmerToDisappear() -> Self {
         XCTContext.runActivity(named: "Wait for total balance shimmer to disappear") { _ in
             XCTAssertTrue(totalBalanceShimmer.waitForNonExistence(timeout: .robustUIUpdate), "Total balance shimmer should disappear")
-            return self
         }
         return self
     }
@@ -293,8 +290,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             // Then wait for final content to appear
             waitAndAssertTrue(totalBalance, "Total balance should be displayed")
             XCTAssertFalse(totalBalance.label.isEmpty, "Total balance should have content")
-
-            return self
         }
         return self
     }
