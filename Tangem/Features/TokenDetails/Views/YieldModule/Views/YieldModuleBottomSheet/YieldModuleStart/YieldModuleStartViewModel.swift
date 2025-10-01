@@ -44,7 +44,6 @@ final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
-    private var yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
     private weak var coordinator: YieldModulePromoCoordinator?
     private let yieldManagerInteractor: YieldManagerInteractor
 
@@ -108,7 +107,13 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     @MainActor
     func onStartEarnTap() {
-        yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: walletModel.tokenItem)
+        let token = walletModel.tokenItem
+
+        runTask(in: self) { vm in
+            await vm.yieldManagerInteractor.enter(with: token)
+        }
+
+        coordinator?.dismiss()
     }
 
     @MainActor
@@ -141,10 +146,9 @@ final class YieldModuleStartViewModel: ObservableObject {
             }
 
         } catch {
-            tokenFeeState = .noData
-            networkFeeState = .noData
-
             await runOnMain {
+                tokenFeeState = .noData
+                networkFeeState = .noData
                 showFeeErrorNotification()
             }
         }
