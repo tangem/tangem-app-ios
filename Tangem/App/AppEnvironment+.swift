@@ -44,6 +44,10 @@ extension AppEnvironment {
         FeatureStorage.instance.tangemAPIType.activatePromoCodeApiBaseUrl
     }
 
+    var yieldModuleBaseUrl: URL {
+        FeatureStorage.instance.tangemAPIType.yieldModuleBaseUrl
+    }
+
     var isTestnet: Bool {
         FeatureStorage.instance.isTestnet
     }
