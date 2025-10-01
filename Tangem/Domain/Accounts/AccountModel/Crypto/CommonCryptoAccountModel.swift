@@ -42,7 +42,6 @@ final class CommonCryptoAccountModel {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     private let didChangeSubject = PassthroughSubject<Void, Never>()
     private let accountId: AccountId
     private let derivationIndex: Int
