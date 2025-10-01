@@ -21,11 +21,15 @@ struct YieldStatusView: View {
     @State private var rotation = 0.0
     private let animation: Animation = .linear(duration: 1).speed(1).repeatForever(autoreverses: false)
 
+    // MARK: - Dependencies
+
+    private let balanceFormatter = BalanceFormatter()
+
     // MARK: - View Body
 
     var body: some View {
         switch status {
-        case .processing, .closing:
+        case .loading, .closing:
             content
         case .active(_, _, _, let tapAction):
             Button(action: tapAction) {
@@ -61,7 +65,7 @@ struct YieldStatusView: View {
         HStack(spacing: 4) {
             descriptionText
 
-            if case .processing = status {
+            if case .loading = status {
                 loadingIndicator
             }
         }
@@ -95,19 +99,19 @@ struct YieldStatusView: View {
     @ViewBuilder
     private var descriptionText: some View {
         switch status {
-        case .processing:
+        case .loading:
             Text(Localization.yieldModuleTokenDetailsEarnNotificationProcessing)
                 .style(Fonts.Regular.callout, color: Colors.Text.primary1)
 
-        case .active(let income, let annualYield, _, _):
+        case .active(let income, let apy, _, _):
             HStack(spacing: 4) {
-                Text(income)
+                Text(balanceFormatter.formatFiatBalance(income, currencyCode: AppConstants.usdCurrencyCode))
                     .style(Fonts.Regular.callout, color: Colors.Text.primary1)
 
-                Text("•")
+                Text(AppConstants.dotSign)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
-                Text(annualYield + "%" + " " + Localization.yieldModuleTokenDetailsEarnNotificationApy)
+                Text(apy.formatted() + "%" + " " + Localization.yieldModuleTokenDetailsEarnNotificationApy)
                     .style(Fonts.Bold.callout, color: Colors.Text.tertiary)
             }
 
@@ -130,8 +134,8 @@ struct YieldStatusView: View {
 
 extension YieldStatusView {
     enum Status {
-        case processing
-        case active(income: String, annualYield: String, isApproveNeeded: Bool, tapAction: () -> Void)
+        case loading
+        case active(income: Decimal, annualYield: Decimal, isApproveNeeded: Bool, tapAction: () -> Void)
         case closing
     }
 }
