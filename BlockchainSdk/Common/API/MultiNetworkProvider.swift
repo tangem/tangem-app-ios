@@ -31,7 +31,10 @@ extension MultiNetworkProvider {
         return providers[currentProviderIndex]
     }
 
-    var host: String { provider?.host ?? .unknown }
+    var host: String {
+        let rawHost = provider?.host ?? .unknown
+        return rawHost.sanitizedHost()
+    }
 
     func providerPublisher<T>(for requestPublisher: @escaping (_ provider: Provider) -> AnyPublisher<T, Error>) -> AnyPublisher<T, Error> {
         guard let provider else {
@@ -116,5 +119,63 @@ struct MultiNetworkProviderError: UniversalError {
 
     var errorCode: Int {
         networkError.errorCode
+    }
+}
+
+private extension String {
+    /// Sanitizes host URL by converting to lowercase and masking potential API keys in path
+    /// - Returns: Sanitized host string with masked API keys
+    func sanitizedHost() -> String {
+        // Convert to lowercase
+        let lowercased = lowercased()
+
+        // Try to parse as URL
+        guard let url = URL(string: lowercased) else {
+            return lowercased
+        }
+
+        // Get path components
+        let pathComponents = url.pathComponents.filter { $0 != "/" }
+
+        // If there are no path components or only one, return as is
+        guard !pathComponents.isEmpty else {
+            return lowercased
+        }
+
+        // Build sanitized path by masking potential API keys
+        // API keys are typically:
+        // - Long alphanumeric strings (>= 20 characters)
+        // - Or UUID-like strings
+        // - Or base64-like strings
+        let sanitizedComponents = pathComponents.map { component -> String in
+            if isLikelyAPIKey(component) {
+                return "***"
+            }
+            return component
+        }
+
+        // Reconstruct URL
+        var components = URLComponents()
+        components.scheme = url.scheme
+        components.host = url.host
+        components.port = url.port
+        components.path = "/" + sanitizedComponents.joined(separator: "/")
+
+        return components.string ?? lowercased
+    }
+
+    /// Checks if a string is likely an API key
+    private func isLikelyAPIKey(_ string: String) -> Bool {
+        // Check if string is long enough to be an API key (typically >= 20 chars)
+        guard string.count >= 20 else {
+            return false
+        }
+
+        // Check if it's mostly alphanumeric (API keys usually are)
+        let alphanumericSet = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_"))
+        let stringSet = CharacterSet(charactersIn: string)
+
+        // If more than 80% of characters are alphanumeric, it's likely an API key
+        return stringSet.isSubset(of: alphanumericSet)
     }
 }
