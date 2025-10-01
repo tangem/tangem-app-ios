@@ -1,5 +1,5 @@
 //
-//  YieldInteractor.swift
+//  YieldManagerInteractor.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -19,15 +19,18 @@ actor YieldManagerInteractor {
 
     private let transactionDispatcher: YieldModuleTransactionDispatcher
     private let manager: YieldModuleManager
+    private let yieldModuleNotificationInteractor: YieldModuleNoticeInteractor
 
     // MARK: - Init
 
     init(
         transactionDispatcher: YieldModuleTransactionDispatcher,
-        manager: YieldModuleManager
+        manager: YieldModuleManager,
+        yieldModuleNotificationInteractor: YieldModuleNoticeInteractor
     ) {
         self.transactionDispatcher = transactionDispatcher
         self.manager = manager
+        self.yieldModuleNotificationInteractor = yieldModuleNotificationInteractor
     }
 
     // MARK: - Public Implementation
@@ -61,13 +64,20 @@ actor YieldManagerInteractor {
         )
     }
 
-    func enter() {
+    /// Initiates the "enter" operation for the given token.
+    /// This is a fire-and-forget task: it triggers the manager call
+    /// and updates the withdrawal alert state on completion,
+    /// without propagating any result or error back to the caller.
+    func enter(with token: TokenItem) {
         runTask(in: self) { actor in
             guard let fee = await actor.enterFee else {
                 return
             }
 
-            _ = try await actor.manager.enter(fee: fee, transactionDispatcher: actor.transactionDispatcher)
+            do {
+                _ = try await actor.manager.enter(fee: fee, transactionDispatcher: actor.transactionDispatcher)
+                await actor.yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: token)
+            } catch {}
         }
     }
 
