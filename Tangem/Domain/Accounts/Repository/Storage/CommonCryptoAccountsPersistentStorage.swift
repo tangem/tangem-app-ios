@@ -50,6 +50,7 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
         }
     }
 
+    // [REDACTED_TODO_COMMENT]
     func appendNewOrUpdateExisting(account: StoredCryptoAccount) {
         workingQueue.async(flags: .barrier) {
             var editedItems = self.unsafeFetch()

@@ -16,6 +16,7 @@ protocol CryptoAccountsRepository {
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> { get }
 
     func initialize(forUserWalletWithId userWalletId: UserWalletId)
-    func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [TokenItem])
+    /// Adds the given crypto account if it doesn't exist yet, updates it otherwise.
+    func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [StoredCryptoAccount.Token])
     func removeCryptoAccount<T: Hashable>(withIdentifier identifier: T)
 }

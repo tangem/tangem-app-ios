@@ -43,18 +43,6 @@ final class CommonCryptoAccountsRepository {
         storageController.bind(to: storageDidUpdateSubject)
     }
 
-    private func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [StoredCryptoAccount.Token]) {
-        let storedAccount = StoredCryptoAccount(
-            derivationIndex: config.derivationIndex,
-            name: config.name,
-            icon: .init(iconName: config.iconName, iconColor: config.iconColor),
-            tokens: tokens,
-            grouping: Constants.defaultGroupingType, // [REDACTED_TODO_COMMENT]
-            sorting: Constants.defaultSortingType // [REDACTED_TODO_COMMENT]
-        )
-        persistentStorage.appendNewOrUpdateExisting(account: storedAccount)
-    }
-
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
         let mainAccountPersistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
         let legacyStoredTokens = tokenItemsRepository.getList().entries
@@ -81,10 +69,17 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         }
     }
 
-    func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [TokenItem]) {
-        // [REDACTED_TODO_COMMENT]
-        let storedTokens: [StoredCryptoAccount.Token] = []
-        addCryptoAccount(withConfig: config, tokens: storedTokens)
+    // [REDACTED_TODO_COMMENT]
+    func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [StoredCryptoAccount.Token]) {
+        let storedAccount = StoredCryptoAccount(
+            derivationIndex: config.derivationIndex,
+            name: config.name,
+            icon: .init(iconName: config.iconName, iconColor: config.iconColor),
+            tokens: tokens,
+            grouping: Constants.defaultGroupingType, // [REDACTED_TODO_COMMENT]
+            sorting: Constants.defaultSortingType // [REDACTED_TODO_COMMENT]
+        )
+        persistentStorage.appendNewOrUpdateExisting(account: storedAccount)
     }
 
     func removeCryptoAccount<T: Hashable>(withIdentifier identifier: T) {
@@ -112,6 +107,7 @@ private extension CommonCryptoAccountsRepository {
                     name: entry.name,
                     symbol: entry.symbol,
                     decimalCount: entry.decimalCount,
+                    // By definition, all legacy tokens currently stored are known
                     blockchainNetwork: .known(blockchainNetwork: entry.blockchainNetwork),
                     contractAddress: entry.contractAddress
                 )
