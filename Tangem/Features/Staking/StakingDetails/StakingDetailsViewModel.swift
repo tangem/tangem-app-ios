@@ -213,14 +213,11 @@ private extension StakingDetailsViewModel {
     func setupDetailsSection(yield: StakingYieldInfo) {
         var viewModels = [
             DefaultRowViewModel(
-                title: Localization.stakingDetailsAnnualPercentageRate,
+                title: yield.rewardType.title,
                 detailsType: .text(yield.rewardRateValues.formatted(formatter: percentFormatter)),
                 accessibilityIdentifier: StakingAccessibilityIdentifiers.annualPercentageRateValue,
                 secondaryAction: { [weak self] in
-                    self?.openBottomSheet(
-                        title: Localization.stakingDetailsAnnualPercentageRate,
-                        description: Localization.stakingDetailsAnnualPercentageRateInfo
-                    )
+                    self?.openBottomSheet(title: yield.rewardType.title, description: yield.rewardType.info)
                 }
             ),
             DefaultRowViewModel(
@@ -593,6 +590,22 @@ private extension RewardRateValues {
             formatter.format(value, option: .staking)
         case .interval(let min, let max):
             formatter.formatInterval(min: min, max: max)
+        }
+    }
+}
+
+private extension RewardType {
+    var title: String {
+        switch self {
+        case .apr: Localization.stakingDetailsAnnualPercentageRate
+        case .apy: Localization.stakingDetailsAnnualPercentageYield
+        }
+    }
+
+    var info: String {
+        switch self {
+        case .apr: Localization.stakingDetailsAnnualPercentageRateInfo
+        case .apy: Localization.stakingDetailsAnnualPercentageYieldInfo
         }
     }
 }

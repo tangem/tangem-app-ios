@@ -100,7 +100,7 @@ struct StakingDetailsStakeView: View {
                             title: "InfStones",
                             icon: .image(url: URL(string: "https://assets.stakek.it/validators/infstones.png")!),
                             inProgress: true,
-                            subtitleType: .active(apr: "3,5%"),
+                            subtitleType: .active(type: "APR", rate: "3,5%"),
                             balance: .init(crypto: "543 USD", fiat: "5 SOL"),
                             action: {}
                         ),
@@ -108,7 +108,7 @@ struct StakingDetailsStakeView: View {
                             title: "Coinbase",
                             icon: .image(url: URL(string: "https://assets.stakek.it/validators/coinbase.png")!),
                             inProgress: true,
-                            subtitleType: .active(apr: "3,5%"),
+                            subtitleType: .active(type: "APR", rate: "3,5%"),
                             balance: .init(crypto: "543 USD", fiat: "5 SOL"),
                             action: {}
                         ),
@@ -116,7 +116,7 @@ struct StakingDetailsStakeView: View {
                             title: "Binance",
                             icon: .image(url: URL(string: "https://assets.stakek.it/validators/infstones.png")!),
                             inProgress: false,
-                            subtitleType: .active(apr: "3,5%"),
+                            subtitleType: .active(type: "APR", rate: "3,5%"),
                             balance: .init(crypto: "543 USD", fiat: "5 SOL"),
                             action: .none
                         ),
