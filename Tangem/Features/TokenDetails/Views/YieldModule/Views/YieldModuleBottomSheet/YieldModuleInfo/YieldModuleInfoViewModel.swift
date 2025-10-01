@@ -132,31 +132,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         onStopEarnAction()
     }
 
-    func fetchNetworkFee() async {
-        networkFeeState = .loading
-        notificationBannerParams = nil
-
-        try? await Task.sleep(seconds: 2)
-
-        if Bool.random() {
-            // [REDACTED_TODO_COMMENT]
-            let networkFee: Decimal = 0.12
-            if let converted = await feeConverter.createFeeString(from: networkFee) {
-                networkFeeState = .loaded(text: converted)
-
-                if networkFee > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
-                    showNotEnoughFeeNotification()
-                }
-
-            } else {
-                showFeeErrorNotification()
-                networkFeeState = .noData
-            }
-        } else {
-            showFeeErrorNotification()
-            networkFeeState = .noData
-        }
-    }
+    func fetchNetworkFee() async {}
 
     // MARK: - Private Implementation
 
