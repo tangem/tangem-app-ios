@@ -11,19 +11,15 @@ import TangemLocalization
 import TangemAssets
 
 final class YieldModulePromoViewModel {
-    // MARK: - Injected
-
     @Injected(\.safariManager)
     private var safariManager: SafariManager
-
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: UserWalletRepository
 
     // MARK: - Dependencies
 
     private let walletModel: any WalletModel
+    private let yieldManagerInteractor: YieldManagerInteractor
+    private let startFlowFactory: YieldStartFlowFactory
     private weak var coordinator: YieldModulePromoCoordinator?
-    private weak var tokenDetailsCoordinator: TokenDetailsRoutable?
 
     // MARK: - Properties
 
@@ -32,33 +28,30 @@ final class YieldModulePromoViewModel {
     private(set) var privacyPolicyUrl = URL(string: "https://tangem.com")!
     private(set) var howIrWorksUrl = URL(string: "https://tangem.com")!
 
-    private let startEarnAction: () -> Void
-
     // MARK: - Init
 
     init(
         walletModel: any WalletModel,
+        yieldManagerInteractor: YieldManagerInteractor,
         apy: String,
-        coordinator: YieldModulePromoCoordinator,
-        startEarnAction: @escaping () -> Void
+        coordinator: YieldModulePromoCoordinator?,
+        startFlowFactory: YieldStartFlowFactory
     ) {
         self.walletModel = walletModel
         self.coordinator = coordinator
+        self.yieldManagerInteractor = yieldManagerInteractor
         self.apy = apy
-        self.startEarnAction = startEarnAction
+        self.startFlowFactory = startFlowFactory
     }
 
     // MARK: - Public Implementation
 
     func onInterestRateInfoTap() {
-        coordinator?.openRateInfoSheet(walletModel: walletModel)
+        coordinator?.openBottomSheet(viewModel: startFlowFactory.makeInterestRateInfoVewModel())
     }
 
     func onContinueTap() {
-        coordinator?.openStartEarningSheet(walletModel: walletModel, startEarnAction: { [weak self] in
-            self?.coordinator?.dismiss()
-            self?.startEarnAction()
-        })
+        coordinator?.openBottomSheet(viewModel: startFlowFactory.makeStartViewModel())
     }
 
     func onHowItWorksTap() {
