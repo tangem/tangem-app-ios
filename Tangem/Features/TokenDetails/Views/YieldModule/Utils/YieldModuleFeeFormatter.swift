@@ -52,7 +52,7 @@ struct YieldModuleFeeFormatter {
             formattingOptions: .defaultFiatFormattingOptions
         )
 
-        return "\(formattedCryptoFee) · \(formattedFiatFee)"
+        return "\(formattedCryptoFee) \(AppConstants.dotSign) \(formattedFiatFee)"
     }
 
     // MARK: - Private Implementation
