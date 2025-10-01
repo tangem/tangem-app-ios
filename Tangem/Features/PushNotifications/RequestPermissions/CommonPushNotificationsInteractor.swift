@@ -21,7 +21,7 @@ final class CommonPushNotificationsInteractor {
     @AppStorageCompat(StorageKeys.didRequestAuthorizationOnAfterLogin)
     private var canRequestAuthorizationOnAfterLogin: Bool? = nil
 
-    /// A solution is required date type from request feature Product Team.
+    /// Property type is selected because in the future it may be necessary to count down the date when permissions are displayed
     @AppStorageCompat(StorageKeys.didPostponeOnboardingCompletionDate)
     private var requestAuthorizationOnAfterLoginBannerCompletionDate: Date? = nil
 
