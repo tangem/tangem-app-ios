@@ -70,7 +70,7 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
         if let cacheDerivedKey {
             storedKey = cacheDerivedKey
         } else {
-            let zoneDerivedResult = try quaiDerivationUtils.derive(extendendPublicKey: key, with: .default)
+            let zoneDerivedResult = try quaiDerivationUtils.derive(extendedPublicKey: key, with: .default)
             let zoneDerivationPath = derivationPath.extendedPath(with: zoneDerivedResult.1)
 
             let derivedHDKey = Wallet.PublicKey.HDKey(path: zoneDerivationPath, extendedPublicKey: zoneDerivedResult.0)
