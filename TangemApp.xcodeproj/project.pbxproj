@@ -3379,6 +3379,7 @@
 		EF154CC42DA67E4F004134C0 /* RavencoinTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF154CC32DA67E4F004134C0 /* RavencoinTransactionTests.swift */; };
 		EF15D62A2E30E5020080B000 /* SendDestinationInteractorSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF15D6292E30E5020080B000 /* SendDestinationInteractorSaver.swift */; };
 		EF15D6312E30EE790080B000 /* SendNewAmountInteractorSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF15D6302E30EE790080B000 /* SendNewAmountInteractorSaver.swift */; };
+		EF175D722E8BF93500B69415 /* StakingValidatorRewardRateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF175D712E8BF93500B69415 /* StakingValidatorRewardRateFormatter.swift */; };
 		EF1947642E37EE8C00FE6CC9 /* SendSwapProviderBestRateAnimationBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1947632E37EE8C00FE6CC9 /* SendSwapProviderBestRateAnimationBadgeView.swift */; };
 		EF197B072D8C8C420004B575 /* CommonUTXOTransactionSizeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF197B042D8C8C410004B575 /* CommonUTXOTransactionSizeCalculator.swift */; };
 		EF197B082D8C8C420004B575 /* UTXOTransactionSizeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF197B052D8C8C410004B575 /* UTXOTransactionSizeCalculator.swift */; };
@@ -7614,6 +7615,7 @@
 		EF154CC32DA67E4F004134C0 /* RavencoinTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RavencoinTransactionTests.swift; sourceTree = "<group>"; };
 		EF15D6292E30E5020080B000 /* SendDestinationInteractorSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationInteractorSaver.swift; sourceTree = "<group>"; };
 		EF15D6302E30EE790080B000 /* SendNewAmountInteractorSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewAmountInteractorSaver.swift; sourceTree = "<group>"; };
+		EF175D712E8BF93500B69415 /* StakingValidatorRewardRateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingValidatorRewardRateFormatter.swift; sourceTree = "<group>"; };
 		EF1947632E37EE8C00FE6CC9 /* SendSwapProviderBestRateAnimationBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSwapProviderBestRateAnimationBadgeView.swift; sourceTree = "<group>"; };
 		EF197B022D8C8C410004B575 /* UTXOPreImageTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXOPreImageTransactionBuilder.swift; sourceTree = "<group>"; };
 		EF197B042D8C8C410004B575 /* CommonUTXOTransactionSizeCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUTXOTransactionSizeCalculator.swift; sourceTree = "<group>"; };
@@ -21768,6 +21770,7 @@
 				EF0FBB722C53BE490095A6BD /* StakingValidatorsCompactView */,
 				EF91804E2C74A3D2001D2122 /* ValidatorCompactView */,
 				EFB932142C3EC18300C999E9 /* Interactor */,
+				EF175D712E8BF93500B69415 /* StakingValidatorRewardRateFormatter.swift */,
 			);
 			path = StakingValidators;
 			sourceTree = "<group>";
@@ -24113,6 +24116,7 @@
 				DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */,
 				2D30234A2DF093B600B4FFE6 /* PushNotificationsService.swift in Sources */,
 				2D30234B2DF093B600B4FFE6 /* ApplicationWalletEntry.swift in Sources */,
+				EF175D722E8BF93500B69415 /* StakingValidatorRewardRateFormatter.swift in Sources */,
 				2D30234C2DF093B600B4FFE6 /* UserTokensPushNotifificationsManager.swift in Sources */,
 				2D30234D2DF093B600B4FFE6 /* PushNotificationsHelpersFactory.swift in Sources */,
 				2D30234E2DF093B600B4FFE6 /* CommonPushNotificationsInteractor.swift in Sources */,
