@@ -40,8 +40,7 @@ extension QuaiTransactionBuilder: EthereumTransactionBuilder {
         let secp256k1Signature = try Secp256k1Signature(with: signatureInfo.signature)
         let unmarshalSignature = try secp256k1Signature.unmarshal(with: decompressed, hash: signatureInfo.hash)
 
-        let v = BigUInt(unmarshalSignature.v) - 27
-        let vBytes = v == .zero ? Data([UInt8.zero]) : v.serialize()
+        let vBytes = EthereumCalculateSignatureUtil().encodeSignatureVBytes(value: unmarshalSignature.v)
         let rBytes = unmarshalSignature.r
         let sBytes = unmarshalSignature.s
 

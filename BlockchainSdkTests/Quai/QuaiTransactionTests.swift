@@ -35,7 +35,7 @@ struct QuaiTransactionTests {
 
         let signature = Data(hex: "d90a028a29161381e85b36ecd61c0196e45598df4a582c358402306717cbcf94675a492faf527c47e72ca1a28a45801d40ea5c61bcab0656dfc54382c5dc72df")
 
-        let sendAmount = Amount(with: blockchain, type: .coin, value: 0.01)
+        let sendAmount = Amount(with: blockchain, type: .coin, value: Decimal(stringValue: "0.01")!)
 
         // feeAmount doesn't matter. The EthereumFeeParameters used to build the transaction
         let fee = Fee(.zeroCoin(for: blockchain), parameters: feeParameters)
@@ -74,7 +74,7 @@ struct QuaiTransactionTests {
 
         let signature = Data(hex: "01b7afc5d39533178dde5239e9a76f4a322ce4258d10cb11bf2bf572b8cb8788767b45597533ebc3811bc1be4c5a15ce3f71ee2df4c73b4381185930e363feb7")
 
-        let sendAmount = Amount(with: blockchain, type: .token(value: .WQiToken), value: 0.01)
+        let sendAmount = Amount(with: blockchain, type: .token(value: .WQiToken), value: Decimal(stringValue: "0.01")!)
 
         // feeAmount doesn't matter. The EthereumFeeParameters used to build the transaction
         let fee = Fee(.zeroCoin(for: blockchain), parameters: feeParameters)
