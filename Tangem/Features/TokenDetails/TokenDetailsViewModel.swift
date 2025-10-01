@@ -20,6 +20,7 @@ import struct TangemUIUtils.ActionSheetBinder
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
+    @Published var yieldModuleStatus: YieldStatusView.Status?
 
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
         buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
@@ -270,6 +271,30 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
+        walletModel.yieldModuleManager?.statePublisher
+            .compactMap { $0 }
+            .map { status in
+                switch status {
+                case .active(let info):
+                    return .active(
+                        income: info.yieldSupply?.value ?? 0,
+                        annualYield: info.apy,
+                        isApproveNeeded: false,
+                        tapAction: { [weak self] in
+                            self?.openYieldEarnInfo()
+                        }
+                    )
+
+                case .loading:
+                    return .loading
+
+                case .failedToLoad, .disabled, .notActive:
+                    return nil
+                }
+            }
+            .assign(to: \.yieldModuleStatus, on: self, ownership: .weak)
+            .store(in: &bag)
+
         // If a pending transaction was provided for deeplink-based presentation,
         // wait for the first non-empty list of pending transactions,
         // and if it contains a transaction matching the provided ID, present its status.
