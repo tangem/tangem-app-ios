@@ -129,20 +129,22 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
-    func openYieldModulePromoView(walletModel: any WalletModel, apy: String, startEarnAction: @escaping () -> Void) {
+    func openYieldModulePromoView(walletModel: any WalletModel, apy: String, signer: any TangemSigner) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.yieldModulePromoCoordinator = nil
         }
 
-        let coordinator = YieldModulePromoCoordinator(dismissAction: dismissAction)
-        let options = YieldModulePromoCoordinator.Options(
+        guard let factory = YieldModuleFlowFactory(
             walletModel: walletModel,
             apy: apy,
+            signer: signer,
             feeCurrencyNavigator: self,
-            startEarnAction: startEarnAction
-        )
+            dismissAction: dismissAction
+        ) else {
+            return
+        }
 
-        coordinator.start(with: options)
+        let coordinator = factory.getYieldPromoCoordinator()
         yieldModulePromoCoordinator = coordinator
     }
 
