@@ -10,7 +10,6 @@ import TangemUI
 import SwiftUI
 import TangemFoundation
 
-@MainActor
 final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Injected
 
@@ -46,6 +45,8 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     private(set) var walletModel: any WalletModel
     private var yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
+    private weak var coordinator: YieldModulePromoCoordinator?
+    private let yieldManagerInteractor: YieldManagerInteractor
 
     private lazy var feeConverter = YieldModuleFeeFormatter(
         feeCurrency: walletModel.feeTokenItem,
@@ -56,8 +57,6 @@ final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Properties
 
     private(set) var maximumFee: Decimal = 0
-    private let openFeeCurrencyAction: (any WalletModel, any UserWalletModel) -> Void
-    private let startEarnAction: () -> Void
 
     var isButtonEnabled: Bool {
         switch viewState {
@@ -83,20 +82,20 @@ final class YieldModuleStartViewModel: ObservableObject {
     init(
         walletModel: any WalletModel,
         viewState: ViewState,
-        openFeeCurrencyAction: @escaping (any WalletModel, any UserWalletModel) -> Void = { _, _ in },
-        startEarnAction: @escaping () -> Void = {},
+        coordinator: YieldModulePromoCoordinator?,
+        yieldManagerInteractor: YieldManagerInteractor
     ) {
         self.viewState = viewState
         self.walletModel = walletModel
-        self.openFeeCurrencyAction = openFeeCurrencyAction
-        self.startEarnAction = startEarnAction
+        self.coordinator = coordinator
+        self.yieldManagerInteractor = yieldManagerInteractor
     }
 
     // MARK: - Navigation
 
     func onCloseTap() {
         runTask(in: self) { vm in
-            vm.floatingSheetPresenter.removeActiveSheet()
+            await vm.floatingSheetPresenter.removeActiveSheet()
         }
     }
 
@@ -106,7 +105,6 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     func onStartEarnTap() {
         yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: walletModel.tokenItem)
-        startEarnAction()
     }
 
     func onBackAction() {
@@ -165,7 +163,7 @@ final class YieldModuleStartViewModel: ObservableObject {
             if let selectedUserWalletModel = self?.userWalletRepository.selectedModel,
                let feeWalletModel = self?.getFeeCurrencyWalletModel(in: selectedUserWalletModel) {
                 self?.onCloseTap()
-                self?.openFeeCurrencyAction(feeWalletModel, selectedUserWalletModel)
+                self?.coordinator?.openFeeCurrency(for: feeWalletModel, userWalletModel: selectedUserWalletModel)
             }
         }
     }
