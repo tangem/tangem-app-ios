@@ -230,7 +230,11 @@ private extension EthereumTransactionBuilder {
             )
 
         case .token(let token):
-            let contract = transaction.contractAddress ?? token.contractAddress
+            let contract = if let yieldSupply = token.metadata.yieldSupply {
+                yieldSupply.yieldContractAddress
+            } else {
+                transaction.contractAddress ?? token.contractAddress
+            }
             let method = try makeTokenTransferSmartContractMethod(
                 destination: transaction.destinationAddress,
                 amount: amountValue,
@@ -259,6 +263,9 @@ private extension EthereumTransactionBuilder {
         token: Token
     ) throws -> SmartContractMethod {
         switch token.metadata.kind {
+        case .fungible where token.metadata.yieldSupply != nil:
+            return SendMethod(tokenContractAddress: token.contractAddress, destination: destination, amount: amount)
+
         case .fungible:
             return TransferERC20TokenMethod(destination: destination, amount: amount)
 
