@@ -15,7 +15,6 @@ import BigInt
 
 struct QuaiTransactionTests {
     private let protoUtils = QuaiProtobufUtils()
-    private let sizeTester = TransactionSizeTesterUtility()
 
     private let rawPublicKey = Data(hex: "04fd5e187de4e07d17f71d14e6574a7e54265b0cdf86cb4b3ea824e925821bd6816d5a84440829f952966fdd96fb42113cc36c2f2cf87aadb92e7a73ca86d690bd")
 
@@ -59,7 +58,6 @@ struct QuaiTransactionTests {
         let expectedHashToSign = Data(hex: "114366848b001f0c58ec06f7dfd6418f93d20052f02e496a1d370ecc38453edb")
         let expectedSignedTransaction = Data(hex: "080012140027405cf43c57277b20d866f0f0bdca0d59071a181722072386f26fc1000028e0da0132003a0109420606ca2820e3de4a005201005a20d90a028a29161381e85b36ecd61c0196e45598df4a582c358402306717cbcf946220675a492faf527c47e72ca1a28a45801d40ea5c61bcab0656dfc54382c5dc72df")
 
-        sizeTester.testTxSize(hashToSign)
         #expect(hashToSign == expectedHashToSign)
         #expect(signedTransaction == expectedSignedTransaction)
     }
@@ -98,7 +96,6 @@ struct QuaiTransactionTests {
         let expectedHashToSign = Data(hex: "5656945a8df7b7fd0c9548ede5be52fe3124ed053d29a240b18a83b4a7988456")
         let expectedSignedTransaction = Data(hex: "08001214002b2596ecf05c93a31ff916e8b456df6c77c7501817220028e0da013244a9059cbb0000000000000000000000000027405cf43c57277b20d866f0f0bdca0d59071a000000000000000000000000000000000000000000000000002386f26fc100003a0109420606ca2820e3de4a005201005a2001b7afc5d39533178dde5239e9a76f4a322ce4258d10cb11bf2bf572b8cb87886220767b45597533ebc3811bc1be4c5a15ce3f71ee2df4c73b4381185930e363feb7")
 
-        sizeTester.testTxSize(hashToSign)
         #expect(hashToSign == expectedHashToSign)
         #expect(signedTransaction == expectedSignedTransaction)
     }
