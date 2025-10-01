@@ -10,7 +10,7 @@ import Foundation
 import BigInt
 
 struct EthereumCalculateSignatureUtil {
-    // Common logic for EVM blockchains. Change carefully
+    /// Common logic for EVM blockchains. Change carefully
     func encodeSignatureVBytes(value: Data) -> Data {
         let v = BigUInt(value) - 27
         let encodedV = v == .zero ? Data([UInt8.zero]) : v.serialize()
