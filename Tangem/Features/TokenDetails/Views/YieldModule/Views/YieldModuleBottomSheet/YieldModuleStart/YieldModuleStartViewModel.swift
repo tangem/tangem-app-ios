@@ -93,20 +93,25 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     // MARK: - Navigation
 
+    @MainActor
     func onCloseTap() {
+        floatingSheetPresenter.removeActiveSheet()
         runTask(in: self) { vm in
-            await vm.floatingSheetPresenter.removeActiveSheet()
+            await vm.yieldManagerInteractor.clearAll()
         }
     }
 
+    @MainActor
     func onShowFeePolicy() {
         viewState = .feePolicy
     }
 
+    @MainActor
     func onStartEarnTap() {
         yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: walletModel.tokenItem)
     }
 
+    @MainActor
     func onBackAction() {
         previousState.map { viewState = $0 }
     }
@@ -114,46 +119,38 @@ final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Public Implementation
 
     func fetchNetworkFee() async {
-        networkFeeState = .loading
-        tokenFeeState = .loading
-        notificationBannerParams = nil
+        await runOnMain {
+            tokenFeeState = .loading
+            networkFeeState = .loading
+        }
 
-        try? await Task.sleep(seconds: 2)
+        do {
+            let feeInCoins = try await yieldManagerInteractor.getEnterFee()
+            let feeValue = feeInCoins.totalFeeAmount.value
 
-        if Bool.random() {
-            // [REDACTED_TODO_COMMENT]
-            let networkFee: Decimal = 0.12
-            if let converted = await feeConverter.createFeeString(from: networkFee) {
-                networkFeeState = .loaded(text: converted)
+            let convertedFee = try await feeConverter.createFeeString(from: feeValue)
+            let feeInTokens = try await feeConverter.makeFeeInTokenString(from: feeValue)
 
-                await getTokenFee(from: networkFee)
+            await runOnMain {
+                networkFeeState = .loaded(text: convertedFee)
+                tokenFeeState = .loaded(text: feeInTokens)
 
-                if networkFee > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
+                if feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
                     showNotEnoughFeeNotification()
                 }
-
-            } else {
-                showFeeErrorNotification()
-                networkFeeState = .noData
             }
-        } else {
-            showFeeErrorNotification()
+
+        } catch {
+            tokenFeeState = .noData
             networkFeeState = .noData
+
+            await runOnMain {
+                showFeeErrorNotification()
+            }
         }
     }
 
     // MARK: - Private Implementation
-
-    private func getTokenFee(from networkFee: Decimal) async {
-        tokenFeeState = .loading
-
-        guard let fee = await feeConverter.makeFeeInTokenString(from: networkFee) else {
-            tokenFeeState = .noData
-            return
-        }
-
-        tokenFeeState = .loaded(text: fee)
-    }
 
     private func showNotEnoughFeeNotification() {
         notificationBannerParams = .notEnoughFeeCurrency(
