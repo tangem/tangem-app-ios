@@ -19,7 +19,8 @@ struct FakeStakingValidatorsInteractor: StakingValidatorsInteractor {
                 preferred: true,
                 partner: false,
                 iconURL: URL(string: "https://assets.stakek.it/validators/infstones.png")!,
-                apr: 0.008,
+                rewardType: .apr,
+                rewardRate: Decimal(0.008),
                 status: .active
             ),
             .init(
@@ -28,7 +29,8 @@ struct FakeStakingValidatorsInteractor: StakingValidatorsInteractor {
                 preferred: true,
                 partner: false,
                 iconURL: URL(string: "https://assets.stakek.it/validators/coinbase.png")!,
-                apr: 0.023,
+                rewardType: .apr,
+                rewardRate: Decimal(0.023),
                 status: .active
             ),
         ])
