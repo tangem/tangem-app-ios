@@ -211,6 +211,9 @@ extension Analytics {
         case walletConnectTransactionDetailsOpened = "[Wallet Connect] Transaction Details Opened"
         case walletConnectTransactionSignButtonTapped = "[Wallet Connect] Button - Sign"
 
+        case walletConnectTransactionSolanaLarge = "[Wallet Connect] Solana Large Transaction"
+        case walletConnectTransactionSolanaLargeStatus = "[Wallet Connect] Solana Large Transaction Status"
+
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
 
@@ -460,6 +463,10 @@ extension Analytics {
         case onrampOnrampStatusOpened = "[Onramp] Onramp Status Opened"
         case onrampButtonGoToProvider = "[Onramp] Button - Go To Provider"
         case onrampOnrampStatus = "[Onramp] Onramp Status"
+        case onrampRecentlyUsedClicked = "[Onramp] Recently Used Clicked"
+        case onrampFastestMethodClicked = "[Onramp] Fastest Method Clicked"
+        case onrampBestRateClicked = "[Onramp] Best Rate Clicked"
+        case onrampButtonAllOffers = "[Onramp] Button - All Offers"
 
         // MARK: - Action Buttons
 

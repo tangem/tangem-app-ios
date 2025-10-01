@@ -30,15 +30,25 @@ final class MainScreenUITests: BaseTestCase {
         let mainScreen = StoriesScreen(app)
             .scanMockWallet(name: .wallet2)
 
-        mainScreen.validateDeveloperCardBannerExists()
+        mainScreen.waitDeveloperCardBannerExists()
+    }
+
+    func testScanCardWithReleaseFirmware_DeveloperCardBannerNotDisplayed() {
+        setAllureId(3991)
+        launchApp()
+
+        let mainScreen = StoriesScreen(app)
+            .scanMockWallet(name: .ring)
+
+        mainScreen.waitDeveloperCardBannerNotExists()
     }
 
     func testScanRing_MandatorySecurityUpdateBannerDisplayed() {
         setAllureId(227)
-        launchApp(tangemApiType: .mock)
+        launchApp()
 
         let mainScreen = StoriesScreen(app)
-            .scanMockWallet(name: .ring)
+            .scanMockWallet(name: .wallet2Imported)
 
         mainScreen.validateMandatorySecurityUpdateBannerExists()
     }

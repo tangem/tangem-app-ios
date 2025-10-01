@@ -330,12 +330,60 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
                 risk: .undefined,
                 reviewAnswer: .undefined,
                 createdAt: Date()
-            )
+            ),
+            card: nil
         )
     }
 
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
         VisaKYCAccessTokenResponse(token: "", locale: "")
+    }
+
+    func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse {
+        TangemPayCardDetailsResponse(
+            expirationMonth: "",
+            expirationYear: "",
+            pan: .init(secret: "", iv: ""),
+            cvv: .init(secret: "", iv: "")
+        )
+    }
+
+    func getOrder(orderId: String) async throws -> TangemPayOrderResponse {
+        TangemPayOrderResponse(
+            id: "",
+            customerId: "",
+            type: "",
+            status: .new,
+            step: "",
+            data: .init(
+                type: "",
+                specificationName: "",
+                customerWalletAddress: "",
+                embossName: nil,
+                productInstanceId: nil,
+                paymentAccountId: nil
+            ),
+            stepChangeCode: 0
+        )
+    }
+
+    func placeOrder(walletAddress: String) async throws -> TangemPayOrderResponse {
+        TangemPayOrderResponse(
+            id: "",
+            customerId: "",
+            type: "",
+            status: .new,
+            step: "",
+            data: .init(
+                type: "",
+                specificationName: "",
+                customerWalletAddress: "",
+                embossName: nil,
+                productInstanceId: nil,
+                paymentAccountId: nil
+            ),
+            stepChangeCode: 0
+        )
     }
 }
 
