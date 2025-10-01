@@ -309,7 +309,9 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel
+            addressTypesProvider: walletModel,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -347,10 +349,15 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.sendWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(userWalletModel: userWalletModel)
+            ),
             type: .send,
             source: .main
         )
+
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
@@ -363,7 +370,11 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
 
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.sendWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(userWalletModel: userWalletModel)
+            ),
             type: .sell(parameters: sellParameters),
             source: .main
         )
@@ -430,7 +441,11 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.sendWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(userWalletModel: userWalletModel)
+            ),
             type: .onramp(parameters: parameters),
             source: .main
         )
@@ -479,7 +494,9 @@ extension MainCoordinator: VisaWalletRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: tokenItem,
-            addressTypesProvider: addressTypesProvider
+            addressTypesProvider: addressTypesProvider,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
