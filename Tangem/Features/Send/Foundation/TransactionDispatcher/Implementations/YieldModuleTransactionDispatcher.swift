@@ -14,17 +14,20 @@ class YieldModuleTransactionDispatcher {
     private let walletModelUpdater: WalletModelUpdater
     private let transactionSigner: TangemSigner
     private let transactionsSender: MultipleTransactionsSender
+    private let blockchainDataProvider: BlockchainDataProvider
 
     init(
         blockchain: Blockchain,
         walletModelUpdater: WalletModelUpdater,
         transactionsSender: MultipleTransactionsSender,
-        transactionSigner: TangemSigner
+        transactionSigner: TangemSigner,
+        blockchainDataProvider: BlockchainDataProvider
     ) {
         self.blockchain = blockchain
         self.walletModelUpdater = walletModelUpdater
         self.transactionsSender = transactionsSender
         self.transactionSigner = transactionSigner
+        self.blockchainDataProvider = blockchainDataProvider
     }
 }
 
@@ -52,7 +55,7 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        let mapper = TransactionDispatcherResultMapper()
+        let mapper = TransactionDispatcherResultMapper(blockchainDataProvider: blockchainDataProvider)
 
         do {
             let hashes = try await transactionsSender.send(

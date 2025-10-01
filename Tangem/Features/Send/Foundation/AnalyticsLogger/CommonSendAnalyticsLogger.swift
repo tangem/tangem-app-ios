@@ -321,12 +321,13 @@ extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
 // MARK: - SendManagementModelAnalyticsLogger
 
 extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
-    func logTransactionRejected(error: Error) {
+    func logTransactionRejected(error: SendTxError) {
         Analytics.log(event: .sendErrorTransactionRejected, params: [
             .token: tokenItem.currencySymbol,
             .errorCode: "\(error.universalErrorCode)",
             .errorDescription: error.localizedDescription,
             .blockchain: tokenItem.blockchain.displayName,
+            .selectedHost: error.lastRetryHost ?? "",
         ])
     }
 

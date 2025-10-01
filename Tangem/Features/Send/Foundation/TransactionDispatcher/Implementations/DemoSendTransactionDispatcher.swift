@@ -40,7 +40,8 @@ extension DemoSendTransactionDispatcher: TransactionDispatcher {
                 .mapAndEraseSendTxError(tx: hash.hexString)
                 .async()
         } catch {
-            throw TransactionDispatcherResultMapper().mapError(error.toUniversalError(), transaction: transaction)
+            throw TransactionDispatcherResultMapper(blockchainDataProvider: walletModel.blockchainDataProvider)
+                .mapError(error.toUniversalError(), transaction: transaction)
         }
 
         throw TransactionDispatcherResult.Error.demoAlert
