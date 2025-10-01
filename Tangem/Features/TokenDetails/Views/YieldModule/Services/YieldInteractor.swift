@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
+
 actor YieldManagerInteractor {
     private(set) var enterFee: YieldTransactionFee?
     private var exitFee: YieldTransactionFee?
@@ -38,83 +40,60 @@ actor YieldManagerInteractor {
     }
 
     func getEnterFee() async throws -> YieldTransactionFee {
-        if let existing = enterFeeTask {
-            let fee = try await existing.value
-            enterFee = fee
-            return fee
-        }
-
-        let new = Task {
-            try await manager.enterFee()
-        }
-        enterFeeTask = new
-
-        do {
-            let fee = try await new.value
-            enterFee = fee
-            return fee
-        } catch {
-            enterFeeTask = nil
-            throw error
-        }
+        try await loadFee(
+            getTask: { enterFeeTask },
+            setTask: { enterFeeTask = $0 },
+            setCache: { enterFee = $0 },
+            loader: {
+                try await self.manager.enterFee()
+            }
+        )
     }
 
     func getExitFee() async throws -> YieldTransactionFee {
-        if let existing = exitFeeTask {
-            let fee = try await existing.value
-            enterFee = fee
-            return fee
-        }
-
-        let new = Task {
-            try await manager.exitFee()
-        }
-
-        exitFeeTask = new
-
-        do {
-            let fee = try await new.value
-            enterFee = fee
-            return fee
-        } catch {
-            exitFeeTask = nil
-            throw error
-        }
+        try await loadFee(
+            getTask: { exitFeeTask },
+            setTask: { exitFeeTask = $0 },
+            setCache: { exitFee = $0 },
+            loader: {
+                try await self.manager.exitFee()
+            }
+        )
     }
 
     func enter() {
-        Task {
-            guard let fee = enterFee else {
+        runTask(in: self) { actor in
+            guard let fee = await actor.enterFee else {
                 return
             }
 
-            let _ = try await manager.enter(
-                fee: fee,
-                transactionDispatcher: transactionDispatcher
-            )
+            _ = try await actor.manager.enter(fee: fee, transactionDispatcher: actor.transactionDispatcher)
         }
     }
 
-    // MARK: - Helpers
+    // MARK: - Heplers
 
     private func loadFee(
-        taskRef: inout Task<YieldTransactionFee, Error>?,
-        loader: @escaping () async throws -> YieldTransactionFee
+        getTask: () -> Task<YieldTransactionFee, Error>?,
+        setTask: (Task<YieldTransactionFee, Error>?) -> Void,
+        setCache: (YieldTransactionFee) -> Void,
+        loader: @Sendable @escaping () async throws -> YieldTransactionFee
     ) async throws -> YieldTransactionFee {
-        if let existing = taskRef {
-            return try await existing.value
+        if let existing = getTask() {
+            let fee = try await existing.value
+            setCache(fee)
+            return fee
         }
 
-        let newTask = Task {
-            try await loader()
-        }
-
-        taskRef = newTask
+        let new = Task { try await loader() }
+        setTask(new)
 
         do {
-            return try await newTask.value
+            let fee = try await new.value
+            setCache(fee)
+            return fee
         } catch {
-            taskRef = nil
+            setTask(nil)
             throw error
         }
     }
