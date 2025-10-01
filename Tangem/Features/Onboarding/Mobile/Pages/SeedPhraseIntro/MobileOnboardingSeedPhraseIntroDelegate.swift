@@ -9,5 +9,6 @@
 import Foundation
 
 protocol MobileOnboardingSeedPhraseIntroDelegate: AnyObject {
+    func onFirstAppear()
     func seedPhraseIntroContinue()
 }
