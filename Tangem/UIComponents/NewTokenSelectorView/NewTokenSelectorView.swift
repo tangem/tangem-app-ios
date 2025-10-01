@@ -11,10 +11,14 @@ import TangemUI
 import TangemUIUtils
 import TangemFoundation
 
-struct NewTokenSelectorView<Model: Identifiable, ItemContent: View, EmptyContent: View>: View {
+struct NewTokenSelectorView: View {
     @ObservedObject var viewModel: NewTokenSelectorViewModel
 
     private var searchType: SearchType?
+
+    init(viewModel: NewTokenSelectorViewModel) {
+        self.viewModel = viewModel
+    }
 
     var body: some View {
         GroupedScrollView(spacing: 8) {

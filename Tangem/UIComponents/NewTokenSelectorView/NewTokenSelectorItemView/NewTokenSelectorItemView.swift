@@ -56,5 +56,4 @@ struct NewTokenSelectorItemView: View {
             .padding(14)
         }
     }
-
 }

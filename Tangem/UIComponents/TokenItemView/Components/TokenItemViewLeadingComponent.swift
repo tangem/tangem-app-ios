@@ -38,4 +38,26 @@ extension TokenItemViewLeadingComponent {
             hasMonochromeIcon: tokenItemViewModel.hasMonochromeIcon,
         )
     }
+
+    init(
+        name: String,
+        imageURL: URL?,
+        customTokenColor: Color?,
+        blockchainIconAsset: ImageType?,
+        hasMonochromeIcon: Bool,
+        isCustom: Bool,
+        networkBorderColor: Color = Colors.Background.primary
+    ) {
+        self.init(
+            tokenIconInfo: .init(
+                name: name,
+                blockchainIconAsset: blockchainIconAsset,
+                imageURL: imageURL,
+                isCustom: isCustom,
+                customTokenColor: customTokenColor,
+                networkBorderColor: networkBorderColor
+            ),
+            hasMonochromeIcon: hasMonochromeIcon,
+        )
+    }
 }

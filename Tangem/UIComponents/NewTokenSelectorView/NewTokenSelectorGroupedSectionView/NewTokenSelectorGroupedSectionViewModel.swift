@@ -6,7 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-
 final class NewTokenSelectorGroupedSectionViewModel: Identifiable {
     let header: HeaderType
     let items: [NewTokenSelectorItemViewModel]
@@ -20,6 +19,6 @@ final class NewTokenSelectorGroupedSectionViewModel: Identifiable {
 extension NewTokenSelectorGroupedSectionViewModel {
     enum HeaderType: Hashable {
         case wallet(String)
-        case account(icon: String, name: String)
+        case account(icon: AccountModel.Icon, name: String)
     }
 }

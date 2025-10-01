@@ -36,7 +36,7 @@ extension NewTokenSelectorItem {
     }
 
     struct Account: Hashable {
-        let icon: String
+        let icon: AccountModel.Icon
         let name: String
     }
 }
@@ -46,7 +46,7 @@ protocol NewTokenSelectorViewModelContentProvider {
 }
 
 protocol NewTokenSelectorViewModelSearchFilter {
-    func match(item: NewTokenSelectorItemList.Element, searchText: String) -> Bool
+    func filter(list: NewTokenSelectorItemList, searchText: String) -> NewTokenSelectorItemList
 }
 
 protocol NewTokenSelectorViewModelOutput: AnyObject {
@@ -62,9 +62,9 @@ final class NewTokenSelectorViewModel: ObservableObject {
     private weak var output: NewTokenSelectorViewModelOutput?
 
     init(
-        provider: NewTokenSelectorViewModelContentProvider,
-        filter: NewTokenSelectorViewModelSearchFilter,
-        output: NewTokenSelectorViewModelOutput?,
+        provider: any NewTokenSelectorViewModelContentProvider,
+        filter: any NewTokenSelectorViewModelSearchFilter,
+        output: any NewTokenSelectorViewModelOutput,
     ) {
         self.provider = provider
         self.filter = filter
@@ -81,8 +81,8 @@ final class NewTokenSelectorViewModel: ObservableObject {
             .assign(to: &$viewState)
     }
 
-    private func mapToState(_ content: NewTokenSelectorItemList, searchText: String) -> State {
-        let filtered = content.filter { filter.match(item: $0, searchText: searchText) }
+    private func mapToState(_ list: NewTokenSelectorItemList, searchText: String) -> State {
+        let filtered = filter.filter(list: list, searchText: searchText)
 
         if filtered.isEmpty {
             return .empty
@@ -92,7 +92,7 @@ final class NewTokenSelectorViewModel: ObservableObject {
         let hasMultipleAccounts = filtered.contains { $0.value.hasMultipleAccounts }
 
         if hasMultipleAccounts {
-            let wrapped: [NewTokenSelectorGroupedSectionWrapperViewModel] = content.map { wallet, values in
+            let wrapped: [NewTokenSelectorGroupedSectionWrapperViewModel] = list.map { wallet, values in
                 let wrapperViewModel = mapToNewTokenSelectorGroupedSectionWrapperViewModel(
                     wallet: wallet,
                     items: values
@@ -104,7 +104,7 @@ final class NewTokenSelectorViewModel: ObservableObject {
             return .walletsWithAccounts(wrapped)
         }
 
-        let wallets: [NewTokenSelectorGroupedSectionViewModel] = content
+        let wallets: [NewTokenSelectorGroupedSectionViewModel] = list
             .mapValues { $0.values.flattened() }
             .map { wallet, values in
                 let wrapperViewModel = mapToNewTokenSelectorGroupedSectionViewModel(
