@@ -149,9 +149,10 @@ public func runTask<T>(
 // MARK: - Convenience extensions
 
 public extension Task where Success == Never, Failure == Never {
+    @available(iOS, obsoleted: 16.0, message: "Use Task.sleep(for:tolerance:clock:) instead.")
     static func sleep(seconds: TimeInterval) async throws {
-        let duration = UInt64(abs(seconds)) * NSEC_PER_SEC
-        try await Task.sleep(nanoseconds: duration)
+        let durationInNanoseconds = UInt64(seconds * Double(NSEC_PER_SEC))
+        try await Task.sleep(nanoseconds: durationInNanoseconds)
     }
 }
 
