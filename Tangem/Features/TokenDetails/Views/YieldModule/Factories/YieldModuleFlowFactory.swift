@@ -16,6 +16,7 @@ final class YieldModuleFlowFactory {
     private let transactionDispatcher: YieldModuleTransactionDispatcher
     private let yieldPromoCoordinator: YieldModulePromoCoordinator
     private let feeCurrencyNavigator: (any FeeCurrencyNavigating)?
+    private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Init
 
@@ -80,7 +81,11 @@ final class YieldModuleFlowFactory {
     }
 
     private func makeInteractor() -> YieldManagerInteractor {
-        YieldManagerInteractor(transactionDispatcher: transactionDispatcher, manager: yieldModuleManager)
+        YieldManagerInteractor(
+            transactionDispatcher: transactionDispatcher,
+            manager: yieldModuleManager,
+            yieldModuleNotificationInteractor: yieldModuleNotificationInteractor
+        )
     }
 
     private func makeStartFlowFactory(interactor: YieldManagerInteractor) -> YieldStartFlowFactory {
