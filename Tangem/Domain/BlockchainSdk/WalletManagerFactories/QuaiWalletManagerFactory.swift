@@ -69,12 +69,12 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
 
         if let cacheDerivedNodeIndex: UInt32 = dataStorage.get(key: storageKeyIndexSuffix) {
             let derivedNode: DerivationNode = .nonHardened(UInt32(cacheDerivedNodeIndex))
-            
+
             zoneExtendedPublicKey = try extendedPublicKey.derivePublicKey(node: derivedNode)
             zoneDerivationPath = derivationPath.extendedPath(with: .nonHardened(cacheDerivedNodeIndex))
         } else {
             let zoneDerivedResult = try quaiDerivationUtils.derive(extendedPublicKey: extendedPublicKey, with: .default)
-            
+
             dataStorage.store(key: storageKeyIndexSuffix, value: zoneDerivedResult.node.index)
 
             zoneExtendedPublicKey = zoneDerivedResult.key
