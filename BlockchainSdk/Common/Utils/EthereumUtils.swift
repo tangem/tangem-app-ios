@@ -60,7 +60,7 @@ public enum EthereumUtils {
     /// Parse a user-supplied string using the number of decimals.
     /// If input is non-numeric or precision is not sufficient - returns nil.
     /// Allowed decimal separators are ".", ",".
-    static func parseToBigUInt(_ amount: String, decimals: Int = 18) -> BigUInt? {
+    public static func parseToBigUInt(_ amount: String, decimals: Int = 18) -> BigUInt? {
         let separators = CharacterSet(charactersIn: ".,")
         let components = amount.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: separators)
         guard components.count == 1 || components.count == 2 else { return nil }
