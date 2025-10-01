@@ -221,8 +221,9 @@ final class TangemPayMainViewModel: ObservableObject {
             .itemsPublisher
             .map { items in
                 let items = items
+                    .filter { $0.transactionType != .collateral }
                     .enumerated()
-                    .map { index, item in
+                    .compactMap { index, item in
                         item.transactionViewModel(index: index)
                     }
 
@@ -306,40 +307,51 @@ struct TangemPayMainView: View {
 import TangemVisa
 
 private extension TangemPayTransactionHistoryResponse.Transaction {
-    func transactionViewModel(index: Int) -> TransactionViewModel {
+    func transactionViewModel(index: Int) -> TransactionViewModel? {
         switch record {
         case .spend(let spend):
-            spend.transactionViewModel(index: index)
+            return TransactionViewModel(
+                hash: "N/A",
+                index: index,
+                interactionAddress: .custom(message: spend.enrichedMerchantCategory ?? spend.merchantCategory ?? spend.merchantCategoryCode),
+                timeFormatted: (spend.postedAt ?? spend.authorizedAt).formatted(date: .numeric, time: .shortened),
+                amount: "\(-spend.amount) \(spend.currency.uppercased())",
+                isOutgoing: index % 2 == 0,
+                transactionType: .tangemPay(
+                    name: spend.enrichedMerchantName ?? spend.merchantName ?? "Card payment",
+                    icon: spend.enrichedMerchantIcon
+                ),
+                status: .confirmed
+            )
 
-        case .collateral(let collateral):
-            // [REDACTED_TODO_COMMENT]
-            fatalError()
+        case .collateral:
+            return nil
 
         case .payment(let payment):
-            // [REDACTED_TODO_COMMENT]
-            fatalError()
+            let isOutgoing = payment.amount < 0
+
+            return TransactionViewModel(
+                hash: "N/A",
+                index: index,
+                interactionAddress: .custom(message: "Transfers"),
+                timeFormatted: payment.postedAt.formatted(date: .numeric, time: .shortened),
+                amount: "\(payment.amount) \(payment.currency.uppercased())",
+                isOutgoing: isOutgoing,
+                transactionType: .tangemPayTransfer(name: isOutgoing ? "Withdraw" : "Deposit"),
+                status: .confirmed
+            )
 
         case .fee(let fee):
-            // [REDACTED_TODO_COMMENT]
-            fatalError()
+            return TransactionViewModel(
+                hash: "N/A",
+                index: index,
+                interactionAddress: .custom(message: "Service fees"),
+                timeFormatted: fee.postedAt.formatted(date: .numeric, time: .shortened),
+                amount: "\(-fee.amount) \(fee.currency.uppercased())",
+                isOutgoing: true,
+                transactionType: .tangemPay(name: "Fee", icon: nil),
+                status: .confirmed
+            )
         }
-    }
-}
-
-private extension TangemPayTransactionHistoryResponse.Spend {
-    func transactionViewModel(index: Int) -> TransactionViewModel {
-        TransactionViewModel(
-            hash: "N/A",
-            index: index,
-            interactionAddress: .custom(message: enrichedMerchantCategory ?? merchantCategory ?? "mapByMCC(\(merchantCategoryCode))"),
-            timeFormatted: postedAt?.formatted(date: .omitted, time: .shortened),
-            amount: "\(-amount) \(currency)",
-            isOutgoing: true,
-            transactionType: .operation(
-                name: enrichedMerchantName ?? merchantName ?? "Card payment",
-                icon: enrichedMerchantIcon
-            ),
-            status: .confirmed
-        )
     }
 }
