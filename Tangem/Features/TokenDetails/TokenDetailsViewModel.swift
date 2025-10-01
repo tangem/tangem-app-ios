@@ -431,11 +431,11 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 
 extension TokenDetailsViewModel {
     func openYieldModulePromo() {
-        coordinator?.openYieldModulePromoView(
-            walletModel: walletModel,
-            apy: "5.1",
-            startEarnAction: {}
-        )
+        guard walletModel.yieldModuleManager != nil else {
+            return
+        }
+
+        coordinator?.openYieldModulePromoView(walletModel: walletModel, apy: "5.1", signer: userWalletModel.signer)
     }
 
     func openYieldEarnInfo() {
