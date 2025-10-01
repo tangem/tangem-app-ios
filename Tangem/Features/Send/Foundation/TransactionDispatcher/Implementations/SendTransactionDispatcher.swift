@@ -32,7 +32,7 @@ extension SendTransactionDispatcher: TransactionDispatcher {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        let mapper = TransactionDispatcherResultMapper()
+        let mapper = TransactionDispatcherResultMapper(blockchainDataProvider: walletModel.blockchainDataProvider)
 
         do {
             let hash = try await walletModel.transactionSender.send(transferTransaction, signer: transactionSigner).async()
