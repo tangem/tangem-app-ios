@@ -7,7 +7,7 @@
 //
 
 actor YieldManagerInteractor {
-    private var enterFee: YieldTransactionFee?
+    private(set) var enterFee: YieldTransactionFee?
     private var exitFee: YieldTransactionFee?
 
     private var enterFeeTask: Task<YieldTransactionFee, Error>?
@@ -30,9 +30,11 @@ actor YieldManagerInteractor {
 
     // MARK: - Public Implementation
 
-    func clearFees() {
+    func clearAll() {
         enterFee = nil
         exitFee = nil
+        enterFeeTask = nil
+        exitFeeTask = nil
     }
 
     func getEnterFee() async throws -> YieldTransactionFee {
