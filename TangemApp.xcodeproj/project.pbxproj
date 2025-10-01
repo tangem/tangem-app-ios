@@ -4323,7 +4323,6 @@
 		0A7FF63C2C888D380072C2E8 /* StakingAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAnalyticsLogger.swift; sourceTree = "<group>"; };
 		0A81B3722BB2D24A0008F21C /* BlockchainURLSchemesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainURLSchemesParser.swift; sourceTree = "<group>"; };
 		0A83F56B2DD3609400ADB321 /* MarketsNotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNotificationsManager.swift; sourceTree = "<group>"; };
-		0A85A1962E6FFA8000ED535D /* YieldModuleTransactionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleTransactionDispatcher.swift; sourceTree = "<group>"; };
 		0A85A1982E7076E600ED535D /* YieldTransactionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldTransactionProvider.swift; sourceTree = "<group>"; };
 		0A85A19A2E71662F00ED535D /* YieldTransactionFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldTransactionFeeProvider.swift; sourceTree = "<group>"; };
 		0A85A1A32E71C12300ED535D /* YieldModuleActiveState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleActiveState.swift; sourceTree = "<group>"; };
@@ -8501,14 +8500,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0A0D88992E8297E800877140 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				0A85A1962E6FFA8000ED535D /* YieldModuleTransactionDispatcher.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		0A0F51922E43CB5B001F803E /* MobileWalletSdk */ = {
 			isa = PBXGroup;
 			children = (
@@ -10237,7 +10228,6 @@
 				B62D43792CBC7EC700C2460E /* BlockchainSdkExample */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
-				0A0D88992E8297E800877140 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -23985,7 +23975,6 @@
 				C207D60E2DE60F2500A5FB2E /* WalletConnectGetDAppConnectionProposalUseCase.swift in Sources */,
 				5D17EC7826947ED9002782DE /* SignAndReadTask.swift in Sources */,
 				DAC4F9F02AC314E100BEBCF8 /* SingleWalletMainContentDelegate.swift in Sources */,
-				EF0B63F42C54116000365A50 /* UnstakingFlowBaseBuilder.swift in Sources */,
 				B05A3DE62D004E7900595A1E /* VisaOnboardingTangemWalletDeployApproveViewModel.swift in Sources */,
 				B0C616642AFBA56E00ABADF0 /* ThemeSelectionViewModel.swift in Sources */,
 				B05919022A0BCD0800EB8005 /* MainHeaderView.swift in Sources */,
