@@ -32,7 +32,7 @@ final class OnboardingUITests: BaseTestCase {
     }
 
     func testScanShibaNoBackupCard_ShowsCreateWalletScreenWithoutSkipButton() {
-        setAllureId(246)
+        setAllureId(248)
         launchApp()
 
         StoriesScreen(app)
@@ -43,7 +43,7 @@ final class OnboardingUITests: BaseTestCase {
     }
 
     func testScanWallet2NoBackupCard_ShowsCreateWalletScreenWithoutSkipButton() {
-        setAllureId(248)
+        setAllureId(246)
         launchApp()
 
         StoriesScreen(app)

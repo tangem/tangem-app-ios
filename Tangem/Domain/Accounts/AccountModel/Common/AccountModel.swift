@@ -30,7 +30,7 @@ extension AccountModel {
 
 /// https://github.com/tangem-developments/tangem-app-android/blob/develop/common/ui/src/main/java/com/tangem/common/ui/account/CryptoPortfolioIconExt.kt
 extension AccountModel.Icon {
-    enum Color: String, CaseIterable {
+    enum Color: String, CaseIterable, Hashable {
         case azure
         case caribbeanBlue
         case dullLavender
@@ -45,7 +45,7 @@ extension AccountModel.Icon {
         case vitalGreen
     }
 
-    enum Name: String, CaseIterable {
+    enum Name: String, CaseIterable, Hashable {
         case airplaneMode
         case beach
         case bookmark
@@ -72,8 +72,8 @@ extension AccountModel.Icon {
 extension AccountModel.Icon {
     init?(rawName: String, rawColor: String) {
         guard
-            let name = Name(rawValue: rawName),
-            let color = Color(rawValue: rawColor)
+            let color = Color(rawValue: rawColor),
+            let name = Name(rawValue: rawName)
         else {
             return nil
         }
