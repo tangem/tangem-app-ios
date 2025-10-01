@@ -143,6 +143,15 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
 // MARK: - MobileOnboardingSeedPhraseIntroDelegate
 
 extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingSeedPhraseIntroDelegate {
+    func onFirstAppear() {
+        let hasManualBackup = !userWalletModel.config.hasFeature(.mnemonicBackup)
+        Analytics.log(
+            .backupScreenOpened,
+            params: [.manualBackup: .enabledState(for: hasManualBackup)],
+            contextParams: .custom(.mobileWallet)
+        )
+    }
+
     func seedPhraseIntroContinue() {
         openNext()
     }
