@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 /// Header UI component containing an input field.
 /// - Note: Text field focus state control is supported on iOS 15 and above.
@@ -34,6 +35,8 @@ struct MainBottomSheetHeaderInputView: View {
             style: .translucent,
             clearButtonAction: clearButtonAction
         )
+        .accessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketField)
+
         .padding(.horizontal, 16)
         .allowsHitTesting(allowsHitTestingForTextField)
         .padding(.top, Constants.topInset)

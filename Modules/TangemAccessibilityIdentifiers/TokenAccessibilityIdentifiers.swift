@@ -19,4 +19,13 @@ public enum TokenAccessibilityIdentifiers {
     public static let nativeStakingChevron = "tokenNativeStakingChevron"
 
     public static let topUpWalletBanner = "tokenTopUpWalletBanner"
+
+    /// Balance elements
+    public static let totalBalance = "tokenTotalBalance"
+    public static let availableBalance = "tokenAvailableBalance"
+    public static let stakingBalance = "tokenStakingBalance"
+
+    /// Network selector elements
+    public static let mainNetworkSwitch = "tokenMainNetworkSwitch"
+    public static let continueButton = "tokenContinueButton"
 }
