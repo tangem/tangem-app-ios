@@ -11,6 +11,114 @@ import Foundation
 import BlockchainSdk
 import struct TangemUIUtils.AlertBinder
 
+protocol CryptoAccountsWalletModelsManager {
+    var cryptoAccountModelWithWalletPublisher: AnyPublisher<[CryptoAccountsWallet], Never> { get }
+}
+
+final class CommonCryptoAccountsWalletModelsManager {
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: UserWalletRepository
+
+    var cryptoAccountModelWithWalletPublisher: AnyPublisher<[CryptoAccountsWallet], Never> {
+        userWalletRepository.models
+            .map { map(userWalletModel: $0) }
+            .combineLatest()
+    }
+
+    private func map(userWalletModel: UserWalletModel) -> AnyPublisher<CryptoAccountsWallet, Never> {
+        userWalletModel
+            .accountModelsManager
+            .accountModelsPublisher
+            .map { $0.cryptoAccountModels }
+            .flatMap { cryptoAccounts in
+                let cryptoAccountModelPublishers = cryptoAccounts.map { cryptoAccountModel in
+                    cryptoAccountModel
+                        .walletModelsManager
+                        .walletModelsPublisher
+                        .map { walletModels in
+                            CryptoAccountsWalletAccount(account: cryptoAccountModel, walletModels: walletModels)
+                        }
+                        .eraseToAnyPublisher()
+                }
+
+                return cryptoAccountModelPublishers
+                    .combineLatest()
+                    .map { cryptoAccountModels in
+                        CryptoAccountsWallet(wallet: userWalletModel.name, accounts: cryptoAccountModels)
+                    }
+            }
+            .eraseToAnyPublisher()
+    }
+}
+
+struct CryptoAccountsWallet {
+    let wallet: String
+    let accounts: [CryptoAccountsWalletAccount]
+}
+
+struct CryptoAccountsWalletAccount {
+    let account: any BaseAccountModel
+    let walletModels: [any WalletModel]
+}
+
+extension [AccountModel] {
+    var cryptoAccountModels: [any CryptoAccountModel] {
+        flatMap { accountModel in
+            switch accountModel {
+            case .standard(.single(let cryptoAccountModel)):
+                return [cryptoAccountModel]
+            case .standard(.multiple(let cryptoAccountModels)):
+                return cryptoAccountModels
+            default:
+                return []
+            }
+        }
+    }
+}
+
+final class CommonNewTokenSelectorViewModelContentProvider: NewTokenSelectorViewModelContentProvider {
+    private let cryptoAccountModelWithWalletManager = CommonCryptoAccountsWalletModelsManager()
+
+    var itemsPublisher: AnyPublisher<NewTokenSelectorItemList, Never> {
+        cryptoAccountModelWithWalletManager
+            .cryptoAccountModelWithWalletPublisher
+            .withWeakCaptureOf(self)
+            .receiveOnGlobal()
+            .map { $0.mapToNewTokenSelectorItemList(wallets: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    private func mapToNewTokenSelectorItemList(wallets: [CryptoAccountsWallet]) -> NewTokenSelectorItemList {
+        wallets.reduce(into: [:]) { partialResult, wallet in
+            let selectorWallet = NewTokenSelectorItem.Wallet(name: wallet.wallet)
+
+            partialResult[selectorWallet] = wallet.accounts.reduce(into: [:]) { partialResult, account in
+                let selectorAccount = NewTokenSelectorItem.Account(icon: account.account.icon, name: account.account.name)
+                partialResult[selectorAccount] = account.walletModels.map { walletModel in
+                    NewTokenSelectorItem(
+                        wallet: selectorWallet,
+                        tokenItem: walletModel.tokenItem,
+                        cryptoBalanceProvider: walletModel.totalTokenBalanceProvider,
+                        fiatBalanceProvider: walletModel.fiatTotalTokenBalanceProvider
+                    )
+                }
+            }
+        }
+    }
+}
+
+final class CommonNewTokenSelectorViewModelSearchFilter: NewTokenSelectorViewModelSearchFilter {
+    func filter(list: NewTokenSelectorItemList, searchText: String) -> NewTokenSelectorItemList {
+        list.mapValues { itemsList in
+            itemsList.mapValues { items in
+                items.filter {
+                    $0.tokenItem.name.contains(searchText) || $0.tokenItem.currencySymbol.contains(searchText)
+                }
+            }
+        }
+    }
+}
+
 final class ActionButtonsBuyViewModel: ObservableObject {
     // MARK: - Dependencies
 
@@ -28,6 +136,11 @@ final class ActionButtonsBuyViewModel: ObservableObject {
     // MARK: - Child viewModel
 
     let tokenSelectorViewModel: ActionButtonsTokenSelectorViewModel
+    lazy var newTokenSelectorViewModel: NewTokenSelectorViewModel = .init(
+        provider: CommonNewTokenSelectorViewModelContentProvider(),
+        filter: CommonNewTokenSelectorViewModelSearchFilter(),
+        output: self
+    )
 
     // MARK: - Private property
 
@@ -94,6 +207,12 @@ extension ActionButtonsBuyViewModel {
             }
             .store(in: &bag)
     }
+}
+
+// MARK: - NewTokenSelectorViewModelOutput
+
+extension ActionButtonsBuyViewModel: NewTokenSelectorViewModelOutput {
+    func usedDidSelect(item: NewTokenSelectorItem) {}
 }
 
 // MARK: - Hot crypto
