@@ -108,6 +108,7 @@ public struct TangemPayTransactionHistoryResponse: Decodable {
 public extension TangemPayTransactionHistoryResponse {
     struct Transaction: Decodable, Equatable {
         public let id: String
+        public let transactionType: TransactionType
         public let record: Record
 
         public init(from decoder: any Decoder) throws {
@@ -115,7 +116,7 @@ public extension TangemPayTransactionHistoryResponse {
 
             id = try container.decode(String.self, forKey: .id)
 
-            let transactionType = try container.decode(TransactionType.self, forKey: .type)
+            transactionType = try container.decode(TransactionType.self, forKey: .type)
             switch transactionType {
             case .spend:
                 record = .spend(try container.decode(Spend.self, forKey: .spend))
@@ -182,7 +183,7 @@ public extension TangemPayTransactionHistoryResponse {
         public let chainId: Double
         public let walletAddress: String
         public let transactionHash: String
-        public let postedAt: String
+        public let postedAt: Date
     }
 
     struct Payment: Decodable, Equatable {
@@ -193,13 +194,13 @@ public extension TangemPayTransactionHistoryResponse {
         public let walletAddress: String
         public let transactionHash: String
         public let status: String
-        public let postedAt: String
+        public let postedAt: Date
     }
 
     struct Fee: Decodable, Equatable {
         public let amount: Double
         public let currency: String
         public let description: String
-        public let postedAt: String
+        public let postedAt: Date
     }
 }
