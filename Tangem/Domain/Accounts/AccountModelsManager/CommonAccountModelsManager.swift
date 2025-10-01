@@ -45,7 +45,7 @@ actor CommonAccountModelsManager {
         self.areHDWalletsSupported = areHDWalletsSupported
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
-        initialize() // [REDACTED_TODO_COMMENT]
+        initialize()
     }
 
     private nonisolated func initialize() {
@@ -178,6 +178,16 @@ actor CommonAccountModelsManager {
 extension CommonAccountModelsManager: AccountModelsManager {
     nonisolated var canAddCryptoAccounts: Bool {
         areHDWalletsSupported
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    nonisolated var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+        .just(output: true)
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    nonisolated var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: 0)
     }
 
     nonisolated var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {

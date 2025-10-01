@@ -280,7 +280,7 @@ extension RestakingModel: SendAmountInput {
 
 extension RestakingModel: SendAmountOutput {
     func amountDidChanged(amount: SendAmount?) {
-        assertionFailure("We can not change amount in unstaking")
+        assertionFailure("We can not change amount in restaking")
     }
 }
 
