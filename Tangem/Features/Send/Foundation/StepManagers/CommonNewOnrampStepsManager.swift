@@ -7,9 +7,13 @@
 //
 
 import Foundation
+import TangemExpress
 import TangemLocalization
 
 final class CommonNewOnrampStepsManager {
+    @Injected(\.alertPresenter)
+    private var alertPresenter: any AlertPresenter
+
     private let onrampStep: NewOnrampStep
     private let offersSelectorViewModel: OnrampOffersSelectorViewModel
     private let finishStep: SendFinishStep
@@ -28,7 +32,7 @@ final class CommonNewOnrampStepsManager {
         summaryTitleProvider: SendSummaryTitleProvider,
         onrampBaseDataBuilder: OnrampBaseDataBuilder,
         shouldActivateKeyboard: Bool,
-        router: SendRoutable?,
+        router: SendRoutable,
     ) {
         self.onrampStep = onrampStep
         self.offersSelectorViewModel = offersSelectorViewModel
@@ -90,6 +94,39 @@ extension CommonNewOnrampStepsManager: SendStepsManager {
 
     func performFinish() {
         next(step: finishStep)
+    }
+}
+
+// MARK: - OnrampSummaryRoutable
+
+extension CommonNewOnrampStepsManager: OnrampModelRoutable {
+    func openOnrampCountryBottomSheet(country: OnrampCountry) {
+        let (repository, dataRepository) = onrampBaseDataBuilder.makeDataForOnrampCountryBottomSheet()
+        router?.openOnrampCountryDetection(country: country, repository: repository, dataRepository: dataRepository)
+    }
+
+    func openOnrampCountrySelectorView() {
+        let (repository, dataRepository) = onrampBaseDataBuilder.makeDataForOnrampCountrySelectorView()
+        router?.openOnrampCountrySelector(repository: repository, dataRepository: dataRepository)
+    }
+
+    func openOnrampRedirecting() {
+        if let demoAlertMessage = onrampBaseDataBuilder.demoAlertMessage() {
+            alertPresenter.present(alert: AlertBuilder.makeDemoAlert(demoAlertMessage))
+            return
+        }
+
+        // The new onramp performed straight from onramp model
+        let onrampRedirectingBuilder = onrampBaseDataBuilder.makeDataForOnrampRedirecting()
+        router?.openOnrampRedirecting(onrampRedirectingBuilder: onrampRedirectingBuilder)
+    }
+
+    func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {
+        router?.openOnrampWebView(url: url, onDismiss: onDismiss, onSuccess: onSuccess)
+    }
+
+    func openFinishStep() {
+        performFinish()
     }
 }
 

@@ -131,11 +131,13 @@ extension NotificationView {
         case icon(TokenIconInfo)
         case progressView
         case placeholder
+        case yieldModuleIcon(tokenId: String?)
     }
 
     struct MessageIcon {
         let iconType: LeadingIconType
         var color: Color?
         var size: CGSize = .init(bothDimensions: 20)
+        var yieldModuleIconSize: CGSize = .init(bothDimensions: 12)
     }
 }
