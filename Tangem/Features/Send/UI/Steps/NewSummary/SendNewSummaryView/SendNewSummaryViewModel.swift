@@ -26,7 +26,6 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
 
     var destinationCompactViewType: SendCompactViewEditableType {
         switch destinationEditableType {
-        case .disable: .disabled
         case .editable: .enabled(action: userDidTapDestination)
         case .noEditable: .enabled()
         }
@@ -34,15 +33,14 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
 
     var amountCompactViewType: SendCompactViewEditableType {
         switch amountEditableType {
-        case .disable: .disabled
         case .editable: .enabled(action: userDidTapAmount)
         case .noEditable: .enabled()
         }
     }
 
     private let interactor: SendNewSummaryInteractor
-    private let destinationEditableType: EditableType
-    private let amountEditableType: EditableType
+    private let destinationEditableType: Settings.EditableType
+    private let amountEditableType: Settings.EditableType
     private let notificationManager: NotificationManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
 
@@ -52,8 +50,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
 
     init(
         interactor: SendNewSummaryInteractor,
-        destinationEditableType: EditableType,
-        amountEditableType: EditableType,
+        settings: Settings,
         notificationManager: NotificationManager,
         analyticsLogger: SendSummaryAnalyticsLogger,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
@@ -63,8 +60,8 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) {
         self.interactor = interactor
-        self.destinationEditableType = destinationEditableType
-        self.amountEditableType = amountEditableType
+        destinationEditableType = settings.destinationEditableType
+        amountEditableType = settings.amountEditableType
         self.notificationManager = notificationManager
         self.analyticsLogger = analyticsLogger
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
@@ -154,5 +151,13 @@ extension SendNewSummaryViewModel: SendStepViewAnimatable {
 }
 
 extension SendNewSummaryViewModel {
-    typealias EditableType = SendSummaryViewModel.EditableType
+    struct Settings {
+        let destinationEditableType: EditableType
+        let amountEditableType: EditableType
+
+        enum EditableType: Hashable {
+            case editable
+            case noEditable
+        }
+    }
 }

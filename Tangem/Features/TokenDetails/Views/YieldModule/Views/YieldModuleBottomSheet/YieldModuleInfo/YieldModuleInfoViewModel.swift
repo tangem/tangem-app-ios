@@ -14,30 +14,82 @@ import TangemFoundation
 final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Injected
 
-    @Injected(\.floatingSheetPresenter) var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.floatingSheetPresenter)
+    var floatingSheetPresenter: FloatingSheetPresenter
+
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: any UserWalletRepository
 
     // MARK: - View State
 
     @Published
     var viewState: ViewState {
         didSet {
-            previousFlow = oldValue
-            createNotificationBannerIfNeeded()
+            previousState = oldValue
+            notificationBannerParams = nil
         }
     }
+
+    private var previousState: ViewState?
+
+    // MARK: - Published
 
     @Published
     var notificationBannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? = nil
 
-    private var previousFlow: ViewState?
-    private let walletModel: any WalletModel
-    private let openFeeCurrencyAction: () -> Void
+    @Published
+    private(set) var networkFeeState: LoadableTextView.State = .loading
+
+    // MARK: - Dependencies
+
+    private(set) var walletModel: any WalletModel
+    private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
+
+    private lazy var feeConverter = YieldModuleFeeFormatter(
+        feeCurrency: walletModel.feeTokenItem,
+        token: walletModel.tokenItem,
+        maximumFee: maximumFee
+    )
+
+    // MARK: - Properties
+
+    private(set) var maximumFee: Decimal = 0
+    private(set) var readMoreURLString: URL = TangemBlogUrlBuilder().url(post: .fee)
+
+    private let onGiveApproveAction: () -> Void
+    private let onStopEarnAction: () -> Void
+
+    var isButtonEnabled: Bool {
+        switch viewState {
+        case .earnInfo:
+            return true
+
+        case .stopEarning, .approve:
+            switch (networkFeeState, notificationBannerParams) {
+            case (.loaded, .notEnoughFeeCurrency):
+                return false
+            case (.loaded, .feeUnreachable):
+                return false
+            case (.loaded, .none):
+                return true
+            default:
+                return false
+            }
+        }
+    }
 
     // MARK: - Init
 
-    init(walletModel: any WalletModel, openFeeCurrencyAction: @escaping () -> Void) {
+    init(
+        walletModel: any WalletModel,
+        feeCurrencyNavigator: any FeeCurrencyNavigating,
+        onGiveApproveAction: @escaping () -> Void,
+        onStopEarnAction: @escaping () -> Void
+    ) {
         self.walletModel = walletModel
-        self.openFeeCurrencyAction = openFeeCurrencyAction
+        self.feeCurrencyNavigator = feeCurrencyNavigator
+        self.onGiveApproveAction = onGiveApproveAction
+        self.onStopEarnAction = onStopEarnAction
 
         viewState = .earnInfo(
             params: .init(
@@ -47,23 +99,12 @@ final class YieldModuleInfoViewModel: ObservableObject {
                 availableFunds: .init(availableBalance: "WIP"),
                 transferMode: "WIP",
                 tokenName: walletModel.tokenItem.name,
-                tokenSymbol: walletModel.tokenItem.token?.symbol ?? "",
-                readMoreUrl: Constants.earnInfoReadMoreUrl
+                tokenSymbol: walletModel.tokenItem.token?.symbol ?? ""
             )
         )
-
-        createNotificationBannerIfNeeded()
     }
 
     // MARK: - Navigation
-
-    func onApproveTap() {
-        floatingSheetPresenter.removeActiveSheet()
-    }
-
-    func onStopEarningTap() {
-        floatingSheetPresenter.removeActiveSheet()
-    }
 
     func onCloseTap() {
         runTask(in: self) { vm in
@@ -72,89 +113,100 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     func onBackTap() {
-        previousFlow.map { viewState = $0 }
+        previousState.map { viewState = $0 }
     }
 
     func onShowStopEarningSheet() {
-        guard case .earnInfo(let params) = viewState else {
-            onCloseTap()
-            return
-        }
+        viewState = .stopEarning
+    }
 
-        viewState = .stopEarning(
-            params: .init(
-                tokenName: params.tokenName,
-                networkFee: "5.1",
-                readMoreUrl: Constants.stopEarningReadMoreUrl, // [REDACTED_TODO_COMMENT]
-                mainAction: { [weak self] in
-                    self?.onStopEarningTap()
+    // MARK: - Public Implementation
+
+    func onApproveTap() {
+        floatingSheetPresenter.removeActiveSheet()
+        onGiveApproveAction()
+    }
+
+    func onStopEarningTap() {
+        floatingSheetPresenter.removeActiveSheet()
+        onStopEarnAction()
+    }
+
+    func fetchNetworkFee() async {
+        networkFeeState = .loading
+        notificationBannerParams = nil
+
+        try? await Task.sleep(seconds: 2)
+
+        if Bool.random() {
+            // [REDACTED_TODO_COMMENT]
+            let networkFee: Decimal = 0.12
+            if let converted = await feeConverter.createFeeString(from: networkFee) {
+                networkFeeState = .loaded(text: converted)
+
+                if networkFee > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
+                    showNotEnoughFeeNotification()
                 }
-            )
-        )
+
+            } else {
+                showFeeErrorNotification()
+                networkFeeState = .noData
+            }
+        } else {
+            showFeeErrorNotification()
+            networkFeeState = .noData
+        }
     }
 
     // MARK: - Private Implementation
 
-    private func createInitialViewState(with walletModel: any WalletModel) -> ViewState {
-        .earnInfo(
-            params: .init(
-                earningsData: .init(totalEarnings: "WIP", chartData: [:]),
-                status: .active(approveRequired: true),
-                apy: "WIP",
-                availableFunds: .init(availableBalance: "WIP"),
-                transferMode: "WIP",
-                tokenName: walletModel.tokenItem.name,
-                tokenSymbol: walletModel.tokenItem.token?.symbol ?? "",
-                readMoreUrl: Constants.earnInfoReadMoreUrl,
-            )
-        )
-    }
-
     private func showApproveSheet() {
-        viewState = .approve(
-            params: .init(
-                tokenName: walletModel.tokenItem.name,
-                networkFee: "5.1",
-                readMoreUrl: Constants.approveReadMoreUrl, // [REDACTED_TODO_COMMENT]
-                mainAction: {}
-            )
-        )
+        viewState = .approve
     }
 
-    private func createNotificationBannerIfNeeded() {
-        let params: YieldModuleViewConfigs.YieldModuleNotificationBannerParams?
+    private func showNotEnoughFeeNotification() {
+        notificationBannerParams = .notEnoughFeeCurrency(
+            feeCurrencyName: walletModel.feeTokenItem.name,
+            tokenIcon: NetworkImageProvider().provide(by: walletModel.feeTokenItem.blockchain, filled: true)
+        ) { [weak self] in
+            guard let self else { return }
 
-        switch viewState {
-        case .stopEarning, .approve:
-            // [REDACTED_TODO_COMMENT]
-            guard true else { return }
-
-            params = YieldAttentionBannerFactory.makeNotEnoughFeeCurrencyBanner(
-                feeTokenItem: walletModel.feeTokenItem,
-                navigationAction: { [weak self] in
-                    self?.onCloseTap()
-                    self?.openFeeCurrencyAction()
-                }
-            )
-
-        case .earnInfo:
-            // [REDACTED_TODO_COMMENT]
-            if true {
-                params = YieldAttentionBannerFactory.makeApproveRequiredBanner(navigationAction: { [weak self] in
-                    self?.showApproveSheet()
-                })
+            if let selectedUserWalletModel = userWalletRepository.selectedModel,
+               let feeWalletModel = getFeeCurrencyWalletModel(in: selectedUserWalletModel) {
+                onCloseTap()
+                feeCurrencyNavigator?.openFeeCurrency(for: feeWalletModel, userWalletModel: selectedUserWalletModel)
             }
         }
+    }
 
-        notificationBannerParams = params
+    private func showFeeErrorNotification() {
+        notificationBannerParams = .feeUnreachable { [weak self] in
+            guard let self else { return }
+            runTask(in: self) { vm in
+                await vm.fetchNetworkFee()
+            }
+        }
+    }
+
+    private func getFeeCurrencyWalletModel(in userWalletModel: any UserWalletModel) -> (any WalletModel)? {
+        guard let selectedUserModel = userWalletRepository.selectedModel,
+              let feeCurrencyWalletModel = selectedUserModel.walletModelsManager.walletModels.first(where: {
+                  $0.tokenItem == walletModel.feeTokenItem
+              })
+        else {
+            assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
+            return nil
+        }
+
+        return feeCurrencyWalletModel
     }
 }
 
 extension YieldModuleInfoViewModel {
     enum ViewState: Identifiable, Equatable {
         case earnInfo(params: YieldModuleViewConfigs.EarnInfoParams)
-        case stopEarning(params: YieldModuleViewConfigs.CommonParams)
-        case approve(params: YieldModuleViewConfigs.CommonParams)
+        case stopEarning
+        case approve
 
         var id: String {
             switch self {
@@ -172,11 +224,3 @@ extension YieldModuleInfoViewModel {
 // MARK: - FloatingSheetContentViewModel
 
 extension YieldModuleInfoViewModel: FloatingSheetContentViewModel {}
-
-private extension YieldModuleInfoViewModel {
-    enum Constants {
-        static let earnInfoReadMoreUrl = URL(string: "https://tangem.com")!
-        static let stopEarningReadMoreUrl = URL(string: "https://tangem.com")!
-        static let approveReadMoreUrl = URL(string: "https://tangem.com")!
-    }
-}

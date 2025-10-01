@@ -51,6 +51,7 @@ class CommonWalletModel {
     private let tokenBalancesRepository: TokenBalancesRepository
     private let walletManager: WalletManager
     private let _stakingManager: StakingManager?
+    private lazy var _yieldModuleManager = makeYieldModuleManager()
     private let _transactionHistoryService: TransactionHistoryService?
     private let _receiveAddressService: ReceiveAddressService
     private let featureManager: WalletModelFeaturesManager
@@ -166,7 +167,6 @@ class CommonWalletModel {
             if let balance = wallet.amounts[amountType]?.value {
                 return .loaded(balance)
             }
-
             return .failed(error: WalletModelError.balanceNotFound.localizedDescription)
         case .failed(BlockchainSdkError.noAccount(let message, let amountToCreate)):
             return .noAccount(message: message, amountToCreate: amountToCreate)
@@ -348,16 +348,16 @@ extension CommonWalletModel: WalletModel {
         _stakingManager
     }
 
+    var yieldModuleManager: (any YieldModuleManager)? {
+        _yieldModuleManager
+    }
+
     var stakeKitTransactionSender: StakeKitTransactionSender? {
         walletManager as? StakeKitTransactionSender
     }
 
     var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? {
         walletManager as? StakingAccountInitializationStateProvider
-    }
-
-    var yieldService: (any YieldTokenService)? {
-        walletManager.yieldService
     }
 }
 
@@ -559,6 +559,27 @@ extension CommonWalletModel: WalletModelHelpers {
 
         return subject.eraseToAnyPublisher()
     }
+
+    func makeYieldModuleManager() -> (YieldModuleManager & YieldModuleManagerUpdater)? {
+        guard case .token(let token, _) = tokenItem,
+              let yieldSupplyService = walletManager.yieldSupplyService,
+              let ethereumNetworkProvider,
+              let ethereumTransactionDataBuilder
+        else {
+            return nil
+        }
+        return CommonYieldModuleManager(
+            walletAddress: wallet.defaultAddress.value,
+            token: token,
+            blockchain: wallet.blockchain,
+            yieldSupplyService: yieldSupplyService,
+            tokenBalanceProvider: totalTokenBalanceProvider,
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            ethereumTransactionDataBuilder: ethereumTransactionDataBuilder,
+            transactionCreator: transactionCreator,
+            blockaidApiService: BlockaidFactory().makeBlockaidAPIService()
+        )
+    }
 }
 
 // MARK: - WalletModelFeeProvider
@@ -607,6 +628,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var transactionSender: TransactionSender {
         walletManager
+    }
+
+    var multipleTransactionsSender: (any MultipleTransactionsSender)? {
+        walletManager as? (any MultipleTransactionsSender)
     }
 
     var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? {
