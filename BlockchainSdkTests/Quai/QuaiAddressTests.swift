@@ -22,7 +22,7 @@ struct QuaiAddressTests {
         let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
         // when
-        let zoneDerivedResult = try derivationUtils.derive(extendendPublicKey: extendedPublicKey, with: .default)
+        let zoneDerivedResult = try derivationUtils.derive(extendedPublicKey: extendedPublicKey, with: .default)
         let walletPublicKey = Wallet.PublicKey(seedKey: zoneDerivedResult.0.publicKey, derivationType: .none)
         let zoneDerivedAddress = try service.makeAddress(for: walletPublicKey, with: .default)
 
