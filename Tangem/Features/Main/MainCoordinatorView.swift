@@ -186,6 +186,14 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel?
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
 
+    private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
+        settings: .init(stopRefreshingDelay: 1, refreshTaskTimeout: 120), // 2 minutes
+        refreshable: { [weak self] in
+            guard let self else { return }
+            _ = await (tangemPayAccount.loadBalance().value, reloadHistory())
+        }
+    )
+
     private let tangemPayAccount: TangemPayAccount
     private let transactionHistoryService: VisaTransactionHistoryService
 
@@ -250,7 +258,7 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
-    private func reloadHistory() {
+    private func reloadHistory() async {
         guard historyReloadTask == nil else {
             return
         }
@@ -259,6 +267,8 @@ final class TangemPayMainViewModel: ObservableObject {
             await self?.transactionHistoryService.reloadHistory()
             self?.historyReloadTask = nil
         }
+
+        await historyReloadTask?.value
     }
 
     private func loadNextHistoryPage() {
@@ -277,7 +287,7 @@ struct TangemPayMainView: View {
     @ObservedObject var viewModel: TangemPayMainViewModel
 
     var body: some View {
-        ScrollView {
+        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
             VStack(spacing: 14) {
                 MainHeaderView(viewModel: viewModel.mainHeaderViewModel)
                     .fixedSize(horizontal: false, vertical: true)
