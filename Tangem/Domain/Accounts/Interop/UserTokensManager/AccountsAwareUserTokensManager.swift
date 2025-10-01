@@ -95,9 +95,16 @@ protocol _UserTokenListManager {
     var cryptoAccount: StoredCryptoAccount { get }
 
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool)
-    func update(with userTokenList: StoredUserTokenList)
+    func update(with info: StoredCryptoAccountUpdateInfo)
     func updateLocalRepositoryFromServer(_ completion: @escaping (Result<Void, any Error>) -> Void)
     func upload()
+}
+
+// [REDACTED_TODO_COMMENT]
+struct StoredCryptoAccountUpdateInfo {
+    let tokens: [StoredCryptoAccount.Token]
+    let grouping: StoredCryptoAccount.Grouping
+    let sorting: StoredCryptoAccount.Sorting
 }
 
 /// Copy-paste of `CommonUserTokensManager`, but with accounts support.
@@ -256,6 +263,48 @@ final class AccountsAwareUserTokensManager {
         let completions = pendingUserTokensSyncCompletions
         pendingUserTokensSyncCompletions.removeAll()
         completions.forEach { $0() }
+    }
+
+    private static func reorderedTokens(
+        tokens: [StoredCryptoAccount.Token],
+        walletModelIds: [WalletModelId.ID]
+    ) -> [StoredCryptoAccount.Token] {
+        let existingTokensKeyedByIds = tokens.keyedFirst(by: \.walletModelId?.id)
+        var reorderedTokens: [StoredCryptoAccount.Token] = []
+        // Reversing the list of wallet model ids to get an O(1) pop operation
+        var reorderedWalletModelIds = Array(walletModelIds.reversed())
+
+        // Sorting the list of tokens according to the new order of wallet model ids
+        // while maintaining the order of unsupported tokens, i.e. performing a stable sort
+        for token in tokens {
+            // Unsupported network and/or token
+            guard token.walletModelId != nil else {
+                reorderedTokens.append(token)
+                continue
+            }
+
+            guard let reorderedWalletModelId = reorderedWalletModelIds.popLast() else {
+                let walletModelsCount = walletModelIds.count
+                let allTokensCount = tokens.count
+                let unsupportedTokensCount = tokens.count { $0.walletModelId == nil }
+                assertionFailure(
+                    """
+                    Inconsistency detected: mismatched number of wallet models (\(walletModelsCount)) and the \
+                    number of tokens (\(allTokensCount)) minus the number of unsupported tokens (\(unsupportedTokensCount))
+                    """
+                )
+                continue
+            }
+
+            guard let reorderedToken = existingTokensKeyedByIds[reorderedWalletModelId] else {
+                assertionFailure("Inconsistency detected: token with id \(reorderedWalletModelId) not found")
+                continue
+            }
+
+            reorderedTokens.append(reorderedToken)
+        }
+
+        return reorderedTokens
     }
 }
 
@@ -450,12 +499,7 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
     var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> {
         return userTokenListManager
             .cryptoAccountPublisher
-            .map { cryptoAccount in
-                return cryptoAccount
-                    .tokens
-                    .compactMap { $0.toWalletModelId() }
-                    .map(\.id)
-            }
+            .map { $0.tokens.compactMap(\.walletModelId?.id) }
             .eraseToAnyPublisher()
     }
 
@@ -483,10 +527,10 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
         return Deferred { [userTokenListManager = self.userTokenListManager] in
             Future { promise in
                 let converter = UserTokensReorderingOptionsConverter()
-                let existingList = userTokenListManager.userTokensList
-                var entries = existingList.entries
-                var grouping = existingList.grouping
-                var sorting = existingList.sorting
+                let existingAccount = userTokenListManager.cryptoAccount
+                var tokens = existingAccount.tokens
+                var grouping = existingAccount.grouping
+                var sorting = existingAccount.sorting
 
                 for action in actions {
                     switch action {
@@ -495,35 +539,41 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
                     case .setSortingOption(let option):
                         sorting = converter.convert(option)
                     case .reorder(let reorderedWalletModelIds):
-                        let userTokensKeyedByIds = entries.keyedFirst(by: \.walletModelId.id)
-                        let reorderedEntries = reorderedWalletModelIds.compactMap { userTokensKeyedByIds[$0] }
-
+                        let reorderedTokens = Self.reorderedTokens(tokens: tokens, walletModelIds: reorderedWalletModelIds)
                         // [REDACTED_TODO_COMMENT]
-                        if reorderedEntries.count == entries.count {
-                            entries = reorderedEntries
+                        if reorderedTokens.count == tokens.count {
+                            tokens = reorderedTokens
                         }
                     }
                 }
 
-                let editedList = StoredUserTokenList(
-                    entries: entries,
+                let updateInfo = StoredCryptoAccountUpdateInfo(
+                    tokens: tokens,
                     grouping: grouping,
                     sorting: sorting
                 )
 
-                promise(.success((editedList, existingList)))
+                promise(.success((updateInfo, existingAccount)))
             }
-            .filter { $0 != $1 }
+            .filter { input in
+                let (updateInfo, existingAccount) = input
+                return updateInfo.tokens != existingAccount.tokens
+                    || updateInfo.grouping != existingAccount.grouping
+                    || updateInfo.sorting != existingAccount.sorting
+            }
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { input in
-                let (userTokensManager, (editedList, existingList)) = input
-                let logger = UserTokensReorderingLogger(walletModels: userTokensManager.walletModelsManager.walletModels)
-                logger.logReorder(existingList: existingList, editedList: editedList, source: source)
+                // [REDACTED_TODO_COMMENT]
+                /*
+                 let (userTokensManager, (editedList, existingList)) = input
+                 let logger = UserTokensReorderingLogger(walletModels: userTokensManager.walletModelsManager.walletModels)
+                 logger.logReorder(existingList: existingList, editedList: editedList, source: source)
+                  */
             })
             .receive(on: DispatchQueue.main)
             .map { input in
-                let (userTokensManager, (editedList, _)) = input
-                userTokensManager.userTokenListManager.update(with: editedList)
+                let (userTokensManager, (updateInfo, _)) = input
+                userTokensManager.userTokenListManager.update(with: updateInfo)
             }
         }
         .eraseToAnyPublisher()
