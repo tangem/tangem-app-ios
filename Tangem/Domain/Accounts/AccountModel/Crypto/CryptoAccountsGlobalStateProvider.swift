@@ -19,7 +19,7 @@ final class CryptoAccountsGlobalStateProvider {
             .removeDuplicates()
     }
 
-    private let cryptoAccountsStatesSubject = CurrentValueSubject<[AnyHashable: CryptoAccounts.State], Never>(Constants.initialValue
+    private let cryptoAccountsStatesSubject = CurrentValueSubject<[AnyHashable: CryptoAccounts.State], Never>(Constants.initialValue)
     private var subscriptions: [AnyHashable: AnyCancellable] = [:]
 
     private init() {}
@@ -34,7 +34,7 @@ final class CryptoAccountsGlobalStateProvider {
                     case .standard(let cryptoAccounts):
                         return cryptoAccounts.state
                     case .smart,
-                            .visa:
+                         .visa:
                         return nil
                     }
                 }
