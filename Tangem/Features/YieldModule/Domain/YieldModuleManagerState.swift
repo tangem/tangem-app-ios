@@ -13,7 +13,7 @@ enum YieldModuleManagerState: Equatable {
     case disabled
     case loading
     case notActive
-    case processing
+    case processing(action: ProcessingAction)
     case active(YieldSupplyInfo)
     case failedToLoad(error: String)
 
@@ -22,6 +22,11 @@ enum YieldModuleManagerState: Equatable {
             return value.balance
         }
         return nil
+    }
+
+    enum ProcessingAction {
+        case enter
+        case exit
     }
 }
 
