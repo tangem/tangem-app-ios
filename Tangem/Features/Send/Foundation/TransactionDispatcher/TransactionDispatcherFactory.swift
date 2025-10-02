@@ -54,8 +54,7 @@ struct TransactionDispatcherFactory {
             blockchain: walletModel.tokenItem.blockchain,
             walletModelUpdater: walletModel,
             transactionsSender: transactionsSender,
-            transactionSigner: signer,
-            blockchainDataProvider: walletModel.blockchainDataProvider
+            transactionSigner: signer
         )
     }
 }
