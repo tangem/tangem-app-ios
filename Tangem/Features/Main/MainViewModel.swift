@@ -382,10 +382,12 @@ final class MainViewModel: ObservableObject {
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
-        if pushNotificationsAvailabilityProvider.isAvailable {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pushNotificationAuthorizationRequestDelay) { [weak self] in
-                self?.coordinator?.openPushNotificationsAuthorization()
-            }
+        guard pushNotificationsAvailabilityProvider.isAvailable else {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pushNotificationAuthorizationRequestDelay) { [weak self] in
+            self?.coordinator?.openPushNotificationsAuthorization()
         }
     }
 
