@@ -56,6 +56,8 @@ struct StringPasteButton: View {
         .tint(.black)
         .labelStyle(.titleOnly)
         .buttonBorderShape(.capsule)
+        .fixedSize()
+        .disableAnimations()
     }
 
     @ViewBuilder
