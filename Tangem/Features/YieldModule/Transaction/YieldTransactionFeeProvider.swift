@@ -63,12 +63,14 @@ final class YieldTransactionFeeProvider {
         yieldContractAddress: String,
         tokenContractAddress: String,
         balance: Decimal,
+        tokenDecimalCount: Int,
         maxNetworkFee: BigUInt
     ) async throws -> ReactivateEnterFee {
         let transactions = try await reactivateTransactions(
             tokenContractAddress: tokenContractAddress,
             yieldContractAddress: yieldContractAddress,
             balance: balance,
+            tokenDecimalCount: tokenDecimalCount,
             maxNetworkFee: maxNetworkFee
         )
 
@@ -158,6 +160,7 @@ private extension YieldTransactionFeeProvider {
         tokenContractAddress: String,
         yieldContractAddress: String,
         balance: Decimal,
+        tokenDecimalCount: Int,
         maxNetworkFee: BigUInt
     ) async throws -> [TransactionData] {
         var transactions = [TransactionData]()
@@ -173,6 +176,7 @@ private extension YieldTransactionFeeProvider {
         if try await isPermissionRequired(
             yieldContractAddress: yieldContractAddress,
             tokenContractAddress: tokenContractAddress,
+            tokenDecimalCount: tokenDecimalCount,
             balance: balance
         ) {
             transactions.append(
@@ -246,8 +250,11 @@ private extension YieldTransactionFeeProvider {
             }
         )
 
-        let gasLimits = result.map {
-            BigUInt(Data(hexString: $0.gasEstimation.estimate))
+        let gasLimits = try result.map {
+            guard let result = EthereumUtils.sanitizeAndParseToBigUInt($0.gasEstimation.estimate) else {
+                throw YieldModuleError.unableToParseData
+            }
+            return result
         }
 
         guard gasLimits.count == transactions.count else {
@@ -258,8 +265,8 @@ private extension YieldTransactionFeeProvider {
     }
 
     func getFees(gasLimits: [BigUInt]) async throws -> [Fee] {
-        try await withThrowingTaskGroup(of: [Fee].self) { [blockchain, ethereumNetworkProvider] group in
-            for gasLimit in gasLimits {
+        try await withThrowingTaskGroup(of: (Int, Fee).self) { [blockchain, ethereumNetworkProvider] group in
+            for (index, gasLimit) in gasLimits.enumerated() {
                 group.addTask {
                     let parameters = try await ethereumNetworkProvider.getFee(
                         gasLimit: gasLimit,
@@ -269,17 +276,18 @@ private extension YieldTransactionFeeProvider {
                     let feeValue = parameters.calculateFee(decimalValue: blockchain.decimalValue)
                     let gasAmount = Amount(with: blockchain, value: feeValue)
 
-                    return [Fee(gasAmount, parameters: parameters)]
+                    return (index, Fee(gasAmount, parameters: parameters))
                 }
             }
 
-            var fees = [Fee]()
-            for try await result in group {
-                let fee = try result.normalFee()
-                fees.append(fee)
+            var result: [(Int, Fee)] = []
+            for try await element in group {
+                result.append(element)
             }
 
-            return fees
+            return result
+                .sorted { $0.0 < $1.0 } // sort by index
+                .map { $0.1 } // take fees only
         }
     }
 }
@@ -382,6 +390,7 @@ private extension YieldTransactionFeeProvider {
     private func isPermissionRequired(
         yieldContractAddress: String,
         tokenContractAddress: String,
+        tokenDecimalCount: Int,
         balance: Decimal
     ) async throws -> Bool {
         let allowanceString = try await ethereumNetworkProvider.getAllowanceRaw(
@@ -390,9 +399,14 @@ private extension YieldTransactionFeeProvider {
             contractAddress: tokenContractAddress
         ).async()
 
-        let allowance = BigUInt(allowanceString) ?? 0
+        guard let allowance = EthereumUtils.parseEthereumDecimal(
+            allowanceString,
+            decimalsCount: tokenDecimalCount
+        ) else {
+            throw YieldModuleError.unableToParseData
+        }
 
-        return allowance < Constants.maxAllowance
+        return allowance < balance
     }
 }
 
