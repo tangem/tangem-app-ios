@@ -19,6 +19,7 @@ struct AccountDerivationPathHelper {
     }
 
     func extractAccountDerivationNode(from derivationPath: DerivationPath?) -> DerivationNode? {
+        // [REDACTED_TODO_COMMENT]
         guard let derivationPath else {
             return nil
         }
