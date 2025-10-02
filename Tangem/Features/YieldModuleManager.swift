@@ -46,6 +46,8 @@ final class CommonYieldModuleManager {
     private var _state = CurrentValueSubject<YieldModuleManagerStateInfo?, Never>(nil)
     private var _walletModelData = CurrentValueSubject<WalletModelData?, Never>(nil)
 
+    private var pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
+
     private var bag = Set<AnyCancellable>()
 
     init?(
@@ -56,7 +58,8 @@ final class CommonYieldModuleManager {
         tokenBalanceProvider: TokenBalanceProvider,
         ethereumNetworkProvider: EthereumNetworkProvider,
         transactionCreator: TransactionCreator,
-        blockaidApiService: BlockaidAPIService
+        blockaidApiService: BlockaidAPIService,
+        pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
     ) {
         guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses() else {
             return nil
@@ -67,6 +70,7 @@ final class CommonYieldModuleManager {
         self.blockchain = blockchain
         self.yieldSupplyService = yieldSupplyService
         self.tokenBalanceProvider = tokenBalanceProvider
+        self.pendingTransactionsPublisher = pendingTransactionsPublisher
 
         transactionProvider = YieldTransactionProvider(
             token: token,
@@ -140,6 +144,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                     yieldContractAddress: deployed.yieldModule,
                     tokenContractAddress: token.contractAddress,
                     balance: balance,
+                    tokenDecimalCount: token.decimalCount,
                     maxNetworkFee: maxTokenNetworkFee
                 )
             case .initialized(.active):
@@ -233,40 +238,58 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
 private extension CommonYieldModuleManager {
     func bind() {
-        _walletModelData
-            .compactMap { $0 }
-            .combineLatest(
-                yieldModuleMarketsManager.marketsPublisher.removeDuplicates()
+        Publishers.CombineLatest3(
+            _walletModelData.compactMap { $0 },
+            yieldModuleMarketsManager.marketsPublisher.removeDuplicates(),
+            pendingTransactionsPublisher
+        )
+        .withWeakCaptureOf(self)
+        .map { result -> YieldModuleManagerStateInfo in
+            let (moduleManager, (walletModelData, marketsInfo, pendingTransactions)) = result
+            return moduleManager.mapResults(
+                walletModelData: walletModelData,
+                marketsInfo: marketsInfo,
+                pendingTransactions: pendingTransactions
             )
-            .withWeakCaptureOf(self)
-            .map { result -> YieldModuleManagerStateInfo in
-                let (moduleManager, (walletModelData, marketsInfo)) = result
-                return moduleManager.mapResults(
-                    walletModelData: walletModelData,
-                    marketsInfo: marketsInfo
-                )
-            }
-            .removeAllDuplicates()
-            .sink { [_state] result in
-                _state.send(result)
-            }
-            .store(in: &bag)
+        }
+        .removeDuplicates()
+        .sink { [_state] result in
+            _state.send(result)
+        }
+        .store(in: &bag)
     }
 
     func mapResults(
         walletModelData: WalletModelData,
-        marketsInfo: [YieldModuleMarketInfo]
+        marketsInfo: [YieldModuleMarketInfo],
+        pendingTransactions: [PendingTransactionRecord]
     ) -> YieldModuleManagerStateInfo {
+        // [REDACTED_TODO_COMMENT]
+
+//        guard let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress }) else {
+//            return YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)
+//        }
+//
+//        guard marketInfo.isActive else {
+//            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .disabled)
+//        }
+
         let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress })
+
+        if hasEnterTransactions(in: pendingTransactions) {
+            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .enter))
+        }
+
+        if hasExitTransactions(in: pendingTransactions) {
+            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .exit))
+        }
 
         let state: YieldModuleManagerState
 
-        switch (walletModelData.state, marketInfo) {
-        case (_, .some(let marketInfo)) where !marketInfo.isActive:
-            state = .disabled
-        case (.created, _), (.loading, _):
+        switch walletModelData.state {
+        case .created, .loading:
             state = .loading
-        case (.loaded, _):
+        case .loaded:
             if let balance = walletModelData.balance,
                case .token(let token) = balance.type,
                let yieldSupply = token.metadata.yieldSupply,
@@ -284,9 +307,9 @@ private extension CommonYieldModuleManager {
             } else {
                 state = .notActive
             }
-        case (.noAccount, _):
+        case .noAccount:
             state = .disabled
-        case (.failed(error: let error), _):
+        case .failed(error: let error):
             state = .failedToLoad(error: error)
         }
 
@@ -331,7 +354,7 @@ private extension CommonYieldModuleManager {
     }
 
     func maxTokenNetworkFee() async throws -> BigUInt {
-        guard let maxCoinNetworkFeeDecimal = state?.marketInfo?.maxNetworkFee.decimal,
+        guard let maxCoinNetworkFeeDecimal = BigUInt(10).power(blockchain.decimalCount).decimal, // for testing purposes only, fix in [REDACTED_INFO]
               let tokenCurrencyId = token.id else {
             throw YieldModuleError.maxNetworkFeeNotFound
         }
@@ -341,7 +364,50 @@ private extension CommonYieldModuleManager {
 
         let maxNetworkFeeToken = maxCoinNetworkFeeDecimal * coinPrice.price / tokenPrice.price
 
-        return BigUInt(stringLiteral: maxNetworkFeeToken.stringValue)
+        return EthereumUtils.mapToBigUInt(maxNetworkFeeToken)
+    }
+}
+
+private extension CommonYieldModuleManager {
+    func hasEnterTransactions(in pendingTransactions: [PendingTransactionRecord]) -> Bool {
+        let dummyDeployMethod = DeployYieldModuleMethod(
+            walletAddress: String(),
+            tokenContractAddress: String(),
+            maxNetworkFee: .zero
+        )
+        let dummyInitMethod = InitYieldTokenMethod(tokenContractAddress: String(), maxNetworkFee: .zero)
+        let dummyEnterMethod = EnterProtocolMethod(tokenContractAddress: String())
+        let dummyReactivateMethod = ReactivateTokenMethod(tokenContractAddress: String(), maxNetworkFee: .zero)
+
+        return hasTransactions(
+            in: pendingTransactions,
+            for: [
+                dummyDeployMethod,
+                dummyInitMethod,
+                dummyReactivateMethod,
+                dummyEnterMethod,
+            ]
+        )
+    }
+
+    func hasExitTransactions(in pendingTransactions: [PendingTransactionRecord]) -> Bool {
+        let dummyWithdrawAndDeactivateMethod = WithdrawAndDeactivateMethod(tokenContractAddress: String())
+        return hasTransactions(in: pendingTransactions, for: [dummyWithdrawAndDeactivateMethod])
+    }
+
+    func hasTransactions(
+        in pendingTransactions: [PendingTransactionRecord],
+        for methods: [SmartContractMethod]
+    ) -> Bool {
+        return pendingTransactions.contains { record in
+            guard let params = record.transactionParams as? EthereumTransactionParams,
+                  let data = params.data else { return false }
+
+            let dataHex = data.hexString.lowercased()
+            return methods.contains { method in
+                dataHex.hasPrefix(method.methodId.removeHexPrefix().lowercased())
+            }
+        }
     }
 }
 
