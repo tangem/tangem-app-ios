@@ -137,6 +137,10 @@ private extension DEXExpressProviderManager {
             return .restriction(estimateFee, quote: quote)
         }
 
+        guard let transactionData = data.txData, request.pair.source.canProcessTransaction(of: transactionData) else {
+            throw ExpressProviderError.transactionSizeNotSupported
+        }
+
         do {
             let ready = try await ready(request: request, quote: quote, data: data)
             return .ready(ready)

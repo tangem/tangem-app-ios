@@ -99,6 +99,19 @@ extension ExpressInteractorWalletWrapper: ExpressSourceWallet {
     var feeProvider: any TangemExpress.FeeProvider { _feeProvider }
     var allowanceProvider: any TangemExpress.AllowanceProvider { _allowanceService }
     var balanceProvider: any TangemExpress.BalanceProvider { _balanceProvider }
+
+    func canProcessTransaction(of transactionData: String) -> Bool {
+        if case .solana = walletModel.tokenItem.blockchain, let data = try? Data(transactionData.base64Decoded()) {
+            switch SolanaWalletConnectTransactionRely.rely(transaction: data) {
+            case .default:
+                return true
+            case .alt:
+                return false
+            }
+        }
+
+        return true
+    }
 }
 
 // MARK: - ExpressInteractorDestinationWallet

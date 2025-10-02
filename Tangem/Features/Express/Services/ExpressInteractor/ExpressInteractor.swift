@@ -34,6 +34,7 @@ class ExpressInteractor {
     private let expressAnalyticsLogger: ExpressAnalyticsLogger
     private let expressAPIProvider: ExpressAPIProvider
     private let signer: TangemSigner
+    private let longHashesSupported: Bool
 
     // MARK: - Options
 
@@ -52,7 +53,8 @@ class ExpressInteractor {
         expressDestinationService: ExpressDestinationService,
         expressAnalyticsLogger: ExpressAnalyticsLogger,
         expressAPIProvider: ExpressAPIProvider,
-        signer: TangemSigner
+        signer: TangemSigner,
+        longHashesSupported: Bool
     ) {
         self.userWalletId = userWalletId
         self.initialWallet = initialWallet
@@ -63,6 +65,7 @@ class ExpressInteractor {
         self.expressAnalyticsLogger = expressAnalyticsLogger
         self.expressAPIProvider = expressAPIProvider
         self.signer = signer
+        self.longHashesSupported = longHashesSupported
 
         _swappingPair = .init(
             SwappingPair(sender: initialWallet, destination: destinationWallet)

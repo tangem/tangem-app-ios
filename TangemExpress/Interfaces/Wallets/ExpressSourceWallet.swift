@@ -14,6 +14,13 @@ public protocol ExpressSourceWallet: ExpressDestinationWallet {
     var feeProvider: FeeProvider { get }
     var allowanceProvider: AllowanceProvider { get }
     var balanceProvider: BalanceProvider { get }
+
+    /// Checks whether the given transaction size is acceptable for processing.
+    /// This validation is specific to the Li.Fi provider and applies only to the Solana blockchain. (Now)
+    ///
+    /// - Parameter size: Transaction size in bytes.
+    /// - Returns: `true` if the transaction size is supported, otherwise `false`.
+    func canProcessTransaction(of transactionData: String) -> Bool
 }
 
 public extension ExpressSourceWallet {
