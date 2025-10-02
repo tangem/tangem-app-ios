@@ -19,8 +19,7 @@ class YieldModuleTransactionDispatcher {
         blockchain: Blockchain,
         walletModelUpdater: WalletModelUpdater,
         transactionsSender: MultipleTransactionsSender,
-        transactionSigner: TangemSigner,
-        blockchainDataProvider: BlockchainDataProvider
+        transactionSigner: TangemSigner
     ) {
         self.blockchain = blockchain
         self.walletModelUpdater = walletModelUpdater

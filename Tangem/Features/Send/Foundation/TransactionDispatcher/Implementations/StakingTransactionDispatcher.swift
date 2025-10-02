@@ -48,7 +48,6 @@ extension StakingTransactionDispatcher: TransactionDispatcher {
         }
 
         let mapper = TransactionDispatcherResultMapper()
-
         do {
             switch stuck?.type {
             case .none:
@@ -128,12 +127,11 @@ private extension StakingTransactionDispatcher {
             )
         }
 
-        return TransactionDispatcherResultMapper()
-            .mapResult(
-                result.result,
-                blockchain: walletModel.tokenItem.blockchain,
-                signer: transactionSigner.latestSignerType
-            )
+        return TransactionDispatcherResultMapper().mapResult(
+            result.result,
+            blockchain: walletModel.tokenItem.blockchain,
+            signer: transactionSigner.latestSignerType
+        )
     }
 }
 
