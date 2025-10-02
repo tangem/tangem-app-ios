@@ -50,6 +50,7 @@ struct OnrampOffersSelectorView: View {
             .animation(.contentFrameUpdate, value: viewModel.viewState)
             .padding(.bottom, 16)
         }
+        .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.tertiary
