@@ -42,6 +42,7 @@ struct StakingDetailsView: View {
 
                 GroupedSection(viewModel.stakes) { data in
                     StakingDetailsStakeView(data: data)
+                        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
                 } header: {
                     DefaultHeaderView(Localization.stakingYourStakes)
                         .padding(.top, 12)
@@ -64,7 +65,6 @@ struct StakingDetailsView: View {
         .accessibilityIdentifier(StakingAccessibilityIdentifiers.title)
         .onAppear(perform: viewModel.onAppear)
         .alert(item: $viewModel.alert) { $0.alert }
-        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .bottomSheet(
             item: $viewModel.descriptionBottomSheetInfo,
             backgroundColor: Colors.Background.tertiary
