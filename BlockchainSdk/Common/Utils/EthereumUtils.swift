@@ -77,6 +77,17 @@ public enum EthereumUtils {
         return mainPart
     }
 
+    /// Responses from blockaid may contain odd symbols amount in hex string
+    /// like "0x12345" which is not valid hex representation.
+    /// This function tries to parse such strings by adding a leading zero (inside asciiHexToData) if needed.
+    public static func sanitizeAndParseToBigUInt(_ string: String) -> BigUInt? {
+        guard let data = asciiHexToData(string.removeHexPrefix()) else {
+            return nil
+        }
+
+        return BigUInt(data)
+    }
+
     /// Formats a BigInt object to String. The supplied number is first divided into integer and decimal part based on "toUnits",
     /// then limit the decimal part to "decimals" symbols and uses a "decimalSeparator" as a separator.
     /// Fallbacks to scientific format if higher precision is required.
