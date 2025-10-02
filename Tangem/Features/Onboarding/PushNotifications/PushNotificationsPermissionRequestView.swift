@@ -44,21 +44,16 @@ struct PushNotificationsPermissionRequestView: View {
                 VStack(spacing: 0.0) {
                     OnboardingFeatureDescriptionView(
                         iconImage: Assets.notificationBulletItemOne.image,
-                        description: Localization.userPushNotificationAgreementArgumentOne
+                        title: Localization.userPushNotificationAgreementArgumentOneTitle,
+                        description: Localization.userPushNotificationAgreementArgumentOneSubtitle
                     )
 
                     FixedSpacer(height: 28.0)
 
                     OnboardingFeatureDescriptionView(
                         iconImage: Assets.notificationBulletItemTwo.image,
-                        description: Localization.userPushNotificationAgreementArgumentTwo
-                    )
-
-                    FixedSpacer(height: 28.0)
-
-                    OnboardingFeatureDescriptionView(
-                        iconImage: Assets.notificationBulletItemThree.image,
-                        description: Localization.userPushNotificationAgreementArgumentThree
+                        title: Localization.userPushNotificationAgreementArgumentTwoTitle,
+                        description: Localization.userPushNotificationAgreementArgumentTwoSubtitle
                     )
                 }
                 .layoutPriority(100) // Higher layout priority causes spacers to collapse if there is not enough vertical space
