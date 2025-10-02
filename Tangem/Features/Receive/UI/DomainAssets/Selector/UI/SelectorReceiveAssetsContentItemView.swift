@@ -16,8 +16,10 @@ struct SelectorReceiveAssetsContentItemView: View {
 
     var body: some View {
         switch viewModel.stateView {
-        case .address(let viewModel):
-            SelectorReceiveAssetsAddressItemView(viewModel: viewModel)
+        case .address(let viewModels):
+            ForEach(viewModels, id: \.id) { viewModel in
+                SelectorReceiveAssetsAddressPageItemView(viewModel: viewModel)
+            }
         case .domain(let viewModel):
             SelectorReceiveAssetsDomainItemView(viewModel: viewModel)
         }

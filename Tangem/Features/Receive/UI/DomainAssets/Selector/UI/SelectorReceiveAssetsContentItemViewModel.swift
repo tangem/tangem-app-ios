@@ -22,7 +22,7 @@ class SelectorReceiveAssetsContentItemViewModel: Identifiable {
 
 extension SelectorReceiveAssetsContentItemViewModel {
     enum StateView {
-        case address(SelectorReceiveAssetsAddressItemViewModel)
+        case address([SelectorReceiveAssetsAddressPageItemViewModel])
         case domain(SelectorReceiveAssetsDomainItemViewModel)
     }
 }

@@ -13,20 +13,19 @@ protocol SelectorReceiveAssetsSectionFactory {
     var analyticsLogger: ReceiveAnalyticsLogger { get }
 
     func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection]
-    func makeTitleItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String
 }
 
 extension SelectorReceiveAssetsSectionFactory {
     func makeStateViewModel(asset: ReceiveAddressType, tokenItem: TokenItem, coordinator: SelectorReceiveAssetItemRoutable?) -> SelectorReceiveAssetsContentItemViewModel.StateView {
         switch asset {
         case .address(let addressInfo):
-            let viewModel = SelectorReceiveAssetsAddressItemViewModel(
-                title: makeTitleItemStateView(tokenItem: tokenItem, addressInfo: addressInfo),
+            let viewModel = SelectorReceiveAssetsAddressPageItemViewModel(
+                tokenItem: tokenItem,
                 addressInfo: addressInfo,
                 analyticsLogger: analyticsLogger,
                 coordinator: coordinator
             )
-            return .address(viewModel)
+            return .address([viewModel])
         case .domain(let domainName, let addressInfo):
             let viewModel = SelectorReceiveAssetsDomainItemViewModel(
                 domainName: domainName,
@@ -36,10 +35,6 @@ extension SelectorReceiveAssetsSectionFactory {
             )
             return .domain(viewModel)
         }
-    }
-
-    func makeTitleItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String {
-        Localization.domainReceiveAssetsNetworkNameAddress(tokenItem.name.capitalizingFirstLetter())
     }
 }
 

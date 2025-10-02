@@ -550,6 +550,8 @@
 		2DFC27942C78E833009B247E /* TokenItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27902C78E833009B247E /* TokenItemType.swift */; };
 		2DFC27962C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */; };
 		2DFDD6092DF1ECF700CB72B5 /* SuiContractAddressConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFDD6082DF1ECF700CB72B5 /* SuiContractAddressConverter.swift */; };
+		2DFFB2462E8EA13F005CBEF6 /* SelectorReceiveAssetsAddressPageItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFFB2452E8EA13F005CBEF6 /* SelectorReceiveAssetsAddressPageItemView.swift */; };
+		2DFFB2482E8EA14B005CBEF6 /* SelectorReceiveAssetsAddressPageItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFFB2472E8EA14B005CBEF6 /* SelectorReceiveAssetsAddressPageItemViewModel.swift */; };
 		30005CD82D5CC9BD00CB41AE /* VanarExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */; };
 		300B38052DDB3C39007BDD32 /* NFTExternalLinksProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */; };
 		300C26342DAFA29600C7E0B0 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = 300C26332DAFA29600C7E0B0 /* CombineExt */; };
@@ -4817,6 +4819,8 @@
 		2DFC27902C78E833009B247E /* TokenItemType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemType.swift; sourceTree = "<group>"; };
 		2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsPortfolioTokenItemFactory.swift; sourceTree = "<group>"; };
 		2DFDD6082DF1ECF700CB72B5 /* SuiContractAddressConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuiContractAddressConverter.swift; sourceTree = "<group>"; };
+		2DFFB2452E8EA13F005CBEF6 /* SelectorReceiveAssetsAddressPageItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorReceiveAssetsAddressPageItemView.swift; sourceTree = "<group>"; };
+		2DFFB2472E8EA14B005CBEF6 /* SelectorReceiveAssetsAddressPageItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorReceiveAssetsAddressPageItemViewModel.swift; sourceTree = "<group>"; };
 		30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VanarExternalLinkProvider.swift; sourceTree = "<group>"; };
 		300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTExternalLinksProvider.swift; sourceTree = "<group>"; };
 		300E06BC2D7734ED006317EC /* ICPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICPAddressTests.swift; sourceTree = "<group>"; };
@@ -9447,6 +9451,8 @@
 			children = (
 				2D96E94B2E55D25300B69F91 /* SelectorReceiveAssetsAddressItemView.swift */,
 				2D96E94C2E55D25300B69F91 /* SelectorReceiveAssetsAddressItemViewModel.swift */,
+				2DFFB2452E8EA13F005CBEF6 /* SelectorReceiveAssetsAddressPageItemView.swift */,
+				2DFFB2472E8EA14B005CBEF6 /* SelectorReceiveAssetsAddressPageItemViewModel.swift */,
 				2D96E94D2E55D25300B69F91 /* SelectorReceiveAssetsContentItemView.swift */,
 				2D96E94E2E55D25300B69F91 /* SelectorReceiveAssetsContentItemViewModel.swift */,
 				2D96E94F2E55D25300B69F91 /* SelectorReceiveAssetsCoordinator.swift */,
@@ -23390,6 +23396,7 @@
 				B6A22EB62E787DE300AF108E /* CryptoAccountsPersistentStorageController.swift in Sources */,
 				DC1DA92C2D554356003638ED /* UIView+OverlayContentContainerProgress.swift in Sources */,
 				DC1DA92D2D554356003638ED /* OverlayContentContainerViewController.swift in Sources */,
+				2DFFB2482E8EA14B005CBEF6 /* SelectorReceiveAssetsAddressPageItemViewModel.swift in Sources */,
 				DC1DA92E2D554356003638ED /* OverlayContentContainerAppLifecycleHelper.swift in Sources */,
 				0A917D802D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift in Sources */,
 				DC22535728A4F5BF0094F30C /* GenericDemoConfig.swift in Sources */,
@@ -23948,6 +23955,7 @@
 				2DA8AB122A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift in Sources */,
 				DC47F2D62C04C2AE0048092F /* PriceChangeFormatter.swift in Sources */,
 				DAB19D4C2B2C72A100DD08C4 /* AddCustomTokenRoutable.swift in Sources */,
+				2DFFB2462E8EA13F005CBEF6 /* SelectorReceiveAssetsAddressPageItemView.swift in Sources */,
 				DABA435427BFB63D00718AC6 /* WelcomeStoryPage.swift in Sources */,
 				B0B9FD432B6A30D000B96B4F /* MainViewPage.swift in Sources */,
 				DAC53CF727BE63830027147D /* StoriesProgressView.swift in Sources */,
