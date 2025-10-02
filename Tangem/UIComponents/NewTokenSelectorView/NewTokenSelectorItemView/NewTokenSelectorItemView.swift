@@ -53,7 +53,7 @@ struct NewTokenSelectorItemView: View {
                     .layoutPriority(3)
                 }
             )
-            .padding(14)
+            .padding(.vertical, 14)
         }
     }
 }

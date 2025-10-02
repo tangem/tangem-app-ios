@@ -11,7 +11,7 @@ import Combine
 import TangemFoundation
 
 final class AccountModelsManagerMock {
-    private let accountModelsSubject = PassthroughSubject<[AccountModel], Never>()
+    private let accountModelsSubject = CurrentValueSubject<[AccountModel], Never>([])
     private let totalAccountsCountSubject = PassthroughSubject<Int, Never>()
 
     private var cryptoAccounts: [CryptoAccountModelMock] = [] {

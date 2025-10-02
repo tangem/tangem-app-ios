@@ -8,7 +8,6 @@
 
 import SwiftUI
 import TangemUI
-import TangemAssets
 
 struct NewTokenSelectorGroupedSectionView: View {
     let viewModel: NewTokenSelectorGroupedSectionViewModel
@@ -17,12 +16,27 @@ struct NewTokenSelectorGroupedSectionView: View {
         GroupedSection(viewModel.items) { item in
             NewTokenSelectorItemView(viewModel: item)
         } header: {
-            switch viewModel.header {
-            case .account(_, let name):
-                DefaultHeaderView(name)
-            case .wallet(let name):
-                DefaultHeaderView(name)
-            }
+            NewTokenSelectorGroupedSectionHeaderView(header: viewModel.header)
+        }
+    }
+}
+
+struct NewTokenSelectorGroupedSectionHeaderView: View {
+    let header: NewTokenSelectorGroupedSectionViewModel.HeaderType
+
+    var body: some View {
+        content
+            .padding(.top, 12)
+            .padding(.bottom, 8)
+    }
+
+    @ViewBuilder
+    var content: some View {
+        switch header {
+        case .account(_, let name):
+            DefaultHeaderView(name)
+        case .wallet(let name):
+            DefaultHeaderView(name)
         }
     }
 }

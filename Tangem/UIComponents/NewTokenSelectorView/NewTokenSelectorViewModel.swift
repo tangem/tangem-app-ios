@@ -78,11 +78,12 @@ final class NewTokenSelectorViewModel: ObservableObject {
             .CombineLatest(provider.itemsPublisher, $searchText)
             .withWeakCaptureOf(self)
             .map { $0.mapToState($1.0, searchText: $1.1) }
+            .receiveOnMain()
             .assign(to: &$viewState)
     }
 
     private func mapToState(_ list: NewTokenSelectorItemList, searchText: String) -> State {
-        let filtered = filter.filter(list: list, searchText: searchText)
+        let filtered = searchText.isEmpty ? list : filter.filter(list: list, searchText: searchText)
 
         if filtered.isEmpty {
             return .empty
