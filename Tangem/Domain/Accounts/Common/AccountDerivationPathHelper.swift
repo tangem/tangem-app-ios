@@ -19,8 +19,12 @@ struct AccountDerivationPathHelper {
     }
 
     func extractAccountDerivationNode(from derivationPath: DerivationPath?) -> DerivationNode? {
-        // [REDACTED_TODO_COMMENT]
         guard let derivationPath else {
+            return nil
+        }
+
+        guard areAccountsAvailableForBlockchain() else {
+            AppLogger.warning("Attempting to extract account derivation node for unsupported blockchain: \(blockchain.displayName)")
             return nil
         }
 
