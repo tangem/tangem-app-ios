@@ -94,7 +94,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
 
             unarchivedCryptoAccount.setIcon(info.icon)
             unarchivedCryptoAccount.setName(info.name)
-            cryptoAccounts.append(unarchivedCryptoAccount)
+            cryptoAccountModels.append(unarchivedCryptoAccount)
         }
     }
 }
