@@ -108,23 +108,30 @@ private extension NewOnrampViewModel {
 
         case .success(.some(let offers)):
             suggestedOffers = .init(
-                recent: offers.recent.map { mapToOnrampOfferViewModel(provider: $0) },
-                recommended: offers.recommended.map { mapToOnrampOfferViewModel(provider: $0) },
+                recent: offers.recent.map { mapToRecentOnrampOfferViewModel(provider: $0) },
+                recommended: offers.recommended.map { mapToRecommendedOnrampOfferViewModel(provider: $0) },
                 shouldShowAllOffersButton: offers.shouldShowAllOffersButton
             )
         }
     }
 
-    func mapToOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
+    func mapToRecentOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
+        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
+            self?.analyticsLogger.logOnrampRecentlyUsedClicked(provider: provider)
+            self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
+            self?.interactor.userDidRequestOnramp(provider: provider)
+        }
+
+        return viewModel
+    }
+
+    func mapToRecommendedOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
         let title = onrampOfferViewModelBuilder.mapToOnrampOfferViewModelTitle(provider: provider)
         let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
             switch title {
-            case .bestRate:
-                self?.analyticsLogger.logOnrampBestRateClicked(provider: provider)
-            case .fastest:
-                self?.analyticsLogger.logOnrampFastestMethodClicked(provider: provider)
-            case .text:
-                break
+            case .bestRate: self?.analyticsLogger.logOnrampBestRateClicked(provider: provider)
+            case .fastest: self?.analyticsLogger.logOnrampFastestMethodClicked(provider: provider)
+            case .text: break
             }
 
             self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
