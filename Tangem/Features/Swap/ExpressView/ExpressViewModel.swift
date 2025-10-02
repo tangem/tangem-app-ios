@@ -701,7 +701,8 @@ extension ExpressViewModel: NotificationTapDelegate {
              .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus:
+             .tangemPayViewKYCStatus,
+             .activate:
             return
         }
     }

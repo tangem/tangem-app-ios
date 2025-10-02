@@ -54,6 +54,9 @@ private extension CommonStakingNotificationManager {
         case .approveTransactionInProgress:
             show(notification: .approveTransactionInProgress)
             hideErrorNotifications()
+        case .accountInitializationRequired:
+            show(notification: .tonAccountInitialization)
+            hideErrorNotifications()
         case .readyToApprove:
             hideApproveInProgressNotification()
             hideErrorNotifications()

@@ -339,6 +339,10 @@ extension SendViewModel: SendModelRoutable {
     func resetFlow() {
         stepsManager.resetFlow()
     }
+
+    func openAccountInitializationFlow(viewModel: AccountInitializationViewModel) {
+        coordinator?.openAccountInitializationFlow(viewModel: viewModel)
+    }
 }
 
 // MARK: - SendNewAmountRoutable

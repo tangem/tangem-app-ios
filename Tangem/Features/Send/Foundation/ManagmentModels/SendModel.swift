@@ -17,6 +17,7 @@ protocol SendModelRoutable: AnyObject {
     func openNetworkCurrency()
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
     func resetFlow()
+    func openAccountInitializationFlow(viewModel: AccountInitializationViewModel)
 }
 
 class SendModel {
@@ -820,6 +821,7 @@ extension SendModel: NotificationTapDelegate {
              .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
+             .activate,
              .tangemPayViewKYCStatus:
             assertionFailure("Notification tap not handled")
         }

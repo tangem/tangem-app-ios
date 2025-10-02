@@ -11,6 +11,7 @@ import Combine
 import TangemStaking
 import BlockchainSdk
 import TangemFoundation
+import struct TangemUI.TokenIconInfo
 
 protocol StakingModelStateProvider {
     var state: AnyPublisher<StakingModel.State, Never> { get }
@@ -44,6 +45,8 @@ class StakingModel {
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
+    private let tokenIconInfo: TokenIconInfo
+    private let accountInitializationService: StakingAccountInitializationService?
 
     private var timerTask: Task<Void, Error>?
     private var estimatedFeeTask: Task<Void, Never>?
@@ -56,8 +59,10 @@ class StakingModel {
         transactionDispatcher: TransactionDispatcher,
         allowanceService: AllowanceService,
         analyticsLogger: StakingSendAnalyticsLogger,
+        accountInitializationService: StakingAccountInitializationService?,
         tokenItem: TokenItem,
-        feeTokenItem: TokenItem
+        feeTokenItem: TokenItem,
+        tokenIconInfo: TokenIconInfo
     ) {
         self.stakingManager = stakingManager
         self.transactionCreator = transactionCreator
@@ -67,8 +72,10 @@ class StakingModel {
         self.transactionDispatcher = transactionDispatcher
         self.allowanceService = allowanceService
         self.analyticsLogger = analyticsLogger
+        self.accountInitializationService = accountInitializationService
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
+        self.tokenIconInfo = tokenIconInfo
     }
 }
 
@@ -105,6 +112,12 @@ private extension StakingModel {
     }
 
     func state(amount: Decimal, validator: ValidatorInfo, approvePolicy: ApprovePolicy) async throws -> StakingModel.State {
+        if let accountInitializationService,
+           try await accountInitializationService.isAccountInitialized() == false {
+            let fee = try await accountInitializationService.estimateInitializationFee()
+            return .accountInitializationRequired(fee: fee)
+        }
+
         if let allowanceState = try await allowanceState(amount: amount, approvePolicy: approvePolicy) {
             switch allowanceState {
             case .permissionRequired(let approveData):
@@ -173,6 +186,8 @@ private extension StakingModel {
             return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
         case .networkError(let error):
             return SendFee(option: .market, value: .failedToLoad(error: error))
+        case .accountInitializationRequired:
+            return SendFee(option: .market, value: .failedToLoad(error: StakingModelError.accountIsNotInitialized))
         }
     }
 
@@ -396,7 +411,8 @@ extension StakingModel: SendSummaryInput, SendSummaryOutput {
             switch state {
             case .readyToStake, .readyToApprove:
                 return true
-            case .none, .loading, .approveTransactionInProgress, .validationError, .networkError:
+            case .none, .loading, .approveTransactionInProgress,
+                 .validationError, .networkError, .accountInitializationRequired:
                 return false
             }
         }.eraseToAnyPublisher()
@@ -463,6 +479,21 @@ extension StakingModel: NotificationTapDelegate {
             updateState()
         case .openFeeCurrency:
             router?.openNetworkCurrency()
+        case .activate:
+            guard let accountInitializationService,
+                  case .accountInitializationRequired(let fee) = _state.value else { return }
+
+            let viewModel = AccountInitializationViewModel(
+                accountInitializationService: accountInitializationService,
+                transactionDispatcher: transactionDispatcher,
+                fee: fee,
+                feeTokenItem: feeTokenItem,
+                tokenIconInfo: tokenIconInfo
+            ) { [weak self] in
+                self?.updateState()
+            }
+
+            router?.openAccountInitializationFlow(viewModel: viewModel)
         default:
             assertionFailure("StakingModel doesn't support notification action \(action)")
         }
@@ -533,6 +564,7 @@ extension StakingModel: StakingBaseDataBuilderInput {
 extension StakingModel {
     enum State {
         case loading
+        case accountInitializationRequired(fee: Fee)
         case readyToApprove(approveData: ApproveTransactionData)
         case approveTransactionInProgress(stakingFee: Decimal)
         case readyToStake(ReadyToStake)
@@ -544,7 +576,7 @@ extension StakingModel {
             case .readyToApprove(let requiredApprove): requiredApprove.fee.amount.value
             case .approveTransactionInProgress(let fee): fee
             case .readyToStake(let model): model.fee
-            case .loading, .validationError, .networkError: nil
+            case .loading, .validationError, .networkError, .accountInitializationRequired: nil
             }
         }
 
@@ -561,6 +593,7 @@ enum StakingModelError: String, Hashable, LocalizedError {
     case readyToStakeNotFound
     case validatorNotFound
     case approveDataNotFound
+    case accountIsNotInitialized
 
     var errorDescription: String? { rawValue }
 }

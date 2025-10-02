@@ -206,6 +206,12 @@ extension SendCoordinator: SendRoutable {
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
+
+    func openAccountInitializationFlow(viewModel: AccountInitializationViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
 }
 
 // MARK: - OnrampRoutable
