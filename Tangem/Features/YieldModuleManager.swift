@@ -13,8 +13,8 @@ import Combine
 import TangemFoundation
 
 protocol YieldModuleManager {
-    var state: YieldModuleManagerState? { get }
-    var statePublisher: AnyPublisher<YieldModuleManagerState?, Never> { get }
+    var state: YieldModuleManagerStateInfo? { get }
+    var statePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never> { get }
 
     func enterFee() async throws -> YieldTransactionFee
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
@@ -24,31 +24,16 @@ protocol YieldModuleManager {
 }
 
 protocol YieldModuleManagerUpdater {
-    func updateState(walletModelState: WalletModelState, balance: Amount?) async
-}
-
-enum YieldModuleManagerState {
-    case disabled
-    case loading
-    case notActive(apy: Decimal)
-    case active(YieldModuleManagerStateInfo)
-    case failedToLoad(error: String)
-
-    var balance: Amount? {
-        if case .active(let value) = self {
-            return value.yieldSupply
-        }
-        return nil
-    }
-}
-
-struct YieldModuleManagerStateInfo {
-    let apy: Decimal
-    let activeState: YieldModuleActiveState
-    let yieldSupply: Amount?
+    func updateState(
+        walletModelState: WalletModelState,
+        balance: Amount?
+    )
 }
 
 final class CommonYieldModuleManager {
+    @Injected(\.yieldModuleMarketsManager) private var yieldModuleMarketsManager: YieldModuleMarketsManager
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+
     private let walletAddress: String
     private let token: Token
     private let blockchain: Blockchain
@@ -58,7 +43,10 @@ final class CommonYieldModuleManager {
     private let transactionProvider: YieldTransactionProvider
     private let transactionFeeProvider: YieldTransactionFeeProvider
 
-    private var _state = CurrentValueSubject<YieldModuleManagerState?, Never>(nil)
+    private var _state = CurrentValueSubject<YieldModuleManagerStateInfo?, Never>(nil)
+    private var _walletModelData = CurrentValueSubject<WalletModelData?, Never>(nil)
+
+    private var pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
 
     private var bag = Set<AnyCancellable>()
 
@@ -69,12 +57,11 @@ final class CommonYieldModuleManager {
         yieldSupplyService: YieldSupplyService,
         tokenBalanceProvider: TokenBalanceProvider,
         ethereumNetworkProvider: EthereumNetworkProvider,
-        ethereumTransactionDataBuilder: EthereumTransactionDataBuilder,
         transactionCreator: TransactionCreator,
-        blockaidApiService: BlockaidAPIService
+        blockaidApiService: BlockaidAPIService,
+        pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
     ) {
-        guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses(),
-              let maxNetworkFee = BigUInt(decimal: Constants.maxNetworkFee * blockchain.decimalValue) else {
+        guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses() else {
             return nil
         }
 
@@ -83,14 +70,13 @@ final class CommonYieldModuleManager {
         self.blockchain = blockchain
         self.yieldSupplyService = yieldSupplyService
         self.tokenBalanceProvider = tokenBalanceProvider
+        self.pendingTransactionsPublisher = pendingTransactionsPublisher
 
         transactionProvider = YieldTransactionProvider(
             token: token,
             blockchain: blockchain,
             transactionCreator: transactionCreator,
-            transactionBuilder: ethereumTransactionDataBuilder,
             yieldSupplyContractAddresses: yieldSupplyContractAddresses,
-            maxNetworkFee: maxNetworkFee
         )
 
         transactionFeeProvider = YieldTransactionFeeProvider(
@@ -99,33 +85,38 @@ final class CommonYieldModuleManager {
             ethereumNetworkProvider: ethereumNetworkProvider,
             blockaidApiService: blockaidApiService,
             yieldSupplyContractAddresses: yieldSupplyContractAddresses,
-            maxNetworkFee: maxNetworkFee
         )
+
+        bind()
     }
 }
 
 extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdater {
-    var state: YieldModuleManagerState? {
+    var state: YieldModuleManagerStateInfo? {
         _state.value
     }
 
-    var statePublisher: AnyPublisher<YieldModuleManagerState?, Never> {
+    var statePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never> {
         _state
             .receiveOnMain()
             .eraseToAnyPublisher()
     }
 
-    func updateState(walletModelState: WalletModelState, balance: Amount?) async {
-        do {
-            let newState = try await mapWalletModelState(walletModelState, balance: balance)
-            _state.send(newState)
-        } catch {
-            _state.send(.failedToLoad(error: error.localizedDescription))
-        }
+    func updateState(
+        walletModelState: WalletModelState,
+        balance: Amount?
+    ) {
+        let data = WalletModelData(
+            state: walletModelState,
+            balance: balance
+        )
+        _walletModelData.send(data)
     }
 
     func enterFee() async throws -> YieldTransactionFee {
         let yieldTokenState = try await getYieldModuleState()
+
+        let maxTokenNetworkFee = try await maxTokenNetworkFee()
 
         switch yieldTokenState {
         case .notDeployed:
@@ -133,7 +124,8 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
             return try await transactionFeeProvider.deployFee(
                 yieldContractAddress: yieldContractAddress,
-                tokenContractAddress: token.contractAddress
+                tokenContractAddress: token.contractAddress,
+                maxNetworkFee: maxTokenNetworkFee
             )
         case .deployed(let deployed):
             guard let balance = tokenBalanceProvider.balanceType.value else {
@@ -145,12 +137,15 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                 return try await transactionFeeProvider.initializeFee(
                     yieldContractAddress: deployed.yieldModule,
                     tokenContractAddress: token.contractAddress,
+                    maxNetworkFee: maxTokenNetworkFee
                 )
             case .initialized(.notActive):
                 return try await transactionFeeProvider.reactivateFee(
                     yieldContractAddress: deployed.yieldModule,
                     tokenContractAddress: token.contractAddress,
-                    balance: balance
+                    balance: balance,
+                    tokenDecimalCount: token.decimalCount,
+                    maxNetworkFee: maxTokenNetworkFee
                 )
             case .initialized(.active):
                 throw YieldModuleError.yieldIsAlreadyActive
@@ -160,6 +155,8 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
     func enter(fee: any YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] {
         let yieldTokenState = try await getYieldModuleState()
+
+        let maxTokenNetworkFee = try await maxTokenNetworkFee()
 
         var transactions = [Transaction]()
 
@@ -171,6 +168,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                 walletAddress: walletAddress,
                 tokenContractAddress: token.contractAddress,
                 yieldContractAddress: yieldModule,
+                maxNetworkFee: maxTokenNetworkFee,
                 fee: deployEnterFee
             )
 
@@ -181,6 +179,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                 let initTransactions = try await transactionProvider.initTransactions(
                     tokenContractAddress: token.contractAddress,
                     yieldContractAddress: deployed.yieldModule,
+                    maxNetworkFee: maxTokenNetworkFee,
                     fee: initFee
                 )
 
@@ -189,6 +188,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                 let reactivateTransactions = try await transactionProvider.reactivateTransactions(
                     tokenContractAddress: token.contractAddress,
                     yieldContractAddress: deployed.yieldModule,
+                    maxNetworkFee: maxTokenNetworkFee,
                     fee: reactivateFee
                 )
 
@@ -237,29 +237,83 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 }
 
 private extension CommonYieldModuleManager {
-    func mapWalletModelState(_ walletModelState: WalletModelState, balance: Amount?) async throws -> YieldModuleManagerState {
-        let apy = Decimal(stringValue: "0.25")! // will be taken from backend response in the future
-        switch walletModelState {
-        case .created, .loading:
-            return .loading
-        case .loaded:
-            guard let balance,
-                  case .token(let token) = balance.type,
-                  token.metadata.yieldSupply != nil else {
-                return .notActive(apy: apy)
-            }
-            return .active(
-                .init(
-                    apy: apy,
-                    activeState: .active, // will be taken from backend response later
-                    yieldSupply: balance
-                )
+    func bind() {
+        Publishers.CombineLatest3(
+            _walletModelData.compactMap { $0 },
+            yieldModuleMarketsManager.marketsPublisher.removeDuplicates(),
+            pendingTransactionsPublisher
+        )
+        .withWeakCaptureOf(self)
+        .map { result -> YieldModuleManagerStateInfo in
+            let (moduleManager, (walletModelData, marketsInfo, pendingTransactions)) = result
+            return moduleManager.mapResults(
+                walletModelData: walletModelData,
+                marketsInfo: marketsInfo,
+                pendingTransactions: pendingTransactions
             )
-        case .noAccount:
-            return .disabled
-        case .failed(error: let error):
-            return .failedToLoad(error: error)
         }
+        .removeDuplicates()
+        .sink { [_state] result in
+            _state.send(result)
+        }
+        .store(in: &bag)
+    }
+
+    func mapResults(
+        walletModelData: WalletModelData,
+        marketsInfo: [YieldModuleMarketInfo],
+        pendingTransactions: [PendingTransactionRecord]
+    ) -> YieldModuleManagerStateInfo {
+        // [REDACTED_TODO_COMMENT]
+
+//        guard let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress }) else {
+//            return YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)
+//        }
+//
+//        guard marketInfo.isActive else {
+//            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .disabled)
+//        }
+
+        let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress })
+
+        if hasEnterTransactions(in: pendingTransactions) {
+            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .enter))
+        }
+
+        if hasExitTransactions(in: pendingTransactions) {
+            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .exit))
+        }
+
+        let state: YieldModuleManagerState
+
+        switch walletModelData.state {
+        case .created, .loading:
+            state = .loading
+        case .loaded:
+            if let balance = walletModelData.balance,
+               case .token(let token) = balance.type,
+               let yieldSupply = token.metadata.yieldSupply,
+               let allowance = EthereumUtils.parseEthereumDecimal(
+                   yieldSupply.allowance,
+                   decimalsCount: token.decimalCount
+               ) {
+                state = .active(
+                    YieldSupplyInfo(
+                        yieldContractAddress: yieldSupply.yieldContractAddress,
+                        balance: balance,
+                        allowance: allowance
+                    )
+                )
+            } else {
+                state = .notActive
+            }
+        case .noAccount:
+            state = .disabled
+        case .failed(error: let error):
+            state = .failedToLoad(error: error)
+        }
+
+        return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: state)
     }
 
     func getYieldModuleState() async throws -> YieldModuleSmartContractState {
@@ -298,10 +352,73 @@ private extension CommonYieldModuleManager {
             return .notDeployed
         }
     }
+
+    func maxTokenNetworkFee() async throws -> BigUInt {
+        guard let maxCoinNetworkFeeDecimal = BigUInt(10).power(blockchain.decimalCount).decimal, // for testing purposes only, fix in [REDACTED_INFO]
+              let tokenCurrencyId = token.id else {
+            throw YieldModuleError.maxNetworkFeeNotFound
+        }
+
+        let coinPrice = try await quotesRepository.quote(for: blockchain.currencyId)
+        let tokenPrice = try await quotesRepository.quote(for: tokenCurrencyId)
+
+        let maxNetworkFeeToken = maxCoinNetworkFeeDecimal * coinPrice.price / tokenPrice.price
+
+        return EthereumUtils.mapToBigUInt(maxNetworkFeeToken)
+    }
 }
 
-extension CommonYieldModuleManager {
-    enum Constants {
-        static let maxNetworkFee = Decimal(stringValue: "0.5")! // temp value, will be taken from backend response later
+private extension CommonYieldModuleManager {
+    func hasEnterTransactions(in pendingTransactions: [PendingTransactionRecord]) -> Bool {
+        let dummyDeployMethod = DeployYieldModuleMethod(
+            walletAddress: String(),
+            tokenContractAddress: String(),
+            maxNetworkFee: .zero
+        )
+        let dummyInitMethod = InitYieldTokenMethod(tokenContractAddress: String(), maxNetworkFee: .zero)
+        let dummyEnterMethod = EnterProtocolMethod(tokenContractAddress: String())
+        let dummyReactivateMethod = ReactivateTokenMethod(tokenContractAddress: String(), maxNetworkFee: .zero)
+
+        return hasTransactions(
+            in: pendingTransactions,
+            for: [
+                dummyDeployMethod,
+                dummyInitMethod,
+                dummyReactivateMethod,
+                dummyEnterMethod,
+            ]
+        )
+    }
+
+    func hasExitTransactions(in pendingTransactions: [PendingTransactionRecord]) -> Bool {
+        let dummyWithdrawAndDeactivateMethod = WithdrawAndDeactivateMethod(tokenContractAddress: String())
+        return hasTransactions(in: pendingTransactions, for: [dummyWithdrawAndDeactivateMethod])
+    }
+
+    func hasTransactions(
+        in pendingTransactions: [PendingTransactionRecord],
+        for methods: [SmartContractMethod]
+    ) -> Bool {
+        return pendingTransactions.contains { record in
+            guard let params = record.transactionParams as? EthereumTransactionParams,
+                  let data = params.data else { return false }
+
+            let dataHex = data.hexString.lowercased()
+            return methods.contains { method in
+                dataHex.hasPrefix(method.methodId.removeHexPrefix().lowercased())
+            }
+        }
+    }
+}
+
+struct WalletModelData {
+    let state: WalletModelState
+    let balance: Amount?
+}
+
+private extension Amount {
+    var tokenYieldSupply: TokenYieldSupply? {
+        guard case .token(let token) = type else { return nil }
+        return token.metadata.yieldSupply
     }
 }
