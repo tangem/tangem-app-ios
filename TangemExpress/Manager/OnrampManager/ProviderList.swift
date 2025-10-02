@@ -79,7 +79,12 @@ public extension ProvidersList {
 
     func updateProcessingTimeTypes() {
         let providers = flatMap { $0.providers }
-        let fastest = providers.sorted(by: \.paymentMethod.type.processingTime).first
+        let fastest = providers.min(by: \.paymentMethod.type.processingTime)
+
+        // Setup fastest badge only if there is more than one successfully loaded provider
+        guard providers.filter(\.isSuccessfullyLoaded).count > 1 else {
+            return
+        }
 
         providers.forEach { provider in
             switch provider {
