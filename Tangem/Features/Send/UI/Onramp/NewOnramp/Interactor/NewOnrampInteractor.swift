@@ -98,7 +98,11 @@ private extension CommonNewOnrampInteractor {
 
             let recommended: [OnrampProvider] = {
                 switch recent {
-                case let recent where recent == fastest && recent == best:
+                // When we don't have a provider with badge
+                // We have to recommend at least one
+                case .none where fastest == .none && best == .none:
+                    return successfullyLoadedProviders.first.map { [$0] } ?? []
+                case .some(let recent) where recent == fastest && recent == best:
                     return []
                 case let recent where recent == best:
                     return [fastest].compactMap(\.self).filter(\.isSuccessfullyLoaded)
@@ -109,7 +113,7 @@ private extension CommonNewOnrampInteractor {
                 }
             }()
 
-            let suggested = [recent, best, fastest].compactMap(\.self).filter(\.isSuccessfullyLoaded).toSet()
+            let suggested = ([recent] + recommended).compactMap(\.self).filter(\.isSuccessfullyLoaded).toSet()
             let hasAnotherProviders = !successfullyLoadedProviders.toSet().subtracting(suggested).isEmpty
 
             guard !suggested.isEmpty else {
