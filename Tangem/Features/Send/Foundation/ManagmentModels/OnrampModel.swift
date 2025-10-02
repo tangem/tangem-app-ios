@@ -440,7 +440,7 @@ extension OnrampModel: OnrampProvidersOutput {
     }
 }
 
-// MARK: - OnrampProvidersOutput
+// MARK: - RecentOnrampProviderFinder
 
 extension OnrampModel: RecentOnrampProviderFinder {
     var recentOnrampProvider: OnrampProvider? {
