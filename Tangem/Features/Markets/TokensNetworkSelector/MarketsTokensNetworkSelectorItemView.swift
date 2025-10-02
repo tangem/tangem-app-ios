@@ -56,7 +56,7 @@ struct MarketsTokensNetworkSelectorItemView: View {
                     .offset(x: 2)
                     .scaleEffect(0.8)
                     .disabled(viewModel.isReadonly)
-                    .accessibilityIdentifier(viewModel.isMain ? TokenAccessibilityIdentifiers.mainNetworkSwitch : "tokenNetworkSwitch_\(viewModel.networkName)")
+                    .accessibilityIdentifier(viewModel.isMain ? TokenAccessibilityIdentifiers.mainNetworkSwitch : TokenAccessibilityIdentifiers.networkSwitch(for: viewModel.networkName))
             }
             .padding(.vertical, 16)
         }

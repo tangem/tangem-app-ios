@@ -214,7 +214,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             .waitForTotalBalanceDisplayedAsDash()
     }
 
-    func testStakingBalanceCalculation_POLToken() {
+    func testStakingBalanceCalculation_POLToken() throws {
         setAllureId(166)
 
         let stakingScenario = ScenarioConfig(
@@ -232,12 +232,12 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .tapToken("POL (ex-MATIC)")
 
-        let totalBalanceValue = Double(tokenScreen.getTotalBalance().replacingOccurrences(of: "$", with: "")) ?? 0
-        let stakingBalanceValue = Double(tokenScreen.getStakingBalance().replacingOccurrences(of: "$", with: "")) ?? 0
+        let totalBalanceValue = try XCTUnwrap(Double(tokenScreen.getTotalBalance().replacingOccurrences(of: "$", with: "")))
+        let stakingBalanceValue = try XCTUnwrap(Double(tokenScreen.getStakingBalance().replacingOccurrences(of: "$", with: "")))
 
         tokenScreen.tapAvailableSegment()
 
-        let availableBalanceValue = Double(tokenScreen.getAvailableBalance().replacingOccurrences(of: "$", with: "")) ?? 0
+        let availableBalanceValue = try XCTUnwrap(Double(tokenScreen.getAvailableBalance().replacingOccurrences(of: "$", with: "")))
 
         XCTAssertEqual(
             totalBalanceValue,

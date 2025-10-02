@@ -266,19 +266,24 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 return 0.0
             }
 
-            let numberRegex = try! NSRegularExpression(pattern: #"(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)"#, options: [])
-            let range = NSRange(location: 0, length: balanceText.utf16.count)
+            do {
+                let numberRegex = try NSRegularExpression(pattern: #"(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)"#, options: [])
+                let range = NSRange(location: 0, length: balanceText.utf16.count)
 
-            guard let match = numberRegex.firstMatch(in: balanceText, options: [], range: range),
-                  let numberRange = Range(match.range(at: 1), in: balanceText) else {
+                guard let match = numberRegex.firstMatch(in: balanceText, options: [], range: range),
+                      let numberRange = Range(match.range(at: 1), in: balanceText) else {
+                    return 0.0
+                }
+
+                let numberString = String(balanceText[numberRange])
+                var processedNumber = numberString
+                processedNumber = processedNumber.replacingOccurrences(of: ",", with: "")
+
+                return Double(processedNumber) ?? 0.0
+            } catch {
+                XCTFail("Failed to create regular expression for parsing balance: \(error)")
                 return 0.0
             }
-
-            let numberString = String(balanceText[numberRange])
-            var processedNumber = numberString
-            processedNumber = processedNumber.replacingOccurrences(of: ",", with: "")
-
-            return Double(processedNumber) ?? 0.0
         }
     }
 
