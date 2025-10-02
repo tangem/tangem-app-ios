@@ -50,16 +50,22 @@ protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
 
 protocol SendManagementModelAnalyticsLogger {
     func logTransactionRejected(error: SendTxError)
-    func logTransactionSent(amount: SendAmount?, additionalField: SendDestinationAdditionalField?, fee: SendFee, signerType: String)
+    func logTransactionSent(
+        amount: SendAmount?,
+        additionalField: SendDestinationAdditionalField?,
+        fee: SendFee,
+        signerType: String,
+        currentProviderHost: String
+    )
 }
 
 extension SendManagementModelAnalyticsLogger {
-    func logTransactionSent(amount: SendAmount?, fee: SendFee, signerType: String) {
-        logTransactionSent(amount: amount, additionalField: .none, fee: fee, signerType: signerType)
+    func logTransactionSent(amount: SendAmount?, fee: SendFee, signerType: String, currentProviderHost: String) {
+        logTransactionSent(amount: amount, additionalField: .none, fee: fee, signerType: signerType, currentProviderHost: currentProviderHost)
     }
 
-    func logTransactionSent(fee: SendFee, signerType: String) {
-        logTransactionSent(amount: .none, additionalField: .none, fee: fee, signerType: signerType)
+    func logTransactionSent(fee: SendFee, signerType: String, currentProviderHost: String) {
+        logTransactionSent(amount: .none, additionalField: .none, fee: fee, signerType: signerType, currentProviderHost: currentProviderHost)
     }
 }
 

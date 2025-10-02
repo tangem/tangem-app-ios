@@ -126,42 +126,41 @@ private extension String {
     /// Sanitizes host URL by converting to lowercase and masking potential API keys in path
     /// - Returns: Sanitized host string with masked API keys
     func sanitizedHost() -> String {
-        // Convert to lowercase
         let lowercased = lowercased()
 
-        // Try to parse as URL
-        guard let url = URL(string: lowercased) else {
-            return lowercased
+        guard let url = URL(string: lowercased), url.scheme != nil else {
+            return sanitize(hostname: lowercased)
         }
 
-        // Get path components
+        return sanitize(url: url)
+    }
+
+    private func sanitize(url: URL) -> String {
         let pathComponents = url.pathComponents.filter { $0 != "/" }
+        let sanitizedComponents = pathComponents.map { isLikelyAPIKey($0) ? "***" : $0 }
 
-        // If there are no path components or only one, return as is
-        guard !pathComponents.isEmpty else {
-            return lowercased
+        var result = (url.scheme ?? "") + "_"
+        result += (url.host ?? "").replacingOccurrences(of: ".", with: "_")
+
+        if let port = url.port {
+            result += "_" + String(port)
         }
 
-        // Build sanitized path by masking potential API keys
-        // API keys are typically:
-        // - Long alphanumeric strings (>= 20 characters)
-        // - Or UUID-like strings
-        // - Or base64-like strings
-        let sanitizedComponents = pathComponents.map { component -> String in
-            if isLikelyAPIKey(component) {
-                return "***"
-            }
-            return component
+        if !sanitizedComponents.isEmpty {
+            result += "_" + sanitizedComponents.joined(separator: "_")
         }
 
-        // Reconstruct URL
-        var components = URLComponents()
-        components.scheme = url.scheme
-        components.host = url.host
-        components.port = url.port
-        components.path = "/" + sanitizedComponents.joined(separator: "/")
+        return result
+    }
 
-        return components.string ?? lowercased
+    private func sanitize(hostname: String) -> String {
+        let sanitized = hostname.replacingOccurrences(of: ".", with: "_")
+
+        if sanitized.contains("_"), !sanitized.hasPrefix("http") {
+            return "https_" + sanitized
+        }
+
+        return sanitized
     }
 
     /// Checks if a string is likely an API key

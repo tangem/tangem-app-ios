@@ -13,18 +13,6 @@ import BlockchainSdk
 import TangemFoundation
 
 struct TransactionDispatcherResultMapper {
-    // MARK: - Private Properties
-
-    private let blockchainDataProvider: BlockchainDataProvider
-
-    // MARK: - Init
-
-    init(blockchainDataProvider: BlockchainDataProvider) {
-        self.blockchainDataProvider = blockchainDataProvider
-    }
-
-    // MARK: - Implementation
-
     func mapResult(
         _ result: TransactionSendResult,
         blockchain: Blockchain,
@@ -35,12 +23,12 @@ struct TransactionDispatcherResultMapper {
         let explorerUrl = provider.url(transaction: result.hash)
 
         let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
-        let blockchainCurrentHost = blockchainDataProvider.currentHost
 
         return TransactionDispatcherResult(
-            hash: result.hash, url: explorerUrl,
+            hash: result.hash,
+            url: explorerUrl,
             signerType: signerType.rawValue,
-            currentHost: blockchainCurrentHost
+            currentHost: result.currentProviderHost
         )
     }
 

@@ -101,7 +101,7 @@ extension CardanoWalletManager: TransactionSender {
                 let mapper = PendingTransactionRecordMapper()
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
                 wallet.addPendingTransaction(record)
-                return TransactionSendResult(hash: hash)
+                return TransactionSendResult(hash: hash, currentProviderHost: currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()

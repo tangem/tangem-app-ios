@@ -77,7 +77,7 @@ extension BinanceWalletManager: TransactionSender {
                     let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
                     wallet.addPendingTransaction(record)
                     latestTxDate = Date()
-                    return TransactionSendResult(hash: hash)
+                    return TransactionSendResult(hash: hash, currentProviderHost: currentHost)
                 }
                 .mapAndEraseSendTxError(tx: tx.encodeForSignature().hex())
                 .eraseToAnyPublisher() ?? .emptyFail

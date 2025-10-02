@@ -22,9 +22,11 @@ public protocol StakeKitTransactionSender {
 
 // MARK: - Common implementation for StakeKitTransactionSenderProvider
 
-extension StakeKitTransactionSender where Self: StakeKitTransactionsBuilder,
+extension StakeKitTransactionSender where
+    Self: StakeKitTransactionsBuilder,
     Self: WalletProvider, RawTransaction: CustomStringConvertible,
-    Self: StakeKitTransactionDataBroadcaster {
+    Self: StakeKitTransactionDataBroadcaster,
+    Self: BlockchainDataProvider {
     func sendStakeKit(
         transactions: [StakeKitTransaction],
         signer: TransactionSigner,
@@ -56,7 +58,8 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionsBuilder,
                                     transaction: transaction,
                                     rawTransaction: rawTransaction,
                                     at: UInt64(index),
-                                    delay: delay
+                                    delay: delay,
+                                    currentProviderHost: self.currentHost
                                 )
                                 return (result, transaction)
                             }
@@ -99,7 +102,8 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionsBuilder,
         transaction: StakeKitTransaction,
         rawTransaction: RawTransaction,
         at index: UInt64,
-        delay: UInt64? = nil
+        delay: UInt64? = nil,
+        currentProviderHost: String
     ) async throws -> TransactionSendResult {
         try Task.checkCancellation()
         if index > 0, let delay {
@@ -120,7 +124,7 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionsBuilder,
 
             await addPendingTransaction(record)
 
-            return TransactionSendResult(hash: hash)
+            return TransactionSendResult(hash: hash, currentProviderHost: currentProviderHost)
         } catch let sendTxError as SendTxError {
             throw sendTxError
         } catch {
