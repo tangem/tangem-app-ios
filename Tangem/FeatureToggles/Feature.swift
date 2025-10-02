@@ -49,7 +49,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .receiveENS: return .version("5.28")
         case .yieldModule: return .unspecified
         case .newOnrampUI: return .unspecified
-        case .pushPermissionNotificationBanner: return .unspecified
+        case .pushPermissionNotificationBanner: return .version("5.28")
         }
     }
 }
