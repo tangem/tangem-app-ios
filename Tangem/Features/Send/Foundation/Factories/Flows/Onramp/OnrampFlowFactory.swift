@@ -182,23 +182,23 @@ extension OnrampFlowFactory: SendBaseBuildable {
 // MARK: - NewOnrampStepBuildable
 
 extension OnrampFlowFactory: NewOnrampStepBuildable {
-    var onrampIO: NewOnrampStepBuilder2.IO {
-        NewOnrampStepBuilder2.IO(
+    var onrampIO: NewOnrampStepBuilder.IO {
+        NewOnrampStepBuilder.IO(
             input: onrampModel,
             output: onrampModel,
             amountInput: onrampModel,
             amountOutput: onrampModel,
             providersInput: onrampModel,
-            recentOnrampProviderFinder: onrampModel
+            recentOnrampTransactionParametersFinder: onrampModel
         )
     }
 
-    var onrampTypes: NewOnrampStepBuilder2.Types {
-        NewOnrampStepBuilder2.Types(tokenItem: tokenItem)
+    var onrampTypes: NewOnrampStepBuilder.Types {
+        NewOnrampStepBuilder.Types(tokenItem: tokenItem)
     }
 
-    var onrampDependencies: NewOnrampStepBuilder2.Dependencies {
-        NewOnrampStepBuilder2.Dependencies(
+    var onrampDependencies: NewOnrampStepBuilder.Dependencies {
+        NewOnrampStepBuilder.Dependencies(
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger
         )
