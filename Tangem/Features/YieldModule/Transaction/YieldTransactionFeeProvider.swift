@@ -16,7 +16,6 @@ final class YieldTransactionFeeProvider {
     private let ethereumNetworkProvider: EthereumNetworkProvider
     private let blockaidApiService: BlockaidAPIService
     private let yieldSupplyContractAddresses: YieldSupplyContractAddresses
-    private let maxNetworkFee: BigUInt
 
     init(
         walletAddress: String,
@@ -24,23 +23,23 @@ final class YieldTransactionFeeProvider {
         ethereumNetworkProvider: EthereumNetworkProvider,
         blockaidApiService: BlockaidAPIService,
         yieldSupplyContractAddresses: YieldSupplyContractAddresses,
-        maxNetworkFee: BigUInt
     ) {
         self.walletAddress = walletAddress
         self.blockchain = blockchain
         self.ethereumNetworkProvider = ethereumNetworkProvider
         self.blockaidApiService = blockaidApiService
         self.yieldSupplyContractAddresses = yieldSupplyContractAddresses
-        self.maxNetworkFee = maxNetworkFee
     }
 
     func deployFee(
         yieldContractAddress: String,
         tokenContractAddress: String,
+        maxNetworkFee: BigUInt
     ) async throws -> DeployEnterFee {
         let transactions = deployTransactions(
             tokenContractAddress: tokenContractAddress,
-            yieldContractAddress: yieldContractAddress
+            yieldContractAddress: yieldContractAddress,
+            maxNetworkFee: maxNetworkFee
         )
 
         return try await fee(from: transactions)
@@ -48,11 +47,13 @@ final class YieldTransactionFeeProvider {
 
     func initializeFee(
         yieldContractAddress: String,
-        tokenContractAddress: String
+        tokenContractAddress: String,
+        maxNetworkFee: BigUInt
     ) async throws -> InitEnterFee {
         let transactions = initTransactions(
             tokenContractAddress: tokenContractAddress,
-            yieldContractAddress: yieldContractAddress
+            yieldContractAddress: yieldContractAddress,
+            maxNetworkFee: maxNetworkFee
         )
 
         return try await fee(from: transactions)
@@ -61,12 +62,16 @@ final class YieldTransactionFeeProvider {
     func reactivateFee(
         yieldContractAddress: String,
         tokenContractAddress: String,
-        balance: Decimal
+        balance: Decimal,
+        tokenDecimalCount: Int,
+        maxNetworkFee: BigUInt
     ) async throws -> ReactivateEnterFee {
         let transactions = try await reactivateTransactions(
             tokenContractAddress: tokenContractAddress,
             yieldContractAddress: yieldContractAddress,
-            balance: balance
+            balance: balance,
+            tokenDecimalCount: tokenDecimalCount,
+            maxNetworkFee: maxNetworkFee
         )
 
         return try await fee(from: transactions)
@@ -87,13 +92,18 @@ final class YieldTransactionFeeProvider {
 // MARK: - Transaction builders
 
 private extension YieldTransactionFeeProvider {
-    private func deployTransactions(tokenContractAddress: String, yieldContractAddress: String) -> [TransactionData] {
+    private func deployTransactions(
+        tokenContractAddress: String,
+        yieldContractAddress: String,
+        maxNetworkFee: BigUInt
+    ) -> [TransactionData] {
         var transactions = [TransactionData]()
 
         transactions.append(
             deployTransactionData(
                 walletAddress: walletAddress,
-                tokenContractAddress: tokenContractAddress
+                tokenContractAddress: tokenContractAddress,
+                maxNetworkFee: maxNetworkFee
             )
         )
 
@@ -114,13 +124,18 @@ private extension YieldTransactionFeeProvider {
         return transactions
     }
 
-    private func initTransactions(tokenContractAddress: String, yieldContractAddress: String) -> [TransactionData] {
+    private func initTransactions(
+        tokenContractAddress: String,
+        yieldContractAddress: String,
+        maxNetworkFee: BigUInt,
+    ) -> [TransactionData] {
         var transactions = [TransactionData]()
 
         transactions.append(
             initTransactionData(
                 yieldContractAddress: yieldContractAddress,
-                tokenContractAddress: tokenContractAddress
+                tokenContractAddress: tokenContractAddress,
+                maxNetworkFee: maxNetworkFee
             )
         )
 
@@ -144,20 +159,24 @@ private extension YieldTransactionFeeProvider {
     private func reactivateTransactions(
         tokenContractAddress: String,
         yieldContractAddress: String,
-        balance: Decimal
+        balance: Decimal,
+        tokenDecimalCount: Int,
+        maxNetworkFee: BigUInt
     ) async throws -> [TransactionData] {
         var transactions = [TransactionData]()
 
         transactions.append(
             reactivateTransactionData(
                 yieldContractAddress: yieldContractAddress,
-                tokenContractAddress: tokenContractAddress
+                tokenContractAddress: tokenContractAddress,
+                maxNetworkFee: maxNetworkFee
             )
         )
 
         if try await isPermissionRequired(
             yieldContractAddress: yieldContractAddress,
             tokenContractAddress: tokenContractAddress,
+            tokenDecimalCount: tokenDecimalCount,
             balance: balance
         ) {
             transactions.append(
@@ -231,8 +250,11 @@ private extension YieldTransactionFeeProvider {
             }
         )
 
-        let gasLimits = result.map {
-            BigUInt(Data(hexString: $0.gasEstimation.estimate))
+        let gasLimits = try result.map {
+            guard let result = EthereumUtils.sanitizeAndParseToBigUInt($0.gasEstimation.estimate) else {
+                throw YieldModuleError.unableToParseData
+            }
+            return result
         }
 
         guard gasLimits.count == transactions.count else {
@@ -243,8 +265,8 @@ private extension YieldTransactionFeeProvider {
     }
 
     func getFees(gasLimits: [BigUInt]) async throws -> [Fee] {
-        try await withThrowingTaskGroup(of: [Fee].self) { [blockchain, ethereumNetworkProvider] group in
-            for gasLimit in gasLimits {
+        try await withThrowingTaskGroup(of: (Int, Fee).self) { [blockchain, ethereumNetworkProvider] group in
+            for (index, gasLimit) in gasLimits.enumerated() {
                 group.addTask {
                     let parameters = try await ethereumNetworkProvider.getFee(
                         gasLimit: gasLimit,
@@ -254,17 +276,18 @@ private extension YieldTransactionFeeProvider {
                     let feeValue = parameters.calculateFee(decimalValue: blockchain.decimalValue)
                     let gasAmount = Amount(with: blockchain, value: feeValue)
 
-                    return [Fee(gasAmount, parameters: parameters)]
+                    return (index, Fee(gasAmount, parameters: parameters))
                 }
             }
 
-            var fees = [Fee]()
-            for try await result in group {
-                let fee = try result.normalFee()
-                fees.append(fee)
+            var result: [(Int, Fee)] = []
+            for try await element in group {
+                result.append(element)
             }
 
-            return fees
+            return result
+                .sorted { $0.0 < $1.0 } // sort by index
+                .map { $0.1 } // take fees only
         }
     }
 }
@@ -274,7 +297,8 @@ private extension YieldTransactionFeeProvider {
 private extension YieldTransactionFeeProvider {
     private func deployTransactionData(
         walletAddress: String,
-        tokenContractAddress: String
+        tokenContractAddress: String,
+        maxNetworkFee: BigUInt,
     ) -> TransactionData {
         let yieldModuleAddressMethod = DeployYieldModuleMethod(
             walletAddress: walletAddress,
@@ -291,6 +315,7 @@ private extension YieldTransactionFeeProvider {
     private func initTransactionData(
         yieldContractAddress: String,
         tokenContractAddress: String,
+        maxNetworkFee: BigUInt,
     ) -> TransactionData {
         let approveMethod = InitYieldTokenMethod(
             tokenContractAddress: tokenContractAddress,
@@ -306,6 +331,7 @@ private extension YieldTransactionFeeProvider {
     private func reactivateTransactionData(
         yieldContractAddress: String,
         tokenContractAddress: String,
+        maxNetworkFee: BigUInt,
     ) -> TransactionData {
         let approveMethod = ReactivateTokenMethod(
             tokenContractAddress: tokenContractAddress,
@@ -364,6 +390,7 @@ private extension YieldTransactionFeeProvider {
     private func isPermissionRequired(
         yieldContractAddress: String,
         tokenContractAddress: String,
+        tokenDecimalCount: Int,
         balance: Decimal
     ) async throws -> Bool {
         let allowanceString = try await ethereumNetworkProvider.getAllowanceRaw(
@@ -372,9 +399,14 @@ private extension YieldTransactionFeeProvider {
             contractAddress: tokenContractAddress
         ).async()
 
-        let allowance = BigUInt(allowanceString) ?? 0
+        guard let allowance = EthereumUtils.parseEthereumDecimal(
+            allowanceString,
+            decimalsCount: tokenDecimalCount
+        ) else {
+            throw YieldModuleError.unableToParseData
+        }
 
-        return allowance < Constants.maxAllowance
+        return allowance < balance
     }
 }
 

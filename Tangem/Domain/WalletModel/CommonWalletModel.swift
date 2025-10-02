@@ -181,8 +181,12 @@ class CommonWalletModel {
 
     private func updateState(_ state: WalletModelState) {
         AppLogger.info(self, "Updating state. New state is \(state)")
-        DispatchQueue.main.async { [weak self] in // captured as weak at call stack
-            self?._state.value = state
+        DispatchQueue.main.async { [_state, _yieldModuleManager, wallet, amountType] in
+            _yieldModuleManager?.updateState(
+                walletModelState: state,
+                balance: wallet.amounts[amountType]
+            )
+            _state.value = state
         }
     }
 
@@ -563,11 +567,17 @@ extension CommonWalletModel: WalletModelHelpers {
     func makeYieldModuleManager() -> (YieldModuleManager & YieldModuleManagerUpdater)? {
         guard case .token(let token, _) = tokenItem,
               let yieldSupplyService = walletManager.yieldSupplyService,
-              let ethereumNetworkProvider,
-              let ethereumTransactionDataBuilder
+              let ethereumNetworkProvider
         else {
             return nil
         }
+
+        let nonFilteredPendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never> =
+            walletManager
+                .walletPublisher
+                .map { $0.pendingTransactions }
+                .eraseToAnyPublisher()
+
         return CommonYieldModuleManager(
             walletAddress: wallet.defaultAddress.value,
             token: token,
@@ -575,9 +585,9 @@ extension CommonWalletModel: WalletModelHelpers {
             yieldSupplyService: yieldSupplyService,
             tokenBalanceProvider: totalTokenBalanceProvider,
             ethereumNetworkProvider: ethereumNetworkProvider,
-            ethereumTransactionDataBuilder: ethereumTransactionDataBuilder,
             transactionCreator: transactionCreator,
-            blockaidApiService: BlockaidFactory().makeBlockaidAPIService()
+            blockaidApiService: BlockaidFactory().makeBlockaidAPIService(),
+            pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher
         )
     }
 }
