@@ -16,7 +16,7 @@ final class ExpressTransactionDispatcher {
     private let transactionSigner: TangemSigner
     private let sendTransactionDispatcher: TransactionDispatcher
 
-    private lazy var mapper = TransactionDispatcherResultMapper(blockchainDataProvider: walletModel.blockchainDataProvider)
+    private lazy var mapper = TransactionDispatcherResultMapper()
 
     init(
         walletModel: any WalletModel,

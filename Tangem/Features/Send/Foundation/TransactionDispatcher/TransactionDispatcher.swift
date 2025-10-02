@@ -28,7 +28,7 @@ struct TransactionDispatcherResult: Hashable {
     let hash: String
     let url: URL?
     let signerType: String
-    let currentHost: String?
+    let currentHost: String
 }
 
 extension TransactionDispatcherResult {

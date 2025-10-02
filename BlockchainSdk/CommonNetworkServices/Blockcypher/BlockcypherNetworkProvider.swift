@@ -86,7 +86,10 @@ extension BlockcypherNetworkProvider: UTXONetworkProvider {
             isRandomToken: true,
             response: BlockcypherDTO.Send.Response.self
         )
-        .map { TransactionSendResult(hash: $0.tx.hash) }
+        .withWeakCaptureOf(self)
+        .map { provider, result in
+            TransactionSendResult(hash: result.tx.hash, currentProviderHost: provider.host)
+        }
         .eraseToAnyPublisher()
     }
 }

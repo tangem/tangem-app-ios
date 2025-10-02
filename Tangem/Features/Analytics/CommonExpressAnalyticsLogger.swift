@@ -84,7 +84,7 @@ struct CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
         Analytics.log(event: .swapButtonPermissionApprove, params: parameters)
     }
 
-    func logApproveTransactionSentAnalyticsEvent(policy: BSDKApprovePolicy, signerType: String) {
+    func logApproveTransactionSentAnalyticsEvent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String) {
         let permissionType: Analytics.ParameterValue = {
             switch policy {
             case .specified:
@@ -101,6 +101,7 @@ struct CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
             .blockchain: tokenItem.blockchain.displayName,
             .permissionType: permissionType.rawValue,
             .walletForm: signerType,
+            .selectedHost: currentProviderHost,
         ])
     }
 }
