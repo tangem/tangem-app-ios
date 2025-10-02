@@ -15,4 +15,6 @@ enum PushNotificationsPermissionRequestFlow {
     case walletOnboarding
     /// User completed all onboarding procedures and using app normally.
     case afterLogin
+    /// User completed all onboarding procedures and using app normally for banner notification.
+    case afterLoginBanner
 }
