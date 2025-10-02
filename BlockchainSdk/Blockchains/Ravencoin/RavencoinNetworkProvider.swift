@@ -70,7 +70,10 @@ extension RavencoinNetworkProvider: UTXONetworkProvider {
 
     func send(transaction: String) -> AnyPublisher<TransactionSendResult, any Error> {
         execute(target: .send(transaction: .init(rawtx: transaction)), response: RavencoinDTO.Send.Response.self)
-            .map { TransactionSendResult(hash: $0.txid) }
+            .withWeakCaptureOf(self)
+            .map { provider, response in
+                TransactionSendResult(hash: response.txid, currentProviderHost: provider.host)
+            }
             .eraseToAnyPublisher()
     }
 }

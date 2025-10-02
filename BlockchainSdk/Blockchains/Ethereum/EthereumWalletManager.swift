@@ -470,7 +470,7 @@ extension EthereumWalletManager: TransactionSender {
                 let record = mapper.mapToPendingTransactionRecord(transaction: sanitizedTransaction, hash: hash)
                 walletManager.wallet.addPendingTransaction(record)
 
-                return TransactionSendResult(hash: hash)
+                return TransactionSendResult(hash: hash, currentProviderHost: walletManager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()
@@ -495,7 +495,7 @@ extension EthereumWalletManager: MultipleTransactionsSender {
                     let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
                     walletManager.wallet.addPendingTransaction(record)
 
-                    results.append(TransactionSendResult(hash: hash))
+                    results.append(TransactionSendResult(hash: hash, currentProviderHost: walletManager.currentHost))
                 }
 
                 return results

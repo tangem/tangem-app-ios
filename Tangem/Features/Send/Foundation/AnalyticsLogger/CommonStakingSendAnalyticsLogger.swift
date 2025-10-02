@@ -202,13 +202,20 @@ extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
         ])
     }
 
-    func logTransactionSent(amount: SendAmount?, additionalField: SendDestinationAdditionalField?, fee: SendFee, signerType: String) {
+    func logTransactionSent(
+        amount: SendAmount?,
+        additionalField: SendDestinationAdditionalField?,
+        fee: SendFee,
+        signerType: String,
+        currentProviderHost: String
+    ) {
         Analytics.log(event: .transactionSent, params: [
             .source: Analytics.ParameterValue.transactionSourceStaking.rawValue,
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
             .blockchain: tokenItem.blockchain.displayName,
             .feeType: fee.option.rawValue,
             .walletForm: signerType,
+            .selectedHost: currentProviderHost,
         ])
 
         switch amount?.type {

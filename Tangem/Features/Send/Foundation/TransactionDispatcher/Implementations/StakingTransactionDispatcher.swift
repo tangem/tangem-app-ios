@@ -47,7 +47,7 @@ extension StakingTransactionDispatcher: TransactionDispatcher {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        let mapper = TransactionDispatcherResultMapper(blockchainDataProvider: walletModel.blockchainDataProvider)
+        let mapper = TransactionDispatcherResultMapper()
 
         do {
             switch stuck?.type {
@@ -128,7 +128,7 @@ private extension StakingTransactionDispatcher {
             )
         }
 
-        return TransactionDispatcherResultMapper(blockchainDataProvider: walletModel.blockchainDataProvider)
+        return TransactionDispatcherResultMapper()
             .mapResult(
                 result.result,
                 blockchain: walletModel.tokenItem.blockchain,

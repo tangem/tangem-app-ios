@@ -331,7 +331,13 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
         ])
     }
 
-    func logTransactionSent(amount: SendAmount?, additionalField: SendDestinationAdditionalField?, fee: SendFee, signerType: String) {
+    func logTransactionSent(
+        amount: SendAmount?,
+        additionalField: SendDestinationAdditionalField?,
+        fee: SendFee,
+        signerType: String,
+        currentProviderHost: String
+    ) {
         let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: fee.option)
 
         // If the blockchain doesn't support additional field -- return null
@@ -355,6 +361,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             .feeType: feeType.rawValue,
             .memo: additionalFieldAnalyticsParameter.rawValue,
             .walletForm: signerType,
+            .selectedHost: currentProviderHost,
         ])
 
         switch amount?.type {
