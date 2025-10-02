@@ -11,12 +11,24 @@ import Foundation
 final class YieldChartService {
     // MARK: - Public Implementation
 
-    func getChartData() -> YieldChartData {
+    func getChartData() async throws -> YieldChartData {
+        try? await Task.sleep(nanoseconds: 1_500_000_000)
+
         let buckets = getBuckets()
         let averageApy = buckets.reduce(0, +) / Double(buckets.count)
         let maxApy = buckets.max() ?? 1
-        let xLabels = makeMonthLabels(from: "2024-09-01T00:00:00Z", to: "2025-09-01T00:00:00Z", bucketsCount: buckets.count)
-        return YieldChartData(buckets: buckets, averageApy: averageApy, maxApy: maxApy, xLabels: xLabels)
+        let xLabels = makeMonthLabels(
+            from: "2023-07-15T15:00:00.000Z",
+            to: "2024-07-15T15:00:00.000Z",
+            bucketsCount: buckets.count
+        )
+
+        return YieldChartData(
+            buckets: buckets,
+            averageApy: averageApy,
+            maxApy: maxApy,
+            xLabels: xLabels
+        )
     }
 
     // MARK: Private Implementation
@@ -38,7 +50,12 @@ final class YieldChartService {
     }
 
     private func makeMonthLabels(from fromDate: String, to toDate: String, bucketsCount: Int, locale: Locale = .current) -> [String] {
-        guard let from = parseISO(fromDate), let to = parseISO(toDate), to > from, bucketsCount > 1 else {
+        guard
+            let from = parseISO(fromDate),
+            let to = parseISO(toDate),
+            to > from,
+            bucketsCount > 1
+        else {
             return []
         }
 
@@ -57,7 +74,51 @@ final class YieldChartService {
     }
 }
 
-struct YieldChartData {
+enum YieldChartState: Identifiable, Equatable {
+    case loading
+    case error(action: () async -> Void)
+    case loaded(YieldChartData)
+
+    var isLoading: Bool {
+        if case .loading = self {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    var isError: Bool {
+        if case .error = self {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    var id: String {
+        switch self {
+        case .loading:
+            return "loading"
+        case .error:
+            return "error"
+        case .loaded:
+            return "loaded"
+        }
+    }
+
+    static func == (lhs: YieldChartState, rhs: YieldChartState) -> Bool {
+        switch (lhs, rhs) {
+        case (.loading, .loading), (.error, .error):
+            return true
+        case (.loaded(let lhsData), .loaded(let rhsData)):
+            return lhsData == rhsData
+        default:
+            return false
+        }
+    }
+}
+
+struct YieldChartData: Equatable {
     let buckets: [Double]
     let averageApy: Double
     let maxApy: Double

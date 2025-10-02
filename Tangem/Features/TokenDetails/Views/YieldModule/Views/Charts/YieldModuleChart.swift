@@ -12,7 +12,7 @@ import TangemUI
 import TangemLocalization
 
 struct YieldModuleChart: View {
-    let data: YieldChartData
+    let state: YieldChartState
 
     // MARK: - View Body
 
@@ -20,19 +20,29 @@ struct YieldModuleChart: View {
         VStack(alignment: .leading) {
             HStack(spacing: 8) {
                 yAxis(height: Constants.chartSectionHeight)
-                bars(height: Constants.chartSectionHeight)
+                chartArea
             }
 
-            xLabels(data.xLabels)
+            xLabels(state: state)
         }
     }
 
     // MARK: - Sub Views
 
-    private func xLabels(_ labels: [String]) -> some View {
+    @ViewBuilder
+    private func xLabels(state: YieldChartState) -> some View {
+        var labels: [String] {
+            if case .loaded(let yieldChartData) = state {
+                return yieldChartData.xLabels
+            }
+
+            return Array(repeating: "AAA", count: 5)
+        }
+
         HStack(spacing: 40) {
             ForEach(labels, id: \.self) { label in
                 Text(label)
+                    .skeletonable(isShown: state.isLoading)
             }
         }
         .padding(.leading, 28)
@@ -58,13 +68,47 @@ struct YieldModuleChart: View {
         }
     }
 
-    private func bars(height: CGFloat) -> some View {
-        let yMax = Constants.yMax
+    @ViewBuilder
+    private var chartArea: some View {
+        switch state {
+        case .loading:
+            loader
+        case .error:
+            EmptyView()
+        case .loaded(let data):
+            bars(buckets: data.buckets, averageApy: data.averageApy)
+        }
+    }
 
-        return HStack(alignment: .bottom, spacing: 4) {
-            ForEach(data.buckets.indices, id: \.self) { index in
-                let value = data.buckets[index]
-                let ratio = min(value, yMax) / yMax
+    private var loader: some View {
+        ProgressView()
+            .frame(width: 280, height: 90)
+            .background {
+                gridLines(height: Constants.chartSectionHeight)
+                    .padding(.horizontal, -6)
+            }
+    }
+
+    private func errorView(action: @escaping () async -> Void) -> some View {
+        VStack(spacing: 12) {
+            Text(Localization.unexpectedErrorTitle)
+                .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+
+            Button(action: { Task { await action() } }) {
+                Text(Localization.alertButtonTryAgain)
+                    .style(Fonts.Regular.caption2, color: Colors.Text.primary1)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Capsule().fill(Color.gray.opacity(0.2)))
+            }
+        }
+    }
+
+    private func bars(buckets: [Double], averageApy: Double) -> some View {
+        HStack(alignment: .bottom, spacing: 4) {
+            ForEach(buckets.indices, id: \.self) { index in
+                let value = buckets[index]
+                let ratio = min(value, Constants.yMax) / Constants.yMax
                 let targetHeight = Constants.chartSectionHeight * CGFloat(ratio)
 
                 RoundedRectangle(cornerRadius: 2)
@@ -75,10 +119,10 @@ struct YieldModuleChart: View {
         .frame(height: Constants.chartSectionHeight, alignment: .bottom)
         .frame(alignment: .leading)
         .overlay {
-            avgOverlay
+            avgOverlay(averageApy: averageApy)
         }
         .background {
-            gridLines(height: height)
+            gridLines(height: Constants.chartSectionHeight)
                 .padding(.horizontal, -6)
         }
     }
@@ -92,6 +136,7 @@ struct YieldModuleChart: View {
                     .frame(height: sectionH)
                     .overlay(
                         Text("\(i)%")
+                            .skeletonable(isShown: state.isLoading, width: 18, height: 16, radius: 4)
                             .style(Fonts.Bold.caption2, color: Colors.Text.tertiary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .offset(y: 2),
@@ -101,11 +146,11 @@ struct YieldModuleChart: View {
         }
     }
 
-    private var avgOverlay: some View {
+    private func avgOverlay(averageApy: Double) -> some View {
         GeometryReader { geo in
-            let avgRatio = data.averageApy / Constants.yMax
+            let avgRatio = averageApy / Constants.yMax
             let y = geo.size.height - geo.size.height * CGFloat(avgRatio)
-            let averageString = String(format: "%.2f", data.averageApy) + "%"
+            let averageString = String(format: "%.2f", averageApy) + "%"
 
             ZStack(alignment: .topLeading) {
                 Path { path in

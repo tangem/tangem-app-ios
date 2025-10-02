@@ -3284,6 +3284,7 @@
 		EA84AA2C2E8E5B5E002EF6CE /* YieldModuleChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84AA2B2E8E5B5E002EF6CE /* YieldModuleChart.swift */; };
 		EA84AA372E8E5BCA002EF6CE /* YieldChartService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84AA362E8E5BCA002EF6CE /* YieldChartService.swift */; };
 		EA84AA392E8E89CC002EF6CE /* YieldModuleChartContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84AA382E8E89CC002EF6CE /* YieldModuleChartContainerView.swift */; };
+		EA84AA3B2E8E9953002EF6CE /* YieldModuleChartViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84AA3A2E8E9953002EF6CE /* YieldModuleChartViewModel.swift */; };
 		EA93432E2E24F9BF0082FA71 /* XRPAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */; };
 		EA96F3E02E5734460046786E /* PromocodeActivationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */; };
 		EA9D0CEA2E83F91400B1A968 /* YieldModuleFeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9D0CE82E83F91400B1A968 /* YieldModuleFeeFormatter.swift */; };
@@ -7522,6 +7523,7 @@
 		EA84AA2B2E8E5B5E002EF6CE /* YieldModuleChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleChart.swift; sourceTree = "<group>"; };
 		EA84AA362E8E5BCA002EF6CE /* YieldChartService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldChartService.swift; sourceTree = "<group>"; };
 		EA84AA382E8E89CC002EF6CE /* YieldModuleChartContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleChartContainerView.swift; sourceTree = "<group>"; };
+		EA84AA3A2E8E9953002EF6CE /* YieldModuleChartViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleChartViewModel.swift; sourceTree = "<group>"; };
 		EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAssetIdParser.swift; sourceTree = "<group>"; };
 		EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationError.swift; sourceTree = "<group>"; };
 		EA9D0CE82E83F91400B1A968 /* YieldModuleFeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleFeeFormatter.swift; sourceTree = "<group>"; };
@@ -19442,6 +19444,7 @@
 			children = (
 				EA84AA2B2E8E5B5E002EF6CE /* YieldModuleChart.swift */,
 				EA84AA382E8E89CC002EF6CE /* YieldModuleChartContainerView.swift */,
+				EA84AA3A2E8E9953002EF6CE /* YieldModuleChartViewModel.swift */,
 			);
 			path = Charts;
 			sourceTree = "<group>";
@@ -23630,6 +23633,7 @@
 				0FA453B62E1D3AFE0055B5BB /* MobileWrongAccessCodeStore.swift in Sources */,
 				0FA453B82E1D3AFE0055B5BB /* MobileUnlockView.swift in Sources */,
 				0FA453BA2E1D3AFE0055B5BB /* MobileAccessCodeState.swift in Sources */,
+				EA84AA3B2E8E9953002EF6CE /* YieldModuleChartViewModel.swift in Sources */,
 				0FA453BB2E1D3AFE0055B5BB /* MobileAccessCodeStorageManager.swift in Sources */,
 				0FA453BE2E1D3AFE0055B5BB /* MobileUnlockViewModel.swift in Sources */,
 				0FA453BF2E1D3AFE0055B5BB /* CommonMobileAccessCodeStorageManager.swift in Sources */,
