@@ -3281,6 +3281,9 @@
 		EA7D8D032E7D67C5004EC19A /* YieldModuleBalanceInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7D8D022E7D67C5004EC19A /* YieldModuleBalanceInfoViewModel.swift */; };
 		EA7D8D0A2E7D7E98004EC19A /* YieldNoticeReceiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7D8D092E7D7E98004EC19A /* YieldNoticeReceiveView.swift */; };
 		EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */; };
+		EA84AA2C2E8E5B5E002EF6CE /* YieldModuleChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84AA2B2E8E5B5E002EF6CE /* YieldModuleChart.swift */; };
+		EA84AA372E8E5BCA002EF6CE /* YieldChartService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84AA362E8E5BCA002EF6CE /* YieldChartService.swift */; };
+		EA84AA392E8E89CC002EF6CE /* YieldModuleChartContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84AA382E8E89CC002EF6CE /* YieldModuleChartContainerView.swift */; };
 		EA93432E2E24F9BF0082FA71 /* XRPAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */; };
 		EA96F3E02E5734460046786E /* PromocodeActivationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */; };
 		EA9D0CEA2E83F91400B1A968 /* YieldModuleFeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9D0CE82E83F91400B1A968 /* YieldModuleFeeFormatter.swift */; };
@@ -7516,6 +7519,9 @@
 		EA7D8D022E7D67C5004EC19A /* YieldModuleBalanceInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleBalanceInfoViewModel.swift; sourceTree = "<group>"; };
 		EA7D8D092E7D7E98004EC19A /* YieldNoticeReceiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldNoticeReceiveView.swift; sourceTree = "<group>"; };
 		EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTests.swift; sourceTree = "<group>"; };
+		EA84AA2B2E8E5B5E002EF6CE /* YieldModuleChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleChart.swift; sourceTree = "<group>"; };
+		EA84AA362E8E5BCA002EF6CE /* YieldChartService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldChartService.swift; sourceTree = "<group>"; };
+		EA84AA382E8E89CC002EF6CE /* YieldModuleChartContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleChartContainerView.swift; sourceTree = "<group>"; };
 		EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAssetIdParser.swift; sourceTree = "<group>"; };
 		EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationError.swift; sourceTree = "<group>"; };
 		EA9D0CE82E83F91400B1A968 /* YieldModuleFeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleFeeFormatter.swift; sourceTree = "<group>"; };
@@ -19372,6 +19378,7 @@
 		EA4216482E7460FE00B36D39 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				EA84AA2A2E8E5B57002EF6CE /* Charts */,
 				EA39992C2E76D66D008E4932 /* YieldModuleBottomSheet */,
 				EA42164D2E74615000B36D39 /* YieldModulePromoView */,
 			);
@@ -19428,6 +19435,15 @@
 				EA7D8D092E7D7E98004EC19A /* YieldNoticeReceiveView.swift */,
 			);
 			path = YieldAlert;
+			sourceTree = "<group>";
+		};
+		EA84AA2A2E8E5B57002EF6CE /* Charts */ = {
+			isa = PBXGroup;
+			children = (
+				EA84AA2B2E8E5B5E002EF6CE /* YieldModuleChart.swift */,
+				EA84AA382E8E89CC002EF6CE /* YieldModuleChartContainerView.swift */,
+			);
+			path = Charts;
 			sourceTree = "<group>";
 		};
 		EA9D0CE92E83F91400B1A968 /* Utils */ = {
@@ -19521,6 +19537,7 @@
 			isa = PBXGroup;
 			children = (
 				EAF8FDE02E8013C60025D2F1 /* YieldModuleNoticeInteractor.swift */,
+				EA84AA362E8E5BCA002EF6CE /* YieldChartService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -24624,6 +24641,7 @@
 				DA6445262BB17C8100865F7B /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift in Sources */,
 				B0340B9E2C50C7C4008FF6FC /* ForegroundBlinkAnimationModifier.swift in Sources */,
 				C2C4DDDA2E38FA1F005835C5 /* WalletConnectDAppBlockchain.swift in Sources */,
+				EA84AA392E8E89CC002EF6CE /* YieldModuleChartContainerView.swift in Sources */,
 				B044117F2C64B2DD00EC8C06 /* DefaultAmountNotationFormatter.swift in Sources */,
 				2DC5677C2B0E047700B0244F /* MainBottomSheetHeaderViewModel.swift in Sources */,
 				B6AD952C2A30072000FE845A /* TokenItemViewLeadingComponent.swift in Sources */,
@@ -24637,6 +24655,7 @@
 				EF2800F32CDD0C08002AEB9A /* OnrampRedirectingView.swift in Sources */,
 				EF2800F42CDD0C08002AEB9A /* OnrampRedirectingRoutable.swift in Sources */,
 				EF2800F52CDD0C08002AEB9A /* OnrampRedirectingViewModel.swift in Sources */,
+				EA84AA372E8E5BCA002EF6CE /* YieldChartService.swift in Sources */,
 				C274DF982DDA385300B1D97B /* WalletConnectDAppConnectionViewState.swift in Sources */,
 				B018FE612B0CD33400D8D31E /* ExpressNotificationManager.swift in Sources */,
 				DC60D0F52CEAFC0C00FF6BA8 /* SwapActionButtonViewModel.swift in Sources */,
@@ -25619,6 +25638,7 @@
 				B0AF2DF42B1DF29F001A8696 /* PendingExpressTransactionsConverter.swift in Sources */,
 				DC6091412E3A5CDF00A842EE /* WCTransactionSecurityAlertState.swift in Sources */,
 				2DA100182E55DC9300EC2257 /* DomainNameAddressResolverFactoryProvider.swift in Sources */,
+				EA84AA2C2E8E5B5E002EF6CE /* YieldModuleChart.swift in Sources */,
 				EF0E1DA62CE3A222003D47AA /* OnrampRedirectingInputOutput.swift in Sources */,
 				EF5D83DB2B0B7A2B00516B5F /* ExpressSuccessSentRoutable.swift in Sources */,
 				0FE588602DF08D9700E5663E /* MobileOnboardingCreateWalletViewModel.swift in Sources */,

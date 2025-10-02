@@ -8,38 +8,8 @@
 
 import SwiftUI
 import TangemAssets
-import TangemLocalization
 import TangemUI
-
-struct YieldMduleChartContainer: View {
-    let data: YieldChartData
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            title
-            description
-            YieldModuleChart(data: data)
-                .border(Color.red)
-        }
-        .defaultRoundedBackground()
-    }
-
-    private var title: some View {
-        Text(Localization.yieldModuleRateInfoSheetChartTitle)
-            .style(Fonts.Bold.headline, color: Colors.Text.primary1)
-    }
-
-    private var description: some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(Colors.Icon.accent)
-                .frame(width: 8, height: 8)
-
-            Text("Supply APR")
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-        }
-    }
-}
+import TangemLocalization
 
 struct YieldModuleChart: View {
     let data: YieldChartData
@@ -47,15 +17,13 @@ struct YieldModuleChart: View {
     // MARK: - View Body
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             HStack(spacing: 8) {
-                yAxis
-                bars
+                yAxis(height: Constants.chartSectionHeight)
+                bars(height: Constants.chartSectionHeight)
             }
-            .frame(height: Constants.chartSectionHeight)
 
             xLabels(data.xLabels)
-                .padding(.leading, 24)
         }
     }
 
@@ -67,35 +35,33 @@ struct YieldModuleChart: View {
                 Text(label)
             }
         }
+        .padding(.leading, 28)
         .style(Fonts.Bold.caption2, color: Colors.Text.tertiary)
         .frame(maxWidth: .infinity)
     }
 
-    var gridLines: some View {
-        GeometryReader { geo in
-            let h = geo.size.height
-            let sectionH = h / 4
-            let line = 1 / UIScreen.main.scale
+    private func gridLines(height: CGFloat) -> some View {
+        let sectionH = height / 4
+        let line = 1 / UIScreen.main.scale
 
-            VStack(spacing: 0) {
-                ForEach(0 ..< 4, id: \.self) { _ in
-                    Color.clear
-                        .frame(height: sectionH)
-                        .overlay(
-                            Rectangle()
-                                .fill(Colors.Icon.inactive.opacity(0.1))
-                                .frame(height: line),
-                            alignment: .bottom
-                        )
-                }
+        return VStack(spacing: 0) {
+            ForEach(0 ..< 4, id: \.self) { _ in
+                Color.clear
+                    .frame(height: sectionH)
+                    .overlay(
+                        Rectangle()
+                            .fill(Colors.Icon.inactive.opacity(0.9))
+                            .frame(height: line),
+                        alignment: .bottom
+                    )
             }
         }
     }
 
-    private var bars: some View {
+    private func bars(height: CGFloat) -> some View {
         let yMax = Constants.yMax
 
-        return HStack(alignment: .bottom, spacing: 3) {
+        return HStack(alignment: .bottom, spacing: 4) {
             ForEach(data.buckets.indices, id: \.self) { index in
                 let value = data.buckets[index]
                 let ratio = min(value, yMax) / yMax
@@ -112,38 +78,34 @@ struct YieldModuleChart: View {
             avgOverlay
         }
         .background {
-            gridLines
+            gridLines(height: height)
                 .padding(.horizontal, -6)
         }
     }
 
-    private var yAxis: some View {
-        GeometryReader { geo in
-            let sectionH = geo.size.height / 4
+    private func yAxis(height: CGFloat) -> some View {
+        let sectionH = height / 4
 
-            VStack(spacing: 0) {
-                ForEach([9, 6, 3, 0], id: \.self) { i in
-                    Color.clear
-                        .frame(height: sectionH)
-                        .overlay(
-                            Text("\(i)%")
-                                .style(Fonts.Bold.caption2, color: Colors.Text.tertiary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .offset(y: 2),
-                            alignment: .bottom
-                        )
-                }
+        return VStack(spacing: 0) {
+            ForEach([9, 6, 3, 0], id: \.self) { i in
+                Color.clear
+                    .frame(height: sectionH)
+                    .overlay(
+                        Text("\(i)%")
+                            .style(Fonts.Bold.caption2, color: Colors.Text.tertiary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .offset(y: 2),
+                        alignment: .bottom
+                    )
             }
         }
-        .frame(width: 28)
     }
 
     private var avgOverlay: some View {
         GeometryReader { geo in
-            let height = geo.size.height
-            let yMax: Double = 12
-            let avgRatio = data.averageApy / yMax
-            let y = height - height * CGFloat(avgRatio)
+            let avgRatio = data.averageApy / Constants.yMax
+            let y = geo.size.height - geo.size.height * CGFloat(avgRatio)
+            let averageString = String(format: "%.2f", data.averageApy) + "%"
 
             ZStack(alignment: .topLeading) {
                 Path { path in
@@ -151,11 +113,11 @@ struct YieldModuleChart: View {
                     path.addLine(to: CGPoint(x: geo.size.width, y: y))
                 }
                 .stroke(Colors.Icon.primary1, style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [4, 4]))
+                .padding(.trailing, 14)
 
-                Text("Avg \(String(format: "%.2f", data.averageApy))%")
+                Text(Localization.yieldModuleRateInfoSheetChartAverage(averageString))
                     .style(Fonts.Bold.caption2, color: Colors.Text.disabled)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 3)
+                    .padding(6)
                     .background(
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
                             .fill(Colors.Icon.primary1)

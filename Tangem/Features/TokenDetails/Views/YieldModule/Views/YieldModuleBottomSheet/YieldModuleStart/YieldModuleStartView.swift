@@ -136,7 +136,20 @@ struct YieldModuleStartView: View {
     private var mainContent: some View {
         switch viewModel.viewState {
         case .rateInfo:
-            EmptyView()
+            YieldMduleChartContainer(
+                data: .init(
+                    buckets: [
+                        1.8, 2.0, 2.3, 2.5, 3.0, 3.2,
+                        1.8, 2.0, 2.3, 2.5, 3.0, 3.2,
+                        6.0, 6.8, 7.5, 8.2, 6.7, 6.5,
+                        7.2, 8.8, 6.4, 5.0, 3.5, 4.2,
+                        6.9, 7.6, 8.3, 9, 9.5, 12, 12,
+                    ],
+                    averageApy: 3.4,
+                    maxApy: 9.4,
+                    xLabels: ["Jan", "Feb", "Mar", "Apr", "May"]
+                )
+            )
 
         case .startEarning:
             YieldFeeSection(
