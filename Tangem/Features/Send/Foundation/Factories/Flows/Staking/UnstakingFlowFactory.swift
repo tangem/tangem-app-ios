@@ -229,7 +229,7 @@ extension UnstakingFlowFactory: SendSummaryStepBuildable {
                 tokenItem: tokenItem,
                 destinationEditableType: unstakingModel.isPartialUnstakeAllowed ? .editable : .noEditable,
                 amountEditableType: unstakingModel.isPartialUnstakeAllowed ? .editable : .noEditable,
-                actionType: .stake
+                actionType: sendFlowActionType()
             )
         )
     }

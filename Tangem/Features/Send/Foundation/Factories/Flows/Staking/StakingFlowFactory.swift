@@ -187,7 +187,7 @@ extension StakingFlowFactory: SendAmountStepBuildable {
                 validator: walletModelDependenciesProvider.transactionValidator,
                 stakingManagerStatePublisher: manager.statePublisher
             ),
-            amountModifier: StakingAmountModifier(tokenItem: tokenItem, actionType: .stake),
+            amountModifier: StakingAmountModifier(tokenItem: tokenItem, actionType: sendFlowActionType()),
             analyticsLogger: analyticsLogger
         )
     }
@@ -201,7 +201,7 @@ extension StakingFlowFactory: StakingValidatorsStepBuildable {
     }
 
     var stakingValidatorsTypes: StakingValidatorsStepBuilder.Types {
-        StakingValidatorsStepBuilder.Types(actionType: .stake, currentValidator: .none)
+        StakingValidatorsStepBuilder.Types(actionType: sendFlowActionType(), currentValidator: stakingModel.validator)
     }
 
     var stakingValidatorsDependencies: StakingValidatorsStepBuilder.Dependencies {
@@ -226,7 +226,7 @@ extension StakingFlowFactory: SendSummaryStepBuildable {
                 tokenItem: tokenItem,
                 destinationEditableType: .editable,
                 amountEditableType: .editable,
-                actionType: .stake
+                actionType: sendFlowActionType()
             )
         )
     }

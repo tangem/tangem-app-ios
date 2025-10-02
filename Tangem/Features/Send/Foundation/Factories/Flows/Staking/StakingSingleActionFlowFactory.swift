@@ -161,7 +161,7 @@ extension StakingSingleActionFlowFactory: SendSummaryStepBuildable {
                 tokenItem: tokenItem,
                 destinationEditableType: .noEditable,
                 amountEditableType: .noEditable,
-                actionType: .stake
+                actionType: sendFlowActionType()
             )
         )
     }
