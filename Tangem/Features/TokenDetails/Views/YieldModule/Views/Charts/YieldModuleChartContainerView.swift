@@ -33,7 +33,7 @@ struct YieldModuleChartContainer: View {
     private func errorView(action: @escaping () async -> Void) -> some View {
         VStack {
             VStack(spacing: 12) {
-                Text(Localization.unexpectedErrorTitle)
+                Text(Localization.yieldModuleChartLoadingError)
                     .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
 
                 Button(action: { Task { await action() } }) {
@@ -74,7 +74,7 @@ struct YieldModuleChartContainer: View {
                 .fill(Colors.Icon.accent)
                 .frame(width: 8, height: 8)
 
-            Text("Supply APR")
+            Text(Localization.yieldModuleSupplyApr)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
         }
         .skeletonable(isShown: viewModel.state.isLoading)
