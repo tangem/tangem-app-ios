@@ -3249,6 +3249,8 @@
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
 		EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */; };
 		EA0DB86C2E24074D008BFBB2 /* StellarAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0DB86B2E24074D008BFBB2 /* StellarAssetIdParser.swift */; };
+		EA1C22782E8EBAE30084F6DE /* YieldChartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1C22772E8EBAE30084F6DE /* YieldChartData.swift */; };
+		EA1C227A2E8EBAFE0084F6DE /* YieldChartState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1C22792E8EBAFE0084F6DE /* YieldChartState.swift */; };
 		EA265A112E5F302F00C6EA3F /* TokenItemEarnBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA265A102E5F302F00C6EA3F /* TokenItemEarnBadgeView.swift */; };
 		EA2961912DF999D100BC651C /* DucatusTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */; };
 		EA29AEAF2DF97B5F00355B2E /* Fact0rnTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */; };
@@ -7488,6 +7490,8 @@
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
 		EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionDetails.swift; sourceTree = "<group>"; };
 		EA0DB86B2E24074D008BFBB2 /* StellarAssetIdParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarAssetIdParser.swift; sourceTree = "<group>"; };
+		EA1C22772E8EBAE30084F6DE /* YieldChartData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldChartData.swift; sourceTree = "<group>"; };
+		EA1C22792E8EBAFE0084F6DE /* YieldChartState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldChartState.swift; sourceTree = "<group>"; };
 		EA265A102E5F302F00C6EA3F /* TokenItemEarnBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemEarnBadgeView.swift; sourceTree = "<group>"; };
 		EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DucatusTransactionTests.swift; sourceTree = "<group>"; };
 		EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnTransactionTests.swift; sourceTree = "<group>"; };
@@ -19445,6 +19449,8 @@
 				EA84AA2B2E8E5B5E002EF6CE /* YieldModuleChart.swift */,
 				EA84AA382E8E89CC002EF6CE /* YieldModuleChartContainerView.swift */,
 				EA84AA3A2E8E9953002EF6CE /* YieldModuleChartViewModel.swift */,
+				EA1C22772E8EBAE30084F6DE /* YieldChartData.swift */,
+				EA1C22792E8EBAFE0084F6DE /* YieldChartState.swift */,
 			);
 			path = Charts;
 			sourceTree = "<group>";
@@ -23712,6 +23718,7 @@
 				EFF9A2FE2BD6B45E007C63D2 /* UserWalletSettingsRoutable.swift in Sources */,
 				B6F995E32D91C7B800F83C4D /* WalletModelFeature.swift in Sources */,
 				DA559C3D2B0261F400F59584 /* SendSummaryRoutable.swift in Sources */,
+				EA1C227A2E8EBAFE0084F6DE /* YieldChartState.swift in Sources */,
 				B691A8C22AFE4A680059D182 /* WalletSwipeDiscoveryHelper.swift in Sources */,
 				DCBF4D112D8B4790002C2B8E /* ScanCardSettingsCoordinator.swift in Sources */,
 				0A0EC0BA2DD4D1D2009FD20F /* MarketsTokensSummary.swift in Sources */,
@@ -25181,6 +25188,7 @@
 				B06C3A272BFE31BB005E6D40 /* ManageTokensListViewModel.swift in Sources */,
 				B6364F882ACEE9AC00D615B5 /* EmptyMainFooterView.swift in Sources */,
 				DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */,
+				EA1C22782E8EBAE30084F6DE /* YieldChartData.swift in Sources */,
 				B04090C42AF3969700DF8DD5 /* NotificationsAnalyticsService.swift in Sources */,
 				EF40C1122CF5EE1A007EF710 /* Sequence+.swift in Sources */,
 				EF2801102CDE84CB002AEB9A /* OnrampRedirectingBuilder.swift in Sources */,
