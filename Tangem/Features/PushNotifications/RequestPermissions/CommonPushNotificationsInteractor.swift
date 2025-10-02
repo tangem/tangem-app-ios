@@ -21,6 +21,10 @@ final class CommonPushNotificationsInteractor {
     @AppStorageCompat(StorageKeys.didRequestAuthorizationOnAfterLogin)
     private var canRequestAuthorizationOnAfterLogin: Bool? = nil
 
+    /// Property type is selected because in the future it may be necessary to count down the date when permissions are displayed
+    @AppStorageCompat(StorageKeys.didPostponeOnboardingCompletionDate)
+    private var requestAuthorizationOnAfterLoginBannerCompletionDate: Date? = nil
+
     @AppStorageCompat(StorageKeys.didPostponeAuthorizationRequestOnWalletOnboarding)
     private var didPostponeAuthorizationRequestOnWalletOnboarding = false
 
@@ -60,25 +64,35 @@ final class CommonPushNotificationsInteractor {
             return .stories
         case .walletOnboarding:
             return .onboarding
-        case .afterLogin:
+        case .afterLogin, .afterLoginBanner:
             return .main
         }
     }
 
     private let _permissionRequestEventSubject: PassthroughSubject<PushNotificationsPermissionRequest, Never> = .init()
+
+    private func preconditionAvailable(in flow: PushNotificationsPermissionRequestFlow) -> Bool {
+        guard !AppEnvironment.current.isUITest else {
+            return false
+        }
+
+        switch flow {
+        // This workflow is required for mandatory display of the updated content to users from previous versions.
+        case .afterLoginBanner where
+            canRequestAuthorization == false &&
+            requestAuthorizationOnAfterLoginBannerCompletionDate == nil:
+            return true
+        default:
+            return canRequestAuthorization
+        }
+    }
 }
 
 // MARK: - PushNotificationsInteractor protocol conformance
 
 extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
     func isAvailable(in flow: PushNotificationsPermissionRequestFlow) -> Bool {
-        guard !AppEnvironment.current.isUITest else {
-            return false
-        }
-
-        guard
-            canRequestAuthorization
-        else {
+        guard preconditionAvailable(in: flow) else {
             return false
         }
 
@@ -95,6 +109,13 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
             return currentRequestState
                 && !didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession
                 && !didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession
+        case .afterLoginBanner:
+            // Need exclude if display is required bottom sheet permission request
+            guard !isAvailable(in: .afterLogin) else {
+                return false
+            }
+
+            return true
         }
     }
 
@@ -103,7 +124,7 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         await pushNotificationsPermissionsService.requestAuthorizationAndRegister()
         await logAuthorizationStatus()
         runOnMain {
-            canRequestAuthorization = false
+            stopAllFeatureAuthorizationRequests()
             _permissionRequestEventSubject.send(.allow(flow))
         }
     }
@@ -116,9 +137,9 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         case .walletOnboarding:
             didPostponeAuthorizationRequestOnWalletOnboarding = true
             didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession = true
-        case .afterLogin:
+        case .afterLogin, .afterLoginBanner:
             // Stop all future authorization requests
-            canRequestAuthorization = false
+            stopAllFeatureAuthorizationRequests()
             _permissionRequestEventSubject.send(.postpone(flow))
         }
 
@@ -132,6 +153,13 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
 
     var permissionRequestPublisher: AnyPublisher<PushNotificationsPermissionRequest, Never> {
         _permissionRequestEventSubject.eraseToAnyPublisher()
+    }
+
+    // MARK: - Private Implementation
+
+    private func stopAllFeatureAuthorizationRequests() {
+        requestAuthorizationOnAfterLoginBannerCompletionDate = Date()
+        canRequestAuthorization = false
     }
 }
 
@@ -163,6 +191,7 @@ private extension CommonPushNotificationsInteractor {
         case didPostponeAuthorizationRequestOnWalletOnboarding = "did_postpone_authorization_request_on_wallet_onboarding"
         case didRequestAuthorizationOnAfterLogin = "did_request_authorization_on_after_login"
         case resetPushNotificationsAuthorizationRequestCounter = "reset_push_notifications_authorization_request_counter"
+        case didPostponeOnboardingCompletionDate = "did_postpone_onboarding_completion_date"
     }
 
     enum ResetVersion: Int {
