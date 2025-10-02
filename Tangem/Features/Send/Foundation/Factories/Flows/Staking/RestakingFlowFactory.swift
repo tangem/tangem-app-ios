@@ -169,7 +169,7 @@ extension RestakingFlowFactory: StakingValidatorsStepBuildable {
     }
 
     var stakingValidatorsTypes: StakingValidatorsStepBuilder.Types {
-        StakingValidatorsStepBuilder.Types(actionType: .stake, currentValidator: .none)
+        StakingValidatorsStepBuilder.Types(actionType: sendFlowActionType(), currentValidator: restakingModel.validator)
     }
 
     var stakingValidatorsDependencies: StakingValidatorsStepBuilder.Dependencies {
@@ -194,7 +194,7 @@ extension RestakingFlowFactory: SendSummaryStepBuildable {
                 tokenItem: tokenItem,
                 destinationEditableType: .editable,
                 amountEditableType: .noEditable,
-                actionType: .stake
+                actionType: sendFlowActionType()
             )
         )
     }
