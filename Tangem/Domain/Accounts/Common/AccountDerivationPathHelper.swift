@@ -19,6 +19,7 @@ struct AccountDerivationPathHelper {
     }
 
     func extractAccountDerivationNode(from derivationPath: DerivationPath?) -> DerivationNode? {
+        // [REDACTED_TODO_COMMENT]
         guard let derivationPath else {
             return nil
         }
@@ -56,6 +57,104 @@ struct AccountDerivationPathHelper {
             // Such blockchains should be handled here explicitly
             assertionFailure("Unexpected derivation path nodes count: \(nodes.count) for blockchain: \(blockchain.displayName)")
             return max(0, nodes.count - 1)
+        }
+    }
+
+    func areAccountsAvailableForBlockchain() -> Bool {
+        // Did you get a compilation error here? If so, consult with analytics team to find out
+        // whether a newly added blockchain supports custom derivations and accounts
+        switch blockchain {
+        case .bitcoin,
+             .litecoin,
+             .stellar,
+             .ethereum,
+             .ethereumPoW,
+             .disChain,
+             .ethereumClassic,
+             .rsk,
+             .bitcoinCash,
+             .binance,
+             .cardano,
+             .xrp,
+             .ducatus,
+             .tezos,
+             .dogecoin,
+             .bsc,
+             .polygon,
+             .avalanche,
+             .solana,
+             .fantom,
+             .polkadot,
+             .kusama,
+             .azero,
+             .tron,
+             .arbitrum,
+             .dash,
+             .gnosis,
+             .optimism,
+             .ton,
+             .kava,
+             .kaspa,
+             .ravencoin,
+             .cosmos,
+             .terraV1,
+             .terraV2,
+             .cronos,
+             .telos,
+             .octa,
+             .near,
+             .decimal,
+             .veChain,
+             .xdc,
+             .algorand,
+             .shibarium,
+             .aptos,
+             .hedera,
+             .areon,
+             .playa3ullGames,
+             .pulsechain,
+             .aurora,
+             .manta,
+             .zkSync,
+             .moonbeam,
+             .polygonZkEVM,
+             .moonriver,
+             .mantle,
+             .flare,
+             .taraxa,
+             .radiant,
+             .base,
+             .joystream,
+             .bittensor,
+             .koinos,
+             .internetComputer,
+             .cyber,
+             .blast,
+             .sui,
+             .filecoin,
+             .sei,
+             .energyWebEVM,
+             .energyWebX,
+             .core,
+             .canxium,
+             .casper,
+             .chiliz,
+             .xodex,
+             .clore,
+             .fact0rn,
+             .odysseyChain,
+             .bitrock,
+             .apeChain,
+             .sonic,
+             .alephium,
+             .vanar,
+             .zkLinkNova,
+             .pepecoin,
+             .hyperliquidEVM:
+            return true
+        case .chia:
+            // [REDACTED_TODO_COMMENT]
+            return false
         }
     }
 }
