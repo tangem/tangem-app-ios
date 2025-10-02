@@ -1,5 +1,5 @@
 //
-//  NewOnrampStepBuilder.swift
+//  NewOnrampStepBuildable.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,52 +9,15 @@
 import Foundation
 import TangemExpress
 
-struct NewOnrampStepBuilder {
-    typealias IO = (input: OnrampInput, output: OnrampOutput)
-    typealias ReturnValue = (step: NewOnrampStep, interactor: NewOnrampInteractor)
-
-    private let walletModel: any WalletModel
-
-    init(walletModel: any WalletModel) {
-        self.walletModel = walletModel
-    }
-
-    func makeOnrampStep(
-        io: IO,
-        providersInput: some OnrampProvidersInput,
-        recentOnrampProviderFinder: some RecentOnrampProviderFinder,
-        onrampAmountViewModel: NewOnrampAmountViewModel,
-        notificationManager: some NotificationManager,
-        analyticsLogger: some SendOnrampOffersAnalyticsLogger
-    ) -> ReturnValue {
-        let interactor = CommonNewOnrampInteractor(
-            input: io.input,
-            output: io.output,
-            providersInput: providersInput,
-            recentOnrampProviderFinder: recentOnrampProviderFinder
-        )
-        let viewModel = NewOnrampViewModel(
-            onrampAmountViewModel: onrampAmountViewModel,
-            tokenItem: walletModel.tokenItem,
-            interactor: interactor,
-            notificationManager: notificationManager,
-            analyticsLogger: analyticsLogger
-        )
-        let step = NewOnrampStep(tokenItem: walletModel.tokenItem, viewModel: viewModel, interactor: interactor)
-
-        return (step: step, interactor: interactor)
-    }
-}
-
 protocol NewOnrampStepBuildable {
-    var onrampIO: NewOnrampStepBuilder2.IO { get }
-    var onrampTypes: NewOnrampStepBuilder2.Types { get }
-    var onrampDependencies: NewOnrampStepBuilder2.Dependencies { get }
+    var onrampIO: NewOnrampStepBuilder.IO { get }
+    var onrampTypes: NewOnrampStepBuilder.Types { get }
+    var onrampDependencies: NewOnrampStepBuilder.Dependencies { get }
 }
 
 extension NewOnrampStepBuildable {
-    func makeOnrampStep(router: OnrampAmountRoutable) -> NewOnrampStepBuilder2.ReturnValue {
-        NewOnrampStepBuilder2.make(
+    func makeOnrampStep(router: OnrampAmountRoutable) -> NewOnrampStepBuilder.ReturnValue {
+        NewOnrampStepBuilder.make(
             io: onrampIO,
             types: onrampTypes,
             dependencies: onrampDependencies,
@@ -63,7 +26,7 @@ extension NewOnrampStepBuildable {
     }
 }
 
-enum NewOnrampStepBuilder2 {
+enum NewOnrampStepBuilder {
     struct IO {
         let input: any OnrampInput
         let output: any OnrampOutput
@@ -72,7 +35,7 @@ enum NewOnrampStepBuilder2 {
         let amountOutput: any OnrampAmountOutput
 
         let providersInput: any OnrampProvidersInput
-        let recentOnrampProviderFinder: any RecentOnrampProviderFinder
+        let recentOnrampTransactionParametersFinder: any RecentOnrampTransactionParametersFinder
     }
 
     struct Types {
@@ -91,7 +54,7 @@ enum NewOnrampStepBuilder2 {
             input: io.input,
             output: io.output,
             providersInput: io.providersInput,
-            recentOnrampProviderFinder: io.recentOnrampProviderFinder
+            recentFinder: io.recentOnrampTransactionParametersFinder
         )
 
         let onrampAmountViewModel = makeNewOnrampAmountViewModel(io: io, types: types, router: router)
