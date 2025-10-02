@@ -11,7 +11,7 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
-struct YieldMduleChartContainer: View {
+struct YieldModuleChartContainer: View {
     @StateObject
     private var viewModel = YieldModuleChartViewModel()
 
