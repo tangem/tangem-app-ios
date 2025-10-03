@@ -27,7 +27,6 @@ protocol VisaOnboardingRoutable: OnboardingRoutable, OnboardingBrowserRoutable {
 class VisaOnboardingViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
-    @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
 
     @Published var shouldFireConfetti = false
     @Published var currentProgress: CGFloat = 0
@@ -120,7 +119,7 @@ class VisaOnboardingViewModel: ObservableObject {
             currentStep = .welcome
         }
 
-        if case .userWalletModel(let userWalletModel, _) = input.cardInput {
+        if case .userWalletModel(let userWalletModel, _, _) = input.cardInput {
             self.userWalletModel = userWalletModel
         }
 
@@ -392,7 +391,7 @@ extension VisaOnboardingViewModel: UserWalletStorageAgreementRoutable {
             cardIdToSave = cardId
         case .cardInfo(let cardInfo):
             cardIdToSave = cardInfo.card.cardId
-        case .userWalletModel(_, let cardId):
+        case .userWalletModel(_, let cardId, _):
             cardIdToSave = cardId
         }
 
@@ -454,11 +453,6 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     }
 
     func closeOnboarding() {
-        globalServicesContext.resetServices()
-        if let userWalletModel {
-            globalServicesContext.initializeServices(userWalletModel: userWalletModel)
-        }
-
         coordinator?.closeOnboarding()
     }
 }
@@ -567,7 +561,7 @@ private extension VisaOnboardingViewModel {
     func showCloseOnboardingAlert() {
         alert = AlertBuilder.makeExitAlert(
             message: Localization.visaOnboardingCloseAlertMessage,
-            okAction: weakify(self, forFunction: VisaOnboardingViewModel.closeOnboarding)
+            discardAction: weakify(self, forFunction: VisaOnboardingViewModel.closeOnboarding)
         )
     }
 }

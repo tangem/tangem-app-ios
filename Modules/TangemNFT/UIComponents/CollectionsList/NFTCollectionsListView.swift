@@ -117,7 +117,7 @@ public struct NFTCollectionsListView: View {
 
     private func collectionsContent(from collections: [NFTCollectionDisclosureGroupViewModel]) -> some View {
         ScrollViewReader { scrollViewProxy in
-            RefreshableScrollView(onRefresh: viewModel.update(completion:), useNativeRefresh: true) {
+            RefreshScrollView(stateObject: viewModel.scrollViewStateObject) {
                 VStack(spacing: 0) {
                     if let notificationViewData = viewModel.loadingTroublesViewData {
                         NFTNotificationView(viewData: notificationViewData)
