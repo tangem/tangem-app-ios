@@ -144,6 +144,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
+    @MainActor
     func onPullToRefresh() async {
         guard updateTask == nil else {
             return
@@ -153,7 +154,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             miniChartsProvider.fetch(for: [id], with: miniChartPriceIntervalType)
         }
 
-        await runOnMain { isReloadingTransactionHistory = true }
+        isReloadingTransactionHistory = true
         updateTask = runTask(in: self) { viewModel in
             // Ignore the CancelationError() here
             // WalletModel.generalUpdate() has not error throwing
@@ -164,7 +165,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         await updateTask?.value
 
         AppLogger.info(self, "♻️ loading state changed")
-        await runOnMain { isReloadingTransactionHistory = false }
+        isReloadingTransactionHistory = false
 
         updateTask = nil
     }
