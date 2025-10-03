@@ -78,10 +78,13 @@ final class PrivateInfoStorageManager {
             accessCode: newAccessCode
         )
 
-        if enableBiometrics {
-            // errors are ignored here, as biometrics storage is optional
-            try? encryptedBiometricsStorage.deleteData(keyTag: context.walletID.encryptionKeyBiometricsTag)
+        // errors are ignored here, as biometrics storage is optional
+        try? encryptedBiometricsStorage.deleteData(
+            keyTag: context.walletID.encryptionKeyBiometricsTag,
+            secureEnclaveKeyTag: context.walletID.encryptionKeyBiometricsSecureEnclaveTag
+        )
 
+        if enableBiometrics {
             try encryptedBiometricsStorage.storeData(
                 aesEncryptionKey,
                 keyTag: context.walletID.encryptionKeyBiometricsTag,
@@ -109,7 +112,10 @@ final class PrivateInfoStorageManager {
     func clearBiometrics(walletIDs: [UserWalletId]) {
         walletIDs.forEach { walletID in
             // errors are ignored here, as biometrics storage is optional
-            try? encryptedBiometricsStorage.deleteData(keyTag: walletID.encryptionKeyBiometricsTag)
+            try? encryptedBiometricsStorage.deleteData(
+                keyTag: walletID.encryptionKeyBiometricsTag,
+                secureEnclaveKeyTag: walletID.encryptionKeyBiometricsSecureEnclaveTag
+            )
         }
     }
 
@@ -123,13 +129,19 @@ final class PrivateInfoStorageManager {
         }
 
         do {
-            try encryptedSecureStorage.deleteData(keyTag: walletID.encryptionKeyTag)
+            try encryptedSecureStorage.deleteData(
+                keyTag: walletID.encryptionKeyTag,
+                secureEnclaveKeyTag: walletID.encryptionKeySecureEnclaveTag
+            )
         } catch {
             errors.append(error)
         }
 
         // biometrics storage is optional, so we don't throw an error if it fails to delete
-        try? encryptedBiometricsStorage.deleteData(keyTag: walletID.encryptionKeyBiometricsTag)
+        try? encryptedBiometricsStorage.deleteData(
+            keyTag: walletID.encryptionKeyBiometricsTag,
+            secureEnclaveKeyTag: walletID.encryptionKeyBiometricsSecureEnclaveTag
+        )
 
         if !errors.isEmpty {
             throw CompoundMobileWalletError(underlying: errors)

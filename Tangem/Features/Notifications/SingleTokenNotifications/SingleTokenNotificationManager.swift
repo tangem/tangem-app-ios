@@ -16,7 +16,7 @@ import TangemFoundation
 final class SingleTokenNotificationManager {
     weak var interactionDelegate: SingleTokenNotificationManagerInteractionDelegate?
 
-    private let analyticsService: NotificationsAnalyticsService = .init()
+    private let analyticsService: NotificationsAnalyticsService
 
     private let walletModel: any WalletModel
     private let walletModelsManager: WalletModelsManager
@@ -29,18 +29,25 @@ final class SingleTokenNotificationManager {
     private var notificationsUpdateTask: Task<Void, Never>?
 
     init(
+        userWalletId: UserWalletId,
         walletModel: any WalletModel,
-        walletModelsManager: WalletModelsManager,
-        contextDataProvider: AnalyticsContextDataProvider?
+        walletModelsManager: WalletModelsManager
     ) {
         self.walletModel = walletModel
         self.walletModelsManager = walletModelsManager
-
-        analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
+        analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
+        bind()
     }
 
     private func bind() {
-        bag = []
+        notificationPublisher
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { manager, notifications in
+                manager.analyticsService.sendEventsIfNeeded(for: notifications)
+            })
+            .store(in: &bag)
 
         Publishers.CombineLatest(
             walletModel.availableBalanceProvider.balanceTypePublisher,
@@ -343,6 +350,10 @@ final class SingleTokenNotificationManager {
     private func hideNotification(_ notification: NotificationViewInput) {
         notificationInputsSubject.value.removeAll { $0 == notification }
     }
+
+    private func makeYieldAvailableNotification() -> TokenNotificationEvent {
+        .yieldAvailable(configuration: .init(apy: "TEST"))
+    }
 }
 
 extension SingleTokenNotificationManager: NotificationManager {
@@ -358,7 +369,6 @@ extension SingleTokenNotificationManager: NotificationManager {
         self.delegate = delegate
 
         setupLoadedStateNotifications()
-        bind()
     }
 
     func dismissNotification(with id: NotificationViewId) {
