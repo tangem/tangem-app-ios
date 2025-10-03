@@ -14,5 +14,8 @@ struct MobileOnboardingSeedPhraseImportView: View {
     var body: some View {
         OnboardingSeedPhraseImportView(viewModel: viewModel.importViewModel)
             .flowLoadingOverlay(isPresented: viewModel.isCreating)
+            .background {
+                Color.clear.alert(item: $viewModel.alert) { $0.alert }
+            }
     }
 }

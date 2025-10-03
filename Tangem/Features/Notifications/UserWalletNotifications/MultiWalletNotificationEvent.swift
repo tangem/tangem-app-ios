@@ -13,6 +13,7 @@ import TangemAssets
 enum MultiWalletNotificationEvent: Hashable {
     case someTokenBalancesNotUpdated
     case someNetworksUnreachable(currencySymbols: [String])
+    case someTokensNeedYieldApprove
 }
 
 // MARK: - NotificationEvent
@@ -24,6 +25,8 @@ extension MultiWalletNotificationEvent: NotificationEvent {
             return .string(Localization.warningSomeNetworksUnreachableTitle)
         case .someTokenBalancesNotUpdated:
             return .none
+        case .someTokensNeedYieldApprove:
+            return .string(Localization.yieldModuleMainViewApproveNotificationTitle)
         }
     }
 
@@ -33,6 +36,8 @@ extension MultiWalletNotificationEvent: NotificationEvent {
             return Localization.warningSomeNetworksUnreachableMessage
         case .someTokenBalancesNotUpdated:
             return Localization.warningSomeTokenBalancesNotUpdated
+        case .someTokensNeedYieldApprove:
+            return Localization.yieldModuleMainViewApproveNotificationDescription
         }
     }
 
@@ -46,6 +51,8 @@ extension MultiWalletNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.attention.image))
         case .someTokenBalancesNotUpdated:
             return .init(iconType: .image(Assets.failedCloud.image), color: Colors.Icon.attention)
+        case .someTokensNeedYieldApprove:
+            return .init(iconType: .image(Assets.WalletConnect.yellowWarningCircle.image))
         }
     }
 
@@ -59,6 +66,7 @@ extension MultiWalletNotificationEvent: NotificationEvent {
         switch self {
         case .someTokenBalancesNotUpdated: return nil // [REDACTED_TODO_COMMENT]
         case .someNetworksUnreachable: return .mainNoticeNetworksUnreachable
+        case .someTokensNeedYieldApprove: return nil // YIELD [REDACTED_TODO_COMMENT]
         }
     }
 
@@ -68,6 +76,8 @@ extension MultiWalletNotificationEvent: NotificationEvent {
             return [:] // [REDACTED_TODO_COMMENT]
         case .someNetworksUnreachable(let networks):
             return [.tokens: networks.joined(separator: ", ")]
+        case .someTokensNeedYieldApprove:
+            return [:] // YIELD [REDACTED_TODO_COMMENT]
         }
     }
 

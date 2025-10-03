@@ -10,10 +10,12 @@ import Foundation
 import SwiftUI
 import Combine
 import CombineExt
+import TangemFoundation
 import TangemStaking
 import TangemNFT
 import TangemLocalization
 import TangemUI
+import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 
 final class MultiWalletMainContentViewModel: ObservableObject {
@@ -24,6 +26,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var tokensNotificationInputs: [NotificationViewInput] = []
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
+    @Published var yieldModuleNotificationInputs: [NotificationViewInput] = []
 
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
@@ -57,6 +60,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let userWalletNotificationManager: NotificationManager
     private let tokensNotificationManager: NotificationManager
     private let bannerNotificationManager: NotificationManager?
+    private let yieldModuleNotificationManager: NotificationManager
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
@@ -83,6 +87,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         userWalletNotificationManager: NotificationManager,
         tokensNotificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
+        yieldModuleNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         tokenSectionsAdapter: TokenSectionsAdapter,
         tokenRouter: SingleTokenRoutable,
@@ -94,6 +99,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.userWalletNotificationManager = userWalletNotificationManager
         self.tokensNotificationManager = tokensNotificationManager
         self.bannerNotificationManager = bannerNotificationManager
+        self.yieldModuleNotificationManager = yieldModuleNotificationManager
         self.rateAppController = rateAppController
         self.tokenSectionsAdapter = tokenSectionsAdapter
         self.tokenRouter = tokenRouter
@@ -111,18 +117,19 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         AppLogger.debug("\(userWalletModel.name) deinit")
     }
 
-    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
+    func onPullToRefresh() async {
         if isUpdating {
             return
         }
 
         isUpdating = true
-
         refreshActionButtonsData()
 
-        userWalletModel.userTokensManager.sync { [weak self] in
-            self?.isUpdating = false
-            completionHandler()
+        await withCheckedContinuation { [weak self] checkedContinuation in
+            self?.userWalletModel.userTokensManager.sync { [weak self] in
+                self?.isUpdating = false
+                checkedContinuation.resume()
+            }
         }
     }
 
@@ -237,6 +244,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        yieldModuleNotificationManager
+            .notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .assign(to: \.yieldModuleNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
         rateAppController.bind(
@@ -460,8 +474,29 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openReferral(input: input)
     }
 
-    private func openMobileFinishActivation() {
-        coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
+    private func openMobileFinishActivation(needsAttention: Bool) {
+        Analytics.log(.mainButtonFinishNow)
+        if needsAttention {
+            coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
+        } else {
+            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        }
+    }
+
+    private func openMobileUpgrade() {
+        runTask(in: self) { viewModel in
+            do {
+                let context = try await viewModel.unlock()
+                viewModel.coordinator?.openMobileUpgrade(userWalletModel: viewModel.userWalletModel, context: context)
+            } catch where error.isCancellationError {
+                AppLogger.error("Unlock is canceled", error: error)
+            } catch {
+                AppLogger.error("Unlock failed:", error: error)
+                await runOnMain {
+                    viewModel.error = error.alertBinder
+                }
+            }
+        }
     }
 }
 
@@ -507,8 +542,12 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openReferralProgram:
             openReferralProgram()
-        case .openMobileFinishActivation:
-            openMobileFinishActivation()
+        case .openMobileFinishActivation(let needsAttention):
+            openMobileFinishActivation(needsAttention: needsAttention)
+        case .openMobileUpgrade:
+            openMobileUpgrade()
+        case .openBuyCrypto(let walletModel, let parameters):
+            coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel, parameters: parameters)
         default:
             break
         }
@@ -645,5 +684,30 @@ private extension MultiWalletMainContentViewModel {
             expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
             userWalletModel: userWalletModel
         )
+    }
+}
+
+// MARK: - Unlocking
+
+private extension MultiWalletMainContentViewModel {
+    func unlock() async throws -> MobileWalletContext {
+        let authUtil = MobileAuthUtil(
+            userWalletId: userWalletModel.userWalletId,
+            config: userWalletModel.config,
+            biometricsProvider: CommonUserWalletBiometricsProvider()
+        )
+
+        let result = try await authUtil.unlock()
+
+        switch result {
+        case .successful(let context):
+            return context
+
+        case .canceled:
+            throw CancellationError()
+
+        case .userWalletNeedsToDelete:
+            throw CancellationError()
+        }
     }
 }

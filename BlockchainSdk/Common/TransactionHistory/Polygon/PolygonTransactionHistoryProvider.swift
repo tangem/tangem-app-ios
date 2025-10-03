@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemNetworkUtils
+import TangemFoundation
 
 final class PolygonTransactionHistoryProvider<Mapper> where
     Mapper: TransactionHistoryMapper,
@@ -26,7 +27,7 @@ final class PolygonTransactionHistoryProvider<Mapper> where
         targetConfiguration: PolygonTransactionHistoryTarget.Configuration
     ) {
         self.mapper = mapper
-        networkProvider = .init(configuration: networkConfiguration)
+        networkProvider = .init(configuration: .init(logOptions: .verbose))
         self.targetConfiguration = targetConfiguration
     }
 
@@ -165,6 +166,16 @@ final class PolygonTransactionHistoryProvider<Mapper> where
 // MARK: - TransactionHistoryProvider protocol conformance
 
 extension PolygonTransactionHistoryProvider: TransactionHistoryProvider {
+    var description: String {
+        return objectDescription(
+            self,
+            userInfo: [
+                "pageNumber": String(describing: page?.number),
+                "hasReachedEnd": hasReachedEnd,
+            ]
+        )
+    }
+
     var canFetchHistory: Bool {
         page == nil || !hasReachedEnd
     }
