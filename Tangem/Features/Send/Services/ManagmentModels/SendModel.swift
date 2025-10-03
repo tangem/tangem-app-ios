@@ -28,6 +28,7 @@ class SendModel {
 
     private let _transaction = CurrentValueSubject<Result<BSDKTransaction, Error>?, Never>(nil)
     private let _transactionTime = PassthroughSubject<Date?, Never>()
+    private let _transactionURL = PassthroughSubject<URL?, Never>()
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
 
     // MARK: - Dependencies
@@ -180,6 +181,8 @@ private extension SendModel {
 
     private func proceed(transaction: BSDKTransaction, result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
+        _transactionURL.send(result.url)
+
         analyticsLogger.logTransactionSent(
             amount: _amount.value,
             additionalField: _destinationAdditionalField.value,
@@ -332,6 +335,10 @@ extension SendModel: SendFinishInput {
     var transactionSentDate: AnyPublisher<Date, Never> {
         _transactionTime.compactMap { $0 }.first().eraseToAnyPublisher()
     }
+
+    var transactionURL: AnyPublisher<URL?, Never> {
+        _transactionURL.eraseToAnyPublisher()
+    }
 }
 
 // MARK: - SendBaseInput, SendBaseOutput
@@ -415,7 +422,12 @@ extension SendModel: NotificationTapDelegate {
              .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
-             .unlock:
+             .openMobileUpgrade,
+             .unlock,
+             .openYieldPromo,
+             .openBuyCrypto,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             assertionFailure("Notification tap not handled")
         }
     }
