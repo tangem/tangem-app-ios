@@ -23,6 +23,7 @@ final class CommonCryptoAccountsRepository {
     /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
     private lazy var _cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> = storageDidUpdateSubject
         .prepend(())
+        .receiveOnMain()
         .withWeakCaptureOf(self)
         .map { $0.0.persistentStorage.getList() }
         .share(replay: 1)
