@@ -19,8 +19,9 @@ protocol NotificationTapDelegate: AnyObject {
 /// Don't forget to setup manager with delegate for proper notification handling
 final class UserWalletNotificationManager {
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
+    @Injected(\.userWalletDismissedNotifications) private var dismissedNotifications: UserWalletDismissedNotifications
 
-    private let analyticsService: NotificationsAnalyticsService = .init()
+    private let analyticsService: NotificationsAnalyticsService
     private let userWalletModel: UserWalletModel
     private let rateAppController: RateAppNotificationController
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
@@ -42,14 +43,14 @@ final class UserWalletNotificationManager {
     init(
         userWalletModel: UserWalletModel,
         rateAppController: RateAppNotificationController,
-        contextDataProvider: AnalyticsContextDataProvider?,
         referralNotificationController: ReferralNotificationController
     ) {
         self.userWalletModel = userWalletModel
         self.rateAppController = rateAppController
         self.referralNotificationController = referralNotificationController
+        analyticsService = NotificationsAnalyticsService(userWalletId: userWalletModel.userWalletId)
 
-        analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
+        bind()
     }
 
     private func createNotifications() {
@@ -131,6 +132,7 @@ final class UserWalletNotificationManager {
         showAppRateNotificationIfNeeded()
         createIfNeededAndShowSupportSeedNotification()
         showMobileActivationNotificationIfNeeded()
+        showMobileUpgradeNotificationIfNeeded()
     }
 
     private func createIfNeededAndShowSupportSeedNotification() {
@@ -207,9 +209,7 @@ final class UserWalletNotificationManager {
 
         let factory = NotificationsFactory()
 
-        let action: NotificationView.NotificationAction = { [weak self] id in
-            self?.delegate?.didTapNotification(with: id, action: .empty)
-        }
+        let action: NotificationView.NotificationAction = { _ in }
 
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
             self?.delegate?.didTapNotification(with: id, action: action)
@@ -218,6 +218,12 @@ final class UserWalletNotificationManager {
         let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
 
         let hasPositiveBalance = userWalletModel.totalBalance.hasPositiveBalance
+
+        Analytics.log(
+            .noticeFinishActivation,
+            params: [.balanceState: hasPositiveBalance ? .full : .empty]
+        )
+
         let input = factory.buildNotificationInput(
             for: .mobileFinishActivation(needsAttention: hasPositiveBalance, hasBackup: !needBackup),
             action: action,
@@ -228,8 +234,42 @@ final class UserWalletNotificationManager {
         addInputIfNeeded(input)
     }
 
+    private func showMobileUpgradeNotificationIfNeeded() {
+        let isDismissed = dismissedNotifications.has(userWalletId: userWalletModel.userWalletId, notification: .mobileUpgradeFromMain)
+
+        guard userWalletModel.config.hasFeature(.userWalletUpgrade), !isDismissed else {
+            return
+        }
+
+        let factory = NotificationsFactory()
+
+        let action: NotificationView.NotificationAction = { [weak self] id in
+            self?.delegate?.didTapNotification(with: id, action: .openMobileUpgrade)
+        }
+
+        let buttonAction: NotificationView.NotificationButtonTapAction = { _, _ in }
+
+        let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
+
+        let input = factory.buildNotificationInput(
+            for: GeneralNotificationEvent.mobileUpgrade,
+            action: action,
+            buttonAction: buttonAction,
+            dismissAction: dismissAction
+        )
+
+        addInputIfNeeded(input)
+    }
+
     private func bind() {
-        bag.removeAll()
+        notificationPublisher
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { manager, notifications in
+                manager.analyticsService.sendEventsIfNeeded(for: notifications)
+            })
+            .store(in: &bag)
 
         userWalletModel.updatePublisher
             .filter { value in
@@ -321,8 +361,6 @@ extension UserWalletNotificationManager: NotificationManager {
         self.delegate = delegate
 
         createNotifications()
-        bind()
-
         referralNotificationController.checkReferralStatus()
     }
 
@@ -341,6 +379,8 @@ extension UserWalletNotificationManager: NotificationManager {
                 rateAppController.dismissAppRate()
             case .referralProgram:
                 referralNotificationController.dismissReferralNotification()
+            case .mobileUpgrade:
+                dismissedNotifications.add(userWalletId: userWalletModel.userWalletId, notification: .mobileUpgradeFromMain)
             default:
                 break
             }
