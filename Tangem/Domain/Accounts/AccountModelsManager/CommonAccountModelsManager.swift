@@ -224,7 +224,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .cannotArchiveCryptoAccount
         }
 
-        cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toAnyHashablePersistentIdentifier())
+        cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
     }
 
     nonisolated func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
