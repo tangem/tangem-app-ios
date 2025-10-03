@@ -8,19 +8,61 @@
 
 import Foundation
 import Combine
-import TangemSdk
 import TangemFoundation
+import TangemLocalization
 
 final class CommonCryptoAccountModel {
+    let walletModelsManager: WalletModelsManager
+    let userTokensManager: UserTokensManager
+
+    private(set) var icon: AccountModel.Icon {
+        didSet {
+            if oldValue != icon {
+                didChangeSubject.send()
+            }
+        }
+    }
+
+    var name: String {
+        if let name = _name?.nilIfEmpty {
+            return name
+        }
+        if isMainAccount {
+            return Localization.accountMainAccountTitle
+        }
+
+        return .empty
+    }
+
+    private var _name: String? {
+        didSet {
+            if oldValue != _name {
+                didChangeSubject.send()
+            }
+        }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private let didChangeSubject = PassthroughSubject<Void, Never>()
     private let accountId: AccountId
     private let derivationIndex: Int
 
+    /// Designated initializer.
+    /// - Note: `name` argument can be nil for main accounts, in this case a default localized name will be used.
     init(
         accountId: AccountId,
-        derivationIndex: Int
+        accountName: String?,
+        accountIcon: AccountModel.Icon,
+        derivationIndex: Int,
+        walletModelsManager: WalletModelsManager,
+        userTokensManager: UserTokensManager
     ) {
         self.accountId = accountId
+        _name = accountName
+        icon = accountIcon
         self.derivationIndex = derivationIndex
+        self.walletModelsManager = walletModelsManager
+        self.userTokensManager = userTokensManager
     }
 }
 
@@ -28,37 +70,24 @@ final class CommonCryptoAccountModel {
 
 extension CommonCryptoAccountModel {
     /// Convenience init, initializes a `CommonCryptoAccountModel` with a `UserWalletId` and a derivation index.
+    /// - Note: `name` argument can be nil for main accounts, in this case a default localized name will be used.
     convenience init(
         userWalletId: UserWalletId,
-        derivationIndex: Int
+        accountName: String?,
+        accountIcon: AccountModel.Icon,
+        derivationIndex: Int,
+        walletModelsManager: WalletModelsManager,
+        userTokensManager: UserTokensManager
     ) {
         let accountId = AccountId(userWalletId: userWalletId, derivationIndex: derivationIndex)
-        self.init(accountId: accountId, derivationIndex: derivationIndex)
-    }
-}
-
-// MARK: - Inner types
-
-extension CommonCryptoAccountModel {
-    /// A specific identifier for the `CryptoAccountModel` type only. Other types of accounts must implement and use different id types.
-    struct AccountId: Hashable {
-        /// - Note: For serialization/deserialization purposes and backend communications.
-        var rawValue: Data {
-            let bytes = userWalletId.value + derivationIndex.bytes4
-
-            return bytes.getSha256()
-        }
-
-        private let userWalletId: UserWalletId
-        private let derivationIndex: Int
-
-        init(
-            userWalletId: UserWalletId,
-            derivationIndex: Int
-        ) {
-            self.userWalletId = userWalletId
-            self.derivationIndex = derivationIndex
-        }
+        self.init(
+            accountId: accountId,
+            accountName: accountName,
+            accountIcon: accountIcon,
+            derivationIndex: derivationIndex,
+            walletModelsManager: walletModelsManager,
+            userTokensManager: userTokensManager
+        )
     }
 }
 
@@ -74,32 +103,11 @@ extension CommonCryptoAccountModel: Identifiable {
 
 extension CommonCryptoAccountModel: CryptoAccountModel {
     var isMainAccount: Bool {
-        derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
+        AccountModelUtils.isMainAccount(derivationIndex)
     }
 
-    var name: String {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
-    var icon: AccountModel.Icon {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
-    var didChangePublisher: any Publisher<Void, Never> {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
-    var walletModelsManager: WalletModelsManager {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
-    var userTokensManager: UserTokensManager {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
+    var didChangePublisher: AnyPublisher<Void, Never> {
+        didChangeSubject.eraseToAnyPublisher()
     }
 
     var userTokenListManager: UserTokenListManager {
@@ -108,13 +116,11 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
     }
 
     func setName(_ name: String) async throws {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
+        _name = name
     }
 
     func setIcon(_ icon: AccountModel.Icon) async throws {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
+        self.icon = icon
     }
 }
 
@@ -157,5 +163,21 @@ extension CommonCryptoAccountModel: WalletModelBalancesProvider {
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
         // [REDACTED_TODO_COMMENT]
         fatalError()
+    }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension CommonCryptoAccountModel: CustomStringConvertible {
+    var description: String {
+        objectDescription(
+            self,
+            userInfo: [
+                "name": name,
+                "icon": icon,
+                "id": id,
+                "derivationIndex": derivationIndex,
+            ]
+        )
     }
 }

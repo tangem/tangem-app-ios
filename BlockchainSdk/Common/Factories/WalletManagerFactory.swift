@@ -82,9 +82,9 @@ private extension WalletManagerFactory {
 public extension WalletManagerFactory {
     /// Use this method only Test and Debug [Addresses, Fees, etc.]
     /// - Parameters:
-    ///   - blockhain Card native blockchain will be used
-    ///   - walletPublicKey: Wallet public key or dummy input
-    ///   - addresses: Dummy input addresses
+    ///   - blockchain: Card native blockchain will be used
+    ///   - dummyPublicKey: Wallet public key or dummy input
+    ///   - dummyAddress: Dummy input addresses
     /// - Returns: WalletManager model
     func makeStubWalletManager(
         blockchain: Blockchain,

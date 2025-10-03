@@ -40,13 +40,14 @@ struct OnboardingAccessCodeView: View {
                 rightButtons: {}
             )
 
-            content
-
-            Spacer()
-
-            MainButton(title: viewModel.state.buttonTitle, action: viewModel.mainButtonAction)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 6)
+            ScrollView(.vertical, showsIndicators: false) {
+                content
+            }
+            .safeAreaInset(edge: .bottom, spacing: 10) {
+                MainButton(title: viewModel.state.buttonTitle, action: viewModel.mainButtonAction)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 6)
+            }
         }
         .onDisappear(perform: viewModel.onDisappearAction)
         .animation(.default, value: viewModel.error)
