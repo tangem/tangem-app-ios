@@ -45,7 +45,7 @@ extension CommonKeysManager: KeysManager {
             kaspaSecondaryApiUrl: keys.kaspaSecondaryApiUrl,
             tronGridApiKey: keys.tronGridApiKey,
             hederaArkhiaApiKey: keys.hederaArkhiaKey,
-            polygonScanApiKey: keys.polygonScanApiKey,
+            etherscanApiKey: keys.etherscanApiKey,
             koinosProApiKey: keys.koinosProApiKey,
             tonCenterApiKeys: .init(mainnetApiKey: keys.tonCenterApiKey.mainnet, testnetApiKey: keys.tonCenterApiKey.testnet),
             fireAcademyApiKeys: .init(mainnetApiKey: keys.chiaFireAcademyApiKey, testnetApiKey: keys.chiaFireAcademyApiKey),
@@ -102,6 +102,14 @@ extension CommonKeysManager: KeysManager {
     var tangemApiKey: String {
         keys.tangemApiKey
     }
+
+    var tangemApiKeyDev: String {
+        keys.tangemApiKeyDev
+    }
+
+    var tangemApiKeyStage: String {
+        keys.tangemApiKeyStage
+    }
 }
 
 extension CommonKeysManager {
@@ -127,7 +135,7 @@ extension CommonKeysManager {
         let quiknodeSubdomain: String
         let bscQuiknodeApiKey: String
         let bscQuiknodeSubdomain: String
-        let polygonScanApiKey: String
+        let etherscanApiKey: String
         let koinosProApiKey: String
         let tangemComAuthorization: String?
         let walletConnectProjectId: String
@@ -140,5 +148,7 @@ extension CommonKeysManager {
         let moralisApiKey: String
         let blockaidApiKey: String
         let tangemApiKey: String
+        let tangemApiKeyDev: String
+        let tangemApiKeyStage: String
     }
 }
