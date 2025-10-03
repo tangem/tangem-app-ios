@@ -49,9 +49,11 @@ public extension OnrampPaymentMethod {
 
         public var priority: Int {
             switch self {
-            case .applePay: return 2
-            case .card: return 1
-            case .sepa, .invoiceRevolutPay, .other: return 0
+            case .applePay: return 4
+            case .card: return 3
+            case .invoiceRevolutPay: return 2
+            case .sepa: return 1
+            case .other: return 0
             case .googlePay: return -1
             }
         }
