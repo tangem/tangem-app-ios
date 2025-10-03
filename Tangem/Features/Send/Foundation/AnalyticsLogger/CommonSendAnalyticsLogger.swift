@@ -327,7 +327,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             .errorCode: "\(error.universalErrorCode)",
             .errorDescription: error.localizedDescription,
             .blockchain: tokenItem.blockchain.displayName,
-            .selectedHost: error.lastRetryHost ?? "",
+            .selectedHost: error.sanitizedLastRetryHost ?? "",
         ])
     }
 

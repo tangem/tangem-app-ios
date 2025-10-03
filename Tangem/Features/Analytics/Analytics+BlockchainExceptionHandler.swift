@@ -15,14 +15,14 @@ extension Analytics {
         func handleAPISwitch(currentHost: String, nextHost: String, message: String, blockchainName: String) {
             let hostSanitizerUtil = HostSanitizerUtil()
 
-            let sanitizeCurrentHost = hostSanitizerUtil.sanitizedHost(from: currentHost)
-            let sanitizeNextHost = hostSanitizerUtil.sanitizedHost(from: nextHost)
+            let sanitizedCurrentHost = hostSanitizerUtil.sanitizedHost(from: currentHost)
+            let sanitizedNextHost = hostSanitizerUtil.sanitizedHost(from: nextHost)
 
             Analytics.log(
                 event: .blockchainSdkException,
                 params: [
-                    .exceptionHost: sanitizeCurrentHost,
-                    .selectedHost: sanitizeNextHost,
+                    .exceptionHost: sanitizedCurrentHost,
+                    .selectedHost: sanitizedNextHost,
                     .errorDescription: message,
                     .blockchain: blockchainName,
                 ]
