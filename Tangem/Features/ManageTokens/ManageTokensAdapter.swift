@@ -28,9 +28,10 @@ class ManageTokensAdapter {
     private let listItemsViewModelsSubject = CurrentValueSubject<[ManageTokensListItemViewModel], Never>([])
     private let alertSubject = CurrentValueSubject<AlertBinder?, Never>(nil)
     private let isPendingListsEmptySubject = CurrentValueSubject<Bool, Never>(true)
+    private let needsCardDerivationSubject = CurrentValueSubject<Bool, Never>(false)
 
-    private var pendingAdd: [TokenItem] = []
-    private var pendingRemove: [TokenItem] = []
+    private var pendingAdd: [TokenItem] = [] { didSet { updateNeedsCardDerivation() } }
+    private var pendingRemove: [TokenItem] = [] { didSet { updateNeedsCardDerivation() } }
 
     private var expandedCoinIds: Set<String> = []
 
@@ -50,6 +51,10 @@ class ManageTokensAdapter {
 
     var isPendingListsEmptyPublisher: some Publisher<Bool, Never> {
         isPendingListsEmptySubject
+    }
+
+    var needsCardDerivationPublisher: some Publisher<Bool, Never> {
+        needsCardDerivationSubject
     }
 
     init(settings: Settings) {
@@ -283,12 +288,17 @@ private extension ManageTokensAdapter {
         ))
     }
 
-    private func updateExpanded(state isExapanded: Bool, for coinId: String) {
-        if isExapanded {
+    func updateExpanded(state isExpanded: Bool, for coinId: String) {
+        if isExpanded {
             expandedCoinIds.insert(coinId)
         } else {
             expandedCoinIds.remove(coinId)
         }
+    }
+
+    func updateNeedsCardDerivation() {
+        let needsCardDerivation = userTokensManager.needsCardDerivation(itemsToRemove: pendingRemove, itemsToAdd: pendingAdd)
+        needsCardDerivationSubject.send(needsCardDerivation)
     }
 }
 
