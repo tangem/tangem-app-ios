@@ -19,6 +19,7 @@ import TangemAssets
 class ReceiveMainViewModel: ObservableObject {
     // MARK: - Injected
 
+    @Injected(\.overlayShareActivitiesPresenter) private var shareActivitiesPresenter: any ShareActivitiesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - View State
@@ -113,11 +114,8 @@ extension ReceiveMainViewModel: ReceiveFlowCoordinator {
     }
 
     func share(with address: String) {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-
-            let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
-            UIApplication.modalFromTop(av)
+        runTask(in: self) { @MainActor viewModel in
+            viewModel.shareActivitiesPresenter.share(activityItems: [address])
         }
     }
 
