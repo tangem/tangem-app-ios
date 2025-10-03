@@ -84,7 +84,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             selectedIcon = GridItemImage(id: account.icon.name, kind: gridItemImageKind)
 
         case .create:
-            let randomAccountColor = AccountModelUtils.UI.getRadomColor()
+            let randomAccountColor = AccountModelUtils.UI.getRandomIconColor()
             let color = AccountModelUtils.UI.iconColor(from: randomAccountColor)
             selectedColor = GridItemColor(id: randomAccountColor, color: color)
             selectedIcon = GridItemImage(
