@@ -64,7 +64,7 @@ extension AccountDetailsCoordinator {
 
 // MARK: - BaseEditableAccountDetailsRoutable
 
-extension AccountDetailsCoordinator: BaseEditableAccountDetailsRoutable {
+extension AccountDetailsCoordinator: BaseAccountDetailsRoutable {
     func editAccount() {
         guard let options else { return }
 
@@ -76,14 +76,9 @@ extension AccountDetailsCoordinator: BaseEditableAccountDetailsRoutable {
             }
         )
     }
-}
 
-// MARK: - ArchivableAccountRoutable
-
-extension AccountDetailsCoordinator: ArchivableAccountRoutable {
-    func openArchiveAccountDialog(archiveAction: @escaping () throws -> Void) {
-        archiveAccountDialogPresented = true
-        self.archiveAction = archiveAction
+    func close() {
+        dismiss()
     }
 }
 

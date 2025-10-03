@@ -44,25 +44,5 @@ struct AccountDetailsCoordinatorView: View {
                 .presentation(onDismissalAttempt: viewModel.onClose)
                 .presentationCornerRadiusBackport(24)
             }
-            .confirmationDialog(
-                Localization.accountDetailsArchiveDescription,
-                isPresented: $coordinator.archiveAccountDialogPresented,
-                titleVisibility: .visible,
-                presenting: coordinator.archiveAction
-            ) { action in
-                Button(Localization.accountDetailsArchive, role: .destructive) {
-                    do {
-                        try action()
-
-                        coordinator.dismiss()
-
-                        Toast(view: SuccessToast(text: Localization.accountArchiveSuccessMessage))
-                            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
-                    } catch {
-                        Toast(view: WarningToast(text: Localization.genericError))
-                            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
-                    }
-                }
-            }
     }
 }
