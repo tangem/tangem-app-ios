@@ -60,7 +60,12 @@ enum SignUtil {
                 }
             }
 
-            return Data(signature)
+            switch curve {
+            case .secp256k1:
+                return try Secp256k1Utils().normalizeSignature(Data(signature))
+            default:
+                return Data(signature)
+            }
         }
     }
 }

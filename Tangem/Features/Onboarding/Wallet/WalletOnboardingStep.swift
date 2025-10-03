@@ -25,6 +25,8 @@ enum WalletOnboardingStep: Equatable {
     case seedPhraseGeneration
     case seedPhraseUserValidation
     case seedPhraseImport
+    case mobileUpgradeIntro
+    case mobileUpgradeBiometrics
 
     case addTokens
 
@@ -73,6 +75,10 @@ enum WalletOnboardingStep: Equatable {
             return Localization.onboardingSeedIntroButtonImport
         case .addTokens:
             return Localization.onboardingAddTokens
+        case .mobileUpgradeIntro:
+            return Localization.commonTangem
+        case .mobileUpgradeBiometrics:
+            return Localization.onboardingNavbarUpgradeWalletBiometrics
         }
     }
 
@@ -110,8 +116,9 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .success: return successTitle
         case .createWalletSelector:
             return Localization.onboardingCreateWalletOptionsTitle
-        case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport, .seedPhraseUserValidation, .addTokens, .saveUserWallet, .pushNotifications:
+        case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport, .seedPhraseUserValidation, .addTokens, .saveUserWallet, .pushNotifications, .mobileUpgradeBiometrics:
             return nil
+        case .mobileUpgradeIntro: return Localization.commonTangemWallet
         }
     }
 
@@ -125,8 +132,9 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .success: return Localization.onboardingSubtitleSuccessTangemWalletOnboarding
         case .createWalletSelector:
             return Localization.onboardingCreateWalletOptionsMessage
-        case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport, .seedPhraseUserValidation, .addTokens, .saveUserWallet, .pushNotifications:
+        case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport, .seedPhraseUserValidation, .addTokens, .saveUserWallet, .pushNotifications, .mobileUpgradeBiometrics:
             return nil
+        case .mobileUpgradeIntro: return Localization.hwUpgradeStartDescription
         }
     }
 
@@ -144,7 +152,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .createWalletSelector: return Localization.onboardingCreateWalletButtonCreateWallet
         case .backupIntro: return Localization.onboardingButtonBackupNow
         case .selectBackupCards: return Localization.onboardingButtonAddBackupCard
-        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
+        case .saveUserWallet, .mobileUpgradeBiometrics: return BiometricAuthorizationUtils.allowButtonTitle
         case .success: return Localization.onboardingButtonContinueWallet
         case .seedPhraseIntro: return Localization.onboardingSeedIntroButtonGenerate
         default: return ""
@@ -153,7 +161,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
 
     var mainButtonIcon: ImageType? {
         switch self {
-        case .createWallet, .createWalletSelector, .selectBackupCards, .backupCards:
+        case .createWallet, .createWalletSelector, .selectBackupCards, .backupCards, .mobileUpgradeIntro:
             return Assets.tangemIcon
         default:
             return nil
@@ -169,13 +177,14 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .seedPhraseIntro: return Localization.onboardingSeedIntroButtonImport
         case .success: return Localization.onboardingButtonContinueWallet
         case .scanPrimaryCard: return Localization.onboardingButtonScanOriginCard
+        case .mobileUpgradeIntro: return Localization.hwUpgradeStartAction
         default: return ""
         }
     }
 
     var supplementButtonIcon: ImageType? {
         switch self {
-        case .backupCards, .scanPrimaryCard:
+        case .backupCards, .scanPrimaryCard, .mobileUpgradeIntro:
             return Assets.tangemIcon
         default:
             return nil
@@ -192,7 +201,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
 
     var infoText: String? {
         switch self {
-        case .saveUserWallet:
+        case .saveUserWallet, .mobileUpgradeBiometrics:
             return Localization.saveUserWalletAgreementNotice
         default:
             return nil
