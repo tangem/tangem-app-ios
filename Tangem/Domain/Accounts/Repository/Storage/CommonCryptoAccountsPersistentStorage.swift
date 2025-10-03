@@ -98,7 +98,7 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
         return workingQueue.sync {
             do {
                 let accounts: [StoredCryptoAccount]? = try persistentStorage.value(for: key)
-                return accounts != nil
+                return accounts == nil
             } catch {
                 assertionFailure("CommonCryptoAccountsPersistentStorage unable to query migration status due to error: \(error)")
                 return false
