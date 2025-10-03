@@ -57,6 +57,22 @@ extension CryptoAccountModelMock {
             id
         }
     }
+
+    private struct AccountRateProviderStub: AccountRateProvider {
+        var accountRate: AccountRate {
+            return .loaded(
+                quote: AccountQuote(
+                    priceChange24h: Decimal(stringValue: "1.23")!,
+                    priceChange7d: Decimal(stringValue: "0.23")!,
+                    priceChange30d: Decimal(stringValue: "-1.23")!
+                )
+            )
+        }
+
+        var accountRatePublisher: AnyPublisher<AccountRate, Never> {
+            .just(output: accountRate)
+        }
+    }
 }
 
 // MARK: - CryptoAccountModel protocol conformance
@@ -79,30 +95,14 @@ extension CryptoAccountModelMock: CryptoAccountModel {
     }
 }
 
-// MARK: - WalletModelBalancesProvider protocol conformance
+// MARK: - BalanceProvidingAccountModel protocol conformance
 
-extension CryptoAccountModelMock: WalletModelBalancesProvider {
-    var availableBalanceProvider: TokenBalanceProvider {
+extension CryptoAccountModelMock: BalanceProvidingAccountModel {
+    var fiatTotalBalanceProvider: AccountBalanceProvider {
         NotSupportedStakingTokenBalanceProvider()
     }
 
-    var stakingBalanceProvider: TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
-    }
-
-    var totalTokenBalanceProvider: TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
-    }
-
-    var fiatAvailableBalanceProvider: TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
-    }
-
-    var fiatStakingBalanceProvider: TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
-    }
-
-    var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
+    var rateProvider: AccountRateProvider {
+        AccountRateProviderStub()
     }
 }
