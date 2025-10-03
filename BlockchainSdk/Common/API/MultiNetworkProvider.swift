@@ -32,8 +32,7 @@ extension MultiNetworkProvider {
     }
 
     var host: String {
-        let rawHost = provider?.host ?? .unknown
-        return rawHost.sanitizedHost()
+        host ?? .unknown
     }
 
     func providerPublisher<T>(for requestPublisher: @escaping (_ provider: Provider) -> AnyPublisher<T, Error>) -> AnyPublisher<T, Error> {
@@ -119,62 +118,5 @@ struct MultiNetworkProviderError: UniversalError {
 
     var errorCode: Int {
         networkError.errorCode
-    }
-}
-
-private extension String {
-    /// Sanitizes host URL by converting to lowercase and masking potential API keys in path
-    /// - Returns: Sanitized host string with masked API keys
-    func sanitizedHost() -> String {
-        let lowercased = lowercased()
-
-        guard let url = URL(string: lowercased), url.scheme != nil else {
-            return sanitize(hostname: lowercased)
-        }
-
-        return sanitize(url: url)
-    }
-
-    private func sanitize(url: URL) -> String {
-        let pathComponents = url.pathComponents.filter { $0 != "/" }
-        let sanitizedComponents = pathComponents.map { isLikelyAPIKey($0) ? "***" : $0 }
-
-        var result = (url.scheme ?? "") + "_"
-        result += (url.host ?? "").replacingOccurrences(of: ".", with: "_")
-
-        if let port = url.port {
-            result += "_" + String(port)
-        }
-
-        if !sanitizedComponents.isEmpty {
-            result += "_" + sanitizedComponents.joined(separator: "_")
-        }
-
-        return result
-    }
-
-    private func sanitize(hostname: String) -> String {
-        let sanitized = hostname.replacingOccurrences(of: ".", with: "_")
-
-        if sanitized.contains("_"), !sanitized.hasPrefix("http") {
-            return "https_" + sanitized
-        }
-
-        return sanitized
-    }
-
-    /// Checks if a string is likely an API key
-    private func isLikelyAPIKey(_ string: String) -> Bool {
-        // Check if string is long enough to be an API key (typically >= 20 chars)
-        guard string.count >= 20 else {
-            return false
-        }
-
-        // Check if it's mostly alphanumeric (API keys usually are)
-        let alphanumericSet = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_"))
-        let stringSet = CharacterSet(charactersIn: string)
-
-        // If more than 80% of characters are alphanumeric, it's likely an API key
-        return stringSet.isSubset(of: alphanumericSet)
     }
 }

@@ -23,12 +23,13 @@ struct TransactionDispatcherResultMapper {
         let explorerUrl = provider.url(transaction: result.hash)
 
         let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
+        let currentHost = HostSanitizerUtil().sanitizedHost(from: result.currentProviderHost)
 
         return TransactionDispatcherResult(
             hash: result.hash,
             url: explorerUrl,
             signerType: signerType.rawValue,
-            currentHost: result.currentProviderHost
+            currentHost: currentHost
         )
     }
 

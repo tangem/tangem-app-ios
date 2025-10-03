@@ -119,12 +119,11 @@ class XRPWalletManager: BaseManager, WalletManager {
             .withWeakCaptureOf(self)
             .flatMap { manager, rawTransactionHash -> AnyPublisher<TransactionSendResult, Error> in
                 manager.networkService.send(blob: rawTransactionHash)
-                    .withWeakCaptureOf(self)
-                    .tryMap { manager, hash in
+                    .tryMap { [weak manager] hash in
                         let mapper = PendingTransactionRecordMapper()
                         let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                        manager.wallet.addPendingTransaction(record)
-                        return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
+                        manager?.wallet.addPendingTransaction(record)
+                        return TransactionSendResult(hash: hash, currentProviderHost: manager?.currentHost ?? "")
                     }
                     .mapAndEraseSendTxError(tx: rawTransactionHash)
                     .eraseToAnyPublisher()
