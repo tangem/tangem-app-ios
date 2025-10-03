@@ -39,6 +39,10 @@ struct UserTokensManagerMock: UserTokensManager {
         []
     }
 
+    func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
+        true
+    }
+
     func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
         false
     }
