@@ -168,6 +168,7 @@
 		0F84C1222E15910500DC7FB1 /* MobileOnboardingFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F84C1212E15910500DC7FB1 /* MobileOnboardingFlow.swift */; };
 		0F84C1252E16859C00DC7FB1 /* MobileOnboardingSeedPhraseRevealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F84C1242E16859C00DC7FB1 /* MobileOnboardingSeedPhraseRevealView.swift */; };
 		0F84C1272E1685A500DC7FB1 /* MobileOnboardingSeedPhraseRevealViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F84C1262E1685A500DC7FB1 /* MobileOnboardingSeedPhraseRevealViewModel.swift */; };
+		0F92C2852E8C2A81008C3D32 /* UserWalletsActionButtonsAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F92C2842E8C2A81008C3D32 /* UserWalletsActionButtonsAvailabilityProvider.swift */; };
 		0FA453B62E1D3AFE0055B5BB /* MobileWrongAccessCodeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA453AA2E1D3AFE0055B5BB /* MobileWrongAccessCodeStore.swift */; };
 		0FA453B82E1D3AFE0055B5BB /* MobileUnlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA453B32E1D3AFE0055B5BB /* MobileUnlockView.swift */; };
 		0FA453BA2E1D3AFE0055B5BB /* MobileAccessCodeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA453A52E1D3AFE0055B5BB /* MobileAccessCodeState.swift */; };
@@ -4432,6 +4433,7 @@
 		0F84C1212E15910500DC7FB1 /* MobileOnboardingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlow.swift; sourceTree = "<group>"; };
 		0F84C1242E16859C00DC7FB1 /* MobileOnboardingSeedPhraseRevealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseRevealView.swift; sourceTree = "<group>"; };
 		0F84C1262E1685A500DC7FB1 /* MobileOnboardingSeedPhraseRevealViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseRevealViewModel.swift; sourceTree = "<group>"; };
+		0F92C2842E8C2A81008C3D32 /* UserWalletsActionButtonsAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletsActionButtonsAvailabilityProvider.swift; sourceTree = "<group>"; };
 		0FA453A52E1D3AFE0055B5BB /* MobileAccessCodeState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileAccessCodeState.swift; sourceTree = "<group>"; };
 		0FA453A72E1D3AFE0055B5BB /* CommonMobileAccessCodeStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonMobileAccessCodeStorageManager.swift; sourceTree = "<group>"; };
 		0FA453A82E1D3AFE0055B5BB /* MobileAccessCodeStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileAccessCodeStorageManager.swift; sourceTree = "<group>"; };
@@ -18421,6 +18423,7 @@
 				DC0BA5292CA2E112009D9233 /* CommonUserWalletModelFactory.swift */,
 				DA64DAC72C08BE71000CBC1E /* UserWalletNameIndexationHelper.swift */,
 				0A4953992E4A0D9B0037174D /* BalanceRestrictionFeatureAvailabilityProvider.swift */,
+				0F92C2842E8C2A81008C3D32 /* UserWalletsActionButtonsAvailabilityProvider.swift */,
 				5DFCCB7724C389740014A293 /* CommonUserWalletModel.swift */,
 				DCDBDA052A27C16C0000EBA2 /* LockedUserWalletModel.swift */,
 				DC3DCAE42A41FA6A00F72554 /* KeysRepository.swift */,
@@ -23431,6 +23434,7 @@
 				DC2891B62CDB09CA00F57F59 /* ActionButtonsSwapFlowRoutable.swift in Sources */,
 				B6ACD0142AD6A8A1005A6CA3 /* OrganizeTokensDragAndDropGesturePredicate.swift in Sources */,
 				B0FE88812CB51FDB006F01F9 /* MarketsNavigationBar.swift in Sources */,
+				0F92C2852E8C2A81008C3D32 /* UserWalletsActionButtonsAvailabilityProvider.swift in Sources */,
 				DC0A582928252FEB0031BECC /* TokenItemsRepository.swift in Sources */,
 				EFFA436B2E02E915001E0E54 /* SendReceiveTokensListTokenViewData.swift in Sources */,
 				EFAF8A842E85EEBF009C3CF9 /* SendGenericFlowBaseDependenciesFactory.swift in Sources */,
