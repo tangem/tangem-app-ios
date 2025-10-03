@@ -65,7 +65,7 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
         var zoneExtendedPublicKey: ExtendedPublicKey
         var zoneDerivationPath: DerivationPath
 
-        let storageKeyIndexSuffix = extendedPublicKey.publicKey.getSha256().hexString
+        let storageKeyIndexSuffix = "\(Constants.quaiDerivationNodeStorageKey)_\(extendedPublicKey.publicKey.getSha256().hexString)"
 
         if let cacheDerivedNodeIndex: UInt32 = dataStorage.get(key: storageKeyIndexSuffix) {
             let derivedNode: DerivationNode = .nonHardened(UInt32(cacheDerivedNodeIndex))
@@ -84,5 +84,13 @@ struct QuaiWalletManagerFactory: AnyWalletManagerFactory {
         let resultHDKey = Wallet.PublicKey.HDKey(path: zoneDerivationPath, extendedPublicKey: zoneExtendedPublicKey)
 
         return resultHDKey
+    }
+}
+
+// MARK: - Constants
+
+extension QuaiWalletManagerFactory {
+    enum Constants {
+        static let quaiDerivationNodeStorageKey = "quaiDerivationNodeStorageKey"
     }
 }

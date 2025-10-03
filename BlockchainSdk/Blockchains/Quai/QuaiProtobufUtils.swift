@@ -47,7 +47,7 @@ struct QuaiProtobufUtils {
 
         result.append(encodeVarInt(fieldNumber: Constants.field1Type, value: UInt64(0)))
 
-        let toAddress = Data(hex: signingInput.toAddress)
+        let toAddress = Data(hexString: signingInput.toAddress)
         result.append(encodeBytes(fieldNumber: Constants.field2To, value: toAddress))
 
         let nonceValue = BigUInt(signingInput.nonce)
