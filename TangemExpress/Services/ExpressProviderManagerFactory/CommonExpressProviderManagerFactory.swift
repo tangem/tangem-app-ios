@@ -11,13 +11,19 @@ import Foundation
 struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
     private let expressAPIProvider: ExpressAPIProvider
     private let mapper: ExpressManagerMapper
+    private let analyticsLogger: ExpressAnalyticsLogger
+    private let requiresTransactionSizeValidation: Bool
 
     init(
         expressAPIProvider: ExpressAPIProvider,
-        mapper: ExpressManagerMapper
+        mapper: ExpressManagerMapper,
+        analyticsLogger: ExpressAnalyticsLogger,
+        requiresTransactionSizeValidation: Bool
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.mapper = mapper
+        self.analyticsLogger = analyticsLogger
+        self.requiresTransactionSizeValidation = requiresTransactionSizeValidation
     }
 
     func makeExpressProviderManager(provider: ExpressProvider) -> ExpressProviderManager? {
@@ -26,7 +32,9 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
             return DEXExpressProviderManager(
                 provider: provider,
                 expressAPIProvider: expressAPIProvider,
-                mapper: mapper
+                mapper: mapper,
+                analyticsLogger: analyticsLogger,
+                requiresTransactionSizeValidation: requiresTransactionSizeValidation
             )
         case .cex:
             return CEXExpressProviderManager(

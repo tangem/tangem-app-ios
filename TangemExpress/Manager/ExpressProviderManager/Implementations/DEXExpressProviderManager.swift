@@ -15,6 +15,8 @@ actor DEXExpressProviderManager {
     private let provider: ExpressProvider
     private let expressAPIProvider: ExpressAPIProvider
     private let mapper: ExpressManagerMapper
+    private let analyticsLogger: ExpressAnalyticsLogger
+    private let requiresTransactionSizeValidation: Bool
 
     // MARK: - State
 
@@ -23,11 +25,15 @@ actor DEXExpressProviderManager {
     init(
         provider: ExpressProvider,
         expressAPIProvider: ExpressAPIProvider,
-        mapper: ExpressManagerMapper
+        mapper: ExpressManagerMapper,
+        analyticsLogger: ExpressAnalyticsLogger,
+        requiresTransactionSizeValidation: Bool
     ) {
         self.provider = provider
         self.expressAPIProvider = expressAPIProvider
         self.mapper = mapper
+        self.analyticsLogger = analyticsLogger
+        self.requiresTransactionSizeValidation = requiresTransactionSizeValidation
     }
 }
 
@@ -84,6 +90,9 @@ private extension DEXExpressProviderManager {
             default:
                 return .error(error, quote: .none)
             }
+        } catch let error as ExpressProviderError {
+            analyticsLogger.logSwapProvderError(error, provider: provider)
+            return .error(error, quote: .none)
         } catch {
             return .error(error, quote: .none)
         }
@@ -137,7 +146,7 @@ private extension DEXExpressProviderManager {
             return .restriction(estimateFee, quote: quote)
         }
 
-        guard let transactionData = data.txData, request.pair.source.canProcessTransaction(of: transactionData) else {
+        if ensureTransactionSizeNotSupported(for: data.txData, pairSource: request.pair.source) {
             throw ExpressProviderError.transactionSizeNotSupported
         }
 
@@ -196,6 +205,18 @@ private extension DEXExpressProviderManager {
 
     func add(value: Decimal, to fee: Fee) -> Fee {
         Fee(.init(with: fee.amount, value: fee.amount.value + value), parameters: fee.parameters)
+    }
+
+    func ensureTransactionSizeNotSupported(for transactionData: String?, pairSource: ExpressSourceWallet) -> Bool {
+        guard requiresTransactionSizeValidation else {
+            return false
+        }
+
+        if let transactionData, pairSource.canProcessTransaction(of: transactionData) {
+            return false
+        }
+
+        return true
     }
 }
 

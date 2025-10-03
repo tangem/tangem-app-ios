@@ -51,7 +51,8 @@ private extension CommonExpressDependenciesFactory {
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
             supportedProviderTypes: supportedProviderTypes,
-            operationType: operationType
+            operationType: operationType,
+            requiresTransactionSizeValidation: input.requiresTransactionSizeValidation
         )
 
         let interactor = ExpressInteractor(
@@ -65,7 +66,6 @@ private extension CommonExpressDependenciesFactory {
             expressAnalyticsLogger: analyticsLogger,
             expressAPIProvider: expressAPIProvider,
             signer: input.signer,
-            longHashesSupported: input.
         )
 
         return interactor
@@ -111,14 +111,14 @@ extension CommonExpressDependenciesFactory {
         let refcode: Refcode?
         let signer: TangemSigner
         let walletModelsManager: WalletModelsManager
-        let longHashesSupported: Bool
+        let requiresTransactionSizeValidation: Bool
 
         init(userWalletModel: UserWalletModel) {
             userWalletId = userWalletModel.userWalletId
             refcode = userWalletModel.refcodeProvider?.getRefcode()
             signer = userWalletModel.signer
             walletModelsManager = userWalletModel.walletModelsManager
-            longHashesSupported = userWalletModel.config.hasFeature(.longHashes)
+            requiresTransactionSizeValidation = !userWalletModel.config.hasFeature(.userWalletUpgrade)
         }
     }
 }

@@ -178,7 +178,8 @@ private extension ExpressModulesFactoryMock {
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
             supportedProviderTypes: .swap,
-            operationType: .swap
+            operationType: .swap,
+            requiresTransactionSizeValidation: true
         )
 
         let interactor = ExpressInteractor(

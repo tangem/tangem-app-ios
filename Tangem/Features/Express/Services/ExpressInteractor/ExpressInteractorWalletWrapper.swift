@@ -102,10 +102,10 @@ extension ExpressInteractorWalletWrapper: ExpressSourceWallet {
 
     func canProcessTransaction(of transactionData: String) -> Bool {
         if case .solana = walletModel.tokenItem.blockchain, let data = try? Data(transactionData.base64Decoded()) {
-            switch SolanaWalletConnectTransactionRely.rely(transaction: data) {
+            switch SolanaTransactionSizeUtils.size(transaction: data) {
             case .default:
                 return true
-            case .alt:
+            case .long:
                 return false
             }
         }

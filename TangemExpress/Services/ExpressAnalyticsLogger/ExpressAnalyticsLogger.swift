@@ -15,6 +15,8 @@ public protocol ExpressAnalyticsLogger {
 
     func logExpressError(_ error: ExpressAPIError, provider: ExpressProvider?)
 
+    func logSwapProvderError(_ error: ExpressProviderError, provider: ExpressProvider?)
+
     func logSwapTransactionAnalyticsEvent(destination: String?)
     func logApproveTransactionAnalyticsEvent(policy: ApprovePolicy, destination: String?)
     func logApproveTransactionSentAnalyticsEvent(policy: ApprovePolicy, signerType: String)

@@ -215,7 +215,8 @@ private extension CommonExpressModulesFactory {
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
             supportedProviderTypes: .swap,
-            operationType: .swap
+            operationType: .swap,
+            requiresTransactionSizeValidation: userWalletModel.config.hasFeature(.isHardwareLimited)
         )
 
         let interactor = ExpressInteractor(
