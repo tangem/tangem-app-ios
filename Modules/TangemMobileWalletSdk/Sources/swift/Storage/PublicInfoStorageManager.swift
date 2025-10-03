@@ -36,6 +36,9 @@ final class PublicInfoStorageManager {
     }
 
     func deletePublicData(walletID: UserWalletId) throws {
-        try encryptedSecureStorage.deleteData(keyTag: walletID.publicInfoTag)
+        try encryptedSecureStorage.deleteData(
+            keyTag: walletID.publicInfoTag,
+            secureEnclaveKeyTag: walletID.publicInfoSecureEnclaveTag
+        )
     }
 }

@@ -137,6 +137,8 @@ extension ExpressDTO {
                 let status: ExpressTransactionStatus
                 let refundNetwork: String?
                 let refundContractAddress: String?
+                let externalTxId: String?
+                let externalTxUrl: String?
                 let averageDuration: TimeInterval?
                 let createdAt: Date?
             }

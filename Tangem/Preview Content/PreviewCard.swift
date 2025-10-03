@@ -39,7 +39,7 @@ enum PreviewCard {
                     kaspaSecondaryApiUrl: nil,
                     tronGridApiKey: "",
                     hederaArkhiaApiKey: "",
-                    polygonScanApiKey: "",
+                    etherscanApiKey: "",
                     koinosProApiKey: "",
                     tonCenterApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
                     fireAcademyApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),

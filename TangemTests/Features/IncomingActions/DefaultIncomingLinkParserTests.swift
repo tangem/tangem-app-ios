@@ -108,6 +108,8 @@ struct DefaultIncomingLinkParserTests {
             urlString = "tangem://\(rawValue)?type=income_transaction&token_id=dummy&network_id=dummy"
         case .tokenChart:
             urlString = "tangem://\(rawValue)?type=income_transaction&token_id=dummy"
+        case .onboardVisa:
+            urlString = "tangem://\(rawValue)?entry=some-entry&id=some-id"
         default:
             urlString = "tangem://\(rawValue)?type=income_transaction"
         }

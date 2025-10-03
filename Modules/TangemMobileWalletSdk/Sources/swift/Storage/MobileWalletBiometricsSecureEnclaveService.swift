@@ -13,6 +13,11 @@ import LocalAuthentication
 protocol MobileWalletBiometricsSecureEnclaveService {
     func encryptData(_ data: Data, keyTag: String, context: LAContext?) throws -> Data
     func decryptData(_ data: Data, keyTag: String, context: LAContext) throws -> Data
+    func delete(tag: String)
 }
 
-extension BiometricsSecureEnclaveService: MobileWalletBiometricsSecureEnclaveService {}
+extension BiometricsSecureEnclaveService: MobileWalletBiometricsSecureEnclaveService {
+    func delete(tag: String) {
+        SecureEnclaveHelper.delete(tag: tag)
+    }
+}

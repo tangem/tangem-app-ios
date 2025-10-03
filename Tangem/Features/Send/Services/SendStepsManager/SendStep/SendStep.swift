@@ -26,7 +26,7 @@ protocol SendStep {
 }
 
 extension SendStep {
-    var shouldShowBottomOverlay: Bool { true }
+    var shouldShowBottomOverlay: Bool { false }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
 

@@ -17,7 +17,6 @@ import TangemFoundation
 import TangemMobileWalletSdk
 
 class CommonUserWalletRepository: UserWalletRepository {
-    @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     var shouldLockOnBackground: Bool {
@@ -25,9 +24,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             return false
         }
 
-        let hasProtected = models
-            .map { UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: $0) }
-            .contains(where: { !$0.canUnlockAutomatically })
+        let hasProtected = models.contains(where: { !$0.isUnprotectedMobileWallet })
 
         return hasProtected
     }
@@ -81,21 +78,18 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func unlock(with method: UserWalletRepositoryUnlockMethod) async throws -> UserWalletModel {
-        switch method {
+        defer {
+            setStartWalletUsageDateIfNeeded()
+            _locked = false
+        }
+
+        return switch method {
         case .biometrics(let context):
-            let model = try handleUnlock(context: context)
-            signInAndLog(method: method)
-            return model
-
+            try handleUnlock(context: context)
         case .biometricsUserWallet(let userWalletId, let context):
-            let model = try await handleUnlock(userWalletId: userWalletId, context: context)
-            signInAndLog(method: method)
-            return model
-
+            try await handleUnlock(userWalletId: userWalletId, context: context)
         case .encryptionKey(let userWalletId, let encryptionKey):
-            let model = try await handleUnlock(userWalletId: userWalletId, encryptionKey: encryptionKey)
-            signInAndLog(method: method)
-            return model
+            try await handleUnlock(userWalletId: userWalletId, encryptionKey: encryptionKey)
         }
     }
 
@@ -204,7 +198,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         selectedUserWalletId = model.userWalletId
         AppSettings.shared.selectedUserWalletId = model.userWalletId.value
-        initializeServicesForSelectedModel()
         sendEvent(.selected(userWalletId: model.userWalletId))
     }
 
@@ -217,12 +210,11 @@ class CommonUserWalletRepository: UserWalletRepository {
         let nextSelectionIndex = currentIndex > 0 ? (currentIndex - 1) : 0
 
         encryptionKeyStorage.clear(userWalletIds: [userWalletId])
-        globalServicesContext.cleanServicesForWallet(userWalletId: userWalletId)
 
         let associatedCardIds = models[currentIndex].associatedCardIds
         try? accessCodeRepository.deleteAccessCode(for: Array(associatedCardIds))
         associatedCardIds.forEach {
-            try? visaRefreshTokenRepository.deleteToken(cardId: $0)
+            try? visaRefreshTokenRepository.deleteToken(visaRefreshTokenId: .cardId($0))
         }
 
         models.removeAll { $0.userWalletId == userWalletId }
@@ -250,31 +242,14 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    private func signInAndLog(method: UserWalletRepositoryUnlockMethod) {
-        guard _locked else {
+    private func setStartWalletUsageDateIfNeeded() {
+        guard selectedModel != nil else {
             return
         }
-
-        _locked = false
-
-        guard let selectedModel else {
-            return
-        }
-
-        let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: selectedModel.hasBackupCards)
 
         if AppSettings.shared.startWalletUsageDate == nil {
             AppSettings.shared.startWalletUsageDate = Date()
         }
-
-        AmplitudeWrapper.shared.setUserId(userId: selectedModel.userWalletId)
-
-        Analytics.log(event: .signedIn, params: [
-            .signInType: method.analyticsValue.rawValue,
-            .walletsCount: "\(models.count)",
-            .walletHasBackup: walletHasBackup.rawValue,
-            .walletType: Analytics.ParameterValue.seedState(for: selectedModel.hasImportedWallets).rawValue,
-        ])
     }
 
     private func _handleUnlock(context: LAContext) throws -> Int {
@@ -285,6 +260,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         if sensitiveInfos.isEmpty {
             // clean to prevent double tap
             AccessCodeRepository().clear()
+            Analytics.log(.signInErrorBiometricUpdated)
             throw UserWalletRepositoryError.biometricsChanged
         }
 
@@ -327,6 +303,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         guard !targetUnlockedModel.isUserWalletLocked else {
+            Analytics.log(.signInErrorBiometricUpdated)
             throw UserWalletRepositoryError.biometricsChanged
         }
 
@@ -363,7 +340,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         models[userWalletId] = unlockedModel
-        globalServicesContext.initializeServices(userWalletModel: unlockedModel)
         await unlockUnprotectedMobileWalletsIfNeeded()
         sendEvent(.unlocked(userWalletId: userWalletId))
         return unlockedModel
@@ -401,7 +377,11 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func lockInternal() {
-        let lockedModels = models.compactMap { model -> LockedUserWalletModel? in
+        let processedModels = models.compactMap { model -> UserWalletModel? in
+            if model.isUnprotectedMobileWallet {
+                return model
+            }
+
             guard let serialized = model.serializePublic() else {
                 return nil
             }
@@ -409,19 +389,9 @@ class CommonUserWalletRepository: UserWalletRepository {
             return LockedUserWalletModel(with: serialized)
         }
 
-        models = lockedModels
-        globalServicesContext.resetServices()
-        globalServicesContext.stopAnalyticsSession()
+        models = processedModels
         _locked = true
         sendEvent(.locked)
-    }
-
-    private func initializeServicesForSelectedModel() {
-        globalServicesContext.resetServices()
-
-        guard let selectedModel else { return }
-
-        globalServicesContext.initializeServices(userWalletModel: selectedModel)
     }
 
     private func sendEvent(_ event: UserWalletRepositoryEvent) {
@@ -440,5 +410,10 @@ private extension UserWalletModel {
 
     var associatedCardIds: Set<String> {
         (self as? AssociatedCardIdsProvider)?.associatedCardIds ?? []
+    }
+
+    var isUnprotectedMobileWallet: Bool {
+        let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: self)
+        return unlocker.canUnlockAutomatically
     }
 }

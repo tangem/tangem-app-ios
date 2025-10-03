@@ -43,6 +43,7 @@ extension Analytics {
 
         case card = "Card"
         case ring = "Ring"
+        case sepa = "Sepa"
         case mobileWallet = "MobileWallet"
         case visa = "Visa"
 
@@ -101,6 +102,7 @@ extension Analytics {
 
         case success = "Success"
         case fail = "Fail"
+        case failed = "Failed"
 
         /// SelectedCurrency
         case selectedCurrencyApp = "App Currency"
@@ -250,6 +252,15 @@ extension Analytics {
 
         case nft = "NFT"
 
+        // MARK: - Mobile Wallet
+
+        case `import` = "Import"
+        case create = "Create Wallet"
+        case importWallet = "Import Wallet"
+
+        case set = "Set"
+        case changing = "Changing"
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
@@ -266,6 +277,10 @@ extension Analytics {
 
         static func seedState(for boolean: Bool) -> ParameterValue {
             return boolean ? .seedphrase : .seedless
+        }
+
+        static func successOrFailed(for boolean: Bool) -> ParameterValue {
+            return boolean ? .success : .failed
         }
     }
 }

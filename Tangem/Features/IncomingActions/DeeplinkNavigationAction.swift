@@ -13,6 +13,7 @@ public struct DeeplinkNavigationAction: Equatable {
 
     let destination: IncomingActionConstants.DeeplinkDestination
     let params: Params
+    let deeplinkString: String
 }
 
 // MARK: - Types
@@ -28,6 +29,8 @@ extension DeeplinkNavigationAction {
         var transactionId: String?
         var promoCode: String?
         var url: URL?
+        var entry: String?
+        var id: String?
 
         static let empty = Params()
 

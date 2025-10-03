@@ -12,6 +12,7 @@ struct SendFinishStepBuilder {
     typealias ReturnValue = SendFinishStep
 
     let walletModel: any WalletModel
+    let coordinator: any SendRoutable
 
     func makeSendFinishStep(
         input: SendFinishInput,
@@ -55,13 +56,15 @@ private extension SendFinishStepBuilder {
     ) -> SendFinishViewModel {
         SendFinishViewModel(
             input: input,
+            tokenItem: walletModel.tokenItem,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             onrampAmountCompactViewModel: onrampAmountCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
-            onrampStatusCompactViewModel: onrampStatusCompactViewModel
+            onrampStatusCompactViewModel: onrampStatusCompactViewModel,
+            coordinator: coordinator
         )
     }
 }
