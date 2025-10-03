@@ -10,17 +10,4 @@ import Foundation
 
 // MARK: - Rate
 
-enum WalletModelRate: Hashable {
-    case custom
-    case loading(cached: TokenQuote?)
-    case failure(cached: TokenQuote?)
-    case loaded(TokenQuote)
-
-    var quote: TokenQuote? {
-        switch self {
-        case .custom: nil
-        case .loading(let cached), .failure(let cached): cached
-        case .loaded(let quote): quote
-        }
-    }
-}
+typealias WalletModelRate = RateValue<TokenQuote>
