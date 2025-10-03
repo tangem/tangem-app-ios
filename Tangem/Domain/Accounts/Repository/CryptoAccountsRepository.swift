@@ -17,5 +17,5 @@ protocol CryptoAccountsRepository {
 
     func initialize(forUserWalletWithId userWalletId: UserWalletId)
     func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [TokenItem])
-    func removeCryptoAccount(withIdentifier identifier: AnyHashable)
+    func removeCryptoAccount<T: Hashable>(withIdentifier identifier: T)
 }
