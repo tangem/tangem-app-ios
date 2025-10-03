@@ -102,6 +102,14 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             return self
         }
     }
+
+    @discardableResult
+    func goBackToMain() -> MainScreen {
+        XCTContext.runActivity(named: "Go back to main screen") { _ in
+            app.navigationBars.buttons["Back"].waitAndTap()
+            return MainScreen(app)
+        }
+    }
 }
 
 enum TokenScreenElement: String, UIElement {
