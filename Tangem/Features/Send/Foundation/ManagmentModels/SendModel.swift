@@ -821,6 +821,8 @@ extension SendModel: NotificationTapDelegate {
              .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
+             .allowPushPermissionRequest,
+             .postponePushPermissionRequest:
              .activate,
              .tangemPayViewKYCStatus:
             assertionFailure("Notification tap not handled")

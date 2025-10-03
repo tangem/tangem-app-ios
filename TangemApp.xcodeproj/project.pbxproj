@@ -545,6 +545,7 @@
 		2DE0BA992CA93100002C09D9 /* BlockHeaderTitleButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BA982CA93100002C09D9 /* BlockHeaderTitleButtonView.swift */; };
 		2DE0BB602CAD41E3002C09D9 /* BlockHeaderTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BB5F2CAD41E3002C09D9 /* BlockHeaderTitleView.swift */; };
 		2DE0BBB42CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BBB32CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift */; };
+		2DE66F0E2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE66F0D2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift */; };
 		2DF1D92A2C2C519C00B1CEE7 /* MarketsChartModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF1D9292C2C519C00B1CEE7 /* MarketsChartModel.swift */; };
 		2DFC278D2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278C2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift */; };
 		2DFC27922C78E833009B247E /* TokenItemInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278E2C78E833009B247E /* TokenItemInfoProvider.swift */; };
@@ -3697,7 +3698,7 @@
 		EF8E53092E71A36200C03184 /* NewOnrampStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E53042E71A36200C03184 /* NewOnrampStep.swift */; };
 		EF8E530B2E71A36200C03184 /* NewOnrampViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E53022E71A36200C03184 /* NewOnrampViewModel.swift */; };
 		EF8E53102E71A5AF00C03184 /* CommonNewOnrampStepsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E530F2E71A5AF00C03184 /* CommonNewOnrampStepsManager.swift */; };
-		EF8E53122E71A60400C03184 /* NewOnrampStepBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E53112E71A60400C03184 /* NewOnrampStepBuilder.swift */; };
+		EF8E53122E71A60400C03184 /* NewOnrampStepBuildable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E53112E71A60400C03184 /* NewOnrampStepBuildable.swift */; };
 		EF8E53182E71AD3A00C03184 /* NewOnrampAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E53132E71AD3A00C03184 /* NewOnrampAmountView.swift */; };
 		EF8E53192E71AD3A00C03184 /* NewOnrampAmountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E53142E71AD3A00C03184 /* NewOnrampAmountViewModel.swift */; };
 		EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */; };
@@ -4814,6 +4815,7 @@
 		2DE0BA982CA93100002C09D9 /* BlockHeaderTitleButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockHeaderTitleButtonView.swift; sourceTree = "<group>"; };
 		2DE0BB5F2CAD41E3002C09D9 /* BlockHeaderTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockHeaderTitleView.swift; sourceTree = "<group>"; };
 		2DE0BBB32CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenDescriptionBottomSheetView.swift; sourceTree = "<group>"; };
+		2DE66F0D2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushPermissionNotificationManager.swift; sourceTree = "<group>"; };
 		2DF1D9292C2C519C00B1CEE7 /* MarketsChartModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsChartModel.swift; sourceTree = "<group>"; };
 		2DFC278C2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenContextActionsSectionBuilder.swift; sourceTree = "<group>"; };
 		2DFC278E2C78E833009B247E /* TokenItemInfoProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemInfoProvider.swift; sourceTree = "<group>"; };
@@ -7946,7 +7948,7 @@
 		EF8E53022E71A36200C03184 /* NewOnrampViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewOnrampViewModel.swift; sourceTree = "<group>"; };
 		EF8E53042E71A36200C03184 /* NewOnrampStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewOnrampStep.swift; sourceTree = "<group>"; };
 		EF8E530F2E71A5AF00C03184 /* CommonNewOnrampStepsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNewOnrampStepsManager.swift; sourceTree = "<group>"; };
-		EF8E53112E71A60400C03184 /* NewOnrampStepBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewOnrampStepBuilder.swift; sourceTree = "<group>"; };
+		EF8E53112E71A60400C03184 /* NewOnrampStepBuildable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewOnrampStepBuildable.swift; sourceTree = "<group>"; };
 		EF8E53132E71AD3A00C03184 /* NewOnrampAmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewOnrampAmountView.swift; sourceTree = "<group>"; };
 		EF8E53142E71AD3A00C03184 /* NewOnrampAmountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewOnrampAmountViewModel.swift; sourceTree = "<group>"; };
 		EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApproveRoutableMock.swift; sourceTree = "<group>"; };
@@ -10863,6 +10865,7 @@
 				B04090C32AF3969600DF8DD5 /* NotificationsAnalyticsService.swift */,
 				B0DCC81A2A8A1B4900D85E53 /* NotificationsFactory.swift */,
 				2D93C4DE2D661459002BCCE2 /* SupportSeedNotificationManager.swift */,
+				2DE66F0D2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift */,
 			);
 			path = Notifications;
 			sourceTree = "<group>";
@@ -21136,7 +21139,7 @@
 			isa = PBXGroup;
 			children = (
 				EF8E53042E71A36200C03184 /* NewOnrampStep.swift */,
-				EF8E53112E71A60400C03184 /* NewOnrampStepBuilder.swift */,
+				EF8E53112E71A60400C03184 /* NewOnrampStepBuildable.swift */,
 				EF8E53032E71A36200C03184 /* OnrampView */,
 				EF46D3DA2E74379D00F546C3 /* Interactor */,
 			);
@@ -24661,6 +24664,7 @@
 				EF7B9CF7286C702E004C33A9 /* CardSettingsCoordinatorView.swift in Sources */,
 				0FB93DE72E59A46900DAB673 /* MobileUpgradeCoordinator.swift in Sources */,
 				DC261CA8292CF56600875E64 /* AuthCoordinator.swift in Sources */,
+				2DE66F0E2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift in Sources */,
 				EFC84B262C37FBB300546882 /* SendStep.swift in Sources */,
 				DC66BBE92859A8CC00CDF765 /* MailViewModel.swift in Sources */,
 				DA67AF372CEDC426008B05D3 /* SentOnrampTransactionData.swift in Sources */,
@@ -25476,7 +25480,7 @@
 				EFB2162E2CF4A9FD002BED0F /* OnrampPaymentMethodIconView.swift in Sources */,
 				B67688F12B078F71006C94F7 /* MainBottomSheetOverlayView.swift in Sources */,
 				B0D1AC322906719300584E6C /* Analytics+Event.swift in Sources */,
-				EF8E53122E71A60400C03184 /* NewOnrampStepBuilder.swift in Sources */,
+				EF8E53122E71A60400C03184 /* NewOnrampStepBuildable.swift in Sources */,
 				DC04693A2B8E6BE400C785D1 /* SellActionURLHelper.swift in Sources */,
 				B018770F2CEC90BC00794300 /* VisaOnboardingAccessCodeSetupViewModel.swift in Sources */,
 				EFF763E12C4E38B600E846F4 /* SendStepViewAnimatable.swift in Sources */,
