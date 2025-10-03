@@ -440,28 +440,17 @@ extension OnrampModel: OnrampProvidersOutput {
     }
 }
 
-// MARK: - OnrampProvidersOutput
+// MARK: - RecentOnrampTransactionParametersFinder
 
-extension OnrampModel: RecentOnrampProviderFinder {
-    var recentOnrampProvider: OnrampProvider? {
-        guard let providers = _onrampProviders.value?.value else {
+extension OnrampModel: RecentOnrampTransactionParametersFinder {
+    var recentOnrampTransaction: RecentOnrampTransactionParameters? {
+        guard let recentTransaction = onrampPendingTransactionsRepository.recentTransaction,
+              recentTransaction.transactionStatus.isTerminated(branch: .onramp),
+              let paymentMethodId = recentTransaction.paymentMethod?.id else {
             return nil
         }
 
-        guard let recentTransaction = onrampPendingTransactionsRepository.recentTransaction else {
-            return nil
-        }
-
-        let relatedToWallet = recentTransaction.destinationTokenTxInfo.tokenItem == tokenItem
-        guard relatedToWallet else {
-            return nil
-        }
-
-        let recent = providers.flatMap { $0.providers }.first(where: { provider in
-            provider.provider.id == recentTransaction.provider.id
-        })
-
-        return recent
+        return .init(providerId: recentTransaction.provider.id, paymentMethodId: paymentMethodId)
     }
 }
 
@@ -507,6 +496,7 @@ extension OnrampModel: OnrampRedirectingOutput {
         let txData = SentOnrampTransactionData(
             txId: data.txId,
             provider: provider.provider,
+            paymentMethod: provider.paymentMethod,
             destinationTokenItem: tokenItem,
             destinationAddress: defaultAddressString,
             date: Date(),
