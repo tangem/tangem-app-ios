@@ -27,8 +27,8 @@ protocol AccountModelsManager {
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo]
 
     func archiveCryptoAccount(
-        withIdentifier identifier: some AccountModelPersistentIdentifierConvertible
-    ) async throws(AccountModelsManagerError)
+        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
+    ) throws(AccountModelsManagerError)
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError)
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError)
 }
