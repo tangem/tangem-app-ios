@@ -11,6 +11,7 @@ import SwiftUI
 import TangemSdk
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 
@@ -170,6 +171,7 @@ private extension NewAppSettingsViewModel {
         currencySelectionViewModel = DefaultRowViewModel(
             title: Localization.detailsRowTitleCurrency,
             detailsType: .text(selectedCurrencyCode),
+            accessibilityIdentifier: AppSettingsAccessibilityIdentifiers.currencyButton,
             action: coordinator?.openCurrencySelection
         )
 
