@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemNFT
 
 protocol CryptoAccountModel: BaseAccountModel, WalletModelBalancesProvider, AnyObject {
     var isMainAccount: Bool { get }
@@ -17,6 +18,8 @@ protocol CryptoAccountModel: BaseAccountModel, WalletModelBalancesProvider, AnyO
     var walletModelsManager: WalletModelsManager { get }
 
     var userTokensManager: UserTokensManager { get }
+
+    var nftManager: NFTManager { get }
 
     // [REDACTED_TODO_COMMENT]
     @available(iOS, deprecated: 100000.0, message: "Probably will be removed from the public interface, rewritten from scratch and used only internally")

@@ -251,7 +251,9 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
+                nftManagersFacade: AccountsAwareNFTManagersFacadeMock(
+                    nftManager: NFTManagerMock(state: .loaded(.init(value: [])))
+                ),
                 navigationContext: NFTNavigationContextMock(),
                 analytics: .empty,
                 coordinator: nil
@@ -266,25 +268,27 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(
-                    state: .loaded(
-                        .init(
-                            value: [
-                                .init(
-                                    collectionIdentifier: "",
-                                    chain: .solana,
-                                    contractType: .erc1155,
-                                    ownerAddress: "",
-                                    name: "",
-                                    description: "",
-                                    media: .init(
-                                        kind: .image,
-                                        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                nftManagersFacade: AccountsAwareNFTManagersFacadeMock(
+                    nftManager: NFTManagerMock(
+                        state: .loaded(
+                            .init(
+                                value: [
+                                    .init(
+                                        collectionIdentifier: "",
+                                        chain: .solana,
+                                        contractType: .erc1155,
+                                        ownerAddress: "",
+                                        name: "",
+                                        description: "",
+                                        media: .init(
+                                            kind: .image,
+                                            url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                        ),
+                                        assetsCount: 2,
+                                        assetsResult: []
                                     ),
-                                    assetsCount: 2,
-                                    assetsResult: []
-                                ),
-                            ]
+                                ]
+                            )
                         )
                     )
                 ),
@@ -302,25 +306,27 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(
-                    state: .loaded(
-                        .init(
-                            value: (0 ... 1).map {
-                                .init(
-                                    collectionIdentifier: "\($0)",
-                                    chain: .solana,
-                                    contractType: .erc1155,
-                                    ownerAddress: "",
-                                    name: "",
-                                    description: "",
-                                    media: .init(
-                                        kind: .image,
-                                        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
-                                    ),
-                                    assetsCount: 2,
-                                    assetsResult: []
-                                )
-                            }
+                nftManagersFacade: AccountsAwareNFTManagersFacadeMock(
+                    nftManager: NFTManagerMock(
+                        state: .loaded(
+                            .init(
+                                value: (0 ... 1).map {
+                                    .init(
+                                        collectionIdentifier: "\($0)",
+                                        chain: .solana,
+                                        contractType: .erc1155,
+                                        ownerAddress: "",
+                                        name: "",
+                                        description: "",
+                                        media: .init(
+                                            kind: .image,
+                                            url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                        ),
+                                        assetsCount: 2,
+                                        assetsResult: []
+                                    )
+                                }
+                            )
                         )
                     )
                 ),
@@ -338,25 +344,27 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(
-                    state: .loaded(
-                        .init(
-                            value: (0 ... 3).map {
-                                .init(
-                                    collectionIdentifier: "\($0)",
-                                    chain: .solana,
-                                    contractType: .erc1155,
-                                    ownerAddress: "",
-                                    name: "",
-                                    description: "",
-                                    media: .init(
-                                        kind: .image,
-                                        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
-                                    ),
-                                    assetsCount: 2,
-                                    assetsResult: []
-                                )
-                            }
+                nftManagersFacade: AccountsAwareNFTManagersFacadeMock(
+                    nftManager: NFTManagerMock(
+                        state: .loaded(
+                            .init(
+                                value: (0 ... 3).map {
+                                    .init(
+                                        collectionIdentifier: "\($0)",
+                                        chain: .solana,
+                                        contractType: .erc1155,
+                                        ownerAddress: "",
+                                        name: "",
+                                        description: "",
+                                        media: .init(
+                                            kind: .image,
+                                            url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                        ),
+                                        assetsCount: 2,
+                                        assetsResult: []
+                                    )
+                                }
+                            )
                         )
                     )
                 ),
@@ -374,25 +382,27 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(
-                    state: .loaded(
-                        .init(
-                            value: (0 ... 3).map {
-                                .init(
-                                    collectionIdentifier: "\($0)",
-                                    chain: .solana,
-                                    contractType: .erc1155,
-                                    ownerAddress: "",
-                                    name: "",
-                                    description: "",
-                                    media: .init(
-                                        kind: .image,
-                                        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
-                                    ),
-                                    assetsCount: 2,
-                                    assetsResult: []
-                                )
-                            }
+                nftManagersFacade: AccountsAwareNFTManagersFacadeMock(
+                    nftManager: NFTManagerMock(
+                        state: .loaded(
+                            .init(
+                                value: (0 ... 3).map {
+                                    .init(
+                                        collectionIdentifier: "\($0)",
+                                        chain: .solana,
+                                        contractType: .erc1155,
+                                        ownerAddress: "",
+                                        name: "",
+                                        description: "",
+                                        media: .init(
+                                            kind: .image,
+                                            url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                        ),
+                                        assetsCount: 2,
+                                        assetsResult: []
+                                    )
+                                }
+                            )
                         )
                     )
                 ),
@@ -410,25 +420,27 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(
-                    state: .loaded(
-                        .init(
-                            value: (0 ... 5).map {
-                                .init(
-                                    collectionIdentifier: "\($0)",
-                                    chain: .solana,
-                                    contractType: .erc1155,
-                                    ownerAddress: "",
-                                    name: "",
-                                    description: "",
-                                    media: .init(
-                                        kind: .image,
-                                        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
-                                    ),
-                                    assetsCount: 2,
-                                    assetsResult: []
-                                )
-                            }
+                nftManagersFacade: AccountsAwareNFTManagersFacadeMock(
+                    nftManager: NFTManagerMock(
+                        state: .loaded(
+                            .init(
+                                value: (0 ... 5).map {
+                                    .init(
+                                        collectionIdentifier: "\($0)",
+                                        chain: .solana,
+                                        contractType: .erc1155,
+                                        ownerAddress: "",
+                                        name: "",
+                                        description: "",
+                                        media: .init(
+                                            kind: .image,
+                                            url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                        ),
+                                        assetsCount: 2,
+                                        assetsResult: []
+                                    )
+                                }
+                            )
                         )
                     )
                 ),

@@ -230,11 +230,20 @@ private struct CommonUserWalletModelDependencies {
                 areLongHashesSupported: areLongHashesSupported
             )
 
+            let nftManagerFactory = CommonAccountNFTManagerFactory(
+                analytics: NFTAnalytics.Error(
+                    logError: { errorCode, description in
+                        Analytics.log(event: .nftErrors, params: [.errorCode: errorCode, .errorDescription: description])
+                    }
+                )
+            )
+
             return CommonAccountModelsManager(
                 userWalletId: userWalletId,
                 cryptoAccountsRepository: cryptoAccountsRepository,
                 walletModelsManagerFactory: walletModelsManagerFactory,
                 userTokensManagerFactory: userTokensManagerFactory,
+                nftManagerFactory: nftManagerFactory,
                 areHDWalletsSupported: areHDWalletsSupported
             )
         }

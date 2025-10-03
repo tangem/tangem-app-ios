@@ -16,10 +16,10 @@ public final class NFTEntrypointViewModel: ObservableObject {
     @Published private(set) var state: CollectionsViewState
 
     private var collections: [NFTCollection] {
-        nftManager.collections
+        nftManagersFacade.collections
     }
 
-    private let nftManager: NFTManager
+    private let nftManagersFacade: AccountsAwareNFTManagersFacade
     private let navigationContext: NFTNavigationContext
     private let analytics: NFTAnalytics.Entrypoint
     private var bag: Set<AnyCancellable> = []
@@ -28,12 +28,12 @@ public final class NFTEntrypointViewModel: ObservableObject {
     private weak var coordinator: NFTEntrypointRoutable?
 
     public init(
-        nftManager: NFTManager,
+        nftManagersFacade: AccountsAwareNFTManagersFacade,
         navigationContext: NFTNavigationContext,
         analytics: NFTAnalytics.Entrypoint,
         coordinator: NFTEntrypointRoutable?
     ) {
-        self.nftManager = nftManager
+        self.nftManagersFacade = nftManagersFacade
         self.navigationContext = navigationContext
         self.coordinator = coordinator
         self.analytics = analytics
@@ -65,12 +65,15 @@ public final class NFTEntrypointViewModel: ObservableObject {
     }
 
     func openCollections() {
-        coordinator?.openCollections(nftManager: nftManager, navigationContext: navigationContext)
+        // [REDACTED_TODO_COMMENT]
+        coordinator?.openCollections(nftManager: nftManagersFacade.primaryNFTManager, navigationContext: navigationContext)
+
         let assetsWithoutCollectionCount = collections.reduce(into: 0) { sum, collection in
             if collection.id.collectionIdentifier == NFTDummyCollectionMapper.dummyCollectionIdentifier {
                 sum += collection.assetsCount
             }
         }
+
         analytics.logCollectionsOpen(
             collections.isEmpty ? "Empty" : "Full",
             collections.count,
@@ -80,7 +83,7 @@ public final class NFTEntrypointViewModel: ObservableObject {
     }
 
     private func bind() {
-        nftManager
+        nftManagersFacade
             .collectionsPublisher
             .withWeakCaptureOf(self)
             .map { viewModel, collections in
@@ -88,11 +91,10 @@ public final class NFTEntrypointViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: \.state, on: self, ownership: .weak)
-            .store(in: &bag)
     }
 
     private func updateInternal() {
-        nftManager.update(cachePolicy: .always)
+        nftManagersFacade.updateInternal()
     }
 
     private func makeCollectionsViewState(from collections: [NFTCollection]) -> CollectionsViewState {

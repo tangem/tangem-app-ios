@@ -649,7 +649,6 @@ extension MainCoordinator: NFTEntrypointRoutable {
             }
         )
 
-        nftCollectionsCoordinator = coordinator
         coordinator.start(
             with: .init(
                 nftManager: nftManager,
@@ -664,6 +663,8 @@ extension MainCoordinator: NFTEntrypointRoutable {
                 )
             )
         )
+
+        nftCollectionsCoordinator = coordinator
     }
 }
 

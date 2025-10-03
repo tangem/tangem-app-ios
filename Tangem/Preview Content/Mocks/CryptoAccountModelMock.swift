@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemLocalization
+import TangemNFT
 
 final class CryptoAccountModelMock {
     let id = AccountId()
@@ -16,6 +17,7 @@ final class CryptoAccountModelMock {
     let walletModelsManager: WalletModelsManager = WalletModelsManagerMock()
     let userTokensManager: UserTokensManager = UserTokensManagerMock()
     let userTokenListManager: UserTokenListManager = UserTokenListManagerMock()
+    let nftManager: NFTManager = NFTManagerMock(state: .loading)
 
     private(set) var name = "Mock Account" {
         didSet {
