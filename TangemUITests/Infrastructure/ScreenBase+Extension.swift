@@ -97,6 +97,10 @@ extension ScreenBase {
         app.scrollViews[element.accessibilityIdentifier].firstMatch
     }
 
+    func searchField(_ element: T) -> XCUIElement {
+        app.searchFields[element.accessibilityIdentifier].firstMatch
+    }
+
     func gentleSwipeUp() {
 //        log.debug("Gently swiping up...")
         let startCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))

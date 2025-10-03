@@ -60,7 +60,8 @@ struct TokenItemView: View {
                         LoadableTokenBalanceView(
                             state: viewModel.balanceFiat,
                             style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
-                            loader: .init(size: .init(width: 40, height: 12))
+                            loader: .init(size: .init(width: 40, height: 12)),
+                            accessibilityIdentifier: MainAccessibilityIdentifiers.tokenBalance(for: viewModel.name)
                         )
                         .layoutPriority(3)
                     }
