@@ -232,6 +232,10 @@ extension CommonMobileAccessCodeManager: MobileAccessCodeManager {
         }
     }
 
+    func cleanWrongAccessCodes() {
+        cleanWrongAccessCodeStore()
+    }
+
     private func makeInvalidCommand(availableState: MobileAccessCodeState.AvailableState) -> StateCommand {
         switch availableState {
         case .normal:
