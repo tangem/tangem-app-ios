@@ -191,6 +191,28 @@ extension CommonUserTokensManager: UserTokensManager {
         return []
     }
 
+    func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
+        guard let derivationManager, let keysDerivingProvider else {
+            return false
+        }
+
+        // Filter only blockchains because we don't care about removing tokens from network.
+        let networksToRemove = itemsToRemove
+            .filter { $0.isBlockchain }
+            .map { withBlockchainNetwork($0) }
+            .map(\.blockchainNetwork)
+
+        let networksToAdd = itemsToAdd
+            .map { withBlockchainNetwork($0) }
+            .map(\.blockchainNetwork)
+
+        return derivationManager.shouldDeriveKeys(
+            networksToRemove: networksToRemove,
+            networksToAdd: networksToAdd,
+            interactor: keysDerivingProvider.keysDerivingInteractor
+        )
+    }
+
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
         if AppUtils().hasLongHashesForSend(tokenItem), !longHashesSupported {
             throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
