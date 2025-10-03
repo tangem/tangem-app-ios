@@ -29,6 +29,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
     @Published var addButtonDisabled = false
     @Published var isLoading = false
+    @Published var needsCardDerivation: Bool = false
 
     @Published var contractAddressError: Error?
     @Published var decimalsError: Error?
@@ -224,6 +225,25 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             self?.validate()
         }
         .store(in: &bag)
+
+        $addButtonDisabled
+            .withWeakCaptureOf(self)
+            .map { viewModel, isAddButtonDisabled in
+                guard !isAddButtonDisabled else {
+                    return false
+                }
+
+                do {
+                    let tokenItem = try viewModel.enteredTokenItem()
+                    return viewModel.userTokensManager.needsCardDerivation(
+                        itemsToRemove: [],
+                        itemsToAdd: [tokenItem]
+                    )
+                } catch {
+                    return false
+                }
+            }
+            .assign(to: &$needsCardDerivation)
     }
 
     private func enteredTokenItem() throws -> TokenItem {

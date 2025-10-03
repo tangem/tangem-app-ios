@@ -16,14 +16,18 @@ struct AccountDetailsView: View {
     @ObservedObject var viewModel: AccountDetailsViewModel
 
     var body: some View {
-        VStack(spacing: 24) {
-            accountSection
+        ZStack {
+            VStack(spacing: 24) {
+                accountSection
 
-            manageTokensSection
+                manageTokensSection
 
-            archiveAccountSection
+                archiveAccountSection
 
-            Spacer()
+                Spacer()
+            }
+
+            actionSheets
         }
     }
 
@@ -79,7 +83,7 @@ struct AccountDetailsView: View {
     private var archiveAccountSection: some View {
         if viewModel.canBeArchived {
             VStack(alignment: .leading, spacing: 8) {
-                Button(action: viewModel.archiveAccount) {
+                Button(action: viewModel.showShouldArchiveDialog) {
                     Text(Localization.accountDetailsArchive)
                         .style(Fonts.Regular.callout, color: Colors.Text.warning)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -91,5 +95,18 @@ struct AccountDetailsView: View {
                     .padding(.leading, 14)
             }
         }
+    }
+
+    private var actionSheets: some View {
+        NavHolder()
+            .confirmationDialog(
+                Localization.accountDetailsArchiveDescription,
+                isPresented: $viewModel.archiveAccountDialogPresented,
+                titleVisibility: .visible
+            ) {
+                Button(Localization.accountDetailsArchive, role: .destructive) {
+                    viewModel.archiveAccount()
+                }
+            }
     }
 }

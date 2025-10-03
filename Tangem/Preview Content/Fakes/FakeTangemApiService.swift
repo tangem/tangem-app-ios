@@ -191,15 +191,29 @@ class FakeTangemApiService: TangemApiService {
         .anyFail(error: .init(code: .notFound))
     }
 
-    func getUserAccounts(userWalletId: String) async throws -> (revision: String, accounts: AccountsDTO.Response.Accounts) {
+    func getUserAccounts(
+        userWalletId: String
+    ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
         throw "Not implemented"
     }
 
-    func saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts) async throws {
+    func saveUserAccounts(
+        userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts
+    ) async throws -> String? {
         throw "Not implemented"
     }
 
-    func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts {
+    func getArchivedUserAccounts(
+        userWalletId: String
+    ) async throws -> (revision: String?, archivedAccounts: AccountsDTO.Response.ArchivedAccounts) {
+        throw "Not implemented"
+    }
+
+    func getYieldMarkets() async throws -> YieldModuleDTO.Response.MarketsInfo {
+        throw "Not implemented"
+    }
+
+    func getTokenPositionInfo(tokenContractAddress: String) async throws -> YieldModuleDTO.Response.PositionInfo {
         throw "Not implemented"
     }
 }

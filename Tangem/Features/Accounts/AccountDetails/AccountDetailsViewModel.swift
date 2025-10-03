@@ -15,14 +15,14 @@ import TangemLocalization
 
 final class AccountDetailsViewModel: ObservableObject {
     typealias AccountDetailsRoutable =
-        any BaseEditableAccountDetailsRoutable &
-        CryptoAccountDetailsRoutable &
-        ArchivableAccountRoutable
+        any BaseAccountDetailsRoutable &
+        CryptoAccountDetailsRoutable
 
     // MARK: - State
 
     @Published private(set) var accountName: String = ""
     @Published private(set) var accountIcon = AccountModel.Icon(name: .letter, color: .azure)
+    @Published var archiveAccountDialogPresented = false
 
     // MARK: - Dependencies
 
@@ -75,13 +75,26 @@ final class AccountDetailsViewModel: ObservableObject {
         actions.contains(.manageTokens)
     }
 
-    // MARK: - Routing
+    // MARK: - Methods
 
     func archiveAccount() {
-        coordinator?.openArchiveAccountDialog { [weak self] in
-            guard let self else { return }
+        do {
             try accountModelsManager.archiveCryptoAccount(withIdentifier: account.id)
+
+            coordinator?.close()
+
+            Toast(view: SuccessToast(text: Localization.accountArchiveSuccessMessage))
+                .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+        } catch {
+            Toast(view: WarningToast(text: Localization.genericError))
+                .present(layout: .top(padding: 24), type: .temporary(interval: 4))
         }
+    }
+
+    // MARK: - Routing
+
+    func showShouldArchiveDialog() {
+        archiveAccountDialogPresented = true
     }
 
     func openEditAccount() {
