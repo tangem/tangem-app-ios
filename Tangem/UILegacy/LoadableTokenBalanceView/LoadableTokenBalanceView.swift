@@ -9,16 +9,19 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct LoadableTokenBalanceView: View {
     let state: State
     let style: Style
     let loader: LoaderStyle
+    let accessibilityIdentifier: String?
 
-    init(state: State, style: Style, loader: LoaderStyle) {
+    init(state: State, style: Style, loader: LoaderStyle, accessibilityIdentifier: String? = nil) {
         self.state = state
         self.style = style
         self.loader = loader
+        self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     var body: some View {
@@ -27,12 +30,14 @@ struct LoadableTokenBalanceView: View {
             case .loading(.some(let cached)):
                 textView(cached)
                     .shimmer()
+                    .accessibilityIdentifier(accessibilityIdentifier.map { "\($0)Shimmer" })
             case .loading(.none):
                 RoundedRectangle(cornerRadius: loader.cornerRadius, style: .continuous)
                     .fill(Colors.Control.shimmer)
                     .frame(size: loader.size)
                     .padding(loader.padding)
                     .shimmer()
+                    .accessibilityIdentifier(accessibilityIdentifier.map { "\($0)Shimmer" })
             case .failed(let text, .none):
                 textView(text)
             case .failed(let text, .leading):
@@ -65,6 +70,7 @@ struct LoadableTokenBalanceView: View {
     private func textView(_ text: Text) -> some View {
         SensitiveText(text)
             .style(style.font, color: style.textColor)
+            .accessibilityIdentifier(accessibilityIdentifier)
     }
 }
 
