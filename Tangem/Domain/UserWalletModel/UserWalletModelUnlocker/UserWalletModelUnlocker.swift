@@ -16,6 +16,8 @@ protocol UserWalletModelUnlocker {
     /// For mobile wallets
     var canShowUnlockUIAutomatically: Bool { get }
 
+    var analyticsSignInType: Analytics.SignInType { get }
+
     func unlock() async -> UserWalletModelUnlockerResult
 }
 
