@@ -10,6 +10,7 @@ import Combine
 import CombineExt
 import SwiftUI
 import TangemUI
+import TangemFoundation
 
 final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     /// Sentinel value for `item` of `IndexPath` representing a section.
@@ -244,7 +245,7 @@ extension OrganizeTokensViewModel {
                 return IndexPath(item: sectionHeaderItemIndex, section: sectionIndex)
             }
             for (itemIndex, item) in section.items.enumerated() {
-                if item.id.asAnyHashable == identifier {
+                if item.id.toAnyHashable() == identifier {
                     return IndexPath(item: itemIndex, section: sectionIndex)
                 }
             }
@@ -256,7 +257,7 @@ extension OrganizeTokensViewModel {
     func itemViewModel(for identifier: AnyHashable) -> OrganizeTokensListItemViewModel? {
         return sections
             .flatMap { $0.items }
-            .first { $0.id.asAnyHashable == identifier }
+            .first { $0.id.toAnyHashable() == identifier }
     }
 
     func section(for identifier: AnyHashable) -> OrganizeTokensListSection? {
@@ -391,7 +392,7 @@ extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource
         _ controller: OrganizeTokensDragAndDropController,
         listViewIdentifierForItemAt indexPath: IndexPath
     ) -> AnyHashable {
-        return section(at: indexPath)?.id ?? itemViewModel(at: indexPath).id.asAnyHashable
+        return section(at: indexPath)?.id ?? itemViewModel(at: indexPath).id.toAnyHashable()
     }
 }
 

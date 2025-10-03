@@ -11,7 +11,7 @@ import TangemFoundation
 import struct BlockchainSdk.Token
 
 final class CommonTokenItemsRepository {
-    @Injected(\.persistentStorage) private var persistanceStorage: PersistentStorageProtocol
+    @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
 
     private let lockQueue = DispatchQueue(label: "com.tangem.CommonTokenItemsRepository.lockQueue")
     private let key: String
@@ -32,7 +32,7 @@ final class CommonTokenItemsRepository {
 extension CommonTokenItemsRepository: TokenItemsRepository {
     var containsFile: Bool {
         lockQueue.sync {
-            let list: StoredUserTokenList? = try? persistanceStorage.value(for: .wallets(cid: key))
+            let list: StoredUserTokenList? = try? persistentStorage.value(for: .wallets(cid: key))
             return list != nil
         }
     }
@@ -168,7 +168,7 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
 
 private extension CommonTokenItemsRepository {
     func migrate() {
-        let legacyStorageEntries: [LegacyStorageEntry]? = try? persistanceStorage.value(for: .wallets(cid: key))
+        let legacyStorageEntries: [LegacyStorageEntry]? = try? persistentStorage.value(for: .wallets(cid: key))
 
         guard let legacyStorageEntries = legacyStorageEntries?.nilIfEmpty else { return }
 
@@ -190,12 +190,12 @@ private extension CommonTokenItemsRepository {
     }
 
     func fetch() -> StoredUserTokenList {
-        return (try? persistanceStorage.value(for: .wallets(cid: key))) ?? .empty
+        return (try? persistentStorage.value(for: .wallets(cid: key))) ?? .empty
     }
 
     func save(_ items: StoredUserTokenList) {
         do {
-            try persistanceStorage.store(value: items, for: .wallets(cid: key))
+            try persistentStorage.store(value: items, for: .wallets(cid: key))
         } catch {
             assertionFailure("TokenItemsRepository saving error \(error)")
         }

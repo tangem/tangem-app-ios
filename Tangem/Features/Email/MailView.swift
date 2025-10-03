@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import MessageUI
+import TangemAccessibilityIdentifiers
 
 struct MailView: UIViewControllerRepresentable {
     let viewModel: MailViewModel
@@ -102,6 +103,7 @@ private struct MailViewPlaceholder: View {
             Spacer()
             Text(Localization.mailErrorNoAccountsTitle)
                 .font(.title)
+                .accessibilityIdentifier(MailAccessibilityIdentifiers.noAccountsTitle)
             Text(Localization.mailErrorNoAccountsBody)
                 .font(.body)
                 .padding(.horizontal, 32)

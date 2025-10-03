@@ -20,4 +20,12 @@ struct TransactionDispatcherFactory {
 
         return SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
     }
+
+    func makeExpressDispatcher() -> TransactionDispatcher {
+        ExpressTransactionDispatcher(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            sendTransactionDispatcher: makeSendDispatcher()
+        )
+    }
 }

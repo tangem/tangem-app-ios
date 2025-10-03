@@ -25,6 +25,8 @@ protocol KeysManager {
     var moralisAPIKey: String { get }
     var blockaidAPIKey: String { get }
     var tangemApiKey: String { get }
+    var tangemApiKeyDev: String { get }
+    var tangemApiKeyStage: String { get }
     var amplitudeApiKey: String { get }
 }
 
