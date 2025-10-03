@@ -61,7 +61,8 @@ final class EncryptedBiometricsStorage {
         )
     }
 
-    func deleteData(keyTag: String) throws {
+    func deleteData(keyTag: String, secureEnclaveKeyTag: String) throws {
+        secureEnclaveBiometricsService.delete(tag: secureEnclaveKeyTag)
         try biometricsStorage.delete(keyTag)
     }
 }

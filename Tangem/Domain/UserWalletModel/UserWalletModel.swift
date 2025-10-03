@@ -19,7 +19,7 @@ protocol UserWalletModel:
     AnalyticsContextDataProvider,
     MainHeaderUserWalletStateInfoProvider,
     EmailDataProvider,
-    OldWalletConnectUserWalletInfoProvider,
+    WCUserWalletInfoProvider,
     KeysDerivingProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
