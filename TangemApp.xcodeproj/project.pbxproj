@@ -1234,6 +1234,13 @@
 		B60F98CC2E3BC82D00141CA5 /* CryptoAccountModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60F98CB2E3BC82D00141CA5 /* CryptoAccountModel.swift */; };
 		B60F98CE2E3BC84C00141CA5 /* CommonCryptoAccountModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60F98CD2E3BC84C00141CA5 /* CommonCryptoAccountModel.swift */; };
 		B60F98D22E3BCA0D00141CA5 /* VisaAccountModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60F98D12E3BCA0D00141CA5 /* VisaAccountModel.swift */; };
+		B6116E332E8E7A6700D9121A /* CryptoAccountsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6116E322E8E7A6700D9121A /* CryptoAccountsBuilder.swift */; };
+		B6116E352E8E7A8200D9121A /* CryptoAccountsGlobalStateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6116E342E8E7A8200D9121A /* CryptoAccountsGlobalStateProvider.swift */; };
+		B6116E372E8E7BB000D9121A /* BalanceProvidingAccountModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6116E362E8E7BB000D9121A /* BalanceProvidingAccountModel.swift */; };
+		B6116E3B2E8E7BFD00D9121A /* AccountRateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6116E3A2E8E7BFD00D9121A /* AccountRateProvider.swift */; };
+		B6116E3D2E8E7C0A00D9121A /* AccountBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6116E3C2E8E7C0A00D9121A /* AccountBalanceProvider.swift */; };
+		B6116E3F2E8E7C3100D9121A /* AccountQuote.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6116E3E2E8E7C3100D9121A /* AccountQuote.swift */; };
+		B6116E412E8E7C7B00D9121A /* RateValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6116E402E8E7C7B00D9121A /* RateValue.swift */; };
 		B612AFD42B2884B80058A13A /* RateAppRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B612AFD32B2884B80058A13A /* RateAppRequest.swift */; };
 		B6157AAD2C322733000640B4 /* OnboardingFeatureDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6157AAC2C322733000640B4 /* OnboardingFeatureDescriptionView.swift */; };
 		B6176A7A2A5B743A0062C399 /* CGRect+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6176A792A5B743A0062C399 /* CGRect+.swift */; };
@@ -5521,6 +5528,13 @@
 		B60F98CB2E3BC82D00141CA5 /* CryptoAccountModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountModel.swift; sourceTree = "<group>"; };
 		B60F98CD2E3BC84C00141CA5 /* CommonCryptoAccountModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCryptoAccountModel.swift; sourceTree = "<group>"; };
 		B60F98D12E3BCA0D00141CA5 /* VisaAccountModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaAccountModel.swift; sourceTree = "<group>"; };
+		B6116E322E8E7A6700D9121A /* CryptoAccountsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsBuilder.swift; sourceTree = "<group>"; };
+		B6116E342E8E7A8200D9121A /* CryptoAccountsGlobalStateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsGlobalStateProvider.swift; sourceTree = "<group>"; };
+		B6116E362E8E7BB000D9121A /* BalanceProvidingAccountModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceProvidingAccountModel.swift; sourceTree = "<group>"; };
+		B6116E3A2E8E7BFD00D9121A /* AccountRateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRateProvider.swift; sourceTree = "<group>"; };
+		B6116E3C2E8E7C0A00D9121A /* AccountBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountBalanceProvider.swift; sourceTree = "<group>"; };
+		B6116E3E2E8E7C3100D9121A /* AccountQuote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountQuote.swift; sourceTree = "<group>"; };
+		B6116E402E8E7C7B00D9121A /* RateValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateValue.swift; sourceTree = "<group>"; };
 		B612AFD32B2884B80058A13A /* RateAppRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppRequest.swift; sourceTree = "<group>"; };
 		B6157AAC2C322733000640B4 /* OnboardingFeatureDescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFeatureDescriptionView.swift; sourceTree = "<group>"; };
 		B6176A792A5B743A0062C399 /* CGRect+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+.swift"; sourceTree = "<group>"; };
@@ -10744,6 +10758,7 @@
 				B6F995E22D91C7B800F83C4D /* WalletModelFeature.swift */,
 				B00142BC2D79954A00923B6D /* WalletModelId.swift */,
 				EFEB07C02C7CDFBC00E88352 /* WalletModelRate.swift */,
+				B6116E402E8E7C7B00D9121A /* RateValue.swift */,
 				DC3DCAD62A40AA4B00F72554 /* WalletModelsFactory.swift */,
 				DC9113642D6FAE95002E17C5 /* AssetRequirements */,
 				EF42D7842D1D65D90065AFD1 /* BalanceProvider */,
@@ -12663,6 +12678,8 @@
 			isa = PBXGroup;
 			children = (
 				B6C1ADD62E40BE4400F581BA /* CryptoAccounts.swift */,
+				B6116E322E8E7A6700D9121A /* CryptoAccountsBuilder.swift */,
+				B6116E342E8E7A8200D9121A /* CryptoAccountsGlobalStateProvider.swift */,
 				B60F98CB2E3BC82D00141CA5 /* CryptoAccountModel.swift */,
 				B60F98CD2E3BC84C00141CA5 /* CommonCryptoAccountModel.swift */,
 				B68C40A72E4FE0C600BA37BB /* CommonCryptoAccountModel.AccountId.swift */,
@@ -12696,6 +12713,17 @@
 				B60F98D12E3BCA0D00141CA5 /* VisaAccountModel.swift */,
 			);
 			path = Visa;
+			sourceTree = "<group>";
+		};
+		B6116E392E8E7BD400D9121A /* Balance */ = {
+			isa = PBXGroup;
+			children = (
+				B6116E362E8E7BB000D9121A /* BalanceProvidingAccountModel.swift */,
+				B6116E3E2E8E7C3100D9121A /* AccountQuote.swift */,
+				B6116E3A2E8E7BFD00D9121A /* AccountRateProvider.swift */,
+				B6116E3C2E8E7C0A00D9121A /* AccountBalanceProvider.swift */,
+			);
+			path = Balance;
 			sourceTree = "<group>";
 		};
 		B614DEB52DD568EF000CD433 /* PlainSend */ = {
@@ -15393,6 +15421,7 @@
 				B6B436942E3C2A3500006FA7 /* AccountModel */,
 				B6B436932E3C2A3500006FA7 /* AccountModelsManager */,
 				B619DFE82E77AA3E00ECA8F7 /* Archiving */,
+				B6116E392E8E7BD400D9121A /* Balance */,
 				B6DC54B62E4E8F7F005C8EB9 /* Common */,
 				B63F2B3F2E4E3F6800AFC60C /* Interop */,
 				B6CAC2192E46C5FD002DFA82 /* Repository */,
@@ -23589,6 +23618,7 @@
 				B645BF3F2C59239700D8A2A5 /* MarketsHistoryChartProvider.swift in Sources */,
 				EFD39C992A6A916C0055D215 /* EnvironmentSetupRoutable.swift in Sources */,
 				DC2158742D0308BA007720F8 /* ActionButtonsAnalyticsService.swift in Sources */,
+				B6116E3D2E8E7C0A00D9121A /* AccountBalanceProvider.swift in Sources */,
 				DA7444252A27889600F926A9 /* PromotionServiceProtocol.swift in Sources */,
 				DC7D39F929E007FF007BCD23 /* Start2CoinOnboardingStepsBuilder.swift in Sources */,
 				B67263422C7FC4CA00F120E6 /* MarketsTokenPriceFormatter.swift in Sources */,
@@ -23764,6 +23794,7 @@
 				DCBF4D302D8B497F002C2B8E /* VisaWalletManagerFactory.swift in Sources */,
 				DCBF4D312D8B497F002C2B8E /* HDWalletManagerFactory.swift in Sources */,
 				DCBF4D322D8B497F002C2B8E /* CommonXPUBGenerator.swift in Sources */,
+				B6116E372E8E7BB000D9121A /* BalanceProvidingAccountModel.swift in Sources */,
 				DCBF4D332D8B497F002C2B8E /* AnyWalletManagerFactory.swift in Sources */,
 				DCBF4D342D8B497F002C2B8E /* SimpleWalletManagerFactory.swift in Sources */,
 				B0BEE7E12C411ACC00B8FE25 /* MarketsTokenDetailsLinks.swift in Sources */,
@@ -24097,6 +24128,7 @@
 				C27672D52DE726AA0037F1FC /* WalletConnectDAppDomainVerificationViewEvent.swift in Sources */,
 				EF3A5E812E435D94007B0853 /* GenericTransactionSummaryDescriptionBuilder.swift in Sources */,
 				DA5970EC27FC1C1B0050387C /* TangemApiTarget.swift in Sources */,
+				B6116E332E8E7A6700D9121A /* CryptoAccountsBuilder.swift in Sources */,
 				0F84C1252E16859C00DC7FB1 /* MobileOnboardingSeedPhraseRevealView.swift in Sources */,
 				B65D3FCD2A6712BB00FEEFE8 /* CardsInfoPagerContentSwitchingAnimationModifier.swift in Sources */,
 				B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */,
@@ -24183,6 +24215,7 @@
 				0FE5884C2DEF124C00E5663E /* MobileOnboardingInput.swift in Sources */,
 				2D3E1DF52C9ACE80006AF975 /* CardsInfoPagerBottomOverlayFactoryParams.swift in Sources */,
 				DCCEAC962DFFD5000013D4AB /* WCTransactionSimulationFactory.swift in Sources */,
+				B6116E3B2E8E7BFD00D9121A /* AccountRateProvider.swift in Sources */,
 				DCCEAC972DFFD5000013D4AB /* WCTransactionSimulationView.swift in Sources */,
 				0F48DC8F2E45F06E0095D3C8 /* MobileAccessCodeSkipHelper.swift in Sources */,
 				DCCEAC982DFFD5000013D4AB /* TransactionSimulationState.swift in Sources */,
@@ -24468,6 +24501,7 @@
 				5DF2522724F914E30015B429 /* AppScanTask.swift in Sources */,
 				B6B3BB612D7149BA002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift in Sources */,
 				DC2CD3432B0FE3D600C0D677 /* SendCurrencyViewModel.swift in Sources */,
+				B6116E412E8E7C7B00D9121A /* RateValue.swift in Sources */,
 				B09409932A3B7E9800787432 /* NavbarDotsImage.swift in Sources */,
 				B0BF631B2A0D1C6F009EB975 /* TotalBalanceFormattingOptions.swift in Sources */,
 				DCC5C99A2C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift in Sources */,
@@ -24518,6 +24552,7 @@
 				B01B2D752BD2924F00D8A6A1 /* CommonAPIListProvider.swift in Sources */,
 				2DC10DA52DE8967300B72C64 /* TransactionNotificationsModalView.swift in Sources */,
 				B0AF2DF12B1DAACD001A8696 /* PendingExpressTransactionStatus.swift in Sources */,
+				B6116E3F2E8E7C3100D9121A /* AccountQuote.swift in Sources */,
 				EF032C512955C59E006C1FF3 /* DefaultSelectableRowView.swift in Sources */,
 				C25E103C2DFF287E0050BC26 /* WalletConnectPersistConnectedDAppUseCase.swift in Sources */,
 				B0D6B2542CB52B090068D310 /* NavigationBarHidingView.swift in Sources */,
@@ -25407,6 +25442,7 @@
 				EF0FBB742C53BE4A0095A6BD /* StakingValidatorsCompactViewModel.swift in Sources */,
 				DA9C94962E3BD5230052CCEE /* TangemPayRowViewModel.swift in Sources */,
 				EFEE236B2BFE20860099917E /* StakingDetailsCoordinatorView.swift in Sources */,
+				B6116E352E8E7A8200D9121A /* CryptoAccountsGlobalStateProvider.swift in Sources */,
 				DCFEFE4C2CF08270002DFE58 /* ActionButtonsSwapCoordinator.swift in Sources */,
 				EFEE236C2BFE20860099917E /* StakingDetailsView.swift in Sources */,
 				B040FA342C3BCA00002C127B /* MarketsTokenDetailsInsightsView.swift in Sources */,
