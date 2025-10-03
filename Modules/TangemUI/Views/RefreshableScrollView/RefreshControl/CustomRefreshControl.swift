@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 class CustomRefreshControlStateObject: ObservableObject {
     typealias State = RefreshScrollViewStateObject.RefreshState
@@ -58,5 +59,17 @@ struct CustomRefreshControl: View {
         }
         .infinityFrame(axis: .horizontal)
         .frame(height: stateObject.settings.refreshAreaHeight)
+        .accessibilityIdentifier(refreshStateIdentifier)
+    }
+
+    private var refreshStateIdentifier: String {
+        switch stateObject.state {
+        case .idle:
+            return MainAccessibilityIdentifiers.refreshStateIdle
+        case .refreshing:
+            return MainAccessibilityIdentifiers.refreshStateRefreshing
+        case .stillDragging:
+            return MainAccessibilityIdentifiers.refreshStateRefreshing // Still considered refreshing
+        }
     }
 }
