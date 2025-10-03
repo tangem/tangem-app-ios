@@ -51,6 +51,8 @@ final class CreateWalletSelectorViewModel: ObservableObject {
 
 extension CreateWalletSelectorViewModel {
     func onAppear() {
+        Analytics.log(.onboardingStarted)
+
         scheduleScanAvailability()
     }
 
@@ -95,8 +97,9 @@ private extension CreateWalletSelectorViewModel {
 
 private extension CreateWalletSelectorViewModel {
     func scanCard() {
+        Analytics.log(Analytics.CardScanSource.createWallet.cardScanButtonEvent)
+
         isScanning = true
-        Analytics.beginLoggingCardScan(source: .welcome)
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -122,6 +125,8 @@ private extension CreateWalletSelectorViewModel {
                 }
 
             case .onboarding(let input, _):
+                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue])
+
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -139,6 +144,8 @@ private extension CreateWalletSelectorViewModel {
                 }
 
             case .success(let cardInfo):
+                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue])
+
                 do {
                     if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
                         walletInfo: .cardWallet(cardInfo),
@@ -170,12 +177,15 @@ private extension CreateWalletSelectorViewModel {
 
 private extension CreateWalletSelectorViewModel {
     func openMobileWallet() {
+        Analytics.log(.buttonMobileWallet)
+
         let input = MobileOnboardingInput(flow: .walletCreate)
         let options = OnboardingCoordinator.Options.mobileInput(input)
         coordinator?.openOnboarding(options: options)
     }
 
     func openHardwareWallet() {
+        Analytics.log(.onboardingButtonBuy, params: [.source: .createWallet])
         safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
     }
 
