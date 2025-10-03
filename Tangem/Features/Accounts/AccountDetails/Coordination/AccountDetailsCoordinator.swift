@@ -28,11 +28,6 @@ final class AccountDetailsCoordinator: CoordinatorObject {
 
     @Published var editAccountViewModel: AccountFormViewModel?
 
-    // MARK: - Confirmation dialog
-
-    @Published var archiveAccountDialogPresented = false
-    private(set) var archiveAction: (() throws -> Void)?
-
     init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -62,7 +57,7 @@ extension AccountDetailsCoordinator {
     }
 }
 
-// MARK: - BaseEditableAccountDetailsRoutable
+// MARK: - BaseAccountDetailsRoutable
 
 extension AccountDetailsCoordinator: BaseAccountDetailsRoutable {
     func editAccount() {
