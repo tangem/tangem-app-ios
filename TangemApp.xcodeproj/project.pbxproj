@@ -2526,6 +2526,10 @@
 		D852F83F2E5CA2C300C71B7F /* QAToolsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D852F83D2E5CA2C300C71B7F /* QAToolsClient.swift */; };
 		D852F8432E5CA30C00C71B7F /* WCURIResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = D852F8422E5CA30C00C71B7F /* WCURIResponse.swift */; };
 		D852F8452E5CBEA800C71B7F /* WalletConnectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D852F8442E5CBEA800C71B7F /* WalletConnectSheet.swift */; };
+		D85E20082E84935D004174E6 /* TotalBalanceSmokeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E20072E84935D004174E6 /* TotalBalanceSmokeUITests.swift */; };
+		D85E200B2E854D5F004174E6 /* AppSettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E20092E854D5F004174E6 /* AppSettingsScreen.swift */; };
+		D85E200C2E854D5F004174E6 /* CurrencySelectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E200A2E854D5F004174E6 /* CurrencySelectionScreen.swift */; };
+		D85E20122E8D7A50004174E6 /* StorageCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E20112E8D7A50004174E6 /* StorageCleaner.swift */; };
 		D863E7502E65C77D00912D52 /* ResetCardScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D863E74F2E65C77D00912D52 /* ResetCardScreen.swift */; };
 		D863E7532E65CEBB00912D52 /* ScanCardSettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D863E7512E65CEBB00912D52 /* ScanCardSettingsScreen.swift */; };
 		D863E7562E65CFA300912D52 /* DeviceSettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D863E7552E65CFA300912D52 /* DeviceSettingsScreen.swift */; };
@@ -6765,6 +6769,10 @@
 		D852F83D2E5CA2C300C71B7F /* QAToolsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAToolsClient.swift; sourceTree = "<group>"; };
 		D852F8422E5CA30C00C71B7F /* WCURIResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCURIResponse.swift; sourceTree = "<group>"; };
 		D852F8442E5CBEA800C71B7F /* WalletConnectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSheet.swift; sourceTree = "<group>"; };
+		D85E20072E84935D004174E6 /* TotalBalanceSmokeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceSmokeUITests.swift; sourceTree = "<group>"; };
+		D85E20092E854D5F004174E6 /* AppSettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsScreen.swift; sourceTree = "<group>"; };
+		D85E200A2E854D5F004174E6 /* CurrencySelectionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectionScreen.swift; sourceTree = "<group>"; };
+		D85E20112E8D7A50004174E6 /* StorageCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCleaner.swift; sourceTree = "<group>"; };
 		D863E74F2E65C77D00912D52 /* ResetCardScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetCardScreen.swift; sourceTree = "<group>"; };
 		D863E7512E65CEBB00912D52 /* ScanCardSettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsScreen.swift; sourceTree = "<group>"; };
 		D863E7552E65CFA300912D52 /* DeviceSettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceSettingsScreen.swift; sourceTree = "<group>"; };
@@ -10637,6 +10645,8 @@
 		7982B01C2DE70E1900C41EA5 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D85E20092E854D5F004174E6 /* AppSettingsScreen.swift */,
+				D85E200A2E854D5F004174E6 /* CurrencySelectionScreen.swift */,
 				D863E7A52E68ABF700912D52 /* CreateBackupScreen.swift */,
 				D863E7512E65CEBB00912D52 /* ScanCardSettingsScreen.swift */,
 				D863E74F2E65C77D00912D52 /* ResetCardScreen.swift */,
@@ -11321,6 +11331,7 @@
 		B068A7E525678A6E00D28CD2 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				D85E20112E8D7A50004174E6 /* StorageCleaner.swift */,
 				DC6340DE2E1D8037004BFDE5 /* KeychainCleaner.swift */,
 				B0E1C2402C2430B2005309E1 /* AlertBuilders */,
 				B0ED3F022C3D6EC800311DE2 /* AmountFormatters */,
@@ -16381,6 +16392,7 @@
 				D852F81B2E5C86AB00C71B7F /* ToSUITests.swift */,
 				D852F8382E5C86EB00C71B7F /* WCLinksUITests.swift */,
 				D86C15FD2E745955005BBD89 /* BlockchainSmokeUITests.swift */,
+				D85E20072E84935D004174E6 /* TotalBalanceSmokeUITests.swift */,
 			);
 			path = Smoke;
 			sourceTree = "<group>";
@@ -24632,6 +24644,7 @@
 				EF41A3C82D37FE3000FA7020 /* CommonTokenBalancesStorage.swift in Sources */,
 				DC13D03E29DF28140003895C /* OnboardingStepsBuilder.swift in Sources */,
 				DC261CAC292CF56600875E64 /* AuthRoutable.swift in Sources */,
+				D85E20122E8D7A50004174E6 /* StorageCleaner.swift in Sources */,
 				B09E518C2981825C0042998A /* DeprecationService.swift in Sources */,
 				B0C3707F2C6C92D000439263 /* MarketsTokenQuoteHelper.swift in Sources */,
 				EFBBA49A2E8AA3FA004F48ED /* SendInput.swift in Sources */,
@@ -25832,6 +25845,7 @@
 				D852F8392E5C86EB00C71B7F /* WCLinksUITests.swift in Sources */,
 				D852F82C2E5C86B400C71B7F /* OnrampPaymentMethodsScreen.swift in Sources */,
 				D863E7A82E68B22B00912D52 /* OnboardingUITests.swift in Sources */,
+				D85E20082E84935D004174E6 /* TotalBalanceSmokeUITests.swift in Sources */,
 				D852F82D2E5C86B400C71B7F /* OnrampProvidersScreen.swift in Sources */,
 				D852F82E2E5C86B400C71B7F /* OnrampResidenceScreen.swift in Sources */,
 				D852F82F2E5C86B400C71B7F /* OnrampScreen.swift in Sources */,
@@ -25867,6 +25881,8 @@
 				D852F8222E5C86AB00C71B7F /* SwapUITests.swift in Sources */,
 				D852F8232E5C86AB00C71B7F /* ToSUITests.swift in Sources */,
 				7982B0292DE70E1900C41EA5 /* ScreenBase+Extension.swift in Sources */,
+				D85E200B2E854D5F004174E6 /* AppSettingsScreen.swift in Sources */,
+				D85E200C2E854D5F004174E6 /* CurrencySelectionScreen.swift in Sources */,
 				D863E7502E65C77D00912D52 /* ResetCardScreen.swift in Sources */,
 				D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */,
 				D866EE882E54C0970071311E /* TwinOnboardingScreen.swift in Sources */,
