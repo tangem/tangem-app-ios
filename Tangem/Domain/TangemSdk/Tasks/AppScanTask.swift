@@ -267,7 +267,7 @@ final class AppScanTask: CardSessionRunnable {
         var derivations: [EllipticCurve: [DerivationPath]] = [:]
 
         if let userWalletId = UserWalletId(config: config) {
-            let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
+            let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue) // [REDACTED_TODO_COMMENT]
 
             // Force add blockchains for demo cards
             if let persistentBlockchains = config.persistentBlockchains {
@@ -317,7 +317,7 @@ final class AppScanTask: CardSessionRunnable {
         let config = config(for: card)
 
         if let userWalletId = UserWalletId(config: config) {
-            let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
+            let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue) // [REDACTED_TODO_COMMENT]
             if card.isAccessCodeSet, !tokenItemsRepository.containsFile {
                 session.pause()
                 session.viewDelegate.setState(.empty)
