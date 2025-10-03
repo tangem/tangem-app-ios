@@ -10,6 +10,8 @@ import Foundation
 import TangemSdk
 
 class KeysDerivingMock: KeysDeriving {
+    var requiresCard: Bool { true }
+
     func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             completion(.success([:]))
