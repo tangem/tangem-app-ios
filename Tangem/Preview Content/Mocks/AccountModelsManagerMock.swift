@@ -63,12 +63,12 @@ extension AccountModelsManagerMock: AccountModelsManager {
     }
 
     func archiveCryptoAccount(
-        withIdentifier identifier: some AccountModelPersistentIdentifierConvertible
-    ) async throws(AccountModelsManagerError) {
+        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
+    ) throws(AccountModelsManagerError) {
         removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier().toAnyHashable())
     }
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
         // [REDACTED_TODO_COMMENT]
         throw .cannotUnarchiveCryptoAccount
     }
