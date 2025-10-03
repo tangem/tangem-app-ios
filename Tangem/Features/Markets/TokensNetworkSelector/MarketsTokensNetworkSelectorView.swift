@@ -14,6 +14,10 @@ import TangemUI
 struct MarketsTokensNetworkSelectorView: View {
     @ObservedObject var viewModel: MarketsTokensNetworkSelectorViewModel
 
+    private var savingIcon: MainButton.Icon? {
+        viewModel.needsCardDerivation ? .trailing(Assets.tangemIcon) : nil
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             ScrollView {
@@ -27,7 +31,7 @@ struct MarketsTokensNetworkSelectorView: View {
 
                     contentView
 
-                    if !viewModel.pendingAdd.isEmpty {
+                    if viewModel.hasCardDerivationWarning {
                         MarketsGeneratedAddressView()
                     }
                 }
@@ -90,7 +94,7 @@ struct MarketsTokensNetworkSelectorView: View {
 
             MainButton(
                 title: Localization.commonContinue,
-                icon: .trailing(Assets.tangemIcon),
+                icon: savingIcon,
                 isLoading: viewModel.isSaving,
                 isDisabled: viewModel.isSaveDisabled,
                 action: viewModel.saveChangesOnTapAction
