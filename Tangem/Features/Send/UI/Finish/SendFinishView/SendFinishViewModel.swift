@@ -14,6 +14,7 @@ import struct TangemUIUtils.AlertBinder
 class SendFinishViewModel: ObservableObject, Identifiable {
     @Published var showHeader = false
     @Published var transactionSentTime: String?
+    @Published var transactionURL: URL?
 
     @Published var sendDestinationCompactViewModel: SendDestinationCompactViewModel?
     @Published var sendAmountCompactViewModel: SendAmountCompactViewModel?
@@ -22,19 +23,25 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     @Published var sendFeeCompactViewModel: SendFeeCompactViewModel?
     @Published var onrampStatusCompactViewModel: OnrampStatusCompactViewModel?
 
-    private var sendFinishAnalyticsLogger: SendFinishAnalyticsLogger
+    private let tokenItem: TokenItem
+    private let sendFinishAnalyticsLogger: SendFinishAnalyticsLogger
+    private weak var coordinator: SendRoutable?
+
     private var bag: Set<AnyCancellable> = []
 
     init(
         input: SendFinishInput,
+        tokenItem: TokenItem,
         sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendFeeCompactViewModel?,
-        onrampStatusCompactViewModel: OnrampStatusCompactViewModel?
+        onrampStatusCompactViewModel: OnrampStatusCompactViewModel?,
+        coordinator: SendRoutable
     ) {
+        self.tokenItem = tokenItem
         self.sendFinishAnalyticsLogger = sendFinishAnalyticsLogger
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
@@ -42,6 +49,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         self.stakingValidatorsCompactViewModel = stakingValidatorsCompactViewModel
         self.sendFeeCompactViewModel = sendFeeCompactViewModel
         self.onrampStatusCompactViewModel = onrampStatusCompactViewModel
+        self.coordinator = coordinator
 
         bind(input: input)
     }
@@ -54,7 +62,17 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func bind(input: SendFinishInput) {
+    func share(url: URL) {
+        sendFinishAnalyticsLogger.logShareButton()
+        coordinator?.openShareSheet(url: url)
+    }
+
+    func explore(url: URL) {
+        sendFinishAnalyticsLogger.logExploreButton()
+        coordinator?.openExplorer(url: url)
+    }
+
+    private func bind(input: SendFinishInput) {
         input.transactionSentDate
             .map { date in
                 let formatter = DateFormatter()
@@ -69,6 +87,15 @@ class SendFinishViewModel: ObservableObject, Identifiable {
                 }
             })
             .store(in: &bag)
+
+        guard !tokenItem.blockchain.isTransactionAsync else {
+            return
+        }
+
+        input
+            .transactionURL
+            .receiveOnMain()
+            .assign(to: &$transactionURL)
     }
 }
 
