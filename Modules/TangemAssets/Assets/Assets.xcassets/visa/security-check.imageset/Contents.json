@@ -3,6 +3,16 @@
     {
       "filename" : "security-check.pdf",
       "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "security-check 1.pdf",
+      "idiom" : "universal"
     }
   ],
   "info" : {

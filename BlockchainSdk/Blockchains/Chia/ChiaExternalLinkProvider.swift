@@ -26,7 +26,7 @@ extension ChiaExternalLinkProvider: ExternalLinkProvider {
             return URL(string: "https://testnet10.spacescan.io/address/\(address)")
         }
 
-        return URL(string: "https://xchscan.com/address/\(address)")
+        return URL(string: "https://spacescan.io/address/\(address)")
     }
 
     func url(transaction hash: String) -> URL? {

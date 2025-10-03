@@ -14,7 +14,11 @@ import TangemAssets
 enum SendNotificationEvent {
     // The send flow specific notifications
     case networkFeeUnreachable
-    case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
+    case feeWillBeSubtractFromSendingAmount(
+        cryptoAmountFormatted: String,
+        fiatAmountFormatted: String,
+        amountCurrencySymbol: String
+    )
     case customFeeTooHigh(orderOfMagnitude: Int)
     case customFeeTooLow
     case accountNotActivated(assetName: String)
@@ -66,7 +70,7 @@ extension SendNotificationEvent: NotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return Localization.sendFeeUnreachableErrorText
-        case .feeWillBeSubtractFromSendingAmount(let cryptoAmountFormatted, let fiatAmountFormatted):
+        case .feeWillBeSubtractFromSendingAmount(let cryptoAmountFormatted, let fiatAmountFormatted, _):
             return Localization.commonNetworkFeeWarningContent(cryptoAmountFormatted, fiatAmountFormatted)
         case .customFeeTooHigh(let orderOfMagnitude):
             return Localization.sendNotificationFeeTooHighText(orderOfMagnitude)
@@ -144,11 +148,41 @@ extension SendNotificationEvent: NotificationEvent {
     }
 
     var analyticsEvent: Analytics.Event? {
-        nil
+        switch self {
+        case .feeWillBeSubtractFromSendingAmount:
+            return Analytics.Event.sendNoticeNetworkFeeCoverage
+        case .validationErrorEvent(let validationEvent):
+            switch validationEvent {
+            case .insufficientBalanceForFee:
+                return Analytics.Event.sendNoticeNotEnoughFee
+            default:
+                return nil
+            }
+        default:
+            return nil
+        }
     }
 
     var analyticsParams: [Analytics.ParameterKey: String] {
-        [:]
+        switch self {
+        case .feeWillBeSubtractFromSendingAmount(_, _, let amountCurrencySymbol):
+            return [.token: amountCurrencySymbol]
+
+        case .validationErrorEvent(let validationEvent):
+            switch validationEvent {
+            case .insufficientBalanceForFee(let configuration):
+                return [
+                    .token: configuration.amountCurrencySymbol,
+                    .blockchain: configuration.amountCurrencyBlockchainName,
+                ]
+
+            default:
+                return [:]
+            }
+
+        default:
+            return [:]
+        }
     }
 
     var isOneShotAnalyticsEvent: Bool {
