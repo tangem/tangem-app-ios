@@ -72,7 +72,7 @@ extension ElectrumUTXONetworkProvider: UTXONetworkProvider {
     func send(transaction: String) -> AnyPublisher<TransactionSendResult, any Error> {
         Future.async {
             let hash: String = try await self.provider.send(transactionHex: transaction)
-            return TransactionSendResult(hash: hash, currentProviderHost: hash)
+            return TransactionSendResult(hash: hash, currentProviderHost: self.host)
         }
         .eraseToAnyPublisher()
     }
