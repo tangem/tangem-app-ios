@@ -229,6 +229,14 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         }
     }
 
+    func logShareButton() {
+        Analytics.log(.sendButtonShare)
+    }
+
+    func logExploreButton() {
+        Analytics.log(.sendButtonExplore)
+    }
+
     private func logSendFinishScreenOpened() {
         let event: Analytics.Event = switch tokenItem.token?.metadata.kind {
         case .nonFungible: .nftSentScreenOpened
@@ -293,14 +301,6 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
 // MARK: - SendBaseViewAnalyticsLogger
 
 extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
-    func logShareButton() {
-        Analytics.log(.sendButtonShare)
-    }
-
-    func logExploreButton() {
-        Analytics.log(.sendButtonExplore)
-    }
-
     func logRequestSupport() {
         Analytics.log(.requestSupport, params: [.source: .send])
     }
@@ -325,6 +325,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
         Analytics.log(event: .sendErrorTransactionRejected, params: [
             .token: tokenItem.currencySymbol,
             .errorCode: "\(error.universalErrorCode)",
+            .errorDescription: error.localizedDescription,
             .blockchain: tokenItem.blockchain.displayName,
         ])
     }
@@ -357,8 +358,8 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
 
         switch amount?.type {
         case .none: break
-        case .typical: Analytics.log(.sendSelectedCurrency, params: [.commonType: .token])
-        case .alternative: Analytics.log(.sendSelectedCurrency, params: [.commonType: .selectedCurrencyApp])
+        case .typical: Analytics.log(.sendSelectedCurrency, params: [.type: .token])
+        case .alternative: Analytics.log(.sendSelectedCurrency, params: [.type: .selectedCurrencyApp])
         }
     }
 }

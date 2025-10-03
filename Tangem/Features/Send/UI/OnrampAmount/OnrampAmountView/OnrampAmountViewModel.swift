@@ -31,6 +31,7 @@ class OnrampAmountViewModel: ObservableObject {
 
     init(
         tokenItem: TokenItem,
+        initialAmount: Decimal?,
         interactor: OnrampAmountInteractor,
         coordinator: OnrampAmountRoutable
     ) {
@@ -41,6 +42,7 @@ class OnrampAmountViewModel: ObservableObject {
         decimalNumberTextFieldViewModel = .init(maximumFractionDigits: 2)
         formatter = BalanceFormatter()
 
+        decimalNumberTextFieldViewModel.update(value: initialAmount)
         bind()
     }
 
