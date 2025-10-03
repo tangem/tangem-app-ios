@@ -123,6 +123,10 @@ final class CommonServicesManager {
             AppSettings.shared.termsOfServicesAccepted = []
         }
 
+        if let _ = arguments.firstIndex(of: "-uitest-clear-storage") {
+            StorageCleaner.clearCachedFiles()
+        }
+
         UIView.setAnimationsEnabled(false)
     }
 }
