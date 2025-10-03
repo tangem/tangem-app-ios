@@ -565,6 +565,13 @@ extension CommonWalletModel: WalletModelHelpers {
         else {
             return nil
         }
+
+        let nonFilteredPendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never> =
+            walletManager
+                .walletPublisher
+                .map { $0.pendingTransactions }
+                .eraseToAnyPublisher()
+
         return CommonYieldModuleManager(
             walletAddress: wallet.defaultAddress.value,
             token: token,
@@ -573,7 +580,8 @@ extension CommonWalletModel: WalletModelHelpers {
             tokenBalanceProvider: totalTokenBalanceProvider,
             ethereumNetworkProvider: ethereumNetworkProvider,
             transactionCreator: transactionCreator,
-            blockaidApiService: BlockaidFactory().makeBlockaidAPIService()
+            blockaidApiService: BlockaidFactory().makeBlockaidAPIService(),
+            pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher
         )
     }
 }
