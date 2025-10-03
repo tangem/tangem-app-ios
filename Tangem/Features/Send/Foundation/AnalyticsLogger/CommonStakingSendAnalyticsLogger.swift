@@ -198,7 +198,7 @@ extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             .token: tokenItem.currencySymbol,
             .errorCode: "\(error.universalErrorCode)",
             .blockchain: tokenItem.blockchain.displayName,
-            .selectedHost: error.lastRetryHost ?? "",
+            .selectedHost: error.sanitizedLastRetryHost ?? "",
         ])
     }
 

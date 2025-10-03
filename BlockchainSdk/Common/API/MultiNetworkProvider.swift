@@ -31,9 +31,7 @@ extension MultiNetworkProvider {
         return providers[currentProviderIndex]
     }
 
-    var host: String {
-        host ?? .unknown
-    }
+    var host: String { provider?.host ?? .unknown }
 
     func providerPublisher<T>(for requestPublisher: @escaping (_ provider: Provider) -> AnyPublisher<T, Error>) -> AnyPublisher<T, Error> {
         guard let provider else {
