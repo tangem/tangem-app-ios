@@ -11,11 +11,12 @@ import struct SwiftUI.Color
 import enum BlockchainSdk.Blockchain
 import TangemAssets
 import TangemLocalization
+import TangemUI
 
 struct WalletConnectDAppConnectionRequestViewState: Equatable {
     let navigationTitle = Localization.wcWalletConnect
 
-    var dAppDescriptionSection: WalletConnectDAppDescriptionViewModel
+    var dAppDescriptionSection: EntitySummaryView.ViewState
     var connectionRequestSection: ConnectionRequestSection
     var dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel?
 
@@ -132,12 +133,10 @@ extension WalletConnectDAppConnectionRequestViewState {
         let label = Localization.wcCommonWallet
         let selectionIsAvailable: Bool
         var selectedUserWalletName: String
-        var trailingIconAsset: ImageType?
 
         init(selectedUserWalletName: String, selectionIsAvailable: Bool) {
             self.selectedUserWalletName = selectedUserWalletName
             self.selectionIsAvailable = selectionIsAvailable
-            trailingIconAsset = selectionIsAvailable ? Assets.Glyphs.selectIcon : nil
         }
     }
 }
