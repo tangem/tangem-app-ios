@@ -14,8 +14,9 @@ import TangemFoundation
 // `002` - ExpressPendingTransactionRecordError.MigrationError
 // `003` - ExpressDestinationServiceError
 // `004` - CommonExpressAvailabilityProvider.Error
-// `005` -
+// `005` - ExpressTransactionBuilderError
 // `006` -
+// `007` -
 
 extension ExpressRepositoryError: UniversalError {
     var errorCode: Int {
@@ -60,6 +61,17 @@ extension CommonExpressAvailabilityProvider.Error: UniversalError {
         switch self {
         case .providerNotCreated:
             103004000
+        }
+    }
+}
+
+extension ExpressTransactionBuilderError: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .approveImpossibleInNotEvmBlockchain:
+            103005000
+        case .transactionDataForSwapOperationNotFound:
+            103005001
         }
     }
 }
