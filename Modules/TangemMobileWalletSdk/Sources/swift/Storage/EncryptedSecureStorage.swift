@@ -72,7 +72,8 @@ final class EncryptedSecureStorage {
         )
     }
 
-    func deleteData(keyTag: String) throws {
+    func deleteData(keyTag: String, secureEnclaveKeyTag: String) throws {
+        secureEnclaveService.delete(tag: secureEnclaveKeyTag)
         try secureStorage.delete(keyTag)
     }
 }
