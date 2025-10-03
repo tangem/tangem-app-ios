@@ -9,6 +9,8 @@
 import Combine
 import Foundation
 import TangemLogger
+import TangemUI
+import TangemAssets
 
 @MainActor
 final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
@@ -43,7 +45,22 @@ final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
 
         let dateFormatter = Self.makeDateFormatter()
         self.dateFormatter = dateFormatter
-        state = Self.makeInitialState(for: connectedDApp, using: dateFormatter, userWalletRepository: userWalletRepository, logger: logger)
+
+        var verifiedDomainForwarder: (() -> Void)?
+
+        state = Self.makeInitialState(
+            for: connectedDApp,
+            using: dateFormatter,
+            userWalletRepository: userWalletRepository,
+            logger: logger,
+            verifiedDomainAction: {
+                verifiedDomainForwarder?()
+            }
+        )
+
+        verifiedDomainForwarder = { [weak self] in
+            self?.handle(viewEvent: .verifiedDomainIconTapped)
+        }
 
         subscribeToConnectedTimeUpdates()
     }
@@ -142,7 +159,8 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         for dApp: WalletConnectConnectedDApp,
         using dateFormatter: RelativeDateTimeFormatter,
         userWalletRepository: some UserWalletRepository,
-        logger: TangemLogger.Logger
+        logger: TangemLogger.Logger,
+        verifiedDomainAction: @escaping () -> Void
     ) -> WalletConnectConnectedDAppDetailsViewState {
         let imageProvider = NetworkImageProvider()
         let walletName: String
@@ -154,15 +172,27 @@ extension WalletConnectConnectedDAppDetailsViewModel {
             walletName = ""
         }
 
+        let verifcationStatusIconConfig = EntitySummaryView.ViewState.TitleInfoConfig(
+            imageType: Assets.Glyphs.verified,
+            foregroundColor: Colors.Icon.accent,
+            onTap: verifiedDomainAction
+        )
+
         return WalletConnectConnectedDAppDetailsViewState.dAppDetails(
             WalletConnectConnectedDAppDetailsViewState.DAppDetails(
                 navigationBar: WalletConnectConnectedDAppDetailsViewState.DAppDetails.NavigationBar(
                     connectedTime: Self.connectedTime(for: dApp, using: dateFormatter)
                 ),
                 dAppDescriptionSection: .content(
-                    WalletConnectDAppDescriptionViewModel.ContentState(
-                        dAppData: dApp.dAppData,
-                        verificationStatus: dApp.verificationStatus
+                    EntitySummaryView.ViewState.ContentState(
+                        imageLocation: .remote(
+                            EntitySummaryView.ViewState.ContentState.ImageLocation.RemoteImageConfig(iconURL: dApp.dAppData.icon)
+                        ),
+                        title: dApp.dAppData.name,
+                        subtitle: dApp.dAppData.domain.host ?? "",
+                        titleInfoConfig: dApp.verificationStatus.isVerified
+                            ? verifcationStatusIconConfig
+                            : nil
                     )
                 ),
                 walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection(walletName: walletName),

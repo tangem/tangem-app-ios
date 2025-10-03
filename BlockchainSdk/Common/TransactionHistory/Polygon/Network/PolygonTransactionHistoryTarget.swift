@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemNetworkUtils
 
 struct PolygonTransactionHistoryTarget {
     let configuration: Configuration
@@ -18,7 +19,7 @@ struct PolygonTransactionHistoryTarget {
 
 extension PolygonTransactionHistoryTarget {
     enum Configuration {
-        case polygonScan(isTestnet: Bool, apiKey: String?)
+        case etherscan(chainId: Int, apiKey: String)
     }
 
     enum Target {
@@ -32,35 +33,36 @@ extension PolygonTransactionHistoryTarget {
 extension PolygonTransactionHistoryTarget: TargetType {
     var baseURL: URL {
         switch configuration {
-        case .polygonScan(let isTestnet, _):
-            let endpoint = isTestnet ? "api-testnet" : "api"
-            return URL(string: "https://\(endpoint).polygonscan.com")!
+        case .etherscan:
+            return URL(string: "https://api.etherscan.io/v2")!
         }
     }
 
     var path: String {
         switch configuration {
-        case .polygonScan:
+        case .etherscan:
             return "api"
         }
     }
 
     var method: Moya.Method {
         switch configuration {
-        case .polygonScan:
+        case .etherscan:
             return .get
         }
     }
 
     var task: Moya.Task {
         switch configuration {
-        case .polygonScan(_, let apiKey):
+        case .etherscan(let chainId, let apiKey):
             var parameters: [String: Any] = [
                 "module": "account",
                 "startblock": 0,
                 "endblock": 99999999,
                 "sort": "desc",
+                "chainid": chainId,
             ]
+
             parameters["apikey"] = apiKey
 
             switch target {
@@ -94,5 +96,15 @@ extension PolygonTransactionHistoryTarget: TargetType {
             "Content-Type": "application/json",
             "Accept": "application/json",
         ]
+    }
+}
+
+extension PolygonTransactionHistoryTarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        path
+    }
+
+    var shouldLogResponseBody: Bool {
+        false
     }
 }

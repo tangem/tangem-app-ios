@@ -17,6 +17,9 @@ final class MobileWalletSigner {
     let userWalletConfig: UserWalletConfig
     let mobileWalletSdk = CommonMobileWalletSdk()
 
+    @Injected(\.sessionMobileAccessCodeStorageManager)
+    private var accessCodeStorageManager: MobileAccessCodeStorageManager
+
     init(userWalletConfig: UserWalletConfig) {
         self.userWalletConfig = userWalletConfig
     }
@@ -90,7 +93,11 @@ extension MobileWalletSigner: TangemSigner {
 
 private extension MobileWalletSigner {
     func unlock(userWalletId: UserWalletId) async throws -> MobileWalletContext {
-        let authUtil = MobileAuthUtil(userWalletId: userWalletId, config: userWalletConfig)
+        let authUtil = MobileAuthUtil(
+            userWalletId: userWalletId,
+            config: userWalletConfig,
+            biometricsProvider: CommonUserWalletBiometricsProvider()
+        )
         let unlockResult = try await authUtil.unlock()
 
         return try await handleUnlockResult(unlockResult, userWalletId: userWalletId)

@@ -1,0 +1,70 @@
+{
+  "supportedCurves" : [
+    "secp256k1",
+    "ed25519",
+    "ed25519_slip0010",
+    "secp256r1",
+    "bls12381_G2",
+    "bls12381_G2_AUG",
+    "bls12381_G2_POP",
+    "bip0340"
+  ],
+  "settings" : {
+    "isLinkedTerminalEnabled" : true,
+    "supportedEncryptionModes" : [
+      "strong",
+      "fast",
+      "none"
+    ],
+    "isRemovingUserCodesAllowed" : false,
+    "isFilesAllowed" : true,
+    "isHDWalletAllowed" : true,
+    "isKeysImportAllowed" : true,
+    "maxWalletsCount" : 20,
+    "isSettingAccessCodeAllowed" : true,
+    "isBackupAllowed" : true,
+    "securityDelay" : 5000,
+    "isSettingPasscodeAllowed" : true,
+    "isPermanentWallet": false,
+    "isOverwritingIssuerExtraDataRestricted" : false,
+    "isIssuerDataProtectedAgainstReplay" : true,
+    "isSelectBlockchainAllowed" : true
+  },
+  "userSettings" : {
+    "isUserCodeRecoveryAllowed" : true
+  },
+  "isPasscodeSet" : false,
+  "batchId" : "CB00",
+  "cardPublicKey" : "0000",
+  "cardId" : "CB00000000000000",
+  "attestation" : {
+    "cardKeyAttestation" : "failed",
+    "firmwareAttestation" : "skipped",
+    "walletKeysAttestation" : "skipped",
+    "cardUniquenessAttestation" : "skipped"
+  },
+  "wallets" : [],
+  "isAccessCodeSet" : true,
+  "linkedTerminalStatus" : "none",
+  "backupStatus" : {
+    "status" : "noBackup"
+  },
+  "issuer" : {
+    "name" : "TANGEM SDK",
+    "publicKey" : "0000"
+  },
+  "manufacturer" : {
+    "name" : "TANGEM",
+    "manufactureDate" : "2021-03-15",
+    "signature" : "0000"
+  },
+  "firmwareVersion" : {
+    "major" : 6,
+    "patch" : 0,
+    "minor" : 33,
+    "stringValue" : "6.33d SDK",
+    "type" : "d SDK"
+  }
+}
+
+

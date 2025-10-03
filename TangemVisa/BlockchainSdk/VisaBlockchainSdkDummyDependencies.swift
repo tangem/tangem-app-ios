@@ -18,7 +18,7 @@ public struct VisaDummyBlockchainDataProvider: BlockchainDataProvider {
     public init() {}
 }
 
-public class VisaDummyTransactionDependencies: TransactionCreator, TransactionSender {
+public class VisaDummyTransactionDependencies: TransactionCreator, TransactionSender, CompiledTransactionSender {
     public var wallet: Wallet
     public var state: WalletManagerState
 
@@ -38,6 +38,11 @@ public class VisaDummyTransactionDependencies: TransactionCreator, TransactionSe
     public func send(_ transaction: Transaction, signer: any TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         let error = SendTxError(error: VisaDummyTransactionDependencies.Error.notSupported)
         return Fail(error: error).eraseToAnyPublisher()
+    }
+
+    public func send(compiledTransaction data: Data, signer: any BlockchainSdk.TransactionSigner) async throws -> TransactionSendResult {
+        let error = SendTxError(error: VisaDummyTransactionDependencies.Error.notSupported)
+        throw error
     }
 }
 

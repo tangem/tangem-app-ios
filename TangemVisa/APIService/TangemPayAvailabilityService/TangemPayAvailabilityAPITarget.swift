@@ -21,6 +21,8 @@ struct TangemPayAvailabilityAPITarget: TargetType {
         switch target {
         case .getEligibility:
             return "customer/eligibility"
+        case .validateDeeplink:
+            return "deeplink/validate"
         }
     }
 
@@ -28,6 +30,8 @@ struct TangemPayAvailabilityAPITarget: TargetType {
         switch target {
         case .getEligibility:
             return .get
+        case .validateDeeplink:
+            return .post
         }
     }
 
@@ -35,6 +39,9 @@ struct TangemPayAvailabilityAPITarget: TargetType {
         switch target {
         case .getEligibility:
             return .requestPlain
+        case .validateDeeplink(let deeplinkString):
+            let requestData = ValidateDeeplinkRequest(link: deeplinkString)
+            return .requestJSONEncodable(requestData)
         }
     }
 
@@ -47,5 +54,6 @@ extension TangemPayAvailabilityAPITarget {
     enum Target {
         /// Checks Tangem Pay offer availability for user
         case getEligibility
+        case validateDeeplink(deeplinkString: String)
     }
 }

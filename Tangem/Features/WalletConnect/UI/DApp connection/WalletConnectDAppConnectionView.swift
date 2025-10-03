@@ -11,6 +11,7 @@ import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WalletConnectDAppConnectionView: View {
     @ObservedObject var viewModel: WalletConnectDAppConnectionViewModel
@@ -150,11 +151,8 @@ struct WalletConnectDAppConnectionView: View {
         }
         .background {
             ListFooterOverlayShadowView(
-                colors: [
-                    Colors.Background.tertiary.opacity(0.0),
-                    Colors.Background.tertiary.opacity(0.95),
-                    Colors.Background.tertiary,
-                ]
+                color: Colors.Background.tertiary,
+                opacities: [0.0, 0.95, 1]
             )
             .padding(.top, 6)
         }
@@ -172,6 +170,7 @@ struct WalletConnectDAppConnectionView: View {
                     viewModel.handle(viewEvent: .cancelButtonTapped)
                 }
             )
+            .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.cancelButton)
 
             MainButton(
                 title: viewModel.state.connectButton.title,
@@ -181,6 +180,7 @@ struct WalletConnectDAppConnectionView: View {
                     viewModel.handle(viewEvent: .connectButtonTapped)
                 }
             )
+            .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.connectButton)
         }
         .padding(16)
         .transformEffect(.identity)

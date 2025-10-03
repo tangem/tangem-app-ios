@@ -135,7 +135,7 @@ public final class VisaCardScanHandler: CardSessionRunnable {
         VisaLogger.info("Receive authorization tokens response")
 
         VisaLogger.info("Authorized using Wallet public key successfully")
-        try visaRefreshTokenRepository.save(refreshToken: authorizationTokensResponse.refreshToken, cardId: cardId)
+        try visaRefreshTokenRepository.save(refreshToken: authorizationTokensResponse.refreshToken, visaRefreshTokenId: .cardId(cardId))
 
         return .activated(authTokens: authorizationTokensResponse)
     }

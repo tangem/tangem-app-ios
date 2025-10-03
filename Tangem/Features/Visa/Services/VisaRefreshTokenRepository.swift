@@ -23,24 +23,24 @@ extension InjectedValues {
 }
 
 class CommonVisaRefreshTokenRepository: VisaRefreshTokenRepository {
-    private(set) var tokens: [String: String] = [:]
+    private(set) var tokens: [VisaRefreshTokenId: String] = [:]
 
     private let secureStorage = SecureStorage()
     private let biometricsStorage = BiometricsStorage()
 
-    func save(refreshToken: String, cardId: String) throws {
-        if tokens[cardId] == refreshToken {
+    func save(refreshToken: String, visaRefreshTokenId: VisaRefreshTokenId) throws {
+        if tokens[visaRefreshTokenId] == refreshToken {
             return
         }
 
-        tokens[cardId] = refreshToken
+        tokens[visaRefreshTokenId] = refreshToken
         guard BiometricsUtil.isAvailable, AppSettings.shared.saveUserWallets else {
             return
         }
 
-        let key = makeRefreshTokenStorageKey(cardId: cardId)
-        var savedCardIds = loadStoredCardIds()
-        if savedCardIds.contains(cardId) {
+        let key = makeRefreshTokenStorageKey(visaRefreshTokenId: visaRefreshTokenId)
+        var savedVisaRefreshTokenIds = loadStoredVisaRefreshTokenIds()
+        if savedVisaRefreshTokenIds.contains(visaRefreshTokenId) {
             try biometricsStorage.delete(key)
         }
 
@@ -49,36 +49,36 @@ class CommonVisaRefreshTokenRepository: VisaRefreshTokenRepository {
         }
 
         try biometricsStorage.store(tokenData, forKey: key)
-        savedCardIds.insert(cardId)
+        savedVisaRefreshTokenIds.insert(visaRefreshTokenId)
 
-        storeCardsIds(savedCardIds)
+        storeVisaRefreshTokenIds(savedVisaRefreshTokenIds)
     }
 
-    func deleteToken(cardId: String) throws {
-        tokens.removeValue(forKey: cardId)
+    func deleteToken(visaRefreshTokenId: VisaRefreshTokenId) throws {
+        tokens.removeValue(forKey: visaRefreshTokenId)
 
         guard BiometricsUtil.isAvailable else {
             return
         }
 
-        var savedCardIds = loadStoredCardIds()
-        guard savedCardIds.contains(cardId) else {
+        var savedVisaRefreshTokenIds = loadStoredVisaRefreshTokenIds()
+        guard savedVisaRefreshTokenIds.contains(visaRefreshTokenId) else {
             return
         }
-        savedCardIds.remove(cardId)
+        savedVisaRefreshTokenIds.remove(visaRefreshTokenId)
 
-        let storageKey = makeRefreshTokenStorageKey(cardId: cardId)
+        let storageKey = makeRefreshTokenStorageKey(visaRefreshTokenId: visaRefreshTokenId)
         try biometricsStorage.delete(storageKey)
 
-        storeCardsIds(savedCardIds)
+        storeVisaRefreshTokenIds(savedVisaRefreshTokenIds)
     }
 
     func clearPersistent() {
         do {
-            let savedCardIds = loadStoredCardIds()
-            storeCardsIds([])
-            for cardId in savedCardIds {
-                let storageKey = makeRefreshTokenStorageKey(cardId: cardId)
+            let savedVisaRefreshTokenIds = loadStoredVisaRefreshTokenIds()
+            storeVisaRefreshTokenIds([])
+            for visaRefreshTokenId in savedVisaRefreshTokenIds {
+                let storageKey = makeRefreshTokenStorageKey(visaRefreshTokenId: visaRefreshTokenId)
                 try biometricsStorage.delete(storageKey)
             }
         } catch {
@@ -88,18 +88,18 @@ class CommonVisaRefreshTokenRepository: VisaRefreshTokenRepository {
 
     func fetch(using context: LAContext) {
         do {
-            var loadedTokens = [String: String]()
-            for cardId in loadStoredCardIds() {
-                let key = makeRefreshTokenStorageKey(cardId: cardId)
+            var loadedTokens = [VisaRefreshTokenId: String]()
+            for visaRefreshTokenId in loadStoredVisaRefreshTokenIds() {
+                let key = makeRefreshTokenStorageKey(visaRefreshTokenId: visaRefreshTokenId)
                 guard let refreshTokenData = try biometricsStorage.get(key, context: context) else {
                     continue
                 }
 
-                loadedTokens[cardId] = String(data: refreshTokenData, encoding: .utf8)
+                loadedTokens[visaRefreshTokenId] = String(data: refreshTokenData, encoding: .utf8)
             }
 
             tokens = loadedTokens
-            storeCardsIds(Set(loadedTokens.keys))
+            storeVisaRefreshTokenIds(Set(loadedTokens.keys))
         } catch {
             VisaLogger.error("Failted to fetch token from storage", error: error)
         }
@@ -110,32 +110,36 @@ class CommonVisaRefreshTokenRepository: VisaRefreshTokenRepository {
         VisaLogger.info("Repository locked")
     }
 
-    func getToken(forCardId cardId: String) -> String? {
-        return tokens[cardId]
+    func getToken(forVisaRefreshTokenId visaRefreshTokenId: VisaRefreshTokenId) -> String? {
+        return tokens[visaRefreshTokenId]
     }
 
-    private func makeRefreshTokenStorageKey(cardId: String) -> String {
-        return "\(StorageKey.visaRefreshToken.rawValue)_\(cardId)"
+    private func makeRefreshTokenStorageKey(visaRefreshTokenId: VisaRefreshTokenId) -> String {
+        return "\(StorageKey.visaRefreshToken.rawValue)_\(visaRefreshTokenId.rawValue)"
     }
 
-    private func loadStoredCardIds() -> Set<String> {
+    private func loadStoredVisaRefreshTokenIds() -> Set<VisaRefreshTokenId> {
         do {
-            guard let data = try secureStorage.get(StorageKey.visaCardIds.rawValue) else {
+            guard let data = try secureStorage.get(StorageKey.visaRefreshTokenIds.rawValue) else {
                 return []
             }
 
-            let cards = try JSONDecoder().decode(Set<String>.self, from: data)
-            return cards
+            let visaRefreshTokenIds = try JSONDecoder()
+                .decode(Set<String>.self, from: data)
+                .compactMap(VisaRefreshTokenId.init)
+
+            return Set(visaRefreshTokenIds)
         } catch {
-            VisaLogger.error("Failed to load and decode stored card ids", error: error)
+            VisaLogger.error("Failed to load and decode stored visa wallet ids", error: error)
             return []
         }
     }
 
-    private func storeCardsIds(_ cardIds: Set<String>) {
+    private func storeVisaRefreshTokenIds(_ visaRefreshTokenIds: Set<VisaRefreshTokenId>) {
         do {
-            let data = try JSONEncoder().encode(cardIds)
-            try secureStorage.store(data, forKey: StorageKey.visaCardIds.rawValue)
+            let setOfStrings = Set<String>(visaRefreshTokenIds.map(\.rawValue))
+            let data = try JSONEncoder().encode(setOfStrings)
+            try secureStorage.store(data, forKey: StorageKey.visaRefreshTokenIds.rawValue)
         } catch {
             VisaLogger.error("Failed to encode and store card ids", error: error)
         }
@@ -144,7 +148,7 @@ class CommonVisaRefreshTokenRepository: VisaRefreshTokenRepository {
 
 extension CommonVisaRefreshTokenRepository {
     enum StorageKey: String {
-        case visaCardIds
+        case visaRefreshTokenIds
         case visaRefreshToken
     }
 }

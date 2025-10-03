@@ -155,6 +155,64 @@ struct SendScreenDataCollector: EmailDataCollector {
     }
 }
 
+// MARK: - SwapExpressDataCollector
+
+struct CompiledExpressDataCollector: EmailDataCollector {
+    var logData: Data? {
+        var data = userWalletEmailData
+        data.append(.separator(.dashes))
+
+        data.append(EmailCollectedData(
+            type: .card(.blockchain),
+            data: walletModel.tokenItem.blockchainNetwork.blockchain.displayName
+        ))
+
+        // Did display current wallet manager curreny host by provider
+        data.append(EmailCollectedData(type: .wallet(.walletManagerHost), data: walletModel.blockchainDataProvider.currentHost))
+
+        if let outputsDescription = walletModel.blockchainDataProvider.outputsCount?.description {
+            data.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
+        }
+
+        if let errorDescription = lastError?.error.toUniversalError().localizedDescription {
+            data.append(EmailCollectedData(type: .error, data: errorDescription))
+        }
+
+        let derivationPath = walletModel.publicKey.derivationPath
+        data.append(EmailCollectedData(type: .wallet(.derivationPath), data: derivationPath?.rawPath ?? "[default]"))
+
+        data.append(.separator(.dashes))
+
+        data.append(contentsOf: [
+            EmailCollectedData(type: .send(.transactionHex), data: transactionHex),
+        ])
+
+        // The last retry attempt by the host caused an error with txHex string
+        if let exceptionHost = lastError?.lastRetryHost {
+            data.append(EmailCollectedData(type: .wallet(.exceptionWalletManagerHost), data: exceptionHost))
+        }
+
+        return formatData(data)
+    }
+
+    private let userWalletEmailData: [EmailCollectedData]
+    private let walletModel: any WalletModel
+    private let transactionHex: String
+    private let lastError: SendTxError?
+
+    init(
+        userWalletEmailData: [EmailCollectedData],
+        walletModel: any WalletModel,
+        transactionHex: String,
+        lastError: SendTxError?
+    ) {
+        self.userWalletEmailData = userWalletEmailData
+        self.walletModel = walletModel
+        self.transactionHex = transactionHex
+        self.lastError = lastError
+    }
+}
+
 // MARK: - PushScreenDataCollector
 
 struct PushScreenDataCollector: EmailDataCollector {

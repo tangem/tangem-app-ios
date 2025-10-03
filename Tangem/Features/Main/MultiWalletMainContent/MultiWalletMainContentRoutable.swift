@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemNFT
+import TangemMobileWalletSdk
 
 protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openTokenDetails(for model: any WalletModel, userWalletModel: UserWalletModel)
@@ -16,4 +17,6 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
     func openReferral(input: ReferralInputModel)
     func openMobileFinishActivation(userWalletModel: UserWalletModel)
+    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext)
+    func openMobileBackupOnboarding(userWalletModel: UserWalletModel)
 }

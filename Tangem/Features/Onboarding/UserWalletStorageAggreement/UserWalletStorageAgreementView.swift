@@ -16,6 +16,16 @@ struct UserWalletStorageAgreementView: View {
 
     @Environment(\.colorScheme) private var colorScheme
 
+    var declineButtonTitle: String {
+        switch source {
+        case .upgradeMobile:
+            Localization.commonNotNow
+        case .backupCard:
+            Localization.saveUserWalletAgreementDontAllow
+        }
+    }
+
+    private let source: Source
     private let topInset: CGFloat
 
     var body: some View {
@@ -64,7 +74,7 @@ struct UserWalletStorageAgreementView: View {
                 MainButton(title: BiometricAuthorizationUtils.allowButtonTitle, action: viewModel.accept)
 
                 MainButton(
-                    title: Localization.saveUserWalletAgreementDontAllow,
+                    title: declineButtonTitle,
                     style: .secondary,
                     action: viewModel.decline
                 )
@@ -93,9 +103,18 @@ struct UserWalletStorageAgreementView: View {
 
     init(
         viewModel: UserWalletStorageAgreementViewModel,
+        source: Source,
         topInset: CGFloat
     ) {
         self.viewModel = viewModel
+        self.source = source
         self.topInset = topInset
+    }
+}
+
+extension UserWalletStorageAgreementView {
+    enum Source {
+        case upgradeMobile
+        case backupCard
     }
 }

@@ -9,7 +9,7 @@
 import XCTest
 import TangemAccessibilityIdentifiers
 
-final class StakingSendScreen: ScreenBase<SendScreenElement> {
+final class StakingSendScreen: ScreenBase<StakingSendScreenElement> {
     private lazy var titleLabel = staticText(.title)
     private lazy var amountTextField = textField(.amountTextField)
     private lazy var nextButton = button(.nextButton)
@@ -53,7 +53,7 @@ final class StakingSendScreen: ScreenBase<SendScreenElement> {
     }
 }
 
-enum SendScreenElement: String, UIElement {
+enum StakingSendScreenElement: String, UIElement {
     case title
     case amountTextField
     case nextButton
