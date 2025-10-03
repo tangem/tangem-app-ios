@@ -9,7 +9,10 @@
 import TangemAccounts
 
 enum AccountModelToUserSettingsViewDataMapper {
-    static func map(from accountModel: AccountModel, onTap: @escaping (any BaseAccountModel) -> Void) -> [UserSettingsAccountRowViewData] {
+    static func map(
+        from accountModel: AccountModel,
+        onTap: @escaping (any BaseAccountModel) -> Void
+    ) -> [UserSettingsAccountRowViewData] {
         switch accountModel {
         case .standard(let cryptoAccounts):
             mapStandardCryptoAccounts(cryptoAccounts, onTap: onTap)
