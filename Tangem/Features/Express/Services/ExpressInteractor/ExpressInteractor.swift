@@ -234,6 +234,7 @@ extension ExpressInteractor {
                 guard let provider = await expressManager.getSelectedProvider() else {
                     throw ExpressInteractorError.providerNotFound
                 }
+
                 return try await sendDEXTransaction(state: state, provider: provider.provider)
             }
         }()
@@ -279,7 +280,7 @@ extension ExpressInteractor {
 
         let sender = getSender()
         let transaction = try await sender.expressTransactionBuilder.makeApproveTransaction(data: state.data, fee: fee)
-        let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .transfer(transaction))
+        let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .express(transaction))
 
         ExpressLogger.info("Sent the approve transaction with result: \(result)")
         sender.allowanceService.didSendApproveTransaction(for: state.data.spender)
@@ -513,7 +514,7 @@ private extension ExpressInteractor {
         let fee = try state.fees.selectedFee()
         let sender = getSender()
         let transaction = try await sender.expressTransactionBuilder.makeTransaction(data: state.data, fee: fee)
-        let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .transfer(transaction))
+        let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .express(transaction))
 
         return TransactionSendResultState(dispatcherResult: result, data: state.data, fee: fee, provider: provider)
     }
@@ -523,7 +524,7 @@ private extension ExpressInteractor {
         let sender = getSender()
         let data = try await expressManager.requestData()
         let transaction = try await sender.expressTransactionBuilder.makeTransaction(data: data, fee: fee)
-        let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .transfer(transaction))
+        let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .express(transaction))
 
         return TransactionSendResultState(dispatcherResult: result, data: data, fee: fee, provider: provider)
     }
