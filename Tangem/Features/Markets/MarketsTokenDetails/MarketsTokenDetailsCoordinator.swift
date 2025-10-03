@@ -180,7 +180,7 @@ extension MarketsTokenDetailsCoordinator {
         let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(
             input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
-            type: .onramp,
+            type: .onramp(),
             source: .markets
         )
         coordinator.start(with: options)

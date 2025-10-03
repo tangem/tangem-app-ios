@@ -38,6 +38,9 @@ struct MobileOnboardingCreateWalletView: View {
                 action: viewModel.onCreateTap
             )
         }
+        .onAppear {
+            viewModel.onAppear()
+        }
         .flowLoadingOverlay(isPresented: viewModel.isCreating)
         .padding(.top, 64)
         .padding(.horizontal, 16)
