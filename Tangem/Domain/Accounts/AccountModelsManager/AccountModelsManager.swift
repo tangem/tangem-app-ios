@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 
-// [REDACTED_TODO_COMMENT]
 protocol AccountModelsManager {
     /// Indicates whether the user can add more additional (not `Main`) crypto accounts to the wallet.
     var canAddCryptoAccounts: Bool { get }

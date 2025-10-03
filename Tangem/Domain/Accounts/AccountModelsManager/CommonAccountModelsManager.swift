@@ -300,7 +300,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
     }
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
+    nonisolated func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
         if info.id.isMainAccount {
             // Main account cannot be unarchived by definition
             throw .cannotUnarchiveCryptoAccount

@@ -86,7 +86,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
         removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier().toAnyHashable())
     }
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
         do {
             let persistentConfig = info.toPersistentConfig()
             let isMainAccount = AccountModelUtils.isMainAccount(persistentConfig.derivationIndex)
