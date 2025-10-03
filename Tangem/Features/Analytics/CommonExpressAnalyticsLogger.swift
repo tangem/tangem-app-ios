@@ -62,7 +62,7 @@ struct CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
         Analytics.log(event: .swapNoticeExpressError, params: parameters)
     }
 
-    func logSwapProvderError(_ error: ExpressProviderError, provider: ExpressProvider?) {
+    func logSwapProviderError(_ error: ExpressProviderError, provider: ExpressProvider?) {
         var parameters: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol,
             .errorCode: error.localizedDescription,

@@ -20,7 +20,7 @@ struct ExpressAnalyticsLoggerMock: ExpressAnalyticsLogger {
 
     func logExpressError(_ error: ExpressAPIError, provider: ExpressProvider?) {}
 
-    func logSwapProvderError(_ error: ExpressProviderError, provider: ExpressProvider?) {}
+    func logSwapProviderError(_ error: ExpressProviderError, provider: ExpressProvider?) {}
 
     func logSwapTransactionAnalyticsEvent(destination: String?) {}
 

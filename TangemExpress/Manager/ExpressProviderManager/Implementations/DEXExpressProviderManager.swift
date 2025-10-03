@@ -91,7 +91,7 @@ private extension DEXExpressProviderManager {
                 return .error(error, quote: .none)
             }
         } catch let error as ExpressProviderError {
-            analyticsLogger.logSwapProvderError(error, provider: provider)
+            analyticsLogger.logSwapProviderError(error, provider: provider)
             return .error(error, quote: .none)
         } catch {
             return .error(error, quote: .none)
