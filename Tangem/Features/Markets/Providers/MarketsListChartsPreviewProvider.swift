@@ -12,22 +12,23 @@ import TangemFoundation
 final class MarketsListChartsHistoryProvider {
     typealias TokensChartsHistory = [String: [MarketsPriceIntervalType: MarketsChartModel]]
 
-    // MARK: Dependencies
+    private static let maxNumberOfItemsPerRequest = 200
 
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-
-    // MARK: Published Properties
-
-    @Published var items: TokensChartsHistory = [:]
+    private let lock = Lock(isRecursive: false)
+    private let logger = AppLogger.tag("\(MarketsListChartsHistoryProvider.self)")
 
     private var requestedItemsDictionary: [MarketsPriceIntervalType: Set<String>] = [:]
-    private let lock = Lock(isRecursive: false)
 
-    // MARK: - Private Properties
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private var selectedCurrencyCode: String {
         AppSettings.shared.selectedCurrencyCode
     }
+
+    // MARK: Published Properties
+
+    @MainActor
+    @Published private(set) var items: TokensChartsHistory = [:]
 
     // MARK: - Implementation
 
@@ -37,24 +38,20 @@ final class MarketsListChartsHistoryProvider {
         }
 
         Task(priority: .medium) { [weak self] in
-            guard let filteredItems = self?.filterItemsToRequest(coinIds, interval: interval) else {
-                return
-            }
+            guard let strongSelf = self else { return }
+
+            let filteredItems = strongSelf.filterItemsToRequest(coinIds, fromItems: await strongSelf.items, interval: interval)
 
             do {
                 if filteredItems.isEmpty {
-                    self?.log("Filtered items list to request is empty. Skip loading")
+                    strongSelf.logger.info("Filtered items list to request is empty. Skip loading")
                     return
                 }
 
-                self?.log("Filtered items list to request is not empty. Attempting to fetch \(filteredItems.count) items")
+                strongSelf.logger.info("Filtered items list to request is not empty. Attempting to fetch \(filteredItems.count) items")
 
-                guard
-                    let responses = try await self?.fetchItems(ids: filteredItems, interval: interval),
-                    var copyItems: TokensChartsHistory = self?.items
-                else {
-                    return
-                }
+                let responses = try await strongSelf.fetchItems(ids: filteredItems, interval: interval)
+                var copyItems: TokensChartsHistory = await strongSelf.items
 
                 for response in responses {
                     for (key, value) in response {
@@ -62,32 +59,26 @@ final class MarketsListChartsHistoryProvider {
                     }
                 }
 
-                self?.items = copyItems
+                await MainActor.run { [copyItems] in
+                    strongSelf.items = copyItems
+                }
             } catch {
-                self?.log("Loaded charts history preview list tokens did receive error \(error.localizedDescription)")
+                strongSelf.logger.info("Loaded charts history preview list tokens did receive error \(error.localizedDescription)")
             }
 
-            self?.registerLoadedItems(requestedItemsIds: filteredItems, interval: interval)
+            strongSelf.registerLoadedItems(requestedItemsIds: filteredItems, interval: interval)
         }
     }
-
-    func reset() {
-        items = [:]
-    }
-}
-
-private extension MarketsListChartsHistoryProvider {
-    var maxNumberOfItemsPerRequest: Int { 200 }
 }
 
 // MARK: Private
 
 private extension MarketsListChartsHistoryProvider {
-    func log<T>(_ message: @autoclosure () -> T) {
-        AppLogger.tag(String(describing: self)).info(message())
-    }
-
-    func filterItemsToRequest(_ newItemsToRequest: [String], interval: MarketsPriceIntervalType) -> [String] {
+    func filterItemsToRequest(
+        _ newItemsToRequest: [String],
+        fromItems items: TokensChartsHistory,
+        interval: MarketsPriceIntervalType
+    ) -> [String] {
         let notLoadedItems = newItemsToRequest.filter { items[$0]?[interval] == nil }
         return lock {
             guard let alreadyRequestedItemsForInterval = requestedItemsDictionary[interval] else {
@@ -124,18 +115,18 @@ private extension MarketsListChartsHistoryProvider {
         var idsToRequest: [[String]] = []
 
         var offset = 0
-        log("Attempt to fetch items for interval: \(interval.rawValue). Number of items: \(ids.count)")
+        logger.info("Attempt to fetch items for interval: \(interval.rawValue). Number of items: \(ids.count)")
         while offset < ids.count {
-            if ids.count - offset <= maxNumberOfItemsPerRequest {
-                log("Number of items is less than or equal to max items per request. Executing one request")
+            if ids.count - offset <= Self.maxNumberOfItemsPerRequest {
+                logger.info("Number of items is less than or equal to max items per request. Executing one request")
                 idsToRequest.append(Array(ids[offset...]))
                 break
             } else {
                 let lowerBound = offset
-                offset += maxNumberOfItemsPerRequest
+                offset += Self.maxNumberOfItemsPerRequest
                 let range = lowerBound ..< offset
                 idsToRequest.append(Array(ids[range]))
-                log("Number of items is more than max per request. Adding to request list range: \(range)")
+                logger.info("Number of items is more than max per request. Adding to request list range: \(range)")
             }
         }
 
@@ -164,7 +155,7 @@ private extension MarketsListChartsHistoryProvider {
             interval: interval
         )
 
-        log("Loading market list tokens with request \(requestModel.parameters.debugDescription)")
+        logger.info("Loading market list tokens with request \(requestModel.parameters.debugDescription)")
 
         return try await tangemApiService.loadCoinsHistoryChartPreview(requestModel: requestModel)
     }
