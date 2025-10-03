@@ -24,6 +24,9 @@ protocol UserTokensManager: UserTokensReordering {
     func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token]
 
+    /// Checks if any tokenItem needs derivation by card
+    func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool
+
     /// Update storage with derivation
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void)
     /// Update storage without derivation
