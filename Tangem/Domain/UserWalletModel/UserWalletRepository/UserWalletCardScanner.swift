@@ -12,7 +12,6 @@ import TangemFoundation
 
 class UserWalletCardScanner {
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
-    @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let scanner: CardScanner
@@ -50,7 +49,6 @@ class UserWalletCardScanner {
 
     private func handleSuccess(response: AppScanTaskResponse) -> UserWalletCardScanner.Result {
         failedCardScanTracker.resetCounter()
-        Analytics.endLoggingCardScan()
 
         let cardInfo = response.getCardInfo()
         let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
@@ -64,10 +62,8 @@ class UserWalletCardScanner {
             onboardingStepsBuilderFactory: config
         )
 
-        // need onboarding, update services and exit
+        // onboarding needed
         if let onboardingInput = factory.makeOnboardingInput(cardInfo: cardInfo) {
-            globalServicesContext.resetServices()
-            globalServicesContext.initializeAnalyticsContext(cardInfo: cardInfo)
             return .onboarding(onboardingInput: onboardingInput, cardInfo: cardInfo)
         }
 
