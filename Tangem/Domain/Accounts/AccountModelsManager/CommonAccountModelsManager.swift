@@ -45,7 +45,13 @@ actor CommonAccountModelsManager {
         self.areHDWalletsSupported = areHDWalletsSupported
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
+        CryptoAccountsGlobalStateProvider.shared.register(self, forIdentifier: userWalletId)
         initialize()
+    }
+
+    deinit {
+        // [REDACTED_TODO_COMMENT]
+        CryptoAccountsGlobalStateProvider.shared.unregister(self, forIdentifier: userWalletId)
     }
 
     private nonisolated func initialize() {
@@ -131,10 +137,13 @@ actor CommonAccountModelsManager {
             var cache: Cache = [:]
             let publisher = cryptoAccountsRepository
                 .cryptoAccountsPublisher
+                .combineLatest(CryptoAccountsGlobalStateProvider.shared.statePublisher)
                 .withWeakCaptureOf(self)
-                .asyncMap { manager, cryptoAccounts -> [AccountModel] in
-                    let cryptoAccountModels = await manager.makeCryptoAccountModels(from: cryptoAccounts, cache: &cache)
-                    let cryptoAccounts = CryptoAccounts(accounts: cryptoAccountModels)
+                .asyncMap { manager, input -> [AccountModel] in
+                    let (storedCryptoAccounts, globalState) = input
+                    let cryptoAccountModels = await manager.makeCryptoAccountModels(from: storedCryptoAccounts, cache: &cache)
+                    let cryptoAccountsBuilder = CryptoAccountsBuilder(globalState: globalState)
+                    let cryptoAccounts = cryptoAccountsBuilder.build(from: cryptoAccountModels)
 
                     return [
                         .standard(cryptoAccounts),
