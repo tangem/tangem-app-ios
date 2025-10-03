@@ -68,7 +68,8 @@ public extension ProvidersList {
 
                 case .loaded(let quote) where bestQuote != nil:
                     let percent = quote.expectedAmount / bestQuote! - 1
-                    provider.update(globalAttractiveType: .loss(percent: percent))
+                    let rounded = percent.rounded(scale: 4)
+                    provider.update(globalAttractiveType: .loss(percent: rounded))
 
                 default:
                     provider.update(globalAttractiveType: .none)
