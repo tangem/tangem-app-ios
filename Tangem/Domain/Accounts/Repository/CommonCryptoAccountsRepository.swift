@@ -86,8 +86,8 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         addCryptoAccount(withConfig: config, tokens: storedTokens)
     }
 
-    func removeCryptoAccount(withIdentifier identifier: AnyHashable) {
-        persistentStorage.removeAll { $0.derivationIndex.toAnyHashable() == identifier }
+    func removeCryptoAccount<T: Hashable>(withIdentifier identifier: T) {
+        persistentStorage.removeAll { $0.derivationIndex.toAnyHashable() == identifier.toAnyHashable() }
     }
 }
 
