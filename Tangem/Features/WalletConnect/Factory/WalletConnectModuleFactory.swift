@@ -379,7 +379,10 @@ enum WalletConnectModuleFactory {
              .wrongCardSelected,
              .userWalletRepositoryIsLocked,
              .missingActiveUserWalletModel,
-             .userWalletIsLocked:
+             .userWalletIsLocked,
+             .unsupportedWCVersion,
+             .missingEthTransactionSigner,
+             .missingGasLoader:
             // [REDACTED_TODO_COMMENT]
             return nil
         }
