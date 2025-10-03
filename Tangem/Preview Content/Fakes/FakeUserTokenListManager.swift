@@ -81,7 +81,7 @@ class FakeUserTokenListManager: UserTokenListManager {
 
     func upload() {}
 
-    func updateLocalRepositoryFromServer(_ completion: @escaping (Result<Void, Error>) -> Void) {
+    func updateLocalRepositoryFromServer(_ completion: @escaping Completion) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             let converter = StorageEntryConverter()
             let blockchainNetwork = BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)

@@ -14,8 +14,6 @@ import struct BlockchainSdk.Token
 import struct TangemSdk.DerivationPath
 
 final class CommonUserTokenListManager {
-    typealias Completion = (Result<Void, Swift.Error>) -> Void
-
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.wcService) private var wcService: any WCService
 

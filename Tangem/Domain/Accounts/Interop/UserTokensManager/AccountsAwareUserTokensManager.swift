@@ -91,12 +91,14 @@ struct _StorageEntryConverter {
 
 // [REDACTED_TODO_COMMENT]
 protocol _UserTokenListManager {
+    typealias Completion = (Result<Void, Swift.Error>) -> Void
+
     var cryptoAccountPublisher: AnyPublisher<StoredCryptoAccount, Never> { get }
     var cryptoAccount: StoredCryptoAccount { get }
 
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool)
     func update(with info: StoredCryptoAccountUpdateInfo)
-    func updateLocalRepositoryFromServer(_ completion: @escaping (Result<Void, any Error>) -> Void)
+    func updateLocalRepositoryFromServer(_ completion: @escaping Completion)
     func upload()
 }
 

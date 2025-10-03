@@ -11,6 +11,8 @@ import BlockchainSdk
 
 // [REDACTED_TODO_COMMENT]
 protocol UserTokenListManager: UserTokensSyncService {
+    typealias Completion = (Result<Void, Swift.Error>) -> Void
+
     @available(*, deprecated, message: "Get rid of this property")
     var userTokens: [StorageEntry] { get }
     @available(*, deprecated, message: "Get rid of this property")
@@ -26,7 +28,7 @@ protocol UserTokenListManager: UserTokensSyncService {
     @available(*, deprecated, message: "Get rid of this property")
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool)
     @available(*, deprecated, message: "Get rid of this property")
-    func updateLocalRepositoryFromServer(_ completion: @escaping (Result<Void, Error>) -> Void)
+    func updateLocalRepositoryFromServer(_ completion: @escaping Completion)
     @available(*, deprecated, message: "Get rid of this property")
     func upload()
 }
