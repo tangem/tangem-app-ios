@@ -126,7 +126,7 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var emailData: [EmailCollectedData] {
-        CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
+        EmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
     var userWalletIdSeed: Data? {
@@ -437,6 +437,10 @@ extension Wallet2Config: UserWalletConfig {
             return .hidden
         case .isBalanceRestrictionActive:
             return .hidden
+        case .userWalletUpgrade:
+            return .hidden
+        case .cardSettings:
+            return .available
         }
     }
 

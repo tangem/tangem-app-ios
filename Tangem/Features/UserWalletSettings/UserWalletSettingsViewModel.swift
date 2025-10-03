@@ -26,6 +26,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Published private(set) var name: String
     @Published var accountsSection: [AccountsSectionType] = []
+    @Published var mobileUpgradeNotificationInput: NotificationViewInput?
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
 
@@ -75,6 +76,8 @@ final class UserWalletSettingsViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.walletSettingsScreenOpened)
+
         setupView()
     }
 
@@ -107,6 +110,7 @@ private extension UserWalletSettingsViewModel {
     }
 
     func setupView() {
+        resetViewModels()
         // setupAccountsSection()
         setupViewModels()
         setupMobileViewModels()
@@ -117,14 +121,24 @@ private extension UserWalletSettingsViewModel {
         accountsSection = []
     }
 
+    func resetViewModels() {
+        backupViewModel = nil
+        manageTokensViewModel = nil
+        cardSettingsViewModel = nil
+        referralViewModel = nil
+        nftViewModel = nil
+        pushNotificationsViewModel = nil
+        mobileAccessCodeViewModel = nil
+        mobileBackupViewModel = nil
+        mobileUpgradeNotificationInput = nil
+    }
+
     func setupViewModels() {
         if !userWalletModel.config.getFeatureAvailability(.backup).isHidden {
             backupViewModel = DefaultRowViewModel(
                 title: Localization.detailsRowTitleCreateBackup,
                 action: weakify(self, forFunction: UserWalletSettingsViewModel.prepareBackup)
             )
-        } else {
-            backupViewModel = nil
         }
 
         if userWalletModel.config.hasFeature(.multiCurrency) {
@@ -134,10 +148,13 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        cardSettingsViewModel = DefaultRowViewModel(
-            title: Localization.cardSettingsTitle,
-            action: weakify(self, forFunction: UserWalletSettingsViewModel.openCardSettings)
-        )
+        if userWalletModel.config.hasFeature(.cardSettings) {
+            cardSettingsViewModel = DefaultRowViewModel(
+                title: Localization.cardSettingsTitle,
+                accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.deviceSettingsButton,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.openCardSettings)
+            )
+        }
 
         if !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden {
             referralViewModel =
@@ -146,8 +163,6 @@ private extension UserWalletSettingsViewModel {
                     accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.referralProgramButton,
                     action: weakify(self, forFunction: UserWalletSettingsViewModel.openReferral)
                 )
-        } else {
-            referralViewModel = nil
         }
 
         if nftAvailabilityProvider.isNFTAvailable(for: userWalletModel) {
@@ -160,8 +175,6 @@ private extension UserWalletSettingsViewModel {
                     set: { $0.isNFTEnabled = $1 }
                 )
             )
-        } else {
-            nftViewModel = nil
         }
 
         if FeatureProvider.isAvailable(.pushTransactionNotifications), userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
@@ -181,11 +194,18 @@ private extension UserWalletSettingsViewModel {
     func setupMobileViewModels() {
         mobileSettingsUtil.walletSettings.forEach { setting in
             switch setting {
-            case .accessCode:
+            case .setAccessCode:
                 mobileAccessCodeViewModel = DefaultRowViewModel(
-                    title: Localization.walletSettingsAccessCodeTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.MobileAccessCodeAction)
+                    title: Localization.walletSettingsSetAccessCodeTitle,
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
                 )
+
+            case .changeAccessCode:
+                mobileAccessCodeViewModel = DefaultRowViewModel(
+                    title: Localization.walletSettingsChangeAccessCodeTitle,
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
+                )
+
             case .backup(let needsBackup):
                 let detailsType: DefaultRowViewModel.DetailsType?
                 if needsBackup {
@@ -200,11 +220,28 @@ private extension UserWalletSettingsViewModel {
                     detailsType: detailsType,
                     action: weakify(self, forFunction: UserWalletSettingsViewModel.openMobileBackupTypes)
                 )
+
+            case .upgrade:
+                mobileUpgradeNotificationInput = mobileSettingsUtil.makeUpgradeNotificationInput(
+                    onContext: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationContext),
+                    onDismiss: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationDismiss)
+                )
             }
         }
     }
 
-    func MobileAccessCodeAction() {
+    func onMobileUpgradeNotificationContext(context: MobileWalletContext) {
+        coordinator?.openMobileUpgrade(userWalletModel: userWalletModel, context: context)
+    }
+
+    func onMobileUpgradeNotificationDismiss() {
+        setupView()
+    }
+
+    func mobileAccessCodeAction() {
+        let hasAccessCode = userWalletModel.config.hasFeature(.userWalletAccessCode)
+        Analytics.log(.walletSettingsButtonAccessCode, params: [.action: hasAccessCode ? .changing : .set])
+
         runTask(in: self) { viewModel in
             let state = await viewModel.mobileSettingsUtil.calculateAccessCodeState()
 
@@ -339,6 +376,8 @@ private extension UserWalletSettingsViewModel {
     }
 
     func openMobileBackupTypes() {
+        Analytics.log(.walletSettingsButtonBackup)
+
         coordinator?.openMobileBackupTypes(userWalletModel: userWalletModel)
     }
 }
