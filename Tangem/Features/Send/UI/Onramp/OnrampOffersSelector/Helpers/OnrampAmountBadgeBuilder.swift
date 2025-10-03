@@ -15,10 +15,11 @@ struct OnrampAmountBadgeBuilder {
         switch provider?.globalAttractiveType {
         case .best:
             return .best
-        case .loss(let percent):
+        // Show only negative loss badge
+        case .loss(let percent) where percent < 0:
             let formattedPercent = percentFormatter.format(percent, option: .onramp)
             return .loss(percent: formattedPercent, signType: .init(from: percent))
-        case .none:
+        case .none, .loss:
             return .none
         }
     }
