@@ -19,21 +19,31 @@ class ExpressNotificationManager {
 
     private weak var expressInteractor: ExpressInteractor?
     private weak var delegate: NotificationTapDelegate?
-    private var analyticsService: NotificationsAnalyticsService = .init()
+    private var analyticsService: NotificationsAnalyticsService
 
-    private var subscription: AnyCancellable?
+    private var bag: Set<AnyCancellable> = []
 
-    init(expressInteractor: ExpressInteractor) {
+    init(userWalletId: UserWalletId, expressInteractor: ExpressInteractor) {
         self.expressInteractor = expressInteractor
-        analyticsService.setup(with: self, contextDataProvider: nil)
+        analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
 
         bind()
     }
 
     private func bind() {
-        subscription = expressInteractor?.state
+        expressInteractor?.state
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: weakify(self, forFunction: ExpressNotificationManager.setupNotifications(for:)))
+            .store(in: &bag)
+
+        notificationPublisher
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { manager, notifications in
+                manager.analyticsService.sendEventsIfNeeded(for: notifications)
+            })
+            .store(in: &bag)
     }
 
     private func setupNotifications(for state: ExpressInteractor.State) {
