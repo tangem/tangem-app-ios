@@ -69,10 +69,6 @@ extension ScreenBase {
         app.collectionViews[element.accessibilityIdentifier].firstMatch.cells
     }
 
-    func staticTextByLabel(label: String) -> XCUIElement {
-        app.staticTexts.element(matching: NSPredicate(format: NSPredicateFormat.labelContains.rawValue, label))
-    }
-
     func cellContainsLabel(label: String) -> XCUIElementQuery {
         app.cells.containing(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, label))
     }
@@ -183,5 +179,22 @@ extension ScreenBase {
     func isElementVisible(_ element: XCUIElement) -> Bool {
         scrollToElement(element, attempts: .lazy)
         return element.isHittable
+    }
+
+    /// Waits for element existence and then asserts it exists
+    /// - Parameters:
+    ///   - element: The element to wait for and assert
+    ///   - timeout: Timeout for waiting (defaults to robustUIUpdate)
+    ///   - message: Optional message for the assertion
+    func waitAndAssertTrue(
+        _ element: XCUIElement,
+        timeout: TimeInterval = .robustUIUpdate,
+        _ message: String? = nil
+    ) {
+        let elementExists = element.waitForExistence(timeout: timeout)
+        XCTAssertTrue(
+            elementExists,
+            message ?? "Element should exist after waiting for \(timeout) seconds"
+        )
     }
 }
