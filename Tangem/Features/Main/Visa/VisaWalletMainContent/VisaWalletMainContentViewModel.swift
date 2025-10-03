@@ -19,7 +19,7 @@ import struct TangemUIUtils.AlertBinder
 protocol VisaWalletRoutable: AnyObject {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo])
     func openInSafari(url: URL)
-    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel)
+    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
     func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig)
 }
 
@@ -53,7 +53,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
     ]
 
     private var bag = Set<AnyCancellable>()
-    private var updateTask: Task<Void, Error>?
+    private var updateTask: Task<Void, Never>?
 
     init(
         visaWalletModel: VisaUserWalletModel,
@@ -116,23 +116,23 @@ class VisaWalletMainContentViewModel: ObservableObject {
         }
     }
 
-    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
+    func onPullToRefresh() async {
         guard updateTask == nil else {
             return
         }
 
         isTransactionHistoryReloading = true
-        updateTask = Task { [weak self] in
-            await self?.visaWalletModel.generalUpdateAsync()
-            try await Task.sleep(seconds: 0.2)
+        updateTask = runTask(in: self) { viewModel in
+            await viewModel.visaWalletModel.generalUpdateAsync()
+            try? await Task.sleep(seconds: 0.2)
 
-            await runOnMain {
-                self?.isTransactionHistoryReloading = false
-                completionHandler()
-            }
+            await runOnMain { viewModel.isTransactionHistoryReloading = false }
 
-            self?.updateTask = nil
+            viewModel.updateTask = nil
         }
+
+        // Wait while the task is finished
+        await updateTask?.value
     }
 
     private func bind() {
