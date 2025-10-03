@@ -577,6 +577,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             openMobileUpgrade()
         case .openBuyCrypto(let walletModel, let parameters):
             coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel, parameters: parameters)
+        case .allowPushPermissionRequest, .postponePushPermissionRequest:
+            userWalletNotificationManager.dismissNotification(with: id)
         default:
             break
         }
