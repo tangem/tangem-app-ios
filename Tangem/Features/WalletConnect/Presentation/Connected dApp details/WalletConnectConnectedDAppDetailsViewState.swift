@@ -9,6 +9,7 @@
 import struct Foundation.URL
 import TangemAssets
 import TangemLocalization
+import TangemUI
 
 enum WalletConnectConnectedDAppDetailsViewState: Equatable {
     case dAppDetails(DAppDetails)
@@ -31,7 +32,7 @@ enum WalletConnectConnectedDAppDetailsViewState: Equatable {
 extension WalletConnectConnectedDAppDetailsViewState {
     struct DAppDetails: Equatable {
         var navigationBar: NavigationBar
-        let dAppDescriptionSection: WalletConnectDAppDescriptionViewModel
+        let dAppDescriptionSection: EntitySummaryView.ViewState
         let walletSection: WalletSection?
         let dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel?
         let connectedNetworksSection: ConnectedNetworksSection?

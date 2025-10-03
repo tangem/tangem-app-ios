@@ -58,7 +58,7 @@ struct MainCoordinatorView: CoordinatorView {
             introspectedType: UINavigationController.self,
             updateOnChangeOf: responderChainIntrospectionTrigger
         ) { [weak navigationAssertion] navigationController in
-            navigationController.setDelegateSafe(navigationAssertion)
+            navigationController.safeSet(delegate: navigationAssertion)
         }
     }
 
@@ -111,6 +111,13 @@ struct MainCoordinatorView: CoordinatorView {
                         .navigationTitle(Localization.organizeTokensTitle)
                         .navigationBarTitleDisplayMode(.inline)
                 }
+            }
+            .sheet(item: $coordinator.mobileUpgradeCoordinator) {
+                MobileUpgradeCoordinatorView(coordinator: $0)
+                    .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
+                    .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                        coordinator.modalOnboardingCoordinatorKeeper = value
+                    })
             }
             .sheet(item: $coordinator.visaTransactionDetailsViewModel) {
                 VisaTransactionDetailsView(viewModel: $0)

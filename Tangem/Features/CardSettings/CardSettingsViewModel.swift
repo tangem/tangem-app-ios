@@ -11,6 +11,7 @@ import Combine
 import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 class CardSettingsViewModel: ObservableObject {
     // MARK: ViewState
@@ -116,6 +117,7 @@ private extension CardSettingsViewModel {
         if isResetToFactoryAvailable {
             resetToFactoryViewModel = DefaultRowViewModel(
                 title: Localization.cardSettingsResetCardToFactory,
+                accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.resetToFactorySettingsButton,
                 action: openResetCard
             )
         }
