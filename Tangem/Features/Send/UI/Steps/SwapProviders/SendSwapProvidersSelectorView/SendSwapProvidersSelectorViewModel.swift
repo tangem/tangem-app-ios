@@ -79,6 +79,14 @@ private extension SendSwapProvidersSelectorViewModel {
         input?
             .expressProvidersPublisher
             .withWeakCaptureOf(self)
+            .asyncMap { await $0.prepareProviderRows(providers: $1) }
+            .receiveOnMain()
+            .assign(to: &$providerViewModels)
+
+        input?
+            .expressProvidersPublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
             .sink { $0.updateView(providers: $1) }
             .store(in: &bag)
 
@@ -89,11 +97,8 @@ private extension SendSwapProvidersSelectorViewModel {
     }
 
     private func updateView(providers: [ExpressAvailableProvider]) {
-        runTask(in: self) { @MainActor viewModel in
-            viewModel.providers = providers
-            viewModel.showFCAWarningIfNeeded(providers: providers.map(\.provider))
-            viewModel.providerViewModels = await viewModel.prepareProviderRows(providers: providers)
-        }
+        self.providers = providers
+        showFCAWarningIfNeeded()
     }
 
     private func prepareProviderRows(providers: [ExpressAvailableProvider]) async -> [SendSwapProvidersSelectorProviderViewData] {
@@ -199,8 +204,8 @@ private extension SendSwapProvidersSelectorViewModel {
         return .percent(result.formattedText, signType: result.signType)
     }
 
-    private func showFCAWarningIfNeeded(providers: [ExpressProvider]) {
-        let allProviderIds = providers.map { $0.id }
+    private func showFCAWarningIfNeeded() {
+        let allProviderIds = providers.map { $0.provider.id }
 
         // Display FCA notification if the providers list contains FCA restriction for any provider
         let isRestrictableFCAIncluded = allProviderIds.contains(where: {
