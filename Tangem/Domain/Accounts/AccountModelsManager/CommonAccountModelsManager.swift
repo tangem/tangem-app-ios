@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemNFT
 
 actor CommonAccountModelsManager {
     private typealias AccountId = CommonCryptoAccountModel.AccountId
@@ -23,6 +24,8 @@ actor CommonAccountModelsManager {
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
     private let walletModelsManagerFactory: AccountWalletModelsManagerFactory
     private let userTokensManagerFactory: AccountUserTokensManagerFactory
+    private let nftManagerFactory: AccountNFTManagerFactory
+
     private let userWalletId: UserWalletId
     private let executor: any SerialExecutor
     private let areHDWalletsSupported: Bool
@@ -36,6 +39,7 @@ actor CommonAccountModelsManager {
         cryptoAccountsRepository: CryptoAccountsRepository,
         walletModelsManagerFactory: AccountWalletModelsManagerFactory,
         userTokensManagerFactory: AccountUserTokensManagerFactory,
+        nftManagerFactory: AccountNFTManagerFactory,
         areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
@@ -43,6 +47,7 @@ actor CommonAccountModelsManager {
         self.walletModelsManagerFactory = walletModelsManagerFactory
         self.userTokensManagerFactory = userTokensManagerFactory
         self.areHDWalletsSupported = areHDWalletsSupported
+        self.nftManagerFactory = nftManagerFactory
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
         initialize()
@@ -104,13 +109,19 @@ actor CommonAccountModelsManager {
                 userWalletId: userWalletId,
                 walletModelsManager: walletModelsManager
             )
+            let nftManager = nftManagerFactory.makeNFTManager(
+                userWalletId: userWalletId,
+                walletModelsManager: walletModelsManager
+            )
+
             let cryptoAccount = CommonCryptoAccountModel(
                 userWalletId: userWalletId,
                 accountName: storedCryptoAccount.name,
                 accountIcon: accountIcon,
                 derivationIndex: derivationIndex,
                 walletModelsManager: walletModelsManager,
-                userTokensManager: userTokensManager
+                userTokensManager: userTokensManager,
+                nftManager: nftManager
             )
 
             // Updating `cache` within this `compactMap` loop to reduce the number of iterations

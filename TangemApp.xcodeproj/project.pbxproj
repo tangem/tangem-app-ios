@@ -577,6 +577,7 @@
 		30410B452D7748740044C703 /* SolanaAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30410B442D77486F0044C703 /* SolanaAddressTests.swift */; };
 		30440D762D79A12C00460D15 /* PolygonAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30440D752D79A12500460D15 /* PolygonAddressTests.swift */; };
 		304B815A2DB8E00800D5F6C7 /* NFTAssetDetailsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304B81592DB8E00800D5F6C7 /* NFTAssetDetailsCoordinator.swift */; };
+		304CB02A2E8FD18500F631C8 /* CommonAccountsAwareNFTManagersFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304CB0292E8FD18500F631C8 /* CommonAccountsAwareNFTManagersFacade.swift */; };
 		304D34CD2D5F4AA7003CCAE5 /* local_tos.html in Resources */ = {isa = PBXBuildFile; fileRef = 304D34CC2D5F4A9C003CCAE5 /* local_tos.html */; };
 		304D34CF2D5F4ADD003CCAE5 /* WebViewTimeoutSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304D34CE2D5F4AD6003CCAE5 /* WebViewTimeoutSettings.swift */; };
 		305B22302D789B86009BCC73 /* TerraAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 305B222F2D789B7B009BCC73 /* TerraAddressTests.swift */; };
@@ -640,6 +641,8 @@
 		30C9C3262E76BF1400DC913B /* UserSettingsAccountsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C9C3252E76BF0400DC913B /* UserSettingsAccountsViewModel.swift */; };
 		30C9C32A2E76BFFB00DC913B /* AccountModelToUserSettingsViewDataMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C9C3292E76BFF400DC913B /* AccountModelToUserSettingsViewDataMapper.swift */; };
 		30D24FF92DA3FA42003B90B5 /* UIApplication+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D24FF82DA3FA42003B90B5 /* UIApplication+.swift */; };
+		30D965DD2E8D559F00E20129 /* AccountNFTManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D965DC2E8D559000E20129 /* AccountNFTManagerFactory.swift */; };
+		30D965DF2E8D56F000E20129 /* CommonAccountNFTManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D965DE2E8D56DB00E20129 /* CommonAccountNFTManagerFactory.swift */; };
 		30E0388B2D6DD7D600D9AD18 /* BinanceTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */; };
 		5D06E040250A5D54004218D0 /* NSRegularExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegularExpression+.swift */; };
 		5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */; };
@@ -4843,6 +4846,7 @@
 		30410B442D77486F0044C703 /* SolanaAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaAddressTests.swift; sourceTree = "<group>"; };
 		30440D752D79A12500460D15 /* PolygonAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolygonAddressTests.swift; sourceTree = "<group>"; };
 		304B81592DB8E00800D5F6C7 /* NFTAssetDetailsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetDetailsCoordinator.swift; sourceTree = "<group>"; };
+		304CB0292E8FD18500F631C8 /* CommonAccountsAwareNFTManagersFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAccountsAwareNFTManagersFacade.swift; sourceTree = "<group>"; };
 		304D34CC2D5F4A9C003CCAE5 /* local_tos.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = local_tos.html; sourceTree = "<group>"; };
 		304D34CE2D5F4AD6003CCAE5 /* WebViewTimeoutSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewTimeoutSettings.swift; sourceTree = "<group>"; };
 		305B222F2D789B7B009BCC73 /* TerraAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerraAddressTests.swift; sourceTree = "<group>"; };
@@ -4904,6 +4908,8 @@
 		30C9C3252E76BF0400DC913B /* UserSettingsAccountsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsAccountsViewModel.swift; sourceTree = "<group>"; };
 		30C9C3292E76BFF400DC913B /* AccountModelToUserSettingsViewDataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountModelToUserSettingsViewDataMapper.swift; sourceTree = "<group>"; };
 		30D24FF82DA3FA42003B90B5 /* UIApplication+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+.swift"; sourceTree = "<group>"; };
+		30D965DC2E8D559000E20129 /* AccountNFTManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountNFTManagerFactory.swift; sourceTree = "<group>"; };
+		30D965DE2E8D56DB00E20129 /* CommonAccountNFTManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAccountNFTManagerFactory.swift; sourceTree = "<group>"; };
 		30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceTransactionTests.swift; sourceTree = "<group>"; };
 		5D06E03F250A5D54004218D0 /* NSRegularExpression+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegularExpression+.swift"; sourceTree = "<group>"; };
 		5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentStorage.swift; sourceTree = "<group>"; };
@@ -10038,6 +10044,14 @@
 			path = AssetDetails;
 			sourceTree = "<group>";
 		};
+		304CB0282E8FD17500F631C8 /* TangemNFT */ = {
+			isa = PBXGroup;
+			children = (
+				304CB0292E8FD18500F631C8 /* CommonAccountsAwareNFTManagersFacade.swift */,
+			);
+			path = TangemNFT;
+			sourceTree = "<group>";
+		};
 		305B222E2D789B60009BCC73 /* Terra */ = {
 			isa = PBXGroup;
 			children = (
@@ -10200,6 +10214,23 @@
 				30B8D7DF2E81946000270458 /* UserSettingsAccountsSectionView.swift */,
 			);
 			path = UserSettings;
+			sourceTree = "<group>";
+		};
+		30D965DA2E8D557E00E20129 /* NFTManager */ = {
+			isa = PBXGroup;
+			children = (
+				30D965DB2E8D558800E20129 /* Factory */,
+			);
+			path = NFTManager;
+			sourceTree = "<group>";
+		};
+		30D965DB2E8D558800E20129 /* Factory */ = {
+			isa = PBXGroup;
+			children = (
+				30D965DE2E8D56DB00E20129 /* CommonAccountNFTManagerFactory.swift */,
+				30D965DC2E8D559000E20129 /* AccountNFTManagerFactory.swift */,
+			);
+			path = Factory;
 			sourceTree = "<group>";
 		};
 		30E038892D6DD78A00D9AD18 /* Binance */ = {
@@ -12708,6 +12739,7 @@
 		B61F2AFC2DB138EF00C994AA /* Modules Support */ = {
 			isa = PBXGroup;
 			children = (
+				304CB0282E8FD17500F631C8 /* TangemNFT */,
 				B66771E82DE3C7CA007563D0 /* TangemFoundation */,
 				B61F2AFE2DB1392C00C994AA /* TangemUI */,
 			);
@@ -15219,6 +15251,7 @@
 		B63F2B3F2E4E3F6800AFC60C /* Interop */ = {
 			isa = PBXGroup;
 			children = (
+				30D965DA2E8D557E00E20129 /* NFTManager */,
 				B6A2AB922E5FF33500A7CBFF /* WalletModelsManager */,
 				B6A2AB942E5FF35F00A7CBFF /* UserTokensManager */,
 			);
@@ -24298,6 +24331,7 @@
 				DAE4BB142CD796640020CE3F /* OnrampSettingsRoutable.swift in Sources */,
 				EFD39C912A6A8ACC0055D215 /* SupportedBlockchainsPreferencesView.swift in Sources */,
 				B0AA865426DC90FF00287F80 /* WelcomeViewModel.swift in Sources */,
+				30D965DD2E8D559F00E20129 /* AccountNFTManagerFactory.swift in Sources */,
 				B6AA136C2A2A375A00B53937 /* CardInfoPageTransactionPreviewSectionItem.swift in Sources */,
 				DA6C752429225F9B0070EEFD /* MinimizedAppTimer.swift in Sources */,
 				B0DC03E92A9CB15600058AEB /* FakeUserWalletNotificationManager.swift in Sources */,
@@ -24521,6 +24555,7 @@
 				B012A1172AA5CDBD0079BAB4 /* NotificationEvent.swift in Sources */,
 				EA3999352E76D884008E4932 /* YieldModuleStartViewModel.swift in Sources */,
 				B6CAC21B2E46C66D002DFA82 /* CryptoAccountsRepository.swift in Sources */,
+				304CB02A2E8FD18500F631C8 /* CommonAccountsAwareNFTManagersFacade.swift in Sources */,
 				EFC597BD2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift in Sources */,
 				0F2786452E2BA95000742D0F /* MobileOnboardingBackupSeedPhraseFlowBuilder.swift in Sources */,
 				DAF59CC62ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift in Sources */,
@@ -25629,6 +25664,7 @@
 				B69E7FC82B220C3400B78D9A /* Dictionary+.swift in Sources */,
 				C2FF50002DD6713600FE1D9E /* WalletConnectDAppConnectionRequestViewEvent.swift in Sources */,
 				DC3549E02E2DFC9500641727 /* WCNotificationEvent.swift in Sources */,
+				30D965DF2E8D56F000E20129 /* CommonAccountNFTManagerFactory.swift in Sources */,
 				DC3549E12E2DFC9500641727 /* WCNotificationManager.swift in Sources */,
 				EF42D7852D1D65D90065AFD1 /* TotalTokenBalanceProvider.swift in Sources */,
 				EF42D7862D1D65D90065AFD1 /* FiatTokenBalanceProvider.swift in Sources */,

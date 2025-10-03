@@ -345,8 +345,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             walletModelsManager: userWalletModel.walletModelsManager
         )
 
+        let workMode: CommonAccountsAwareNFTManagersFacade.WorkMode = FeatureProvider.isAvailable(.accounts)
+            ? .accounts(userWalletModel.accountModelsManager)
+            : .plainNFTManager(userWalletModel.nftManager)
+
         return NFTEntrypointViewModel(
-            nftManager: userWalletModel.nftManager,
+            nftManagersFacade: CommonAccountsAwareNFTManagersFacade(workMode: workMode),
             navigationContext: navigationContext,
             analytics: NFTAnalytics.Entrypoint(
                 logCollectionsOpen: { state, collectionsCount, nftsCount, dummyCollectionsCount in

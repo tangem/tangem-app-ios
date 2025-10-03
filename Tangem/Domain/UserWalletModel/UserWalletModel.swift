@@ -28,7 +28,6 @@ protocol UserWalletModel:
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
     var tangemApiAuthData: TangemApiAuthorizationData? { get }
-    var nftManager: NFTManager { get }
     var keysRepository: KeysRepository { get }
     var refcodeProvider: RefcodeProvider? { get }
     var signer: TangemSigner { get }
@@ -53,6 +52,9 @@ protocol UserWalletModel:
 
     @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokenListManager' instead")
     var userTokenListManager: UserTokenListManager { get }
+
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'nftManager' instead")
+    var nftManager: NFTManager { get }
 }
 
 enum UpdateRequest {
