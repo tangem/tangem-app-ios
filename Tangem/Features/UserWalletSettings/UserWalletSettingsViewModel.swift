@@ -110,19 +110,21 @@ private extension UserWalletSettingsViewModel {
             }
             .store(in: &bag)
 
-        userWalletModel.accountModelsManager
-            .accountModelsPublisher
-            .withWeakCaptureOf(self)
-            .map { viewModel, accounts in
-                UserSettingsAccountsViewModel(
-                    accountModels: accounts,
-                    accountModelsManager: viewModel.userWalletModel.accountModelsManager,
-                    userWalletConfig: viewModel.userWalletModel.config,
-                    coordinator: viewModel.coordinator
-                )
-            }
-            .assign(to: \.accountsViewModel, on: self, ownership: .weak)
-            .store(in: &bag)
+        if FeatureProvider.isAvailable(.accounts) {
+            userWalletModel.accountModelsManager
+                .accountModelsPublisher
+                .withWeakCaptureOf(self)
+                .map { viewModel, accounts in
+                    UserSettingsAccountsViewModel(
+                        accountModels: accounts,
+                        accountModelsManager: viewModel.userWalletModel.accountModelsManager,
+                        userWalletConfig: viewModel.userWalletModel.config,
+                        coordinator: viewModel.coordinator
+                    )
+                }
+                .assign(to: \.accountsViewModel, on: self, ownership: .weak)
+                .store(in: &bag)
+        }
     }
 
     func setupView() {
