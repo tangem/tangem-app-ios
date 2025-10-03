@@ -217,7 +217,7 @@ class CommonWalletModel {
         case .none:
             _rate.send(.failure(cached: rate.quote))
         case .some(let quote):
-            _rate.send(.loaded(quote))
+            _rate.send(.loaded(quote: quote))
         }
     }
 
