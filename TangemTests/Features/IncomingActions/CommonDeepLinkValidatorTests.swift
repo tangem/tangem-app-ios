@@ -18,7 +18,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenChartWithValidLetters() {
         let action = DeeplinkNavigationAction(
             destination: .tokenChart,
-            params: .init(tokenId: "ethereum")
+            params: .init(tokenId: "ethereum"),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -27,7 +28,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenChartWithValidAtSymbok() {
         let action = DeeplinkNavigationAction(
             destination: .tokenChart,
-            params: .init(tokenId: "ethereum@")
+            params: .init(tokenId: "ethereum@"),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -36,7 +38,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenChartWithValidLettersAndNumbers() {
         let action = DeeplinkNavigationAction(
             destination: .tokenChart,
-            params: .init(tokenId: "ethereum123")
+            params: .init(tokenId: "ethereum123"),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -45,7 +48,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenChartWithValidLettersAndUnderscores() {
         let action = DeeplinkNavigationAction(
             destination: .tokenChart,
-            params: .init(tokenId: "ethereum_123-ethereum")
+            params: .init(tokenId: "ethereum_123-ethereum"),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -54,7 +58,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenChartWithValidLettersAndDots() {
         let action = DeeplinkNavigationAction(
             destination: .tokenChart,
-            params: .init(tokenId: "ethereu.ethereum")
+            params: .init(tokenId: "ethereu.ethereum"),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -63,7 +68,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenChartWithValidLettersAndNumbersAndHyphen() {
         let action = DeeplinkNavigationAction(
             destination: .tokenChart,
-            params: .init(tokenId: "energy-web-token-123")
+            params: .init(tokenId: "energy-web-token-123"),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -72,7 +78,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenChartWithMissingTokenId() {
         let action = DeeplinkNavigationAction(
             destination: .tokenChart,
-            params: .empty
+            params: .empty,
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -81,7 +88,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenChartWithInvalidTokenId() {
         let action = DeeplinkNavigationAction(
             destination: .tokenChart,
-            params: .init(tokenId: "bad token$")
+            params: .init(tokenId: "bad token$"),
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -90,7 +98,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenChartWithCyrillicInvalidTokenId() {
         let action = DeeplinkNavigationAction(
             destination: .tokenChart,
-            params: .init(tokenId: "токен")
+            params: .init(tokenId: "токен"),
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -101,7 +110,8 @@ struct CommonDeepLinkValidatorTests {
     func stakingWithValidTokenIdAndNetworkId() {
         let action = DeeplinkNavigationAction(
             destination: .staking,
-            params: .init(tokenId: "solana", networkId: "mainnet-beta")
+            params: .init(tokenId: "solana", networkId: "mainnet-beta"),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -110,7 +120,8 @@ struct CommonDeepLinkValidatorTests {
     func stakingWithValidTokenIdAndNetworkIdWithHyphen() {
         let action = DeeplinkNavigationAction(
             destination: .staking,
-            params: .init(tokenId: "dot-token", networkId: "polkadot-network-1")
+            params: .init(tokenId: "dot-token", networkId: "polkadot-network-1"),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -119,7 +130,8 @@ struct CommonDeepLinkValidatorTests {
     func stakingWithMissingTokenId() {
         let action = DeeplinkNavigationAction(
             destination: .staking,
-            params: .init(networkId: "mainnet")
+            params: .init(networkId: "mainnet"),
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -128,7 +140,8 @@ struct CommonDeepLinkValidatorTests {
     func stakingWithMissingNetworkId() {
         let action = DeeplinkNavigationAction(
             destination: .staking,
-            params: .init(tokenId: "avalanche")
+            params: .init(tokenId: "avalanche"),
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -137,7 +150,8 @@ struct CommonDeepLinkValidatorTests {
     func stakingWithInvalidTokenId() {
         let action = DeeplinkNavigationAction(
             destination: .staking,
-            params: .init(tokenId: "avala nche$", networkId: "mainnet")
+            params: .init(tokenId: "avala nche$", networkId: "mainnet"),
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -146,7 +160,8 @@ struct CommonDeepLinkValidatorTests {
     func stakingWithInvalidNetworkId() {
         let action = DeeplinkNavigationAction(
             destination: .staking,
-            params: .init(tokenId: "avalanche", networkId: "main@net")
+            params: .init(tokenId: "avalanche", networkId: "main@net"),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -155,7 +170,8 @@ struct CommonDeepLinkValidatorTests {
     func stakingWithInvalidCyrylicNetworkAndTokenId() {
         let action = DeeplinkNavigationAction(
             destination: .staking,
-            params: .init(tokenId: "биткоин", networkId: "биткоин")
+            params: .init(tokenId: "биткоин", networkId: "биткоин"),
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -166,7 +182,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenWithValidTokenIdAndNetworkId_shouldPass() {
         let action = DeeplinkNavigationAction(
             destination: .token,
-            params: .init(tokenId: "bitcoin", networkId: "mainnet")
+            params: .init(tokenId: "bitcoin", networkId: "mainnet"),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -175,7 +192,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenWithIncomeTransactionTypeAndValidParams_shouldPass() {
         let action = DeeplinkNavigationAction(
             destination: .token,
-            params: .init(type: .incomeTransaction, tokenId: "sol", networkId: "solnet")
+            params: .init(type: .incomeTransaction, tokenId: "sol", networkId: "solnet"),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -184,7 +202,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenWithMissingTokenId_shouldFail() {
         let action = DeeplinkNavigationAction(
             destination: .token,
-            params: .init(networkId: "mainnet")
+            params: .init(networkId: "mainnet"),
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -193,7 +212,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenWithMissingNetworkId_shouldFail() {
         let action = DeeplinkNavigationAction(
             destination: .token,
-            params: .init(tokenId: "bitcoin")
+            params: .init(tokenId: "bitcoin"),
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -202,7 +222,8 @@ struct CommonDeepLinkValidatorTests {
     func tokenWithInvalidTokenId_shouldFail() {
         let action = DeeplinkNavigationAction(
             destination: .token,
-            params: .init(tokenId: "bad token$", networkId: "mainnet")
+            params: .init(tokenId: "bad token$", networkId: "mainnet"),
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -217,7 +238,8 @@ struct CommonDeepLinkValidatorTests {
                 networkId: "btc-main",
                 derivationPath: "m/44'/0'/0'",
                 transactionId: "tx123abc"
-            )
+            ),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -232,7 +254,8 @@ struct CommonDeepLinkValidatorTests {
                 networkId: "polkadot",
                 derivationPath: "m/44'/354'/0'/0",
                 transactionId: "tx_swap_001"
-            )
+            ),
+            deeplinkString: ""
         )
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -247,7 +270,8 @@ struct CommonDeepLinkValidatorTests {
                 networkId: "btc-net",
                 derivationPath: "m/44'/0'/0'"
                 // transactionId missing
-            )
+            ),
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -262,7 +286,8 @@ struct CommonDeepLinkValidatorTests {
                 networkId: "dotnet",
                 transactionId: "tx-001"
                 // derivationPath missing
-            )
+            ),
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -277,7 +302,8 @@ struct CommonDeepLinkValidatorTests {
                 networkId: "btc-main",
                 derivationPath: "m/44'/0'/0'",
                 transactionId: "tx123"
-            )
+            ),
+            deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
@@ -293,7 +319,8 @@ struct CommonDeepLinkValidatorTests {
         for destination in optionalDestinations {
             let action = DeeplinkNavigationAction(
                 destination: destination,
-                params: .init(tokenId: "valid123", networkId: "net-456")
+                params: .init(tokenId: "valid123", networkId: "net-456"),
+                deeplinkString: ""
             )
             #expect(validator.hasMinimumDataForHandling(deeplink: action))
         }
@@ -304,7 +331,8 @@ struct CommonDeepLinkValidatorTests {
         for destination in optionalDestinations {
             let action = DeeplinkNavigationAction(
                 destination: destination,
-                params: .init(tokenId: "🔥", networkId: "net")
+                params: .init(tokenId: "🔥", networkId: "net"),
+                deeplinkString: ""
             )
             #expect(!validator.hasMinimumDataForHandling(deeplink: action))
         }
@@ -315,9 +343,42 @@ struct CommonDeepLinkValidatorTests {
         for destination in optionalDestinations {
             let action = DeeplinkNavigationAction(
                 destination: destination,
-                params: .empty
+                params: .empty,
+                deeplinkString: ""
             )
             #expect(validator.hasMinimumDataForHandling(deeplink: action))
         }
+    }
+
+    // MARK: - Onboard Visa deeplink
+
+    @Test
+    func onboardVisaWithEntryAndId_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .onboardVisa,
+            params: .init(entry: "some-entry", id: "some-id"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func onboardVisaWithEnrty_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .onboardVisa,
+            params: .init(entry: "some-entry"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func onboardVisaWithId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .onboardVisa,
+            params: .init(id: "some-id"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
 }
