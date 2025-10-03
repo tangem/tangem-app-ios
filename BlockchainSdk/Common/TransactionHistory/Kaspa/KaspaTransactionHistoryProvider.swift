@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemNetworkUtils
+import TangemFoundation
 
 final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
     private let networkProvider: TangemProvider<KaspaTransactionHistoryTarget>
@@ -30,6 +31,16 @@ final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
     ) {
         networkProvider = .init(configuration: networkConfiguration)
         self.mapper = mapper
+    }
+
+    var description: String {
+        return objectDescription(
+            self,
+            userInfo: [
+                "pageNumber": String(describing: page?.number),
+                "hasReachedEnd": hasReachedEnd,
+            ]
+        )
     }
 
     var canFetchHistory: Bool {
