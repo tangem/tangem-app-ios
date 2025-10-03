@@ -24,6 +24,7 @@ class StakingModel {
     private let _state = CurrentValueSubject<State?, Never>(.none)
     private let _approvePolicy = CurrentValueSubject<ApprovePolicy, Never>(.unlimited)
     private let _transactionTime = PassthroughSubject<Date?, Never>()
+    private let _transactionURL = PassthroughSubject<URL?, Never>()
     private let _isLoading = CurrentValueSubject<Bool, Never>(false)
     private let _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
@@ -286,6 +287,7 @@ private extension StakingModel {
 
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
+        _transactionURL.send(result.url)
         analyticsLogger.logTransactionSent(amount: _amount.value, fee: selectedFee, signerType: result.signerType)
     }
 
@@ -418,6 +420,10 @@ extension StakingModel: SendSummaryInput, SendSummaryOutput {
 extension StakingModel: SendFinishInput {
     var transactionSentDate: AnyPublisher<Date, Never> {
         _transactionTime.compactMap { $0 }.first().eraseToAnyPublisher()
+    }
+
+    var transactionURL: AnyPublisher<URL?, Never> {
+        _transactionURL.eraseToAnyPublisher()
     }
 }
 
