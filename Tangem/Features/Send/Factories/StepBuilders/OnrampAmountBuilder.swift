@@ -12,6 +12,7 @@ import TangemExpress
 struct OnrampAmountBuilder {
     typealias IO = (input: OnrampAmountInput, output: OnrampAmountOutput)
     typealias ReturnValue = (viewModel: OnrampAmountViewModel, interactor: OnrampAmountInteractor)
+    typealias NewReturnValue = (viewModel: NewOnrampAmountViewModel, interactor: OnrampAmountInteractor)
 
     private let walletModel: any WalletModel
     private let builder: SendDependenciesBuilder
@@ -22,9 +23,32 @@ struct OnrampAmountBuilder {
     }
 
     func makeOnrampAmountViewModel(io: IO, onrampProvidersInput: OnrampProvidersInput, coordinator: OnrampAmountRoutable) -> ReturnValue {
-        let interactor = makeOnrampAmountInteractor(io: io, onrampProvidersInput: onrampProvidersInput)
+        let interactor = CommonOnrampAmountInteractor(
+            input: io.input,
+            output: io.output,
+            onrampProvidersInput: onrampProvidersInput
+        )
+
         let viewModel = OnrampAmountViewModel(
             tokenItem: walletModel.tokenItem,
+            initialAmount: io.input.amount,
+            interactor: interactor,
+            coordinator: coordinator
+        )
+
+        return (viewModel: viewModel, interactor: interactor)
+    }
+
+    func makeNewOnrampAmountViewModel(io: IO, onrampProvidersInput: OnrampProvidersInput, coordinator: OnrampAmountRoutable) -> NewReturnValue {
+        let interactor = CommonOnrampAmountInteractor(
+            input: io.input,
+            output: io.output,
+            onrampProvidersInput: onrampProvidersInput
+        )
+
+        let viewModel = NewOnrampAmountViewModel(
+            tokenItem: walletModel.tokenItem,
+            initialAmount: io.input.amount,
             interactor: interactor,
             coordinator: coordinator
         )
@@ -40,18 +64,6 @@ struct OnrampAmountBuilder {
             onrampAmountInput: onrampAmountInput,
             onrampProvidersInput: onrampProvidersInput,
             tokenItem: walletModel.tokenItem
-        )
-    }
-}
-
-// MARK: - Private
-
-private extension OnrampAmountBuilder {
-    func makeOnrampAmountInteractor(io: IO, onrampProvidersInput: OnrampProvidersInput) -> OnrampAmountInteractor {
-        CommonOnrampAmountInteractor(
-            input: io.input,
-            output: io.output,
-            onrampProvidersInput: onrampProvidersInput
         )
     }
 }
