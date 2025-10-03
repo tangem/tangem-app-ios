@@ -64,8 +64,8 @@ final class AccountInitializationViewModel: ObservableObject, FloatingSheetConte
         Task { @MainActor in
             do {
                 let transaction = accountInitializationService.initializationTransaction(fee: fee)
-                let _ = try await transactionDispatcher.send(transaction: .transfer(transaction))
-                try await Task.sleep(seconds: Constants.startPollingInterval) // this is necessary to avoid too fast dismiss animation
+                _ = try await transactionDispatcher.send(transaction: .transfer(transaction))
+                try await Task.sleep(seconds: Constants.startPollingInterval) // activation takes some time, doesn't make sense to start tracking earlier
                 try await trackInitializationStatus()
                 onInitialized()
                 dismiss()
@@ -125,7 +125,7 @@ private extension AccountInitializationViewModel {
 
 extension AccountInitializationViewModel {
     enum Constants {
-        static let startPollingInterval: TimeInterval = 2
+        static let startPollingInterval: TimeInterval = 5
         static let pollingTimeout: TimeInterval = 30
         static let pollingInterval: TimeInterval = 1
     }

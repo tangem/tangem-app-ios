@@ -20,11 +20,14 @@ struct AccountInitializationView: View {
 
     var body: some View {
         VStack {
-            HStack {
-                CircleButton.close(action: viewModel.dismiss)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
+            VStack(spacing: .zero) {
+                BottomSheetHeaderView(
+                    title: "",
+                    trailing: {
+                        CircleButton.close(action: viewModel.dismiss)
+                    }
+                )
             }
-            .padding(.top, 16)
 
             TokenIcon(
                 tokenIconInfo: viewModel.tokenIconInfo,
