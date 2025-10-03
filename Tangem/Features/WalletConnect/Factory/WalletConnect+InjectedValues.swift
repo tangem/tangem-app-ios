@@ -17,15 +17,10 @@ private final class WalletConnectEnvironment {
     @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
 
     private lazy var walletKitClient = WalletKitClientFactory.make()
-    private lazy var messageComposer = WalletConnectV2MessageComposer()
-    private lazy var alertUIDelegate = WalletConnectAlertUIDelegate()
     private lazy var walletNetworkServiceFactoryProvider = WalletNetworkServiceFactoryProvider()
 
     private lazy var handlersFactory = WalletConnectHandlersFactory(
-        messageComposer: messageComposer,
-        uiDelegate: alertUIDelegate,
-        ethTransactionBuilder: CommonWalletConnectEthTransactionBuilder(),
-        newEthTransactionBuilder: CommonWCNewEthTransactionBuilder(),
+        ethTransactionBuilder: CommonWCEthTransactionBuilder(),
         walletNetworkServiceFactoryProvider: walletNetworkServiceFactoryProvider
     )
 
@@ -72,24 +67,6 @@ private final class WalletConnectEnvironment {
 
         return cache
     }()
-
-    // MARK: - Legacy
-
-    private lazy var oldHandlersService = OldWalletConnectV2HandlersService(
-        uiDelegate: alertUIDelegate,
-        handlersCreator: handlersFactory
-    )
-
-    lazy var oldWalletConnectService: OldCommonWalletConnectService = {
-        let oldV2Service = OldWalletConnectV2Service(
-            walletKitClient: walletKitClient,
-            uiDelegate: alertUIDelegate,
-            messageComposer: messageComposer,
-            wcHandlersService: oldHandlersService
-        )
-
-        return OldCommonWalletConnectService(v2Service: oldV2Service)
-    }()
 }
 
 private struct WalletConnectEnvironmentInjectionKey: InjectionKey {
@@ -124,13 +101,5 @@ extension InjectedValues {
 
     var dAppSessionsExtender: WalletConnectDAppSessionsExtender {
         walletConnectEnvironment.dAppSessionsExtender
-    }
-}
-
-// MARK: - Legacy
-
-extension InjectedValues {
-    var walletConnectService: any OldWalletConnectService {
-        walletConnectEnvironment.oldWalletConnectService
     }
 }
