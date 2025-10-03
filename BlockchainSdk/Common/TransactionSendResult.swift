@@ -40,6 +40,10 @@ public struct SendTxError: UniversalError {
         """
     }
 
+    public var sanitizedLastRetryHost: String? {
+        HostSanitizerUtil().sanitizedHost(from: lastRetryHost ?? "")
+    }
+
     // MARK: - Init
 
     public init(error: UniversalError, tx: String? = nil, lastRetryHost: String? = nil) {
