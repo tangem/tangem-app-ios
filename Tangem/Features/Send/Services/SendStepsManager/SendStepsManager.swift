@@ -75,11 +75,11 @@ struct SendStepNavigationBarSettings: Hashable {
 struct SendStepBottomBarSettings: Hashable {
     static let empty = SendStepBottomBarSettings(action: .close)
 
-    let action: SendMainButtonType
+    let action: SendMainButtonType?
     let backButtonVisible: Bool
     let keyboardHiddenToolbarButtonVisible: Bool
 
-    init(action: SendMainButtonType, backButtonVisible: Bool = false, keyboardHiddenToolbarButtonVisible: Bool = false) {
+    init(action: SendMainButtonType?, backButtonVisible: Bool = false, keyboardHiddenToolbarButtonVisible: Bool = false) {
         self.action = action
         self.backButtonVisible = backButtonVisible
         self.keyboardHiddenToolbarButtonVisible = keyboardHiddenToolbarButtonVisible
