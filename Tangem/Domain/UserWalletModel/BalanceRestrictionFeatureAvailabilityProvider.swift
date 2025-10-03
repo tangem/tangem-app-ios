@@ -20,6 +20,10 @@ final class BalanceRestrictionFeatureAvailabilityProvider {
         isActionButtonsAvailableSubject.eraseToAnyPublisher()
     }
 
+    var isActionButtonsAvailable: Bool {
+        isActionButtonsAvailableSubject.value
+    }
+
     init(userWalletConfig: UserWalletConfig, totalBalanceProvider: TotalBalanceProviding) {
         self.userWalletConfig = userWalletConfig
         self.totalBalanceProvider = totalBalanceProvider
@@ -39,7 +43,7 @@ final class BalanceRestrictionFeatureAvailabilityProvider {
                 switch totalBalanceState {
                 case .empty: false
                 case .loading(let cached): (cached ?? 0) > 0
-                case .failed: false
+                case .failed(let cached, _): (cached ?? 0) > 0
                 case .loaded(let balance): balance > 0
                 }
             }
