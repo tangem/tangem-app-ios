@@ -69,8 +69,8 @@
 		0A8E6CE42E697F85004ABC72 /* YieldModuleError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8E6CE32E697F85004ABC72 /* YieldModuleError.swift */; };
 		0A917D802D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A917D7F2D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift */; };
 		0A917D822D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A917D812D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift */; };
-		0A9246122E8EA12F00656D69 /* AccountInitializationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9246112E8EA12F00656D69 /* AccountInitializationViewModel.swift */; };
-		0A9246142E8EA15600656D69 /* AccountInitializationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9246132E8EA15600656D69 /* AccountInitializationView.swift */; };
+		0A9246122E8EA12F00656D69 /* BlockchainAccountInitializationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9246112E8EA12F00656D69 /* BlockchainAccountInitializationViewModel.swift */; };
+		0A9246142E8EA15600656D69 /* BlockchainAccountInitializationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9246132E8EA15600656D69 /* BlockchainAccountInitializationView.swift */; };
 		0A92AE942E65BC3200CDB659 /* YieldSupplyServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A92AE932E65BC3200CDB659 /* YieldSupplyServiceProvider.swift */; };
 		0A941BE52E6B2A0700770474 /* YieldModuleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A941BE42E6B2A0700770474 /* YieldModuleManager.swift */; };
 		0A94FAAB2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A94FAAA2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift */; };
@@ -4339,8 +4339,8 @@
 		0A8E6CE32E697F85004ABC72 /* YieldModuleError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleError.swift; sourceTree = "<group>"; };
 		0A917D7F2D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakeKitTransactionStatusProvider.swift; sourceTree = "<group>"; };
 		0A917D812D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONStakeKitTransactionHelper.swift; sourceTree = "<group>"; };
-		0A9246112E8EA12F00656D69 /* AccountInitializationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInitializationViewModel.swift; sourceTree = "<group>"; };
-		0A9246132E8EA15600656D69 /* AccountInitializationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInitializationView.swift; sourceTree = "<group>"; };
+		0A9246112E8EA12F00656D69 /* BlockchainAccountInitializationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountInitializationViewModel.swift; sourceTree = "<group>"; };
+		0A9246132E8EA15600656D69 /* BlockchainAccountInitializationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountInitializationView.swift; sourceTree = "<group>"; };
 		0A92AE932E65BC3200CDB659 /* YieldSupplyServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSupplyServiceProvider.swift; sourceTree = "<group>"; };
 		0A941BE42E6B2A0700770474 /* YieldModuleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleManager.swift; sourceTree = "<group>"; };
 		0A94FAAA2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RentExtemptionRestrictable.swift; sourceTree = "<group>"; };
@@ -8624,8 +8624,8 @@
 		0A9246102E8EA11E00656D69 /* AccountInitialization */ = {
 			isa = PBXGroup;
 			children = (
-				0A9246112E8EA12F00656D69 /* AccountInitializationViewModel.swift */,
-				0A9246132E8EA15600656D69 /* AccountInitializationView.swift */,
+				0A9246112E8EA12F00656D69 /* BlockchainAccountInitializationViewModel.swift */,
+				0A9246132E8EA15600656D69 /* BlockchainAccountInitializationView.swift */,
 			);
 			path = AccountInitialization;
 			sourceTree = "<group>";
@@ -24209,7 +24209,7 @@
 				0AB346872E8402A2004003A0 /* YieldModuleMarketsManager.swift in Sources */,
 				0F2786552E2CECA900742D0F /* MobileOnboardingFlowNavBarAction.swift in Sources */,
 				C2F1B3402DEA045700EDA3E1 /* WalletConnectUIFeedbackGenerator.swift in Sources */,
-				0A9246142E8EA15600656D69 /* AccountInitializationView.swift in Sources */,
+				0A9246142E8EA15600656D69 /* BlockchainAccountInitializationView.swift in Sources */,
 				EF729B512AF1248400D80205 /* FeeRowViewModel.swift in Sources */,
 				DADBECDF2BBE910C007E7885 /* CustomFeeService.swift in Sources */,
 				EFFA43642E02E8E0001E0E54 /* SendReceiveTokensListViewModel.swift in Sources */,
@@ -24247,7 +24247,7 @@
 				B6E932B12A2F26BB0068D466 /* OrganizeTokensHeaderViewModel.swift in Sources */,
 				DAAA3C6D2B3D64B90002DBB0 /* EmailDataProvider.swift in Sources */,
 				0FFA34CE2E046D1B00ACB48F /* WordsCaptureProtectionView.swift in Sources */,
-				0A9246122E8EA12F00656D69 /* AccountInitializationViewModel.swift in Sources */,
+				0A9246122E8EA12F00656D69 /* BlockchainAccountInitializationViewModel.swift in Sources */,
 				C2E9212C2DD7A6D700ACE654 /* WalletConnectDAppVerificationService.swift in Sources */,
 				B6CAC21D2E46C673002DFA82 /* CommonCryptoAccountsRepository.swift in Sources */,
 				B0E3381C2A7A809600D36727 /* LockedUserTokensManager.swift in Sources */,

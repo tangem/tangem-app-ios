@@ -179,7 +179,7 @@ enum NotificationButtonActionType: Identifiable {
         case .postponePushPermissionRequest:
             return Localization.commonLater
         case .activate:
-            return Localization.stakingNotificationTonAccountInitializationButton
+            return Localization.commonActivate
         }
     }
 
@@ -221,8 +221,7 @@ enum NotificationButtonActionType: Identifiable {
              .tangemPayCreateAccountAndIssueCard,
              .tangemPayViewKYCStatus,
              .allowPushPermissionRequest,
-             .postponePushPermissionRequest:
-             .tangemPayViewKYCStatus,
+             .postponePushPermissionRequest,
              .activate:
             return nil
         }
@@ -235,9 +234,9 @@ enum NotificationButtonActionType: Identifiable {
              .openAppStoreReview,
              .empty,
              .unlock,
-             .allowPushPermissionRequest:
-             .activate,
-             .openMobileUpgrade:
+             .openMobileUpgrade,
+             .allowPushPermissionRequest,
+             .activate:
             return .primary
         case .backupCard,
              .buyCrypto,

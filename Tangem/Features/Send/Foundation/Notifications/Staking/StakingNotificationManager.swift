@@ -54,7 +54,7 @@ private extension CommonStakingNotificationManager {
         case .approveTransactionInProgress:
             show(notification: .approveTransactionInProgress)
             hideErrorNotifications()
-        case .accountInitializationRequired:
+        case .blockchainAccountInitializationRequired:
             show(notification: .tonAccountInitialization)
             hideErrorNotifications()
         case .readyToApprove:

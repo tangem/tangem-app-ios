@@ -1,5 +1,5 @@
 //
-//  AccountInitializationView.swift
+//  BlockchainAccountInitializationView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,10 +11,10 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-struct AccountInitializationView: View {
-    @ObservedObject var viewModel: AccountInitializationViewModel
+struct BlockchainAccountInitializationView: View {
+    @ObservedObject var viewModel: BlockchainAccountInitializationViewModel
 
-    init(viewModel: AccountInitializationViewModel) {
+    init(viewModel: BlockchainAccountInitializationViewModel) {
         self.viewModel = viewModel
     }
 
@@ -54,7 +54,7 @@ struct AccountInitializationView: View {
                 .backgroundColor(Colors.Background.action)
 
                 MainButton(
-                    title: Localization.stakingAccountInitializationButton,
+                    title: Localization.commonActivate,
                     icon: .trailing(Assets.tangemIcon),
                     isLoading: viewModel.isLoading,
                     isDisabled: viewModel.mainButtonIsDisabled,

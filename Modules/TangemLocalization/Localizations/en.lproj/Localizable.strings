@@ -169,6 +169,7 @@
 "common_accept" = "Accept";
 "common_access_denied" = "Access denied";
 "common_accounts" = "Accounts";
+"common_activate" = "Activate";
 "common_add_to_portfolio" = "Add to portfolio";
 "common_add_token" = "Add token";
 "common_add" = "Add";
@@ -1109,7 +1110,6 @@
 "staking_notification_ton_extra_reserve_info" = "Up to 0.2 TON may be required in addition to the network fee to complete the transaction. Any unused amount will be refunded.";
 "staking_notification_ton_account_initialization_title" = "Account activation";
 "staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
-"staking_notification_ton_account_initialization_button" = "Activate";
 "staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
 "staking_notification_ton_extra_reserve_title" = "TON reserve required";
 "staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
@@ -1122,7 +1122,6 @@
 "staking_account_initialization_title" = "Account activation";
 "staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
 "staking_account_initialization_footer" = "A network fee is a small payment to process and confirm your transaction on the blockchain.";
-"staking_account_initialization_button" = "Activate";
 "staking_preparing" = "Preparing";
 "staking_ready_to_withdraw" = "Ready to withdraw";
 "staking_rebond" = "Rebond";

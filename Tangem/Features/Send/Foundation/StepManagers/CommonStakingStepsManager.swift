@@ -47,7 +47,7 @@ class CommonStakingStepsManager {
             .withWeakCaptureOf(self)
             .sink { stepsManager, state in
                 switch state {
-                case .loading, .networkError, .validationError, .accountInitializationRequired:
+                case .loading, .networkError, .validationError, .blockchainAccountInitializationRequired:
                     break
 
                 case .readyToApprove:

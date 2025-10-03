@@ -1,5 +1,5 @@
 //
-//  AccountInitializationViewModel.swift
+//  BlockchainAccountInitializationViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,7 +13,7 @@ import TangemUIUtils
 import TangemFoundation
 import TangemLocalization
 
-final class AccountInitializationViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class BlockchainAccountInitializationViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     @Published var feeRowViewModel: DefaultRowViewModel
@@ -83,7 +83,7 @@ final class AccountInitializationViewModel: ObservableObject, FloatingSheetConte
     }
 }
 
-private extension AccountInitializationViewModel {
+private extension BlockchainAccountInitializationViewModel {
     func updateView(state: LoadingValue<Fee>) {
         switch state {
         case .loaded(let fee):
@@ -123,10 +123,10 @@ private extension AccountInitializationViewModel {
     }
 }
 
-extension AccountInitializationViewModel {
+extension BlockchainAccountInitializationViewModel {
     enum Constants {
         static let startPollingInterval: TimeInterval = 5
         static let pollingTimeout: TimeInterval = 30
-        static let pollingInterval: TimeInterval = 1
+        static let pollingInterval: TimeInterval = 2
     }
 }

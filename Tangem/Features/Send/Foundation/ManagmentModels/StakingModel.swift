@@ -115,7 +115,7 @@ private extension StakingModel {
         if let accountInitializationService,
            try await accountInitializationService.isAccountInitialized() == false {
             let fee = try await accountInitializationService.estimateInitializationFee()
-            return .accountInitializationRequired(fee: fee)
+            return .blockchainAccountInitializationRequired(fee: fee)
         }
 
         if let allowanceState = try await allowanceState(amount: amount, approvePolicy: approvePolicy) {
@@ -186,7 +186,7 @@ private extension StakingModel {
             return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
         case .networkError(let error):
             return SendFee(option: .market, value: .failedToLoad(error: error))
-        case .accountInitializationRequired:
+        case .blockchainAccountInitializationRequired:
             return SendFee(option: .market, value: .failedToLoad(error: StakingModelError.accountIsNotInitialized))
         }
     }
@@ -412,7 +412,7 @@ extension StakingModel: SendSummaryInput, SendSummaryOutput {
             case .readyToStake, .readyToApprove:
                 return true
             case .none, .loading, .approveTransactionInProgress,
-                 .validationError, .networkError, .accountInitializationRequired:
+                 .validationError, .networkError, .blockchainAccountInitializationRequired:
                 return false
             }
         }.eraseToAnyPublisher()
@@ -481,9 +481,9 @@ extension StakingModel: NotificationTapDelegate {
             router?.openNetworkCurrency()
         case .activate:
             guard let accountInitializationService,
-                  case .accountInitializationRequired(let fee) = _state.value else { return }
+                  case .blockchainAccountInitializationRequired(let fee) = _state.value else { return }
 
-            let viewModel = AccountInitializationViewModel(
+            let viewModel = BlockchainAccountInitializationViewModel(
                 accountInitializationService: accountInitializationService,
                 transactionDispatcher: transactionDispatcher,
                 fee: fee,
@@ -564,7 +564,7 @@ extension StakingModel: StakingBaseDataBuilderInput {
 extension StakingModel {
     enum State {
         case loading
-        case accountInitializationRequired(fee: Fee)
+        case blockchainAccountInitializationRequired(fee: Fee)
         case readyToApprove(approveData: ApproveTransactionData)
         case approveTransactionInProgress(stakingFee: Decimal)
         case readyToStake(ReadyToStake)
@@ -576,7 +576,7 @@ extension StakingModel {
             case .readyToApprove(let requiredApprove): requiredApprove.fee.amount.value
             case .approveTransactionInProgress(let fee): fee
             case .readyToStake(let model): model.fee
-            case .loading, .validationError, .networkError, .accountInitializationRequired: nil
+            case .loading, .validationError, .networkError, .blockchainAccountInitializationRequired: nil
             }
         }
 

@@ -24,5 +24,5 @@ protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, OnrampAmountRout
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel)
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder)
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
-    func openAccountInitializationFlow(viewModel: AccountInitializationViewModel)
+    func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel)
 }

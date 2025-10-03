@@ -340,7 +340,7 @@ extension SendViewModel: SendModelRoutable {
         stepsManager.resetFlow()
     }
 
-    func openAccountInitializationFlow(viewModel: AccountInitializationViewModel) {
+    func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel) {
         coordinator?.openAccountInitializationFlow(viewModel: viewModel)
     }
 }

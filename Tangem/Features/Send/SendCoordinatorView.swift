@@ -93,8 +93,8 @@ struct SendCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendReceiveTokenCoordinator) {
                 SendReceiveTokenCoordinatorView(coordinator: $0)
             }
-            .floatingSheetContent(for: AccountInitializationViewModel.self) {
-                AccountInitializationView(viewModel: $0)
+            .floatingSheetContent(for: BlockchainAccountInitializationViewModel.self) {
+                BlockchainAccountInitializationView(viewModel: $0)
             }
     }
 }

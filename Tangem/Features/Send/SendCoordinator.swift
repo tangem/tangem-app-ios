@@ -207,7 +207,7 @@ extension SendCoordinator: SendRoutable {
         }
     }
 
-    func openAccountInitializationFlow(viewModel: AccountInitializationViewModel) {
+    func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
