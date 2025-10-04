@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-class FakeTangemApiService: TangemApiService {
+final class FakeTangemApiService: TangemApiService {
     private let geoIpRegionCode: String
 
     init(geoIpRegionCode: String = "us") {
@@ -61,6 +61,10 @@ class FakeTangemApiService: TangemApiService {
 
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> {
         .anyFail(error: .init(code: .notFound))
+    }
+
+    func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
+        throw "Not implemented"
     }
 
     func loadReferralProgramInfo(for userWalletId: String, expectedAwardsLimit: Int) async throws -> ReferralProgramInfo {

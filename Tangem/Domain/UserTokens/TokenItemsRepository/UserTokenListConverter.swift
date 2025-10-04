@@ -54,7 +54,8 @@ struct UserTokenListConverter {
             tokens: tokens,
             group: convertToGroupType(groupingOption: storedUserTokenList.grouping),
             sort: convertToSortType(sortingOption: storedUserTokenList.sorting),
-            notifyStatus: notifyStatusValue
+            notifyStatus: notifyStatusValue,
+            version: Constants.apiVersion
         )
     }
 
@@ -143,5 +144,13 @@ struct UserTokenListConverter {
         case .balance:
             return .byBalance
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension UserTokenListConverter {
+    enum Constants {
+        static var apiVersion: Int { 0 }
     }
 }

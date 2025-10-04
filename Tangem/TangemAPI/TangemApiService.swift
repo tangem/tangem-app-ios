@@ -46,8 +46,13 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - User token list management
 
+    @available(iOS, deprecated: 100000.0, message: "Superseded by 'getUserAccounts(userWalletId:)', will be removed in the future ([REDACTED_INFO])")
     func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError>
+
+    @available(iOS, deprecated: 100000.0, message: "Superseded by the async version of 'saveTokens(list:for:)', will be removed in the future ([REDACTED_INFO])")
     func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError>
+
+    func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws
 
     // MARK: - Action Buttons
 
