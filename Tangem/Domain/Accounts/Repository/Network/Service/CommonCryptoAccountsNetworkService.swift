@@ -53,7 +53,7 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
                 throw CryptoAccountsNetworkServiceError.missingRevision
             }
 
-            let accountsDTO = mapper.map(request: cryptoAccounts)
+            let (accountsDTO, userTokensDTO) = mapper.map(request: cryptoAccounts)
             let newRevision = try await tangemApiService.saveUserAccounts(
                 userWalletId: userWalletId.stringValue,
                 revision: revision,
@@ -63,6 +63,8 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
             if let newRevision {
                 eTagStorage.saveETag(newRevision, for: userWalletId)
             }
+
+             try await tangemApiService.saveTokens(list: userTokensDTO, for: userWalletId.stringValue)
         } catch let error as CryptoAccountsNetworkServiceError {
             throw error // Just re-throw an original error
         } catch let error as TangemAPIError where error.code == .notFound {
