@@ -47,6 +47,8 @@ extension StoredCryptoAccount {
 // MARK: - Convenience extensions
 
 extension StoredCryptoAccount.Token {
+    var isToken: Bool { contractAddress != nil }
+
     // [REDACTED_TODO_COMMENT]
     var coinId: String? {
         switch blockchainNetwork {
