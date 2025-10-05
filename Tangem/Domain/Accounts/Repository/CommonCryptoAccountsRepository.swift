@@ -19,6 +19,7 @@ final class CommonCryptoAccountsRepository {
     private let persistentStorage: CryptoAccountsPersistentStorage
     private let storageController: CryptoAccountsPersistentStorageController
     private let storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject
+    private let pendingStateHolder: PendingStateHolder
 
     /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
     private lazy var _cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> = storageDidUpdateSubject
@@ -29,17 +30,25 @@ final class CommonCryptoAccountsRepository {
         .share(replay: 1)
         .eraseToAnyPublisher()
 
+    private let hasTokenSynchronization: Bool
+
+    private var loadAccountsSubscription: AnyCancellable?
+    private var saveAccountsSubscription: AnyCancellable?
+
     init(
         tokenItemsRepository: TokenItemsRepository,
         networkService: CryptoAccountsNetworkService,
         persistentStorage: CryptoAccountsPersistentStorage,
-        storageController: CryptoAccountsPersistentStorageController
+        storageController: CryptoAccountsPersistentStorageController,
+        hasTokenSynchronization: Bool
     ) {
         storageDidUpdateSubject = .init()
+        pendingStateHolder = .init()
         self.tokenItemsRepository = tokenItemsRepository
         self.networkService = networkService
         self.persistentStorage = persistentStorage
         self.storageController = storageController
+        self.hasTokenSynchronization = hasTokenSynchronization
         storageController.bind(to: storageDidUpdateSubject)
     }
 
@@ -49,6 +58,56 @@ final class CommonCryptoAccountsRepository {
         let tokens = LegacyStorableEntriesConverter.convert(legacyStoredTokens: legacyStoredTokens)
 
         addCryptoAccount(withConfig: mainAccountPersistentConfig, tokens: tokens)
+    }
+
+    private func updateAccountsOnServer(cryptoAccounts: [StoredCryptoAccount]? = nil, completion: Completion? = nil) {
+        guard hasTokenSynchronization else {
+            completion?(.success(()))
+            return
+        }
+
+        saveAccountsSubscription = runTask(in: self) { repository in
+            let cryptoAccounts = cryptoAccounts ?? repository.persistentStorage.getList()
+            do {
+                try await repository.networkService.save(cryptoAccounts: cryptoAccounts)
+                try Task.checkCancellation()
+                await runOnMain { completion?(.success(())) }
+            } catch CryptoAccountsNetworkServiceError.missingRevision {
+                // [REDACTED_TODO_COMMENT]
+            } catch CryptoAccountsNetworkServiceError.inconsistentState {
+                // [REDACTED_TODO_COMMENT]
+            } catch CryptoAccountsNetworkServiceError.noAccountsCreated {
+                // [REDACTED_TODO_COMMENT]
+            } catch CryptoAccountsNetworkServiceError.underlyingError(let error) {
+                await repository.handleFailedUpdateAccountsOnServer(cryptoAccounts: cryptoAccounts, error: error, completion: completion)
+            } catch {
+                await repository.handleFailedUpdateAccountsOnServer(cryptoAccounts: cryptoAccounts, error: error, completion: completion)
+            }
+        }.eraseToAnyCancellable()
+    }
+
+    private func handleFailedUpdateAccountsOnServer(
+        cryptoAccounts: [StoredCryptoAccount],
+        error: Error,
+        completion: Completion?
+    ) async {
+        guard !error.isCancellationError else {
+            return
+        }
+
+        await pendingStateHolder.performIsolated { holder in
+            guard !Task.isCancelled else {
+                return
+            }
+
+            holder.cryptoAccountsToUpdate = cryptoAccounts
+        }
+
+        guard !Task.isCancelled else {
+            return
+        }
+
+        await runOnMain { completion?(.failure(error)) }
     }
 }
 
@@ -113,5 +172,9 @@ private extension CommonCryptoAccountsRepository {
                 )
             }
         }
+    }
+
+    actor PendingStateHolder {
+        var cryptoAccountsToUpdate: [StoredCryptoAccount]?
     }
 }
