@@ -30,6 +30,7 @@ enum StakingNotificationEvent {
     case amountRequirementError(minAmount: String, currency: String)
     case tonExtraReserveInfo
     case tonUnstaking
+    case tonAccountInitialization
 }
 
 extension StakingNotificationEvent: NotificationEvent {
@@ -54,6 +55,7 @@ extension StakingNotificationEvent: NotificationEvent {
             "amountRequirementError\(minAmount)\(currency)".hashValue
         case .tonExtraReserveInfo: "tonAdditionalFee".hashValue
         case .tonUnstaking: "tonUnstaking".hashValue
+        case .tonAccountInitialization: "tonAccountInitialization".hashValue
         }
     }
 
@@ -78,6 +80,7 @@ extension StakingNotificationEvent: NotificationEvent {
             .string(Localization.stakingNotificationMinimumBalanceErrorTitle(currency))
         case .tonExtraReserveInfo: .string(Localization.stakingNotificationTonExtraReserveTitle)
         case .tonUnstaking: .string(Localization.stakingNotificationTonHaveToUnstakeAllTitle)
+        case .tonAccountInitialization: .string(Localization.stakingNotificationTonAccountInitializationTitle)
         }
     }
 
@@ -120,6 +123,8 @@ extension StakingNotificationEvent: NotificationEvent {
             Localization.stakingNotificationTonExtraReserveInfo
         case .tonUnstaking:
             Localization.stakingNotificationTonHaveToUnstakeAllText
+        case .tonAccountInitialization:
+            Localization.stakingNotificationTonAccountInitializationMessage
         }
     }
 
@@ -130,7 +135,7 @@ extension StakingNotificationEvent: NotificationEvent {
             .secondary
         case .unstake, .networkUnreachable, .withdraw, .claimRewards,
              .restakeRewards, .restake, .unlock, .revote, .maxAmountStaking,
-             .cardanoAdditionalDeposit, .tonUnstaking, .tonExtraReserveInfo:
+             .cardanoAdditionalDeposit, .tonUnstaking, .tonExtraReserveInfo, .tonAccountInitialization:
             .action
         case .validationErrorEvent(let event): event.colorScheme
         }
@@ -144,7 +149,8 @@ extension StakingNotificationEvent: NotificationEvent {
             .init(iconType: .progressView)
         case .unstake, .withdraw, .claimRewards, .restakeRewards, .restake,
              .unlock, .stakesWillMoveToNewValidator, .revote,
-             .maxAmountStaking, .cardanoAdditionalDeposit, .tonUnstaking, .tonExtraReserveInfo:
+             .maxAmountStaking, .cardanoAdditionalDeposit, .tonUnstaking,
+             .tonExtraReserveInfo, .tonAccountInitialization:
             .init(iconType: .image(Assets.blueCircleWarning.image))
         case .amountRequirementError:
             .init(iconType: .image(Assets.redCircleWarning.image))
@@ -171,6 +177,7 @@ extension StakingNotificationEvent: NotificationEvent {
              .cardanoAdditionalDeposit,
              .tonExtraReserveInfo,
              .tonUnstaking,
+             .tonAccountInitialization,
              .stakesWillMoveToNewValidator:
             return .info
         case .validationErrorEvent(let event):
@@ -201,6 +208,8 @@ extension StakingNotificationEvent: NotificationEvent {
              .tonUnstaking,
              .stakesWillMoveToNewValidator:
             return nil
+        case .tonAccountInitialization:
+            return .init(.activate)
         }
     }
 
