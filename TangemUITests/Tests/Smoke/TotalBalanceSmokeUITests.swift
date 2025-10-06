@@ -184,4 +184,118 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             .waitForTotalBalanceShimmer()
             .waitForTotalBalanceDisplayed()
     }
+
+    func testSynchronizeAddressesButtonExistsAndTotalBalanceShowsDash() {
+        setAllureId(148)
+        launchApp(tangemApiType: .mock)
+
+        StoriesScreen(app)
+            .scanMockWallet(name: .wallet)
+            .waitForSynchronizeAddressesButtonExists()
+            .waitForTotalBalanceDisplayedAsDash()
+    }
+
+    func testEthNetworkBalanceUnreachable_TotalBalanceDisplayedAsDash() {
+        setAllureId(3993)
+
+        let ethNetworkBalanceScenario = ScenarioConfig(
+            name: "eth_network_balance",
+            initialState: "Unreachable"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true,
+            scenarios: [ethNetworkBalanceScenario]
+        )
+
+        StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .waitForTotalBalanceDisplayedAsDash()
+    }
+
+    func testStakingBalanceCalculation_POLToken() throws {
+        setAllureId(166)
+
+        let stakingScenario = ScenarioConfig(
+            name: "staking_eth_pol_balances_ios",
+            initialState: "Staked"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            stakingApiType: .mock,
+            scenarios: [stakingScenario]
+        )
+
+        let tokenScreen = StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken("POL (ex-MATIC)")
+
+        let totalBalanceValue = try XCTUnwrap(Double(tokenScreen.getTotalBalance().replacingOccurrences(of: "$", with: "")))
+        let stakingBalanceValue = try XCTUnwrap(Double(tokenScreen.getStakingBalance().replacingOccurrences(of: "$", with: "")))
+
+        tokenScreen.tapAvailableSegment()
+
+        let availableBalanceValue = try XCTUnwrap(Double(tokenScreen.getAvailableBalance().replacingOccurrences(of: "$", with: "")))
+
+        XCTAssertEqual(
+            totalBalanceValue,
+            stakingBalanceValue + availableBalanceValue,
+            accuracy: 0.01,
+            "Total balance should equal staking balance + available balance"
+        )
+    }
+
+    func testSearchAndAddXRPToPortfolio() {
+        setAllureId(3997)
+
+        let quotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: "Ripple"
+        )
+        let expectedBalance = 3320.46
+
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true
+        )
+
+        StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+
+        let marketsScreen = MarketsScreen(app)
+            .openMarketsSheetWithSwipe()
+            .searchForToken("XRP")
+            .tapTokenInSearchResults("XRP")
+
+        setupWireMockScenarios([quotesScenario])
+
+        let mainScreen = marketsScreen
+            .tapAddToPortfolioButton()
+            .toggleMainNetworkSwitch()
+            .tapContinueButton()
+            .tapBackButton()
+            .closeMarketsSheetWithSwipe()
+
+        let actualBalance = mainScreen.getTotalBalanceNumericValue()
+
+        XCTAssertEqual(actualBalance, expectedBalance, "Expected balance \(expectedBalance) does not match actual balance \(actualBalance)")
+    }
+
+    func testHidePolygonToken_TotalBalanceDecreases() {
+        setAllureId(4002)
+        launchApp(tangemApiType: .mock)
+
+        let mainScreen = StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .waitForTotalBalanceDisplayed()
+
+        let initialBalance = mainScreen.getTotalBalanceNumericValue()
+
+        let tokenScreen = mainScreen.longPressToken("Polygon")
+        let updatedMainScreen = tokenScreen
+            .tapHideFromContextMenu()
+            .verifyTotalBalanceDecreased(from: initialBalance)
+    }
 }
