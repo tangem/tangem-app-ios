@@ -148,7 +148,8 @@ enum NFTChainConverter {
              .vanar,
              .zkLinkNova,
              .pepecoin,
-             .hyperliquidEVM:
+             .hyperliquidEVM,
+             .quai:
             return nil
         }
     }
