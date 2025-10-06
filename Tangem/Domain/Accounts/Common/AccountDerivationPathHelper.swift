@@ -156,8 +156,7 @@ struct AccountDerivationPathHelper {
              .pepecoin,
              .hyperliquidEVM:
             return true
-        case .chia:
-            // [REDACTED_TODO_COMMENT]
+        case .chia, .quai:
             return false
         }
     }
