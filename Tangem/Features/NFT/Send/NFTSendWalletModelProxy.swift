@@ -153,7 +153,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
-    var accountInitializationStateProvider: StakingAccountInitializationStateProvider? {
+    var accountInitializationService: BlockchainAccountInitializationService? {
         // No staking for NFT
         nil
     }
