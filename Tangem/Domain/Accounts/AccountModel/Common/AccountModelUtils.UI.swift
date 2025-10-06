@@ -82,8 +82,12 @@ extension AccountModelUtils {
             }
         }
 
-        static func getRadomColor() -> AccountModel.Icon.Color {
+        static func getRandomIconColor() -> AccountModel.Icon.Color {
             AccountModel.Icon.Color.allCases.randomElement() ?? .azure
+        }
+
+        static func getRandomIconName() -> AccountModel.Icon.Name {
+            AccountModel.Icon.Name.allCases.randomElement() ?? .star
         }
     }
 }
