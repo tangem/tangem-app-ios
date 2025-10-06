@@ -49,10 +49,7 @@ final class StakingDetailsViewModel: ObservableObject {
     private let tokenItem: TokenItem
     private let tokenBalanceProvider: TokenBalanceProvider
     private let stakingManager: StakingManager
-    private let accountInitializedStateProvider: StakingAccountInitializationStateProvider?
     private weak var coordinator: StakingDetailsRoutable?
-
-    private var isAccountInitialized = true
 
     private lazy var balanceFormatter = BalanceFormatter()
     private lazy var percentFormatter = PercentFormatter()
@@ -65,14 +62,12 @@ final class StakingDetailsViewModel: ObservableObject {
         tokenItem: TokenItem,
         tokenBalanceProvider: TokenBalanceProvider,
         stakingManager: StakingManager,
-        coordinator: StakingDetailsRoutable,
-        accountInitializedStateProvider: StakingAccountInitializationStateProvider?
+        coordinator: StakingDetailsRoutable
     ) {
         self.tokenItem = tokenItem
         self.tokenBalanceProvider = tokenBalanceProvider
         self.stakingManager = stakingManager
         self.coordinator = coordinator
-        self.accountInitializedStateProvider = accountInitializedStateProvider
 
         bind()
     }
@@ -82,15 +77,6 @@ final class StakingDetailsViewModel: ObservableObject {
     }
 
     func userDidTapActionButton() {
-        if case .ton = tokenItem.blockchain, !isAccountInitialized {
-            alert = .init(
-                title: Localization.commonAttention,
-                message: Localization.stakingNotificationTonActivateAccount
-            )
-            Analytics.log(event: .stakingNoticeUninitializedAddress, params: [.token: tokenItem.currencySymbol])
-            return
-        }
-
         guard stakingManager.state.yieldInfo?.preferredValidators.allSatisfy({ $0.status == .full }) == false else {
             alert = .init(
                 title: Localization.stakingErrorNoValidatorsTitle,
@@ -151,16 +137,7 @@ private extension StakingDetailsViewModel {
     }
 
     func refresh() async {
-        async let updateState: Void = stakingManager.updateState(loadActions: true)
-
-        guard let accountInitializedStateProvider = accountInitializedStateProvider else {
-            return await updateState
-        }
-
-        async let isAccountInitialized = try? await accountInitializedStateProvider.isAccountInitialized()
-        let result = await (isAccountInitialized, updateState)
-
-        self.isAccountInitialized = result.0 ?? true
+        await stakingManager.updateState(loadActions: true)
     }
 
     func setupMainActionButton(state: TokenBalanceType) {
