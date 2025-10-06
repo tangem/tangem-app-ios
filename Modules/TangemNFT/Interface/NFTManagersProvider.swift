@@ -19,7 +19,7 @@ public protocol AccountsAwareNFTManagersFacade {
 }
 
 public enum AccountsWithNFTManagersState {
-    case singleAccount(accountID: Hashable, NFTManager)
+    case singleAccount(accountID: any Hashable, NFTManager)
     case multipleAccounts([AccountsWithNFTManagersData])
 
     public var nftManagers: [NFTManager] {
@@ -33,10 +33,10 @@ public enum AccountsWithNFTManagersState {
 }
 
 public struct AccountsWithNFTManagersData {
-    public let accountID: Hashable
+    public let accountID: any Hashable
     public let nftManager: any NFTManager
 
-    public init(accountID: Hashable, nftManager: any NFTManager) {
+    public init(accountID: any Hashable, nftManager: any NFTManager) {
         self.accountID = accountID
         self.nftManager = nftManager
     }
