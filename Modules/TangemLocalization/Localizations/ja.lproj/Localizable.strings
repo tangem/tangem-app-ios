@@ -169,6 +169,7 @@
 "common_accept" = "受け入れる";
 "common_access_denied" = "アクセスが拒否されました";
 "common_accounts" = "アカウント";
+"common_activate" = "Activate";
 "common_add_to_portfolio" = "ポートフォリオに追加";
 "common_add_token" = "トークンを追加";
 "common_add" = "追加";
@@ -1105,6 +1106,8 @@
 "staking_notification_restake_rewards_text" = "獲得した報酬をステーキングに再投資し、潜在的な収益を増やします。";
 "staking_notification_restake_text" = "再ステーキングを使うと、ステーキングを解除することなく、あるバリデータから別のバリデータに資金を移動できます。";
 "staking_notification_stake_entire_balance_text" = "残高のすべてをステーキングしようとしています。ステーキング解除や報酬請求にかかるネットワーク手数料をカバーするために、少額を残しておくことをお勧めします。";
+"staking_notification_ton_account_initialization_title" = "Account activation";
+"staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
 "staking_notification_ton_activate_account" = "TONのステーキングを開始するには、まず自分のアドレスに少額の取引を送信します。これによりウォレットが有効になります。";
 "staking_notification_ton_extra_reserve_info" = "取引を完了するには、ネットワーク手数料に加えて最大0.2TONが必要になる場合があります。未使用分は返金されます。";
 "staking_notification_ton_extra_reserve_is_required" = "この操作を続行するには、ネットワーク手数料に加えて0.2 TONが必要です。残高を補充してください。";
@@ -1116,6 +1119,9 @@
 "staking_notification_unstake_text" = "%@のステーキング解除期間後、資金はすぐ利用可能となります。";
 "staking_notification_withdraw_text" = "資金を引き出して、すぐに使用できます";
 "staking_notifications_revote_tron_text" = "Tronネットワークに新しいバリデーターでステーキングすると、以前にステーキングされた資金はすべてこのバリデーターに自動的に転送されます。";
+"staking_account_initialization_title" = "Account activation";
+"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_account_initialization_footer" = "A network fee is a small payment to process and confirm your transaction on the blockchain.";
 "staking_preparing" = "準備中";
 "staking_ready_to_withdraw" = "引き出し準備完了";
 "staking_rebond" = "再結束";

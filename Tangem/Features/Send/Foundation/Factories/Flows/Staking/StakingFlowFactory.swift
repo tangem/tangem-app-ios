@@ -85,8 +85,10 @@ extension StakingFlowFactory {
                 )
             ),
             analyticsLogger: analyticsLogger,
+            accountInitializationService: walletModelDependenciesProvider.accountInitializationService,
             tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem
+            feeTokenItem: feeTokenItem,
+            tokenIconInfo: tokenIconInfo
         )
     }
 }
