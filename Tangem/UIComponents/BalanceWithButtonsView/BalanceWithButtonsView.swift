@@ -10,6 +10,7 @@ import Combine
 import TangemLocalization
 import SwiftUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct BalanceWithButtonsView: View {
     @ObservedObject var viewModel: BalanceWithButtonsViewModel
@@ -34,6 +35,7 @@ struct BalanceWithButtonsView: View {
                         cornerRadius: 6
                     )
                 )
+                .accessibilityIdentifier(balanceAccessibilityIdentifier(for: viewModel.selectedBalanceType))
 
                 LoadableTokenBalanceView(
                     state: viewModel.cryptoBalance,
@@ -51,6 +53,15 @@ struct BalanceWithButtonsView: View {
         .padding(.vertical, 14)
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(14)
+    }
+
+    private func balanceAccessibilityIdentifier(for balanceType: BalanceWithButtonsViewModel.BalanceType) -> String {
+        switch balanceType {
+        case .all:
+            return TokenAccessibilityIdentifiers.totalBalance
+        case .available:
+            return TokenAccessibilityIdentifiers.availableBalance
+        }
     }
 
     @ViewBuilder
