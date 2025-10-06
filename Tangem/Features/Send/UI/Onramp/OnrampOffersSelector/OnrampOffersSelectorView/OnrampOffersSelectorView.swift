@@ -47,7 +47,7 @@ struct OnrampOffersSelectorView: View {
                 content
             }
             .scrollBounceBehaviorBackport(.basedOnSize)
-            .animation(.contentFrameUpdate, value: viewModel.viewState)
+            .animation(.contentFrameUpdate, value: viewModel.viewState.isPaymentMethods)
             .padding(.bottom, 16)
         }
         .onAppear(perform: viewModel.onAppear)
