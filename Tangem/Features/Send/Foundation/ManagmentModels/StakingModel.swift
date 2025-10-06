@@ -11,6 +11,7 @@ import Combine
 import TangemStaking
 import BlockchainSdk
 import TangemFoundation
+import struct TangemUI.TokenIconInfo
 
 protocol StakingModelStateProvider {
     var state: AnyPublisher<StakingModel.State, Never> { get }
@@ -44,9 +45,13 @@ class StakingModel {
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
+    private let tokenIconInfo: TokenIconInfo
+    private let accountInitializationService: BlockchainAccountInitializationService?
 
     private var timerTask: Task<Void, Error>?
     private var estimatedFeeTask: Task<Void, Never>?
+    private var accountInitializationFee: Fee?
+
     init(
         stakingManager: StakingManager,
         transactionCreator: TransactionCreator,
@@ -56,8 +61,10 @@ class StakingModel {
         transactionDispatcher: TransactionDispatcher,
         allowanceService: AllowanceService,
         analyticsLogger: StakingSendAnalyticsLogger,
+        accountInitializationService: BlockchainAccountInitializationService?,
         tokenItem: TokenItem,
-        feeTokenItem: TokenItem
+        feeTokenItem: TokenItem,
+        tokenIconInfo: TokenIconInfo
     ) {
         self.stakingManager = stakingManager
         self.transactionCreator = transactionCreator
@@ -67,8 +74,10 @@ class StakingModel {
         self.transactionDispatcher = transactionDispatcher
         self.allowanceService = allowanceService
         self.analyticsLogger = analyticsLogger
+        self.accountInitializationService = accountInitializationService
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
+        self.tokenIconInfo = tokenIconInfo
     }
 }
 
@@ -84,10 +93,13 @@ extension StakingModel: StakingModelStateProvider {
 
 private extension StakingModel {
     func updateState() {
-        guard let amount = _amount.value?.crypto,
+        guard let currentAmount = _amount.value?.crypto,
               let validator = _selectedValidator.value.value else {
             return
         }
+
+        // temp hack to prevent error on max amount staking after account initialization
+        let amount = currentAmount - (accountInitializationFee?.amount.value ?? .zero)
 
         estimatedFeeTask?.cancel()
 
@@ -105,6 +117,12 @@ private extension StakingModel {
     }
 
     func state(amount: Decimal, validator: ValidatorInfo, approvePolicy: ApprovePolicy) async throws -> StakingModel.State {
+        if let accountInitializationService,
+           try await accountInitializationService.isAccountInitialized() == false {
+            let fee = try await accountInitializationService.estimateInitializationFee()
+            return .blockchainAccountInitializationRequired(fee: fee)
+        }
+
         if let allowanceState = try await allowanceState(amount: amount, approvePolicy: approvePolicy) {
             switch allowanceState {
             case .permissionRequired(let approveData):
@@ -173,6 +191,8 @@ private extension StakingModel {
             return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
         case .networkError(let error):
             return SendFee(option: .market, value: .failedToLoad(error: error))
+        case .blockchainAccountInitializationRequired, .blockchainAccountInitializationInProgress:
+            return SendFee(option: .market, value: .failedToLoad(error: StakingModelError.accountIsNotInitialized))
         }
     }
 
@@ -396,7 +416,9 @@ extension StakingModel: SendSummaryInput, SendSummaryOutput {
             switch state {
             case .readyToStake, .readyToApprove:
                 return true
-            case .none, .loading, .approveTransactionInProgress, .validationError, .networkError:
+            case .none, .loading, .approveTransactionInProgress,
+                 .validationError, .networkError,
+                 .blockchainAccountInitializationRequired, .blockchainAccountInitializationInProgress:
                 return false
             }
         }.eraseToAnyPublisher()
@@ -463,6 +485,26 @@ extension StakingModel: NotificationTapDelegate {
             updateState()
         case .openFeeCurrency:
             router?.openNetworkCurrency()
+        case .activate:
+            guard let accountInitializationService,
+                  case .blockchainAccountInitializationRequired(let fee) = _state.value else { return }
+
+            let viewModel = BlockchainAccountInitializationViewModel(
+                accountInitializationService: accountInitializationService,
+                transactionDispatcher: transactionDispatcher,
+                fee: fee,
+                feeTokenItem: feeTokenItem,
+                tokenIconInfo: tokenIconInfo,
+                onStartInitialization: { [weak self] in
+                    self?.update(state: .blockchainAccountInitializationInProgress)
+                },
+                onInitialized: { [weak self] in
+                    self?.accountInitializationFee = fee
+                    self?.updateState()
+                }
+            )
+
+            router?.openAccountInitializationFlow(viewModel: viewModel)
         default:
             assertionFailure("StakingModel doesn't support notification action \(action)")
         }
@@ -533,6 +575,8 @@ extension StakingModel: StakingBaseDataBuilderInput {
 extension StakingModel {
     enum State {
         case loading
+        case blockchainAccountInitializationRequired(fee: Fee)
+        case blockchainAccountInitializationInProgress
         case readyToApprove(approveData: ApproveTransactionData)
         case approveTransactionInProgress(stakingFee: Decimal)
         case readyToStake(ReadyToStake)
@@ -544,7 +588,8 @@ extension StakingModel {
             case .readyToApprove(let requiredApprove): requiredApprove.fee.amount.value
             case .approveTransactionInProgress(let fee): fee
             case .readyToStake(let model): model.fee
-            case .loading, .validationError, .networkError: nil
+            case .loading, .validationError, .networkError,
+                 .blockchainAccountInitializationRequired, .blockchainAccountInitializationInProgress: nil
             }
         }
 
@@ -561,6 +606,7 @@ enum StakingModelError: String, Hashable, LocalizedError {
     case readyToStakeNotFound
     case validatorNotFound
     case approveDataNotFound
+    case accountIsNotInitialized
 
     var errorDescription: String? { rawValue }
 }
