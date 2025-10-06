@@ -191,13 +191,13 @@ struct OrganizeTokensView: View {
         }
     }
 
-    @ViewBuilder private var tokenListContent: some View {
+    private var tokenListContent: some View {
         let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
             sections: viewModel.sections,
             cornerRadius: Constants.contentCornerRadius
         )
 
-        ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, sectionViewModel in
+        return ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, sectionViewModel in
             Section(
                 content: {
                     ForEach(indexed: sectionViewModel.items.indexed()) { itemIndex, itemViewModel in
@@ -246,7 +246,6 @@ struct OrganizeTokensView: View {
                 }
             )
         }
-        .padding(.vertical, Constants.contentVerticalInset)
     }
 
     private var tokenListHeader: some View {
@@ -408,7 +407,6 @@ struct OrganizeTokensView: View {
         )
     }
 
-    @ViewBuilder
     private func makeDragAndDropGestureOverlayView() -> some View {
         DragAndDropGestureView(
             minimumPressDuration: Constants.dragAndDropGestureDuration,
@@ -487,7 +485,6 @@ struct OrganizeTokensView: View {
         }
     }
 
-    @ViewBuilder
     private func makeDraggableView<Content>(
         width: CGFloat,
         indexPath: IndexPath,
@@ -505,7 +502,7 @@ struct OrganizeTokensView: View {
             - baseOffsetTransitionValue
             - dragGestureTranslationFix.height
 
-        content()
+        return content()
             .frame(width: width)
             .readGeometry(\.frame, inCoordinateSpace: .global, bindTo: $draggedItemFrame)
             .scaleEffect(Constants.draggableViewScale)
