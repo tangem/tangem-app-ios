@@ -62,6 +62,7 @@ enum NotificationButtonActionType: Identifiable {
     case tangemPayViewKYCStatus
     case allowPushPermissionRequest
     case postponePushPermissionRequest
+    case activate
 
     var id: Int {
         switch self {
@@ -100,6 +101,7 @@ enum NotificationButtonActionType: Identifiable {
         case .tangemPayViewKYCStatus: "tangemPayViewKYCStatus".hashValue
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
+        case .activate: "activate".hashValue
         }
     }
 
@@ -176,6 +178,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonEnable
         case .postponePushPermissionRequest:
             return Localization.commonLater
+        case .activate:
+            return Localization.commonActivate
         }
     }
 
@@ -217,7 +221,8 @@ enum NotificationButtonActionType: Identifiable {
              .tangemPayCreateAccountAndIssueCard,
              .tangemPayViewKYCStatus,
              .allowPushPermissionRequest,
-             .postponePushPermissionRequest:
+             .postponePushPermissionRequest,
+             .activate:
             return nil
         }
     }
@@ -230,7 +235,8 @@ enum NotificationButtonActionType: Identifiable {
              .empty,
              .unlock,
              .openMobileUpgrade,
-             .allowPushPermissionRequest:
+             .allowPushPermissionRequest,
+             .activate:
             return .primary
         case .backupCard,
              .buyCrypto,

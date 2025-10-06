@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct MarketsTokensNetworkSelectorView: View {
     @ObservedObject var viewModel: MarketsTokensNetworkSelectorViewModel
@@ -99,6 +100,7 @@ struct MarketsTokensNetworkSelectorView: View {
                 isDisabled: viewModel.isSaveDisabled,
                 action: viewModel.saveChangesOnTapAction
             )
+            .accessibilityIdentifier(TokenAccessibilityIdentifiers.continueButton)
             .padding(.horizontal, 16)
             .padding(.bottom, 8)
             .background(LinearGradient(
