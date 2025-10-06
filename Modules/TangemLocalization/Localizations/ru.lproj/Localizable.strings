@@ -169,6 +169,7 @@
 "common_accept" = "Принять";
 "common_access_denied" = "Доступ запрещен";
 "common_accounts" = "Accounts";
+"common_activate" = "Activate";
 "common_add_to_portfolio" = "Добавить в портфель";
 "common_add_token" = "Добавить токен";
 "common_add" = "Добавить";
@@ -1105,6 +1106,8 @@
 "staking_notification_restake_rewards_text" = "Реинвестируйте свои заработанные награды в вашу застейканную сумму, увеличивая потенциальный доход";
 "staking_notification_restake_text" = "Рестейк позволяет вам переместить средства из одного валидатора в другого без необходимости выхода из стейкинга.";
 "staking_notification_stake_entire_balance_text" = "Вы собираетесь застейкать весь баланс, рекомендуем оставить небольшую сумму для оплаты комиссии сети при выходе из стейкинга или получении награды.";
+"staking_notification_ton_account_initialization_title" = "Account activation";
+"staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
 "staking_notification_ton_activate_account" = "Чтобы начать стейкинг в TON, сначала отправьте небольшую транзакцию на свой же адрес — это активирует ваш кошелёк.";
 "staking_notification_ton_extra_reserve_info" = "До 0.2 TON может потребоваться сверх сетевой комиссии для завершения транзакции. Неиспользованная часть будет возвращена.";
 "staking_notification_ton_extra_reserve_is_required" = "Для выполнения операции требуется дополнительно 0.2 TON, помимо сетевой комиссии. Пожалуйста, пополните баланс.";
@@ -1116,6 +1119,9 @@
 "staking_notification_unstake_text" = "Ваши средства будут доступны после %@ периода отзыва.";
 "staking_notification_withdraw_text" = "Вы можете вывести свои средства из стейкинга, они будут доступны для использования незамедлительно.";
 "staking_notifications_revote_tron_text" = "Стейкинг в сети Tron с новым валидатором автоматически переведет ваши текущие застейканные средства на него.";
+"staking_account_initialization_title" = "Account activation";
+"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_account_initialization_footer" = "A network fee is a small payment to process and confirm your transaction on the blockchain.";
 "staking_preparing" = "Подготовка";
 "staking_ready_to_withdraw" = "Доступно для вывода";
 "staking_rebond" = "Повторно застейкать";
