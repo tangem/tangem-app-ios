@@ -24,7 +24,8 @@ extension CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
             expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
             userWalletModel: userWalletModel,
             dismissAction: dismissAction,
-            tokenSorter: SwapSourceTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
+            tokenSorter: SwapSourceTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config),
+            yieldModuleNotificationInteractor: YieldModuleNoticeInteractor()
         )
     }
 

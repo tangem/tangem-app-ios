@@ -21,7 +21,7 @@ actor CommonExpressRepository {
 
     init(
         walletModelsManager: WalletModelsManager,
-        expressAPIProvider: ExpressAPIProvider
+        expressAPIProvider: ExpressAPIProvider,
     ) {
         self.walletModelsManager = walletModelsManager
         self.expressAPIProvider = expressAPIProvider

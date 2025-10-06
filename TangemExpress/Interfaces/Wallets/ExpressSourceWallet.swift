@@ -14,6 +14,8 @@ public protocol ExpressSourceWallet: ExpressDestinationWallet {
     var feeProvider: FeeProvider { get }
     var allowanceProvider: AllowanceProvider { get }
     var balanceProvider: BalanceProvider { get }
+
+    var supportedProviders: [ExpressProviderType] { get }
 }
 
 public extension ExpressSourceWallet {
