@@ -40,6 +40,8 @@ extension NotificationEvent {
                 return MainAccessibilityIdentifiers.developerCardBanner
             case .seedSupport:
                 return MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner
+            case .missingDerivation:
+                return MainAccessibilityIdentifiers.missingDerivationNotification
             default:
                 return nil
             }
