@@ -17,6 +17,10 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
+    // MARK: - Injected
+
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     // MARK: - Published property
 
     @Published private(set) var actionButtonsSwapViewModel: ActionButtonsSwapViewModel?
@@ -27,17 +31,20 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
     private let expressTokensListAdapter: ExpressTokensListAdapter
     private let tokenSorter: TokenAvailabilitySorter
     private let userWalletModel: UserWalletModel
+    private let yieldModuleNotificationInteractor: YieldModuleNoticeInteractor
 
     required init(
         expressTokensListAdapter: some ExpressTokensListAdapter,
         userWalletModel: some UserWalletModel,
         dismissAction: @escaping Action<Void>,
         tokenSorter: some TokenAvailabilitySorter,
+        yieldModuleNotificationInteractor: YieldModuleNoticeInteractor,
         popToRootAction: @escaping Action<PopToRootOptions> = { _ in }
     ) {
         self.tokenSorter = tokenSorter
         self.expressTokensListAdapter = expressTokensListAdapter
         self.userWalletModel = userWalletModel
+        self.yieldModuleNotificationInteractor = yieldModuleNotificationInteractor
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -83,6 +90,22 @@ extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
     func dismiss() {
         ActionButtonsAnalyticsService.trackCloseButtonTap(source: .swap)
         dismissAction(())
+    }
+
+    func showYieldNotificationIfNeeded(for walletModel: any WalletModel, completion: (() -> Void)?) {
+        guard yieldModuleNotificationInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) else {
+            completion.map { $0() }
+            return
+        }
+
+        Task { @MainActor in
+            let vm = YieldNoticeViewModel(tokenItem: walletModel.tokenItem) { [weak self] in
+                self?.floatingSheetPresenter.removeActiveSheet()
+                completion.map { $0() }
+            }
+
+            floatingSheetPresenter.enqueue(sheet: vm)
+        }
     }
 }
 
