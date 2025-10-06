@@ -63,8 +63,8 @@ struct PercentFormatter {
 
         formatter.numberStyle = .percent
         formatter.locale = locale
-        formatter.maximumFractionDigits = option.fractionDigits
-        formatter.minimumFractionDigits = option.fractionDigits
+        formatter.maximumFractionDigits = option.fractionDigits.max
+        formatter.minimumFractionDigits = option.fractionDigits.min
 
         formatter.negativePrefix = option.prefix.negative
         formatter.positivePrefix = option.prefix.positive
@@ -79,23 +79,36 @@ struct PercentFormatter {
 // MARK: Default options
 
 extension PercentFormatter.Option {
-    static let slippage = PercentFormatter.Option(fractionDigits: 0, prefix: .empty, suffix: .default)
-    static let priceChange = PercentFormatter.Option(fractionDigits: 2, prefix: .empty, suffix: .default)
+    static let slippage = PercentFormatter.Option(fractionDigits: .init(min: 0, max: 1), prefix: .empty, suffix: .default)
+    static let priceChange = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .default)
 
-    static let staking = PercentFormatter.Option(fractionDigits: 2, prefix: .empty, suffix: .default)
-    static let interval = PercentFormatter.Option(fractionDigits: 2, prefix: .empty, suffix: .empty)
+    static let staking = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .default)
+    static let interval = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .empty)
 
-    static let express = PercentFormatter.Option(fractionDigits: 1, prefix: .default, suffix: .default)
-    static let onramp = PercentFormatter.Option(fractionDigits: 2, prefix: .onlyMinus, suffix: .default)
+    static let express = PercentFormatter.Option(fractionDigits: .one, prefix: .default, suffix: .default)
+    static let onramp = PercentFormatter.Option(fractionDigits: .two, prefix: .onlyMinus, suffix: .default)
 }
 
 // MARK: Options
 
 extension PercentFormatter {
     struct Option: Hashable {
-        let fractionDigits: Int
+        let fractionDigits: FractionDigits
         let prefix: Prefix
         let suffix: Suffix
+    }
+
+    struct FractionDigits: Hashable {
+        static let one = FractionDigits(min: 1, max: 1)
+        static let two = FractionDigits(min: 2, max: 2)
+
+        let min: Int
+        let max: Int
+
+        init(min: Int, max: Int) {
+            self.min = min
+            self.max = max
+        }
     }
 
     struct Prefix: Hashable {
