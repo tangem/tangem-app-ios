@@ -1,14 +1,14 @@
 //
-//  MantleWalletAssembly.swift
+//  QuaiWalletAssembly.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
 
-struct MantleWalletAssembly: WalletManagerAssembly {
+struct QuaiWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         let wallet = input.wallet
 
@@ -17,7 +17,7 @@ struct MantleWalletAssembly: WalletManagerAssembly {
         }
 
         let providers = networkProviderAssembly.makeEthereumJsonRpcProviders(with: input.networkInput)
-        let txBuilder = CommonEthereumTransactionBuilder(
+        let txBuilder = QuaiTransactionBuilder(
             chainId: chainId,
             sourceAddress: wallet.defaultAddress
         )
@@ -30,7 +30,7 @@ struct MantleWalletAssembly: WalletManagerAssembly {
 
         let addressConverter = EthereumAddressConverterFactory().makeConverter(for: wallet.blockchain)
 
-        return MantleWalletManager(
+        return EthereumWalletManager(
             wallet: wallet,
             addressConverter: addressConverter,
             txBuilder: txBuilder,
