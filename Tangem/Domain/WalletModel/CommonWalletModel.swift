@@ -14,6 +14,7 @@ import BlockchainSdk
 import TangemStaking
 import TangemFoundation
 import TangemExpress
+import TangemSdk
 
 class CommonWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
@@ -63,8 +64,6 @@ class CommonWalletModel {
     private var assetRequirementsTaskCancellable: AnyCancellable?
     private let isAssetRequirementsTaskInProgressSubject: CurrentValueSubject<Bool, Never> = .init(false)
 
-    private let amountType: Amount.AmountType
-    private let blockchainNetwork: BlockchainNetwork
     private let _state: CurrentValueSubject<WalletModelState, Never> = .init(.created)
     private lazy var _rate: CurrentValueSubject<WalletModelRate, Never> = .init(.loading(cached: quotesRepository.quote(for: tokenItem)))
 
@@ -73,12 +72,21 @@ class CommonWalletModel {
 
     private var bag = Set<AnyCancellable>()
 
+    private var amountType: Amount.AmountType {
+        tokenItem.amountType
+    }
+
+    private var blockchainNetwork: BlockchainNetwork {
+        tokenItem.blockchainNetwork
+    }
+
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> {
         isAssetRequirementsTaskInProgressSubject.eraseToAnyPublisher()
     }
 
     init(
         userWalletId: UserWalletId,
+        tokenItem: TokenItem,
         walletManager: WalletManager,
         stakingManager: StakingManager?,
         featureManager: WalletModelFeaturesManager,
@@ -86,7 +94,6 @@ class CommonWalletModel {
         receiveAddressService: ReceiveAddressService,
         sendAvailabilityProvider: TransactionSendAvailabilityProvider,
         tokenBalancesRepository: TokenBalancesRepository,
-        amountType: Amount.AmountType,
         shouldPerformHealthCheck: Bool,
         isCustom: Bool
     ) {
@@ -96,24 +103,11 @@ class CommonWalletModel {
         _stakingManager = stakingManager
         _transactionHistoryService = transactionHistoryService
         _receiveAddressService = receiveAddressService
-        self.amountType = amountType
+        self.tokenItem = tokenItem
         self.isCustom = isCustom
         self.sendAvailabilityProvider = sendAvailabilityProvider
         self.tokenBalancesRepository = tokenBalancesRepository
 
-        blockchainNetwork = BlockchainNetwork(
-            walletManager.wallet.blockchain,
-            derivationPath: walletManager.wallet.publicKey.derivationPath
-        )
-
-        let tokenItem = switch amountType {
-        case .coin, .reserve, .feeResource:
-            TokenItem.blockchain(blockchainNetwork)
-        case .token(let token):
-            TokenItem.token(token, blockchainNetwork)
-        }
-
-        self.tokenItem = tokenItem
         id = WalletModelId(tokenItem: tokenItem)
 
         bind()
