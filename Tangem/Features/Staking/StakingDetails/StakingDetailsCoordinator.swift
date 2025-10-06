@@ -48,8 +48,7 @@ class StakingDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             tokenItem: options.walletModel.tokenItem,
             tokenBalanceProvider: options.walletModel.availableBalanceProvider,
             stakingManager: options.manager,
-            coordinator: self,
-            accountInitializedStateProvider: options.walletModel.accountInitializationStateProvider
+            coordinator: self
         )
     }
 }
