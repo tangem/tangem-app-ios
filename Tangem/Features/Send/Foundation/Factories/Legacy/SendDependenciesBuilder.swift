@@ -501,27 +501,6 @@ struct SendDependenciesBuilder {
 
     // MARK: - Staking
 
-    func makeStakingModel(
-        stakingManager: some StakingManager,
-        analyticsLogger: any StakingSendAnalyticsLogger
-    ) -> StakingModel {
-        StakingModel(
-            stakingManager: stakingManager,
-            transactionCreator: walletModel.transactionCreator,
-            transactionValidator: walletModel.transactionValidator,
-            feeIncludedCalculator: makeStakingFeeIncludedCalculator(),
-            stakingTransactionDispatcher: makeStakingTransactionDispatcher(
-                stakingManger: stakingManager,
-                analyticsLogger: analyticsLogger
-            ),
-            transactionDispatcher: makeTransactionDispatcher(),
-            allowanceService: makeAllowanceService(),
-            analyticsLogger: analyticsLogger,
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem
-        )
-    }
-
     func makeUnstakingModel(
         stakingManager: some StakingManager,
         analyticsLogger: any StakingSendAnalyticsLogger,
