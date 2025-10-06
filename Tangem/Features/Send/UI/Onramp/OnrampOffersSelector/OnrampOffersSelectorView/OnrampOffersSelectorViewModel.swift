@@ -112,5 +112,12 @@ extension OnrampOffersSelectorViewModel {
     enum ViewState: Hashable {
         case paymentMethods([OnrampProviderItemViewModel])
         case offers([OnrampOfferViewModel])
+
+        var isPaymentMethods: Bool {
+            switch self {
+            case .offers: false
+            case .paymentMethods: true
+            }
+        }
     }
 }
