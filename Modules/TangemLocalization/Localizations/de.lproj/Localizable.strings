@@ -169,6 +169,7 @@
 "common_accept" = "Akzeptieren";
 "common_access_denied" = "Zugang verweigert";
 "common_accounts" = "Konten";
+"common_activate" = "Activate";
 "common_add_to_portfolio" = "Zum Portfolio hinzufügen";
 "common_add_token" = "Token hinzufügen";
 "common_add" = "Hinzufügen";
@@ -1105,6 +1106,8 @@
 "staking_notification_restake_rewards_text" = "Reinvestiert Deine verdienten Prämien in Deinen Einsatzbetrag und erhöht so den potenziellen Gewinn.";
 "staking_notification_restake_text" = "Mit Restake kannst Du Dein Guthaben von einem Validator zu einem anderen verschieben, ohne dass Du den Stake aufheben musst.";
 "staking_notification_stake_entire_balance_text" = "Du bist dabei, Dein gesamtes Guthaben zu staken. Wir empfehlen, einen kleinen Betrag übrig zu lassen, um die Netzwerkgebühren für die Aufhebung des Stakes oder das Einfordern von Prämien abzudecken.";
+"staking_notification_ton_account_initialization_title" = "Account activation";
+"staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
 "staking_notification_ton_activate_account" = "Um mit dem Staking bei TON zu beginnen, führe zunächst eine ausgehende Transaktion in beliebiger Höhe durch – dadurch wird Deine Wallet aktiviert.";
 "staking_notification_ton_extra_reserve_info" = "Für den Abschluss der Transaktion können zusätzlich zur Netzwerkgebühr bis zu 0,2 TON erforderlich sein. Nicht genutzte Beträge werden zurückerstattet.";
 "staking_notification_ton_extra_reserve_is_required" = "Für diesen Vorgang sind zusätzlich zur Netzwerkgebühr 0,2 TON erforderlich. Bitte lade Dein Guthaben auf.";
@@ -1116,6 +1119,9 @@
 "staking_notification_unstake_text" = "Deine Assets stehen Dir nach Ablauf der Frist für die Aufhebung der Bindung %@ zur Verfügung.";
 "staking_notification_withdraw_text" = "Du kannst Dein Guthaben jetzt abheben. Es steht Dir sofort zur Verfügung.";
 "staking_notifications_revote_tron_text" = "Wenn du im Tron-Netzwerk mit einem neuen Validator stakest, werden alle zuvor eingesetzten Assets automatisch an diesen Validator übertragen.";
+"staking_account_initialization_title" = "Account activation";
+"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_account_initialization_footer" = "A network fee is a small payment to process and confirm your transaction on the blockchain.";
 "staking_preparing" = "Vorbereitung";
 "staking_ready_to_withdraw" = "Bereit zum Abheben";
 "staking_rebond" = "Erneut binden";

@@ -51,7 +51,6 @@ protocol WalletModel:
 
     var stakingManager: StakingManager? { get }
     var stakeKitTransactionSender: StakeKitTransactionSender? { get }
-    var accountInitializationStateProvider: StakingAccountInitializationStateProvider? { get }
 
     // MARK: - Accounts
 
@@ -143,6 +142,8 @@ protocol WalletModelDependenciesProvider {
     var ethereumTransactionSigner: EthereumTransactionSigner? { get }
 
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? { get }
+
+    var accountInitializationService: BlockchainAccountInitializationService? { get }
 }
 
 // MARK: - Tx history
