@@ -154,8 +154,7 @@ struct StakingDetailsView_Preview: PreviewProvider {
         tokenItem: CommonWalletModel.mockETH.tokenItem,
         tokenBalanceProvider: CommonWalletModel.mockETH.availableBalanceProvider,
         stakingManager: StakingManagerMock(),
-        coordinator: StakingDetailsCoordinator(),
-        accountInitializedStateProvider: nil
+        coordinator: StakingDetailsCoordinator()
     )
 
     static var previews: some View {
