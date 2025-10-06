@@ -360,8 +360,8 @@ extension CommonWalletModel: WalletModel {
         walletManager as? StakeKitTransactionSender
     }
 
-    var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? {
-        walletManager as? StakingAccountInitializationStateProvider
+    var accountInitializationService: (any BlockchainAccountInitializationService)? {
+        walletManager as? BlockchainAccountInitializationService
     }
 }
 
