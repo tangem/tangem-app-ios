@@ -735,6 +735,18 @@
                  "exchangeable":false
               }
            ]
+        },
+        {
+           "id":"quai-network",
+           "name":"Quai Network",
+           "symbol":"QUAI",
+           "active":true,
+           "networks":[
+              {
+                 "networkId":"quai-network",
+                 "exchangeable":false
+              }
+           ]
         }
     ],
     "total": 0,
