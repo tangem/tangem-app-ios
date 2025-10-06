@@ -153,6 +153,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .openMobileUpgrade,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
+             .activate,
              .tangemPayViewKYCStatus,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest:

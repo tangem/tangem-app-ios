@@ -54,6 +54,12 @@ private extension CommonStakingNotificationManager {
         case .approveTransactionInProgress:
             show(notification: .approveTransactionInProgress)
             hideErrorNotifications()
+        case .blockchainAccountInitializationRequired:
+            show(notification: .tonAccountInitialization)
+            hideErrorNotifications()
+        case .blockchainAccountInitializationInProgress:
+            hideAccountInitializationNotification()
+            hideErrorNotifications()
         case .readyToApprove:
             hideApproveInProgressNotification()
             hideErrorNotifications()
@@ -273,6 +279,15 @@ private extension CommonStakingNotificationManager {
         notificationInputsSubject.value.removeAll { input in
             switch input.settings.event {
             case StakingNotificationEvent.approveTransactionInProgress: true
+            default: false
+            }
+        }
+    }
+
+    func hideAccountInitializationNotification() {
+        notificationInputsSubject.value.removeAll { input in
+            switch input.settings.event {
+            case StakingNotificationEvent.tonAccountInitialization: true
             default: false
             }
         }
