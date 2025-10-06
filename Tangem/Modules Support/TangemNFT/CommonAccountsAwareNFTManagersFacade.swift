@@ -83,8 +83,7 @@ extension CommonAccountsAwareNFTManagersFacade: AccountsAwareNFTManagersFacade {
     }
 
     var collections: [NFTCollection] {
-        nftMangersWithAccountsInfoSubject
-            .value
+        currentState
             .map {
                 $0.nftManagers.flatMap(\.collections)
             } ?? []

@@ -91,6 +91,7 @@ public final class NFTEntrypointViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: \.state, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     private func updateInternal() {
