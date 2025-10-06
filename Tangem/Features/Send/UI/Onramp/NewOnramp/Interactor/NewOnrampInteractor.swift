@@ -14,23 +14,27 @@ protocol NewOnrampInteractor: AnyObject {
     var suggestedOffersPublisher: AnyPublisher<LoadingResult<OnrampInteractorSuggestedOffer?, Never>, Never> { get }
     var isLoadingPublisher: AnyPublisher<Bool, Never> { get }
 
+    func update(fiat: Decimal?)
     func userDidRequestOnramp(provider: OnrampProvider)
 }
 
 class CommonNewOnrampInteractor {
     private weak var input: OnrampInput?
     private weak var output: OnrampOutput?
+    private weak var amountOutput: OnrampAmountOutput?
     private weak var providersInput: OnrampProvidersInput?
     private weak var recentFinder: RecentOnrampTransactionParametersFinder?
 
     init(
         input: OnrampInput,
         output: OnrampOutput,
+        amountOutput: OnrampAmountOutput,
         providersInput: OnrampProvidersInput,
         recentFinder: RecentOnrampTransactionParametersFinder
     ) {
         self.input = input
         self.output = output
+        self.amountOutput = amountOutput
         self.providersInput = providersInput
         self.recentFinder = recentFinder
     }
@@ -68,6 +72,16 @@ extension CommonNewOnrampInteractor: NewOnrampInteractor {
 
     func userDidRequestOnramp(provider: OnrampProvider) {
         output?.userDidRequestOnramp(provider: provider)
+    }
+
+    func update(fiat: Decimal?) {
+        guard let fiat, fiat > 0 else {
+            // Field is empty or zero
+            amountOutput?.amountDidChanged(fiat: .none)
+            return
+        }
+
+        amountOutput?.amountDidChanged(fiat: fiat)
     }
 }
 
