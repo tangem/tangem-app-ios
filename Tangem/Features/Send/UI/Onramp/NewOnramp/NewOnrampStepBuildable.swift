@@ -53,6 +53,7 @@ enum NewOnrampStepBuilder {
         let interactor = CommonNewOnrampInteractor(
             input: io.input,
             output: io.output,
+            amountOutput: io.amountOutput,
             providersInput: io.providersInput,
             recentFinder: io.recentOnrampTransactionParametersFinder
         )
