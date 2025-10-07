@@ -80,11 +80,12 @@ final class CommonUserTokensPushNotificationsService: NSObject {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { service, request in
-                guard case .allow(.afterLogin) = request else {
-                    return
+                switch request {
+                case .allow(.afterLogin), .allow(.afterLoginBanner):
+                    service.permissionRequestInitialPushAllowanceForExistingWallets()
+                default:
+                    break
                 }
-
-                service.permissionRequestInitialPushAllowanceForExistingWallets()
             }
 
         /*
