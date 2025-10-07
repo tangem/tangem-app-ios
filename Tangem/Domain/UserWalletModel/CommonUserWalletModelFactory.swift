@@ -204,7 +204,8 @@ private struct CommonUserWalletModelDependencies {
             let remoteIdentifierBuilder = CryptoAccountsRemoteIdentifierBuilder(userWalletId: userWalletId)
             let mapper = CryptoAccountsNetworkMapper(
                 supportedBlockchains: config.supportedBlockchains,
-                remoteIdentifierBuilder: remoteIdentifierBuilder.build(from:)
+                remoteIdentifierBuilder: remoteIdentifierBuilder.build(from:),
+                externalParametersProvider: userTokensPushNotificationsManager
             )
             let networkService = CommonCryptoAccountsNetworkService(
                 userWalletId: userWalletId,

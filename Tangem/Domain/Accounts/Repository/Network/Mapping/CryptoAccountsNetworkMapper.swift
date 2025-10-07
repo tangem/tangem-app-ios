@@ -15,13 +15,16 @@ struct CryptoAccountsNetworkMapper {
 
     private let supportedBlockchains: SupportedBlockchainsSet
     private let remoteIdentifierBuilder: RemoteIdentifierBuilder
+    private weak var externalParametersProvider: UserTokenListExternalParametersProvider?
 
     init(
         supportedBlockchains: SupportedBlockchainsSet,
-        remoteIdentifierBuilder: @escaping RemoteIdentifierBuilder
+        remoteIdentifierBuilder: @escaping RemoteIdentifierBuilder,
+        externalParametersProvider: UserTokenListExternalParametersProvider?
     ) {
         self.supportedBlockchains = supportedBlockchains
         self.remoteIdentifierBuilder = remoteIdentifierBuilder
+        self.externalParametersProvider = externalParametersProvider
     }
 
     // MARK: - Stored to Remote
@@ -44,15 +47,17 @@ struct CryptoAccountsNetworkMapper {
                 )
             }
 
-        // Currently, we assume that all accounts share the same grouping and sorting options
+        // Currently, we assume that all accounts share the same grouping option
         let group = mapGroupType(groupingOption: request.first?.grouping)
+        // Currently, we assume that all accounts share the same sorting option
         let sort = mapSortType(sortingOption: request.first?.sorting)
+        let notifyStatusValue = externalParametersProvider?.provideTokenListNotifyStatusValue()
 
         let userTokens = AccountsDTO.Request.UserTokens(
             tokens: tokens,
             group: group,
             sort: sort,
-            notifyStatus: nil, // [REDACTED_TODO_COMMENT]
+            notifyStatus: notifyStatusValue,
             version: Constants.apiVersion
         )
 
