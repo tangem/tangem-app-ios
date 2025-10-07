@@ -30,7 +30,7 @@ final class AccountModelsManagerMock {
         // `defer` is used to trigger the `didSet` observer
         defer {
             let mainAccount = CryptoAccountModelMock(isMainAccount: true, walletModelsManager: walletModelsManager)
-            cryptoAccountModels = [mainAccount]
+            cryptoAccountModels = [mainAccount, CryptoAccountModelMock(isMainAccount: false, walletModelsManager: walletModelsManager)]
         }
     }
 

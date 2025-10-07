@@ -26,7 +26,7 @@ final class CryptoAccountModelMock {
     }
 
     private(set) var icon = AccountModel.Icon(
-        name: AccountModel.Icon.Name.allCases.randomElement()!,
+        name: .letter,
         color: .allCases.randomElement()!
     ) {
         didSet {

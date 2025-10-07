@@ -17,7 +17,7 @@ struct ActionButtonsBuyCoordinatorView: View {
             SendCoordinatorView(coordinator: sendCoordinator)
         } else if let actionButtonsBuyViewModel = coordinator.actionButtonsBuyViewModel {
             NavigationView {
-                ActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
+                NewActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
                     .sheet(item: $coordinator.addToPortfolioBottomSheetInfo, content: { addToPortfolioSheet($0) })
             }
         }

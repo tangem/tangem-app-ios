@@ -240,7 +240,7 @@ private struct CommonUserWalletModelDependencies {
         }
 
         accountModelsManager = FeatureProvider.isAvailable(.accounts)
-            ? makeAccountModelsManager()
+            ? AccountModelsManagerMock(walletModelsManager: walletModelsManager)
             : DummyCommonAccountModelsManager()
     }
 
