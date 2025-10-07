@@ -136,7 +136,7 @@ struct YieldModuleStartView: View {
     private var mainContent: some View {
         switch viewModel.viewState {
         case .rateInfo:
-            EmptyView()
+            YieldModuleChartContainer()
 
         case .startEarning:
             YieldFeeSection(
