@@ -18,7 +18,7 @@
 "account_archived_accounts" = "Archived accounts";
 "account_archived_recover_dialog_description" = "You’re about to recover “%1$@”.";
 "account_archived_recover_dialog_title" = "Recover account";
-"account_archived_recover_error_message" = "You have already exceeded the limit of 20 active accounts. Archive one to recover";
+"account_archived_recover_error_message" = "You have already exceeded the limit of 20 active accounts. Archive one to recover.";
 "account_archived_recover_error_title" = "Can't recover account";
 "account_archived_recover" = "Recover";
 "account_archived_title" = "Archived";
@@ -238,6 +238,7 @@
 "common_fee_selector_title" = "Speed and fee";
 "common_finish" = "Finish";
 "common_free" = "Free";
+"common_from" = "From";
 "common_generate_addresses" = "Synchronize addresses";
 "common_get_started" = "Get started";
 "common_go_to_provider" = "Go to provider";
@@ -314,6 +315,7 @@
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "terms and conditions";
 "common_terms_of_use" = "Terms of Use";
+"common_to" = "To";
 "common_today" = "Today";
 "common_transaction_failed" = "Transaction failed";
 "common_transaction_status" = "Transaction status";
@@ -522,6 +524,7 @@
 "hw_create_seed_description" = "Create or restore your wallet using a recovery phrase — your built-in backup.";
 "hw_create_seed_title" = "Seed phrase backup";
 "hw_create_title" = "Create Mobile Wallet";
+"hw_import_existing_wallet" = "Import existing wallet";
 "hw_import_seed_phrase_already_imported" = "This recovery phrase has already been imported";
 "hw_mobile_wallet" = "Mobile Wallet";
 "hw_upgrade_error_card_already_has_wallet" = "Can’t upgrade. A wallet already exists on this device.";
@@ -860,6 +863,7 @@
 "organize_tokens_sort_by_balance" = "By balance";
 "organize_tokens_title" = "Organize tokens";
 "organize_tokens_ungroup" = "Ungroup";
+"provider_name_support" = "%s support";
 "push_notifications_more_info" = "More info";
 "push_notifications_permission_alert_description" = "You can enable Notifications for Tangem in Settings.";
 "push_notifications_permission_alert_negative_button" = "Enable Later";
@@ -1039,6 +1043,9 @@
 "settings_forget_wallet" = "Forget wallet";
 "settings_wallet_name_title" = "Name";
 "stake_token_description" = "Put your token to work";
+"staking_account_initialization_footer" = "A network fee is a small payment required to process and confirm your transaction on the blockchain.";
+"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_account_initialization_title" = "Account activation";
 "staking_active_footer" = "To unstake your assets, tap the block above";
 "staking_active" = "Active";
 "staking_amount_requirement_error" = "The amount to stake must be at least %@";
@@ -1108,10 +1115,10 @@
 "staking_notification_restake_rewards_text" = "Reinvests your earned rewards in your staked amount, increasing potential earnings.";
 "staking_notification_restake_text" = "Restake lets you move your funds from one validator to another without the need to unstake";
 "staking_notification_stake_entire_balance_text" = "You’re about to stake your entire balance. We recommend leaving a small amount to cover network fees for unstaking or claiming rewards.";
+"staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_notification_ton_account_initialization_title" = "Account activation";
 "staking_notification_ton_activate_account" = "To start staking in TON, first send a small transaction to your own address — this will activate your wallet.";
 "staking_notification_ton_extra_reserve_info" = "Up to 0.2 TON may be required in addition to the network fee to complete the transaction. Any unused amount will be refunded.";
-"staking_notification_ton_account_initialization_title" = "Account activation";
-"staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
 "staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
 "staking_notification_ton_extra_reserve_title" = "TON reserve required";
 "staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
@@ -1121,9 +1128,6 @@
 "staking_notification_unstake_text" = "Your funds will be available for use after the %@ unbonding period.";
 "staking_notification_withdraw_text" = "You can now withdraw your funds, it will be available to use immediately";
 "staking_notifications_revote_tron_text" = "Staking in the Tron network with a new validator will automatically transfer all previously staked funds to this validator";
-"staking_account_initialization_title" = "Account activation";
-"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
-"staking_account_initialization_footer" = "A network fee is a small payment to process and confirm your transaction on the blockchain.";
 "staking_preparing" = "Preparing";
 "staking_ready_to_withdraw" = "Ready to withdraw";
 "staking_rebond" = "Rebond";
@@ -1146,6 +1150,7 @@
 "staking_reward_schedule_month" = "Monthly";
 "staking_reward_schedule_week" = "Weekly";
 "staking_rewards" = "Rewards";
+"staking_soloana_details_auto_claiming_rewards_daily_text" = "Rewards on Solana are automatically added to your staking balance and cannot be shown separately.";
 "staking_stake_locked" = "Stake locked";
 "staking_stake_more_button_unavailability_reason" = "When staking %1$@, your entire %2$@ balance is staked. Any additional %2$@ you deposit to your Tangem Wallet will also be automatically staked.";
 "staking_stake_more" = "Stake more";
@@ -1614,7 +1619,7 @@
 "wc_no_wallet_changes_detected" = "No wallet changes detected";
 "wc_notification_security_risk_subtitle" = "Potential risks or malicious behavior have been detected. Connecting or signing transactions may lead to loss of funds.";
 "wc_notification_security_risk_title" = "Known security risk";
-"wc_qr_scan_hint" = "Open Web3 app and chose WalletConnect option";
+"wc_qr_scan_hint" = "Open the Web3 app and choose the WalletConnect option.";
 "wc_request_from" = "Request from";
 "wc_send_anyway" = "Sign anyway";
 "wc_signature_type" = "Signature Type";
@@ -1633,6 +1638,13 @@
 "wc_wallet_connect" = "WalletConnect";
 "wc_warning_transaction" = "Suspicious transaction";
 "wc_warning_tx_alert_default_description" = "This transaction appears unusual or risky. Please review it carefully before signing.";
+"welcome_create_wallet_feature_class" = "Best in class hardware wallet";
+"welcome_create_wallet_feature_delivery" = "Fast delivery";
+"welcome_create_wallet_feature_use" = "Simple to use";
+"welcome_create_wallet_hardware_description" = "Create a hardware wallet with Tangem. Slim as a bank card, secure as a bank vault.";
+"welcome_create_wallet_mobile_description" = "Create or import a software wallet";
+"welcome_create_wallet_mobile_title" = "Start with Mobile Wallet";
+"welcome_create_wallet_other_method" = "Other method";
 "welcome_interrupted_backup_alert_discard" = "Discard";
 "welcome_interrupted_backup_alert_message" = "You have an interrupted backup. Do you want to resume?";
 "welcome_interrupted_backup_alert_resume" = "Yes, resume";
