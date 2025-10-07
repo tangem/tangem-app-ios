@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemAssets
+import TangemAccounts
 
 extension AccountModelUtils {
     enum UI {
@@ -101,5 +102,14 @@ extension AccountModelUtils.UI {
 
     static func iconImage(from name: AccountModel.Icon.Name) -> Image {
         return iconAsset(from: name).image
+    }
+
+    static func nameMode(from name: AccountModel.Icon.Name, accountName: String) -> AccountIconView.NameMode {
+        switch name {
+        case .letter:
+            .letter(accountName.first.map { String($0) } ?? "")
+        default:
+            .imageType(iconAsset(from: name))
+        }
     }
 }
