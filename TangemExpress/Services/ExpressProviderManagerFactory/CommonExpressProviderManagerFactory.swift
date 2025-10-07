@@ -11,13 +11,16 @@ import Foundation
 struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
     private let expressAPIProvider: ExpressAPIProvider
     private let mapper: ExpressManagerMapper
+    private let transactionValidator: ExpressProviderTransactionValidator
 
     init(
         expressAPIProvider: ExpressAPIProvider,
-        mapper: ExpressManagerMapper
+        mapper: ExpressManagerMapper,
+        transactionValidator: ExpressProviderTransactionValidator
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.mapper = mapper
+        self.transactionValidator = transactionValidator
     }
 
     func makeExpressProviderManager(provider: ExpressProvider) -> ExpressProviderManager? {
@@ -26,7 +29,8 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
             return DEXExpressProviderManager(
                 provider: provider,
                 expressAPIProvider: expressAPIProvider,
-                mapper: mapper
+                mapper: mapper,
+                transactionValidator: transactionValidator,
             )
         case .cex:
             return CEXExpressProviderManager(
