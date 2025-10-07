@@ -24,7 +24,7 @@ struct SelectorReceiveRoundButtonView: View {
                 .asset
                 .renderingMode(.template)
                 .resizable()
-                .frame(size: .init(bothDimensions: 20))
+                .frame(size: .init(bothDimensions: Layout.iconSize))
                 .foregroundStyle(Colors.Icon.informative)
 
             Text(actionType.title)
@@ -33,7 +33,7 @@ struct SelectorReceiveRoundButtonView: View {
         .padding(.horizontal, Layout.horizontalPadding)
         .padding(.vertical, Layout.verticalPadding)
         .background(
-            Circle()
+            RoundedRectangle(cornerRadius: Layout.cornerRadius)
                 .fill(Colors.Button.secondary)
         )
     }
@@ -67,5 +67,7 @@ private extension SelectorReceiveRoundButtonView {
         static let horizontalSpacing: CGFloat = 6
         static let horizontalPadding: CGFloat = 12
         static let verticalPadding: CGFloat = 8
+        static let cornerRadius: CGFloat = 8
+        static let iconSize: CGFloat = 20
     }
 }
