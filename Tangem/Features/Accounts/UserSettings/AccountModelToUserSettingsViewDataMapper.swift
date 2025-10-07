@@ -50,13 +50,10 @@ enum AccountModelToUserSettingsViewDataMapper {
         _ accountModel: any BaseAccountModel,
         onTap: @escaping (any BaseAccountModel) -> Void
     ) -> UserSettingsAccountRowViewData {
-        let iconNameMode: AccountIconView.NameMode = switch accountModel.icon.name {
-        case .letter:
-            .letter(String(accountModel.name.first ?? "_"))
-
-        default:
-            .imageType(AccountModelUtils.UI.iconAsset(from: accountModel.icon.name))
-        }
+        let iconNameMode = AccountModelUtils.UI.nameMode(
+            from: accountModel.icon.name,
+            accountName: accountModel.name
+        )
 
         return UserSettingsAccountRowViewData(
             id: "\(accountModel.id)",
