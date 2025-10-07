@@ -2551,8 +2551,8 @@
 		D85E20082E84935D004174E6 /* TotalBalanceSmokeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E20072E84935D004174E6 /* TotalBalanceSmokeUITests.swift */; };
 		D85E200B2E854D5F004174E6 /* AppSettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E20092E854D5F004174E6 /* AppSettingsScreen.swift */; };
 		D85E200C2E854D5F004174E6 /* CurrencySelectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E200A2E854D5F004174E6 /* CurrencySelectionScreen.swift */; };
-		D85E20122E8D7A50004174E6 /* StorageCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E20112E8D7A50004174E6 /* StorageCleaner.swift */; };
 		D85E200E2E8D106E004174E6 /* MarketsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E200D2E8D106E004174E6 /* MarketsScreen.swift */; };
+		D85E20122E8D7A50004174E6 /* StorageCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E20112E8D7A50004174E6 /* StorageCleaner.swift */; };
 		D863E7502E65C77D00912D52 /* ResetCardScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D863E74F2E65C77D00912D52 /* ResetCardScreen.swift */; };
 		D863E7532E65CEBB00912D52 /* ScanCardSettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D863E7512E65CEBB00912D52 /* ScanCardSettingsScreen.swift */; };
 		D863E7562E65CFA300912D52 /* DeviceSettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D863E7552E65CFA300912D52 /* DeviceSettingsScreen.swift */; };
@@ -4361,7 +4361,6 @@
 		0A7FF63C2C888D380072C2E8 /* StakingAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAnalyticsLogger.swift; sourceTree = "<group>"; };
 		0A81B3722BB2D24A0008F21C /* BlockchainURLSchemesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainURLSchemesParser.swift; sourceTree = "<group>"; };
 		0A83F56B2DD3609400ADB321 /* MarketsNotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNotificationsManager.swift; sourceTree = "<group>"; };
-		0A85A1962E6FFA8000ED535D /* YieldModuleTransactionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleTransactionDispatcher.swift; sourceTree = "<group>"; };
 		0A85A1982E7076E600ED535D /* YieldTransactionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldTransactionProvider.swift; sourceTree = "<group>"; };
 		0A85A19A2E71662F00ED535D /* YieldTransactionFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldTransactionFeeProvider.swift; sourceTree = "<group>"; };
 		0A85A1A32E71C12300ED535D /* YieldModuleDTO+MarketInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YieldModuleDTO+MarketInfo.swift"; sourceTree = "<group>"; };
@@ -6506,8 +6505,6 @@
 		B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerView.swift; sourceTree = "<group>"; };
 		B675C3752BACB8AA007BE1DC /* PolkadotAccountHealthChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkadotAccountHealthChecker.swift; sourceTree = "<group>"; };
 		B6761A602DB9790600402277 /* NFTReceiveWalletModelFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTReceiveWalletModelFinder.swift; sourceTree = "<group>"; };
-		B67688EE2B078EDB006C94F7 /* MainBottomSheetOverlayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBottomSheetOverlayViewModel.swift; sourceTree = "<group>"; };
-		B67688F02B078F71006C94F7 /* MainBottomSheetOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBottomSheetOverlayView.swift; sourceTree = "<group>"; };
 		B6780CBD2DCA13BF009B5431 /* MarketsTokenDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsViewModel.swift; sourceTree = "<group>"; };
 		B6796E7A2C65C16E005D7292 /* TouchPassthroughView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchPassthroughView.swift; sourceTree = "<group>"; };
 		B679CAFA2DE488DF00D67364 /* CommonNFTCacheDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNFTCacheDelegate.swift; sourceTree = "<group>"; };
@@ -6819,8 +6816,8 @@
 		D85E20072E84935D004174E6 /* TotalBalanceSmokeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceSmokeUITests.swift; sourceTree = "<group>"; };
 		D85E20092E854D5F004174E6 /* AppSettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsScreen.swift; sourceTree = "<group>"; };
 		D85E200A2E854D5F004174E6 /* CurrencySelectionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectionScreen.swift; sourceTree = "<group>"; };
-		D85E20112E8D7A50004174E6 /* StorageCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCleaner.swift; sourceTree = "<group>"; };
 		D85E200D2E8D106E004174E6 /* MarketsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsScreen.swift; sourceTree = "<group>"; };
+		D85E20112E8D7A50004174E6 /* StorageCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCleaner.swift; sourceTree = "<group>"; };
 		D863E74F2E65C77D00912D52 /* ResetCardScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetCardScreen.swift; sourceTree = "<group>"; };
 		D863E7512E65CEBB00912D52 /* ScanCardSettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsScreen.swift; sourceTree = "<group>"; };
 		D863E7552E65CFA300912D52 /* DeviceSettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceSettingsScreen.swift; sourceTree = "<group>"; };
@@ -8581,15 +8578,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0A0D88992E8297E800877140 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				0A85A1962E6FFA8000ED535D /* YieldModuleTransactionDispatcher.swift */,
-				B644CF3C2E932DB1009ECFA9 /* CryptoAccountsNetworkServiceUpdateType.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		0A0F51922E43CB5B001F803E /* MobileWalletSdk */ = {
 			isa = PBXGroup;
 			children = (
@@ -9998,15 +9986,6 @@
 			path = Analytics;
 			sourceTree = "<group>";
 		};
-		2DD754D52AE166000009CA64 /* GenerateAddressesView */ = {
-			isa = PBXGroup;
-			children = (
-				DA7859E02AB0451F004FAE04 /* GenerateAddressesView.swift */,
-				2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */,
-			);
-			path = GenerateAddressesView;
-			sourceTree = "<group>";
-		};
 		2DD91FA42E66A77C00A0B0B5 /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -10390,7 +10369,6 @@
 				B62D43792CBC7EC700C2460E /* BlockchainSdkExample */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
-				0A0D88992E8297E800877140 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
