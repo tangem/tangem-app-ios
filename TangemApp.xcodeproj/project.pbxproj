@@ -542,6 +542,9 @@
 		2DCB23A22E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCB239F2E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift */; };
 		2DCB23A32E5700E50076C294 /* ReceiveAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCB23A02E5700E50076C294 /* ReceiveAnalyticsLogger.swift */; };
 		2DCC301A2E71770B004AF17D /* ShareActivitiesPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCC30192E71770B004AF17D /* ShareActivitiesPresenter.swift */; };
+		2DCDCD322E95237A0056072D /* ExpressProviderTransactionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDCD312E95237A0056072D /* ExpressProviderTransactionValidator.swift */; };
+		2DCDCD342E9526300056072D /* CommonExpressProviderTransactionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDCD332E9526300056072D /* CommonExpressProviderTransactionValidator.swift */; };
+		2DCDCD362E9528560056072D /* ExpressProviderTransactionValidatorMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDCD352E9528560056072D /* ExpressProviderTransactionValidatorMock.swift */; };
 		2DCDE45A2DE60E5C007ECD34 /* UserTokenListAddressProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE4592DE60E5C007ECD34 /* UserTokenListAddressProvider.swift */; };
 		2DCDE45F2DE60F14007ECD34 /* UserWalletDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45E2DE60F14007ECD34 /* UserWalletDTO.swift */; };
 		2DCDE4612DE60F14007ECD34 /* ApplicationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */; };
@@ -566,6 +569,7 @@
 		2DFC27942C78E833009B247E /* TokenItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27902C78E833009B247E /* TokenItemType.swift */; };
 		2DFC27962C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */; };
 		2DFDD6092DF1ECF700CB72B5 /* SuiContractAddressConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFDD6082DF1ECF700CB72B5 /* SuiContractAddressConverter.swift */; };
+		2DFFB24A2E8FB2FD005CBEF6 /* SolanaTransactionSizeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFFB2492E8FB2FD005CBEF6 /* SolanaTransactionSizeUtils.swift */; };
 		30005CD82D5CC9BD00CB41AE /* VanarExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */; };
 		300B38052DDB3C39007BDD32 /* NFTExternalLinksProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */; };
 		300C26342DAFA29600C7E0B0 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = 300C26332DAFA29600C7E0B0 /* CombineExt */; };
@@ -4854,6 +4858,9 @@
 		2DCB239F2E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonReceiveAnalyticsLogger.swift; sourceTree = "<group>"; };
 		2DCB23A02E5700E50076C294 /* ReceiveAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAnalyticsLogger.swift; sourceTree = "<group>"; };
 		2DCC30192E71770B004AF17D /* ShareActivitiesPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareActivitiesPresenter.swift; sourceTree = "<group>"; };
+		2DCDCD312E95237A0056072D /* ExpressProviderTransactionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderTransactionValidator.swift; sourceTree = "<group>"; };
+		2DCDCD332E9526300056072D /* CommonExpressProviderTransactionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressProviderTransactionValidator.swift; sourceTree = "<group>"; };
+		2DCDCD352E9528560056072D /* ExpressProviderTransactionValidatorMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderTransactionValidatorMock.swift; sourceTree = "<group>"; };
 		2DCDE4592DE60E5C007ECD34 /* UserTokenListAddressProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListAddressProvider.swift; sourceTree = "<group>"; };
 		2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDTO.swift; sourceTree = "<group>"; };
 		2DCDE45D2DE60F14007ECD34 /* NotificationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDTO.swift; sourceTree = "<group>"; };
@@ -4878,6 +4885,7 @@
 		2DFC27902C78E833009B247E /* TokenItemType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemType.swift; sourceTree = "<group>"; };
 		2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsPortfolioTokenItemFactory.swift; sourceTree = "<group>"; };
 		2DFDD6082DF1ECF700CB72B5 /* SuiContractAddressConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuiContractAddressConverter.swift; sourceTree = "<group>"; };
+		2DFFB2492E8FB2FD005CBEF6 /* SolanaTransactionSizeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaTransactionSizeUtils.swift; sourceTree = "<group>"; };
 		30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VanarExternalLinkProvider.swift; sourceTree = "<group>"; };
 		300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTExternalLinksProvider.swift; sourceTree = "<group>"; };
 		300E06BC2D7734ED006317EC /* ICPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICPAddressTests.swift; sourceTree = "<group>"; };
@@ -14128,10 +14136,11 @@
 				B62D3DF92CBC79D900C2460E /* SolanaSdk+.swift */,
 				0AEE7DB32DA3FB590039B06D /* SolanaTransactionHelper.swift */,
 				B62D3DFB2CBC79D900C2460E /* SolanaTransactionSigner.swift */,
+				2DFFB2492E8FB2FD005CBEF6 /* SolanaTransactionSizeUtils.swift */,
+				2D59AB012E31067D00C3C352 /* SolanaVersionedMessageError+.swift */,
 				B62D3DFC2CBC79D900C2460E /* SolanaWalletAssembly.swift */,
 				2DB071EE2E25291D00E9F789 /* SolanaWalletConnectTransactionRely.swift */,
 				B62D3DFD2CBC79D900C2460E /* SolanaWalletManager.swift */,
-				2D59AB012E31067D00C3C352 /* SolanaVersionedMessageError+.swift */,
 				2DB071ED2E250BA000E9F789 /* ALT */,
 				2DB071F42E252EC200E9F789 /* StakeKit */,
 			);
@@ -21563,6 +21572,7 @@
 				EF9E29F72B4F0CCF00418559 /* ExpressProviderError.swift */,
 				EF9E29F82B4F0CCF00418559 /* ExpressProviderManagerState.swift */,
 				EF9E29F92B4F0CCF00418559 /* ExpressProviderManager.swift */,
+				2DCDCD312E95237A0056072D /* ExpressProviderTransactionValidator.swift */,
 				EF9E29FA2B4F0CCF00418559 /* Implementations */,
 			);
 			path = ExpressProviderManager;
@@ -21605,6 +21615,7 @@
 				EFE54CDB2D0AF12700D803EB /* ExpressAnalyticsLoggerMock.swift */,
 				EF9E2A4D2B56A54400418559 /* ExpressModulesFactoryMock.swift */,
 				EF9E2A482B56A21000418559 /* ExpressPendingTransactionRepositoryMock.swift */,
+				2DCDCD352E9528560056072D /* ExpressProviderTransactionValidatorMock.swift */,
 				EF9E2A562B56A9B100418559 /* SentExpressTransactionData+Mock.swift */,
 				EF9E2A512B56A5BD00418559 /* Routables */,
 			);
@@ -21645,6 +21656,7 @@
 			isa = PBXGroup;
 			children = (
 				EF9EA9692B110F4900AC1DA1 /* CommonExpressModulesFactory.swift */,
+				2DCDCD332E9526300056072D /* CommonExpressProviderTransactionValidator.swift */,
 				2D93C4EA2D7043E8002BCCE2 /* CommonExpressRefcodeProvider.swift */,
 				B06B62DF2B10D20C00042A39 /* ExpressAPIProviderFactory.swift */,
 				EF9EA9672B110EEB00AC1DA1 /* ExpressModulesFactory.swift */,
@@ -24182,6 +24194,7 @@
 				EFE7D57B2AA209990047D93A /* TokenQuote.swift in Sources */,
 				B600F4E12C50F7D8008E53FE /* LineChartViewWrapper.swift in Sources */,
 				EF7673402B0FD6840027D8E0 /* SentExpressTransactionData.swift in Sources */,
+				2DCDCD342E9526300056072D /* CommonExpressProviderTransactionValidator.swift in Sources */,
 				2D93C4E02D661459002BCCE2 /* SupportSeedNotificationManager.swift in Sources */,
 				0F2786282E2AEA0A00742D0F /* MobileOnboardingImportWalletFlowBuilder.swift in Sources */,
 				B0A0910E26D362A600F46DF5 /* OnboardingProgressCircle.swift in Sources */,
@@ -24879,6 +24892,7 @@
 				DA5044E32ABACA6600D1E5CF /* MarketPriceView.swift in Sources */,
 				0FE5885E2DF08D7200E5663E /* MobileOnboardingCreateWalletView.swift in Sources */,
 				3027D3462E82EBAE001E15FB /* AccountDetailsCoordinatorView.swift in Sources */,
+				2DCDCD362E9528560056072D /* ExpressProviderTransactionValidatorMock.swift in Sources */,
 				EF5A5AD028D86089002544AC /* TotalBalanceProviding.swift in Sources */,
 				B6DF90652CA317A70099FED5 /* MainBottomSheetFooterShadowView.swift in Sources */,
 				B6E9A8C92A9A410A005CF137 /* CardsInfoPagerView+.swift in Sources */,
@@ -26921,6 +26935,7 @@
 				B62D42202CBC79DB00C2460E /* XRPTarget.swift in Sources */,
 				B62D41E42CBC79DB00C2460E /* TronWalletAssembly.swift in Sources */,
 				B62D42522CBC79DB00C2460E /* Blockchain+AllCases.swift in Sources */,
+				2DFFB24A2E8FB2FD005CBEF6 /* SolanaTransactionSizeUtils.swift in Sources */,
 				F9F62C8C2CC169E4008A3EE6 /* (null) in Sources */,
 				B62D40E42CBC79DA00C2460E /* HederaNetworkResult.ExchangeRate.swift in Sources */,
 				B62D41072CBC79DA00C2460E /* KaspaFeeMapper.swift in Sources */,
@@ -27437,6 +27452,7 @@
 				EF9E2A0C2B4F0CD100418559 /* ExpressConstants.swift in Sources */,
 				EFB541CA2D1076A100330B5B /* ProviderItemSorter.swift in Sources */,
 				EF9E4CFE2E57649B0019FADC /* PreferredValues.swift in Sources */,
+				2DCDCD322E95237A0056072D /* ExpressProviderTransactionValidator.swift in Sources */,
 				EF9E2A1C2B4F0CD100418559 /* ExpressTransactionType.swift in Sources */,
 				EFD68F3F2CC3E5C700693C97 /* OnrampRedirectSettings.swift in Sources */,
 				EF9E2A0E2B4F0CD100418559 /* ExpressProviderManagerFactory.swift in Sources */,
