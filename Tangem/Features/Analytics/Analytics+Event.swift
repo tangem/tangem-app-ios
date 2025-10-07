@@ -346,6 +346,9 @@ extension Analytics {
         // MARK: - Promo
 
         case promoChangellyActivity = "[Promo] Changelly Activity"
+        case promoPushBanner = "[Promo] Push Banner"
+        case promoButtonAllowPush = "[Promo] Button - Allow Push"
+        case promoButtonLaterPush = "[Promo] Button - Later Push"
 
         // MARK: - Push notifications
 
