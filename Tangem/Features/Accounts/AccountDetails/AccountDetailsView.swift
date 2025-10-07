@@ -52,7 +52,7 @@ struct AccountDetailsView: View {
             trailingIcon: {
                 if viewModel.canBeEdited {
                     CircleButton(
-                        content: .title(icon: .none, title: Localization.commonEdit),
+                        title: Localization.commonEdit,
                         action: viewModel.openEditAccount
                     )
                 }
