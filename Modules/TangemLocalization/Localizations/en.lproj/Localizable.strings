@@ -32,6 +32,7 @@
 "account_form_account_index" = "Account #%@ — used for address derivation.";
 "account_form_create_button" = "Add account";
 "account_form_edit_button" = "Save";
+"account_form_name_already_exist_error_description" = "Account name already exists";
 "account_form_name" = "Account name";
 "account_form_placeholder_edit_account" = "Account";
 "account_form_placeholder_new_account" = "New account";
@@ -850,6 +851,7 @@
 "onramp_statuses_view_footer" = "You can close this screen and check the transaction status on the token details screen.";
 "onramp_timing_minutes" = "%@ min";
 "onramp_title_you_get" = "You get";
+"onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "You can close this screen and check the transaction status on the token details screen.";
 "onramp_up_to_rate" = "Up to";
 "onramp_via" = "Via";
@@ -1222,6 +1224,10 @@
 "swapping_to_title" = "You receive";
 "swapping_token_list_title" = "Choose token";
 "swapping_token_not_available" = "not available";
+"tangempay_card_details_error_text" = "Failed to load data. Try again later.";
+"tangempay_card_details_hide_text" = "Hide";
+"tangempay_card_details_reveal_text" = "Reveal";
+"tangempay_card_details_title" = "Card details";
 "tangempay_issue_card_notification_title" = "Create account and issue a card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
@@ -1234,6 +1240,7 @@
 "tangempay_onboarding_security_description" = "Your card details are protected — full control in the app.";
 "tangempay_onboarding_security_title" = "Built-in security";
 "tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
+"tangempay_title" = "Tangem Pay";
 "this_is_my_wallet_title" = "This is my wallet";
 "toast_balances_hidden" = "Balances hidden";
 "toast_balances_shown" = "Balances shown";
@@ -1262,6 +1269,7 @@
 "token_details_token_type_subtitle" = "%1$@ token in %%image%% %2$@ network";
 "token_details_unable_hide_alert_message" = "The %1$@ (%2$@) token is the main currency on the %3$@ network and cannot be hidden as long as you have other tokens on this network in the list";
 "token_details_unable_hide_alert_title" = "Unable to hide %@";
+"token_receive_show_qr_code_title" = "Show QR code";
 "token_swap_promotion_button" = "Swap now";
 "tokens_list_available_to_buy_header" = "Choose token you want to buy";
 "tokens_list_available_to_sell_header" = "Choose token you want to sell";
@@ -1649,6 +1657,7 @@
 "yield_module_approve_sheet_title" = "Confirm approval";
 "yield_module_balance_info_sheet_subtitle" = "Text about your money in balance [PLACEHOLDER]";
 "yield_module_balance_info_sheet_title" = "Your %@ is deposited in Aave";
+"yield_module_chart_loading_error" = "Unable to load chart...";
 "yield_module_deposit_error_notification_title" = "The amount received, %1$@ %2$@ was not deposited to Aave.";
 "yield_module_earn_badge" = "Earn %1$@%%";
 "yield_module_earn_sheet_available_title" = "Available";
@@ -1666,6 +1675,7 @@
 "yield_module_fee_policy_sheet_max_fee_title" = "Maximum fee";
 "yield_module_fee_policy_sheet_title" = "Fee policy";
 "yield_module_high_fee_error" = "Network fee is too high right now. Waiting until it falls below your limit.";
+"yield_module_historical_returns" = "Historical returns";
 "yield_module_main_view_approve_notification_description" = "Write description here. In one, two or three lines will be awesome. [PLACEHOLDER]";
 "yield_module_main_view_approve_notification_title" = "Some token approve needed";
 "yield_module_network_fee_unreachable_notification_description" = "Check your network connection";
@@ -1696,6 +1706,7 @@
 "yield_module_stop_earning_sheet_description" = "Turning off will withdraw your funds from Aave, return them to %@ in your wallet, and stop earning rewards.";
 "yield_module_stop_earning_sheet_fee_note" = "The network fee will be deducted from the amount you withdraw.";
 "yield_module_stop_earning" = "Stop earning";
+"yield_module_supply_apr" = "Supply APR";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Make your money work — earn interest on your balance.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Earning on your balance";
@@ -1706,3 +1717,4 @@
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
 "yield_module_unavailable_subtitle" = "The interest service isn’t available at the moment. Please try again later.";
 "yield_module_unavailable_title" = "Earnings unavailable";
+"yield_supply_chart_loading_error" = "Unable to load chart...";
