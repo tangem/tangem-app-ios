@@ -2330,6 +2330,7 @@
 		B6C1B9FF2AE1627500A98D2F /* OrganizeTokensScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */; };
 		B6C2D00B2C816F080009FDFC /* MarketsTokenDetailsDateFormatterRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C2D00A2C816F080009FDFC /* MarketsTokenDetailsDateFormatterRepository.swift */; };
 		B6C315B52E95D43E002B30A9 /* UserTokenListExternalParametersHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C315B42E95D43E002B30A9 /* UserTokenListExternalParametersHelper.swift */; };
+		B6C315B72E95D66D002B30A9 /* StoredCryptoAccount+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C315B62E95D66D002B30A9 /* StoredCryptoAccount+.swift */; };
 		B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */; };
 		B6C3B3092A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */; };
 		B6C3B56E2AA1823A0017241C /* CardsInfoPagerScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */; };
@@ -6622,6 +6623,7 @@
 		B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensScrollState.swift; sourceTree = "<group>"; };
 		B6C2D00A2C816F080009FDFC /* MarketsTokenDetailsDateFormatterRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsDateFormatterRepository.swift; sourceTree = "<group>"; };
 		B6C315B42E95D43E002B30A9 /* UserTokenListExternalParametersHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListExternalParametersHelper.swift; sourceTree = "<group>"; };
+		B6C315B62E95D66D002B30A9 /* StoredCryptoAccount+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StoredCryptoAccount+.swift"; sourceTree = "<group>"; };
 		B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListItemLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListSectionLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerScrollState.swift; sourceTree = "<group>"; };
@@ -12860,6 +12862,7 @@
 				B6A22EB52E787DE300AF108E /* CryptoAccountsPersistentStorageController.swift */,
 				B61A018F2E6A6D7C00A82ECB /* CommonCryptoAccountsPersistentStorage.swift */,
 				B6CAC21E2E46C9E1002DFA82 /* StoredCryptoAccount.swift */,
+				B6C315B62E95D66D002B30A9 /* StoredCryptoAccount+.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -23965,6 +23968,7 @@
 				B07E07AF2CD8E3CC007DEDA6 /* VisaOnboardingWelcomeView.swift in Sources */,
 				DC70BFD52B91059B002205BA /* SecurityOptionChanging.swift in Sources */,
 				B06C084C2A73FB4D00D982BC /* MainCoordinator.swift in Sources */,
+				B6C315B72E95D66D002B30A9 /* StoredCryptoAccount+.swift in Sources */,
 				B0A0910C26D3628200F46DF5 /* AnimatableGradient.swift in Sources */,
 				EA7D8CFD2E7D6460004EC19A /* LendingPairIcon.swift in Sources */,
 				DAF3D58D2B3AD9050047D65F /* SendCurrencyPicker.swift in Sources */,

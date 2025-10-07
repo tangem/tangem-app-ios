@@ -43,19 +43,3 @@ extension StoredCryptoAccount {
         let contractAddress: String?
     }
 }
-
-// MARK: - Convenience extensions
-
-extension StoredCryptoAccount.Token {
-    var isToken: Bool { contractAddress != nil }
-
-    // [REDACTED_TODO_COMMENT]
-    var coinId: String? {
-        switch blockchainNetwork {
-        case .known(let blockchainNetwork):
-            return contractAddress == nil ? blockchainNetwork.blockchain.coinId : id
-        case .unknown:
-            return nil
-        }
-    }
-}
