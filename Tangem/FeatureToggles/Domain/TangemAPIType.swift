@@ -49,20 +49,6 @@ public enum TangemAPIType: String, CaseIterable, Codable {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
-    public var yieldModuleBaseUrl: URL {
-        switch self {
-        case .prod:
-            return URL(string: "https://yield.tests-d.com/api/v1")!
-        case .dev:
-            return URL(string: "https://yield.tests-d.com/api/v1")!
-        case .stage:
-            return URL(string: "https://yield.tests-d.com/api/v1")!
-        case .mock:
-            return URL(string: "https://yield.tests-d.com/api/v1")!
-        }
-    }
-
     public var tangemComBaseUrl: URL {
         switch self {
         case .prod:
