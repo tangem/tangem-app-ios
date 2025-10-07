@@ -443,8 +443,8 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .yieldMarkets, decoder: decoder)
     }
 
-    func getTokenPositionInfo(tokenContractAddress: String) async throws -> YieldModuleDTO.Response.PositionInfo {
-        try await request(for: .yieldToken(tokenContractAddress: tokenContractAddress), decoder: decoder)
+    func getTokenPositionInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleDTO.Response.PositionInfo {
+        try await request(for: .yieldToken(tokenContractAddress: tokenContractAddress, chainId: chainId), decoder: decoder)
     }
 }
 
