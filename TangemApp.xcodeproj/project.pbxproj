@@ -2329,6 +2329,7 @@
 		B6C1ADD72E40BE4400F581BA /* CryptoAccounts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1ADD62E40BE4400F581BA /* CryptoAccounts.swift */; };
 		B6C1B9FF2AE1627500A98D2F /* OrganizeTokensScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */; };
 		B6C2D00B2C816F080009FDFC /* MarketsTokenDetailsDateFormatterRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C2D00A2C816F080009FDFC /* MarketsTokenDetailsDateFormatterRepository.swift */; };
+		B6C315B52E95D43E002B30A9 /* UserTokenListExternalParametersHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C315B42E95D43E002B30A9 /* UserTokenListExternalParametersHelper.swift */; };
 		B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */; };
 		B6C3B3092A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */; };
 		B6C3B56E2AA1823A0017241C /* CardsInfoPagerScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */; };
@@ -6620,6 +6621,7 @@
 		B6C1ADD62E40BE4400F581BA /* CryptoAccounts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccounts.swift; sourceTree = "<group>"; };
 		B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensScrollState.swift; sourceTree = "<group>"; };
 		B6C2D00A2C816F080009FDFC /* MarketsTokenDetailsDateFormatterRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsDateFormatterRepository.swift; sourceTree = "<group>"; };
+		B6C315B42E95D43E002B30A9 /* UserTokenListExternalParametersHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListExternalParametersHelper.swift; sourceTree = "<group>"; };
 		B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListItemLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListSectionLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerScrollState.swift; sourceTree = "<group>"; };
@@ -20521,6 +20523,7 @@
 				EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */,
 				B0F318F52A738ACC009F131E /* LockedUserTokenListManager.swift */,
 				2DCDE4592DE60E5C007ECD34 /* UserTokenListExternalParametersProvider.swift */,
+				B6C315B42E95D43E002B30A9 /* UserTokenListExternalParametersHelper.swift */,
 			);
 			path = UserTokenListManager;
 			sourceTree = "<group>";
@@ -25049,6 +25052,7 @@
 				EFD678312E27BF250065AD50 /* CommonSendAnalyticsLogger.swift in Sources */,
 				EF3F754E2E324EFD00334E51 /* AlertPresenter.swift in Sources */,
 				B6A089402DD7AB9B005CBBA2 /* NFTNavigationInput.swift in Sources */,
+				B6C315B52E95D43E002B30A9 /* UserTokenListExternalParametersHelper.swift in Sources */,
 				B6180C862A80F76300144452 /* OrganizeTokensPreviewViewModelFactory.swift in Sources */,
 				EAF8FDE12E8013C60025D2F1 /* YieldModuleNoticeInteractor.swift in Sources */,
 				5D49035227BE9D550072C642 /* Data+.swift in Sources */,
