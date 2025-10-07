@@ -124,8 +124,8 @@ struct TangemApiTarget: TargetType {
         // MARK: - Yield Module
         case .yieldMarkets:
             return "/yield/markets"
-        case .yieldToken(let tokenContractAddress):
-            return "/yield/token/\(tokenContractAddress)"
+        case .yieldToken(let tokenContractAddress, let chainId):
+            return "/yield/token/\(chainId)/\(tokenContractAddress)"
         }
     }
 
@@ -427,7 +427,7 @@ extension TangemApiTarget {
 
         // Yield Module
         case yieldMarkets
-        case yieldToken(tokenContractAddress: String)
+        case yieldToken(tokenContractAddress: String, chainId: Int)
     }
 }
 
