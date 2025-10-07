@@ -54,7 +54,7 @@ struct SelectorReceiveAssetsAddressItemView: View {
     private var buttonView: some View {
         HStack(spacing: Layout.ButtomView.horizontalSpacing) {
             Button(action: viewModel.qrCodeButtonDidTap) {
-                SelectorReceiveRoundButtonView(actionType: .qr)
+                SelectorReceiveRoundButtonView(actionType: .share)
             }
 
             Button(action: viewModel.copyAddressButtonDidTap) {

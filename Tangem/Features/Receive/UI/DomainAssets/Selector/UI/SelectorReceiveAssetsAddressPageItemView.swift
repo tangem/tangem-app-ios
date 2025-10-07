@@ -16,22 +16,16 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
     @ObservedObject private(set) var viewModel: SelectorReceiveAssetsAddressPageItemViewModel
 
     var body: some View {
-        Button(action: viewModel.itemButtonDidTap) {
-            VStack(alignment: .center, spacing: .zero) {
-                mainContent
+        VStack(alignment: .center, spacing: .zero) {
+            mainContent
 
-                HStack(spacing: Layout.Container.contentSpacing) {
-                    addressIconView(with: viewModel.address)
-
-                    addressContentView(header: viewModel.title, value: viewModel.address)
-
-                    buttonView
-                }
-            }
-            .padding(.vertical, Layout.Container.verticalPadding)
-            .contentShape(Rectangle())
+            SelectorReceiveRoundGroupButtonView(
+                copyAction: viewModel.copyAddressButtonDidTap,
+                shareAction: viewModel.qrCodeButtonDidTap
+            )
         }
-        .buttonStyle(.plain)
+        .padding(.vertical, Layout.Container.verticalPadding)
+        .contentShape(Rectangle())
     }
 
     // MARK: - Private Implementation
@@ -44,42 +38,24 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
                 size: IconViewSizeSettings.receiveAlert.iconSize
             )
 
-            VStack(alignment: .center, spacing: Layout.Content.textSpacing) {
-                Text(viewModel.title)
-            }
+            tokenContentView(value: viewModel.address)
         }
         .padding(.top, 12)
     }
 
-    private func addressIconView(with address: String) -> some View {
-        AddressIconView(viewModel: AddressIconViewModel(address: address))
-            .frame(size: Layout.AddressIcon.bothDimensions)
-    }
-
-    private func addressContentView(header: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: Layout.InfoView.verticalSpacing) {
-            Text(header)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+    private func tokenContentView(value: String) -> some View {
+        VStack(alignment: .center, spacing: Layout.InfoView.verticalSpacing) {
+            Text(viewModel.title)
+                .style(Fonts.Bold.body, color: Colors.Text.primary1)
                 .lineLimit(1)
 
             Text(value)
-                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
                 .truncationMode(.middle)
+                .padding(.horizontal, Layout.Content.addressHorizontalSpacing)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var buttonView: some View {
-        HStack(spacing: Layout.ButtomView.horizontalSpacing) {
-            Button(action: viewModel.qrCodeButtonDidTap) {
-                SelectorReceiveRoundButtonView(actionType: .qr)
-            }
-
-            Button(action: viewModel.copyAddressButtonDidTap) {
-                SelectorReceiveRoundButtonView(actionType: .copy)
-            }
-        }
     }
 }
 
@@ -97,10 +73,11 @@ private extension SelectorReceiveAssetsAddressPageItemView {
         }
 
         enum Content {
-            /// 24
-            static let spacing: CGFloat = 24
             /// 12
-            static let textSpacing: CGFloat = 12
+            static let spacing: CGFloat = 12
+
+            /// 24
+            static let addressHorizontalSpacing: CGFloat = 24
         }
 
         enum InfoView {

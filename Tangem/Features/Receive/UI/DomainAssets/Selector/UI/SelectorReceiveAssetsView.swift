@@ -16,16 +16,16 @@ struct SelectorReceiveAssetsView: View {
 
     var body: some View {
         GroupedScrollView(spacing: Layout.Container.spacingContent) {
+            ForEach(viewModel.sections, id: \.id) { section in
+                sectionView(header: section.header, viewModels: section.items)
+            }
+
             if let notificationInputs = viewModel.notificationInputs.nilIfEmpty {
                 VStack(spacing: Layout.Notification.verticalSpacing) {
                     ForEach(notificationInputs) { input in
                         NotificationView(input: input)
                     }
                 }
-            }
-
-            ForEach(viewModel.sections, id: \.id) { section in
-                sectionView(header: section.header, viewModels: section.items)
             }
         }
         .padding(.top, Layout.Container.paddingTop)
