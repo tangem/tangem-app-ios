@@ -21,11 +21,13 @@ public struct TangemExpressFactory {
         expressRepository: ExpressRepository,
         analyticsLogger: ExpressAnalyticsLogger,
         supportedProviderTypes: [ExpressProviderType],
-        operationType: ExpressOperationType
+        operationType: ExpressOperationType,
+        transactionValidator: ExpressProviderTransactionValidator
     ) -> ExpressManager {
         let factory = CommonExpressProviderManagerFactory(
             expressAPIProvider: expressAPIProvider,
-            mapper: .init()
+            mapper: .init(),
+            transactionValidator: transactionValidator
         )
 
         return CommonExpressManager(
