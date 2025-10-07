@@ -139,7 +139,7 @@ struct CryptoAccountsNetworkMapper {
         groupingOption: StoredUserTokenList.Grouping?
     ) -> AccountsDTO.Request.GroupType {
         guard let groupingOption else {
-            AppLogger.warning("Mapping absent grouping option to a default 'none' group type")
+            AccountsLogger.warning("Mapping absent grouping option to a default 'none' group type")
             return .none
         }
 
@@ -155,7 +155,7 @@ struct CryptoAccountsNetworkMapper {
         sortingOption: StoredUserTokenList.Sorting?
     ) -> AccountsDTO.Request.SortType {
         guard let sortingOption else {
-            AppLogger.warning("Mapping absent sorting option to a default 'manual' sort type")
+            AccountsLogger.warning("Mapping absent sorting option to a default 'manual' sort type")
             return .manual
         }
 
@@ -194,7 +194,7 @@ struct CryptoAccountsNetworkMapper {
         let nextDerivationIndex = response.wallet.totalAccounts
 
         if accounts.count != nextDerivationIndex {
-            AppLogger.warning(
+            AccountsLogger.warning(
                 String(
                     format: "Back-end inconsistency: incorrect next derivation index: '%d' vs '%d'",
                     nextDerivationIndex,
@@ -216,7 +216,7 @@ struct CryptoAccountsNetworkMapper {
         return tokens
             .compactMap { token in
                 guard let blockchainNetworkContainer = try? mapBlockchainNetworkContainer(token: token) else {
-                    AppLogger.warning(
+                    AccountsLogger.warning(
                         String(
                             format: "Unable to map token '%@' due to invalid derivation path: '%@'",
                             String(describing: token.id),
@@ -246,7 +246,7 @@ struct CryptoAccountsNetworkMapper {
                 }
 
                 // Duplicate token detected, discarding the duplicate
-                AppLogger.warning(
+                AccountsLogger.warning(
                     String(
                         format: "Duplicate token detected, discarding the duplicate with contract address: '%@'",
                         contractAddress
@@ -309,7 +309,7 @@ struct CryptoAccountsNetworkMapper {
             let rawColor = archivedAccountDTO.iconColor
 
             guard let icon = AccountModel.Icon(rawName: rawName, rawColor: rawColor) else {
-                AppLogger.warning(
+                AccountsLogger.warning(
                     String(
                         format: "Unable to map icon: '%@', '%@' for archived account with identifier: '%@'",
                         rawName,
@@ -322,7 +322,7 @@ struct CryptoAccountsNetworkMapper {
 
             guard let name = archivedAccountDTO.name else {
                 // Main account (the only account type w/o name) cannot be archived by definition
-                AppLogger.warning(
+                AccountsLogger.warning(
                     String(
                         format: "Unable to map name: '%@' for archived account with identifier: '%@'",
                         String(describing: archivedAccountDTO.name),
