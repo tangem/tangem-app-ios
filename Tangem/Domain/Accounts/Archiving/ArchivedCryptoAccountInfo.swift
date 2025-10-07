@@ -12,7 +12,7 @@ import TangemLocalization
 
 /// Not a full-fledged account model, just represents some info about an archived crypto account.
 /// Read-only and does not support any mutable methods from the `BaseAccountModel` protocol.
-struct ArchivedCryptoAccountInfo {
+struct ArchivedCryptoAccountInfo: Equatable {
     let name: String
     let icon: AccountModel.Icon
     let tokensCount: Int
