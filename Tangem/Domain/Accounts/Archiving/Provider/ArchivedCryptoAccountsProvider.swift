@@ -8,7 +8,6 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
 protocol ArchivedCryptoAccountsProvider {
     func getArchivedCryptoAccounts() async throws -> [ArchivedCryptoAccountInfo]
 }

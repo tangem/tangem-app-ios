@@ -10,5 +10,5 @@ import Foundation
 
 protocol CryptoAccountsNetworkService {
     func getCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo
-    func save(cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError)
+    func save(cryptoAccounts: [StoredCryptoAccount], updateType: CryptoAccountsNetworkServiceUpdateType) async throws(CryptoAccountsNetworkServiceError)
 }
