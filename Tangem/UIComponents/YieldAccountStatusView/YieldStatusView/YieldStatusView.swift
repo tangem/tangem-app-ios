@@ -10,11 +10,17 @@ import SwiftUI
 import TangemLocalization
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct YieldStatusView: View {
-    // MARK: - View State
+    @StateObject
+    private var viewModel: YieldStatusViewModel
 
-    let status: Status
+    // MARK: - Init
+
+    init(viewModel: YieldStatusViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     // MARK: - Properties
 
@@ -28,11 +34,11 @@ struct YieldStatusView: View {
     // MARK: - View Body
 
     var body: some View {
-        switch status {
+        switch viewModel.state {
         case .loading, .closing:
             content
-        case .active(_, _, _, let tapAction):
-            Button(action: tapAction) {
+        case .active:
+            Button(action: viewModel.onTapAction) {
                 content
             }
         }
@@ -49,7 +55,7 @@ struct YieldStatusView: View {
 
             Spacer()
 
-            if case .active(_, _, let isApproveNeeded, _) = status {
+            if case .active(let isApproveNeeded) = viewModel.state {
                 trailingView(isApproveNeeded: isApproveNeeded)
             }
         }
@@ -65,7 +71,7 @@ struct YieldStatusView: View {
         HStack(spacing: 4) {
             descriptionText
 
-            if case .loading = status {
+            if case .loading = viewModel.state {
                 loadingIndicator
             }
         }
@@ -98,21 +104,20 @@ struct YieldStatusView: View {
 
     @ViewBuilder
     private var descriptionText: some View {
-        switch status {
+        switch viewModel.state {
         case .loading:
             Text(Localization.yieldModuleTokenDetailsEarnNotificationProcessing)
                 .style(Fonts.Regular.callout, color: Colors.Text.primary1)
 
-        case .active(let income, let apy, _, _):
-            HStack(spacing: 4) {
-                Text(balanceFormatter.formatFiatBalance(income, currencyCode: AppConstants.usdCurrencyCode))
-                    .style(Fonts.Regular.callout, color: Colors.Text.primary1)
-
-                Text(AppConstants.dotSign)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-
-                Text(apy.formatted() + "%" + " " + Localization.yieldModuleTokenDetailsEarnNotificationApy)
-                    .style(Fonts.Bold.callout, color: Colors.Text.tertiary)
+        case .active:
+            LoadableTextView(
+                state: viewModel.apyLabelState,
+                font: Fonts.Bold.callout,
+                textColor: Colors.Text.tertiary,
+                loaderSize: .init(width: 72, height: 12)
+            )
+            .task {
+                await viewModel.fetchApy()
             }
 
         case .closing:
@@ -129,13 +134,5 @@ struct YieldStatusView: View {
 
             chevron
         }
-    }
-}
-
-extension YieldStatusView {
-    enum Status {
-        case loading
-        case active(income: Decimal, annualYield: Decimal, isApproveNeeded: Bool, tapAction: () -> Void)
-        case closing
     }
 }

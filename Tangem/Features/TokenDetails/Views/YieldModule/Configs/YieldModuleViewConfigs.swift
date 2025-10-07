@@ -17,45 +17,4 @@ enum YieldModuleViewConfigs {
         case approveNeeded(buttonAction: @MainActor @Sendable () -> Void)
         case feeUnreachable(buttonAction: @MainActor @Sendable () -> Void)
     }
-
-    struct EarnInfoParams: Equatable {
-        let earningsData: EarningsData
-        let status: Status
-        let apy: String
-        let availableFunds: AvailableFundsData
-        let transferMode: String
-        let tokenName: String
-        let tokenSymbol: String
-
-        struct AvailableFundsData: Identifiable, Equatable {
-            let availableBalance: String
-
-            var id: String {
-                availableBalance.hashValue.description
-            }
-        }
-
-        struct EarningsData: Identifiable, Equatable {
-            let totalEarnings: String
-            let chartData: [String: Double]
-
-            var id: String {
-                totalEarnings.hashValue.description + chartData.description.hashValue.description
-            }
-        }
-
-        enum Status: Equatable {
-            case active(approveRequired: Bool)
-            case paused
-
-            var description: String {
-                switch self {
-                case .active:
-                    Localization.yieldModuleStatusActive
-                case .paused:
-                    Localization.yieldModuleStatusPaused
-                }
-            }
-        }
-    }
 }
