@@ -133,7 +133,7 @@ private extension CreateWalletSelectorView {
                 .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
 
             Button(action: item.action) {
-                HStack(spacing: 6) {
+                HStack(spacing: 0) {
                     Text(item.title)
                         .style(Fonts.Bold.callout, color: Colors.Text.primary1)
 
@@ -141,7 +141,7 @@ private extension CreateWalletSelectorView {
                         .renderingMode(.template)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 16, height: 22)
+                        .frame(width: 20, height: 20)
                         .foregroundStyle(Colors.Icon.primary1)
                 }
                 .padding(.vertical, 12)

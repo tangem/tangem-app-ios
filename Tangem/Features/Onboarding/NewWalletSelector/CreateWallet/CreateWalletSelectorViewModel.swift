@@ -64,7 +64,7 @@ private extension CreateWalletSelectorViewModel {
     func makeChipItems() -> [ChipItem] {
         [
             ChipItem(icon: Assets.Glyphs.checkmarkShield, title: Localization.welcomeCreateWalletFeatureClass),
-            ChipItem(icon: Assets.Glyphs.flash, title: Localization.welcomeCreateWalletFeatureDelivery),
+            ChipItem(icon: Assets.Glyphs.boldFlash, title: Localization.welcomeCreateWalletFeatureDelivery),
             ChipItem(icon: Assets.Glyphs.sparkles, title: Localization.welcomeCreateWalletFeatureUse),
         ]
     }
