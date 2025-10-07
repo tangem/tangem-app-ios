@@ -273,7 +273,11 @@ private extension TokenDetailsViewModel {
     private func bind() {
         walletModel.yieldModuleManager?.statePublisher
             .map { [weak self] state -> YieldModuleAvailability in
-                guard let self, let manager = walletModel.yieldModuleManager, let state else {
+                guard FeatureProvider.isAvailable(.yieldModule),
+                      let self,
+                      let manager = walletModel.yieldModuleManager,
+                      let state
+                else {
                     return .notApplicable
                 }
 
