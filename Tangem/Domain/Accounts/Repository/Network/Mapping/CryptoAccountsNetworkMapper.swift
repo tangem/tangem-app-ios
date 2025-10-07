@@ -10,32 +10,36 @@ import Foundation
 import struct TangemSdk.DerivationPath
 
 /// Re-uses some logic from `UserTokenListConverter`.
-struct CryptoAccountsNetworkMapper {
+final class CryptoAccountsNetworkMapper {
     typealias RemoteIdentifierBuilder = (StoredCryptoAccount) -> String
+
+    var externalParametersProvider: UserTokenListExternalParametersProvider?
 
     private let supportedBlockchains: SupportedBlockchainsSet
     private let remoteIdentifierBuilder: RemoteIdentifierBuilder
-    private weak var externalParametersProvider: UserTokenListExternalParametersProvider?
 
     init(
         supportedBlockchains: SupportedBlockchainsSet,
-        remoteIdentifierBuilder: @escaping RemoteIdentifierBuilder,
-        externalParametersProvider: UserTokenListExternalParametersProvider?
+        remoteIdentifierBuilder: @escaping RemoteIdentifierBuilder
     ) {
         self.supportedBlockchains = supportedBlockchains
         self.remoteIdentifierBuilder = remoteIdentifierBuilder
-        self.externalParametersProvider = externalParametersProvider
     }
 
     // MARK: - Stored to Remote
 
     func map(request: [StoredCryptoAccount]) -> (accounts: AccountsDTO.Request.Accounts, userTokens: AccountsDTO.Request.UserTokens) {
+        let walletModelAddresses = externalParametersProvider?.provideTokenListAddresses()
         var tokens: [AccountsDTO.Request.Token] = []
 
         let accounts = request
             .map { account in
                 let accountIdentifier = remoteIdentifierBuilder(account)
-                let accountTokens = map(tokens: account.tokens, forAccountWithIdentifier: accountIdentifier)
+                let accountTokens = map(
+                    tokens: account.tokens,
+                    walletModelAddresses: walletModelAddresses,
+                    forAccountWithIdentifier: accountIdentifier
+                )
                 tokens += accountTokens
 
                 return AccountsDTO.Request.Accounts.Account(
@@ -66,6 +70,7 @@ struct CryptoAccountsNetworkMapper {
 
     private func map(
         tokens: [StoredCryptoAccount.Token],
+        walletModelAddresses: [WalletModelId: [String]]?,
         forAccountWithIdentifier accountIdentifier: String
     ) -> [AccountsDTO.Request.Token] {
         return tokens
@@ -74,10 +79,7 @@ struct CryptoAccountsNetworkMapper {
                 let networkIdentifier = mapTokenNetworkId(token: storedToken)
                 let name = mapTokenName(token: storedToken)
                 let derivationPath = mapTokenDerivationPath(token: storedToken)
-                // Determine the addresses based on the notifyStatusValue.
-                // If notifyStatusValue is true, fetch the addresses from the externalParametersProvider.
-                // Otherwise, set addresses to an empty array.
-                let addresses: [String]? = [] // [REDACTED_TODO_COMMENT]
+                let addresses = storedToken.walletModelId.flatMap { walletModelAddresses?[$0] }
 
                 return AccountsDTO.Request.Token(
                     id: tokenIdentifier,

@@ -2329,6 +2329,7 @@
 		B6C1ADD72E40BE4400F581BA /* CryptoAccounts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1ADD62E40BE4400F581BA /* CryptoAccounts.swift */; };
 		B6C1B9FF2AE1627500A98D2F /* OrganizeTokensScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */; };
 		B6C2D00B2C816F080009FDFC /* MarketsTokenDetailsDateFormatterRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C2D00A2C816F080009FDFC /* MarketsTokenDetailsDateFormatterRepository.swift */; };
+		B6C315B12E957F4C002B30A9 /* AccountsAwareUserTokenListExternalParametersProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C315B02E957F4C002B30A9 /* AccountsAwareUserTokenListExternalParametersProvider.swift */; };
 		B6C315B52E95D43E002B30A9 /* UserTokenListExternalParametersHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C315B42E95D43E002B30A9 /* UserTokenListExternalParametersHelper.swift */; };
 		B6C315B72E95D66D002B30A9 /* StoredCryptoAccount+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C315B62E95D66D002B30A9 /* StoredCryptoAccount+.swift */; };
 		B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */; };
@@ -6622,6 +6623,7 @@
 		B6C1ADD62E40BE4400F581BA /* CryptoAccounts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccounts.swift; sourceTree = "<group>"; };
 		B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensScrollState.swift; sourceTree = "<group>"; };
 		B6C2D00A2C816F080009FDFC /* MarketsTokenDetailsDateFormatterRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsDateFormatterRepository.swift; sourceTree = "<group>"; };
+		B6C315B02E957F4C002B30A9 /* AccountsAwareUserTokenListExternalParametersProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareUserTokenListExternalParametersProvider.swift; sourceTree = "<group>"; };
 		B6C315B42E95D43E002B30A9 /* UserTokenListExternalParametersHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListExternalParametersHelper.swift; sourceTree = "<group>"; };
 		B6C315B62E95D66D002B30A9 /* StoredCryptoAccount+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StoredCryptoAccount+.swift"; sourceTree = "<group>"; };
 		B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListItemLoadingPlaceholderView.swift; sourceTree = "<group>"; };
@@ -9215,6 +9217,7 @@
 				2D3023462DF093B500B4FFE6 /* CommonUserTokensPushNotificationsService.swift */,
 				2D3023472DF093B500B4FFE6 /* UserTokensPushNotificationsService.swift */,
 				2D3023482DF093B500B4FFE6 /* UserTokensPushNotifificationsManager.swift */,
+				B6C315B02E957F4C002B30A9 /* AccountsAwareUserTokenListExternalParametersProvider.swift */,
 			);
 			path = UserTokensPushNotifications;
 			sourceTree = "<group>";
@@ -24034,6 +24037,7 @@
 				DA559C4E2B02622600F59584 /* SendAmountInputMock.swift in Sources */,
 				DCE6BE9C2E140E70001DB530 /* ThirdParty+UniversalError.swift in Sources */,
 				B6996CF42CDC466B00F8D582 /* MarketsTokenDetailsSecurityScoreView.swift in Sources */,
+				B6C315B12E957F4C002B30A9 /* AccountsAwareUserTokenListExternalParametersProvider.swift in Sources */,
 				B09C33D72D141D2F005CB730 /* VisaOnboardingViewModelsBuilder.swift in Sources */,
 				EFD39C982A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift in Sources */,
 				EF40C1112CF5EA2D007EF710 /* ExpressProvidersList.swift in Sources */,

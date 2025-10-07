@@ -204,8 +204,7 @@ private struct CommonUserWalletModelDependencies {
             let remoteIdentifierBuilder = CryptoAccountsRemoteIdentifierBuilder(userWalletId: userWalletId)
             let mapper = CryptoAccountsNetworkMapper(
                 supportedBlockchains: config.supportedBlockchains,
-                remoteIdentifierBuilder: remoteIdentifierBuilder.build(from:),
-                externalParametersProvider: userTokensPushNotificationsManager
+                remoteIdentifierBuilder: remoteIdentifierBuilder.build(from:)
             )
             let networkService = CommonCryptoAccountsNetworkService(
                 userWalletId: userWalletId,
@@ -231,7 +230,7 @@ private struct CommonUserWalletModelDependencies {
                 areLongHashesSupported: areLongHashesSupported
             )
 
-            return CommonAccountModelsManager(
+            let accountModelsManager = CommonAccountModelsManager(
                 userWalletId: userWalletId,
                 cryptoAccountsRepository: cryptoAccountsRepository,
                 archivedCryptoAccountsProvider: networkService,
@@ -239,6 +238,13 @@ private struct CommonUserWalletModelDependencies {
                 userTokensManagerFactory: userTokensManagerFactory,
                 areHDWalletsSupported: areHDWalletsSupported
             )
+
+            mapper.externalParametersProvider = AccountsAwareUserTokenListExternalParametersProvider(
+                accountModelsManager: accountModelsManager,
+                userTokensPushNotificationsManager: userTokensPushNotificationsManager
+            )
+
+            return accountModelsManager
         }
 
         accountModelsManager = FeatureProvider.isAvailable(.accounts)
