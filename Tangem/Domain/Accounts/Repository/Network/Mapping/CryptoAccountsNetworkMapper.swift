@@ -10,8 +10,10 @@ import Foundation
 import struct TangemSdk.DerivationPath
 
 /// Re-uses some logic from `UserTokenListConverter`.
-struct CryptoAccountsNetworkMapper {
+final class CryptoAccountsNetworkMapper {
     typealias RemoteIdentifierBuilder = (StoredCryptoAccount) -> String
+
+    var externalParametersProvider: UserTokenListExternalParametersProvider?
 
     private let supportedBlockchains: SupportedBlockchainsSet
     private let remoteIdentifierBuilder: RemoteIdentifierBuilder
@@ -27,12 +29,17 @@ struct CryptoAccountsNetworkMapper {
     // MARK: - Stored to Remote
 
     func map(request: [StoredCryptoAccount]) -> (accounts: AccountsDTO.Request.Accounts, userTokens: AccountsDTO.Request.UserTokens) {
+        let walletModelAddresses = externalParametersProvider?.provideTokenListAddresses()
         var tokens: [AccountsDTO.Request.Token] = []
 
         let accounts = request
             .map { account in
                 let accountIdentifier = remoteIdentifierBuilder(account)
-                let accountTokens = map(tokens: account.tokens, forAccountWithIdentifier: accountIdentifier)
+                let accountTokens = map(
+                    tokens: account.tokens,
+                    walletModelAddresses: walletModelAddresses,
+                    forAccountWithIdentifier: accountIdentifier
+                )
                 tokens += accountTokens
 
                 return AccountsDTO.Request.Accounts.Account(
@@ -44,15 +51,17 @@ struct CryptoAccountsNetworkMapper {
                 )
             }
 
-        // Currently, we assume that all accounts share the same grouping and sorting options
+        // Currently, we assume that all accounts share the same grouping option
         let group = mapGroupType(groupingOption: request.first?.grouping)
+        // Currently, we assume that all accounts share the same sorting option
         let sort = mapSortType(sortingOption: request.first?.sorting)
+        let notifyStatusValue = externalParametersProvider?.provideTokenListNotifyStatusValue()
 
         let userTokens = AccountsDTO.Request.UserTokens(
             tokens: tokens,
             group: group,
             sort: sort,
-            notifyStatus: nil, // [REDACTED_TODO_COMMENT]
+            notifyStatus: notifyStatusValue,
             version: Constants.apiVersion
         )
 
@@ -61,6 +70,7 @@ struct CryptoAccountsNetworkMapper {
 
     private func map(
         tokens: [StoredCryptoAccount.Token],
+        walletModelAddresses: [WalletModelId: [String]]?,
         forAccountWithIdentifier accountIdentifier: String
     ) -> [AccountsDTO.Request.Token] {
         return tokens
@@ -69,10 +79,7 @@ struct CryptoAccountsNetworkMapper {
                 let networkIdentifier = mapTokenNetworkId(token: storedToken)
                 let name = mapTokenName(token: storedToken)
                 let derivationPath = mapTokenDerivationPath(token: storedToken)
-                // Determine the addresses based on the notifyStatusValue.
-                // If notifyStatusValue is true, fetch the addresses from the externalParametersProvider.
-                // Otherwise, set addresses to an empty array.
-                let addresses: [String]? = [] // [REDACTED_TODO_COMMENT]
+                let addresses = storedToken.walletModelId.flatMap { walletModelAddresses?[$0] }
 
                 return AccountsDTO.Request.Token(
                     id: tokenIdentifier,
@@ -139,7 +146,7 @@ struct CryptoAccountsNetworkMapper {
         groupingOption: StoredUserTokenList.Grouping?
     ) -> AccountsDTO.Request.GroupType {
         guard let groupingOption else {
-            AppLogger.warning("Mapping absent grouping option to a default 'none' group type")
+            AccountsLogger.warning("Mapping absent grouping option to a default 'none' group type")
             return .none
         }
 
@@ -155,7 +162,7 @@ struct CryptoAccountsNetworkMapper {
         sortingOption: StoredUserTokenList.Sorting?
     ) -> AccountsDTO.Request.SortType {
         guard let sortingOption else {
-            AppLogger.warning("Mapping absent sorting option to a default 'manual' sort type")
+            AccountsLogger.warning("Mapping absent sorting option to a default 'manual' sort type")
             return .manual
         }
 
@@ -194,7 +201,7 @@ struct CryptoAccountsNetworkMapper {
         let nextDerivationIndex = response.wallet.totalAccounts
 
         if accounts.count != nextDerivationIndex {
-            AppLogger.warning(
+            AccountsLogger.warning(
                 String(
                     format: "Back-end inconsistency: incorrect next derivation index: '%d' vs '%d'",
                     nextDerivationIndex,
@@ -216,7 +223,7 @@ struct CryptoAccountsNetworkMapper {
         return tokens
             .compactMap { token in
                 guard let blockchainNetworkContainer = try? mapBlockchainNetworkContainer(token: token) else {
-                    AppLogger.warning(
+                    AccountsLogger.warning(
                         String(
                             format: "Unable to map token '%@' due to invalid derivation path: '%@'",
                             String(describing: token.id),
@@ -246,7 +253,7 @@ struct CryptoAccountsNetworkMapper {
                 }
 
                 // Duplicate token detected, discarding the duplicate
-                AppLogger.warning(
+                AccountsLogger.warning(
                     String(
                         format: "Duplicate token detected, discarding the duplicate with contract address: '%@'",
                         contractAddress
@@ -309,7 +316,7 @@ struct CryptoAccountsNetworkMapper {
             let rawColor = archivedAccountDTO.iconColor
 
             guard let icon = AccountModel.Icon(rawName: rawName, rawColor: rawColor) else {
-                AppLogger.warning(
+                AccountsLogger.warning(
                     String(
                         format: "Unable to map icon: '%@', '%@' for archived account with identifier: '%@'",
                         rawName,
@@ -322,7 +329,7 @@ struct CryptoAccountsNetworkMapper {
 
             guard let name = archivedAccountDTO.name else {
                 // Main account (the only account type w/o name) cannot be archived by definition
-                AppLogger.warning(
+                AccountsLogger.warning(
                     String(
                         format: "Unable to map name: '%@' for archived account with identifier: '%@'",
                         String(describing: archivedAccountDTO.name),

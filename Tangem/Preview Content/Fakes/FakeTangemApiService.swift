@@ -217,7 +217,7 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func getTokenPositionInfo(tokenContractAddress: String) async throws -> YieldModuleDTO.Response.PositionInfo {
+    func getTokenPositionInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleDTO.Response.PositionInfo {
         throw "Not implemented"
     }
 }

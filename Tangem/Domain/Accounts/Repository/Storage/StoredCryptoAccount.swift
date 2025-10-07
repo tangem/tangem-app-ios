@@ -46,32 +46,3 @@ extension StoredCryptoAccount {
         let contractAddress: String?
     }
 }
-
-// MARK: - Convenience extensions
-
-extension StoredCryptoAccount.Token {
-    var isToken: Bool { contractAddress != nil }
-
-    // [REDACTED_TODO_COMMENT]
-    var coinId: String? {
-        switch blockchainNetwork {
-        case .known(let blockchainNetwork):
-            return contractAddress == nil ? blockchainNetwork.blockchain.coinId : id
-        case .unknown:
-            return nil
-        }
-    }
-}
-
-// MARK: - CryptoAccountPersistentConfigConvertible protocol conformance
-
-extension StoredCryptoAccount: CryptoAccountPersistentConfigConvertible {
-    func toPersistentConfig() -> CryptoAccountPersistentConfig {
-        return CryptoAccountPersistentConfig(
-            derivationIndex: derivationIndex,
-            name: name,
-
-            icon: .init(rawName: icon.iconName, rawColor: icon.iconColor)! // [REDACTED_TODO_COMMENT]
-        )
-    }
-}
