@@ -34,6 +34,7 @@ final class TangemPayOfferViewModel: ObservableObject {
 
                 // [REDACTED_TODO_COMMENT]
                 // [REDACTED_INFO]
+                viewModel.userWalletModel.update(type: .tangemPayAccountCreated(tangemPayAccount))
 
                 switch tangemPayStatus {
                 case .kycRequired:
