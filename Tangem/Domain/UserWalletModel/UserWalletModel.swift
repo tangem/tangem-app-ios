@@ -62,11 +62,13 @@ enum UpdateRequest {
     case mnemonicBackupCompleted
     case iCloudBackupCompleted
     case accessCodeDidSet
+    case tangemPayAccountCreated(TangemPayAccount)
 }
 
 enum UpdateResult {
     case configurationChanged(model: UserWalletModel)
     case nameDidChange(name: String)
+    case tangemPayAccountCreated(TangemPayAccount)
 
     var newName: String? {
         switch self {
@@ -75,5 +77,12 @@ enum UpdateResult {
         default:
             return nil
         }
+    }
+
+    var tangemPayAccount: TangemPayAccount? {
+        if case .tangemPayAccountCreated(let tangemPayAccount) = self {
+            return tangemPayAccount
+        }
+        return nil
     }
 }
