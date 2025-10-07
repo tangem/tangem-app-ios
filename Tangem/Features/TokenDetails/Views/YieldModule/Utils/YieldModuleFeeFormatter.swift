@@ -15,7 +15,6 @@ enum YieldModuleFormatterFee: Error {
 struct YieldModuleFeeFormatter {
     private let feeCurrency: TokenItem
     private let token: TokenItem
-    private let maximumFee: Decimal
 
     // MARK: - Dependencies
 
@@ -24,13 +23,16 @@ struct YieldModuleFeeFormatter {
 
     // MARK: - Init
 
-    init(feeCurrency: TokenItem, token: TokenItem, maximumFee: Decimal) {
+    init(feeCurrency: TokenItem, token: TokenItem) {
         self.feeCurrency = feeCurrency
         self.token = token
-        self.maximumFee = maximumFee
     }
 
     // MARK: - Public Implementation
+
+    func formatCryptoBalance(_ balance: Decimal) -> String {
+        balanceFormatter.formatCryptoBalance(balance, currencyCode: token.currencySymbol)
+    }
 
     func createFeeString(from networkFee: Decimal) async throws -> String {
         guard let id = feeCurrency.id else {
