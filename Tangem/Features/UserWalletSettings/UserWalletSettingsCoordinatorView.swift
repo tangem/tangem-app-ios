@@ -45,6 +45,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.accountDetailsCoordinator) {
                 AccountDetailsCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.archivedAccountsCoordinator) {
+                ArchivedAccountsCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder

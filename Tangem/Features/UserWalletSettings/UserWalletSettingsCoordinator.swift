@@ -34,6 +34,7 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var scanCardSettingsCoordinator: ScanCardSettingsCoordinator?
     @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator?
     @Published var accountDetailsCoordinator: AccountDetailsCoordinator?
+    @Published var archivedAccountsCoordinator: ArchivedAccountsCoordinator?
 
     // MARK: - Child view models
 
@@ -99,6 +100,19 @@ extension UserWalletSettingsCoordinator:
         )
 
         accountDetailsCoordinator = coordinator
+    }
+
+    func openArchivedAccounts(accountModelsManager: any AccountModelsManager) {
+        let coordinator = ArchivedAccountsCoordinator(
+            dismissAction: { [weak self] in
+                self?.archivedAccountsCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: ArchivedAccountsCoordinator.Options(accountModelsManager: accountModelsManager))
+
+        archivedAccountsCoordinator = coordinator
     }
 
     func openOnboardingModal(with options: OnboardingCoordinator.Options) {
