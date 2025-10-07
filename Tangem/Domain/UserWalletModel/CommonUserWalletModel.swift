@@ -268,6 +268,9 @@ extension CommonUserWalletModel: UserWalletModel {
                 mutableInfo.hasMnemonicBackup = true
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
+
+        case .tangemPayAccountCreated(let tangemPayAccount):
+            _updatePublisher.send(.tangemPayAccountCreated(tangemPayAccount))
         }
     }
 
