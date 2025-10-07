@@ -49,6 +49,7 @@ enum PreviewCard {
                     bittensorDwellirKey: "",
                     bittensorOnfinalityKey: "",
                     tangemAlephiumApiKey: "",
+                    yieldModuleApiKey: "",
                     blinkApiKey: ""
                 ),
                 dependencies: .init(
