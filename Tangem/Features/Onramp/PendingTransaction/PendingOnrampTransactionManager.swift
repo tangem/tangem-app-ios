@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemExpress
+import TangemFoundation
 
 class CommonPendingOnrampTransactionsManager {
     @Injected(\.onrampPendingTransactionsRepository) private var onrampPendingTransactionsRepository: OnrampPendingTransactionRepository
@@ -30,7 +31,10 @@ class CommonPendingOnrampTransactionsManager {
     )
 
     private let pendingTransactionsSubject = CurrentValueSubject<[PendingOnrampTransaction], Never>([])
-    private var bag = Set<AnyCancellable>()
+
+    private var pollingInitiatingTask: Task<Void, Never>?
+    private var pollingResultTask: Task<Void, Never>?
+
     private var tokenItem: TokenItem { walletModel.tokenItem }
 
     init(
@@ -46,7 +50,15 @@ class CommonPendingOnrampTransactionsManager {
     }
 
     deinit {
-        pollingService.cancelTask()
+        runTask(in: pollingService) {
+            await $0.cancelTask()
+        }
+
+        pollingInitiatingTask?.cancel()
+        pollingInitiatingTask = nil
+
+        pollingResultTask?.cancel()
+        pollingResultTask = nil
     }
 
     private func request(pendingTransaction: PendingOnrampTransaction) async -> PendingOnrampTransaction? {
@@ -73,7 +85,7 @@ class CommonPendingOnrampTransactionsManager {
     }
 
     private func bind() {
-        onrampPendingTransactionsRepository
+        let previousAndCurrentRequestsPublisher = onrampPendingTransactionsRepository
             .transactionsPublisher
             .withWeakCaptureOf(self)
             .map { manager, txRecords in
@@ -86,46 +98,43 @@ class CommonPendingOnrampTransactionsManager {
                 return savedPendingTransactions
             }
             .withPrevious()
-            .withWeakCaptureOf(self)
-            .sink { [pollingService] manager, previousAndCurrentRequests in
+
+        runTask { [weak self] in
+            let previousAndCurrentRequestsSequence = await previousAndCurrentRequestsPublisher.values
+
+            for await previousAndCurrentRequests in previousAndCurrentRequestsSequence {
+                guard let self else { return }
+
                 let previous = previousAndCurrentRequests.previous
                 let current = previousAndCurrentRequests.current
 
                 let shouldForceReload = previous?.count ?? 0 != current.count
-                pollingService.startPolling(requests: current, force: shouldForceReload)
+                await pollingService.startPolling(requests: current, force: shouldForceReload)
 
                 // If polling requests is empty, it means that
                 // `manager.filterRelatedTokenTransactions(list: txRecords)`
                 // has filtered out records, so we should send an empty array
                 // Otherwise, filtered out transactions will stay on screen
                 if current.isEmpty {
-                    manager.pendingTransactionsSubject.send([])
+                    pendingTransactionsSubject.send([])
                 }
             }
-            .store(in: &bag)
+        }
 
-        pollingService
-            .resultPublisher
-            .map { pendingTransactions in
-                pendingTransactions.map(\.data).sorted(by: \.transactionRecord.date)
-            }
-            .withWeakCaptureOf(self)
-            .sink { manager, transactions in
-                manager.pendingTransactionsSubject.send(transactions)
-            }
-            .store(in: &bag)
+        runTask { [weak self] in
+            guard let stream = await self?.pollingService.resultStream else { return }
+            for await responses in stream {
+                guard let self else { return }
 
-        pollingService
-            .resultPublisher
-            .map { responses in
-                responses.compactMap { result in
-                    result.hasChanges ? result.data.transactionRecord : nil
+                let transactions = responses.map(\.data).sorted(by: \.transactionRecord.date)
+                let transactionsToUpdateInRepository = responses.compactMap { response in
+                    response.hasChanges ? response.data.transactionRecord : nil
                 }
-            }
-            .sink { [onrampPendingTransactionsRepository] transactionsToUpdateInRepository in
+
+                pendingTransactionsSubject.send(transactions)
                 onrampPendingTransactionsRepository.updateItems(transactionsToUpdateInRepository)
             }
-            .store(in: &bag)
+        }
     }
 
     private func filterRelatedTokenTransactions(list: [OnrampPendingTransactionRecord]) -> [OnrampPendingTransactionRecord] {
