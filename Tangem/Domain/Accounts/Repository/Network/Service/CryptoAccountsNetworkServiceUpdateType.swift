@@ -18,7 +18,7 @@ struct CryptoAccountsNetworkServiceUpdateType: OptionSet {
 // MARK: - Convenience extensions
 
 extension CryptoAccountsNetworkServiceUpdateType {
-    var all: Self {
+    static var all: Self {
         [
             .accounts,
             .tokens,

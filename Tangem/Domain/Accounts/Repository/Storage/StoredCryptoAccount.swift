@@ -29,6 +29,8 @@ struct StoredCryptoAccount: Codable, Equatable {
     let sorting: Sorting
 }
 
+// MARK: - Inner types
+
 extension StoredCryptoAccount {
     /// Similar to the `StoredUserTokenList.Entry` model.
     struct Token: Codable, Hashable {
@@ -44,5 +46,18 @@ extension StoredCryptoAccount {
         let decimalCount: Int
         let blockchainNetwork: BlockchainNetworkContainer
         let contractAddress: String?
+    }
+}
+
+// MARK: - CryptoAccountPersistentConfigConvertible protocol conformance
+
+extension StoredCryptoAccount: CryptoAccountPersistentConfigConvertible {
+    func toPersistentConfig() -> CryptoAccountPersistentConfig {
+        return CryptoAccountPersistentConfig(
+            derivationIndex: derivationIndex,
+            name: name,
+            iconName: icon.iconName,
+            iconColor: icon.iconColor
+        )
     }
 }

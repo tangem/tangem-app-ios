@@ -60,7 +60,10 @@ final class CommonCryptoAccountsRepository {
         addCryptoAccount(withConfig: mainAccountPersistentConfig, tokens: tokens)
     }
 
-    private func updateAccountsOnServer(cryptoAccounts: [StoredCryptoAccount]? = nil, completion: Completion? = nil) {
+    private func updateAccountsOnServer(
+        cryptoAccounts: [StoredCryptoAccount]? = nil,
+        completion: _UserTokenListManager.Completion? = nil
+    ) {
         guard hasTokenSynchronization else {
             completion?(.success(()))
             return
@@ -69,7 +72,7 @@ final class CommonCryptoAccountsRepository {
         saveAccountsSubscription = runTask(in: self) { repository in
             let cryptoAccounts = cryptoAccounts ?? repository.persistentStorage.getList()
             do {
-                try await repository.networkService.save(cryptoAccounts: cryptoAccounts)
+                try await repository.networkService.save(cryptoAccounts: cryptoAccounts, updateType: .all) // [REDACTED_TODO_COMMENT]
                 try Task.checkCancellation()
                 await runOnMain { completion?(.success(())) }
             } catch CryptoAccountsNetworkServiceError.missingRevision {
@@ -89,7 +92,7 @@ final class CommonCryptoAccountsRepository {
     private func handleFailedUpdateAccountsOnServer(
         cryptoAccounts: [StoredCryptoAccount],
         error: Error,
-        completion: Completion?
+        completion: _UserTokenListManager.Completion?
     ) async {
         guard !error.isCancellationError else {
             return

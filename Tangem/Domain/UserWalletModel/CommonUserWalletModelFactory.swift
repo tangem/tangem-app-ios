@@ -126,6 +126,7 @@ private struct CommonUserWalletModelDependencies {
         let shouldLoadExpressAvailability = config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange)
         let areLongHashesSupported = config.hasFeature(.longHashes)
         let areHDWalletsSupported = config.hasFeature(.hdWallets)
+        let hasTokenSynchronization = config.hasFeature(.tokenSynchronization)
 
         let keysRepository = CommonKeysRepository(
             userWalletId: userWalletId,
@@ -138,7 +139,7 @@ private struct CommonUserWalletModelDependencies {
             userWalletId: userWalletId.value,
             supportedBlockchains: config.supportedBlockchains,
             hdWalletsSupported: areHDWalletsSupported,
-            hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
+            hasTokenSynchronization: hasTokenSynchronization,
             defaultBlockchains: config.defaultBlockchains
         )
 
@@ -214,7 +215,8 @@ private struct CommonUserWalletModelDependencies {
                 tokenItemsRepository: tokenItemsRepository,
                 networkService: networkService,
                 persistentStorage: persistentStorage,
-                storageController: persistentStorage
+                storageController: persistentStorage,
+                hasTokenSynchronization: hasTokenSynchronization
             )
             let walletModelsFactory = config.makeWalletModelsFactory(userWalletId: userWalletId)
             let walletModelsManagerFactory = CommonAccountWalletModelsManagerFactory(
@@ -229,7 +231,6 @@ private struct CommonUserWalletModelDependencies {
                 shouldLoadExpressAvailability: shouldLoadExpressAvailability,
                 areLongHashesSupported: areLongHashesSupported
             )
-
             let accountModelsManager = CommonAccountModelsManager(
                 userWalletId: userWalletId,
                 cryptoAccountsRepository: cryptoAccountsRepository,
