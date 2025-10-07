@@ -14,53 +14,6 @@ import TangemFoundation
 import TangemLocalization
 
 // [REDACTED_TODO_COMMENT]
-extension StoredCryptoAccount.Token.BlockchainNetworkContainer {
-    var knownValue: BlockchainNetwork? {
-        switch self {
-        case .known(let blockchainNetwork):
-            return blockchainNetwork
-        case .unknown:
-            return nil
-        }
-    }
-}
-
-// [REDACTED_TODO_COMMENT]
-private extension StoredCryptoAccount.Token {
-    func isEqualTo(_ bsdkToken: Token) -> Bool {
-        // Matches the `Equatable` implementation of the `BlockchainSdk.Token`
-        return contractAddress == bsdkToken.contractAddress
-    }
-
-    func toBSDKToken() -> Token? {
-        guard let contractAddress else {
-            return nil
-        }
-
-        return Token(
-            name: name,
-            symbol: symbol,
-            contractAddress: contractAddress,
-            decimalCount: decimalCount,
-            id: id,
-            metadata: .fungibleTokenMetadata // By definition, in the domain layer we're dealing only with fungible tokens
-        )
-    }
-
-    var walletModelId: WalletModelId? {
-        guard let blockchainNetwork = blockchainNetwork.knownValue else {
-            return nil
-        }
-
-        if let token = toBSDKToken() {
-            return WalletModelId(tokenItem: .token(token, blockchainNetwork))
-        }
-
-        return WalletModelId(tokenItem: .blockchain(blockchainNetwork))
-    }
-}
-
-// [REDACTED_TODO_COMMENT]
 struct _StorageEntryConverter {
     func convertToTokenItems(_ entries: [StoredCryptoAccount.Token]) -> [TokenItem] {
         entries.compactMap { entry -> TokenItem? in
@@ -366,7 +319,7 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         case .blockchain:
             return filteredTokens.isNotEmpty
         case .token(let token, _):
-            return filteredTokens.contains { $0.isEqualTo(token) }
+            return filteredTokens.contains { $0.isEqual(to: token) }
         }
     }
 

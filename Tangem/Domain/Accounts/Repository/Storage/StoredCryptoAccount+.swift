@@ -36,12 +36,12 @@ extension StoredCryptoAccount.Token {
         return WalletModelId(tokenItem: .blockchain(blockchainNetwork))
     }
 
-    func toBSDKToken() -> Token? {
+    func toBSDKToken() -> BlockchainSdk.Token? {
         guard let contractAddress else {
             return nil
         }
 
-        return Token(
+        return BlockchainSdk.Token(
             name: name,
             symbol: symbol,
             contractAddress: contractAddress,
@@ -49,6 +49,11 @@ extension StoredCryptoAccount.Token {
             id: id,
             metadata: .fungibleTokenMetadata // By definition, in the domain layer we're dealing only with fungible tokens
         )
+    }
+
+    func isEqual(to bsdkToken: BlockchainSdk.Token) -> Bool {
+        // Must math the `Equatable` implementation of the `BlockchainSdk.Token`
+        return contractAddress == bsdkToken.contractAddress
     }
 }
 
