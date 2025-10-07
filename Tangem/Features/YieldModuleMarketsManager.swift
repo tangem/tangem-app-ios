@@ -53,13 +53,11 @@ private extension CommonYieldModuleMarketsManager {
             cacheMarkets(response)
 
             return response.tokens.compactMap {
-                let maxNetworkFee = $0.maxNetworkFee.flatMap { EthereumUtils.parseToBigUInt($0) }
-                    ?? Constants.temporaryDefaultMaxNetworkFee // temp solution will be fixed in [REDACTED_INFO]
                 return YieldModuleMarketInfo(
                     tokenContractAddress: $0.tokenAddress,
                     apy: $0.apy,
-                    maxNetworkFee: maxNetworkFee,
-                    isActive: $0.isActive
+                    isActive: $0.isActive,
+                    chainId: $0.chainId
                 )
             }
         } catch {
@@ -68,13 +66,11 @@ private extension CommonYieldModuleMarketsManager {
             }
 
             return cachedMarkets.markets.compactMap {
-                let maxNetworkFee = EthereumUtils.parseToBigUInt($0.maxNetworkFee)
-                    ?? Constants.temporaryDefaultMaxNetworkFee // temp solution will be fixed in [REDACTED_INFO]
                 return YieldModuleMarketInfo(
                     tokenContractAddress: $0.tokenContractAddress,
                     apy: $0.apy,
-                    maxNetworkFee: maxNetworkFee,
-                    isActive: $0.isActive
+                    isActive: $0.isActive,
+                    chainId: $0.chainId
                 )
             }
         }
@@ -86,7 +82,7 @@ private extension CommonYieldModuleMarketsManager {
                 tokenContractAddress: $0.tokenAddress,
                 apy: $0.apy,
                 isActive: $0.isActive,
-                maxNetworkFee: $0.maxNetworkFee ?? ""
+                chainId: $0.chainId
             )
         }
         yieldMarketsRepository.store(
