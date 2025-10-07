@@ -51,12 +51,7 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - View data
 
     var accountIconNameMode: AccountIconView.NameMode {
-        switch account.icon.name {
-        case .letter:
-            .letter(String(account.name.first ?? "_"))
-        default:
-            .imageType(AccountModelUtils.UI.iconAsset(from: account.icon.name))
-        }
+        AccountModelUtils.UI.nameMode(from: account.icon.name, accountName: account.name)
     }
 
     var accountIconColor: Color {
