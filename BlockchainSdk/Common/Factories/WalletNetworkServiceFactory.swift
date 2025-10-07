@@ -231,12 +231,19 @@ private extension WalletNetworkServiceFactory {
                         nil
                     }
 
+                    var sendSkipPreflight = false
+
+                    if case .blink = networkProviderType {
+                        sendSkipPreflight = true
+                    }
+
                     return RPCEndpoint(
                         url: nodeInfo.url,
                         urlWebSocket: urlWebSocket,
                         network: .mainnetBeta,
                         apiKeyHeaderName: headerNameValue?.name,
-                        apiKeyHeaderValue: headerNameValue?.value
+                        apiKeyHeaderValue: headerNameValue?.value,
+                        sendSkipPreflight: sendSkipPreflight
                     )
                 }
         }
