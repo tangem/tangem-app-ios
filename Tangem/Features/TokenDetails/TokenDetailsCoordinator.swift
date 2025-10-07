@@ -148,20 +148,21 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         yieldModulePromoCoordinator = coordinator
     }
 
-    func openYieldEarnInfo(
-        walletModel: any WalletModel,
-        onGiveApproveAction: @escaping () -> Void,
-        onStopEarnAction: @escaping () -> Void
-    ) {
+    func openYieldEarnInfo(walletModel: any WalletModel, signer: any TangemSigner) {
+        guard
+            let factory = YieldModuleFlowFactory(
+                walletModel: walletModel,
+                signer: signer,
+                feeCurrencyNavigator: self,
+                dismissAction: dismissAction
+            ),
+            let vm = factory.makeYieldInfoViewModel()
+        else {
+            return
+        }
+
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(
-                sheet: YieldModuleInfoViewModel(
-                    walletModel: walletModel,
-                    feeCurrencyNavigator: self,
-                    onGiveApproveAction: onGiveApproveAction,
-                    onStopEarnAction: onStopEarnAction
-                )
-            )
+            floatingSheetPresenter.enqueue(sheet: vm)
         }
     }
 
