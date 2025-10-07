@@ -542,7 +542,7 @@
 		2DCB23A22E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCB239F2E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift */; };
 		2DCB23A32E5700E50076C294 /* ReceiveAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCB23A02E5700E50076C294 /* ReceiveAnalyticsLogger.swift */; };
 		2DCC301A2E71770B004AF17D /* ShareActivitiesPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCC30192E71770B004AF17D /* ShareActivitiesPresenter.swift */; };
-		2DCDE45A2DE60E5C007ECD34 /* UserTokenListAddressProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE4592DE60E5C007ECD34 /* UserTokenListAddressProvider.swift */; };
+		2DCDE45A2DE60E5C007ECD34 /* UserTokenListExternalParametersProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE4592DE60E5C007ECD34 /* UserTokenListExternalParametersProvider.swift */; };
 		2DCDE45F2DE60F14007ECD34 /* UserWalletDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45E2DE60F14007ECD34 /* UserWalletDTO.swift */; };
 		2DCDE4612DE60F14007ECD34 /* ApplicationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */; };
 		2DCDE4622DE60F14007ECD34 /* NotificationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45D2DE60F14007ECD34 /* NotificationDTO.swift */; };
@@ -4856,7 +4856,7 @@
 		2DCB239F2E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonReceiveAnalyticsLogger.swift; sourceTree = "<group>"; };
 		2DCB23A02E5700E50076C294 /* ReceiveAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAnalyticsLogger.swift; sourceTree = "<group>"; };
 		2DCC30192E71770B004AF17D /* ShareActivitiesPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareActivitiesPresenter.swift; sourceTree = "<group>"; };
-		2DCDE4592DE60E5C007ECD34 /* UserTokenListAddressProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListAddressProvider.swift; sourceTree = "<group>"; };
+		2DCDE4592DE60E5C007ECD34 /* UserTokenListExternalParametersProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListExternalParametersProvider.swift; sourceTree = "<group>"; };
 		2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDTO.swift; sourceTree = "<group>"; };
 		2DCDE45D2DE60F14007ECD34 /* NotificationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDTO.swift; sourceTree = "<group>"; };
 		2DCDE45E2DE60F14007ECD34 /* UserWalletDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletDTO.swift; sourceTree = "<group>"; };
@@ -20520,7 +20520,7 @@
 				B6A373072A45CF2B0076A11C /* UserTokenListUpdateType.swift */,
 				EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */,
 				B0F318F52A738ACC009F131E /* LockedUserTokenListManager.swift */,
-				2DCDE4592DE60E5C007ECD34 /* UserTokenListAddressProvider.swift */,
+				2DCDE4592DE60E5C007ECD34 /* UserTokenListExternalParametersProvider.swift */,
 			);
 			path = UserTokenListManager;
 			sourceTree = "<group>";
@@ -23655,7 +23655,7 @@
 				0ACBC5A12DBA97B600272646 /* ReferralNotificationController.swift in Sources */,
 				0A4C217F2DF1AFF200B8B1BD /* MobileUserWalletConfig.swift in Sources */,
 				2DB648842C35877000DA100D /* MarketsWalletSelectorViewModel.swift in Sources */,
-				2DCDE45A2DE60E5C007ECD34 /* UserTokenListAddressProvider.swift in Sources */,
+				2DCDE45A2DE60E5C007ECD34 /* UserTokenListExternalParametersProvider.swift in Sources */,
 				B036881E2C74B79300D418FB /* MarketsListDataFetcher.swift in Sources */,
 				DCE814FD2DC90DA000688DB1 /* CardImageProviderCache.swift in Sources */,
 				B0569C6D2CFDDF9700CCD55F /* VisaOnboardingApproveWalletSelectorView.swift in Sources */,

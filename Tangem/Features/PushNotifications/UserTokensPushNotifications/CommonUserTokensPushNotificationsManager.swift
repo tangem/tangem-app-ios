@@ -216,7 +216,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokenListExternalParamet
         return result
     }
 
-    func provideTokenListNotifyStatusValue() -> Bool? {
         status.isActive
+    func provideTokenListNotifyStatusValue() -> Bool {
     }
 }
