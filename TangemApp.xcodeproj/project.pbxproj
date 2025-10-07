@@ -82,6 +82,10 @@
 		0AA322602E7999B00090B803 /* YieldSupplyServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA3225F2E7999B00090B803 /* YieldSupplyServiceFactory.swift */; };
 		0AA322622E79C3740090B803 /* YieldModuleSmartContractState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA322612E79C3740090B803 /* YieldModuleSmartContractState.swift */; };
 		0AA6A79D2DBA6D83008F5D43 /* ReferralProgramURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA6A79C2DBA6D83008F5D43 /* ReferralProgramURLParser.swift */; };
+		0AAE54662E9583D800F1CCD5 /* YieldModuleAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAE54652E9583D800F1CCD5 /* YieldModuleAPIService.swift */; };
+		0AAE54682E9583E300F1CCD5 /* CommonYieldModuleAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAE54672E9583E300F1CCD5 /* CommonYieldModuleAPIService.swift */; };
+		0AAE546A2E95847E00F1CCD5 /* YieldModuleAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAE54692E95847E00F1CCD5 /* YieldModuleAPITarget.swift */; };
+		0AAE546C2E95934200F1CCD5 /* YieldModuleAuthorizationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAE546B2E95934200F1CCD5 /* YieldModuleAuthorizationPlugin.swift */; };
 		0AB3467E2E83C5F6004003A0 /* YieldModuleManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3467D2E83C5F6004003A0 /* YieldModuleManagerState.swift */; };
 		0AB346812E83CD8F004003A0 /* YieldModuleDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB346802E83CD8F004003A0 /* YieldModuleDTO.swift */; };
 		0AB346832E83CE15004003A0 /* YieldModuleDTO+PositionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB346822E83CE15004003A0 /* YieldModuleDTO+PositionStatus.swift */; };
@@ -4394,6 +4398,10 @@
 		0AA3225F2E7999B00090B803 /* YieldSupplyServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSupplyServiceFactory.swift; sourceTree = "<group>"; };
 		0AA322612E79C3740090B803 /* YieldModuleSmartContractState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleSmartContractState.swift; sourceTree = "<group>"; };
 		0AA6A79C2DBA6D83008F5D43 /* ReferralProgramURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralProgramURLParser.swift; sourceTree = "<group>"; };
+		0AAE54652E9583D800F1CCD5 /* YieldModuleAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleAPIService.swift; sourceTree = "<group>"; };
+		0AAE54672E9583E300F1CCD5 /* CommonYieldModuleAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonYieldModuleAPIService.swift; sourceTree = "<group>"; };
+		0AAE54692E95847E00F1CCD5 /* YieldModuleAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleAPITarget.swift; sourceTree = "<group>"; };
+		0AAE546B2E95934200F1CCD5 /* YieldModuleAuthorizationPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleAuthorizationPlugin.swift; sourceTree = "<group>"; };
 		0AB3467D2E83C5F6004003A0 /* YieldModuleManagerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleManagerState.swift; sourceTree = "<group>"; };
 		0AB346802E83CD8F004003A0 /* YieldModuleDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleDTO.swift; sourceTree = "<group>"; };
 		0AB346822E83CE15004003A0 /* YieldModuleDTO+PositionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YieldModuleDTO+PositionStatus.swift"; sourceTree = "<group>"; };
@@ -8717,6 +8725,7 @@
 		0A941BE32E6B29D200770474 /* YieldModule */ = {
 			isa = PBXGroup;
 			children = (
+				0AAE54642E9583B000F1CCD5 /* APIService */,
 				0AB3467F2E83C963004003A0 /* DTO */,
 				0AB3467C2E83C5DA004003A0 /* Domain */,
 				0A85A19D2E71BECC00ED535D /* Transaction */,
@@ -8733,6 +8742,17 @@
 				0A9AB2902D76EC1B00DB203C /* KaspaTransactionHistoryTarget.swift */,
 			);
 			path = Kaspa;
+			sourceTree = "<group>";
+		};
+		0AAE54642E9583B000F1CCD5 /* APIService */ = {
+			isa = PBXGroup;
+			children = (
+				0AAE54652E9583D800F1CCD5 /* YieldModuleAPIService.swift */,
+				0AAE54672E9583E300F1CCD5 /* CommonYieldModuleAPIService.swift */,
+				0AAE54692E95847E00F1CCD5 /* YieldModuleAPITarget.swift */,
+				0AAE546B2E95934200F1CCD5 /* YieldModuleAuthorizationPlugin.swift */,
+			);
+			path = APIService;
 			sourceTree = "<group>";
 		};
 		0AB3467C2E83C5DA004003A0 /* Domain */ = {
@@ -23741,6 +23761,7 @@
 				B6A2AB9C2E5FF3E600A7CBFF /* CommonAccountUserTokensManagerFactory.swift in Sources */,
 				B0C9559A2D13FF4B00ABD5E8 /* VisaOnboardingInProgressView.swift in Sources */,
 				DC66BBE72858EBE400CDF765 /* OnboardingCoordinatorView.swift in Sources */,
+				0AAE54662E9583D800F1CCD5 /* YieldModuleAPIService.swift in Sources */,
 				5DA5067D27A2FF57000A8901 /* URL+.swift in Sources */,
 				EF977CBF2C788965006BB27C /* PendingActionMapper.swift in Sources */,
 				B645BF3F2C59239700D8A2A5 /* MarketsHistoryChartProvider.swift in Sources */,
@@ -23778,6 +23799,7 @@
 				DA89AC0A2CE6B18100AFB755 /* PendingExpressTxTokenInfoView.swift in Sources */,
 				EF46621D2924DEEE00346B6C /* DefaultRowView.swift in Sources */,
 				EFA4E37F2C3EEE9E008815AD /* StakingModel.swift in Sources */,
+				0AAE54682E9583E300F1CCD5 /* CommonYieldModuleAPIService.swift in Sources */,
 				0F2786312E2B754400742D0F /* MobileOnboardingAccessCodeStep.swift in Sources */,
 				B69F0EDB2DD3992400997631 /* StakingAmountModifier.swift in Sources */,
 				5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */,
@@ -24664,6 +24686,7 @@
 				DC2293EB2E3BD2A600743C7B /* AssociatedCardIdsProvider.swift in Sources */,
 				B04126ED29CC31C700A8BB43 /* OnboardingSeedPhraseUserValidationView.swift in Sources */,
 				EF48E6E12B02408500FE0072 /* ExpressCoordinator.swift in Sources */,
+				0AAE546A2E95847E00F1CCD5 /* YieldModuleAPITarget.swift in Sources */,
 				EFF9A2FA2BD6B45E007C63D2 /* UserWalletSettingsCoordinator.swift in Sources */,
 				EF0DC1072A0BD7F8007E3DA7 /* OptionPicker.swift in Sources */,
 				B63FDB182A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift in Sources */,
@@ -25024,6 +25047,7 @@
 				EAF8FDE12E8013C60025D2F1 /* YieldModuleNoticeInteractor.swift in Sources */,
 				5D49035227BE9D550072C642 /* Data+.swift in Sources */,
 				B09310582A0B76C100F6043A /* ButtonWithLeadingIcon.swift in Sources */,
+				0AAE546C2E95934200F1CCD5 /* YieldModuleAuthorizationPlugin.swift in Sources */,
 				EF7672DC2E0C511C00A8900E /* SwapManagerDestinationWallet.swift in Sources */,
 				DAC53CFE27BE63830027147D /* MeetTangemStoryPage.swift in Sources */,
 				EFB23F3A2CBE8703005A6719 /* OnrampAmountView.swift in Sources */,
