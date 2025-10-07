@@ -22,7 +22,7 @@ final class YieldModuleFlowFactory {
 
     init?(
         walletModel: any WalletModel,
-        apy: String,
+        apy: String = "",
         signer: any TangemSigner,
         feeCurrencyNavigator: (any FeeCurrencyNavigating)?,
         dismissAction: @escaping Action<Void>
@@ -50,6 +50,22 @@ final class YieldModuleFlowFactory {
 
         yieldPromoCoordinator.start(with: options)
         return yieldPromoCoordinator
+    }
+
+    func makeYieldInfoViewModel() -> YieldModuleInfoViewModel? {
+        guard case .active(let info) = yieldModuleManager.state?.state else {
+            return nil
+        }
+
+        let interactor = makeInteractor()
+
+        return YieldModuleInfoViewModel(
+            walletModel: walletModel,
+            feeCurrencyNavigator: feeCurrencyNavigator,
+            yieldManagerInteractor: interactor,
+            activityState: info.allowance == 0 ? .paused : .active,
+            availableBalance: info.balance.value
+        )
     }
 
     // MARK: - Private Implementation
