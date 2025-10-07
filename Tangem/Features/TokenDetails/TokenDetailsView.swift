@@ -136,8 +136,15 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var yieldStatueView: some View {
-        if let status = viewModel.yieldModuleStatus {
-            YieldStatusView(status: status)
+        switch viewModel.yieldModuleAvailability {
+        case .checking, .notApplicable:
+            EmptyView()
+
+        case .eligible(let vm):
+            YieldAvailableNotificationView(viewModel: vm)
+
+        case .enter(let vm), .exit(let vm), .active(let vm):
+            YieldStatusView(viewModel: vm)
         }
     }
 }

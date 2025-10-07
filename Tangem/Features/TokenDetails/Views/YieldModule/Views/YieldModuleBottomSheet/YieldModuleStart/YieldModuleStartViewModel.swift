@@ -47,11 +47,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     private weak var coordinator: YieldModulePromoCoordinator?
     private let yieldManagerInteractor: YieldManagerInteractor
 
-    private lazy var feeConverter = YieldModuleFeeFormatter(
-        feeCurrency: walletModel.feeTokenItem,
-        token: walletModel.tokenItem,
-        maximumFee: maximumFee
-    )
+    private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
 
     // MARK: - Properties
 

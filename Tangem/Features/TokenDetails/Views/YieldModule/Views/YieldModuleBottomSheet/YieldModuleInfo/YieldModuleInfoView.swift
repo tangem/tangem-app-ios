@@ -125,8 +125,14 @@ struct YieldModuleInfoView: View {
     @ViewBuilder
     private var mainContent: some View {
         switch viewModel.viewState {
-        case .earnInfo(let params):
-            YieldModuleEarnInfoView(params: params)
+        case .earnInfo:
+            YieldModuleEarnInfoView(
+                apyState: viewModel.apyState,
+                tokenName: viewModel.walletModel.tokenItem.name,
+                tokenSymbol: viewModel.walletModel.tokenItem.currencySymbol,
+                transferMode: viewModel.activityState.transferMode,
+                availableBalance: viewModel.getAvailableBalanceString()
+            )
 
         case .approve:
             YieldFeeSection(
@@ -214,8 +220,8 @@ private extension YieldModuleInfoView {
         switch viewState {
         case .stopEarning, .approve:
             BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackTap() } })
-        case .earnInfo(let params):
-            earnInfoHeader(status: params.status.description)
+        case .earnInfo:
+            earnInfoHeader(status: viewModel.activityState.description)
         }
     }
 }
