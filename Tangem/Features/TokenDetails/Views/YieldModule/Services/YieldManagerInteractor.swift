@@ -81,6 +81,20 @@ actor YieldManagerInteractor {
         }
     }
 
+    /// Initiates the "enter" operation for the given token.
+    /// This is also a fire-and-forget task
+    func exit(with token: TokenItem) {
+        runTask(in: self) { actor in
+            guard let fee = await actor.exitFee else {
+                return
+            }
+
+            do {
+                _ = try await actor.manager.exit(fee: fee, transactionDispatcher: actor.transactionDispatcher)
+            } catch {}
+        }
+    }
+
     // MARK: - Heplers
 
     private func loadFee(

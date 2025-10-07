@@ -21,6 +21,8 @@ protocol YieldModuleManager {
 
     func exitFee() async throws -> YieldTransactionFee
     func exit(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
+
+    func getYieldTokenInfo() async throws -> YieldModuleTokenInfo
 }
 
 protocol YieldModuleManagerUpdater {
@@ -233,6 +235,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         return try await transactionDispatcher
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
+    }
+
+    func getYieldTokenInfo() async throws -> YieldModuleTokenInfo {
+        .init(isActive: true, apy: 4.1, maxFeeNative: 10, maxFeeUSD: 5)
     }
 }
 

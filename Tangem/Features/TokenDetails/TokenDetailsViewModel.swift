@@ -20,7 +20,7 @@ import struct TangemUIUtils.ActionSheetBinder
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
-    @Published var yieldModuleStatus: YieldStatusView.Status?
+    @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
 
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
         buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
@@ -272,27 +272,36 @@ private extension TokenDetailsViewModel {
 
     private func bind() {
         walletModel.yieldModuleManager?.statePublisher
-            .compactMap { $0 }
-            .map { status in
-                switch status {
+            .map { [weak self] state -> YieldModuleAvailability in
+                guard let self, let manager = walletModel.yieldModuleManager, let state else {
+                    return .notApplicable
+                }
+
+                switch state.state {
                 case .active(let info):
-                    return .active(
-                        income: info.yieldSupply?.value ?? 0,
-                        annualYield: info.apy,
-                        isApproveNeeded: false,
-                        tapAction: { [weak self] in
-                            self?.openYieldEarnInfo()
-                        }
-                    )
+                    let vm = createYieldStatueViewMidel(yieldManager: manager, state: .active(isApproveRequired: info.allowance == 0))
+                    return .active(vm)
 
-                case .loading:
-                    return .loading
+                case .notActive:
+                    let notificationVm = createYieldNotificationViewModel(yieldManager: manager)
+                    return .eligible(notificationVm)
 
-                case .failedToLoad, .disabled, .notActive:
-                    return nil
+                case .processing(let action):
+                    switch action {
+                    case .enter:
+                        let vm = createYieldStatueViewMidel(yieldManager: manager, state: .loading)
+                        return .enter(vm)
+                    case .exit:
+                        let vm = createYieldStatueViewMidel(yieldManager: manager, state: .closing)
+                        return .exit(vm)
+                    }
+
+                case .disabled, .loading, .failedToLoad:
+                    return .notApplicable
                 }
             }
-            .assign(to: \.yieldModuleStatus, on: self, ownership: .weak)
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.yieldModuleAvailability, on: self, ownership: .weak)
             .store(in: &bag)
 
         // If a pending transaction was provided for deeplink-based presentation,
@@ -455,6 +464,28 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 }
 
 extension TokenDetailsViewModel {
+    func createYieldStatueViewMidel(yieldManager: YieldModuleManager, state: YieldStatusViewModel.State) -> YieldStatusViewModel {
+        YieldStatusViewModel(state: state, manager: yieldManager, navigationAction: { [weak self] in
+            self?.openYieldEarnInfo()
+        })
+    }
+
+    func createYieldNotificationViewModel(
+        yieldManager: YieldModuleManager
+    ) -> YieldAvailableNotificationViewModel {
+        YieldAvailableNotificationViewModel(
+            yieldModuleManager: yieldManager,
+            onButtonTap: { [weak self] apy in
+                guard let self else { return }
+                coordinator?.openYieldModulePromoView(
+                    walletModel: walletModel,
+                    apy: apy,
+                    signer: userWalletModel.signer
+                )
+            }
+        )
+    }
+
     func openYieldModulePromo() {
         guard walletModel.yieldModuleManager != nil else {
             return
@@ -464,7 +495,7 @@ extension TokenDetailsViewModel {
     }
 
     func openYieldEarnInfo() {
-        coordinator?.openYieldEarnInfo(walletModel: walletModel, onGiveApproveAction: {}, onStopEarnAction: {})
+        coordinator?.openYieldEarnInfo(walletModel: walletModel, signer: userWalletModel.signer)
     }
 
     func openYieldBalanceInfo() {
