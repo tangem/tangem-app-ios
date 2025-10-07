@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 
 enum APIProvider: String {
+    case blink
     case nownodes
     case quicknode
     case getblock
@@ -34,6 +35,7 @@ enum APIProvider: String {
 
     var blockchainProvider: NetworkProviderType {
         switch self {
+        case .blink: return .blink
         case .nownodes: return .nowNodes
         case .quicknode: return .quickNode
         case .getblock: return .getBlock
