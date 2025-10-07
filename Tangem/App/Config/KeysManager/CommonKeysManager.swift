@@ -55,7 +55,8 @@ extension CommonKeysManager: KeysManager {
             quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
             bittensorDwellirKey: keys.bittensorDwellirKey,
             bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
-            tangemAlephiumApiKey: keys.alephiumTangemApiKey
+            tangemAlephiumApiKey: keys.alephiumTangemApiKey,
+            blinkApiKey: keys.blinkApiKey
         )
     }
 
@@ -150,5 +151,6 @@ extension CommonKeysManager {
         let tangemApiKey: String
         let tangemApiKeyDev: String
         let tangemApiKeyStage: String
+        let blinkApiKey: String
     }
 }
