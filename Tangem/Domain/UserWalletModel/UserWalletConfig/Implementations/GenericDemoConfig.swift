@@ -202,6 +202,8 @@ extension GenericDemoConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
+        case .isHardwareLimited:
+            return .available
         }
     }
 
