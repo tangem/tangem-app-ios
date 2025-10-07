@@ -39,5 +39,5 @@ struct CachedYieldModuleMarket: Codable {
     let tokenContractAddress: String
     let apy: Decimal
     let isActive: Bool
-    let maxNetworkFee: String
+    let chainId: Int?
 }
