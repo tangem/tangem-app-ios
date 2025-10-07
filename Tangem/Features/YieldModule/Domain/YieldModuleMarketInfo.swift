@@ -12,6 +12,6 @@ import BigInt
 struct YieldModuleMarketInfo: Codable, Equatable {
     let tokenContractAddress: String
     let apy: Decimal
-    let maxNetworkFee: BigUInt
     let isActive: Bool
+    let chainId: Int?
 }
