@@ -143,11 +143,10 @@ final class TangemPayAccount {
         runTask(in: self) { tangemPayAccount in
             do {
                 try await tangemPayAccount.prepareTokensHandler()
-                let balance = try! await tangemPayAccount.customerInfoManagementService.getBalance()
+                let balance = try await tangemPayAccount.customerInfoManagementService.getBalance()
                 tangemPayAccount.balanceSubject.send(balance)
             } catch {
                 // [REDACTED_TODO_COMMENT]
-                assertionFailure(error.localizedDescription)
             }
         }
     }
