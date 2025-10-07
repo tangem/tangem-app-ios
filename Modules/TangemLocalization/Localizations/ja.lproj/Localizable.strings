@@ -32,6 +32,7 @@
 "account_form_account_index" = "アカウント番号%@ — アドレス導出に使用されます。";
 "account_form_create_button" = "アカウントを追加";
 "account_form_edit_button" = "保存";
+"account_form_name_already_exist_error_description" = "Account name already exists";
 "account_form_name" = "アカウント名";
 "account_form_placeholder_edit_account" = "アカウント";
 "account_form_placeholder_new_account" = "新しいアカウント";
@@ -850,6 +851,7 @@
 "onramp_statuses_view_footer" = "この画面を閉じて、トークンの詳細画面で取引状況を確認できます。";
 "onramp_timing_minutes" = "%@分";
 "onramp_title_you_get" = "以下が手に入ります。";
+"onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "この画面を閉じて、トークンの詳細画面で取引状況を確認できます。";
 "onramp_up_to_rate" = "最大";
 "onramp_via" = "経由";
@@ -1222,6 +1224,10 @@
 "swapping_to_title" = "受け取る";
 "swapping_token_list_title" = "トークンを選択";
 "swapping_token_not_available" = "利用不可";
+"tangempay_card_details_error_text" = "Failed to load data. Try again later.";
+"tangempay_card_details_hide_text" = "Hide";
+"tangempay_card_details_reveal_text" = "Reveal";
+"tangempay_card_details_title" = "Card details";
 "tangempay_issue_card_notification_title" = "アカウントを作成してカードを発行";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "ステータスを表示";
@@ -1234,6 +1240,7 @@
 "tangempay_onboarding_security_description" = "カードの詳細は保護されており、アプリ内で完全に制御できます。";
 "tangempay_onboarding_security_title" = "内蔵セキュリティ";
 "tangempay_onboarding_title" = "無料のCryptoカード\nを数分で入手しましょう";
+"tangempay_title" = "Tangem Pay";
 "this_is_my_wallet_title" = "これは私のウォレットです";
 "toast_balances_hidden" = "残高非表示";
 "toast_balances_shown" = "残高表示";
@@ -1262,6 +1269,7 @@
 "token_details_token_type_subtitle" = "%%image%% %2$@ ネットワークの %1$@ トークン";
 "token_details_unable_hide_alert_message" = "%1$@ ( %2$@ ) トークンは%3$@ネットワークの主要通貨であり、このネットワーク上の他のトークンがリストにある限り、非表示にすることはできません。";
 "token_details_unable_hide_alert_title" = "%@を非表示にできません";
+"token_receive_show_qr_code_title" = "Show QR code";
 "token_swap_promotion_button" = "今すぐスワップ";
 "tokens_list_available_to_buy_header" = "買付したいトークンを選択します";
 "tokens_list_available_to_sell_header" = "売却したいトークンを選択します";
@@ -1649,6 +1657,7 @@
 "yield_module_approve_sheet_title" = "承認を確定する";
 "yield_module_balance_info_sheet_subtitle" = "資産残高に関するテキスト [プレースホルダー]";
 "yield_module_balance_info_sheet_title" = "あなたの%@はAaveに預けられています";
+"yield_module_chart_loading_error" = "Unable to load chart...";
 "yield_module_deposit_error_notification_title" = "受け取った金額%1$@ %2$@はAaveに入金されませんでした。";
 "yield_module_earn_badge" = "%1$@%% を獲得";
 "yield_module_earn_sheet_available_title" = "利用可能";
@@ -1666,6 +1675,7 @@
 "yield_module_fee_policy_sheet_max_fee_title" = "最大手数料";
 "yield_module_fee_policy_sheet_title" = "手数料ポリシー";
 "yield_module_high_fee_error" = "ネットワーク手数料が現在高すぎます。設定した上限を下回るまで待機しています。";
+"yield_module_historical_returns" = "Historical returns";
 "yield_module_main_view_approve_notification_description" = "ここに説明を入力してください。1〜3行が理想的です。[プレースホルダー]";
 "yield_module_main_view_approve_notification_title" = "トークン承認が必要";
 "yield_module_network_fee_unreachable_notification_description" = "ネットワーク接続を確認してください";
@@ -1696,6 +1706,7 @@
 "yield_module_stop_earning_sheet_description" = "オフにすると、Aaveから資金が引き出され、ウォレットの%@に戻され、報酬の獲得が停止されます。";
 "yield_module_stop_earning_sheet_fee_note" = "出金金額からネットワーク手数料が差し引かれます。";
 "yield_module_stop_earning" = "収益を停止する";
+"yield_module_supply_apr" = "Supply APR";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "あなたの資産を眠らせない — 残高を運用して利息を得ましょう。";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "保有資産から報酬を得る";
@@ -1706,3 +1717,4 @@
 "yield_module_unable_to_cover_fee_title" = "%@手数料を支払えません";
 "yield_module_unavailable_subtitle" = "The interest service isn’t available at the moment. Please try again later.";
 "yield_module_unavailable_title" = "Earnings unavailable";
+"yield_supply_chart_loading_error" = "Unable to load chart...";
