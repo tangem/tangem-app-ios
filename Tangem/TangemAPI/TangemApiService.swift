@@ -148,7 +148,7 @@ protocol TangemApiService: AnyObject {
     // MARK: - Yield module
 
     func getYieldMarkets() async throws -> YieldModuleDTO.Response.MarketsInfo
-    func getTokenPositionInfo(tokenContractAddress: String) async throws -> YieldModuleDTO.Response.PositionInfo
+    func getTokenPositionInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleDTO.Response.PositionInfo
 }
 
 private struct TangemApiServiceKey: InjectionKey {
