@@ -62,24 +62,29 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         }
     }
 
-    func save(cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError) {
+    func save(cryptoAccounts: [StoredCryptoAccount], updateType: CryptoAccountsNetworkServiceUpdateType) async throws(CryptoAccountsNetworkServiceError) {
         do {
-            guard let revision = eTagStorage.loadETag(for: userWalletId) else {
-                throw CryptoAccountsNetworkServiceError.missingRevision
-            }
-
             let (accountsDTO, userTokensDTO) = mapper.map(request: cryptoAccounts)
-            let newRevision = try await tangemApiService.saveUserAccounts(
-                userWalletId: userWalletId.stringValue,
-                revision: revision,
-                accounts: accountsDTO
-            )
 
-            if let newRevision {
-                eTagStorage.saveETag(newRevision, for: userWalletId)
+            if updateType.contains(.accounts) {
+                guard let revision = eTagStorage.loadETag(for: userWalletId) else {
+                    throw CryptoAccountsNetworkServiceError.missingRevision
+                }
+
+                let newRevision = try await tangemApiService.saveUserAccounts(
+                    userWalletId: userWalletId.stringValue,
+                    revision: revision,
+                    accounts: accountsDTO
+                )
+
+                if let newRevision {
+                    eTagStorage.saveETag(newRevision, for: userWalletId)
+                }
             }
 
-             try await tangemApiService.saveTokens(list: userTokensDTO, for: userWalletId.stringValue)
+            if updateType.contains(.tokens) {
+                try await tangemApiService.saveTokens(list: userTokensDTO, for: userWalletId.stringValue)
+            }
         } catch let error as CryptoAccountsNetworkServiceError {
             throw error // Just re-throw an original error
         } catch let error as TangemAPIError where error.code == .notFound {
