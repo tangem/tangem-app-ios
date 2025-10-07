@@ -368,7 +368,7 @@ extension GeneralNotificationEvent {
         case .referralProgram: return .mainReferralProgram
         case .mobileFinishActivation: return nil
         case .mobileUpgrade: return nil
-        case .pushNotificationsPermissionRequest: return nil
+        case .pushNotificationsPermissionRequest: return .promoPushBanner
         }
     }
 

@@ -67,6 +67,8 @@ final class CommonPushPermissionNotificationManager: PushPermissionNotificationM
         let buttonActionYes: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
             guard let self else { return }
 
+            Analytics.log(.promoButtonAllowPush)
+
             runTask(in: self) { @MainActor manager in
                 await manager.permissionManager.allowPermissionRequest()
                 manager.notificationTapDelegate?.didTapNotification(with: id, action: action)
@@ -75,6 +77,8 @@ final class CommonPushPermissionNotificationManager: PushPermissionNotificationM
 
         let buttonActionNo: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
             guard let self else { return }
+
+            Analytics.log(.promoButtonLaterPush)
 
             permissionManager.postponePermissionRequest()
             notificationTapDelegate?.didTapNotification(with: id, action: action)
