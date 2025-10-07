@@ -34,3 +34,9 @@ extension UserWalletModel {
             .first { $0.tokenItem.blockchain == VisaUtilities.visaBlockchain }
     }
 }
+
+extension [any WalletModel] {
+    var visaWalletModel: (any WalletModel)? {
+        first { $0.tokenItem.blockchain == VisaUtilities.visaBlockchain }
+    }
+}
