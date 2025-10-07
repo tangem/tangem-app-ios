@@ -56,7 +56,8 @@ struct ConfigUtils {
                 bittensorDwellirKey: keys.bittensorDwellirKey,
                 bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
                 tangemAlephiumApiKey: keys.alephiumTangemApiKey,
-                blinkApiKey: keys.blinkApiKey,
+                yieldModuleApiKey: keys.yieldModuleApiKey,
+                blinkApiKey: keys.blinkApiKey
             )
         } catch {
             return .init(
@@ -78,7 +79,8 @@ struct ConfigUtils {
                 bittensorDwellirKey: "",
                 bittensorOnfinalityKey: "",
                 tangemAlephiumApiKey: "",
-                blinkApiKey: "",
+                yieldModuleApiKey: "",
+                blinkApiKey: ""
             )
         }
     }
@@ -204,6 +206,7 @@ struct Keys: Decodable {
     let bittensorDwellirKey: String
     let bittensorOnfinalityKey: String
     let alephiumTangemApiKey: String
+    let yieldModuleApiKey: String
     let blinkApiKey: String
 }
 
