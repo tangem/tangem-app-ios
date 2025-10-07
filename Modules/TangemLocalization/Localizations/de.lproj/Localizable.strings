@@ -32,6 +32,7 @@
 "account_form_account_index" = "Kontonummer %@ – wird zur Adressableitung verwendet.";
 "account_form_create_button" = "Konto hinzufügen";
 "account_form_edit_button" = "Speichern";
+"account_form_name_already_exist_error_description" = "Account name already exists";
 "account_form_name" = "Kontoname";
 "account_form_placeholder_edit_account" = "Konto";
 "account_form_placeholder_new_account" = "Neues Konto";
@@ -169,6 +170,7 @@
 "common_accept" = "Akzeptieren";
 "common_access_denied" = "Zugang verweigert";
 "common_accounts" = "Konten";
+"common_activate" = "Activate";
 "common_add_to_portfolio" = "Zum Portfolio hinzufügen";
 "common_add_token" = "Token hinzufügen";
 "common_add" = "Hinzufügen";
@@ -849,6 +851,7 @@
 "onramp_statuses_view_footer" = "Du kannst diesen Bildschirm schließen und den Transaktionsstatus auf dem Bildschirm mit den Token-Details überprüfen.";
 "onramp_timing_minutes" = "%@ min";
 "onramp_title_you_get" = "You get";
+"onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "Du kannst diesen Bildschirm schließen und den Transaktionsstatus auf dem Bildschirm mit den Token-Details überprüfen.";
 "onramp_up_to_rate" = "Up to";
 "onramp_via" = "Über";
@@ -1105,6 +1108,8 @@
 "staking_notification_restake_rewards_text" = "Reinvestiert Deine verdienten Prämien in Deinen Einsatzbetrag und erhöht so den potenziellen Gewinn.";
 "staking_notification_restake_text" = "Mit Restake kannst Du Dein Guthaben von einem Validator zu einem anderen verschieben, ohne dass Du den Stake aufheben musst.";
 "staking_notification_stake_entire_balance_text" = "Du bist dabei, Dein gesamtes Guthaben zu staken. Wir empfehlen, einen kleinen Betrag übrig zu lassen, um die Netzwerkgebühren für die Aufhebung des Stakes oder das Einfordern von Prämien abzudecken.";
+"staking_notification_ton_account_initialization_title" = "Account activation";
+"staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
 "staking_notification_ton_activate_account" = "Um mit dem Staking bei TON zu beginnen, führe zunächst eine ausgehende Transaktion in beliebiger Höhe durch – dadurch wird Deine Wallet aktiviert.";
 "staking_notification_ton_extra_reserve_info" = "Für den Abschluss der Transaktion können zusätzlich zur Netzwerkgebühr bis zu 0,2 TON erforderlich sein. Nicht genutzte Beträge werden zurückerstattet.";
 "staking_notification_ton_extra_reserve_is_required" = "Für diesen Vorgang sind zusätzlich zur Netzwerkgebühr 0,2 TON erforderlich. Bitte lade Dein Guthaben auf.";
@@ -1116,6 +1121,9 @@
 "staking_notification_unstake_text" = "Deine Assets stehen Dir nach Ablauf der Frist für die Aufhebung der Bindung %@ zur Verfügung.";
 "staking_notification_withdraw_text" = "Du kannst Dein Guthaben jetzt abheben. Es steht Dir sofort zur Verfügung.";
 "staking_notifications_revote_tron_text" = "Wenn du im Tron-Netzwerk mit einem neuen Validator stakest, werden alle zuvor eingesetzten Assets automatisch an diesen Validator übertragen.";
+"staking_account_initialization_title" = "Account activation";
+"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_account_initialization_footer" = "A network fee is a small payment to process and confirm your transaction on the blockchain.";
 "staking_preparing" = "Vorbereitung";
 "staking_ready_to_withdraw" = "Bereit zum Abheben";
 "staking_rebond" = "Erneut binden";
@@ -1216,6 +1224,10 @@
 "swapping_to_title" = "Du erhältst";
 "swapping_token_list_title" = "Token auswählen";
 "swapping_token_not_available" = "Nicht verfügbar";
+"tangempay_card_details_error_text" = "Failed to load data. Try again later.";
+"tangempay_card_details_hide_text" = "Hide";
+"tangempay_card_details_reveal_text" = "Reveal";
+"tangempay_card_details_title" = "Card details";
 "tangempay_issue_card_notification_title" = "Create account and issue a card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
@@ -1228,6 +1240,7 @@
 "tangempay_onboarding_security_description" = "Your card details are protected — full control in the app.";
 "tangempay_onboarding_security_title" = "Built-in security";
 "tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
+"tangempay_title" = "Tangem Pay";
 "this_is_my_wallet_title" = "Das ist meine Wallet";
 "toast_balances_hidden" = "Guthaben versteckt";
 "toast_balances_shown" = "Angezeigte Salden";
@@ -1256,6 +1269,7 @@
 "token_details_token_type_subtitle" = "%1$@ Token in %%image%% %2$@ Netzwerk";
 "token_details_unable_hide_alert_message" = "Der %1$@ (%2$@) Token ist die Hauptwährung im %3$@ Netzwerk und kann nicht versteckt werden, solange du andere Token dieses Netzwerks in der Liste aktiv hast.";
 "token_details_unable_hide_alert_title" = "%@ kann nicht ausgeblendet werden";
+"token_receive_show_qr_code_title" = "Show QR code";
 "token_swap_promotion_button" = "Jetzt tauschen";
 "tokens_list_available_to_buy_header" = "Wähle den Token, den Du kaufen möchtest";
 "tokens_list_available_to_sell_header" = "Wähle den Token, den Du verkaufen möchtest";
@@ -1643,6 +1657,7 @@
 "yield_module_approve_sheet_title" = "Confirm approval";
 "yield_module_balance_info_sheet_subtitle" = "Text about your money in balance [PLACEHOLDER]";
 "yield_module_balance_info_sheet_title" = "Your %@ is deposited in Aave";
+"yield_module_chart_loading_error" = "Unable to load chart...";
 "yield_module_deposit_error_notification_title" = "The amount received, %1$@ %2$@ was not deposited to Aave.";
 "yield_module_earn_badge" = "Earn %1$@%%";
 "yield_module_earn_sheet_available_title" = "Available";
@@ -1660,6 +1675,7 @@
 "yield_module_fee_policy_sheet_max_fee_title" = "Maximum fee";
 "yield_module_fee_policy_sheet_title" = "Fee policy";
 "yield_module_high_fee_error" = "Network fee is too high right now. Waiting until it falls below your limit.";
+"yield_module_historical_returns" = "Historical returns";
 "yield_module_main_view_approve_notification_description" = "Write description here. In one, two or three lines will be awesome. [PLACEHOLDER]";
 "yield_module_main_view_approve_notification_title" = "Some token approve needed";
 "yield_module_network_fee_unreachable_notification_description" = "Check your network connection";
@@ -1690,6 +1706,7 @@
 "yield_module_stop_earning_sheet_description" = "Turning off will withdraw your funds from Aave, return them to %@ in your wallet, and stop earning rewards.";
 "yield_module_stop_earning_sheet_fee_note" = "The network fee will be deducted from the amount you withdraw.";
 "yield_module_stop_earning" = "Stop earning";
+"yield_module_supply_apr" = "Supply APR";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Make your money work — earn interest on your balance.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Earning on your balance";
@@ -1700,3 +1717,4 @@
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
 "yield_module_unavailable_subtitle" = "The interest service isn’t available at the moment. Please try again later.";
 "yield_module_unavailable_title" = "Earnings unavailable";
+"yield_supply_chart_loading_error" = "Unable to load chart...";
