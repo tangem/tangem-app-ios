@@ -279,15 +279,21 @@ private extension CommonDeeplinkPresenter {
         deeplinkString: String,
         userWalletModel: UserWalletModel
     ) -> UIViewController {
+        var viewController: UIViewController?
+
         let viewModel = TangemPayOnboardingViewModel(
             deeplinkString: deeplinkString,
             userWalletModel: userWalletModel,
-            closeOfferScreen: { UIApplication.dismissTop() }
+            closeOfferScreen: { @MainActor in
+                viewController?.dismiss(animated: true)
+            }
         )
 
         let view = TangemPayOnboardingView(viewModel: viewModel)
         let controller = UIHostingController(rootView: view)
         controller.modalPresentationStyle = .overFullScreen
+
+        viewController = controller
 
         return controller
     }
