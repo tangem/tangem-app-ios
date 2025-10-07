@@ -19,13 +19,15 @@ protocol YieldModuleMarketsManager {
 }
 
 final class CommonYieldModuleMarketsManager {
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-
-    private let yieldMarketsRepository = CommonYieldModuleMarketsRepository()
+    private let yieldModuleAPIService: YieldModuleAPIService
+    private let yieldMarketsRepository: YieldModuleMarketsRepository
 
     private let marketsSubject = CurrentValueSubject<[YieldModuleMarketInfo], Never>([])
 
-    init() {}
+    init(yieldModuleAPIService: YieldModuleAPIService, yieldMarketsRepository: YieldModuleMarketsRepository) {
+        self.yieldModuleAPIService = yieldModuleAPIService
+        self.yieldMarketsRepository = yieldMarketsRepository
+    }
 }
 
 extension CommonYieldModuleMarketsManager: YieldModuleMarketsManager {
@@ -48,7 +50,7 @@ extension CommonYieldModuleMarketsManager: YieldModuleMarketsManager {
 private extension CommonYieldModuleMarketsManager {
     func fetchMarkets() async -> [YieldModuleMarketInfo] {
         do {
-            let response = try await tangemApiService.getYieldMarkets()
+            let response = try await yieldModuleAPIService.getYieldMarkets()
 
             cacheMarkets(response)
 
@@ -98,7 +100,18 @@ private extension CommonYieldModuleMarketsManager {
 }
 
 private struct YieldModuleMarketsManagerKey: InjectionKey {
-    static var currentValue: YieldModuleMarketsManager = CommonYieldModuleMarketsManager()
+    static var currentValue: YieldModuleMarketsManager = CommonYieldModuleMarketsManager(
+        yieldModuleAPIService: CommonYieldModuleAPIService(
+            provider: .init(
+                configuration: .ephemeralConfiguration,
+                additionalPlugins: [
+                    YieldModuleAuthorizationPlugin()
+                ]
+            ),
+            yieldModuleAPIType: .develop
+        ),
+        yieldMarketsRepository: CommonYieldModuleMarketsRepository()
+    )
 }
 
 extension InjectedValues {
