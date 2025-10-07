@@ -46,22 +46,6 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         }
     }
 
-    func getArchivedCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> [ArchivedCryptoAccountInfo] {
-        do {
-            let (revision, archivedAccountsDTO) = try await tangemApiService.getArchivedUserAccounts(userWalletId: userWalletId.stringValue)
-
-            if let revision {
-                eTagStorage.saveETag(revision, for: userWalletId)
-            }
-
-            return mapper.map(response: archivedAccountsDTO)
-        } catch let error as CryptoAccountsNetworkServiceError {
-            throw error // Just re-throw an original error
-        } catch {
-            throw CryptoAccountsNetworkServiceError.underlyingError(error)
-        }
-    }
-
     func save(cryptoAccounts: [StoredCryptoAccount], updateType: CryptoAccountsNetworkServiceUpdateType) async throws(CryptoAccountsNetworkServiceError) {
         do {
             let (accountsDTO, userTokensDTO) = mapper.map(request: cryptoAccounts)
@@ -93,6 +77,26 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
             throw CryptoAccountsNetworkServiceError.inconsistentState
         } catch {
             throw .underlyingError(error)
+        }
+    }
+}
+
+// MARK: - ArchivedCryptoAccountsProvider protocol conformance
+
+extension CommonCryptoAccountsNetworkService: ArchivedCryptoAccountsProvider {
+    func getArchivedCryptoAccounts() async throws -> [ArchivedCryptoAccountInfo] {
+        do {
+            let (revision, archivedAccountsDTO) = try await tangemApiService.getArchivedUserAccounts(userWalletId: userWalletId.stringValue)
+
+            if let revision {
+                eTagStorage.saveETag(revision, for: userWalletId)
+            }
+
+            return mapper.map(response: archivedAccountsDTO)
+        } catch let error as CryptoAccountsNetworkServiceError {
+            throw error // Just re-throw an original error
+        } catch {
+            throw CryptoAccountsNetworkServiceError.underlyingError(error)
         }
     }
 }
