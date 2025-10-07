@@ -75,7 +75,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func onTapArchivedAccounts() {
-        // [REDACTED_TODO_COMMENT]
+        coordinator?.openArchivedAccounts(accountModelsManager: accountModelsManager)
     }
 
     private func onTapNewAccount() {
