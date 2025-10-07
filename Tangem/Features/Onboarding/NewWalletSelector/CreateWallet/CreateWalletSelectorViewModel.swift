@@ -22,10 +22,10 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     @Published var error: AlertBinder?
 
     let title = Localization.commonTangemWallet
-    let description = "Create a hardware wallet with Tangem. Slim as a bank card, secure as a bank vault."
+    let description = Localization.welcomeCreateWalletHardwareDescription
     let scanTitle = Localization.welcomeUnlockCard
     let buyTitle = Localization.detailsBuyWallet
-    let otherMethodTitle = "Other method"
+    let otherMethodTitle = Localization.welcomeCreateWalletOtherMethod
 
     lazy var chipItems: [ChipItem] = makeChipItems()
     lazy var mobileWalletItem: MobileWalletItem = makeMobileWalletItem()
@@ -63,16 +63,16 @@ extension CreateWalletSelectorViewModel {
 private extension CreateWalletSelectorViewModel {
     func makeChipItems() -> [ChipItem] {
         [
-            ChipItem(icon: Assets.Glyphs.checkmarkShield, title: "Best in class hardware wallet"),
-            ChipItem(icon: Assets.Glyphs.flash, title: "Fast delivery"),
-            ChipItem(icon: Assets.Glyphs.sparkles, title: "Simple to use"),
+            ChipItem(icon: Assets.Glyphs.checkmarkShield, title: Localization.welcomeCreateWalletFeatureClass),
+            ChipItem(icon: Assets.Glyphs.flash, title: Localization.welcomeCreateWalletFeatureDelivery),
+            ChipItem(icon: Assets.Glyphs.sparkles, title: Localization.welcomeCreateWalletFeatureUse),
         ]
     }
 
     func makeMobileWalletItem() -> MobileWalletItem {
         MobileWalletItem(
-            title: "Start with Mobile Wallet",
-            description: "Сreate or import a software wallet",
+            title: Localization.welcomeCreateWalletMobileTitle,
+            description: Localization.welcomeCreateWalletMobileDescription,
             action: weakify(self, forFunction: CreateWalletSelectorViewModel.onMobileWalletTap)
         )
     }
