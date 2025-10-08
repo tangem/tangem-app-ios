@@ -64,6 +64,9 @@ struct APINodeInfoResolver {
                 .resolve(providerType: .tangemAlephium, blockchain: blockchain)
         case .blockchair, .blockcypher, .solana:
             return nil
+        case .tatum:
+            return TatumAPIResolver(keysConfig: keysConfig)
+                .resolve(providerType: providerType, blockchain: blockchain)
         }
     }
 }
