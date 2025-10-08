@@ -14,7 +14,7 @@ struct SelectorReceiveRoundGroupButtonView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: .zero) {
-            HStack(spacing: 12) {
+            HStack(spacing: Layout.contentHorizontalSpacing) {
                 Button {
                     copyAction()
                 } label: {
@@ -28,6 +28,13 @@ struct SelectorReceiveRoundGroupButtonView: View {
                 }
             }
         }
+    }
+}
+
+extension SelectorReceiveRoundGroupButtonView {
+    private enum Layout {
+        /// 12
+        static let contentHorizontalSpacing: CGFloat = 12
     }
 }
 

@@ -47,11 +47,7 @@ struct EthereumSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSection
             (id: SelectorReceiveAssetsSection.Key.default, items: defaultAssets),
         ]
         .compactMap { section in
-            section.items.isEmpty ? nil : SelectorReceiveAssetsSection(
-                id: section.id,
-                header: nil,
-                items: section.items
-            )
+            section.items.isEmpty ? nil : SelectorReceiveAssetsSection(id: section.id, items: section.items)
         }
     }
 }

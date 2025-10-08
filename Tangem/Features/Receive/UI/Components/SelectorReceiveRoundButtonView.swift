@@ -25,7 +25,7 @@ struct SelectorReceiveRoundButtonView: View {
                 .renderingMode(.template)
                 .resizable()
                 .frame(size: .init(bothDimensions: Layout.iconSize))
-                .foregroundStyle(Colors.Icon.informative)
+                .foregroundStyle(Colors.Icon.primary1)
 
             Text(actionType.title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
@@ -46,8 +46,8 @@ extension SelectorReceiveRoundButtonView {
 
         var asset: Image {
             switch self {
-            case .copy: return Assets.copyNew.image
-            case .share: return Assets.qrNew.image
+            case .copy: return Assets.Receive.copyNew.image
+            case .share: return Assets.Receive.shareNew.image
             }
         }
 
@@ -67,7 +67,7 @@ private extension SelectorReceiveRoundButtonView {
         static let horizontalSpacing: CGFloat = 6
         static let horizontalPadding: CGFloat = 12
         static let verticalPadding: CGFloat = 8
-        static let cornerRadius: CGFloat = 8
+        static let cornerRadius: CGFloat = 24
         static let iconSize: CGFloat = 20
     }
 }

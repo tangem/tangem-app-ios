@@ -33,11 +33,7 @@ struct CommonSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFa
         }
 
         return [
-            SelectorReceiveAssetsSection(
-                id: .default,
-                header: nil,
-                items: assetItems
-            ),
+            SelectorReceiveAssetsSection(id: .default, items: assetItems),
         ]
     }
 }

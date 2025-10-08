@@ -13,7 +13,7 @@ import TangemLocalization
 
 class SelectorReceiveAssetsAddressPageItemViewModel: Identifiable, ObservableObject {
     var title: String {
-        makeTitleItemStateView()
+        SelectorReceiveAssetsTitleBuilder().build(for: tokenItem, with: addressInfo.type)
     }
 
     var tokenIconInfo: TokenIconInfo {
@@ -47,10 +47,6 @@ class SelectorReceiveAssetsAddressPageItemViewModel: Identifiable, ObservableObj
 
     // MARK: - Actions
 
-    func itemButtonDidTap() {
-        coordinator?.routeOnReceiveQR(with: addressInfo)
-    }
-
     func qrCodeButtonDidTap() {
         coordinator?.routeOnReceiveQR(with: addressInfo)
     }
@@ -60,9 +56,7 @@ class SelectorReceiveAssetsAddressPageItemViewModel: Identifiable, ObservableObj
         coordinator?.copyToClipboard(with: addressInfo.address)
     }
 
-    // MARK: - Private Implementation
-
-    private func makeTitleItemStateView() -> String {
-        Localization.domainReceiveAssetsNetworkNameAddress(tokenItem.name.capitalizingFirstLetter())
+    func shareButtonDidTap() {
+        coordinator?.share(with: addressInfo.address)
     }
 }

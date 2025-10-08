@@ -66,7 +66,7 @@ struct ReceiveDependenciesBuilder {
         case .ethereum:
             return EthereumSelectorReceiveAssetsSectionFactory(input)
         default:
-            return hasLegacyAssets ? AnySelectorReceiveAssetsSectionFactory(input) : CommonSelectorReceiveAssetsSectionFactory(input)
+            return CommonSelectorReceiveAssetsSectionFactory(input)
         }
     }
 }
