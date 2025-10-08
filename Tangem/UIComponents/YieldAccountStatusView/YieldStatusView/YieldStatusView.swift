@@ -47,7 +47,11 @@ struct YieldStatusView: View {
     // MARK: - Sub Views
 
     private var content: some View {
-        HStack {
+        HStack(spacing: .zero) {
+            if case .active = viewModel.state {
+                aaveLogo
+            }
+
             VStack(alignment: .leading, spacing: 6) {
                 title
                 description
@@ -62,9 +66,26 @@ struct YieldStatusView: View {
         .defaultRoundedBackground()
     }
 
+    @ViewBuilder
+    private var aaveLogo: some View {
+        Assets.YieldModule.yieldModuleAaveLogo.image
+            .resizable()
+            .scaledToFit()
+            .frame(size: .init(bothDimensions: 36))
+            .padding(.trailing, 12)
+    }
+
+    @ViewBuilder
     private var title: some View {
-        Text(Localization.yieldModuleTokenDetailsEarnNotificationEarningOnYourBalanceTitle)
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+        switch viewModel.state {
+        case .active:
+            // [REDACTED_TODO_COMMENT]
+            Text("Aave lending is active")
+                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+        default:
+            Text(Localization.yieldModuleTokenDetailsEarnNotificationEarningOnYourBalanceTitle)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+        }
     }
 
     private var description: some View {
@@ -110,15 +131,9 @@ struct YieldStatusView: View {
                 .style(Fonts.Regular.callout, color: Colors.Text.primary1)
 
         case .active:
-            LoadableTextView(
-                state: viewModel.apyLabelState,
-                font: Fonts.Bold.callout,
-                textColor: Colors.Text.tertiary,
-                loaderSize: .init(width: 72, height: 12)
-            )
-            .task {
-                await viewModel.fetchApy()
-            }
+            // [REDACTED_TODO_COMMENT]
+            Text("Interest accrues automatically")
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
         case .closing:
             Text(Localization.yieldModuleStopEarning)
