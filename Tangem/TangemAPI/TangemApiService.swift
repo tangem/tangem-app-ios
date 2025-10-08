@@ -144,11 +144,6 @@ protocol TangemApiService: AnyObject {
     func getArchivedUserAccounts(
         userWalletId: String
     ) async throws -> (revision: String?, archivedAccounts: AccountsDTO.Response.ArchivedAccounts)
-
-    // MARK: - Yield module
-
-    func getYieldMarkets() async throws -> YieldModuleDTO.Response.MarketsInfo
-    func getTokenPositionInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleDTO.Response.PositionInfo
 }
 
 private struct TangemApiServiceKey: InjectionKey {
