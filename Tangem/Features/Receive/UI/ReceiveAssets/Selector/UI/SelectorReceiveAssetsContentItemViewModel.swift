@@ -11,7 +11,10 @@ import SwiftUI
 import TangemAssets
 
 class SelectorReceiveAssetsContentItemViewModel: Identifiable {
+    // MARK: - Properties
+
     let stateView: StateView
+    let pageAssetIndexUpdateNotifier = PassthroughSubject<Int, Never>()
 
     // MARK: - Init
 
@@ -23,6 +26,6 @@ class SelectorReceiveAssetsContentItemViewModel: Identifiable {
 extension SelectorReceiveAssetsContentItemViewModel {
     enum StateView {
         case address([SelectorReceiveAssetsAddressPageItemViewModel])
-        case domain(SelectorReceiveAssetsDomainItemViewModel)
+        case domain([SelectorReceiveAssetsDomainItemViewModel])
     }
 }

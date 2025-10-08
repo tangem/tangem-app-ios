@@ -17,11 +17,30 @@ struct SelectorReceiveAssetsContentItemView: View {
     var body: some View {
         switch viewModel.stateView {
         case .address(let viewModels):
-            ForEach(viewModels, id: \.id) { viewModel in
-                SelectorReceiveAssetsAddressPageItemView(viewModel: viewModel)
-            }
-        case .domain(let viewModel):
+            drawAddressAssets(for: viewModels)
+        case .domain(let viewModels):
+            drawDomainAssets(for: viewModels)
+        }
+    }
+
+    // MARK: - Private Implementation
+
+    private func drawDomainAssets(for viewModels: [SelectorReceiveAssetsDomainItemViewModel]) -> some View {
+        ForEach(viewModels, id: \.id) { viewModel in
             SelectorReceiveAssetsDomainItemView(viewModel: viewModel)
         }
+    }
+
+    private func drawAddressAssets(for viewModels: [SelectorReceiveAssetsAddressPageItemViewModel]) -> some View {
+        GeometryReader { geometry in
+            PagerWithDots(
+                viewModels,
+                indexUpdateNotifier: viewModel.pageAssetIndexUpdateNotifier,
+                pageWidth: geometry.size.width
+            ) {
+                SelectorReceiveAssetsAddressPageItemView(viewModel: $0)
+            }
+        }
+        .frame(minHeight: 400) // Минимальная высота для контента
     }
 }

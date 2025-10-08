@@ -27,13 +27,43 @@ struct CommonSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFa
     // MARK: - Implementation
 
     func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection] {
-        let assetItems: [SelectorReceiveAssetsContentItemViewModel] = assets.compactMap {
-            let stateView = makeStateViewModel(asset: $0, tokenItem: tokenItem, coordinator: coordinator)
-            return SelectorReceiveAssetsContentItemViewModel(stateView: stateView)
-        }
+        let domainItems: [SelectorReceiveAssetsDomainItemViewModel] = assets
+            .filter { $0.key == .domain }
+            .compactMap {
+                let viewModel = SelectorReceiveAssetsDomainItemViewModel(
+                    domainName: $0.domainName ?? "",
+                    addressInfo: $0.info,
+                    analyticsLogger: analyticsLogger,
+                    coordinator: coordinator
+                )
+                return viewModel
+            }
+
+        let addressItems: [SelectorReceiveAssetsAddressPageItemViewModel] = assets
+            .filter { $0.key == .address }
+            .compactMap {
+                let viewModel = SelectorReceiveAssetsAddressPageItemViewModel(
+                    tokenItem: tokenItem,
+                    addressInfo: $0.info,
+                    analyticsLogger: analyticsLogger,
+                    coordinator: coordinator
+                )
+                return viewModel
+            }
 
         return [
-            SelectorReceiveAssetsSection(id: .default, items: assetItems),
+            SelectorReceiveAssetsSection(
+                id: .domain,
+                items: [
+                    SelectorReceiveAssetsContentItemViewModel(stateView: .domain(domainItems)),
+                ]
+            ),
+            SelectorReceiveAssetsSection(
+                id: .default,
+                items: [
+                    SelectorReceiveAssetsContentItemViewModel(stateView: .address(addressItems)),
+                ]
+            ),
         ]
     }
 }

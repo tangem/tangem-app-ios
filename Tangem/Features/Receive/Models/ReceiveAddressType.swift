@@ -29,6 +29,35 @@ enum ReceiveAddressType: Identifiable {
             return info
         }
     }
+
+    var key: Key {
+        switch self {
+        case .address:
+            return .address
+        case .domain:
+            return .address
+        }
+    }
+
+    var domainName: String? {
+        switch self {
+        case .address:
+            return nil
+        case .domain(let name, _):
+            return name
+        }
+    }
+}
+
+extension ReceiveAddressType {
+    enum Key: String, Identifiable, Hashable {
+        var id: String {
+            rawValue
+        }
+
+        case domain
+        case address
+    }
 }
 
 // MARK: - Constants

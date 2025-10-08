@@ -11,7 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemLocalization
 
-class SelectorReceiveAssetsAddressPageItemViewModel: Identifiable, ObservableObject {
+class SelectorReceiveAssetsAddressPageItemViewModel: ObservableObject {
     var title: String {
         SelectorReceiveAssetsTitleBuilder().build(for: tokenItem, with: addressInfo.type)
     }
@@ -58,5 +58,16 @@ class SelectorReceiveAssetsAddressPageItemViewModel: Identifiable, ObservableObj
 
     func shareButtonDidTap() {
         coordinator?.share(with: addressInfo.address)
+    }
+}
+
+extension SelectorReceiveAssetsAddressPageItemViewModel: Identifiable, Hashable, Equatable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(tokenItem)
+        hasher.combine(addressInfo.address)
+    }
+
+    static func == (lhs: SelectorReceiveAssetsAddressPageItemViewModel, rhs: SelectorReceiveAssetsAddressPageItemViewModel) -> Bool {
+        lhs.tokenItem == rhs.tokenItem && lhs.addressInfo.address == rhs.addressInfo.address
     }
 }

@@ -15,29 +15,6 @@ protocol SelectorReceiveAssetsSectionFactory {
     func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection]
 }
 
-extension SelectorReceiveAssetsSectionFactory {
-    func makeStateViewModel(asset: ReceiveAddressType, tokenItem: TokenItem, coordinator: SelectorReceiveAssetItemRoutable?) -> SelectorReceiveAssetsContentItemViewModel.StateView {
-        switch asset {
-        case .address(let addressInfo):
-            let viewModel = SelectorReceiveAssetsAddressPageItemViewModel(
-                tokenItem: tokenItem,
-                addressInfo: addressInfo,
-                analyticsLogger: analyticsLogger,
-                coordinator: coordinator
-            )
-            return .address([viewModel])
-        case .domain(let domainName, let addressInfo):
-            let viewModel = SelectorReceiveAssetsDomainItemViewModel(
-                domainName: domainName,
-                addressInfo: addressInfo,
-                analyticsLogger: analyticsLogger,
-                coordinator: coordinator
-            )
-            return .domain(viewModel)
-        }
-    }
-}
-
 struct SelectorReceiveAssetsSectionFactoryInput {
     let tokenItem: TokenItem
     let analyticsLogger: ReceiveAnalyticsLogger

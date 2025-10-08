@@ -27,27 +27,29 @@ struct EthereumSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSection
     // MARK: - Implementation
 
     func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection] {
-        var domainAssets: [SelectorReceiveAssetsContentItemViewModel] = []
-        var defaultAssets: [SelectorReceiveAssetsContentItemViewModel] = []
+//        var domainAssets: [SelectorReceiveAssetsContentItemViewModel] = []
+//        var defaultAssets: [SelectorReceiveAssetsContentItemViewModel] = []
+//
+//        for asset in assets {
+//            let stateView = makeStateViewModel(asset: asset, tokenItem: tokenItem, coordinator: coordinator)
+//            let viewModel = SelectorReceiveAssetsContentItemViewModel(stateView: stateView)
+//
+//            switch asset {
+//            case .domain:
+//                domainAssets.append(viewModel)
+//            case .address:
+//                defaultAssets.append(viewModel)
+//            }
+//        }
+//
+//        return [
+//            (id: SelectorReceiveAssetsSection.Key.domain, items: domainAssets),
+//            (id: SelectorReceiveAssetsSection.Key.default, items: defaultAssets),
+//        ]
+//        .compactMap { section in
+//            section.items.isEmpty ? nil : SelectorReceiveAssetsSection(id: section.id, items: section.items)
+//        }
 
-        for asset in assets {
-            let stateView = makeStateViewModel(asset: asset, tokenItem: tokenItem, coordinator: coordinator)
-            let viewModel = SelectorReceiveAssetsContentItemViewModel(stateView: stateView)
-
-            switch asset {
-            case .domain:
-                domainAssets.append(viewModel)
-            case .address:
-                defaultAssets.append(viewModel)
-            }
-        }
-
-        return [
-            (id: SelectorReceiveAssetsSection.Key.domain, items: domainAssets),
-            (id: SelectorReceiveAssetsSection.Key.default, items: defaultAssets),
-        ]
-        .compactMap { section in
-            section.items.isEmpty ? nil : SelectorReceiveAssetsSection(id: section.id, items: section.items)
-        }
+        return []
     }
 }
