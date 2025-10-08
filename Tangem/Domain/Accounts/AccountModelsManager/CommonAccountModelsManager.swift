@@ -12,8 +12,6 @@ import TangemFoundation
 
 actor CommonAccountModelsManager {
     private typealias AccountId = CommonCryptoAccountModel.AccountId
-    private typealias AccountMetadata = (derivationIndex: Int, name: String, icon: AccountModel.Icon)
-    private typealias AccountUpdate = (config: CryptoAccountPersistentConfig, tokens: [StoredCryptoAccount.Token])
     private typealias CacheEntry = (model: CommonCryptoAccountModel, didChangeSubscription: AnyCancellable)
     private typealias Cache = [AccountId: CacheEntry]
 
@@ -172,19 +170,20 @@ actor CommonAccountModelsManager {
             }
     }
 
-    /// Pure function that does not access any actor-isolated state, hence `nonisolated`.
+    /// Find all tokens that belong to the newly created account and move such tokens to this account.
+    /// - Note: Pure function that does not access any actor-isolated state, hence `nonisolated`.
     private nonisolated func makeAccountsUpdates(
         newAccountConfig: CryptoAccountPersistentConfig,
         existingAccounts: [StoredCryptoAccount]
-    ) -> [AccountUpdate] {
-        var accountsUpdates: [AccountUpdate] = []
+    ) -> AccountsUpdates {
+        var accountsUpdates: [AccountsUpdates.Update] = []
         var newAccountTokens: [StoredCryptoAccount.Token] = []
 
         for account in existingAccounts {
             var updatedAccountTokens: [StoredCryptoAccount.Token] = []
             for token in account.tokens {
                 guard let blockchainNetwork = token.blockchainNetwork.knownValue else {
-                    // Unsupported network and/or token, skipping
+                    // Unsupported network and/or token, keeping this token in its original account
                     updatedAccountTokens.append(token)
                     continue
                 }
@@ -193,7 +192,7 @@ actor CommonAccountModelsManager {
                 let derivationPath = blockchainNetwork.derivationPath
 
                 guard let accountDerivationNode = helper.extractAccountDerivationNode(from: derivationPath) else {
-                    // No derivation path and/or account derivation node, skipping
+                    // No derivation path and/or account derivation node, keeping this token in its original account
                     updatedAccountTokens.append(token)
                     continue
                 }
@@ -202,21 +201,18 @@ actor CommonAccountModelsManager {
                     // This token belongs to the newly created account, adding it to the list of tokens to be added to the new account
                     newAccountTokens.append(token)
                 } else {
+                    // Keeping this token in its original account
                     updatedAccountTokens.append(token)
                 }
             }
 
-            // Check whether some of the existing accounts have a 'dirty' state (some tokens were moved to the new account)
-            // and therefore must be updated too
-            if updatedAccountTokens.count != account.tokens.count {
-                accountsUpdates.append((account.toPersistentConfig(), updatedAccountTokens))
-            }
+            accountsUpdates.append((account.toPersistentConfig(), updatedAccountTokens))
         }
 
         // Appending the new account update at the end of the list of the accounts to be updated/added
         accountsUpdates.append((newAccountConfig, newAccountTokens))
 
-        return accountsUpdates
+        return AccountsUpdates(hasNewAccount: true, updates: accountsUpdates)
     }
 
     /// - Note: `cryptoAccountsRepository` has internal synchronization mechanism, therefore this is a `nonisolated` method.
@@ -254,30 +250,36 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .addingCryptoAccountsNotSupported
         }
 
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_TODO_COMMENT]
-        let newDerivationIndex = cryptoAccountsRepository.totalCryptoAccountsCount + 1
+        let remoteState: CryptoAccountsRemoteState
+
+        do {
+            remoteState = try await cryptoAccountsRepository.getRemoteState()
+        } catch {
+            AccountsLogger.error("Failed to fetch remote state for user wallet \(userWalletId)", error: error)
+            throw .addingCryptoAccountsFailed
+        }
+
+        let validator = NewCryptoAccountConditionsValidator(newAccountName: name, remoteState: remoteState)
+
+        guard validator.isValid() else {
+            throw .addingCryptoAccountsFailed
+        }
+
         let newAccountConfig = CryptoAccountPersistentConfig(
-            derivationIndex: newDerivationIndex,
+            derivationIndex: remoteState.nextDerivationIndex,
             name: name,
             icon: icon
         )
 
-        // Fire-and-forget task to perform the accounts update asynchronously with latest data from the repository
-        var updateAccountsSubscription: AnyCancellable?
-        updateAccountsSubscription = cryptoAccountsRepository
-            .cryptoAccountsPublisher
-            .withWeakCaptureOf(self)
-            .map { manager, cryptoAccounts in
-                return manager.makeAccountsUpdates(newAccountConfig: newAccountConfig, existingAccounts: cryptoAccounts)
-            }
-            .withWeakCaptureOf(self)
-            .sink { manager, accountsUpdates in
-                for (persistentConfig, tokens) in accountsUpdates {
-                    manager.cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: tokens)
-                }
-                withExtendedLifetime(updateAccountsSubscription) {}
-            }
+        // [REDACTED_TODO_COMMENT]
+        let accountsUpdates = makeAccountsUpdates(newAccountConfig: newAccountConfig, existingAccounts: remoteState.accounts)
+
+        do {
+            try await cryptoAccountsRepository.addNewOrUpdateExistingCryptoAccounts(updates: accountsUpdates)
+        } catch {
+            AccountsLogger.error("Failed to add new crypto account for user wallet \(userWalletId)", error: error)
+            throw .addingCryptoAccountsFailed
+        }
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
