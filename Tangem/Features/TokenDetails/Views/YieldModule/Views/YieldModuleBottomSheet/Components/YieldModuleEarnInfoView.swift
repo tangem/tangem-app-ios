@@ -21,6 +21,7 @@ extension YieldModuleInfoView {
         let tokenSymbol: String
         let transferMode: String
         let availableBalance: String
+        let readMoreUrl: URL
 
         // MARK: - View Body
 
@@ -34,9 +35,10 @@ extension YieldModuleInfoView {
         // MARK: - Sub Views
 
         private var topSection: some View {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: .zero) {
                 Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .padding(.bottom, 4)
 
                 LoadableTextView(
                     state: apyState,
@@ -44,9 +46,10 @@ extension YieldModuleInfoView {
                     textColor: Colors.Text.accent,
                     loaderSize: .init(width: 100, height: 28)
                 )
-                .padding(.bottom, 4)
+                .padding(.bottom, 8)
 
                 Divider().overlay(Colors.Stroke.primary)
+                    .padding(.bottom, 8)
 
                 YieldModuleEarnInfoChartContainer(state: chartState)
             }
@@ -65,16 +68,18 @@ extension YieldModuleInfoView {
         }
 
         private var myFundsDescription: some View {
-            var attr = AttributedString(Localization.yieldModuleEarnSheetProviderDescription(tokenName, tokenSymbol))
+            let fullString = Localization.yieldModuleEarnSheetProviderDescription(tokenName, tokenSymbol)
+                + " "
+                + Localization.commonReadMore
+
+            var attr = AttributedString(fullString)
             attr.font = Fonts.Regular.caption1
             attr.foregroundColor = Colors.Text.tertiary
 
-            var linkPart = AttributedString(Localization.commonReadMore)
-            linkPart.font = Fonts.Regular.caption1
-            linkPart.foregroundColor = Colors.Text.accent
-
-            attr.append(AttributedString(" "))
-            attr.append(linkPart)
+            if let range = attr.range(of: Localization.commonReadMore) {
+                attr[range].foregroundColor = Colors.Text.accent
+                attr[range].link = readMoreUrl
+            }
 
             return Text(attr)
                 .multilineTextAlignment(.leading)
