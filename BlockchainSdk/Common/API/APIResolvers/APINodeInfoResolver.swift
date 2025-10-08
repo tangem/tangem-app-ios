@@ -17,6 +17,9 @@ struct APINodeInfoResolver {
         case .public(let link):
             return PublicAPIResolver(blockchain: blockchain)
                 .resolve(for: link)
+        case .blink:
+            return BlinkAPIResolver(keysConfig: keysConfig)
+                .resolve(for: blockchain)
         case .nowNodes:
             return NowNodesAPIResolver(apiKey: keysConfig.nowNodesApiKey)
                 .resolve(for: blockchain)
