@@ -128,3 +128,19 @@ struct ExitFee: YieldTransactionFee {
         fee.amount
     }
 }
+
+struct ApproveFee: YieldTransactionFee {
+    let fee: Fee
+
+    init(fees: [Fee]) throws {
+        guard fees.count == 1 else {
+            throw YieldModuleError.feeNotFound
+        }
+
+        fee = fees[0]
+    }
+
+    var totalFeeAmount: Amount {
+        fee.amount
+    }
+}
