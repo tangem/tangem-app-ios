@@ -1,5 +1,5 @@
 //
-//  YieldModuleChartContainerView.swift
+//  YieldModuleRateInfoChartContainerView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,15 +11,14 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
-struct YieldModuleChartContainer: View {
-    @StateObject
-    private var viewModel = YieldModuleChartViewModel()
+struct YieldModuleRateInfoChartContainer: View {
+    let state: YieldChartContainerState
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            switch viewModel.state {
+            switch state {
             case .loading:
-                makeTopContent(isLoading: true)
+                makeTopContent(isLoading: true).skeletonable(isShown: true)
                 YieldModuleChart(state: .loading)
 
             case .loaded(let data):
@@ -31,7 +30,6 @@ struct YieldModuleChartContainer: View {
             }
         }
         .defaultRoundedBackground()
-        .task { await viewModel.loadData() }
     }
 
     private func makeTopContent(isLoading: Bool) -> some View {
@@ -57,7 +55,7 @@ struct YieldModuleChartContainer: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 136)
+        .frame(height: 200)
         .defaultRoundedBackground()
     }
 
