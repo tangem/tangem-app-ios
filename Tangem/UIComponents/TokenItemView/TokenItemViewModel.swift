@@ -32,12 +32,11 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     @Published var hasPendingTransactions: Bool = false
     @Published var contextActionSections: [TokenContextActionsSection] = []
     @Published var isStaked: Bool = false
+    @Published var isYieldApproveNeeded = false
+    @Published var yieldAPY: String? = nil
 
     @Published private var missingDerivation: Bool = false
     @Published private var networkUnreachable: Bool = false
-
-    /// YIELD [REDACTED_TODO_COMMENT]
-    @Published private(set) var isYieldAvailable = false
 
     let tokenItem: TokenItem
 
@@ -109,6 +108,14 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
+        infoProvider?.yieldModuleStatePublisher?
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                self?.setupYieldIndicators(marketInfo: state.marketInfo, state: state.state)
+            }
+            .store(in: &bag)
+
         infoProvider?.balancePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -191,6 +198,19 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         case .custom, .failure(.none):
             tokenPrice = .noData
             priceChangeState = .empty
+        }
+    }
+
+    private func setupYieldIndicators(marketInfo: YieldModuleMarketInfo?, state: YieldModuleManagerState) {
+        switch state {
+        case .active(let info):
+            isYieldApproveNeeded = info.allowance.isZero
+        case .notActive:
+            if let apy = marketInfo.apy, marketInfo.isActive == true {
+                yieldAPY = String(format: "%.1f%", apy.doubleValue)
+            }
+        case .disabled, .failedToLoad, .processing, .loading:
+            break
         }
     }
 
