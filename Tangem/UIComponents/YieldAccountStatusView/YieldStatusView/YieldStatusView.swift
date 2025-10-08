@@ -13,14 +13,10 @@ import TangemAssets
 import TangemAccessibilityIdentifiers
 
 struct YieldStatusView: View {
-    @StateObject
-    private var viewModel: YieldStatusViewModel
+    // MARK: - View Model
 
-    // MARK: - Init
-
-    init(viewModel: YieldStatusViewModel) {
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
+    @ObservedObject
+    var viewModel: YieldStatusViewModel
 
     // MARK: - Properties
 
