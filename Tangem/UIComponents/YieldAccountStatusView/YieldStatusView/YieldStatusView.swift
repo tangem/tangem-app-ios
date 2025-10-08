@@ -48,20 +48,16 @@ struct YieldStatusView: View {
 
     private var content: some View {
         HStack(spacing: .zero) {
-            if case .active = viewModel.state {
-                aaveLogo
-            }
+            aaveLogo
 
             VStack(alignment: .leading, spacing: 6) {
                 title
-                description
+                descriptionText
             }
 
             Spacer()
 
-            if case .active(let isApproveNeeded) = viewModel.state {
-                trailingView(isApproveNeeded: isApproveNeeded)
-            }
+            trailingView
         }
         .defaultRoundedBackground()
     }
@@ -83,18 +79,29 @@ struct YieldStatusView: View {
             Text("Aave lending is active")
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
         default:
-            Text(Localization.yieldModuleTokenDetailsEarnNotificationEarningOnYourBalanceTitle)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            // [REDACTED_TODO_COMMENT]
+            Text("Aave lending")
+                .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
         }
     }
 
-    private var description: some View {
-        HStack(spacing: 4) {
-            descriptionText
+    @ViewBuilder
+    private var descriptionText: some View {
+        switch viewModel.state {
+        case .loading:
+            // [REDACTED_TODO_COMMENT]
+            Text("Processing")
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-            if case .loading = viewModel.state {
-                loadingIndicator
-            }
+        case .active:
+            // [REDACTED_TODO_COMMENT]
+            Text("Interest accrues automatically")
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+
+        case .closing:
+            // [REDACTED_TODO_COMMENT]
+            Text("Stop supplying")
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
     }
 
@@ -102,7 +109,7 @@ struct YieldStatusView: View {
         Circle()
             .trim(from: 0.0, to: 0.8)
             .stroke(Colors.Icon.accent, style: StrokeStyle(lineWidth: 2, lineCap: .square))
-            .frame(width: 12, height: 12)
+            .frame(width: 20, height: 20)
             .padding(.horizontal, 2)
             .rotationEffect(.degrees(rotation))
             .onAppear {
@@ -124,30 +131,18 @@ struct YieldStatusView: View {
     }
 
     @ViewBuilder
-    private var descriptionText: some View {
+    private var trailingView: some View {
         switch viewModel.state {
-        case .loading:
-            Text(Localization.yieldModuleTokenDetailsEarnNotificationProcessing)
-                .style(Fonts.Regular.callout, color: Colors.Text.primary1)
+        case .active(let isApproveNeeded):
+            HStack(spacing: 2) {
+                if isApproveNeeded {
+                    warning
+                }
 
-        case .active:
-            // [REDACTED_TODO_COMMENT]
-            Text("Interest accrues automatically")
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-
-        case .closing:
-            Text(Localization.yieldModuleStopEarning)
-                .style(Fonts.Regular.callout, color: Colors.Text.primary1)
-        }
-    }
-
-    private func trailingView(isApproveNeeded: Bool) -> some View {
-        HStack(spacing: 2) {
-            if isApproveNeeded {
-                warning
+                chevron
             }
-
-            chevron
+        case .loading, .closing:
+            loadingIndicator
         }
     }
 }
