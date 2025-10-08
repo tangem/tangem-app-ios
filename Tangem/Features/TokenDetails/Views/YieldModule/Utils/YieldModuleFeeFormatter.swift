@@ -30,8 +30,8 @@ struct YieldModuleFeeFormatter {
 
     // MARK: - Public Implementation
 
-    func formatCryptoBalance(_ balance: Decimal) -> String {
-        balanceFormatter.formatCryptoBalance(balance, currencyCode: token.currencySymbol)
+    func formatCryptoBalance(_ balance: Decimal, prefix: String? = nil) -> String {
+        (prefix ?? "") + balanceFormatter.formatCryptoBalance(balance, currencyCode: token.currencySymbol)
     }
 
     func createFeeString(from networkFee: Decimal) async throws -> String {
