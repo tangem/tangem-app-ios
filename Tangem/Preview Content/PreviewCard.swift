@@ -48,7 +48,8 @@ enum PreviewCard {
                     quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
                     bittensorDwellirKey: "",
                     bittensorOnfinalityKey: "",
-                    tangemAlephiumApiKey: ""
+                    tangemAlephiumApiKey: "",
+                    blinkApiKey: ""
                 ),
                 dependencies: .init(
                     accountCreator: BlockchainAccountCreatorStub(),
