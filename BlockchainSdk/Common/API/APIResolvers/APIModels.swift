@@ -33,6 +33,7 @@ public enum NetworkProviderType {
     case onfinality
     case koinosPro
     case tangemAlephium
+    case tatum
 }
 
 struct NodeInfo: HostProvider {
