@@ -41,7 +41,10 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private(set) var networkFeeState: LoadableTextView.State = .loading
 
     @Published
-    private(set) var apyState: LoadableTextView.State = .loading
+    private(set) var apyState: LoadableTextView.State = .loaded(text: "2.4")
+
+    @Published
+    private(set) var chartState: YieldChartContainerState = .loading
 
     // MARK: - Dependencies
 
@@ -49,6 +52,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
     private let yieldManagerInteractor: YieldManagerInteractor
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
+    private let chartServices = YieldChartService()
 
     // MARK: - Properties
 
@@ -124,6 +128,20 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     // MARK: - Public Implementation
+
+    @MainActor
+    func fetchChartData() async {
+        chartState = .loading
+
+        do {
+            let chartData = try await chartServices.getChartData()
+            chartState = .loaded(chartData)
+        } catch {
+            chartState = .error(action: { [weak self] in
+                await self?.fetchChartData()
+            })
+        }
+    }
 
     func getAvailableBalanceString() -> String {
         feeConverter.formatCryptoBalance(availableBalance)
