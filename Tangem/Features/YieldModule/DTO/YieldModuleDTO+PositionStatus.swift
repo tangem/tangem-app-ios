@@ -14,24 +14,57 @@ extension YieldModuleDTO.Response {
     struct PositionInfo: Decodable, Equatable {
         let tokenAddress: String
         let tokenSymbol: String
+        let tokenName: String
+        let apy: Decimal
+        let totalSupplied: BigUInt
+        let totalBorrowed: BigUInt
+        let liquidityRate: BigUInt
+        let borrowRate: BigUInt
+        let utilizationRate: Decimal
+        let isActive: Bool
+        let ltv: Decimal
+        let liquidationThreshold: Decimal
+        let supplyCap: BigUInt
         let userBalance: BigUInt
         let earnedYield: BigUInt
-        let currentApy: Decimal
         let totalDeposited: BigUInt
         let moduleAddress: String
-        let status: String
-        let lastUpdateAt: Date
+        let decimals: Int
+        let chainId: Int
+        let chain: String
+        let maxFeeNative: Decimal
+        let maxFeeUSD: Decimal
+        let priority: Int
+        let isEnabled: Bool
+        let lastUpdatedAt: Date
 
         enum CodingKeys: String, CodingKey {
             case tokenAddress
             case tokenSymbol
+            case tokenName
+            case apy
+            case totalSupplied
+            case totalBorrowed
+            case liquidityRate
+            case borrowRate
+            case utilizationRate
+            case isActive
+            case ltv
+            case liquidationThreshold
+            case supplyCap
             case userBalance
             case earnedYield
-            case currentApy
             case totalDeposited
             case moduleAddress
-            case status
-            case lastUpdateAt
+
+            case decimals
+            case chainId
+            case chain
+            case maxFeeNative
+            case maxFeeUSD
+            case priority
+            case isEnabled
+            case lastUpdatedAt
         }
 
         init(from decoder: Decoder) throws {
@@ -39,6 +72,96 @@ extension YieldModuleDTO.Response {
 
             tokenAddress = try container.decode(String.self, forKey: .tokenAddress)
             tokenSymbol = try container.decode(String.self, forKey: .tokenSymbol)
+            tokenName = try container.decode(String.self, forKey: .tokenName)
+
+            guard let apy = try container.decode(FlexibleDecimal.self, forKey: .apy).wrappedValue else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .apy,
+                    in: container,
+                    debugDescription: "apy cannot be converted to Decimal"
+                )
+            }
+            self.apy = apy
+
+            guard let totalSupplied = BigUInt(try container.decode(String.self, forKey: .totalSupplied)) else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .totalSupplied,
+                    in: container,
+                    debugDescription: "totalSupplied cannot be converted to Decimal"
+                )
+            }
+            self.totalSupplied = totalSupplied
+
+            guard let totalBorrowed = BigUInt(try container.decode(String.self, forKey: .totalBorrowed)) else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .totalBorrowed,
+                    in: container,
+                    debugDescription: "totalBorrowed cannot be converted to Decimal"
+                )
+            }
+            self.totalBorrowed = totalBorrowed
+
+            guard let liquidityRate = BigUInt(try container.decode(String.self, forKey: .liquidityRate)) else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .liquidityRate,
+                    in: container,
+                    debugDescription: "liquidityRate cannot be converted to BigUInt"
+                )
+            }
+            self.liquidityRate = liquidityRate
+
+            guard let borrowRate = BigUInt(try container.decode(String.self, forKey: .borrowRate)) else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .borrowRate,
+                    in: container,
+                    debugDescription: "borrowRate cannot be converted to BigUInt"
+                )
+            }
+            self.borrowRate = borrowRate
+
+            guard let utilizationRate = try container.decode(
+                FlexibleDecimal.self,
+                forKey: .utilizationRate
+            ).wrappedValue else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .utilizationRate,
+                    in: container,
+                    debugDescription: "utilizationRate cannot be converted to Decimal"
+                )
+            }
+            self.utilizationRate = utilizationRate
+
+            isActive = try container.decode(Bool.self, forKey: .isActive)
+
+            guard let ltv = try container.decode(FlexibleDecimal.self, forKey: .ltv).wrappedValue else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .ltv,
+                    in: container,
+                    debugDescription: "ltv cannot be converted to Decimal"
+                )
+            }
+            self.ltv = ltv
+
+            guard let liquidationThreshold = try container.decode(
+                FlexibleDecimal.self,
+                forKey: .liquidationThreshold
+            ).wrappedValue else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .liquidationThreshold,
+                    in: container,
+                    debugDescription: "liquidationThreshold cannot be converted to Decimal"
+                )
+            }
+            self.liquidationThreshold = liquidationThreshold
+
+            guard let supplyCap = BigUInt(try container.decode(String.self, forKey: .supplyCap)) else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .supplyCap,
+                    in: container,
+                    debugDescription: "supplyCap cannot be converted to BigUInt"
+                )
+            }
+            self.supplyCap = supplyCap
 
             guard let userBalance = BigUInt(try container.decode(String.self, forKey: .userBalance)) else {
                 throw DecodingError.dataCorruptedError(
@@ -67,19 +190,39 @@ extension YieldModuleDTO.Response {
             }
             self.totalDeposited = totalDeposited
 
-            guard let currentApy = try container.decode(FlexibleDecimal.self, forKey: .currentApy).wrappedValue else {
+            moduleAddress = try container.decode(String.self, forKey: .moduleAddress)
+            decimals = try container.decode(Int.self, forKey: .decimals)
+            chainId = try container.decode(Int.self, forKey: .chainId)
+            chain = try container.decode(String.self, forKey: .chain)
+
+            guard let maxFeeNative = try container.decode(
+                FlexibleDecimal.self,
+                forKey: .maxFeeNative
+            ).wrappedValue else {
                 throw DecodingError.dataCorruptedError(
-                    forKey: .currentApy,
+                    forKey: .maxFeeNative,
                     in: container,
-                    debugDescription: "currentApy cannot be converted to Decimal"
+                    debugDescription: "maxFeeNative cannot be converted to Decimal"
                 )
             }
-            self.currentApy = currentApy
+            self.maxFeeNative = maxFeeNative
 
-            moduleAddress = try container.decode(String.self, forKey: .moduleAddress)
-            status = try container.decode(String.self, forKey: .status)
+            guard let maxFeeUSD = try container.decode(
+                FlexibleDecimal.self,
+                forKey: .maxFeeUSD
+            ).wrappedValue else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .maxFeeUSD,
+                    in: container,
+                    debugDescription: "maxFeeUSD cannot be converted to Decimal"
+                )
+            }
+            self.maxFeeUSD = maxFeeUSD
 
-            lastUpdateAt = try container.decode(Date.self, forKey: .lastUpdateAt)
+            priority = try container.decode(Int.self, forKey: .priority)
+
+            isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
+            lastUpdatedAt = try container.decode(Date.self, forKey: .lastUpdatedAt)
         }
     }
 }
