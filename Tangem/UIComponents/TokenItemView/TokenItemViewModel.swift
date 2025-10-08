@@ -206,7 +206,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         case .active(let info):
             isYieldApproveNeeded = info.allowance.isZero
         case .notActive:
-            if let apy = marketInfo.apy, marketInfo.isActive == true {
+            if let apy = marketInfo?.apy, marketInfo?.isActive == true {
                 yieldAPY = String(format: "%.1f%", apy.doubleValue)
             }
         case .disabled, .failedToLoad, .processing, .loading:
