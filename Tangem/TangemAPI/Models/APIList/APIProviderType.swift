@@ -31,6 +31,7 @@ enum APIProvider: String {
     case onfinalityBittensor
     case tangemAlephium
     case koinospro
+    case tatum
 
     var blockchainProvider: NetworkProviderType {
         switch self {
@@ -55,6 +56,7 @@ enum APIProvider: String {
         case .onfinalityBittensor: return .onfinality
         case .tangemAlephium: return .tangemAlephium
         case .koinospro: return .koinosPro
+        case .tatum: return .tatum
         }
     }
 }

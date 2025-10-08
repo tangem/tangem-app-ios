@@ -60,8 +60,13 @@ struct APIKeysInfoProvider {
             )
         case .tangemAlephium:
             return .init(
-                headerName: "x-api-key",
+                headerName: Constants.xApiKeyHeaderName,
                 headerValue: keysConfig.tangemAlephiumApiKey
+            )
+        case .tatum:
+            return .init(
+                headerName: Constants.xApiKeyHeaderName,
+                headerValue: keysConfig.tatumApiKey
             )
         case .public, .blink, .quickNode, .getBlock, .blockchair, .blockcypher, .infura, .adalite, .tangemRosetta, .solana, .kaspa, .dwellir, .none:
             return nil
