@@ -3123,6 +3123,7 @@
 		DCBC94572993FF330050BC35 /* Analytics+ProductType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBC94562993FF330050BC35 /* Analytics+ProductType.swift */; };
 		DCBC945D299404510050BC35 /* CommonAnalyticsSessionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBC945C299404510050BC35 /* CommonAnalyticsSessionContext.swift */; };
 		DCBC945F2994F9BF0050BC35 /* AnalyticsSessionContextScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBC945E2994F9BF0050BC35 /* AnalyticsSessionContextScope.swift */; };
+		DCBD9B762E96AD390058A0F5 /* TatumAPIResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBD9B752E96AD330058A0F5 /* TatumAPIResolver.swift */; };
 		DCBDC9E92CD14082003E76DD /* StoriesDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBDC9E82CD14082003E76DD /* StoriesDelegate.swift */; };
 		DCBDC9EB2CD14465003E76DD /* StoriesDelegateMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBDC9EA2CD14465003E76DD /* StoriesDelegateMock.swift */; };
 		DCBE4CEE2CC8C8E800855904 /* ActionButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBE4CED2CC8C8E800855904 /* ActionButtonsView.swift */; };
@@ -7277,6 +7278,7 @@
 		DCBC94562993FF330050BC35 /* Analytics+ProductType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+ProductType.swift"; sourceTree = "<group>"; };
 		DCBC945C299404510050BC35 /* CommonAnalyticsSessionContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAnalyticsSessionContext.swift; sourceTree = "<group>"; };
 		DCBC945E2994F9BF0050BC35 /* AnalyticsSessionContextScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsSessionContextScope.swift; sourceTree = "<group>"; };
+		DCBD9B752E96AD330058A0F5 /* TatumAPIResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TatumAPIResolver.swift; sourceTree = "<group>"; };
 		DCBDC9E82CD14082003E76DD /* StoriesDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesDelegate.swift; sourceTree = "<group>"; };
 		DCBDC9EA2CD14465003E76DD /* StoriesDelegateMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesDelegateMock.swift; sourceTree = "<group>"; };
 		DCBE4CED2CC8C8E800855904 /* ActionButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsView.swift; sourceTree = "<group>"; };
@@ -14193,6 +14195,7 @@
 		B62D3EE02CBC79D900C2460E /* APIResolvers */ = {
 			isa = PBXGroup;
 			children = (
+				DCBD9B742E96AD2C0058A0F5 /* Tatum */,
 				B62D3ED22CBC79D900C2460E /* GetBlock */,
 				B62D3ED52CBC79D900C2460E /* NowNodes */,
 				B62D3ED72CBC79D900C2460E /* Public */,
@@ -18589,6 +18592,14 @@
 				C2796A0C2E01AB580039CF2B /* WalletConnect+InjectedValues.swift */,
 			);
 			path = Factory;
+			sourceTree = "<group>";
+		};
+		DCBD9B742E96AD2C0058A0F5 /* Tatum */ = {
+			isa = PBXGroup;
+			children = (
+				DCBD9B752E96AD330058A0F5 /* TatumAPIResolver.swift */,
+			);
+			path = Tatum;
 			sourceTree = "<group>";
 		};
 		DCBE4CEC2CC8C8D800855904 /* ActionButtons */ = {
@@ -25459,6 +25470,7 @@
 				EFF3038F2DA6B07600F3DC5E /* BitcoinScript.swift in Sources */,
 				B62D40C12CBC79DA00C2460E /* EVMSmartContractInteractor.swift in Sources */,
 				B62D40502CBC79DA00C2460E /* CardanoTransactionBuilder.swift in Sources */,
+				DCBD9B762E96AD390058A0F5 /* TatumAPIResolver.swift in Sources */,
 				B62D403E2CBC79DA00C2460E /* AdaliteNetworkProvider.swift in Sources */,
 				B62D41222CBC79DA00C2460E /* KoinosExternalLinkProvider.swift in Sources */,
 				B62D425D2CBC79DB00C2460E /* BlockchainSdkDependencies.swift in Sources */,
