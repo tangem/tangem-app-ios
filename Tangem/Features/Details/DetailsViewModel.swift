@@ -227,10 +227,6 @@ extension DetailsViewModel {
                     action: weakify(self, forFunction: DetailsViewModel.openCreateWallet)
                 ),
                 .default(
-                    Text(Localization.homeButtonAddExistingWallet),
-                    action: weakify(self, forFunction: DetailsViewModel.openImportWallet)
-                ),
-                .default(
                     Text(Localization.detailsBuyWallet),
                     action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
                 ),
@@ -243,10 +239,6 @@ extension DetailsViewModel {
 
     func openCreateWallet() {
         coordinator?.openCreateWallet()
-    }
-
-    func openImportWallet() {
-        coordinator?.openImportWallet()
     }
 
     func requestSupport() {

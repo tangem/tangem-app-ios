@@ -167,10 +167,7 @@ private extension CreateWalletSelectorViewModel {
 private extension CreateWalletSelectorViewModel {
     func openCreateMobileWallet() {
         Analytics.log(.buttonMobileWallet)
-
-        let input = MobileOnboardingInput(flow: .walletCreate)
-        let options = OnboardingCoordinator.Options.mobileInput(input)
-        coordinator?.openOnboarding(options: options)
+        coordinator?.openCreateMobileWallet()
     }
 
     func openBuyHardwareWallet() {

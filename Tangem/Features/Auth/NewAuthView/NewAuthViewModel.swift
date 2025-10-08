@@ -285,10 +285,6 @@ private extension NewAuthViewModel {
                     action: weakify(self, forFunction: NewAuthViewModel.openCreateWallet)
                 ),
                 .default(
-                    Text(Localization.homeButtonAddExistingWallet),
-                    action: weakify(self, forFunction: NewAuthViewModel.openImportWallet)
-                ),
-                .default(
                     Text(Localization.detailsBuyWallet),
                     action: weakify(self, forFunction: NewAuthViewModel.openBuyWallet)
                 ),
@@ -302,11 +298,6 @@ private extension NewAuthViewModel {
     func openCreateWallet() {
         Analytics.log(.buttonAddWallet, params: [.action: .create])
         coordinator?.openCreateWallet()
-    }
-
-    func openImportWallet() {
-        Analytics.log(.buttonAddWallet, params: [.action: .import])
-        coordinator?.openImportWallet()
     }
 
     func openBuyWallet() {

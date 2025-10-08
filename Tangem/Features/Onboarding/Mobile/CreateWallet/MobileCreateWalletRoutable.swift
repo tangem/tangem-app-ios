@@ -1,5 +1,5 @@
 //
-//  CreateWalletSelectorRoutable.swift
+//  MobileCreateWalletRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,6 @@
 
 import Foundation
 
-protocol CreateWalletSelectorRoutable: AnyObject {
+protocol MobileCreateWalletRoutable: AnyObject {
     func openOnboarding(options: OnboardingCoordinator.Options)
-    func openMain(userWalletModel: UserWalletModel)
 }
