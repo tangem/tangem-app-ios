@@ -16,6 +16,7 @@ extension YieldModuleInfoView {
         // MARK: - Properties
 
         let apyState: LoadableTextView.State
+        let chartState: YieldChartContainerState
         let tokenName: String
         let tokenSymbol: String
         let transferMode: String
@@ -33,35 +34,21 @@ extension YieldModuleInfoView {
         // MARK: - Sub Views
 
         private var topSection: some View {
-            VStack(alignment: .leading, spacing: .zero) {
-                // Not implemented in the MVP
+            VStack(alignment: .leading, spacing: 8) {
+                Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-//                Text(Localization.yieldModuleEarnSheetTotalEarningsTitle)
-//                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-//                    .padding(.top, 4)
-//                    .padding(.bottom, 10)
-//
-//                Text(params.earningsData.totalEarnings)
-//                    .style(Fonts.Bold.title2, color: Colors.Text.primary1)
-//                    .padding(.bottom, 14)
+                LoadableTextView(
+                    state: apyState,
+                    font: Fonts.Bold.title2,
+                    textColor: Colors.Text.accent,
+                    loaderSize: .init(width: 100, height: 28)
+                )
+                .padding(.bottom, 4)
 
-                HStack {
-                    Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
-                        .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                        .lineLimit(1)
+                Divider().overlay(Colors.Stroke.primary)
 
-                    Spacer()
-
-                    LoadableTextView(
-                        state: apyState,
-                        font: Fonts.Regular.body,
-                        textColor: Colors.Text.tertiary,
-                        loaderSize: .init(width: 44, height: 24)
-                    )
-                }
-                .padding(.bottom, 18)
-
-                // [REDACTED_TODO_COMMENT]
+                YieldModuleEarnInfoChartContainer(state: chartState)
             }
             .defaultRoundedBackground()
         }
