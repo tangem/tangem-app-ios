@@ -170,7 +170,7 @@ private extension PredefinedOnrampParametersBuilder {
 struct MockExpressAnalyticsLogger: ExpressAnalyticsLogger {
     func bestProviderSelected(_ provider: TangemExpress.ExpressAvailableProvider) {}
 
-    func logExpressError(_ error: TangemExpress.ExpressAPIError, provider: TangemExpress.ExpressProvider?) {}
+    func logExpressError(_ error: Error, provider: TangemExpress.ExpressProvider?) {}
 
     func logSwapTransactionAnalyticsEvent(destination: String?) {}
 
