@@ -59,7 +59,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private(set) var activityState: ActivityState
     private let availableBalance: Decimal
 
-    private(set) var readMoreURLString: URL = TangemBlogUrlBuilder().url(post: .fee)
+    private(set) var readMoreURL: URL = TangemBlogUrlBuilder().url(post: .fee)
 
     var isButtonEnabled: Bool {
         switch viewState {
@@ -144,7 +144,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     func getAvailableBalanceString() -> String {
-        feeConverter.formatCryptoBalance(availableBalance)
+        feeConverter.formatCryptoBalance(availableBalance, prefix: "a")
     }
 
     @MainActor
