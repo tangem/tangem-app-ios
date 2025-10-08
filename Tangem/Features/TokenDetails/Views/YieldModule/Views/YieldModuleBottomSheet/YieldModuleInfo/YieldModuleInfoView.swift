@@ -132,7 +132,8 @@ struct YieldModuleInfoView: View {
                 tokenName: viewModel.walletModel.tokenItem.name,
                 tokenSymbol: viewModel.walletModel.tokenItem.currencySymbol,
                 transferMode: viewModel.activityState.transferMode,
-                availableBalance: viewModel.getAvailableBalanceString()
+                availableBalance: viewModel.getAvailableBalanceString(),
+                readMoreUrl: viewModel.readMoreURL
             )
             .task {
                 await viewModel.fetchChartData()
@@ -144,7 +145,7 @@ struct YieldModuleInfoView: View {
                 state: viewModel.networkFeeState,
                 footerText: Localization.yieldModuleApproveSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
-                url: viewModel.readMoreURLString,
+                url: viewModel.readMoreURL,
                 onLinkTapAction: nil
             )
             .task {
@@ -157,7 +158,7 @@ struct YieldModuleInfoView: View {
                 state: viewModel.networkFeeState,
                 footerText: Localization.yieldModuleStopEarningSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
-                url: viewModel.readMoreURLString,
+                url: viewModel.readMoreURL,
                 onLinkTapAction: nil
             )
             .task {
