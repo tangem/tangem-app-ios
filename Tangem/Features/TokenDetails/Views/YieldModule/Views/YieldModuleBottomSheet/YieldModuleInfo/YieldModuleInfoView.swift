@@ -128,11 +128,15 @@ struct YieldModuleInfoView: View {
         case .earnInfo:
             YieldModuleEarnInfoView(
                 apyState: viewModel.apyState,
+                chartState: viewModel.chartState,
                 tokenName: viewModel.walletModel.tokenItem.name,
                 tokenSymbol: viewModel.walletModel.tokenItem.currencySymbol,
                 transferMode: viewModel.activityState.transferMode,
                 availableBalance: viewModel.getAvailableBalanceString()
             )
+            .task {
+                await viewModel.fetchChartData()
+            }
 
         case .approve:
             YieldFeeSection(
