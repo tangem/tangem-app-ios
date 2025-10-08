@@ -23,6 +23,9 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case userWalletBackup
     case userWalletUpgrade
 
+    /// A Boolean value that indicates whether the wallet has hardware-imposed limitations.
+    case isHardwareLimited
+
     case send
     case receive
 
