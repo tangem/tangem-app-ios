@@ -258,37 +258,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
-    func getTotalBalanceNumericValue() -> Double {
+    func getTotalBalanceNumericValue() -> Decimal {
         XCTContext.runActivity(named: "Get total balance numeric value") { _ in
             let balanceText = getTotalBalanceValue()
-
-            if balanceText.contains("–") {
-                return 0.0
-            }
-
-            do {
-                let numberRegex = try NSRegularExpression(pattern: #"(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)"#, options: [])
-                let range = NSRange(location: 0, length: balanceText.utf16.count)
-
-                guard let match = numberRegex.firstMatch(in: balanceText, options: [], range: range),
-                      let numberRange = Range(match.range(at: 1), in: balanceText) else {
-                    return 0.0
-                }
-
-                let numberString = String(balanceText[numberRange])
-                var processedNumber = numberString
-                processedNumber = processedNumber.replacingOccurrences(of: ",", with: "")
-
-                return Double(processedNumber) ?? 0.0
-            } catch {
-                XCTFail("Failed to create regular expression for parsing balance: \(error)")
-                return 0.0
-            }
+            return parseNumericValue(from: balanceText)
         }
     }
 
     @discardableResult
-    func verifyTotalBalanceDecreased(from previousBalance: Double) -> Self {
+    func verifyTotalBalanceDecreased(from previousBalance: Decimal) -> Self {
         XCTContext.runActivity(named: "Verify total balance decreased from \(previousBalance)") { _ in
             let currentBalance = getTotalBalanceNumericValue()
             XCTAssertLessThan(currentBalance, previousBalance, "Current balance (\(currentBalance)) should be less than previous balance (\(previousBalance))")
@@ -296,12 +274,97 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
-    func getTokenBalance(tokenName: String) -> String {
-        XCTContext.runActivity(named: "Get balance for token: \(tokenName)") { _ in
+    func getTokenCount(tokenName: String) -> Int {
+        XCTContext.runActivity(named: "Get count of tokens with name: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
-            let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)]
-            waitAndAssertTrue(balanceElement, "Balance element should exist for token '\(tokenName)'")
+
+            // Get all balance elements with the same accessibility identifier
+            let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
+
+            // Wait for elements to be available
+            let expectation = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "count >= 0"),
+                object: balanceElements
+            )
+            let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
+            XCTAssertEqual(result, .completed, "Should be able to query balance elements for token '\(tokenName)'")
+
+            return balanceElements.count
+        }
+    }
+
+    func getAllTokenBalances(tokenName: String) -> [String] {
+        XCTContext.runActivity(named: "Get all balances for token: \(tokenName)") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+
+            // Get all balance elements with the same accessibility identifier
+            let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
+
+            // Wait for at least one element to exist
+            let expectation = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "count > 0"),
+                object: balanceElements
+            )
+            let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
+            XCTAssertEqual(result, .completed, "Should have balance elements for token '\(tokenName)'")
+
+            let allBalanceElements = balanceElements.allElementsBoundByIndex
+
+            // Validate that we have at least one element
+            XCTAssertGreaterThan(
+                allBalanceElements.count,
+                0,
+                "Token '\(tokenName)' should have at least one balance element"
+            )
+
+            // Return all balance labels
+            return allBalanceElements.map { $0.label }
+        }
+    }
+
+    func getAllTokenBalancesNumeric(tokenName: String) -> [Decimal] {
+        XCTContext.runActivity(named: "Get all balances (numeric) for token: \(tokenName)") { _ in
+            let labels = getAllTokenBalances(tokenName: tokenName)
+            return labels.map { parseNumericValue(from: $0) }
+        }
+    }
+
+    func getTokenBalance(tokenName: String, tokenIndex: Int = 0) -> String {
+        XCTContext.runActivity(named: "Get balance for token: \(tokenName) at index: \(tokenIndex)") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+
+            // Get all balance elements with the same accessibility identifier
+            let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
+
+            // Wait for at least one element to exist
+            let expectation = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "count > 0"),
+                object: balanceElements
+            )
+            let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
+            XCTAssertEqual(result, .completed, "Should have balance elements for token '\(tokenName)'")
+
+            let allBalanceElements = balanceElements.allElementsBoundByIndex
+
+            // Validate that we have enough elements for the requested index
+            XCTAssertGreaterThan(
+                allBalanceElements.count,
+                tokenIndex,
+                "Token '\(tokenName)' should have at least \(tokenIndex + 1) balance elements, but found \(allBalanceElements.count)"
+            )
+
+            // Get the specific element at the requested index
+            let balanceElement = allBalanceElements[tokenIndex]
+            waitAndAssertTrue(balanceElement, "Balance element should exist for token '\(tokenName)' at index \(tokenIndex)")
+
             return balanceElement.label
+        }
+    }
+
+    func getTokenBalanceNumeric(tokenName: String, tokenIndex: Int = 0) -> Decimal {
+        XCTContext.runActivity(named: "Get balance (numeric) for token: \(tokenName) at index: \(tokenIndex)") { _ in
+            let label = getTokenBalance(tokenName: tokenName, tokenIndex: tokenIndex)
+            return parseNumericValue(from: label)
         }
     }
 
@@ -361,6 +424,33 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             }
 
         return !networkHeaders.isEmpty
+    }
+
+    private func parseNumericValue(from balanceText: String) -> Decimal {
+        if balanceText.contains("–") {
+            XCTFail("Balance should have numeric value instead of dash")
+        }
+
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.locale = Locale.current
+
+        // Parsing with original text first
+        if let number = formatter.number(from: balanceText) {
+            return number.decimalValue
+        }
+
+        // If that fails, try removing common currency symbols and parsing again
+        let cleanedText = balanceText
+            .replacingOccurrences(of: "[$₽€£¥]", with: "", options: .regularExpression)
+            .trimmingCharacters(in: .whitespaces)
+
+        if let number = formatter.number(from: cleanedText) {
+            return number.decimalValue
+        }
+
+        XCTFail("Failed to parse balance text '\(balanceText)' as Decimal")
+        return Decimal(0)
     }
 }
 
