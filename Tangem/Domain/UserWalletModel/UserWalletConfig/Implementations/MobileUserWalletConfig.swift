@@ -151,6 +151,8 @@ extension MobileUserWalletConfig: UserWalletConfig {
             return .available
         case .cardSettings:
             return .hidden
+        case .isHardwareLimited:
+            return .hidden
         }
     }
 
