@@ -22,7 +22,7 @@ enum AccountModel {
 // MARK: - Inner types
 
 extension AccountModel {
-    struct Icon: Equatable {
+    struct Icon: Hashable {
         let name: Name
         let color: Color
     }
