@@ -454,6 +454,7 @@
 "express_more_providers_soon" = "Weitere Anbieter folgen in Kürze";
 "express_provider_best_rate" = "Bester Preis";
 "express_provider_fca_warning_list" = "Warnliste der FCA";
+"express_provider_great_rate" = "Great rate";
 "express_provider_in_fca_warning_list" = "Anbieter in FCA-Warnliste";
 "express_provider_max_amount" = "Verfügbar bis zu %@";
 "express_provider_min_amount" = "Erhältlich bei %@";
@@ -1419,6 +1420,7 @@
 "wallet_connect_sending_multiple_tx" = "Transaction in progress";
 "wallet_connect_subtitle" = "Mit dApps verbinden";
 "wallet_connect_title" = "WalletConnect";
+"wallet_create_common_title" = "Create Tangem Wallet";
 "wallet_create_hardware_badge" = "Von %@";
 "wallet_create_hardware_description" = "Kaufe eine Tangem Wallet – physische Karten, die Deine Kryptowährungen sicher offline speichern.";
 "wallet_create_hardware_title" = "Hardware-Wallet";
@@ -1739,6 +1741,7 @@
 "yield_module_supply_apr" = "Effektiver Jahreszins für Versorgung";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Lass Dein Geld arbeiten – verdiene Zinsen auf Dein Guthaben.";
+"yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Interest accrues automatically";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Verdienst auf Dein Guthaben";
 "yield_module_token_details_earn_notification_processing" = "Processing your deposit";
 "yield_module_token_details_earn_notification_title" = "Verdienen %1$@%% pro Jahr";

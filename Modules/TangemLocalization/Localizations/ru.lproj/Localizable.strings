@@ -454,6 +454,7 @@
 "express_more_providers_soon" = "Больше провайдеров на подходе.\nСледите за обновлениями!";
 "express_provider_best_rate" = "Лучший курс";
 "express_provider_fca_warning_list" = "FCA Warning List";
+"express_provider_great_rate" = "Great rate";
 "express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Доступно до %@";
 "express_provider_min_amount" = "Доступно с %@";
@@ -1419,6 +1420,7 @@
 "wallet_connect_sending_multiple_tx" = "Транзакция в обработке";
 "wallet_connect_subtitle" = "Подключение к dApps";
 "wallet_connect_title" = "WalletConnect";
+"wallet_create_common_title" = "Create Tangem Wallet";
 "wallet_create_hardware_badge" = "от %@";
 "wallet_create_hardware_description" = "Купите Tangem Wallet — физическое устройство, которое надёжно хранит ваш приватный ключ офлайн.";
 "wallet_create_hardware_title" = "Аппаратный кошелёк";
@@ -1739,7 +1741,8 @@
 "yield_module_supply_apr" = "Годовая доходность";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Make your money work — earn interest on your balance.";
-"yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Earning on your balance";
+"yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Interest accrues automatically";
+"yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Aave lending is active";
 "yield_module_token_details_earn_notification_processing" = "Processing your deposit";
 "yield_module_token_details_earn_notification_title" = "Earn %1$@%% per year";
 "yield_module_transfer_mode_automatic" = "Automatic";

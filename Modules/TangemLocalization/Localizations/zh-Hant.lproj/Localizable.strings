@@ -454,6 +454,7 @@
 "express_more_providers_soon" = "More providers will be available soon";
 "express_provider_best_rate" = "Best rate";
 "express_provider_fca_warning_list" = "FCA Warning List";
+"express_provider_great_rate" = "Great rate";
 "express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Available up to %@";
 "express_provider_min_amount" = "Available from %@";
@@ -1327,8 +1328,8 @@
 "user_push_notification_agreement_argument_two_title" = "Feature and News Updates";
 "user_push_notification_agreement_argument_two" = "Be the first to know about new promotions";
 "user_push_notification_agreement_header" = "Would you like to use\nPush-notifications?";
-"user_push_notification_banner_subtitle" = "Enable push notifications and we’ll notify you instantly when funds arrive.";
-"user_push_notification_banner_title" = "Don’t Miss a Transaction";
+"user_push_notification_banner_subtitle" = "Enable push notifications to receive alerts when funds arrive in your wallet.";
+"user_push_notification_banner_title" = "Don't Miss a Transaction";
 "user_wallet_list_add_button" = "添加新錢包";
 "user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds";
 "user_wallet_list_delete_prompt" = "您確定要刪除此錢包?";
@@ -1419,6 +1420,7 @@
 "wallet_connect_sending_multiple_tx" = "Transaction in progress";
 "wallet_connect_subtitle" = "連結到Dapps";
 "wallet_connect_title" = "WalletConnect";
+"wallet_create_common_title" = "Create Tangem Wallet";
 "wallet_create_hardware_badge" = "From %@";
 "wallet_create_hardware_description" = "Buy Tangem Wallet—a physical device that securely stores your private key offline.";
 "wallet_create_hardware_title" = "Hardware Wallet";
@@ -1739,7 +1741,8 @@
 "yield_module_supply_apr" = "Supply APR";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Make your money work — earn interest on your balance.";
-"yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Earning on your balance";
+"yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Interest accrues automatically";
+"yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Aave lending is active";
 "yield_module_token_details_earn_notification_processing" = "Processing your deposit";
 "yield_module_token_details_earn_notification_title" = "Earn %1$@%% per year";
 "yield_module_transfer_mode_automatic" = "Automatic";
