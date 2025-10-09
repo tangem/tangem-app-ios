@@ -47,7 +47,7 @@ struct UserSettingsAccountsSectionView: View {
         Button(action: model.onTap) {
             RowWithLeadingAndTrailingIcons(
                 leadingIcon: {
-                    AccountIconView(backgroundColor: model.iconColor, nameMode: model.iconNameMode)
+                    AccountIconView(data: model.accountIconViewData)
                         .setMiddleSizedIconSettings()
                 },
                 content: {
