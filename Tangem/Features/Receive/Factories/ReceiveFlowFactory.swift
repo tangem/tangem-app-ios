@@ -14,6 +14,8 @@ struct ReceiveFlowFactory {
     private let tokenItem: TokenItem
     private let addressTypesProvider: ReceiveAddressTypesProvider
     private let coordinator: ReceiveFlowCoordinator?
+    // [REDACTED_TODO_COMMENT]
+    private let isYieldModuleActive: Bool
 
     // MARK: - Init
 
@@ -21,12 +23,15 @@ struct ReceiveFlowFactory {
         flow: ReceiveFlow,
         tokenItem: TokenItem,
         addressTypesProvider: ReceiveAddressTypesProvider,
-        coordinator: ReceiveFlowCoordinator?
+        coordinator: ReceiveFlowCoordinator?,
+        // [REDACTED_TODO_COMMENT]
+        isYieldModuleActive: Bool = false
     ) {
         self.flow = flow
         self.tokenItem = tokenItem
         self.addressTypesProvider = addressTypesProvider
         self.coordinator = coordinator
+        self.isYieldModuleActive = isYieldModuleActive
     }
 
     // MARK: Implementation
@@ -73,7 +78,9 @@ struct ReceiveFlowFactory {
         ReceiveDependenciesBuilder(
             flow: flow,
             tokenItem: tokenItem,
-            addressTypesProvider: addressTypesProvider
+            addressTypesProvider: addressTypesProvider,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: isYieldModuleActive
         )
     }
 }
