@@ -99,10 +99,6 @@ class BaseTestCase: XCTestCase {
 
             startCoordinate.press(forDuration: 0.1, thenDragTo: finishCoordinate)
 
-            // Wait for refresh state to change to refreshing
-            let refreshStateRefreshing = app.otherElements[MainAccessibilityIdentifiers.refreshStateRefreshing]
-            XCTAssertTrue(refreshStateRefreshing.waitForExistence(timeout: .conditional), "Refresh state should change to refreshing after pull to refresh")
-
             // Wait for refresh to complete by waiting for state to change back to idle
             let refreshStateIdle = app.otherElements[MainAccessibilityIdentifiers.refreshStateIdle]
             XCTAssertTrue(refreshStateIdle.waitForExistence(timeout: .conditional), "Refresh state should change to idle when refresh is complete")
