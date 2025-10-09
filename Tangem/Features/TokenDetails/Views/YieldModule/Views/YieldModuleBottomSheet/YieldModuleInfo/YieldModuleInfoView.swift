@@ -205,7 +205,8 @@ private extension YieldModuleInfoView {
             BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTap() } })
 
             VStack(spacing: 3) {
-                Text(Localization.yieldModuleEarnSheetTitle)
+                // [REDACTED_TODO_COMMENT]
+                Text("Aave Lending")
                     .style(Fonts.Bold.headline, color: Colors.Text.primary1)
 
                 HStack(spacing: 4) {
