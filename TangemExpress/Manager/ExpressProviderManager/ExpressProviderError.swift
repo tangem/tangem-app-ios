@@ -10,4 +10,5 @@ import Foundation
 
 public enum ExpressProviderError: LocalizedError {
     case transactionDataNotFound
+    case transactionSizeNotSupported
 }
