@@ -25,14 +25,9 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
 
     init(
         requestParams: AnyCodable,
-        connectedDApp: WalletConnectConnectedDApp?,
+        connectedDApp: WalletConnectConnectedDApp,
         walletModelProvider: some WalletConnectWalletModelProvider
     ) throws(WalletConnectTransactionRequestProcessingError) {
-        guard let connectedDApp else {
-            assertionFailure("Expected to have non-nil WalletConnectConnectedDApp objet. Developer mistake.")
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload
-        }
-
         self.connectedDApp = connectedDApp
         self.walletModelProvider = walletModelProvider
 
@@ -45,7 +40,7 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
 
     func handle() async throws -> JSONRPC.RPCResult {
         guard let reownBlockchainToAdd = WalletConnectBlockchainMapper.mapFromDomain(blockchainToAdd) else {
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload("Blockchain mapping error. Developer mistake.")
         }
 
         let reownAccountsToAdd = WalletConnectAccountsMapper.map(
@@ -82,7 +77,7 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
             return try encoder.encode(requestParams)
         } catch {
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
         }
     }
 
@@ -94,7 +89,7 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
             requestParamsEntries.count == 1,
             let entry = requestParamsEntries.first
         else {
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
         }
 
         guard
@@ -104,7 +99,7 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
                 reference: String(caipChainReference)
             )
         else {
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
         }
 
         guard let domainBlockchain = WalletConnectBlockchainMapper.mapToDomain(reownBlockchain) else {
