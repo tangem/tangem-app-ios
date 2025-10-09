@@ -40,6 +40,8 @@ extension Error {
             }
 
             return false
+        case let universalError as UniversalErrorWrapper:
+            return universalError.underlyingError is CancellationError
         default:
             return false
         }

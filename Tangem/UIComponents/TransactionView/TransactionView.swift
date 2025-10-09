@@ -22,6 +22,7 @@ struct TransactionView: View {
                 .cornerRadiusContinuous(20)
 
             textContent
+                .lineLimit(1)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 6)
@@ -68,7 +69,6 @@ struct TransactionView: View {
                 amount
                 subtitle
             }
-            .layoutPriority(2)
         }
     }
 
@@ -76,6 +76,8 @@ struct TransactionView: View {
         HStack(spacing: 8) {
             Text(viewModel.name)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .multilineTextAlignment(.leading)
+                .lineLimit(1)
 
             if viewModel.inProgress {
                 ProgressDots(style: .small)
@@ -99,6 +101,7 @@ struct TransactionView: View {
         if let amount = viewModel.formattedAmount {
             SensitiveText(amount)
                 .style(Fonts.Regular.subheadline, color: viewModel.amountColor)
+                .layoutPriority(2)
         }
     }
 
