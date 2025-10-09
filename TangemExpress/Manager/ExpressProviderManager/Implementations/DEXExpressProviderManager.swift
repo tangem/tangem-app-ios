@@ -140,7 +140,7 @@ private extension DEXExpressProviderManager {
             return .restriction(estimateFee, quote: quote)
         }
 
-        if transactionValidator.validateTransactionSize(data: data.txData) {
+        guard transactionValidator.validateTransactionSize(data: data.txData) else {
             throw ExpressProviderError.transactionSizeNotSupported
         }
 
