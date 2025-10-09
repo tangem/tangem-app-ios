@@ -48,6 +48,15 @@ class VisaConfigProvider {
             return config.rsaPublicKey.dev
         }
     }
+
+    func getRainRSAPublicKey(apiType: VisaAPIType) -> String {
+        switch apiType {
+        case .prod:
+            return config.rainRSAPublicKey.prod
+        case .stage, .dev:
+            return config.rainRSAPublicKey.dev
+        }
+    }
 }
 
 private struct VisaConfig: Decodable {
@@ -65,4 +74,5 @@ private struct VisaConfig: Decodable {
     let mainnet: Addresses
     let txHistoryAPIAdditionalHeaders: [String: String]
     let rsaPublicKey: RSAPublicKeys
+    let rainRSAPublicKey: RSAPublicKeys
 }
