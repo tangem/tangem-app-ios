@@ -125,8 +125,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             openFeeCurrency()
         case .swap:
             openExchange()
-        case .openYieldPromo:
-            openYieldModulePromo()
         case .generateAddresses,
              .backupCard,
              .buyCrypto,
@@ -474,28 +472,27 @@ extension TokenDetailsViewModel {
         })
     }
 
-    func createYieldNotificationViewModel(
-        yieldManager: YieldModuleManager
-    ) -> YieldAvailableNotificationViewModel {
-        YieldAvailableNotificationViewModel(
+    func createYieldNotificationViewModel(yieldManager: YieldModuleManager) -> YieldAvailableNotificationViewModel {
+        var state: YieldAvailableNotificationViewModel.State {
+            if let apy = yieldManager.state?.marketInfo?.apy {
+                return .available(apy: apy)
+            }
+
+            return .loading
+        }
+
+        return YieldAvailableNotificationViewModel(
+            state: state,
             yieldModuleManager: yieldManager,
             onButtonTap: { [weak self] apy in
                 guard let self else { return }
                 coordinator?.openYieldModulePromoView(
                     walletModel: walletModel,
-                    apy: apy,
+                    apy: String(format: "%.1f%", apy.doubleValue),
                     signer: userWalletModel.signer
                 )
             }
         )
-    }
-
-    func openYieldModulePromo() {
-        guard walletModel.yieldModuleManager != nil else {
-            return
-        }
-
-        coordinator?.openYieldModulePromoView(walletModel: walletModel, apy: "5.1", signer: userWalletModel.signer)
     }
 
     func openYieldEarnInfo() {
