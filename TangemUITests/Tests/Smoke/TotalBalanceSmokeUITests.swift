@@ -247,14 +247,14 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         )
     }
 
-    func testSearchAndAddXRPToPortfolio() {
+    func testSearchAndAddXRPToPortfolio() throws {
         setAllureId(3997)
 
         let quotesScenario = ScenarioConfig(
             name: "quotes_api",
             initialState: "Ripple"
         )
-        let expectedBalance = 3320.46
+        let expectedBalance = Decimal(3320.46)
 
         launchApp(
             tangemApiType: .mock,
@@ -294,8 +294,103 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         let initialBalance = mainScreen.getTotalBalanceNumericValue()
 
         let tokenScreen = mainScreen.longPressToken("Polygon")
-        let updatedMainScreen = tokenScreen
+        tokenScreen
             .tapHideFromContextMenu()
             .verifyTotalBalanceDecreased(from: initialBalance)
+    }
+
+    func testTotalBalanceZero_AllTokensZeroExceptSuperCustomTokenDash() {
+        setAllureId(164)
+        let customToken = "SuperCustomToken"
+
+        let userTokensScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: "TOTAL_BALANCE_TOKENS_ZERO"
+        )
+
+        let rippleAccountInfoScenario = ScenarioConfig(
+            name: "ripple_account_info",
+            initialState: "Empty"
+        )
+
+        let ethCallScenario = ScenarioConfig(
+            name: "eth_call_api",
+            initialState: "Empty"
+        )
+
+        let ethNetworkBalance = ScenarioConfig(
+            name: "eth_network_balance",
+            initialState: "Empty"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            scenarios: [userTokensScenario, rippleAccountInfoScenario, ethCallScenario, ethNetworkBalance]
+        )
+
+        let mainScreen = StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .waitForTotalBalanceDisplayed()
+
+        let totalBalance = mainScreen.getTotalBalanceNumericValue()
+        XCTAssertEqual(totalBalance, 0, "Total balance should equal 0, but got: \(totalBalance)")
+
+        let tokenNames = mainScreen.getTokensOrder()
+        for tokenName in tokenNames {
+            if tokenName == customToken {
+                let balances = mainScreen.getAllTokenBalances(tokenName: tokenName)
+                for balance in balances {
+                    XCTAssertEqual(balance, "–", "\(customToken) should display dash symbol, but got: \(balance)")
+                }
+            } else {
+                let numericBalances = mainScreen.getAllTokenBalancesNumeric(tokenName: tokenName)
+                for value in numericBalances {
+                    XCTAssertEqual(value, 0, "Token '\(tokenName)' should have 0.00 balance, but got: \(value)")
+                }
+            }
+        }
+    }
+
+    func testTotalBalancePositive_AllTokensPositiveExceptSuperCustomTokenDash() {
+        setAllureId(3966)
+        let customToken = "SuperCustomToken"
+
+        let userTokensScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: "TOTAL_BALANCE_TOKENS_POSITIVE"
+        )
+
+        let quotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: "Ripple"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            scenarios: [userTokensScenario, quotesScenario]
+        )
+
+        let mainScreen = StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .waitForTotalBalanceDisplayed()
+
+        let totalBalance = mainScreen.getTotalBalanceNumericValue()
+        XCTAssertGreaterThan(totalBalance, 0, "Total balance should be positive, but got: \(totalBalance)")
+
+        let tokenNames = mainScreen.getTokensOrder()
+
+        for tokenName in tokenNames {
+            if tokenName == customToken {
+                let balances = mainScreen.getAllTokenBalances(tokenName: tokenName)
+                for balance in balances {
+                    XCTAssertEqual(balance, "–", "\(customToken) should display dash symbol, but got: \(balance)")
+                }
+            } else {
+                let numericBalances = mainScreen.getAllTokenBalancesNumeric(tokenName: tokenName)
+                for value in numericBalances {
+                    XCTAssertGreaterThan(value, 0, "Token '\(tokenName)' should have positive balance, but got: \(value)")
+                }
+            }
+        }
     }
 }
