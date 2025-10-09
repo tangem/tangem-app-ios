@@ -101,6 +101,8 @@ private extension BlockaidChainScanResult.ValidationStatus {
             Analytics.ParameterValue.walletConnectRisky
         case .benign:
             Analytics.ParameterValue.walletConnectVerified
+        case .error:
+            .unknown
         }
     }
 }
