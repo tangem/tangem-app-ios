@@ -30,9 +30,6 @@ struct YieldAvailableNotificationView: View {
             .padding(.horizontal, 14)
             .background(Colors.Background.primary)
             .cornerRadiusContinuous(14)
-            .task {
-                await viewModel.fetchAvailability()
-            }
     }
 
     // MARK: - Sub Views
@@ -67,13 +64,13 @@ struct YieldAvailableNotificationView: View {
             icon
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(getTitle())
+                Text(viewModel.makeTitle())
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.yieldModuleNotificationTitle)
                     .skeletonable(isShown: viewModel.state.isLoading)
 
-                Text(getDescription())
+                Text(viewModel.makeDescription())
                     .multilineTextAlignment(.leading)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .infinityFrame(axis: .horizontal, alignment: .leading)
@@ -87,40 +84,9 @@ struct YieldAvailableNotificationView: View {
     }
 
     private var icon: some View {
-        getIcon()
+        viewModel.makeIcon()
             .resizable()
             .frame(size: .init(bothDimensions: 36))
             .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.yieldModuleNotificationIcon)
-    }
-
-    // MARK: - Private Implementation
-
-    private func getTitle() -> String {
-        switch viewModel.state {
-        case .available(let apy):
-            return Localization.yieldModuleTokenDetailsEarnNotificationTitle(apy)
-        case .loading:
-            return Localization.yieldModuleTokenDetailsEarnNotificationTitle("0.0%")
-        case .unavailable:
-            return "Earnings unavailable"
-        }
-    }
-
-    private func getDescription() -> String {
-        switch viewModel.state {
-        case .available, .loading:
-            return Localization.yieldModuleTokenDetailsEarnNotificationDescription
-        case .unavailable:
-            return "The interest service isn’t available at the moment. Please try again later."
-        }
-    }
-
-    private func getIcon() -> Image {
-        switch viewModel.state {
-        case .unavailable, .loading:
-            return Assets.YieldModule.yieldModuleLogoGray.image
-        case .available:
-            return Assets.YieldModule.yieldModuleLogo.image
-        }
     }
 }

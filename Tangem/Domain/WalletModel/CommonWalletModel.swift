@@ -566,6 +566,11 @@ extension CommonWalletModel: WalletModelHelpers {
             return nil
         }
 
+        let apiService = CommonYieldModuleAPIService(
+            provider: .init(configuration: .ephemeralConfiguration, additionalPlugins: [YieldModuleAuthorizationPlugin()]),
+            yieldModuleAPIType: AppEnvironment.current.isProduction ? .production : .develop
+        )
+
         let nonFilteredPendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never> =
             walletManager
                 .walletPublisher
@@ -581,6 +586,7 @@ extension CommonWalletModel: WalletModelHelpers {
             ethereumNetworkProvider: ethereumNetworkProvider,
             transactionCreator: transactionCreator,
             blockaidApiService: BlockaidFactory().makeBlockaidAPIService(),
+            tokenInfoManager: CommonYieldModuleTokenInfoManager(yieldModuleAPIService: apiService),
             pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher
         )
     }
