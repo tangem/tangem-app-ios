@@ -380,19 +380,24 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func lockInternal() {
-        let processedModels = models.compactMap { model -> UserWalletModel? in
-            if model.isUnprotectedMobileWallet {
-                return model
-            }
+        if AppSettings.shared.saveUserWallets {
+            let processedModels = models.compactMap { model -> UserWalletModel? in
+                if model.isUnprotectedMobileWallet {
+                    return model
+                }
 
-            guard let serialized = model.serializePublic() else {
+                if let serialized = model.serializePublic() {
+                    return LockedUserWalletModel(with: serialized)
+                }
+
                 return nil
             }
 
-            return LockedUserWalletModel(with: serialized)
+            models = processedModels
+        } else {
+            models = []
         }
 
-        models = processedModels
         _locked = true
         sendEvent(.locked)
     }
