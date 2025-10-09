@@ -12,39 +12,17 @@ import TangemAssets
 import TangemLocalization
 
 struct WCCustomAllowanceView: View {
-    @StateObject private var viewModel: WCCustomAllowanceViewModel
-
-    init(input: WCCustomAllowanceInput) {
-        _viewModel = .init(wrappedValue: .init(input: input))
-    }
+    @ObservedObject var viewModel: WCCustomAllowanceViewModel
 
     var body: some View {
         VStack(spacing: 0) {
-            headerView
+            amountSection
+                .padding(.bottom, 14)
 
-            VStack(spacing: 0) {
-                amountSection
-                    .padding(.bottom, 14)
-
-                unlimitedToggleSection
-                    .padding(.bottom, 84)
-
-                doneButton
-                    .padding(.vertical, 16)
-            }
-            .padding(.horizontal, 16)
+            unlimitedToggleSection
+                .padding(.bottom, 84)
         }
-    }
-
-    private var headerView: some View {
-        WalletConnectNavigationBarView(
-            title: Localization.wcCustomAllowanceTitle,
-            backButtonAction: {
-                Task {
-                    await viewModel.handleViewAction(.back)
-                }
-            }
-        )
+        .padding(.horizontal, 16)
     }
 
     private var amountSection: some View {
@@ -107,17 +85,5 @@ struct WCCustomAllowanceView: View {
         .padding(.vertical, 12)
         .background(Colors.Background.action)
         .cornerRadius(14)
-    }
-
-    private var doneButton: some View {
-        MainButton(
-            title: Localization.commonDone,
-            isDisabled: !viewModel.canSubmit,
-            action: {
-                Task {
-                    await viewModel.handleViewAction(.done)
-                }
-            }
-        )
     }
 }
