@@ -87,10 +87,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private var bag = Set<AnyCancellable>()
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    private var tangemPayAccount: TangemPayAccount?
-
     init(
         userWalletModel: UserWalletModel,
         userWalletNotificationManager: NotificationManager,
@@ -123,18 +119,22 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
-        if let tangemPayAccount = TangemPayAccount(userWalletModel: userWalletModel), FeatureProvider.isAvailable(.visa) {
-            tangemPayAccount
-                .tangemPayNotificationManager
-                .notificationPublisher
+        if FeatureProvider.isAvailable(.visa) {
+            let tangemPayAccountPublisher = userWalletModel.walletModelsManager.walletModelsPublisher
+                .compactMap(\.visaWalletModel)
+                .compactMap(TangemPayAccount.init)
+                .merge(with: userWalletModel.updatePublisher.compactMap(\.tangemPayAccount))
+                .share(replay: 1)
+
+            tangemPayAccountPublisher
+                .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
                 .receive(on: DispatchQueue.main)
                 .assign(to: &$tangemPayNotificationInputs)
 
-            tangemPayAccount.tangemPayCardIssuingInProgress
+            tangemPayAccountPublisher
+                .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
                 .receive(on: DispatchQueue.main)
                 .assign(to: &$tangemPayCardIssuingInProgress)
-
-            self.tangemPayAccount = tangemPayAccount
         }
     }
 
