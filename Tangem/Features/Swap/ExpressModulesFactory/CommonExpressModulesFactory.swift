@@ -210,12 +210,18 @@ private extension CommonExpressModulesFactory {
     }
 
     func makeExpressInteractor() -> ExpressInteractor {
+        let transactionValidator = CommonExpressProviderTransactionValidator(
+            tokenItem: initialWalletModel.tokenItem,
+            requiresTransactionSizeValidation: userWalletModel.config.hasFeature(.isHardwareLimited)
+        )
+
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
             supportedProviderTypes: .swap,
-            operationType: .swap
+            operationType: .swap,
+            transactionValidator: transactionValidator
         )
 
         let interactor = ExpressInteractor(
