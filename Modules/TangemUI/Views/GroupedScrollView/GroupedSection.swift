@@ -68,27 +68,27 @@ public struct GroupedSection<Model: Identifiable, Content: View, Footer: View, H
     public var body: some View {
         if models.isNotEmpty || isEmptyContentRequired {
             groupedContent
+
+            footer()
+                .padding(.top, GroupedSectionConstants.footerSpacing)
+                .padding(.horizontal, settings.horizontalPadding)
         }
     }
 
+    @ViewBuilder
     private var groupedContent: some View {
-        VStack(alignment: .leading, spacing: GroupedSectionConstants.footerSpacing) {
-            VStack(alignment: settings.contentAlignment, spacing: settings.interItemSpacing) {
-                header()
-                    .padding(.horizontal, settings.horizontalPadding)
-
-                modelsList
-            }
-            .padding(.vertical, settings.innerContentPadding)
-            .background(
-                settings.backgroundColor
-                    .matchedGeometryEffect(settings.backgroundGeometryEffect)
-            )
-            .cornerRadiusContinuous(GroupedSectionConstants.defaultCornerRadius)
-
-            footer()
+        LazyVStack(alignment: settings.contentAlignment, spacing: settings.interItemSpacing) {
+            header()
                 .padding(.horizontal, settings.horizontalPadding)
+
+            modelsList
         }
+        .padding(.vertical, settings.innerContentPadding)
+        .background(
+            settings.backgroundColor
+                .matchedGeometryEffect(settings.backgroundGeometryEffect)
+        )
+        .cornerRadiusContinuous(GroupedSectionConstants.defaultCornerRadius)
     }
 
     @ViewBuilder
