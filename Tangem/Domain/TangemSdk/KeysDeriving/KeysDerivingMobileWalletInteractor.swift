@@ -24,6 +24,8 @@ class KeysDerivingMobileWalletInteractor {
 // MARK: - KeysDeriving
 
 extension KeysDerivingMobileWalletInteractor: KeysDeriving {
+    var requiresCard: Bool { false }
+
     func deriveKeys(
         derivations: [Data: [DerivationPath]],
         completion: @escaping (Result<DerivationResult, Error>) -> Void
