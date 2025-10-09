@@ -56,7 +56,6 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
                 .truncationMode(.middle)
                 .padding(.horizontal, Layout.TokenContentView.addressHorizontalSpacing)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

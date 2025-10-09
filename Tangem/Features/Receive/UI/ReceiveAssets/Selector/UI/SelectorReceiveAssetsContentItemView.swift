@@ -33,14 +33,28 @@ struct SelectorReceiveAssetsContentItemView: View {
 
     private func drawAddressAssets(for viewModels: [SelectorReceiveAssetsAddressPageItemViewModel]) -> some View {
         GeometryReader { geometry in
-            PagerWithDots(
-                viewModels,
-                indexUpdateNotifier: viewModel.pageAssetIndexUpdateNotifier,
-                pageWidth: geometry.size.width
-            ) {
-                SelectorReceiveAssetsAddressPageItemView(viewModel: $0)
+            VStack(spacing: .zero) {
+                PagerWithDots(
+                    viewModels,
+                    indexUpdateNotifier: viewModel.pageAssetIndexUpdateNotifier,
+                    pageWidth: geometry.size.width
+                ) {
+                    SelectorReceiveAssetsAddressPageItemView(viewModel: $0)
+                }
+                .frame(width: geometry.size.width)
             }
+            .frame(width: geometry.size.width, alignment: .leading)
+            .clipped()
         }
-        .frame(minHeight: 400) // Минимальная высота для контента
+        .frame(minHeight: Layout.GeometryReader.minHeight)
+    }
+}
+
+extension SelectorReceiveAssetsContentItemView {
+    enum Layout {
+        enum GeometryReader {
+            /// 318
+            static let minHeight: CGFloat = 318
+        }
     }
 }
