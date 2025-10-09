@@ -369,18 +369,11 @@ enum WalletConnectModuleFactory {
 
         case .invalidPayload,
              .blockchainToAddDuplicate,
-             .userWalletNotFound,
-             .missingBlockchains,
              .unsupportedMethod,
-             .notEnoughDataInRequest,
-             .dataInWrongFormat,
-             .missingTransaction,
              .walletModelNotFound,
-             .wrongCardSelected,
+             .userWalletNotFound,
              .userWalletRepositoryIsLocked,
-             .missingActiveUserWalletModel,
              .userWalletIsLocked,
-             .unsupportedWCVersion,
              .missingEthTransactionSigner,
              .missingGasLoader:
             // [REDACTED_TODO_COMMENT]

@@ -62,7 +62,6 @@ struct StoriesView: View {
                 progress: viewModel.currentProgress,
                 isScanning: viewModel.isScanning,
                 createWallet: viewModel.onCreateWallet,
-                importWallet: viewModel.onImportWallet,
                 scanCard: viewModel.onScanCard,
                 orderCard: viewModel.onOrderCard
             )
@@ -71,7 +70,6 @@ struct StoriesView: View {
                 progress: viewModel.currentProgress,
                 isScanning: viewModel.isScanning,
                 createWallet: viewModel.onCreateWallet,
-                importWallet: viewModel.onImportWallet,
                 scanCard: viewModel.onScanCard,
                 orderCard: viewModel.onOrderCard
             )
@@ -80,7 +78,6 @@ struct StoriesView: View {
                 progress: viewModel.currentProgress,
                 isScanning: viewModel.isScanning,
                 createWallet: viewModel.onCreateWallet,
-                importWallet: viewModel.onImportWallet,
                 scanCard: viewModel.onScanCard,
                 orderCard: viewModel.onOrderCard
             )
@@ -89,7 +86,6 @@ struct StoriesView: View {
                 progress: viewModel.currentProgress,
                 isScanning: viewModel.isScanning,
                 createWallet: viewModel.onCreateWallet,
-                importWallet: viewModel.onImportWallet,
                 scanCard: viewModel.onScanCard,
                 orderCard: viewModel.onOrderCard,
                 searchTokens: viewModel.onSearchTokens
@@ -99,7 +95,6 @@ struct StoriesView: View {
 //                progress: viewModel.currentProgress,
 //                isScanning: viewModel.isScanning,
 //                createWallet: viewModel.onCreateWallet,
-//                importWallet: viewModel.onImportWallet,
 //                scanCard: viewModel.onScanCard,
 //                orderCard: viewModel.onOrderCard
 //            )
@@ -108,7 +103,6 @@ struct StoriesView: View {
                 progress: viewModel.currentProgress,
                 isScanning: viewModel.isScanning,
                 createWallet: viewModel.onCreateWallet,
-                importWallet: viewModel.onImportWallet,
                 scanCard: viewModel.onScanCard,
                 orderCard: viewModel.onOrderCard
             )

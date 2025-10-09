@@ -17,6 +17,10 @@ protocol OnrampPendingTransactionRepository: AnyObject {
     func hideSwapTransaction(with id: String)
 }
 
+extension OnrampPendingTransactionRepository {
+    var recentTransaction: OnrampPendingTransactionRecord? { transactions.last }
+}
+
 private struct OnrampPendingTransactionRepositoryKey: InjectionKey {
     static var currentValue: OnrampPendingTransactionRepository = CommonOnrampPendingTransactionRepository()
 }
