@@ -304,7 +304,7 @@ struct StakeKitMapper {
         }
 
         let item = try mapToStakingTokenItem(from: response.token)
-        let rewardType = mapToRewardType(item: item)
+        let rewardType = try mapToRewardType(rewardType: response.rewardType)
         let validators = response.validators.map { mapToValidatorInfo(from: $0, rewardType: rewardType) }
         let preferredValidators = validators.filter { $0.preferred }.sorted { lhs, rhs in
             if lhs.partner {
@@ -350,24 +350,19 @@ struct StakeKitMapper {
             partner: validator.name?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == StakingConstants.partnerName,
             iconURL: validator.image.flatMap { URL(string: $0) },
             rewardType: rewardType,
-            rewardRate: mapToRewardRate(validator: validator, rewardType: rewardType),
+            rewardRate: mapToRewardRate(validator: validator),
             status: mapToValidatorStatus(validator.status)
         )
     }
 
-    private func mapToRewardRate(validator: StakeKitDTO.Validator, rewardType: RewardType) -> Decimal {
+    private func mapToRewardRate(validator: StakeKitDTO.Validator) -> Decimal {
         guard let apr = validator.apr else {
             return 0
         }
 
-        switch rewardType {
-        case .apy:
-            let commission = validator.commission ?? 0
-            let apy = apr / (1 - commission)
-            return apy
-        case .apr:
-            return apr
-        }
+        let commission = validator.commission ?? 0
+        let rewardRate = apr / (1 - commission)
+        return rewardRate
     }
 
     private func mapToValidatorStatus(_ status: StakeKitDTO.Validator.Status) -> ValidatorInfoStatus {
@@ -425,12 +420,12 @@ struct StakeKitMapper {
         )
     }
 
-    private func mapToRewardType(item: StakingTokenItem) -> RewardType {
-        switch item.network {
-        case .solana, .cardano:
-            return .apy
-        default:
-            return .apr
+    private func mapToRewardType(rewardType: StakeKitDTO.Yield.Info.Response.RewardType) throws -> RewardType {
+        switch rewardType {
+        case .apr: .apr
+        case .apy: .apy
+        case .variable:
+            throw StakeKitMapperError.notImplement
         }
     }
 
