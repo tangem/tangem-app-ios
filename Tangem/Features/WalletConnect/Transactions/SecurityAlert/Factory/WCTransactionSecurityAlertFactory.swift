@@ -16,10 +16,10 @@ enum WCTransactionSecurityAlertFactory {
         let state: WCTransactionSecurityAlertState
 
         switch input.validationStatus {
-        case .malicious, .warning:
+        case .malicious, .warning, .error:
             state = .init(
-                title: Localization.securityAlertTitle,
-                subtitle: input.validationDescription ?? "",
+                title: input.validationStatus.securityAlertTitle,
+                subtitle: input.validationDescription,
                 icon: .init(
                     asset: Assets.Glyphs.knightShield,
                     color: input.validationStatus == .malicious ? Colors.Icon.warning : Colors.Icon.attention
@@ -32,5 +32,15 @@ enum WCTransactionSecurityAlertFactory {
         }
 
         return state
+    }
+}
+
+private extension BlockaidChainScanResult.ValidationStatus {
+    var securityAlertTitle: String {
+        switch self {
+        case .benign: ""
+        case .error: Localization.wcUnknownTxNotificationTitle
+        case .malicious, .warning: Localization.securityAlertTitle
+        }
     }
 }

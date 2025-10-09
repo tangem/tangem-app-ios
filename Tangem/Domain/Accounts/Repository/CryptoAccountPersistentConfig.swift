@@ -11,7 +11,8 @@ import Foundation
 /// An intermediate DTO for the repository.
 struct CryptoAccountPersistentConfig {
     let derivationIndex: Int
-    let name: String
+    /// Nil, if the account uses a localized name.
+    let name: String?
     let iconName: String
     let iconColor: String
 }

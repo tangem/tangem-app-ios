@@ -61,7 +61,6 @@ class StellarNetworkProvider: HostProvider {
                     throw BlockchainSdkError.failedToParseNetworkResponse()
                 }
 
-                let sequence = accountResponse.sequenceNumber
                 let assetBalances = try accountResponse.balances
                     .filter { $0.assetType != AssetTypeAsString.NATIVE }
                     .map { assetBalance -> StellarAssetResponse in
@@ -81,10 +80,16 @@ class StellarNetworkProvider: HostProvider {
                     baseReserve: baseReserve,
                     assetBalances: assetBalances,
                     balance: balance,
-                    sequence: sequence
                 )
             }
             .mapError { [weak self] in self?.mapError($0, isAsset: isAsset) ?? BlockchainSdkError.empty }
+            .eraseToAnyPublisher()
+    }
+
+    func getSequenceNumber(with accountId: String) -> AnyPublisher<Int64, Error> {
+        stellarSdk.accounts
+            .getAccountDetails(accountId: accountId)
+            .map(\.sequenceNumber)
             .eraseToAnyPublisher()
     }
 
@@ -167,7 +172,6 @@ struct StellarResponse {
     let baseReserve: Decimal
     let assetBalances: [StellarAssetResponse]
     let balance: Decimal
-    let sequence: Int64
 }
 
 struct StellarAssetResponse: Hashable {

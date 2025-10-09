@@ -13,6 +13,9 @@ public enum CommonUIAccessibilityIdentifiers {
     public static let grabber = "commonUIGrabber"
     public static let closeButton = "commonUICloseButton"
 
+    /// Entity summary view components
+    public static let entityProviderName = "commonUIEntityProviderName"
+
     // Notification view components
     public static let notificationTitle = "commonUINotificationTitle"
     public static let notificationMessage = "commonUINotificationMessage"
