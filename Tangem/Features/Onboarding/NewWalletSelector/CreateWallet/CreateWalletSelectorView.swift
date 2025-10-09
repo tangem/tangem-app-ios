@@ -35,10 +35,10 @@ struct CreateWalletSelectorView: View {
 private extension CreateWalletSelectorView {
     var content: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 0) {
+            VStack(spacing: 12) {
                 info.padding(.horizontal, 20)
-                tangemIcon.padding(.top, 12)
-                actions.padding(.top, 12)
+                tangemIcon
+                actions
             }
         }
         .introspectResponderChain(
