@@ -62,7 +62,9 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        SupportedBlockchains(version: .v2).blockchains()
+        SupportedBlockchains(version: .v2)
+            .blockchains()
+            .filter(supportedBlockchainFilter(for:))
     }
 
     var defaultBlockchains: [StorageEntry] {
@@ -326,6 +328,8 @@ extension Wallet2Config: UserWalletConfig {
         // Hyper Blue summer collection
         case "AF990026", "AF990027", "AF990028":
             return cardsCount == 2 ? Assets.Cards.hyperBlueDouble : Assets.Cards.hyperBlueTriple
+        case "AF990053", "AF990054", "AF990055":
+            return cardsCount == 2 ? Assets.Cards.winterSakuraDouble : Assets.Cards.winterSakuraTriple
         // Tangem Wallet 2.0
         default:
             var isUserWalletWithRing = false
@@ -441,6 +445,8 @@ extension Wallet2Config: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
+        case .isHardwareLimited:
+            return .available
         }
     }
 
@@ -466,6 +472,16 @@ extension Wallet2Config: UserWalletConfig {
 extension Wallet2Config: WalletOnboardingStepsBuilderFactory {}
 
 // MARK: - Private extensions
+
+private extension Wallet2Config {
+    func supportedBlockchainFilter(for blockchain: Blockchain) -> Bool {
+        if case .quai = blockchain {
+            return hasFeature(.hdWallets)
+        }
+
+        return true
+    }
+}
 
 private extension Card.BackupStatus {
     var backupCardsCount: Int? {

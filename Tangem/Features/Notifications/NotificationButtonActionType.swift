@@ -60,6 +60,9 @@ enum NotificationButtonActionType: Identifiable {
     case openBuyCrypto(walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
     case tangemPayCreateAccountAndIssueCard
     case tangemPayViewKYCStatus
+    case allowPushPermissionRequest
+    case postponePushPermissionRequest
+    case activate
 
     var id: Int {
         switch self {
@@ -96,6 +99,9 @@ enum NotificationButtonActionType: Identifiable {
         case .openBuyCrypto(let walletModel, let parameters): "openBuyCrypto\(walletModel.id)\(parameters.hashValue)".hashValue
         case .tangemPayCreateAccountAndIssueCard: "tangemPayCreateAccountAndIssueCard".hashValue
         case .tangemPayViewKYCStatus: "tangemPayViewKYCStatus".hashValue
+        case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
+        case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
+        case .activate: "activate".hashValue
         }
     }
 
@@ -168,6 +174,12 @@ enum NotificationButtonActionType: Identifiable {
         case .tangemPayViewKYCStatus:
             // [REDACTED_TODO_COMMENT]
             return "View Status"
+        case .allowPushPermissionRequest:
+            return Localization.commonEnable
+        case .postponePushPermissionRequest:
+            return Localization.commonLater
+        case .activate:
+            return Localization.commonActivate
         }
     }
 
@@ -207,7 +219,10 @@ enum NotificationButtonActionType: Identifiable {
              .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus:
+             .tangemPayViewKYCStatus,
+             .allowPushPermissionRequest,
+             .postponePushPermissionRequest,
+             .activate:
             return nil
         }
     }
@@ -219,7 +234,9 @@ enum NotificationButtonActionType: Identifiable {
              .openAppStoreReview,
              .empty,
              .unlock,
-             .openMobileUpgrade:
+             .openMobileUpgrade,
+             .allowPushPermissionRequest,
+             .activate:
             return .primary
         case .backupCard,
              .buyCrypto,
@@ -246,7 +263,8 @@ enum NotificationButtonActionType: Identifiable {
              .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus:
+             .tangemPayViewKYCStatus,
+             .postponePushPermissionRequest:
             return .secondary
         case .openMobileFinishActivation(let needsAttention):
             return needsAttention ? .primary : .secondary
