@@ -41,7 +41,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private(set) var networkFeeState: LoadableTextView.State = .loading
 
     @Published
-    private(set) var apyState: LoadableTextView.State = .loaded(text: "2.4")
+    private(set) var apyState: LoadableTextView.State = .loading
 
     @Published
     private(set) var chartState: YieldChartContainerState = .loading
@@ -96,6 +96,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         self.availableBalance = availableBalance
 
         viewState = .earnInfo
+        prepareApy()
     }
 
     // MARK: - Navigation
@@ -169,7 +170,17 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     // MARK: - Private Implementation
-
+    
+    private func prepareApy() {
+        Task { @MainActor [weak self] in
+            if let apy = try? await self?.yieldManagerInteractor.getApy() {
+                self?.apyState = .loaded(text: String(format: "%.1f%", apy.doubleValue))
+            } else {
+                self?.apyState = .noData
+            }
+        }
+    }
+    
     private func showApproveSheet() {
         viewState = .approve
     }
