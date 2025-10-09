@@ -12,6 +12,11 @@ import Moya
 public protocol CustomerInfoManagementService {
     func loadCustomerInfo() async throws -> VisaCustomerInfoResponse
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse
+
+    func placeOrder(walletAddress: String) async throws -> TangemPayOrderResponse
+    func getOrder(orderId: String) async throws -> TangemPayOrderResponse
+
+    func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse
 }
 
 /// For backwards compatibility.
@@ -60,6 +65,24 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
         try await apiService.request(
             makeRequest(for: .getKYCAccessToken)
+        )
+    }
+
+    func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse {
+        try await apiService.request(
+            makeRequest(for: .getCardDetails(sessionId: sessionId))
+        )
+    }
+
+    func placeOrder(walletAddress: String) async throws -> TangemPayOrderResponse {
+        try await apiService.request(
+            makeRequest(for: .placeOrder(walletAddress: walletAddress))
+        )
+    }
+
+    func getOrder(orderId: String) async throws -> TangemPayOrderResponse {
+        try await apiService.request(
+            makeRequest(for: .getOrder(orderId: orderId))
         )
     }
 }

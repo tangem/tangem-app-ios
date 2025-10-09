@@ -14,7 +14,6 @@ import TangemFoundation
 final class CommonNFTAvailabilityProvider {
     private let appSettings: AppSettings
     private let userWalletIdsWithNFTEnabled: CurrentValueSubject<Set<String>, Never>
-    private var isFeatureToggleEnabled: Bool { FeatureProvider.isAvailable(.nft) }
 
     init(appSettings: AppSettings) {
         self.appSettings = appSettings
@@ -35,20 +34,11 @@ extension CommonNFTAvailabilityProvider: NFTAvailabilityProvider {
 
     func isNFTAvailable(for userWalletConfig: UserWalletConfig) -> Bool {
         ensureOnMainQueue()
-
-        guard isFeatureToggleEnabled else {
-            return false
-        }
-
         return userWalletConfig.hasFeature(.nft)
     }
 
     func isNFTEnabled(forUserWalletWithId userWalletId: UserWalletId) -> Bool {
         ensureOnMainQueue()
-
-        guard isFeatureToggleEnabled else {
-            return false
-        }
 
         let userWalletIdString = userWalletId.stringValue
 
@@ -58,10 +48,6 @@ extension CommonNFTAvailabilityProvider: NFTAvailabilityProvider {
 
     func setNFTEnabled(_ enabled: Bool, forUserWalletWithId userWalletId: UserWalletId) {
         ensureOnMainQueue()
-
-        guard isFeatureToggleEnabled else {
-            return
-        }
 
         let userWalletIdString = userWalletId.stringValue
 

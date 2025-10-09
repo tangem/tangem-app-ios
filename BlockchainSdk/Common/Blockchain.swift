@@ -105,6 +105,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case zkLinkNova(testnet: Bool)
     case pepecoin(testnet: Bool)
     case hyperliquidEVM(testnet: Bool)
+    case quai(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -158,7 +159,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .vanar(let testnet),
              .zkLinkNova(let testnet),
              .pepecoin(let testnet),
-             .hyperliquidEVM(let testnet):
+             .hyperliquidEVM(let testnet),
+             .quai(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -336,7 +338,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .alephium,
              .vanar,
              .zkLinkNova,
-             .hyperliquidEVM:
+             .hyperliquidEVM,
+             .quai:
             return 18
         case .cardano,
              .xrp,
@@ -534,6 +537,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "PEP"
         case .hyperliquidEVM:
             return "HYPE"
+        case .quai:
+            return "QUAI"
         }
     }
 
@@ -630,6 +635,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return isTestnet ? "zkLink Nova Sepolia Testnet" : "zkLink Nova"
         case .hyperliquidEVM:
             return isTestnet ? "Hyperliquid EVM Testnet" : "Hyperliquid EVM"
+        case .quai:
+            return isTestnet ? "Quai Orchard Testnet" : "Quai Network"
         default:
             var name = "\(self)".capitalizingFirstLetter()
             if let index = name.firstIndex(of: "(") {
@@ -908,6 +915,7 @@ public extension Blockchain {
         case .vanar: return isTestnet ? 78600 : 2040
         case .zkLinkNova: return isTestnet ? 810181 : 810180
         case .hyperliquidEVM: return isTestnet ? 998 : 999
+        case .quai: return isTestnet ? 15000 : 9
         default:
             return nil
         }
@@ -988,6 +996,7 @@ public extension Blockchain {
         case .sonic: return true
         case .zkLinkNova: return false // eth_feeHistory method returns error
         case .hyperliquidEVM: return true
+        case .quai: return false // eth_feeHistory method returns error
         default:
             assertionFailure("Don't forget about evm here")
             return false
@@ -1140,6 +1149,7 @@ extension Blockchain: Codable {
         case .zkLinkNova: return "zklink"
         case .pepecoin: return "pepecoin"
         case .hyperliquidEVM: return "hyperliquid"
+        case .quai: return "quai-network"
         }
     }
 
@@ -1251,6 +1261,7 @@ extension Blockchain: Codable {
         case "zklink": self = .zkLinkNova(testnet: isTestnet)
         case "pepecoin": self = .pepecoin(testnet: isTestnet)
         case "hyperliquid": self = .hyperliquidEVM(testnet: isTestnet)
+        case "quai-network": self = .quai(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1534,6 +1545,8 @@ private extension Blockchain {
             case .network: return "hyperevm"
             case .coin: return "hyperliquid"
             }
+        case .quai:
+            return "quai-network"
         }
     }
 
@@ -1668,6 +1681,8 @@ extension Blockchain {
             return AlephiumWalletAssembly()
         case .pepecoin:
             return PepecoinWalletAssembly()
+        case .quai:
+            return QuaiWalletAssembly()
         }
     }
 }
