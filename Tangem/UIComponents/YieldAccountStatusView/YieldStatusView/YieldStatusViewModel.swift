@@ -30,14 +30,7 @@ final class YieldStatusViewModel: ObservableObject {
     }
 
     @MainActor
-    func fetchApy() async {
-        do {
-            let tokenInfo = try await manager.getYieldTokenInfo()
-            apyLabelState = .loaded(text: String(format: "%.2f%%", NSDecimalNumber(decimal: tokenInfo.apy).doubleValue))
-        } catch {
-            apyLabelState = .noData
-        }
-    }
+    func fetchApy() async {}
 
     func onTapAction() {
         navigationAction()
