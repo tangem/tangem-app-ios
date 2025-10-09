@@ -22,6 +22,7 @@ final class MainViewModel: ObservableObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.wcService) private var wcService: WCService
+    @Injected(\.yieldModuleMarketsManager) private var yieldModuleMarketsManager: YieldModuleMarketsManager
 
     // MARK: - ViewState
 
@@ -104,8 +105,7 @@ final class MainViewModel: ObservableObject {
     // MARK: - Internal functions
 
     func openDetails() {
-        let userWalletModel = userWalletRepository.models[selectedCardIndex]
-        coordinator?.openDetails(for: userWalletModel)
+        coordinator?.openDetails()
     }
 
     /// Handles `SwiftUI.View.onAppear(perform:)`.
@@ -120,6 +120,8 @@ final class MainViewModel: ObservableObject {
 
             Analytics.log(.mainScreenOpened, params: analyticsParameters)
         }
+
+        yieldModuleMarketsManager.updateMarkets()
 
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
@@ -250,7 +252,10 @@ final class MainViewModel: ObservableObject {
                 guard let userWalletId = viewModel.pages[safe: newIndex]?.id else {
                     return
                 }
-                viewModel.userWalletRepository.select(userWalletId: userWalletId)
+
+                if viewModel.userWalletRepository.selectedModel?.userWalletId != userWalletId {
+                    viewModel.userWalletRepository.select(userWalletId: userWalletId)
+                }
             }
             .store(in: &bag)
 
@@ -377,18 +382,31 @@ final class MainViewModel: ObservableObject {
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
-        if pushNotificationsAvailabilityProvider.isAvailable {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pushNotificationAuthorizationRequestDelay) { [weak self] in
-                self?.coordinator?.openPushNotificationsAuthorization()
-            }
+        guard pushNotificationsAvailabilityProvider.isAvailable else {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pushNotificationAuthorizationRequestDelay) { [weak self] in
+            self?.coordinator?.openPushNotificationsAuthorization()
         }
     }
 
     @MainActor
     private func onPullToRefresh() async {
+        defer {
+            isHorizontalScrollDisabled = false
+        }
+
         isHorizontalScrollDisabled = true
 
-        let page = pages[selectedCardIndex]
+        guard
+            let selectedUserWalletID = userWalletRepository.selectedModel?.userWalletId,
+            let index = pages.firstIndex(where: { $0.id == selectedUserWalletID })
+        else {
+            return
+        }
+
+        let page = pages[index]
 
         switch page {
         case .singleWallet(_, _, let viewModel):
@@ -401,7 +419,7 @@ final class MainViewModel: ObservableObject {
             await viewModel.onPullToRefresh()
         }
 
-        isHorizontalScrollDisabled = false
+        yieldModuleMarketsManager.updateMarkets()
     }
 }
 
