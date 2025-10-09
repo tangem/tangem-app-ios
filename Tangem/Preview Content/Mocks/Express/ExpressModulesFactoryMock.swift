@@ -172,13 +172,15 @@ private extension ExpressModulesFactoryMock {
 
     func makeExpressInteractor() -> ExpressInteractor {
         let analyticsLogger = ExpressAnalyticsLoggerMock()
+        let transactionValidator = ExpressProviderTransactionValidatorMock()
 
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
             supportedProviderTypes: .swap,
-            operationType: .swap
+            operationType: .swap,
+            transactionValidator: transactionValidator
         )
 
         let interactor = ExpressInteractor(
