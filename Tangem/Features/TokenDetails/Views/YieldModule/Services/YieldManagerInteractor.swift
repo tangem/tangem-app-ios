@@ -35,7 +35,7 @@ actor YieldManagerInteractor {
     }
 
     // MARK: - Public Implementation
-    
+
     func getApy() async throws -> Decimal {
         if let apy = manager.state?.marketInfo?.apy {
             return apy
