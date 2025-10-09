@@ -232,9 +232,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li provider</string>
+        <string>Anbieter</string>
         <key>other</key>
-        <string>%li providers</string>
+        <string>Anbieter</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
