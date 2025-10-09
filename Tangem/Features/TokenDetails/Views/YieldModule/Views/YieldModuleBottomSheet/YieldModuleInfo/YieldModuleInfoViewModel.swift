@@ -170,17 +170,17 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     // MARK: - Private Implementation
-    
+
     private func prepareApy() {
         Task { @MainActor [weak self] in
             if let apy = try? await self?.yieldManagerInteractor.getApy() {
-                self?.apyState = .loaded(text: String(format: "%.1f%", apy.doubleValue))
+                self?.apyState = .loaded(text: String(format: "%.1f%%", apy.doubleValue))
             } else {
                 self?.apyState = .noData
             }
         }
     }
-    
+
     private func showApproveSheet() {
         viewState = .approve
     }
