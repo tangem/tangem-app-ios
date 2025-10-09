@@ -41,7 +41,7 @@ class PolkadotTransactionBuilder {
         case .polkadot, .azero, .joystream, .bittensor:
             return Data(hexString: "0x0500")
         case .kusama:
-            return Data(hexString: "0x0400")
+            return Data(hexString: "0x0A00")
         case .westend:
             return Data(hexString: "0x0400")
         case .energyWebX:
