@@ -11,6 +11,10 @@ import TangemLocalization
 import SwiftUI
 import TangemAssets
 
+protocol AssociationInsensitiveComparable {
+    func associationInsensitiveComparable(to other: Self) -> Bool
+}
+
 enum SendNotificationEvent {
     // The send flow specific notifications
     case networkFeeUnreachable
@@ -30,6 +34,26 @@ enum SendNotificationEvent {
     /// Blockchain specific
     case oneSuiCoinIsRequiredForTokenTransaction(currencySymbol: String)
 }
+
+// MARK: - AssociationInsensitiveComparable
+
+extension SendNotificationEvent: AssociationInsensitiveComparable {
+    func associationInsensitiveComparable(to other: SendNotificationEvent) -> Bool {
+        switch (self, other) {
+        case (.networkFeeUnreachable, .networkFeeUnreachable): return true
+        case (.feeWillBeSubtractFromSendingAmount, .feeWillBeSubtractFromSendingAmount): return true
+        case (.customFeeTooHigh, .customFeeTooHigh): return true
+        case (.customFeeTooLow, .customFeeTooLow): return true
+        case (.accountNotActivated, .accountNotActivated): return true
+        case (.withdrawalNotificationEvent, .withdrawalNotificationEvent): return true
+        case (.validationErrorEvent, .validationErrorEvent): return true
+        case (.oneSuiCoinIsRequiredForTokenTransaction, .oneSuiCoinIsRequiredForTokenTransaction): return true
+        default: return false
+        }
+    }
+}
+
+// MARK: - NotificationEvent
 
 extension SendNotificationEvent: NotificationEvent {
     var id: NotificationViewId {
