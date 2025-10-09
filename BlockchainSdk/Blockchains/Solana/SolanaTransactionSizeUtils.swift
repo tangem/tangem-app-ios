@@ -13,9 +13,21 @@ public enum SolanaTransactionSize {
     case long
 }
 
-public enum SolanaTransactionSizeUtils {
-    public static func size(for transactionData: Data) -> SolanaTransactionSize {
-        return transactionData.count >= Constants.supportedTransactionSize ? .long : .default
+public struct SolanaTransactionSizeUtils {
+    private let transactionHelper = SolanaTransactionHelper()
+
+    public init() {}
+
+    public func size(for transactionData: Data, isIncludeSignatures: Bool) throws -> SolanaTransactionSize {
+        let transactionToSign: Data
+
+        if isIncludeSignatures {
+            transactionToSign = try transactionHelper.removeSignaturesPlaceholders(from: transactionData).transaction
+        } else {
+            transactionToSign = transactionData
+        }
+
+        return transactionToSign.count >= Constants.supportedTransactionSize ? .long : .default
     }
 
     /// Maximum APDU payload size in bytes.

@@ -45,10 +45,14 @@ struct CommonExpressProviderTransactionValidator: ExpressProviderTransactionVali
     // MARK: - Private Implementation
 
     private func processSolanaTransaction(of transactionData: Data) -> Bool {
-        switch SolanaTransactionSizeUtils.size(for: transactionData) {
-        case .default:
-            return true
-        case .long:
+        do {
+            switch try SolanaTransactionSizeUtils().size(for: transactionData, isIncludeSignatures: true) {
+            case .default:
+                return true
+            case .long:
+                return false
+            }
+        } catch {
             return false
         }
     }

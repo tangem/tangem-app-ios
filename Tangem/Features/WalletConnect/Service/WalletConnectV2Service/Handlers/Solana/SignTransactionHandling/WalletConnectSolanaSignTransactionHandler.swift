@@ -68,7 +68,7 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
             return try await defaultHandleTransaction(unsignedHash: unsignedHash)
         }
 
-        switch SolanaWalletConnectTransactionRely.rely(transaction: unsignedHash) {
+        switch try SolanaWalletConnectTransactionRely.rely(transaction: unsignedHash) {
         case .default:
             return try await defaultHandleTransaction(unsignedHash: unsignedHash)
         case .alt:

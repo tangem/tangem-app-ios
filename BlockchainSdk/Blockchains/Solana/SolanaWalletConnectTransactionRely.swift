@@ -12,8 +12,8 @@ public enum SolanaWalletConnectTransactionRely {
     case `default`
     case alt
 
-    public static func rely(transaction: Data) -> SolanaWalletConnectTransactionRely {
-        switch SolanaTransactionSizeUtils.size(for: transaction) {
+    public static func rely(transaction: Data) throws -> SolanaWalletConnectTransactionRely {
+        switch try SolanaTransactionSizeUtils().size(for: transaction, isIncludeSignatures: false) {
         case .default:
             return .default
         case .long:
