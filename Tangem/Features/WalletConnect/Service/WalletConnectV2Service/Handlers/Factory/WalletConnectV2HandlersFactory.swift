@@ -16,7 +16,7 @@ protocol WalletConnectHandlersCreator: AnyObject {
         blockchainNetworkID: String,
         signer: TangemSigner,
         walletModelProvider: WalletConnectWalletModelProvider,
-        connectedDApp: WalletConnectConnectedDApp?
+        connectedDApp: WalletConnectConnectedDApp
     ) throws -> WalletConnectMessageHandler
 }
 
@@ -38,7 +38,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
         blockchainNetworkID: String,
         signer: TangemSigner,
         walletModelProvider: WalletConnectWalletModelProvider,
-        connectedDApp: WalletConnectConnectedDApp?
+        connectedDApp: WalletConnectConnectedDApp
     ) throws -> WalletConnectMessageHandler {
         switch action {
             // MARK: - ETH
@@ -104,7 +104,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 signer: signer,
                 walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
                 walletModelProvider: walletModelProvider,
-                analyticsProvider: makeAnalyticsProvider(with: connectedDApp?.dAppData)
+                analyticsProvider: makeAnalyticsProvider(with: connectedDApp.dAppData)
             )
 
         case .solanaSignAllTransactions:
@@ -122,7 +122,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             // Initially this methods was found occasionally and supported without any request
             // Need to find documentation and find place where it can be tested on 2.0
             // This page https://www.bnbchain.org/en/staking has WalletConnect in status 'Coming Soon'
-            throw WalletConnectTransactionRequestProcessingError.unsupportedMethod("BNB methods")
+            throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
         }
     }
 

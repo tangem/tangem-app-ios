@@ -19,6 +19,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var detailsButton = button(.detailsButton)
     private lazy var actionButtonsList = otherElement(.actionButtonsList)
     private lazy var headerCardImage = image(.headerCardImage)
+    private lazy var totalBalance = staticText(.totalBalance)
+    private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
+    private lazy var missingDerivationNotification = button(.missingDerivationNotification)
 
     func validate(cardType: CardMockAccessibilityIdentifiers) {
         XCTContext.runActivity(named: "Validate MainPage for card type: \(cardType.rawValue)") { _ in
@@ -87,10 +90,19 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
-    func validateDeveloperCardBannerExists() -> Self {
-        XCTContext.runActivity(named: "Validate developer card banner exists") { _ in
+    func waitDeveloperCardBannerExists() -> Self {
+        XCTContext.runActivity(named: "Wait developer card banner exists") { _ in
             let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.developerCardBanner]
             waitAndAssertTrue(bannerElement, "Developer card banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitDeveloperCardBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Wait developer card banner not exists") { _ in
+            let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.developerCardBanner]
+            XCTAssertFalse(bannerElement.exists, "Developer card banner should not be displayed")
         }
         return self
     }
@@ -184,6 +196,162 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func longPressWalletHeader() -> Self {
+        XCTContext.runActivity(named: "Long press wallet header") { _ in
+            waitAndAssertTrue(headerCardImage, "Header card image should exist")
+            headerCardImage.press(forDuration: 1.0)
+        }
+        return self
+    }
+
+    @discardableResult
+    func longPressToken(_ tokenName: String) -> TokenScreen {
+        XCTContext.runActivity(named: "Long press token: \(tokenName)") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let tokenElement = tokensList.staticTextByLabel(label: tokenName)
+            waitAndAssertTrue(tokenElement, "Token '\(tokenName)' should exist")
+            tokenElement.press(forDuration: 1.0)
+            return TokenScreen(app)
+        }
+    }
+
+    @discardableResult
+    func waitForNoRenameButton() -> Self {
+        XCTContext.runActivity(named: "Wait for no rename button exists") { _ in
+            let renameButton = app.buttons["Rename"]
+            XCTAssertFalse(renameButton.exists, "Rename button should not exist in context menu")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForDeleteButtonExists() -> Self {
+        XCTContext.runActivity(named: "Wait for delete button exists") { _ in
+            let deleteButton = app.buttons["Delete"]
+            waitAndAssertTrue(deleteButton, "Delete button should exist in context menu")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForTotalBalanceDisplayedAsDash() -> Self {
+        XCTContext.runActivity(named: "Wait for total balance displayed as dash") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance element should exist")
+            XCTAssertTrue(totalBalance.label.contains("–"), "Total balance should be displayed as dash")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForTotalBalanceDisplayed() -> Self {
+        XCTContext.runActivity(named: "Wait for total balance displayed") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance should be displayed")
+            return self
+        }
+    }
+
+    func getTotalBalanceValue() -> String {
+        XCTContext.runActivity(named: "Get total balance value") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance element should exist")
+            return totalBalance.label
+        }
+    }
+
+    func getTotalBalanceNumericValue() -> Double {
+        XCTContext.runActivity(named: "Get total balance numeric value") { _ in
+            let balanceText = getTotalBalanceValue()
+
+            if balanceText.contains("–") {
+                return 0.0
+            }
+
+            do {
+                let numberRegex = try NSRegularExpression(pattern: #"(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)"#, options: [])
+                let range = NSRange(location: 0, length: balanceText.utf16.count)
+
+                guard let match = numberRegex.firstMatch(in: balanceText, options: [], range: range),
+                      let numberRange = Range(match.range(at: 1), in: balanceText) else {
+                    return 0.0
+                }
+
+                let numberString = String(balanceText[numberRange])
+                var processedNumber = numberString
+                processedNumber = processedNumber.replacingOccurrences(of: ",", with: "")
+
+                return Double(processedNumber) ?? 0.0
+            } catch {
+                XCTFail("Failed to create regular expression for parsing balance: \(error)")
+                return 0.0
+            }
+        }
+    }
+
+    @discardableResult
+    func verifyTotalBalanceDecreased(from previousBalance: Double) -> Self {
+        XCTContext.runActivity(named: "Verify total balance decreased from \(previousBalance)") { _ in
+            let currentBalance = getTotalBalanceNumericValue()
+            XCTAssertLessThan(currentBalance, previousBalance, "Current balance (\(currentBalance)) should be less than previous balance (\(previousBalance))")
+            return self
+        }
+    }
+
+    func getTokenBalance(tokenName: String) -> String {
+        XCTContext.runActivity(named: "Get balance for token: \(tokenName)") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)]
+            waitAndAssertTrue(balanceElement, "Balance element should exist for token '\(tokenName)'")
+            return balanceElement.label
+        }
+    }
+
+    @discardableResult
+    func waitForTotalBalanceContainsCurrency(_ currencySymbol: String) -> Self {
+        XCTContext.runActivity(named: "Validate total balance contains currency symbol: \(currencySymbol)") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance element should exist")
+            let balanceText = totalBalance.label
+            XCTAssertTrue(balanceText.contains(currencySymbol), "Total balance should contain '\(currencySymbol)' but was '\(balanceText)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForTotalBalanceShimmer() -> Self {
+        XCTContext.runActivity(named: "Wait for total balance shimmer effect") { _ in
+            waitAndAssertTrue(totalBalanceShimmer, "Total balance shimmer should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForTotalBalanceShimmerToDisappear() -> Self {
+        XCTContext.runActivity(named: "Wait for total balance shimmer to disappear") { _ in
+            XCTAssertTrue(totalBalanceShimmer.waitForNonExistence(timeout: .robustUIUpdate), "Total balance shimmer should disappear")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForTotalBalanceShimmerToComplete() -> Self {
+        XCTContext.runActivity(named: "Wait for total balance shimmer to complete and show final content") { _ in
+            // First wait for shimmer to disappear
+            XCTAssertTrue(totalBalanceShimmer.waitForNonExistence(timeout: .robustUIUpdate), "Total balance shimmer should disappear")
+
+            // Then wait for final content to appear
+            waitAndAssertTrue(totalBalance, "Total balance should be displayed")
+            XCTAssertFalse(totalBalance.label.isEmpty, "Total balance should have content")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForSynchronizeAddressesButtonExists() -> Self {
+        XCTContext.runActivity(named: "Wait for synchronize addresses button exists") { _ in
+            waitAndAssertTrue(missingDerivationNotification, "Missing derivation notification should exist")
+            return self
+        }
+    }
+
     private func isGrouped() -> Bool {
         let networkHeaders = tokensList.descendants(matching: .staticText)
             .allElementsBoundByIndex
@@ -205,6 +373,9 @@ enum MainScreenElement: String, UIElement {
     case detailsButton
     case actionButtonsList
     case headerCardImage
+    case totalBalance
+    case totalBalanceShimmer
+    case missingDerivationNotification
 
     var accessibilityIdentifier: String {
         switch self {
@@ -224,6 +395,12 @@ enum MainScreenElement: String, UIElement {
             TokenAccessibilityIdentifiers.actionButtonsList
         case .headerCardImage:
             MainAccessibilityIdentifiers.headerCardImage
+        case .totalBalance:
+            MainAccessibilityIdentifiers.totalBalance
+        case .totalBalanceShimmer:
+            "\(MainAccessibilityIdentifiers.totalBalance)Shimmer"
+        case .missingDerivationNotification:
+            MainAccessibilityIdentifiers.missingDerivationNotification
         }
     }
 }
