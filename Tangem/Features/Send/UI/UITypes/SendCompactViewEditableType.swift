@@ -10,8 +10,8 @@ import SwiftUI
 import TangemAssets
 
 enum SendCompactViewEditableType {
-    case disabled
     case enabled(action: (() -> Void)? = nil)
+    case disabled
 
     var editable: Bool {
         switch self {
@@ -22,7 +22,7 @@ enum SendCompactViewEditableType {
 
     var background: Color {
         switch self {
-        case .disabled: Colors.Button.disabled
+        case .disabled: Colors.Background.action
         case .enabled: Colors.Background.action
         }
     }
