@@ -13,6 +13,7 @@ public typealias APIList = [String: [NetworkProviderType]]
 public enum NetworkProviderType {
     case `public`(link: String)
     case nowNodes
+    case blink
     case quickNode
     case getBlock
     case blockchair
@@ -32,6 +33,7 @@ public enum NetworkProviderType {
     case onfinality
     case koinosPro
     case tangemAlephium
+    case tatum
 }
 
 struct NodeInfo: HostProvider {
