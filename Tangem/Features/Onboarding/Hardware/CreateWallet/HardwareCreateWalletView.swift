@@ -41,7 +41,7 @@ private extension HardwareCreateWalletView {
                     .padding(.top, 32)
                     .padding(.horizontal, 32)
             }
-            .padding(.top, 64)
+            .padding(.top, 32)
         }
         .safeAreaInset(edge: .bottom, spacing: 16) {
             actionButtons

@@ -19,7 +19,7 @@ final class HardwareCreateWalletViewModel: ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
     @Published var alert: AlertBinder?
 
-    let screenTitle = "Create Tangem Wallet"
+    let screenTitle = Localization.walletCreateCommonTitle
     let buyButtonTitle = Localization.detailsBuyWallet
     let scanButtonTitle = Localization.homeButtonScan
 
