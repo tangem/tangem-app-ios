@@ -135,7 +135,7 @@
 "bitcoin_promo_activation_error_title" = "Fehler bei der Aktivierung";
 "bitcoin_promo_activation_error" = "Bei der Bearbeitung Deines Aktionscodes ist ein Fehler aufgetreten. Bitte versuche es später noch einmal.";
 "bitcoin_promo_activation_success_title" = "Promo-Code aktiviert";
-"bitcoin_promo_activation_success" = "Dein Promo-Code wurde erfolgreich aktiviert. Ein Bonus von 10 USDT in Bitcoin wird Deinem Konto innerhalb von 14 Tagen gutgeschrieben.";
+"bitcoin_promo_activation_success" = "Ihr Aktionscode wurde erfolgreich aktiviert. Eine Belohnung wird innerhalb von 14 Tagen auf Ihr Konto gutgeschrieben.";
 "bitcoin_promo_already_activated_title" = "Code nicht verfügbar";
 "bitcoin_promo_already_activated" = "Dieser Aktionscode wurde bereits verwendet und kann nicht erneut aktiviert werden.";
 "bitcoin_promo_invalid_code_title" = "Ungültiger Code";
@@ -334,6 +334,8 @@
 "common_yes" = "Ja";
 "contract_address_copied_message" = "Vertragsadresse kopiert!";
 "currency_subtitle_expanded" = "Verfügbare Netzwerke";
+"custom_token_another_account_dialog_description" = "Derivation of your token matches the derivation of %1$@. Your token will be added to this account.";
+"custom_token_another_account_dialog_title" = "Derivation belongs to another account.";
 "custom_token_contract_address_input_title" = "Vertragsadresse";
 "custom_token_creation_error_empty_fields" = "Bitte fülle alle Felder aus";
 "custom_token_creation_error_invalid_contract_address" = "Vertragsadresse ist ungültig";
