@@ -17,6 +17,7 @@ public protocol WalletManager: WalletProvider,
     TransactionSender,
     TransactionCreator,
     TransactionFeeProvider,
+    YieldSupplyServiceProvider,
     TransactionValidator {}
 
 public enum WalletManagerState {
@@ -97,6 +98,16 @@ extension BlockchainDataProvider {
 
 public protocol TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError>
+}
+
+// MARK: - MultipleTransactionSender
+
+/// transactions expected to be signed in one tap and sent in initially provided order
+public protocol MultipleTransactionsSender {
+    func send(
+        _ transactions: [Transaction],
+        signer: TransactionSigner
+    ) -> AnyPublisher<[TransactionSendResult], SendTxError>
 }
 
 public protocol CompiledTransactionSender {

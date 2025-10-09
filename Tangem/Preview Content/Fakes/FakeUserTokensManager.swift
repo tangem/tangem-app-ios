@@ -51,6 +51,10 @@ class FakeUserTokensManager: UserTokensManager {
         completion(.success(()))
     }
 
+    func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
+        true
+    }
+
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {}
 
     func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
