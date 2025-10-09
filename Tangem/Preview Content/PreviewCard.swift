@@ -24,45 +24,9 @@ enum PreviewCard {
     case tangemWalletEmpty
     case tangemWalletBackuped
 
-    var userWalletModel: UserWalletModel {
+    var cardInfo: CardInfo {
         let card = CardDTO(card: card)
-        let ci = CardInfo(card: card, walletData: walletData, associatedCardIds: [])
-        let vm = CommonUserWalletModelFactory().makeModel(walletInfo: .cardWallet(ci), keys: .cardWallet(keys: []))!
-        if let blockchain = blockchain {
-            let factory = WalletManagerFactory(
-                blockchainSdkKeysConfig: BlockchainSdkKeysConfig(
-                    blockchairApiKeys: [],
-                    blockcypherTokens: [],
-                    infuraProjectId: "",
-                    nowNodesApiKey: "",
-                    getBlockCredentials: .init(credentials: []),
-                    kaspaSecondaryApiUrl: nil,
-                    tronGridApiKey: "",
-                    hederaArkhiaApiKey: "",
-                    etherscanApiKey: "",
-                    koinosProApiKey: "",
-                    tonCenterApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
-                    fireAcademyApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
-                    chiaTangemApiKeys: .init(mainnetApiKey: ""),
-                    quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
-                    quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
-                    bittensorDwellirKey: "",
-                    bittensorOnfinalityKey: "",
-                    tangemAlephiumApiKey: ""
-                ),
-                dependencies: .init(
-                    accountCreator: BlockchainAccountCreatorStub(),
-                    dataStorage: FakeBlockchainDataStorage()
-                ),
-                apiList: [:]
-            )
-            // [REDACTED_TODO_COMMENT]
-            _ = try! factory.makeWalletManager(
-                blockchain: blockchain,
-                publicKey: .init(seedKey: publicKey, derivationType: .none)
-            )
-        }
-        return vm
+        return CardInfo(card: card, walletData: walletData, associatedCardIds: [])
     }
 
     var walletData: DefaultWalletData {
