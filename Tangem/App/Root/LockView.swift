@@ -12,7 +12,7 @@ import TangemUIUtils
 
 struct LockView: View {
     private let usesNamespace: Bool
-    private var namespace: Namespace.ID?
+    private var geometryEffect: GeometryEffectPropertiesModel?
 
     init(usesNamespace: Bool) {
         self.usesNamespace = usesNamespace
@@ -24,7 +24,7 @@ struct LockView: View {
                 .foregroundColor(Colors.Text.primary1)
                 .padding(.bottom, 48)
                 .if(usesNamespace) {
-                    $0.matchedGeometryEffectOptional(id: TangemIconView.namespaceId, in: namespace)
+                    $0.matchedGeometryEffect(geometryEffect)
                 }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -34,7 +34,7 @@ struct LockView: View {
 }
 
 extension LockView: Setupable {
-    func setNamespace(_ namespace: Namespace.ID) -> Self {
-        map { $0.namespace = namespace }
+    func setGeometryEffect(_ geometryEffect: GeometryEffectPropertiesModel) -> Self {
+        map { $0.geometryEffect = geometryEffect }
     }
 }

@@ -28,6 +28,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
     @Published var yieldModuleNotificationInputs: [NotificationViewInput] = []
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
+    @Published var tangemPayCardIssuingInProgress: Bool = false
+
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
     @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
@@ -82,6 +87,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private var bag = Set<AnyCancellable>()
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    private var tangemPayAccount: TangemPayAccount?
+
     init(
         userWalletModel: UserWalletModel,
         userWalletNotificationManager: NotificationManager,
@@ -111,6 +120,22 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             totalBalanceProvider: userWalletModel
         )
         bind()
+
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
+        if let tangemPayAccount = TangemPayAccount(userWalletModel: userWalletModel), FeatureProvider.isAvailable(.visa) {
+            tangemPayAccount
+                .tangemPayNotificationManager
+                .notificationPublisher
+                .receive(on: DispatchQueue.main)
+                .assign(to: &$tangemPayNotificationInputs)
+
+            tangemPayAccount.tangemPayCardIssuingInProgress
+                .receive(on: DispatchQueue.main)
+                .assign(to: &$tangemPayCardIssuingInProgress)
+
+            self.tangemPayAccount = tangemPayAccount
+        }
     }
 
     deinit {
@@ -548,6 +573,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             openMobileUpgrade()
         case .openBuyCrypto(let walletModel, let parameters):
             coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel, parameters: parameters)
+        case .allowPushPermissionRequest, .postponePushPermissionRequest:
+            userWalletNotificationManager.dismissNotification(with: id)
         default:
             break
         }

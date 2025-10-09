@@ -26,21 +26,19 @@ struct SettingsUserWalletRowView: View {
 
     @ViewBuilder
     private var content: some View {
-        HStack(spacing: 12) {
-            icon
+        RowWithLeadingAndTrailingIcons(
+            leadingIcon: { icon },
+            content: { textViews },
+            trailingIcon: {
+                if viewModel.isUserWalletBackupNeeded {
+                    BadgeView.noBackup
+                }
 
-            textViews
-
-            Spacer()
-
-            if viewModel.isUserWalletBackupNeeded {
-                BadgeView.noBackup
+                if !viewModel.isUserWalletLocked {
+                    Assets.chevron.image
+                }
             }
-
-            if !viewModel.isUserWalletLocked {
-                Assets.chevron.image
-            }
-        }
+        )
         .infinityFrame(axis: .horizontal, alignment: .leading)
         .padding(.vertical, 12)
         .contentShape(Rectangle())

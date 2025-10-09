@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct MarketsTokensNetworkSelectorItemView: View {
     @ObservedObject var viewModel: MarketsTokensNetworkSelectorItemViewModel
@@ -55,6 +56,7 @@ struct MarketsTokensNetworkSelectorItemView: View {
                     .offset(x: 2)
                     .scaleEffect(0.8)
                     .disabled(viewModel.isReadonly)
+                    .accessibilityIdentifier(viewModel.isMain ? TokenAccessibilityIdentifiers.mainNetworkSwitch : TokenAccessibilityIdentifiers.networkSwitch(for: viewModel.networkName))
             }
             .padding(.vertical, 16)
         }

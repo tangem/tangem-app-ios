@@ -57,7 +57,8 @@ extension CommonKeysManager: KeysManager {
             bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
             tangemAlephiumApiKey: keys.alephiumTangemApiKey,
             blinkApiKey: keys.blinkApiKey,
-            tatumApiKey: keys.tatumApiKey
+            tatumApiKey: keys.tatumApiKey,
+            yieldModuleApiKey: keys.yieldModuleApiKey,
         )
     }
 
@@ -112,6 +113,10 @@ extension CommonKeysManager: KeysManager {
     var tangemApiKeyStage: String {
         keys.tangemApiKeyStage
     }
+
+    var yieldModuleApiKey: String {
+        keys.yieldModuleApiKey
+    }
 }
 
 extension CommonKeysManager {
@@ -154,5 +159,6 @@ extension CommonKeysManager {
         let tangemApiKeyStage: String
         let blinkApiKey: String
         let tatumApiKey: String
+        let yieldModuleApiKey: String
     }
 }
