@@ -22,8 +22,6 @@ struct TangemApiTarget: TargetType {
             fullURL
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
-        case .yieldMarkets, .yieldToken:
-            AppEnvironment.current.yieldModuleBaseUrl
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -120,12 +118,6 @@ struct TangemApiTarget: TargetType {
             return "/wallets/\(userWalletId)/accounts"
         case .getArchivedUserAccounts(let userWalletId):
             return "/wallets/\(userWalletId)/accounts/archived"
-
-        // MARK: - Yield Module
-        case .yieldMarkets:
-            return "/yield/markets"
-        case .yieldToken(let tokenContractAddress, let chainId):
-            return "/yield/token/\(chainId)/\(tokenContractAddress)"
         }
     }
 
@@ -154,9 +146,7 @@ struct TangemApiTarget: TargetType {
              .getUserAccounts,
              .getArchivedUserAccounts,
              .getUserWallets,
-             .getUserWallet,
-             .yieldMarkets,
-             .yieldToken:
+             .getUserWallet:
             return .get
         case ._saveUserWalletTokens,
              .saveUserWalletTokens,
@@ -296,8 +286,6 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(accounts)
         case .getArchivedUserAccounts:
             return .requestPlain
-        case .yieldMarkets, .yieldToken:
-            return .requestPlain
         }
     }
 
@@ -348,9 +336,7 @@ struct TangemApiTarget: TargetType {
              .updateUserWallet,
              .createAndConnectUserWallet,
              .getUserAccounts,
-             .getArchivedUserAccounts,
-             .yieldMarkets,
-             .yieldToken:
+             .getArchivedUserAccounts:
             return nil
         }
     }
@@ -424,10 +410,6 @@ extension TangemApiTarget {
         case getUserAccounts(userWalletId: String)
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
         case getArchivedUserAccounts(userWalletId: String)
-
-        // Yield Module
-        case yieldMarkets
-        case yieldToken(tokenContractAddress: String, chainId: Int)
     }
 }
 
@@ -466,9 +448,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getUserWallets,
              .getUserWallet,
              .updateUserWallet,
-             .createAndConnectUserWallet,
-             .yieldMarkets,
-             .yieldToken:
+             .createAndConnectUserWallet:
             return false
         case .geo,
              .features,
