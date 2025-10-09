@@ -160,6 +160,11 @@
 		0F48DC8F2E45F06E0095D3C8 /* MobileAccessCodeSkipHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F48DC8E2E45F06E0095D3C8 /* MobileAccessCodeSkipHelper.swift */; };
 		0F8414A82E96480400D03FB6 /* MobileCreateWalletCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8414A72E96480400D03FB6 /* MobileCreateWalletCoordinator.swift */; };
 		0F8414AA2E96480F00D03FB6 /* MobileCreateWalletCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8414A92E96480F00D03FB6 /* MobileCreateWalletCoordinatorView.swift */; };
+		0F8414AD2E96A8D600D03FB6 /* AddWalletSelectorCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8414AC2E96A8D600D03FB6 /* AddWalletSelectorCoordinator.swift */; };
+		0F8414AF2E96A8DE00D03FB6 /* AddWalletSelectorCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8414AE2E96A8DE00D03FB6 /* AddWalletSelectorCoordinatorView.swift */; };
+		0F8414B12E96A95C00D03FB6 /* AddWalletSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8414B02E96A95C00D03FB6 /* AddWalletSelectorRoutable.swift */; };
+		0F8414B32E96A96700D03FB6 /* AddWalletSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8414B22E96A96700D03FB6 /* AddWalletSelectorView.swift */; };
+		0F8414B52E96A96D00D03FB6 /* AddWalletSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8414B42E96A96D00D03FB6 /* AddWalletSelectorViewModel.swift */; };
 		0F84C10B2E1299DB00DC7FB1 /* MobileBackupTypesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F84C10A2E1299DB00DC7FB1 /* MobileBackupTypesView.swift */; };
 		0F84C10D2E1299E900DC7FB1 /* MobileBackupTypesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F84C10C2E1299E900DC7FB1 /* MobileBackupTypesViewModel.swift */; };
 		0F84C10F2E129ADE00DC7FB1 /* MobileBackupTypesRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F84C10E2E129ADE00DC7FB1 /* MobileBackupTypesRoutable.swift */; };
@@ -4471,6 +4476,11 @@
 		0F48DC8E2E45F06E0095D3C8 /* MobileAccessCodeSkipHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileAccessCodeSkipHelper.swift; sourceTree = "<group>"; };
 		0F8414A72E96480400D03FB6 /* MobileCreateWalletCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileCreateWalletCoordinator.swift; sourceTree = "<group>"; };
 		0F8414A92E96480F00D03FB6 /* MobileCreateWalletCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileCreateWalletCoordinatorView.swift; sourceTree = "<group>"; };
+		0F8414AC2E96A8D600D03FB6 /* AddWalletSelectorCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddWalletSelectorCoordinator.swift; sourceTree = "<group>"; };
+		0F8414AE2E96A8DE00D03FB6 /* AddWalletSelectorCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddWalletSelectorCoordinatorView.swift; sourceTree = "<group>"; };
+		0F8414B02E96A95C00D03FB6 /* AddWalletSelectorRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddWalletSelectorRoutable.swift; sourceTree = "<group>"; };
+		0F8414B22E96A96700D03FB6 /* AddWalletSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddWalletSelectorView.swift; sourceTree = "<group>"; };
+		0F8414B42E96A96D00D03FB6 /* AddWalletSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddWalletSelectorViewModel.swift; sourceTree = "<group>"; };
 		0F84C10A2E1299DB00DC7FB1 /* MobileBackupTypesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileBackupTypesView.swift; sourceTree = "<group>"; };
 		0F84C10C2E1299E900DC7FB1 /* MobileBackupTypesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileBackupTypesViewModel.swift; sourceTree = "<group>"; };
 		0F84C10E2E129ADE00DC7FB1 /* MobileBackupTypesRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileBackupTypesRoutable.swift; sourceTree = "<group>"; };
@@ -8925,6 +8935,18 @@
 			path = CreateWallet;
 			sourceTree = "<group>";
 		};
+		0F8414AB2E96A8AB00D03FB6 /* AddWalletSelector */ = {
+			isa = PBXGroup;
+			children = (
+				0F8414AC2E96A8D600D03FB6 /* AddWalletSelectorCoordinator.swift */,
+				0F8414AE2E96A8DE00D03FB6 /* AddWalletSelectorCoordinatorView.swift */,
+				0F8414B02E96A95C00D03FB6 /* AddWalletSelectorRoutable.swift */,
+				0F8414B22E96A96700D03FB6 /* AddWalletSelectorView.swift */,
+				0F8414B42E96A96D00D03FB6 /* AddWalletSelectorViewModel.swift */,
+			);
+			path = AddWalletSelector;
+			sourceTree = "<group>";
+		};
 		0F84C1092E12992F00DC7FB1 /* MobileBackupTypes */ = {
 			isa = PBXGroup;
 			children = (
@@ -12452,6 +12474,7 @@
 				B098F39E2C04796700F79989 /* AddTokens */,
 				B020A51526F1DD8900D38596 /* BaseModels */,
 				0F5B40672DE9ED170065A177 /* Mobile */,
+				0F8414AB2E96A8AB00D03FB6 /* AddWalletSelector */,
 				307646382E3CA6C2001F2F82 /* CreateWalletSelector */,
 				B099614626D5189C000E3779 /* Note */,
 				DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */,
@@ -23835,6 +23858,7 @@
 				DCE2F7D72CE350F500BDE145 /* SellTokenSelectorStrings.swift in Sources */,
 				EFC7AD612DD6128500AE78E1 /* SendNewAmountTokenViewData.swift in Sources */,
 				B62EE31C2B28977B006BA412 /* RateAppResponse.swift in Sources */,
+				0F8414AD2E96A8D600D03FB6 /* AddWalletSelectorCoordinator.swift in Sources */,
 				0F84C11D2E142C4E00DC7FB1 /* MobileFinishActivationNeededViewModel.swift in Sources */,
 				EF4041432DE4819D002F996A /* FiatItem.swift in Sources */,
 				C2321F3E2E3018CD006428A8 /* WalletConnectAnalyticsLogger.swift in Sources */,
@@ -24086,6 +24110,7 @@
 				0ABCEE672E3B954000662B9F /* WalletInitializer.swift in Sources */,
 				DCB14B142DC61C460075F340 /* WalletConnectModuleFactory.swift in Sources */,
 				B0CF5A5B2C2D492100B197D4 /* MarketsTokenDetailsDataProvider.swift in Sources */,
+				0F8414B52E96A96D00D03FB6 /* AddWalletSelectorViewModel.swift in Sources */,
 				EF6A8B032B278A6200CA3535 /* CommonExpressRepository.swift in Sources */,
 				C27672CF2DE713970037F1FC /* WalletConnectDAppDomainVerificationView.swift in Sources */,
 				DA1FAB352E7C652A0059FFE5 /* TangemPayNotificationManager.swift in Sources */,
@@ -24214,6 +24239,7 @@
 				5D17EC7826947ED9002782DE /* SignAndReadTask.swift in Sources */,
 				DAC4F9F02AC314E100BEBCF8 /* SingleWalletMainContentDelegate.swift in Sources */,
 				B05A3DE62D004E7900595A1E /* VisaOnboardingTangemWalletDeployApproveViewModel.swift in Sources */,
+				0F8414B12E96A95C00D03FB6 /* AddWalletSelectorRoutable.swift in Sources */,
 				B0C616642AFBA56E00ABADF0 /* ThemeSelectionViewModel.swift in Sources */,
 				B05919022A0BCD0800EB8005 /* MainHeaderView.swift in Sources */,
 				DC3549E42E2E034700641727 /* WCTransactionValidationService.swift in Sources */,
@@ -24590,6 +24616,7 @@
 				DC4020F12CB039DC00002902 /* RingUtil.swift in Sources */,
 				DC0568CD2E0CF432008A3770 /* WCCustomAllowanceInput.swift in Sources */,
 				2D8619B92E7B065F00F196A2 /* ExpressFeeProviderError.swift in Sources */,
+				0F8414AF2E96A8DE00D03FB6 /* AddWalletSelectorCoordinatorView.swift in Sources */,
 				DA1010252CDA58D700EE0D05 /* OnrampCurrencyView.swift in Sources */,
 				B68E5E7F2A9526BD00216281 /* SectionModel.swift in Sources */,
 				DC3DCAE52A41FA6A00F72554 /* KeysRepository.swift in Sources */,
@@ -24969,6 +24996,7 @@
 				B6210DEF2A94708700F885D5 /* OrganizeTokensListFactory.swift in Sources */,
 				DC8E03222DE18851008967D8 /* WCTransactionDetailsSection.swift in Sources */,
 				B0C370812C6CDCAA00439263 /* MarketsQuotesUpdateHelper.swift in Sources */,
+				0F8414B32E96A96700D03FB6 /* AddWalletSelectorView.swift in Sources */,
 				DC1DA9392D562EE3003638ED /* ViewHierarchySnapshottingInitializable.swift in Sources */,
 				DC3ED8A72C1B49F900C89C62 /* DefaultPickerRowView.swift in Sources */,
 				DA4055252ABDD3A300353F8A /* AddCustomTokenNetworksListItemViewModel.swift in Sources */,

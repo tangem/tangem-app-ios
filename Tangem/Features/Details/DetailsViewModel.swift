@@ -218,27 +218,8 @@ extension DetailsViewModel {
         coordinator?.openScanCardManual()
     }
 
-    func openAddNewUserWallet() {
-        let sheet = ActionSheet(
-            title: Text(Localization.userWalletListAddButton),
-            buttons: [
-                .default(
-                    Text(Localization.homeButtonCreateNewWallet),
-                    action: weakify(self, forFunction: DetailsViewModel.openCreateWallet)
-                ),
-                .default(
-                    Text(Localization.detailsBuyWallet),
-                    action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
-                ),
-                .cancel(),
-            ]
-        )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
-    }
-
-    func openCreateWallet() {
-        coordinator?.openCreateWallet()
+    func openAddWallet() {
+        coordinator?.openAddWallet()
     }
 
     func requestSupport() {
@@ -308,7 +289,7 @@ private extension DetailsViewModel {
         if FeatureProvider.isAvailable(.mobileWallet) {
             addNewUserWalletViewModel = DefaultRowViewModel(
                 title: Localization.userWalletListAddButton,
-                action: weakify(self, forFunction: DetailsViewModel.openAddNewUserWallet)
+                action: weakify(self, forFunction: DetailsViewModel.openAddWallet)
             )
         } else {
             addOrScanNewUserWalletViewModel = DefaultRowViewModel(
