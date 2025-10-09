@@ -323,7 +323,11 @@ private extension CommonSendNotificationManager {
             dismissAction: dismissAction
         )
 
-        if let index = notificationInputsSubject.value.firstIndex(where: { $0.id == input.id }) {
+        let index = notificationInputsSubject.value.firstIndex(where: {
+            ($0.settings.event as? SendNotificationEvent)?.associationInsensitiveComparable(to: event) == true
+        })
+
+        if let index {
             notificationInputsSubject.value[index] = input
         } else {
             notificationInputsSubject.value.append(input)
