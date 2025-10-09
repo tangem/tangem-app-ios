@@ -35,11 +35,11 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
     case notEnabled
     case loadingError(String)
     // When we turn off the YieldInfo in the admin panel
-    case temporaryUnavailable(YieldInfo)
-    case availableToStake(YieldInfo)
+    case temporaryUnavailable(StakingYieldInfo)
+    case availableToStake(StakingYieldInfo)
     case staked(Staked)
 
-    public var yieldInfo: YieldInfo? {
+    public var yieldInfo: StakingYieldInfo? {
         switch self {
         case .loading, .notEnabled, .loadingError:
             return nil
@@ -91,7 +91,7 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
 public extension StakingManagerState {
     struct Staked: Hashable {
         public let balances: [StakingBalance]
-        public let yieldInfo: YieldInfo
+        public let yieldInfo: StakingYieldInfo
         public let canStakeMore: Bool
     }
 }

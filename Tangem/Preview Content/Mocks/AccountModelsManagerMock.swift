@@ -12,10 +12,14 @@ import TangemFoundation
 
 final class AccountModelsManagerMock {
     private let accountModelsSubject = PassthroughSubject<[AccountModel], Never>()
+    private let totalAccountsCountSubject = PassthroughSubject<Int, Never>()
 
-    private var cryptoAccounts: [CryptoAccountModelMock] = [] {
+    private var cryptoAccountModels: [CryptoAccountModelMock] = [] {
         didSet {
-            accountModelsSubject.send([.standard(.init(accounts: cryptoAccounts))])
+            let cryptoAccountsBuilder = CryptoAccountsBuilder(globalState: .single)
+            let cryptoAccounts = cryptoAccountsBuilder.build(from: cryptoAccountModels)
+            accountModelsSubject.send([.standard(cryptoAccounts)])
+            totalAccountsCountSubject.send(cryptoAccountModels.count)
         }
     }
 
@@ -23,12 +27,12 @@ final class AccountModelsManagerMock {
         // `defer` is used to trigger the `didSet` observer
         defer {
             let mainAccount = CryptoAccountModelMock(isMainAccount: true)
-            cryptoAccounts = [mainAccount]
+            cryptoAccountModels = [mainAccount]
         }
     }
 
     private func removeCryptoAccount(withIdentifier identifier: AnyHashable) {
-        cryptoAccounts.removeAll { $0.id.toPersistentIdentifier().toAnyHashable() == identifier }
+        cryptoAccountModels.removeAll { $0.id.toPersistentIdentifier().toAnyHashable() == identifier }
     }
 }
 
@@ -39,15 +43,35 @@ extension AccountModelsManagerMock: AccountModelsManager {
         true
     }
 
+    var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+
+    var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+        totalAccountsCountSubject.eraseToAnyPublisher()
+    }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
-        cryptoAccounts.append(CryptoAccountModelMock(isMainAccount: false))
+        cryptoAccountModels.append(CryptoAccountModelMock(isMainAccount: false))
     }
 
-    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws(AccountModelsManagerError) {
+    func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
+        // [REDACTED_TODO_COMMENT]
+        return []
+    }
+
+    func archiveCryptoAccount(
+        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
+    ) throws(AccountModelsManagerError) {
         removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier().toAnyHashable())
+    }
+
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
+        // [REDACTED_TODO_COMMENT]
+        throw .cannotUnarchiveCryptoAccount
     }
 }
