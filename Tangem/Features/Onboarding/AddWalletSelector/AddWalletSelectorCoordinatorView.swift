@@ -14,7 +14,7 @@ struct AddWalletSelectorCoordinatorView: CoordinatorView {
 
     var body: some View {
         ZStack {
-            if let viewModel = coordinator.viewModel {
+            if let viewModel = coordinator.rootViewModel {
                 AddWalletSelectorView(viewModel: viewModel)
                     .navigationLinks(links)
             }
@@ -23,9 +23,11 @@ struct AddWalletSelectorCoordinatorView: CoordinatorView {
 
     private var links: some View {
         NavHolder()
+            .navigation(item: $coordinator.hardwareCreateWalletCoordinator) {
+                HardwareCreateWalletCoordinatorView(coordinator: $0)
+            }
             .navigation(item: $coordinator.mobileCreateWalletCoordinator) {
                 MobileCreateWalletCoordinatorView(coordinator: $0)
             }
-            .emptyNavigationLink()
     }
 }

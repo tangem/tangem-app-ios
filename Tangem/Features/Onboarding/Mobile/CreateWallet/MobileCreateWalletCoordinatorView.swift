@@ -14,7 +14,7 @@ struct MobileCreateWalletCoordinatorView: CoordinatorView {
 
     var body: some View {
         ZStack {
-            if let viewModel = coordinator.viewModel {
+            if let viewModel = coordinator.rootVewModel {
                 MobileCreateWalletView(viewModel: viewModel)
                     .navigationLinks(links)
             }

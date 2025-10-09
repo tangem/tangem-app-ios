@@ -13,7 +13,11 @@ class AddWalletSelectorCoordinator: CoordinatorObject {
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
-    @Published private(set) var viewModel: AddWalletSelectorViewModel?
+    @Published private(set) var rootViewModel: AddWalletSelectorViewModel?
+
+    // MARK: - Child coordinators
+
+    @Published var hardwareCreateWalletCoordinator: HardwareCreateWalletCoordinator?
     @Published var mobileCreateWalletCoordinator: MobileCreateWalletCoordinator?
 
     required init(
@@ -25,64 +29,46 @@ class AddWalletSelectorCoordinator: CoordinatorObject {
     }
 
     func start(with options: InputOptions) {
-        viewModel = AddWalletSelectorViewModel(coordinator: self)
+        rootViewModel = AddWalletSelectorViewModel(coordinator: self)
     }
 }
-
-//// MARK: - CreateNewWalletSelectorRoutable
-//
-// extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
-//    func openMain(userWalletModel: UserWalletModel) {
-//        dismiss(with: .main(userWalletModel: userWalletModel))
-//    }
-//
-//    func openCreateMobileWallet() {
-//        let dismissAction: Action<MobileCreateWalletCoordinator.OutputOptions> = { [weak self] options in
-//            switch options {
-//            case .main(let userWalletModel):
-//                self?.openMain(userWalletModel: userWalletModel)
-//            }
-//        }
-//
-//        let coordinator = MobileCreateWalletCoordinator(dismissAction: dismissAction)
-//        coordinator.start(with: MobileCreateWalletCoordinator.InputOptions())
-//        mobileCreateWalletCoordinator = coordinator
-//    }
-// }
 
 // MARK: - AddWalletSelectorRoutable
 
 extension AddWalletSelectorCoordinator: AddWalletSelectorRoutable {
-    func openAddHardwareWallet() {}
+    func openAddHardwareWallet() {
+        let dismissAction: Action<HardwareCreateWalletCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main(let userWalletModel):
+                self?.openMain(userWalletModel: userWalletModel)
+            }
+        }
 
-    func openAddMobileWallet() {}
+        let coordinator = HardwareCreateWalletCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: HardwareCreateWalletCoordinator.InputOptions())
+        hardwareCreateWalletCoordinator = coordinator
+    }
+
+    func openAddMobileWallet() {
+        let dismissAction: Action<MobileCreateWalletCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main(let userWalletModel):
+                self?.openMain(userWalletModel: userWalletModel)
+            }
+        }
+
+        let coordinator = MobileCreateWalletCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: MobileCreateWalletCoordinator.InputOptions())
+        mobileCreateWalletCoordinator = coordinator
+    }
 }
-
-//// MARK: - MobileCreateWalletDelegate
-//
-// extension CreateWalletSelectorCoordinator: MobileCreateWalletDelegate {
-//    func onCreateWallet(userWalletModel: UserWalletModel) {
-//        openMain(userWalletModel: userWalletModel)
-//    }
-// }
 
 // MARK: - Navigation
 
 private extension AddWalletSelectorCoordinator {
-//    func openOnboarding(inputOptions: OnboardingCoordinator.Options) {
-//        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] options in
-//            switch options {
-//            case .main(let userWalletModel):
-//                self?.openMain(userWalletModel: userWalletModel)
-//            case .dismiss:
-//                self?.onboardingCoordinator = nil
-//            }
-//        }
-//
-//        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-//        coordinator.start(with: inputOptions)
-//        onboardingCoordinator = coordinator
-//    }
+    func openMain(userWalletModel: UserWalletModel) {
+        dismiss(with: .main(userWalletModel: userWalletModel))
+    }
 }
 
 // MARK: - Options
