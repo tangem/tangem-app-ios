@@ -13,7 +13,7 @@ import TangemFoundation
 
 final class TangemPayAccount {
     let tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never>
-    let tangemPayCardIssuingInProgress: AnyPublisher<Bool, Never>
+    let tangemPayCardIssuingInProgressPublisher: AnyPublisher<Bool, Never>
 
     let tangemPayNotificationManager: TangemPayNotificationManager
 
@@ -50,7 +50,7 @@ final class TangemPayAccount {
             .compactMap(\.self?.tangemPayStatus)
             .eraseToAnyPublisher()
 
-        tangemPayCardIssuingInProgress = orderIdStorage.savedOrderIdPublisher
+        tangemPayCardIssuingInProgressPublisher = orderIdStorage.savedOrderIdPublisher
             .map { $0 != nil }
             .merge(with: didTapIssueOrderSubject.mapToValue(true))
             .eraseToAnyPublisher()
