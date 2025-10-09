@@ -118,6 +118,8 @@ struct EstimationFeeAddressFactory {
             return "16tfjvsTi34r5bhifdBtY793n3fmrM7EtvvtE8XUN1Hv1"
         case .pepecoin:
             return "PgbtQfZaNzLtwQ3hXBrj1KWhxBgaUEM7G6"
+        case .quai:
+            return "0x001895747a462F3cDEc145d565645D7fcEbe275d"
         }
     }
 }

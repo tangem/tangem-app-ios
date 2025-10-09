@@ -14,7 +14,7 @@ final class CommonCryptoAccountsPersistentStorage {
 
     private let key: PersistentStorageKey
     private let workingQueue: DispatchQueue
-    private var storageDidUpdateSubject: StorageDidUpdateSubject?
+    private var storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject?
 
     init(storageIdentifier: String) {
         key = .accounts(cid: storageIdentifier)
@@ -44,10 +44,6 @@ final class CommonCryptoAccountsPersistentStorage {
 // MARK: - CryptoAccountsPersistentStorage protocol conformance
 
 extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage {
-    func bind(to storageDidUpdateSubject: StorageDidUpdateSubject) {
-        self.storageDidUpdateSubject = storageDidUpdateSubject
-    }
-
     func getList() -> [StoredCryptoAccount] {
         workingQueue.sync {
             return unsafeFetch()
@@ -92,5 +88,25 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
         workingQueue.async(flags: .barrier) {
             self.unsafeSave([])
         }
+    }
+}
+
+// MARK: - CryptoAccountsPersistentStorageController protocol conformance
+
+extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorageController {
+    func isMigrationNeeded() -> Bool {
+        return workingQueue.sync {
+            do {
+                let accounts: [StoredCryptoAccount]? = try persistentStorage.value(for: key)
+                return accounts == nil
+            } catch {
+                assertionFailure("CommonCryptoAccountsPersistentStorage unable to query migration status due to error: \(error)")
+                return false
+            }
+        }
+    }
+
+    func bind(to storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject) {
+        self.storageDidUpdateSubject = storageDidUpdateSubject
     }
 }
