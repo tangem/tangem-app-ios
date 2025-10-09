@@ -352,7 +352,6 @@
 		2D6E28242E96807700893300 /* SelectorReceiveAssetItemRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E28052E96807700893300 /* SelectorReceiveAssetItemRoutable.swift */; };
 		2D6E28252E96807700893300 /* SelectorReceiveAssetsAddressItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E28072E96807700893300 /* SelectorReceiveAssetsAddressItemViewModel.swift */; };
 		2D6E28262E96807700893300 /* CommonSelectorReceiveAssetsSectionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E27FC2E96807700893300 /* CommonSelectorReceiveAssetsSectionFactory.swift */; };
-		2D6E28272E96807700893300 /* EthereumSelectorReceiveAssetsSectionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E27FD2E96807700893300 /* EthereumSelectorReceiveAssetsSectionFactory.swift */; };
 		2D6E28282E96807700893300 /* SelectorReceiveAssetsAddressItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E28062E96807700893300 /* SelectorReceiveAssetsAddressItemView.swift */; };
 		2D6E28292E96807700893300 /* SelectorReceiveAssetsSectionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E27FE2E96807700893300 /* SelectorReceiveAssetsSectionFactory.swift */; };
 		2D6E282A2E96807700893300 /* SelectorReceiveAssetsTitleBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E28012E96807700893300 /* SelectorReceiveAssetsTitleBuilder.swift */; };
@@ -4668,7 +4667,6 @@
 		2D6E27F92E96807700893300 /* QRCodeReceiveAssetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeReceiveAssetsView.swift; sourceTree = "<group>"; };
 		2D6E27FA2E96807700893300 /* QRCodeReceiveAssetsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeReceiveAssetsViewModel.swift; sourceTree = "<group>"; };
 		2D6E27FC2E96807700893300 /* CommonSelectorReceiveAssetsSectionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSelectorReceiveAssetsSectionFactory.swift; sourceTree = "<group>"; };
-		2D6E27FD2E96807700893300 /* EthereumSelectorReceiveAssetsSectionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumSelectorReceiveAssetsSectionFactory.swift; sourceTree = "<group>"; };
 		2D6E27FE2E96807700893300 /* SelectorReceiveAssetsSectionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorReceiveAssetsSectionFactory.swift; sourceTree = "<group>"; };
 		2D6E28002E96807700893300 /* SelectorReceiveAssetsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorReceiveAssetsSection.swift; sourceTree = "<group>"; };
 		2D6E28012E96807700893300 /* SelectorReceiveAssetsTitleBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorReceiveAssetsTitleBuilder.swift; sourceTree = "<group>"; };
@@ -9483,7 +9481,6 @@
 			isa = PBXGroup;
 			children = (
 				2D6E27FC2E96807700893300 /* CommonSelectorReceiveAssetsSectionFactory.swift */,
-				2D6E27FD2E96807700893300 /* EthereumSelectorReceiveAssetsSectionFactory.swift */,
 				2D6E27FE2E96807700893300 /* SelectorReceiveAssetsSectionFactory.swift */,
 			);
 			path = Factories;
@@ -23911,7 +23908,6 @@
 				2D6E28242E96807700893300 /* SelectorReceiveAssetItemRoutable.swift in Sources */,
 				2D6E28252E96807700893300 /* SelectorReceiveAssetsAddressItemViewModel.swift in Sources */,
 				2D6E28262E96807700893300 /* CommonSelectorReceiveAssetsSectionFactory.swift in Sources */,
-				2D6E28272E96807700893300 /* EthereumSelectorReceiveAssetsSectionFactory.swift in Sources */,
 				2D6E28282E96807700893300 /* SelectorReceiveAssetsAddressItemView.swift in Sources */,
 				2D6E28292E96807700893300 /* SelectorReceiveAssetsSectionFactory.swift in Sources */,
 				2D6E282A2E96807700893300 /* SelectorReceiveAssetsTitleBuilder.swift in Sources */,

@@ -27,6 +27,15 @@ struct CommonSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFa
     // MARK: - Implementation
 
     func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection] {
+        [
+            makeDomainSection(for: assets),
+            makeAddressSection(for: assets),
+        ]
+    }
+
+    // MARK: - Private Implementation
+
+    private func makeDomainSection(for assets: [ReceiveAddressType]) -> SelectorReceiveAssetsSection {
         let domainItems: [SelectorReceiveAssetsDomainItemViewModel] = assets
             .filter { $0.key == .domain }
             .compactMap {
@@ -39,6 +48,15 @@ struct CommonSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFa
                 return viewModel
             }
 
+        return SelectorReceiveAssetsSection(
+            id: .domain,
+            items: [
+                SelectorReceiveAssetsContentItemViewModel(stateView: .domain(domainItems)),
+            ]
+        )
+    }
+
+    private func makeAddressSection(for assets: [ReceiveAddressType]) -> SelectorReceiveAssetsSection {
         let addressItems: [SelectorReceiveAssetsAddressPageItemViewModel] = assets
             .filter { $0.key == .address }
             .compactMap {
@@ -51,19 +69,11 @@ struct CommonSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFa
                 return viewModel
             }
 
-        return [
-            SelectorReceiveAssetsSection(
-                id: .domain,
-                items: [
-                    SelectorReceiveAssetsContentItemViewModel(stateView: .domain(domainItems)),
-                ]
-            ),
-            SelectorReceiveAssetsSection(
-                id: .default,
-                items: [
-                    SelectorReceiveAssetsContentItemViewModel(stateView: .address(addressItems)),
-                ]
-            ),
-        ]
+        return SelectorReceiveAssetsSection(
+            id: .default,
+            items: [
+                SelectorReceiveAssetsContentItemViewModel(stateView: .address(addressItems)),
+            ]
+        )
     }
 }
