@@ -22,7 +22,7 @@ extension MinimumBalanceRestrictable where Self: WalletProvider {
         let total = amount + fee
         let remainderBalance = balance - total
         if remainderBalance < minimumBalance {
-            throw ValidationError.minimumBalance(minimumBalance: minimumBalance)
+            throw ValidationError.minimumBalance(minimumBalance: minimumBalance, canLeaveAmount: balance.value > minimumBalance.value)
         }
     }
 }

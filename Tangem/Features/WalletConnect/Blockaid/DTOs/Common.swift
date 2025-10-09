@@ -26,6 +26,7 @@ extension BlockaidDTO {
     enum Option: String, Encodable {
         case simulation
         case validation
+        case gasEstimation = "gas_estimation"
     }
 
     struct Validation: Decodable {
@@ -116,5 +117,12 @@ extension BlockaidDTO {
     struct AddressDetail: Decodable {
         let nameTag: String?
         let contractName: String?
+    }
+
+    struct TransactionParams: Codable {
+        let from: String
+        let to: String
+        let data: String
+        let value: String
     }
 }

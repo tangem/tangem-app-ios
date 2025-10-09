@@ -21,11 +21,13 @@ public struct TangemExpressFactory {
         expressRepository: ExpressRepository,
         analyticsLogger: ExpressAnalyticsLogger,
         supportedProviderTypes: [ExpressProviderType],
-        operationType: ExpressOperationType
+        operationType: ExpressOperationType,
+        transactionValidator: ExpressProviderTransactionValidator
     ) -> ExpressManager {
         let factory = CommonExpressProviderManagerFactory(
             expressAPIProvider: expressAPIProvider,
-            mapper: .init()
+            mapper: .init(),
+            transactionValidator: transactionValidator
         )
 
         return CommonExpressManager(
@@ -45,6 +47,7 @@ public struct TangemExpressFactory {
         onrampRepository: OnrampRepository,
         dataRepository: OnrampDataRepository,
         analyticsLogger: ExpressAnalyticsLogger,
+        providerItemSorter: ProviderItemSorter,
         preferredValues: PreferredValues,
     ) -> OnrampManager {
         CommonOnrampManager(
@@ -52,6 +55,7 @@ public struct TangemExpressFactory {
             onrampRepository: onrampRepository,
             dataRepository: dataRepository,
             analyticsLogger: analyticsLogger,
+            sorter: providerItemSorter,
             preferredValues: preferredValues
         )
     }
