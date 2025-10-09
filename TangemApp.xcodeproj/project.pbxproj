@@ -2590,6 +2590,7 @@
 		D8796D6B2E2847F20034ADAB /* XCTest+Allure.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8796D6A2E2847F20034ADAB /* XCTest+Allure.swift */; };
 		D8796DAD2E2A4AF30034ADAB /* UITestOnrampRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8796DAC2E2A4AF30034ADAB /* UITestOnrampRepository.swift */; };
 		D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */; };
+		D892E6BF2E95114000D29113 /* SendCardanoNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D892E6BD2E95114000D29113 /* SendCardanoNotificationUITests.swift */; };
 		D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89ABED82E31979900855B00 /* SwapScreen.swift */; };
 		D8BCA6892E5DF4A400DC6876 /* WalletConnectedAppSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BCA6882E5DF4A400DC6876 /* WalletConnectedAppSheet.swift */; };
 		D8DEEABB2E14252800DACD4B /* TangemAPIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */; };
@@ -6888,6 +6889,7 @@
 		D8796D6A2E2847F20034ADAB /* XCTest+Allure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Allure.swift"; sourceTree = "<group>"; };
 		D8796DAC2E2A4AF30034ADAB /* UITestOnrampRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestOnrampRepository.swift; sourceTree = "<group>"; };
 		D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScreen.swift; sourceTree = "<group>"; };
+		D892E6BD2E95114000D29113 /* SendCardanoNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCardanoNotificationUITests.swift; sourceTree = "<group>"; };
 		D89ABED82E31979900855B00 /* SwapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapScreen.swift; sourceTree = "<group>"; };
 		D8BCA6882E5DF4A400DC6876 /* WalletConnectedAppSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectedAppSheet.swift; sourceTree = "<group>"; };
 		D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemAPIType.swift; sourceTree = "<group>"; };
@@ -10845,6 +10847,7 @@
 		7982B01F2DE70E1900C41EA5 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				D892E6BE2E95114000D29113 /* Send */,
 				D852F81C2E5C86AB00C71B7F /* Smoke */,
 			);
 			path = Tests;
@@ -16626,6 +16629,14 @@
 				D852F8422E5CA30C00C71B7F /* WCURIResponse.swift */,
 			);
 			path = WCURI;
+			sourceTree = "<group>";
+		};
+		D892E6BE2E95114000D29113 /* Send */ = {
+			isa = PBXGroup;
+			children = (
+				D892E6BD2E95114000D29113 /* SendCardanoNotificationUITests.swift */,
+			);
+			path = Send;
 			sourceTree = "<group>";
 		};
 		D8BCA68B2E5DFE1800DC6876 /* WC */ = {
@@ -26209,6 +26220,7 @@
 				7982B02E2DE7259E00C41EA5 /* MainScreen.swift in Sources */,
 				D863E7562E65CFA300912D52 /* DeviceSettingsScreen.swift in Sources */,
 				7982B0212DE70E1900C41EA5 /* StoriesScreen.swift in Sources */,
+				D892E6BF2E95114000D29113 /* SendCardanoNotificationUITests.swift in Sources */,
 				D852F82B2E5C86B400C71B7F /* OnrampCurrencySelectorScreen.swift in Sources */,
 				D852F8392E5C86EB00C71B7F /* WCLinksUITests.swift in Sources */,
 				D852F82C2E5C86B400C71B7F /* OnrampPaymentMethodsScreen.swift in Sources */,
