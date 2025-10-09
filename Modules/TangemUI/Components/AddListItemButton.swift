@@ -11,26 +11,24 @@ import TangemAssets
 import TangemUIUtils
 
 public struct AddListItemButton: View {
-    @Environment(\.isEnabled) var isEnabled
+    private let viewData: ViewData
 
-    private let text: String
-    private let action: () -> Void
-
-    public init(text: String, action: @escaping () -> Void) {
-        self.text = text
-        self.action = action
+    public init(viewData: ViewData) {
+        self.viewData = viewData
     }
 
     public var body: some View {
-        Button(action: action) {
+        Button(action: viewData.action) {
             HStack(spacing: 12) {
                 plusIcon
 
-                Text(text)
+                Text(viewData.text)
                     .style(Fonts.Bold.subheadline, color: textAndIconColor)
+
+                Spacer()
             }
         }
-        .disabled(!isEnabled)
+        .disabled(!viewData.isEnabled)
     }
 
     private var plusIcon: some View {
@@ -46,7 +44,7 @@ public struct AddListItemButton: View {
     }
 
     private var textAndIconColor: Color {
-        if isEnabled {
+        if viewData.isEnabled {
             return Colors.Text.accent
         }
 
@@ -54,7 +52,7 @@ public struct AddListItemButton: View {
     }
 
     private var iconBackgroundColor: Color {
-        if isEnabled {
+        if viewData.isEnabled {
             return Colors.Text.accent.opacity(0.1)
         }
 
@@ -62,12 +60,31 @@ public struct AddListItemButton: View {
     }
 }
 
+public extension AddListItemButton {
+    struct ViewData: Identifiable {
+        public var id: String {
+            text
+        }
+
+        let text: String
+        let isEnabled: Bool
+        let action: () -> Void
+
+        public init(text: String, isEnabled: Bool = true, action: @escaping () -> Void) {
+            self.text = text
+            self.isEnabled = isEnabled
+            self.action = action
+        }
+
+        public static let initial = Self(text: "", action: {})
+    }
+}
+
 #if DEBUG
 #Preview {
     VStack {
-        AddListItemButton(text: "Add account", action: {})
-        AddListItemButton(text: "Add account", action: {})
-            .disabled(true)
+        AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account", action: {}))
+        AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account", isEnabled: false, action: {}))
     }
 }
 #endif
