@@ -15,8 +15,8 @@ final class AddWalletSelectorViewModel: ObservableObject {
     @Published var isBuyAvailable = false
 
     let navigationBarHeight = OnboardingLayoutConstants.navbarSize.height
-    let screenTitle = "Choose how to add your wallet"
-    let supportButtonTitle = "What to choose?"
+    let screenTitle = Localization.walletAddCommonTitle
+    let supportButtonTitle = Localization.walletAddSupportTitle
 
     lazy var walletItems: [WalletItem] = makeWalletItems()
     lazy var buyItem: BuyItem = makeBuyItem()
@@ -49,12 +49,12 @@ private extension AddWalletSelectorViewModel {
         let hardwareItem = WalletItem(
             description: WalletDescriptionItem(
                 title: Localization.walletCreateHardwareTitle,
-                subtitle: "Scan your Tangem card or ring to restore it or import from another wallet.",
-                badge: BadgeView.Item(title: "Recommended", style: .accent)
+                subtitle: Localization.walletAddHardwareDescription,
+                badge: BadgeView.Item(title: Localization.commonRecommended, style: .accent)
             ),
             infos: [
-                WalletInfoItem(icon: Assets.Glyphs.addData, title: "Create Hardware Wallet"),
-                WalletInfoItem(icon: Assets.Glyphs.importData, title: "Import seed phrase"),
+                WalletInfoItem(icon: Assets.Glyphs.addData, title: Localization.walletAddHardwareInfoCreate),
+                WalletInfoItem(icon: Assets.Glyphs.importData, title: Localization.walletAddImportSeedPhrase),
             ],
             action: weakify(self, forFunction: AddWalletSelectorViewModel.openHardwareWallet)
         )
@@ -62,12 +62,12 @@ private extension AddWalletSelectorViewModel {
         let mobileItem = WalletItem(
             description: WalletDescriptionItem(
                 title: Localization.hwMobileWallet,
-                subtitle: "Restore your wallet on your phone or import from another app — convenient, but less secure than a Tangem card.",
+                subtitle: Localization.walletAddMobileDescription,
                 badge: nil
             ),
             infos: [
                 WalletInfoItem(icon: Assets.Glyphs.mobileWallet, title: Localization.hwCreateTitle),
-                WalletInfoItem(icon: Assets.Glyphs.importData, title: "Import seed phrase"),
+                WalletInfoItem(icon: Assets.Glyphs.importData, title: Localization.walletAddImportSeedPhrase),
             ],
             action: weakify(self, forFunction: AddWalletSelectorViewModel.openMobileWallet)
         )
@@ -77,7 +77,7 @@ private extension AddWalletSelectorViewModel {
 
     func makeBuyItem() -> BuyItem {
         BuyItem(
-            title: "Want to purchase a Tangem Wallet?",
+            title: Localization.walletAddHardwarePurchase,
             buttonTitle: Localization.walletImportBuyTitle,
             buttonAction: weakify(self, forFunction: AddWalletSelectorViewModel.openBuyHardwareWallet)
         )
