@@ -55,7 +55,9 @@ struct ConfigUtils {
                 quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
                 bittensorDwellirKey: keys.bittensorDwellirKey,
                 bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
-                tangemAlephiumApiKey: keys.alephiumTangemApiKey
+                tangemAlephiumApiKey: keys.alephiumTangemApiKey,
+                blinkApiKey: keys.blinkApiKey,
+                tatumApiKey: keys.tatumApiKey,
             )
         } catch {
             return .init(
@@ -76,7 +78,9 @@ struct ConfigUtils {
                 quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
                 bittensorDwellirKey: "",
                 bittensorOnfinalityKey: "",
-                tangemAlephiumApiKey: ""
+                tangemAlephiumApiKey: "",
+                blinkApiKey: "",
+                tatumApiKey: "",
             )
         }
     }
@@ -202,6 +206,8 @@ struct Keys: Decodable {
     let bittensorDwellirKey: String
     let bittensorOnfinalityKey: String
     let alephiumTangemApiKey: String
+    let blinkApiKey: String
+    let tatumApiKey: String
 }
 
 struct TonCenterApiKeys: Decodable {
