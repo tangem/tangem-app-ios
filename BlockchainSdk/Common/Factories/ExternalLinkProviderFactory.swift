@@ -195,6 +195,8 @@ public struct ExternalLinkProviderFactory {
             return PepecoinExternalLinkProvider(isTestnet: isTestnet)
         case .hyperliquidEVM:
             return HyperliquidExternalLinkProvider(isTestnet: isTestnet)
+        case .quai:
+            return QuaiExternalLinkProvider(isTestnet: isTestnet)
         }
     }
 }
