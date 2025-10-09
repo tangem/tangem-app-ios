@@ -13,6 +13,7 @@ import TangemNetworkUtils
 struct EthereumTarget: TargetType {
     private let targetType: EthereumTargetType
     private let node: NodeInfo
+    private let networkPrefix: RPCNetworkPrefix
 
     var baseURL: URL {
         node.url
@@ -42,9 +43,10 @@ struct EthereumTarget: TargetType {
         return headers
     }
 
-    init(targetType: EthereumTargetType, node: NodeInfo) {
+    init(targetType: EthereumTargetType, node: NodeInfo, networkPrefix: RPCNetworkPrefix) {
         self.targetType = targetType
         self.node = node
+        self.networkPrefix = networkPrefix
     }
 }
 
@@ -52,26 +54,7 @@ private extension EthereumTarget {
     static var id: Int = 0
 
     var rpcMethod: String {
-        switch targetType {
-        case .balance:
-            return "eth_getBalance"
-        case .transactions:
-            return "eth_getTransactionCount"
-        case .pending:
-            return "eth_getTransactionCount"
-        case .send:
-            return "eth_sendRawTransaction"
-        case .gasLimit:
-            return "eth_estimateGas"
-        case .gasPrice:
-            return "eth_gasPrice"
-        case .priorityFee:
-            return "eth_maxPriorityFeePerGas"
-        case .call:
-            return "eth_call"
-        case .feeHistory:
-            return "eth_feeHistory"
-        }
+        networkPrefix.makeRPC(method: targetType.rpcMethod)
     }
 
     /// the params have to be nested in an array
@@ -111,6 +94,40 @@ extension EthereumTarget {
 
         /// https://www.quicknode.com/docs/ethereum/eth_feeHistory
         case feeHistory
+
+        var rpcMethod: String {
+            switch self {
+            case .balance:
+                return "getBalance"
+            case .transactions:
+                return "getTransactionCount"
+            case .pending:
+                return "getTransactionCount"
+            case .send:
+                return "sendRawTransaction"
+            case .gasLimit:
+                return "estimateGas"
+            case .gasPrice:
+                return "gasPrice"
+            case .priorityFee:
+                return "maxPriorityFeePerGas"
+            case .call:
+                return "call"
+            case .feeHistory:
+                return "feeHistory"
+            }
+        }
+    }
+}
+
+extension EthereumTarget {
+    enum RPCNetworkPrefix: String {
+        case ethereum = "eth"
+        case quai
+
+        func makeRPC(method: String) -> String {
+            "\(rawValue)_\(method)"
+        }
     }
 }
 
