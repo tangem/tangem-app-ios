@@ -155,6 +155,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
+        case .isHardwareLimited:
+            return .available
         }
     }
 

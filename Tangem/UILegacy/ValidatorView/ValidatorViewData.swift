@@ -24,10 +24,10 @@ struct ValidatorViewData: Hashable, Identifiable {
         switch subtitleType {
         case .none:
             return nil
-        case .selection(let apr):
-            return string(Localization.stakingDetailsAnnualPercentageRate + " " + apr)
-        case .active(let apr):
-            return string(Localization.stakingDetailsApr + " " + apr)
+        case .selection(let formatted):
+            return string(formatted)
+        case .active(let formatted):
+            return string(formatted)
         }
     }
 
@@ -65,8 +65,10 @@ struct ValidatorViewData: Hashable, Identifiable {
 
 extension ValidatorViewData {
     enum SubtitleType: Hashable {
-        case active(apr: String)
-        case selection(percentFormatted: String)
+        /// Short prefix
+        case active(formatted: String)
+        /// Full prefix
+        case selection(formatted: String)
     }
 
     enum DetailsType: Hashable {
