@@ -17,8 +17,9 @@ enum WCNotificationEvent: Equatable {
     case insufficientBalance
     case insufficientBalanceForFee(blockchainName: String)
     case networkFeeUnreachable
-    case suspiciousTransaction(description: String?)
-    case maliciousTransaction(description: String?)
+    case suspiciousTransaction(description: String)
+    case maliciousTransaction(description: String)
+    case validationFailed
 }
 
 extension WCNotificationEvent {
@@ -31,7 +32,7 @@ extension WCNotificationEvent {
         switch self {
         case .customFeeTooHigh, .customFeeTooLow, .insufficientBalance, .insufficientBalanceForFee, .networkFeeUnreachable:
             return .feeValidation
-        case .suspiciousTransaction, .maliciousTransaction:
+        case .suspiciousTransaction, .maliciousTransaction, .validationFailed:
             return .simulationValidation
         }
     }
@@ -47,6 +48,7 @@ extension WCNotificationEvent: NotificationEvent {
         case .networkFeeUnreachable: "wcNetworkFeeUnreachable".hashValue
         case .suspiciousTransaction: "wcSuspiciousTransaction".hashValue
         case .maliciousTransaction: "wcMaliciousTransaction".hashValue
+        case .validationFailed: "validationFailed".hashValue
         }
     }
 
@@ -66,6 +68,8 @@ extension WCNotificationEvent: NotificationEvent {
             return .string(Localization.wcWarningTransaction)
         case .maliciousTransaction:
             return .string(Localization.wcMaliciousTransaction)
+        case .validationFailed:
+            return .string(Localization.wcUnknownTxNotificationTitle)
         }
     }
 
@@ -85,12 +89,14 @@ extension WCNotificationEvent: NotificationEvent {
             return description
         case .maliciousTransaction(let description):
             return description
+        case .validationFailed:
+            return Localization.wcUnknownTxNotificationDescription
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .customFeeTooHigh, .customFeeTooLow, .suspiciousTransaction:
+        case .customFeeTooHigh, .customFeeTooLow, .suspiciousTransaction, .validationFailed:
             return .secondary
         case .insufficientBalance, .insufficientBalanceForFee, .networkFeeUnreachable, .maliciousTransaction:
             return .action
@@ -99,7 +105,7 @@ extension WCNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .customFeeTooHigh, .customFeeTooLow, .suspiciousTransaction:
+        case .customFeeTooHigh, .customFeeTooLow, .suspiciousTransaction, .validationFailed:
             return .init(iconType: .image(Assets.attention.image))
         case .insufficientBalance, .insufficientBalanceForFee, .networkFeeUnreachable, .maliciousTransaction:
             return .init(iconType: .image(Assets.redCircleWarning.image))
@@ -108,7 +114,7 @@ extension WCNotificationEvent: NotificationEvent {
 
     var severity: NotificationView.Severity {
         switch self {
-        case .customFeeTooHigh, .customFeeTooLow, .suspiciousTransaction:
+        case .customFeeTooHigh, .customFeeTooLow, .suspiciousTransaction, .validationFailed:
             return .warning
         case .insufficientBalance, .insufficientBalanceForFee, .networkFeeUnreachable, .maliciousTransaction:
             return .critical

@@ -282,6 +282,10 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://rpc.hyperliquid-testnet.xyz/evm")!),
             ]
+        case .quai:
+            return [
+                .init(url: URL(string: "https://orchard.rpc.quai.network/cyprus1/")!),
+            ]
         // [REDACTED_TODO_COMMENT]
         case .bitcoin, .litecoin, .disChain, .rsk, .bitcoinCash, .binance, .cardano,
              .xrp, .ducatus, .tezos, .dogecoin, .solana, .kusama, .dash, .gnosis,
