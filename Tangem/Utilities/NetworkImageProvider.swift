@@ -189,6 +189,8 @@ struct NetworkImageProvider: NFTChainIconProvider {
             filled ? Tokens.pepecoinFill : Tokens.pepecoin
         case .hyperliquidEVM:
             filled ? Tokens.hyperliquidFill : Tokens.hyperliquid
+        case .quai:
+            filled ? Tokens.quaiFill : Tokens.quai
         }
     }
 

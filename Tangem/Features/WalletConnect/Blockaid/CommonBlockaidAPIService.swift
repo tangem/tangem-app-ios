@@ -69,6 +69,30 @@ final class CommonBlockaidAPIService: BlockaidAPIService {
 
         return try await request(target: .scanSolana(request: scanRequest))
     }
+
+    func scanEvmTransactionBulk(
+        blockchain: BlockchainSdk.Blockchain,
+        transactions: [BlockaidDTO.TransactionParams]
+    ) async throws -> BlockaidDTO.EvmTransactionBulkScan.Response {
+        guard let blockchain = BlockaidDTO.Chain(blockchain: blockchain) else {
+            throw BlockaidAPIServiceError.blockchainIsNotSupported
+        }
+
+        let scanRequest = BlockaidDTO.EvmTransactionBulkScan.Request(
+            chain: blockchain,
+            data: transactions.map {
+                BlockaidDTO.EvmTransactionBulkScan.Request.Data(
+                    from: $0.from,
+                    to: $0.to,
+                    value: $0.value,
+                    data: $0.data
+                )
+            },
+            aggregated: false
+        )
+
+        return try await request(target: .scanEvmTransactionBulk(request: scanRequest))
+    }
 }
 
 private extension CommonBlockaidAPIService {
