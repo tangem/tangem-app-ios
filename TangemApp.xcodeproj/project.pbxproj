@@ -2702,6 +2702,8 @@
 		DA76BF522CEF9E0C00199317 /* OnrampTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA76BF512CEF9E0C00199317 /* OnrampTransaction.swift */; };
 		DA7B2C512B6B893500FB9622 /* SendNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7B2C4F2B6B893500FB9622 /* SendNotificationManager.swift */; };
 		DA7B2C522B6B893500FB9622 /* SendNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7B2C502B6B893500FB9622 /* SendNotificationEvent.swift */; };
+		DA7BAFFA2E9903A9001116F2 /* TangemPayTransactionHistoryResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7BAFF92E9903A9001116F2 /* TangemPayTransactionHistoryResponse.swift */; };
+		DA7BAFFC2E9903C8001116F2 /* TangemPayBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7BAFFB2E9903C8001116F2 /* TangemPayBalance.swift */; };
 		DA81B0F12AB0A74000FA86D3 /* ChangeSignType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA81B0F02AB0A74000FA86D3 /* ChangeSignType.swift */; };
 		DA89AC0A2CE6B18100AFB755 /* PendingExpressTxTokenInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA89AC092CE6B18000AFB755 /* PendingExpressTxTokenInfoView.swift */; };
 		DA8A38C62D09046400ADD81D /* Fact0rnMainNetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8A38C52D09046400ADD81D /* Fact0rnMainNetworkParams.swift */; };
@@ -7023,6 +7025,8 @@
 		DA76BF512CEF9E0C00199317 /* OnrampTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampTransaction.swift; sourceTree = "<group>"; };
 		DA7B2C4F2B6B893500FB9622 /* SendNotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendNotificationManager.swift; sourceTree = "<group>"; };
 		DA7B2C502B6B893500FB9622 /* SendNotificationEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendNotificationEvent.swift; sourceTree = "<group>"; };
+		DA7BAFF92E9903A9001116F2 /* TangemPayTransactionHistoryResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayTransactionHistoryResponse.swift; sourceTree = "<group>"; };
+		DA7BAFFB2E9903C8001116F2 /* TangemPayBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayBalance.swift; sourceTree = "<group>"; };
 		DA81B0F02AB0A74000FA86D3 /* ChangeSignType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeSignType.swift; sourceTree = "<group>"; };
 		DA89AC092CE6B18000AFB755 /* PendingExpressTxTokenInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingExpressTxTokenInfoView.swift; sourceTree = "<group>"; };
 		DA8A38C52D09046400ADD81D /* Fact0rnMainNetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnMainNetworkParams.swift; sourceTree = "<group>"; };
@@ -10974,6 +10978,7 @@
 		B01408302D0832FF00734888 /* CustomerInfoManagementService */ = {
 			isa = PBXGroup;
 			children = (
+				DA7BAFF82E990396001116F2 /* TangemPayTransactionHistory */,
 				DA8BF1682E86B23200B63884 /* TangemPayCardDetails */,
 				DA39E28C2E8400CA003FADBC /* Order */,
 				B014082D2D0832FF00734888 /* CustomerInfoManagementAPITarget.swift */,
@@ -16946,6 +16951,14 @@
 			path = Notifications;
 			sourceTree = "<group>";
 		};
+		DA7BAFF82E990396001116F2 /* TangemPayTransactionHistory */ = {
+			isa = PBXGroup;
+			children = (
+				DA7BAFF92E9903A9001116F2 /* TangemPayTransactionHistoryResponse.swift */,
+			);
+			path = TangemPayTransactionHistory;
+			sourceTree = "<group>";
+		};
 		DA8A38C72D09052600ADD81D /* Fact0rn */ = {
 			isa = PBXGroup;
 			children = (
@@ -16967,6 +16980,7 @@
 		DA8BF1682E86B23200B63884 /* TangemPayCardDetails */ = {
 			isa = PBXGroup;
 			children = (
+				DA7BAFFB2E9903C8001116F2 /* TangemPayBalance.swift */,
 				DA8BF16B2E86B24E00B63884 /* TangemPayCardDetailsRequest.swift */,
 				DA8BF1692E86B23E00B63884 /* TangemPayCardDetailsResponse.swift */,
 			);
@@ -26464,6 +26478,8 @@
 				B03A472D2D9BDA6000AC7373 /* VisaBlockchainSdkDummyDependencies.swift in Sources */,
 				B05145172B5934FD00EDAD1E /* VisaAddressParser.swift in Sources */,
 				B07232472D10216500E30614 /* VisaConstants.swift in Sources */,
+				DA7BAFFC2E9903C8001116F2 /* TangemPayBalance.swift in Sources */,
+				DA7BAFFA2E9903A9001116F2 /* TangemPayTransactionHistoryResponse.swift in Sources */,
 				B05145192B59351E00EDAD1E /* VisaPaymentAccountInteractorBuilder.swift in Sources */,
 				B05E36922CDA0F2C00CE44F2 /* VisaAuthorizationService.swift in Sources */,
 				B086AE0D2D51EA230042B955 /* ProductActivationServiceBuilder.swift in Sources */,
