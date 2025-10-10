@@ -39,6 +39,7 @@ struct TangemPayOfferView: View {
 
             getCardButton
                 .padding(.horizontal, 16)
+                .padding(.bottom, 16)
         }
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
     }
