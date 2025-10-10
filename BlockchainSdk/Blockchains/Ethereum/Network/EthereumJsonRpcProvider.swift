@@ -15,14 +15,16 @@ import TangemNetworkUtils
 final class EthereumJsonRpcProvider: HostProvider {
     private let node: NodeInfo
     private let provider: TangemProvider<EthereumTarget>
+    private let networkPrefix: EthereumTarget.RPCNetworkPrefix
 
     var host: String {
         node.url.hostOrUnknown
     }
 
-    init(node: NodeInfo, configuration: TangemProviderConfiguration) {
+    init(node: NodeInfo, configuration: TangemProviderConfiguration, networkPrefix: EthereumTarget.RPCNetworkPrefix) {
         self.node = node
         provider = TangemProvider<EthereumTarget>(configuration: configuration)
+        self.networkPrefix = networkPrefix
     }
 
     func call(contractAddress: String, encodedData: String) -> AnyPublisher<String, Error> {
@@ -62,7 +64,7 @@ final class EthereumJsonRpcProvider: HostProvider {
     }
 
     private func requestPublisher<Result: Decodable>(for targetType: EthereumTarget.EthereumTargetType) -> AnyPublisher<Result, Error> {
-        let target = EthereumTarget(targetType: targetType, node: node)
+        let target = EthereumTarget(targetType: targetType, node: node, networkPrefix: networkPrefix)
 
         return provider.requestPublisher(target)
             .filterSuccessfulStatusAndRedirectCodes()
