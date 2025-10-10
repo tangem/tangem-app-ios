@@ -12,17 +12,17 @@ import UIKit
 import SwiftUI
 import TangemFoundation
 import TangemLogger
-import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
-class LogsViewModel: ObservableObject {
+final class LogsViewModel: ObservableObject {
     var selectedCategory: String { categories[selectedCategoryIndex] }
 
     @Published var selectedCategoryIndex: Int = .zero
     @Published var logs: LoadingResult<[LogRowViewData], Error> = .loading
     @Published var categories: [String] = ["All"]
     @Published var alert: AlertBinder?
-    @Published var sheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     private let entries: CurrentValueSubject<LoadingResult<[LogRowViewData], Error>, Never> = .init(.loading)
     private var bag: Set<AnyCancellable> = []
@@ -33,11 +33,22 @@ class LogsViewModel: ObservableObject {
     }
 
     func openSheet() {
-        sheet = .init(sheet: .init(title: Text("Choose action"), message: nil, buttons: [
-            .default(Text("Share"), action: { [weak self] in self?.share() }),
-            .default(Text("Clear"), action: { [weak self] in self?.clear() }),
-            .cancel(),
-        ]))
+        let shareButton = ConfirmationDialogViewModel.Button(title: "Share") { [weak self] in
+            self?.share()
+        }
+
+        let clearButton = ConfirmationDialogViewModel.Button(title: "Clear") { [weak self] in
+            self?.clear()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: "Choose action",
+            buttons: [
+                shareButton,
+                clearButton,
+                ConfirmationDialogViewModel.Button.cancel,
+            ]
+        )
     }
 
     private func share() {
