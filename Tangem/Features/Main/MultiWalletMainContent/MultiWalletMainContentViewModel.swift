@@ -33,6 +33,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
     @Published var tangemPayCardIssuingInProgress: Bool = false
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    @Published var tangemPayAccountViewModel: TangemPayAccountViewModel?
+
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
     @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
@@ -128,13 +132,34 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
             tangemPayAccountPublisher
                 .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
-                .receive(on: DispatchQueue.main)
+                .receiveOnMain()
                 .assign(to: &$tangemPayNotificationInputs)
 
             tangemPayAccountPublisher
                 .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
-                .receive(on: DispatchQueue.main)
+                .receiveOnMain()
                 .assign(to: &$tangemPayCardIssuingInProgress)
+
+            tangemPayAccountPublisher
+                .withWeakCaptureOf(self)
+                .flatMapLatest { viewModel, tangemPayAccount in
+                    tangemPayAccount.tangemPayCardDetailsPublisher
+                        .withWeakCaptureOf(viewModel)
+                        .map { viewModel, cardDetails in
+                            guard let (card, balance) = cardDetails else {
+                                return nil
+                            }
+                            return TangemPayAccountViewModel(
+                                card: card,
+                                balance: balance,
+                                tapAction: {
+                                    viewModel.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
+                                }
+                            )
+                        }
+                }
+                .receiveOnMain()
+                .assign(to: &$tangemPayAccountViewModel)
         }
     }
 
@@ -415,6 +440,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+    }
+
+    private func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
+        coordinator?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
     }
 }
 
