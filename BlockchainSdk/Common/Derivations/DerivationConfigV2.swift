@@ -148,6 +148,9 @@ struct DerivationConfigV2: DerivationConfig {
             return "m/44'/1234'/0'/0/0"
         case .pepecoin:
             return "m/44'/3434'/0'/0/0"
+        case .quai:
+            // There are 4 nodes by default, the 5th node will be calculated dynamically when creating the WalletManager
+            return "m/44'/994'/0'/0"
         }
     }
 }

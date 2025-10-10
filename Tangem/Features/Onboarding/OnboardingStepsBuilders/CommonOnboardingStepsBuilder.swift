@@ -13,7 +13,8 @@ struct CommonOnboardingStepsBuilder {
 
     var shouldAddSaveWalletsStep: Bool {
         if FeatureProvider.isAvailable(.mobileWallet) {
-            !AppSettings.shared.saveUserWallets
+            BiometricsUtil.isAvailable
+                && !AppSettings.shared.useBiometricAuthentication
                 && !AppSettings.shared.askedToSaveUserWallets
         } else {
             BiometricsUtil.isAvailable
