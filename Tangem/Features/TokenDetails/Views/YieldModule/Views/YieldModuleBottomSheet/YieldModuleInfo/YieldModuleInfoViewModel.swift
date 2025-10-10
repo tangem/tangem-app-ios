@@ -52,7 +52,6 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
     private let yieldManagerInteractor: YieldManagerInteractor
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
-    private let chartServices = YieldChartService()
 
     // MARK: - Properties
 
@@ -135,7 +134,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         chartState = .loading
 
         do {
-            let chartData = try await chartServices.getChartData()
+            let chartData = try await yieldManagerInteractor.getChartData()
             chartState = .loaded(chartData)
         } catch {
             chartState = .error(action: { [weak self] in
@@ -174,7 +173,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private func prepareApy() {
         Task { @MainActor [weak self] in
             if let apy = try? await self?.yieldManagerInteractor.getApy() {
-                self?.apyState = .loaded(text: String(format: "%.1f%%", apy.doubleValue))
+                self?.apyState = .loaded(text: String(format: "%.2f%%", apy.doubleValue))
             } else {
                 self?.apyState = .noData
             }
