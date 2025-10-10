@@ -146,7 +146,7 @@ class PolkadotTransactionBuilder {
         }
     }
 
-    private func encodeEraNonceTip(era: PolkadotBlockchainMeta.Era, nonce: UInt64, tip: UInt64) throws -> Data {
+    private func encodeEraNonceTip(era: PolkadotBlockchainMeta.Era, nonce: UInt32, tip: UInt64) throws -> Data {
         var data = Data()
 
         let encodedEra = encodeEra(era)
@@ -216,7 +216,6 @@ class PolkadotTransactionBuilder {
         return data
     }
 
-    
     /// Add assetId zero byte for chains migrated to asset hub
     private func encodeAssetIdIfNeeded() throws -> Data {
         var data = Data()
