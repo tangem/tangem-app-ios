@@ -58,11 +58,20 @@ public extension OnrampProvider {
 
     enum AttractiveType: Hashable, CustomStringConvertible {
         case best
+        case great(percent: Decimal?)
         case loss(percent: Decimal)
+
+        public var isGreat: Bool {
+            switch self {
+            case .great: true
+            case .best, .loss: false
+            }
+        }
 
         public var description: String {
             switch self {
             case .best: "Best"
+            case .great(let percent): "Great \(String(describing: percent))"
             case .loss(let percent): "Loss \(percent)"
             }
         }
