@@ -68,6 +68,34 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         }
         return self
     }
+
+    @discardableResult
+    func waitForInvalidAmountBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Validate invalid amount banner does not exist") { _ in
+            XCTAssertTrue(invalidAmountBanner.waitForNonExistence(timeout: .robustUIUpdate), "Invalid amount banner should not be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForSendButtonDisabled() -> Self {
+        XCTContext.runActivity(named: "Validate Send button is disabled") { _ in
+            let sendButton = app.buttons["Send"].firstMatch
+            waitAndAssertTrue(sendButton, "Send button should exist")
+            XCTAssertFalse(sendButton.isEnabled, "Send button should be disabled")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForSendButtonEnabled() -> Self {
+        XCTContext.runActivity(named: "Validate Send button is enabled") { _ in
+            let sendButton = app.buttons["Send"].firstMatch
+            waitAndAssertTrue(sendButton, "Send button should exist")
+            XCTAssertTrue(sendButton.isEnabled, "Send button should be enabled")
+        }
+        return self
+    }
 }
 
 enum SendScreenElement: String, UIElement {
