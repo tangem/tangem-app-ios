@@ -33,6 +33,7 @@ extension OnrampOfferViewModel {
     enum Title: Hashable {
         case text(String)
         case bestRate
+        case great
         case fastest
     }
 
