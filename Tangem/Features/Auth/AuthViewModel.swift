@@ -31,6 +31,8 @@ final class AuthViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
+    private let signInAnalyticsLogger = SignInAnalyticsLogger()
+
     private weak var coordinator: AuthRoutable?
 
     private var unlockOnAppear: Bool
@@ -66,7 +68,7 @@ final class AuthViewModel: ObservableObject {
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
-
+                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
                 await runOnMain {
                     viewModel.openMain(with: userWalletModel)
                 }
@@ -144,6 +146,8 @@ final class AuthViewModel: ObservableObject {
                         with: .encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                     )
 
+                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
+
                     await runOnMain {
                         viewModel.isScanningCard = false
                         viewModel.openMain(with: userWalletModel)
@@ -156,7 +160,7 @@ final class AuthViewModel: ObservableObject {
                         keys: .cardWallet(keys: cardInfo.card.wallets)
                     ) {
                         try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
-
+                        viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
                         await runOnMain {
                             viewModel.isScanningCard = false
                             viewModel.openMain(with: newUserWalletModel)
