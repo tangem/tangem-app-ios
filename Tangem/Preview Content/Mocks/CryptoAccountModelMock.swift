@@ -13,7 +13,7 @@ import TangemLocalization
 final class CryptoAccountModelMock {
     let id = AccountId()
     let isMainAccount: Bool
-    let walletModelsManager: WalletModelsManager = WalletModelsManagerMock()
+    let walletModelsManager: WalletModelsManager
     let userTokensManager: UserTokensManager = UserTokensManagerMock()
     let userTokenListManager: UserTokenListManager = UserTokenListManagerMock()
 
@@ -38,8 +38,9 @@ final class CryptoAccountModelMock {
 
     private let didChangeSubject = PassthroughSubject<Void, Never>()
 
-    init(isMainAccount: Bool) {
+    init(isMainAccount: Bool, walletModelsManager: WalletModelsManager = WalletModelsManagerMock()) {
         self.isMainAccount = isMainAccount
+        self.walletModelsManager = walletModelsManager
     }
 }
 

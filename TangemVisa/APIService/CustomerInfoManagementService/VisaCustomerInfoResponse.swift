@@ -16,6 +16,7 @@ public struct VisaCustomerInfoResponse: Decodable {
     public let paymentAccount: PaymentAccount?
     public let kyc: KYCInfo
     public let card: Card?
+    public let balance: TangemPayBalance?
 }
 
 public extension VisaCustomerInfoResponse {
