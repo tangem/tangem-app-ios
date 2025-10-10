@@ -72,6 +72,7 @@ class PolkadotTransactionBuilder {
         var message = Data()
         message.append(try encodeCall(amount: amount, destination: destination, rawAddress: rawAddress))
         message.append(try encodeEraNonceTip(era: meta.era, nonce: meta.nonce, tip: 0))
+        message.append(try encodeAssetIdIfNeeded())
         message.append(try encodeCheckMetadataHashExtensionModeIfNeeded(runtimeVersion: runtimeVersion))
         message.append(try encode(meta.specVersion))
         message.append(try encode(meta.transactionVersion))
@@ -97,6 +98,7 @@ class PolkadotTransactionBuilder {
         transactionData.append(Data(sigTypeEd25519))
         transactionData.append(signature)
         transactionData.append(try encodeEraNonceTip(era: meta.era, nonce: meta.nonce, tip: 0))
+        transactionData.append(try encodeAssetIdIfNeeded())
         transactionData.append(try encodeCheckMetadataHashExtensionModeIfNeeded(runtimeVersion: runtimeVersion))
         transactionData.append(try encodeCall(amount: amount, destination: destination, rawAddress: rawAddress))
 
@@ -209,6 +211,31 @@ class PolkadotTransactionBuilder {
             // no actual payload is constructed and null is encoded instead
             let checkMetadataHashPayload = try encode(UInt8(0), .compact)
             data.append(checkMetadataHashPayload)
+        }
+
+        return data
+    }
+
+    
+    /// Add assetId zero byte for chains migrated to asset hub
+    private func encodeAssetIdIfNeeded() throws -> Data {
+        var data = Data()
+
+        switch network {
+        case .kusama:
+            data.append(try encode(UInt8(0), .compact))
+        case .polkadot:
+            break
+        case .westend:
+            break
+        case .azero:
+            break
+        case .joystream:
+            break
+        case .bittensor:
+            break
+        case .energyWebX:
+            break
         }
 
         return data
