@@ -47,6 +47,8 @@ struct MultiWalletMainContentView: View {
                 NotificationView(input: input)
             }
 
+            // [REDACTED_TODO_COMMENT]
+            // [REDACTED_INFO]
             if let viewModel = viewModel.tangemPayAccountViewModel {
                 TangemPayAccountView(viewModel: viewModel)
             }

@@ -340,6 +340,10 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         VisaKYCAccessTokenResponse(token: "", locale: "")
     }
 
+    func getBalance() async throws -> TangemPayBalance {
+        .init(currency: "", availableBalance: .zero)
+    }
+
     func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse {
         TangemPayCardDetailsResponse(
             expirationMonth: "",
@@ -347,10 +351,6 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
             pan: .init(secret: "", iv: ""),
             cvv: .init(secret: "", iv: "")
         )
-    }
-
-    func getBalance() async throws -> TangemPayBalance {
-        .init(currency: "", availableBalance: .zero)
     }
 
     func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse {
