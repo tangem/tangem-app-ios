@@ -127,6 +127,7 @@ extension NFTFlowFactory: SendGenericFlowFactory {
         notificationManager.setupManager(with: sendModel)
 
         // Logger setup
+        analyticsLogger.setup(sendDestinationInput: sendModel)
         analyticsLogger.setup(sendFeeInput: sendModel)
         analyticsLogger.setup(sendSourceTokenInput: sendModel)
         analyticsLogger.setup(sendReceiveTokenInput: sendModel)
