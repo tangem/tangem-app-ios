@@ -15,7 +15,7 @@ extension YieldModuleStartView {
     struct YieldModuleFeePolicyView: View {
         // It is called "Current Fee" in this view
         let tokenFeeState: LoadableTextView.State
-        let maximumFee: String
+        let maximumFeeState: LoadableTextView.State
         let blockchainName: String
 
         var body: some View {
@@ -37,11 +37,14 @@ extension YieldModuleStartView {
         }
 
         private var maximumFeeSection: some View {
-            GroupedSection(FeeModel(fee: maximumFee)) { fee in
-                DefaultRowView(viewModel: .init(title: Localization.yieldModuleFeePolicySheetMaxFeeTitle, detailsType: .text(fee.fee)))
-            } footer: {
-                DefaultFooterView(Localization.yieldModuleFeePolicySheetMaxFeeNote)
-            }
+            YieldFeeSection(
+                leadingTitle: Localization.yieldModuleFeePolicySheetMaxFeeTitle,
+                state: maximumFeeState,
+                footerText: Localization.yieldModuleFeePolicySheetMaxFeeNote,
+                linkTitle: nil,
+                url: nil,
+                onLinkTapAction: {}
+            )
         }
     }
 }
