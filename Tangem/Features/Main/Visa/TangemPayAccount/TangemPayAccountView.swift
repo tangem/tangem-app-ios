@@ -11,8 +11,7 @@ import TangemAssets
 import TangemUI
 
 struct TangemPayAccountView: View {
-    let cardNumber: String
-    let balanceString: String
+    let viewModel: TangemPayAccountViewModel
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -34,7 +33,7 @@ struct TangemPayAccountView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(height: 16)
 
-                    Text(cardNumber)
+                    Text("*" + viewModel.card.cardNumberEnd)
                         .style(
                             Fonts.Regular.caption1,
                             color: Colors.Text.tertiary
@@ -44,16 +43,22 @@ struct TangemPayAccountView: View {
 
             Spacer()
 
-            VStack {
-                Text(balanceString)
+            VStack(alignment: .trailing, spacing: 4) {
+                // [REDACTED_TODO_COMMENT]
+                Text("$ " + viewModel.balance.availableBalance.description)
                     .style(
                         Fonts.Regular.subheadline,
                         color: Colors.Text.primary1
                     )
 
-                Spacer()
+                Text(viewModel.balance.currency)
+                    .style(
+                        Fonts.Regular.caption1,
+                        color: Colors.Text.tertiary
+                    )
             }
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 14, horizontalPadding: 14)
+        .onTapGesture(perform: viewModel.tapAction)
     }
 }
