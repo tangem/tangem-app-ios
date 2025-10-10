@@ -33,8 +33,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
     @Published var tangemPayCardIssuingInProgress: Bool = false
 
-    @Published var tangemPayAccountViewModel: TangemPayAccountViewModel?
-
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
     @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
@@ -88,6 +86,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private var isUpdating = false
 
     private var bag = Set<AnyCancellable>()
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    private var tangemPayAccount: TangemPayAccount?
 
     init(
         userWalletModel: UserWalletModel,
@@ -438,10 +440,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
-    }
-
-    private func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
-        coordinator?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
     }
 }
 
