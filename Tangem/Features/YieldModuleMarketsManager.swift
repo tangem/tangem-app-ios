@@ -60,7 +60,9 @@ private extension CommonYieldModuleMarketsManager {
                     tokenContractAddress: $0.tokenAddress,
                     apy: $0.apy,
                     isActive: $0.isActive,
-                    chainId: $0.chainId
+                    chainId: $0.chainId,
+                    maxFeeNative: $0.maxFeeNative,
+                    maxFeeUSD: $0.maxFeeUSD
                 )
             }
         } catch {
@@ -73,7 +75,9 @@ private extension CommonYieldModuleMarketsManager {
                     tokenContractAddress: $0.tokenContractAddress,
                     apy: $0.apy,
                     isActive: $0.isActive,
-                    chainId: $0.chainId
+                    chainId: $0.chainId,
+                    maxFeeNative: $0.maxFeeNative,
+                    maxFeeUSD: $0.maxFeeUSD
                 )
             }
         }
@@ -85,7 +89,9 @@ private extension CommonYieldModuleMarketsManager {
                 tokenContractAddress: $0.tokenAddress,
                 apy: $0.apy,
                 isActive: $0.isActive,
-                chainId: $0.chainId
+                chainId: $0.chainId,
+                maxFeeNative: $0.maxFeeNative,
+                maxFeeUSD: $0.maxFeeUSD
             )
         }
         yieldMarketsRepository.store(

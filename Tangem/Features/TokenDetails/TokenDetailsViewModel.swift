@@ -26,6 +26,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
         balanceProvider: self,
         balanceTypeSelectorProvider: self,
+        yieldModuleStatusProvider: self,
         showYieldBalanceInfoAction: { [weak self] in
             self?.openYieldBalanceInfo()
         }
@@ -488,7 +489,7 @@ extension TokenDetailsViewModel {
                 guard let self else { return }
                 coordinator?.openYieldModulePromoView(
                     walletModel: walletModel,
-                    apy: String(format: "%.1f%", apy.doubleValue),
+                    apy: String(format: "%.2f%", apy.doubleValue),
                     signer: userWalletModel.signer
                 )
             }
@@ -501,5 +502,16 @@ extension TokenDetailsViewModel {
 
     func openYieldBalanceInfo() {
         coordinator?.openYieldBalanceInfo(tokenName: walletModel.tokenItem.name, tokenId: walletModel.tokenItem.id)
+    }
+}
+
+extension TokenDetailsViewModel: YieldModuleStatusProvider {
+    var yieldModuleState: AnyPublisher<YieldModuleManagerStateInfo, Never> {
+        walletModel.yieldModuleManager?
+            .statePublisher
+            .compactMap { $0 }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+            ?? Empty(completeImmediately: false).eraseToAnyPublisher()
     }
 }
