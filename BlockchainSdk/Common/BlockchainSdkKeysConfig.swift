@@ -28,8 +28,9 @@ public struct BlockchainSdkKeysConfig {
     let bittensorDwellirKey: String
     let bittensorOnfinalityKey: String
     let tangemAlephiumApiKey: String
-    let yieldModuleApiKey: String
     let blinkApiKey: String
+    let tatumApiKey: String
+    let yieldModuleApiKey: String
 
     public init(
         blockchairApiKeys: [String],
@@ -50,8 +51,9 @@ public struct BlockchainSdkKeysConfig {
         bittensorDwellirKey: String,
         bittensorOnfinalityKey: String,
         tangemAlephiumApiKey: String,
+        blinkApiKey: String,
+        tatumApiKey: String,
         yieldModuleApiKey: String,
-        blinkApiKey: String
     ) {
         self.blockchairApiKeys = blockchairApiKeys
         self.blockcypherTokens = blockcypherTokens
@@ -71,8 +73,9 @@ public struct BlockchainSdkKeysConfig {
         self.bittensorDwellirKey = bittensorDwellirKey
         self.bittensorOnfinalityKey = bittensorOnfinalityKey
         self.tangemAlephiumApiKey = tangemAlephiumApiKey
-        self.yieldModuleApiKey = yieldModuleApiKey
         self.blinkApiKey = blinkApiKey
+        self.tatumApiKey = tatumApiKey
+        self.yieldModuleApiKey = yieldModuleApiKey
     }
 }
 
