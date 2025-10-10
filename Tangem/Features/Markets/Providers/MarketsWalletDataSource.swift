@@ -62,11 +62,11 @@ class MarketsWalletDataProvider {
             .withWeakCaptureOf(self)
             .sink(receiveValue: { dataProvider, event in
                 switch event {
-                case .unlockedBiometrics:
+                case .unlocked:
                     break
                 case .locked:
                     dataProvider.clearUserWalletModels()
-                case .inserted, .unlocked:
+                case .inserted, .unlockedWallet:
                     dataProvider.setupUserWalletModels()
                 case .deleted(let userWalletIds):
                     if let selectedUserWalletModel = dataProvider.selectedUserWalletModel, userWalletIds.contains(where: { $0 == selectedUserWalletModel.userWalletId }) {
