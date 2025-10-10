@@ -19,6 +19,14 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         return false
     }
 
+    var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+        return .just(output: false)
+    }
+
+    var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: 0)
+    }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         return AnyPublisher.just(output: [])
     }
@@ -27,7 +35,17 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         throw .addingCryptoAccountsNotSupported
     }
 
-    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws(AccountModelsManagerError) {
+    func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
+        return []
+    }
+
+    func archiveCryptoAccount(
+        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
+    ) throws(AccountModelsManagerError) {
         throw .cannotArchiveCryptoAccount
+    }
+
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
+        throw .cannotUnarchiveCryptoAccount
     }
 }
