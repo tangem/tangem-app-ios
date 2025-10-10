@@ -204,11 +204,6 @@ extension WelcomeViewModel: StoriesDelegate {
         coordinator?.openCreateWallet()
     }
 
-    func importWallet() {
-        Analytics.log(.introductionProcessButtonAddExistingWallet)
-        coordinator?.openImportWallet()
-    }
-
     func openTokenList() {
         // For some reason the button can be tapped even after we've this flag to FALSE to disable it
         guard !isScanningCard.value else { return }
