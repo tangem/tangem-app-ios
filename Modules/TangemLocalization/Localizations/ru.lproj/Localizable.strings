@@ -135,7 +135,7 @@
 "bitcoin_promo_activation_error_title" = "Ошибка активации";
 "bitcoin_promo_activation_error" = "При обработке промокода произошла ошибка. Пожалуйста, попробуйте позже.";
 "bitcoin_promo_activation_success_title" = "Промокод активирован";
-"bitcoin_promo_activation_success" = "Ваш промокод был успешно активирован. Награда будет зачислена на ваш счёт в течение 14 дней.";
+"bitcoin_promo_activation_success" = "Ваш промокод успешно активирован. Бонус 10 USDT в Bitcoin будет зачислен через 14 дней.";
 "bitcoin_promo_already_activated_title" = "Код недоступен";
 "bitcoin_promo_already_activated" = "Этот промокод уже был использован и не может быть активирован повторно.";
 "bitcoin_promo_invalid_code_title" = "Неверный код";
@@ -182,7 +182,7 @@
 "common_and" = "and";
 "common_apply" = "Применить";
 "common_approval" = "Одобрение";
-"common_approve" = "Разрешить";
+"common_approve" = "Подтвердить";
 "common_attention" = "Внимание";
 "common_available_networks" = "Доступные сети";
 "common_back" = "Назад";
@@ -334,8 +334,6 @@
 "common_yes" = "Да";
 "contract_address_copied_message" = "Адрес контракта скопирован!";
 "currency_subtitle_expanded" = "Доступные сети";
-"custom_token_another_account_dialog_description" = "Derivation of your token matches the derivation of %1$@. Your token will be added to this account.";
-"custom_token_another_account_dialog_title" = "Derivation belongs to another account.";
 "custom_token_contract_address_input_title" = "Адрес контракта";
 "custom_token_creation_error_empty_fields" = "Пожалуйста, заполните все поля";
 "custom_token_creation_error_invalid_contract_address" = "Адрес контракта некорректен";
@@ -1219,7 +1217,7 @@
 "swapping_alert_slippage_description" = "Проскальзывание провайдера составляет до %@.";
 "swapping_alert_title" = "Информация";
 "swapping_approve_information_text" = "Подтверждения считаются отраслевым стандартом для всех децентрализованных бирж и защищают ваш кошелек от доступа со стороны смарт-контракта без вашего разрешения. По замыслу смарт-контракты не могут получить доступ к вашим токенам, если вы не одобрите доступ со своей стороны. «Разблокируя» свои токены, вы даете смарт-контракту 1inch разрешение тратить ваши активы. Майнеры сети получают компенсацию за газ (оплачиваемый вами) за запись этого действия в блокчейне. Как только разрешение будет предоставлено, вы сможете обменять свой токен.";
-"swapping_approve_information_title" = "Разрешение";
+"swapping_approve_information_title" = "Подтвердить";
 "swapping_fee_estimation_error_text" = "Ошибка расчета комиссии. Пожалуйста, отправьте информацию в поддержку.";
 "swapping_from_title" = "Вы отправляете";
 "swapping_high_price_impact_description" = "Обмен этой суммы выбранных токенов может вызвать значительные колебания цены и уменьшить получаемую сумму.";
@@ -1640,20 +1638,13 @@
 "wc_wallet_connect" = "WalletConnect";
 "wc_warning_transaction" = "Подозрительная транзакция";
 "wc_warning_tx_alert_default_description" = "This transaction appears unusual or risky. Please review it carefully before signing.";
-"welcome_create_wallet_already_have" = "Already have Tangem?";
-"welcome_create_wallet_feature_assets" = "Thousands of assets";
 "welcome_create_wallet_feature_class" = "Best in class hardware wallet";
 "welcome_create_wallet_feature_delivery" = "Fast delivery";
-"welcome_create_wallet_feature_one_tap" = "Start in one tap";
-"welcome_create_wallet_feature_seamless" = "Seamless and secure";
 "welcome_create_wallet_feature_use" = "Simple to use";
 "welcome_create_wallet_hardware_description" = "Create a hardware wallet with Tangem. Slim as a bank card, secure as a bank vault.";
-"welcome_create_wallet_mobile_description_full" = "Create or import a software wallet on your phone ";
 "welcome_create_wallet_mobile_description" = "Create or import a software wallet";
 "welcome_create_wallet_mobile_title" = "Start with Mobile Wallet";
 "welcome_create_wallet_other_method" = "Other method";
-"welcome_create_wallet_use_hardware_description" = "Use Tangem Hardware Wallet";
-"welcome_create_wallet_use_hardware_title" = "Learn more & buy";
 "welcome_interrupted_backup_alert_discard" = "Отказаться";
 "welcome_interrupted_backup_alert_message" = "Вы не закончили резервное копирование. Хотите продолжить?";
 "welcome_interrupted_backup_alert_resume" = "Да, возобновить";
@@ -1670,7 +1661,7 @@
 "xtz_withdrawal_message_warning" = "Чтобы не платить повышенную комиссию при следующем пополнении кошелька, уменьшите сумму на %@ XTZ";
 "yield_module_alert_description" = "Text about your money in balance [PLACEHOLDER]";
 "yield_module_alert_title" = "Your %@ is deposited in Aave";
-"yield_module_approve_needed_notification_cta" = "Выдать разрешение";
+"yield_module_approve_needed_notification_cta" = "Give Approve";
 "yield_module_approve_needed_notification_description" = "Something went wrong with your previous approval, so we need a new one. Choose how you’d like to proceed.";
 "yield_module_approve_needed_notification_title" = "Approve needed";
 "yield_module_approve_sheet_fee_note" = "The fee will be taken out, and your assets will be lent again.";
