@@ -21,6 +21,9 @@ protocol YieldModuleManager {
 
     func exitFee() async throws -> YieldTransactionFee
     func exit(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
+
+    func approveFee() async throws -> YieldTransactionFee
+    func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String
 }
 
 protocol YieldModuleManagerUpdater {
@@ -234,6 +237,31 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
     }
+
+    func approveFee() async throws -> any YieldTransactionFee {
+        try await transactionFeeProvider.approveFee(
+            yieldContractAddress: try await yieldSupplyService.getYieldContract(),
+            tokenContractAddress: token.contractAddress
+        )
+    }
+
+    func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String {
+        let yieldModuleState = try await getYieldModuleState()
+
+        guard case .deployed(let deployedState) = yieldModuleState,
+              let approveFee = fee as? ApproveFee else {
+            throw YieldModuleError.yieldIsNotActive
+        }
+
+        let transaction = try await transactionProvider.approveTransaction(
+            tokenContractAddress: token.contractAddress,
+            yieldContractAddress: deployedState.yieldModule,
+            fee: approveFee.fee
+        )
+
+        return try await transactionDispatcher
+            .send(transaction: .transfer(transaction)).hash
+    }
 }
 
 private extension CommonYieldModuleManager {
@@ -264,17 +292,13 @@ private extension CommonYieldModuleManager {
         marketsInfo: [YieldModuleMarketInfo],
         pendingTransactions: [PendingTransactionRecord]
     ) -> YieldModuleManagerStateInfo {
-        // [REDACTED_TODO_COMMENT]
+        guard let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress }) else {
+            return YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)
+        }
 
-//        guard let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress }) else {
-//            return YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)
-//        }
-//
-//        guard marketInfo.isActive else {
-//            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .disabled)
-//        }
-
-        let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress })
+        guard marketInfo.isActive else {
+            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .disabled)
+        }
 
         if hasEnterTransactions(in: pendingTransactions) {
             return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .enter))
