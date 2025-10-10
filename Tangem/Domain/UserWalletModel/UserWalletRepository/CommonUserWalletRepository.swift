@@ -78,19 +78,19 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func unlock(with method: UserWalletRepositoryUnlockMethod) async throws -> UserWalletModel {
-        defer {
-            setStartWalletUsageDateIfNeeded()
-            _locked = false
+        let unlockedModel: UserWalletModel
+
+        switch method {
+        case .biometrics(let context):
+            unlockedModel = try handleUnlock(context: context)
+        case .biometricsUserWallet(let userWalletId, let context):
+            unlockedModel = try await handleUnlock(userWalletId: userWalletId, context: context)
+        case .encryptionKey(let userWalletId, let encryptionKey):
+            unlockedModel = try await handleUnlock(userWalletId: userWalletId, encryptionKey: encryptionKey)
         }
 
-        return switch method {
-        case .biometrics(let context):
-            try handleUnlock(context: context)
-        case .biometricsUserWallet(let userWalletId, let context):
-            try await handleUnlock(userWalletId: userWalletId, context: context)
-        case .encryptionKey(let userWalletId, let encryptionKey):
-            try await handleUnlock(userWalletId: userWalletId, encryptionKey: encryptionKey)
-        }
+        unlockInternal()
+        return unlockedModel
     }
 
     func updateAssociatedCard(userWalletId: UserWalletId, cardId: String) {
@@ -111,6 +111,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         sendEvent(.inserted(userWalletId: userWalletModel.userWalletId))
         select(userWalletId: userWalletModel.userWalletId)
         save(userWalletModel: userWalletModel)
+
+        if models.contains(where: { !$0.isUserWalletLocked }) {
+            unlockInternal()
+        }
     }
 
     func savePublicData() {
@@ -252,7 +256,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    private func _handleUnlock(context: LAContext) throws -> Int {
+    private func _handleUnlock(context: LAContext) throws {
         let userWalletIds = models.map { $0.userWalletId }
         let encryptionKeys = try encryptionKeyStorage.fetch(userWalletIds: userWalletIds, context: context)
         let sensitiveInfos = userWalletDataStorage.fetchPrivateData(encryptionKeys: encryptionKeys)
@@ -275,17 +279,15 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         models = unlockedModels
-        return models.count
     }
 
     private func handleUnlock(context: LAContext) throws -> UserWalletModel {
-        _ = try _handleUnlock(context: context)
+        try _handleUnlock(context: context)
 
         guard let userWalletIdToSelect = selectedUserWalletId ?? models.first.map({ $0.userWalletId }) else {
             throw UserWalletRepositoryError.cantSelectWallet
         }
 
-        sendEvent(.unlockedBiometrics)
         select(userWalletId: userWalletIdToSelect)
 
         guard let selectedModel else {
@@ -296,7 +298,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func handleUnlock(userWalletId: UserWalletId, context: LAContext) async throws -> UserWalletModel {
-        let unlockedModelsCount = try _handleUnlock(context: context)
+        try _handleUnlock(context: context)
 
         guard let targetUnlockedModel = models[userWalletId] else {
             throw UserWalletRepositoryError.cantUnlockWallet
@@ -307,12 +309,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             throw UserWalletRepositoryError.biometricsChanged
         }
 
-        if unlockedModelsCount > 1 {
-            sendEvent(.unlockedBiometrics)
-        } else {
-            sendEvent(.unlocked(userWalletId: userWalletId))
-        }
-
+        sendEvent(.unlockedWallet(userWalletId: userWalletId))
         select(userWalletId: userWalletId)
 
         guard let selectedModel else {
@@ -341,7 +338,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         models[userWalletId] = unlockedModel
         await unlockUnprotectedMobileWalletsIfNeeded()
-        sendEvent(.unlocked(userWalletId: userWalletId))
+        sendEvent(.unlockedWallet(userWalletId: userWalletId))
         return unlockedModel
     }
 
@@ -376,20 +373,31 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    private func lockInternal() {
-        let processedModels = models.compactMap { model -> UserWalletModel? in
-            if model.isUnprotectedMobileWallet {
-                return model
-            }
+    private func unlockInternal() {
+        setStartWalletUsageDateIfNeeded()
+        _locked = false
+        sendEvent(.unlocked)
+    }
 
-            guard let serialized = model.serializePublic() else {
+    private func lockInternal() {
+        if AppSettings.shared.saveUserWallets {
+            let processedModels = models.compactMap { model -> UserWalletModel? in
+                if model.isUnprotectedMobileWallet {
+                    return model
+                }
+
+                if let serialized = model.serializePublic() {
+                    return LockedUserWalletModel(with: serialized)
+                }
+
                 return nil
             }
 
-            return LockedUserWalletModel(with: serialized)
+            models = processedModels
+        } else {
+            models = []
         }
 
-        models = processedModels
         _locked = true
         sendEvent(.locked)
     }
