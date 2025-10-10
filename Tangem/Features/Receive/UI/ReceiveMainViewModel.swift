@@ -70,7 +70,7 @@ class ReceiveMainViewModel: ObservableObject {
     // MARK: - Private Implementation
 
     func getInitialViewState() -> ViewState? {
-        if yieldModuleNotificationInteractor.shouldShowYieldModuleAlert(for: options.tokenItem) {
+        if yieldModuleNotificationInteractor.shouldShowYieldModuleReceiveAlert(for: options.tokenItem) {
             receiveTokenWithdrawNoticeInteractor.markWithdrawalAlertShown(for: options.tokenItem)
 
             let vm = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel()

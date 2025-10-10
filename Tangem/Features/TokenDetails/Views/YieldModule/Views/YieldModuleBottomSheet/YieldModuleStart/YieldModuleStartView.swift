@@ -152,12 +152,13 @@ struct YieldModuleStartView: View {
             )
             .task {
                 await viewModel.fetchNetworkFee()
+                await viewModel.fetchMaximumFee()
             }
 
         case .feePolicy:
             YieldModuleFeePolicyView(
                 tokenFeeState: viewModel.tokenFeeState,
-                maximumFee: viewModel.maximumFee.formatted(),
+                maximumFeeState: viewModel.maximumFeeState,
                 blockchainName: viewModel.walletModel.tokenItem.blockchain.displayName,
             )
         }

@@ -587,6 +587,7 @@ extension CommonWalletModel: WalletModelHelpers {
             transactionCreator: transactionCreator,
             blockaidApiService: BlockaidFactory().makeBlockaidAPIService(),
             tokenInfoManager: CommonYieldModuleTokenInfoManager(yieldModuleAPIService: apiService),
+            yieldModuleChartManager: CommonYieldModuleChartManager(yieldModuleAPIService: apiService),
             pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher
         )
     }

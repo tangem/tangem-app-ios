@@ -42,6 +42,9 @@ final class YieldModuleStartViewModel: ObservableObject {
     private(set) var tokenFeeState: LoadableTextView.State = .loading
 
     @Published
+    private(set) var maximumFeeState: LoadableTextView.State = .loading
+
+    @Published
     private(set) var chartState: YieldChartContainerState = .loading
 
     // MARK: - Dependencies
@@ -49,7 +52,6 @@ final class YieldModuleStartViewModel: ObservableObject {
     private(set) var walletModel: any WalletModel
     private weak var coordinator: YieldModulePromoCoordinator?
     private let yieldManagerInteractor: YieldManagerInteractor
-    private let chartServices = YieldChartService()
 
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
 
@@ -128,12 +130,25 @@ final class YieldModuleStartViewModel: ObservableObject {
         chartState = .loading
 
         do {
-            let chartData = try await chartServices.getChartData()
+            let chartData = try await yieldManagerInteractor.getChartData()
             chartState = .loaded(chartData)
         } catch {
             chartState = .error(action: { [weak self] in
                 await self?.fetchChartData()
             })
+        }
+    }
+
+    @MainActor
+    func fetchMaximumFee() async {
+        maximumFeeState = .loading
+
+        do {
+            let (coinFee, usdFee) = try await yieldManagerInteractor.getMaxFee()
+            let feeInTokens = try await feeConverter.makeFeeInTokenString(from: coinFee)
+            maximumFeeState = .loaded(text: feeInTokens)
+        } catch {
+            maximumFeeState = .noData
         }
     }
 

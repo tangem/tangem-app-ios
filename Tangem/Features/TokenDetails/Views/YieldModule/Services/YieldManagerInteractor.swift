@@ -45,6 +45,19 @@ actor YieldManagerInteractor {
         }
     }
 
+    func getMaxFee() async throws -> (Decimal, Decimal) {
+        if let marketInfo = manager.state?.marketInfo {
+            return (marketInfo.maxFeeNative, marketInfo.maxFeeUSD)
+        }
+
+        let info = try await manager.fetchYieldTokenInfo()
+        return (info.maxFeeNative, info.maxFeeUSD)
+    }
+
+    func getChartData() async throws -> YieldChartData {
+        try await manager.fetchChartData()
+    }
+
     func clearAll() {
         enterFee = nil
         exitFee = nil
