@@ -18,6 +18,7 @@ struct BlockaidTarget: Moya.TargetType {
         case scanSite(request: BlockaidDTO.SiteScan.Request)
         case scanEvm(request: BlockaidDTO.EvmScan.Request)
         case scanSolana(request: BlockaidDTO.SolanaScan.Request)
+        case scanEvmTransactionBulk(request: BlockaidDTO.EvmTransactionBulkScan.Request)
     }
 
     var baseURL: URL {
@@ -29,12 +30,13 @@ struct BlockaidTarget: Moya.TargetType {
         case .scanSite: "site/scan"
         case .scanEvm: "evm/json-rpc/scan"
         case .scanSolana: "/solana/message/scan"
+        case .scanEvmTransactionBulk: "evm/transaction-bulk/scan"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .scanSite, .scanEvm, .scanSolana: .post
+        case .scanSite, .scanEvm, .scanSolana, .scanEvmTransactionBulk: .post
         }
     }
 
@@ -43,6 +45,7 @@ struct BlockaidTarget: Moya.TargetType {
         case .scanSite(let request): .requestJSONEncodable(request)
         case .scanEvm(let request): .requestJSONEncodable(request)
         case .scanSolana(let request): .requestJSONEncodable(request)
+        case .scanEvmTransactionBulk(let request): .requestJSONEncodable(request)
         }
     }
 

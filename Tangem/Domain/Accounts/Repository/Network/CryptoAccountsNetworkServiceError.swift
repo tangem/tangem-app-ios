@@ -9,7 +9,12 @@
 import Foundation
 
 enum CryptoAccountsNetworkServiceError: Error {
+    /// A revision (i.e. the `ETag` header) is missing when trying to save the accounts.
+    case missingRevision
+    /// The revision (i.e. the `ETag` header) is outdated when trying to save the accounts.
+    case inconsistentState
+    /// No accounts were created on the server when trying to fetch the accounts.
     case noAccountsCreated
-    case inconsistentState // [REDACTED_TODO_COMMENT]
+    /// Other underlying errors (network errors, etc).
     case underlyingError(Error)
 }
