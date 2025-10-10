@@ -7,8 +7,9 @@
 //
 
 import SwiftUI
-import TangemUI
 import TangemAssets
+import TangemUI
+import TangemUIUtils
 
 struct MobileUpgradeView: View {
     typealias ViewModel = MobileUpgradeViewModel
@@ -19,7 +20,7 @@ struct MobileUpgradeView: View {
         content
             .padding(EdgeInsets(top: 16, leading: 16, bottom: 6, trailing: 16))
             .alert(item: $viewModel.alert, content: { $0.alert })
-            .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
+            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
     }
 }
 
