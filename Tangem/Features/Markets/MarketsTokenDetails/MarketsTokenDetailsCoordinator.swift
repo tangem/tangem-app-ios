@@ -180,7 +180,7 @@ extension MarketsTokenDetailsCoordinator {
             }
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleSendAlert(for: walletModel.tokenItem) {
             openViaYieldNotice(tokenItem: walletModel.tokenItem, action: action)
         } else {
             action()
