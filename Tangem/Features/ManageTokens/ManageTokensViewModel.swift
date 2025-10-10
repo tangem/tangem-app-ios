@@ -20,6 +20,7 @@ class ManageTokensViewModel: ObservableObject {
     @Published var searchText = ""
     @Published var isPendingListEmpty = true
     @Published var isSavingChanges = false
+    @Published var needsCardDerivation: Bool = false
     @Published var alert: AlertBinder?
 
     private let adapter: ManageTokensAdapter
@@ -95,6 +96,11 @@ class ManageTokensViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .assign(to: \.alert, on: self, ownership: .weak)
             .store(in: &bag)
+
+        adapter
+            .needsCardDerivationPublisher
+            .receiveOnMain()
+            .assign(to: &$needsCardDerivation)
 
         $searchText
             .dropFirst()
