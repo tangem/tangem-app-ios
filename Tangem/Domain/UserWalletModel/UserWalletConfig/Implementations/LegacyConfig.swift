@@ -69,8 +69,9 @@ extension LegacyConfig: UserWalletConfig {
 
     var supportedBlockchains: Set<Blockchain> {
         if isMultiwallet || defaultBlockchain == nil {
-            let allBlockchains = SupportedBlockchains(version: .v1).blockchains()
-            return allBlockchains.filter { card.walletCurves.contains($0.curve) }
+            return SupportedBlockchains(version: .v1)
+                .blockchains()
+                .filter(supportedBlockchainFilter(for:))
         } else {
             return [defaultBlockchain!]
         }
@@ -233,6 +234,8 @@ extension LegacyConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
+        case .isHardwareLimited:
+            return .available
         }
     }
 
@@ -248,3 +251,15 @@ extension LegacyConfig: UserWalletConfig {
 // MARK: - SingleCardOnboardingStepsBuilderFactory
 
 extension LegacyConfig: SingleCardOnboardingStepsBuilderFactory {}
+
+// MARK: - Private extensions
+
+private extension LegacyConfig {
+    func supportedBlockchainFilter(for blockchain: Blockchain) -> Bool {
+        if case .quai = blockchain {
+            return false
+        }
+
+        return card.walletCurves.contains(blockchain.curve)
+    }
+}

@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct MarketsPortfolioContainerView: View {
     @ObservedObject var viewModel: MarketsPortfolioContainerViewModel
@@ -89,6 +90,7 @@ struct MarketsPortfolioContainerView: View {
             MainButton(title: Localization.commonAddToPortfolio) {
                 viewModel.onAddTapAction()
             }
+            .accessibilityIdentifier(MainAccessibilityIdentifiers.addToPortfolioButton)
         }
     }
 

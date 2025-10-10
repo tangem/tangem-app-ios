@@ -134,7 +134,8 @@ class StellarWalletManager: BaseManager, WalletManager {
         fee: Amount,
         signer: any TransactionSigner,
         token: Token?,
-        limit: ChangeTrustOperation.ChangeTrustLimit
+        limit: ChangeTrustOperation.ChangeTrustLimit,
+        sequenceNumber: Int64
     ) -> AnyPublisher<Void, Error> {
         guard let token else {
             return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
@@ -149,32 +150,37 @@ class StellarWalletManager: BaseManager, WalletManager {
             contractAddress: token.contractAddress
         )
 
-        return Result { try txBuilder.buildChangeTrustOperationForSign(transaction: transaction, limit: limit) }
-            .publisher
-            .withWeakCaptureOf(self)
-            .flatMap { manager, result in
-                let (hash, transactionXDR) = result
+        return Result {
+            try txBuilder.buildChangeTrustOperationForSign(
+                transaction: transaction,
+                limit: limit,
+                sequenceNumber: sequenceNumber
+            )
+        }
+        .publisher
+        .withWeakCaptureOf(self)
+        .flatMap { manager, result in
+            let (hash, transactionXDR) = result
 
-                return manager.signAndSend(
-                    transaction: transaction,
-                    signer: signer,
-                    hash: hash,
-                    transactionXDR: transactionXDR
-                )
-                .handleEvents(receiveCompletion: { [weak manager] in
-                    if case .failure = $0 {
-                        manager?.lastTrustlineOpenAttemptDate = nil
-                    }
-                })
-                .mapToVoid()
-                .mapError { $0 as Error }
-                .eraseToAnyPublisher()
-            }
+            return manager.signAndSend(
+                transaction: transaction,
+                signer: signer,
+                hash: hash,
+                transactionXDR: transactionXDR
+            )
+            .handleEvents(receiveCompletion: { [weak manager] in
+                if case .failure = $0 {
+                    manager?.lastTrustlineOpenAttemptDate = nil
+                }
+            })
+            .mapToVoid()
+            .mapError { $0 as Error }
             .eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
     }
 
     private func updateWallet(with response: StellarResponse, tokens: [Token]) {
-        txBuilder.sequence = response.sequence
         let assetBalancesCount = response.assetBalances.count
         let fullReserve = response.baseReserve * Decimal(assetBalancesCount + Constants.baseEntryCount)
 
@@ -211,20 +217,33 @@ extension StellarWalletManager: TransactionSender {
     var allowsFeeSelection: Bool { true }
 
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        networkService
-            .checkTargetAccount(address: transaction.destinationAddress, token: transaction.amount.type.token)
-            .withWeakCaptureOf(self)
-            .tryMap { manager, response in
-                let result = try manager.txBuilder.buildForSign(targetAccountResponse: response, transaction: transaction)
-                return result
-            }
-            .withWeakCaptureOf(self)
-            .mapSendTxError()
-            .flatMap { manager, txBuiltForSign in
-                let (hash, transactionXDR) = txBuiltForSign
-                return manager.signAndSend(transaction: transaction, signer: signer, hash: hash, transactionXDR: transactionXDR)
-            }
-            .eraseToAnyPublisher()
+        let sequenceNumberPublisher = networkService.getSequenceNumber(for: wallet.address)
+        let checkTargetAccountPublisher = networkService.checkTargetAccount(address: transaction.destinationAddress, token: transaction.amount.type.token)
+
+        return Publishers.Zip(
+            sequenceNumberPublisher,
+            checkTargetAccountPublisher
+        )
+        .withWeakCaptureOf(self)
+        .tryMap { manager, responses in
+            let (sequenceNumber, targetAccountResponse) = responses
+
+            let result = try manager.txBuilder
+                .buildForSign(
+                    targetAccountResponse: targetAccountResponse,
+                    sequenceNumber: sequenceNumber,
+                    transaction: transaction
+                )
+
+            return result
+        }
+        .withWeakCaptureOf(self)
+        .mapSendTxError()
+        .flatMap { manager, txBuiltForSign in
+            let (hash, transactionXDR) = txBuiltForSign
+            return manager.signAndSend(transaction: transaction, signer: signer, hash: hash, transactionXDR: transactionXDR)
+        }
+        .eraseToAnyPublisher()
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
@@ -340,17 +359,30 @@ extension StellarWalletManager: AssetRequirementsManager {
 
         lastTrustlineOpenAttemptDate = Date()
 
-        return networkService.getFee()
-            .tryMap { fees -> Amount in
+        let getFeePublisher = networkService.getFee()
+        let sequencePublisher = networkService.getSequenceNumber(for: wallet.address)
+
+        return Publishers.Zip(getFeePublisher, sequencePublisher)
+            .tryMap { args -> (Amount, Int64) in
+                let (fees, sequenceNumber) = args
+
                 guard let p80Fee = fees[safe: 1] else {
                     throw BlockchainSdkError.failedToGetFee
                 }
 
-                return p80Fee
+                return (p80Fee, sequenceNumber)
             }
             .withWeakCaptureOf(self)
-            .flatMap { manager, fee in
-                manager.signAndSendChangeTrustTransaction(fee: fee, signer: signer, token: asset.token, limit: .max)
+            .flatMap { manager, args in
+                let (fee, sequenceNumber) = args
+
+                return manager.signAndSendChangeTrustTransaction(
+                    fee: fee,
+                    signer: signer,
+                    token: asset.token,
+                    limit: .max,
+                    sequenceNumber: sequenceNumber
+                )
             }
             .eraseToAnyPublisher()
     }

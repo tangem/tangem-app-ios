@@ -28,6 +28,7 @@ protocol KeysManager {
     var tangemApiKeyDev: String { get }
     var tangemApiKeyStage: String { get }
     var amplitudeApiKey: String { get }
+    var yieldModuleApiKey: String { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
