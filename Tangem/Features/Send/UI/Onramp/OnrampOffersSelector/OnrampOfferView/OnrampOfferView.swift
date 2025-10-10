@@ -37,6 +37,7 @@ struct OnrampOfferView: View {
 
             CircleButton(title: Localization.commonBuy, action: viewModel.buyButtonAction)
                 .size(.medium)
+                .style(.primary)
         }
     }
 
@@ -46,6 +47,10 @@ struct OnrampOfferView: View {
         case .text(let text):
             Text(text)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+
+        case .great:
+            Text(Localization.expressProviderGreatRate)
+                .style(Fonts.Bold.caption1, color: Colors.Text.accent)
 
         case .bestRate:
             HStack(alignment: .center, spacing: 4) {

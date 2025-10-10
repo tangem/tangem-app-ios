@@ -7,12 +7,10 @@
 //
 
 import Combine
-import SwiftUI
 import TangemFoundation
 import TangemLocalization
-import TangemUIUtils
 
-class ImportWalletSelectorCoordinator: CoordinatorObject {
+final class ImportWalletSelectorCoordinator: CoordinatorObject {
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -21,9 +19,6 @@ class ImportWalletSelectorCoordinator: CoordinatorObject {
     @Published var isScanning: Bool = false
 
     @Published var onboardingCoordinator: OnboardingCoordinator?
-
-    @Published var actionSheet: ActionSheetBinder?
-    @Published var error: AlertBinder?
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable

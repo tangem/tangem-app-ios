@@ -43,21 +43,21 @@ struct WalletConnectView: View {
 
     private var navigationButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Menu {
-                Button(
-                    role: .destructive,
-                    action: { viewModel.handle(viewEvent: .disconnectAllDAppsButtonTapped) },
-                    label: {
-                        Text(viewModel.state.navigationBar.disconnectAllMenuTitle)
-                    }
-                )
-            } label: {
-                viewModel.state.navigationBar.trailingButtonAsset
-                    .image
-                    .foregroundStyle(Colors.Icon.primary1)
+            if viewModel.state.contentState.isContent {
+                Menu {
+                    Button(
+                        role: .destructive,
+                        action: { viewModel.handle(viewEvent: .disconnectAllDAppsButtonTapped) },
+                        label: {
+                            Text(viewModel.state.navigationBar.disconnectAllMenuTitle)
+                        }
+                    )
+                } label: {
+                    viewModel.state.navigationBar.trailingButtonAsset
+                        .image
+                        .foregroundStyle(Colors.Icon.primary1)
+                }
             }
-            .hidden(!viewModel.state.contentState.isContent)
-            .animation(.linear(duration: 0.2), value: viewModel.state.contentState.isContent)
         }
     }
 
@@ -193,7 +193,7 @@ struct WalletConnectView: View {
     }
 
     private func dAppRowView(_ dApp: WalletConnectViewState.ContentState.ConnectedDApp) -> some View {
-        return Button(action: { viewModel.handle(viewEvent: .dAppTapped(dApp.domainModel)) }) {
+        Button(action: { viewModel.handle(viewEvent: .dAppTapped(dApp.domainModel)) }) {
             HStack(spacing: 12) {
                 iconView(dApp)
 
