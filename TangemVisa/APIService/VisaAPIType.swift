@@ -30,7 +30,6 @@ public enum VisaAPIType: String, CaseIterable, Codable {
             // [REDACTED_TODO_COMMENT]
             return .init(string: "https://api.dev.paera.com/bff/v1")!
         case .prod:
-            // [REDACTED_TODO_COMMENT]
             return .init(string: "https://api.us.paera.com/bff/v1")!
         }
     }
