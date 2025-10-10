@@ -8,6 +8,7 @@
 
 import Foundation
 import BigInt
+import TangemLocalization
 
 enum BlockaidMapper {
     static func mapBlockchainScan(_ response: BlockaidDTO.EvmScan.Response) throws -> BlockaidChainScanResult {
@@ -23,7 +24,7 @@ enum BlockaidMapper {
 
         return BlockaidChainScanResult(
             validationStatus: validationStatus,
-            validationDescription: response.validation?.description,
+            validationDescription: makeValidationDescription(from: response.validation),
             assetsDiff: assetsDiff,
             approvals: approvals
         )
@@ -37,7 +38,7 @@ enum BlockaidMapper {
 
         return BlockaidChainScanResult(
             validationStatus: validationStatus,
-            validationDescription: response.result.validation?.description,
+            validationDescription: makeValidationDescription(from: response.result.validation),
             assetsDiff: assetsDiffs,
             approvals: nil
         )
@@ -50,7 +51,8 @@ private extension BlockaidMapper {
         case .malicious: .malicious
         case .warning: .warning
         case .benign: .benign
-        case .info, .error: nil
+        case .error: .error
+        case .info: nil
         }
     }
 
@@ -175,6 +177,19 @@ private extension BlockaidMapper {
                 decimals: assetDiff.asset.decimals,
                 contractAddress: assetDiff.asset.address
             )
+        }
+    }
+}
+
+private extension BlockaidMapper {
+    static func makeValidationDescription(from validation: BlockaidDTO.Validation?) -> String {
+        switch validation?.resultType {
+        case .malicious:
+            validation?.description ?? Localization.wcMaliciousTxAlertDefaultDescription
+        case .warning:
+            validation?.description ?? Localization.wcWarningTxAlertDefaultDescription
+        case nil, .benign, .info, .error:
+            ""
         }
     }
 }
