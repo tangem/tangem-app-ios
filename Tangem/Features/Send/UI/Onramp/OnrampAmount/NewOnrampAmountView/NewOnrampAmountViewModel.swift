@@ -15,7 +15,7 @@ import TangemFoundation
 class NewOnrampAmountViewModel: ObservableObject {
     @Published var fiatItem: FiatItem?
     @Published var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
-    @Published var bottomInfoText: (state: LoadableTextView.State, isError: Bool) = (.initialized, false)
+    @Published var error: String?
     @Published var currentFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions?
 
     // MARK: - Dependencies
@@ -107,19 +107,16 @@ private extension NewOnrampAmountViewModel {
     }
 
     func updateBottomInfoText(bottomInfo: LoadingResult<Decimal, OnrampAmountInteractorBottomInfoError>?) {
+        // We show only error as a bottom info text
         switch bottomInfo {
-        case .loading:
-            bottomInfoText = (.loading, false)
-        case .success(let success):
-            bottomInfoText = (format(crypto: success), false)
+        case .none, .loading, .success:
+            error = nil
         case .failure(.noAvailableProviders):
-            bottomInfoText = (.loaded(text: Localization.onrampNoAvailableProviders), true)
+            error = Localization.onrampNoAvailableProviders
         case .failure(.tooSmallAmount(let minAmount)):
-            bottomInfoText = (.loaded(text: Localization.onrampMinAmountRestriction(minAmount)), true)
+            error = Localization.onrampMinAmountRestriction(minAmount)
         case .failure(.tooBigAmount(let maxAmount)):
-            bottomInfoText = (.loaded(text: Localization.onrampMaxAmountRestriction(maxAmount)), true)
-        case .none:
-            bottomInfoText = (.noData, false)
+            error = Localization.onrampMaxAmountRestriction(maxAmount)
         }
     }
 

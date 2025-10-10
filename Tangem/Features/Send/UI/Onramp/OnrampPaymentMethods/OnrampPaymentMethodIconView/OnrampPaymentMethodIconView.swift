@@ -23,7 +23,7 @@ struct OnrampPaymentMethodIconView: View {
 
             IconView(
                 url: url,
-                size: CGSize(width: 24, height: 24),
+                size: CGSize(width: 28, height: 28),
                 cornerRadius: 0,
                 // Kingfisher shows a grey background even if it has a cached image
                 forceKingfisher: false
