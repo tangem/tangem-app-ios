@@ -27,66 +27,67 @@ class PolkadotNetworkService: MultiNetworkProvider {
     }
 
     func getInfo(for address: String) -> AnyPublisher<BigUInt, Error> {
-        providerPublisher { [weak self] provider in
-            guard let self else {
-                return .emptyFail
+        getAccountInfo(address: address)
+            .map { accountInfo in
+                accountInfo?.data.free ?? 0
             }
-
-            return Result { try self.storageKey(forAddress: address) }
-                .publisher
-                .flatMap { key -> AnyPublisher<String?, Error> in
-                    provider.storage(key: key.hex().addHexPrefix())
-                }
-                .tryMap { storage in
-                    if let storage {
-                        let info = try decode(PolkadotAccountInfo.self, from: Data(hexString: storage))
-                        return info.data.free
-                    }
-
-                    return 0
-                }
-                .eraseToAnyPublisher()
-        }
+            .eraseToAnyPublisher()
     }
 
     func blockchainMeta(for address: String) -> AnyPublisher<PolkadotBlockchainMeta, Error> {
-        providerPublisher { provider in
-            let latestBlockPublisher: AnyPublisher<(String, UInt64), Error> = provider.blockhash(.latest)
-                .flatMap { [weak self] latestBlockHash -> AnyPublisher<(String, UInt64), Error> in
-                    guard
-                        let self = self,
-                        let provider = self.provider
-                    else {
-                        return .emptyFail
+        makeStorageKeyPublisher(forAddress: address)
+            .withWeakCaptureOf(self)
+            .flatMap { service, key in
+                service.providerPublisher { provider in
+                    let latestBlockPublisher: AnyPublisher<(String, UInt64), Error> = provider.blockhash(.latest)
+                        .flatMap { [weak self] latestBlockHash -> AnyPublisher<(String, UInt64), Error> in
+                            guard
+                                let self = self,
+                                let provider = self.provider
+                            else {
+                                return .emptyFail
+                            }
+
+                            let latestBlockHashPublisher = Just(latestBlockHash).setFailureType(to: Error.self)
+                            let latestBlockNumberPublisher = provider
+                                .header(latestBlockHash)
+                                .map(\.number)
+                                .tryMap { UInt64($0.removeHexPrefix(), radix: 16) ?? 0 } // [REDACTED_TODO_COMMENT]
+
+                            return Publishers.Zip(latestBlockHashPublisher, latestBlockNumberPublisher).eraseToAnyPublisher()
+                        }
+                        .eraseToAnyPublisher()
+
+                    let getNoncePublisher: AnyPublisher<UInt32, Error> = provider.storage(key: key)
+                        .tryMap { storage in
+                            guard let storage else {
+                                return 0
+                            }
+
+                            let info = try decode(PolkadotAccountInfo.self, from: Data(hexString: storage))
+                            return info.nonce
+                        }
+                        .eraseToAnyPublisher()
+
+                    return Publishers.Zip4(
+                        provider.blockhash(.genesis),
+                        latestBlockPublisher,
+                        getNoncePublisher,
+                        provider.runtimeVersion()
+                    ).map { genesisHash, latestBlockInfo, nonce, runtimeVersion in
+                        PolkadotBlockchainMeta(
+                            specVersion: runtimeVersion.specVersion,
+                            transactionVersion: runtimeVersion.transactionVersion,
+                            genesisHash: genesisHash,
+                            blockHash: latestBlockInfo.0,
+                            nonce: nonce,
+                            era: .init(blockNumber: latestBlockInfo.1, period: 128) // Should be power of two
+                        )
                     }
-
-                    let latestBlockHashPublisher = Just(latestBlockHash).setFailureType(to: Error.self)
-                    let latestBlockNumberPublisher = provider
-                        .header(latestBlockHash)
-                        .map(\.number)
-                        .tryMap { UInt64($0.removeHexPrefix(), radix: 16) ?? 0 } // [REDACTED_TODO_COMMENT]
-
-                    return Publishers.Zip(latestBlockHashPublisher, latestBlockNumberPublisher).eraseToAnyPublisher()
+                    .eraseToAnyPublisher()
                 }
-                .eraseToAnyPublisher()
-
-            return Publishers.Zip4(
-                provider.blockhash(.genesis),
-                latestBlockPublisher,
-                provider.accountNextIndex(address),
-                provider.runtimeVersion()
-            ).map { genesisHash, latestBlockInfo, nextIndex, runtimeVersion in
-                PolkadotBlockchainMeta(
-                    specVersion: runtimeVersion.specVersion,
-                    transactionVersion: runtimeVersion.transactionVersion,
-                    genesisHash: genesisHash,
-                    blockHash: latestBlockInfo.0,
-                    nonce: nextIndex,
-                    era: .init(blockNumber: latestBlockInfo.1, period: 128) // Should be power of two
-                )
             }
             .eraseToAnyPublisher()
-        }
     }
 
     func fee(for extrinsic: Data) -> AnyPublisher<PolkadotQueriedInfo, Error> {
@@ -108,8 +109,12 @@ class PolkadotNetworkService: MultiNetworkProvider {
             provider.submitExtrinsic(data.hex().addHexPrefix())
         }
     }
+}
 
-    private func storageKey(forAddress address: String) throws -> Data {
+// MARK: - PolkadotAccountInfo
+
+private extension PolkadotNetworkService {
+    private func makeStorageKey(forAddress address: String) throws -> String {
         guard
             let address = PolkadotAddress(string: address, network: network),
             let addressBytes = address.bytes(raw: true),
@@ -124,6 +129,30 @@ class PolkadotNetworkService: MultiNetworkProvider {
         let storageNameKeyHash = Data(hexString: "b99d880ec681799c0cf30e8886371da9")
 
         let key = moduleNameHash + storageNameKeyHash + addressHash + addressBytes
-        return key
+        return key.hex().addHexPrefix()
+    }
+
+    private func makeStorageKeyPublisher(forAddress address: String) -> AnyPublisher<String, Error> {
+        Result { try makeStorageKey(forAddress: address) }
+            .publisher
+            .eraseToAnyPublisher()
+    }
+
+    private func getAccountInfo(address: String) -> AnyPublisher<PolkadotAccountInfo?, Error> {
+        makeStorageKeyPublisher(forAddress: address)
+            .withWeakCaptureOf(self)
+            .flatMap { service, key in
+                service.providerPublisher { provider in
+                    provider.storage(key: key)
+                }
+            }
+            .tryMap { storage in
+                guard let storage else {
+                    return nil
+                }
+
+                return try decode(PolkadotAccountInfo.self, from: Data(hexString: storage))
+            }
+            .eraseToAnyPublisher()
     }
 }
