@@ -59,7 +59,7 @@ private extension MobileBackupTypesViewModel {
         switch result {
         case .configurationChanged:
             setup()
-        case .nameDidChange:
+        case .nameDidChange, .tangemPayOfferAccepted:
             break
         }
     }

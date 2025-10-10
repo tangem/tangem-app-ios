@@ -574,8 +574,13 @@ private extension ExpressInteractor {
                     return
                 }
 
-                if let error = error as? ExpressAPIError {
+                switch error {
+                case let error as ExpressAPIError:
                     await logExpressError(error)
+                case let error as ExpressProviderError where error == .transactionSizeNotSupported:
+                    await logExpressError(error)
+                default:
+                    break
                 }
 
                 let quote = getState().quote
@@ -674,7 +679,7 @@ private extension ExpressInteractor {
         expressAnalyticsLogger.logApproveTransactionSentAnalyticsEvent(policy: policy, signerType: signerType)
     }
 
-    func logExpressError(_ error: ExpressAPIError) async {
+    func logExpressError(_ error: Error) async {
         let selectedProvider = await getSelectedProvider()
         expressAnalyticsLogger.logExpressError(error, provider: selectedProvider?.provider)
     }

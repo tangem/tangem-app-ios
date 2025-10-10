@@ -18,8 +18,8 @@
 "account_archived_accounts" = "Archived accounts";
 "account_archived_recover_dialog_description" = "You’re about to recover “%1$@”.";
 "account_archived_recover_dialog_title" = "Recover account";
-"account_archived_recover_error_message" = "You have already exceeded the limit of 20 active accounts. Archive one to recover";
-"account_archived_recover_error_title" = "Can't recover account";
+"account_archived_recover_error_message" = "Лимит в 20 активных аккаунтов достигнут. Пожалуйста, зархивируйте один аккаунт, чтобы продолжить.";
+"account_archived_recover_error_title" = "Невозможно восстановить аккаунт";
 "account_archived_recover" = "Recover";
 "account_archived_title" = "Archived";
 "account_could_not_create" = "We couldn’t create account. Please try again later.";
@@ -32,6 +32,7 @@
 "account_form_account_index" = "Account #%@ — used for address derivation.";
 "account_form_create_button" = "Add account";
 "account_form_edit_button" = "Save";
+"account_form_name_already_exist_error_description" = "Имя аккаунта уже существует";
 "account_form_name" = "Account name";
 "account_form_placeholder_edit_account" = "Аккаунт";
 "account_form_placeholder_new_account" = "Новый аккаунт";
@@ -134,7 +135,7 @@
 "bitcoin_promo_activation_error_title" = "Ошибка активации";
 "bitcoin_promo_activation_error" = "При обработке промокода произошла ошибка. Пожалуйста, попробуйте позже.";
 "bitcoin_promo_activation_success_title" = "Промокод активирован";
-"bitcoin_promo_activation_success" = "Ваш промокод успешно активирован. Бонус 10 USDT в Bitcoin будет зачислен через 14 дней.";
+"bitcoin_promo_activation_success" = "Ваш промокод был успешно активирован. Награда будет зачислена на ваш счёт в течение 14 дней.";
 "bitcoin_promo_already_activated_title" = "Код недоступен";
 "bitcoin_promo_already_activated" = "Этот промокод уже был использован и не может быть активирован повторно.";
 "bitcoin_promo_invalid_code_title" = "Неверный код";
@@ -169,7 +170,7 @@
 "common_accept" = "Принять";
 "common_access_denied" = "Доступ запрещен";
 "common_accounts" = "Accounts";
-"common_activate" = "Activate";
+"common_activate" = "Активировать";
 "common_add_to_portfolio" = "Добавить в портфель";
 "common_add_token" = "Добавить токен";
 "common_add" = "Добавить";
@@ -181,7 +182,7 @@
 "common_and" = "and";
 "common_apply" = "Применить";
 "common_approval" = "Одобрение";
-"common_approve" = "Подтвердить";
+"common_approve" = "Разрешить";
 "common_attention" = "Внимание";
 "common_available_networks" = "Доступные сети";
 "common_back" = "Назад";
@@ -237,6 +238,7 @@
 "common_fee_selector_title" = "Скорость и комиссия";
 "common_finish" = "Завершить";
 "common_free" = "Free";
+"common_from" = "Из";
 "common_generate_addresses" = "Синхронизировать адреса";
 "common_get_started" = "Get started";
 "common_go_to_provider" = "К провайдеру";
@@ -276,6 +278,7 @@
 "common_range" = "%1$@-%2$@";
 "common_read_more" = "Подробнее";
 "common_receive" = "Получить";
+"common_recommended" = "Recommended";
 "common_reject" = "Отклонить";
 "common_reload" = "Перезагрузить";
 "common_rename" = "Переименовать";
@@ -313,6 +316,7 @@
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "условия участия";
 "common_terms_of_use" = "Условиями использования";
+"common_to" = "На";
 "common_today" = "Сегодня";
 "common_transaction_failed" = "Ошибка транзакции";
 "common_transaction_status" = "Статус транзакции";
@@ -331,6 +335,8 @@
 "common_yes" = "Да";
 "contract_address_copied_message" = "Адрес контракта скопирован!";
 "currency_subtitle_expanded" = "Доступные сети";
+"custom_token_another_account_dialog_description" = "Derivation of your token matches the derivation of %1$@. Your token will be added to this account.";
+"custom_token_another_account_dialog_title" = "Derivation belongs to another account.";
 "custom_token_contract_address_input_title" = "Адрес контракта";
 "custom_token_creation_error_empty_fields" = "Пожалуйста, заполните все поля";
 "custom_token_creation_error_invalid_contract_address" = "Адрес контракта некорректен";
@@ -448,6 +454,7 @@
 "express_more_providers_soon" = "Больше провайдеров на подходе.\nСледите за обновлениями!";
 "express_provider_best_rate" = "Лучший курс";
 "express_provider_fca_warning_list" = "FCA Warning List";
+"express_provider_great_rate" = "Great rate";
 "express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Доступно до %@";
 "express_provider_min_amount" = "Доступно с %@";
@@ -521,6 +528,7 @@
 "hw_create_seed_description" = "Создайте или восстановите свой кошелёк с помощью фразы восстановления — вашей встроенной резервной копии";
 "hw_create_seed_title" = "Резервная копия сид-фразы";
 "hw_create_title" = "Создать мобильный кошелек";
+"hw_import_existing_wallet" = "Import existing wallet";
 "hw_import_seed_phrase_already_imported" = "Эта фраза восстановления уже была импортирована";
 "hw_mobile_wallet" = "Мобильный кошелек";
 "hw_upgrade_error_card_already_has_wallet" = "Это устройство не может быть использовано для апгрейда, оно уже содержит другой кошелек.";
@@ -850,6 +858,7 @@
 "onramp_statuses_view_footer" = "You can close this screen and check the transaction status on the token details screen.";
 "onramp_timing_minutes" = "%@ мин";
 "onramp_title_you_get" = "Вы получите";
+"onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "Вы можете закрыть этот экран и проверить статус транзакции на экране информации о токене.";
 "onramp_up_to_rate" = "До";
 "onramp_via" = "Через";
@@ -858,6 +867,7 @@
 "organize_tokens_sort_by_balance" = "По балансу";
 "organize_tokens_title" = "Упорядочить токены";
 "organize_tokens_ungroup" = "Список";
+"provider_name_support" = "%s support";
 "push_notifications_more_info" = "Подробнее";
 "push_notifications_permission_alert_description" = "Вы можете включить нотификации в настройках";
 "push_notifications_permission_alert_negative_button" = "Включить позже";
@@ -877,7 +887,7 @@
 "receive_bottom_sheet_warning_message" = "%1$@ (%2$@) в сети %3$@";
 "receive_bottom_sheet_warning_title" = "Отправляйте только %1$@ в сети %2$@";
 "receive_token_description" = "Переводите средства с любого кошелька или биржи";
-"referral_address_for_rewards" = "Address for rewards";
+"referral_address_for_rewards" = "Адрес для начислений";
 "referral_button_participate" = "Участвовать";
 "referral_error_failed_to_load_info_with_reason" = "Не удалось загрузить информацию по реферальной программе. Код ошибки: %@. Пожалуйста, попробуйте позже.";
 "referral_error_failed_to_load_info" = "Не удалось загрузить информацию по реферальной программе. Пожалуйста, попробуйте позже.";
@@ -1037,6 +1047,9 @@
 "settings_forget_wallet" = "Забыть кошелек";
 "settings_wallet_name_title" = "Имя";
 "stake_token_description" = "Заставьте ваш токен работать";
+"staking_account_initialization_footer" = "Сетевая комиссия — это небольшая плата за обработку и подтверждение вашей транзакции в блокчейне.";
+"staking_account_initialization_message" = "Чтобы начать стейкинг, ваш TON-аккаунт должен быть активирован транзакцией самому себе на 1 TON. Средства остаются в вашем кошельке — этот шаг лишь активирует ваш аккаунт для участия в стейкинге.";
+"staking_account_initialization_title" = "Активация аккаунта";
 "staking_active_footer" = "Для завершения стейкинга нажмите на блок выше";
 "staking_active" = "Активно";
 "staking_amount_requirement_error" = "Сумма для стейкинга должна быть не менее %@";
@@ -1106,8 +1119,8 @@
 "staking_notification_restake_rewards_text" = "Реинвестируйте свои заработанные награды в вашу застейканную сумму, увеличивая потенциальный доход";
 "staking_notification_restake_text" = "Рестейк позволяет вам переместить средства из одного валидатора в другого без необходимости выхода из стейкинга.";
 "staking_notification_stake_entire_balance_text" = "Вы собираетесь застейкать весь баланс, рекомендуем оставить небольшую сумму для оплаты комиссии сети при выходе из стейкинга или получении награды.";
-"staking_notification_ton_account_initialization_title" = "Account activation";
-"staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_notification_ton_account_initialization_message" = "Чтобы начать стейкинг, ваш TON-аккаунт должен быть активирован транзакцией самому себе на 1 TON. Средства остаются в вашем кошельке — этот шаг лишь активирует ваш аккаунт для участия в стейкинге.";
+"staking_notification_ton_account_initialization_title" = "Активация аккаунта";
 "staking_notification_ton_activate_account" = "Чтобы начать стейкинг в TON, сначала отправьте небольшую транзакцию на свой же адрес — это активирует ваш кошелёк.";
 "staking_notification_ton_extra_reserve_info" = "До 0.2 TON может потребоваться сверх сетевой комиссии для завершения транзакции. Неиспользованная часть будет возвращена.";
 "staking_notification_ton_extra_reserve_is_required" = "Для выполнения операции требуется дополнительно 0.2 TON, помимо сетевой комиссии. Пожалуйста, пополните баланс.";
@@ -1119,9 +1132,6 @@
 "staking_notification_unstake_text" = "Ваши средства будут доступны после %@ периода отзыва.";
 "staking_notification_withdraw_text" = "Вы можете вывести свои средства из стейкинга, они будут доступны для использования незамедлительно.";
 "staking_notifications_revote_tron_text" = "Стейкинг в сети Tron с новым валидатором автоматически переведет ваши текущие застейканные средства на него.";
-"staking_account_initialization_title" = "Account activation";
-"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
-"staking_account_initialization_footer" = "A network fee is a small payment to process and confirm your transaction on the blockchain.";
 "staking_preparing" = "Подготовка";
 "staking_ready_to_withdraw" = "Доступно для вывода";
 "staking_rebond" = "Повторно застейкать";
@@ -1144,6 +1154,7 @@
 "staking_reward_schedule_month" = "Месяц";
 "staking_reward_schedule_week" = "Еженедельно";
 "staking_rewards" = "Вознаграждения";
+"staking_soloana_details_auto_claiming_rewards_daily_text" = "Вознаграждения в сети Solana автоматически добавляются к вашему стейкинг-балансу и не могут отображаться отдельно.";
 "staking_stake_locked" = "Стейкинг закрыт";
 "staking_stake_more_button_unavailability_reason" = "При стейкинге %1$@ используется весь ваш баланс в %2$@. Любой дополнительный %2$@ депозит будет автоматически застейкан.";
 "staking_stake_more" = "Застейкать еще";
@@ -1187,7 +1198,7 @@
 "story_web3_title" = "Поддержка Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Для отправки требуется входящая транзакция на сумму не менее %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостаточно средств";
-"swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
+"swap_approve_description" = "Подтверждая, вы разрешаете смарт-контракту использовать ваши токены в будущих транзакциях.";
 "swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "Комиссия сети за одобрение токена будет взиматься за подтверждение того, что именно вы разрешаете использовать ваш токен для обмена.";
 "swap_promo_text" = "Обменивайте больше токенов по лучшим курсам прямо в вашем кошельке.";
@@ -1210,7 +1221,7 @@
 "swapping_alert_slippage_description" = "Проскальзывание провайдера составляет до %@.";
 "swapping_alert_title" = "Информация";
 "swapping_approve_information_text" = "Подтверждения считаются отраслевым стандартом для всех децентрализованных бирж и защищают ваш кошелек от доступа со стороны смарт-контракта без вашего разрешения. По замыслу смарт-контракты не могут получить доступ к вашим токенам, если вы не одобрите доступ со своей стороны. «Разблокируя» свои токены, вы даете смарт-контракту 1inch разрешение тратить ваши активы. Майнеры сети получают компенсацию за газ (оплачиваемый вами) за запись этого действия в блокчейне. Как только разрешение будет предоставлено, вы сможете обменять свой токен.";
-"swapping_approve_information_title" = "Подтвердить";
+"swapping_approve_information_title" = "Разрешение";
 "swapping_fee_estimation_error_text" = "Ошибка расчета комиссии. Пожалуйста, отправьте информацию в поддержку.";
 "swapping_from_title" = "Вы отправляете";
 "swapping_high_price_impact_description" = "Обмен этой суммы выбранных токенов может вызвать значительные колебания цены и уменьшить получаемую сумму.";
@@ -1222,6 +1233,10 @@
 "swapping_to_title" = "Вы получите";
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_not_available" = "не доступен";
+"tangempay_card_details_error_text" = "Failed to load data. Try again later.";
+"tangempay_card_details_hide_text" = "Hide";
+"tangempay_card_details_reveal_text" = "Reveal";
+"tangempay_card_details_title" = "Card details";
 "tangempay_issue_card_notification_title" = "Create account and issue a card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
@@ -1234,6 +1249,7 @@
 "tangempay_onboarding_security_description" = "Your card details are protected — full control in the app.";
 "tangempay_onboarding_security_title" = "Built-in security";
 "tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
+"tangempay_title" = "Tangem Pay";
 "this_is_my_wallet_title" = "Это мой кошелек";
 "toast_balances_hidden" = "Балансы скрыты";
 "toast_balances_shown" = "Балансы показаны";
@@ -1262,6 +1278,7 @@
 "token_details_token_type_subtitle" = "%1$@ токен в сети %%image%% %2$@";
 "token_details_unable_hide_alert_message" = "Токен %1$@ (%2$@) является основной валютой в сети %3$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
+"token_receive_show_qr_code_title" = "Показать QR код";
 "token_swap_promotion_button" = "Обменять";
 "tokens_list_available_to_buy_header" = "Выберите токен для покупки";
 "tokens_list_available_to_sell_header" = "Выберите токен для продажи";
@@ -1303,17 +1320,18 @@
 "universal_error" = "Произошла ошибка. Код ошибки: %@. Попробуйте, пожалуйста, снова. Если проблема будет продолжать возникать — обратитесь в службу поддержки.";
 "unlock_wallet_description_full" = "Используйте %@ или отсканируйте карту/кольцо, чтобы получить доступ к своему кошельку";
 "unsupported_wc_version" = "Соединение не удалось: это dApp использует Wallet Connect версии 1.0, которая не поддерживается. Убедитесь, что dApp поддерживает Wallet Connect версии 2.0 для успешного подключения.";
-"user_push_notification_agreement_argument_one_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
-"user_push_notification_agreement_argument_one_title" = "Transaction Alerts";
+"user_push_notification_agreement_argument_one_subtitle" = "Мгновенные уведомления о транзакциях, обменах и важных обновлениях.";
+"user_push_notification_agreement_argument_one_title" = "Уведомления о транзакциях";
 "user_push_notification_agreement_argument_one" = "Будьте в курсе новых функций и новостей";
 "user_push_notification_agreement_argument_three" = "Получайте уведомления о входящих транзакциях";
-"user_push_notification_agreement_argument_two_subtitle" = "Early access to fresh features and exclusive offers.";
-"user_push_notification_agreement_argument_two_title" = "Feature and News Updates";
+"user_push_notification_agreement_argument_two_subtitle" = "Ранний доступ к новым функциям и эксклюзивным предложениям.";
+"user_push_notification_agreement_argument_two_title" = "Новые функции и важные новости";
 "user_push_notification_agreement_argument_two" = "Узнавайте первым о новых акциях";
 "user_push_notification_agreement_header" = "Хотите использовать Push-уведомления?";
-"user_push_notification_banner_subtitle" = "Enable push notifications and we’ll notify you instantly when funds arrive\n";
-"user_push_notification_banner_title" = "Don’t Miss a Transaction";
+"user_push_notification_banner_subtitle" = "Включите push-уведомления, и мы мгновенно сообщим вам, когда поступят средства.";
+"user_push_notification_banner_title" = "Не пропустите транзакцию";
 "user_wallet_list_add_button" = "Добавить новый кошелек";
+"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds";
 "user_wallet_list_delete_prompt" = "Вы уверены, что хотите забыть этот кошелек?";
 "user_wallet_list_error_wallet_already_saved" = "Этот кошелек уже был сохранен, вы можете добавить другой";
 "user_wallet_list_rename_popup_placeholder" = "Имя кошелька";
@@ -1385,6 +1403,13 @@
 "visa_unlock_notification_title" = "Needed unlock";
 "voice_over_open_card_details" = "Открыть детали устройства";
 "voice_over_open_new_wallet_connect_session" = "Отсканируйте QR-код, чтобы открыть новую сессию WalletConnect";
+"wallet_add_common_title" = "Choose how to add your wallet";
+"wallet_add_hardware_description" = "Scan your Tangem card or ring to restore it or import from another wallet.";
+"wallet_add_hardware_info_create" = "Create Hardware Wallet";
+"wallet_add_hardware_purchase" = "Want to purchase a Tangem Wallet?";
+"wallet_add_import_seed_phrase" = "Import seed phrase";
+"wallet_add_mobile_description" = "Restore your wallet on your phone or import from another app — convenient, but less secure than a Tangem card.";
+"wallet_add_support_title" = "What to choose?";
 "wallet_balance_missing_derivation" = "Отсканируйте карту или кольцо";
 "wallet_been_activated_message" = "Этот кошелек уже был активирован ранее.\nЕсли это сделали не вы, свяжитесь со службой поддержки.\nTangem никогда не продает кошелек вместе с предустановленным кодом доступа.";
 "wallet_connect_error_timeout" = "Не удалось установить сессию WalletConnect за отведённое время. Пожалуйста, повторите попытку позже.";
@@ -1606,7 +1631,7 @@
 "wc_no_wallet_changes_detected" = "Изменения в кошельке не обнаружены.";
 "wc_notification_security_risk_subtitle" = "Обнаружены потенциальные риски или вредоносное поведение. Подключение или подписание транзакций может привести к потере средств.";
 "wc_notification_security_risk_title" = "Известный риск безопасности";
-"wc_qr_scan_hint" = "Open Web3 app and chose WalletConnect option";
+"wc_qr_scan_hint" = "Откройте Web3-приложение и выберите опцию WalletConnect.";
 "wc_request_from" = "Запрос от";
 "wc_send_anyway" = "Подписать всё равно";
 "wc_signature_type" = "Тип подписи";
@@ -1625,6 +1650,20 @@
 "wc_wallet_connect" = "WalletConnect";
 "wc_warning_transaction" = "Подозрительная транзакция";
 "wc_warning_tx_alert_default_description" = "This transaction appears unusual or risky. Please review it carefully before signing.";
+"welcome_create_wallet_already_have" = "Already have Tangem?";
+"welcome_create_wallet_feature_assets" = "Thousands of assets";
+"welcome_create_wallet_feature_class" = "Best in class hardware wallet";
+"welcome_create_wallet_feature_delivery" = "Fast delivery";
+"welcome_create_wallet_feature_one_tap" = "Start in one tap";
+"welcome_create_wallet_feature_seamless" = "Seamless and secure";
+"welcome_create_wallet_feature_use" = "Simple to use";
+"welcome_create_wallet_hardware_description" = "Create a hardware wallet with Tangem. Slim as a bank card, secure as a bank vault.";
+"welcome_create_wallet_mobile_description_full" = "Create or import a software wallet on your phone ";
+"welcome_create_wallet_mobile_description" = "Create or import a software wallet";
+"welcome_create_wallet_mobile_title" = "Start with Mobile Wallet";
+"welcome_create_wallet_other_method" = "Other method";
+"welcome_create_wallet_use_hardware_description" = "Use Tangem Hardware Wallet";
+"welcome_create_wallet_use_hardware_title" = "Learn more & buy";
 "welcome_interrupted_backup_alert_discard" = "Отказаться";
 "welcome_interrupted_backup_alert_message" = "Вы не закончили резервное копирование. Хотите продолжить?";
 "welcome_interrupted_backup_alert_resume" = "Да, возобновить";
@@ -1641,7 +1680,7 @@
 "xtz_withdrawal_message_warning" = "Чтобы не платить повышенную комиссию при следующем пополнении кошелька, уменьшите сумму на %@ XTZ";
 "yield_module_alert_description" = "Text about your money in balance [PLACEHOLDER]";
 "yield_module_alert_title" = "Your %@ is deposited in Aave";
-"yield_module_approve_needed_notification_cta" = "Give Approve";
+"yield_module_approve_needed_notification_cta" = "Выдать разрешение";
 "yield_module_approve_needed_notification_description" = "Something went wrong with your previous approval, so we need a new one. Choose how you’d like to proceed.";
 "yield_module_approve_needed_notification_title" = "Approve needed";
 "yield_module_approve_sheet_fee_note" = "The fee will be taken out, and your assets will be lent again.";
@@ -1649,7 +1688,8 @@
 "yield_module_approve_sheet_title" = "Confirm approval";
 "yield_module_balance_info_sheet_subtitle" = "Text about your money in balance [PLACEHOLDER]";
 "yield_module_balance_info_sheet_title" = "Your %@ is deposited in Aave";
-"yield_module_deposit_error_notification_title" = "The amount received, %1$@ %2$@ was not deposited to Aave.";
+"yield_module_chart_loading_error" = "Невозможно загрузить график";
+"yield_module_deposit_error_notification_title" = "Полученная сумма, %1$@ %2$@, не была зачислена на Aave.";
 "yield_module_earn_badge" = "Earn %1$@%%";
 "yield_module_earn_sheet_available_title" = "Available";
 "yield_module_earn_sheet_current_apy_title" = "Current APY";
@@ -1665,10 +1705,11 @@
 "yield_module_fee_policy_sheet_max_fee_note" = "If network fees rise above maximum fee, the transaction won’t go through until they decrease. You can change this limit later.";
 "yield_module_fee_policy_sheet_max_fee_title" = "Maximum fee";
 "yield_module_fee_policy_sheet_title" = "Fee policy";
-"yield_module_high_fee_error" = "Network fee is too high right now. Waiting until it falls below your limit.";
+"yield_module_high_fee_error" = "Сетевая комиссия сейчас слишком высокая. Ожидаем, пока она упадёт ниже вашего лимита.";
+"yield_module_historical_returns" = "Историческая доходность";
 "yield_module_main_view_approve_notification_description" = "Write description here. In one, two or three lines will be awesome. [PLACEHOLDER]";
 "yield_module_main_view_approve_notification_title" = "Some token approve needed";
-"yield_module_network_fee_unreachable_notification_description" = "Check your network connection";
+"yield_module_network_fee_unreachable_notification_description" = "Проверьте ваше интернет соединение";
 "yield_module_network_fee_unreachable_notification_title" = "Network fee info unreachable";
 "yield_module_promo_screen_auto_balance_subtitle" = "Every top-up of your account will be lended to Aave automatically.";
 "yield_module_promo_screen_auto_balance_title" = "Your balance works automatically";
@@ -1696,6 +1737,7 @@
 "yield_module_stop_earning_sheet_description" = "Turning off will withdraw your funds from Aave, return them to %@ in your wallet, and stop earning rewards.";
 "yield_module_stop_earning_sheet_fee_note" = "The network fee will be deducted from the amount you withdraw.";
 "yield_module_stop_earning" = "Stop earning";
+"yield_module_supply_apr" = "Годовая доходность";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Make your money work — earn interest on your balance.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Earning on your balance";
@@ -1704,5 +1746,6 @@
 "yield_module_transfer_mode_automatic" = "Automatic";
 "yield_module_unable_to_cover_fee_description" = "Deposit some %1$@ %2$@ to cover the network fee for transactions";
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
-"yield_module_unavailable_subtitle" = "The interest service isn’t available at the moment. Please try again later.";
-"yield_module_unavailable_title" = "Earnings unavailable";
+"yield_module_unavailable_subtitle" = "Сервис начисления процентов в данный момент недоступен. Пожалуйста, попробуйте позже.";
+"yield_module_unavailable_title" = "Данные о доходе недоступны";
+"yield_supply_chart_loading_error" = "Невозможно загрузить график";
