@@ -17,7 +17,7 @@ struct NewActionButtonsBuyView: View {
     var body: some View {
         NewTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel)
             .searchType(.native)
-            .background(Colors.Background.secondary.ignoresSafeArea())
+            .background(Colors.Background.tertiary.ignoresSafeArea())
             .navigationTitle(Localization.actionButtonsBuyNavigationBarTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
