@@ -87,6 +87,17 @@ final class YieldTransactionFeeProvider {
 
         return try await fee(from: transactions)
     }
+
+    func approveFee(yieldContractAddress: String, tokenContractAddress: String) async throws -> ApproveFee {
+        let transactions = [
+            approveTransactionData(
+                yieldContractAddress: yieldContractAddress,
+                tokenContractAddress: tokenContractAddress
+            ),
+        ]
+
+        return try await fee(from: transactions)
+    }
 }
 
 // MARK: - Transaction builders
