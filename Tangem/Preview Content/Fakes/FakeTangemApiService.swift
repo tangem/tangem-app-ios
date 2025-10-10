@@ -167,7 +167,7 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws -> EmptyGenericResponseDTO {
+    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws {
         throw "Not implemented"
     }
 
@@ -179,16 +179,42 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws -> EmptyGenericResponseDTO {
+    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws {
         throw "Not implemented"
     }
 
-    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO {
+    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws {
         throw "Not implemented"
     }
 
     func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError> {
         .anyFail(error: .init(code: .notFound))
+    }
+
+    func getUserAccounts(
+        userWalletId: String
+    ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
+        throw "Not implemented"
+    }
+
+    func saveUserAccounts(
+        userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts
+    ) async throws -> String? {
+        throw "Not implemented"
+    }
+
+    func getArchivedUserAccounts(
+        userWalletId: String
+    ) async throws -> (revision: String?, archivedAccounts: AccountsDTO.Response.ArchivedAccounts) {
+        throw "Not implemented"
+    }
+
+    func getYieldMarkets() async throws -> YieldModuleDTO.Response.MarketsInfo {
+        throw "Not implemented"
+    }
+
+    func getTokenPositionInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleDTO.Response.PositionInfo {
+        throw "Not implemented"
     }
 }
 

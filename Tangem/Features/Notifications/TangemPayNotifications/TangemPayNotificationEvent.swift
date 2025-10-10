@@ -62,7 +62,21 @@ extension TangemPayNotificationEvent: NotificationEvent {
     }
 
     var buttonAction: NotificationButtonAction? {
-        nil
+        switch self {
+        case .createAccountAndIssueCard:
+            NotificationButtonAction(
+                .tangemPayCreateAccountAndIssueCard,
+                withLoader: true,
+                isDisabled: false
+            )
+
+        case .viewKYCStatus:
+            NotificationButtonAction(
+                .tangemPayViewKYCStatus,
+                withLoader: false,
+                isDisabled: false
+            )
+        }
     }
 }
 

@@ -33,11 +33,14 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
     @Published var scanCardSettingsCoordinator: ScanCardSettingsCoordinator?
     @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator?
+    @Published var accountDetailsCoordinator: AccountDetailsCoordinator?
+    @Published var archivedAccountsCoordinator: ArchivedAccountsCoordinator?
 
     // MARK: - Child view models
 
     @Published var mobileBackupTypesViewModel: MobileBackupTypesViewModel?
     @Published var mailViewModel: MailViewModel?
+    @Published var accountFormViewModel: AccountFormViewModel?
 
     // MARK: - Helpers
 
@@ -69,8 +72,47 @@ extension UserWalletSettingsCoordinator:
     TransactionNotificationsModalRoutable,
     MobileBackupNeededRoutable,
     MobileBackupTypesRoutable {
-    func openAddNewAccount() {
-        // [REDACTED_TODO_COMMENT]
+    func addNewAccount(accountModelsManager: any AccountModelsManager) {
+        accountFormViewModel = AccountFormViewModel(
+            accountModelsManager: accountModelsManager,
+            // Mikhail Andreev - in future we will support multiple types of accounts and their creation process
+            // will vary
+            flowType: .create(.crypto),
+            closeAction: { [weak self] in
+                self?.accountFormViewModel = nil
+            }
+        )
+    }
+
+    func openAccountDetails(account: any BaseAccountModel, accountModelsManager: AccountModelsManager) {
+        let coordinator = AccountDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.accountDetailsCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(
+            with: AccountDetailsCoordinator.Options(
+                account: account,
+                accountModelsManager: accountModelsManager
+            )
+        )
+
+        accountDetailsCoordinator = coordinator
+    }
+
+    func openArchivedAccounts(accountModelsManager: any AccountModelsManager) {
+        let coordinator = ArchivedAccountsCoordinator(
+            dismissAction: { [weak self] in
+                self?.archivedAccountsCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: ArchivedAccountsCoordinator.Options(accountModelsManager: accountModelsManager))
+
+        archivedAccountsCoordinator = coordinator
     }
 
     func openOnboardingModal(with options: OnboardingCoordinator.Options) {
