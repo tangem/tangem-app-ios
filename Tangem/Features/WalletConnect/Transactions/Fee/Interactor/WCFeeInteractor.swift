@@ -100,11 +100,11 @@ final class WCFeeInteractor: WCFeeInteractorType {
             return
         }
 
-        let transactionData = Data(hexString: transaction.data ?? "0x")
+        let transactionData = Data(hexString: transaction.data ?? Constants.hexPrefix)
 
         let feePublisher = ethereumProvider.getFee(
             destination: transaction.to,
-            value: normalizeZeroHex(transaction.value ?? "0x0"),
+            value: Self.normalizeZeroHex(transaction.value ?? Constants.zeroHex),
             data: transactionData
         )
 
@@ -383,17 +383,18 @@ extension WCFeeInteractor: FeeSelectorContentViewModelOutput {
 }
 
 extension WCFeeInteractor {
-    private func normalizeZeroHex(_ hex: String) -> String {
+    private static func normalizeZeroHex(_ hex: String) -> String {
         let unhexedValue = hex.removeHexPrefix()
 
         if unhexedValue.allSatisfy({ $0 == "0" }) {
             return Constants.zeroHex
         }
 
-        return hex
+        return unhexedValue.stripLeadingZeroes().addHexPrefix()
     }
 }
 
 private enum Constants {
+    static let hexPrefix = "0x"
     static let zeroHex = "0x0"
 }
