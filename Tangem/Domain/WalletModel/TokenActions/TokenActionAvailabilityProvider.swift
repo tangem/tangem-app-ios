@@ -10,6 +10,8 @@ import enum BlockchainSdk.Blockchain
 struct TokenActionAvailabilityProvider {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
+    private let userWalletsActionButtonsAvailabilityProvider = UserWalletsActionButtonsAvailabilityProvider()
+
     private let userWalletConfig: UserWalletConfig
     private let walletModel: any WalletModel
     private let sellCryptoUtility: SellCryptoUtility
@@ -219,10 +221,12 @@ extension TokenActionAvailabilityProvider {
              .zeroFeeCurrencyBalance,
              .none:
             break
-        case .zeroWalletBalance where userWalletConfig.isFeatureVisible(.isBalanceRestrictionActive):
-            return .hidden
         case .zeroWalletBalance:
-            break
+            if userWalletConfig.hasFeature(.isBalanceRestrictionActive) {
+                return userWalletsActionButtonsAvailabilityProvider.isActionButtonsAvailable(walletModel: walletModel) ? .available : .hidden
+            } else {
+                break
+            }
         }
 
         let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue

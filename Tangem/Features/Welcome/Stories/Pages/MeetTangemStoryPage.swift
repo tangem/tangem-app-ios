@@ -14,7 +14,6 @@ struct MeetTangemStoryPage: View {
     var progress: Double
     var isScanning: Bool
     let createWallet: () -> Void
-    let importWallet: () -> Void
     let scanCard: () -> Void
     let orderCard: () -> Void
 
@@ -50,7 +49,6 @@ struct MeetTangemStoryPage: View {
             StoriesBottomButtons(
                 isScanning: isScanning,
                 createWallet: createWallet,
-                importWallet: importWallet,
                 scanCard: scanCard,
                 orderCard: orderCard
             )
@@ -68,7 +66,6 @@ struct MeetTangemStoryPage_Previews: PreviewProvider {
             progress: 0.8,
             isScanning: false,
             createWallet: {},
-            importWallet: {},
             scanCard: {},
             orderCard: {}
         )
