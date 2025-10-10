@@ -16,7 +16,7 @@ public struct AccountIconView: View {
 
     private var settings = Settings()
 
-    public init(data: AccountIconViewData) {
+    public init(data: ViewData) {
         backgroundColor = data.backgroundColor
         nameMode = data.nameMode
     }
@@ -57,7 +57,7 @@ public struct AccountIconView: View {
 // MARK: - AccountIconViewData
 
 public extension AccountIconView {
-    struct AccountIconViewData: Hashable {
+    struct ViewData: Hashable {
         let backgroundColor: Color
         let nameMode: NameMode
 
@@ -86,18 +86,18 @@ public extension AccountIconView {
         var size: CGSize = .init(bothDimensions: 16)
         var letterFontStyle: Font = Fonts.Bold.largeTitle
 
-        public static let smallSized: Self = .init(
-            padding: 3,
-            cornerRadius: 4,
-            size: CGSize(bothDimensions: 8),
-            letterFontStyle: .system(size: 8, weight: .semibold)
-        )
-
         public static let middleSized: Self = .init(
             padding: 8,
             cornerRadius: 10,
             size: CGSize(bothDimensions: 20),
             letterFontStyle: Fonts.BoldStatic.title3
+        )
+
+        public static let smallSized: Self = .init(
+            padding: 4,
+            cornerRadius: 6,
+            size: CGSize(bothDimensions: 10),
+            letterFontStyle: Fonts.Bold.footnote
         )
     }
 }
@@ -125,6 +125,10 @@ extension AccountIconView: Setupable {
 
     public func settings(_ settings: Settings) -> Self {
         map { $0.settings = settings }
+    }
+
+    public func setSettings(_ value: Settings) -> Self {
+        map { $0.settings = value }
     }
 
     public func padding(_ value: CGFloat) -> Self {

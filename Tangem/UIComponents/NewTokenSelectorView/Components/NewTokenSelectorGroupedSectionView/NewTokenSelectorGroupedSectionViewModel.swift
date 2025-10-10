@@ -21,6 +21,6 @@ final class NewTokenSelectorGroupedSectionViewModel: Identifiable {
 extension NewTokenSelectorGroupedSectionViewModel {
     enum HeaderType: Hashable {
         case wallet(String)
-        case account(icon: AccountIconView.AccountIconViewData, name: String)
+        case account(icon: AccountIconView.ViewData, name: String)
     }
 }

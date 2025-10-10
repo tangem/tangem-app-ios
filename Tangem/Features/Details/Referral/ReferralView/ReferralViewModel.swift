@@ -15,19 +15,18 @@ import BlockchainSdk
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemAccounts
 import struct TangemUIUtils.AlertBinder
 
-class ReferralViewModel: ObservableObject {
+final class ReferralViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var isProcessingRequest: Bool = false
-    @Published private(set) var referralProgramInfo: ReferralProgramInfo?
     @Published var errorAlert: AlertBinder?
-
     @Published var expectedAwardsExpanded = false
+    @Published private(set) var viewState: ViewState = .loading
 
     private weak var coordinator: ReferralRoutable?
-    private let userTokensManager: UserTokensManager
     private let userWalletId: Data
     private let supportedBlockchains: Set<Blockchain>
 
@@ -39,17 +38,47 @@ class ReferralViewModel: ObservableObject {
         return Localization.referralShareLink(referralInfo.shareLink)
     }
 
+    private let workMode: WorkMode
+    private var accountModel: AccountModel?
+    private var referralProgramInfo: ReferralProgramInfo?
+    private let tokenIconInfoBuilder: TokenIconInfoBuilder
+    private var bag = Set<AnyCancellable>()
+
     init(
         input: ReferralInputModel,
         coordinator: ReferralRoutable
     ) {
-        userTokensManager = input.userTokensManager
         userWalletId = input.userWalletId
         supportedBlockchains = input.supportedBlockchains
         self.coordinator = coordinator
+        workMode = input.workMode
+        tokenIconInfoBuilder = input.tokenIconInfoBuilder
 
-        runTask(in: self) { root in
-            await root.loadReferralInfo()
+        runTask(in: self) { viewModel in
+            await viewModel.fetchAndMapInitialState()
+        }
+    }
+
+    @MainActor
+    func fetchAndMapInitialState() async {
+        switch workMode {
+        case .plainUserTokensManager:
+            let referralInfo = await loadReferralInfo()
+            referralProgramInfo = referralInfo
+
+            if referralInfo?.referral != nil {
+                viewState = .loaded(.alreadyParticipant(.simple))
+            } else {
+                viewState = .loaded(.readyToBecomeParticipant(.simple))
+            }
+
+        case .accounts(let accountModelsManager):
+            let (accountModel, referralInfo) = await fetchInitialData(with: accountModelsManager)
+            referralProgramInfo = referralInfo
+            self.accountModel = accountModel
+
+            updateViewState(accountModel: accountModel)
+            bindAccountModelsUpdates(accountModelsManager)
         }
     }
 
@@ -66,31 +95,35 @@ class ReferralViewModel: ObservableObject {
         isProcessingRequest = true
         Analytics.log(.referralButtonParticipate)
 
-        guard let award = referralProgramInfo?.conditions.awards.first else {
-            processReferralError(.awardNotLoaded)
-            return
-        }
-
-        guard let blockchain = supportedBlockchains[award.token.networkId] else {
-            processReferralError(.blockchainNotSupported)
-            return
-        }
-
-        guard let token = award.token.storageToken else {
-            processReferralError(.invalidToken)
+        guard let validatedData = validateAwardData(from: referralProgramInfo) else {
+            isProcessingRequest = false
             return
         }
 
         do {
-            let address = try await userTokensManager.add(.token(token, .init(blockchain, derivationPath: nil)))
+            guard let userTokensManager else {
+                throw ReferralError.accountFetchError
+            }
+
+            let address = try await userTokensManager.add(.token(validatedData.storageToken, .init(validatedData.blockchain, derivationPath: nil)))
             isProcessingRequest = false
 
             let referralProgramInfo: ReferralProgramInfo? = try await runInTask { [weak self] in
                 guard let self else { return nil }
 
-                return try await tangemApiService.participateInReferralProgram(using: award.token, for: address, with: userWalletId.hexString)
+                return try await tangemApiService.participateInReferralProgram(using: validatedData.award.token, for: address, with: userWalletId.hexString)
             }
+
             self.referralProgramInfo = referralProgramInfo
+
+            switch workMode {
+            case .plainUserTokensManager:
+                viewState = .loaded(.alreadyParticipant(.simple))
+
+            case .accounts:
+                updateViewState(accountModel: accountModel)
+            }
+
             Analytics.log(.referralParticipateSuccessfull)
         } catch {
             if !error.toTangemSdkError().isUserCancelled {
@@ -122,8 +155,18 @@ class ReferralViewModel: ObservableObject {
         AppPresenter.shared.show(shareActivityVC)
     }
 
+    func updateAccount(_ newAccount: any CryptoAccountModel) {
+        let accountData = SelectedAccountViewData(
+            id: newAccount.id,
+            iconViewData: AccountModelUtils.UI.iconViewData(icon: newAccount.icon, accountName: newAccount.name),
+            name: newAccount.name
+        )
+
+        viewState = viewState.updateAccountData(with: accountData)
+    }
+
     @MainActor
-    private func loadReferralInfo() async {
+    private func loadReferralInfo() async -> ReferralProgramInfo? {
         do {
             let referralProgramInfo: ReferralProgramInfo? = try await runInTask { [weak self] in
                 guard let self else { return nil }
@@ -133,13 +176,156 @@ class ReferralViewModel: ObservableObject {
                     expectedAwardsLimit: ReferralConstants.expectedAwardsFetchLimit
                 )
             }
-            self.referralProgramInfo = referralProgramInfo
+            return referralProgramInfo
         } catch {
             let referralError = ReferralError(error)
             let message = Localization.referralErrorFailedToLoadInfoWithReason(referralError.errorCode)
             AppLogger.error(error: referralError)
             errorAlert = AlertBuilder.makeOkErrorAlert(message: message, okAction: coordinator?.dismiss ?? {})
             Analytics.log(event: .referralError, params: [.errorCode: "\(referralError.errorCode)"])
+
+            return nil
+        }
+    }
+
+    private func loadAccountModel(with accountModelsManager: AccountModelsManager) async -> AccountModel? {
+        do {
+            return try await accountModelsManager.accountModelsPublisher.async().first
+        } catch {
+            processReferralError(.accountFetchError)
+            return nil
+        }
+    }
+
+    // MARK: - Loading
+
+    private func fetchInitialData(with accountModelsManager: AccountModelsManager) async -> (AccountModel?, ReferralProgramInfo?) {
+        async let accountModel = loadAccountModel(with: accountModelsManager)
+        async let referralInfo = loadReferralInfo()
+
+        return await (accountModel, referralInfo)
+    }
+
+    private func bindAccountModelsUpdates(_ accountModelsManager: AccountModelsManager) {
+        accountModelsManager.accountModelsPublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { viewModel, accountModels in
+                viewModel.updateViewState(accountModel: accountModels.first)
+            }
+            .store(in: &bag)
+    }
+
+    // MARK: - State mapping
+
+    private func updateViewState(accountModel: AccountModel?) {
+        guard let accountModel else {
+            processReferralError(.accountFetchError)
+            return
+        }
+
+        switch (referralProgramInfo?.referral?.address, accountModel) {
+        case (.some(let address), .standard(let cryptoAccounts)):
+            mapAlreadyParticipantState(address: address, cryptoAccounts: cryptoAccounts)
+
+        case (nil, .standard(let cryptoAccounts)):
+            mapReadyToBecomeState(cryptoAccounts: cryptoAccounts)
+        }
+    }
+
+    // MARK: - Validation helpers
+
+    private func validateAwardData(from referralInfo: ReferralProgramInfo?) -> ValidatedAwardData? {
+        guard let award = referralInfo?.conditions.awards.first else {
+            processReferralError(.awardNotLoaded)
+            return nil
+        }
+
+        guard let blockchain = supportedBlockchains[award.token.networkId] else {
+            processReferralError(.blockchainNotSupported)
+            return nil
+        }
+
+        guard let storageToken = award.token.storageToken else {
+            processReferralError(.invalidToken)
+            return nil
+        }
+
+        return ValidatedAwardData(award: award, blockchain: blockchain, storageToken: storageToken)
+    }
+
+    // MARK: - Mapping helpers
+
+    private func mapAlreadyParticipantState(address: String, cryptoAccounts: CryptoAccounts) {
+        switch cryptoAccounts {
+        case .single:
+            viewState = .loaded(.alreadyParticipant(.simple))
+
+        case .multiple(let accounts):
+            guard let account = ReferralAccountFinder.find(forAddress: address, accounts: accounts) else {
+                processReferralError(.accountFetchError)
+                return
+            }
+
+            let viewData = SelectedAccountViewData(
+                id: account.id,
+                iconViewData: AccountModelUtils.UI.iconViewData(icon: account.icon, accountName: account.name),
+                name: account.name
+            )
+            viewState = .loaded(.alreadyParticipant(.accounts(viewData)))
+        }
+    }
+
+    private func mapReadyToBecomeState(cryptoAccounts: CryptoAccounts) {
+        guard let validatedData = validateAwardData(from: referralProgramInfo) else {
+            return
+        }
+
+        switch cryptoAccounts {
+        case .single:
+            viewState = .loaded(.readyToBecomeParticipant(.simple))
+
+        case .multiple(let accounts):
+            let selectedOrMainAccount =
+                accounts.first { $0.id.toAnyHashable() == selectedForReferralAccount?.id } ??
+                accounts.first(where: { $0.isMainAccount })
+
+            guard let selectedOrMainAccount else {
+                processReferralError(.accountFetchError)
+                return
+            }
+
+            let viewData = SelectedAccountViewData(
+                id: selectedOrMainAccount.id,
+                iconViewData: AccountModelUtils.UI.iconViewData(icon: selectedOrMainAccount.icon, accountName: selectedOrMainAccount.name),
+                name: selectedOrMainAccount.name
+            )
+
+            let walletModel = selectedOrMainAccount
+                .walletModelsManager
+                .walletModels
+                .first { $0.tokenItem.token == validatedData.storageToken }
+
+            if let walletModel {
+                viewState = .loaded(
+                    .readyToBecomeParticipant(
+                        .accounts(
+                            .tokenItem(makeExpressTokenItemViewModel(from: walletModel)), viewData
+                        )
+                    )
+                )
+            } else {
+                let tokenIconInfo = TokenIconInfoBuilder().build(
+                    for: .token(value: validatedData.storageToken),
+                    in: validatedData.blockchain,
+                    isCustom: validatedData.storageToken.isCustom
+                )
+
+                let storageToken = validatedData.storageToken
+                viewState = .loaded(
+                    .readyToBecomeParticipant(.accounts(.token(tokenIconInfo, storageToken.name, storageToken.symbol), viewData))
+                )
+            }
         }
     }
 
@@ -152,11 +338,62 @@ class ReferralViewModel: ObservableObject {
         isProcessingRequest = false
         Analytics.log(event: .referralError, params: [.errorCode: "\(error.errorCode)"])
     }
+
+    private func makeExpressTokenItemViewModel(from walletModel: any WalletModel) -> ExpressTokenItemViewModel {
+        let tokenIconInfo = TokenIconInfoBuilder().build(
+            from: walletModel.tokenItem,
+            isCustom: walletModel.isCustom
+        )
+
+        let balance = walletModel.availableBalanceProvider.formattedBalanceType.value
+        let fiatBalance = walletModel.fiatAvailableBalanceProvider.formattedBalanceType.value
+
+        return ExpressTokenItemViewModel(
+            id: walletModel.id.id,
+            tokenIconInfo: tokenIconInfo,
+            name: walletModel.name,
+            symbol: walletModel.tokenItem.currencySymbol,
+            balance: balance,
+            fiatBalance: fiatBalance,
+            isDisable: false,
+            itemDidTap: { /* no action needed */ }
+        )
+    }
+
+    private var userTokensManager: UserTokensManager? {
+        switch workMode {
+        case .plainUserTokensManager(let userTokensManager):
+            return userTokensManager
+        case .accounts:
+            switch accountModel {
+            case .standard(let cryptoAccounts):
+                switch cryptoAccounts {
+                case .single(let cryptoAccountModel):
+                    return cryptoAccountModel.userTokensManager
+                case .multiple(let cryptoAccountModels):
+                    return cryptoAccountModels.first { $0.id.toAnyHashable() == selectedForReferralAccount?.id }?.userTokensManager
+                }
+
+            case nil:
+                return nil
+            }
+        }
+    }
+
+    private var selectedForReferralAccount: SelectedAccountViewData? {
+        switch viewState {
+        case .loading:
+            return nil
+        case .loaded(let loadedState):
+            return loadedState.accountData
+        }
+    }
 }
 
 extension ReferralViewModel {
     enum ReferralError: Error {
         case awardNotLoaded
+        case accountFetchError
         case blockchainNotSupported
         case invalidToken
         case decodingError(DecodingError)
@@ -173,6 +410,12 @@ extension ReferralViewModel {
                 self = .unknown(error)
             }
         }
+    }
+
+    private struct ValidatedAwardData {
+        let award: ReferralProgramInfo.Award
+        let blockchain: Blockchain
+        let storageToken: Token
     }
 }
 

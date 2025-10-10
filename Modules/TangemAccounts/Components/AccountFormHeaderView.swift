@@ -17,21 +17,18 @@ public struct AccountFormHeaderView: View {
 
     private let maxCharacters: Int
     private let placeholderText: String
-    private let color: Color
-    private let nameMode: AccountIconView.NameMode
+    private let accountIconViewData: AccountIconView.ViewData
 
     public init(
         accountName: Binding<String>,
         maxCharacters: Int,
         placeholderText: String,
-        color: Color,
-        nameMode: AccountIconView.NameMode
+        accountIconViewData: AccountIconView.ViewData
     ) {
         _accountName = accountName
         self.maxCharacters = maxCharacters
         self.placeholderText = placeholderText
-        self.color = color
-        self.nameMode = nameMode
+        self.accountIconViewData = accountIconViewData
     }
 
     public var body: some View {
@@ -50,7 +47,7 @@ public struct AccountFormHeaderView: View {
     private var colorWithPreview: some View {
         HStack {
             Spacer()
-            AccountIconView(backgroundColor: color, nameMode: nameMode)
+            AccountIconView(data: accountIconViewData)
                 .cornerRadius(24)
                 .padding(24)
                 .size(.init(bothDimensions: 40))
@@ -93,16 +90,20 @@ public struct AccountFormHeaderView: View {
                 accountName: $accountName,
                 maxCharacters: 20,
                 placeholderText: "New account",
-                color: Colors.Accounts.vitalGreen,
-                nameMode: .letter("N")
+                accountIconViewData: AccountIconView.ViewData(
+                    backgroundColor: Colors.Accounts.vitalGreen,
+                    nameMode: .letter("N")
+                )
             )
 
             AccountFormHeaderView(
                 accountName: $accountName,
                 maxCharacters: 20,
                 placeholderText: "New account",
-                color: Colors.Accounts.ufoGreen,
-                nameMode: .imageType(Assets.Accounts.airplane)
+                accountIconViewData: AccountIconView.ViewData(
+                    backgroundColor: Colors.Accounts.ufoGreen,
+                    nameMode: .imageType(Assets.Accounts.airplane)
+                )
             )
         }
         .padding(.horizontal, 16)

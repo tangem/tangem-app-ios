@@ -52,7 +52,7 @@ extension NewTokenSelectorItem {
     }
 
     struct Account: Hashable {
-        let icon: AccountIconView.AccountIconViewData
+        let icon: AccountIconView.ViewData
         let name: String
     }
 }

@@ -34,11 +34,8 @@ struct AccountDetailsView: View {
     private var accountSection: some View {
         RowWithLeadingAndTrailingIcons(
             leadingIcon: {
-                AccountIconView(
-                    backgroundColor: viewModel.accountIconColor,
-                    nameMode: viewModel.accountIconNameMode
-                )
-                .setMiddleSizedIconSettings()
+                AccountIconView(data: viewModel.iconViewData)
+                    .setMiddleSizedIconSettings()
             },
             content: {
                 VStack(alignment: .leading, spacing: .zero) {

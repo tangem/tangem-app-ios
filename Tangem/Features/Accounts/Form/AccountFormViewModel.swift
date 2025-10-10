@@ -113,21 +113,13 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     // MARK: - ViewData
 
-    var nameMode: AccountIconView.NameMode {
-        switch selectedIcon.kind {
-        case .image(let imageType):
-            return .imageType(imageType)
-
-        case .letter:
-            if let firstLetter = accountName.first {
-                return .letter(String(firstLetter))
-            }
-
-            return .imageType(
-                Assets.tangemIcon,
-                AccountIconView.NameMode.ImageConfig(opacity: 0.4)
-            )
-        }
+    var iconViewData: AccountIconView.ViewData {
+        // Can't use `AccountModelUtils.UI.iconColor` here because of slightly different logic of `nameMode` creation
+        // see nameMode
+        AccountIconView.ViewData(
+            backgroundColor: AccountModelUtils.UI.iconColor(from: selectedColor.id),
+            nameMode: nameMode
+        )
     }
 
     var placeholder: String {
@@ -202,7 +194,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         close()
     }
 
-    // MARK: - Private methods
+    // MARK: - Private
 
     private func close() {
         closeAction()
@@ -222,7 +214,24 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
 
-    // MARK: - Alerts
+    private var nameMode: AccountIconView.NameMode {
+        switch selectedIcon.kind {
+        case .image(let imageType):
+            return .imageType(imageType)
+
+        case .letter:
+            if let firstLetter = accountName.first {
+                return .letter(String(firstLetter))
+            }
+
+            return .imageType(
+                Assets.tangemIcon,
+                AccountIconView.NameMode.ImageConfig(opacity: 0.4)
+            )
+        }
+    }
+
+    // MARK: Alerts
 
     private func makeExitAlert(message: String) -> AlertBinder {
         AlertBuilder.makeExitAlert(
