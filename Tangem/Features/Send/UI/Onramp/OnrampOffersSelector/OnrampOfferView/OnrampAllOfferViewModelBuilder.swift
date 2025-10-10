@@ -9,25 +9,19 @@
 import TangemExpress
 import TangemLocalization
 
-struct OnrampOfferViewModelBuilder {
+struct OnrampAllOfferViewModelBuilder {
     let tokenItem: TokenItem
 
     private let formatter: BalanceFormatter = .init()
     private let amountBadgeBuilder: OnrampAmountBadgeBuilder = .init()
     private let processingTimeFormatter: OnrampProviderProcessingTimeFormatter = .init()
 
-    func mapToOnrampOfferViewModelTitle(provider: OnrampProvider) -> OnrampOfferViewModel.Title {
+    func mapToOnrampOfferViewModel(provider: OnrampProvider, buyAction: @escaping () -> Void) -> OnrampOfferViewModel {
         let title: OnrampOfferViewModel.Title = switch (provider.globalAttractiveType, provider.processingTimeType) {
         case (.best, _): .bestRate
         case (_, .fastest): .fastest
         default: .text(Localization.onrampTitleYouGet)
         }
-
-        return title
-    }
-
-    func mapToOnrampOfferViewModel(provider: OnrampProvider, buyAction: @escaping () -> Void) -> OnrampOfferViewModel {
-        let title = mapToOnrampOfferViewModelTitle(provider: provider)
 
         let amount: OnrampOfferViewModel.Amount = {
             let formattedAmount = formatter.formatCryptoBalance(
