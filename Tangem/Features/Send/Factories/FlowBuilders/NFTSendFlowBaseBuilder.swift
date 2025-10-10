@@ -86,6 +86,7 @@ struct NFTSendFlowBaseBuilder {
         notificationManager.setup(input: sendModel)
         notificationManager.setupManager(with: sendModel)
 
+        analyticsLogger.setup(sendDestinationInput: sendModel)
         analyticsLogger.setup(sendFeeInput: sendModel)
 
         // We have to do it after sendModel fully setup
