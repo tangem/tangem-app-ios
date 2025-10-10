@@ -12,9 +12,10 @@ public struct VisaCustomerInfoResponse: Decodable {
     public let id: String
     public let state: CustomerState
     public let createdAt: Date
-    public let productInstance: ProductInstance
-    public let paymentAccount: PaymentAccount
+    public let productInstance: ProductInstance?
+    public let paymentAccount: PaymentAccount?
     public let kyc: KYCInfo
+    public let card: Card?
 }
 
 public extension VisaCustomerInfoResponse {
@@ -86,5 +87,9 @@ public extension VisaCustomerInfoResponse {
         case green = "GREEN"
         case red = "RED"
         case undefined = "UNDEFINED"
+    }
+
+    struct Card: Decodable {
+        public let cardNumberEnd: String
     }
 }
