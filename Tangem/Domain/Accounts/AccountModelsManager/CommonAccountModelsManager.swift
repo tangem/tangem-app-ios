@@ -286,16 +286,15 @@ extension CommonAccountModelsManager: AccountModelsManager {
         do {
             return try await archivedCryptoAccountsProvider.getArchivedCryptoAccounts()
         } catch {
-            AppLogger.error(error: error)
+            AccountsLogger.error("Failed to fetch archived crypto accounts for user wallet \(userWalletId)", error: error)
             throw .cannotFetchArchivedCryptoAccounts
         }
     }
 
-    nonisolated func archiveCryptoAccount(
-        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
-    ) throws(AccountModelsManagerError) {
-        if identifier.isMainAccount {
-            // Main account cannot be archived by definition
+    func archiveCryptoAccount(withIdentifier identifier: any AccountModelPersistentIdentifierConvertible) async throws(AccountModelsManagerError) {
+        let validator = ArchivedCryptoAccountConditionsValidator(identifier: identifier)
+
+        guard await validator.isValid() else {
             throw .cannotArchiveCryptoAccount
         }
 
