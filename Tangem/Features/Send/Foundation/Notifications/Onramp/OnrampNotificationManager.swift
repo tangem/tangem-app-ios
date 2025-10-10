@@ -102,12 +102,3 @@ extension CommonOnrampNotificationManager: OnrampNotificationManager {
 
     func dismissNotification(with id: NotificationViewId) {}
 }
-
-private extension TokenItem {
-    var supportsStakingOnDifferentValidators: Bool {
-        switch blockchain {
-        case .tron: false
-        default: true
-        }
-    }
-}
