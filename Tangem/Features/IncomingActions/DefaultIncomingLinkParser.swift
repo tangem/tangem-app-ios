@@ -16,13 +16,11 @@ struct DefaultIncomingLinkParser {
 
     // MARK: - Properties
 
-    private let isFeatureAvailable: Bool
     private let deeplinkValidator: DeeplinkValidator
 
     // MARK: - Init
 
-    init(isFeatureAvailable: Bool, deeplinkValidator: DeeplinkValidator = CommonDeepLinkValidator()) {
-        self.isFeatureAvailable = isFeatureAvailable
+    init(deeplinkValidator: DeeplinkValidator = CommonDeepLinkValidator()) {
         self.deeplinkValidator = deeplinkValidator
     }
 
@@ -87,10 +85,6 @@ struct DefaultIncomingLinkParser {
 
 extension DefaultIncomingLinkParser: IncomingActionURLParser {
     func parse(_ url: URL) -> IncomingAction? {
-        guard isFeatureAvailable else {
-            return nil
-        }
-
         let urlString = url.absoluteString
 
         if urlString.starts(with: IncomingActionConstants.tangemDomain) || urlString.starts(with: IncomingActionConstants.appTangemDomain) {
