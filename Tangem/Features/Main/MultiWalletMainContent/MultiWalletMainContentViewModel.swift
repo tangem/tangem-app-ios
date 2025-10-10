@@ -87,10 +87,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private var bag = Set<AnyCancellable>()
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    private var tangemPayAccount: TangemPayAccount?
-
     init(
         userWalletModel: UserWalletModel,
         userWalletNotificationManager: NotificationManager,
