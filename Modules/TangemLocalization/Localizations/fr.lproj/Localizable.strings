@@ -18,7 +18,7 @@
 "account_archived_accounts" = "Archived accounts";
 "account_archived_recover_dialog_description" = "You’re about to recover “%1$@”.";
 "account_archived_recover_dialog_title" = "Recover account";
-"account_archived_recover_error_message" = "You have already exceeded the limit of 20 active accounts. Archive one to recover";
+"account_archived_recover_error_message" = "You have already exceeded the limit of 20 active accounts. Archive one to recover.";
 "account_archived_recover_error_title" = "Can't recover account";
 "account_archived_recover" = "Recover";
 "account_archived_title" = "Archived";
@@ -32,6 +32,7 @@
 "account_form_account_index" = "Account #%@ — used for address derivation.";
 "account_form_create_button" = "Add account";
 "account_form_edit_button" = "Save";
+"account_form_name_already_exist_error_description" = "Account name already exists";
 "account_form_name" = "Account name";
 "account_form_placeholder_edit_account" = "Account";
 "account_form_placeholder_new_account" = "New account";
@@ -134,7 +135,7 @@
 "bitcoin_promo_activation_error_title" = "Erreur d'activation";
 "bitcoin_promo_activation_error" = "Une erreur s'est produite lors du traitement de votre code promo. Veuillez réessayer plus tard.";
 "bitcoin_promo_activation_success_title" = "Code promo activé";
-"bitcoin_promo_activation_success" = "Votre code promo a été activé avec succès. Un bonus de 10 USDT en Bitcoin sera crédité dans 14 jours.";
+"bitcoin_promo_activation_success" = "Votre code promotionnel a été activé avec succès. Une récompense sera créditée sur votre compte dans un délai de 14 jours.";
 "bitcoin_promo_already_activated_title" = "Code indisponible";
 "bitcoin_promo_already_activated" = "Ce code promo a déjà été utilisé et ne peut pas être activé à nouveau.";
 "bitcoin_promo_invalid_code_title" = "Code invalide";
@@ -225,7 +226,7 @@
 "common_enable" = "Activer";
 "common_enabled" = "Activé";
 "common_error" = "Erreur";
-"common_exchange" = "Échangez";
+"common_exchange" = "Echanger";
 "common_explore_transaction_history" = "Explorez l'historique des transactions";
 "common_explore" = "Explorez";
 "common_explorer" = "Explorateur";
@@ -237,6 +238,7 @@
 "common_fee_selector_title" = "Vitesse et frais";
 "common_finish" = "Terminer";
 "common_free" = "Free";
+"common_from" = "From";
 "common_generate_addresses" = "Synchroniser les adresses";
 "common_get_started" = "Get started";
 "common_go_to_provider" = "Aller au fournisseur";
@@ -276,6 +278,7 @@
 "common_range" = "%1$@-%2$@";
 "common_read_more" = "En savoir plus";
 "common_receive" = "Recevoir";
+"common_recommended" = "Recommended";
 "common_reject" = "Rejeter";
 "common_reload" = "Recharger";
 "common_rename" = "Renommer";
@@ -313,6 +316,7 @@
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "termes et conditions";
 "common_terms_of_use" = "Conditions d'utilisation";
+"common_to" = "À";
 "common_today" = "Aujourd'hui";
 "common_transaction_failed" = "La transaction a échoué";
 "common_transaction_status" = "Statut de la transaction";
@@ -331,6 +335,8 @@
 "common_yes" = "Oui";
 "contract_address_copied_message" = "Adresse du contrat copiée !";
 "currency_subtitle_expanded" = "Réseaux disponibles";
+"custom_token_another_account_dialog_description" = "Derivation of your token matches the derivation of %1$@. Your token will be added to this account.";
+"custom_token_another_account_dialog_title" = "Derivation belongs to another account.";
 "custom_token_contract_address_input_title" = "Adresse du contrat";
 "custom_token_creation_error_empty_fields" = "Veuillez remplir tous les champs";
 "custom_token_creation_error_invalid_contract_address" = "L'adresse du contrat n'est pas valide";
@@ -448,6 +454,7 @@
 "express_more_providers_soon" = "D'autres fournisseurs arriveront bientôt.\nRestez branchés !";
 "express_provider_best_rate" = "Meilleur taux";
 "express_provider_fca_warning_list" = "Liste d’avertissement de la FCA";
+"express_provider_great_rate" = "Great rate";
 "express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Disponible jusqu'à %@";
 "express_provider_min_amount" = "Disponible à partir de %@";
@@ -521,6 +528,7 @@
 "hw_create_seed_description" = "Create or restore your wallet using a recovery phrase — your built-in backup.";
 "hw_create_seed_title" = "Seed phrase backup";
 "hw_create_title" = "Create Mobile Wallet";
+"hw_import_existing_wallet" = "Import existing wallet";
 "hw_import_seed_phrase_already_imported" = "This recovery phrase has already been imported";
 "hw_mobile_wallet" = "Mobile Wallet";
 "hw_upgrade_error_card_already_has_wallet" = "Can’t upgrade. A wallet already exists on this device.";
@@ -850,6 +858,7 @@
 "onramp_statuses_view_footer" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton.";
 "onramp_timing_minutes" = "%@ min";
 "onramp_title_you_get" = "You get";
+"onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton";
 "onramp_up_to_rate" = "Up to";
 "onramp_via" = "Via";
@@ -858,6 +867,7 @@
 "organize_tokens_sort_by_balance" = "Par solde";
 "organize_tokens_title" = "Organiser les jetons";
 "organize_tokens_ungroup" = "Dégrouper";
+"provider_name_support" = "%s support";
 "push_notifications_more_info" = "Plus d'infos";
 "push_notifications_permission_alert_description" = "Vous pouvez activer les notifications pour Tangem dans les paramètres.";
 "push_notifications_permission_alert_negative_button" = "Activer plus tard";
@@ -1037,6 +1047,9 @@
 "settings_forget_wallet" = "Oublier le portefeuille";
 "settings_wallet_name_title" = "Nom";
 "stake_token_description" = "Faites travailler votre jeton pour vous";
+"staking_account_initialization_footer" = "A network fee is a small payment required to process and confirm your transaction on the blockchain.";
+"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_account_initialization_title" = "Account activation";
 "staking_active_footer" = "Afin d'unstaker vos actifs, appuyez sur le bloc ci-dessus";
 "staking_active" = "Actif";
 "staking_amount_requirement_error" = "Le montant à staker doit être au moins %@";
@@ -1106,8 +1119,8 @@
 "staking_notification_restake_rewards_text" = "Réinvestissez vos récompenses gagnées dans le montant que vous avez staké, augmentant ainsi vos gains potentiels.";
 "staking_notification_restake_text" = "L'option de restaker vous permet de déplacer vos fonds d'un validateur à un autre sans avoir besoin de les déstaker.";
 "staking_notification_stake_entire_balance_text" = "Vous êtes sur le point de staker l'intégralité de votre solde. Nous vous recommandons de laisser un petit montant pour couvrir les frais de réseau pour unstaking ou la réclamation des récompenses.";
-"staking_notification_ton_account_initialization_title" = "Account activation";
 "staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_notification_ton_account_initialization_title" = "Account activation";
 "staking_notification_ton_activate_account" = "Pour commencer à staker TON, effectuez d'abord une transaction sortante de n'importe quel montant — cela activera votre portefeuille.";
 "staking_notification_ton_extra_reserve_info" = "Jusqu'à 0,2 TON peuvent être requis en plus des frais de réseau pour terminer la transaction. Tout montant non utilisé sera remboursé.";
 "staking_notification_ton_extra_reserve_is_required" = "0,2 TON requis pour effectuer cette opération, en plus des frais de réseau. Veuillez recharger votre solde.";
@@ -1119,9 +1132,6 @@
 "staking_notification_unstake_text" = "Vos fonds seront disponibles pour utilisation après la période de désengagement %@.";
 "staking_notification_withdraw_text" = "Vous pouvez désormais retirer vos fonds, ils seront disponibles à l'utilisation immédiatement";
 "staking_notifications_revote_tron_text" = "Le staking dans le réseau Tron avec un nouveau validateur transférera automatiquement tous les fonds précédemment stakés vers ce validateur";
-"staking_account_initialization_title" = "Account activation";
-"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
-"staking_account_initialization_footer" = "A network fee is a small payment to process and confirm your transaction on the blockchain.";
 "staking_preparing" = "En cours de préparation";
 "staking_ready_to_withdraw" = "Prêt à retirer";
 "staking_rebond" = "Réassocier";
@@ -1144,6 +1154,7 @@
 "staking_reward_schedule_month" = "Mois";
 "staking_reward_schedule_week" = "Semaine";
 "staking_rewards" = "Récompenses";
+"staking_soloana_details_auto_claiming_rewards_daily_text" = "Rewards on Solana are automatically added to your staking balance and cannot be shown separately.";
 "staking_stake_locked" = "Stake verrouillé";
 "staking_stake_more_button_unavailability_reason" = "Lorsque vous stakez %1$@, la totalité de votre solde %2$@ est stakeée. Tout dépôt supplémentaire de %2$@ sur votre portefeuille Tangem sera également staké automatiquement.";
 "staking_stake_more" = "Staker plus";
@@ -1218,10 +1229,14 @@
 "swapping_insufficient_funds" = "Fonds insuffisants";
 "swapping_permission_header" = "Donner l'autorisation";
 "swapping_permit_and_swap" = "Autoriser et Échanger";
-"swapping_swap_action" = "Échangez";
+"swapping_swap_action" = "Échanger";
 "swapping_to_title" = "Vous recevez";
 "swapping_token_list_title" = "Choisir le jeton";
 "swapping_token_not_available" = "non disponible";
+"tangempay_card_details_error_text" = "Failed to load data. Try again later.";
+"tangempay_card_details_hide_text" = "Hide";
+"tangempay_card_details_reveal_text" = "Reveal";
+"tangempay_card_details_title" = "Card details";
 "tangempay_issue_card_notification_title" = "Create account and issue a card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
@@ -1234,6 +1249,7 @@
 "tangempay_onboarding_security_description" = "Your card details are protected — full control in the app.";
 "tangempay_onboarding_security_title" = "Built-in security";
 "tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
+"tangempay_title" = "Tangem Pay";
 "this_is_my_wallet_title" = "C'est mon portefeuille";
 "toast_balances_hidden" = "Soldes masqués";
 "toast_balances_shown" = "Soldes affichés";
@@ -1262,6 +1278,7 @@
 "token_details_token_type_subtitle" = "%1$@ jeton dans %%image%% %2$@ le réseau";
 "token_details_unable_hide_alert_message" = "Le jeton %1$@ (%2$@) est la principale devise du réseau %3$@ et ne peut pas être masqué tant que vous avez d'autres jetons de ce réseau dans la liste";
 "token_details_unable_hide_alert_title" = "Impossible de masquer %@";
+"token_receive_show_qr_code_title" = "Show QR code";
 "token_swap_promotion_button" = "Échangez maintenant";
 "tokens_list_available_to_buy_header" = "Sélectionnez le jeton que vous souhaitez acheter";
 "tokens_list_available_to_sell_header" = "Sélectionnez le jeton que vous souhaitez vendre";
@@ -1303,17 +1320,18 @@
 "universal_error" = "Nous avons rencontré une erreur. Code d'erreur : %@. Veuillez contacter notre équipe de support.";
 "unlock_wallet_description_full" = "Utilisez %@ ou scannez une carte/bague pour avoir accès à votre portefeuille";
 "unsupported_wc_version" = "Échec de la connexion : Cette dApp utilise Wallet Connect version1.0, qui n'est pas prise en charge. Veuillez vous assurer que la dApp prend en charge Wallet Connect version2.0 pour réussir la connexion.";
-"user_push_notification_agreement_argument_one_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
-"user_push_notification_agreement_argument_one_title" = "Transaction Alerts";
+"user_push_notification_agreement_argument_one_subtitle" = "Alertes en temps réel pour les transactions, les échanges et les mises à jour importantes.";
+"user_push_notification_agreement_argument_one_title" = "Alertes de transaction";
 "user_push_notification_agreement_argument_one" = "Restez à jour avec les dernières fonctionnalités et actualités";
 "user_push_notification_agreement_argument_three" = "Recevez des notifications des transactions entrantes";
-"user_push_notification_agreement_argument_two_subtitle" = "Early access to fresh features and exclusive offers.";
-"user_push_notification_agreement_argument_two_title" = "Feature and News Updates";
+"user_push_notification_agreement_argument_two_subtitle" = "Accès anticipé à de nouvelles fonctionnalités et à des offres exclusives.";
+"user_push_notification_agreement_argument_two_title" = "Actualités et mises à jour";
 "user_push_notification_agreement_argument_two" = "Soyez le premier informé des nouvelles promotions";
 "user_push_notification_agreement_header" = "Souhaitez-vous utiliser les\nnotifications push?";
-"user_push_notification_banner_subtitle" = "Enable push notifications and we’ll notify you instantly when funds arrive\n";
+"user_push_notification_banner_subtitle" = "Enable push notifications and we’ll notify you instantly when funds arrive.";
 "user_push_notification_banner_title" = "Don’t Miss a Transaction";
 "user_wallet_list_add_button" = "Ajouter un nouveau portefeuille";
+"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds";
 "user_wallet_list_delete_prompt" = "Êtes-vous sûr de vouloir supprimer ce portefeuille ?";
 "user_wallet_list_error_wallet_already_saved" = "Ce portefeuille a déjà été enregistré, vous pouvez en ajouter un autre";
 "user_wallet_list_rename_popup_placeholder" = "Nom du portefeuille";
@@ -1385,6 +1403,13 @@
 "visa_unlock_notification_title" = "Déverrouillage nécessaire";
 "voice_over_open_card_details" = "Ouvrir les détails de l'appareil";
 "voice_over_open_new_wallet_connect_session" = "Scannez le code QR pour ouvrir une nouvelle session WalletConnect";
+"wallet_add_common_title" = "Choose how to add your wallet";
+"wallet_add_hardware_description" = "Scan your Tangem card or ring to restore it or import from another wallet.";
+"wallet_add_hardware_info_create" = "Create Hardware Wallet";
+"wallet_add_hardware_purchase" = "Want to purchase a Tangem Wallet?";
+"wallet_add_import_seed_phrase" = "Import seed phrase";
+"wallet_add_mobile_description" = "Restore your wallet on your phone or import from another app — convenient, but less secure than a Tangem card.";
+"wallet_add_support_title" = "What to choose?";
 "wallet_balance_missing_derivation" = "Scanner la carte ou la bague";
 "wallet_been_activated_message" = "Ce portefeuille a déjà été activé auparavant.\nSi cela n'a pas été fait par vous, veuillez contacter le support.\nTangem ne vend jamais de portefeuilles avec le code d'accès pré-généré.";
 "wallet_connect_error_timeout" = "Échec de l'établissement de la session WalletConnect : erreur de délai d'attente. Veuillez réessayer plus tard.";
@@ -1625,6 +1650,20 @@
 "wc_wallet_connect" = "WalletConnect";
 "wc_warning_transaction" = "Suspicious transaction";
 "wc_warning_tx_alert_default_description" = "This transaction appears unusual or risky. Please review it carefully before signing.";
+"welcome_create_wallet_already_have" = "Already have Tangem?";
+"welcome_create_wallet_feature_assets" = "Thousands of assets";
+"welcome_create_wallet_feature_class" = "Best in class hardware wallet";
+"welcome_create_wallet_feature_delivery" = "Fast delivery";
+"welcome_create_wallet_feature_one_tap" = "Start in one tap";
+"welcome_create_wallet_feature_seamless" = "Seamless and secure";
+"welcome_create_wallet_feature_use" = "Simple to use";
+"welcome_create_wallet_hardware_description" = "Create a hardware wallet with Tangem. Slim as a bank card, secure as a bank vault.";
+"welcome_create_wallet_mobile_description_full" = "Create or import a software wallet on your phone ";
+"welcome_create_wallet_mobile_description" = "Create or import a software wallet";
+"welcome_create_wallet_mobile_title" = "Start with Mobile Wallet";
+"welcome_create_wallet_other_method" = "Other method";
+"welcome_create_wallet_use_hardware_description" = "Use Tangem Hardware Wallet";
+"welcome_create_wallet_use_hardware_title" = "Learn more & buy";
 "welcome_interrupted_backup_alert_discard" = "Ignorer";
 "welcome_interrupted_backup_alert_message" = "Vous avez une sauvegarde interrompue. Voulez-vous la reprendre ?";
 "welcome_interrupted_backup_alert_resume" = "Oui, reprendre";
@@ -1649,6 +1688,7 @@
 "yield_module_approve_sheet_title" = "Confirm approval";
 "yield_module_balance_info_sheet_subtitle" = "Text about your money in balance [PLACEHOLDER]";
 "yield_module_balance_info_sheet_title" = "Your %@ is deposited in Aave";
+"yield_module_chart_loading_error" = "Unable to load chart...";
 "yield_module_deposit_error_notification_title" = "The amount received, %1$@ %2$@ was not deposited to Aave.";
 "yield_module_earn_badge" = "Earn %1$@%%";
 "yield_module_earn_sheet_available_title" = "Available";
@@ -1666,6 +1706,7 @@
 "yield_module_fee_policy_sheet_max_fee_title" = "Maximum fee";
 "yield_module_fee_policy_sheet_title" = "Fee policy";
 "yield_module_high_fee_error" = "Network fee is too high right now. Waiting until it falls below your limit.";
+"yield_module_historical_returns" = "Historical returns";
 "yield_module_main_view_approve_notification_description" = "Write description here. In one, two or three lines will be awesome. [PLACEHOLDER]";
 "yield_module_main_view_approve_notification_title" = "Some token approve needed";
 "yield_module_network_fee_unreachable_notification_description" = "Check your network connection";
@@ -1696,6 +1737,7 @@
 "yield_module_stop_earning_sheet_description" = "Turning off will withdraw your funds from Aave, return them to %@ in your wallet, and stop earning rewards.";
 "yield_module_stop_earning_sheet_fee_note" = "The network fee will be deducted from the amount you withdraw.";
 "yield_module_stop_earning" = "Stop earning";
+"yield_module_supply_apr" = "Supply APR";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Make your money work — earn interest on your balance.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Earning on your balance";
@@ -1706,3 +1748,4 @@
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
 "yield_module_unavailable_subtitle" = "The interest service isn’t available at the moment. Please try again later.";
 "yield_module_unavailable_title" = "Earnings unavailable";
+"yield_supply_chart_loading_error" = "Unable to load chart...";

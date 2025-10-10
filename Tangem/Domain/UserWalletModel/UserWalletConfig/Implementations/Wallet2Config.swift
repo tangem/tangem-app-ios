@@ -62,7 +62,9 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        SupportedBlockchains(version: .v2).blockchains()
+        SupportedBlockchains(version: .v2)
+            .blockchains()
+            .filter(supportedBlockchainFilter(for:))
     }
 
     var defaultBlockchains: [StorageEntry] {
@@ -443,6 +445,8 @@ extension Wallet2Config: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
+        case .isHardwareLimited:
+            return .available
         }
     }
 
@@ -468,6 +472,16 @@ extension Wallet2Config: UserWalletConfig {
 extension Wallet2Config: WalletOnboardingStepsBuilderFactory {}
 
 // MARK: - Private extensions
+
+private extension Wallet2Config {
+    func supportedBlockchainFilter(for blockchain: Blockchain) -> Bool {
+        if case .quai = blockchain {
+            return hasFeature(.hdWallets)
+        }
+
+        return true
+    }
+}
 
 private extension Card.BackupStatus {
     var backupCardsCount: Int? {

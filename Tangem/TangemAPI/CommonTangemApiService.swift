@@ -438,14 +438,6 @@ extension CommonTangemApiService: TangemApiService {
             return (revision: revision, archivedAccounts: archivedAccounts)
         }
     }
-
-    func getYieldMarkets() async throws -> YieldModuleDTO.Response.MarketsInfo {
-        try await request(for: .yieldMarkets, decoder: decoder)
-    }
-
-    func getTokenPositionInfo(tokenContractAddress: String) async throws -> YieldModuleDTO.Response.PositionInfo {
-        try await request(for: .yieldToken(tokenContractAddress: tokenContractAddress), decoder: decoder)
-    }
 }
 
 // MARK: - Analytics
