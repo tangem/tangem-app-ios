@@ -179,189 +179,189 @@ struct MainCoordinatorView: CoordinatorView {
     }
 }
 
-import TangemFoundation
-
-final class TangemPayMainViewModel: ObservableObject {
-    let mainHeaderViewModel: MainHeaderViewModel
-    @Published private(set) var tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel?
-    @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
-
-    private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
-        settings: .init(stopRefreshingDelay: 1, refreshTaskTimeout: 120), // 2 minutes
-        refreshable: { [weak self] in
-            guard let self else { return }
-            _ = await (tangemPayAccount.loadBalance().value, reloadHistory())
-        }
-    )
-
-    private let tangemPayAccount: TangemPayAccount
-    private let transactionHistoryService: VisaTransactionHistoryService
-
-    private var historyReloadTask: Task<Void, Never>?
-
-    init(tangemPayAccount: TangemPayAccount) {
-        self.tangemPayAccount = tangemPayAccount
-
-        mainHeaderViewModel = MainHeaderViewModel(
-            isUserWalletLocked: false,
-            supplementInfoProvider: tangemPayAccount,
-            subtitleProvider: tangemPayAccount,
-            balanceProvider: tangemPayAccount,
-            updatePublisher: .empty
-        )
-
-        transactionHistoryService = VisaTransactionHistoryService(apiService: tangemPayAccount.customerInfoManagementService)
-
-        tangemPayAccount.tangemPayCardDetailsPublisher
-            .map { cardDetails -> TangemPayCardDetailsViewModel? in
-                guard let (card, _) = cardDetails else {
-                    return nil
-                }
-                return TangemPayCardDetailsViewModel(
-                    lastFourDigits: card.cardNumberEnd,
-                    customerInfoManagementService: tangemPayAccount.customerInfoManagementService
-                )
-            }
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$tangemPayCardDetailsViewModel)
-
-        transactionHistoryService
-            .itemsPublisher
-            .map { items in
-                let items = items
-                    .filter { $0.transactionType != .collateral }
-                    .enumerated()
-                    .compactMap { index, item in
-                        item.transactionViewModel(index: index)
-                    }
-
-                return .loaded(
-                    [
-                        .init(
-                            header: "All transactions",
-                            items: items
-                        ),
-                    ]
-                )
-            }
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$tangemPayTransactionHistoryState)
-    }
-
-    func fetchNextTransactionHistoryPage() -> FetchMore? {
-        guard transactionHistoryService.canFetchMoreHistory else {
-            return nil
-        }
-
-        return FetchMore { [weak self] in
-            self?.loadNextHistoryPage()
-        }
-    }
-
-    private func reloadHistory() async {
-        guard historyReloadTask == nil else {
-            return
-        }
-
-        historyReloadTask = Task { [weak self] in
-            await self?.transactionHistoryService.reloadHistory()
-            self?.historyReloadTask = nil
-        }
-
-        await historyReloadTask?.value
-    }
-
-    private func loadNextHistoryPage() {
-        guard historyReloadTask == nil else {
-            return
-        }
-
-        historyReloadTask = Task { [weak self] in
-            await self?.transactionHistoryService.loadNextPage()
-            self?.historyReloadTask = nil
-        }
-    }
-}
-
-struct TangemPayMainView: View {
-    @ObservedObject var viewModel: TangemPayMainViewModel
-
-    var body: some View {
-        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
-            VStack(spacing: 14) {
-                MainHeaderView(viewModel: viewModel.mainHeaderViewModel)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                if let tangemPayCardDetailsViewModel = viewModel.tangemPayCardDetailsViewModel {
-                    TangemPayCardDetailsView(viewModel: tangemPayCardDetailsViewModel)
-                }
-
-                TransactionsListView(
-                    state: viewModel.tangemPayTransactionHistoryState,
-                    exploreAction: nil,
-                    exploreTransactionAction: { _ in },
-                    reloadButtonAction: {},
-                    isReloadButtonBusy: false,
-                    fetchMore: viewModel.fetchNextTransactionHistoryPage()
-                )
-
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 12)
-        }
-        .background(Colors.Background.secondary)
-    }
-}
-
-import TangemVisa
-
-private extension TangemPayTransactionHistoryResponse.Transaction {
-    func transactionViewModel(index: Int) -> TransactionViewModel? {
-        switch record {
-        case .spend(let spend):
-            return TransactionViewModel(
-                hash: "N/A",
-                index: index,
-                interactionAddress: .custom(message: spend.enrichedMerchantCategory ?? spend.merchantCategory ?? spend.merchantCategoryCode),
-                timeFormatted: (spend.postedAt ?? spend.authorizedAt).formatted(date: .numeric, time: .shortened),
-                amount: "\(-spend.amount) \(spend.currency.uppercased())",
-                isOutgoing: index % 2 == 0,
-                transactionType: .tangemPay(
-                    name: spend.enrichedMerchantName ?? spend.merchantName ?? "Card payment",
-                    icon: spend.enrichedMerchantIcon
-                ),
-                status: .confirmed
-            )
-
-        case .collateral:
-            return nil
-
-        case .payment(let payment):
-            let isOutgoing = payment.amount < 0
-
-            return TransactionViewModel(
-                hash: "N/A",
-                index: index,
-                interactionAddress: .custom(message: "Transfers"),
-                timeFormatted: payment.postedAt.formatted(date: .numeric, time: .shortened),
-                amount: "\(payment.amount) \(payment.currency.uppercased())",
-                isOutgoing: isOutgoing,
-                transactionType: .tangemPayTransfer(name: isOutgoing ? "Withdraw" : "Deposit"),
-                status: .confirmed
-            )
-
-        case .fee(let fee):
-            return TransactionViewModel(
-                hash: "N/A",
-                index: index,
-                interactionAddress: .custom(message: "Service fees"),
-                timeFormatted: fee.postedAt.formatted(date: .numeric, time: .shortened),
-                amount: "\(-fee.amount) \(fee.currency.uppercased())",
-                isOutgoing: true,
-                transactionType: .tangemPay(name: "Fee", icon: nil),
-                status: .confirmed
-            )
-        }
-    }
-}
+//import TangemFoundation
+//
+//final class TangemPayMainViewModel: ObservableObject {
+//    let mainHeaderViewModel: MainHeaderViewModel
+//    [REDACTED_USERNAME] private(set) var tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel?
+//    [REDACTED_USERNAME] private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
+//
+//    private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
+//        settings: .init(stopRefreshingDelay: 1, refreshTaskTimeout: 120), // 2 minutes
+//        refreshable: { [weak self] in
+//            guard let self else { return }
+//            _ = await (tangemPayAccount.loadBalance().value, reloadHistory())
+//        }
+//    )
+//
+//    private let tangemPayAccount: TangemPayAccount
+//    private let transactionHistoryService: VisaTransactionHistoryService
+//
+//    private var historyReloadTask: Task<Void, Never>?
+//
+//    init(tangemPayAccount: TangemPayAccount) {
+//        self.tangemPayAccount = tangemPayAccount
+//
+//        mainHeaderViewModel = MainHeaderViewModel(
+//            isUserWalletLocked: false,
+//            supplementInfoProvider: tangemPayAccount,
+//            subtitleProvider: tangemPayAccount,
+//            balanceProvider: tangemPayAccount,
+//            updatePublisher: .empty
+//        )
+//
+//        transactionHistoryService = VisaTransactionHistoryService(apiService: tangemPayAccount.customerInfoManagementService)
+//
+//        tangemPayAccount.tangemPayCardDetailsPublisher
+//            .map { cardDetails -> TangemPayCardDetailsViewModel? in
+//                guard let (card, _) = cardDetails else {
+//                    return nil
+//                }
+//                return TangemPayCardDetailsViewModel(
+//                    lastFourDigits: card.cardNumberEnd,
+//                    customerInfoManagementService: tangemPayAccount.customerInfoManagementService
+//                )
+//            }
+//            .receive(on: DispatchQueue.main)
+//            .assign(to: &$tangemPayCardDetailsViewModel)
+//
+//        transactionHistoryService
+//            .itemsPublisher
+//            .map { items in
+//                let items = items
+//                    .filter { $0.transactionType != .collateral }
+//                    .enumerated()
+//                    .compactMap { index, item in
+//                        item.transactionViewModel(index: index)
+//                    }
+//
+//                return .loaded(
+//                    [
+//                        .init(
+//                            header: "All transactions",
+//                            items: items
+//                        ),
+//                    ]
+//                )
+//            }
+//            .receive(on: DispatchQueue.main)
+//            .assign(to: &$tangemPayTransactionHistoryState)
+//    }
+//
+//    func fetchNextTransactionHistoryPage() -> FetchMore? {
+//        guard transactionHistoryService.canFetchMoreHistory else {
+//            return nil
+//        }
+//
+//        return FetchMore { [weak self] in
+//            self?.loadNextHistoryPage()
+//        }
+//    }
+//
+//    private func reloadHistory() async {
+//        guard historyReloadTask == nil else {
+//            return
+//        }
+//
+//        historyReloadTask = Task { [weak self] in
+//            await self?.transactionHistoryService.reloadHistory()
+//            self?.historyReloadTask = nil
+//        }
+//
+//        await historyReloadTask?.value
+//    }
+//
+//    private func loadNextHistoryPage() {
+//        guard historyReloadTask == nil else {
+//            return
+//        }
+//
+//        historyReloadTask = Task { [weak self] in
+//            await self?.transactionHistoryService.loadNextPage()
+//            self?.historyReloadTask = nil
+//        }
+//    }
+//}
+//
+//struct TangemPayMainView: View {
+//    [REDACTED_USERNAME] var viewModel: TangemPayMainViewModel
+//
+//    var body: some View {
+//        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
+//            VStack(spacing: 14) {
+//                MainHeaderView(viewModel: viewModel.mainHeaderViewModel)
+//                    .fixedSize(horizontal: false, vertical: true)
+//
+//                if let tangemPayCardDetailsViewModel = viewModel.tangemPayCardDetailsViewModel {
+//                    TangemPayCardDetailsView(viewModel: tangemPayCardDetailsViewModel)
+//                }
+//
+//                TransactionsListView(
+//                    state: viewModel.tangemPayTransactionHistoryState,
+//                    exploreAction: nil,
+//                    exploreTransactionAction: { _ in },
+//                    reloadButtonAction: {},
+//                    isReloadButtonBusy: false,
+//                    fetchMore: viewModel.fetchNextTransactionHistoryPage()
+//                )
+//
+//                Spacer()
+//            }
+//            .padding(.horizontal, 16)
+//            .padding(.top, 12)
+//        }
+//        .background(Colors.Background.secondary)
+//    }
+//}
+//
+//import TangemVisa
+//
+//private extension TangemPayTransactionHistoryResponse.Transaction {
+//    func transactionViewModel(index: Int) -> TransactionViewModel? {
+//        switch record {
+//        case .spend(let spend):
+//            return TransactionViewModel(
+//                hash: "N/A",
+//                index: index,
+//                interactionAddress: .custom(message: spend.enrichedMerchantCategory ?? spend.merchantCategory ?? spend.merchantCategoryCode),
+//                timeFormatted: (spend.postedAt ?? spend.authorizedAt).formatted(date: .numeric, time: .shortened),
+//                amount: "\(-spend.amount) \(spend.currency.uppercased())",
+//                isOutgoing: index % 2 == 0,
+//                transactionType: .tangemPay(
+//                    name: spend.enrichedMerchantName ?? spend.merchantName ?? "Card payment",
+//                    icon: spend.enrichedMerchantIcon
+//                ),
+//                status: .confirmed
+//            )
+//
+//        case .collateral:
+//            return nil
+//
+//        case .payment(let payment):
+//            let isOutgoing = payment.amount < 0
+//
+//            return TransactionViewModel(
+//                hash: "N/A",
+//                index: index,
+//                interactionAddress: .custom(message: "Transfers"),
+//                timeFormatted: payment.postedAt.formatted(date: .numeric, time: .shortened),
+//                amount: "\(payment.amount) \(payment.currency.uppercased())",
+//                isOutgoing: isOutgoing,
+//                transactionType: .tangemPayTransfer(name: isOutgoing ? "Withdraw" : "Deposit"),
+//                status: .confirmed
+//            )
+//
+//        case .fee(let fee):
+//            return TransactionViewModel(
+//                hash: "N/A",
+//                index: index,
+//                interactionAddress: .custom(message: "Service fees"),
+//                timeFormatted: fee.postedAt.formatted(date: .numeric, time: .shortened),
+//                amount: "\(-fee.amount) \(fee.currency.uppercased())",
+//                isOutgoing: true,
+//                transactionType: .tangemPay(name: "Fee", icon: nil),
+//                status: .confirmed
+//            )
+//        }
+//    }
+//}

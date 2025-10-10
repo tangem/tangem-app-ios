@@ -64,7 +64,6 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
-
     @Published var tangemPayMainViewModel: TangemPayMainViewModel?
 
     // MARK: - Helpers
