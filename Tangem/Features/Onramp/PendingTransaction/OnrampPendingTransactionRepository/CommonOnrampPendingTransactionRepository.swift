@@ -70,6 +70,7 @@ extension CommonOnrampPendingTransactionRepository: OnrampPendingTransactionRepo
                 isCustom: false
             ),
             provider: .init(provider: txData.provider),
+            paymentMethod: .init(id: txData.paymentMethod.id),
             date: txData.date,
             externalTxId: txData.externalTxId,
             externalTxURL: txData.externalTxUrl,

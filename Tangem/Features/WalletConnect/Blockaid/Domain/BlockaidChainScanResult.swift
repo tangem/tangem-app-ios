@@ -11,7 +11,7 @@ import BlockchainSdk
 
 struct BlockaidChainScanResult: Equatable {
     let validationStatus: ValidationStatus?
-    let validationDescription: String?
+    let validationDescription: String
     let assetsDiff: AssetDiff?
     let approvals: [Asset]?
 
@@ -19,6 +19,7 @@ struct BlockaidChainScanResult: Equatable {
         case malicious
         case warning
         case benign
+        case error
     }
 
     struct AssetDiff: Equatable {

@@ -8,8 +8,10 @@
 
 import Foundation
 
-struct EthereumAddressConverterFactory {
-    func makeConverter(for blockchain: Blockchain) -> EthereumAddressConverter {
+public struct EthereumAddressConverterFactory {
+    public init() {}
+
+    public func makeConverter(for blockchain: Blockchain) -> EthereumAddressConverter {
         switch blockchain {
         case .xdc:
             return XDCAddressConverter()

@@ -13,7 +13,7 @@ import TangemVisa
 
 extension VisaUtilities {
     static var visaBlockchain: Blockchain {
-        VisaUtilities.visaBlockchain(isTestnet: FeatureStorage.instance.visaAPIType.isTestnet)
+        VisaUtilities.visaBlockchain(isTestnet: FeatureStorage.instance.isTestnet)
     }
 
     static func makeAddress(using list: [KeyInfo]) -> Address? {
@@ -23,7 +23,14 @@ extension VisaUtilities {
 
         return try? VisaUtilities.makeAddress(
             walletPublicKey: wallet.publicKey,
-            isTestnet: FeatureStorage.instance.visaAPIType.isTestnet
+            isTestnet: FeatureStorage.instance.isTestnet
         )
+    }
+}
+
+extension UserWalletModel {
+    var visaWalletModel: (any WalletModel)? {
+        walletModelsManager.walletModels
+            .first { $0.tokenItem.blockchain == VisaUtilities.visaBlockchain }
     }
 }
