@@ -67,6 +67,9 @@ struct APINodeInfoResolver {
         case .tatum:
             return TatumAPIResolver(keysConfig: keysConfig)
                 .resolve(providerType: providerType, blockchain: blockchain)
+        case .mock:
+            return MockAPIResolver()
+                .resolve(providerType: providerType, blockchain: blockchain)
         }
     }
 }
