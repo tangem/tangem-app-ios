@@ -12,7 +12,6 @@ import Combine
 
 @available(iOS 13.0, *)
 class StellarTransactionBuilder {
-    var sequence: Int64?
     var useTimebounds = true
     /// for tests
     var specificTxTime: TimeInterval?
@@ -35,7 +34,8 @@ class StellarTransactionBuilder {
     /// - Returns: Transaction hash and serialized XDR, or throws an error.
     func buildChangeTrustOperationForSign(
         transaction: Transaction,
-        limit: ChangeTrustOperation.ChangeTrustLimit
+        limit: ChangeTrustOperation.ChangeTrustLimit,
+        sequenceNumber: Int64
     ) throws -> (hash: Data, transaction: stellarsdk.TransactionXDR) {
         guard let assetId = transaction.contractAddress else {
             throw BlockchainSdkError.failedToBuildTx
@@ -53,11 +53,12 @@ class StellarTransactionBuilder {
         }
 
         let operation = ChangeTrustOperation(sourceAccountId: transaction.sourceAddress, asset: changeTrustAsset, limit: limit)
-        return try serializeOperation(operation, sourceKeyPair: sourceKeyPair, memo: .none)
+        return try serializeOperation(operation, sourceKeyPair: sourceKeyPair, memo: .none, sequence: sequenceNumber)
     }
 
     func buildForSign(
         targetAccountResponse: StellarTargetAccountResponse,
+        sequenceNumber: Int64,
         transaction: Transaction,
     ) throws -> (hash: Data, transaction: stellarsdk.TransactionXDR) {
         guard let destinationKeyPair = try? KeyPair(accountId: transaction.destinationAddress),
@@ -87,7 +88,13 @@ class StellarTransactionBuilder {
             ) :
                 CreateAccountOperation(sourceAccountId: nil, destination: destinationKeyPair, startBalance: transaction.amount.value)
 
-            let serializedOperation = try serializeOperation(operation, sourceKeyPair: sourceKeyPair, memo: memo)
+            let serializedOperation = try serializeOperation(
+                operation,
+                sourceKeyPair: sourceKeyPair,
+                memo: memo,
+                sequence: sequenceNumber
+            )
+
             return serializedOperation
 
         case .token:
@@ -122,7 +129,13 @@ class StellarTransactionBuilder {
                 amount: transaction.amount.value
             )
 
-            let serializedOperation = try serializeOperation(operation, sourceKeyPair: sourceKeyPair, memo: memo)
+            let serializedOperation = try serializeOperation(
+                operation,
+                sourceKeyPair: sourceKeyPair,
+                memo: memo,
+                sequence: sequenceNumber
+            )
+
             return serializedOperation
 
         case .reserve, .feeResource:
@@ -149,9 +162,13 @@ class StellarTransactionBuilder {
         }
     }
 
-    private func serializeOperation(_ operation: stellarsdk.Operation, sourceKeyPair: KeyPair, memo: Memo) throws -> (hash: Data, transaction: stellarsdk.TransactionXDR) {
-        guard let xdrOperation = try? operation.toXDR(),
-              let seqNumber = sequence else {
+    private func serializeOperation(
+        _ operation: stellarsdk.Operation,
+        sourceKeyPair: KeyPair,
+        memo: Memo,
+        sequence: Int64
+    ) throws -> (hash: Data, transaction: stellarsdk.TransactionXDR) {
+        guard let xdrOperation = try? operation.toXDR() else {
             throw BlockchainSdkError.failedToBuildTx
         }
 
@@ -164,7 +181,7 @@ class StellarTransactionBuilder {
         let cond: PreconditionsXDR = useTimebounds ? .time(TimeBoundsXDR(minTime: UInt64(minTime), maxTime: UInt64(maxTime))) : .none
         let tx = TransactionXDR(
             sourceAccount: sourceKeyPair.publicKey,
-            seqNum: seqNumber + 1,
+            seqNum: sequence + 1,
             cond: cond,
             memo: memo.toXDR(),
             operations: [xdrOperation]
