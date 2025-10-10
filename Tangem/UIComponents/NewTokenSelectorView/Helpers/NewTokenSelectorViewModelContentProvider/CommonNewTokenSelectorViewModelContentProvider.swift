@@ -22,12 +22,21 @@ final class CommonNewTokenSelectorViewModelContentProvider: NewTokenSelectorView
 
     private func mapToNewTokenSelectorItemList(wallets: [CryptoAccountsWallet]) -> NewTokenSelectorList {
         wallets.map { wallet in
-            let selectorWallet = NewTokenSelectorItem.Wallet(name: wallet.wallet)
+            let selectorWallet = NewTokenSelectorItem.Wallet(userWalletInfo: wallet.userWalletInfo)
             let list: [NewTokenSelectorAccountListItem] = wallet.accounts.map { account in
                 let iconViewData = AccountIconViewBuilder().makeAccountIconViewData(accountModel: account.account)
-                let selectorAccount = NewTokenSelectorItem.Account(icon: iconViewData, name: account.account.name)
+                let selectorAccount = NewTokenSelectorItem.Account(
+                    name: account.account.name,
+                    icon: iconViewData,
+                    walletModelsManager: account.walletModelsManager
+                )
+
                 let items = account.walletModels.map { walletModel in
-                    NewTokenSelectorItem(wallet: selectorWallet, walletModel: walletModel)
+                    NewTokenSelectorItem(
+                        wallet: selectorWallet,
+                        account: selectorAccount,
+                        walletModel: walletModel
+                    )
                 }
 
                 return NewTokenSelectorAccountListItem(account: selectorAccount, items: items)

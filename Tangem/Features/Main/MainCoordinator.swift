@@ -544,16 +544,17 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
             }
         )
 
-        coordinator.start(
-            with: .default(
-                options: .init(
-                    userWalletModel: userWalletModel,
-                    expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
-                    tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
-                )
-            )
-        )
+        let options: ActionButtonsBuyCoordinator.Options = if FeatureProvider.isAvailable(.accounts) {
+            .new
+        } else {
+            .default(options: .init(
+                userWalletModel: userWalletModel,
+                expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+                tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
+            ))
+        }
 
+        coordinator.start(with: options)
         actionButtonsBuyCoordinator = coordinator
     }
 }

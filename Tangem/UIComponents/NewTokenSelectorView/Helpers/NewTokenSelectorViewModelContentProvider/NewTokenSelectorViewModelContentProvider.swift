@@ -31,6 +31,7 @@ struct NewTokenSelectorAccountListItem: Hashable {
 
 struct NewTokenSelectorItem: Hashable {
     let wallet: Wallet
+    let account: Account
     let walletModel: any WalletModel
 
     var cryptoBalanceProvider: TokenBalanceProvider { walletModel.totalTokenBalanceProvider }
@@ -38,7 +39,8 @@ struct NewTokenSelectorItem: Hashable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(wallet)
-        hasher.combine(walletModel.tokenItem)
+        hasher.combine(account)
+        hasher.combine(walletModel.id)
     }
 
     static func == (lhs: NewTokenSelectorItem, rhs: NewTokenSelectorItem) -> Bool {
@@ -48,11 +50,22 @@ struct NewTokenSelectorItem: Hashable {
 
 extension NewTokenSelectorItem {
     struct Wallet: Hashable {
-        let name: String
+        let userWalletInfo: SendWalletInfo
     }
 
     struct Account: Hashable {
-        let icon: AccountIconView.AccountIconViewData
         let name: String
+        let icon: AccountIconView.AccountIconViewData
+
+        let walletModelsManager: any WalletModelsManager
+
+        static func == (lhs: NewTokenSelectorItem.Account, rhs: NewTokenSelectorItem.Account) -> Bool {
+            lhs.hashValue == rhs.hashValue
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(icon)
+        }
     }
 }

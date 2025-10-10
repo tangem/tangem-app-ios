@@ -13,21 +13,34 @@ struct ActionButtonsBuyCoordinatorView: View {
     @ObservedObject var coordinator: ActionButtonsBuyCoordinator
 
     var body: some View {
-        if let sendCoordinator = coordinator.sendCoordinator {
-            SendCoordinatorView(coordinator: sendCoordinator)
-        } else if let actionButtonsBuyViewModel = coordinator.actionButtonsBuyViewModel {
-            NavigationView {
-                NewActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
-                    .sheet(item: $coordinator.addToPortfolioBottomSheetInfo, content: { addToPortfolioSheet($0) })
+        ZStack {
+            switch coordinator.viewState {
+            case .none:
+                EmptyView()
+            case .tokenList(let actionButtonsBuyViewModel):
+                NavigationView {
+                    ActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
+                        .sheet(item: $coordinator.addToPortfolioBottomSheetInfo, content: { addToPortfolioSheet($0) })
+                }
+            case .newTokenList(let actionButtonsBuyViewModel):
+                NavigationView {
+                    NewActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
+                        .sheet(item: $coordinator.addToPortfolioBottomSheetInfo, content: { addToPortfolioSheet($0) })
+                }
+                .transition(SendTransitions.transition)
+            case .onramp(let sendCoordinator):
+                SendCoordinatorView(coordinator: sendCoordinator)
+                    .transition(SendTransitions.transition)
             }
         }
+        .animation(SendTransitions.animation, value: coordinator.viewState)
     }
 
     private func addToPortfolioSheet(_ info: HotCryptoAddToPortfolioModel) -> some View {
         HotCryptoAddToPortfolioBottomSheet(
             info: info,
             action: {
-                coordinator.actionButtonsBuyViewModel?.handleViewAction(.addToPortfolio(info.token))
+//                coordinator.actionButtonsBuyViewModel?.handleViewAction(.addToPortfolio(info.token))
             }
         )
         .adaptivePresentationDetents()

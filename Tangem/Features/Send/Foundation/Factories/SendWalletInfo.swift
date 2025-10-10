@@ -16,6 +16,25 @@ struct SendWalletInfo {
     let emailDataProvider: any EmailDataProvider
 }
 
+// MARK: - Equatable
+
+extension SendWalletInfo: Equatable {
+    static func == (lhs: SendWalletInfo, rhs: SendWalletInfo) -> Bool {
+        lhs.id == rhs.id && lhs.name == rhs.name
+    }
+}
+
+// MARK: - Hashable
+
+extension SendWalletInfo: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(name)
+    }
+}
+
+// MARK: - UserWalletModel+
+
 extension UserWalletModel {
     var sendWalletInfo: SendWalletInfo {
         .init(

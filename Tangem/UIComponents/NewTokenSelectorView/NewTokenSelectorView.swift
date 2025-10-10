@@ -43,6 +43,8 @@ struct NewTokenSelectorView: View {
     @ViewBuilder
     private var content: some View {
         switch viewModel.viewState {
+        case .none:
+            EmptyView()
         case .empty:
             NewTokenSelectorViewEmptyContent(message: Localization.nftEmptySearch)
         case .wallets(let wallets):

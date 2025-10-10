@@ -20,6 +20,7 @@ struct NewTokenSelectorGroupedSectionView: View {
         } header: {
             NewTokenSelectorGroupedSectionHeaderView(header: viewModel.header)
         }
+        .backgroundColor(Colors.Background.action)
     }
 }
 

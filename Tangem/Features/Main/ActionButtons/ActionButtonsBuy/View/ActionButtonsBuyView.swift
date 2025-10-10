@@ -66,29 +66,3 @@ struct ActionButtonsBuyView: View {
         .scrollDismissesKeyboardCompat(.immediately)
     }
 }
-
-struct NewActionButtonsBuyView: View {
-    @ObservedObject var viewModel: ActionButtonsBuyViewModel
-
-    var body: some View {
-        content
-            .background(Colors.Background.tertiary.ignoresSafeArea())
-            .navigationTitle(Localization.actionButtonsBuyNavigationBarTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    CircleButton.close { viewModel.handleViewAction(.close) }
-                }
-            }
-            .onAppear {
-                viewModel.handleViewAction(.onAppear)
-            }
-            .bindAlert($viewModel.alert)
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        NewTokenSelectorView(viewModel: viewModel.newTokenSelectorViewModel)
-            .searchType(.native)
-    }
-}

@@ -24,7 +24,10 @@ final class CommonCryptoAccountsWalletModelsManager {
                         .walletModelsManager
                         .walletModelsPublisher
                         .map { walletModels in
-                            CryptoAccountsWalletAccount(account: cryptoAccountModel, walletModels: walletModels)
+                            CryptoAccountsWalletAccount(
+                                account: cryptoAccountModel,
+                                walletModelsManager: cryptoAccountModel.walletModelsManager
+                            )
                         }
                         .eraseToAnyPublisher()
                 }
@@ -32,7 +35,10 @@ final class CommonCryptoAccountsWalletModelsManager {
                 return cryptoAccountModelPublishers
                     .combineLatest()
                     .map { cryptoAccountModels in
-                        CryptoAccountsWallet(wallet: userWalletModel.name, accounts: cryptoAccountModels)
+                        CryptoAccountsWallet(
+                            userWalletInfo: userWalletModel.sendWalletInfo,
+                            accounts: cryptoAccountModels
+                        )
                     }
             }
             .eraseToAnyPublisher()

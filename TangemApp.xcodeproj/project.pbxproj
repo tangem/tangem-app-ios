@@ -4189,6 +4189,8 @@
 		EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC861228BCF6C500F863CE /* StorageEntry.swift */; };
 		EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */; };
 		EFFE2CEC28B8E1B000B9F279 /* CommonDerivationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CEB28B8E1B000B9F279 /* CommonDerivationManager.swift */; };
+		EFFE8C572E98296600F9F06B /* NewActionButtonsBuyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE8C562E98296600F9F06B /* NewActionButtonsBuyViewModel.swift */; };
+		EFFE8C592E983E0A00F9F06B /* NewActionButtonsBuyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE8C582E983E0A00F9F06B /* NewActionButtonsBuyView.swift */; };
 		EFFF153D2D37DEC500982C79 /* PulseEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFF153C2D37DEC500982C79 /* PulseEffect.swift */; };
 		F91094E32CC7E11600042E9E /* (null) in Sources */ = {isa = PBXBuildFile; };
 		F92DB9C92CD4C2F400C16530 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = F92DB9C82CD4C2F400C16530 /* TangemModules */; };
@@ -8598,6 +8600,8 @@
 		EFFC861228BCF6C500F863CE /* StorageEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageEntry.swift; sourceTree = "<group>"; };
 		EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletModel.swift; sourceTree = "<group>"; };
 		EFFE2CEB28B8E1B000B9F279 /* CommonDerivationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDerivationManager.swift; sourceTree = "<group>"; };
+		EFFE8C562E98296600F9F06B /* NewActionButtonsBuyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewActionButtonsBuyViewModel.swift; sourceTree = "<group>"; };
+		EFFE8C582E983E0A00F9F06B /* NewActionButtonsBuyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewActionButtonsBuyView.swift; sourceTree = "<group>"; };
 		EFFF153C2D37DEC500982C79 /* PulseEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseEffect.swift; sourceTree = "<group>"; };
 		F99007012CD3E1C700DFE2D3 /* KaspaNetworkModelsKRC20.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaNetworkModelsKRC20.swift; sourceTree = "<group>"; };
 		F99007022CD3E1C700DFE2D3 /* KaspaKRC20.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaKRC20.swift; sourceTree = "<group>"; };
@@ -11965,6 +11969,7 @@
 				EA728C342E0158930044145D /* DeeplinkPresenter */,
 				EAB55F5A2DF067AF0016BF78 /* Factories */,
 				DC01780D2D2FCE5500DB5627 /* HotTokens */,
+				EFFE8C552E98225F00F9F06B /* NewActionButtons */,
 				DCBE4CEC2CC8C8D800855904 /* ActionButtons */,
 				2D3E1DC12C99CCE1006AF975 /* UIComponents */,
 				B6D274E92C38382D00FEFCDC /* PushNotificationsBottomSheet */,
@@ -23377,6 +23382,15 @@
 			path = DerivationManager;
 			sourceTree = "<group>";
 		};
+		EFFE8C552E98225F00F9F06B /* NewActionButtons */ = {
+			isa = PBXGroup;
+			children = (
+				EFFE8C582E983E0A00F9F06B /* NewActionButtonsBuyView.swift */,
+				EFFE8C562E98296600F9F06B /* NewActionButtonsBuyViewModel.swift */,
+			);
+			path = NewActionButtons;
+			sourceTree = "<group>";
+		};
 		F9F62C822CBFE1DF008A3EE6 /* KaspaKRC20 */ = {
 			isa = PBXGroup;
 			children = (
@@ -24173,6 +24187,7 @@
 				B65591ED2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift in Sources */,
 				EF7672E22E0D4CDD00A8900E /* SendSwapProviderCompactView.swift in Sources */,
 				C2E3ADC52D5F5D390042ADDA /* AppOverlaysManager.swift in Sources */,
+				EFFE8C572E98296600F9F06B /* NewActionButtonsBuyViewModel.swift in Sources */,
 				EF339E542C22DABD00B5CDC9 /* FeeIncludedCalculator.swift in Sources */,
 				EFC84B2D2C37FBB300546882 /* SendSummaryStep.swift in Sources */,
 				EFB6800E2B29BD4B00842BE3 /* SheetModifier.swift in Sources */,
@@ -25892,6 +25907,7 @@
 				EF5256512D301E5D00ADCA7E /* TokenBalancesRepository.swift in Sources */,
 				EF5256522D301E5D00ADCA7E /* CommonTokenBalancesRepository.swift in Sources */,
 				DC7C45692CF8B36F00747589 /* ActionButtonsSwapNoficationManager.swift in Sources */,
+				EFFE8C592E983E0A00F9F06B /* NewActionButtonsBuyView.swift in Sources */,
 				B657D2FE2DDFEEB60085D623 /* SendAmountCompactContentView.swift in Sources */,
 				EFC7AD732DD8BB7100AE78E1 /* SendDestinationStep.swift in Sources */,
 				B6AA13782A2A37B100B53937 /* CardInfoPageTransactionDefaultCellPreviewView.swift in Sources */,

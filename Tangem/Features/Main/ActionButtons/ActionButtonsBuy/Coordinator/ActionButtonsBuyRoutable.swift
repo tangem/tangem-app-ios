@@ -10,7 +10,7 @@ import Foundation
 
 protocol ActionButtonsBuyRoutable: AnyObject {
     func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel)
-    func openBuyCrypto(at url: URL)
+    func openOnramp(input: SendInput)
     func openAddToPortfolio(_ infoModel: HotCryptoAddToPortfolioModel)
     func closeAddToPortfolio()
     func dismiss()

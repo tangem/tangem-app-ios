@@ -32,6 +32,7 @@ struct NewTokenSelectorGroupedSectionWrapperView: View {
                     .rotationEffect(.degrees(viewModel.isOpen ? 90 : -90))
             }
             .padding(.horizontal, 8)
+            .padding(.vertical, 2)
         }
 
         if viewModel.isOpen {

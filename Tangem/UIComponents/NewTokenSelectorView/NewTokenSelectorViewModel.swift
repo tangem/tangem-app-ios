@@ -12,7 +12,7 @@ import TangemFoundation
 
 final class NewTokenSelectorViewModel: ObservableObject {
     @Published var searchText: String = ""
-    @Published private(set) var viewState: State = .empty
+    @Published private(set) var viewState: State?
 
     private let provider: NewTokenSelectorViewModelContentProvider
     private let filter: NewTokenSelectorViewModelSearchFilter
@@ -66,13 +66,19 @@ final class NewTokenSelectorViewModel: ObservableObject {
             return .walletsWithAccounts(wrapped)
         }
 
-        let wallets: [NewTokenSelectorGroupedSectionViewModel] = filtered.flatMap { $0.list }.map { wallet in
-            let wrapperViewModel = mapToNewTokenSelectorGroupedSectionViewModel(
-                wallet: .init(name: wallet.account.name),
-                items: wallet.items
+        let wallets: [NewTokenSelectorGroupedSectionViewModel] = filtered.compactMap { walletItem -> NewTokenSelectorGroupedSectionViewModel? in
+            guard let singleAccount: NewTokenSelectorAccountListItem = walletItem.list.first else {
+                return nil
+            }
+
+            let sectionWallet = NewTokenSelectorItem.Wallet(
+                userWalletInfo: walletItem.wallet.userWalletInfo,
             )
 
-            return wrapperViewModel
+            return mapToNewTokenSelectorGroupedSectionViewModel(
+                wallet: sectionWallet,
+                items: singleAccount.items
+            )
         }
 
         return .wallets(wallets)
@@ -88,7 +94,7 @@ final class NewTokenSelectorViewModel: ObservableObject {
 
         return NewTokenSelectorGroupedSectionWrapperViewModel(
             isOpen: true,
-            wallet: wallet.name,
+            wallet: wallet.userWalletInfo.name,
             sections: sections
         )
     }
@@ -98,7 +104,7 @@ final class NewTokenSelectorViewModel: ObservableObject {
         items: [NewTokenSelectorItem]
     ) -> NewTokenSelectorGroupedSectionViewModel {
         NewTokenSelectorGroupedSectionViewModel(
-            header: .wallet(wallet.name),
+            header: .wallet(wallet.userWalletInfo.name),
             items: items.map(mapToNewTokenSelectorGroupedSectionViewModel)
         )
     }

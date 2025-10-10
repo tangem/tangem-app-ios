@@ -9,14 +9,11 @@
 import Foundation
 
 final class OnrampNewTokenSelectorViewModelAvailabilityProvider: NewTokenSelectorViewModelAvailabilityProvider {
-    let userWalletConfig: any UserWalletConfig
-
-    init(userWalletConfig: any UserWalletConfig) {
-        self.userWalletConfig = userWalletConfig
-    }
-
     func isAvailable(item: NewTokenSelectorItem) -> NewTokenSelectorItemViewModel.DisabledReason? {
-        let availabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletConfig, walletModel: item.walletModel)
+        let availabilityProvider = TokenActionAvailabilityProvider(
+            userWalletConfig: item.wallet.userWalletInfo.config,
+            walletModel: item.walletModel
+        )
 
         return switch availabilityProvider.buyAvailablity {
         case .available: .none

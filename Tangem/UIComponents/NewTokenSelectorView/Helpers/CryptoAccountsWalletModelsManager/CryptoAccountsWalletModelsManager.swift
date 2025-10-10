@@ -14,13 +14,15 @@ protocol CryptoAccountsWalletModelsManager {
 }
 
 struct CryptoAccountsWallet {
-    let wallet: String
+    let userWalletInfo: SendWalletInfo
     let accounts: [CryptoAccountsWalletAccount]
 }
 
 struct CryptoAccountsWalletAccount {
     let account: any BaseAccountModel
-    let walletModels: [any WalletModel]
+    let walletModelsManager: any WalletModelsManager
+
+    var walletModels: [any WalletModel] { walletModelsManager.walletModels }
 }
 
 extension [AccountModel] {

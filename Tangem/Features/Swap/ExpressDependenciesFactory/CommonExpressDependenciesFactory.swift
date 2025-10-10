@@ -125,5 +125,18 @@ extension CommonExpressDependenciesFactory {
             walletModelsManager = userWalletModel.walletModelsManager
             requiresTransactionSizeValidation = userWalletModel.config.hasFeature(.isHardwareLimited)
         }
+
+        init(
+            userWalletInfo: SendWalletInfo,
+            refcode: Refcode?,
+            walletModelsManager: any WalletModelsManager
+        ) {
+            userWalletId = userWalletInfo.id
+            signer = userWalletInfo.signer
+            requiresTransactionSizeValidation = userWalletInfo.config.hasFeature(.isHardwareLimited)
+
+            self.refcode = refcode
+            self.walletModelsManager = walletModelsManager
+        }
     }
 }
