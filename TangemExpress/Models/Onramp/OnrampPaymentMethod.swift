@@ -60,8 +60,9 @@ public extension OnrampPaymentMethod {
 
         public var processingTime: ProcessingTime {
             switch self {
-            case .applePay, .googlePay: .instant
-            case .invoiceRevolutPay: .instant
+            // Same instant. But more instantest :D
+            case .applePay, .googlePay: .instant(priority: 0)
+            case .invoiceRevolutPay: .instant(priority: 1)
             case .card: .minutes(min: 3, max: 5)
             case .sepa: .days(3)
             case .other: .days(5)
@@ -70,7 +71,7 @@ public extension OnrampPaymentMethod {
     }
 
     enum ProcessingTime: Hashable, Comparable {
-        case instant
+        case instant(priority: Int)
         case minutes(min: Int, max: Int)
         case days(Int)
     }
