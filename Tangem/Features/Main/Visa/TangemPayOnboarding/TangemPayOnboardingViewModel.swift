@@ -9,7 +9,7 @@
 import TangemVisa
 
 final class TangemPayOnboardingViewModel: ObservableObject {
-    let closeOfferScreen: @MainActor () -> Void
+    let closeOfferScreen: () -> Void
     @Published private(set) var tangemPayOfferViewModel: TangemPayOfferViewModel?
 
     private let deeplinkString: String
@@ -19,7 +19,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
     init(
         deeplinkString: String,
         userWalletModel: UserWalletModel,
-        closeOfferScreen: @escaping @MainActor () -> Void
+        closeOfferScreen: @escaping () -> Void
     ) {
         self.deeplinkString = deeplinkString
         self.userWalletModel = userWalletModel
@@ -51,7 +51,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
             }
         } catch {
             try? await minimumLoaderShowingTimeTask.value
-            await closeOfferScreen()
+            closeOfferScreen()
         }
     }
 
