@@ -16,6 +16,11 @@ public struct AccountIconView: View {
 
     private var settings = Settings()
 
+    public init(data: AccountIconViewData) {
+        backgroundColor = data.backgroundColor
+        nameMode = data.nameMode
+    }
+
     public init(backgroundColor: Color, nameMode: NameMode) {
         self.backgroundColor = backgroundColor
         self.nameMode = nameMode
@@ -24,7 +29,11 @@ public struct AccountIconView: View {
     public var body: some View {
         label
             .frame(size: settings.size)
-            .roundedBackground(with: backgroundColor, padding: settings.padding, radius: settings.cornerRadius)
+            .padding(settings.padding)
+            .background(
+                RoundedRectangle(cornerRadius: settings.cornerRadius, style: .continuous)
+                    .fill(backgroundColor)
+            )
             .animation(.default, value: nameMode)
     }
 
@@ -45,10 +54,24 @@ public struct AccountIconView: View {
     }
 }
 
+// MARK: - AccountIconViewData
+
+public extension AccountIconView {
+    struct AccountIconViewData: Hashable {
+        let backgroundColor: Color
+        let nameMode: NameMode
+
+        public init(backgroundColor: Color, nameMode: NameMode) {
+            self.backgroundColor = backgroundColor
+            self.nameMode = nameMode
+        }
+    }
+}
+
 // MARK: - NameMode
 
 public extension AccountIconView {
-    enum NameMode: Equatable {
+    enum NameMode: Hashable {
         case letter(String)
         case imageType(ImageType, ImageConfig = .default)
     }
@@ -63,7 +86,14 @@ public extension AccountIconView {
         var size: CGSize = .init(bothDimensions: 16)
         var letterFontStyle: Font = Fonts.Bold.largeTitle
 
-        static let middleSized: Self = .init(
+        public static let smallSized: Self = .init(
+            padding: 3,
+            cornerRadius: 4,
+            size: CGSize(bothDimensions: 8),
+            letterFontStyle: .system(size: 8, weight: .semibold)
+        )
+
+        public static let middleSized: Self = .init(
             padding: 8,
             cornerRadius: 10,
             size: CGSize(bothDimensions: 20),
@@ -75,7 +105,7 @@ public extension AccountIconView {
 // MARK: - ImageConfig
 
 public extension AccountIconView.NameMode {
-    struct ImageConfig: Equatable {
+    struct ImageConfig: Hashable {
         let opacity: Double
 
         public init(opacity: Double = 1) {
@@ -90,7 +120,11 @@ public extension AccountIconView.NameMode {
 
 extension AccountIconView: Setupable {
     public func setMiddleSizedIconSettings() -> Self {
-        map { $0.settings = .middleSized }
+        settings(.middleSized)
+    }
+
+    public func settings(_ settings: Settings) -> Self {
+        map { $0.settings = settings }
     }
 
     public func padding(_ value: CGFloat) -> Self {
