@@ -7,13 +7,11 @@
 //
 
 import Foundation
-import UIKit
-import SwiftUI
 import Combine
 import CombineExt
 import TangemLocalization
 import TangemUI
-import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemFoundation
 
 final class MainViewModel: ObservableObject {
@@ -29,7 +27,7 @@ final class MainViewModel: ObservableObject {
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
@@ -181,14 +179,19 @@ final class MainViewModel: ObservableObject {
     func didTapDeleteWallet() {
         Analytics.log(.buttonDeleteWalletTapped)
 
-        let sheet = ActionSheet(
-            title: Text(Localization.userWalletListDeletePrompt),
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.userWalletListDeletePrompt,
             buttons: [
-                .destructive(Text(Localization.commonDelete), action: weakify(self, forFunction: MainViewModel.didConfirmWalletDeletion)),
-                .cancel(Text(Localization.commonCancel)),
+                ConfirmationDialogViewModel.Button(
+                    title: Localization.commonDelete,
+                    role: .destructive,
+                    action: { [weak self] in
+                        self?.didConfirmWalletDeletion()
+                    }
+                ),
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func didConfirmWalletDeletion() {
@@ -450,8 +453,10 @@ private extension MainViewModel {
 // MARK: - Navigation
 
 extension MainViewModel: MainLockedUserWalletDelegate {
-    func openTroubleshooting(actionSheet: ActionSheetBinder) {
-        self.actionSheet = actionSheet
+    func openTroubleshooting(confirmationDialog: ConfirmationDialogViewModel) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.scanTroubleshootingDelay) {
+            self.confirmationDialog = confirmationDialog
+        }
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
@@ -476,8 +481,8 @@ extension MainViewModel: MultiWalletMainContentDelegate {
 }
 
 extension MainViewModel: SingleWalletMainContentDelegate {
-    func present(actionSheet: ActionSheetBinder) {
-        self.actionSheet = actionSheet
+    func present(confirmationDialog: ConfirmationDialogViewModel) {
+        self.confirmationDialog = confirmationDialog
     }
 }
 
@@ -504,6 +509,7 @@ private extension MainViewModel {
         /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
+        static let scanTroubleshootingDelay = 0.5
         static let pushNotificationAuthorizationRequestDelay = 0.5
         // [REDACTED_TODO_COMMENT]
         static let bottomSheetVisibilityColdStartDelay = 0.5
