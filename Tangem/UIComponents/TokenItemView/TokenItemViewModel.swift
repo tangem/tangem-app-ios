@@ -207,7 +207,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             isYieldApproveNeeded = info.allowance.isZero
         case .notActive:
             if let apy = marketInfo?.apy, marketInfo?.isActive == true {
-                yieldAPY = String(format: "%.1f%", apy.doubleValue)
+                yieldAPY = String(format: "%.2f%", apy.doubleValue)
             }
         case .disabled, .failedToLoad, .processing, .loading:
             break
