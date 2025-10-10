@@ -33,6 +33,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
     @Published var tangemPayCardIssuingInProgress: Bool = false
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
     @Published var tangemPayAccountViewModel: TangemPayAccountViewModel?
 
     @Published var isScannerBusy = false
@@ -130,12 +132,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
             tangemPayAccountPublisher
                 .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
-                .receive(on: DispatchQueue.main)
+                .receiveOnMain()
                 .assign(to: &$tangemPayNotificationInputs)
 
             tangemPayAccountPublisher
                 .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
-                .receive(on: DispatchQueue.main)
+                .receiveOnMain()
                 .assign(to: &$tangemPayCardIssuingInProgress)
 
             tangemPayAccountPublisher
@@ -156,7 +158,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                             )
                         }
                 }
-                .receive(on: DispatchQueue.main)
+                .receiveOnMain()
                 .assign(to: &$tangemPayAccountViewModel)
         }
     }

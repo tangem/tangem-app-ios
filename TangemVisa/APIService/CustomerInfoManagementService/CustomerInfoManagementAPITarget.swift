@@ -104,15 +104,3 @@ extension CustomerInfoManagementAPITarget {
         case getOrder(orderId: String)
     }
 }
-
-import TangemNetworkUtils
-
-extension CustomerInfoManagementAPITarget: TargetTypeLogConvertible {
-    var requestDescription: String {
-        baseURL.appendingPathComponent(path).absoluteString + "[token: \((headers ?? [:])["Authorization"] ?? "nothing")]"
-    }
-
-    var shouldLogResponseBody: Bool {
-        true
-    }
-}
