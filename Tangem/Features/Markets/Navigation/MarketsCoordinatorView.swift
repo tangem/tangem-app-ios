@@ -38,6 +38,9 @@ struct MarketsCoordinatorView: CoordinatorView {
             ) {
                 MarketsListOrderBottomSheetView(viewModel: $0)
             }
+            .floatingSheetContent(for: YieldNoticeViewModel.self) {
+                YieldNoticeView(viewModel: $0)
+            }
     }
 
     @ViewBuilder

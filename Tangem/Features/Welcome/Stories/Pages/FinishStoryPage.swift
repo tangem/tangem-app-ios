@@ -14,7 +14,6 @@ struct FinishStoryPage: View {
     var progress: Double
     var isScanning: Bool
     let createWallet: () -> Void
-    let importWallet: () -> Void
     let scanCard: () -> Void
     let orderCard: () -> Void
 
@@ -62,7 +61,6 @@ struct FinishStoryPage: View {
             StoriesBottomButtons(
                 isScanning: isScanning,
                 createWallet: createWallet,
-                importWallet: importWallet,
                 scanCard: scanCard,
                 orderCard: orderCard
             )
@@ -80,7 +78,6 @@ struct FinishStoryPage_Previews: PreviewProvider {
             progress: 1,
             isScanning: false,
             createWallet: {},
-            importWallet: {},
             scanCard: {},
             orderCard: {}
         )

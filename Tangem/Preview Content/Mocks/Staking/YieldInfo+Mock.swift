@@ -1,5 +1,5 @@
 //
-//  YieldInfo+Mock.swift
+//  StakingYieldInfo+Mock.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import TangemStaking
 
-extension YieldInfo {
-    static let mock: YieldInfo = .init(
+extension StakingYieldInfo {
+    static let mock: StakingYieldInfo = .init(
         id: "tron-trx-native-staking",
         isAvailable: true,
         rewardType: .apr,
@@ -24,7 +24,8 @@ extension YieldInfo {
                 preferred: true,
                 partner: false,
                 iconURL: URL(string: "https://assets.stakek.it/validators/infstones.png"),
-                apr: 0.08,
+                rewardType: .apr,
+                rewardRate: 0.08,
                 status: .active
             ),
             .init(
@@ -33,7 +34,8 @@ extension YieldInfo {
                 preferred: true,
                 partner: false,
                 iconURL: URL(string: "https://assets.stakek.it/validators/aconcagua.png"),
-                apr: 0.032,
+                rewardType: .apr,
+                rewardRate: 0.032,
                 status: .active
             ),
         ],
@@ -44,7 +46,8 @@ extension YieldInfo {
                 preferred: true,
                 partner: false,
                 iconURL: URL(string: "https://assets.stakek.it/validators/infstones.png"),
-                apr: 0.08,
+                rewardType: .apr,
+                rewardRate: 0.08,
                 status: .active
             ),
             .init(
@@ -53,7 +56,8 @@ extension YieldInfo {
                 preferred: true,
                 partner: false,
                 iconURL: URL(string: "https://assets.stakek.it/validators/aconcagua.png"),
-                apr: 0.032,
+                rewardType: .apr,
+                rewardRate: 0.032,
                 status: .active
             ),
         ],

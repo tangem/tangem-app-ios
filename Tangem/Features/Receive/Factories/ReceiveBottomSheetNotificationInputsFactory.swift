@@ -12,7 +12,7 @@ import TangemLocalization
 struct ReceiveBottomSheetNotificationInputsFactory {
     let flow: ReceiveFlow
 
-    func makeNotificationInputs(for tokenItem: TokenItem) -> [NotificationViewInput] {
+    func makeNotificationInputs(for tokenItem: TokenItem, isYieldModuleActive: Bool = false) -> [NotificationViewInput] {
         let assetSymbol = switch flow {
         case .nft:
             Localization.detailsNftTitle
@@ -33,6 +33,26 @@ struct ReceiveBottomSheetNotificationInputsFactory {
                 )
             ),
         ]
+
+        switch (isYieldModuleActive, tokenItem) {
+        case (true, .token):
+            return [
+                NotificationViewInput(
+                    style: .plain,
+                    severity: .warning,
+                    settings: .init(
+                        event: ReceiveNotificationEvent.yieldModuleNotification(
+                            tokenSymbol: tokenItem.currencySymbol,
+                            tokenId: tokenItem.id
+                        ),
+                        dismissAction: nil
+                    )
+                ),
+            ] + baseNotificationInputs
+
+        default:
+            break
+        }
 
         switch (flow, tokenItem.blockchain) {
         case (.nft, .solana):
@@ -137,7 +157,8 @@ struct ReceiveBottomSheetNotificationInputsFactory {
              (_, .vanar),
              (_, .zkLinkNova),
              (_, .pepecoin),
-             (_, .hyperliquidEVM):
+             (_, .hyperliquidEVM),
+             (_, .quai):
             // No additional notifications for these blockchains
             return baseNotificationInputs
         }

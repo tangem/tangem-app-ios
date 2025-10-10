@@ -80,11 +80,12 @@ final class CommonUserTokensPushNotificationsService: NSObject {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { service, request in
-                guard case .allow(.afterLogin) = request else {
-                    return
+                switch request {
+                case .allow(.afterLogin), .allow(.afterLoginBanner):
+                    service.permissionRequestInitialPushAllowanceForExistingWallets()
+                default:
+                    break
                 }
-
-                service.permissionRequestInitialPushAllowanceForExistingWallets()
             }
 
         /*
@@ -165,10 +166,6 @@ extension CommonUserTokensPushNotificationsService: UserTokensPushNotificationsS
     /// After successful initialization, sends a synchronization event.
     func initialize() {
         runTask(in: self) { service in
-            guard FeatureProvider.isAvailable(.pushTransactionNotifications) else {
-                return
-            }
-
             let fcmToken = Messaging.messaging().fcmToken ?? ""
 
             switch service.defineInitializeType() {

@@ -297,13 +297,15 @@ struct StakeKitMapper {
 
     // MARK: - Yield
 
-    func mapToYieldInfo(from response: StakeKitDTO.Yield.Info.Response) throws -> YieldInfo {
+    func mapToYieldInfo(from response: StakeKitDTO.Yield.Info.Response) throws -> StakingYieldInfo {
         guard let enterAction = response.args.enter,
               let exitAction = response.args.exit else {
             throw StakeKitMapperError.noData("Enter or exit action is not found")
         }
 
-        let validators = response.validators.map(mapToValidatorInfo)
+        let item = try mapToStakingTokenItem(from: response.token)
+        let rewardType = try mapToRewardType(rewardType: response.rewardType)
+        let validators = response.validators.map { mapToValidatorInfo(from: $0, rewardType: rewardType) }
         let preferredValidators = validators.filter { $0.preferred }.sorted { lhs, rhs in
             if lhs.partner {
                 return true
@@ -313,20 +315,18 @@ struct StakeKitMapper {
                 return false
             }
 
-            return lhs.apr ?? 0 > rhs.apr ?? 0
+            return lhs.rewardRate > rhs.rewardRate
         }
 
         let rewardRateValues = RewardRateValues(
-            aprs: preferredValidators.compactMap(\.apr),
+            aprs: preferredValidators.compactMap(\.rewardRate),
             rewardRate: response.rewardRate
         )
 
-        let item = try mapToStakingTokenItem(from: response.token)
-
-        return try YieldInfo(
+        return try StakingYieldInfo(
             id: response.id,
             isAvailable: response.isAvailable,
-            rewardType: mapToRewardType(from: response.rewardType),
+            rewardType: rewardType,
             rewardRateValues: rewardRateValues,
             enterMinimumRequirement: enterAction.args.amount.minimum ?? .zero,
             exitMinimumRequirement: exitAction.args.amount.minimum ?? .zero,
@@ -342,19 +342,30 @@ struct StakeKitMapper {
 
     // MARK: - Validators
 
-    func mapToValidatorInfo(from validator: StakeKitDTO.Validator) -> ValidatorInfo {
+    func mapToValidatorInfo(from validator: StakeKitDTO.Validator, rewardType: RewardType) -> ValidatorInfo {
         ValidatorInfo(
             address: validator.address,
             name: validator.name ?? "No name",
             preferred: validator.preferred ?? false,
             partner: validator.name?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == StakingConstants.partnerName,
             iconURL: validator.image.flatMap { URL(string: $0) },
-            apr: validator.apr,
-            status: mapValidatorStatus(validator.status)
+            rewardType: rewardType,
+            rewardRate: mapToRewardRate(validator: validator),
+            status: mapToValidatorStatus(validator.status)
         )
     }
 
-    private func mapValidatorStatus(_ status: StakeKitDTO.Validator.Status) -> ValidatorInfoStatus {
+    private func mapToRewardRate(validator: StakeKitDTO.Validator) -> Decimal {
+        guard let apr = validator.apr else {
+            return 0
+        }
+
+        let commission = validator.commission ?? 0
+        let rewardRate = apr / (1 - commission)
+        return rewardRate
+    }
+
+    private func mapToValidatorStatus(_ status: StakeKitDTO.Validator.Status) -> ValidatorInfoStatus {
         switch status {
         case .active: .active
         case .jailed: .jailed
@@ -409,11 +420,12 @@ struct StakeKitMapper {
         )
     }
 
-    func mapToRewardType(from rewardType: StakeKitDTO.Yield.Info.Response.RewardType) -> RewardType {
+    private func mapToRewardType(rewardType: StakeKitDTO.Yield.Info.Response.RewardType) throws -> RewardType {
         switch rewardType {
         case .apr: .apr
         case .apy: .apy
-        case .variable: .variable
+        case .variable:
+            throw StakeKitMapperError.notImplement
         }
     }
 

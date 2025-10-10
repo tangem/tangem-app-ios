@@ -50,6 +50,9 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "SwapUITests">
+               </Test>
+               <Test
                   Identifier = "TangemUITests">
                </Test>
             </SkippedTests>
