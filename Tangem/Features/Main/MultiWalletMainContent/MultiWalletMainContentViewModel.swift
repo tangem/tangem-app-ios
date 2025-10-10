@@ -33,6 +33,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
     @Published var tangemPayCardIssuingInProgress: Bool = false
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    @Published var tangemPayAccountViewModel: TangemPayAccountViewModel?
+
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
     @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
@@ -87,10 +91,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private var bag = Set<AnyCancellable>()
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    private var tangemPayAccount: TangemPayAccount?
-
     init(
         userWalletModel: UserWalletModel,
         userWalletNotificationManager: NotificationManager,
@@ -123,18 +123,43 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
-        if let tangemPayAccount = TangemPayAccount(userWalletModel: userWalletModel), FeatureProvider.isAvailable(.visa) {
-            tangemPayAccount
-                .tangemPayNotificationManager
-                .notificationPublisher
-                .receive(on: DispatchQueue.main)
+        if FeatureProvider.isAvailable(.visa) {
+            let tangemPayAccountPublisher = userWalletModel.walletModelsManager.walletModelsPublisher
+                .compactMap(\.visaWalletModel)
+                .compactMap(TangemPayAccount.init)
+                .merge(with: userWalletModel.updatePublisher.compactMap(\.tangemPayAccount))
+                .share(replay: 1)
+
+            tangemPayAccountPublisher
+                .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
+                .receiveOnMain()
                 .assign(to: &$tangemPayNotificationInputs)
 
-            tangemPayAccount.tangemPayCardIssuingInProgress
-                .receive(on: DispatchQueue.main)
+            tangemPayAccountPublisher
+                .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
+                .receiveOnMain()
                 .assign(to: &$tangemPayCardIssuingInProgress)
 
-            self.tangemPayAccount = tangemPayAccount
+            tangemPayAccountPublisher
+                .withWeakCaptureOf(self)
+                .flatMapLatest { viewModel, tangemPayAccount in
+                    tangemPayAccount.tangemPayCardDetailsPublisher
+                        .withWeakCaptureOf(viewModel)
+                        .map { viewModel, cardDetails in
+                            guard let (card, balance) = cardDetails else {
+                                return nil
+                            }
+                            return TangemPayAccountViewModel(
+                                card: card,
+                                balance: balance,
+                                tapAction: {
+                                    viewModel.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
+                                }
+                            )
+                        }
+                }
+                .receiveOnMain()
+                .assign(to: &$tangemPayAccountViewModel)
         }
     }
 
@@ -415,6 +440,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+    }
+
+    private func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
+        coordinator?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
     }
 }
 
