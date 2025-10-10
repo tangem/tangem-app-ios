@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 import BigInt
+import TangemFoundation
 
 protocol YieldModuleMarketsManager {
     var markets: [YieldModuleMarketInfo] { get }
@@ -19,13 +20,15 @@ protocol YieldModuleMarketsManager {
 }
 
 final class CommonYieldModuleMarketsManager {
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-
-    private let yieldMarketsRepository = CommonYieldModuleMarketsRepository()
+    private let yieldModuleAPIService: YieldModuleAPIService
+    private let yieldMarketsRepository: YieldModuleMarketsRepository
 
     private let marketsSubject = CurrentValueSubject<[YieldModuleMarketInfo], Never>([])
 
-    init() {}
+    init(yieldModuleAPIService: YieldModuleAPIService, yieldMarketsRepository: YieldModuleMarketsRepository) {
+        self.yieldModuleAPIService = yieldModuleAPIService
+        self.yieldMarketsRepository = yieldMarketsRepository
+    }
 }
 
 extension CommonYieldModuleMarketsManager: YieldModuleMarketsManager {
@@ -48,18 +51,16 @@ extension CommonYieldModuleMarketsManager: YieldModuleMarketsManager {
 private extension CommonYieldModuleMarketsManager {
     func fetchMarkets() async -> [YieldModuleMarketInfo] {
         do {
-            let response = try await tangemApiService.getYieldMarkets()
+            let response = try await yieldModuleAPIService.getYieldMarkets()
 
             cacheMarkets(response)
 
             return response.tokens.compactMap {
-                let maxNetworkFee = $0.maxNetworkFee.flatMap { EthereumUtils.parseToBigUInt($0) }
-                    ?? Constants.temporaryDefaultMaxNetworkFee // temp solution will be fixed in [REDACTED_INFO]
                 return YieldModuleMarketInfo(
                     tokenContractAddress: $0.tokenAddress,
                     apy: $0.apy,
-                    maxNetworkFee: maxNetworkFee,
-                    isActive: $0.isActive
+                    isActive: $0.isActive,
+                    chainId: $0.chainId
                 )
             }
         } catch {
@@ -68,13 +69,11 @@ private extension CommonYieldModuleMarketsManager {
             }
 
             return cachedMarkets.markets.compactMap {
-                let maxNetworkFee = EthereumUtils.parseToBigUInt($0.maxNetworkFee)
-                    ?? Constants.temporaryDefaultMaxNetworkFee // temp solution will be fixed in [REDACTED_INFO]
                 return YieldModuleMarketInfo(
                     tokenContractAddress: $0.tokenContractAddress,
                     apy: $0.apy,
-                    maxNetworkFee: maxNetworkFee,
-                    isActive: $0.isActive
+                    isActive: $0.isActive,
+                    chainId: $0.chainId
                 )
             }
         }
@@ -86,7 +85,7 @@ private extension CommonYieldModuleMarketsManager {
                 tokenContractAddress: $0.tokenAddress,
                 apy: $0.apy,
                 isActive: $0.isActive,
-                maxNetworkFee: $0.maxNetworkFee ?? ""
+                chainId: $0.chainId
             )
         }
         yieldMarketsRepository.store(
@@ -102,7 +101,23 @@ private extension CommonYieldModuleMarketsManager {
 }
 
 private struct YieldModuleMarketsManagerKey: InjectionKey {
-    static var currentValue: YieldModuleMarketsManager = CommonYieldModuleMarketsManager()
+    static var currentValue: YieldModuleMarketsManager = {
+        let apiType: YieldModuleAPIType = AppEnvironment.current.isProduction ? .production : .develop
+
+        let manager = CommonYieldModuleMarketsManager(
+            yieldModuleAPIService: CommonYieldModuleAPIService(
+                provider: .init(
+                    configuration: .ephemeralConfiguration,
+                    additionalPlugins: [
+                        YieldModuleAuthorizationPlugin(),
+                    ]
+                ),
+                yieldModuleAPIType: apiType
+            ),
+            yieldMarketsRepository: CommonYieldModuleMarketsRepository()
+        )
+        return manager
+    }()
 }
 
 extension InjectedValues {

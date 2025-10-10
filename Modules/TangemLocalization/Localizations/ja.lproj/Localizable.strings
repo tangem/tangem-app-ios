@@ -18,7 +18,7 @@
 "account_archived_accounts" = "アーカイブされたアカウント";
 "account_archived_recover_dialog_description" = "「 %1$@ 」を回復しようとしています。";
 "account_archived_recover_dialog_title" = "アカウントを回復する";
-"account_archived_recover_error_message" = "すでにアクティブアカウント数の上限（20件）を超えています。復元するには1件アーカイブしてください。";
+"account_archived_recover_error_message" = "すでにアクティブアカウントの上限（20件）に達しています。復元するには、1つをアーカイブしてください。";
 "account_archived_recover_error_title" = "アカウントを復元できません";
 "account_archived_recover" = "回復する";
 "account_archived_title" = "アーカイブ済み";
@@ -32,6 +32,7 @@
 "account_form_account_index" = "アカウント番号%@ — アドレス導出に使用されます。";
 "account_form_create_button" = "アカウントを追加";
 "account_form_edit_button" = "保存";
+"account_form_name_already_exist_error_description" = "アカウント名はすでに存在しています";
 "account_form_name" = "アカウント名";
 "account_form_placeholder_edit_account" = "アカウント";
 "account_form_placeholder_new_account" = "新しいアカウント";
@@ -134,7 +135,7 @@
 "bitcoin_promo_activation_error_title" = "アクティベーションエラー";
 "bitcoin_promo_activation_error" = "プロモーションコードの処理中にエラーが発生しました。しばらくしてからもう一度お試しください。";
 "bitcoin_promo_activation_success_title" = "プロモーションコードが有効になりました";
-"bitcoin_promo_activation_success" = "プロモーションコードが正常に有効化されました。14日以内に10 USDT相当のビットコインがアカウントに入金されます。";
+"bitcoin_promo_activation_success" = "プロモコードが正常に有効化されました。リワードは14日以内にあなたのアカウントに付与されます。";
 "bitcoin_promo_already_activated_title" = "コードが利用できません";
 "bitcoin_promo_already_activated" = "このプロモーションコードは既に使用されているため、再度使うことはできません。";
 "bitcoin_promo_invalid_code_title" = "無効なコード";
@@ -169,7 +170,7 @@
 "common_accept" = "受け入れる";
 "common_access_denied" = "アクセスが拒否されました";
 "common_accounts" = "アカウント";
-"common_activate" = "Activate";
+"common_activate" = "有効化";
 "common_add_to_portfolio" = "ポートフォリオに追加";
 "common_add_token" = "トークンを追加";
 "common_add" = "追加";
@@ -237,6 +238,7 @@
 "common_fee_selector_title" = "速度と料金";
 "common_finish" = "終了";
 "common_free" = "無料";
+"common_from" = "送信元";
 "common_generate_addresses" = "アドレスを同期する";
 "common_get_started" = "はじめる";
 "common_go_to_provider" = "プロバイダーへ移動";
@@ -276,6 +278,7 @@
 "common_range" = "%1$@-%2$@";
 "common_read_more" = "続きを読む";
 "common_receive" = "受け取る";
+"common_recommended" = "Recommended";
 "common_reject" = "拒否";
 "common_reload" = "リロード";
 "common_rename" = "名前を変更";
@@ -313,6 +316,7 @@
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "利用規約";
 "common_terms_of_use" = "利用規約";
+"common_to" = "宛先";
 "common_today" = "今日";
 "common_transaction_failed" = "取引が失敗しました";
 "common_transaction_status" = "取引状況";
@@ -331,6 +335,8 @@
 "common_yes" = "はい";
 "contract_address_copied_message" = "コントラクトアドレスをコピーしました!";
 "currency_subtitle_expanded" = "利用可能なネットワーク";
+"custom_token_another_account_dialog_description" = "Derivation of your token matches the derivation of %1$@. Your token will be added to this account.";
+"custom_token_another_account_dialog_title" = "Derivation belongs to another account.";
 "custom_token_contract_address_input_title" = "コントラクトアドレス";
 "custom_token_creation_error_empty_fields" = "すべての欄にご記入ください";
 "custom_token_creation_error_invalid_contract_address" = "コントラクトアドレスが無効です";
@@ -448,6 +454,7 @@
 "express_more_providers_soon" = "さらに多くのプロバイダーが利用可能になる予定です";
 "express_provider_best_rate" = "ベストレート";
 "express_provider_fca_warning_list" = "FCA警告リスト";
+"express_provider_great_rate" = "Great rate";
 "express_provider_in_fca_warning_list" = "FCA警告リストに掲載されたプロバイダー";
 "express_provider_max_amount" = "最大 %@ まで使用可能";
 "express_provider_min_amount" = "%@ 以上で利用可能";
@@ -521,6 +528,7 @@
 "hw_create_seed_description" = "Create or restore your wallet using a recovery phrase — your built-in backup.";
 "hw_create_seed_title" = "シードフレーズのバックアップ";
 "hw_create_title" = "モバイルウォレットを作成する";
+"hw_import_existing_wallet" = "既存のウォレットをインポートする";
 "hw_import_seed_phrase_already_imported" = "このリカバリーフレーズはすでにインポートされています。";
 "hw_mobile_wallet" = "モバイルウォレット";
 "hw_upgrade_error_card_already_has_wallet" = "アップグレードできません。このデバイスにはすでにウォレットが存在します。";
@@ -850,6 +858,7 @@
 "onramp_statuses_view_footer" = "この画面を閉じて、トークンの詳細画面で取引状況を確認できます。";
 "onramp_timing_minutes" = "%@分";
 "onramp_title_you_get" = "以下が手に入ります。";
+"onramp_tos_external_providers" = "サービスは外部プロバイダーによって提供されます。 \nTangemは責任を負いません。";
 "onramp_transaction_status_footer_text" = "この画面を閉じて、トークンの詳細画面で取引状況を確認できます。";
 "onramp_up_to_rate" = "最大";
 "onramp_via" = "経由";
@@ -858,6 +867,7 @@
 "organize_tokens_sort_by_balance" = "残高順";
 "organize_tokens_title" = "トークンを整理する";
 "organize_tokens_ungroup" = "グループ解除";
+"provider_name_support" = "%sサポート";
 "push_notifications_more_info" = "詳細はこちら";
 "push_notifications_permission_alert_description" = "Tangemの通知は設定で有効にできます。";
 "push_notifications_permission_alert_negative_button" = "後で有効にする";
@@ -1037,6 +1047,9 @@
 "settings_forget_wallet" = "ウォレット削除";
 "settings_wallet_name_title" = "名前";
 "stake_token_description" = "トークンを活用しよう";
+"staking_account_initialization_footer" = "ネットワーク手数料とは、ブロックチェーン上で取引を処理し、承認するために支払う少額の料金です。";
+"staking_account_initialization_message" = "ステーキングを始めるには、1 TONの自己取引によってTONアカウントを有効化する必要があります。資金はウォレット内にそのまま残ります。これは、ステーキング有効化のためのステップにすぎません。";
+"staking_account_initialization_title" = "アカウントの有効化";
 "staking_active_footer" = "資産のステーキングを解除するには、上のブロックをタップしてください";
 "staking_active" = "アクティブ";
 "staking_amount_requirement_error" = "ステーキング金額は %@ 以上である必要があります";
@@ -1047,7 +1060,7 @@
 "staking_details_account_fee" = "ステーキングアカウント手数料";
 "staking_details_annual_percentage_rate_info" = "ステーキングに参加することで得られる年間収益率。";
 "staking_details_annual_percentage_rate" = "年率";
-"staking_details_annual_percentage_yield_info" = "APY shows the validator’s annual percentage yield based on its performance";
+"staking_details_annual_percentage_yield_info" = "APYは、バリデータのパフォーマンスに基づいた年間利回りを示します。";
 "staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
@@ -1106,8 +1119,8 @@
 "staking_notification_restake_rewards_text" = "獲得した報酬をステーキングに再投資し、潜在的な収益を増やします。";
 "staking_notification_restake_text" = "再ステーキングを使うと、ステーキングを解除することなく、あるバリデータから別のバリデータに資金を移動できます。";
 "staking_notification_stake_entire_balance_text" = "残高のすべてをステーキングしようとしています。ステーキング解除や報酬請求にかかるネットワーク手数料をカバーするために、少額を残しておくことをお勧めします。";
-"staking_notification_ton_account_initialization_title" = "Account activation";
-"staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_notification_ton_account_initialization_message" = "ステーキングを始めるには、TONアカウントを1 TONの自己取引で有効化する必要があります。資金はウォレット内にそのまま残り、この手順でステーキング用にアカウントを有効化できます。";
+"staking_notification_ton_account_initialization_title" = "アカウントの有効化";
 "staking_notification_ton_activate_account" = "TONのステーキングを開始するには、まず自分のアドレスに少額の取引を送信します。これによりウォレットが有効になります。";
 "staking_notification_ton_extra_reserve_info" = "取引を完了するには、ネットワーク手数料に加えて最大0.2TONが必要になる場合があります。未使用分は返金されます。";
 "staking_notification_ton_extra_reserve_is_required" = "この操作を続行するには、ネットワーク手数料に加えて0.2 TONが必要です。残高を補充してください。";
@@ -1119,9 +1132,6 @@
 "staking_notification_unstake_text" = "%@のステーキング解除期間後、資金はすぐ利用可能となります。";
 "staking_notification_withdraw_text" = "資金を引き出して、すぐに使用できます";
 "staking_notifications_revote_tron_text" = "Tronネットワークに新しいバリデーターでステーキングすると、以前にステーキングされた資金はすべてこのバリデーターに自動的に転送されます。";
-"staking_account_initialization_title" = "Account activation";
-"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
-"staking_account_initialization_footer" = "A network fee is a small payment to process and confirm your transaction on the blockchain.";
 "staking_preparing" = "準備中";
 "staking_ready_to_withdraw" = "引き出し準備完了";
 "staking_rebond" = "再結束";
@@ -1144,6 +1154,7 @@
 "staking_reward_schedule_month" = "毎月";
 "staking_reward_schedule_week" = "毎週";
 "staking_rewards" = "報酬";
+"staking_soloana_details_auto_claiming_rewards_daily_text" = "Solanaの報酬は自動的にステーキング残高に追加され、個別に表示することはできません。";
 "staking_stake_locked" = "ステーキングはロックされています";
 "staking_stake_more_button_unavailability_reason" = "%1$@をステーキングすると、 %2$@残高全体がステーキングされます。Tangemウォレットに入金した追加の%2$@も、自動的にステーキングされます。";
 "staking_stake_more" = "もっとステーキングする";
@@ -1222,6 +1233,10 @@
 "swapping_to_title" = "受け取る";
 "swapping_token_list_title" = "トークンを選択";
 "swapping_token_not_available" = "利用不可";
+"tangempay_card_details_error_text" = "データの読み込みに失敗しました。しばらくしてからもう一度お試しください。";
+"tangempay_card_details_hide_text" = "非表示";
+"tangempay_card_details_reveal_text" = "表示";
+"tangempay_card_details_title" = "カードの詳細";
 "tangempay_issue_card_notification_title" = "アカウントを作成してカードを発行";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "ステータスを表示";
@@ -1234,6 +1249,7 @@
 "tangempay_onboarding_security_description" = "カードの詳細は保護されており、アプリ内で完全に制御できます。";
 "tangempay_onboarding_security_title" = "内蔵セキュリティ";
 "tangempay_onboarding_title" = "無料のCryptoカード\nを数分で入手しましょう";
+"tangempay_title" = "Tangem Pay";
 "this_is_my_wallet_title" = "これは私のウォレットです";
 "toast_balances_hidden" = "残高非表示";
 "toast_balances_shown" = "残高表示";
@@ -1262,6 +1278,7 @@
 "token_details_token_type_subtitle" = "%%image%% %2$@ ネットワークの %1$@ トークン";
 "token_details_unable_hide_alert_message" = "%1$@ ( %2$@ ) トークンは%3$@ネットワークの主要通貨であり、このネットワーク上の他のトークンがリストにある限り、非表示にすることはできません。";
 "token_details_unable_hide_alert_title" = "%@を非表示にできません";
+"token_receive_show_qr_code_title" = "QRコードを表示";
 "token_swap_promotion_button" = "今すぐスワップ";
 "tokens_list_available_to_buy_header" = "買付したいトークンを選択します";
 "tokens_list_available_to_sell_header" = "売却したいトークンを選択します";
@@ -1314,6 +1331,7 @@
 "user_push_notification_banner_subtitle" = "プッシュ通知を有効にすると、資金が到着するとすぐに通知されます";
 "user_push_notification_banner_title" = "取引を見逃さない";
 "user_wallet_list_add_button" = "新しいウォレットを追加";
+"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds";
 "user_wallet_list_delete_prompt" = "このウォレットを忘れてもよろしいですか？";
 "user_wallet_list_error_wallet_already_saved" = "このウォレットはすでに保存されています。別のウォレットを追加できます。";
 "user_wallet_list_rename_popup_placeholder" = "ウォレット名";
@@ -1385,6 +1403,13 @@
 "visa_unlock_notification_title" = "ロック解除が必要";
 "voice_over_open_card_details" = "デバイスの詳細を開く";
 "voice_over_open_new_wallet_connect_session" = "QRコードをスキャンして、新しいWalletConnectセッションを開く";
+"wallet_add_common_title" = "Choose how to add your wallet";
+"wallet_add_hardware_description" = "Scan your Tangem card or ring to restore it or import from another wallet.";
+"wallet_add_hardware_info_create" = "Create Hardware Wallet";
+"wallet_add_hardware_purchase" = "Want to purchase a Tangem Wallet?";
+"wallet_add_import_seed_phrase" = "Import seed phrase";
+"wallet_add_mobile_description" = "Restore your wallet on your phone or import from another app — convenient, but less secure than a Tangem card.";
+"wallet_add_support_title" = "What to choose?";
 "wallet_balance_missing_derivation" = "カードまたはリングをスキャン";
 "wallet_been_activated_message" = "このウォレットはすでに有効化されています。\nあなたが行ったのでない場合は、サポートに連絡してください。\nTangemは、事前に生成されたアクセスコードと一緒にウォレットを販売することはありません。";
 "wallet_connect_error_timeout" = "WalletConnectセッションの確立に失敗しました：タイムアウトエラー。しばらくしてもう一度お試しください。";
@@ -1625,6 +1650,20 @@
 "wc_wallet_connect" = "WalletConnect";
 "wc_warning_transaction" = "不審な取引";
 "wc_warning_tx_alert_default_description" = "この取引には異常またはリスクがあるようです。署名する前によくご確認ください。";
+"welcome_create_wallet_already_have" = "Already have Tangem?";
+"welcome_create_wallet_feature_assets" = "Thousands of assets";
+"welcome_create_wallet_feature_class" = "業界最高水準のハードウェアウォレット";
+"welcome_create_wallet_feature_delivery" = "迅速な配送";
+"welcome_create_wallet_feature_one_tap" = "Start in one tap";
+"welcome_create_wallet_feature_seamless" = "Seamless and secure";
+"welcome_create_wallet_feature_use" = "シンプルな操作";
+"welcome_create_wallet_hardware_description" = "Tangemでハードウェアウォレットを作成しましょう。銀行のカードのようにスリムで、金庫のように安全です。";
+"welcome_create_wallet_mobile_description_full" = "Create or import a software wallet on your phone ";
+"welcome_create_wallet_mobile_description" = "ソフトウェアウォレットを作成またはインポート";
+"welcome_create_wallet_mobile_title" = "モバイルウォレットから始める";
+"welcome_create_wallet_other_method" = "その他の方法";
+"welcome_create_wallet_use_hardware_description" = "Use Tangem Hardware Wallet";
+"welcome_create_wallet_use_hardware_title" = "Learn more & buy";
 "welcome_interrupted_backup_alert_discard" = "破棄";
 "welcome_interrupted_backup_alert_message" = "バックアップが中断されました。再開しますか?";
 "welcome_interrupted_backup_alert_resume" = "はい、再開します";
@@ -1649,6 +1688,7 @@
 "yield_module_approve_sheet_title" = "承認を確定する";
 "yield_module_balance_info_sheet_subtitle" = "資産残高に関するテキスト [プレースホルダー]";
 "yield_module_balance_info_sheet_title" = "あなたの%@はAaveに預けられています";
+"yield_module_chart_loading_error" = "チャートを読み込めません・・";
 "yield_module_deposit_error_notification_title" = "受け取った金額%1$@ %2$@はAaveに入金されませんでした。";
 "yield_module_earn_badge" = "%1$@%% を獲得";
 "yield_module_earn_sheet_available_title" = "利用可能";
@@ -1666,6 +1706,7 @@
 "yield_module_fee_policy_sheet_max_fee_title" = "最大手数料";
 "yield_module_fee_policy_sheet_title" = "手数料ポリシー";
 "yield_module_high_fee_error" = "ネットワーク手数料が現在高すぎます。設定した上限を下回るまで待機しています。";
+"yield_module_historical_returns" = "過去のリターン";
 "yield_module_main_view_approve_notification_description" = "ここに説明を入力してください。1〜3行が理想的です。[プレースホルダー]";
 "yield_module_main_view_approve_notification_title" = "トークン承認が必要";
 "yield_module_network_fee_unreachable_notification_description" = "ネットワーク接続を確認してください";
@@ -1696,6 +1737,7 @@
 "yield_module_stop_earning_sheet_description" = "オフにすると、Aaveから資金が引き出され、ウォレットの%@に戻され、報酬の獲得が停止されます。";
 "yield_module_stop_earning_sheet_fee_note" = "出金金額からネットワーク手数料が差し引かれます。";
 "yield_module_stop_earning" = "収益を停止する";
+"yield_module_supply_apr" = "供給APR";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "あなたの資産を眠らせない — 残高を運用して利息を得ましょう。";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "保有資産から報酬を得る";
@@ -1704,5 +1746,6 @@
 "yield_module_transfer_mode_automatic" = "自動";
 "yield_module_unable_to_cover_fee_description" = "取引のネットワーク手数料をカバーするために、 %1$@ %2$@を入金してください";
 "yield_module_unable_to_cover_fee_title" = "%@手数料を支払えません";
-"yield_module_unavailable_subtitle" = "The interest service isn’t available at the moment. Please try again later.";
-"yield_module_unavailable_title" = "Earnings unavailable";
+"yield_module_unavailable_subtitle" = "利息サービスは現在利用できません。しばらくしてから再度お試しください。";
+"yield_module_unavailable_title" = "収益は利用できません";
+"yield_supply_chart_loading_error" = "チャートを読み込めません・・";
