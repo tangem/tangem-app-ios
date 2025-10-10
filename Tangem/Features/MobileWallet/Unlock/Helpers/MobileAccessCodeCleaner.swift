@@ -36,7 +36,7 @@ private extension MobileAccessCodeCleaner {
 
     func handleUserWalletRepositoryEvent(_ event: UserWalletRepositoryEvent) {
         switch event {
-        case .unlockedBiometrics:
+        case .unlocked:
             userWalletRepository.models
                 .filter { !$0.isUserWalletLocked }
                 .map(\.userWalletId)
@@ -44,7 +44,7 @@ private extension MobileAccessCodeCleaner {
                     cleanWrongAccessCode(userWalletId: $0)
                 }
 
-        case .unlocked(let userWalletId):
+        case .unlockedWallet(let userWalletId):
             cleanWrongAccessCode(userWalletId: userWalletId)
 
         case .deleted(let userWalletIds):
