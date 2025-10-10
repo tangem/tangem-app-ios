@@ -9,7 +9,8 @@
 import Combine
 import SwiftUI
 import TangemFoundation
-import TangemUIUtils
+import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemAssets
 import TangemLocalization
 
@@ -19,7 +20,7 @@ final class ImportWalletSelectorViewModel: ObservableObject {
 
     @Published var mailViewModel: MailViewModel?
 
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var error: AlertBinder?
 
     let navigationBarTitle = Localization.homeButtonAddExistingWallet
@@ -201,27 +202,28 @@ private extension ImportWalletSelectorViewModel {
     }
 
     func openTroubleshooting() {
-        let sheet = ActionSheet(
-            title: Text(Localization.alertTroubleshootingScanCardTitle),
-            message: Text(Localization.alertTroubleshootingScanCardMessage),
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.scanCardTryAgain()
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.openScanCardManual()
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.requestSupport()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
-                .default(
-                    Text(Localization.alertButtonTryAgain),
-                    action: weakify(self, forFunction: ImportWalletSelectorViewModel.scanCardTryAgain)
-                ),
-                .default(
-                    Text(Localization.commonReadMore),
-                    action: weakify(self, forFunction: ImportWalletSelectorViewModel.openScanCardManual)
-                ),
-                .default(
-                    Text(Localization.alertButtonRequestSupport),
-                    action: weakify(self, forFunction: ImportWalletSelectorViewModel.requestSupport)
-                ),
-                .cancel(),
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 }
 
