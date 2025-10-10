@@ -210,7 +210,10 @@ private extension CommonExpressManager {
 
         allProviders.forEach { provider in
             provider.isBest = false
-            provider.isAvailable = availableProviderIds.contains(provider.provider.id)
+
+            let isSupportedBySource = pair.source.supportedProviders.contains(provider.provider.type)
+            let isSupportedByExpress = availableProviderIds.contains(provider.provider.id)
+            provider.isAvailable = isSupportedBySource && isSupportedByExpress
         }
     }
 

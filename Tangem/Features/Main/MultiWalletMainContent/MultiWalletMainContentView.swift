@@ -23,6 +23,13 @@ struct MultiWalletMainContentView: View {
                 ActionButtonsView(viewModel: actionButtonsViewModel)
             }
 
+            ForEach(viewModel.tangemPayNotificationInputs) { input in
+                NotificationView(input: input)
+                    .if(input.id == TangemPayNotificationEvent.createAccountAndIssueCard.id) {
+                        $0.setButtonsLoadingState(to: viewModel.tangemPayCardIssuingInProgress)
+                    }
+            }
+
             ForEach(viewModel.bannerNotificationInputs) { input in
                 NotificationView(input: input)
             }
