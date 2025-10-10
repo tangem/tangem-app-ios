@@ -31,7 +31,7 @@ struct QRScanView: View {
                 )
                 .overlay(topButtons(), alignment: .top)
         }
-        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
+        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .ignoresSafeArea(edges: .bottom)
         // onDidAppear instead of onAppear to fix crash on IOS17 when access to the camera is restricted [REDACTED_INFO]
         .onDidAppear(perform: viewModel.onAppear)
