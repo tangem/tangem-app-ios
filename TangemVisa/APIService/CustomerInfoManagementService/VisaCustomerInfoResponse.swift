@@ -94,8 +94,3 @@ public extension VisaCustomerInfoResponse {
         public let cardNumberEnd: String
     }
 }
-
-public struct TangemPayBalance: Decodable, Equatable {
-    public let currency: String
-    public let availableBalance: Decimal
-}
