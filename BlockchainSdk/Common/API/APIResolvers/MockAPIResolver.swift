@@ -10,13 +10,16 @@ import Foundation
 
 struct MockAPIResolver {
     func resolve(providerType: NetworkProviderType, blockchain: Blockchain) -> NodeInfo? {
-        guard case .cardano = blockchain else {
-            return nil
-        }
-
         switch providerType {
         case .mock:
-            return .init(url: URL(string: "https://wiremock.tests-d.com/cardano")!)
+            switch blockchain {
+            case .cardano:
+                return .init(url: URL(string: "https://wiremock.tests-d.com/cardano")!)
+            case .dogecoin:
+                return .init(url: URL(string: "https://wiremock.tests-d.com/dogecoin")!)
+            default:
+                return nil
+            }
         default:
             return nil
         }
