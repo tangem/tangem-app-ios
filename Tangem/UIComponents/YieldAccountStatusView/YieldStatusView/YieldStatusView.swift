@@ -21,9 +21,6 @@ struct YieldStatusView: View {
     @State private var rotation = 0.0
     private let animation: Animation = .linear(duration: 1).speed(1).repeatForever(autoreverses: false)
 
-    // MARK: - Dependencies
-
-    private let balanceFormatter = BalanceFormatter()
 
     // MARK: - View Body
 
