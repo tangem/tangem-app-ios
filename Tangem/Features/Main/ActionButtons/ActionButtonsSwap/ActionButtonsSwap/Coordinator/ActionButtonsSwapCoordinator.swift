@@ -93,7 +93,7 @@ extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
     }
 
     func showYieldNotificationIfNeeded(for walletModel: any WalletModel, completion: (() -> Void)?) {
-        guard yieldModuleNotificationInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) else {
+        guard yieldModuleNotificationInteractor.shouldShowYieldModuleSendAlert(for: walletModel.tokenItem) else {
             completion.map { $0() }
             return
         }

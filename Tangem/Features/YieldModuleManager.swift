@@ -26,6 +26,7 @@ protocol YieldModuleManager {
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
+    func fetchChartData() async throws -> YieldChartData
 }
 
 protocol YieldModuleManagerUpdater {
@@ -49,6 +50,7 @@ final class CommonYieldModuleManager {
     private let transactionProvider: YieldTransactionProvider
     private let transactionFeeProvider: YieldTransactionFeeProvider
     private let tokenInfoManager: YieldModuleTokenInfoManager
+    private let yieldModuleChartManager: YieldModuleChartManager
 
     private var _state = CurrentValueSubject<YieldModuleManagerStateInfo?, Never>(nil)
     private var _walletModelData = CurrentValueSubject<WalletModelData?, Never>(nil)
@@ -67,6 +69,7 @@ final class CommonYieldModuleManager {
         transactionCreator: TransactionCreator,
         blockaidApiService: BlockaidAPIService,
         tokenInfoManager: YieldModuleTokenInfoManager,
+        yieldModuleChartManager: YieldModuleChartManager,
         pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
     ) {
         guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses(),
@@ -82,6 +85,7 @@ final class CommonYieldModuleManager {
         self.yieldSupplyService = yieldSupplyService
         self.tokenBalanceProvider = tokenBalanceProvider
         self.tokenInfoManager = tokenInfoManager
+        self.yieldModuleChartManager = yieldModuleChartManager
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
 
         transactionProvider = YieldTransactionProvider(
@@ -274,6 +278,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo {
         try await tokenInfoManager.fetchYieldTokenInfo(tokenContractAddress: token.contractAddress, chainId: chainId)
+    }
+
+    func fetchChartData() async throws -> YieldChartData {
+        try await yieldModuleChartManager.fetchChartData(tokenContractAddress: token.contractAddress, chainId: chainId)
     }
 }
 
