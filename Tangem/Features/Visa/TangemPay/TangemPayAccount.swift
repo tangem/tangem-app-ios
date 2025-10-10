@@ -10,21 +10,27 @@ import Combine
 import TangemVisa
 import TangemSdk
 import TangemFoundation
+import TangemAssets
 
 final class TangemPayAccount {
     let tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never>
-    let tangemPayCardIssuingInProgress: AnyPublisher<Bool, Never>
+    let tangemPayCardIssuingInProgressPublisher: AnyPublisher<Bool, Never>
 
+    let tangemPayCardDetailsPublisher: AnyPublisher<(VisaCustomerInfoResponse.Card, TangemPayBalance)?, Never>
+    let tangemPayBalancePublisher: AnyPublisher<TangemPayBalance?, Never>
     let tangemPayNotificationManager: TangemPayNotificationManager
+
+    let customerInfoManagementService: any CustomerInfoManagementService
 
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let authorizer: TangemPayAuthorizer
-    private let customerInfoManagementService: any CustomerInfoManagementService
     private let orderIdStorage: TangemPayOrderIdStorage
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
+    private let balanceSubject = CurrentValueSubject<TangemPayBalance?, Never>(nil)
+
     private let didTapIssueOrderSubject = PassthroughSubject<Void, Never>()
     private var customerInfoPollingTask: Task<Void, Never>?
 
@@ -50,9 +56,23 @@ final class TangemPayAccount {
             .compactMap(\.self?.tangemPayStatus)
             .eraseToAnyPublisher()
 
-        tangemPayCardIssuingInProgress = orderIdStorage.savedOrderIdPublisher
+        tangemPayCardIssuingInProgressPublisher = orderIdStorage.savedOrderIdPublisher
             .map { $0 != nil }
             .merge(with: didTapIssueOrderSubject.mapToValue(true))
+            .eraseToAnyPublisher()
+
+        tangemPayCardDetailsPublisher = customerInfoSubject
+            .map { customerInfo in
+                guard let card = customerInfo?.card, let balance = customerInfo?.balance else {
+                    return nil
+                }
+                return (card, balance)
+            }
+            .eraseToAnyPublisher()
+
+        tangemPayBalancePublisher = balanceSubject
+            .merge(with: customerInfoSubject.map(\.?.balance))
+            .removeDuplicates()
             .eraseToAnyPublisher()
 
         tangemPayNotificationManager = TangemPayNotificationManager(tangemPayStatusPublisher: tangemPayStatusPublisher)
@@ -108,7 +128,26 @@ final class TangemPayAccount {
     #endif // ALPHA || BETA || DEBUG
 
     func getTangemPayStatus() async throws -> TangemPayStatus {
-        try await getCustomerInfo().tangemPayStatus
+        // Since customerInfo polling starts in the init - there is no need to make another call
+        for await customerInfo in await customerInfoSubject.compactMap(\.self).values {
+            return customerInfo.tangemPayStatus
+        }
+
+        // This will never happen since the sequence written above will never be terminated without emitting a value
+        return try await getCustomerInfo().tangemPayStatus
+    }
+
+    @discardableResult
+    func loadBalance() -> Task<Void, Never> {
+        runTask(in: self) { tangemPayAccount in
+            do {
+                try await tangemPayAccount.prepareTokensHandler()
+                let balance = try await tangemPayAccount.customerInfoManagementService.getBalance()
+                tangemPayAccount.balanceSubject.send(balance)
+            } catch {
+                // [REDACTED_TODO_COMMENT]
+            }
+        }
     }
 
     private func startCustomerInfoPolling() {
@@ -234,5 +273,73 @@ private extension VisaCustomerInfoResponse {
         }
 
         return .readyToIssueOrIssuing
+    }
+}
+
+// MARK: - MainHeaderSupplementInfoProvider
+
+extension TangemPayAccount: MainHeaderSupplementInfoProvider {
+    var name: String {
+        // [REDACTED_TODO_COMMENT]
+        "Tangem Pay"
+    }
+
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+        .just(output: nil)
+    }
+
+    var updatePublisher: AnyPublisher<UpdateResult, Never> {
+        .empty
+    }
+}
+
+// MARK: - MainHeaderSubtitleProvider
+
+extension TangemPayAccount: MainHeaderSubtitleProvider {
+    var isLoadingPublisher: AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+
+    var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> {
+        tangemPayBalancePublisher
+            .map { balance -> MainHeaderSubtitleInfo in
+                guard let balance else {
+                    return .init(messages: [], formattingOption: .default)
+                }
+
+                // [REDACTED_TODO_COMMENT]
+                return .init(messages: ["\(balance.availableBalance.description) \(balance.currency)"], formattingOption: .default)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var containsSensitiveInfo: Bool {
+        false
+    }
+}
+
+// MARK: - MainHeaderBalanceProvider
+
+extension TangemPayAccount: MainHeaderBalanceProvider {
+    var balance: LoadableTokenBalanceView.State {
+        guard let balance = balanceSubject.value ?? customerInfoSubject.value?.balance else {
+            return .loading(cached: nil)
+        }
+
+        // [REDACTED_TODO_COMMENT]
+        return .loaded(text: .string("$" + balance.availableBalance.description))
+    }
+
+    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
+        tangemPayBalancePublisher
+            .map { balance in
+                guard let balance else {
+                    return .loading(cached: nil)
+                }
+
+                // [REDACTED_TODO_COMMENT]
+                return .loaded(text: .string("$" + balance.availableBalance.description))
+            }
+            .eraseToAnyPublisher()
     }
 }

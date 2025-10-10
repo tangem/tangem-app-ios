@@ -9,8 +9,8 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
-import TangemUIUtils
 import TangemUI
+import TangemUIUtils
 
 struct AuthView: View {
     @ObservedObject private var viewModel: AuthViewModel
@@ -23,7 +23,7 @@ struct AuthView: View {
     var body: some View {
         unlockView
             .alert(item: $viewModel.error, content: { $0.alert })
-            .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
+            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .onAppear(perform: viewModel.onAppear)
             .onDisappear(perform: viewModel.onDisappear)
             .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
