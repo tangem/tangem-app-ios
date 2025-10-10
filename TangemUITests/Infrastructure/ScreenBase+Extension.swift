@@ -97,11 +97,16 @@ extension ScreenBase {
         app.scrollViews[element.accessibilityIdentifier].firstMatch
     }
 
-    func pullToRefresh() {
-        let startCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
-        let finishCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
+    func searchField(_ element: T) -> XCUIElement {
+        app.searchFields[element.accessibilityIdentifier].firstMatch
+    }
 
-        startCoordinate.press(forDuration: 0.05, thenDragTo: finishCoordinate)
+    func segmentedControl(_ element: T) -> XCUIElement {
+        app.segmentedControls[element.accessibilityIdentifier].firstMatch
+    }
+
+    func switchElement(_ element: T) -> XCUIElement {
+        app.switches[element.accessibilityIdentifier].firstMatch
     }
 
     func gentleSwipeUp() {
