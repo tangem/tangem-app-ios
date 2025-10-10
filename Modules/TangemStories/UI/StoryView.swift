@@ -34,11 +34,6 @@ public struct StoryView: View {
 
                 overlayElements
             }
-            .if(Self.iOS18Available) { content in
-                content
-                    .gesture(longTapGesture)
-                    .highPriorityGesture(shortTapGesture(proxy))
-            }
             .readGeometry(inCoordinateSpace: .global) { geometryInfo in
                 let leftAnchor = geometryInfo.frame.minX / geometryInfo.size.width
                 let isDuringTransition = leftAnchor != 0

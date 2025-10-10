@@ -264,11 +264,35 @@ extension TONWalletManager: StakeKitTransactionDataBroadcaster {
     }
 }
 
-extension TONWalletManager: StakingAccountInitializationStateProvider {
+extension TONWalletManager: BlockchainAccountInitializationService {
     func isAccountInitialized() async throws -> Bool {
         try await TONStakingAccountInitializationStateProvider(
             address: wallet.address,
             networkService: networkService
         ).isAccountInitialized()
+    }
+
+    func estimateInitializationFee() async throws -> Fee {
+        let fees = try await getFee(amount: initializationAmount, destination: wallet.address).async()
+
+        guard let fee = fees.first else {
+            throw BlockchainSdkError.failedToGetFee
+        }
+
+        return fee
+    }
+
+    func initializationTransaction(fee: Fee) -> Transaction {
+        Transaction(
+            amount: initializationAmount,
+            fee: fee,
+            sourceAddress: wallet.address,
+            destinationAddress: wallet.address,
+            changeAddress: wallet.address
+        )
+    }
+
+    private var initializationAmount: Amount {
+        Amount(with: wallet.blockchain, value: 1)
     }
 }
