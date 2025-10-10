@@ -10,15 +10,16 @@ import Foundation
 import SwiftUI
 import TangemSdk
 import TangemLocalization
-import TangemUIUtils
 import TangemFoundation
+import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class AuthViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     var unlockWithBiometryButtonTitle: String {
         Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name)
@@ -196,18 +197,28 @@ final class AuthViewModel: ObservableObject {
 
 extension AuthViewModel {
     func openTroubleshooting() {
-        let sheet = ActionSheet(
-            title: Text(Localization.alertTroubleshootingScanCardTitle),
-            message: Text(Localization.alertTroubleshootingScanCardMessage),
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.tryAgain()
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.openScanCardManual()
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.requestSupport()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
-                .default(Text(Localization.alertButtonTryAgain), action: weakify(self, forFunction: AuthViewModel.tryAgain)),
-                .default(Text(Localization.commonReadMore), action: weakify(self, forFunction: AuthViewModel.openScanCardManual)),
-                .default(Text(Localization.alertButtonRequestSupport), action: weakify(self, forFunction: AuthViewModel.requestSupport)),
-                .cancel(),
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func openMail() {

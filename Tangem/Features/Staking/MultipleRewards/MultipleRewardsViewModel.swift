@@ -10,14 +10,14 @@ import Combine
 import SwiftUI
 import TangemLocalization
 import TangemStaking
-import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class MultipleRewardsViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var validators: [ValidatorViewData] = []
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     // MARK: - Dependencies
@@ -106,14 +106,16 @@ private extension MultipleRewardsViewModel {
             case .single(let action):
                 coordinator?.openStakingSingleActionFlow(action: action)
             case .multiple(let actions):
-                var buttons: [Alert.Button] = actions.map { action in
-                    .default(Text(action.type.title)) { [weak self] in
+                let buttons = actions.map { action in
+                    ConfirmationDialogViewModel.Button(title: action.type.title) { [weak self] in
                         self?.coordinator?.openStakingSingleActionFlow(action: action)
                     }
                 }
 
-                buttons.append(.cancel())
-                actionSheet = .init(sheet: .init(title: Text(Localization.commonSelectAction), buttons: buttons))
+                confirmationDialog = ConfirmationDialogViewModel(
+                    title: Localization.commonSelectAction,
+                    buttons: buttons + [ConfirmationDialogViewModel.Button.cancel]
+                )
             }
         } catch {
             alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)

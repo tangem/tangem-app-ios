@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct LogsView: View {
     @ObservedObject var viewModel: LogsViewModel
@@ -19,7 +20,7 @@ struct LogsView: View {
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .alert(item: $viewModel.alert) { $0.alert }
-        .actionSheet(item: $viewModel.sheet) { $0.sheet }
+        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Menu {
