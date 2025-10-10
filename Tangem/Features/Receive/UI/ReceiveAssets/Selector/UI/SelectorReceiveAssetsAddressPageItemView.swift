@@ -10,7 +10,6 @@ import SwiftUI
 import Foundation
 import TangemUI
 import TangemAssets
-import TangemLocalization
 
 struct SelectorReceiveAssetsAddressPageItemView: View {
     @ObservedObject private(set) var viewModel: SelectorReceiveAssetsAddressPageItemViewModel
