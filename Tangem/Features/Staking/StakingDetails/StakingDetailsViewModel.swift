@@ -15,8 +15,8 @@ import TangemFoundation
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 import TangemUI
-import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class StakingDetailsViewModel: ObservableObject {
     // MARK: - ViewState
@@ -32,7 +32,7 @@ final class StakingDetailsViewModel: ObservableObject {
     @Published var actionButtonLoading: Bool = false
     @Published var actionButtonState: ActionButtonState = .enabled
     @Published var actionButtonType: ActionButtonType?
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     private(set) lazy var scrollViewStateObject: RefreshScrollViewStateObject = .init(
@@ -353,14 +353,16 @@ private extension StakingDetailsViewModel {
             case .single(let action):
                 openFlow(for: action)
             case .multiple(let actions):
-                var buttons: [Alert.Button] = actions.map { action in
-                    .default(Text(action.displayType.title)) { [weak self] in
+                let buttons = actions.map { action in
+                    ConfirmationDialogViewModel.Button(title: action.displayType.title) { [weak self] in
                         self?.openFlow(for: action)
                     }
                 }
 
-                buttons.append(.cancel())
-                actionSheet = .init(sheet: .init(title: Text(Localization.commonSelectAction), buttons: buttons))
+                confirmationDialog = ConfirmationDialogViewModel(
+                    title: Localization.commonSelectAction,
+                    buttons: buttons + [ConfirmationDialogViewModel.Button.cancel]
+                )
             }
         } catch {
             alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)
