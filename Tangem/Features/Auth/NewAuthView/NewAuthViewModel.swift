@@ -277,33 +277,8 @@ private extension NewAuthViewModel {
     }
 
     func openAddWallet() {
-        let sheet = ActionSheet(
-            title: Text(Localization.authInfoAddWalletTitle),
-            buttons: [
-                .default(
-                    Text(Localization.homeButtonCreateNewWallet),
-                    action: weakify(self, forFunction: NewAuthViewModel.openCreateWallet)
-                ),
-                .default(
-                    Text(Localization.detailsBuyWallet),
-                    action: weakify(self, forFunction: NewAuthViewModel.openBuyWallet)
-                ),
-                .cancel(),
-            ]
-        )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
-    }
-
-    func openCreateWallet() {
         Analytics.log(.buttonAddWallet, params: [.action: .create])
-        coordinator?.openCreateWallet()
-    }
-
-    func openBuyWallet() {
-        Analytics.log(.buttonAddWallet, params: [.action: .buy])
-        Analytics.log(.shopScreenOpened)
-        coordinator?.openShop()
+        coordinator?.openAddWallet()
     }
 
     func openOnboarding(with input: OnboardingInput) {
