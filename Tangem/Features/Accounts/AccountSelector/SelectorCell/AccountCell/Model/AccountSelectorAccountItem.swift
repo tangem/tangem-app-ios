@@ -10,7 +10,7 @@ import TangemLocalization
 import Combine
 
 struct AccountSelectorAccountItem: Identifiable {
-    let id: String
+    let id: AnyHashable
     let name: String
     let tokensCount: String
     let icon: AccountModel.Icon
@@ -30,7 +30,7 @@ extension AccountSelectorAccountItem: Hashable {
 
 extension AccountSelectorAccountItem {
     init(userWallet: any UserWalletModel, account: any CryptoAccountModel) {
-        id = "\(account.id)"
+        id = account.id.toAnyHashable()
         name = account.name
         tokensCount = Localization.commonTokensCount(account.walletModelsManager.walletModels.count)
         icon = account.icon

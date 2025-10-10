@@ -11,4 +11,9 @@ import Foundation
 protocol ReferralRoutable: AnyObject {
     func openTOS(with url: URL)
     func dismiss()
+    @MainActor
+    func showAccountSelector(
+        selectedAccount: AccountSelectorCellModel,
+        onSelect: @escaping (AccountSelectorCellModel) -> Void
+    )
 }

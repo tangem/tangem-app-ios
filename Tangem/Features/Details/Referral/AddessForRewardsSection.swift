@@ -15,6 +15,7 @@ import TangemLocalization
 struct AddessForRewardsSection: View {
     let tokenType: ReferralViewModel.ReadyToBecomParticipantDisplayMode.TokenType
     let account: ReferralViewModel.SelectedAccountViewData
+    let openAccountSelector: (AnyHashable) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -31,7 +32,7 @@ struct AddessForRewardsSection: View {
                 title: "Account",
                 shouldShowTrailingIcon: true,
                 action: {
-                    // Open account selector
+                    openAccountSelector(account.id)
                 },
                 trailingView: {
                     HStack(spacing: 4) {
@@ -88,7 +89,8 @@ struct AddessForRewardsSection: View {
                 id: "FFF",
                 iconViewData: AccountIconView.ViewData(backgroundColor: .red, nameMode: .letter("N")),
                 name: "Name"
-            )
+            ),
+            openAccountSelector: { _ in }
         )
     }
 }

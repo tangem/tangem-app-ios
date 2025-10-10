@@ -156,7 +156,13 @@ struct ReferralView: View {
 
         case .accounts(let tokenType, let selectedAccountData):
             VStack {
-                AddessForRewardsSection(tokenType: tokenType, account: selectedAccountData)
+                AddessForRewardsSection(
+                    tokenType: tokenType,
+                    account: selectedAccountData,
+                    openAccountSelector: { id in
+                        viewModel.openAccountSelector(id: id)
+                    }
+                )
 
                 Spacer(minLength: 40)
 

@@ -87,6 +87,45 @@ final class ReferralViewModel: ObservableObject {
     }
 
     @MainActor
+    func openAccountSelector(id: AnyHashable) {
+        guard let selectedCryptoAccount else {
+            return
+        }
+
+        coordinator?.showAccountSelector(
+            selectedAccount: .account(
+                AccountSelectorAccountItem(
+                    id: selectedCryptoAccount.id.toAnyHashable(),
+                    name: selectedCryptoAccount.name,
+                    tokensCount: "\(selectedCryptoAccount.walletModelsManager.walletModels.count)",
+                    icon: selectedCryptoAccount.icon,
+                    formattedBalanceTypePublisher: selectedCryptoAccount.formattedBalanceTypePublisher
+                )
+            ),
+            onSelect: { [weak self] account in
+                guard
+                    let self,
+                    case .account(let accountModel) = account,
+                    let cryptoAccountModel = findAccount(by: accountModel.id)
+                else {
+                    return
+                }
+
+                let accountData = SelectedAccountViewData(
+                    id: cryptoAccountModel.id.toAnyHashable(),
+                    iconViewData: AccountModelUtils.UI.iconViewData(
+                        icon: cryptoAccountModel.icon,
+                        accountName: cryptoAccountModel.name
+                    ),
+                    name: cryptoAccountModel.name
+                )
+
+                viewState = viewState.updateAccountData(with: accountData)
+            }
+        )
+    }
+
+    @MainActor
     func participateInReferralProgram() async {
         if isProcessingRequest {
             return
@@ -268,7 +307,7 @@ final class ReferralViewModel: ObservableObject {
             }
 
             let viewData = SelectedAccountViewData(
-                id: account.id,
+                id: account.id.toAnyHashable(),
                 iconViewData: AccountModelUtils.UI.iconViewData(icon: account.icon, accountName: account.name),
                 name: account.name
             )
@@ -296,7 +335,7 @@ final class ReferralViewModel: ObservableObject {
             }
 
             let viewData = SelectedAccountViewData(
-                id: selectedOrMainAccount.id,
+                id: selectedOrMainAccount.id.toAnyHashable(),
                 iconViewData: AccountModelUtils.UI.iconViewData(icon: selectedOrMainAccount.icon, accountName: selectedOrMainAccount.name),
                 name: selectedOrMainAccount.name
             )
@@ -361,23 +400,7 @@ final class ReferralViewModel: ObservableObject {
     }
 
     private var userTokensManager: UserTokensManager? {
-        switch workMode {
-        case .plainUserTokensManager(let userTokensManager):
-            return userTokensManager
-        case .accounts:
-            switch accountModel {
-            case .standard(let cryptoAccounts):
-                switch cryptoAccounts {
-                case .single(let cryptoAccountModel):
-                    return cryptoAccountModel.userTokensManager
-                case .multiple(let cryptoAccountModels):
-                    return cryptoAccountModels.first { $0.id.toAnyHashable() == selectedForReferralAccount?.id }?.userTokensManager
-                }
-
-            case nil:
-                return nil
-            }
-        }
+        selectedCryptoAccount?.userTokensManager
     }
 
     private var selectedForReferralAccount: SelectedAccountViewData? {
@@ -386,6 +409,33 @@ final class ReferralViewModel: ObservableObject {
             return nil
         case .loaded(let loadedState):
             return loadedState.accountData
+        }
+    }
+
+    private var selectedCryptoAccount: (any CryptoAccountModel)? {
+        findAccount(by: selectedForReferralAccount?.id)
+    }
+
+    private func findAccount(by id: AnyHashable) -> (any CryptoAccountModel)? {
+        switch workMode {
+        case .plainUserTokensManager:
+            return nil
+
+        case .accounts:
+            switch accountModel {
+            case .standard(let cryptoAccounts):
+                switch cryptoAccounts {
+                case .single(let cryptoAccountModel):
+                    return cryptoAccountModel.id.toAnyHashable() == id ?
+                        cryptoAccountModel :
+                        nil
+                case .multiple(let cryptoAccountModels):
+                    return cryptoAccountModels.first { $0.id.toAnyHashable() == id }
+                }
+
+            case nil:
+                return nil
+            }
         }
     }
 }
