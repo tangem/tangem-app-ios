@@ -131,7 +131,7 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     private func handleUserWalletUpdates(by event: UserWalletRepositoryEvent) {
         switch event {
-        case .inserted, .unlocked, .deleted, .unlockedBiometrics:
+        case .inserted, .unlocked, .deleted, .unlockedWallet:
             AppLogger.info("Did receive event: \(event)")
             updateState()
         default:
