@@ -42,7 +42,7 @@ struct StakingDetailsView: View {
 
                 GroupedSection(viewModel.stakes) { data in
                     StakingDetailsStakeView(data: data)
-                        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
+                        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
                 } header: {
                     DefaultHeaderView(Localization.stakingYourStakes)
                         .padding(.top, 12)
@@ -75,7 +75,6 @@ struct StakingDetailsView: View {
         }
     }
 
-    @ViewBuilder
     private var banner: some View {
         Button(action: viewModel.userDidTapBanner) {
             ZStack(alignment: .leading) {
@@ -100,7 +99,6 @@ struct StakingDetailsView: View {
             )
     }
 
-    @ViewBuilder
     private var rewardView: some View {
         GroupedSection(viewModel.rewardViewData) { data in
             RewardView(data: data)
@@ -111,7 +109,6 @@ struct StakingDetailsView: View {
         .innerContentPadding(4)
     }
 
-    @ViewBuilder
     private var bottomView: some View {
         VStack(spacing: 12) {
             FixedSpacer(height: spacer)
@@ -126,7 +123,6 @@ struct StakingDetailsView: View {
         .disableAnimations() // To force `.animation(nil)` behaviour
     }
 
-    @ViewBuilder
     private var legalView: some View {
         Text(viewModel.legalText)
             .multilineTextAlignment(.center)

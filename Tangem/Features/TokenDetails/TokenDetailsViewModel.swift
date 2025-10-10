@@ -15,10 +15,10 @@ import TangemStaking
 import TangemFoundation
 import TangemLocalization
 import TangemUI
-import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
 
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
@@ -161,8 +161,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         }
     }
 
-    override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
-        self.actionSheet = actionSheet
+    override func present(confirmationDialog: ConfirmationDialogViewModel) {
+        self.confirmationDialog = confirmationDialog
     }
 
     override func copyDefaultAddress() {
