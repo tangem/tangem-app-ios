@@ -68,4 +68,12 @@ extension XCTestCase {
             )
         }
     }
+
+    func skipDueToBug(_ bugId: String, description: String = "") throws {
+        let reason = description.isEmpty ?
+            "Skipping due to bug \(bugId)" :
+            "Skipping due to bug \(bugId): \(description)"
+
+        try XCTSkipIf(true, reason)
+    }
 }
