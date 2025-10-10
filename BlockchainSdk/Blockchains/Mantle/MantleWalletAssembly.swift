@@ -17,7 +17,7 @@ struct MantleWalletAssembly: WalletManagerAssembly {
         }
 
         let providers = networkProviderAssembly.makeEthereumJsonRpcProviders(with: input.networkInput)
-        let txBuilder = EthereumTransactionBuilder(
+        let txBuilder = CommonEthereumTransactionBuilder(
             chainId: chainId,
             sourceAddress: wallet.defaultAddress
         )

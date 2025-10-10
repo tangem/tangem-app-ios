@@ -32,6 +32,7 @@ enum APIProvider: String {
     case tangemAlephium
     case koinospro
     case tatum
+    case mock
 
     var blockchainProvider: NetworkProviderType {
         switch self {
@@ -57,6 +58,7 @@ enum APIProvider: String {
         case .tangemAlephium: return .tangemAlephium
         case .koinospro: return .koinosPro
         case .tatum: return .tatum
+        case .mock: return .mock
         }
     }
 }
