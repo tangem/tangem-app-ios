@@ -2593,6 +2593,8 @@
 		D892E6BF2E95114000D29113 /* SendCardanoNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D892E6BD2E95114000D29113 /* SendCardanoNotificationUITests.swift */; };
 		D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89ABED82E31979900855B00 /* SwapScreen.swift */; };
 		D8BCA6892E5DF4A400DC6876 /* WalletConnectedAppSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BCA6882E5DF4A400DC6876 /* WalletConnectedAppSheet.swift */; };
+		D8C314C22E964A4000B9F552 /* MockBlockBookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C314C12E964A4000B9F552 /* MockBlockBookConfig.swift */; };
+		D8C314C42E968C0700B9F552 /* SendNotificationDogecoinUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C314C32E968C0700B9F552 /* SendNotificationDogecoinUITests.swift */; };
 		D8DEEABB2E14252800DACD4B /* TangemAPIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */; };
 		D8E15EED2E40FEB500E217BB /* StakingDetailsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E15EEC2E40FEB500E217BB /* StakingDetailsScreen.swift */; };
 		D8E15EF02E41156B00E217BB /* StakingSendScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E15EEF2E41156B00E217BB /* StakingSendScreen.swift */; };
@@ -6911,6 +6913,8 @@
 		D892E6BD2E95114000D29113 /* SendCardanoNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCardanoNotificationUITests.swift; sourceTree = "<group>"; };
 		D89ABED82E31979900855B00 /* SwapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapScreen.swift; sourceTree = "<group>"; };
 		D8BCA6882E5DF4A400DC6876 /* WalletConnectedAppSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectedAppSheet.swift; sourceTree = "<group>"; };
+		D8C314C12E964A4000B9F552 /* MockBlockBookConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBlockBookConfig.swift; sourceTree = "<group>"; };
+		D8C314C32E968C0700B9F552 /* SendNotificationDogecoinUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNotificationDogecoinUITests.swift; sourceTree = "<group>"; };
 		D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemAPIType.swift; sourceTree = "<group>"; };
 		D8E15EEC2E40FEB500E217BB /* StakingDetailsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingDetailsScreen.swift; sourceTree = "<group>"; };
 		D8E15EEF2E41156B00E217BB /* StakingSendScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSendScreen.swift; sourceTree = "<group>"; };
@@ -14625,6 +14629,7 @@
 				2D8F9E772CF9B314007434A4 /* CloreBlockBookConfig.swift */,
 				B62D3EAA2CBC79D900C2460E /* GetBlockBlockBookConfig.swift */,
 				B62D3EAB2CBC79D900C2460E /* NowNodesBlockBookConfig.swift */,
+				D8C314C12E964A4000B9F552 /* MockBlockBookConfig.swift */,
 			);
 			path = Implementations;
 			sourceTree = "<group>";
@@ -16674,6 +16679,7 @@
 		D892E6BE2E95114000D29113 /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				D8C314C32E968C0700B9F552 /* SendNotificationDogecoinUITests.swift */,
 				D892E6BD2E95114000D29113 /* SendCardanoNotificationUITests.swift */,
 			);
 			path = Send;
@@ -26418,6 +26424,7 @@
 				D852F8232E5C86AB00C71B7F /* ToSUITests.swift in Sources */,
 				7982B0292DE70E1900C41EA5 /* ScreenBase+Extension.swift in Sources */,
 				D85E200B2E854D5F004174E6 /* AppSettingsScreen.swift in Sources */,
+				D8C314C42E968C0700B9F552 /* SendNotificationDogecoinUITests.swift in Sources */,
 				D85E200C2E854D5F004174E6 /* CurrencySelectionScreen.swift in Sources */,
 				D863E7502E65C77D00912D52 /* ResetCardScreen.swift in Sources */,
 				D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */,
@@ -26910,6 +26917,7 @@
 				EF8425392D91AC0A00F5F1DE /* TaprootLockingScriptBuilder.swift in Sources */,
 				B62D42032CBC79DB00C2460E /* XRPAccountInfo.swift in Sources */,
 				B62D41002CBC79DA00C2460E /* KaspaAddressService.swift in Sources */,
+				D8C314C22E964A4000B9F552 /* MockBlockBookConfig.swift in Sources */,
 				B62D41182CBC79DA00C2460E /* options.pb.swift in Sources */,
 				B62D42432CBC79DB00C2460E /* NowNodesAPIResolver.swift in Sources */,
 				B62D41BF2CBC79DB00C2460E /* TONExternalLinkProvider.swift in Sources */,
