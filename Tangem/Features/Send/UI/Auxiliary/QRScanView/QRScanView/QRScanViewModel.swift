@@ -10,11 +10,11 @@ import SwiftUI
 import AVFoundation
 import PhotosUI
 import TangemLocalization
-import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
-class QRScanViewModel: ObservableObject, Identifiable {
+final class QRScanViewModel: ObservableObject, Identifiable {
     @Published var isFlashActive = false
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var hasCameraAccess = false
 
     let code: Binding<String>
@@ -99,23 +99,31 @@ class QRScanViewModel: ObservableObject, Identifiable {
     }
 
     private func presentAccessDeniedAlert() {
-        let sheet = ActionSheet(
-            title: Text(Localization.qrScannerCameraDeniedTitle),
-            message: Text(Localization.qrScannerCameraDeniedText),
-            buttons: [
-                .default(Text(Localization.qrScannerCameraDeniedGalleryButton)) { [router] in
-                    router.openImagePicker()
-                },
-                .default(Text(Localization.qrScannerCameraDeniedSettingsButton)) { [router] in
-                    router.openSettings()
-                },
-                .cancel(Text(Localization.commonCancel)) { [router] in
-                    router.dismiss()
-                },
-            ]
+        let selectFromGalleryButton = ConfirmationDialogViewModel.Button(title: Localization.qrScannerCameraDeniedGalleryButton) { [router] in
+            router.openImagePicker()
+        }
+
+        let settingsButton = ConfirmationDialogViewModel.Button(title: Localization.qrScannerCameraDeniedSettingsButton) { [router] in
+            router.openSettings()
+        }
+
+        let cancelButton = ConfirmationDialogViewModel.Button(
+            title: Localization.commonCancel,
+            role: .cancel,
+            action: { [router] in
+                router.dismiss()
+            }
         )
 
-        actionSheet = ActionSheetBinder(sheet: sheet)
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.qrScannerCameraDeniedTitle,
+            subtitle: Localization.qrScannerCameraDeniedText,
+            buttons: [
+                selectFromGalleryButton,
+                settingsButton,
+                cancelButton,
+            ]
+        )
     }
 
     private func scanQRCode(from image: UIImage) -> String? {

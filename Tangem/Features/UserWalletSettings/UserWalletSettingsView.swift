@@ -44,7 +44,7 @@ struct UserWalletSettingsView: View {
         .navigationTitle(Localization.walletSettingsTitle)
         .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
-        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
+        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .scrollDismissesKeyboardCompat(.interactively)
         .onAppear(perform: viewModel.onAppear)
     }
