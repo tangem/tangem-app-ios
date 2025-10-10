@@ -45,7 +45,7 @@ private extension CommonUserWalletDismissedNotifications {
 
     func handleUserWalletRepositoryEvent(_ event: UserWalletRepositoryEvent) {
         switch event {
-        case .unlockedBiometrics:
+        case .unlocked:
             userWalletRepository.models
                 .filter { !$0.isUserWalletLocked }
                 .map(\.userWalletId)
@@ -53,7 +53,7 @@ private extension CommonUserWalletDismissedNotifications {
                     clean(userWalletId: $0)
                 }
 
-        case .unlocked(let userWalletId):
+        case .unlockedWallet(let userWalletId):
             clean(userWalletId: userWalletId)
 
         case .deleted(let userWalletIds):
