@@ -13,7 +13,7 @@ public protocol ExpressAnalyticsLogger {
     /// Swap
     func bestProviderSelected(_ provider: ExpressAvailableProvider)
 
-    func logExpressError(_ error: ExpressAPIError, provider: ExpressProvider?)
+    func logExpressError(_ error: Error, provider: ExpressProvider?)
 
     func logSwapTransactionAnalyticsEvent(destination: String?)
     func logApproveTransactionAnalyticsEvent(policy: ApprovePolicy, destination: String?)
