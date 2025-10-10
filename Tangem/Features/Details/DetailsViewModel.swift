@@ -12,9 +12,10 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 import TangemLocalization
-import TangemUIUtils
+import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
-class DetailsViewModel: ObservableObject {
+final class DetailsViewModel: ObservableObject {
     // MARK: - Injected
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -41,7 +42,7 @@ class DetailsViewModel: ObservableObject {
     @Published var supportSectionModels: [DefaultRowViewModel] = []
     @Published var environmentSetupViewModel: [DefaultRowViewModel] = []
     @Published var alert: AlertBinder?
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     @Published private var userWalletsViewModels: [SettingsUserWalletRowViewModel] = []
     @Published private var addOrScanNewUserWalletViewModel: DefaultRowViewModel?
@@ -103,22 +104,26 @@ class DetailsViewModel: ObservableObject {
         let hasTangemCards = !tangemUserWalletModels.isEmpty
         switch (hasVisaCards, hasTangemCards) {
         case (true, true):
-            let sheet = ActionSheet(
-                title: Text(Localization.commonChooseAction),
+            let contactTangemSupportButton = ConfirmationDialogViewModel.Button(title: Localization.commonContactTangemSupport) { [weak self] in
+                self?.openTangemSupport(models: tangemUserWalletModels)
+            }
+
+            let contactVisaSupportButton = ConfirmationDialogViewModel.Button(title: Localization.commonContactVisaSupport) { [weak self] in
+                self?.openVisaSupport(models: visaUserWalletModels)
+            }
+
+            confirmationDialog = ConfirmationDialogViewModel(
+                title: Localization.commonChooseAction,
                 buttons: [
-                    .default(Text(Localization.commonContactTangemSupport), action: { [weak self] in
-                        self?.openTangemSupport(models: tangemUserWalletModels)
-                    }),
-                    .default(Text(Localization.commonContactVisaSupport), action: { [weak self] in
-                        self?.openVisaSupport(models: visaUserWalletModels)
-                    }),
-                    .cancel(Text(Localization.commonCancel)),
+                    contactTangemSupportButton,
+                    contactVisaSupportButton,
+                    ConfirmationDialogViewModel.Button.cancel,
                 ]
             )
 
-            actionSheet = ActionSheetBinder(sheet: sheet)
         case (true, false):
             openVisaSupport(models: visaUserWalletModels)
+
         case (false, true), (false, false):
             openTangemSupport(models: tangemUserWalletModels)
         }
@@ -219,26 +224,27 @@ extension DetailsViewModel {
     }
 
     func openAddNewUserWallet() {
-        let sheet = ActionSheet(
-            title: Text(Localization.userWalletListAddButton),
+        let createNewWalletButton = ConfirmationDialogViewModel.Button(title: Localization.homeButtonCreateNewWallet) { [weak self] in
+            self?.openCreateWallet()
+        }
+
+        let addExistingWalletButton = ConfirmationDialogViewModel.Button(title: Localization.homeButtonAddExistingWallet) { [weak self] in
+            self?.openImportWallet()
+        }
+
+        let buyTangemWalletButton = ConfirmationDialogViewModel.Button(title: Localization.detailsBuyWallet) { [weak self] in
+            self?.openBuyWallet()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.userWalletListAddButton,
             buttons: [
-                .default(
-                    Text(Localization.homeButtonCreateNewWallet),
-                    action: weakify(self, forFunction: DetailsViewModel.openCreateWallet)
-                ),
-                .default(
-                    Text(Localization.homeButtonAddExistingWallet),
-                    action: weakify(self, forFunction: DetailsViewModel.openImportWallet)
-                ),
-                .default(
-                    Text(Localization.detailsBuyWallet),
-                    action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
-                ),
-                .cancel(),
+                createNewWalletButton,
+                addExistingWalletButton,
+                buyTangemWalletButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func openCreateWallet() {
@@ -464,18 +470,28 @@ private extension DetailsViewModel {
 
 private extension DetailsViewModel {
     func openTroubleshooting() {
-        let sheet = ActionSheet(
-            title: Text(Localization.alertTroubleshootingScanCardTitle),
-            message: Text(Localization.alertTroubleshootingScanCardMessage),
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.tryAgain()
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.openScanCardManual()
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.requestSupport()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
-                .default(Text(Localization.alertButtonTryAgain), action: weakify(self, forFunction: DetailsViewModel.tryAgain)),
-                .default(Text(Localization.commonReadMore), action: weakify(self, forFunction: DetailsViewModel.openScanCardManual)),
-                .default(Text(Localization.alertButtonRequestSupport), action: weakify(self, forFunction: DetailsViewModel.requestSupport)),
-                .cancel(),
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func openVisaSupport(models: [UserWalletModel]) {
