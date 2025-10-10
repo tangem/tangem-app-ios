@@ -178,12 +178,10 @@ final class YieldTransactionProvider {
 
         return try await [transaction(contractAddress: yieldContractAddress, txData: method.data, fee: fee.fee)]
     }
-}
 
-// MARK: - Private calls
+    // MARK: - Approve
 
-private extension YieldTransactionProvider {
-    private func approveTransaction(
+    func approveTransaction(
         tokenContractAddress: String,
         yieldContractAddress: String,
         fee: Fee
@@ -195,7 +193,11 @@ private extension YieldTransactionProvider {
 
         return try await transaction(contractAddress: tokenContractAddress, txData: method.data, fee: fee)
     }
+}
 
+// MARK: - Private calls
+
+private extension YieldTransactionProvider {
     private func deployTransaction(
         walletAddress: String,
         tokenContractAddress: String,
