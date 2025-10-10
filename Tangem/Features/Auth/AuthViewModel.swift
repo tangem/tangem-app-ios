@@ -57,6 +57,22 @@ final class AuthViewModel: ObservableObject {
         openMail()
     }
 
+    func onAppear() {
+        Analytics.log(.signInScreenOpened)
+        incomingActionManager.becomeFirstResponder(self)
+
+        if unlockOnAppear {
+            DispatchQueue.main.async {
+                self.unlockOnAppear = false
+                self.unlockWithBiometry()
+            }
+        }
+    }
+
+    func onDisappear() {
+        incomingActionManager.resignFirstResponder(self)
+    }
+
     func unlockWithBiometryButtonTapped() {
         Analytics.log(.buttonBiometricSignIn)
         unlockWithBiometry()
@@ -106,12 +122,7 @@ final class AuthViewModel: ObservableObject {
             case .error(let error):
                 Analytics.logScanError(error, source: .signIn)
                 Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
-                viewModel.incomingActionManager.discardIncomingAction()
-
-                await runOnMain {
-                    viewModel.isScanningCard = false
-                    viewModel.error = error.alertBinder
-                }
+                await viewModel.handleScanError(error)
 
             case .onboarding(let input, _):
                 Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
@@ -135,12 +146,12 @@ final class AuthViewModel: ObservableObject {
                 Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
                 let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
-                guard let userWalletId = UserWalletId(config: config),
-                      let encryptionKey = UserWalletEncryptionKey(config: config) else {
-                    throw UserWalletRepositoryError.cantUnlockWallet
-                }
-
                 do {
+                    guard let userWalletId = UserWalletId(config: config),
+                          let encryptionKey = UserWalletEncryptionKey(config: config) else {
+                        throw UserWalletRepositoryError.cantUnlockWallet
+                    }
+
                     let userWalletModel = try await viewModel.userWalletRepository.unlock(
                         with: .encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                     )
@@ -154,45 +165,41 @@ final class AuthViewModel: ObservableObject {
 
                 } catch UserWalletRepositoryError.notFound {
                     // new card scanned, add it
-                    if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
-                        walletInfo: .cardWallet(cardInfo),
-                        keys: .cardWallet(keys: cardInfo.card.wallets)
-                    ) {
-                        try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
-                        viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
-                        await runOnMain {
-                            viewModel.isScanningCard = false
-                            viewModel.openMain(with: newUserWalletModel)
-                        }
-                    } else {
-                        throw UserWalletRepositoryError.cantUnlockWallet
-                    }
+                    await viewModel.handleNotFound(cardInfo: cardInfo)
                 } catch {
-                    viewModel.incomingActionManager.discardIncomingAction()
-
-                    await runOnMain {
-                        viewModel.isScanningCard = false
-                        viewModel.error = error.alertBinder
-                    }
+                    await viewModel.handleScanError(error)
                 }
             }
         }
     }
 
-    func onAppear() {
-        Analytics.log(.signInScreenOpened)
-        incomingActionManager.becomeFirstResponder(self)
-
-        if unlockOnAppear {
-            DispatchQueue.main.async {
-                self.unlockOnAppear = false
-                self.unlockWithBiometry()
+    private func handleNotFound(cardInfo: CardInfo) async {
+        do {
+            if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                walletInfo: .cardWallet(cardInfo),
+                keys: .cardWallet(keys: cardInfo.card.wallets)
+            ) {
+                try userWalletRepository.add(userWalletModel: newUserWalletModel)
+                signInAnalyticsLogger.logSignInEvent(signInType: .card)
+                await runOnMain {
+                    isScanningCard = false
+                    openMain(with: newUserWalletModel)
+                }
+            } else {
+                throw UserWalletRepositoryError.cantUnlockWallet
             }
+        } catch {
+            await handleScanError(error)
         }
     }
 
-    func onDisappear() {
-        incomingActionManager.resignFirstResponder(self)
+    private func handleScanError(_ error: Error) async {
+        incomingActionManager.discardIncomingAction()
+
+        await runOnMain {
+            isScanningCard = false
+            self.error = error.alertBinder
+        }
     }
 }
 
