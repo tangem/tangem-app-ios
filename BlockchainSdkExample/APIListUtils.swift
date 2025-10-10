@@ -56,8 +56,9 @@ struct ConfigUtils {
                 bittensorDwellirKey: keys.bittensorDwellirKey,
                 bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
                 tangemAlephiumApiKey: keys.alephiumTangemApiKey,
+                blinkApiKey: keys.blinkApiKey,
+                tatumApiKey: keys.tatumApiKey,
                 yieldModuleApiKey: keys.yieldModuleApiKey,
-                blinkApiKey: keys.blinkApiKey
             )
         } catch {
             return .init(
@@ -79,8 +80,9 @@ struct ConfigUtils {
                 bittensorDwellirKey: "",
                 bittensorOnfinalityKey: "",
                 tangemAlephiumApiKey: "",
+                blinkApiKey: "",
+                tatumApiKey: "",
                 yieldModuleApiKey: "",
-                blinkApiKey: ""
             )
         }
     }
@@ -206,8 +208,9 @@ struct Keys: Decodable {
     let bittensorDwellirKey: String
     let bittensorOnfinalityKey: String
     let alephiumTangemApiKey: String
-    let yieldModuleApiKey: String
     let blinkApiKey: String
+    let tatumApiKey: String
+    let yieldModuleApiKey: String
 }
 
 struct TonCenterApiKeys: Decodable {
