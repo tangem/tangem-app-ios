@@ -7,9 +7,8 @@
 //
 
 import Foundation
-import BigInt
 
-struct YieldModuleTokenInfo: Codable, Equatable {
+struct YieldModuleTokenInfo {
     let isActive: Bool
     let apy: Decimal
     let maxFeeNative: Decimal

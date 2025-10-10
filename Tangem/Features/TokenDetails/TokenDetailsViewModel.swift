@@ -272,40 +272,11 @@ private extension TokenDetailsViewModel {
 
     private func bind() {
         walletModel.yieldModuleManager?.statePublisher
-            .map { [weak self] state -> YieldModuleAvailability in
-                guard FeatureProvider.isAvailable(.yieldModule),
-                      let self,
-                      let manager = walletModel.yieldModuleManager,
-                      let state
-                else {
-                    return .notApplicable
-                }
-
-                switch state.state {
-                case .active(let info):
-                    let vm = createYieldStatueViewMidel(yieldManager: manager, state: .active(isApproveRequired: info.allowance == 0))
-                    return .active(vm)
-
-                case .notActive:
-                    let notificationVm = createYieldNotificationViewModel(yieldManager: manager)
-                    return .eligible(notificationVm)
-
-                case .processing(let action):
-                    switch action {
-                    case .enter:
-                        let vm = createYieldStatueViewMidel(yieldManager: manager, state: .loading)
-                        return .enter(vm)
-                    case .exit:
-                        let vm = createYieldStatueViewMidel(yieldManager: manager, state: .closing)
-                        return .exit(vm)
-                    }
-
-                case .disabled, .loading, .failedToLoad:
-                    return .notApplicable
-                }
+            .compactMap { $0 }
+            .receiveOnMain()
+            .sink { [weak self] state in
+                self?.updateYieldAvailability(state: state)
             }
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.yieldModuleAvailability, on: self, ownership: .weak)
             .store(in: &bag)
 
         // If a pending transaction was provided for deeplink-based presentation,
@@ -391,6 +362,30 @@ private extension TokenDetailsViewModel {
             fiat: stakedWithPendingFiatBalanceFormatted
         )
     }
+
+    private func updateYieldAvailability(state: YieldModuleManagerStateInfo) {
+        guard FeatureProvider.isAvailable(.yieldModule), let manager = walletModel.yieldModuleManager else {
+            yieldModuleAvailability = .notApplicable
+            return
+        }
+
+        switch state.state {
+        case .active(let info):
+            let vm = makeYieldStatusViewModel(yieldManager: manager, state: .active(isApproveRequired: info.allowance == 0))
+            yieldModuleAvailability = .active(vm)
+
+        case .notActive:
+            let vm = makeYieldNotificationViewModel(yieldManager: manager)
+            yieldModuleAvailability = .eligible(vm)
+
+        case .processing(let action):
+            let vm = makeYieldStatusViewModel(yieldManager: manager, state: action == .enter ? .loading : .closing)
+            yieldModuleAvailability = (action == .enter) ? .enter(vm) : .exit(vm)
+
+        case .disabled, .loading, .failedToLoad:
+            yieldModuleAvailability = .notApplicable
+        }
+    }
 }
 
 // MARK: - Navigation functions
@@ -468,13 +463,13 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 }
 
 extension TokenDetailsViewModel {
-    func createYieldStatueViewMidel(yieldManager: YieldModuleManager, state: YieldStatusViewModel.State) -> YieldStatusViewModel {
+    func makeYieldStatusViewModel(yieldManager: YieldModuleManager, state: YieldStatusViewModel.State) -> YieldStatusViewModel {
         YieldStatusViewModel(state: state, manager: yieldManager, navigationAction: { [weak self] in
             self?.openYieldEarnInfo()
         })
     }
 
-    func createYieldNotificationViewModel(
+    func makeYieldNotificationViewModel(
         yieldManager: YieldModuleManager
     ) -> YieldAvailableNotificationViewModel {
         YieldAvailableNotificationViewModel(
@@ -490,13 +485,7 @@ extension TokenDetailsViewModel {
         )
     }
 
-    func openYieldModulePromo() {
-        guard walletModel.yieldModuleManager != nil else {
-            return
-        }
-
-        coordinator?.openYieldModulePromoView(walletModel: walletModel, apy: "5.1", signer: userWalletModel.signer)
-    }
+    func openYieldModulePromo() {}
 
     func openYieldEarnInfo() {
         coordinator?.openYieldEarnInfo(walletModel: walletModel, signer: userWalletModel.signer)

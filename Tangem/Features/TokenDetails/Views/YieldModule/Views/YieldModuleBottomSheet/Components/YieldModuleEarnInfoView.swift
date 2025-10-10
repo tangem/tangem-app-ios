@@ -34,17 +34,6 @@ extension YieldModuleInfoView {
 
         private var topSection: some View {
             VStack(alignment: .leading, spacing: .zero) {
-                // Not implemented in the MVP
-
-//                Text(Localization.yieldModuleEarnSheetTotalEarningsTitle)
-//                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-//                    .padding(.top, 4)
-//                    .padding(.bottom, 10)
-//
-//                Text(params.earningsData.totalEarnings)
-//                    .style(Fonts.Bold.title2, color: Colors.Text.primary1)
-//                    .padding(.bottom, 14)
-
                 HStack {
                     Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
                         .style(Fonts.Regular.body, color: Colors.Text.primary1)

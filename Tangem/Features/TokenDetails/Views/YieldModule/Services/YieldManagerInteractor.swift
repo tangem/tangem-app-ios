@@ -74,10 +74,8 @@ actor YieldManagerInteractor {
                 return
             }
 
-            do {
-                _ = try await actor.manager.enter(fee: fee, transactionDispatcher: actor.transactionDispatcher)
-                await actor.yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: token)
-            } catch {}
+            _ = try await actor.manager.enter(fee: fee, transactionDispatcher: actor.transactionDispatcher)
+            await actor.yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: token)
         }
     }
 
@@ -89,9 +87,7 @@ actor YieldManagerInteractor {
                 return
             }
 
-            do {
-                _ = try await actor.manager.exit(fee: fee, transactionDispatcher: actor.transactionDispatcher)
-            } catch {}
+            _ = try? await actor.manager.exit(fee: fee, transactionDispatcher: actor.transactionDispatcher)
         }
     }
 

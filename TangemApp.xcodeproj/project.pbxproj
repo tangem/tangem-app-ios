@@ -3342,7 +3342,7 @@
 		EA9B03A52E9431B200F4B40D /* YieldModuleTokenInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B03A42E9431B200F4B40D /* YieldModuleTokenInfo.swift */; };
 		EA9B03A92E94C9ED00F4B40D /* YieldStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B03A72E94C9ED00F4B40D /* YieldStatusView.swift */; };
 		EA9B03AB2E94C9F500F4B40D /* YieldStatusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B03AA2E94C9F500F4B40D /* YieldStatusViewModel.swift */; };
-		EA9B03AF2E9509B100F4B40D /* YieldModuleAvalability.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B03AE2E9509B100F4B40D /* YieldModuleAvalability.swift */; };
+		EA9B03AF2E9509B100F4B40D /* YieldModuleAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B03AE2E9509B100F4B40D /* YieldModuleAvailability.swift */; };
 		EA9D0CEA2E83F91400B1A968 /* YieldModuleFeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9D0CE82E83F91400B1A968 /* YieldModuleFeeFormatter.swift */; };
 		EA9D0CEC2E84EF5F00B1A968 /* YieldIdentificationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9D0CEB2E84EF5F00B1A968 /* YieldIdentificationModifier.swift */; };
 		EAA7DBFD2E8D1340003F9885 /* YieldModuleStartFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA7DBFC2E8D1340003F9885 /* YieldModuleStartFlowFactory.swift */; };
@@ -7639,7 +7639,7 @@
 		EA9B03A42E9431B200F4B40D /* YieldModuleTokenInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleTokenInfo.swift; sourceTree = "<group>"; };
 		EA9B03A72E94C9ED00F4B40D /* YieldStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldStatusView.swift; sourceTree = "<group>"; };
 		EA9B03AA2E94C9F500F4B40D /* YieldStatusViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldStatusViewModel.swift; sourceTree = "<group>"; };
-		EA9B03AE2E9509B100F4B40D /* YieldModuleAvalability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleAvalability.swift; sourceTree = "<group>"; };
+		EA9B03AE2E9509B100F4B40D /* YieldModuleAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleAvailability.swift; sourceTree = "<group>"; };
 		EA9D0CE82E83F91400B1A968 /* YieldModuleFeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleFeeFormatter.swift; sourceTree = "<group>"; };
 		EA9D0CEB2E84EF5F00B1A968 /* YieldIdentificationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldIdentificationModifier.swift; sourceTree = "<group>"; };
 		EAA7DBFC2E8D1340003F9885 /* YieldModuleStartFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleStartFlowFactory.swift; sourceTree = "<group>"; };
@@ -19656,6 +19656,20 @@
 			path = YieldAlert;
 			sourceTree = "<group>";
 		};
+		EA84AA2A2E8E5B57002EF6CE /* Charts */ = {
+			isa = PBXGroup;
+			children = (
+				EA84AA2B2E8E5B5E002EF6CE /* YieldModuleChart.swift */,
+				EA84AA382E8E89CC002EF6CE /* YieldModuleChartContainerView.swift */,
+				EA84AA3A2E8E9953002EF6CE /* YieldModuleChartViewModel.swift */,
+				EA1C22772E8EBAE30084F6DE /* YieldChartData.swift */,
+				EA1C22792E8EBAFE0084F6DE /* YieldChartState.swift */,
+				EA77FE6F2E92C7A600D3D9BC /* YieldModuleiOS16Chart.swift */,
+				EA77FE712E92C86800D3D9BC /* YieldModulePreiOS16Chart.swift */,
+			);
+			path = Charts;
+			sourceTree = "<group>";
+		};
 		EA9B03A12E9430AE00F4B40D /* YieldAvailableNotification */ = {
 			isa = PBXGroup;
 			children = (
@@ -19677,23 +19691,9 @@
 		EA9B03AD2E9509A800F4B40D /* Domain */ = {
 			isa = PBXGroup;
 			children = (
-				EA9B03AE2E9509B100F4B40D /* YieldModuleAvalability.swift */,
+				EA9B03AE2E9509B100F4B40D /* YieldModuleAvailability.swift */,
 			);
 			path = Domain;
-            sourceTree = "<group>";
-        };
-		EA84AA2A2E8E5B57002EF6CE /* Charts */ = {
-			isa = PBXGroup;
-			children = (
-				EA84AA2B2E8E5B5E002EF6CE /* YieldModuleChart.swift */,
-				EA84AA382E8E89CC002EF6CE /* YieldModuleChartContainerView.swift */,
-				EA84AA3A2E8E9953002EF6CE /* YieldModuleChartViewModel.swift */,
-				EA1C22772E8EBAE30084F6DE /* YieldChartData.swift */,
-				EA1C22792E8EBAFE0084F6DE /* YieldChartState.swift */,
-				EA77FE6F2E92C7A600D3D9BC /* YieldModuleiOS16Chart.swift */,
-				EA77FE712E92C86800D3D9BC /* YieldModulePreiOS16Chart.swift */,
-			);
-			path = Charts;
 			sourceTree = "<group>";
 		};
 		EA9D0CE92E83F91400B1A968 /* Utils */ = {
@@ -25790,7 +25790,7 @@
 				2D5DCC2D2C3309F1000EE379 /* MarketsTokensNetworkSelectorAlertBuilder.swift in Sources */,
 				B6E932C32A2F2D860068D466 /* OrganizeTokensViewModel.swift in Sources */,
 				EF0DD7A12B02B3230099527D /* ExpressFeeRow.swift in Sources */,
-				EA9B03AF2E9509B100F4B40D /* YieldModuleAvalability.swift in Sources */,
+				EA9B03AF2E9509B100F4B40D /* YieldModuleAvailability.swift in Sources */,
 				EFB23F312CBE7FBD005A6719 /* OnrampView.swift in Sources */,
 				DA1DC0CD2B7F4D5100395A1F /* FakeSendNotificationManager.swift in Sources */,
 				EF5769402A8BAF7900901571 /* TransactionHistoryServiceState.swift in Sources */,

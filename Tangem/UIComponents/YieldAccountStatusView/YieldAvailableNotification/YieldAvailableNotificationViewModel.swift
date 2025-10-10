@@ -8,6 +8,8 @@
 
 import Foundation
 import TangemLocalization
+import TangemAssets
+import SwiftUI
 
 final class YieldAvailableNotificationViewModel: ObservableObject {
     // MARK: - Published
@@ -44,28 +46,42 @@ final class YieldAvailableNotificationViewModel: ObservableObject {
 }
 
 extension YieldAvailableNotificationViewModel {
-    enum State: Equatable, Identifiable {
+    enum State {
         case loading
         case available(apy: String)
         case unavailable
 
         var isLoading: Bool {
+            if case .loading = self { return true }
+            return false
+        }
+
+        var title: String {
             switch self {
+            case .available(let apy):
+                return Localization.yieldModuleTokenDetailsEarnNotificationTitle(apy)
             case .loading:
-                return true
-            default:
-                return false
+                return Localization.yieldModuleTokenDetailsEarnNotificationTitle("0.0%")
+            case .unavailable:
+                return "Earnings unavailable"
             }
         }
 
-        var id: String {
+        var description: String {
             switch self {
-            case .loading:
-                "loading"
-            case .available:
-                "available"
+            case .available, .loading:
+                return Localization.yieldModuleTokenDetailsEarnNotificationDescription
             case .unavailable:
-                "unavailable"
+                return "The interest service isn’t available at the moment. Please try again later."
+            }
+        }
+
+        var icon: Image {
+            switch self {
+            case .unavailable, .loading:
+                return Assets.YieldModule.yieldModuleLogoGray.image
+            case .available:
+                return Assets.YieldModule.yieldModuleLogo.image
             }
         }
     }
