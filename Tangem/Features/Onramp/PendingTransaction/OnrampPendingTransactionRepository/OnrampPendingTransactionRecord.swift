@@ -15,6 +15,7 @@ struct OnrampPendingTransactionRecord: Codable, Equatable {
     let fromCurrencyCode: String
     var destinationTokenTxInfo: ExpressPendingTransactionRecord.TokenTxInfo
     let provider: ExpressPendingTransactionRecord.Provider
+    let paymentMethod: ExpressPendingTransactionRecord.PaymentMethod?
     let date: Date
     var externalTxId: String?
     var externalTxURL: String?
