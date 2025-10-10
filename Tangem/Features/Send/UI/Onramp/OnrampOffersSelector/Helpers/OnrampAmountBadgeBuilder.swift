@@ -16,10 +16,11 @@ struct OnrampAmountBadgeBuilder {
         case .best:
             return .best
         // Show only negative loss badge
-        case .loss(let percent) where percent < 0:
+        case .loss(let percent) where percent < 0,
+             .great(.some(let percent)) where percent < 0:
             let formattedPercent = percentFormatter.format(percent, option: .onramp)
             return .loss(percent: formattedPercent, signType: .init(from: percent))
-        case .none, .loss:
+        case .none, .loss, .great:
             return .none
         }
     }
