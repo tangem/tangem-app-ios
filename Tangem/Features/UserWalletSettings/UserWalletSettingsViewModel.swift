@@ -13,8 +13,8 @@ import TangemLocalization
 import TangemFoundation
 import TangemAccessibilityIdentifiers
 import TangemMobileWalletSdk
-import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - Injected
@@ -41,7 +41,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published var forgetViewModel: DefaultRowViewModel?
 
     @Published var alert: AlertBinder?
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     // MARK: - Private
 
@@ -280,17 +280,21 @@ private extension UserWalletSettingsViewModel {
     func didTapDeleteWallet() {
         Analytics.log(.buttonDeleteWalletTapped)
 
-        let sheet = ActionSheet(
-            title: Text(Localization.userWalletListDeletePrompt),
+        let deleteButton = ConfirmationDialogViewModel.Button(
+            title: Localization.commonDelete,
+            role: .destructive,
+            action: { [weak self] in
+                self?.didConfirmWalletDeletion()
+            }
+        )
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.userWalletListDeletePrompt,
             buttons: [
-                .destructive(
-                    Text(Localization.commonDelete),
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.didConfirmWalletDeletion)
-                ),
-                .cancel(Text(Localization.commonCancel)),
+                deleteButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func didConfirmWalletDeletion() {
