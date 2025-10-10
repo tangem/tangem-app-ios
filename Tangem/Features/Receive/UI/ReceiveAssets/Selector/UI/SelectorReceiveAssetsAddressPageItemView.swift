@@ -81,14 +81,6 @@ private extension SelectorReceiveAssetsAddressPageItemView {
             static let qrCodeButtonActionsVerticalSpacing: CGFloat = 20
         }
 
-        enum MainContentView {
-            /// 4
-            static let verticaSpacing: CGFloat = 8
-
-            /// 8
-            static let topTextContentPadding: CGFloat = 8
-        }
-
         enum TokenContentView {
             /// 4
             static let verticalSpacing: CGFloat = 4

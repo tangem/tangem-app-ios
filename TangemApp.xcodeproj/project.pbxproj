@@ -557,6 +557,8 @@
 		2DCDE45F2DE60F14007ECD34 /* UserWalletDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45E2DE60F14007ECD34 /* UserWalletDTO.swift */; };
 		2DCDE4612DE60F14007ECD34 /* ApplicationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */; };
 		2DCDE4622DE60F14007ECD34 /* NotificationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45D2DE60F14007ECD34 /* NotificationDTO.swift */; };
+		2DD0731E2E98FB5400AAD53F /* SelectorReceiveQRCodeButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD0731C2E98FB5400AAD53F /* SelectorReceiveQRCodeButtonView.swift */; };
+		2DD0731F2E98FB5400AAD53F /* SelectorReceiveRoundGroupButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD0731D2E98FB5400AAD53F /* SelectorReceiveRoundGroupButtonView.swift */; };
 		2DD367342D7F374900BB8DCF /* RequiredMemoRestrictable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD367332D7F374900BB8DCF /* RequiredMemoRestrictable.swift */; };
 		2DD4EB442E8AECE000DD3784 /* WalletConnectServiceAnalyticsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD4EB432E8AECDF00DD3784 /* WalletConnectServiceAnalyticsProvider.swift */; };
 		2DD5C39A2C4EA6570000658D /* MarketsListPrefetchDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD5C3982C4EA6570000658D /* MarketsListPrefetchDataSource.swift */; };
@@ -4911,6 +4913,8 @@
 		2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDTO.swift; sourceTree = "<group>"; };
 		2DCDE45D2DE60F14007ECD34 /* NotificationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDTO.swift; sourceTree = "<group>"; };
 		2DCDE45E2DE60F14007ECD34 /* UserWalletDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletDTO.swift; sourceTree = "<group>"; };
+		2DD0731C2E98FB5400AAD53F /* SelectorReceiveQRCodeButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorReceiveQRCodeButtonView.swift; sourceTree = "<group>"; };
+		2DD0731D2E98FB5400AAD53F /* SelectorReceiveRoundGroupButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorReceiveRoundGroupButtonView.swift; sourceTree = "<group>"; };
 		2DD367332D7F374900BB8DCF /* RequiredMemoRestrictable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequiredMemoRestrictable.swift; sourceTree = "<group>"; };
 		2DD4EB432E8AECDF00DD3784 /* WalletConnectServiceAnalyticsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceAnalyticsProvider.swift; sourceTree = "<group>"; };
 		2DD5C3982C4EA6570000658D /* MarketsListPrefetchDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsListPrefetchDataSource.swift; sourceTree = "<group>"; };
@@ -10129,7 +10133,9 @@
 		2DD91FA42E66A77C00A0B0B5 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				2DD0731C2E98FB5400AAD53F /* SelectorReceiveQRCodeButtonView.swift */,
 				2DD91FA52E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift */,
+				2DD0731D2E98FB5400AAD53F /* SelectorReceiveRoundGroupButtonView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -23991,6 +23997,8 @@
 				DC1AE20F2E219B3B001DBECD /* UserWalletCardScanner.swift in Sources */,
 				EF5A938E2E167DD900570ABE /* SendNewAmountFinishSmallAmountView.swift in Sources */,
 				DC70BFD72B9105BF002205BA /* SecurityOptionChangingCardInteractor.swift in Sources */,
+				2DD0731E2E98FB5400AAD53F /* SelectorReceiveQRCodeButtonView.swift in Sources */,
+				2DD0731F2E98FB5400AAD53F /* SelectorReceiveRoundGroupButtonView.swift in Sources */,
 				B06734392A7A988F008DE8F9 /* FakeUserTokenListManager.swift in Sources */,
 				0FBB13EE2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift in Sources */,
 				B6E932C52A2F2D860068D466 /* OrganizeTokensRoutable.swift in Sources */,

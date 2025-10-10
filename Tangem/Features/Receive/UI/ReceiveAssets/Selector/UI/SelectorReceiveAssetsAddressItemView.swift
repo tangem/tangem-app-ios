@@ -12,6 +12,7 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
+// [REDACTED_TODO_COMMENT]
 struct SelectorReceiveAssetsAddressItemView: View {
     @ObservedObject private(set) var viewModel: SelectorReceiveAssetsAddressItemViewModel
 
