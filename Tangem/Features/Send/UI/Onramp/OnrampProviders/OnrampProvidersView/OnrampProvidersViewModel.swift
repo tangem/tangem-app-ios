@@ -118,7 +118,7 @@ private extension OnrampProvidersViewModel {
 
     func badge(provider: OnrampProvider) -> OnrampProviderRowViewData.Badge? {
         switch provider.attractiveType {
-        case .none:
+        case .none, .great:
             return .none
         case .best where ukGeoDefiner.isUK:
             return .none
