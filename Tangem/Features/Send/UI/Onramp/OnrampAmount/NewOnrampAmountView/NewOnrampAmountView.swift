@@ -18,7 +18,13 @@ struct NewOnrampAmountView: View {
     var body: some View {
         content
             .infinityFrame(axis: .horizontal)
-            .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 50, horizontalPadding: 16)
+            .animation(.easeInOut, value: viewModel.error)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 50)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Colors.Background.action)
+            )
     }
 
     @ViewBuilder
@@ -43,19 +49,11 @@ struct NewOnrampAmountView: View {
                     .padding(.vertical, 1)
                     .shimmer()
 
-                VStack(spacing: 4) {
-                    // Text field
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Colors.Field.focused)
-                        .frame(width: 140, height: 42)
-                        .shimmer()
-
-                    // Crypto amount
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Colors.Field.focused)
-                        .frame(width: 80, height: 18)
-                        .shimmer()
-                }
+                // Text field
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Colors.Field.focused)
+                    .frame(width: 140, height: 42)
+                    .shimmer()
             }
 
             // Fiat token icon
@@ -114,16 +112,19 @@ struct NewOnrampAmountView: View {
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.amountInputField)
 
-            LoadableTextView(
-                state: viewModel.bottomInfoText.state,
-                font: viewModel.bottomInfoText.isError ? Fonts.Regular.caption1 : Fonts.Bold.subheadline,
-                textColor: viewModel.bottomInfoText.isError ? Colors.Text.warning : Colors.Text.secondary,
-                loaderSize: CGSize(width: 80, height: 18),
-                lineLimit: 2
-            )
-            .padding(.vertical, viewModel.bottomInfoText.isError ? 2 : 0)
-            .multilineTextAlignment(.center)
-            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.cryptoAmountLabel)
+            errorView
+        }
+    }
+
+    @ViewBuilder
+    private var errorView: some View {
+        if let error = viewModel.error {
+            Text(error)
+                .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+                .lineLimit(2)
+                .padding(.vertical, 2)
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.cryptoAmountLabel)
         }
     }
 }
