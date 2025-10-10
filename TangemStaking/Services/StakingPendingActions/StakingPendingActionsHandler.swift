@@ -12,14 +12,14 @@ public protocol StakingPendingActionsHandler {
     func mergeBalancesAndPendingActions(
         balances: [StakingBalance],
         actions: [PendingAction]?,
-        yield: YieldInfo
+        yield: StakingYieldInfo
     ) -> [StakingBalance]
 }
 
 extension StakingPendingActionsHandler {
     func mapToStakingBalance(
         action: PendingAction,
-        yield: YieldInfo,
+        yield: StakingYieldInfo,
         balanceType: StakingBalanceType
     ) -> StakingBalance {
         let validatorType: StakingValidatorType = {
