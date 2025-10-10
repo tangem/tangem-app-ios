@@ -3270,6 +3270,9 @@
 		DCCEAC972DFFD5000013D4AB /* WCTransactionSimulationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCCEAC942DFFD5000013D4AB /* WCTransactionSimulationView.swift */; };
 		DCCEAC982DFFD5000013D4AB /* TransactionSimulationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCCEAC912DFFD5000013D4AB /* TransactionSimulationState.swift */; };
 		DCCEAC992DFFD5000013D4AB /* WCTransactionSimulationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCCEAC932DFFD5000013D4AB /* WCTransactionSimulationService.swift */; };
+		DCD1AA6A2E9972CD00C78540 /* TangemSdkNetworkHeadersProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD1AA692E9972B200C78540 /* TangemSdkNetworkHeadersProvider.swift */; };
+		DCD1AA6C2E9973E600C78540 /* TangemAPIKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD1AA6B2E9973D300C78540 /* TangemAPIKeyProvider.swift */; };
+		DCD1AA6E2E9976CC00C78540 /* TangemSdkNetworkServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD1AA6D2E9976BE00C78540 /* TangemSdkNetworkServiceFactory.swift */; };
 		DCD221F72B3EF6C100F4FF6A /* CurvesValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD221F62B3EF6C100F4FF6A /* CurvesValidator.swift */; };
 		DCD9CBA329F7F4D800440C93 /* LogsComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD9CBA229F7F4D800440C93 /* LogsComposer.swift */; };
 		DCD9CBA529F7F4EF00440C93 /* LogFileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD9CBA429F7F4EF00440C93 /* LogFileProvider.swift */; };
@@ -7664,6 +7667,9 @@
 		DCCEAC922DFFD5000013D4AB /* WCTransactionSimulationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionSimulationFactory.swift; sourceTree = "<group>"; };
 		DCCEAC932DFFD5000013D4AB /* WCTransactionSimulationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionSimulationService.swift; sourceTree = "<group>"; };
 		DCCEAC942DFFD5000013D4AB /* WCTransactionSimulationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionSimulationView.swift; sourceTree = "<group>"; };
+		DCD1AA692E9972B200C78540 /* TangemSdkNetworkHeadersProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkNetworkHeadersProvider.swift; sourceTree = "<group>"; };
+		DCD1AA6B2E9973D300C78540 /* TangemAPIKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemAPIKeyProvider.swift; sourceTree = "<group>"; };
+		DCD1AA6D2E9976BE00C78540 /* TangemSdkNetworkServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkNetworkServiceFactory.swift; sourceTree = "<group>"; };
 		DCD221F62B3EF6C100F4FF6A /* CurvesValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurvesValidator.swift; sourceTree = "<group>"; };
 		DCD9CBA229F7F4D800440C93 /* LogsComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsComposer.swift; sourceTree = "<group>"; };
 		DCD9CBA429F7F4EF00440C93 /* LogFileProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFileProvider.swift; sourceTree = "<group>"; };
@@ -11097,6 +11103,8 @@
 		5DF2522524F914C90015B429 /* TangemSdk */ = {
 			isa = PBXGroup;
 			children = (
+				DCD1AA6D2E9976BE00C78540 /* TangemSdkNetworkServiceFactory.swift */,
+				DCD1AA692E9972B200C78540 /* TangemSdkNetworkHeadersProvider.swift */,
 				DC8F84FA2E31592C003F5A4E /* Twin */,
 				DC8F84F52E3158CF003F5A4E /* TangemSigner */,
 				DC8B13C62BA8B4FF00B3DB53 /* PendingBackup */,
@@ -19004,6 +19012,7 @@
 				DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */,
 				DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */,
 				B6662CF92E72C9FD00198D8D /* TangemAPIHeaders.swift */,
+				DCD1AA6B2E9973D300C78540 /* TangemAPIKeyProvider.swift */,
 				DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */,
 				DCE0C5AB2E2FF2E100F5C84D /* TangemApiAuthorizationPlugin.swift */,
 				2D56D4F82D93F56C001FCDDC /* TangemNetwokAnalyticsPlugin.swift */,
@@ -24319,10 +24328,8 @@
 				B0764E482CEB7CBE00361E90 /* VisaOnboardingAccessCodeSetupView.swift in Sources */,
 				C209B6462E049271009DF477 /* WalletConnectDAppIconURLResolver.swift in Sources */,
 				B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */,
-				EFFC85D52E7B631A0079F320 /* OnrampOfferViewModelBuilder.swift in Sources */,
-				B09446122CAC3EFD008F43D8 /* MarketsDTO+ExchangesList.swift in Sources */,
 				EFFC85D52E7B631A0079F320 /* OnrampAllOfferViewModelBuilder.swift in Sources */,
-				B600F4D72C50F73E008E53FE /* MarketsHistoryChartViewModel.swift in Sources */,
+				EFFC85D52E7B631A0079F320 /* OnrampAllOfferViewModelBuilder.swift in Sources */,
 				B67DC1EC2B7C4CB9008ACB0E /* FakeBlockchainDataStorage.swift in Sources */,
 				EF5D83E62B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift in Sources */,
 				DC9090532D393D0600BF7A43 /* HotCryptoAddPortfolioModel.swift in Sources */,
@@ -24430,6 +24437,7 @@
 				DCB573542E8C0AAB003D54E6 /* AccountSelectorCellModel.swift in Sources */,
 				2DC5677B2B0E047700B0244F /* MainBottomSheetHeaderInputView.swift in Sources */,
 				DC0568CF2E0CF439008A3770 /* WCCustomAllowanceViewModel.swift in Sources */,
+				DCD1AA6C2E9973E600C78540 /* TangemAPIKeyProvider.swift in Sources */,
 				DCBF4D272D8B497F002C2B8E /* BSDKTransaction.swift in Sources */,
 				0FFA35072E05428C00ACB48F /* MobileOnboardingSeedPhraseRecoveryViewModel.swift in Sources */,
 				DCBF4D282D8B497F002C2B8E /* GenericWalletManagerFactory.swift in Sources */,
@@ -24965,7 +24973,6 @@
 				B0C4F76F26F08AB40086D815 /* TwinsOnboardingStep.swift in Sources */,
 				DCFEFE532CF08A1B002DFE58 /* ActionButtonsSwapViewModel.swift in Sources */,
 				0AD1D1592D3A7BB700D39F0E /* MultipleSignTask.swift in Sources */,
-				B0A1BC152C296B6E00DECCFD /* MarketsTokenDetailsCoordinator.swift in Sources */,
 				EFF919712E97DC0D00120CD1 /* OnrampSuggestedOfferViewModelBuilder.swift in Sources */,
 				DAAD053A2CE21B1600E53EF3 /* PendingExpressTxStatusView.swift in Sources */,
 				C274DFBB2DDBFA3C00B1D97B /* WalletConnectDAppProposalApprovalService.swift in Sources */,
@@ -25164,7 +25171,6 @@
 				B6CA91352BB55F4400752999 /* PolkadotAccountHealthBackgroundTaskManager.swift in Sources */,
 				EAF4F5962DF7081C0045996D /* DeeplinkNavigationAction.swift in Sources */,
 				DC261CBB292CFBB500875E64 /* StartupProcessor.swift in Sources */,
-				B0FAD27B2CA5386D00DD54EA /* MarketsTokenDetailsListedOnExchangesView.swift in Sources */,
 				DA7BB0042E991C52001116F2 /* TangemPayMainViewModel.swift in Sources */,
 				B6F773B42E7471ED00F39290 /* CryptoAccountsETagStorage.swift in Sources */,
 				DC8139D22E41EE6700F7A1E4 /* WCEthTransactionBuilder.swift in Sources */,
@@ -25931,6 +25937,7 @@
 				0A74F7382E44D8200069344F /* SettingsMigrator.swift in Sources */,
 				EF0F99AD289028F8008B01DF /* AppSettingsView.swift in Sources */,
 				B053759126CA3EFA0090FCFC /* CheckmarkSwitch.swift in Sources */,
+				DCD1AA6E2E9976CC00C78540 /* TangemSdkNetworkServiceFactory.swift in Sources */,
 				DCDBDA062A27C16C0000EBA2 /* LockedUserWalletModel.swift in Sources */,
 				30AD199F2E85595700EAE0A0 /* ArchivedAccountsView.swift in Sources */,
 				DC13D04329DF31A60003895C /* WalletOnboardingStepsBuilder.swift in Sources */,
@@ -25978,6 +25985,7 @@
 				EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */,
 				2DC567682B0DFFAF00B0244F /* MarketsCoordinatorView.swift in Sources */,
 				0FFA35092E05429500ACB48F /* MobileOnboardingSeedPhraseRecoveryDelegate.swift in Sources */,
+				DCD1AA6A2E9972CD00C78540 /* TangemSdkNetworkHeadersProvider.swift in Sources */,
 				EF6CCBEB2C91D7C70002D2B4 /* CommonSendAlertBuilder.swift in Sources */,
 				DAC53CFB27BE63830027147D /* CurrenciesStoryPage.swift in Sources */,
 				DC0A5856282E3E220031BECC /* ServicesManager.swift in Sources */,
@@ -26443,7 +26451,6 @@
 				EF52564A2D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift in Sources */,
 				B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */,
 				EF8C09CC2E9553AC00C5A02A /* AccountIconViewBuilder.swift in Sources */,
-				B0E479BA2C3E7CEC0043B239 /* MarketsTokenDetailsMetricsView.swift in Sources */,
 				EFFA436D2E02EA30001E0E54 /* SendReceiveTokenCoordinatorView.swift in Sources */,
 				EFB9320D2C3EC0C800C999E9 /* ValidatorView.swift in Sources */,
 				B60B9FDB2A95D96B00A7E905 /* OrganizeTokensListSectionViewModel.swift in Sources */,
