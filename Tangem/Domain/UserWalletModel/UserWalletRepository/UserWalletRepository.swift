@@ -44,9 +44,9 @@ extension InjectedValues {
 
 enum UserWalletRepositoryEvent {
     case locked
-    case unlockedBiometrics
+    case unlocked
     case inserted(userWalletId: UserWalletId)
-    case unlocked(userWalletId: UserWalletId)
+    case unlockedWallet(userWalletId: UserWalletId)
     case deleted(userWalletIds: [UserWalletId])
     case selected(userWalletId: UserWalletId)
 }
