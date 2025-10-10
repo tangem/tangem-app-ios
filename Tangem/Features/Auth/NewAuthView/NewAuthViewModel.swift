@@ -140,22 +140,21 @@ private extension NewAuthViewModel {
 
             let unlockResult = await unlocker.unlock()
 
-            viewModel.signInAnalyticsLogger.logSignInEvent(signInType: unlocker.analyticsSignInType)
-
             if case .success = unlockResult, unlocker.analyticsSignInType == .card {
                 Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
             }
 
-            await viewModel.handleUnlock(result: unlockResult, userWalletModel: userWalletModel)
+            await viewModel.handleUnlock(result: unlockResult, userWalletModel: userWalletModel, signInType: unlocker.analyticsSignInType)
         }
     }
 
-    func handleUnlock(result: UserWalletModelUnlockerResult, userWalletModel: UserWalletModel) async {
+    func handleUnlock(result: UserWalletModelUnlockerResult, userWalletModel: UserWalletModel, signInType: Analytics.SignInType) async {
         switch result {
         case .success(let userWalletId, let encryptionKey):
             do {
                 let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                 let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
                 await openMain(userWalletModel: userWalletModel)
             } catch {
                 incomingActionManager.discardIncomingAction()
@@ -168,6 +167,7 @@ private extension NewAuthViewModel {
             do {
                 let unlockMethod = UserWalletRepositoryUnlockMethod.biometrics(context)
                 let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
                 await openMain(userWalletModel: userWalletModel)
             } catch {
                 incomingActionManager.discardIncomingAction()
