@@ -24,7 +24,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
         buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
         balanceProvider: self,
-        balanceTypeSelectorProvider: self
+        balanceTypeSelectorProvider: self,
+        showYieldBalanceInfoAction: { [weak self] in
+            self?.openYieldBalanceInfo()
+        }
     )
 
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
@@ -150,7 +153,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .openMobileUpgrade,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus:
+             .activate,
+             .tangemPayViewKYCStatus,
+             .allowPushPermissionRequest,
+             .postponePushPermissionRequest:
             super.didTapNotification(with: id, action: action)
         }
     }
@@ -427,7 +433,16 @@ extension TokenDetailsViewModel {
     func openYieldModulePromo() {
         coordinator?.openYieldModulePromoView(
             walletModel: walletModel,
-            info: .init(apy: "TEST", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
+            apy: "5.1",
+            startEarnAction: {}
         )
+    }
+
+    func openYieldEarnInfo() {
+        coordinator?.openYieldEarnInfo(walletModel: walletModel, onGiveApproveAction: {}, onStopEarnAction: {})
+    }
+
+    func openYieldBalanceInfo() {
+        coordinator?.openYieldBalanceInfo(tokenName: walletModel.tokenItem.name, tokenId: walletModel.tokenItem.id)
     }
 }
