@@ -18,19 +18,18 @@ final class TangemPayAccount {
 
     let tangemPayCardDetailsPublisher: AnyPublisher<(VisaCustomerInfoResponse.Card, TangemPayBalance)?, Never>
     let tangemPayBalancePublisher: AnyPublisher<TangemPayBalance?, Never>
-
     let tangemPayNotificationManager: TangemPayNotificationManager
+
+    let customerInfoManagementService: any CustomerInfoManagementService
 
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let authorizer: TangemPayAuthorizer
-    let customerInfoManagementService: any CustomerInfoManagementService
     private let orderIdStorage: TangemPayOrderIdStorage
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
     private let balanceSubject = CurrentValueSubject<TangemPayBalance?, Never>(nil)
-    private let transactionHistorySubject = CurrentValueSubject<TangemPayTransactionHistoryResponse?, Never>(nil)
 
     private let didTapIssueOrderSubject = PassthroughSubject<Void, Never>()
     private var customerInfoPollingTask: Task<Void, Never>?
@@ -196,7 +195,7 @@ final class TangemPayAccount {
         return try await customerInfoManagementService.loadCustomerInfo()
     }
 
-    func prepareTokensHandler() async throws {
+    private func prepareTokensHandler() async throws {
         if await authorizationTokensHandler.refreshTokenExpired {
             let tokens = try await authorizer.authorizeWithCustomerWallet()
             try await authorizationTokensHandler.setupTokens(tokens)
@@ -261,62 +260,6 @@ extension TangemPayAccount: NotificationTapDelegate {
     }
 }
 
-extension TangemPayAccount: MainHeaderSupplementInfoProvider {
-    var name: String {
-        "Tangem Pay"
-    }
-
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
-        .just(output: nil)
-    }
-
-    var updatePublisher: AnyPublisher<UpdateResult, Never> {
-        .empty
-    }
-}
-
-extension TangemPayAccount: MainHeaderSubtitleProvider {
-    var isLoadingPublisher: AnyPublisher<Bool, Never> {
-        .just(output: false)
-    }
-
-    var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> {
-        tangemPayBalancePublisher
-            .map { balance -> MainHeaderSubtitleInfo in
-                guard let balance else {
-                    return .init(messages: [], formattingOption: .default)
-                }
-
-                return .init(messages: ["\(balance.availableBalance.description) \(balance.currency)"], formattingOption: .default)
-            }
-            .eraseToAnyPublisher()
-    }
-
-    var containsSensitiveInfo: Bool {
-        false
-    }
-}
-
-extension TangemPayAccount: MainHeaderBalanceProvider {
-    var balance: LoadableTokenBalanceView.State {
-        guard let balance = balanceSubject.value ?? customerInfoSubject.value?.balance else {
-            return .loading(cached: nil)
-        }
-        return .loaded(text: .string("$" + balance.availableBalance.description))
-    }
-
-    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
-        tangemPayBalancePublisher
-            .map { balance in
-                guard let balance else {
-                    return .loading(cached: nil)
-                }
-                return .loaded(text: .string("$" + balance.availableBalance.description))
-            }
-            .eraseToAnyPublisher()
-    }
-}
-
 // MARK: - VisaCustomerInfoResponse+tangemPayStatus
 
 private extension VisaCustomerInfoResponse {
@@ -330,5 +273,73 @@ private extension VisaCustomerInfoResponse {
         }
 
         return .readyToIssueOrIssuing
+    }
+}
+
+// MARK: - MainHeaderSupplementInfoProvider
+
+extension TangemPayAccount: MainHeaderSupplementInfoProvider {
+    var name: String {
+        // [REDACTED_TODO_COMMENT]
+        "Tangem Pay"
+    }
+
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+        .just(output: nil)
+    }
+
+    var updatePublisher: AnyPublisher<UpdateResult, Never> {
+        .empty
+    }
+}
+
+// MARK: - MainHeaderSubtitleProvider
+
+extension TangemPayAccount: MainHeaderSubtitleProvider {
+    var isLoadingPublisher: AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+
+    var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> {
+        tangemPayBalancePublisher
+            .map { balance -> MainHeaderSubtitleInfo in
+                guard let balance else {
+                    return .init(messages: [], formattingOption: .default)
+                }
+
+                // [REDACTED_TODO_COMMENT]
+                return .init(messages: ["\(balance.availableBalance.description) \(balance.currency)"], formattingOption: .default)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var containsSensitiveInfo: Bool {
+        false
+    }
+}
+
+// MARK: - MainHeaderBalanceProvider
+
+extension TangemPayAccount: MainHeaderBalanceProvider {
+    var balance: LoadableTokenBalanceView.State {
+        guard let balance = balanceSubject.value ?? customerInfoSubject.value?.balance else {
+            return .loading(cached: nil)
+        }
+
+        // [REDACTED_TODO_COMMENT]
+        return .loaded(text: .string("$" + balance.availableBalance.description))
+    }
+
+    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
+        tangemPayBalancePublisher
+            .map { balance in
+                guard let balance else {
+                    return .loading(cached: nil)
+                }
+
+                // [REDACTED_TODO_COMMENT]
+                return .loaded(text: .string("$" + balance.availableBalance.description))
+            }
+            .eraseToAnyPublisher()
     }
 }
