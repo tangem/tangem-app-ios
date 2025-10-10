@@ -41,5 +41,12 @@ extension SendAddress {
             case .resolved(let address, let resolved): address == resolved ? nil : resolved
             }
         }
+
+        var isResolved: Bool {
+            switch self {
+            case .plain: return false
+            case .resolved(let address, let resolved): return address == resolved ? false : true
+            }
+        }
     }
 }
