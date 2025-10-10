@@ -52,6 +52,7 @@ struct TangemPayAccountView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 4) {
+                // [REDACTED_TODO_COMMENT]
                 Text("$ " + viewModel.balance.availableBalance.description)
                     .style(
                         Fonts.Regular.subheadline,

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
 struct WelcomeView: View {
     @ObservedObject var viewModel: WelcomeViewModel
@@ -14,7 +15,7 @@ struct WelcomeView: View {
     var body: some View {
         StoriesView(viewModel: viewModel.storiesModel)
             .alert(item: $viewModel.error, content: { $0.alert })
-            .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
+            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .environment(\.colorScheme, .dark)
             .onAppear(perform: viewModel.onAppear)
             .onDisappear(perform: viewModel.onDisappear)
