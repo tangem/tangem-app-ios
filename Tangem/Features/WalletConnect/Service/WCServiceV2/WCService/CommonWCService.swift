@@ -56,7 +56,7 @@ extension CommonWCService: WCService {
                         // do nothing for locked event
                         break
 
-                    case .unlockedBiometrics, .inserted, .unlocked, .deleted, .selected:
+                    case .unlocked, .inserted, .unlockedWallet, .deleted, .selected:
                         self.hasInitialized = true
                         incomingActionManager.becomeFirstResponder(self)
 
