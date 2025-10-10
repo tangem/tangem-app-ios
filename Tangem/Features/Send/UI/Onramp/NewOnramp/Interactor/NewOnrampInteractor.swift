@@ -49,11 +49,13 @@ extension CommonNewOnrampInteractor: NewOnrampInteractor {
             return Empty().eraseToAnyPublisher()
         }
 
-        return providersInput
-            .onrampProvidersPublisher
-            .withWeakCaptureOf(self)
-            .map { $0.mapToSuggestedOffers(providers: $1) }
-            .eraseToAnyPublisher()
+        return Publishers.CombineLatest(
+            providersInput.selectedOnrampProviderPublisher,
+            providersInput.onrampProvidersPublisher,
+        )
+        .withWeakCaptureOf(self)
+        .map { $0.mapToSuggestedOffers(selectedProvider: $1.0, providers: $1.1) }
+        .eraseToAnyPublisher()
     }
 
     var isLoadingPublisher: AnyPublisher<Bool, Never> {
@@ -88,11 +90,16 @@ extension CommonNewOnrampInteractor: NewOnrampInteractor {
 // MARK: - Private
 
 private extension CommonNewOnrampInteractor {
-    func mapToSuggestedOffers(providers: LoadingResult<ProvidersList, Error>?) -> LoadingResult<OnrampInteractorSuggestedOffer?, Never> {
-        switch providers {
-        case .none, .failure: return .success(.none)
-        case .loading: return .loading
-        case .success(let list):
+    func mapToSuggestedOffers(
+        selectedProvider: LoadingResult<OnrampProvider, Never>?,
+        providers: LoadingResult<ProvidersList, Error>?
+    ) -> LoadingResult<OnrampInteractorSuggestedOffer?, Never> {
+        switch (selectedProvider, providers) {
+        case (.none, _), (_, .none), (.failure, _), (_, .failure):
+            return .success(.none)
+        case (.loading, _), (_, .loading):
+            return .loading
+        case (.success, .success(let list)):
             let recent: OnrampProvider? = {
                 guard let recentOnrampTransaction = recentFinder?.recentOnrampTransaction else {
                     return nil
@@ -109,7 +116,7 @@ private extension CommonNewOnrampInteractor {
                 return recent
             }()
 
-            let best = list.globalBest()
+            let great = list.great() ?? list.best()
             let fastest = list.fastest()
             let successfullyLoadedProviders = list.successfullyLoadedProviders()
 
@@ -117,16 +124,16 @@ private extension CommonNewOnrampInteractor {
                 switch recent {
                 // When we don't have a provider with badge
                 // We have to recommend at least one
-                case .none where fastest == .none && best == .none:
+                case .none where fastest == .none && great == .none:
                     return successfullyLoadedProviders.first.map { [$0] } ?? []
-                case .some(let recent) where recent == fastest && recent == best:
+                case .some(let recent) where recent == fastest && recent == great:
                     return []
-                case let recent where recent == best:
+                case let recent where recent == great:
                     return [fastest].compactMap(\.self).filter(\.isSuccessfullyLoaded)
                 case let recent where recent == fastest:
-                    return [best].compactMap(\.self).filter(\.isSuccessfullyLoaded)
+                    return [great].compactMap(\.self).filter(\.isSuccessfullyLoaded)
                 case .none, .some:
-                    return [best, fastest].compactMap(\.self).filter(\.isSuccessfullyLoaded).unique()
+                    return [great, fastest].compactMap(\.self).filter(\.isSuccessfullyLoaded).unique()
                 }
             }()
 
