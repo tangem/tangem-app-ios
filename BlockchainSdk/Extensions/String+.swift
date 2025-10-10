@@ -8,7 +8,7 @@
 
 import Foundation
 
-private var hexPrefix = "0x"
+private let hexPrefix = "0x"
 
 extension String {
     func contains(_ string: String, ignoreCase: Bool = true) -> Bool {
