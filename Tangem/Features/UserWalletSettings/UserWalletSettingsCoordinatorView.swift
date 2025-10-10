@@ -42,6 +42,12 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.mobileBackupTypesViewModel) {
                 MobileBackupTypesView(viewModel: $0)
             }
+            .navigation(item: $coordinator.accountDetailsCoordinator) {
+                AccountDetailsCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.archivedAccountsCoordinator) {
+                ArchivedAccountsCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -69,6 +75,13 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: MobileBackupNeededViewModel.self) {
                 MobileBackupNeededView(viewModel: $0)
+            }
+            .sheet(item: $coordinator.accountFormViewModel) { viewModel in
+                NavigationView {
+                    AccountFormView(viewModel: viewModel)
+                }
+                .presentation(onDismissalAttempt: viewModel.onClose)
+                .presentationCornerRadiusBackport(24)
             }
     }
 }
