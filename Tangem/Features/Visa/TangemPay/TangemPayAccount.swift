@@ -108,7 +108,13 @@ final class TangemPayAccount {
     #endif // ALPHA || BETA || DEBUG
 
     func getTangemPayStatus() async throws -> TangemPayStatus {
-        try await getCustomerInfo().tangemPayStatus
+        // Since customerInfo polling starts in the init - there is no need to make another call
+        for await customerInfo in await customerInfoSubject.compactMap(\.self).values {
+            return customerInfo.tangemPayStatus
+        }
+
+        // This will never happen since the sequence written above will never be terminated without emitting a value
+        return try await getCustomerInfo().tangemPayStatus
     }
 
     private func startCustomerInfoPolling() {
