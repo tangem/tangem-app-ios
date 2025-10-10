@@ -19,6 +19,7 @@ protocol SendAnalyticsLogger: SendManagementModelAnalyticsLogger,
     SendSwapProvidersAnalyticsLogger,
     SendSummaryAnalyticsLogger,
     SendFinishAnalyticsLogger {
+    func setup(sendDestinationInput: any SendDestinationInput)
     func setup(sendFeeInput: any SendFeeInput)
     func setup(sendSourceTokenInput: any SendSourceTokenInput)
     func setup(sendReceiveTokenInput: any SendReceiveTokenInput)
