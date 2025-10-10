@@ -50,18 +50,14 @@ enum AccountModelToUserSettingsViewDataMapper {
         _ accountModel: any BaseAccountModel,
         onTap: @escaping (any BaseAccountModel) -> Void
     ) -> UserSettingsAccountRowViewData {
-        let iconNameMode = AccountModelUtils.UI.nameMode(
-            from: accountModel.icon.name,
-            accountName: accountModel.name
-        )
+        let accountIconViewData = AccountIconViewBuilder().makeAccountIconViewData(accountModel: accountModel)
 
         return UserSettingsAccountRowViewData(
             id: "\(accountModel.id)",
             name: accountModel.name,
-            iconNameMode: iconNameMode,
+            accountIconViewData: accountIconViewData,
             // [REDACTED_TODO_COMMENT]
             description: "",
-            iconColor: AccountModelUtils.UI.iconColor(from: accountModel.icon.color),
             onTap: {
                 onTap(accountModel)
             }
