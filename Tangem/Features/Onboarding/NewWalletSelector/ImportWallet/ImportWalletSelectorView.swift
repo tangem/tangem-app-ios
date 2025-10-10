@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct ImportWalletSelectorView: View {
     typealias ViewModel = ImportWalletSelectorViewModel
@@ -31,7 +32,7 @@ struct ImportWalletSelectorView: View {
             .onAppear(perform: viewModel.onAppear)
             .background(Colors.Background.primary)
             .alert(item: $viewModel.error, content: { $0.alert })
-            .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
+            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .sheet(item: $viewModel.mailViewModel) {
                 MailView(viewModel: $0)
             }
