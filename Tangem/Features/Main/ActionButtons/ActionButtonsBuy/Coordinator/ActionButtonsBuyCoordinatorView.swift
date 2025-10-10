@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 import TangemAssets
 
 struct ActionButtonsBuyCoordinatorView: View {
@@ -20,20 +21,26 @@ struct ActionButtonsBuyCoordinatorView: View {
             case .tokenList(let actionButtonsBuyViewModel):
                 NavigationView {
                     ActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
-                        .sheet(item: $coordinator.addToPortfolioBottomSheetInfo, content: { addToPortfolioSheet($0) })
                 }
             case .newTokenList(let actionButtonsBuyViewModel):
                 NavigationView {
                     NewActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
-                        .sheet(item: $coordinator.addToPortfolioBottomSheetInfo, content: { addToPortfolioSheet($0) })
                 }
                 .transition(SendTransitions.transition)
             case .onramp(let sendCoordinator):
                 SendCoordinatorView(coordinator: sendCoordinator)
                     .transition(SendTransitions.transition)
             }
+
+            sheets
         }
         .animation(SendTransitions.animation, value: coordinator.viewState)
+    }
+
+    @ViewBuilder
+    private var sheets: some View {
+        NavHolder()
+            .sheet(item: $coordinator.addToPortfolioBottomSheetInfo, content: { addToPortfolioSheet($0) })
     }
 
     private func addToPortfolioSheet(_ info: HotCryptoAddToPortfolioModel) -> some View {

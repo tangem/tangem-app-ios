@@ -34,6 +34,7 @@ struct NewTokenSelectorItemView: View {
             )
             .padding(.vertical, 14)
         }
+        .disabled(viewModel.disabledReason != nil)
     }
 
     @ViewBuilder
