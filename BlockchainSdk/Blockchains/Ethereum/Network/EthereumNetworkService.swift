@@ -40,7 +40,10 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
-    func getInfo(address: String, tokens: [Token]) -> AnyPublisher<EthereumInfoResponse, Error> {
+    func getInfo(
+        address: String,
+        tokens: [Token]
+    ) -> AnyPublisher<EthereumInfoResponse, Error> {
         Publishers.Zip4(
             getBalance(address),
             getTokensBalance(address, tokens: tokens),
@@ -48,7 +51,7 @@ class EthereumNetworkService: MultiNetworkProvider {
             getPendingTxCount(address)
         )
         .map { balance, tokenBalances, txCount, pendingTxCount in
-            EthereumInfoResponse(
+            return EthereumInfoResponse(
                 balance: balance,
                 tokenBalances: tokenBalances,
                 txCount: txCount,
@@ -142,31 +145,19 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
-    func getTokensBalance(_ address: String, tokens: [Token]) -> AnyPublisher<[Token: Result<Decimal, Error>], Error> {
+    func getTokensBalance(
+        _ address: String,
+        tokens: [Token]
+    ) -> AnyPublisher<[Token: Result<Decimal, Error>], Error> {
         tokens
             .publisher
             .setFailureType(to: Error.self)
             .withWeakCaptureOf(self)
-            .flatMap { networkService, token in
-                networkService.providerPublisher { provider -> AnyPublisher<Decimal, Error> in
-                    let method = TokenBalanceERC20TokenMethod(owner: address)
-
-                    return provider
-                        .call(contractAddress: token.contractAddress, encodedData: method.encodedData)
-                        .withWeakCaptureOf(networkService)
-                        .tryMap { networkService, result in
-                            guard let value = EthereumUtils.parseEthereumDecimal(result, decimalsCount: token.decimalCount) else {
-                                throw ETHError.failedToParseBalance(value: result, address: token.contractAddress, decimals: token.decimalCount)
-                            }
-
-                            return value
-                        }
-                        .eraseToAnyPublisher()
-                }
-                .mapToResult()
-                .setFailureType(to: Error.self)
-                .map { (token, $0) }
-                .eraseToAnyPublisher()
+            .flatMap { networkService, token -> AnyPublisher<(Token, Result<Decimal, Error>), Error> in
+                networkService.getTokenBalance(
+                    address: address,
+                    token: token
+                )
             }
             .collect()
             .map { $0.reduce(into: [Token: Result<Decimal, Error>]()) { $0[$1.0] = $1.1 }}
@@ -233,6 +224,33 @@ class EthereumNetworkService: MultiNetworkProvider {
         return providerPublisher {
             $0.call(contractAddress: target.contactAddress, encodedData: encodedData)
         }
+    }
+}
+
+private extension EthereumNetworkService {
+    func getTokenBalance(
+        address: String,
+        token: Token
+    ) -> AnyPublisher<(Token, Result<Decimal, Error>), Error> {
+        providerPublisher { provider -> AnyPublisher<Result<Decimal, Error>, Error> in
+            let method = TokenBalanceERC20TokenMethod(owner: address)
+
+            return provider
+                .call(contractAddress: token.contractAddress, encodedData: method.encodedData)
+                .withWeakCaptureOf(self)
+                .tryMap { networkService, result in
+                    guard let value = EthereumUtils.parseEthereumDecimal(result, decimalsCount: token.decimalCount) else {
+                        throw ETHError.failedToParseBalance(value: result, address: token.contractAddress, decimals: token.decimalCount)
+                    }
+
+                    return value
+                }
+                .mapToResult()
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
+        }
+        .map { (token, $0) }
+        .eraseToAnyPublisher()
     }
 }
 
