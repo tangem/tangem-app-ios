@@ -11,8 +11,9 @@ import Combine
 import TangemFoundation
 
 final class AccountModelsManagerMock {
-    private let accountModelsSubject = PassthroughSubject<[AccountModel], Never>()
-    private let totalAccountsCountSubject = PassthroughSubject<Int, Never>()
+    private let walletModelsManager: WalletModelsManager
+    private let accountModelsSubject = CurrentValueSubject<[AccountModel], Never>([])
+    private let totalAccountsCountSubject = CurrentValueSubject<Int, Never>(0)
 
     private var cryptoAccountModels: [CryptoAccountModelMock] = [] {
         didSet {
@@ -23,10 +24,12 @@ final class AccountModelsManagerMock {
         }
     }
 
-    init() {
+    init(walletModelsManager: WalletModelsManager = WalletModelsManagerMock()) {
+        self.walletModelsManager = walletModelsManager
+
         // `defer` is used to trigger the `didSet` observer
         defer {
-            let mainAccount = CryptoAccountModelMock(isMainAccount: true)
+            let mainAccount = CryptoAccountModelMock(isMainAccount: true, walletModelsManager: walletModelsManager)
             cryptoAccountModels = [mainAccount]
         }
     }
@@ -56,7 +59,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
     }
 
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
-        cryptoAccountModels.append(CryptoAccountModelMock(isMainAccount: false))
+        cryptoAccountModels.append(CryptoAccountModelMock(isMainAccount: false, walletModelsManager: walletModelsManager))
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {

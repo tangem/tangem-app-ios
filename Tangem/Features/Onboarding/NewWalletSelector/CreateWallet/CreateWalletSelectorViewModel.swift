@@ -9,9 +9,10 @@
 import Combine
 import SwiftUI
 import TangemFoundation
-import TangemUIUtils
 import TangemAssets
 import TangemLocalization
+import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class CreateWalletSelectorViewModel: ObservableObject {
     @Published var isScanAvailable = false
@@ -19,7 +20,7 @@ final class CreateWalletSelectorViewModel: ObservableObject {
 
     @Published var mailViewModel: MailViewModel?
 
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var error: AlertBinder?
 
     let navigationBarHeight = OnboardingLayoutConstants.navbarSize.height
@@ -202,27 +203,28 @@ private extension CreateWalletSelectorViewModel {
     }
 
     func openTroubleshooting() {
-        let sheet = ActionSheet(
-            title: Text(Localization.alertTroubleshootingScanCardTitle),
-            message: Text(Localization.alertTroubleshootingScanCardMessage),
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.scanCardTryAgain()
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.openScanCardManual()
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.requestSupport()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
-                .default(
-                    Text(Localization.alertButtonTryAgain),
-                    action: weakify(self, forFunction: CreateWalletSelectorViewModel.scanCardTryAgain)
-                ),
-                .default(
-                    Text(Localization.commonReadMore),
-                    action: weakify(self, forFunction: CreateWalletSelectorViewModel.openScanCardManual)
-                ),
-                .default(
-                    Text(Localization.alertButtonRequestSupport),
-                    action: weakify(self, forFunction: CreateWalletSelectorViewModel.requestSupport)
-                ),
-                .cancel(),
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 }
 
