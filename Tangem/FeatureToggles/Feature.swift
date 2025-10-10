@@ -43,7 +43,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return .unspecified
         case .visa: return .unspecified
         case .logs: return .version("5.25")
-        case .mobileWallet: return .version("5.28")
+        case .mobileWallet: return .unspecified
         case .wcSolanaALT: return .version("5.28")
         case .accounts: return .unspecified
         case .receiveENS: return .version("5.28")
