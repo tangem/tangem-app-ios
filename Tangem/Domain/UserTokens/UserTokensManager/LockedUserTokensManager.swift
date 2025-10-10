@@ -39,6 +39,10 @@ struct LockedUserTokensManager: UserTokensManager {
         return []
     }
 
+    func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
+        false
+    }
+
     func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
         false
     }
