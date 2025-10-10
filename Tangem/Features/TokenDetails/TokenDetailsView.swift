@@ -10,8 +10,8 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
-import TangemFoundation
 
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
@@ -88,7 +88,7 @@ struct TokenDetailsView: View {
         .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: scrollOffsetHandler.onViewAppear)
         .alert(item: $viewModel.alert) { $0.alert }
-        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
+        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .coordinateSpace(name: coordinateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
