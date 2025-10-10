@@ -174,6 +174,7 @@
 "common_add_to_portfolio" = "Añadir al portafolio";
 "common_add_token" = "Agregar token";
 "common_add" = "Agregar";
+"common_added" = "Added";
 "common_address" = "Dirección";
 "common_all" = "Todos";
 "common_allow" = "Autorizar";
@@ -1420,6 +1421,7 @@
 "wallet_connect_sending_multiple_tx" = "Transaction in progress";
 "wallet_connect_subtitle" = "Conectar a dApps";
 "wallet_connect_title" = "WalletConnect";
+"wallet_create_common_title" = "Create Tangem Wallet";
 "wallet_create_hardware_badge" = "From %@";
 "wallet_create_hardware_description" = "Buy Tangem Wallet—a physical device that securely stores your private key offline.";
 "wallet_create_hardware_title" = "Hardware Wallet";
@@ -1704,7 +1706,10 @@
 "yield_module_fee_policy_sheet_description" = "All future %@ top-ups will be supplied to Aave automatically, with the transaction fee deducted.";
 "yield_module_fee_policy_sheet_max_fee_note" = "If network fees rise above maximum fee, the transaction won’t go through until they decrease. You can change this limit later.";
 "yield_module_fee_policy_sheet_max_fee_title" = "Maximum fee";
+"yield_module_fee_policy_sheet_min_amount_note" = "The transaction fee must stay below 4% of your deposit. Tangem will transfer funds to Aave only once your balance is large enough to meet this condition. ";
+"yield_module_fee_policy_sheet_min_amount_title" = "Minimal amount";
 "yield_module_fee_policy_sheet_title" = "Fee policy";
+"yield_module_fee_policy_tangem_service_fee_title" = "Tangem also takes a 3% service fee on the yield earned.";
 "yield_module_high_fee_error" = "Network fee is too high right now. Waiting until it falls below your limit.";
 "yield_module_historical_returns" = "Historical returns";
 "yield_module_main_view_approve_notification_description" = "Write description here. In one, two or three lines will be awesome. [PLACEHOLDER]";
@@ -1740,7 +1745,8 @@
 "yield_module_supply_apr" = "Supply APR";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Make your money work — earn interest on your balance.";
-"yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Earning on your balance";
+"yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Interest accrues automatically";
+"yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Aave lending";
 "yield_module_token_details_earn_notification_processing" = "Processing your deposit";
 "yield_module_token_details_earn_notification_title" = "Earn %1$@%% per year";
 "yield_module_transfer_mode_automatic" = "Automatic";
