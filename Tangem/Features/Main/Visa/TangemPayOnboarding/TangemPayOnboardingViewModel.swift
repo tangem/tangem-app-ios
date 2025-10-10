@@ -9,7 +9,7 @@
 import TangemVisa
 
 final class TangemPayOnboardingViewModel: ObservableObject {
-    let closeOfferScreen: @MainActor @Sendable () -> Void
+    let closeOfferScreen: () -> Void
     @Published private(set) var tangemPayOfferViewModel: TangemPayOfferViewModel?
 
     private let deeplinkString: String
@@ -19,7 +19,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
     init(
         deeplinkString: String,
         userWalletModel: UserWalletModel,
-        closeOfferScreen: @escaping @MainActor @Sendable () -> Void
+        closeOfferScreen: @escaping () -> Void
     ) {
         self.deeplinkString = deeplinkString
         self.userWalletModel = userWalletModel
@@ -41,19 +41,17 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 
         do {
             try await validateDeeplink()
-            let visaAccount = try await makeVisaAccount()
-
             try? await minimumLoaderShowingTimeTask.value
 
             await MainActor.run {
                 tangemPayOfferViewModel = TangemPayOfferViewModel(
-                    visaAccount: visaAccount,
+                    userWalletModel: userWalletModel,
                     closeOfferScreen: closeOfferScreen
                 )
             }
         } catch {
             try? await minimumLoaderShowingTimeTask.value
-            await closeOfferScreen()
+            closeOfferScreen()
         }
     }
 
@@ -66,36 +64,10 @@ final class TangemPayOnboardingViewModel: ObservableObject {
             throw TangemPayOnboardingError.invalidDeeplink
         }
     }
-
-    private func makeVisaAccount() async throws -> VisaAccount {
-        if let walletModel = userWalletModel.visaWalletModel {
-            return VisaAccount(walletModel: walletModel)
-        }
-
-        let visaBlockchainNetwork = BlockchainNetwork(
-            VisaUtilities.visaBlockchain,
-            derivationPath: VisaUtilities.visaDefaultDerivationPath
-        )
-        _ = try await userWalletModel.userTokensManager.add(.blockchain(visaBlockchainNetwork))
-
-        if let walletModel = userWalletModel.visaWalletModel {
-            return VisaAccount(walletModel: walletModel)
-        }
-
-        throw TangemPayOnboardingError.unableToCreateRequiredWalletModel
-    }
 }
 
 private extension TangemPayOnboardingViewModel {
     enum TangemPayOnboardingError: Error {
         case invalidDeeplink
-        case unableToCreateRequiredWalletModel
-    }
-}
-
-private extension UserWalletModel {
-    var visaWalletModel: (any WalletModel)? {
-        walletModelsManager.walletModels
-            .first { $0.tokenItem.blockchain == VisaUtilities.visaBlockchain }
     }
 }
