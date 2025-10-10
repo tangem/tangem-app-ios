@@ -9,6 +9,7 @@
 import Foundation
 
 enum TangemAPIHeaders: String {
+    case apiKey = "api-key"
     case accept = "Accept"
     case contentType = "Content-Type"
     case eTag = "ETag"
