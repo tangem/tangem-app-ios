@@ -14,11 +14,11 @@ final class TangemPayOfferViewModel: ObservableObject {
     @Published private(set) var isLoading = false
 
     private let userWalletModel: any UserWalletModel
-    private let closeOfferScreen: @MainActor () -> Void
+    private let closeOfferScreen: () -> Void
 
     init(
         userWalletModel: any UserWalletModel,
-        closeOfferScreen: @escaping @MainActor () -> Void
+        closeOfferScreen: @escaping () -> Void
     ) {
         self.userWalletModel = userWalletModel
         self.closeOfferScreen = closeOfferScreen
@@ -34,20 +34,17 @@ final class TangemPayOfferViewModel: ObservableObject {
 
                 // [REDACTED_TODO_COMMENT]
                 // [REDACTED_INFO]
-                viewModel.userWalletModel.update(type: .tangemPayAccountCreated(tangemPayAccount))
 
                 switch tangemPayStatus {
                 case .kycRequired:
                     try await tangemPayAccount.launchKYC {
-                        runTask(in: viewModel) { viewModel in
-                            await viewModel.closeOfferScreen()
-                        }
+                        viewModel.closeOfferScreen()
                     }
                 default:
-                    await viewModel.closeOfferScreen()
+                    viewModel.closeOfferScreen()
                 }
             } catch {
-                await viewModel.closeOfferScreen()
+                viewModel.closeOfferScreen()
             }
         }
         #endif // ALPHA || BETA || DEBUG
