@@ -277,7 +277,7 @@ final class MainViewModel: ObservableObject {
                 guard let self else { return }
 
                 switch event {
-                case .unlockedBiometrics:
+                case .unlocked:
                     recreatePages()
                 case .locked:
                     isLoggingOut = true
@@ -285,7 +285,7 @@ final class MainViewModel: ObservableObject {
                     if let userWalletModel = userWalletRepository.models[userWalletId] {
                         addNewPage(for: userWalletModel)
                     }
-                case .unlocked(let userWalletId):
+                case .unlockedWallet(let userWalletId):
                     userWalletUnlocked(userWalletId: userWalletId)
                 case .deleted(let userWalletIds):
                     // This model is alive for enough time to receive the "deleted" event
