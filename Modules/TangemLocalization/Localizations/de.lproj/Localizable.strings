@@ -174,6 +174,7 @@
 "common_add_to_portfolio" = "Zum Portfolio hinzufügen";
 "common_add_token" = "Token hinzufügen";
 "common_add" = "Hinzufügen";
+"common_added" = "Added";
 "common_address" = "Vertragsadresse";
 "common_all" = "Alle";
 "common_allow" = "Erlauben";
@@ -278,6 +279,7 @@
 "common_range" = "%1$@-%2$@";
 "common_read_more" = "Weiterlesen";
 "common_receive" = "Empfangen";
+"common_recommended" = "Recommended";
 "common_reject" = "Ablehnen";
 "common_reload" = "Neu laden";
 "common_rename" = "Umbenennen";
@@ -453,6 +455,7 @@
 "express_more_providers_soon" = "Weitere Anbieter folgen in Kürze";
 "express_provider_best_rate" = "Bester Preis";
 "express_provider_fca_warning_list" = "Warnliste der FCA";
+"express_provider_great_rate" = "Great rate";
 "express_provider_in_fca_warning_list" = "Anbieter in FCA-Warnliste";
 "express_provider_max_amount" = "Verfügbar bis zu %@";
 "express_provider_min_amount" = "Erhältlich bei %@";
@@ -1326,9 +1329,10 @@
 "user_push_notification_agreement_argument_two_title" = "Updates zu Funktionen und Neuigkeiten";
 "user_push_notification_agreement_argument_two" = "Sei der Erste, der von neuen Aktionen erfährt";
 "user_push_notification_agreement_header" = "Möchtest du Push-Benachrichtigungen verwenden?";
-"user_push_notification_banner_subtitle" = "Aktiviere Push-Benachrichtigungen und wir benachrichtigen Dich sofort, wenn Gelder eintreffen \n";
+"user_push_notification_banner_subtitle" = "Aktiviere Push-Benachrichtigungen und wir benachrichtigen Dich sofort, wenn Gelder eintreffen";
 "user_push_notification_banner_title" = "Verpasse keine Transaktion";
 "user_wallet_list_add_button" = "Neues Wallet hinzufügen";
+"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds";
 "user_wallet_list_delete_prompt" = "Möchtest Du diese Wallet wirklich entfernen?";
 "user_wallet_list_error_wallet_already_saved" = "Dieses Wallet wurde bereits gespeichert, du kannst ein weiteres hinzufügen";
 "user_wallet_list_rename_popup_placeholder" = "Wallet-Name";
@@ -1400,6 +1404,13 @@
 "visa_unlock_notification_title" = "Benötigte Freischaltung";
 "voice_over_open_card_details" = "Gerätedetails öffnen";
 "voice_over_open_new_wallet_connect_session" = "QR-Code scannen, um eine neue WalletConnect Sitzung zu öffnen";
+"wallet_add_common_title" = "Choose how to add your wallet";
+"wallet_add_hardware_description" = "Scan your Tangem card or ring to restore it or import from another wallet.";
+"wallet_add_hardware_info_create" = "Create Hardware Wallet";
+"wallet_add_hardware_purchase" = "Want to purchase a Tangem Wallet?";
+"wallet_add_import_seed_phrase" = "Import seed phrase";
+"wallet_add_mobile_description" = "Restore your wallet on your phone or import from another app — convenient, but less secure than a Tangem card.";
+"wallet_add_support_title" = "What to choose?";
 "wallet_balance_missing_derivation" = "Karte oder Ring scannen";
 "wallet_been_activated_message" = "Dieses Wallet wurde bereits früher aktiviert. \n Wenn dies nicht von Dir durchgeführt wurde, wende Dich bitte an den Support. \n Tangem verkauft niemals Wallets zusammen mit vorgenerierten Zugangscodes.";
 "wallet_connect_error_timeout" = "WalletConnect-Sitzung konnte nicht aufgebaut werden: Timeout-Fehler. Bitte versuche es später noch einmal.";
@@ -1410,6 +1421,7 @@
 "wallet_connect_sending_multiple_tx" = "Transaction in progress";
 "wallet_connect_subtitle" = "Mit dApps verbinden";
 "wallet_connect_title" = "WalletConnect";
+"wallet_create_common_title" = "Create Tangem Wallet";
 "wallet_create_hardware_badge" = "Von %@";
 "wallet_create_hardware_description" = "Kaufe eine Tangem Wallet – physische Karten, die Deine Kryptowährungen sicher offline speichern.";
 "wallet_create_hardware_title" = "Hardware-Wallet";
@@ -1687,7 +1699,10 @@
 "yield_module_fee_policy_sheet_description" = "All future %@ top-ups will be supplied to Aave automatically, with the transaction fee deducted.";
 "yield_module_fee_policy_sheet_max_fee_note" = "If network fees rise above maximum fee, the transaction won’t go through until they decrease. You can change this limit later.";
 "yield_module_fee_policy_sheet_max_fee_title" = "Maximale Gebühr";
+"yield_module_fee_policy_sheet_min_amount_note" = "The transaction fee must stay below 4% of your deposit. Tangem will transfer funds to Aave only once your balance is large enough to meet this condition. ";
+"yield_module_fee_policy_sheet_min_amount_title" = "Minimal amount";
 "yield_module_fee_policy_sheet_title" = "Gebührenpolitik";
+"yield_module_fee_policy_tangem_service_fee_title" = "Tangem also takes a 3% service fee on the yield earned.";
 "yield_module_high_fee_error" = "Die Netzwerkgebühr ist derzeit zu hoch. Warte, bis sie unter Dein Limit fällt.";
 "yield_module_historical_returns" = "Historische Renditen";
 "yield_module_main_view_approve_notification_description" = "Write description here. In one, two or three lines will be awesome. [PLACEHOLDER]";
@@ -1723,6 +1738,7 @@
 "yield_module_supply_apr" = "Effektiver Jahreszins für Versorgung";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Lass Dein Geld arbeiten – verdiene Zinsen auf Dein Guthaben.";
+"yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Interest accrues automatically";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Verdienst auf Dein Guthaben";
 "yield_module_token_details_earn_notification_processing" = "Processing your deposit";
 "yield_module_token_details_earn_notification_title" = "Verdienen %1$@%% pro Jahr";
