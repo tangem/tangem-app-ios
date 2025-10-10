@@ -52,6 +52,10 @@ class UserWalletDataStorage {
     // MARK: Public data
 
     func fetchPublicData() -> [StoredUserWallet] {
+        guard AppSettings.shared.saveUserWallets else {
+            return []
+        }
+
         do {
             let userWalletListPath = userWalletListPath()
 
