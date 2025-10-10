@@ -9,6 +9,14 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemVisa
+
+struct TangemPayAccountViewModel {
+    let card: VisaCustomerInfoResponse.Card
+    let balance: TangemPayBalance
+
+    let tapAction: () -> Void
+}
 
 struct TangemPayAccountView: View {
     let viewModel: TangemPayAccountViewModel
