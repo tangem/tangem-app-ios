@@ -101,6 +101,7 @@ struct NewSendFlowBaseBuilder {
         notificationManager.setup(input: sendModel)
         notificationManager.setupManager(with: sendModel)
 
+        analyticsLogger.setup(sendDestinationInput: sendModel)
         analyticsLogger.setup(sendFeeInput: sendModel)
         analyticsLogger.setup(sendSourceTokenInput: sendModel)
         analyticsLogger.setup(sendReceiveTokenInput: sendModel)
