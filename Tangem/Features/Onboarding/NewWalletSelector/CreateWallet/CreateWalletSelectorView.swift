@@ -16,27 +16,18 @@ struct CreateWalletSelectorView: View {
 
     @ObservedObject var viewModel: ViewModel
 
-    @State private var screenMaxY: CGFloat = 0
-    @State private var scanButtonMinY: CGFloat = 0
-
-    private var scanButtonOffsetY: CGFloat {
-        viewModel.isScanAvailable ? 0 : (screenMaxY - scanButtonMinY + UIApplication.safeAreaInsets.bottom)
-    }
+    @State private var introspectResponderChainID = UUID()
 
     var body: some View {
         content
-            .padding(.top, 32)
+            .padding(.top, 12)
             .padding(.horizontal, 16)
-            .padding(.bottom, 14)
-            .readGeometry(\.frame.maxY, inCoordinateSpace: .global, bindTo: $screenMaxY)
-            .navigationBarItems(trailing: navigationBarTrailingItem)
+            .background(Colors.Background.plain.ignoresSafeArea())
             .onAppear(perform: viewModel.onAppear)
-            .background(Colors.Background.primary)
             .alert(item: $viewModel.error, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
-            .sheet(item: $viewModel.mailViewModel) {
-                MailView(viewModel: $0)
-            }
+            .sheet(item: $viewModel.mailViewModel) { MailView(viewModel: $0) }
+            .environment(\.colorScheme, .dark)
     }
 }
 
@@ -44,24 +35,33 @@ struct CreateWalletSelectorView: View {
 
 private extension CreateWalletSelectorView {
     var content: some View {
-        VStack(spacing: 24) {
-            Text(viewModel.screenTitle)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-
-            VStack(spacing: 8) {
-                ForEach(Array(viewModel.walletItems.enumerated()), id: \.offset) { _, item in
-                    walletItem(item)
-                }
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 12) {
+                info.padding(.horizontal, 20)
+                tangemIcon
+                actions
             }
-
-            Spacer()
-
-            scanButton(viewModel.scanItem)
-                .offset(y: scanButtonOffsetY)
-                .readGeometry(\.frame.minY, inCoordinateSpace: .global, bindTo: $scanButtonMinY)
-                .animation(.default, value: viewModel.isScanAvailable)
+        }
+        .introspectResponderChain(
+            introspectedType: UIScrollView.self,
+            includeSubviews: true,
+            updateOnChangeOf: introspectResponderChainID,
+            action: { scrollView in
+                scrollView.alwaysBounceVertical = false
+            }
+        )
+        .introspectResponderChain(
+            introspectedType: UINavigationBar.self,
+            includeSubviews: true,
+            updateOnChangeOf: introspectResponderChainID,
+            action: { navigationBar in
+                navigationBar.tintColor = UIColor(Colors.Text.constantWhite)
+            }
+        )
+        .onWillAppear {
+            DispatchQueue.main.async {
+                introspectResponderChainID = UUID()
+            }
         }
     }
 }
@@ -69,77 +69,153 @@ private extension CreateWalletSelectorView {
 // MARK: - Subviews
 
 private extension CreateWalletSelectorView {
-    var navigationBarTrailingItem: some View {
-        SupportButton(
-            title: viewModel.supportButtonTitle,
-            height: viewModel.navigationBarHeight,
-            isVisible: true,
-            isEnabled: true,
-            hPadding: 0,
-            action: viewModel.onSupportTap
-        )
-    }
+    var info: some View {
+        VStack(spacing: 0) {
+            Text(viewModel.title)
+                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
-    func walletItem(_ item: ViewModel.WalletItem) -> some View {
-        Button(action: item.action) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Text(item.title)
-                        .style(Fonts.Bold.body, color: Colors.Text.primary1)
-
-                    infoTag(item.infoTag)
-                }
-
-                Text(item.description)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-                    .multilineTextAlignment(.leading)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 14)
-            .background(Colors.Field.primary)
-            .cornerRadius(14, corners: .allCorners)
-        }
-    }
-
-    func scanButton(_ item: ViewModel.ScanItem) -> some View {
-        HStack(spacing: 0) {
-            Text(item.title)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-                .multilineTextAlignment(.leading)
+            Text(viewModel.description)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 8)
 
-            Spacer(minLength: 22)
-
-            Button(action: viewModel.onScanTap) {
-                HStack(spacing: 4) {
-                    Text(item.buttonTitle)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-                    item.buttonIcon.image
-                        .renderingMode(.template)
-                        .foregroundStyle(Colors.Button.primary)
-                }
-                .padding(.leading, 16)
-                .padding(.vertical, 8)
-                .padding(.trailing, 12)
-                .background(Colors.Button.secondary)
-                .cornerRadius(10, corners: .allCorners)
-            }
+            FlowLayout(
+                items: viewModel.chipItems,
+                horizontalAlignment: .center,
+                verticalAlignment: .center,
+                horizontalSpacing: 20,
+                verticalSpacing: 8,
+                itemContent: chip
+            )
+            .padding(.top, 16)
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 14)
-        .background(Colors.Field.primary)
-        .cornerRadius(14, corners: .allCorners)
     }
 
-    func infoTag(_ item: ViewModel.InfoTag) -> some View {
-        Text(item.text)
-            .style(Fonts.Bold.caption1, color: item.style.color)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 4)
-            .background(item.style.bgColor)
-            .cornerRadius(16, corners: .allCorners)
+    var tangemIcon: some View {
+        Assets.Onboarding.tangemCardSet.image
+            .resizable()
+            .scaledToFit()
+            .frame(maxWidth: .infinity, minHeight: 160)
+    }
+
+    var actions: some View {
+        VStack(spacing: 24) {
+            primaryActions
+            actionsSeparator
+            secondaryActions
+        }
+    }
+
+    var primaryActions: some View {
+        VStack(spacing: 8) {
+            MainButton(
+                title: viewModel.scanTitle,
+                icon: .trailing(Assets.tangemIcon),
+                style: .secondary,
+                action: viewModel.onScanTap
+            )
+
+            MainButton(
+                title: viewModel.buyTitle,
+                style: .primary,
+                action: viewModel.onBuyTap
+            )
+        }
+    }
+
+    var secondaryActions: some View {
+        mobileWalletAction(item: viewModel.mobileWalletItem)
+    }
+
+    func mobileWalletAction(item: ViewModel.MobileWalletItem) -> some View {
+        VStack(spacing: 0) {
+            Text(item.description)
+                .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+
+            Button(action: item.action) {
+                HStack(spacing: 0) {
+                    Text(item.title)
+                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+
+                    Assets.chevronRight.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(Colors.Icon.primary1)
+                }
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    var actionsSeparator: some View {
+        HStack(spacing: 16) {
+            HorizontalDots(
+                color: Colors.Control.key,
+                dotWidth: 4,
+                spacing: 2,
+                startOpacity: 0,
+                endOpacity: 0.4
+            )
+            .frame(height: 2)
+
+            Text(viewModel.otherMethodTitle)
+                .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
+
+            HorizontalDots(
+                color: Colors.Control.key,
+                dotWidth: 4,
+                spacing: 2,
+                startOpacity: 0.4,
+                endOpacity: 0
+            )
+            .frame(height: 2)
+        }
+    }
+
+    func chip(item: ViewModel.ChipItem) -> some View {
+        HStack(spacing: 6) {
+            item.icon.image
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(Colors.Icon.accent)
+                .frame(width: 16, height: 16)
+
+            Text(item.title)
+                .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
+        }
+    }
+}
+
+// MARK: - HorizontalDots
+
+private struct HorizontalDots: View {
+    let color: Color
+    let dotWidth: CGFloat
+    let spacing: CGFloat
+    let startOpacity: Double
+    let endOpacity: Double
+
+    var body: some View {
+        GeometryReader { proxy in
+            HStack(spacing: spacing) {
+                let dotsCount = dotsCount(in: proxy.size)
+                let stepOpacity = (endOpacity - startOpacity) / Double(max(1, dotsCount))
+
+                ForEach(0 ..< dotsCount, id: \.self) { index in
+                    Capsule()
+                        .fill(color)
+                        .opacity(startOpacity + Double(index) * stepOpacity)
+                }
+            }
+        }
+    }
+
+    private func dotsCount(in size: CGSize) -> Int {
+        Int(size.width / (dotWidth + spacing))
     }
 }
