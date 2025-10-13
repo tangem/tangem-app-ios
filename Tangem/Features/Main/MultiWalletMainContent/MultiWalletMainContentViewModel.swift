@@ -133,12 +133,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             tangemPayAccountPublisher
                 .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
                 .receiveOnMain()
-                .assign(to: &$tangemPayNotificationInputs)
+                .assign(to: \.tangemPayNotificationInputs, on: self, ownership: .weak)
+                .store(in: &bag)
 
             tangemPayAccountPublisher
                 .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
                 .receiveOnMain()
-                .assign(to: &$tangemPayCardIssuingInProgress)
+                .assign(to: \.tangemPayCardIssuingInProgress, on: self, ownership: .weak)
+                .store(in: &bag)
 
             tangemPayAccountPublisher
                 .withWeakCaptureOf(self)
@@ -159,7 +161,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                         }
                 }
                 .receiveOnMain()
-                .assign(to: &$tangemPayAccountViewModel)
+                .assign(to: \.tangemPayAccountViewModel, on: self, ownership: .weak)
+                .store(in: &bag)
         }
     }
 
