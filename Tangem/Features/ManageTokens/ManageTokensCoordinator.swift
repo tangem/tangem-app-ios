@@ -16,7 +16,7 @@ class ManageTokensCoordinator: CoordinatorObject {
 
     @Published var addCustomTokenCoordinator: AddCustomTokenCoordinator? = nil
 
-    private var selectedUserWalletModel: UserWalletModel?
+    private var options: Options?
     private let analyticsSourceRawValue = Analytics.ParameterValue.settings.rawValue
 
     required init(
@@ -28,26 +28,26 @@ class ManageTokensCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        self.options = options
+
         let analyticsParams: [Analytics.ParameterKey: String] = [.source: analyticsSourceRawValue]
         Analytics.log(event: .manageTokensScreenOpened, params: analyticsParams)
 
-        selectedUserWalletModel = options.userWalletModel
-        let userWalletModel = options.userWalletModel
-        let config = userWalletModel.config
+        let config = options.userWalletConfig
         let adapter = ManageTokensAdapter(
             settings: .init(
                 longHashesSupported: config.hasFeature(.longHashes),
                 existingCurves: config.existingCurves,
                 supportedBlockchains: Set(config.supportedBlockchains),
-                userTokensManager: userWalletModel.userTokensManager,
+                userTokensManager: options.userTokensManager,
                 analyticsSourceRawValue: analyticsSourceRawValue
             )
         )
 
         rootViewModel = .init(
             adapter: adapter,
-            userTokensManager: userWalletModel.userTokensManager,
-            walletModelsManager: userWalletModel.walletModelsManager,
+            userTokensManager: options.userTokensManager,
+            walletModelsManager: options.walletModelsManager,
             coordinator: self
         )
     }
@@ -55,13 +55,15 @@ class ManageTokensCoordinator: CoordinatorObject {
 
 extension ManageTokensCoordinator {
     struct Options {
-        let userWalletModel: UserWalletModel
+        let walletModelsManager: WalletModelsManager
+        let userTokensManager: UserTokensManager
+        let userWalletConfig: UserWalletConfig
     }
 }
 
 extension ManageTokensCoordinator: ManageTokensRoutable {
     func openAddCustomToken() {
-        guard let selectedUserWalletModel else {
+        guard let options else {
             return
         }
 
@@ -75,7 +77,8 @@ extension ManageTokensCoordinator: ManageTokensRoutable {
         let addCustomTokenCoordinator = AddCustomTokenCoordinator(dismissAction: dismissAction)
         addCustomTokenCoordinator.start(
             with: .init(
-                userWalletModel: selectedUserWalletModel,
+                userWalletConfig: options.userWalletConfig,
+                userTokensManager: options.userTokensManager,
                 analyticsSourceRawValue: analyticsSourceRawValue
             )
         )
