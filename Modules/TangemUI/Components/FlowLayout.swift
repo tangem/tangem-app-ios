@@ -82,7 +82,7 @@ public struct FlowLayout<Item: Hashable, ItemContent: View>: View {
             repeat {
                 currentPositionX += cellsSizes[rowEndIndex].width + horizontalSpacing
                 rowEndIndex += 1
-            } while rowEndIndex < cellsSizes.endIndex && currentPositionX + cellsSizes[rowEndIndex].width <= containerWidth
+            } while rowEndIndex < cellsSizes.endIndex && currentPositionX + cellsSizes[rowEndIndex].width < containerWidth
 
             // Save the range of indices that belong to this row
             result.append(rowStartIndex ..< rowEndIndex)
