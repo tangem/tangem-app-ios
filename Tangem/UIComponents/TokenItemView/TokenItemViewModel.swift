@@ -202,6 +202,10 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func setupYieldIndicators(marketInfo: YieldModuleMarketInfo?, state: YieldModuleManagerState) {
+        guard FeatureProvider.isAvailable(.yieldModule) else {
+            return
+        }
+        
         switch state {
         case .active(let info):
             isYieldApproveNeeded = info.allowance.isZero
