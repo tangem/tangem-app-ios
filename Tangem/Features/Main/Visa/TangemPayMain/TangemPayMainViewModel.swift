@@ -21,6 +21,7 @@ final class TangemPayMainViewModel: ObservableObject {
         )
     }
 
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Published private(set) var tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel?
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
 
@@ -71,5 +72,34 @@ final class TangemPayMainViewModel: ObservableObject {
 
     func fetchNextTransactionHistoryPage() -> FetchMore? {
         transactionHistoryService.fetchNextTransactionHistoryPage()
+    }
+
+    func addFunds() {
+        let viewModel: any FloatingSheetContentViewModel
+        if let depositAddress = tangemPayAccount.depositAddress {
+            let receiveViewModel = ReceiveMainViewModel(
+                options: .init(
+                    tokenItem: VisaUtilities.usdcTokenItem,
+                    flow: .crypto,
+                    addressTypesProvider: TangemPayReceiveAddressTypesProvider(address: depositAddress, colorScheme: .whiteBlack),
+                    isYieldModuleActive: false
+                )
+            )
+            receiveViewModel.start()
+
+            viewModel = receiveViewModel
+        } else {
+            viewModel = TangemPayNoDepositAddressSheetViewModel(
+                close: { [floatingSheetPresenter] in
+                    runTask {
+                        await floatingSheetPresenter.removeActiveSheet()
+                    }
+                }
+            )
+        }
+
+        runTask { [floatingSheetPresenter] in
+            await floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 }
