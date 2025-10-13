@@ -9,8 +9,8 @@
 import Foundation
 import TangemUI
 import TangemFoundation
+import TangemLocalization
 
-@MainActor
 final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Injected
 
@@ -40,24 +40,22 @@ final class YieldModuleInfoViewModel: ObservableObject {
     @Published
     private(set) var networkFeeState: LoadableTextView.State = .loading
 
+    @Published
+    private(set) var apyState: LoadableTextView.State = .loading
+
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
     private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
-
-    private lazy var feeConverter = YieldModuleFeeFormatter(
-        feeCurrency: walletModel.feeTokenItem,
-        token: walletModel.tokenItem,
-        maximumFee: maximumFee
-    )
+    private let yieldManagerInteractor: YieldManagerInteractor
+    private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
 
     // MARK: - Properties
 
-    private(set) var maximumFee: Decimal = 0
-    private(set) var readMoreURLString: URL = TangemBlogUrlBuilder().url(post: .fee)
+    private(set) var activityState: ActivityState
+    private let availableBalance: Decimal
 
-    private let onGiveApproveAction: () -> Void
-    private let onStopEarnAction: () -> Void
+    private(set) var readMoreURLString: URL = TangemBlogUrlBuilder().url(post: .fee)
 
     var isButtonEnabled: Bool {
         switch viewState {
@@ -82,33 +80,25 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     init(
         walletModel: any WalletModel,
-        feeCurrencyNavigator: any FeeCurrencyNavigating,
-        onGiveApproveAction: @escaping () -> Void,
-        onStopEarnAction: @escaping () -> Void
+        feeCurrencyNavigator: (any FeeCurrencyNavigating)?,
+        yieldManagerInteractor: YieldManagerInteractor,
+        activityState: ActivityState,
+        availableBalance: Decimal
     ) {
         self.walletModel = walletModel
         self.feeCurrencyNavigator = feeCurrencyNavigator
-        self.onGiveApproveAction = onGiveApproveAction
-        self.onStopEarnAction = onStopEarnAction
+        self.yieldManagerInteractor = yieldManagerInteractor
+        self.activityState = activityState
+        self.availableBalance = availableBalance
 
-        viewState = .earnInfo(
-            params: .init(
-                earningsData: .init(totalEarnings: "WIP", chartData: [:]),
-                status: .active(approveRequired: true),
-                apy: "WIP",
-                availableFunds: .init(availableBalance: "WIP"),
-                transferMode: "WIP",
-                tokenName: walletModel.tokenItem.name,
-                tokenSymbol: walletModel.tokenItem.token?.symbol ?? ""
-            )
-        )
+        viewState = .earnInfo
     }
 
     // MARK: - Navigation
 
     func onCloseTap() {
-        runTask(in: self) { vm in
-            vm.floatingSheetPresenter.removeActiveSheet()
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
         }
     }
 
@@ -120,41 +110,43 @@ final class YieldModuleInfoViewModel: ObservableObject {
         viewState = .stopEarning
     }
 
-    // MARK: - Public Implementation
-
     func onApproveTap() {
-        floatingSheetPresenter.removeActiveSheet()
-        onGiveApproveAction()
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 
     func onStopEarningTap() {
-        floatingSheetPresenter.removeActiveSheet()
-        onStopEarnAction()
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            await yieldManagerInteractor.exit(with: walletModel.tokenItem)
+        }
     }
 
+    // MARK: - Public Implementation
+
+    func getAvailableBalanceString() -> String {
+        feeConverter.formatCryptoBalance(availableBalance)
+    }
+
+    @MainActor
     func fetchNetworkFee() async {
         networkFeeState = .loading
-        notificationBannerParams = nil
 
-        try? await Task.sleep(seconds: 2)
+        do {
+            let feeInCoins = try await yieldManagerInteractor.getExitFee()
+            let feeValue = feeInCoins.totalFeeAmount.value
+            let convertedFee = try await feeConverter.createFeeString(from: feeValue)
 
-        if Bool.random() {
-            // [REDACTED_TODO_COMMENT]
-            let networkFee: Decimal = 0.12
-            if let converted = await feeConverter.createFeeString(from: networkFee) {
-                networkFeeState = .loaded(text: converted)
+            networkFeeState = .loaded(text: convertedFee)
 
-                if networkFee > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
-                    showNotEnoughFeeNotification()
-                }
-
-            } else {
-                showFeeErrorNotification()
-                networkFeeState = .noData
+            if feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
+                showNotEnoughFeeNotification()
             }
-        } else {
-            showFeeErrorNotification()
+
+        } catch {
             networkFeeState = .noData
+            showFeeErrorNotification()
         }
     }
 
@@ -204,7 +196,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
 extension YieldModuleInfoViewModel {
     enum ViewState: Identifiable, Equatable {
-        case earnInfo(params: YieldModuleViewConfigs.EarnInfoParams)
+        case earnInfo
         case stopEarning
         case approve
 
@@ -224,3 +216,28 @@ extension YieldModuleInfoViewModel {
 // MARK: - FloatingSheetContentViewModel
 
 extension YieldModuleInfoViewModel: FloatingSheetContentViewModel {}
+
+extension YieldModuleInfoViewModel {
+    enum ActivityState: Equatable {
+        case active
+        case paused
+
+        var description: String {
+            switch self {
+            case .active:
+                Localization.yieldModuleStatusActive
+            case .paused:
+                Localization.yieldModuleStatusPaused
+            }
+        }
+
+        var transferMode: String {
+            switch self {
+            case .active:
+                "Automatic"
+            case .paused:
+                Localization.yieldModuleStatusPaused
+            }
+        }
+    }
+}
