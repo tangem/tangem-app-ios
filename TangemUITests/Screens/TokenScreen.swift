@@ -72,6 +72,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         return SwapStoriesScreen(app)
     }
 
+    @discardableResult
     func tapSendButton() -> SendScreen {
         tapActionButton(.send)
         return SendScreen(app)

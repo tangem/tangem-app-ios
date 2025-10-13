@@ -7,9 +7,10 @@
 //
 
 import SwiftUI
-import TangemUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
+import TangemUIUtils
 
 struct MultipleRewardsView: View {
     @ObservedObject var viewModel: MultipleRewardsViewModel
@@ -26,7 +27,7 @@ struct MultipleRewardsView: View {
             }
             .navigationTitle(Localization.commonClaimRewards)
             .navigationBarTitleDisplayMode(.inline)
-            .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
+            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .alert(item: $viewModel.alert) { $0.alert }
             .background(Colors.Background.tertiary)
             .toolbar {

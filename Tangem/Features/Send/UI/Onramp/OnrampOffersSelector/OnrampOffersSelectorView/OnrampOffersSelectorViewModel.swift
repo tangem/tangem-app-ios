@@ -29,7 +29,7 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     private let tokenItem: TokenItem
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
 
-    private lazy var onrampOfferViewModelBuilder = OnrampOfferViewModelBuilder(tokenItem: tokenItem)
+    private lazy var onrampOfferViewModelBuilder = OnrampAllOfferViewModelBuilder(tokenItem: tokenItem)
     private lazy var onrampProvidersItemViewModelBuilder = OnrampProviderItemViewModelBuilder(tokenItem: tokenItem)
     private weak var input: OnrampProvidersInput?
     private weak var output: OnrampOutput?
@@ -112,5 +112,12 @@ extension OnrampOffersSelectorViewModel {
     enum ViewState: Hashable {
         case paymentMethods([OnrampProviderItemViewModel])
         case offers([OnrampOfferViewModel])
+
+        var isPaymentMethods: Bool {
+            switch self {
+            case .offers: false
+            case .paymentMethods: true
+            }
+        }
     }
 }
