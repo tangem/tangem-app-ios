@@ -135,7 +135,7 @@
 "bitcoin_promo_activation_error_title" = "Activation error";
 "bitcoin_promo_activation_error" = "An error occurred while processing your promo code. Please try again later.";
 "bitcoin_promo_activation_success_title" = "Promo Code Activated";
-"bitcoin_promo_activation_success" = "Your promo code was successfully activated. A reward will be credited to your account within 14 days.";
+"bitcoin_promo_activation_success" = "Your promo code was successfully activated. The reward will be credited to your Bitcoin account within 14 days.";
 "bitcoin_promo_already_activated_title" = "Code unavailable";
 "bitcoin_promo_already_activated" = "This promo code has already been used and cannot be activated again.";
 "bitcoin_promo_invalid_code_title" = "Invalid code";
@@ -174,6 +174,7 @@
 "common_add_to_portfolio" = "Add to portfolio";
 "common_add_token" = "Add token";
 "common_add" = "Add";
+"common_added" = "Added";
 "common_address" = "Address";
 "common_all" = "All";
 "common_allow" = "Allow";
@@ -278,6 +279,7 @@
 "common_range" = "%1$@-%2$@";
 "common_read_more" = "Read more";
 "common_receive" = "Receive";
+"common_recommended" = "Recommended";
 "common_reject" = "拒絕";
 "common_reload" = "Reload";
 "common_rename" = "重新命名";
@@ -453,6 +455,7 @@
 "express_more_providers_soon" = "More providers will be available soon";
 "express_provider_best_rate" = "Best rate";
 "express_provider_fca_warning_list" = "FCA Warning List";
+"express_provider_great_rate" = "Great rate";
 "express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Available up to %@";
 "express_provider_min_amount" = "Available from %@";
@@ -1326,9 +1329,10 @@
 "user_push_notification_agreement_argument_two_title" = "Feature and News Updates";
 "user_push_notification_agreement_argument_two" = "Be the first to know about new promotions";
 "user_push_notification_agreement_header" = "Would you like to use\nPush-notifications?";
-"user_push_notification_banner_subtitle" = "Enable push notifications and we’ll notify you instantly when funds arrive\n";
-"user_push_notification_banner_title" = "Don’t Miss a Transaction";
+"user_push_notification_banner_subtitle" = "Enable push notifications to receive alerts when funds arrive in your wallet.";
+"user_push_notification_banner_title" = "Don't Miss a Transaction";
 "user_wallet_list_add_button" = "添加新錢包";
+"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds";
 "user_wallet_list_delete_prompt" = "您確定要刪除此錢包?";
 "user_wallet_list_error_wallet_already_saved" = "此錢包已保存，您可以再添加一個";
 "user_wallet_list_rename_popup_placeholder" = "錢包名稱";
@@ -1400,6 +1404,13 @@
 "visa_unlock_notification_title" = "Needed unlock";
 "voice_over_open_card_details" = "開啟卡片細節";
 "voice_over_open_new_wallet_connect_session" = "掃描二維碼打開新的 WalletConnect 鏈接";
+"wallet_add_common_title" = "Choose how to add your wallet";
+"wallet_add_hardware_description" = "Scan your Tangem card or ring to restore it or import from another wallet.";
+"wallet_add_hardware_info_create" = "Create Hardware Wallet";
+"wallet_add_hardware_purchase" = "Want to purchase a Tangem Wallet?";
+"wallet_add_import_seed_phrase" = "Import seed phrase";
+"wallet_add_mobile_description" = "Restore your wallet on your phone or import from another app — convenient, but less secure than a Tangem card.";
+"wallet_add_support_title" = "What to choose?";
 "wallet_balance_missing_derivation" = "掃描卡片";
 "wallet_been_activated_message" = "This wallet has already been activated earlier.\nIf it was not done by you, please contact support.\nTangem never sells wallets along with pre-generated access codes.";
 "wallet_connect_error_timeout" = "無法建立 WalletConnect 連接:超時錯誤。請稍後再試";
@@ -1410,6 +1421,7 @@
 "wallet_connect_sending_multiple_tx" = "Transaction in progress";
 "wallet_connect_subtitle" = "連結到Dapps";
 "wallet_connect_title" = "WalletConnect";
+"wallet_create_common_title" = "Create Tangem Wallet";
 "wallet_create_hardware_badge" = "From %@";
 "wallet_create_hardware_description" = "Buy Tangem Wallet—a physical device that securely stores your private key offline.";
 "wallet_create_hardware_title" = "Hardware Wallet";
@@ -1694,7 +1706,10 @@
 "yield_module_fee_policy_sheet_description" = "All future %@ top-ups will be supplied to Aave automatically, with the transaction fee deducted.";
 "yield_module_fee_policy_sheet_max_fee_note" = "If network fees rise above maximum fee, the transaction won’t go through until they decrease. You can change this limit later.";
 "yield_module_fee_policy_sheet_max_fee_title" = "Maximum fee";
+"yield_module_fee_policy_sheet_min_amount_note" = "The transaction fee must stay below 4% of your deposit. Tangem will transfer funds to Aave only once your balance is large enough to meet this condition. ";
+"yield_module_fee_policy_sheet_min_amount_title" = "Minimal amount";
 "yield_module_fee_policy_sheet_title" = "Fee policy";
+"yield_module_fee_policy_tangem_service_fee_title" = "Tangem also takes a 3% service fee on the yield earned.";
 "yield_module_high_fee_error" = "Network fee is too high right now. Waiting until it falls below your limit.";
 "yield_module_historical_returns" = "Historical returns";
 "yield_module_main_view_approve_notification_description" = "Write description here. In one, two or three lines will be awesome. [PLACEHOLDER]";
@@ -1730,7 +1745,8 @@
 "yield_module_supply_apr" = "Supply APR";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Make your money work — earn interest on your balance.";
-"yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Earning on your balance";
+"yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Interest accrues automatically";
+"yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Aave lending";
 "yield_module_token_details_earn_notification_processing" = "Processing your deposit";
 "yield_module_token_details_earn_notification_title" = "Earn %1$@%% per year";
 "yield_module_transfer_mode_automatic" = "Automatic";
