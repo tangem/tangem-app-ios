@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 public struct CircleButton: View {
     private let content: Content
@@ -193,7 +194,8 @@ public extension CircleButton {
         CircleButton(content: .icon(Assets.Glyphs.cross20ButtonNew), action: action)
     }
 
-    static func back(action: @escaping () -> Void) -> CircleButton {
+    static func back(action: @escaping () -> Void) -> some View {
         CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: action)
+            .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.circleButton)
     }
 }
