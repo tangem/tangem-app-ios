@@ -118,6 +118,7 @@ private extension UserWalletSettingsViewModel {
                     UserSettingsAccountsViewModel(
                         accountModels: accounts,
                         accountModelsManager: viewModel.userWalletModel.accountModelsManager,
+                        userWalletConfig: viewModel.userWalletModel.config,
                         coordinator: viewModel.coordinator
                     )
                 }
@@ -341,7 +342,11 @@ private extension UserWalletSettingsViewModel {
     func openManageTokens() {
         Analytics.log(.settingsButtonManageTokens)
 
-        coordinator?.openManageTokens(userWalletModel: userWalletModel)
+        coordinator?.openManageTokens(
+            walletModelsManager: userWalletModel.walletModelsManager,
+            userTokensManager: userWalletModel.userTokensManager,
+            userWalletConfig: userWalletModel.config
+        )
     }
 
     func openCardSettings() {
