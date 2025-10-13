@@ -23,8 +23,14 @@ struct TangemPayMainView: View {
                     TangemPayCardDetailsView(viewModel: tangemPayCardDetailsViewModel)
                 }
 
-                // [REDACTED_TODO_COMMENT]
-                // [REDACTED_INFO]
+                TransactionsListView(
+                    state: viewModel.tangemPayTransactionHistoryState,
+                    exploreAction: nil,
+                    exploreTransactionAction: { _ in },
+                    reloadButtonAction: viewModel.reloadHistory,
+                    isReloadButtonBusy: false,
+                    fetchMore: viewModel.fetchNextTransactionHistoryPage()
+                )
 
                 Spacer()
             }
