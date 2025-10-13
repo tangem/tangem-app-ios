@@ -24,6 +24,7 @@ class WelcomeViewModel: ObservableObject {
     let storiesModel: StoriesViewModel
 
     let isScanningCard: CurrentValueSubject<Bool, Never> = .init(false)
+    private let signInAnalyticsLogger = SignInAnalyticsLogger()
 
     private weak var coordinator: WelcomeRoutable?
 
@@ -131,7 +132,7 @@ class WelcomeViewModel: ObservableObject {
                 do {
                     let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                     let userWalletModel = try await viewModel.userWalletRepository.unlock(with: unlockMethod)
-
+                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
                     await runOnMain {
                         viewModel.isScanningCard.send(false)
                         viewModel.openMain(with: userWalletModel)
@@ -144,7 +145,7 @@ class WelcomeViewModel: ObservableObject {
                         keys: .cardWallet(keys: cardInfo.card.wallets)
                     ) {
                         try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
-
+                        viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
                         await runOnMain {
                             viewModel.isScanningCard.send(false)
                             viewModel.openMain(with: newUserWalletModel)
