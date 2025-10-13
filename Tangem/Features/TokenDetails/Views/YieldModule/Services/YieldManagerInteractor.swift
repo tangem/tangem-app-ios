@@ -36,6 +36,14 @@ actor YieldManagerInteractor {
 
     // MARK: - Public Implementation
 
+    func getIsApproveRequired() -> Bool {
+        guard case .active(let info) = manager.state?.state else {
+            return false
+        }
+
+        return info.balance.value == .zero
+    }
+
     func getApy() async throws -> Decimal {
         if let apy = manager.state?.marketInfo?.apy {
             return apy
@@ -91,31 +99,27 @@ actor YieldManagerInteractor {
     /// This is a fire-and-forget task: it triggers the manager call
     /// and updates the withdrawal alert state on completion,
     /// without propagating any result or error back to the caller.
-    func enter(with token: TokenItem) {
-        runTask(in: self) { actor in
-            guard let fee = await actor.enterFee else {
-                return
-            }
-
-            do {
-                _ = try await actor.manager.enter(fee: fee, transactionDispatcher: actor.transactionDispatcher)
-                await actor.yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: token)
-            } catch {}
+    func enter(with token: TokenItem) async {
+        guard let fee = enterFee else {
+            return
         }
+
+        do {
+            _ = try await manager.enter(fee: fee, transactionDispatcher: transactionDispatcher)
+            await yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: token)
+        } catch {}
     }
 
     /// Initiates the "enter" operation for the given token.
     /// This is also a fire-and-forget task
-    func exit(with token: TokenItem) {
-        runTask(in: self) { actor in
-            guard let fee = await actor.exitFee else {
-                return
-            }
-
-            do {
-                _ = try await actor.manager.exit(fee: fee, transactionDispatcher: actor.transactionDispatcher)
-            } catch {}
+    func exit(with token: TokenItem) async {
+        guard let fee = exitFee else {
+            return
         }
+
+        do {
+            _ = try await manager.exit(fee: fee, transactionDispatcher: transactionDispatcher)
+        } catch {}
     }
 
     // MARK: - Heplers
