@@ -47,6 +47,9 @@ final class YieldModuleStartViewModel: ObservableObject {
     @Published
     private(set) var chartState: YieldChartContainerState = .loading
 
+    @Published
+    private(set) var isProcessingStartRequest: Bool = false
+
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
@@ -110,12 +113,12 @@ final class YieldModuleStartViewModel: ObservableObject {
     @MainActor
     func onStartEarnTap() {
         let token = walletModel.tokenItem
+        isProcessingStartRequest = true
 
         runTask(in: self) { vm in
             await vm.yieldManagerInteractor.enter(with: token)
+            vm.coordinator?.dismiss()
         }
-
-        coordinator?.dismiss()
     }
 
     @MainActor
@@ -144,7 +147,7 @@ final class YieldModuleStartViewModel: ObservableObject {
         maximumFeeState = .loading
 
         do {
-            let (coinFee, usdFee) = try await yieldManagerInteractor.getMaxFee()
+            let (coinFee, _) = try await yieldManagerInteractor.getMaxFee()
             let feeInTokens = try await feeConverter.makeFeeInTokenString(from: coinFee)
             maximumFeeState = .loaded(text: feeInTokens)
         } catch {

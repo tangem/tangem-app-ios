@@ -26,7 +26,7 @@ final class YieldModulePromoViewModel {
     private(set) var apy: String
     private(set) var tosUrl = URL(string: "https://tangem.com")!
     private(set) var privacyPolicyUrl = URL(string: "https://tangem.com")!
-    private(set) var howIrWorksUrl = URL(string: "https://tangem.com")!
+    private(set) var howIrWorksUrl = URL(string: "https://tangem.com/en/blog/post/savings-account")!
 
     // MARK: - Init
 
