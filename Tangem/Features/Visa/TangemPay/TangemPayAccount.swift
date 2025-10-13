@@ -17,7 +17,6 @@ final class TangemPayAccount {
     let tangemPayCardIssuingInProgressPublisher: AnyPublisher<Bool, Never>
 
     let tangemPayCardDetailsPublisher: AnyPublisher<(VisaCustomerInfoResponse.Card, TangemPayBalance)?, Never>
-    let tangemPayBalancePublisher: AnyPublisher<TangemPayBalance?, Never>
     let tangemPayNotificationManager: TangemPayNotificationManager
 
     let customerInfoManagementService: any CustomerInfoManagementService
@@ -61,19 +60,19 @@ final class TangemPayAccount {
             .merge(with: didTapIssueOrderSubject.mapToValue(true))
             .eraseToAnyPublisher()
 
-        tangemPayCardDetailsPublisher = customerInfoSubject
-            .map { customerInfo in
-                guard let card = customerInfo?.card, let balance = customerInfo?.balance else {
-                    return nil
-                }
-                return (card, balance)
+        tangemPayCardDetailsPublisher = Publishers.CombineLatest(
+            customerInfoSubject,
+            balanceSubject
+        )
+        .map { customerInfo, balance in
+            guard let card = customerInfo?.card,
+                  let balance = balance ?? customerInfo?.balance
+            else {
+                return nil
             }
-            .eraseToAnyPublisher()
-
-        tangemPayBalancePublisher = balanceSubject
-            .merge(with: customerInfoSubject.map(\.?.balance))
-            .removeDuplicates()
-            .eraseToAnyPublisher()
+            return (card, balance)
+        }
+        .eraseToAnyPublisher()
 
         tangemPayNotificationManager = TangemPayNotificationManager(tangemPayStatusPublisher: tangemPayStatusPublisher)
 
@@ -301,9 +300,9 @@ extension TangemPayAccount: MainHeaderSubtitleProvider {
     }
 
     var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> {
-        tangemPayBalancePublisher
-            .map { balance -> MainHeaderSubtitleInfo in
-                guard let balance else {
+        tangemPayCardDetailsPublisher
+            .map { cardDetails -> MainHeaderSubtitleInfo in
+                guard let (_, balance) = cardDetails else {
                     return .init(messages: [], formattingOption: .default)
                 }
 
@@ -331,9 +330,9 @@ extension TangemPayAccount: MainHeaderBalanceProvider {
     }
 
     var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
-        tangemPayBalancePublisher
-            .map { balance in
-                guard let balance else {
+        tangemPayCardDetailsPublisher
+            .map { cardDetails in
+                guard let (_, balance) = cardDetails else {
                     return .loading(cached: nil)
                 }
 
