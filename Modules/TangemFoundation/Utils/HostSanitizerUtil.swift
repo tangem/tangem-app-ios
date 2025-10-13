@@ -56,20 +56,20 @@ public struct HostSanitizerUtil {
     /// - Returns: A safe, normalized string.
     private func sanitize(url: URL) -> String {
         let pathComponents = url.pathComponents.filter { $0 != "/" }
-        let sanitizedComponents = pathComponents.map { isLikelyAPIKey($0) ? "***" : $0 }
+        let sanitizedComponents = pathComponents.map { isLikelyAPIKey($0) ? Constants.maskAPIKeyCharacter : $0 }
 
-        var result = (url.scheme ?? "") + "_"
-        result += (url.host ?? "").replacingOccurrences(of: ".", with: "_")
+        var result: [String] = [url.scheme ?? "unresolved_scheme"]
+        result.append((url.host ?? "").replacingOccurrences(of: ".", with: Constants.replacementCharacter))
 
         if let port = url.port {
-            result += "_" + String(port)
+            result.append(String(port))
         }
 
         if !sanitizedComponents.isEmpty {
-            result += "_" + sanitizedComponents.joined(separator: "_")
+            result.append(sanitizedComponents.joined(separator: Constants.replacementCharacter))
         }
 
-        return result
+        return result.joined(separator: Constants.replacementCharacter)
     }
 
     /// Sanitizes a hostname string (without scheme).
@@ -82,10 +82,10 @@ public struct HostSanitizerUtil {
     /// - Parameter hostname: A raw hostname string.
     /// - Returns: A normalized hostname string safe for logging.
     private func sanitize(hostname: String) -> String {
-        let sanitized = hostname.replacingOccurrences(of: ".", with: "_")
+        let sanitized = hostname.replacingOccurrences(of: ".", with: Constants.replacementCharacter)
 
-        if sanitized.contains("_"), !sanitized.hasPrefix("http") {
-            return "https_" + sanitized
+        if sanitized.contains(Constants.replacementCharacter), !sanitized.hasPrefix("http") {
+            return "https\(Constants.replacementCharacter)" + sanitized
         }
 
         return sanitized
@@ -102,7 +102,7 @@ public struct HostSanitizerUtil {
     private func isLikelyAPIKey(_ string: String) -> Bool {
         guard string.count >= Constants.minimumAPIKeyLength else { return false }
 
-        let allowedSet = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_"))
+        let allowedSet = CharacterSet.alphanumerics.union(Constants.allowedSetCharacterSet)
         let stringSet = CharacterSet(charactersIn: string)
 
         return stringSet.isSubset(of: allowedSet)
@@ -112,5 +112,8 @@ public struct HostSanitizerUtil {
 private extension HostSanitizerUtil {
     enum Constants {
         static let minimumAPIKeyLength = 20
+        static let allowedSetCharacterSet: CharacterSet = .init(charactersIn: "-_")
+        static let replacementCharacter: String = "_"
+        static let maskAPIKeyCharacter: String = "***"
     }
 }
