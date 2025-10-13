@@ -21,6 +21,10 @@ final class TangemPayAccount {
 
     let customerInfoManagementService: any CustomerInfoManagementService
 
+    var depositAddress: String? {
+        customerInfoSubject.value?.depositAddress
+    }
+
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
