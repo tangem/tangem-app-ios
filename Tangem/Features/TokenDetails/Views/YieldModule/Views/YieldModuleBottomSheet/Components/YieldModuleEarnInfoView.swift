@@ -13,11 +13,13 @@ import TangemUI
 
 extension YieldModuleInfoView {
     struct YieldModuleEarnInfoView: View {
-        typealias EarnInfoParams = YieldModuleViewConfigs.EarnInfoParams
-
         // MARK: - Properties
 
-        let params: EarnInfoParams
+        let apyState: LoadableTextView.State
+        let tokenName: String
+        let tokenSymbol: String
+        let transferMode: String
+        let availableBalance: String
 
         // MARK: - View Body
 
@@ -32,17 +34,21 @@ extension YieldModuleInfoView {
 
         private var topSection: some View {
             VStack(alignment: .leading, spacing: .zero) {
-                Text(Localization.yieldModuleEarnSheetTotalEarningsTitle)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                    .padding(.top, 4)
-                    .padding(.bottom, 10)
+                HStack {
+                    Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
+                        .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                        .lineLimit(1)
 
-                Text(params.earningsData.totalEarnings)
-                    .style(Fonts.Bold.title2, color: Colors.Text.primary1)
-                    .padding(.bottom, 14)
+                    Spacer()
 
-                row(title: Localization.yieldModuleEarnSheetCurrentApyTitle, trailing: params.apy)
-                    .padding(.bottom, 18)
+                    LoadableTextView(
+                        state: apyState,
+                        font: Fonts.Regular.body,
+                        textColor: Colors.Text.tertiary,
+                        loaderSize: .init(width: 44, height: 24)
+                    )
+                }
+                .padding(.bottom, 18)
 
                 // [REDACTED_TODO_COMMENT]
             }
@@ -61,12 +67,7 @@ extension YieldModuleInfoView {
         }
 
         private var myFundsDescription: some View {
-            var attr = AttributedString(
-                Localization.yieldModuleEarnSheetProviderDescription(
-                    params.tokenName,
-                    params.tokenSymbol
-                )
-            )
+            var attr = AttributedString(Localization.yieldModuleEarnSheetProviderDescription(tokenName, tokenSymbol))
             attr.font = Fonts.Regular.caption1
             attr.foregroundColor = Colors.Text.tertiary
 
@@ -93,8 +94,8 @@ extension YieldModuleInfoView {
                 myFundsDescription.padding(.bottom, 10)
 
                 VStack(spacing: 12) {
-                    row(title: Localization.yieldModuleEarnSheetTransfersTitle, trailing: params.transferMode)
-                    row(title: Localization.yieldModuleEarnSheetAvailableTitle, trailing: params.availableFunds.availableBalance)
+                    row(title: Localization.yieldModuleEarnSheetTransfersTitle, trailing: transferMode)
+                    row(title: Localization.yieldModuleEarnSheetAvailableTitle, trailing: availableBalance)
                 }
             }
             .defaultRoundedBackground()
