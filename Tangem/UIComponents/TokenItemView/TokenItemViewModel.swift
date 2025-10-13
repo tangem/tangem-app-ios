@@ -210,7 +210,8 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
                 yieldAPY = String(format: "%.2f%", apy.doubleValue)
             }
         case .disabled, .failedToLoad, .processing, .loading:
-            break
+            isYieldApproveNeeded = false
+            yieldAPY = nil
         }
     }
 
