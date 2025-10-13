@@ -135,7 +135,7 @@
 "bitcoin_promo_activation_error_title" = "Ошибка активации";
 "bitcoin_promo_activation_error" = "При обработке промокода произошла ошибка. Пожалуйста, попробуйте позже.";
 "bitcoin_promo_activation_success_title" = "Промокод активирован";
-"bitcoin_promo_activation_success" = "Ваш промокод был успешно активирован. Награда будет зачислена на ваш счёт в течение 14 дней.";
+"bitcoin_promo_activation_success" = "Ваш промокод был успешно активирован. Награда будет зачислена на ваш Bitcoin адрес в течение 14 дней.";
 "bitcoin_promo_already_activated_title" = "Код недоступен";
 "bitcoin_promo_already_activated" = "Этот промокод уже был использован и не может быть активирован повторно.";
 "bitcoin_promo_invalid_code_title" = "Неверный код";
@@ -174,6 +174,7 @@
 "common_add_to_portfolio" = "Добавить в портфель";
 "common_add_token" = "Добавить токен";
 "common_add" = "Добавить";
+"common_added" = "Added";
 "common_address" = "Адрес";
 "common_all" = "Все";
 "common_allow" = "Разрешить";
@@ -278,6 +279,7 @@
 "common_range" = "%1$@-%2$@";
 "common_read_more" = "Подробнее";
 "common_receive" = "Получить";
+"common_recommended" = "Recommended";
 "common_reject" = "Отклонить";
 "common_reload" = "Перезагрузить";
 "common_rename" = "Переименовать";
@@ -453,6 +455,7 @@
 "express_more_providers_soon" = "Больше провайдеров на подходе.\nСледите за обновлениями!";
 "express_provider_best_rate" = "Лучший курс";
 "express_provider_fca_warning_list" = "FCA Warning List";
+"express_provider_great_rate" = "Great rate";
 "express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Доступно до %@";
 "express_provider_min_amount" = "Доступно с %@";
@@ -1326,9 +1329,10 @@
 "user_push_notification_agreement_argument_two_title" = "Новые функции и важные новости";
 "user_push_notification_agreement_argument_two" = "Узнавайте первым о новых акциях";
 "user_push_notification_agreement_header" = "Хотите использовать Push-уведомления?";
-"user_push_notification_banner_subtitle" = "Enable push notifications and we’ll notify you instantly when funds arrive\n";
-"user_push_notification_banner_title" = "Don’t Miss a Transaction";
+"user_push_notification_banner_subtitle" = "Включите push-уведомления, и мы мгновенно сообщим вам, когда поступят средства.";
+"user_push_notification_banner_title" = "Не пропустите транзакцию";
 "user_wallet_list_add_button" = "Добавить новый кошелек";
+"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds";
 "user_wallet_list_delete_prompt" = "Вы уверены, что хотите забыть этот кошелек?";
 "user_wallet_list_error_wallet_already_saved" = "Этот кошелек уже был сохранен, вы можете добавить другой";
 "user_wallet_list_rename_popup_placeholder" = "Имя кошелька";
@@ -1400,6 +1404,13 @@
 "visa_unlock_notification_title" = "Needed unlock";
 "voice_over_open_card_details" = "Открыть детали устройства";
 "voice_over_open_new_wallet_connect_session" = "Отсканируйте QR-код, чтобы открыть новую сессию WalletConnect";
+"wallet_add_common_title" = "Choose how to add your wallet";
+"wallet_add_hardware_description" = "Scan your Tangem card or ring to restore it or import from another wallet.";
+"wallet_add_hardware_info_create" = "Create Hardware Wallet";
+"wallet_add_hardware_purchase" = "Want to purchase a Tangem Wallet?";
+"wallet_add_import_seed_phrase" = "Import seed phrase";
+"wallet_add_mobile_description" = "Restore your wallet on your phone or import from another app — convenient, but less secure than a Tangem card.";
+"wallet_add_support_title" = "What to choose?";
 "wallet_balance_missing_derivation" = "Отсканируйте карту или кольцо";
 "wallet_been_activated_message" = "Этот кошелек уже был активирован ранее.\nЕсли это сделали не вы, свяжитесь со службой поддержки.\nTangem никогда не продает кошелек вместе с предустановленным кодом доступа.";
 "wallet_connect_error_timeout" = "Не удалось установить сессию WalletConnect за отведённое время. Пожалуйста, повторите попытку позже.";
@@ -1410,6 +1421,7 @@
 "wallet_connect_sending_multiple_tx" = "Транзакция в обработке";
 "wallet_connect_subtitle" = "Подключение к dApps";
 "wallet_connect_title" = "WalletConnect";
+"wallet_create_common_title" = "Create Tangem Wallet";
 "wallet_create_hardware_badge" = "от %@";
 "wallet_create_hardware_description" = "Купите Tangem Wallet — физическое устройство, которое надёжно хранит ваш приватный ключ офлайн.";
 "wallet_create_hardware_title" = "Аппаратный кошелёк";
@@ -1694,7 +1706,10 @@
 "yield_module_fee_policy_sheet_description" = "All future %@ top-ups will be supplied to Aave automatically, with the transaction fee deducted.";
 "yield_module_fee_policy_sheet_max_fee_note" = "If network fees rise above maximum fee, the transaction won’t go through until they decrease. You can change this limit later.";
 "yield_module_fee_policy_sheet_max_fee_title" = "Maximum fee";
+"yield_module_fee_policy_sheet_min_amount_note" = "The transaction fee must stay below 4% of your deposit. Tangem will transfer funds to Aave only once your balance is large enough to meet this condition. ";
+"yield_module_fee_policy_sheet_min_amount_title" = "Minimal amount";
 "yield_module_fee_policy_sheet_title" = "Fee policy";
+"yield_module_fee_policy_tangem_service_fee_title" = "Tangem also takes a 3% service fee on the yield earned.";
 "yield_module_high_fee_error" = "Сетевая комиссия сейчас слишком высокая. Ожидаем, пока она упадёт ниже вашего лимита.";
 "yield_module_historical_returns" = "Историческая доходность";
 "yield_module_main_view_approve_notification_description" = "Write description here. In one, two or three lines will be awesome. [PLACEHOLDER]";
@@ -1730,7 +1745,8 @@
 "yield_module_supply_apr" = "Годовая доходность";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Make your money work — earn interest on your balance.";
-"yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Earning on your balance";
+"yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Interest accrues automatically";
+"yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Aave lending";
 "yield_module_token_details_earn_notification_processing" = "Processing your deposit";
 "yield_module_token_details_earn_notification_title" = "Earn %1$@%% per year";
 "yield_module_transfer_mode_automatic" = "Automatic";
