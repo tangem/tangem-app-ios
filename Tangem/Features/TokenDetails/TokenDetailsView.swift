@@ -49,6 +49,8 @@ struct TokenDetailsView: View {
                     )
                 }
 
+                yieldStatueView
+
                 if let activeStakingViewData = viewModel.activeStakingViewData {
                     ActiveStakingView(data: activeStakingViewData)
                         .padding(14)
@@ -129,6 +131,20 @@ struct TokenDetailsView: View {
             } label: {
                 NavbarDotsImage()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var yieldStatueView: some View {
+        switch viewModel.yieldModuleAvailability {
+        case .checking, .notApplicable:
+            EmptyView()
+
+        case .eligible(let vm):
+            YieldAvailableNotificationView(viewModel: vm)
+
+        case .enter(let vm), .exit(let vm), .active(let vm):
+            YieldStatusView(viewModel: vm)
         }
     }
 }
