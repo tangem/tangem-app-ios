@@ -16,6 +16,8 @@ struct CommonExpressProviderTransactionValidator: ExpressProviderTransactionVali
     private let tokenItem: TokenItem
     private let requiresTransactionSizeValidation: Bool
 
+    private let solanaTransactionHelper = SolanaTransactionHelper()
+
     // MARK: - Init
 
     init(tokenItem: TokenItem, requiresTransactionSizeValidation: Bool) {
@@ -45,10 +47,17 @@ struct CommonExpressProviderTransactionValidator: ExpressProviderTransactionVali
     // MARK: - Private Implementation
 
     private func processSolanaTransaction(of transactionData: Data) -> Bool {
-        switch SolanaTransactionSizeUtils.size(for: transactionData) {
-        case .default:
-            return true
-        case .long:
+        do {
+            let transactionWithoutPlaceholders = try solanaTransactionHelper
+                .removeSignaturesPlaceholders(from: transactionData)
+
+            switch SolanaTransactionSizeUtils.size(for: transactionWithoutPlaceholders.transaction) {
+            case .default:
+                return true
+            case .long:
+                return false
+            }
+        } catch {
             return false
         }
     }
