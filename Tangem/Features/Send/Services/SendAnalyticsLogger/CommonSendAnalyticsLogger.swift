@@ -11,6 +11,7 @@ import TangemExpress
 import BlockchainSdk
 
 class CommonSendAnalyticsLogger {
+    private weak var sendDestinationInput: SendDestinationInput?
     private weak var sendFeeInput: SendFeeInput?
     private weak var sendSourceTokenInput: SendSourceTokenInput?
     private weak var sendReceiveTokenInput: SendReceiveTokenInput?
@@ -223,7 +224,9 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         switch sendReceiveTokenInput?.receiveToken {
         // Old send, simple send
         case .none, .same:
-            logSendFinishScreenOpened()
+            logSendFinishScreenOpened(
+                destinationDidResolved: sendDestinationInput?.destination?.value.isResolved ?? false
+            )
         case .swap:
             logSendWithSwapFinishScreenOpened()
         }
@@ -237,7 +240,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         Analytics.log(.sendButtonExplore)
     }
 
-    private func logSendFinishScreenOpened() {
+    private func logSendFinishScreenOpened(destinationDidResolved: Bool) {
         let event: Analytics.Event = switch tokenItem.token?.metadata.kind {
         case .nonFungible: .nftSentScreenOpened
         default: .sendTransactionSentScreenOpened
@@ -247,19 +250,11 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             selectedFee: sendFeeInput?.selectedFee.option
         )
 
-        let ensTypeAnalyticsParameter: Bool
-
-        if case .ethereum = tokenItem.blockchain {
-            ensTypeAnalyticsParameter = true
-        } else {
-            ensTypeAnalyticsParameter = false
-        }
-
         var analyticsParameters: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol,
             .blockchain: tokenItem.blockchain.displayName,
             .feeType: feeTypeAnalyticsParameter.rawValue,
-            .ensAddress: Analytics.ParameterValue.boolState(for: ensTypeAnalyticsParameter).rawValue,
+            .ensAddress: Analytics.ParameterValue.boolState(for: destinationDidResolved).rawValue,
         ]
 
         if let parameters = sendFeeInput?.selectedFee.value.value?.parameters as? EthereumFeeParameters,
@@ -367,6 +362,10 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
 // MARK: - SendAnalyticsLogger
 
 extension CommonSendAnalyticsLogger: SendAnalyticsLogger {
+    func setup(sendDestinationInput: any SendDestinationInput) {
+        self.sendDestinationInput = sendDestinationInput
+    }
+
     func setup(sendFeeInput: any SendFeeInput) {
         self.sendFeeInput = sendFeeInput
     }
