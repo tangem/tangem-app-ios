@@ -2796,6 +2796,8 @@
 		DAEE39882E7409A6006BE201 /* TangemPayOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAEE39872E7409A6006BE201 /* TangemPayOnboardingViewModel.swift */; };
 		DAEE398A2E74160F006BE201 /* ValidateDeeplinkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAEE39892E74160F006BE201 /* ValidateDeeplinkRequest.swift */; };
 		DAEE398C2E741613006BE201 /* ValidateDeeplinkResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAEE398B2E741613006BE201 /* ValidateDeeplinkResponse.swift */; };
+		DAEE9A212E9D245D001EF6AA /* TangemPayReceiveAddressTypesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAEE9A202E9D245D001EF6AA /* TangemPayReceiveAddressTypesProvider.swift */; };
+		DAEE9A242E9D247A001EF6AA /* TangemPayNoDepositAddressSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAEE9A232E9D247A001EF6AA /* TangemPayNoDepositAddressSheetViewModel.swift */; };
 		DAF3D58D2B3AD9050047D65F /* SendCurrencyPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3D58C2B3AD9050047D65F /* SendCurrencyPicker.swift */; };
 		DAF59CC12ACC4D8C004FCA86 /* AddCustomTokenDerivationOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CBB2ACC4D8C004FCA86 /* AddCustomTokenDerivationOption.swift */; };
 		DAF59CC22ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CBC2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemViewModel.swift */; };
@@ -7209,6 +7211,8 @@
 		DAEE39872E7409A6006BE201 /* TangemPayOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayOnboardingViewModel.swift; sourceTree = "<group>"; };
 		DAEE39892E74160F006BE201 /* ValidateDeeplinkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidateDeeplinkRequest.swift; sourceTree = "<group>"; };
 		DAEE398B2E741613006BE201 /* ValidateDeeplinkResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidateDeeplinkResponse.swift; sourceTree = "<group>"; };
+		DAEE9A202E9D245D001EF6AA /* TangemPayReceiveAddressTypesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayReceiveAddressTypesProvider.swift; sourceTree = "<group>"; };
+		DAEE9A232E9D247A001EF6AA /* TangemPayNoDepositAddressSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayNoDepositAddressSheetViewModel.swift; sourceTree = "<group>"; };
 		DAF3D58C2B3AD9050047D65F /* SendCurrencyPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendCurrencyPicker.swift; sourceTree = "<group>"; };
 		DAF59CBB2ACC4D8C004FCA86 /* AddCustomTokenDerivationOption.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationOption.swift; sourceTree = "<group>"; };
 		DAF59CBC2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorItemViewModel.swift; sourceTree = "<group>"; };
@@ -11528,6 +11532,7 @@
 			children = (
 				DA7BB0072E991F7E001116F2 /* TangemPayAccount */,
 				DA7BB0022E991C4E001116F2 /* TangemPayMain */,
+				DAEE9A222E9D246D001EF6AA /* TangemPayReceive */,
 				DAD212B82E822F5300097D16 /* TangemPayCardDetails */,
 				DAEE39842E74098E006BE201 /* TangemPayOnboarding */,
 				DA9C94922E3BD5100052CCEE /* TangemPayRow */,
@@ -17422,6 +17427,15 @@
 				DAEE39892E74160F006BE201 /* ValidateDeeplinkRequest.swift */,
 			);
 			path = ValidateDeeplink;
+			sourceTree = "<group>";
+		};
+		DAEE9A222E9D246D001EF6AA /* TangemPayReceive */ = {
+			isa = PBXGroup;
+			children = (
+				DAEE9A232E9D247A001EF6AA /* TangemPayNoDepositAddressSheetViewModel.swift */,
+				DAEE9A202E9D245D001EF6AA /* TangemPayReceiveAddressTypesProvider.swift */,
+			);
+			path = TangemPayReceive;
 			sourceTree = "<group>";
 		};
 		DAF59CBA2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelector */ = {
@@ -24661,6 +24675,7 @@
 				0F48DC4E2E44EAE40095D3C8 /* MobileOnboardingSeedPhraseImportDelegate.swift in Sources */,
 				DC0A5806282501530031BECC /* KeysManager.swift in Sources */,
 				EF5E5A852B7100D700D19BBB /* ExpressPromotion.swift in Sources */,
+				DAEE9A212E9D245D001EF6AA /* TangemPayReceiveAddressTypesProvider.swift in Sources */,
 				DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */,
 				EFFE2CEC28B8E1B000B9F279 /* CommonDerivationManager.swift in Sources */,
 				B00EBF862B20EE1D00071EB0 /* CommonPendingExpressTransactionAnalyticsTracker.swift in Sources */,
@@ -24743,6 +24758,7 @@
 				0F3D641F2E0ECF9C00670DC9 /* MobileBackupNeededView.swift in Sources */,
 				DC2AB6DC2C08CF6C0050796C /* WelcomeOnboardingRoutable.swift in Sources */,
 				B6761A612DB9790600402277 /* NFTReceiveWalletModelFinder.swift in Sources */,
+				DAEE9A242E9D247A001EF6AA /* TangemPayNoDepositAddressSheetViewModel.swift in Sources */,
 				C2321F442E301A61006428A8 /* WalletConnectConnectedDAppDetailsAnalyticsLogger.swift in Sources */,
 				B65CB3FE2A98A93F00C31199 /* UserTokensReorderingAction.swift in Sources */,
 				DCA70E492DE8AD2B004EEC0A /* WCEthSignTypedDataDetailsModel.swift in Sources */,
