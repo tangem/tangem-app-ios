@@ -84,7 +84,7 @@ extension UserWalletSettingsCoordinator:
         )
     }
 
-    func openAccountDetails(account: any BaseAccountModel, accountModelsManager: AccountModelsManager) {
+    func openAccountDetails(account: any BaseAccountModel, accountModelsManager: AccountModelsManager, userWalletConfig: UserWalletConfig) {
         let coordinator = AccountDetailsCoordinator(
             dismissAction: { [weak self] in
                 self?.accountDetailsCoordinator = nil
@@ -95,6 +95,7 @@ extension UserWalletSettingsCoordinator:
         coordinator.start(
             with: AccountDetailsCoordinator.Options(
                 account: account,
+                userWalletConfig: userWalletConfig,
                 accountModelsManager: accountModelsManager
             )
         )
@@ -145,13 +146,23 @@ extension UserWalletSettingsCoordinator:
         Analytics.log(.referralScreenOpened)
     }
 
-    func openManageTokens(userWalletModel: any UserWalletModel) {
+    func openManageTokens(
+        walletModelsManager: WalletModelsManager,
+        userTokensManager: UserTokensManager,
+        userWalletConfig: UserWalletConfig
+    ) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.manageTokensCoordinator = nil
         }
 
         let coordinator = ManageTokensCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(userWalletModel: userWalletModel))
+        coordinator.start(
+            with: .init(
+                walletModelsManager: walletModelsManager,
+                userTokensManager: userTokensManager,
+                userWalletConfig: userWalletConfig
+            )
+        )
         manageTokensCoordinator = coordinator
     }
 
