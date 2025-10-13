@@ -62,7 +62,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
             coordinator?.openSend(userWalletModel: userWalletModel, walletModel: walletModel)
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleSendAlert(for: walletModel.tokenItem) {
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
             openViaYieldNotice(tokenItem: walletModel.tokenItem, action: openSendAction)
         } else {
             openSendAction()
@@ -77,7 +77,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
             coordinator?.openExpress(input: input)
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleSendAlert(for: walletModel.tokenItem) {
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
             openViaYieldNotice(tokenItem: walletModel.tokenItem, action: openExpressAction)
         } else {
             openExpressAction()
