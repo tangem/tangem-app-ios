@@ -45,7 +45,7 @@ class PolkadotTransactionBuilder {
         case .westend:
             return Data(hexString: "0x0400")
         case .energyWebX:
-            return Data(hexString: "0x0a07")
+            return Data(hexString: "0x0A00")
         }
     }
 
