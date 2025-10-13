@@ -9,44 +9,26 @@
 import Foundation
 
 final class YieldModuleNoticeInteractor {
-    @AppStorageCompat(StorageKey.shownYieldModuleReceiveAlert)
-    private var shownYieldModuleReceiveAlert: [String: Bool] = [:]
-
-    @AppStorageCompat(StorageKey.shownYieldModuleSendAlert)
-    private var shownYieldModuleSendAlert: [String: Bool] = [:]
+    @AppStorageCompat(StorageKey.shownYieldModuleAlert)
+    private var shownYieldModuleAlert: [String: Bool] = [:]
 
     // MARK: - Public Implementation
 
     /// Returns true only on the first show if the stored value is `false`.
     /// If the value is `true` or missing (`nil`), returns false.
     /// If the value is `false` marks the alert as shown
-    func shouldShowYieldModuleReceiveAlert(for tokenItem: TokenItem) -> Bool {
+    func shouldShowYieldModuleAlert(for tokenItem: TokenItem) -> Bool {
         guard case .token(let token, let blockchainNetwork) = tokenItem else {
             return false
         }
 
         let key = yieldKey(contractAddress: token.contractAddress, networkId: blockchainNetwork.blockchain.networkId)
 
-        guard shownYieldModuleReceiveAlert[key] == false else {
+        guard shownYieldModuleAlert[key] == false else {
             return false
         }
 
-        shownYieldModuleReceiveAlert[key] = true
-        return true
-    }
-
-    func shouldShowYieldModuleSendAlert(for tokenItem: TokenItem) -> Bool {
-        guard case .token(let token, let blockchainNetwork) = tokenItem else {
-            return false
-        }
-
-        let key = yieldKey(contractAddress: token.contractAddress, networkId: blockchainNetwork.blockchain.networkId)
-
-        guard shownYieldModuleSendAlert[key] == false else {
-            return false
-        }
-
-        shownYieldModuleSendAlert[key] = true
+        shownYieldModuleAlert[key] = true
         return true
     }
 
@@ -56,8 +38,8 @@ final class YieldModuleNoticeInteractor {
         }
 
         let key = yieldKey(contractAddress: token.contractAddress, networkId: blockchainNetwork.blockchain.networkId)
-        shownYieldModuleReceiveAlert[key] = false
-        shownYieldModuleSendAlert[key] = false
+        shownYieldModuleAlert[key] = false
+        shownYieldModuleAlert[key] = false
     }
 
     // MARK: - Private Implementation
@@ -69,7 +51,6 @@ final class YieldModuleNoticeInteractor {
 
 extension YieldModuleNoticeInteractor {
     private enum StorageKey: String, RawRepresentable {
-        case shownYieldModuleReceiveAlert = "yield_receive_shown_receive_token_alerts"
-        case shownYieldModuleSendAlert = "yield_receive_shown_send_token_alerts"
+        case shownYieldModuleAlert = "yield_receive_shown_token_alerts"
     }
 }

@@ -104,6 +104,7 @@ struct YieldModuleInfoView: View {
                 title: Localization.commonConfirm,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
+                isLoading: viewModel.isProcessingStartRequest,
                 isDisabled: !viewModel.isButtonEnabled,
                 action: ctaButtonAction
             ))
