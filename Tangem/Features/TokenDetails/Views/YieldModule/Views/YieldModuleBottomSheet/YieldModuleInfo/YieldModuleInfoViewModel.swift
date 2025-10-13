@@ -46,6 +46,9 @@ final class YieldModuleInfoViewModel: ObservableObject {
     @Published
     private(set) var chartState: YieldChartContainerState = .loading
 
+    @Published
+    private(set) var isProcessingStartRequest: Bool = false
+
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
@@ -122,8 +125,9 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     func onStopEarningTap() {
         Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
+            isProcessingStartRequest = true
             await yieldManagerInteractor.exit(with: walletModel.tokenItem)
+            floatingSheetPresenter.removeActiveSheet()
         }
     }
 

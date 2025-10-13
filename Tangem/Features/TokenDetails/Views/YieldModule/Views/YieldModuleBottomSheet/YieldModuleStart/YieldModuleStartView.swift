@@ -116,6 +116,7 @@ struct YieldModuleStartView: View {
                 title: Localization.yieldModuleStartEarning,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
+                isLoading: viewModel.isProcessingStartRequest,
                 isDisabled: !viewModel.isButtonEnabled,
                 action: ctaButtonAction,
             ))
