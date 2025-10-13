@@ -15,7 +15,6 @@ import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class CreateWalletSelectorViewModel: ObservableObject {
-    @Published var isScanAvailable = false
     @Published var isScanning: Bool = false
 
     @Published var mailViewModel: MailViewModel?
@@ -23,12 +22,14 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var error: AlertBinder?
 
-    let navigationBarHeight = OnboardingLayoutConstants.navbarSize.height
-    let supportButtonTitle = Localization.walletCreateNavInfoTitle
-    let screenTitle = Localization.walletCreateTitle
+    let title = Localization.commonTangemWallet
+    let description = Localization.welcomeCreateWalletHardwareDescription
+    let scanTitle = Localization.welcomeUnlockCard
+    let buyTitle = Localization.detailsBuyWallet
+    let otherMethodTitle = Localization.welcomeCreateWalletOtherMethod
 
-    var walletItems: [WalletItem] = []
-    let scanItem: ScanItem
+    lazy var chipItems: [ChipItem] = makeChipItems()
+    lazy var mobileWalletItem: MobileWalletItem = makeMobileWalletItem()
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
@@ -39,12 +40,6 @@ final class CreateWalletSelectorViewModel: ObservableObject {
 
     init(coordinator: CreateWalletSelectorRoutable) {
         self.coordinator = coordinator
-        scanItem = ScanItem(
-            title: Localization.walletCreateScanQuestion,
-            buttonTitle: Localization.walletCreateScanTitle,
-            buttonIcon: Assets.tangemIcon
-        )
-        walletItems = makeWalletItems()
     }
 }
 
@@ -53,44 +48,38 @@ final class CreateWalletSelectorViewModel: ObservableObject {
 extension CreateWalletSelectorViewModel {
     func onAppear() {
         Analytics.log(.onboardingStarted)
-
-        scheduleScanAvailability()
-    }
-
-    func onSupportTap() {
-        openWhatToChoose()
     }
 
     func onScanTap() {
         scanCard()
+    }
+
+    func onBuyTap() {
+        openBuyHardwareWallet()
     }
 }
 
 // MARK: - Private methods
 
 private extension CreateWalletSelectorViewModel {
-    func makeWalletItems() -> [WalletItem] {
+    func makeChipItems() -> [ChipItem] {
         [
-            WalletItem(
-                title: Localization.walletCreateMobileTitle,
-                infoTag: InfoTag(text: Localization.commonFree, style: .secondary),
-                description: Localization.walletCreateMobileDescription,
-                action: weakify(self, forFunction: CreateWalletSelectorViewModel.openMobileWallet)
-            ),
-            WalletItem(
-                title: Localization.walletCreateHardwareTitle,
-                infoTag: InfoTag(text: Localization.walletCreateHardwareBadge("$54.90"), style: .accent),
-                description: Localization.walletCreateHardwareDescription,
-                action: weakify(self, forFunction: CreateWalletSelectorViewModel.openHardwareWallet)
-            ),
+            ChipItem(icon: Assets.Glyphs.checkmarkShield, title: Localization.welcomeCreateWalletFeatureClass),
+            ChipItem(icon: Assets.Glyphs.boldFlash, title: Localization.welcomeCreateWalletFeatureDelivery),
+            ChipItem(icon: Assets.Glyphs.sparkles, title: Localization.welcomeCreateWalletFeatureUse),
         ]
     }
 
-    func scheduleScanAvailability() {
-        guard !isScanAvailable else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-            self?.isScanAvailable = true
-        }
+    func makeMobileWalletItem() -> MobileWalletItem {
+        MobileWalletItem(
+            title: Localization.welcomeCreateWalletMobileTitle,
+            description: Localization.welcomeCreateWalletMobileDescription,
+            action: weakify(self, forFunction: CreateWalletSelectorViewModel.onMobileWalletTap)
+        )
+    }
+
+    func onMobileWalletTap() {
+        openCreateMobileWallet()
     }
 }
 
@@ -177,7 +166,7 @@ private extension CreateWalletSelectorViewModel {
 // MARK: - Navigation
 
 private extension CreateWalletSelectorViewModel {
-    func openMobileWallet() {
+    func openCreateMobileWallet() {
         Analytics.log(.buttonMobileWallet)
 
         let input = MobileOnboardingInput(flow: .walletCreate)
@@ -185,13 +174,9 @@ private extension CreateWalletSelectorViewModel {
         coordinator?.openOnboarding(options: options)
     }
 
-    func openHardwareWallet() {
+    func openBuyHardwareWallet() {
         Analytics.log(.onboardingButtonBuy, params: [.source: .createWallet])
         safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
-    }
-
-    func openWhatToChoose() {
-        safariManager.openURL(TangemBlogUrlBuilder().url(post: .mobileVsHardware))
     }
 
     func openOnboarding(options: OnboardingCoordinator.Options) {
@@ -255,44 +240,14 @@ private extension CreateWalletSelectorViewModel {
 // MARK: - Types
 
 extension CreateWalletSelectorViewModel {
-    struct WalletItem {
+    struct ChipItem: Hashable {
+        let icon: ImageType
         let title: String
-        let infoTag: InfoTag
+    }
+
+    struct MobileWalletItem {
+        let title: String
         let description: String
         let action: () -> Void
-    }
-
-    struct InfoTag {
-        let text: String
-        let style: InfoTagStyle
-    }
-
-    enum InfoTagStyle {
-        case secondary
-        case accent
-
-        var color: Color {
-            switch self {
-            case .secondary:
-                Colors.Text.secondary
-            case .accent:
-                Colors.Text.accent
-            }
-        }
-
-        var bgColor: Color {
-            switch self {
-            case .secondary:
-                Colors.Control.unchecked
-            case .accent:
-                Colors.Text.accent.opacity(0.1)
-            }
-        }
-    }
-
-    struct ScanItem {
-        let title: String
-        let buttonTitle: String
-        let buttonIcon: ImageType
     }
 }
