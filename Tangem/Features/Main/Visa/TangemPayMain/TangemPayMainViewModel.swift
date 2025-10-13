@@ -8,17 +8,26 @@
 
 import Combine
 import TangemUI
+import TangemVisa
+import TangemFoundation
 
 final class TangemPayMainViewModel: ObservableObject {
     let mainHeaderViewModel: MainHeaderViewModel
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
-        await tangemPayAccount.loadBalance().value
+        _ = await (
+            tangemPayAccount.loadBalance().value,
+            transactionHistoryService.reloadHistory().value
+        )
     }
 
     @Published private(set) var tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel?
+    @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
 
     private let tangemPayAccount: TangemPayAccount
+    private let transactionHistoryService: TangemPayTransactionHistoryService
+
+    private var bag = Set<AnyCancellable>()
 
     init(tangemPayAccount: TangemPayAccount) {
         self.tangemPayAccount = tangemPayAccount
@@ -31,6 +40,8 @@ final class TangemPayMainViewModel: ObservableObject {
             updatePublisher: .empty
         )
 
+        transactionHistoryService = TangemPayTransactionHistoryService(apiService: tangemPayAccount.customerInfoManagementService)
+
         tangemPayAccount.tangemPayCardDetailsPublisher
             .map { cardDetails -> TangemPayCardDetailsViewModel? in
                 guard let (card, _) = cardDetails else {
@@ -42,6 +53,23 @@ final class TangemPayMainViewModel: ObservableObject {
                 )
             }
             .receiveOnMain()
-            .assign(to: &$tangemPayCardDetailsViewModel)
+            .assign(to: \.tangemPayCardDetailsViewModel, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        transactionHistoryService
+            .tangemPayTransactionHistoryState
+            .receiveOnMain()
+            .assign(to: \.tangemPayTransactionHistoryState, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        reloadHistory()
+    }
+
+    func reloadHistory() {
+        transactionHistoryService.reloadHistory()
+    }
+
+    func fetchNextTransactionHistoryPage() -> FetchMore? {
+        transactionHistoryService.fetchNextTransactionHistoryPage()
     }
 }
