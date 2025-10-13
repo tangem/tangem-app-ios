@@ -99,5 +99,6 @@ struct SendDestinationAddressView: View {
                 .foregroundStyle(Colors.Icon.informative)
                 .frame(width: 24, height: 24)
         }
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.addressClearButton)
     }
 }
