@@ -100,6 +100,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         self.flowType = flowType
         self.closeAction = closeAction
         self.accountModelsManager = accountModelsManager
+
+        // [REDACTED_TODO_COMMENT]
         description = if let cryptoAccount = flowType.account as? any CryptoAccountModel {
             cryptoAccount.descriptionString
         } else {
