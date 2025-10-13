@@ -19,7 +19,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
 
     private let customerInfoManagementService: any CustomerInfoManagementService
 
-    private var cancellable: Cancellable?
+    private var bag = Set<AnyCancellable>()
     private var cardDetailsExposureTask: Task<Void, Never>?
 
     init(lastFourDigits: String, customerInfoManagementService: any CustomerInfoManagementService) {
@@ -35,13 +35,15 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
                     .hidden(lastFourDigits: lastFourDigits)
                 }
             }
-            .assign(to: &$cardDetailsData)
+            .assign(to: \.cardDetailsData, on: self, ownership: .weak)
+            .store(in: &bag)
 
-        cancellable = NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
+        NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.cardDetailsExposureTask?.cancel()
             }
+            .store(in: &bag)
     }
 
     func copyNumber() {
