@@ -8,18 +8,35 @@
 
 import SwiftUI
 import TangemAssets
+import Kingfisher
 
 struct TransactionView: View {
     let viewModel: TransactionViewModel
 
     var body: some View {
         HStack(spacing: 12) {
-            viewModel.icon
-                .renderingMode(.template)
-                .foregroundColor(viewModel.iconColor)
-                .padding(10)
-                .background(viewModel.iconBackgroundColor)
-                .cornerRadiusContinuous(20)
+            if let iconURL = viewModel.iconURL {
+                KFImage(iconURL)
+                    .resizable()
+                    .placeholder {
+                        viewModel.icon
+                            .renderingMode(.template)
+                            .foregroundColor(viewModel.iconColor)
+                            .padding(10)
+                            .background(viewModel.iconBackgroundColor)
+                            .cornerRadiusContinuous(20)
+                    }
+                    .aspectRatio(contentMode: .fit)
+                    .frame(size: .init(bothDimensions: 40))
+                    .cornerRadiusContinuous(20)
+            } else {
+                viewModel.icon
+                    .renderingMode(.template)
+                    .foregroundColor(viewModel.iconColor)
+                    .padding(10)
+                    .background(viewModel.iconBackgroundColor)
+                    .cornerRadiusContinuous(20)
+            }
 
             textContent
                 .lineLimit(1)
