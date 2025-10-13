@@ -105,7 +105,6 @@ final class VisaUserWalletModel {
     let userWalletModel: UserWalletModel
     private var cardWalletAddress: String?
     private var cardInfo: CardInfo
-
     private var authorizationTokensHandler: VisaAuthorizationTokensHandler?
     private var visaPaymentAccountInteractor: VisaPaymentAccountInteractor?
 
