@@ -41,7 +41,6 @@ final class CommonYieldModuleManager {
     private let token: Token
     private let blockchain: Blockchain
     private let yieldSupplyService: YieldSupplyService
-    private let tokenBalanceProvider: TokenBalanceProvider
 
     private let transactionProvider: YieldTransactionProvider
     private let transactionFeeProvider: YieldTransactionFeeProvider
@@ -58,7 +57,6 @@ final class CommonYieldModuleManager {
         token: Token,
         blockchain: Blockchain,
         yieldSupplyService: YieldSupplyService,
-        tokenBalanceProvider: TokenBalanceProvider,
         ethereumNetworkProvider: EthereumNetworkProvider,
         transactionCreator: TransactionCreator,
         blockaidApiService: BlockaidAPIService,
@@ -72,7 +70,6 @@ final class CommonYieldModuleManager {
         self.token = token
         self.blockchain = blockchain
         self.yieldSupplyService = yieldSupplyService
-        self.tokenBalanceProvider = tokenBalanceProvider
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
 
         transactionProvider = YieldTransactionProvider(
@@ -131,10 +128,6 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                 maxNetworkFee: maxTokenNetworkFee
             )
         case .deployed(let deployed):
-            guard let balance = tokenBalanceProvider.balanceType.value else {
-                throw YieldModuleError.balanceNotFound
-            }
-
             switch deployed.initializationState {
             case .notInitialized:
                 return try await transactionFeeProvider.initializeFee(
@@ -146,7 +139,6 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                 return try await transactionFeeProvider.reactivateFee(
                     yieldContractAddress: deployed.yieldModule,
                     tokenContractAddress: token.contractAddress,
-                    balance: balance,
                     tokenDecimalCount: token.decimalCount,
                     maxNetworkFee: maxTokenNetworkFee
                 )
