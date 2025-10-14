@@ -9,7 +9,6 @@
 import TangemMobileWalletSdk
 
 enum MobileOnboardingFlow {
-    case walletCreate
     case walletImport
     case walletActivate(userWalletModel: UserWalletModel)
     case accessCode(userWalletModel: UserWalletModel, context: MobileWalletContext)
