@@ -18,6 +18,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var backButton = button(.backButton)
     private lazy var invalidAmountBanner = staticText(.invalidAmountBanner)
     private lazy var insufficientAmountToReserveAtDestinationBanner = staticText(.insufficientAmountToReserveAtDestinationBanner)
+    private lazy var amountExceedMaximumUTXOBanner = staticText(.amountExceedMaximumUTXOBanner)
 
     @discardableResult
     func validate() -> Self {
@@ -113,6 +114,22 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 
     @discardableResult
+    func waitForAmountExceedMaximumUTXOBanner() -> Self {
+        XCTContext.runActivity(named: "Check amount exceed maximum UTXO banner exists") { _ in
+            waitAndAssertTrue(amountExceedMaximumUTXOBanner, "Amount exceed maximum UTXO banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForAmountExceedMaximumUTXOBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Check amount exceed maximum UTXO banner does not exist") { _ in
+            XCTAssertTrue(amountExceedMaximumUTXOBanner.waitForNonExistence(timeout: .robustUIUpdate), "Amount exceed maximum UTXO banner should not be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForSendButtonDisabled() -> Self {
         XCTContext.runActivity(named: "Validate Send button is disabled") { _ in
             let sendButton = app.buttons["Send"].firstMatch
@@ -142,6 +159,7 @@ enum SendScreenElement: String, UIElement {
     case backButton
     case invalidAmountBanner
     case insufficientAmountToReserveAtDestinationBanner
+    case amountExceedMaximumUTXOBanner
 
     var accessibilityIdentifier: String {
         switch self {
@@ -161,6 +179,8 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.invalidAmountBanner
         case .insufficientAmountToReserveAtDestinationBanner:
             return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
+        case .amountExceedMaximumUTXOBanner:
+            return SendAccessibilityIdentifiers.amountExceedMaximumUTXOBanner
         }
     }
 }
