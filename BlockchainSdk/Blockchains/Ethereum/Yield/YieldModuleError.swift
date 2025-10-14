@@ -18,4 +18,5 @@ public enum YieldModuleError: Error {
     case inconsistentState
     case yieldIsNotActive
     case maxNetworkFeeNotFound
+    case minimalTopUpAmountNotFound
 }
