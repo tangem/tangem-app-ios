@@ -158,6 +158,7 @@ extension CommonServicesManager: ServicesManager {
 
         configureFirebase()
         configureAmplitude()
+        AppsFlyerConfigurator.configure()
 
         configureBlockchainSdkExceptionHandler()
 
