@@ -11,7 +11,7 @@ import TangemStaking
 import TangemFoundation
 
 struct LegacyOnrampFlowFactory: SendGenericFlowFactory {
-    private let walletInfo: SendWalletInfo
+    private let walletInfo: UserWalletInfo
     private let walletModel: any WalletModel
     private let parameters: PredefinedOnrampParameters
     private let source: SendCoordinator.Source
