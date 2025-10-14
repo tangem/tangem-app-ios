@@ -12,7 +12,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
     let sellParameters: PredefinedSellParameters
 
     let shouldShowFeeSelector: Bool
@@ -41,7 +41,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     )
 
     init(
-        userWalletInfo: SendWalletInfo,
+        userWalletInfo: UserWalletInfo,
         sellParameters: PredefinedSellParameters,
         walletModel: any WalletModel,
         expressInput: CommonExpressDependenciesFactory.Input
