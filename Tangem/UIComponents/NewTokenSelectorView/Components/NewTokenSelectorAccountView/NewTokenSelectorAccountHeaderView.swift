@@ -1,5 +1,5 @@
 //
-//  NewTokenSelectorGroupedSectionView.swift
+//  NewTokenSelectorAccountHeaderView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,24 +7,11 @@
 //
 
 import SwiftUI
-import TangemUI
-import TangemAssets
 import TangemAccounts
+import TangemAssets
 
-struct NewTokenSelectorGroupedSectionView: View {
-    let viewModel: NewTokenSelectorGroupedSectionViewModel
-
-    var body: some View {
-        GroupedSection(viewModel.items) { item in
-            NewTokenSelectorItemView(viewModel: item)
-        } header: {
-            NewTokenSelectorGroupedSectionHeaderView(header: viewModel.header)
-        }
-    }
-}
-
-struct NewTokenSelectorGroupedSectionHeaderView: View {
-    let header: NewTokenSelectorGroupedSectionViewModel.HeaderType
+struct NewTokenSelectorAccountHeaderView: View {
+    let header: NewTokenSelectorAccountViewModel.HeaderType
 
     var body: some View {
         content
