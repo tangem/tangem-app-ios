@@ -10,7 +10,7 @@ import TangemExpress
 import struct TangemUI.TokenIconInfo
 
 class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
     let parameters: PredefinedOnrampParameters
     let source: SendCoordinator.Source
 
@@ -63,7 +63,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     )
 
     init(
-        userWalletInfo: SendWalletInfo,
+        userWalletInfo: UserWalletInfo,
         parameters: PredefinedOnrampParameters,
         source: SendCoordinator.Source,
         walletModel: any WalletModel,
