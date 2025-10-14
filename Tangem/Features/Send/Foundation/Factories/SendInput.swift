@@ -7,12 +7,12 @@
 //
 
 struct SendInput {
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
     let walletModel: any WalletModel
     let expressInput: CommonExpressDependenciesFactory.Input
 
     init(
-        userWalletInfo: SendWalletInfo,
+        userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
         expressInput: CommonExpressDependenciesFactory.Input
     ) {
