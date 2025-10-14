@@ -62,14 +62,12 @@ final class YieldTransactionFeeProvider {
     func reactivateFee(
         yieldContractAddress: String,
         tokenContractAddress: String,
-        balance: Decimal,
         tokenDecimalCount: Int,
         maxNetworkFee: BigUInt
     ) async throws -> ReactivateEnterFee {
         let transactions = try await reactivateTransactions(
             tokenContractAddress: tokenContractAddress,
             yieldContractAddress: yieldContractAddress,
-            balance: balance,
             tokenDecimalCount: tokenDecimalCount,
             maxNetworkFee: maxNetworkFee
         )
@@ -170,7 +168,6 @@ private extension YieldTransactionFeeProvider {
     private func reactivateTransactions(
         tokenContractAddress: String,
         yieldContractAddress: String,
-        balance: Decimal,
         tokenDecimalCount: Int,
         maxNetworkFee: BigUInt
     ) async throws -> [TransactionData] {
@@ -187,8 +184,7 @@ private extension YieldTransactionFeeProvider {
         if try await isPermissionRequired(
             yieldContractAddress: yieldContractAddress,
             tokenContractAddress: tokenContractAddress,
-            tokenDecimalCount: tokenDecimalCount,
-            balance: balance
+            tokenDecimalCount: tokenDecimalCount
         ) {
             transactions.append(
                 approveTransactionData(
@@ -401,8 +397,7 @@ private extension YieldTransactionFeeProvider {
     private func isPermissionRequired(
         yieldContractAddress: String,
         tokenContractAddress: String,
-        tokenDecimalCount: Int,
-        balance: Decimal
+        tokenDecimalCount: Int
     ) async throws -> Bool {
         let allowanceString = try await ethereumNetworkProvider.getAllowanceRaw(
             owner: walletAddress,
@@ -410,14 +405,7 @@ private extension YieldTransactionFeeProvider {
             contractAddress: tokenContractAddress
         ).async()
 
-        guard let allowance = EthereumUtils.parseEthereumDecimal(
-            allowanceString,
-            decimalsCount: tokenDecimalCount
-        ) else {
-            throw YieldModuleError.unableToParseData
-        }
-
-        return allowance < balance
+        return BigUInt(Data(hexString: allowanceString)) < Constants.maxAllowance / 2
     }
 }
 
