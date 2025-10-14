@@ -26,7 +26,7 @@ struct TangemPayMainView: View {
                         buttonsInfo: [
                             // [REDACTED_TODO_COMMENT]
                             FixedSizeButtonWithIconInfo(
-                                title: "Add funds",
+                                title: "Receive",
                                 icon: Assets.arrowDownMini,
                                 disabled: false,
                                 action: viewModel.addFunds
