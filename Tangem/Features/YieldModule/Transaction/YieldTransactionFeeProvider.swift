@@ -61,15 +61,15 @@ final class YieldTransactionFeeProvider {
 
     func minimalFee(tokenId: String) async throws -> Decimal {
         let converter = BalanceConverter()
-        
+
         let parameters = try await ethereumNetworkProvider.getFee(
             gasLimit: Constants.minimalTopUpGasLimit,
             supportsEIP1559: blockchain.supportsEIP1559
         )
-       
+
         let feeNative = parameters.calculateFee(decimalValue: blockchain.decimalValue)
         let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: blockchain.currencyId)
-        
+   
         guard let gasInToken = converter.convertFromFiat(gasInFiat, currencyId: tokenId) else {
             throw YieldModuleError.minimalTopUpAmountNotFound
         }
@@ -78,7 +78,7 @@ final class YieldTransactionFeeProvider {
         let minAmount = feeBuffered / Constants.minimalTopUpFeeLimit
         return minAmount
     }
-
+    
     func reactivateFee(
         yieldContractAddress: String,
         tokenContractAddress: String,
