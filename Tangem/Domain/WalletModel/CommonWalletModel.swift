@@ -576,7 +576,6 @@ extension CommonWalletModel: WalletModelHelpers {
             token: token,
             blockchain: wallet.blockchain,
             yieldSupplyService: yieldSupplyService,
-            tokenBalanceProvider: totalTokenBalanceProvider,
             ethereumNetworkProvider: ethereumNetworkProvider,
             transactionCreator: transactionCreator,
             blockaidApiService: BlockaidFactory().makeBlockaidAPIService(),
