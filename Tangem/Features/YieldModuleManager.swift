@@ -24,6 +24,8 @@ protocol YieldModuleManager {
 
     func approveFee() async throws -> YieldTransactionFee
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String
+    
+    func minimalFee() async throws -> Decimal
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
     func fetchChartData() async throws -> YieldChartData
@@ -44,6 +46,7 @@ final class CommonYieldModuleManager {
     private let token: Token
     private let blockchain: Blockchain
     private let chainId: Int
+    private let tokenId: String
     private let yieldSupplyService: YieldSupplyService
     private let tokenBalanceProvider: TokenBalanceProvider
 
@@ -73,7 +76,8 @@ final class CommonYieldModuleManager {
         pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
     ) {
         guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses(),
-              let chainId = blockchain.chainId
+              let chainId = blockchain.chainId,
+              let tokenId = token.id
         else {
             return nil
         }
@@ -82,6 +86,7 @@ final class CommonYieldModuleManager {
         self.token = token
         self.blockchain = blockchain
         self.chainId = chainId
+        self.tokenId = tokenId
         self.yieldSupplyService = yieldSupplyService
         self.tokenBalanceProvider = tokenBalanceProvider
         self.tokenInfoManager = tokenInfoManager
@@ -128,7 +133,11 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         )
         _walletModelData.send(data)
     }
-
+    
+    func minimalFee() async throws -> Decimal {
+        try await transactionFeeProvider.minimalFee(tokenId: tokenId)
+    }
+    
     func enterFee() async throws -> YieldTransactionFee {
         let yieldTokenState = try await getYieldModuleState()
 
