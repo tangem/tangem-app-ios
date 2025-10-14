@@ -1,5 +1,5 @@
 //
-//  MobileOnboardingCreateWalletViewModel.swift
+//  MobileCreateWalletViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,26 +12,29 @@ import TangemLocalization
 import TangemMobileWalletSdk
 import TangemFoundation
 
-final class MobileOnboardingCreateWalletViewModel: ObservableObject {
+final class MobileCreateWalletViewModel: ObservableObject {
     @Published var isCreating: Bool = false
 
     let title = Localization.hwCreateTitle
     let createButtonTitle = Localization.onboardingCreateWalletButtonCreateWallet
+    let importButtonTitle = Localization.hwImportExistingWallet
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     lazy var infoItems: [InfoItem] = makeInfoItems()
 
-    private weak var delegate: MobileOnboardingCreateWalletDelegate?
+    private weak var coordinator: MobileCreateWalletRoutable?
+    private weak var delegate: MobileCreateWalletDelegate?
 
-    init(delegate: MobileOnboardingCreateWalletDelegate) {
+    init(coordinator: MobileCreateWalletRoutable, delegate: MobileCreateWalletDelegate) {
+        self.coordinator = coordinator
         self.delegate = delegate
     }
 }
 
 // MARK: - Internal methods
 
-extension MobileOnboardingCreateWalletViewModel {
+extension MobileCreateWalletViewModel {
     func onAppear() {
         Analytics.log(.createWalletScreenOpened, contextParams: .custom(.mobileWallet))
     }
@@ -72,11 +75,28 @@ extension MobileOnboardingCreateWalletViewModel {
             }
         }
     }
+
+    func onImportTap() {
+        runTask(in: self) { viewModel in
+            await viewModel.openImportWallet()
+        }
+    }
+}
+
+// MARK: - Navigation
+
+@MainActor
+private extension MobileCreateWalletViewModel {
+    func openImportWallet() {
+        let input = MobileOnboardingInput(flow: .walletImport)
+        let options = OnboardingCoordinator.Options.mobileInput(input)
+        coordinator?.openOnboarding(options: options)
+    }
 }
 
 // MARK: - Private methods
 
-private extension MobileOnboardingCreateWalletViewModel {
+private extension MobileCreateWalletViewModel {
     func makeInfoItems() -> [InfoItem] {
         [
             InfoItem(
@@ -109,7 +129,7 @@ private extension MobileOnboardingCreateWalletViewModel {
 
 // MARK: - Types
 
-extension MobileOnboardingCreateWalletViewModel {
+extension MobileCreateWalletViewModel {
     struct InfoItem: Identifiable {
         let id: UUID = .init()
         let icon: ImageType
@@ -118,7 +138,7 @@ extension MobileOnboardingCreateWalletViewModel {
     }
 }
 
-extension MobileOnboardingCreateWalletViewModel {
+extension MobileCreateWalletViewModel {
     enum Constants {
         static let seedPhraseLength = "12"
     }
