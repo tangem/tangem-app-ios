@@ -1,5 +1,5 @@
 //
-//  MobileOnboardingCreateWalletView.swift
+//  MobileCreateWalletView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct MobileOnboardingCreateWalletView: View {
-    typealias ViewModel = MobileOnboardingCreateWalletViewModel
+struct MobileCreateWalletView: View {
+    typealias ViewModel = MobileCreateWalletViewModel
 
     @ObservedObject var viewModel: ViewModel
 
@@ -33,24 +33,31 @@ struct MobileOnboardingCreateWalletView: View {
 
             Spacer()
 
-            MainButton(
-                title: viewModel.createButtonTitle,
-                action: viewModel.onCreateTap
-            )
+            VStack(spacing: 8) {
+                MainButton(
+                    title: viewModel.createButtonTitle,
+                    style: .secondary,
+                    action: viewModel.onCreateTap
+                )
+
+                MainButton(
+                    title: viewModel.importButtonTitle,
+                    style: .primary,
+                    action: viewModel.onImportTap
+                )
+            }
         }
-        .onAppear {
-            viewModel.onAppear()
-        }
-        .flowLoadingOverlay(isPresented: viewModel.isCreating)
         .padding(.top, 64)
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
+        .overlay(creatingOverlay)
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 
 // MARK: - Subviews
 
-private extension MobileOnboardingCreateWalletView {
+private extension MobileCreateWalletView {
     func infoItem(_ item: ViewModel.InfoItem) -> some View {
         HStack(spacing: 16) {
             ZStack {
@@ -72,5 +79,16 @@ private extension MobileOnboardingCreateWalletView {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.leading, 32)
+    }
+
+    @ViewBuilder
+    var creatingOverlay: some View {
+        if viewModel.isCreating {
+            ZStack {
+                Colors.Overlays.overlayPrimary
+                    .ignoresSafeArea()
+                ActivityIndicatorView()
+            }
+        }
     }
 }
