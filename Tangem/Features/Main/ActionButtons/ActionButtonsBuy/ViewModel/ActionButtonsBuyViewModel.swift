@@ -58,7 +58,15 @@ final class ActionButtonsBuyViewModel: ObservableObject {
         case .didTapToken(let token):
             handleTokenTap(token)
         case .didTapHotCrypto(let token):
-            coordinator?.openAddToPortfolio(.init(token: token, userWalletName: userWalletModel.name))
+            coordinator?.openAddToPortfolio(
+                viewModel: .init(
+                    token: token,
+                    userWalletName: userWalletModel.name,
+                    action: { [weak self] in
+                        self?.addTokenToPortfolio(token)
+                    }
+                )
+            )
         case .addToPortfolio(let token):
             addTokenToPortfolio(token)
         }
