@@ -1,5 +1,5 @@
 //
-//  ImportWalletSelectorCoordinatorView.swift
+//  MobileCreateWalletCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import SwiftUI
 import TangemUI
 
-struct ImportWalletSelectorCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: ImportWalletSelectorCoordinator
+struct MobileCreateWalletCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: MobileCreateWalletCoordinator
 
     var body: some View {
         ZStack {
-            if let importViewModel = coordinator.importViewModel {
-                ImportWalletSelectorView(viewModel: importViewModel)
+            if let viewModel = coordinator.viewModel {
+                MobileCreateWalletView(viewModel: viewModel)
                     .navigationLinks(links)
             }
         }

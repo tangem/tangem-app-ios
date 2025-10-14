@@ -1,22 +1,18 @@
 //
-//  CreateWalletSelectorCoordinator.swift
+//  MobileCreateWalletCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Combine
-import SwiftUI
-import TangemLocalization
-import TangemFoundation
-import TangemUIUtils
+import Foundation
 
-class CreateWalletSelectorCoordinator: CoordinatorObject {
+class MobileCreateWalletCoordinator: CoordinatorObject {
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
-    @Published private(set) var createViewModel: CreateWalletSelectorViewModel?
+    @Published private(set) var viewModel: MobileCreateWalletViewModel?
     @Published var onboardingCoordinator: OnboardingCoordinator?
 
     required init(
@@ -28,25 +24,29 @@ class CreateWalletSelectorCoordinator: CoordinatorObject {
     }
 
     func start(with options: InputOptions) {
-        createViewModel = CreateWalletSelectorViewModel(coordinator: self)
+        viewModel = MobileCreateWalletViewModel(coordinator: self, delegate: self)
     }
 }
 
-// MARK: - CreateNewWalletSelectorRoutable
+// MARK: - MobileCreateWalletRoutable
 
-extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
+extension MobileCreateWalletCoordinator: MobileCreateWalletRoutable {
     func openOnboarding(options: OnboardingCoordinator.Options) {
         openOnboarding(inputOptions: options)
     }
+}
 
-    func openMain(userWalletModel: UserWalletModel) {
-        dismiss(with: .main(userWalletModel: userWalletModel))
+// MARK: - MobileCreateWalletDelegate
+
+extension MobileCreateWalletCoordinator: MobileCreateWalletDelegate {
+    func onCreateWallet(userWalletModel: UserWalletModel) {
+        openMain(userWalletModel: userWalletModel)
     }
 }
 
 // MARK: - Navigation
 
-private extension CreateWalletSelectorCoordinator {
+private extension MobileCreateWalletCoordinator {
     func openOnboarding(inputOptions: OnboardingCoordinator.Options) {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] options in
             switch options {
@@ -61,11 +61,15 @@ private extension CreateWalletSelectorCoordinator {
         coordinator.start(with: inputOptions)
         onboardingCoordinator = coordinator
     }
+
+    func openMain(userWalletModel: UserWalletModel) {
+        dismiss(with: .main(userWalletModel: userWalletModel))
+    }
 }
 
 // MARK: - Options
 
-extension CreateWalletSelectorCoordinator {
+extension MobileCreateWalletCoordinator {
     struct InputOptions {}
 
     enum OutputOptions {

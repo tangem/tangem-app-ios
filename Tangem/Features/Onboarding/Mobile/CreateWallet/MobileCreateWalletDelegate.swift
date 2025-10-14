@@ -1,5 +1,5 @@
 //
-//  MobileOnboardingCreateWalletDelegate.swift
+//  MobileCreateWalletDelegate.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol MobileOnboardingCreateWalletDelegate: AnyObject {
+protocol MobileCreateWalletDelegate: AnyObject {
     func onCreateWallet(userWalletModel: UserWalletModel)
 }
