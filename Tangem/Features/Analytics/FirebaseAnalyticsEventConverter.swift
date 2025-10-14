@@ -59,11 +59,3 @@ private extension FirebaseAnalyticsEventConverter {
         static let firebaseEventValueMaxLength = 100
     }
 }
-
-// MARK: - Convenience extensions
-
-private extension String {
-    func trim(toLength length: Int) -> String {
-        String(prefix(length))
-    }
-}
