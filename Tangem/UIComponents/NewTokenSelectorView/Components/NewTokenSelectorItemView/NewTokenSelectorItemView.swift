@@ -12,7 +12,7 @@ import TangemAssets
 import TangemLocalization
 
 struct NewTokenSelectorItemView: View {
-    let viewModel: NewTokenSelectorItemViewModel
+    @ObservedObject var viewModel: NewTokenSelectorItemViewModel
 
     var body: some View {
         Button(action: viewModel.action) {
@@ -34,6 +34,7 @@ struct NewTokenSelectorItemView: View {
             )
             .padding(.vertical, 14)
         }
+        .disabled(viewModel.disabledReason != nil)
     }
 
     @ViewBuilder
