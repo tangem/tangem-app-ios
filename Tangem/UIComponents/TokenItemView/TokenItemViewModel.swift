@@ -205,7 +205,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         guard FeatureProvider.isAvailable(.yieldModule) else {
             return
         }
-        
+
         switch state {
         case .active(let info):
             isYieldApproveNeeded = info.allowance.isZero
