@@ -14,8 +14,8 @@ final class CryptoAccountModelMock {
     let id = AccountId()
     let isMainAccount: Bool
     let walletModelsManager: WalletModelsManager
-    let userTokensManager: UserTokensManager = UserTokensManagerMock()
-    let userTokenListManager: UserTokenListManager = UserTokenListManagerMock()
+    let userTokensManager: UserTokensManager
+    let userTokenListManager: UserTokenListManager
 
     private(set) var name = "Mock Account" {
         didSet {
@@ -26,7 +26,7 @@ final class CryptoAccountModelMock {
     }
 
     private(set) var icon = AccountModel.Icon(
-        name: AccountModel.Icon.Name.allCases.randomElement()!,
+        name: .allCases.randomElement()!,
         color: .allCases.randomElement()!
     ) {
         didSet {
@@ -38,9 +38,16 @@ final class CryptoAccountModelMock {
 
     private let didChangeSubject = PassthroughSubject<Void, Never>()
 
-    init(isMainAccount: Bool, walletModelsManager: WalletModelsManager = WalletModelsManagerMock()) {
+    init(
+        isMainAccount: Bool,
+        walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
+        userTokensManager: UserTokensManager = UserTokensManagerMock(),
+        userTokenListManager: UserTokenListManager = UserTokenListManagerMock()
+    ) {
         self.isMainAccount = isMainAccount
         self.walletModelsManager = walletModelsManager
+        self.userTokensManager = userTokensManager
+        self.userTokenListManager = userTokenListManager
     }
 }
 

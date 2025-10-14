@@ -12,6 +12,8 @@ import TangemFoundation
 
 final class AccountModelsManagerMock {
     private let walletModelsManager: WalletModelsManager
+    private let userTokensManager: UserTokensManager
+    private let userTokenListManager: UserTokenListManager
     private let accountModelsSubject = CurrentValueSubject<[AccountModel], Never>([])
     private let totalAccountsCountSubject = CurrentValueSubject<Int, Never>(0)
 
@@ -24,13 +26,32 @@ final class AccountModelsManagerMock {
         }
     }
 
-    init(walletModelsManager: WalletModelsManager = WalletModelsManagerMock()) {
+    init(
+        walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
+        userTokensManager: UserTokensManager = UserTokensManagerMock(),
+        userTokenListManager: UserTokenListManager = UserTokenListManagerMock()
+    ) {
         self.walletModelsManager = walletModelsManager
+        self.userTokensManager = userTokensManager
+        self.userTokenListManager = userTokenListManager
 
         // `defer` is used to trigger the `didSet` observer
         defer {
-            let mainAccount = CryptoAccountModelMock(isMainAccount: true, walletModelsManager: walletModelsManager)
-            cryptoAccountModels = [mainAccount]
+            let mainAccount = CryptoAccountModelMock(
+                isMainAccount: true,
+                walletModelsManager: walletModelsManager,
+                userTokensManager: userTokensManager,
+                userTokenListManager: userTokenListManager
+            )
+
+            let secondAccount = CryptoAccountModelMock(
+                isMainAccount: false,
+                walletModelsManager: walletModelsManager,
+                userTokensManager: userTokensManager,
+                userTokenListManager: userTokenListManager
+            )
+
+            cryptoAccountModels = [mainAccount, secondAccount]
         }
     }
 

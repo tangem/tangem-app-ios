@@ -356,7 +356,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             input: .init(
-                userWalletInfo: userWalletModel.sendWalletInfo,
+                userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
                 expressInput: .init(userWalletModel: userWalletModel)
             ),
@@ -377,7 +377,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
         let options = SendCoordinator.Options(
             input: .init(
-                userWalletInfo: userWalletModel.sendWalletInfo,
+                userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
                 expressInput: .init(userWalletModel: userWalletModel)
             ),
@@ -448,7 +448,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             input: .init(
-                userWalletInfo: userWalletModel.sendWalletInfo,
+                userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
                 expressInput: .init(userWalletModel: userWalletModel)
             ),
@@ -544,16 +544,17 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
             }
         )
 
-        coordinator.start(
-            with: .default(
-                options: .init(
-                    userWalletModel: userWalletModel,
-                    expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
-                    tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
-                )
-            )
-        )
+        let options: ActionButtonsBuyCoordinator.Options = if FeatureProvider.isAvailable(.accounts) {
+            .new
+        } else {
+            .default(options: .init(
+                userWalletModel: userWalletModel,
+                expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+                tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
+            ))
+        }
 
+        coordinator.start(with: options)
         actionButtonsBuyCoordinator = coordinator
     }
 }

@@ -12,7 +12,7 @@ protocol SendGenericFlowBaseDependenciesFactory {
     var tokenItem: TokenItem { get }
     var feeTokenItem: TokenItem { get }
     var tokenIconInfo: TokenIconInfo { get }
-    var userWalletInfo: SendWalletInfo { get }
+    var userWalletInfo: UserWalletInfo { get }
 
     var walletModelBalancesProvider: WalletModelBalancesProvider { get }
     var walletModelDependenciesProvider: WalletModelDependenciesProvider { get }
