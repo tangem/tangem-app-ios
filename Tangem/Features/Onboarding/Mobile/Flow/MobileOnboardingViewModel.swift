@@ -66,8 +66,6 @@ extension MobileOnboardingViewModel {
 private extension MobileOnboardingViewModel {
     func makeFlowBuilder() -> MobileOnboardingFlowBuilder {
         switch input.flow {
-        case .walletCreate:
-            MobileOnboardingCreateWalletFlowBuilder(coordinator: self)
         case .walletImport:
             MobileOnboardingImportWalletFlowBuilder(coordinator: self)
         case .walletActivate(let userWalletModel):
