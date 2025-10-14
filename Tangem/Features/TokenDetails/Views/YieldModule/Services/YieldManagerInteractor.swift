@@ -62,6 +62,10 @@ actor YieldManagerInteractor {
         return (info.maxFeeNative, info.maxFeeUSD)
     }
 
+    func getMinAmount() async throws -> Decimal {
+        try await manager.minimalFee()
+    }
+
     func getChartData() async throws -> YieldChartData {
         try await manager.fetchChartData()
     }
