@@ -16,20 +16,23 @@ extension YieldModuleStartView {
         // It is called "Current Fee" in this view
         let tokenFeeState: LoadableTextView.State
         let maximumFeeState: LoadableTextView.State
+        let minimalAmountState: LoadableTextView.State
+
         let blockchainName: String
 
         var body: some View {
-            VStack(spacing: 26) {
+            VStack(spacing: 20) {
+                minimalAmountSection
                 currentFeeSection
                 maximumFeeSection
             }
         }
-        
+
         private var minimalAmountSection: some View {
             YieldFeeSection(
                 leadingTitle: Localization.yieldModuleFeePolicySheetMinAmountTitle,
-                state: tokenFeeState,
-                footerText: "Localization.yieldModuleFeePolicySheetMinAmountNote(<#T##p1: Int##Int#>)",
+                state: minimalAmountState,
+                footerText: Localization.yieldModuleFeePolicySheetMinAmountNote(0),
                 linkTitle: nil,
                 url: nil,
                 onLinkTapAction: {}

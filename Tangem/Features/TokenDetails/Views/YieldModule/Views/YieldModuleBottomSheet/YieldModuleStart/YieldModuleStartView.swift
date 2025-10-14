@@ -152,14 +152,14 @@ struct YieldModuleStartView: View {
                 onLinkTapAction: viewModel.onShowFeePolicy
             )
             .task {
-                await viewModel.fetchNetworkFee()
-                await viewModel.fetchMaximumFee()
+                await viewModel.fetchFees()
             }
 
         case .feePolicy:
             YieldModuleFeePolicyView(
                 tokenFeeState: viewModel.tokenFeeState,
                 maximumFeeState: viewModel.maximumFeeState,
+                minimalAmountState: viewModel.minimalAmountState,
                 blockchainName: viewModel.walletModel.tokenItem.blockchain.displayName,
             )
         }
