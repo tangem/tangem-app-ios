@@ -367,7 +367,6 @@ extension CommonWalletModel: WalletModelUpdater {
     /// and `fetch()` in CommonTransactionHistoryService uses its own `cancellable`.
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
         _transactionHistoryService?.clearHistory()
-        _receiveAddressService.clear()
 
         return Publishers
             .CombineLatest(
