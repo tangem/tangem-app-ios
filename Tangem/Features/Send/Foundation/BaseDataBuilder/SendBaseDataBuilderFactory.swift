@@ -10,7 +10,7 @@ import TangemExpress
 
 struct SendBaseDataBuilderFactory {
     let walletModel: any WalletModel
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
 
     func makeSendBaseDataBuilder(
         input: SendBaseDataBuilderInput,
