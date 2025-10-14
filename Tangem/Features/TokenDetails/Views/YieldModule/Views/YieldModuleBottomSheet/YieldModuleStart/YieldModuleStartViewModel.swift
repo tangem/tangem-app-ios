@@ -45,6 +45,9 @@ final class YieldModuleStartViewModel: ObservableObject {
     private(set) var maximumFeeState: LoadableTextView.State = .loading
 
     @Published
+    private(set) var minimalAmountState: LoadableTextView.State = .loading
+
+    @Published
     private(set) var chartState: YieldChartContainerState = .loading
 
     @Published
@@ -143,6 +146,26 @@ final class YieldModuleStartViewModel: ObservableObject {
     }
 
     @MainActor
+    func fetchFees() async {
+        await fetchMaximumFee()
+        await fetchNetworkFee()
+        await fetchMinimalAmount()
+    }
+
+    @MainActor
+    func fetchMinimalAmount() async {
+        minimalAmountState = .loading
+
+        do {
+            let minimalAmountInTokens = try await yieldManagerInteractor.getMinAmount()
+            let formatted = try await feeConverter.makeFeeInTokenString(from: minimalAmountInTokens)
+            minimalAmountState = .loaded(text: formatted)
+        } catch {
+            minimalAmountState = .noData
+        }
+    }
+
+    @MainActor
     func fetchMaximumFee() async {
         maximumFeeState = .loading
 
@@ -155,11 +178,10 @@ final class YieldModuleStartViewModel: ObservableObject {
         }
     }
 
+    @MainActor
     func fetchNetworkFee() async {
-        await runOnMain {
-            tokenFeeState = .loading
-            networkFeeState = .loading
-        }
+        tokenFeeState = .loading
+        networkFeeState = .loading
 
         do {
             let feeInCoins = try await yieldManagerInteractor.getEnterFee()
@@ -168,21 +190,17 @@ final class YieldModuleStartViewModel: ObservableObject {
             let convertedFee = try await feeConverter.createFeeString(from: feeValue)
             let feeInTokens = try await feeConverter.makeFeeInTokenString(from: feeValue)
 
-            await runOnMain {
-                networkFeeState = .loaded(text: convertedFee)
-                tokenFeeState = .loaded(text: feeInTokens)
+            networkFeeState = .loaded(text: convertedFee)
+            tokenFeeState = .loaded(text: feeInTokens)
 
-                if feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
-                    showNotEnoughFeeNotification()
-                }
+            if feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
+                showNotEnoughFeeNotification()
             }
 
         } catch {
-            await runOnMain {
-                tokenFeeState = .noData
-                networkFeeState = .noData
-                showFeeErrorNotification()
-            }
+            tokenFeeState = .noData
+            networkFeeState = .noData
+            showFeeErrorNotification()
         }
     }
 
