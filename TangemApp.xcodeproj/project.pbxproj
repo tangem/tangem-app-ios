@@ -2444,6 +2444,7 @@
 		C20EB74D2DAD442700E0F15D /* NFTManagerStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67EA58C2D9A26B000441EA8 /* NFTManagerStub.swift */; };
 		C20FC9242E2EB85D0075DBC7 /* WalletConnectDAppConnectionRequestAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20FC9232E2EB8550075DBC7 /* WalletConnectDAppConnectionRequestAnalyticsLogger.swift */; };
 		C20FC9292E2EC0A60075DBC7 /* CommonWalletConnectDAppConnectionRequestAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20FC9282E2EC0A20075DBC7 /* CommonWalletConnectDAppConnectionRequestAnalyticsLogger.swift */; };
+		C214BE922E79731F00B311BB /* AppsFlyerConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C214BE912E79730500B311BB /* AppsFlyerConfigurator.swift */; };
 		C21707172D395292000AC361 /* BitrockExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21707162D395290000AC361 /* BitrockExternalLinkProvider.swift */; };
 		C22564022D9154DD003063DA /* FloatingSheetPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22564012D9154DD003063DA /* FloatingSheetPresenter.swift */; };
 		C22564082D956481003063DA /* OverlayRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22564072D956476003063DA /* OverlayRootView.swift */; };
@@ -2503,6 +2504,8 @@
 		C27A0EEE2D3648D400AC2336 /* OdysseyChainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */; };
 		C281C9B72DFDA33800372F54 /* WalletConnectDAppSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C281C9B62DFDA30400372F54 /* WalletConnectDAppSession.swift */; };
 		C287C61D2D410D640068B899 /* ApeChainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */; };
+		C28E01682E798A8C00B47571 /* AppsFlyerAnalyticsEventConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28E01672E798A7700B47571 /* AppsFlyerAnalyticsEventConverter.swift */; };
+		C28E016B2E79A6FA00B47571 /* AppsFlyerLib-Strict in Frameworks */ = {isa = PBXBuildFile; productRef = C28E016A2E79A6FA00B47571 /* AppsFlyerLib-Strict */; };
 		C2A6B54C2E02506D00F160C0 /* WalletConnectDAppSessionsExtender.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A6B54B2E02506400F160C0 /* WalletConnectDAppSessionsExtender.swift */; };
 		C2B885522E1424510086B214 /* ReownWalletConnectDAppSessionExtensionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B885512E1424340086B214 /* ReownWalletConnectDAppSessionExtensionService.swift */; };
 		C2BB90B12DE8C6BB00793F94 /* WCDappTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BB90B02DE8C6BB00793F94 /* WCDappTitleView.swift */; };
@@ -6850,6 +6853,7 @@
 		C209B6452E047700009DF477 /* WalletConnectDAppIconURLResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppIconURLResolver.swift; sourceTree = "<group>"; };
 		C20FC9232E2EB8550075DBC7 /* WalletConnectDAppConnectionRequestAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppConnectionRequestAnalyticsLogger.swift; sourceTree = "<group>"; };
 		C20FC9282E2EC0A20075DBC7 /* CommonWalletConnectDAppConnectionRequestAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletConnectDAppConnectionRequestAnalyticsLogger.swift; sourceTree = "<group>"; };
+		C214BE912E79730500B311BB /* AppsFlyerConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfigurator.swift; sourceTree = "<group>"; };
 		C21707162D395290000AC361 /* BitrockExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitrockExternalLinkProvider.swift; sourceTree = "<group>"; };
 		C22564012D9154DD003063DA /* FloatingSheetPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingSheetPresenter.swift; sourceTree = "<group>"; };
 		C22564072D956476003063DA /* OverlayRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayRootView.swift; sourceTree = "<group>"; };
@@ -6911,6 +6915,7 @@
 		C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdysseyChainExternalLinkProvider.swift; sourceTree = "<group>"; };
 		C281C9B62DFDA30400372F54 /* WalletConnectDAppSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppSession.swift; sourceTree = "<group>"; };
 		C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApeChainExternalLinkProvider.swift; sourceTree = "<group>"; };
+		C28E01672E798A7700B47571 /* AppsFlyerAnalyticsEventConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerAnalyticsEventConverter.swift; sourceTree = "<group>"; };
 		C2A6B54B2E02506400F160C0 /* WalletConnectDAppSessionsExtender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppSessionsExtender.swift; sourceTree = "<group>"; };
 		C2B885512E1424340086B214 /* ReownWalletConnectDAppSessionExtensionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReownWalletConnectDAppSessionExtensionService.swift; sourceTree = "<group>"; };
 		C2BB90B02DE8C6BB00793F94 /* WCDappTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCDappTitleView.swift; sourceTree = "<group>"; };
@@ -8645,6 +8650,7 @@
 				B6DDDE7E2CF39729008DEA94 /* AmplitudeSwift in Frameworks */,
 				EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */,
 				B0776C372DA69090004A8765 /* Lottie in Frameworks */,
+				C28E016B2E79A6FA00B47571 /* AppsFlyerLib-Strict in Frameworks */,
 				EFEE239D2BFF62D60099917E /* TangemStaking.framework in Frameworks */,
 				B62C16812CBE0BA000522683 /* Alamofire in Frameworks */,
 				B64404412D3FE77300195004 /* FirebasePerformance in Frameworks */,
@@ -12762,6 +12768,7 @@
 				B079DB702AEB937000D2D0D5 /* Debug */,
 				5D225CB82524B721001564A3 /* Analytics.swift */,
 				DC20E0C32E71A233003B8948 /* AmplitudeWrapper.swift */,
+				C214BE912E79730500B311BB /* AppsFlyerConfigurator.swift */,
 				DCBC94502993FE9A0050BC35 /* Analytics+AnalyticsSystem.swift */,
 				2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */,
 				DCBC94522993FEC80050BC35 /* Analytics+CardScanSource.swift */,
@@ -12781,6 +12788,7 @@
 				DCBC944A2993F3420050BC35 /* AnalyticsStorageKey.swift */,
 				DC1D4C442C38616500B2A422 /* CommonExpressAnalyticsLogger.swift */,
 				0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */,
+				C28E01672E798A7700B47571 /* AppsFlyerAnalyticsEventConverter.swift */,
 				B6438A0D2D091BE5009439CA /* FirebaseAnalyticsEventConverter.swift */,
 				0A16965A2E4DFCA400FBDA90 /* SignInAnalyticsLogger.swift */,
 			);
@@ -23516,6 +23524,7 @@
 				B6E27FA42DFD1CAC00B29813 /* TangemModules */,
 				B660E23C2E1431060069A5E8 /* ZIPFoundation */,
 				DA709FF92E167E36006B9774 /* IdensicMobileSDK */,
+				C28E016A2E79A6FA00B47571 /* AppsFlyerLib-Strict */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -23890,6 +23899,7 @@
 				B6DB40D22E142F260023A90A /* XCRemoteSwiftPackageReference "grpc-swift" */,
 				DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */,
 				0AE2C97E2E58838000D3B9EB /* XCRemoteSwiftPackageReference "swift-collections" */,
+				C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -24242,6 +24252,8 @@
 				EF0FBB792C53BE630095A6BD /* SendFeeCompactViewModel.swift in Sources */,
 				0F27863B2E2B8BF900742D0F /* MobileOnboardingSeedPhraseRecoveryStep.swift in Sources */,
 				B69610982A428C9B00CF88B7 /* OrganizeTokensListSectionView.swift in Sources */,
+				C214BE922E79731F00B311BB /* AppsFlyerConfigurator.swift in Sources */,
+				B6B7B6052CDAC6F500479729 /* MarketsTokenDetailsSecurityScoreViewModel.swift in Sources */,
 				B0FF12682C4A815600C81ED8 /* MainWindowSizeKey.swift in Sources */,
 				B072E12E2B18B26000B0AB27 /* PendingExpressTxStatusBottomSheetView.swift in Sources */,
 				B047A0212D411A2E00CA44EA /* AccessCodeSaveUtility.swift in Sources */,
@@ -24694,6 +24706,7 @@
 				B09BB860259A075600B92000 /* ButtonStyles.swift in Sources */,
 				DC0CC5B42B0D3F0E00E32CAC /* TwinPreflightReadFilter.swift in Sources */,
 				B0EBE8C02C80A8E800ABCEE8 /* TokenContextActionsSection.swift in Sources */,
+				C28E01682E798A8C00B47571 /* AppsFlyerAnalyticsEventConverter.swift in Sources */,
 				B0B469512C11B3CD000D9387 /* AddCustomTokenNetworksListView.swift in Sources */,
 				2DA8AB122A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift in Sources */,
 				DC47F2D62C04C2AE0048092F /* PriceChangeFormatter.swift in Sources */,
@@ -34323,6 +34336,14 @@
 				version = "5.1.0-tangem3";
 			};
 		};
+		C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict";
+			requirement = {
+				kind = exactVersion;
+				version = 6.17.2;
+			};
+		};
 		DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git";
@@ -34632,6 +34653,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6DB40D22E142F260023A90A /* XCRemoteSwiftPackageReference "grpc-swift" */;
 			productName = GRPC;
+		};
+		C28E016A2E79A6FA00B47571 /* AppsFlyerLib-Strict */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */;
+			productName = "AppsFlyerLib-Strict";
 		};
 		DA709FF72E167E2A006B9774 /* IdensicMobileSDK */ = {
 			isa = XCSwiftPackageProductDependency;
