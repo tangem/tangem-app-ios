@@ -69,16 +69,17 @@ final class YieldTransactionFeeProvider {
 
         let feeNative = parameters.calculateFee(decimalValue: blockchain.decimalValue)
         let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: blockchain.currencyId)
-   
+
         guard let gasInToken = converter.convertFromFiat(gasInFiat, currencyId: tokenId) else {
             throw YieldModuleError.minimalTopUpAmountNotFound
         }
-        
+
         let feeBuffered = gasInToken * Constants.minimalTopUpBuffer
         let minAmount = feeBuffered / Constants.minimalTopUpFeeLimit
+
         return minAmount
     }
-    
+
     func reactivateFee(
         yieldContractAddress: String,
         tokenContractAddress: String,
