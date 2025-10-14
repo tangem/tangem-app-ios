@@ -1236,6 +1236,8 @@
 "swapping_token_not_available" = "Nicht verfügbar";
 "tangempay_card_details_error_text" = "Daten konnten nicht geladen werden. Versuche es später noch einmal.";
 "tangempay_card_details_hide_text" = "Verstecken";
+"tangempay_card_details_receive_error_description" = "Technical issues detected. Please try again later or contact support.";
+"tangempay_card_details_receive_error_title" = "Receive unavailable now";
 "tangempay_card_details_reveal_text" = "Aufdecken";
 "tangempay_card_details_title" = "Kartendetails";
 "tangempay_issue_card_notification_title" = "Create account and issue a card";

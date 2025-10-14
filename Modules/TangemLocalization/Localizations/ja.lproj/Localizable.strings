@@ -1236,6 +1236,8 @@
 "swapping_token_not_available" = "利用不可";
 "tangempay_card_details_error_text" = "データの読み込みに失敗しました。しばらくしてからもう一度お試しください。";
 "tangempay_card_details_hide_text" = "非表示";
+"tangempay_card_details_receive_error_description" = "Technical issues detected. Please try again later or contact support.";
+"tangempay_card_details_receive_error_title" = "Receive unavailable now";
 "tangempay_card_details_reveal_text" = "表示";
 "tangempay_card_details_title" = "カードの詳細";
 "tangempay_issue_card_notification_title" = "アカウントを作成してカードを発行";
