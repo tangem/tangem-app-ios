@@ -23,38 +23,34 @@ struct NewTokenSelectorView: View {
     }
 
     var body: some View {
-        GroupedScrollView(spacing: 8, showsIndicators: false) {
-            if searchType == .custom {
-                CustomSearchBar(
-                    searchText: $viewModel.searchText,
-                    placeholder: Localization.commonSearch
-                )
-            }
-
-            content
-        }
-        .if(searchType == .native) {
-            $0
+        switch searchType {
+        case .native:
+            scrollView { scrollContent }
                 .searchable(text: $viewModel.searchText)
+                .keyboardType(.asciiCapable)
                 .autocorrectionDisabled()
+        case .custom:
+            scrollView {
+                CustomSearchBar(searchText: $viewModel.searchText, placeholder: Localization.commonSearch, style: .focused)
+
+                scrollContent
+            }
+        case .none:
+            scrollView { scrollContent }
         }
     }
 
+    private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
+        GroupedScrollView(spacing: 8, showsIndicators: false, content: content)
+    }
+
     @ViewBuilder
-    private var content: some View {
-        switch viewModel.viewState {
-        case .empty:
-            NewTokenSelectorViewEmptyContent(message: Localization.nftEmptySearch)
-        case .wallets(let wallets):
-            ForEach(wallets) {
-                NewTokenSelectorGroupedSectionView(viewModel: $0)
-            }
-        case .walletsWithAccounts(let walletsWithAccounts):
-            ForEach(walletsWithAccounts) { viewModel in
-                let isNotLast = walletsWithAccounts.last?.id != viewModel.id
-                NewTokenSelectorGroupedSectionWrapperView(viewModel: viewModel, shouldShowSeparator: isNotLast)
-            }
+    private var scrollContent: some View {
+        ForEach(viewModel.wallets) {
+            NewTokenSelectorWalletItemView(viewModel: $0, shouldShowSeparator: true)
         }
+
+        FixedSpacer(height: 12)
     }
 }
 
