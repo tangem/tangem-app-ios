@@ -246,7 +246,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             input: .init(
-                userWalletInfo: userWalletModel.sendWalletInfo,
+                userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
                 expressInput: .init(userWalletModel: userWalletModel)
             ),
@@ -266,7 +266,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
         let options = SendCoordinator.Options(
             input: .init(
-                userWalletInfo: userWalletModel.sendWalletInfo,
+                userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
                 expressInput: .init(userWalletModel: userWalletModel)
             ),
@@ -338,7 +338,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             input: .init(
-                userWalletInfo: userWalletModel.sendWalletInfo,
+                userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
                 expressInput: .init(userWalletModel: userWalletModel)
             ),
