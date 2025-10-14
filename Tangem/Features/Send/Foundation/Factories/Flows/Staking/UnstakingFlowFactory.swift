@@ -15,7 +15,7 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
     let manager: any StakingManager
     let action: RestakingModel.Action
     var actionType: StakingAction.ActionType { action.displayType }
@@ -31,7 +31,7 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
 
     init(
         walletModel: any WalletModel,
-        userWalletInfo: SendWalletInfo,
+        userWalletInfo: UserWalletInfo,
         manager: any StakingManager,
         action: UnstakingModel.Action,
     ) {
