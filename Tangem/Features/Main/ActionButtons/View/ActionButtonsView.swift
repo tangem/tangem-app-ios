@@ -15,9 +15,7 @@ struct ActionButtonsView: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            if let buyActionButtonViewModel = viewModel.buyActionButtonViewModel {
-                ActionButtonView(viewModel: buyActionButtonViewModel)
-            }
+            ActionButtonView(viewModel: viewModel.buyActionButtonViewModel)
 
             ActionButtonView(viewModel: viewModel.swapActionButtonViewModel)
                 .unreadNotificationBadge(viewModel.shouldShowSwapUnreadNotificationBadge, badgeColor: Colors.Icon.accent)
