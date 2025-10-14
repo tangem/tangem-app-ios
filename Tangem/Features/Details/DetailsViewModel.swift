@@ -228,10 +228,6 @@ extension DetailsViewModel {
             self?.openCreateWallet()
         }
 
-        let addExistingWalletButton = ConfirmationDialogViewModel.Button(title: Localization.homeButtonAddExistingWallet) { [weak self] in
-            self?.openImportWallet()
-        }
-
         let buyTangemWalletButton = ConfirmationDialogViewModel.Button(title: Localization.detailsBuyWallet) { [weak self] in
             self?.openBuyWallet()
         }
@@ -240,7 +236,6 @@ extension DetailsViewModel {
             title: Localization.userWalletListAddButton,
             buttons: [
                 createNewWalletButton,
-                addExistingWalletButton,
                 buyTangemWalletButton,
                 ConfirmationDialogViewModel.Button.cancel,
             ]
@@ -249,10 +244,6 @@ extension DetailsViewModel {
 
     func openCreateWallet() {
         coordinator?.openCreateWallet()
-    }
-
-    func openImportWallet() {
-        coordinator?.openImportWallet()
     }
 
     func requestSupport() {
