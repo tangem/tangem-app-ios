@@ -9,7 +9,7 @@
 import struct TangemUI.TokenIconInfo
 
 class SendFlowFactory: SendFlowBaseDependenciesFactory {
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
@@ -38,7 +38,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     )
 
     init(
-        userWalletInfo: SendWalletInfo,
+        userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
         expressInput: CommonExpressDependenciesFactory.Input,
     ) {

@@ -13,7 +13,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
     let nftAssetStepBuilder: NFTAssetStepBuilder
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
 
     let walletAddresses: [String]
     let suggestedWallets: [SendDestinationSuggestedWallet]
@@ -46,7 +46,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     )
 
     init(
-        userWalletInfo: SendWalletInfo,
+        userWalletInfo: UserWalletInfo,
         nftAssetStepBuilder: NFTAssetStepBuilder,
         walletModel: any WalletModel,
         expressInput: CommonExpressDependenciesFactory.Input
