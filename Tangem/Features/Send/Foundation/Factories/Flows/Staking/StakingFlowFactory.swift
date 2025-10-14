@@ -15,7 +15,7 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
     let defaultAddressString: String
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
     let manager: any StakingManager
 
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
@@ -30,7 +30,7 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     lazy var notificationManager = makeStakingNotificationManager()
 
     init(
-        userWalletInfo: SendWalletInfo,
+        userWalletInfo: UserWalletInfo,
         manager: any StakingManager,
         walletModel: any WalletModel,
     ) {

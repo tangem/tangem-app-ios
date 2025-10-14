@@ -42,7 +42,7 @@ struct NFTSendUtil {
 
         return SendCoordinator.Options(
             input: .init(
-                userWalletInfo: userWalletModel.sendWalletInfo,
+                userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModelProxy,
                 expressInput: .init(userWalletModel: userWalletModel)
             ),
