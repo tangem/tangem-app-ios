@@ -2536,6 +2536,7 @@
 		C2FF4FFE2DD6712300FE1D9E /* WalletConnectDAppConnectionRequestViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FF4FFD2DD6711C00FE1D9E /* WalletConnectDAppConnectionRequestViewState.swift */; };
 		C2FF50002DD6713600FE1D9E /* WalletConnectDAppConnectionRequestViewEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FF4FFF2DD6712800FE1D9E /* WalletConnectDAppConnectionRequestViewEvent.swift */; };
 		D80903F32E1575DF0031E6CE /* ExpressAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80903F22E1575DF0031E6CE /* ExpressAPI.swift */; };
+		D81E0ED92E9E31060066E171 /* SendKaspaNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81E0ED82E9E31060066E171 /* SendKaspaNotificationUITests.swift */; };
 		D8216C762E1FA192002CCA15 /* OrganizeTokensScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8216C752E1FA192002CCA15 /* OrganizeTokensScreen.swift */; };
 		D82DA8DE2E7AFB7000DFF7AF /* wallet2Imported.json in Resources */ = {isa = PBXBuildFile; fileRef = D82DA8DD2E7AFB7000DFF7AF /* wallet2Imported.json */; };
 		D8419D092E3C1EBB003C2866 /* StakingAPIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8419D082E3C1EBB003C2866 /* StakingAPIType.swift */; };
@@ -6948,6 +6949,7 @@
 		C2FF4FFD2DD6711C00FE1D9E /* WalletConnectDAppConnectionRequestViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppConnectionRequestViewState.swift; sourceTree = "<group>"; };
 		C2FF4FFF2DD6712800FE1D9E /* WalletConnectDAppConnectionRequestViewEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppConnectionRequestViewEvent.swift; sourceTree = "<group>"; };
 		D80903F22E1575DF0031E6CE /* ExpressAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPI.swift; sourceTree = "<group>"; };
+		D81E0ED82E9E31060066E171 /* SendKaspaNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendKaspaNotificationUITests.swift; sourceTree = "<group>"; };
 		D8216C752E1FA192002CCA15 /* OrganizeTokensScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensScreen.swift; sourceTree = "<group>"; };
 		D82DA8DD2E7AFB7000DFF7AF /* wallet2Imported.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = wallet2Imported.json; sourceTree = "<group>"; };
 		D8419D082E3C1EBB003C2866 /* StakingAPIType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAPIType.swift; sourceTree = "<group>"; };
@@ -16874,6 +16876,7 @@
 		D892E6BE2E95114000D29113 /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				D81E0ED82E9E31060066E171 /* SendKaspaNotificationUITests.swift */,
 				D8C314C52E9853F200B9F552 /* SendXRPNotificationUITests.swift */,
 				D8C314C32E968C0700B9F552 /* SendNotificationDogecoinUITests.swift */,
 				D892E6BD2E95114000D29113 /* SendCardanoNotificationUITests.swift */,
@@ -26656,6 +26659,7 @@
 				D86C15FE2E745955005BBD89 /* BlockchainSmokeUITests.swift in Sources */,
 				D8E15EF22E41549000E217BB /* SendSummaryScreen.swift in Sources */,
 				7982B0222DE70E1900C41EA5 /* XCUIElement+Extensions.swift in Sources */,
+				D81E0ED92E9E31060066E171 /* SendKaspaNotificationUITests.swift in Sources */,
 				7982B0232DE70E1900C41EA5 /* NSPredicateFormat.swift in Sources */,
 				D847DA5E2E5DC94F004D5931 /* WalletConnectionsScreen.swift in Sources */,
 				D87591F72E69D2610088BBEA /* CreateWalletScreen.swift in Sources */,
