@@ -24,6 +24,17 @@ extension YieldModuleStartView {
                 maximumFeeSection
             }
         }
+        
+        private var minimalAmountSection: some View {
+            YieldFeeSection(
+                leadingTitle: Localization.yieldModuleFeePolicySheetMinAmountTitle,
+                state: tokenFeeState,
+                footerText: "Localization.yieldModuleFeePolicySheetMinAmountNote(<#T##p1: Int##Int#>)",
+                linkTitle: nil,
+                url: nil,
+                onLinkTapAction: {}
+            )
+        }
 
         private var currentFeeSection: some View {
             YieldFeeSection(
