@@ -25,7 +25,7 @@ final class AccountsAwareUserTokensManager {
     private let derivationInfo: DerivationInfo
     private let existingCurves: [EllipticCurve]
     private let shouldLoadExpressAvailability: Bool
-    private let areLongHashesSupported: Bool
+    private let hardwareLimitationsUtil: HardwareLimitationsUtil
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
 
     private var isMainAccountManager: Bool {
@@ -39,7 +39,7 @@ final class AccountsAwareUserTokensManager {
         derivationInfo: DerivationInfo,
         existingCurves: [EllipticCurve],
         shouldLoadExpressAvailability: Bool,
-        areLongHashesSupported: Bool
+        hardwareLimitationsUtil: HardwareLimitationsUtil
     ) {
         self.userWalletId = userWalletId
         self.userTokenListManager = userTokenListManager
@@ -47,7 +47,7 @@ final class AccountsAwareUserTokensManager {
         self.derivationInfo = derivationInfo
         self.existingCurves = existingCurves
         self.shouldLoadExpressAvailability = shouldLoadExpressAvailability
-        self.areLongHashesSupported = areLongHashesSupported
+        self.hardwareLimitationsUtil = hardwareLimitationsUtil
     }
 
     private func withBlockchainNetwork(_ tokenItem: TokenItem) -> TokenItem {
@@ -261,7 +261,7 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     }
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
-        if AppUtils().hasLongHashesForSend(tokenItem), !areLongHashesSupported {
+        guard hardwareLimitationsUtil.canAdd(tokenItem) else {
             throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
