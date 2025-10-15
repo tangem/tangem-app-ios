@@ -252,6 +252,7 @@ extension NFTEntrypointView {
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
+                accountForCollectionsProvider: AccountNFTCollectionProviderMock(),
                 navigationContext: NFTNavigationContextMock(),
                 analytics: .empty,
                 coordinator: nil
@@ -288,6 +289,7 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
+                accountForCollectionsProvider: AccountNFTCollectionProviderMock(),
                 navigationContext: NFTNavigationContextMock(),
                 analytics: .empty,
                 coordinator: nil
@@ -324,6 +326,7 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
+                accountForCollectionsProvider: AccountNFTCollectionProviderMock(),
                 navigationContext: NFTNavigationContextMock(),
                 analytics: .empty,
                 coordinator: nil
@@ -341,7 +344,7 @@ extension NFTEntrypointView {
                 nftManager: NFTManagerMock(
                     state: .loaded(
                         .init(
-                            value: (0 ... 3).map {
+                            value: (0 ... 2).map {
                                 .init(
                                     collectionIdentifier: "\($0)",
                                     chain: .solana,
@@ -360,6 +363,7 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
+                accountForCollectionsProvider: AccountNFTCollectionProviderMock(),
                 navigationContext: NFTNavigationContextMock(),
                 analytics: .empty,
                 coordinator: nil
@@ -396,6 +400,7 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
+                accountForCollectionsProvider: AccountNFTCollectionProviderMock(),
                 navigationContext: NFTNavigationContextMock(),
                 analytics: .empty,
                 coordinator: nil
@@ -432,6 +437,7 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
+                accountForCollectionsProvider: AccountNFTCollectionProviderMock(),
                 navigationContext: NFTNavigationContextMock(),
                 analytics: .empty,
                 coordinator: nil
