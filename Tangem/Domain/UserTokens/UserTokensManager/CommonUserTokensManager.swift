@@ -26,7 +26,7 @@ final class CommonUserTokensManager {
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
     private let existingCurves: [EllipticCurve]
-    private let longHashesSupported: Bool
+    private let hardwareLimitationsUtil: HardwareLimitationsUtil
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
 
     init(
@@ -37,7 +37,7 @@ final class CommonUserTokensManager {
         derivationStyle: DerivationStyle?,
         derivationManager: DerivationManager?,
         existingCurves: [EllipticCurve],
-        longHashesSupported: Bool
+        hardwareLimitationsUtil: HardwareLimitationsUtil
     ) {
         self.userWalletId = userWalletId
         self.shouldLoadExpressAvailability = shouldLoadExpressAvailability
@@ -46,7 +46,7 @@ final class CommonUserTokensManager {
         self.derivationStyle = derivationStyle
         self.derivationManager = derivationManager
         self.existingCurves = existingCurves
-        self.longHashesSupported = longHashesSupported
+        self.hardwareLimitationsUtil = hardwareLimitationsUtil
     }
 
     private func withBlockchainNetwork(_ tokenItem: TokenItem) -> TokenItem {
@@ -214,7 +214,7 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
-        if AppUtils().hasLongHashesForSend(tokenItem), !longHashesSupported {
+        guard hardwareLimitationsUtil.canAdd(tokenItem) else {
             throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 

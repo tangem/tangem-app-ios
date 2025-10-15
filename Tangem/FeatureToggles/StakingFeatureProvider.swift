@@ -11,11 +11,11 @@ import BlockchainSdk
 import TangemStaking
 
 class StakingFeatureProvider {
-    private let longHashesSupported: Bool
     private let isFeatureAvailable: Bool
+    private let hardwareLimitationsUtil: HardwareLimitationsUtil
 
     init(config: UserWalletConfig) {
-        longHashesSupported = config.hasFeature(.longHashes)
+        hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
         isFeatureAvailable = config.isFeatureVisible(.staking)
     }
 
@@ -24,13 +24,7 @@ class StakingFeatureProvider {
             return nil
         }
 
-        let appUtils = AppUtils()
-
-        if appUtils.hasLongHashesForContractInteractions(tokenItem), !longHashesSupported {
-            return nil
-        }
-
-        guard appUtils.canPerformContractInteractions(with: tokenItem) else {
+        guard hardwareLimitationsUtil.canPerformContractInteractions(with: tokenItem) else {
             return nil
         }
 
