@@ -485,8 +485,6 @@
 		2DAB6B6F2CE28E8500B4A10C /* MinimumAmountRestrictable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DAB6B6E2CE28E8500B4A10C /* MinimumAmountRestrictable.swift */; };
 		2DAD346A2D57CD5500C4BDA5 /* AlephiumTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DAD34692D57CD5500C4BDA5 /* AlephiumTransactionTests.swift */; };
 		2DB071EC2E2505CE00E9F789 /* SolanaALTTransactionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB071EB2E2505CE00E9F789 /* SolanaALTTransactionService.swift */; };
-		2DB071EF2E25291D00E9F789 /* SolanaWalletConnectTransactionRely.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB071EE2E25291D00E9F789 /* SolanaWalletConnectTransactionRely.swift */; };
-		2DB071F72E252EC200E9F789 /* SolanaStakeKitTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB071F32E252EC200E9F789 /* SolanaStakeKitTransactionHelper.swift */; };
 		2DB071FD2E2547D000E9F789 /* SolanaAccountKeysSplitUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB071FC2E2547D000E9F789 /* SolanaAccountKeysSplitUtils.swift */; };
 		2DB1D6BE2D56978D00AD43A3 /* ALPH+AssetOutputRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6692D56978D00AD43A3 /* ALPH+AssetOutputRef.swift */; };
 		2DB1D6BF2D56978D00AD43A3 /* AlephiumNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6B42D56978D00AD43A3 /* AlephiumNetworkService.swift */; };
@@ -628,7 +626,6 @@
 		2DFC27932C78E833009B247E /* TokenItemInfoProviderMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278F2C78E833009B247E /* TokenItemInfoProviderMapper.swift */; };
 		2DFC27942C78E833009B247E /* TokenItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27902C78E833009B247E /* TokenItemType.swift */; };
 		2DFDD6092DF1ECF700CB72B5 /* SuiContractAddressConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFDD6082DF1ECF700CB72B5 /* SuiContractAddressConverter.swift */; };
-		2DFFB24A2E8FB2FD005CBEF6 /* SolanaTransactionSizeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFFB2492E8FB2FD005CBEF6 /* SolanaTransactionSizeUtils.swift */; };
 		30005CD82D5CC9BD00CB41AE /* VanarExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */; };
 		300B38052DDB3C39007BDD32 /* NFTExternalLinksProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */; };
 		300C26342DAFA29600C7E0B0 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = 300C26332DAFA29600C7E0B0 /* CombineExt */; };
@@ -1052,7 +1049,7 @@
 		B08E995F2D9FD168008F367F /* EmailConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08E995E2D9FD168008F367F /* EmailConfig.swift */; };
 		B08EE5172BFDE0C400E8A07C /* WelcomeSearchTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08EE5162BFDE0C400E8A07C /* WelcomeSearchTokensView.swift */; };
 		B08EE5192BFDE12800E8A07C /* WelcomeSearchTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08EE5182BFDE12800E8A07C /* WelcomeSearchTokensViewModel.swift */; };
-		B091D7482AA0DBA000ACB6E2 /* AppUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B091D7472AA0DBA000ACB6E2 /* AppUtils.swift */; };
+		B091D7482AA0DBA000ACB6E2 /* HardwareLimitationsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B091D7472AA0DBA000ACB6E2 /* HardwareLimitationsUtil.swift */; };
 		B09310582A0B76C100F6043A /* ButtonWithLeadingIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09310572A0B76C100F6043A /* ButtonWithLeadingIcon.swift */; };
 		B09381052B29E705001C11E4 /* VisaOnboardingStepsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09381042B29E705001C11E4 /* VisaOnboardingStepsBuilder.swift */; };
 		B09381072B2ADE90001C11E4 /* VisaWalletMainHeaderSubtitleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09381062B2ADE90001C11E4 /* VisaWalletMainHeaderSubtitleProvider.swift */; };
@@ -2111,7 +2108,7 @@
 		B62D434F2CBC79E400C2460E /* SuiTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D43022CBC79E200C2460E /* SuiTransactionTests.swift */; };
 		B62D43532CBC79E400C2460E /* SolanaEd25519Slip0010Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D43082CBC79E200C2460E /* SolanaEd25519Slip0010Tests.swift */; };
 		B62D43542CBC79E400C2460E /* SolanaEd25519Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D43092CBC79E200C2460E /* SolanaEd25519Tests.swift */; };
-		B62D43552CBC79E400C2460E /* SolanaStakeKitTransactionHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D430A2CBC79E200C2460E /* SolanaStakeKitTransactionHelperTests.swift */; };
+		B62D43552CBC79E400C2460E /* SolanaTransactionHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D430A2CBC79E200C2460E /* SolanaTransactionHelperTests.swift */; };
 		B62D43562CBC79E400C2460E /* AptosTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D430C2CBC79E200C2460E /* AptosTransactionTests.swift */; };
 		B62D43572CBC79E400C2460E /* PolkadotTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D430E2CBC79E200C2460E /* PolkadotTransactionTests.swift */; };
 		B62D43582CBC79E400C2460E /* EthereumTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D43102CBC79E200C2460E /* EthereumTransactionTests.swift */; };
@@ -4882,8 +4879,6 @@
 		2DAB6B6E2CE28E8500B4A10C /* MinimumAmountRestrictable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimumAmountRestrictable.swift; sourceTree = "<group>"; };
 		2DAD34692D57CD5500C4BDA5 /* AlephiumTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumTransactionTests.swift; sourceTree = "<group>"; };
 		2DB071EB2E2505CE00E9F789 /* SolanaALTTransactionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaALTTransactionService.swift; sourceTree = "<group>"; };
-		2DB071EE2E25291D00E9F789 /* SolanaWalletConnectTransactionRely.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaWalletConnectTransactionRely.swift; sourceTree = "<group>"; };
-		2DB071F32E252EC200E9F789 /* SolanaStakeKitTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaStakeKitTransactionHelper.swift; sourceTree = "<group>"; };
 		2DB071FC2E2547D000E9F789 /* SolanaAccountKeysSplitUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaAccountKeysSplitUtils.swift; sourceTree = "<group>"; };
 		2DB1D6672D56978D00AD43A3 /* ALPH+AssetOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+AssetOutput.swift"; sourceTree = "<group>"; };
 		2DB1D6682D56978D00AD43A3 /* ALPH+AssetOutputInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+AssetOutputInfo.swift"; sourceTree = "<group>"; };
@@ -5029,7 +5024,6 @@
 		2DFC27902C78E833009B247E /* TokenItemType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemType.swift; sourceTree = "<group>"; };
 		2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsPortfolioTokenItemFactory.swift; sourceTree = "<group>"; };
 		2DFDD6082DF1ECF700CB72B5 /* SuiContractAddressConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuiContractAddressConverter.swift; sourceTree = "<group>"; };
-		2DFFB2492E8FB2FD005CBEF6 /* SolanaTransactionSizeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaTransactionSizeUtils.swift; sourceTree = "<group>"; };
 		30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VanarExternalLinkProvider.swift; sourceTree = "<group>"; };
 		300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTExternalLinksProvider.swift; sourceTree = "<group>"; };
 		300E06BC2D7734ED006317EC /* ICPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICPAddressTests.swift; sourceTree = "<group>"; };
@@ -5474,7 +5468,7 @@
 		B08EE5162BFDE0C400E8A07C /* WelcomeSearchTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeSearchTokensView.swift; sourceTree = "<group>"; };
 		B08EE5182BFDE12800E8A07C /* WelcomeSearchTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeSearchTokensViewModel.swift; sourceTree = "<group>"; };
 		B08F05F32C36D9990066E833 /* MarketsTokenDetailsLinksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsLinksView.swift; sourceTree = "<group>"; };
-		B091D7472AA0DBA000ACB6E2 /* AppUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUtils.swift; sourceTree = "<group>"; };
+		B091D7472AA0DBA000ACB6E2 /* HardwareLimitationsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareLimitationsUtil.swift; sourceTree = "<group>"; };
 		B09310572A0B76C100F6043A /* ButtonWithLeadingIcon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonWithLeadingIcon.swift; sourceTree = "<group>"; };
 		B09381042B29E705001C11E4 /* VisaOnboardingStepsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingStepsBuilder.swift; sourceTree = "<group>"; };
 		B09381062B2ADE90001C11E4 /* VisaWalletMainHeaderSubtitleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaWalletMainHeaderSubtitleProvider.swift; sourceTree = "<group>"; };
@@ -6549,7 +6543,7 @@
 		B62D43022CBC79E200C2460E /* SuiTransactionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuiTransactionTests.swift; sourceTree = "<group>"; };
 		B62D43082CBC79E200C2460E /* SolanaEd25519Slip0010Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaEd25519Slip0010Tests.swift; sourceTree = "<group>"; };
 		B62D43092CBC79E200C2460E /* SolanaEd25519Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaEd25519Tests.swift; sourceTree = "<group>"; };
-		B62D430A2CBC79E200C2460E /* SolanaStakeKitTransactionHelperTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaStakeKitTransactionHelperTests.swift; sourceTree = "<group>"; };
+		B62D430A2CBC79E200C2460E /* SolanaTransactionHelperTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaTransactionHelperTests.swift; sourceTree = "<group>"; };
 		B62D430C2CBC79E200C2460E /* AptosTransactionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AptosTransactionTests.swift; sourceTree = "<group>"; };
 		B62D430E2CBC79E200C2460E /* PolkadotTransactionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PolkadotTransactionTests.swift; sourceTree = "<group>"; };
 		B62D43102CBC79E200C2460E /* EthereumTransactionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumTransactionTests.swift; sourceTree = "<group>"; };
@@ -10198,14 +10192,6 @@
 			path = ALT;
 			sourceTree = "<group>";
 		};
-		2DB071F42E252EC200E9F789 /* StakeKit */ = {
-			isa = PBXGroup;
-			children = (
-				2DB071F32E252EC200E9F789 /* SolanaStakeKitTransactionHelper.swift */,
-			);
-			path = StakeKit;
-			sourceTree = "<group>";
-		};
 		2DB071FB2E25479A00E9F789 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -11945,7 +11931,6 @@
 				EF6761292E4F69D9009132E3 /* FeeCurrencyNavigating */,
 				B047A0202D411A2E00CA44EA /* AccessCodeSaveUtility.swift */,
 				DCFE143D294B31C00053106B /* AppPresenter.swift */,
-				B091D7472AA0DBA000ACB6E2 /* AppUtils.swift */,
 				B003BDAB2A029C4300B282F7 /* BalanceConverter.swift */,
 				EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */,
 				B64781E12C22F74300B0E882 /* CustomTokenContractAddressConverter.swift */,
@@ -14530,13 +14515,10 @@
 				B62D3DF92CBC79D900C2460E /* SolanaSdk+.swift */,
 				0AEE7DB32DA3FB590039B06D /* SolanaTransactionHelper.swift */,
 				B62D3DFB2CBC79D900C2460E /* SolanaTransactionSigner.swift */,
-				2DFFB2492E8FB2FD005CBEF6 /* SolanaTransactionSizeUtils.swift */,
 				2D59AB012E31067D00C3C352 /* SolanaVersionedMessageError+.swift */,
 				B62D3DFC2CBC79D900C2460E /* SolanaWalletAssembly.swift */,
-				2DB071EE2E25291D00E9F789 /* SolanaWalletConnectTransactionRely.swift */,
 				B62D3DFD2CBC79D900C2460E /* SolanaWalletManager.swift */,
 				2DB071ED2E250BA000E9F789 /* ALT */,
-				2DB071F42E252EC200E9F789 /* StakeKit */,
 			);
 			path = Solana;
 			sourceTree = "<group>";
@@ -15525,7 +15507,7 @@
 				30410B442D77486F0044C703 /* SolanaAddressTests.swift */,
 				B62D43082CBC79E200C2460E /* SolanaEd25519Slip0010Tests.swift */,
 				B62D43092CBC79E200C2460E /* SolanaEd25519Tests.swift */,
-				B62D430A2CBC79E200C2460E /* SolanaStakeKitTransactionHelperTests.swift */,
+				B62D430A2CBC79E200C2460E /* SolanaTransactionHelperTests.swift */,
 				2DC734B92E322A5F00DB922B /* SolanaALTTransactionTests.swift */,
 			);
 			path = Solana;
@@ -18809,6 +18791,7 @@
 		DC77E4782E0C3AD000D862C2 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				B091D7472AA0DBA000ACB6E2 /* HardwareLimitationsUtil.swift */,
 				EF5903A729092BC600C527C9 /* FeatureProvider.swift */,
 				DAAEC38C2BF31A8800184D7C /* SendFeatureProvider.swift */,
 				EFD32AEC29EE7F540026353E /* FeatureState.swift */,
@@ -24287,7 +24270,6 @@
 				0F27863B2E2B8BF900742D0F /* MobileOnboardingSeedPhraseRecoveryStep.swift in Sources */,
 				B69610982A428C9B00CF88B7 /* OrganizeTokensListSectionView.swift in Sources */,
 				C214BE922E79731F00B311BB /* AppsFlyerConfigurator.swift in Sources */,
-				B6B7B6052CDAC6F500479729 /* MarketsTokenDetailsSecurityScoreViewModel.swift in Sources */,
 				B0FF12682C4A815600C81ED8 /* MainWindowSizeKey.swift in Sources */,
 				B072E12E2B18B26000B0AB27 /* PendingExpressTxStatusBottomSheetView.swift in Sources */,
 				B047A0212D411A2E00CA44EA /* AccessCodeSaveUtility.swift in Sources */,
@@ -26189,7 +26171,7 @@
 				EF7672F32E0D748700A8900E /* SendSwapProvidersSelectorProviderViewData.swift in Sources */,
 				C25E104F2E0007AC0050BC26 /* WalletConnectDisconnectDAppUseCase.swift in Sources */,
 				B097B9262D0B23A4008A074F /* ActivatedVisaCardDummyManager.swift in Sources */,
-				B091D7482AA0DBA000ACB6E2 /* AppUtils.swift in Sources */,
+				B091D7482AA0DBA000ACB6E2 /* HardwareLimitationsUtil.swift in Sources */,
 				EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */,
 				2D5DCC2E2C3309F1000EE379 /* MarketsTokensNetworkSelectorItemView.swift in Sources */,
 				B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */,
@@ -27100,7 +27082,6 @@
 				2D173CD42E25A726006584C0 /* SolanaALTLookupTableCreator.swift in Sources */,
 				B62D41CE2CBC79DB00C2460E /* smart_contract.pb.swift in Sources */,
 				B62D415B2CBC79DA00C2460E /* BittensorExternalLinkProvider.swift in Sources */,
-				2DB071EF2E25291D00E9F789 /* SolanaWalletConnectTransactionRely.swift in Sources */,
 				B62D42892CBC79DB00C2460E /* TronTransactionHistoryMapper.swift in Sources */,
 				EF798FE62D6F8D3000B9B4A1 /* CommonUnspentOutputManager.swift in Sources */,
 				EF798FE72D6F8D3000B9B4A1 /* UnspentOutputManager.swift in Sources */,
@@ -27593,7 +27574,6 @@
 				B62D42202CBC79DB00C2460E /* XRPTarget.swift in Sources */,
 				B62D41E42CBC79DB00C2460E /* TronWalletAssembly.swift in Sources */,
 				B62D42522CBC79DB00C2460E /* Blockchain+AllCases.swift in Sources */,
-				2DFFB24A2E8FB2FD005CBEF6 /* SolanaTransactionSizeUtils.swift in Sources */,
 				F9F62C8C2CC169E4008A3EE6 /* (null) in Sources */,
 				B62D40E42CBC79DA00C2460E /* HederaNetworkResult.ExchangeRate.swift in Sources */,
 				B62D41072CBC79DA00C2460E /* KaspaFeeMapper.swift in Sources */,
@@ -27735,7 +27715,6 @@
 				B62D40D72CBC79DA00C2460E /* FilecoinTransactionBuilder.swift in Sources */,
 				2D4C5E922CE7B676001346E4 /* XodexExternalLinkProvider.swift in Sources */,
 				EF3805212D71F47300273B1B /* RavencoinDTO.swift in Sources */,
-				2DB071F72E252EC200E9F789 /* SolanaStakeKitTransactionHelper.swift in Sources */,
 				B62D429C2CBC79DB00C2460E /* URLSessionWebSocketTaskWrapper.swift in Sources */,
 				B62D41A12CBC79DA00C2460E /* SuiTarget.swift in Sources */,
 				B62D41EC2CBC79DB00C2460E /* VeChainNetworkParams.swift in Sources */,
@@ -28045,7 +28024,7 @@
 				B62D43692CBC79E400C2460E /* CardanoTransactionTests.swift in Sources */,
 				30E0388B2D6DD7D600D9AD18 /* BinanceTransactionTests.swift in Sources */,
 				EA29AEAF2DF97B5F00355B2E /* Fact0rnTransactionTests.swift in Sources */,
-				B62D43552CBC79E400C2460E /* SolanaStakeKitTransactionHelperTests.swift in Sources */,
+				B62D43552CBC79E400C2460E /* SolanaTransactionHelperTests.swift in Sources */,
 				30C470242D762C47003DFBFD /* HederaAddressTests.swift in Sources */,
 				DC0CEB3F2D8360A300403A9A /* RSKAddressTests.swift in Sources */,
 				30440D762D79A12C00460D15 /* PolygonAddressTests.swift in Sources */,
