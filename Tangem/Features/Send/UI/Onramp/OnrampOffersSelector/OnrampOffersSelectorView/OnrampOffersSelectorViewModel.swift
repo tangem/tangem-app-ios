@@ -49,8 +49,8 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
         bind()
     }
 
-    // Because floating sheet use sheet content twice
-    // then `onAppear` calls twice too
+    /// Because floating sheet use sheet content twice
+    /// then `onAppear` calls twice too
     func onAppear() {
         if shouldOnrampPaymentMethodScreenOpenedLogged {
             analyticsLogger.logOnrampPaymentMethodScreenOpened()
