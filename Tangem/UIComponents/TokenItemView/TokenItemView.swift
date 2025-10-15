@@ -36,10 +36,8 @@ struct TokenItemView: View {
 
                     if viewModel.hasPendingTransactions {
                         ProgressDots(style: .small)
-                    }
-
-                    if viewModel.isYieldAvailable, !viewModel.hasPendingTransactions {
-                        earnBadge.padding(.leading, -2)
+                    } else if let apy = viewModel.earnBadgeAPY {
+                        TokenItemEarnBadgeView(apy: apy)
                     }
                 }
             },
@@ -55,6 +53,8 @@ struct TokenItemView: View {
                                 .resizable()
                                 .foregroundColor(Colors.Icon.accent)
                                 .frame(width: 12, height: 12)
+                        } else if viewModel.isYieldApproveNeeded {
+                            yieldWarningIcon
                         }
 
                         LoadableTokenBalanceView(
@@ -116,12 +116,8 @@ struct TokenItemView: View {
         // [REDACTED_INFO]
     }
 
-    private var earnBadge: some View {
-        TokenItemEarnBadgeView(apy: "TEST")
-    }
-
     private var yieldWarningIcon: some View {
-        Assets.attention.image
+        Assets.attention20.image
             .resizable()
             .frame(width: 12, height: 12)
     }
