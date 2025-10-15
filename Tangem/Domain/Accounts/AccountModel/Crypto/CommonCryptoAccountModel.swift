@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemLocalization
+import TangemNFT
 
 final class CommonCryptoAccountModel {
     let walletModelsManager: WalletModelsManager
@@ -76,7 +77,7 @@ extension CommonCryptoAccountModel {
         accountIcon: AccountModel.Icon,
         derivationIndex: Int,
         walletModelsManager: WalletModelsManager,
-        userTokensManager: UserTokensManager
+        userTokensManager: UserTokensManager,
     ) {
         let accountId = AccountId(userWalletId: userWalletId, derivationIndex: derivationIndex)
         self.init(
