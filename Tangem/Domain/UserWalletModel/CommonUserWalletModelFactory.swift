@@ -125,7 +125,6 @@ private struct CommonUserWalletModelDependencies {
         }
 
         let shouldLoadExpressAvailability = config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange)
-        let areLongHashesSupported = config.hasFeature(.longHashes)
         let areHDWalletsSupported = config.hasFeature(.hdWallets)
 
         let keysRepository = CommonKeysRepository(
@@ -175,7 +174,7 @@ private struct CommonUserWalletModelDependencies {
             derivationStyle: config.derivationStyle,
             derivationManager: derivationManager,
             existingCurves: config.existingCurves,
-            longHashesSupported: areLongHashesSupported
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
         )
 
         let userTokensPushNotificationsManager = CommonUserTokensPushNotificationsManager(
@@ -218,7 +217,7 @@ private struct CommonUserWalletModelDependencies {
                 derivationManager: derivationManager,
                 existingCurves: config.existingCurves,
                 shouldLoadExpressAvailability: shouldLoadExpressAvailability,
-                areLongHashesSupported: areLongHashesSupported
+                hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
             )
 
             return CommonAccountModelsManager(
