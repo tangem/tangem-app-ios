@@ -129,7 +129,7 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
-    func openYieldModulePromoView(walletModel: any WalletModel, apy: String, signer: any TangemSigner) {
+    func openYieldModulePromoView(walletModel: any WalletModel, apy: Decimal, signer: any TangemSigner) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.yieldModulePromoCoordinator = nil
         }

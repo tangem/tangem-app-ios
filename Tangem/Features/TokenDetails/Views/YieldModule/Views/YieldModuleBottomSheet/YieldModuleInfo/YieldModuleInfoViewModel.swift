@@ -10,6 +10,7 @@ import Foundation
 import TangemUI
 import TangemFoundation
 import TangemLocalization
+import TangemAssets
 
 final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Injected
@@ -43,19 +44,23 @@ final class YieldModuleInfoViewModel: ObservableObject {
     @Published
     private(set) var apyState: LoadableTextView.State = .loading
 
+    @Published
+    private(set) var chartState: YieldChartContainerState = .loading
+
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
     private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
     private let yieldManagerInteractor: YieldManagerInteractor
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
+    private let chartServices = YieldChartService()
 
     // MARK: - Properties
 
     private(set) var activityState: ActivityState
     private let availableBalance: Decimal
 
-    private(set) var readMoreURLString: URL = TangemBlogUrlBuilder().url(post: .fee)
+    private(set) var readMoreURL: URL = TangemBlogUrlBuilder().url(post: .fee)
 
     var isButtonEnabled: Bool {
         switch viewState {
@@ -92,6 +97,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         self.availableBalance = availableBalance
 
         viewState = .earnInfo
+        prepareApy()
     }
 
     // MARK: - Navigation
@@ -125,8 +131,22 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     // MARK: - Public Implementation
 
+    @MainActor
+    func fetchChartData() async {
+        chartState = .loading
+
+        do {
+            let chartData = try await chartServices.getChartData()
+            chartState = .loaded(chartData)
+        } catch {
+            chartState = .error(action: { [weak self] in
+                await self?.fetchChartData()
+            })
+        }
+    }
+
     func getAvailableBalanceString() -> String {
-        feeConverter.formatCryptoBalance(availableBalance)
+        feeConverter.formatCryptoBalance(availableBalance, prefix: "a")
     }
 
     @MainActor
@@ -150,7 +170,37 @@ final class YieldModuleInfoViewModel: ObservableObject {
         }
     }
 
+    func makeMyFundsSectionText() -> AttributedString {
+        let fullString = Localization.yieldModuleEarnSheetProviderDescription(
+            walletModel.tokenItem.name,
+            walletModel.tokenItem.currencySymbol
+        )
+            + " "
+            + Localization.commonReadMore
+
+        var attr = AttributedString(fullString)
+        attr.font = Fonts.Regular.caption1
+        attr.foregroundColor = Colors.Text.tertiary
+
+        if let range = attr.range(of: Localization.commonReadMore) {
+            attr[range].foregroundColor = Colors.Text.accent
+            attr[range].link = readMoreURL
+        }
+
+        return attr
+    }
+
     // MARK: - Private Implementation
+
+    private func prepareApy() {
+        Task { @MainActor [weak self] in
+            if let apy = try? await self?.yieldManagerInteractor.getApy() {
+                self?.apyState = .loaded(text: String(format: "%.1f%%", apy.doubleValue))
+            } else {
+                self?.apyState = .noData
+            }
+        }
+    }
 
     private func showApproveSheet() {
         viewState = .approve
