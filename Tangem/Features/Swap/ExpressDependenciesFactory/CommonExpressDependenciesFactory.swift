@@ -48,7 +48,7 @@ private extension CommonExpressDependenciesFactory {
     func makeExpressInteractor() -> ExpressInteractor {
         let transactionValidator = CommonExpressProviderTransactionValidator(
             tokenItem: initialWallet.tokenItem,
-            requiresTransactionSizeValidation: input.requiresTransactionSizeValidation
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: input.userWalletConfig)
         )
 
         let expressManager = TangemExpressFactory().makeExpressManager(
@@ -113,17 +113,17 @@ private extension CommonExpressDependenciesFactory {
 extension CommonExpressDependenciesFactory {
     struct Input {
         let userWalletId: UserWalletId
+        let userWalletConfig: UserWalletConfig
         let refcode: Refcode?
         let signer: TangemSigner
         let walletModelsManager: WalletModelsManager
-        let requiresTransactionSizeValidation: Bool
 
         init(userWalletModel: UserWalletModel) {
             userWalletId = userWalletModel.userWalletId
+            userWalletConfig = userWalletModel.config
             refcode = userWalletModel.refcodeProvider?.getRefcode()
             signer = userWalletModel.signer
             walletModelsManager = userWalletModel.walletModelsManager
-            requiresTransactionSizeValidation = userWalletModel.config.hasFeature(.isHardwareLimited)
         }
 
         init(
@@ -132,8 +132,8 @@ extension CommonExpressDependenciesFactory {
             walletModelsManager: any WalletModelsManager
         ) {
             userWalletId = userWalletInfo.id
+            userWalletConfig = userWalletInfo.config
             signer = userWalletInfo.signer
-            requiresTransactionSizeValidation = userWalletInfo.config.hasFeature(.isHardwareLimited)
 
             self.refcode = refcode
             self.walletModelsManager = walletModelsManager
