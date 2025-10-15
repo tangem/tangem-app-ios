@@ -128,11 +128,16 @@ struct YieldModuleInfoView: View {
         case .earnInfo:
             YieldModuleEarnInfoView(
                 apyState: viewModel.apyState,
+                chartState: viewModel.chartState,
                 tokenName: viewModel.walletModel.tokenItem.name,
                 tokenSymbol: viewModel.walletModel.tokenItem.currencySymbol,
                 transferMode: viewModel.activityState.transferMode,
-                availableBalance: viewModel.getAvailableBalanceString()
+                availableBalance: viewModel.getAvailableBalanceString(),
+                myFundsSectionText: viewModel.makeMyFundsSectionText()
             )
+            .task {
+                await viewModel.fetchChartData()
+            }
 
         case .approve:
             YieldFeeSection(
@@ -140,7 +145,7 @@ struct YieldModuleInfoView: View {
                 state: viewModel.networkFeeState,
                 footerText: Localization.yieldModuleApproveSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
-                url: viewModel.readMoreURLString,
+                url: viewModel.readMoreURL,
                 onLinkTapAction: nil
             )
             .task {
@@ -153,7 +158,7 @@ struct YieldModuleInfoView: View {
                 state: viewModel.networkFeeState,
                 footerText: Localization.yieldModuleStopEarningSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
-                url: viewModel.readMoreURLString,
+                url: viewModel.readMoreURL,
                 onLinkTapAction: nil
             )
             .task {
@@ -200,7 +205,8 @@ private extension YieldModuleInfoView {
             BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTap() } })
 
             VStack(spacing: 3) {
-                Text(Localization.yieldModuleEarnSheetTitle)
+                // [REDACTED_TODO_COMMENT]
+                Text("Aave Lending")
                     .style(Fonts.Bold.headline, color: Colors.Text.primary1)
 
                 HStack(spacing: 4) {

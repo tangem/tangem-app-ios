@@ -16,10 +16,12 @@ extension YieldModuleInfoView {
         // MARK: - Properties
 
         let apyState: LoadableTextView.State
+        let chartState: YieldChartContainerState
         let tokenName: String
         let tokenSymbol: String
         let transferMode: String
         let availableBalance: String
+        let myFundsSectionText: AttributedString
 
         // MARK: - View Body
 
@@ -34,23 +36,22 @@ extension YieldModuleInfoView {
 
         private var topSection: some View {
             VStack(alignment: .leading, spacing: .zero) {
-                HStack {
-                    Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
-                        .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                        .lineLimit(1)
+                Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .padding(.bottom, 4)
 
-                    Spacer()
+                LoadableTextView(
+                    state: apyState,
+                    font: Fonts.Bold.title2,
+                    textColor: Colors.Text.accent,
+                    loaderSize: .init(width: 100, height: 28)
+                )
+                .padding(.bottom, 8)
 
-                    LoadableTextView(
-                        state: apyState,
-                        font: Fonts.Regular.body,
-                        textColor: Colors.Text.tertiary,
-                        loaderSize: .init(width: 44, height: 24)
-                    )
-                }
-                .padding(.bottom, 18)
+                Divider().overlay(Colors.Stroke.primary)
+                    .padding(.bottom, 8)
 
-                // [REDACTED_TODO_COMMENT]
+                YieldModuleEarnInfoChartContainer(state: chartState)
             }
             .defaultRoundedBackground()
         }
@@ -67,18 +68,7 @@ extension YieldModuleInfoView {
         }
 
         private var myFundsDescription: some View {
-            var attr = AttributedString(Localization.yieldModuleEarnSheetProviderDescription(tokenName, tokenSymbol))
-            attr.font = Fonts.Regular.caption1
-            attr.foregroundColor = Colors.Text.tertiary
-
-            var linkPart = AttributedString(Localization.commonReadMore)
-            linkPart.font = Fonts.Regular.caption1
-            linkPart.foregroundColor = Colors.Text.accent
-
-            attr.append(AttributedString(" "))
-            attr.append(linkPart)
-
-            return Text(attr)
+            Text(myFundsSectionText)
                 .multilineTextAlignment(.leading)
         }
 
