@@ -39,12 +39,11 @@ final class ArchivedAccountsViewModel: ObservableObject {
 
     // MARK: - ViewData
 
-    func makeAccountIconBackgroundColor(for model: ArchivedCryptoAccountInfo) -> Color {
-        AccountModelUtils.UI.iconColor(from: model.icon.color)
-    }
-
-    func makeNameMode(for model: ArchivedCryptoAccountInfo) -> AccountIconView.NameMode {
-        AccountModelUtils.UI.nameMode(from: model.icon.name, accountName: model.name)
+    func makeAccountIconViewData(for model: ArchivedCryptoAccountInfo) -> AccountIconView.ViewData {
+        AccountIconView.ViewData(
+            backgroundColor: AccountModelUtils.UI.iconColor(from: model.icon.color),
+            nameMode: AccountModelUtils.UI.nameMode(from: model.icon.name, accountName: model.name)
+        )
     }
 
     @MainActor
