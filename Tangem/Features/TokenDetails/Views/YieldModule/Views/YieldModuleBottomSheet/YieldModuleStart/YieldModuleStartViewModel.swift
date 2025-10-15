@@ -41,11 +41,15 @@ final class YieldModuleStartViewModel: ObservableObject {
     @Published
     private(set) var tokenFeeState: LoadableTextView.State = .loading
 
+    @Published
+    private(set) var chartState: YieldChartContainerState = .loading
+
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
     private weak var coordinator: YieldModulePromoCoordinator?
     private let yieldManagerInteractor: YieldManagerInteractor
+    private let chartServices = YieldChartService()
 
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
 
@@ -118,6 +122,20 @@ final class YieldModuleStartViewModel: ObservableObject {
     }
 
     // MARK: - Public Implementation
+
+    @MainActor
+    func fetchChartData() async {
+        chartState = .loading
+
+        do {
+            let chartData = try await chartServices.getChartData()
+            chartState = .loaded(chartData)
+        } catch {
+            chartState = .error(action: { [weak self] in
+                await self?.fetchChartData()
+            })
+        }
+    }
 
     func fetchNetworkFee() async {
         await runOnMain {
