@@ -35,3 +35,7 @@ struct YieldModuleManagerStateInfo: Equatable {
 
     let state: YieldModuleManagerState
 }
+
+extension YieldModuleManagerStateInfo {
+    static let empty = YieldModuleManagerStateInfo(marketInfo: nil, state: .notActive)
+}
