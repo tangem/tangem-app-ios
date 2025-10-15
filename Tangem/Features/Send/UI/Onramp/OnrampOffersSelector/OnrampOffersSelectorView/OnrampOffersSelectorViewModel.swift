@@ -28,6 +28,7 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
 
     private let tokenItem: TokenItem
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
+    private var shouldOnrampPaymentMethodScreenOpenedLogged: Bool = true
 
     private lazy var onrampOfferViewModelBuilder = OnrampAllOfferViewModelBuilder(tokenItem: tokenItem)
     private lazy var onrampProvidersItemViewModelBuilder = OnrampProviderItemViewModelBuilder(tokenItem: tokenItem)
@@ -48,8 +49,13 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
         bind()
     }
 
+    // Because floating sheet use sheet content twice
+    // then `onAppear` calls twice too
     func onAppear() {
-        analyticsLogger.logOnrampPaymentMethodScreenOpened()
+        if shouldOnrampPaymentMethodScreenOpenedLogged {
+            analyticsLogger.logOnrampPaymentMethodScreenOpened()
+            shouldOnrampPaymentMethodScreenOpenedLogged = false
+        }
     }
 
     func onDisappear() {
