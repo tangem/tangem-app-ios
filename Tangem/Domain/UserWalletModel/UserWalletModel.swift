@@ -28,12 +28,12 @@ protocol UserWalletModel:
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
     var tangemApiAuthData: TangemApiAuthorizationData? { get }
-    var nftManager: NFTManager { get }
     var keysRepository: KeysRepository { get }
     var refcodeProvider: RefcodeProvider? { get }
     var signer: TangemSigner { get }
     var updatePublisher: AnyPublisher<UpdateResult, Never> { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
+    var nftManager: NFTManager { get }
     var walletImageProvider: WalletImageProviding { get }
     var accountModelsManager: AccountModelsManager { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
