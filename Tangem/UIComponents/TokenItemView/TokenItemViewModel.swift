@@ -32,12 +32,9 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     @Published var hasPendingTransactions: Bool = false
     @Published var contextActionSections: [TokenContextActionsSection] = []
     @Published var isStaked: Bool = false
-
+    @Published private(set) var yieldModuleInfo: YieldModuleInfo = .empty
     @Published private var missingDerivation: Bool = false
     @Published private var networkUnreachable: Bool = false
-
-    /// YIELD [REDACTED_TODO_COMMENT]
-    @Published private(set) var isYieldAvailable = false
 
     let tokenItem: TokenItem
 
@@ -60,6 +57,15 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         }
 
         return nil
+    }
+
+    var earnBadgeAPY: String? {
+        guard !hasPendingTransactions else { return nil }
+        return yieldModuleInfo.yieldAPY
+    }
+
+    var isYieldApproveNeeded: Bool {
+        yieldModuleInfo.isYieldApproveNeeded
     }
 
     private let tokenIcon: TokenIconInfo
@@ -109,6 +115,13 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
+        infoProvider?.yieldModuleStatePublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                self?.setupYieldIndicators(marketInfo: state.marketInfo, state: state.state)
+            }
+            .store(in: &bag)
+
         infoProvider?.balancePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -194,6 +207,30 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         }
     }
 
+    func setupYieldIndicators(marketInfo: YieldModuleMarketInfo?, state: YieldModuleManagerState) {
+        guard FeatureProvider.isAvailable(.yieldModule) else {
+            yieldModuleInfo = .empty
+            return
+        }
+
+        let info = switch state {
+        case .active(let supply):
+            YieldModuleInfo(isYieldApproveNeeded: supply.allowance.isZero)
+
+        case .notActive:
+            if let apy = marketInfo?.apy, marketInfo?.isActive == true {
+                YieldModuleInfo(yieldAPY: PercentFormatter().format(apy, option: .interval))
+            } else {
+                YieldModuleInfo.empty
+            }
+
+        case .disabled, .failedToLoad, .processing, .loading:
+            YieldModuleInfo.empty
+        }
+
+        yieldModuleInfo = info
+    }
+
     private func buildContextActions() {
         contextActionSections = contextActionsProvider?.buildContextActions(for: self) ?? []
     }
@@ -204,5 +241,24 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 extension TokenItemViewModel: CustomStringConvertible {
     var description: String {
         objectDescription(self, userInfo: ["id": id])
+    }
+}
+
+extension TokenItemViewModel {
+    struct YieldModuleInfo {
+        var isYieldApproveNeeded: Bool
+        var yieldAPY: String?
+
+        init(isYieldApproveNeeded: Bool = false, yieldAPY: String? = nil) {
+            self.isYieldApproveNeeded = isYieldApproveNeeded
+            self.yieldAPY = yieldAPY
+        }
+
+        mutating func clear() {
+            isYieldApproveNeeded = false
+            yieldAPY = nil
+        }
+
+        static let empty = YieldModuleInfo(isYieldApproveNeeded: false, yieldAPY: nil)
     }
 }
