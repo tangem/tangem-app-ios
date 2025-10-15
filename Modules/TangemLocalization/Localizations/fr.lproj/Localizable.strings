@@ -243,6 +243,7 @@
 "common_from" = "From";
 "common_generate_addresses" = "Synchroniser les adresses";
 "common_get_started" = "Get started";
+"common_get_token" = "Get token";
 "common_go_to_provider" = "Aller au fournisseur";
 "common_go_to_token" = "Aller au jeton";
 "common_got_it" = "Compris";
@@ -626,6 +627,7 @@
 "markets_sort_by_trending_title" = "Tendances";
 "markets_staking_banner_description_placeholder" = "Le staking est le moyen le plus simple de recevoir des récompenses sur votre crypto. %@";
 "markets_staking_banner_title" = "Gagnez jusqu'à %@ APY";
+"markets_token_added" = "Token Added";
 "markets_token_details_about_token_title" = "À propos de %@";
 "markets_token_details_blockchain_site" = "Site web";
 "markets_token_details_buy_pressure_description" = "La différence entre le volume des acheteurs et le volume des vendeurs";
@@ -860,7 +862,7 @@
 "onramp_settings_title" = "Paramètres";
 "onramp_statuses_view_footer" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton.";
 "onramp_timing_minutes" = "%@ min";
-"onramp_title_available_from   " = "Available from   ";
+"onramp_title_available_from" = "Available from";
 "onramp_title_you_get" = "You get";
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton";
@@ -1687,6 +1689,7 @@
 "xtz_withdrawal_message_warning" = "Pour ne pas payer un fraid de commissions élevé la prochaine fois que vous rechargez votre portefeuille, veuillez réduire le montant de %@ XTZ";
 "yield_module_alert_description" = "Text about your money in balance [PLACEHOLDER]";
 "yield_module_alert_title" = "Your %@ is deposited in Aave";
+"yield_module_amount_not_transfered_to_aave_title" = "The amount received, %1$@ %2$@ was not deposited to Aave.";
 "yield_module_approve_needed_notification_cta" = "Give Approve";
 "yield_module_approve_needed_notification_description" = "Something went wrong with your previous approval, so we need a new one. Choose how you’d like to proceed.";
 "yield_module_approve_needed_notification_title" = "Approve needed";
@@ -1729,8 +1732,8 @@
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave is a decentralized protocol managing over $81.9 billion in total value.";
 "yield_module_promo_screen_self_custodial_title" = "Decentralized and self-custodial";
 "yield_module_promo_screen_terms_disclaimer" = "By using service, you agree with provider\n%1$@ and %2$@";
-"yield_module_promo_screen_title" = "Earn %@%% yearly";
-"yield_module_promo_screen_variable_rate_info" = "Aave • Variable Interest Rate";
+"yield_module_promo_screen_title" = "Connect Aave";
+"yield_module_promo_screen_variable_rate_info" = "Aave %1$@% • Variable Interest Rate";
 "yield_module_provider" = "Aave";
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";
 "yield_module_rate_info_sheet_chart_title" = "Last year returns";
