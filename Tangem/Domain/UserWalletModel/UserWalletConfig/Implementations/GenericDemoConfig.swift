@@ -141,7 +141,7 @@ extension GenericDemoConfig: UserWalletConfig {
             return .hidden
         case .longTap:
             return .hidden
-        case .send:
+        case .signing:
             return .available
         case .longHashes:
             if card.firmwareVersion.doubleValue >= 4.52 {
@@ -203,7 +203,9 @@ extension GenericDemoConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
-        case .isHardwareLimited:
+        case .nfcInteraction:
+            return .available
+        case .transactionPayloadLimit:
             return .available
         }
     }
