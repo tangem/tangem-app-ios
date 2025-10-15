@@ -363,8 +363,6 @@ extension Wallet2Config: UserWalletConfig {
             return .available
         case .longHashes:
             return .available
-        case .signedHashesCounter:
-            return .hidden
         case .backup:
             if isDemo {
                 return .demoStub
@@ -397,17 +395,9 @@ extension Wallet2Config: UserWalletConfig {
             }
 
             return .available
-        case .receive:
-            return .available
-        case .withdrawal:
-            return .available
         case .hdWallets:
             return card.settings.isHDWalletAllowed ? .available : .hidden
         case .staking:
-            return .available
-        case .topup:
-            return .available
-        case .tokenSynchronization:
             return .available
         case .referralProgram:
             if isDemo {
@@ -426,8 +416,6 @@ extension Wallet2Config: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .accessCodeRecoverySettings:
-            return .available
-        case .promotion:
             return .available
         case .nft:
             return .available

@@ -1,5 +1,5 @@
 //
-//  GenericConfig.swift
+//  Wallet1Config.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,15 +13,17 @@ import TangemSdk
 import BlockchainSdk
 import TangemFoundation
 
-struct GenericConfig {
+struct Wallet1Config {
     let card: CardDTO
+    private let isDemo: Bool
 
-    init(card: CardDTO) {
+    init(card: CardDTO, isDemo: Bool) {
         self.card = card
+        self.isDemo = isDemo
     }
 }
 
-extension GenericConfig: UserWalletConfig {
+extension Wallet1Config: UserWalletConfig {
     var cardsCount: Int {
         if let backupCardsCount = card.backupStatus?.backupCardsCount {
             return backupCardsCount + 1
@@ -58,6 +60,10 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
+        if let persistentBlockchains = persistentBlockchains {
+            return persistentBlockchains
+        }
+
         let isTestnet = AppEnvironment.current.isTestnet
         let blockchains: [Blockchain] = [
             .bitcoin(testnet: isTestnet),
@@ -79,7 +85,26 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        return nil
+        guard isDemo else { return nil }
+
+        let blockchainIds = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
+
+        let entries: [StorageEntry] = blockchainIds.compactMap { coinId in
+            guard let blockchain = supportedBlockchains.first(where: { $0.coinId == coinId }) else {
+                return nil
+            }
+
+            if let derivationStyle = derivationStyle {
+                let derivationPath = blockchain.derivationPath(for: derivationStyle)
+                let network = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+                return .init(blockchainNetwork: network, tokens: [])
+            }
+
+            let network = BlockchainNetwork(blockchain, derivationPath: nil)
+            return .init(blockchainNetwork: network, tokens: [])
+        }
+
+        return entries
     }
 
     var embeddedBlockchain: StorageEntry? {
@@ -153,9 +178,11 @@ extension GenericConfig: UserWalletConfig {
             }
 
             return .hidden
-        case .signedHashesCounter:
-            return .hidden
         case .backup:
+            if isDemo {
+                return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
+            }
+
             if card.settings.isBackupAllowed, card.backupStatus == .noBackup {
                 return .available
             }
@@ -164,28 +191,44 @@ extension GenericConfig: UserWalletConfig {
         case .twinning:
             return .hidden
         case .exchange:
+            if isDemo {
+                return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
+            }
+
             return .available
         case .walletConnect:
+            if isDemo {
+                return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
+            }
+
             return .available
         case .multiCurrency:
             return .available
         case .resetToFactory:
-            return .available
-        case .receive:
-            return .available
-        case .withdrawal:
+            if isDemo {
+                return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
+            }
+
             return .available
         case .hdWallets:
             return card.settings.isHDWalletAllowed ? .available : .hidden
         case .staking:
-            return .available
-        case .topup:
-            return .available
-        case .tokenSynchronization:
+            if isDemo {
+                return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
+            }
+
             return .available
         case .referralProgram:
+            if isDemo {
+                return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
+            }
+
             return .available
         case .swapping:
+            if isDemo {
+                return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
+            }
+
             return .available
         case .displayHashesCount:
             return .available
@@ -193,8 +236,6 @@ extension GenericConfig: UserWalletConfig {
             return .hidden
         case .accessCodeRecoverySettings:
             return .hidden
-        case .promotion:
-            return .available
         case .nft:
             return .available
         case .iCloudBackup:
@@ -233,11 +274,11 @@ extension GenericConfig: UserWalletConfig {
 
 // MARK: - WalletOnboardingStepsBuilderFactory
 
-extension GenericConfig: WalletOnboardingStepsBuilderFactory {}
+extension Wallet1Config: WalletOnboardingStepsBuilderFactory {}
 
 // MARK: - Private extensions
 
-private extension GenericConfig {
+private extension Wallet1Config {
     func supportedBlockchainFilter(for blockchain: Blockchain) -> Bool {
         if case .quai = blockchain {
             return hasFeature(.hdWallets)

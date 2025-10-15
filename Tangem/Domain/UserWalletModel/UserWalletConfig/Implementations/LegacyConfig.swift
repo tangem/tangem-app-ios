@@ -172,12 +172,6 @@ extension LegacyConfig: UserWalletConfig {
             return .disabled()
         case .longHashes:
             return .hidden
-        case .signedHashesCounter:
-            if card.firmwareVersion.type != .release {
-                return .hidden
-            } else {
-                return .available
-            }
         case .backup:
             return .hidden
         case .twinning:
@@ -196,18 +190,11 @@ extension LegacyConfig: UserWalletConfig {
             }
 
             return .available
-        case .receive:
-            return .available
-        case .withdrawal:
-            return .available
         case .hdWallets:
             return .hidden
         case .staking:
             return .available
-        case .topup:
-            return .available
-        case .tokenSynchronization,
-             .swapping,
+        case .swapping,
              .nft:
             return isMultiwallet ? .available : .hidden
         case .referralProgram:
@@ -217,8 +204,6 @@ extension LegacyConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .accessCodeRecoverySettings:
-            return .hidden
-        case .promotion:
             return .hidden
         case .iCloudBackup:
             return .hidden
