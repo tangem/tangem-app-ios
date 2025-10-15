@@ -30,13 +30,14 @@ struct AccountSelectorAccountCellView: View {
     private var content: some View {
         HStack(spacing: 12) {
             AccountIconView(
-                backgroundColor: AccountModelUtils.UI.iconColor(from: viewModel.accountModel.icon.color),
-                nameMode: AccountModelUtils.UI.nameMode(
-                    from: viewModel.accountModel.icon.name,
-                    accountName: viewModel.accountModel.name
+                data: AccountIconView.ViewData(
+                    backgroundColor: AccountModelUtils.UI.iconColor(from: viewModel.accountModel.icon.color),
+                    nameMode: AccountModelUtils.UI.nameMode(
+                        from: viewModel.accountModel.icon.name,
+                        accountName: viewModel.accountModel.name
+                    )
                 )
             )
-            .frame(size: .init(bothDimensions: 36))
 
             VStack(alignment: .leading, spacing: 6) {
                 Text(viewModel.accountModel.name)
