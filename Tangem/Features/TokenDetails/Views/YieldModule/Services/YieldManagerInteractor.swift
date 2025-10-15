@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import enum BlockchainSdk.YieldModuleError
 
 actor YieldManagerInteractor {
     private(set) var enterFee: YieldTransactionFee?
@@ -99,31 +100,21 @@ actor YieldManagerInteractor {
         )
     }
 
-    /// Initiates the "enter" operation for the given token.
-    /// This is a fire-and-forget task: it triggers the manager call
-    /// and updates the withdrawal alert state on completion,
-    /// without propagating any result or error back to the caller.
-    func enter(with token: TokenItem) async {
+    func enter(with token: TokenItem) async throws {
         guard let fee = enterFee else {
-            return
+            throw YieldModuleError.feeNotFound
         }
 
-        do {
-            _ = try await manager.enter(fee: fee, transactionDispatcher: transactionDispatcher)
-            await yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: token)
-        } catch {}
+        _ = try await manager.enter(fee: fee, transactionDispatcher: transactionDispatcher)
+        await yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: token)
     }
 
-    /// Initiates the "enter" operation for the given token.
-    /// This is also a fire-and-forget task
-    func exit(with token: TokenItem) async {
+    func exit(with token: TokenItem) async throws {
         guard let fee = exitFee else {
-            return
+            throw YieldModuleError.feeNotFound
         }
 
-        do {
-            _ = try await manager.exit(fee: fee, transactionDispatcher: transactionDispatcher)
-        } catch {}
+        _ = try await manager.exit(fee: fee, transactionDispatcher: transactionDispatcher)
     }
 
     // MARK: - Heplers
