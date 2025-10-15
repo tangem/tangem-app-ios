@@ -8,8 +8,8 @@
 
 import Foundation
 import TangemLocalization
-import TangemAssets
 import SwiftUI
+import TangemAssets
 
 final class YieldAvailableNotificationViewModel: ObservableObject {
     // MARK: - Published
@@ -20,7 +20,7 @@ final class YieldAvailableNotificationViewModel: ObservableObject {
     // MARK: - Properties
 
     private var apy: Decimal?
-    private let onButtonTap: (String) -> Void
+    private let onButtonTap: (Decimal) -> Void
 
     // MARK: - Dependencies
 
@@ -28,19 +28,47 @@ final class YieldAvailableNotificationViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(yieldModuleManager: YieldModuleManager, onButtonTap: @escaping (String) -> Void) {
+    init(yieldModuleManager: YieldModuleManager, onButtonTap: @escaping (Decimal) -> Void) {
         self.yieldModuleManager = yieldModuleManager
         self.onButtonTap = onButtonTap
+
+        start()
     }
 
     // MARK: - Public Implementation
 
-    @MainActor
-    func fetchAvailability() async {}
-
     func onGetStartedTap() {
         if let apy {
-            onButtonTap("\(apy)")
+            onButtonTap(apy)
+        }
+    }
+
+    // MARK: - Private Implementation
+
+    private func start() {
+        switch state {
+        case .available(let apy):
+            self.apy = apy
+
+        case .loading:
+            fetchApy()
+
+        case .unavailable:
+            break
+        }
+    }
+
+    private func fetchApy() {
+        guard case .loading = state else { return }
+
+        Task { @MainActor [weak self, yieldModuleManager] in
+            do {
+                let tokenInfo = try await yieldModuleManager.fetchYieldTokenInfo()
+                self?.apy = tokenInfo.apy
+                self?.state = .available(apy: tokenInfo.apy)
+            } catch {
+                self?.state = .unavailable
+            }
         }
     }
 }
@@ -48,7 +76,7 @@ final class YieldAvailableNotificationViewModel: ObservableObject {
 extension YieldAvailableNotificationViewModel {
     enum State {
         case loading
-        case available(apy: String)
+        case available(apy: Decimal)
         case unavailable
 
         var isLoading: Bool {
@@ -63,6 +91,7 @@ extension YieldAvailableNotificationViewModel {
             case .loading:
                 return Localization.yieldModuleTokenDetailsEarnNotificationTitle("0.0%")
             case .unavailable:
+                // [REDACTED_TODO_COMMENT]
                 return "Earnings unavailable"
             }
         }
@@ -72,6 +101,7 @@ extension YieldAvailableNotificationViewModel {
             case .available, .loading:
                 return Localization.yieldModuleTokenDetailsEarnNotificationDescription
             case .unavailable:
+                // [REDACTED_TODO_COMMENT]
                 return "The interest service isn’t available at the moment. Please try again later."
             }
         }
