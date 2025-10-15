@@ -698,7 +698,6 @@ extension ExpressViewModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
              .activate,
