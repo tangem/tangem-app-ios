@@ -95,7 +95,7 @@ extension VisaConfig: UserWalletConfig {
             return .hidden
         case .longTap:
             return .hidden
-        case .send:
+        case .signing:
             return .hidden
         case .longHashes:
             return .hidden
@@ -153,7 +153,9 @@ extension VisaConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
-        case .isHardwareLimited:
+        case .nfcInteraction:
+            return .available
+        case .transactionPayloadLimit:
             return .available
         }
     }
