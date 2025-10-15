@@ -138,7 +138,7 @@ private struct CommonUserWalletModelDependencies {
             userWalletId: userWalletId.value,
             supportedBlockchains: config.supportedBlockchains,
             hdWalletsSupported: areHDWalletsSupported,
-            hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
+            hasTokenSynchronization: config.hasFeature(.multiCurrency),
             defaultBlockchains: config.defaultBlockchains
         )
 
