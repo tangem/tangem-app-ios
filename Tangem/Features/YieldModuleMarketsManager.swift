@@ -58,7 +58,7 @@ private extension CommonYieldModuleMarketsManager {
             return response.tokens.compactMap {
                 return YieldModuleMarketInfo(
                     tokenContractAddress: $0.tokenAddress,
-                    apy: $0.apy,
+                    apy: $0.apy / 100,
                     isActive: $0.isActive,
                     chainId: $0.chainId
                 )
