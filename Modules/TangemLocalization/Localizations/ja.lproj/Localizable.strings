@@ -243,6 +243,7 @@
 "common_from" = "送信元";
 "common_generate_addresses" = "アドレスを同期する";
 "common_get_started" = "はじめる";
+"common_get_token" = "Get token";
 "common_go_to_provider" = "プロバイダーへ移動";
 "common_go_to_token" = "トークンへ移動";
 "common_got_it" = "わかりました";
@@ -626,6 +627,7 @@
 "markets_sort_by_trending_title" = "トレンド";
 "markets_staking_banner_description_placeholder" = "ステーキングは暗号資産で報酬を受け取る最も簡単な方法です。 %@";
 "markets_staking_banner_title" = "最大%@ APYを獲得";
+"markets_token_added" = "Token Added";
 "markets_token_details_about_token_title" = "%@について";
 "markets_token_details_blockchain_site" = "ウェブサイト";
 "markets_token_details_buy_pressure_description" = "買い手と売り手の取引量の差";
@@ -860,7 +862,7 @@
 "onramp_settings_title" = "設定";
 "onramp_statuses_view_footer" = "この画面を閉じて、トークンの詳細画面で取引状況を確認できます。";
 "onramp_timing_minutes" = "%@分";
-"onramp_title_available_from   " = "下記より利用可能";
+"onramp_title_available_from" = "下記より利用可能";
 "onramp_title_you_get" = "以下が手に入ります。";
 "onramp_tos_external_providers" = "サービスは外部プロバイダーによって提供されます。 \nTangemは責任を負いません。";
 "onramp_transaction_status_footer_text" = "この画面を閉じて、トークンの詳細画面で取引状況を確認できます。";
@@ -1687,6 +1689,7 @@
 "xtz_withdrawal_message_warning" = "次回ウォレットにチャージするときに手数料の増加を避けるには、金額を%@ XTZ減らしてください。";
 "yield_module_alert_description" = "資産残高に関するテキスト [プレースホルダー]";
 "yield_module_alert_title" = "%@はAaveに預けられています";
+"yield_module_amount_not_transfered_to_aave_title" = "The amount received, %1$@ %2$@ was not deposited to Aave.";
 "yield_module_approve_needed_notification_cta" = "承認する";
 "yield_module_approve_needed_notification_description" = "前回の承認に問題があったため、新しい承認が必要です。手続き方法を選択してください。";
 "yield_module_approve_needed_notification_title" = "承認が必要";
