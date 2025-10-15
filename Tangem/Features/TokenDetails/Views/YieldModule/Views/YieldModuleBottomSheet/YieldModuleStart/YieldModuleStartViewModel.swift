@@ -9,9 +9,14 @@
 import TangemUI
 import SwiftUI
 import TangemFoundation
+import struct TangemUIUtils.AlertBinder
+import TangemSdk
 
 final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Injected
+
+    @Injected(\.alertPresenter)
+    private var alertPresenter: any AlertPresenter
 
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
@@ -31,6 +36,9 @@ final class YieldModuleStartViewModel: ObservableObject {
     private var previousState: ViewState?
 
     // MARK: - Published
+
+    @Published
+    var alert: AlertBinder?
 
     @Published
     private(set) var notificationBannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? = nil
@@ -84,6 +92,17 @@ final class YieldModuleStartViewModel: ObservableObject {
         }
     }
 
+    var isNavigationToFeePolicyEnabled: Bool {
+        guard case .startEarning = viewState else { return true }
+        guard case .loaded = networkFeeState else { return false }
+
+        if case .feeUnreachable = notificationBannerParams {
+            return false
+        }
+
+        return true
+    }
+
     // MARK: - Init
 
     init(
@@ -118,9 +137,16 @@ final class YieldModuleStartViewModel: ObservableObject {
         let token = walletModel.tokenItem
         isProcessingStartRequest = true
 
-        runTask(in: self) { vm in
-            await vm.yieldManagerInteractor.enter(with: token)
-            vm.coordinator?.dismiss()
+        Task { @MainActor [weak self] in
+            do {
+                try await self?.yieldManagerInteractor.enter(with: token)
+                self?.coordinator?.dismiss()
+            } catch let tangemSdkError as TangemSdkError where tangemSdkError.isUserCancelled {
+                self?.isProcessingStartRequest = false
+            } catch {
+                self?.isProcessingStartRequest = false
+                self?.alertPresenter.present(alert: AlertBuilder.makeOkErrorAlert(message: error.localizedDescription))
+            }
         }
     }
 
@@ -147,8 +173,8 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     @MainActor
     func fetchFees() async {
-        await fetchMaximumFee()
         await fetchNetworkFee()
+        await fetchMaximumFee()
         await fetchMinimalAmount()
     }
 

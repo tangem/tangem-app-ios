@@ -147,6 +147,7 @@ struct YieldModuleInfoView: View {
                 footerText: Localization.yieldModuleApproveSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
                 url: viewModel.readMoreURL,
+                isLinkActive: false,
                 onLinkTapAction: nil
             )
             .task {
@@ -160,6 +161,7 @@ struct YieldModuleInfoView: View {
                 footerText: Localization.yieldModuleStopEarningSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
                 url: viewModel.readMoreURL,
+                isLinkActive: false,
                 onLinkTapAction: nil
             )
             .task {

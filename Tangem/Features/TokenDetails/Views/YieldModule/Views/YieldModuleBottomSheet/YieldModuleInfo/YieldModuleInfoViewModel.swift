@@ -10,9 +10,13 @@ import Foundation
 import TangemUI
 import TangemFoundation
 import TangemLocalization
+import TangemSdk
 
 final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Injected
+
+    @Injected(\.alertPresenter)
+    private var alertPresenter: any AlertPresenter
 
     @Injected(\.floatingSheetPresenter)
     var floatingSheetPresenter: FloatingSheetPresenter
@@ -124,10 +128,19 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     func onStopEarningTap() {
-        Task { @MainActor in
-            isProcessingStartRequest = true
-            await yieldManagerInteractor.exit(with: walletModel.tokenItem)
-            floatingSheetPresenter.removeActiveSheet()
+        let token = walletModel.tokenItem
+        isProcessingStartRequest = true
+
+        Task { @MainActor [weak self] in
+            do {
+                try await self?.yieldManagerInteractor.enter(with: token)
+                self?.floatingSheetPresenter.removeActiveSheet()
+            } catch let tangemSdkError as TangemSdkError where tangemSdkError.isUserCancelled {
+                self?.isProcessingStartRequest = false
+            } catch {
+                self?.isProcessingStartRequest = false
+                self?.alertPresenter.present(alert: AlertBuilder.makeOkErrorAlert(message: error.localizedDescription))
+            }
         }
     }
 
