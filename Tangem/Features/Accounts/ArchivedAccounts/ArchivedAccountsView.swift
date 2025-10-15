@@ -47,11 +47,7 @@ struct ArchivedAccountsView: View {
                 // [REDACTED_TODO_COMMENT]
                 RowWithLeadingAndTrailingIcons(
                     leadingIcon: {
-                        AccountIconView(
-                            backgroundColor: viewModel.makeAccountIconBackgroundColor(for: model),
-                            nameMode: viewModel.makeNameMode(for: model)
-                        )
-                        .setMiddleSizedIconSettings()
+                        AccountIconView(data: viewModel.makeAccountIconViewData(for: model))
                     },
                     content: {
                         VStack(alignment: .leading, spacing: 0) {
