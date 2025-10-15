@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemNFT
 
 actor CommonAccountModelsManager {
     private typealias AccountId = CommonCryptoAccountModel.AccountId
@@ -23,6 +24,7 @@ actor CommonAccountModelsManager {
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
     private let walletModelsManagerFactory: AccountWalletModelsManagerFactory
     private let userTokensManagerFactory: AccountUserTokensManagerFactory
+
     private let userWalletId: UserWalletId
     private let executor: any SerialExecutor
     private let areHDWalletsSupported: Bool
@@ -110,6 +112,7 @@ actor CommonAccountModelsManager {
                 userWalletId: userWalletId,
                 walletModelsManager: walletModelsManager
             )
+
             let cryptoAccount = CommonCryptoAccountModel(
                 userWalletId: userWalletId,
                 accountName: storedCryptoAccount.name,
