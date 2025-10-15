@@ -12,7 +12,7 @@ import TangemAccounts
 struct UserSettingsAccountRowViewData: Identifiable {
     let id: String
     let name: String
-    let accountIconViewData: AccountIconView.AccountIconViewData
+    let accountIconViewData: AccountIconView.ViewData
     let description: String
     let onTap: () -> Void
 }
