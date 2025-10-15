@@ -87,7 +87,7 @@ extension Start2CoinConfig: UserWalletConfig {
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
-        case .send:
+        case .signing:
             return .available
         case .signedHashesCounter:
             if card.firmwareVersion.type == .release {
@@ -155,7 +155,9 @@ extension Start2CoinConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
-        case .isHardwareLimited:
+        case .nfcInteraction:
+            return .available
+        case .transactionPayloadLimit:
             return .available
         }
     }
