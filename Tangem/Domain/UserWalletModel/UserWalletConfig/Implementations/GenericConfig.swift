@@ -145,7 +145,7 @@ extension GenericConfig: UserWalletConfig {
             return .hidden
         case .longTap:
             return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
-        case .send:
+        case .signing:
             return .available
         case .longHashes:
             if card.firmwareVersion.doubleValue >= 4.52 {
@@ -211,7 +211,9 @@ extension GenericConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
-        case .isHardwareLimited:
+        case .nfcInteraction:
+            return .available
+        case .transactionPayloadLimit:
             return .available
         }
     }
