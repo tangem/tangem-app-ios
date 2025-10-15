@@ -50,12 +50,11 @@ final class AccountDetailsViewModel: ObservableObject {
 
     // MARK: - View data
 
-    var accountIconNameMode: AccountIconView.NameMode {
-        AccountModelUtils.UI.nameMode(from: account.icon.name, accountName: account.name)
-    }
-
-    var accountIconColor: Color {
-        AccountModelUtils.UI.iconColor(from: account.icon.color)
+    var accountIconViewData: AccountIconView.ViewData {
+        AccountIconView.ViewData(
+            backgroundColor: AccountModelUtils.UI.iconColor(from: account.icon.color),
+            nameMode: AccountModelUtils.UI.nameMode(from: account.icon.name, accountName: account.name)
+        )
     }
 
     var canBeArchived: Bool {
