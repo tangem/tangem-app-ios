@@ -17,7 +17,8 @@ struct YieldModuleStartView: View {
     // MARK: - View Body
 
     var body: some View {
-        contentView.animation(.contentFrameUpdate, value: viewModel.viewState)
+        contentView
+            .animation(.contentFrameUpdate, value: viewModel.viewState)
     }
 
     // MARK: - Sub Views
@@ -149,6 +150,7 @@ struct YieldModuleStartView: View {
                 footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
                 linkTitle: Localization.yieldModuleStartEarningSheetFeePolicy,
                 url: nil,
+                isLinkActive: viewModel.isNavigationToFeePolicyEnabled,
                 onLinkTapAction: viewModel.onShowFeePolicy
             )
             .task {
