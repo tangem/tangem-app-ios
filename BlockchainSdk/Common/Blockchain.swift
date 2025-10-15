@@ -857,6 +857,21 @@ public indirect enum Blockchain: Equatable, Hashable {
             false
         }
     }
+
+    /// A flag indicating whether custom tokens can be added for this blockchain.
+    ///
+    /// This property is used to determine if custom tokens are supported for this blockchain.
+    ///
+    /// - Returns: `false` for networks where custom tokens are not supported (e.g. `.quai`),
+    ///   and `true` for all others.
+    public var isSupportedNetworkCustomDerivation: Bool {
+        switch self {
+        case .quai:
+            false
+        default:
+            true
+        }
+    }
 }
 
 // MARK: - Ethereum based blockchain definition
