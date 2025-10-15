@@ -359,7 +359,7 @@ extension Wallet2Config: UserWalletConfig {
             return .hidden
         case .longTap:
             return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
-        case .send:
+        case .signing:
             return .available
         case .longHashes:
             return .available
@@ -445,7 +445,9 @@ extension Wallet2Config: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
-        case .isHardwareLimited:
+        case .nfcInteraction:
+            return .available
+        case .transactionPayloadLimit:
             return .available
         }
     }

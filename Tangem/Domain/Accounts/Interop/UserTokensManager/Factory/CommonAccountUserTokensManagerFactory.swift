@@ -17,7 +17,7 @@ struct CommonAccountUserTokensManagerFactory {
     let derivationManager: DerivationManager?
     let existingCurves: [EllipticCurve]
     let shouldLoadExpressAvailability: Bool
-    let areLongHashesSupported: Bool
+    let hardwareLimitationsUtil: HardwareLimitationsUtil
 }
 
 // MARK: - AccountUserTokensManagerFactory protocol conformance
@@ -41,7 +41,7 @@ extension CommonAccountUserTokensManagerFactory: AccountUserTokensManagerFactory
             derivationInfo: derivationInfo,
             existingCurves: existingCurves,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
-            areLongHashesSupported: areLongHashesSupported
+            hardwareLimitationsUtil: hardwareLimitationsUtil
         )
     }
 }

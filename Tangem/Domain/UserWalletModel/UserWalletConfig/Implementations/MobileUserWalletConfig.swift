@@ -103,7 +103,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
         case .accessCode: return .hidden
         case .passcode: return .hidden
         case .longTap: return .hidden
-        case .send: return .available
+        case .signing: return .available
         case .longHashes: return .available
         case .signedHashesCounter: return .hidden
         case .backup: return .hidden
@@ -151,7 +151,9 @@ extension MobileUserWalletConfig: UserWalletConfig {
             return .available
         case .cardSettings:
             return .hidden
-        case .isHardwareLimited:
+        case .nfcInteraction:
+            return .hidden
+        case .transactionPayloadLimit:
             return .hidden
         }
     }
