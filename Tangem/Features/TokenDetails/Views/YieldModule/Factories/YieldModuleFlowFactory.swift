@@ -6,8 +6,10 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 final class YieldModuleFlowFactory {
-    private let apy: String
+    private let apy: Decimal
 
     // MARK: - Dependencies
 
@@ -22,7 +24,7 @@ final class YieldModuleFlowFactory {
 
     init?(
         walletModel: any WalletModel,
-        apy: String = "",
+        apy: Decimal = .zero,
         signer: any TangemSigner,
         feeCurrencyNavigator: (any FeeCurrencyNavigating)?,
         dismissAction: @escaping Action<Void>
