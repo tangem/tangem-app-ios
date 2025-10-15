@@ -11,10 +11,10 @@ import Foundation
 
 /// Data is not final, perhaps we will need smt else ([REDACTED_INFO])
 public struct AccountForNFTData {
-    let iconData: AccountIconView.AccountIconViewData
+    let iconData: AccountIconView.ViewData
     let name: String
 
-    public init(iconData: AccountIconView.AccountIconViewData, name: String) {
+    public init(iconData: AccountIconView.ViewData, name: String) {
         self.iconData = iconData
         self.name = name
     }
