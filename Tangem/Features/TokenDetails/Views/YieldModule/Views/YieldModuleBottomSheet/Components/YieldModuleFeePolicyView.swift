@@ -35,6 +35,7 @@ extension YieldModuleStartView {
                 footerText: Localization.yieldModuleFeePolicySheetMinAmountNote(0),
                 linkTitle: nil,
                 url: nil,
+                isLinkActive: false,
                 onLinkTapAction: {}
             )
         }
@@ -46,6 +47,7 @@ extension YieldModuleStartView {
                 footerText: Localization.yieldModuleFeePolicySheetCurrentFeeNote(blockchainName),
                 linkTitle: nil,
                 url: nil,
+                isLinkActive: false,
                 onLinkTapAction: {}
             )
         }
@@ -57,6 +59,7 @@ extension YieldModuleStartView {
                 footerText: Localization.yieldModuleFeePolicySheetMaxFeeNote,
                 linkTitle: nil,
                 url: nil,
+                isLinkActive: false,
                 onLinkTapAction: {}
             )
         }
