@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemLocalization
+import TangemNFT
 
 final class CryptoAccountModelMock {
     let id = AccountId()
