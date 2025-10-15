@@ -106,8 +106,6 @@ extension NoteDemoConfig: UserWalletConfig {
             return .available
         case .longHashes:
             return .hidden
-        case .signedHashesCounter:
-            return .hidden
         case .backup:
             return .hidden
         case .twinning:
@@ -120,17 +118,9 @@ extension NoteDemoConfig: UserWalletConfig {
             return .hidden
         case .resetToFactory:
             return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
-        case .receive:
-            return .available
-        case .withdrawal:
-            return .available
         case .hdWallets:
             return .hidden
         case .staking:
-            return .hidden
-        case .topup:
-            return .available
-        case .tokenSynchronization:
             return .hidden
         case .referralProgram:
             return .hidden
@@ -141,8 +131,6 @@ extension NoteDemoConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .accessCodeRecoverySettings:
-            return .hidden
-        case .promotion:
             return .hidden
         case .nft:
             return .hidden
