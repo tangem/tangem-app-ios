@@ -17,15 +17,16 @@ struct YieldFeeSection: View {
     let footerText: String
     let linkTitle: String?
     let url: URL?
+    let isLinkActive: Bool
     let onLinkTapAction: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             LoadableFeeRowView(leadingTitle: leadingTitle, state: state)
                 .padding(.horizontal, 4)
-                .defaultRoundedBackground(verticalPadding: 14)
+                .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 14)
 
-            FooterText(footerText: footerText, linkTitle: linkTitle, url: url, onLinkTapAction: onLinkTapAction)
+            FooterText(footerText: footerText, linkTitle: linkTitle, url: url, isLinkActive: isLinkActive, onLinkTapAction: onLinkTapAction)
                 .padding(.horizontal, 14)
         }
     }
@@ -83,6 +84,7 @@ extension YieldFeeSection {
         let footerText: String
         let linkTitle: String?
         let url: URL?
+        let isLinkActive: Bool
         let onLinkTapAction: (() -> Void)?
 
         var body: some View {
@@ -90,7 +92,7 @@ extension YieldFeeSection {
 
             return Text(attr)
                 .environment(\.openURL, OpenURLAction { _ in
-                    if let onLinkTapAction {
+                    if let onLinkTapAction, isLinkActive {
                         onLinkTapAction()
                         return .handled
                     }
@@ -114,7 +116,7 @@ extension YieldFeeSection {
             attr.foregroundColor = Colors.Text.tertiary
 
             if let linkTitle, let range = attr.range(of: linkTitle) {
-                attr[range].foregroundColor = Colors.Text.accent
+                attr[range].foregroundColor = isLinkActive ? Colors.Text.accent : Colors.Text.disabled
 
                 if let url {
                     attr[range].link = url
