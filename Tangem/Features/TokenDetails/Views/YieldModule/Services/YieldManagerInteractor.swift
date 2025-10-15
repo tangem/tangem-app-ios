@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemFoundation
 
 actor YieldManagerInteractor {
@@ -34,6 +35,15 @@ actor YieldManagerInteractor {
     }
 
     // MARK: - Public Implementation
+
+    func getApy() async throws -> Decimal {
+        if let apy = manager.state?.marketInfo?.apy {
+            return apy
+        } else {
+            let info = try await manager.fetchYieldTokenInfo()
+            return info.apy
+        }
+    }
 
     func clearAll() {
         enterFee = nil
