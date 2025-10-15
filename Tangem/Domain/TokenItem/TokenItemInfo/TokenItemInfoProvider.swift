@@ -20,6 +20,7 @@ protocol TokenItemInfoProvider: AnyObject {
     var balancePublisher: AnyPublisher<TokenBalanceType, Never> { get }
     var balanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
     var fiatBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
+    var yieldModuleStatePublisher: AnyPublisher<YieldModuleManagerStateInfo, Never> { get }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { get }
     var hasPendingTransactions: AnyPublisher<Bool, Never> { get }
