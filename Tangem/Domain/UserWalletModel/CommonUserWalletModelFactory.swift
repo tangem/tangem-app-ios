@@ -112,6 +112,7 @@ private struct CommonUserWalletModelDependencies {
     let totalBalanceProvider: TotalBalanceProvider
     let userTokensManager: CommonUserTokensManager
     let nftManager: NFTManager
+    let accountsWalletModelsAggregator: AccountsWalletModelsAggregating
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
@@ -177,16 +178,6 @@ private struct CommonUserWalletModelDependencies {
             longHashesSupported: areLongHashesSupported
         )
 
-        nftManager = CommonNFTManager(
-            userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager,
-            analytics: NFTAnalytics.Error(
-                logError: { errorCode, description in
-                    Analytics.log(event: .nftErrors, params: [.errorCode: errorCode, .errorDescription: description])
-                }
-            )
-        )
-
         let userTokensPushNotificationsManager = CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
@@ -242,6 +233,23 @@ private struct CommonUserWalletModelDependencies {
         accountModelsManager = FeatureProvider.isAvailable(.accounts)
             ? makeAccountModelsManager()
             : DummyCommonAccountModelsManager()
+
+        accountsWalletModelsAggregator = CommonAccountsWalletModelsAggregator(accountModelsManager: accountModelsManager)
+
+        let walletModelsPublisher = FeatureProvider.isAvailable(.accounts)
+            ? accountsWalletModelsAggregator.walletModelsPublisher
+            : walletModelsManager.walletModelsPublisher
+
+        nftManager = CommonNFTManager(
+            userWalletId: userWalletId,
+            walletModelsPublisher: walletModelsPublisher,
+            walletModelsManager: walletModelsManager,
+            analytics: NFTAnalytics.Error(
+                logError: { errorCode, description in
+                    Analytics.log(event: .nftErrors, params: [.errorCode: errorCode, .errorDescription: description])
+                }
+            )
+        )
     }
 
     func update(from model: UserWalletModel) {
