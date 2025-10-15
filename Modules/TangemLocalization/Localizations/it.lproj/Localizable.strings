@@ -243,6 +243,7 @@
 "common_from" = "From";
 "common_generate_addresses" = "Synchronize addresses";
 "common_get_started" = "Get started";
+"common_get_token" = "Get token";
 "common_go_to_provider" = "Go to provider";
 "common_go_to_token" = "Go to token";
 "common_got_it" = "Got it";
@@ -626,6 +627,7 @@
 "markets_sort_by_trending_title" = "Trending";
 "markets_staking_banner_description_placeholder" = "Staking is the easiest way to receive rewards on your crypto. %@";
 "markets_staking_banner_title" = "Earn up to %@ APY";
+"markets_token_added" = "Token Added";
 "markets_token_details_about_token_title" = "About %@";
 "markets_token_details_blockchain_site" = "Website";
 "markets_token_details_buy_pressure_description" = "The difference between buyers volume and sellers volume";
@@ -860,7 +862,7 @@
 "onramp_settings_title" = "Settings";
 "onramp_statuses_view_footer" = "You can close this screen and check the transaction status on the token details screen.";
 "onramp_timing_minutes" = "%@ min";
-"onramp_title_available_from   " = "Available from   ";
+"onramp_title_available_from" = "Available from";
 "onramp_title_you_get" = "You get";
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "You can close this screen and check the transaction status on the token details screen.";
@@ -1687,6 +1689,7 @@
 "xtz_withdrawal_message_warning" = "Per evitare di pagare una commissione maggiore la prossima volta che ricarichi il tuo portafoglio, riduci l'importo di %@ XTZ";
 "yield_module_alert_description" = "Text about your money in balance [PLACEHOLDER]";
 "yield_module_alert_title" = "Your %@ is deposited in Aave";
+"yield_module_amount_not_transfered_to_aave_title" = "The amount received, %1$@ %2$@ was not deposited to Aave.";
 "yield_module_approve_needed_notification_cta" = "Give Approve";
 "yield_module_approve_needed_notification_description" = "Something went wrong with your previous approval, so we need a new one. Choose how you’d like to proceed.";
 "yield_module_approve_needed_notification_title" = "Approve needed";
@@ -1729,8 +1732,8 @@
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave is a decentralized protocol managing over $81.9 billion in total value.";
 "yield_module_promo_screen_self_custodial_title" = "Decentralized and self-custodial";
 "yield_module_promo_screen_terms_disclaimer" = "By using service, you agree with provider\n%1$@ and %2$@";
-"yield_module_promo_screen_title" = "Earn %@%% yearly";
-"yield_module_promo_screen_variable_rate_info" = "Aave • Variable Interest Rate";
+"yield_module_promo_screen_title" = "Connect Aave";
+"yield_module_promo_screen_variable_rate_info" = "Aave %1$@% • Variable Interest Rate";
 "yield_module_provider" = "Aave";
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";
 "yield_module_rate_info_sheet_chart_title" = "Last year returns";
