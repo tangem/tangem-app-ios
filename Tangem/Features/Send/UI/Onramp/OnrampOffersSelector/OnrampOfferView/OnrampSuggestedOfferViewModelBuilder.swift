@@ -17,8 +17,8 @@ struct OnrampSuggestedOfferViewModelBuilder {
 
     func mapToOnrampOfferViewModelTitle(provider: OnrampProvider) -> OnrampOfferViewModel.Title {
         let title: OnrampOfferViewModel.Title = switch (provider.globalAttractiveType, provider.processingTimeType) {
-        case (.great, _): .great
-        case (_, .fastest): .fastest
+        // We're always show only `.great` on the suggested offer view
+        case (.great, _), (_, .fastest): .great
         case (.best, _): .bestRate
         default: .text(Localization.onrampTitleYouGet)
         }
