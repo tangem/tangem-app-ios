@@ -15,6 +15,7 @@ class DefaultTokenItemInfoProvider {
     private let stakingBalanceProvider: TokenBalanceProvider
     private let balanceProvider: TokenBalanceProvider
     private let fiatBalanceProvider: TokenBalanceProvider
+    private let yieldModuleManager: YieldModuleManager?
 
     init(walletModel: any WalletModel) {
         self.walletModel = walletModel
@@ -22,6 +23,7 @@ class DefaultTokenItemInfoProvider {
         stakingBalanceProvider = walletModel.stakingBalanceProvider
         balanceProvider = walletModel.totalTokenBalanceProvider
         fiatBalanceProvider = walletModel.fiatTotalTokenBalanceProvider
+        yieldModuleManager = walletModel.yieldModuleManager
     }
 }
 
@@ -63,6 +65,16 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
     }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { walletModel.actionsUpdatePublisher }
+
+    var yieldModuleStatePublisher: AnyPublisher<YieldModuleManagerStateInfo, Never> {
+        if let manager = yieldModuleManager {
+            return manager.statePublisher
+                .map { $0 ?? .empty }
+                .eraseToAnyPublisher()
+        } else {
+            return Just(.empty).eraseToAnyPublisher()
+        }
+    }
 
     var isStakedPublisher: AnyPublisher<Bool, Never> {
         stakingBalanceProvider

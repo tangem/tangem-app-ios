@@ -24,6 +24,8 @@ protocol YieldModuleManager {
 
     func approveFee() async throws -> YieldTransactionFee
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String
+
+    func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
 }
 
 protocol YieldModuleManagerUpdater {
@@ -40,10 +42,12 @@ final class CommonYieldModuleManager {
     private let walletAddress: String
     private let token: Token
     private let blockchain: Blockchain
+    private let chainId: Int
     private let yieldSupplyService: YieldSupplyService
 
     private let transactionProvider: YieldTransactionProvider
     private let transactionFeeProvider: YieldTransactionFeeProvider
+    private let tokenInfoManager: YieldModuleTokenInfoManager
 
     private var _state = CurrentValueSubject<YieldModuleManagerStateInfo?, Never>(nil)
     private var _walletModelData = CurrentValueSubject<WalletModelData?, Never>(nil)
@@ -60,16 +64,21 @@ final class CommonYieldModuleManager {
         ethereumNetworkProvider: EthereumNetworkProvider,
         transactionCreator: TransactionCreator,
         blockaidApiService: BlockaidAPIService,
+        tokenInfoManager: YieldModuleTokenInfoManager,
         pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
     ) {
-        guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses() else {
+        guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses(),
+              let chainId = blockchain.chainId
+        else {
             return nil
         }
 
         self.walletAddress = walletAddress
         self.token = token
         self.blockchain = blockchain
+        self.chainId = chainId
         self.yieldSupplyService = yieldSupplyService
+        self.tokenInfoManager = tokenInfoManager
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
 
         transactionProvider = YieldTransactionProvider(
@@ -253,6 +262,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
         return try await transactionDispatcher
             .send(transaction: .transfer(transaction)).hash
+    }
+
+    func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo {
+        try await tokenInfoManager.fetchYieldTokenInfo(tokenContractAddress: token.contractAddress, chainId: chainId)
     }
 }
 
