@@ -23,4 +23,5 @@ class TokenWithoutDerivationInfoProvider: TokenItemInfoProvider {
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { .just(output: ()) }
     var isStakedPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     var hasPendingTransactions: AnyPublisher<Bool, Never> { .just(output: false) }
+    var yieldModuleStatePublisher: AnyPublisher<YieldModuleManagerStateInfo, Never> { .just(output: .empty) }
 }
