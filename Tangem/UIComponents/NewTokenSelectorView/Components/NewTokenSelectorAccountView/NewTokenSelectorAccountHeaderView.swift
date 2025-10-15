@@ -25,7 +25,7 @@ struct NewTokenSelectorAccountHeaderView: View {
         case .account(let icon, let name):
             HStack(spacing: 6) {
                 AccountIconView(data: icon)
-                    .settings(.smallSized)
+                    .settings(.extraSmallSized)
 
                 Text(name)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
