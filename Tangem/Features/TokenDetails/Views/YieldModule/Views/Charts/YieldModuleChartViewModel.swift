@@ -13,7 +13,7 @@ final class YieldModuleChartViewModel: ObservableObject {
     // MARK: - Published
 
     @Published
-    var state: YieldChartState = .loading
+    var state: YieldChartContainerState = .loading
 
     // MARK: - Dependencies
 

@@ -1,5 +1,5 @@
 //
-//  YieldModuleChartContainerView.swift
+//  YieldModuleEarnInfoChartContainer.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,33 +11,21 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
-struct YieldModuleChartContainer: View {
-    @StateObject
-    private var viewModel = YieldModuleChartViewModel()
+struct YieldModuleEarnInfoChartContainer: View {
+    let state: YieldChartContainerState
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            switch viewModel.state {
+            switch state {
             case .loading:
-                makeTopContent(isLoading: true)
                 YieldModuleChart(state: .loading)
 
             case .loaded(let data):
-                makeTopContent(isLoading: false)
                 YieldModuleChart(state: .loaded(apyData: data.buckets, xAxisLabels: data.xLabels, averageApy: data.averageApy))
 
             case .error(action: let retry):
                 errorView { await retry() }
             }
-        }
-        .defaultRoundedBackground()
-        .task { await viewModel.loadData() }
-    }
-
-    private func makeTopContent(isLoading: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            title(isLoading: isLoading)
-            description(isLoading: isLoading)
         }
     }
 
@@ -59,23 +47,5 @@ struct YieldModuleChartContainer: View {
         .frame(maxWidth: .infinity)
         .frame(height: 136)
         .defaultRoundedBackground()
-    }
-
-    private func title(isLoading: Bool) -> some View {
-        Text(Localization.yieldModuleRateInfoSheetChartTitle)
-            .style(Fonts.Bold.headline, color: Colors.Text.primary1)
-            .skeletonable(isShown: isLoading)
-    }
-
-    private func description(isLoading: Bool) -> some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(Colors.Icon.accent)
-                .frame(width: 8, height: 8)
-
-            Text(Localization.yieldModuleSupplyApr)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-        }
-        .skeletonable(isShown: isLoading)
     }
 }
