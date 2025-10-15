@@ -123,7 +123,7 @@ extension TwinConfig: UserWalletConfig {
             return .disabled()
         case .longTap:
             return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
-        case .send:
+        case .signing:
             return .available
         case .longHashes:
             return .hidden
@@ -181,7 +181,9 @@ extension TwinConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
-        case .isHardwareLimited:
+        case .nfcInteraction:
+            return .available
+        case .transactionPayloadLimit:
             return .available
         }
     }
