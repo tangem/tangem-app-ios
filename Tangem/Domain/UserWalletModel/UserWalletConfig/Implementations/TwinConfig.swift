@@ -127,8 +127,6 @@ extension TwinConfig: UserWalletConfig {
             return .available
         case .longHashes:
             return .hidden
-        case .signedHashesCounter:
-            return .hidden
         case .backup:
             return .hidden
         case .twinning:
@@ -141,17 +139,9 @@ extension TwinConfig: UserWalletConfig {
             return .hidden
         case .resetToFactory:
             return .available
-        case .receive:
-            return .available
-        case .withdrawal:
-            return .available
         case .hdWallets:
             return .hidden
         case .staking:
-            return .hidden
-        case .topup:
-            return .available
-        case .tokenSynchronization:
             return .hidden
         case .referralProgram:
             return .hidden
@@ -162,8 +152,6 @@ extension TwinConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .accessCodeRecoverySettings:
-            return .hidden
-        case .promotion:
             return .hidden
         case .nft:
             return .hidden
