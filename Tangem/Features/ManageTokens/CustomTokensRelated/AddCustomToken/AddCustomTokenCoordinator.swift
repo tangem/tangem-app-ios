@@ -35,9 +35,8 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let userWalletConfig = options.userWalletConfig
-
         let supportedBlockchains = Array(userWalletConfig.supportedBlockchains)
-            .filter { $0.curve.supportsDerivation }
+            .filter { $0.curve.supportsDerivation && $0.isSupportedNetworkCustomDerivation }
             .sorted(by: \.displayName)
 
         let settings = AddCustomTokenViewModel.ManageTokensSettings(
