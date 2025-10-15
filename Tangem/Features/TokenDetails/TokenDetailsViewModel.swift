@@ -125,8 +125,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             openFeeCurrency()
         case .swap:
             openExchange()
-        case .openYieldPromo:
-            openYieldModulePromo()
         case .generateAddresses,
              .backupCard,
              .buyCrypto,
@@ -469,9 +467,7 @@ extension TokenDetailsViewModel {
         })
     }
 
-    func makeYieldNotificationViewModel(
-        yieldManager: YieldModuleManager
-    ) -> YieldAvailableNotificationViewModel {
+    func makeYieldNotificationViewModel(yieldManager: YieldModuleManager) -> YieldAvailableNotificationViewModel {
         YieldAvailableNotificationViewModel(
             yieldModuleManager: yieldManager,
             onButtonTap: { [weak self] apy in
