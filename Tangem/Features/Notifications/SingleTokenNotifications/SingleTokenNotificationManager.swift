@@ -350,10 +350,6 @@ final class SingleTokenNotificationManager {
     private func hideNotification(_ notification: NotificationViewInput) {
         notificationInputsSubject.value.removeAll { $0 == notification }
     }
-
-    private func makeYieldAvailableNotification() -> TokenNotificationEvent {
-        .yieldAvailable(configuration: .init(apy: "TEST"))
-    }
 }
 
 extension SingleTokenNotificationManager: NotificationManager {
