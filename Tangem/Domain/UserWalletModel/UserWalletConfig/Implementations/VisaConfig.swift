@@ -99,8 +99,6 @@ extension VisaConfig: UserWalletConfig {
             return .hidden
         case .longHashes:
             return .hidden
-        case .signedHashesCounter:
-            return .hidden
         case .backup:
             return .hidden
         case .twinning:
@@ -113,17 +111,9 @@ extension VisaConfig: UserWalletConfig {
             return .hidden
         case .resetToFactory:
             return .hidden
-        case .receive:
-            return .available
-        case .withdrawal:
-            return .hidden
         case .hdWallets:
             return .hidden
         case .staking:
-            return .hidden
-        case .topup:
-            return .hidden
-        case .tokenSynchronization:
             return .hidden
         case .referralProgram:
             return .hidden
@@ -134,8 +124,6 @@ extension VisaConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .accessCodeRecoverySettings:
-            return .hidden
-        case .promotion:
             return .hidden
         case .nft:
             return .hidden
