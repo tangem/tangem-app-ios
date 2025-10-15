@@ -99,12 +99,6 @@ extension NoteConfig: UserWalletConfig {
             return .available
         case .longHashes:
             return .hidden
-        case .signedHashesCounter:
-            if card.firmwareVersion.type == .release {
-                return .available
-            }
-
-            return .hidden
         case .backup:
             return .hidden
         case .twinning:
@@ -117,17 +111,9 @@ extension NoteConfig: UserWalletConfig {
             return .hidden
         case .resetToFactory:
             return .available
-        case .receive:
-            return .available
-        case .withdrawal:
-            return .available
         case .hdWallets:
             return .hidden
         case .staking:
-            return .hidden
-        case .topup:
-            return .available
-        case .tokenSynchronization:
             return .hidden
         case .referralProgram:
             return .hidden
@@ -138,8 +124,6 @@ extension NoteConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .accessCodeRecoverySettings:
-            return .hidden
-        case .promotion:
             return .hidden
         case .nft:
             return .hidden
