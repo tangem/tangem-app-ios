@@ -23,7 +23,8 @@ final class YieldModulePromoViewModel {
 
     // MARK: - Properties
 
-    private(set) var apy: String
+    private let apy: Decimal
+    var apyString: String { "\(apy)" }
     private(set) var tosUrl = URL(string: "https://tangem.com")!
     private(set) var privacyPolicyUrl = URL(string: "https://tangem.com")!
     private(set) var howIrWorksUrl = URL(string: "https://tangem.com")!
@@ -33,7 +34,7 @@ final class YieldModulePromoViewModel {
     init(
         walletModel: any WalletModel,
         yieldManagerInteractor: YieldManagerInteractor,
-        apy: String,
+        apy: Decimal,
         coordinator: YieldModulePromoCoordinator?,
         startFlowFactory: YieldStartFlowFactory
     ) {
