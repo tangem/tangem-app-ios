@@ -115,6 +115,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.optionsEditing = optionsEditing
         self.coordinator = coordinator
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
+
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
             totalBalanceProvider: userWalletModel
@@ -372,9 +373,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             userWalletModel: userWalletModel,
             walletModelsManager: userWalletModel.walletModelsManager
         )
+        let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(
+            accountModelsManager: userWalletModel.accountModelsManager
+        )
 
         return NFTEntrypointViewModel(
             nftManager: userWalletModel.nftManager,
+            accountForCollectionsProvider: accountForNFTCollectionsProvider,
             navigationContext: navigationContext,
             analytics: NFTAnalytics.Entrypoint(
                 logCollectionsOpen: { state, collectionsCount, nftsCount, dummyCollectionsCount in
