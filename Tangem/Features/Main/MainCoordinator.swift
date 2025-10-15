@@ -643,7 +643,11 @@ extension MainCoordinator {
 // MARK: - NFTEntrypointRoutable
 
 extension MainCoordinator: NFTEntrypointRoutable {
-    func openCollections(nftManager: NFTManager, navigationContext: NFTNavigationContext) {
+    func openCollections(
+        nftManager: NFTManager,
+        accounForNFTCollectionsProvider: any AccountForNFTCollectionProviding,
+        navigationContext: NFTNavigationContext
+    ) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = NFTCollectionsCoordinator(
@@ -656,10 +660,10 @@ extension MainCoordinator: NFTEntrypointRoutable {
             }
         )
 
-        nftCollectionsCoordinator = coordinator
         coordinator.start(
             with: .init(
                 nftManager: nftManager,
+                accounForNFTCollectionsProvider: accounForNFTCollectionsProvider,
                 nftChainIconProvider: NetworkImageProvider(),
                 nftChainNameProvider: NFTChainNameProvider(),
                 priceFormatter: NFTPriceFormatter(),
@@ -671,6 +675,8 @@ extension MainCoordinator: NFTEntrypointRoutable {
                 )
             )
         )
+
+        nftCollectionsCoordinator = coordinator
     }
 }
 
