@@ -79,7 +79,7 @@ struct YieldModuleBottomSheetContainerView<
                     .padding(.top, 8)
                     .padding(.horizontal, 16)
 
-                subtitleFooter.padding(.top, 26)
+                subtitleFooter.padding(.top, 16)
 
                 content.padding(.top, contentTopPadding)
 
