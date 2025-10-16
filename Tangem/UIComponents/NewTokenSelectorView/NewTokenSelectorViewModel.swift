@@ -79,7 +79,7 @@ extension NewTokenSelectorViewModel: NewTokenSelectorItemViewModelMapper {
             tokenIconInfo: TokenIconInfoBuilder().build(from: item.walletModel.tokenItem, isCustom: item.walletModel.isCustom),
             disabledReason: disabledReason,
             cryptoBalanceProvider: item.cryptoBalanceProvider,
-            fiatBalanceProvider: item.cryptoBalanceProvider,
+            fiatBalanceProvider: item.fiatBalanceProvider,
             action: { [weak self] in
                 self?.output?.usedDidSelect(item: item)
             }
