@@ -10,28 +10,28 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 
-struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
+public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
     private let title: String
     private let subtitle: String?
-    private let leading: () -> Leading
-    private let trailing: () -> Trailing
+    private let leading: Leading
+    private let trailing: Trailing
 
     private var subtitleSpacing: CGFloat = 12
     private var verticalPadding: CGFloat = 12
 
-    init(
+    public init(
         title: String,
         subtitle: String? = nil,
-        leading: @escaping (() -> Leading) = { EmptyView() },
-        trailing: @escaping () -> Trailing = { EmptyView() }
+        @ViewBuilder leading: @escaping (() -> Leading) = { EmptyView() },
+        @ViewBuilder trailing: @escaping () -> Trailing = { EmptyView() }
     ) {
         self.title = title
         self.subtitle = subtitle
-        self.leading = leading
-        self.trailing = trailing
+        self.leading = leading()
+        self.trailing = trailing()
     }
 
-    var body: some View {
+    public var body: some View {
         ZStack(alignment: .center) {
             // Title layer
             VStack(spacing: subtitleSpacing) {
@@ -46,11 +46,11 @@ struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
 
             // Buttons layer
             HStack(spacing: .zero) {
-                leading()
+                leading
 
                 Spacer()
 
-                trailing()
+                trailing
             }
         }
         .infinityFrame(axis: .horizontal)
@@ -62,11 +62,11 @@ struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
 // MARK: - Setupable
 
 extension BottomSheetHeaderView: Setupable {
-    func subtitleSpacing(_ spacing: CGFloat) -> Self {
+    public func subtitleSpacing(_ spacing: CGFloat) -> Self {
         map { $0.subtitleSpacing = spacing }
     }
 
-    func verticalPadding(_ padding: CGFloat) -> Self {
+    public func verticalPadding(_ padding: CGFloat) -> Self {
         map { $0.verticalPadding = padding }
     }
 }
