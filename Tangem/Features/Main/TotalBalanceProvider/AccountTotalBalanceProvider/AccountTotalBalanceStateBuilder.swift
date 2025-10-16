@@ -1,5 +1,5 @@
 //
-//  TotalBalanceStateBuilder.swift
+//  AccountTotalBalanceStateBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct TotalBalanceStateBuilder {
+struct AccountTotalBalanceStateBuilder {
     typealias Balance = (item: TokenItem, balance: TokenBalanceType)
 
     private let walletModelsManager: WalletModelsManager
@@ -24,16 +24,16 @@ struct TotalBalanceStateBuilder {
         }
 
         let balances = walletModelsManager.walletModels.map {
-            TotalBalanceStateBuilder.Balance(item: $0.tokenItem, balance: $0.fiatTotalTokenBalanceProvider.balanceType)
+            AccountTotalBalanceStateBuilder.Balance(item: $0.tokenItem, balance: $0.fiatTotalTokenBalanceProvider.balanceType)
         }
 
         return mapToTotalBalance(balances: balances)
     }
 }
 
-// MARK: - TotalBalanceStateBuilder
+// MARK: - AccountTotalBalanceStateBuilder
 
-private extension TotalBalanceStateBuilder {
+private extension AccountTotalBalanceStateBuilder {
     func mapToTotalBalance(balances: [Balance]) -> TotalBalanceState {
         // Some not start loading yet
         let hasEmpty = balances.contains { $0.balance.isEmpty(for: .noData) }
@@ -61,11 +61,7 @@ private extension TotalBalanceStateBuilder {
             return .failed(cached: cachedBalance, failedItems: failureBalances.map(\.item))
         }
 
-        guard let loadedBalance = loadedBalance(balances: balances) else {
-            // some tokens don't have balance
-            return .empty
-        }
-
+        let loadedBalance = loadedBalance(balances: balances)
         return .loaded(balance: loadedBalance)
     }
 
@@ -95,7 +91,7 @@ private extension TotalBalanceStateBuilder {
         return nil
     }
 
-    func loadedBalance(balances: [Balance]) -> Decimal? {
+    func loadedBalance(balances: [Balance]) -> Decimal {
         let loadedBalance = balances.compactMap { balance in
             switch balance.balance {
             case .loaded(let balance):
