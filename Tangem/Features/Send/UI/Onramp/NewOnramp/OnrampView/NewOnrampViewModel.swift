@@ -141,11 +141,20 @@ extension NewOnrampViewModel: SendStepViewAnimatable {
 // MARK: - SendStepViewAnimatable
 
 extension NewOnrampViewModel {
-    enum ViewState: Hashable {
+    enum ViewState: Hashable, Identifiable {
         case idle
         case presets([FiatPresetService.Preset])
         case loading
         case suggestedOffers(SuggestedOffers)
+
+        var id: String {
+            switch self {
+            case .idle: "idle"
+            case .presets: "presets"
+            case .loading: "loading"
+            case .suggestedOffers: "suggestedOffers"
+            }
+        }
     }
 
     struct SuggestedOffers: Hashable {
