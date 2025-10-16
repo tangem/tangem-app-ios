@@ -104,6 +104,11 @@ extension StakingFlowFactory: SendGenericFlowFactory {
         )
 
         let amount = makeSendAmountStep()
+
+        stakingModel.onAmountUpdate = { [interactor = amount.interactor] newAmount in
+            interactor.externalUpdate(amount: newAmount)
+        }
+
         let validators = makeStakingValidatorsStep()
 
         let summary = makeSendSummaryStep(
