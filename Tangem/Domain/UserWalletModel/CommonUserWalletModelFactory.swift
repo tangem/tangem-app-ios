@@ -160,12 +160,6 @@ private struct CommonUserWalletModelDependencies {
             : nil
         self.derivationManager = derivationManager
 
-        totalBalanceProvider = TotalBalanceProvider(
-            userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager,
-            derivationManager: derivationManager
-        )
-
         userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
@@ -249,6 +243,22 @@ private struct CommonUserWalletModelDependencies {
                 }
             )
         )
+
+        totalBalanceProvider = if FeatureProvider.isAvailable(.accounts) {
+            CombineTotalBalanceProvider(
+                accountModelsManager: accountModelsManager,
+                analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
+            )
+        } else {
+            AccountTotalBalanceProvider(
+                walletModelsManager: walletModelsManager,
+                analyticsLogger: CommonTotalBalanceProviderAnalyticsLogger(
+                    userWalletId: userWalletId,
+                    walletModelsManager: walletModelsManager
+                ),
+                derivationManager: derivationManager
+            )
+        }
     }
 
     func update(from model: UserWalletModel) {
