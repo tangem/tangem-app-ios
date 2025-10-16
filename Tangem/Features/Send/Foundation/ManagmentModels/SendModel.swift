@@ -796,7 +796,7 @@ extension SendModel: NotificationTapDelegate {
             sourceToken.availableBalanceProvider.balanceType.value.flatMap {
                 leaveMinimalAmountOnBalance(amountToLeave: amount, balance: $0)
             }
-        case .reduceAmountBy(let amount, _):
+        case .reduceAmountBy(let amount, _, _):
             _amount.value?.crypto.flatMap { reduceAmountBy(amount, source: $0) }
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
