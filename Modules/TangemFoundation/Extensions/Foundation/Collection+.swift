@@ -57,6 +57,12 @@ public extension Swift.Collection {
     }
 }
 
+public extension Swift.Collection where Element: Swift.AdditiveArithmetic {
+    func sum() -> Element {
+        reduce(.zero, +)
+    }
+}
+
 public extension Swift.Collection {
     func sumReportingOverflow<T: FixedWidthInteger>(by keyPath: KeyPath<Element, T>) throws -> T {
         try reduce(T.zero) {
