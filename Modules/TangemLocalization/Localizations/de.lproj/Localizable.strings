@@ -1160,7 +1160,7 @@
 "staking_reward_schedule_month" = "Monatlich";
 "staking_reward_schedule_week" = "Wöchentlich";
 "staking_rewards" = "Belohnungen";
-"staking_soloana_details_auto_claiming_rewards_daily_text" = "Belohnungen auf Solana werden automatisch Deinem Staking-Guthaben hinzugefügt und können nicht separat angezeigt werden.";
+"staking_solana_details_auto_claiming_rewards_daily_text" = "Belohnungen auf Solana werden automatisch Deinem Staking-Guthaben hinzugefügt und können nicht separat angezeigt werden.";
 "staking_stake_locked" = "Stake gesperrt";
 "staking_stake_more_button_unavailability_reason" = "Beim Staking %1$@ wird Dein gesamtes %2$@ -Guthaben eingesetzt. Alle weiteren %2$@ due Du in Deine Tangem-Wallet einzahlst, werden ebenfalls automatisch eingesetzt.";
 "staking_stake_more" = "Mehr staken";
