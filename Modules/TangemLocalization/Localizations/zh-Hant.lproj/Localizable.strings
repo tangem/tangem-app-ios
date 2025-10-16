@@ -1160,7 +1160,7 @@
 "staking_reward_schedule_month" = "Monthly";
 "staking_reward_schedule_week" = "Weekly";
 "staking_rewards" = "Rewards";
-"staking_soloana_details_auto_claiming_rewards_daily_text" = "Rewards on Solana are automatically added to your staking balance and cannot be shown separately.";
+"staking_solana_details_auto_claiming_rewards_daily_text" = "Rewards on Solana are automatically added to your staking balance and cannot be shown separately.";
 "staking_stake_locked" = "Stake locked";
 "staking_stake_more_button_unavailability_reason" = "When staking %1$@, your entire %2$@ balance is staked. Any additional %2$@ you deposit to your Tangem Wallet will also be automatically staked.";
 "staking_stake_more" = "Stake more";
