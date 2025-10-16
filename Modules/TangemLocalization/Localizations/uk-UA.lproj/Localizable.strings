@@ -1160,7 +1160,7 @@
 "staking_reward_schedule_month" = "Місяць";
 "staking_reward_schedule_week" = "Потижнево";
 "staking_rewards" = "Винагороди";
-"staking_soloana_details_auto_claiming_rewards_daily_text" = "Rewards on Solana are automatically added to your staking balance and cannot be shown separately.";
+"staking_solana_details_auto_claiming_rewards_daily_text" = "Rewards on Solana are automatically added to your staking balance and cannot be shown separately.";
 "staking_stake_locked" = "Стейкінг закрито";
 "staking_stake_more_button_unavailability_reason" = "При стейкінгу %1$@, весь ваш %2$@ Баланс застейкний. Будь-які додаткові %2$@ поповнены на Ваш гаманець Tangem буде також автоматично застейкано.";
 "staking_stake_more" = "Застейкати більше";
