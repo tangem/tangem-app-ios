@@ -56,7 +56,7 @@ extension AccountSelectorWalletItem {
         switch account {
         case .standard(.single(let cryptoAccount)):
             tokensCount = cryptoAccount.walletModelsManager.walletModels.count
-            formattedBalanceTypePublisher = cryptoAccount.formattedBalanceTypePublisher
+            formattedBalanceTypePublisher = cryptoAccount.fiatTotalBalanceProvider.totalFiatBalancePublisher
         case .standard(.multiple):
             preconditionFailure("Multiple crypto accounts are not supported in AccountSelectorWalletItem")
         }
