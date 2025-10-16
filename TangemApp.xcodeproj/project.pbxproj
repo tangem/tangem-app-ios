@@ -20898,9 +20898,9 @@
 		EF46D3D32E73058C00F546C3 /* OnrampOfferView */ = {
 			isa = PBXGroup;
 			children = (
-				EA12320C2E9CF204009900EC /* OnrampAllOfferViewModelBuilder.swift */,
 				EF46D3D42E73059300F546C3 /* OnrampOfferView.swift */,
 				EF46D3D62E73158700F546C3 /* OnrampOfferViewModel.swift */,
+				EA12320C2E9CF204009900EC /* OnrampAllOfferViewModelBuilder.swift */,
 				EFF919702E97DC0D00120CD1 /* OnrampSuggestedOfferViewModelBuilder.swift */,
 			);
 			path = OnrampOfferView;
