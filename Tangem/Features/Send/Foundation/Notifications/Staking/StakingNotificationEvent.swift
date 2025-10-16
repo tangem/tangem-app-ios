@@ -25,7 +25,7 @@ enum StakingNotificationEvent {
     case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case stakesWillMoveToNewValidator(blockchain: String)
     case lowStakedBalance
-    case maxAmountStaking
+    case maxAmountStaking(reduceAmount: Decimal, reduceAmountFormatted: String)
     case cardanoAdditionalDeposit
     case amountRequirementError(minAmount: String, currency: String)
     case tonExtraReserveInfo
@@ -201,7 +201,6 @@ extension StakingNotificationEvent: NotificationEvent {
              .unlock,
              .revote,
              .lowStakedBalance,
-             .maxAmountStaking,
              .cardanoAdditionalDeposit,
              .amountRequirementError,
              .tonExtraReserveInfo,
@@ -210,6 +209,14 @@ extension StakingNotificationEvent: NotificationEvent {
             return nil
         case .tonAccountInitialization:
             return .init(.activate)
+        case .maxAmountStaking(let reduceAmount, let reduceAmountFormatted):
+            return .init(
+                .reduceAmountBy(
+                    amount: reduceAmount,
+                    amountFormatted: reduceAmountFormatted,
+                    needsAttention: true
+                )
+            )
         }
     }
 
