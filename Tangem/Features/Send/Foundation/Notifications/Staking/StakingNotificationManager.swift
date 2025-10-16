@@ -82,7 +82,19 @@ private extension CommonStakingNotificationManager {
                     )
                 )
 
-                events.append(.maxAmountStaking)
+                if let amountToReduce = readyToStake.amountToReduce {
+                    let amountToReduceFormatted = formatter.formatCryptoBalance(
+                        amountToReduce,
+                        currencyCode: feeTokenItem.currencySymbol
+                    )
+
+                    events.append(
+                        .maxAmountStaking(
+                            reduceAmount: amountToReduce,
+                            reduceAmountFormatted: amountToReduceFormatted
+                        )
+                    )
+                }
             }
 
             if !tokenItem.supportsStakingOnDifferentValidators, readyToStake.stakeOnDifferentValidator {
