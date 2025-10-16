@@ -1,26 +1,26 @@
 //
-//  SendKaspaNotificationUITests.swift
+//  SendChiaNotificationUITests.swift
 //  TangemUITests
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import XCTest
-import TangemAccessibilityIdentifiers
+import Foundation
 
-final class SendKaspaNotificationUITests: BaseTestCase {
-    private let coin = "Kaspa"
-    private let destinationAddress = "kaspa:qypc4aywf95rken57kclwdjvycugnacstrh5uzmu0a7pjtxas366ktgj5jzu8t6"
+final class SendChiaNotificationUITests: BaseTestCase {
+    private let coin = "Chia Network"
+    private let destinationAddress = "xch1dz2vua2qvxpx6fufd98rxxv2n8j9t3au733xlht3fga4gk8ks5mqq5tzsz"
+    private let amount = "0.85"
 
-    func testNotificationNotDisplayed_WhenSenderHasLessThan84Inputs() {
-        setAllureId(4223)
+    func testNoBanner_WhenTop15CoversAmount_LessThan15() {
+        setAllureId(4226)
 
-        openSend(initialState: "less_than_84")
+        openSend(initialState: "less_than_15")
 
         SendScreen(app)
             .validate()
-            .enterAmount("0.3")
+            .enterAmount(amount)
             .tapNextButton()
             .enterDestination(destinationAddress)
             .tapNextButton()
@@ -28,14 +28,14 @@ final class SendKaspaNotificationUITests: BaseTestCase {
             .waitForSendButtonEnabled()
     }
 
-    func testNotificationNotDisplayed_WhenSenderHasExactly84Inputs() {
-        setAllureId(4224)
+    func testNoBanner_WhenTop15CoversAmount_Exactly15() {
+        setAllureId(4227)
 
-        openSend(initialState: "equal_84")
+        openSend(initialState: "equal_15")
 
         SendScreen(app)
             .validate()
-            .enterAmount("0.3")
+            .enterAmount(amount)
             .tapNextButton()
             .enterDestination(destinationAddress)
             .tapNextButton()
@@ -43,14 +43,14 @@ final class SendKaspaNotificationUITests: BaseTestCase {
             .waitForSendButtonEnabled()
     }
 
-    func testNotificationDisplayed_WhenSenderHasMoreThan84Inputs() {
-        setAllureId(4225)
+    func testBannerShown_WhenRequiredInputsExceed15() {
+        setAllureId(4228)
 
-        openSend(initialState: "more_than_84")
+        openSend(initialState: "more_than_15")
 
         SendScreen(app)
             .validate()
-            .enterAmount("0.85")
+            .enterAmount(amount)
             .tapNextButton()
             .enterDestination(destinationAddress)
             .tapNextButton()
@@ -59,22 +59,22 @@ final class SendKaspaNotificationUITests: BaseTestCase {
     }
 
     private func openSend(initialState: String) {
-        let kaspaTokenScenario = ScenarioConfig(
+        let chiaTokenScenario = ScenarioConfig(
             name: "user_tokens_api",
-            initialState: "Kaspa"
+            initialState: "Chia"
+        )
+        let chiaGetCoinsScenario = ScenarioConfig(
+            name: "chia_get_coin_records",
+            initialState: initialState
         )
         let quotesScenario = ScenarioConfig(
             name: "quotes_api",
-            initialState: "Kaspa"
-        )
-        let kaspaUtxoScenario = ScenarioConfig(
-            name: "kaspa_utxo",
-            initialState: initialState
+            initialState: "Chia"
         )
 
         launchApp(
             tangemApiType: .mock,
-            scenarios: [kaspaTokenScenario, kaspaUtxoScenario, quotesScenario]
+            scenarios: [chiaTokenScenario, chiaGetCoinsScenario, quotesScenario]
         )
 
         StoriesScreen(app)
