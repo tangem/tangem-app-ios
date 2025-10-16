@@ -18,7 +18,7 @@ struct NewOnrampView: View {
     @FocusState.Binding var keyboardActive: Bool
 
     var body: some View {
-        GroupedScrollView(spacing: 12) {
+        GroupedScrollView(contentType: .plain(spacing: 12)) {
             NewOnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
 
             middleContainer
@@ -29,7 +29,7 @@ struct NewOnrampView: View {
             }
         }
         .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
-        .animation(SendTransitions.animation, value: viewModel.viewState)
+        .animation(SendTransitions.animation, value: viewModel.viewState.id)
     }
 
     @ViewBuilder
