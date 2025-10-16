@@ -34,6 +34,6 @@ extension AccountSelectorAccountItem {
         name = account.name
         tokensCount = Localization.commonTokensCount(account.walletModelsManager.walletModels.count)
         icon = account.icon
-        formattedBalanceTypePublisher = account.formattedBalanceTypePublisher
+        formattedBalanceTypePublisher = account.fiatTotalBalanceProvider.totalFiatBalancePublisher
     }
 }
