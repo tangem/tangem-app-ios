@@ -1160,7 +1160,7 @@
 "staking_reward_schedule_month" = "Месяц";
 "staking_reward_schedule_week" = "Еженедельно";
 "staking_rewards" = "Вознаграждения";
-"staking_soloana_details_auto_claiming_rewards_daily_text" = "Вознаграждения в сети Solana автоматически добавляются к вашему стейкинг-балансу и не могут отображаться отдельно.";
+"staking_solana_details_auto_claiming_rewards_daily_text" = "Вознаграждения в сети Solana автоматически добавляются к вашему стейкинг-балансу и не могут отображаться отдельно.";
 "staking_stake_locked" = "Стейкинг закрыт";
 "staking_stake_more_button_unavailability_reason" = "При стейкинге %1$@ используется весь ваш баланс в %2$@. Любой дополнительный %2$@ депозит будет автоматически застейкан.";
 "staking_stake_more" = "Застейкать еще";
