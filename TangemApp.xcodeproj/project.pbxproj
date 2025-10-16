@@ -3715,7 +3715,6 @@
 		EF729B4B2AF1091900D80205 /* ExpressFeeSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B462AF1091900D80205 /* ExpressFeeSelectorRoutable.swift */; };
 		EF729B4F2AF10DD900D80205 /* FeeRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B4E2AF10DD900D80205 /* FeeRowView.swift */; };
 		EF729B512AF1248400D80205 /* FeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B502AF1248400D80205 /* FeeRowViewModel.swift */; };
-		EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */; };
 		EF729B562AF12B8300D80205 /* FeeOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B552AF12B8300D80205 /* FeeOption.swift */; };
 		EF729B712AF3E86300D80205 /* ExpressProvidersSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6C2AF3E86300D80205 /* ExpressProvidersSelectorView.swift */; };
 		EF729B722AF3E86300D80205 /* ExpressProvidersSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6D2AF3E86300D80205 /* ExpressProvidersSelectorViewModel.swift */; };
@@ -8145,7 +8144,6 @@
 		EF729B462AF1091900D80205 /* ExpressFeeSelectorRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeSelectorRoutable.swift; sourceTree = "<group>"; };
 		EF729B4E2AF10DD900D80205 /* FeeRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeRowView.swift; sourceTree = "<group>"; };
 		EF729B502AF1248400D80205 /* FeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeRowViewModel.swift; sourceTree = "<group>"; };
-		EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHeaderView.swift; sourceTree = "<group>"; };
 		EF729B552AF12B8300D80205 /* FeeOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeOption.swift; sourceTree = "<group>"; };
 		EF729B6C2AF3E86300D80205 /* ExpressProvidersSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersSelectorView.swift; sourceTree = "<group>"; };
 		EF729B6D2AF3E86300D80205 /* ExpressProvidersSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersSelectorViewModel.swift; sourceTree = "<group>"; };
@@ -11019,7 +11017,6 @@
 				EF0DD79F2B02B30F0099527D /* ExpressFeeRow */,
 				EF48E6C02B02273800FE0072 /* ExpressTokenItem */,
 				EF729B742AF3E94D00D80205 /* ProviderRowView */,
-				EF729B522AF12B0E00D80205 /* BottomSheetHeaderView */,
 				EF729B4D2AF10DCF00D80205 /* FeeRowView */,
 				DA5EE9FC2AF3F3D2004B455C /* AddressIconView */,
 				EF0DC1052A0BD7E6007E3DA7 /* OptionPicker */,
@@ -21506,14 +21503,6 @@
 			path = FeeRowView;
 			sourceTree = "<group>";
 		};
-		EF729B522AF12B0E00D80205 /* BottomSheetHeaderView */ = {
-			isa = PBXGroup;
-			children = (
-				EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */,
-			);
-			path = BottomSheetHeaderView;
-			sourceTree = "<group>";
-		};
 		EF729B672AF3E82C00D80205 /* ExpressProvidersSelectorView */ = {
 			isa = PBXGroup;
 			children = (
@@ -26045,7 +26034,6 @@
 				DC66BC08285B6E6400CDF765 /* DetailsRoutable.swift in Sources */,
 				2D535E702A0CB4D20081EB76 /* NotificationView.swift in Sources */,
 				B031AAB126C1443E00015003 /* Confetti.swift in Sources */,
-				EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */,
 				2DC567682B0DFFAF00B0244F /* MarketsCoordinatorView.swift in Sources */,
 				0FFA35092E05429500ACB48F /* MobileOnboardingSeedPhraseRecoveryDelegate.swift in Sources */,
 				DCD1AA6A2E9972CD00C78540 /* TangemSdkNetworkHeadersProvider.swift in Sources */,
