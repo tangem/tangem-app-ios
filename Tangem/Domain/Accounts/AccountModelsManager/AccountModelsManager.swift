@@ -32,3 +32,17 @@ protocol AccountModelsManager {
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError)
 }
+
+extension AccountModelsManager {
+    var cryptoAccountModelsPublisher: AnyPublisher<[any CryptoAccountModel], Never> {
+        accountModelsPublisher.map { accountModels in
+            accountModels.flatMap { accountModel in
+                switch accountModel {
+                case .standard(.single(let cryptoAccountModel)): [cryptoAccountModel]
+                case .standard(.multiple(let cryptoAccountModels)): cryptoAccountModels
+                }
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+}
