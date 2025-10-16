@@ -32,7 +32,7 @@ class FakeUserWalletModel: UserWalletModel {
     let userTokenListManager: UserTokenListManager
     var nftManager: NFTManager { NFTManagerStub() }
     let userTokensManager: UserTokensManager
-    let totalBalanceProvider: TotalBalanceProviding
+    let totalBalanceProvider: TotalBalanceProvider
     let walletImageProvider: WalletImageProviding
     let signer: TangemSigner = CardSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
     let config: UserWalletConfig
