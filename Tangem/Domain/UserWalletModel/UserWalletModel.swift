@@ -14,7 +14,7 @@ import TangemFoundation
 
 protocol UserWalletModel:
     MainHeaderSupplementInfoProvider,
-    TotalBalanceProviding,
+    TotalBalanceProvider,
     MultiWalletMainHeaderSubtitleDataSource,
     AnalyticsContextDataProvider,
     MainHeaderUserWalletStateInfoProvider,
