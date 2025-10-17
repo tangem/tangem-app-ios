@@ -17,6 +17,8 @@ struct YieldModuleAPITarget: TargetType {
         case markets(chains: [String]?)
         case token(tokenContractAddress: String, chainId: Int)
         case chart(tokenContractAddress: String, chainId: Int, window: String?, bucketSizeDays: Int?)
+        case activate(tokenContractAddress: String, chainId: Int)
+        case deactivate(tokenContractAddress: String, chainId: Int)
     }
 
     var baseURL: URL {
@@ -38,6 +40,10 @@ struct YieldModuleAPITarget: TargetType {
             return "/yield/token/\(chainId)/\(tokenContractAddress)"
         case .chart(let tokenContractAddress, let chainId, _, _):
             return "/yield/token/\(chainId)/\(tokenContractAddress)/chart"
+        case .activate:
+            return "/module/activate"
+        case .deactivate:
+            return "/module/deactivate"
         }
     }
 
@@ -45,13 +51,18 @@ struct YieldModuleAPITarget: TargetType {
         switch target {
         case .markets, .token, .chart:
             return .get
+        case .activate, .deactivate:
+            return .post
         }
     }
 
     var task: Moya.Task {
         switch target {
         case .markets(.some(let chains)):
-            return .requestParameters(chains, encoding: URLEncoding(destination: .queryString, arrayEncoding: .brackets))
+            return .requestParameters(
+                ["chainId": chains],
+                encoding: URLEncoding(destination: .queryString, arrayEncoding: .noBrackets)
+            )
         case .markets(.none), .token:
             return .requestPlain
         case .chart(_, _, let window, let bucketSizeDays):
@@ -63,12 +74,21 @@ struct YieldModuleAPITarget: TargetType {
                 parameters["bucketSizeDays"] = bucketSizeDays
             }
             return .requestParameters(parameters: parameters, encoding: URLEncoding(destination: .queryString))
+        case .activate(let tokenContractAddress, let chainId),
+             .deactivate(let tokenContractAddress, let chainId):
+            return .requestParameters(
+                parameters: [
+                    "tokenAddress": tokenContractAddress,
+                    "chainId": chainId,
+                ],
+                encoding: URLEncoding(destination: .httpBody)
+            )
         }
     }
 
     var headers: [String: String]? {
         switch target {
-        case .markets, .token, .chart:
+        case .markets, .token, .chart, .activate, .deactivate:
             return nil
         }
     }
