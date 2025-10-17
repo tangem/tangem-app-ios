@@ -12,6 +12,8 @@ import TangemExpress
 import UIKit
 
 final class ExpressCoordinator: CoordinatorObject {
+    @Injected(\.safariManager) private var safariManager: SafariManager
+
     let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -136,6 +138,10 @@ extension ExpressCoordinator: ExpressApproveRoutable {
     func userDidCancel() {
         expressApproveViewModel = nil
         rootViewModel?.didCloseApproveSheet()
+    }
+
+    func openLearnMore() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .giveRevokePermission))
     }
 }
 
