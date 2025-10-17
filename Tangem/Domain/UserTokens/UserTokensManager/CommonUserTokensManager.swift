@@ -13,7 +13,7 @@ import Foundation
 import TangemFoundation
 import TangemSdk
 
-@available(iOS, deprecated: 100000.0, message: "Superseded by 'AccountsAwareUserTokensManager', will be removed in the future")
+@available(iOS, deprecated: 100000.0, message: "Superseded by 'AccountsAwareUserTokensManager', will be removed in the future ([REDACTED_INFO])")
 final class CommonUserTokensManager {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
