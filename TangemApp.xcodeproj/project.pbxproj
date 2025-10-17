@@ -35,7 +35,7 @@
 		0A3C90BB2E6ECC64002C5374 /* YieldTransactionFee.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3C90BA2E6ECC64002C5374 /* YieldTransactionFee.swift */; };
 		0A3D2C952E8AB0620080996F /* YieldSupplyInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3D2C942E8AB0620080996F /* YieldSupplyInfo.swift */; };
 		0A3E3E402DF86F17008143E1 /* KeysDerivingMobileWalletInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3E3E3F2DF86F17008143E1 /* KeysDerivingMobileWalletInteractor.swift */; };
-		0A3F470A2E7BDE2200F3DCEC /* SendMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F47032E7BDE2200F3DCEC /* SendMethod.swift */; };
+		0A3F470A2E7BDE2200F3DCEC /* YieldSendMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F47032E7BDE2200F3DCEC /* YieldSendMethod.swift */; };
 		0A3F470B2E7BDE2200F3DCEC /* ProtocolBalanceMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F47002E7BDE2200F3DCEC /* ProtocolBalanceMethod.swift */; };
 		0A3F470C2E7BDE2200F3DCEC /* InitYieldTokenMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F46FF2E7BDE2200F3DCEC /* InitYieldTokenMethod.swift */; };
 		0A3F470D2E7BDE2200F3DCEC /* EnterProtocolMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F46FE2E7BDE2200F3DCEC /* EnterProtocolMethod.swift */; };
@@ -124,6 +124,7 @@
 		0AF406292E5F0717006DC3DF /* YieldResponseMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406282E5F0717006DC3DF /* YieldResponseMapper.swift */; };
 		0AF406412E602F95006DC3DF /* YieldSmartContractRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406402E602F95006DC3DF /* YieldSmartContractRequest.swift */; };
 		0AF406452E6070A5006DC3DF /* YieldSupplyStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406442E6070A5006DC3DF /* YieldSupplyStatus.swift */; };
+		0AF62CDF2EA286BF0009737E /* YieldAllowanceUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF62CDE2EA286BF0009737E /* YieldAllowanceUtil.swift */; };
 		0AF62CDD2EA267960009737E /* YieldModuleDTO+Activation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF62CDC2EA267960009737E /* YieldModuleDTO+Activation.swift */; };
 		0F2784FD2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2784FC2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift */; };
 		0F2785182E290E2A00742D0F /* MobileSettingsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */; };
@@ -4426,7 +4427,7 @@
 		0A3F46FF2E7BDE2200F3DCEC /* InitYieldTokenMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitYieldTokenMethod.swift; sourceTree = "<group>"; };
 		0A3F47002E7BDE2200F3DCEC /* ProtocolBalanceMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolBalanceMethod.swift; sourceTree = "<group>"; };
 		0A3F47012E7BDE2200F3DCEC /* ReactivateTokenMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactivateTokenMethod.swift; sourceTree = "<group>"; };
-		0A3F47032E7BDE2200F3DCEC /* SendMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMethod.swift; sourceTree = "<group>"; };
+		0A3F47032E7BDE2200F3DCEC /* YieldSendMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSendMethod.swift; sourceTree = "<group>"; };
 		0A3F47052E7BDE2200F3DCEC /* WithdrawAndDeactivateMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithdrawAndDeactivateMethod.swift; sourceTree = "<group>"; };
 		0A3F47062E7BDE2200F3DCEC /* YieldModuleMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleMethod.swift; sourceTree = "<group>"; };
 		0A3F47072E7BDE2200F3DCEC /* YieldSupplyStatusMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSupplyStatusMethod.swift; sourceTree = "<group>"; };
@@ -4509,6 +4510,7 @@
 		0AF406282E5F0717006DC3DF /* YieldResponseMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldResponseMapper.swift; sourceTree = "<group>"; };
 		0AF406402E602F95006DC3DF /* YieldSmartContractRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSmartContractRequest.swift; sourceTree = "<group>"; };
 		0AF406442E6070A5006DC3DF /* YieldSupplyStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSupplyStatus.swift; sourceTree = "<group>"; };
+		0AF62CDE2EA286BF0009737E /* YieldAllowanceUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAllowanceUtil.swift; sourceTree = "<group>"; };
 		0AF62CDC2EA267960009737E /* YieldModuleDTO+Activation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YieldModuleDTO+Activation.swift"; sourceTree = "<group>"; };
 		0F2784FC2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowRoutable.swift; sourceTree = "<group>"; };
 		0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSettingsUtil.swift; sourceTree = "<group>"; };
@@ -8942,7 +8944,7 @@
 				0A3F46FF2E7BDE2200F3DCEC /* InitYieldTokenMethod.swift */,
 				0A3F47002E7BDE2200F3DCEC /* ProtocolBalanceMethod.swift */,
 				0A3F47012E7BDE2200F3DCEC /* ReactivateTokenMethod.swift */,
-				0A3F47032E7BDE2200F3DCEC /* SendMethod.swift */,
+				0A3F47032E7BDE2200F3DCEC /* YieldSendMethod.swift */,
 				0A3F47052E7BDE2200F3DCEC /* WithdrawAndDeactivateMethod.swift */,
 				0A3F47062E7BDE2200F3DCEC /* YieldModuleMethod.swift */,
 				0A3F47072E7BDE2200F3DCEC /* YieldSupplyStatusMethod.swift */,
@@ -18865,6 +18867,7 @@
 			children = (
 				0A941BE32E6B29D200770474 /* YieldModule */,
 				0A941BE42E6B2A0700770474 /* YieldModuleManager.swift */,
+				0AF62CDE2EA286BF0009737E /* YieldAllowanceUtil.swift */,
 				0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */,
 				0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */,
 				308631572E40E36C00D58D37 /* Accounts */,
@@ -24919,6 +24922,7 @@
 				DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */,
 				2D30234A2DF093B600B4FFE6 /* PushNotificationsService.swift in Sources */,
 				2D30234B2DF093B600B4FFE6 /* ApplicationWalletEntry.swift in Sources */,
+				0AF62CDF2EA286BF0009737E /* YieldAllowanceUtil.swift in Sources */,
 				EF175D722E8BF93500B69415 /* StakingValidatorRewardRateFormatter.swift in Sources */,
 				2D30234C2DF093B600B4FFE6 /* UserTokensPushNotifificationsManager.swift in Sources */,
 				2D30234D2DF093B600B4FFE6 /* PushNotificationsHelpersFactory.swift in Sources */,
@@ -27746,7 +27750,7 @@
 				B62D40A22CBC79DA00C2460E /* AuroraExternalLinkProvider.swift in Sources */,
 				EFA6A8542D79D1E6002FEB90 /* KaspaTransactionRecordMapper.swift in Sources */,
 				B62D3FCE2CBC79DA00C2460E /* OP_BOOLAND.swift in Sources */,
-				0A3F470A2E7BDE2200F3DCEC /* SendMethod.swift in Sources */,
+				0A3F470A2E7BDE2200F3DCEC /* YieldSendMethod.swift in Sources */,
 				0A3F470B2E7BDE2200F3DCEC /* ProtocolBalanceMethod.swift in Sources */,
 				0A3F470C2E7BDE2200F3DCEC /* InitYieldTokenMethod.swift in Sources */,
 				0A3F470D2E7BDE2200F3DCEC /* EnterProtocolMethod.swift in Sources */,
