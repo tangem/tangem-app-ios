@@ -426,7 +426,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private func subscribeToTokenListSync(with sectionsPublisher: some Publisher<[Section], Never>) {
         let tokenListSyncPublisher = userWalletModel
-            .userTokenListManager
+            .userTokensManager
             .initializedPublisher
             .filter { $0 }
 
