@@ -370,7 +370,10 @@ private extension TokenDetailsViewModel {
 
         switch state.state {
         case .active(let info):
-            let vm = makeYieldStatusViewModel(yieldManager: manager, state: .active(isApproveRequired: info.allowance == 0))
+            let vm = makeYieldStatusViewModel(
+                yieldManager: manager,
+                state: .active(isApproveRequired: info.isAllowancePermissionRequired)
+            )
             yieldModuleAvailability = .active(vm)
 
         case .notActive:
