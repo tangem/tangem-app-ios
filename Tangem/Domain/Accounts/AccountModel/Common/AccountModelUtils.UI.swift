@@ -104,6 +104,16 @@ extension AccountModelUtils.UI {
         return iconAsset(from: name).image
     }
 
+    static func iconViewData(
+        icon: AccountModel.Icon,
+        accountName: String
+    ) -> AccountIconView.ViewData {
+        AccountIconView.ViewData(
+            backgroundColor: iconColor(from: icon.color),
+            nameMode: nameMode(from: icon.name, accountName: accountName)
+        )
+    }
+
     static func nameMode(from name: AccountModel.Icon.Name, accountName: String) -> AccountIconView.NameMode {
         switch name {
         case .letter:
