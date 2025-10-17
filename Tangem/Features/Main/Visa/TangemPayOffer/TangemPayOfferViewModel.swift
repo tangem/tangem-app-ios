@@ -60,17 +60,13 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     private func makeTangemPayAuthorizer() async throws -> TangemPayAuthorizer {
-        if let walletModel = userWalletModel.visaWalletModel {
+        if let walletModel = userWalletModel.walletModelsManager.walletModels.tangemPayWalletModel {
             return TangemPayAuthorizer(walletModel: walletModel)
         }
 
-        let visaBlockchainNetwork = BlockchainNetwork(
-            VisaUtilities.visaBlockchain,
-            derivationPath: VisaUtilities.visaDefaultDerivationPath
-        )
-        _ = try await userWalletModel.userTokensManager.add(.blockchain(visaBlockchainNetwork))
+        _ = try await userWalletModel.userTokensManager.add(TangemPayUtilities.walletModelIdentifyingTokenItem)
 
-        if let walletModel = userWalletModel.visaWalletModel {
+        if let walletModel = userWalletModel.walletModelsManager.walletModels.tangemPayWalletModel {
             return TangemPayAuthorizer(walletModel: walletModel)
         }
 
