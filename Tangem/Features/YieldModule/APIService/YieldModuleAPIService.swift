@@ -10,7 +10,7 @@ import Foundation
 
 protocol YieldModuleAPIService {
     func getYieldMarkets(
-        chains: [String]?
+        chainIDs: [String]?
     ) async throws -> YieldModuleDTO.Response.MarketsInfo
     func getTokenPositionInfo(
         tokenContractAddress: String,
@@ -22,11 +22,14 @@ protocol YieldModuleAPIService {
         window: YieldModuleDTO.ChartWindow?,
         bucketSizeDays: Int?
     ) async throws -> YieldModuleDTO.Response.Chart
+
+    func activate(tokenContractAddress: String, chainId: Int) async throws
+    func deactivate(tokenContractAddress: String, chainId: Int) async throws
 }
 
 extension YieldModuleAPIService {
     func getYieldMarkets() async throws -> YieldModuleDTO.Response.MarketsInfo {
-        try await getYieldMarkets(chains: nil)
+        try await getYieldMarkets(chainIDs: nil)
     }
 
     func getChart(
