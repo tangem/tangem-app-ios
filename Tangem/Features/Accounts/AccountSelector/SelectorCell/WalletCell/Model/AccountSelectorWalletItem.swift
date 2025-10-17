@@ -9,9 +9,10 @@
 import Foundation
 import TangemLocalization
 import Combine
+import TangemFoundation
 
 struct AccountSelectorWalletItem: Identifiable {
-    let id: String
+    let id: UserWalletId
     let domainModel: any UserWalletModel
     let name: String
     let wallet: UserWallet
@@ -37,7 +38,7 @@ struct AccountSelectorWalletItem: Identifiable {
 extension AccountSelectorWalletItem {
     /// Init for locked wallet
     init(userWallet: any UserWalletModel) {
-        id = userWallet.userWalletId.stringValue
+        id = userWallet.userWalletId
         domainModel = userWallet
         name = userWallet.name
         walletImageProvider = userWallet.walletImageProvider
@@ -48,7 +49,7 @@ extension AccountSelectorWalletItem {
 
     /// Init for active wallet
     init(userWallet: any UserWalletModel, account: AccountModel) {
-        id = userWallet.userWalletId.stringValue
+        id = userWallet.userWalletId
         domainModel = userWallet
         name = userWallet.name
         walletImageProvider = userWallet.walletImageProvider
