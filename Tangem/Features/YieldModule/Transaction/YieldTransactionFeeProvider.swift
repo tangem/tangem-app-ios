@@ -405,7 +405,7 @@ private extension YieldTransactionFeeProvider {
             contractAddress: tokenContractAddress
         ).async()
 
-        return BigUInt(Data(hexString: allowanceString)) < Constants.maxAllowance / 2
+        return YieldAllowanceUtil().isPermissionRequired(allowance: allowanceString)
     }
 }
 
@@ -433,7 +433,6 @@ private extension Array where Element == Fee {
 extension YieldTransactionFeeProvider {
     enum Constants {
         static let zeroCoinAmount = "0x0"
-        static let maxAllowance = BigUInt(2).power(256) - 1
         static let estimatedGasLimit = 500_000 // gas units, provided by dbaturin
     }
 }
