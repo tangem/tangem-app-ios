@@ -20,7 +20,7 @@ final class MainViewModel: ObservableObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.wcService) private var wcService: WCService
-    @Injected(\.yieldModuleMarketsManager) private var yieldModuleMarketsManager: YieldModuleMarketsManager
+    @Injected(\.yieldModuleNetworkManager) private var yieldModuleNetworkManager: YieldModuleNetworkManager
 
     // MARK: - ViewState
 
@@ -119,7 +119,7 @@ final class MainViewModel: ObservableObject {
             Analytics.log(.mainScreenOpened, params: analyticsParameters)
         }
 
-        yieldModuleMarketsManager.updateMarkets()
+        yieldModuleNetworkManager.updateMarkets()
 
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
@@ -422,7 +422,7 @@ final class MainViewModel: ObservableObject {
             await viewModel.onPullToRefresh()
         }
 
-        yieldModuleMarketsManager.updateMarkets()
+        yieldModuleNetworkManager.updateMarkets()
     }
 }
 
