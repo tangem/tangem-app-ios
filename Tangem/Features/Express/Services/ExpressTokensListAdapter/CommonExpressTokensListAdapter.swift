@@ -16,7 +16,7 @@ struct CommonExpressTokensListAdapter {
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
         adapter = TokenSectionsAdapter(
-            userTokenListManager: userWalletModel.userTokenListManager,
+            userTokensManager: userWalletModel.userTokensManager,
             optionsProviding: OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager),
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
