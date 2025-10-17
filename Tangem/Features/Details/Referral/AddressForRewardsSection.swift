@@ -15,6 +15,7 @@ import TangemLocalization
 struct AddressForRewardsSection: View {
     let tokenType: ReferralViewModel.ReadyToBecomParticipantDisplayMode.TokenType
     let account: ReferralViewModel.SelectedAccountViewData
+    let openAccountSelector: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -30,9 +31,7 @@ struct AddressForRewardsSection: View {
                 icon: nil,
                 title: Localization.accountDetailsTitle,
                 shouldShowTrailingIcon: true,
-                action: {
-                    // Open account selector
-                },
+                action: openAccountSelector,
                 trailingView: {
                     HStack(spacing: 4) {
                         AccountIconView(data: account.iconViewData)
@@ -88,7 +87,8 @@ struct AddressForRewardsSection: View {
                 id: "FFF",
                 iconViewData: AccountIconView.ViewData(backgroundColor: .red, nameMode: .letter("N")),
                 name: "Name"
-            )
+            ),
+            openAccountSelector: {}
         )
     }
 }
