@@ -271,6 +271,9 @@ struct MarketsTokenDetailsView: View {
     private var portfolioView: some View {
         if let portfolioViewModel = viewModel.portfolioViewModel {
             MarketsPortfolioContainerView(viewModel: portfolioViewModel)
+        } else if viewModel.accountsAwarePortfolioViewModel != nil {
+            // Insert view Here, will be done during [REDACTED_INFO]
+            EmptyView()
         }
     }
 
