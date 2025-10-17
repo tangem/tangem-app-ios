@@ -188,7 +188,7 @@ final class YieldTransactionProvider {
     ) async throws -> Transaction {
         let method = ApproveERC20TokenMethod(
             spender: yieldContractAddress,
-            amount: YieldTransactionFeeProvider.Constants.maxAllowance
+            amount: YieldAllowanceUtil.Constants.maxAllowance
         )
 
         return try await transaction(contractAddress: tokenContractAddress, txData: method.data, fee: fee)
