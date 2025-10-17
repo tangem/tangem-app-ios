@@ -527,10 +527,15 @@ extension MultiWalletMainContentViewModel {
     private func openReferralProgram() {
         Analytics.log(.mainReferralProgramButtonParticipate)
 
+        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
+            .accounts(userWalletModel.accountModelsManager) :
+            .plainUserTokensManager(userWalletModel.userTokensManager)
+
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
             supportedBlockchains: userWalletModel.config.supportedBlockchains,
-            userTokensManager: userWalletModel.userTokensManager
+            workMode: workMode,
+            tokenIconInfoBuilder: TokenIconInfoBuilder()
         )
 
         coordinator?.openReferral(input: input)

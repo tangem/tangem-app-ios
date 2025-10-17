@@ -13,6 +13,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemAccessibilityIdentifiers
+import TangemAccounts
 
 struct ReferralView: View {
     @Environment(\.colorScheme) var colorScheme
@@ -25,32 +26,9 @@ struct ReferralView: View {
         GeometryReader { geometry in
             ScrollView {
                 VStack(spacing: 0) {
-                    Assets.referralDude.image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .background(
-                            RadialGradient(
-                                colors: [
-                                    Colors.Control.unchecked,
-                                    // DO NOT replace it with Color.clear. Apparently it is not the same on iOS 15
-                                    Colors.Control.unchecked.opacity(0),
-                                ],
-                                center: .bottom,
-                                startRadius: (colorScheme == .light ? 0.5 : 0.30) * (geometry.size.width - 2 * dudePadding),
-                                endRadius: 0.65 * (geometry.size.width - 2 * dudePadding)
-                            )
-                            .cornerRadiusContinuous(14)
-                        )
-                        .padding(.horizontal, dudePadding)
+                    makeReferralDudeImage(geometry: geometry)
 
-                    Text(Localization.referralTitle)
-                        .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .padding(.horizontal, 57)
-                        .padding(.top, 28)
-                        .padding(.bottom, 32)
-                        .accessibilityIdentifier(ReferralAccessibilityIdentifiers.title)
+                    referralTitle
 
                     content
                         .padding(.bottom, max(geometry.safeAreaInsets.bottom, 10))
@@ -68,17 +46,60 @@ struct ReferralView: View {
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
 
-    @ViewBuilder
-    private var content: some View {
-        if viewModel.isProgramInfoLoaded {
-            referralContent
-        } else {
-            loaderContent
-        }
+    private func makeReferralDudeImage(geometry: GeometryProxy) -> some View {
+        Assets.referralDude.image
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .background(
+                RadialGradient(
+                    colors: [
+                        Colors.Control.unchecked,
+                        // DO NOT replace it with Color.clear. Apparently it is not the same on iOS 15
+                        Colors.Control.unchecked.opacity(0),
+                    ],
+                    center: .bottom,
+                    startRadius: (colorScheme == .light ? 0.5 : 0.30) * (geometry.size.width - 2 * dudePadding),
+                    endRadius: 0.65 * (geometry.size.width - 2 * dudePadding)
+                )
+                .cornerRadiusContinuous(14)
+            )
+            .padding(.horizontal, dudePadding)
+    }
+
+    private var referralTitle: some View {
+        Text(Localization.referralTitle)
+            .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .padding(.horizontal, 57)
+            .padding(.top, 28)
+            .padding(.bottom, 32)
+            .accessibilityIdentifier(ReferralAccessibilityIdentifiers.title)
     }
 
     @ViewBuilder
-    private var referralContent: some View {
+    private var content: some View {
+        switch viewModel.viewState {
+        case .loading:
+            loaderContent
+
+        case .loaded(let loadedState):
+            makeReferralContent(loadedState: loadedState)
+        }
+    }
+
+    private var loaderContent: some View {
+        VStack(alignment: .leading, spacing: 38) {
+            IconWithMessagePlaceholderView(icon: Assets.cryptoCurrencies)
+
+            IconWithMessagePlaceholderView(icon: Assets.discount)
+
+            Spacer()
+        }
+        .padding(.horizontal, 14)
+    }
+
+    private func makeReferralContent(loadedState: ReferralViewModel.LoadedState) -> some View {
         VStack(spacing: 0) {
             IconWithMessageView(
                 Assets.cryptoCurrencies,
@@ -103,44 +124,47 @@ struct ReferralView: View {
 
             Spacer()
 
-            if viewModel.isAlreadyReferral {
-                alreadyReferralBottomView
-            } else {
-                notReferralView
+            switch loadedState {
+            case .alreadyParticipant(let alreadyParticipantDisplayMode):
+                makeAlreadyParticipantView(alreadyParticipantDisplayMode)
+
+            case .readyToBecomeParticipant(let readyToBecomParticipantDisplayMode):
+                makeReadyToBecomeParticipantView(readyToBecomParticipantDisplayMode)
             }
         }
         .padding(.horizontal, 14)
     }
 
     @ViewBuilder
-    private var loaderContent: some View {
-        VStack(alignment: .leading, spacing: 38) {
-            IconWithMessagePlaceholderView(icon: Assets.cryptoCurrencies)
+    private func makeAlreadyParticipantView(_ displayMode: ReferralViewModel.AlreadyParticipantDisplayMode) -> some View {
+        switch displayMode {
+        case .simple:
+            makeAlreadyParticipantBottomView()
 
-            IconWithMessagePlaceholderView(icon: Assets.discount)
-
-            Spacer()
+        case .accounts(let accountData):
+            makeAlreadyParticipantBottomView(accountData: accountData)
         }
-        .padding(.horizontal, 14)
     }
 
     @ViewBuilder
-    private var tosButton: some View {
-        Button(action: viewModel.openTOS) {
-            Text(viewModel.tosButtonPrefix) +
-                Text(Localization.commonTermsAndConditions).foregroundColor(Colors.Text.accent) +
-                Text(" " + Localization.referralTosSuffix)
+    private func makeReadyToBecomeParticipantView(_ displayMode: ReferralViewModel.ReadyToBecomParticipantDisplayMode) -> some View {
+        switch displayMode {
+        case .simple:
+            simpleReadyToBecomeParticipantView
+
+        case .accounts(let tokenType, let selectedAccountData):
+            VStack {
+                AddressForRewardsSection(tokenType: tokenType, account: selectedAccountData)
+
+                Spacer(minLength: 40)
+
+                accountsReadyToParticipateFooter
+            }
+            .padding(.top, 30)
         }
-        .accessibilityIdentifier(ReferralAccessibilityIdentifiers.tosButton)
-        .multilineTextAlignment(.center)
-        .fixedSize(horizontal: false, vertical: true)
-        .font(Fonts.Regular.footnote)
-        .foregroundColor(Colors.Text.tertiary)
-        .padding(.horizontal, 20)
     }
 
-    @ViewBuilder
-    private var alreadyReferralBottomView: some View {
+    private func makeAlreadyParticipantBottomView(accountData: ReferralViewModel.SelectedAccountViewData? = nil) -> some View {
         VStack(spacing: 14) {
             Spacer()
 
@@ -157,6 +181,21 @@ struct ReferralView: View {
                         color: Colors.Text.primary1
                     )
                     .fixedSize(horizontal: false, vertical: true)
+
+                if let accountData {
+                    Divider()
+
+                    BaseOneLineRow(icon: nil, title: Localization.accountForRewards, trailingView: {
+                        HStack(spacing: 4) {
+                            AccountIconView(data: accountData.iconViewData)
+                                .settings(.smallSized)
+
+                            Text(accountData.name)
+                                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                        }
+                    })
+                    .shouldShowTrailingIcon(false)
+                }
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 8)
@@ -219,7 +258,6 @@ struct ReferralView: View {
         }
     }
 
-    @ViewBuilder
     private var expectedAwards: some View {
         VStack(spacing: 0) {
             if viewModel.hasExpectedAwards {
@@ -276,21 +314,43 @@ struct ReferralView: View {
         }
     }
 
-    @ViewBuilder
-    private var notReferralView: some View {
+    private var simpleReadyToBecomeParticipantView: some View {
         VStack(spacing: 12) {
             tosButton
 
-            MainButton(
-                title: Localization.referralButtonParticipate,
-                icon: .trailing(Assets.tangemIcon),
-                style: .primary,
-                action: {
-                    runTask(code: viewModel.participateInReferralProgram)
-                }
-            )
-            .accessibilityIdentifier(ReferralAccessibilityIdentifiers.participateButton)
+            participateButton
         }
+    }
+
+    private var accountsReadyToParticipateFooter: some View {
+        VStack(spacing: 12) {
+            participateButton
+            tosButton
+        }
+    }
+
+    private var participateButton: some View {
+        MainButton(
+            title: Localization.referralButtonParticipate,
+            icon: .trailing(Assets.tangemIcon),
+            style: .primary,
+            action: viewModel.participateInReferralProgram
+        )
+        .accessibilityIdentifier(ReferralAccessibilityIdentifiers.participateButton)
+    }
+
+    private var tosButton: some View {
+        Button(action: viewModel.openTOS) {
+            Text(viewModel.tosButtonPrefix) +
+                Text(Localization.commonTermsAndConditions).foregroundColor(Colors.Text.accent) +
+                Text(" " + Localization.referralTosSuffix)
+        }
+        .accessibilityIdentifier(ReferralAccessibilityIdentifiers.tosButton)
+        .multilineTextAlignment(.center)
+        .fixedSize(horizontal: false, vertical: true)
+        .font(Fonts.Regular.footnote)
+        .foregroundColor(Colors.Text.tertiary)
+        .padding(.horizontal, 20)
     }
 }
 
@@ -302,7 +362,8 @@ struct ReferralView_Previews: PreviewProvider {
                     input: .init(
                         userWalletId: Data(),
                         supportedBlockchains: SupportedBlockchains.all,
-                        userTokensManager: UserTokensManagerMock()
+                        workMode: .plainUserTokensManager(UserTokensManagerMock()),
+                        tokenIconInfoBuilder: TokenIconInfoBuilder()
                     ),
                     coordinator: ReferralCoordinator()
                 )
@@ -316,7 +377,8 @@ struct ReferralView_Previews: PreviewProvider {
                     input: .init(
                         userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
                         supportedBlockchains: SupportedBlockchains.all,
-                        userTokensManager: UserTokensManagerMock()
+                        workMode: .plainUserTokensManager(UserTokensManagerMock()),
+                        tokenIconInfoBuilder: TokenIconInfoBuilder()
                     ),
                     coordinator: ReferralCoordinator()
                 )
