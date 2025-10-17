@@ -214,21 +214,13 @@ private struct CommonUserWalletModelDependencies {
                 hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
             )
 
-            let accountModelsManager = CommonAccountModelsManager(
+            return CommonAccountModelsManager(
                 userWalletId: userWalletId,
                 cryptoAccountsRepository: cryptoAccountsRepository,
-                archivedCryptoAccountsProvider: networkService,
                 walletModelsManagerFactory: walletModelsManagerFactory,
                 userTokensManagerFactory: userTokensManagerFactory,
                 areHDWalletsSupported: areHDWalletsSupported
             )
-
-            mapper.externalParametersProvider = AccountsAwareUserTokenListExternalParametersProvider(
-                accountModelsManager: accountModelsManager,
-                userTokensPushNotificationsManager: userTokensPushNotificationsManager
-            )
-
-            return accountModelsManager
         }
 
         accountModelsManager = FeatureProvider.isAvailable(.accounts)
