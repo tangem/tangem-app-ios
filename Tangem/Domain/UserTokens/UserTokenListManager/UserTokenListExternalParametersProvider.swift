@@ -11,8 +11,5 @@ import BlockchainSdk
 
 protocol UserTokenListExternalParametersProvider: AnyObject {
     func provideTokenListAddresses() -> [WalletModelId: [String]]?
-
-    // Return is optional because parameter not supported current version backend
-    // [REDACTED_TODO_COMMENT]
-    func provideTokenListNotifyStatusValue() -> Bool?
+    func provideTokenListNotifyStatusValue() -> Bool
 }
