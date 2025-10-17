@@ -127,9 +127,6 @@ final class ExpressViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
         case .swap:
             sendTransaction()
-        case .givePermission:
-            Analytics.log(.swapButtonGivePermission)
-            openApproveView()
         case .insufficientFunds:
             assertionFailure("Button should be disabled")
         }
@@ -520,8 +517,8 @@ private extension ExpressViewModel {
 
             mainButtonIsEnabled = false
         case .permissionRequired:
-            mainButtonState = .givePermission
-            mainButtonIsEnabled = true
+            mainButtonState = .swap
+            mainButtonIsEnabled = false
         case .readyToSwap, .previewCEX:
             mainButtonState = .swap
             mainButtonIsEnabled = true
@@ -675,6 +672,9 @@ extension ExpressViewModel: NotificationTapDelegate {
             }
 
             updateSendDecimalValue(to: targetValue)
+        case .givePermission:
+            Analytics.log(.swapButtonGivePermission)
+            openApproveView()
         case .generateAddresses,
              .backupCard,
              .buyCrypto,
@@ -793,7 +793,6 @@ extension ExpressViewModel {
 
         case swap
         case insufficientFunds
-        case givePermission
         case permitAndSwap
 
         var title: String {
@@ -802,8 +801,6 @@ extension ExpressViewModel {
                 return Localization.swappingSwapAction
             case .insufficientFunds:
                 return Localization.swappingInsufficientFunds
-            case .givePermission:
-                return Localization.givePermissionTitle
             case .permitAndSwap:
                 return Localization.swappingPermitAndSwap
             }
@@ -813,7 +810,7 @@ extension ExpressViewModel {
             switch self {
             case .swap, .permitAndSwap:
                 return .trailing(Assets.tangemIcon)
-            case .givePermission, .insufficientFunds:
+            case .insufficientFunds:
                 return .none
             }
         }
