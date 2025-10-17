@@ -124,8 +124,7 @@ extension ExpressNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .permissionNeeded,
-             .hasPendingTransaction,
+        case .hasPendingTransaction,
              .hasPendingApproveTransaction,
              .tooSmallAmountToSwap,
              .tooBigAmountToSwap,
@@ -138,7 +137,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .cexOperationFailed,
              .notEnoughReceivedAmountForReserve,
              .refunded,
-             .longTimeAverageDuration:
+             .longTimeAverageDuration,
+             .permissionNeeded:
             return .action
         case .withdrawalNotificationEvent(let event):
             return event.colorScheme
@@ -217,6 +217,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return event.buttonAction
         case .refunded:
             return .init(.openCurrency)
+        case .permissionNeeded:
+            return .init(.givePermission)
         default:
             return nil
         }
