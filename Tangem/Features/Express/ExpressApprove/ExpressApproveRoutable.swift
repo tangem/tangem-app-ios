@@ -11,4 +11,5 @@ import TangemExpress
 protocol ExpressApproveRoutable: AnyObject {
     func didSendApproveTransaction()
     func userDidCancel()
+    func openLearnMore()
 }
