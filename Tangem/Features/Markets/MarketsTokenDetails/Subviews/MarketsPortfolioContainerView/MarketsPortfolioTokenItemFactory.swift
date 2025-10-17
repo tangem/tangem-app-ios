@@ -32,7 +32,8 @@ struct MarketsPortfolioTokenItemFactory {
         coinId: String,
         walletModels: [any WalletModel],
         entries: [StoredUserTokenList.Entry],
-        userWalletInfo: UserWalletInfo
+        userWalletInfo: UserWalletInfo,
+        namingStyle: NamingStyle = .userWalletName
     ) -> [MarketsPortfolioTokenItemViewModel] {
         let walletModelsKeyedByIds = walletModels.keyedFirst(by: \.id)
         let blockchainNetworksFromWalletModels = walletModels
@@ -67,7 +68,7 @@ struct MarketsPortfolioTokenItemFactory {
             }
 
         let viewModels = tokenItemTypes.map {
-            makeTokenItemViewModel(from: $0, with: userWalletInfo)
+            makeTokenItemViewModel(from: $0, with: userWalletInfo, namingStyle: namingStyle)
         }
 
         return viewModels
@@ -75,15 +76,23 @@ struct MarketsPortfolioTokenItemFactory {
 
     private func makeTokenItemViewModel(
         from tokenItemType: TokenItemType,
-        with userWalletInfo: UserWalletInfo
+        with userWalletInfo: UserWalletInfo,
+        namingStyle: NamingStyle
     ) -> MarketsPortfolioTokenItemViewModel {
         let (id, provider, tokenItem, tokenIcon) = tokenItemInfoProviderItemBuilder
             .mapTokenItemViewModel(from: tokenItemType)
 
+        let name: String = switch namingStyle {
+        case .tokenItemName:
+            tokenItem.name
+        case .userWalletName:
+            userWalletInfo.userWalletName
+        }
+
         return MarketsPortfolioTokenItemViewModel(
             walletModelId: id,
             userWalletId: userWalletInfo.userWalletId,
-            walletName: userWalletInfo.userWalletName,
+            name: name,
             tokenIcon: tokenIcon,
             tokenItem: tokenItem,
             tokenItemInfoProvider: provider,
@@ -97,5 +106,16 @@ extension MarketsPortfolioTokenItemFactory {
     struct UserWalletInfo {
         let userWalletName: String
         let userWalletId: UserWalletId
+    }
+
+    enum NamingStyle {
+        case userWalletName
+        case tokenItemName
+
+        private var timeToRemove: Bool {
+            // Run into compilation error here? This means .accounts toggle is removed
+            // NamingStyle enum should be removed in favor of `.tokenItemName` case
+            FeatureProvider.isAvailable(.accounts)
+        }
     }
 }
