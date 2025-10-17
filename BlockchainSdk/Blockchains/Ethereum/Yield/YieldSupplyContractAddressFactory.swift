@@ -41,14 +41,14 @@ class YieldSupplyContractAddressFactory {
 extension YieldSupplyContractAddressFactory {
     enum AaveV3Constants {
         static let polygonMainnetAddresses = YieldSupplyContractAddresses(
-            factoryContractAddress: "0x685345d16aA462FB52bDB0D73807a199d1c5Ef76",
-            processorContractAddress: "0xA32019c38a7EF45b87c09155600EEc457915b782",
+            factoryContractAddress: "0x1bE509C2fF23dF065E15A6d37b0eFe4c839c62fE",
+            processorContractAddress: "0xD021F1D410aCB895aB110a0CbB740a33db209bDD",
             poolContractAddress: "0x794a61358D6845594F94dc1DB02A252b5b4814aD"
         )
 
         static let ethereumTestnetAddresses = YieldSupplyContractAddresses(
-            factoryContractAddress: "0x62bc085Ef9e7700Af1F572cefCfdf4228E4EA3b8",
-            processorContractAddress: "0x234D7653Ee1B6d8d87D008e613757Ac2f6Bd5a69",
+            factoryContractAddress: "0xF3b31452E8EE5B294D7172B69Bd02decF2255FCd",
+            processorContractAddress: "0x9A4b70A216C1A84d72a490f8cD3014Fdb538d249",
             poolContractAddress: "0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951"
         )
     }
