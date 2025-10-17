@@ -23,7 +23,7 @@ class CommonUserTokensPushNotificationsManager {
     private let userWalletId: UserWalletId
     private let walletModelsManager: WalletModelsManager
     private let derivationManager: DerivationManager?
-    private let userTokenListManager: UserTokenListManager
+    private let userTokensManager: UserTokensManager
 
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(
         .unavailable(reason: .notInitialized, enabledRemote: false)
@@ -47,12 +47,12 @@ class CommonUserTokensPushNotificationsManager {
         userWalletId: UserWalletId,
         walletModelsManager: WalletModelsManager,
         derivationManager: DerivationManager?,
-        userTokenListManager: UserTokenListManager
+        userTokensManager: UserTokensManager
     ) {
         self.userWalletId = userWalletId
         self.walletModelsManager = walletModelsManager
         self.derivationManager = derivationManager
-        self.userTokenListManager = userTokenListManager
+        self.userTokensManager = userTokensManager
 
         bind()
     }
@@ -60,8 +60,8 @@ class CommonUserTokensPushNotificationsManager {
     // MARK: - Private Implementation
 
     private func bind() {
-        let readyUserTokenListPublisher = userTokenListManager
-            .userTokensListPublisher
+        let readyUserTokenListPublisher = userTokensManager
+            .userTokensPublisher
             .dropFirst()
 
         userTokensPushNotificationsService
@@ -135,7 +135,7 @@ class CommonUserTokensPushNotificationsManager {
     }
 
     private func syncRemoteStatus() {
-        userTokenListManager.upload()
+        userTokensManager.upload()
     }
 
     @MainActor
