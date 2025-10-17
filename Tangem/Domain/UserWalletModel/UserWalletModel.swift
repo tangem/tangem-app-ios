@@ -50,9 +50,6 @@ protocol UserWalletModel:
 
     @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokensManager' instead and remove this property ([REDACTED_INFO])")
     var userTokensManager: UserTokensManager { get }
-
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokenListManager' instead and remove this property ([REDACTED_INFO])")
-    var userTokenListManager: UserTokenListManager { get }
 }
 
 enum UpdateRequest {
