@@ -52,6 +52,7 @@ actor CommonAccountModelsManager {
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
         CryptoAccountsGlobalStateProvider.shared.register(self, forIdentifier: userWalletId)
+
         initialize()
     }
 
