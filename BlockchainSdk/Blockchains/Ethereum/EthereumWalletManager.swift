@@ -388,9 +388,14 @@ private extension EthereumWalletManager {
 
         for tokenBalance in response.tokenBalances {
             switch (yieldTokensBalances[tokenBalance.key], tokenBalance.value) {
-            case (.success(let amount), _):
-                wallet.add(amount: amount)
-            case (.failure, _), (.none, .failure):
+            case (.success(let yieldAmount), .success(let tokenAmountValue)):
+                let totalTokenAmount = Amount(
+                    with: wallet.blockchain,
+                    type: yieldAmount.type,
+                    value: tokenAmountValue + yieldAmount.value
+                )
+                wallet.add(amount: totalTokenAmount)
+            case (.failure, _), (_, .failure):
                 wallet.clearAmount(for: tokenBalance.key)
             case (.none, .success(let value)):
                 wallet.add(tokenValue: value, for: tokenBalance.key)
