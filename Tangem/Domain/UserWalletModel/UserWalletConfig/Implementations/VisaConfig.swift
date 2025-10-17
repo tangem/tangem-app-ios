@@ -48,17 +48,17 @@ extension VisaConfig: UserWalletConfig {
         [defaultBlockchain]
     }
 
-    var defaultBlockchains: [StorageEntry] {
+    var defaultBlockchains: [TokenItem] {
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
-        let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+        let entry = TokenItem.blockchain(network)
         return [entry]
     }
 
-    var persistentBlockchains: [StorageEntry]? {
+    var persistentBlockchains: [TokenItem] {
         defaultBlockchains
     }
 
-    var embeddedBlockchain: StorageEntry? {
+    var embeddedBlockchain: TokenItem? {
         defaultBlockchains.first
     }
 
