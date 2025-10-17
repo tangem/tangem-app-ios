@@ -126,7 +126,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         // [REDACTED_INFO]
         if FeatureProvider.isAvailable(.visa) {
             let tangemPayAccountPublisher = userWalletModel.walletModelsManager.walletModelsPublisher
-                .compactMap(\.visaWalletModel)
+                .compactMap(\.tangemPayWalletModel)
                 .compactMap(TangemPayAccount.init)
                 .merge(with: userWalletModel.updatePublisher.compactMap(\.tangemPayAccount))
                 .share(replay: 1)
