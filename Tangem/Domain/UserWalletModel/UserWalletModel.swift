@@ -45,13 +45,13 @@ protocol UserWalletModel:
 
     // MARK: - Properties and methods to be deleted after migration to Accounts is complete
 
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'walletModelsManager' instead and remove this property ([REDACTED_INFO])")
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'walletModelsManager' instead")
     var walletModelsManager: WalletModelsManager { get }
 
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokensManager' instead and remove this property ([REDACTED_INFO])")
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokensManager' instead")
     var userTokensManager: UserTokensManager { get }
 
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokenListManager' instead and remove this property ([REDACTED_INFO])")
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokenListManager' instead")
     var userTokenListManager: UserTokenListManager { get }
 }
 
