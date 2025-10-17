@@ -32,6 +32,7 @@ extension AccountsDTO.Response {
             let decimals: Int
             let derivationPath: String?
             let contractAddress: String?
+            let addresses: [String]?
         }
 
         struct Account: Decodable {
