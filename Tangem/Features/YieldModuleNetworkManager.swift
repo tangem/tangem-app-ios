@@ -16,8 +16,12 @@ protocol YieldModuleNetworkManager {
     var markets: [YieldModuleMarketInfo] { get }
     var marketsPublisher: AnyPublisher<[YieldModuleMarketInfo], Never> { get }
 
-    func updateMarkets()
+    func updateMarkets(chainIDs: [String])
+
     func fetchYieldTokenInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleTokenInfo
+
+    func activate(tokenContractAddress: String, chainId: Int) async throws
+    func deactivate(tokenContractAddress: String, chainId: Int) async throws
 }
 
 final class CommonYieldModuleNetworkManager {
@@ -41,9 +45,9 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
         marketsSubject.eraseToAnyPublisher()
     }
 
-    func updateMarkets() {
+    func updateMarkets(chainIDs: [String]) {
         Task { @MainActor in
-            let markets = await fetchMarkets()
+            let markets = await fetchMarkets(chainIDs: chainIDs)
             marketsSubject.send(markets)
         }
     }
@@ -61,12 +65,20 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
             maxFeeUSD: position.maxFeeUSD
         )
     }
+
+    func activate(tokenContractAddress: String, chainId: Int) async throws {
+        try await yieldModuleAPIService.activate(tokenContractAddress: tokenContractAddress, chainId: chainId)
+    }
+
+    func deactivate(tokenContractAddress: String, chainId: Int) async throws {
+        try await yieldModuleAPIService.deactivate(tokenContractAddress: tokenContractAddress, chainId: chainId)
+    }
 }
 
 private extension CommonYieldModuleNetworkManager {
-    func fetchMarkets() async -> [YieldModuleMarketInfo] {
+    func fetchMarkets(chainIDs: [String]) async -> [YieldModuleMarketInfo] {
         do {
-            let response = try await yieldModuleAPIService.getYieldMarkets()
+            let response = try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
 
             cacheMarkets(response)
 
