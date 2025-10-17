@@ -306,6 +306,8 @@ extension SendCoordinator: ExpressApproveRoutable {
     func userDidCancel() {
         expressApproveViewModel = nil
     }
+
+    func openLearnMore() {}
 }
 
 // MARK: - OnrampCountrySelectorRoutable
