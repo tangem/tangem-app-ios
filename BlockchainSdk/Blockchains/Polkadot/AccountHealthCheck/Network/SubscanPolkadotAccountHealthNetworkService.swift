@@ -127,8 +127,7 @@ public final class SubscanPolkadotAccountHealthNetworkService {
             }
 
             let nextRetryAttempt = retryAttempt + 1
-            let retryInterval = ExponentialBackoffInterval(retryAttempt: nextRetryAttempt)
-            try await Task.sleep(nanoseconds: retryInterval())
+            try await Task.sleep(nanoseconds: makeRetryInterval(retryAttempt: nextRetryAttempt))
 
             return try await perform(
                 request: request,
@@ -163,6 +162,15 @@ public final class SubscanPolkadotAccountHealthNetworkService {
 
         return true
     }
+
+    /// Provides exponential backoff with random jitter using standard formula `base * pow(2, retryAttempt) ± jitter`.
+    /// - Returns: Retry interval in nanoseconds.
+    private func makeRetryInterval(retryAttempt: Int) -> UInt64 {
+        let retryJitter: TimeInterval = .random(in: Constants.retryJitterMinValue ... Constants.retryJitterMaxValue)
+        let retryIntervalSeconds = Constants.retryBaseValue * pow(2.0, TimeInterval(retryAttempt)) + retryJitter
+
+        return UInt64(retryIntervalSeconds * TimeInterval(NSEC_PER_SEC))
+    }
 }
 
 // MARK: - Constants
@@ -172,6 +180,9 @@ private extension SubscanPolkadotAccountHealthNetworkService {
         // - Note: Subscan API has zero-based indexing
         static let startPage = 0
         static let maxRetryCount = 3
+        static var retryBaseValue: TimeInterval { 1.0 }
+        static var retryJitterMinValue: TimeInterval { -retryJitterMaxValue }
+        static var retryJitterMaxValue: TimeInterval { 0.5 }
         static let nonExistentAccountErrorCode = 10004
     }
 }
