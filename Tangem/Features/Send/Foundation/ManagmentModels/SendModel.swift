@@ -830,7 +830,8 @@ extension SendModel: NotificationTapDelegate {
              .tangemPayViewKYCStatus,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
-             .activate:
+             .activate,
+             .givePermission:
             assertionFailure("Notification tap not handled")
         }
     }
