@@ -16,6 +16,8 @@ protocol AccountModelsManager {
 
     var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> { get }
 
+    var accountModels: [AccountModel] { get }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { get }
 
     /// Archived + active
