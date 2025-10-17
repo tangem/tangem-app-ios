@@ -16,6 +16,7 @@ struct CommonAccountUserTokensManagerFactory {
     let derivationStyle: DerivationStyle?
     let derivationManager: DerivationManager?
     let existingCurves: [EllipticCurve]
+    let persistentBlockchains: [TokenItem]
     let shouldLoadExpressAvailability: Bool
     let hardwareLimitationsUtil: HardwareLimitationsUtil
 }
@@ -40,6 +41,7 @@ extension CommonAccountUserTokensManagerFactory: AccountUserTokensManagerFactory
             walletModelsManager: walletModelsManager,
             derivationInfo: derivationInfo,
             existingCurves: existingCurves,
+            persistentBlockchains: persistentBlockchains,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
             hardwareLimitationsUtil: hardwareLimitationsUtil
         )
