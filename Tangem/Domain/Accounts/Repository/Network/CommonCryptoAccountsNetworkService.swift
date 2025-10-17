@@ -9,7 +9,6 @@
 import Foundation
 import TangemFoundation
 
-/// Conforms to both `CryptoAccountsNetworkService` and `ArchivedCryptoAccountsProvider` protocols.
 final class CommonCryptoAccountsNetworkService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
@@ -31,10 +30,10 @@ final class CommonCryptoAccountsNetworkService {
 extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
     func getCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo {
         do {
-            let (newRevision, accountsDTO) = try await tangemApiService.getUserAccounts(userWalletId: userWalletId.stringValue)
+            let (revision, accountsDTO) = try await tangemApiService.getUserAccounts(userWalletId: userWalletId.stringValue)
 
-            if let newRevision {
-                eTagStorage.saveETag(newRevision, for: userWalletId)
+            if let revision {
+                eTagStorage.saveETag(revision, for: userWalletId)
             }
 
             return mapper.map(response: accountsDTO)
@@ -47,55 +46,7 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         }
     }
 
-    func saveAccounts(from cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo {
-        do {
-            let (accountsDTO, _) = mapper.map(request: cryptoAccounts)
-
-            guard let revision = eTagStorage.loadETag(for: userWalletId) else {
-                throw CryptoAccountsNetworkServiceError.missingRevision
-            }
-
-            let (newRevision, newAccountsDTO) = try await tangemApiService.saveUserAccounts(
-                userWalletId: userWalletId.stringValue,
-                revision: revision,
-                accounts: accountsDTO
-            )
-
-            if let newRevision {
-                eTagStorage.saveETag(newRevision, for: userWalletId)
-            }
-
-            return mapper.map(response: newAccountsDTO)
-        } catch let error as CryptoAccountsNetworkServiceError {
-            throw error // Just re-throw an original error
-        } catch let error as TangemAPIError where error.code == .notFound {
-            throw CryptoAccountsNetworkServiceError.noAccountsCreated
-        } catch let error as TangemAPIError where error.code == .optimisticLockingFailed {
-            throw CryptoAccountsNetworkServiceError.inconsistentState
-        } catch {
-            throw .underlyingError(error)
-        }
-    }
-
-    func saveTokens(from cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError) {
-        do {
-            let (_, userTokensDTO) = mapper.map(request: cryptoAccounts)
-
-            try await tangemApiService.saveTokens(list: userTokensDTO, for: userWalletId.stringValue)
-        } catch let error as CryptoAccountsNetworkServiceError {
-            throw error // Just re-throw an original error
-        } catch let error as TangemAPIError where error.code == .notFound {
-            throw CryptoAccountsNetworkServiceError.noAccountsCreated
-        } catch {
-            throw .underlyingError(error)
-        }
-    }
-}
-
-// MARK: - ArchivedCryptoAccountsProvider protocol conformance
-
-extension CommonCryptoAccountsNetworkService: ArchivedCryptoAccountsProvider {
-    func getArchivedCryptoAccounts() async throws -> [ArchivedCryptoAccountInfo] {
+    func getArchivedCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> [ArchivedCryptoAccountInfo] {
         do {
             let (revision, archivedAccountsDTO) = try await tangemApiService.getArchivedUserAccounts(userWalletId: userWalletId.stringValue)
 
@@ -108,6 +59,33 @@ extension CommonCryptoAccountsNetworkService: ArchivedCryptoAccountsProvider {
             throw error // Just re-throw an original error
         } catch {
             throw CryptoAccountsNetworkServiceError.underlyingError(error)
+        }
+    }
+
+    func save(cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError) {
+        do {
+            guard let revision = eTagStorage.loadETag(for: userWalletId) else {
+                throw CryptoAccountsNetworkServiceError.missingRevision
+            }
+
+            let accountsDTO = mapper.map(request: cryptoAccounts)
+            let newRevision = try await tangemApiService.saveUserAccounts(
+                userWalletId: userWalletId.stringValue,
+                revision: revision,
+                accounts: accountsDTO
+            )
+
+            if let newRevision {
+                eTagStorage.saveETag(newRevision, for: userWalletId)
+            }
+        } catch let error as CryptoAccountsNetworkServiceError {
+            throw error // Just re-throw an original error
+        } catch let error as TangemAPIError where error.code == .notFound {
+            throw CryptoAccountsNetworkServiceError.noAccountsCreated
+        } catch let error as TangemAPIError where error.code == .optimisticLockingFailed {
+            throw CryptoAccountsNetworkServiceError.inconsistentState
+        } catch {
+            throw .underlyingError(error)
         }
     }
 }
