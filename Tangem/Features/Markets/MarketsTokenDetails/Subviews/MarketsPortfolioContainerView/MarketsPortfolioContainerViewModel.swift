@@ -24,8 +24,6 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
     // MARK: - Private Properties
 
     private let walletDataProvider: MarketsWalletDataProvider
-    private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
-
     private weak var coordinator: MarketsPortfolioContainerRoutable?
     private var addTokenTapAction: (() -> Void)?
 
