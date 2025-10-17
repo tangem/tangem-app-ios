@@ -138,9 +138,9 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
             }
 
             var networkIds = availableNetworksIds
-            let userTokenList = userWalletModel.userTokenListManager.userTokensList
-            for entry in userTokenList.entries {
-                guard let entryId = entry.coinId else {
+            let userTokenList = userWalletModel.userTokensManager.userTokens
+            for entry in userTokenList {
+                guard let entryId = entry.id else {
                     continue
                 }
 
@@ -175,7 +175,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
         let tokenItemViewModelByUserWalletModels: [MarketsPortfolioTokenItemViewModel] = walletDataProvider.userWalletModels
             .reduce(into: []) { partialResult, userWalletModel in
                 let walletModels = userWalletModel.walletModelsManager.walletModels
-                let entries = userWalletModel.userTokenListManager.userTokensList.entries
+                let entries = userWalletModel.userTokensManager.userTokens
 
                 let viewModels: [MarketsPortfolioTokenItemViewModel] = portfolioTokenItemFactory.makeViewModels(
                     coinId: coinId,
@@ -215,7 +215,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
     }
 
     private func bindToTokensListsUpdates(userWalletModels: [UserWalletModel]) {
-        let publishers = userWalletModels.map { $0.userTokenListManager.userTokensListPublisher }
+        let publishers = userWalletModels.map { $0.userTokensManager.userTokensPublisher }
         let walletModelsPublishers = userWalletModels.map { $0.walletModelsManager.walletModelsPublisher }
 
         let manyUserTokensListPublishers = Publishers.MergeMany(publishers)
