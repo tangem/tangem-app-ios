@@ -1,5 +1,5 @@
 //
-//  YieldModuleMarketsManager.swift
+//  YieldModuleNetworkManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,14 +12,15 @@ import BlockchainSdk
 import BigInt
 import TangemFoundation
 
-protocol YieldModuleMarketsManager {
+protocol YieldModuleNetworkManager {
     var markets: [YieldModuleMarketInfo] { get }
     var marketsPublisher: AnyPublisher<[YieldModuleMarketInfo], Never> { get }
 
     func updateMarkets()
+    func fetchYieldTokenInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleTokenInfo
 }
 
-final class CommonYieldModuleMarketsManager {
+final class CommonYieldModuleNetworkManager {
     private let yieldModuleAPIService: YieldModuleAPIService
     private let yieldMarketsRepository: YieldModuleMarketsRepository
 
@@ -31,7 +32,7 @@ final class CommonYieldModuleMarketsManager {
     }
 }
 
-extension CommonYieldModuleMarketsManager: YieldModuleMarketsManager {
+extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
     var markets: [YieldModuleMarketInfo] {
         marketsSubject.value
     }
@@ -46,9 +47,23 @@ extension CommonYieldModuleMarketsManager: YieldModuleMarketsManager {
             marketsSubject.send(markets)
         }
     }
+
+    func fetchYieldTokenInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleTokenInfo {
+        let position = try await yieldModuleAPIService.getTokenPositionInfo(
+            tokenContractAddress: tokenContractAddress,
+            chainId: chainId
+        )
+
+        return YieldModuleTokenInfo(
+            isActive: position.isActive,
+            apy: position.apy,
+            maxFeeNative: position.maxFeeNative,
+            maxFeeUSD: position.maxFeeUSD
+        )
+    }
 }
 
-private extension CommonYieldModuleMarketsManager {
+private extension CommonYieldModuleNetworkManager {
     func fetchMarkets() async -> [YieldModuleMarketInfo] {
         do {
             let response = try await yieldModuleAPIService.getYieldMarkets()
@@ -94,17 +109,19 @@ private extension CommonYieldModuleMarketsManager {
     }
 }
 
-private extension CommonYieldModuleMarketsManager {
+private extension CommonYieldModuleNetworkManager {
     enum Constants {
         static let temporaryDefaultMaxNetworkFee = BigUInt(1) // will be removed in the future [REDACTED_INFO]
     }
 }
 
-private struct YieldModuleMarketsManagerKey: InjectionKey {
-    static var currentValue: YieldModuleMarketsManager = {
-        let apiType: YieldModuleAPIType = AppEnvironment.current.isProduction ? .production : .develop
+private struct YieldModuleNetworkManagerKey: InjectionKey {
+    static var currentValue: YieldModuleNetworkManager = {
+        let apiType: YieldModuleAPIType = AppEnvironment.current.isProduction
+            ? .prod
+            : FeatureStorage.instance.yieldModuleAPIType
 
-        let manager = CommonYieldModuleMarketsManager(
+        let manager = CommonYieldModuleNetworkManager(
             yieldModuleAPIService: CommonYieldModuleAPIService(
                 provider: .init(
                     configuration: .ephemeralConfiguration,
@@ -121,8 +138,8 @@ private struct YieldModuleMarketsManagerKey: InjectionKey {
 }
 
 extension InjectedValues {
-    var yieldModuleMarketsManager: YieldModuleMarketsManager {
-        get { Self[YieldModuleMarketsManagerKey.self] }
-        set { Self[YieldModuleMarketsManagerKey.self] = newValue }
+    var yieldModuleNetworkManager: YieldModuleNetworkManager {
+        get { Self[YieldModuleNetworkManagerKey.self] }
+        set { Self[YieldModuleNetworkManagerKey.self] = newValue }
     }
 }
