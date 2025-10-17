@@ -32,6 +32,7 @@ actor CommonAccountModelsManager {
 
     /// - Note: Manual synchronization is used for reads/writes, hence it is safe to mark this as `nonisolated(unsafe)`.
     private nonisolated(unsafe) var unsafeAccountModelsPublisher: AnyPublisher<[AccountModel], Never>?
+    private nonisolated(unsafe) var unsafeAccountModels: [AccountModel] = []
     private nonisolated let criticalSection: Lock
 
     init(
@@ -155,6 +156,11 @@ actor CommonAccountModelsManager {
                         .standard(cryptoAccounts),
                     ]
                 }
+                .handleEvents(receiveOutput: { [weak self] accountModels in
+                    self?.criticalSection {
+                        self?.unsafeAccountModels = accountModels
+                    }
+                })
                 .eraseToAnyPublisher()
 
             unsafeAccountModelsPublisher = publisher
@@ -203,6 +209,12 @@ extension CommonAccountModelsManager: AccountModelsManager {
     // [REDACTED_TODO_COMMENT]
     nonisolated var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
         .just(output: 0)
+    }
+
+    nonisolated var accountModels: [AccountModel] {
+        criticalSection {
+            unsafeAccountModels
+        }
     }
 
     nonisolated var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
