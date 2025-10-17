@@ -37,7 +37,7 @@ class FeatureStorage {
     var isPerformanceMonitorEnabled = false
 
     @AppStorageCompat(FeatureStorageKeys.mockedCardScannerEnabled)
-    var isMockedCardScannerEnabled = true
+    var isMockedCardScannerEnabled = false
 
     @AppStorageCompat(FeatureStorageKeys.useVisaAPIMocks)
     var isVisaAPIMocksEnabled = false
