@@ -29,7 +29,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
 
     @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
 
-    var name: String { tokenIcon.name }
+    var tokenIconName: String { tokenIcon.name }
     var imageURL: URL? { tokenIcon.imageURL }
     var blockchainIconAsset: ImageType? { tokenIcon.blockchainIconAsset }
     var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation }
@@ -53,7 +53,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
 
     let walletModelId: WalletModelId
     let userWalletId: UserWalletId
-    let walletName: String
+    let name: String
     let tokenIcon: TokenIconInfo
     let tokenItem: TokenItem
 
@@ -70,7 +70,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     init(
         walletModelId: WalletModelId,
         userWalletId: UserWalletId,
-        walletName: String,
+        name: String,
         tokenIcon: TokenIconInfo,
         tokenItem: TokenItem,
         tokenItemInfoProvider: TokenItemInfoProvider,
@@ -79,7 +79,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     ) {
         self.walletModelId = walletModelId
         self.userWalletId = userWalletId
-        self.walletName = walletName
+        self.name = name
         self.tokenIcon = tokenIcon
         self.tokenItem = tokenItem
         self.tokenItemInfoProvider = tokenItemInfoProvider
