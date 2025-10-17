@@ -215,7 +215,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
         let info = switch state {
         case .active(let supply):
-            YieldModuleInfo(isYieldApproveNeeded: supply.allowance.isZero)
+            YieldModuleInfo(isYieldApproveNeeded: supply.isAllowancePermissionRequired)
 
         case .notActive:
             if let apy = marketInfo?.apy, marketInfo?.isActive == true {
