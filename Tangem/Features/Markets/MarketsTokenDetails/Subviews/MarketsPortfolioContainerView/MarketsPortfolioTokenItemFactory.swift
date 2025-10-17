@@ -31,7 +31,7 @@ struct MarketsPortfolioTokenItemFactory {
     func makeViewModels(
         coinId: String,
         walletModels: [any WalletModel],
-        entries: [StoredUserTokenList.Entry],
+        entries: [TokenItem],
         userWalletInfo: UserWalletInfo,
         namingStyle: NamingStyle = .userWalletName
     ) -> [MarketsPortfolioTokenItemViewModel] {
@@ -44,7 +44,7 @@ struct MarketsPortfolioTokenItemFactory {
 
         let tokenItemTypes: [TokenItemType] = entries
             .filter { entry in
-                if entry.coinId == coinId {
+                if entry.id == coinId {
                     return true
                 }
 
@@ -60,7 +60,7 @@ struct MarketsPortfolioTokenItemFactory {
             .compactMap { userToken in
                 if blockchainNetworksFromWalletModels.contains(userToken.blockchainNetwork) {
                     // Most likely we have wallet model (and derivation too) for this entry
-                    return walletModelsKeyedByIds[userToken.walletModelId].map { .default($0) }
+                    return walletModelsKeyedByIds[WalletModelId(tokenItem: userToken)].map { .default($0) }
                 } else {
                     // Section item for entry without derivation (yet)
                     return .withoutDerivation(userToken)
