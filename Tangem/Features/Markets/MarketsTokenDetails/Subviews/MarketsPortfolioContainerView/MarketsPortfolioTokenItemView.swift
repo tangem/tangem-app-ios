@@ -29,7 +29,7 @@ struct MarketsPortfolioTokenItemView: View {
     private var tokenView: some View {
         HStack(spacing: 12) {
             TokenItemViewLeadingComponent(
-                name: viewModel.name,
+                name: viewModel.tokenIconName,
                 imageURL: viewModel.imageURL,
                 customTokenColor: viewModel.customTokenColor,
                 blockchainIconAsset: viewModel.blockchainIconAsset,
@@ -41,7 +41,7 @@ struct MarketsPortfolioTokenItemView: View {
             VStack(spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
                     HStack(spacing: 6) {
-                        Text(viewModel.walletName)
+                        Text(viewModel.name)
                             .style(
                                 Fonts.Bold.subheadline,
                                 color: viewModel.hasError ? Colors.Text.tertiary : Colors.Text.primary1
