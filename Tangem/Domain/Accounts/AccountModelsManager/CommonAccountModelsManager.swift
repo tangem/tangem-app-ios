@@ -22,7 +22,6 @@ actor CommonAccountModelsManager {
     }
 
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
-    private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
     private let walletModelsManagerFactory: AccountWalletModelsManagerFactory
     private let userTokensManagerFactory: AccountUserTokensManagerFactory
 
@@ -37,14 +36,12 @@ actor CommonAccountModelsManager {
     init(
         userWalletId: UserWalletId,
         cryptoAccountsRepository: CryptoAccountsRepository,
-        archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         walletModelsManagerFactory: AccountWalletModelsManagerFactory,
         userTokensManagerFactory: AccountUserTokensManagerFactory,
         areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
-        self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
         self.walletModelsManagerFactory = walletModelsManagerFactory
         self.userTokensManagerFactory = userTokensManagerFactory
         self.areHDWalletsSupported = areHDWalletsSupported

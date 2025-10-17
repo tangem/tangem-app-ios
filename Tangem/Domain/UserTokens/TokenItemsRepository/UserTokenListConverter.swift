@@ -9,7 +9,7 @@
 import Foundation
 import enum BlockchainSdk.Blockchain
 
-@available(iOS, deprecated: 100000.0, message: "Superseded by 'CryptoAccountsNetworkMapper', will be removed in the future ([REDACTED_INFO])")
+@available(iOS, deprecated: 100000.0, message: "Superseded by 'CryptoAccountsNetworkMapper', will be removed in the future")
 struct UserTokenListConverter {
     private let supportedBlockchains: Set<Blockchain>
     private weak var externalParametersProvider: UserTokenListExternalParametersProvider?
@@ -54,8 +54,7 @@ struct UserTokenListConverter {
             tokens: tokens,
             group: convertToGroupType(groupingOption: storedUserTokenList.grouping),
             sort: convertToSortType(sortingOption: storedUserTokenList.sorting),
-            notifyStatus: notifyStatusValue,
-            version: Constants.apiVersion
+            notifyStatus: notifyStatusValue
         )
     }
 
@@ -144,13 +143,5 @@ struct UserTokenListConverter {
         case .balance:
             return .byBalance
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension UserTokenListConverter {
-    enum Constants {
-        static var apiVersion: Int { 0 }
     }
 }

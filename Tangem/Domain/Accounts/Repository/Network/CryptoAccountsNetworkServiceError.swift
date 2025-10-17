@@ -18,18 +18,3 @@ enum CryptoAccountsNetworkServiceError: Error {
     /// Other underlying errors (network errors, etc).
     case underlyingError(Error)
 }
-
-// MARK: - Convenience extensions
-
-extension CryptoAccountsNetworkServiceError {
-    var isCancellationError: Bool {
-        switch self {
-        case .underlyingError(let error):
-            return error.isCancellationError
-        case .missingRevision,
-             .inconsistentState,
-             .noAccountsCreated:
-            return false
-        }
-    }
-}
