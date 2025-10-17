@@ -80,6 +80,10 @@ extension AccountModelsManagerMock: AccountModelsManager {
         totalAccountsCountSubject.eraseToAnyPublisher()
     }
 
+    var accountModels: [AccountModel] {
+        accountModelsSubject.value
+    }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         accountModelsSubject.eraseToAnyPublisher()
     }
