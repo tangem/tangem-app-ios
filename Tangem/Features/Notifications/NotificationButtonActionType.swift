@@ -62,6 +62,7 @@ enum NotificationButtonActionType: Identifiable {
     case allowPushPermissionRequest
     case postponePushPermissionRequest
     case activate
+    case givePermission
 
     var id: Int {
         switch self {
@@ -100,6 +101,7 @@ enum NotificationButtonActionType: Identifiable {
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
         case .activate: "activate".hashValue
+        case .givePermission: "givePermission".hashValue
         }
     }
 
@@ -176,6 +178,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonLater
         case .activate:
             return Localization.commonActivate
+        case .givePermission:
+            return Localization.givePermissionTitle
         }
     }
 
@@ -217,7 +221,8 @@ enum NotificationButtonActionType: Identifiable {
              .tangemPayViewKYCStatus,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
-             .activate:
+             .activate,
+             .givePermission:
             return nil
         }
     }
@@ -257,7 +262,8 @@ enum NotificationButtonActionType: Identifiable {
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
              .tangemPayViewKYCStatus,
-             .postponePushPermissionRequest:
+             .postponePushPermissionRequest,
+             .givePermission:
             return .secondary
         case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):
             return needsAttention ? .primary : .secondary

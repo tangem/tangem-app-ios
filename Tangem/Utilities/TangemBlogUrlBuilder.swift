@@ -26,6 +26,7 @@ extension TangemBlogUrlBuilder {
         case whatIsStaking
         case seedNotify
         case mobileVsHardware
+        case giveRevokePermission
     }
 
     enum Root {
@@ -48,6 +49,8 @@ private extension TangemBlogUrlBuilder.Post {
             "seed-notify"
         case .mobileVsHardware:
             "mobile-vs-hardware"
+        case .giveRevokePermission:
+            "give-revoke-permission"
         }
     }
 }
