@@ -76,11 +76,6 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         if VisaUtilities.isVisaCard(card) {
-            guard FeatureProvider.isAvailable(.visa) else {
-                completion(.failure(.notSupportedFirmwareVersion))
-                return
-            }
-
             readVisaCard(session, completion)
             return
         }

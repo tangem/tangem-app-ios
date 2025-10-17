@@ -126,7 +126,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
-        if FeatureProvider.isAvailable(.visa) {
+        if true {
             let tangemPayAccountPublisher = userWalletModel.keysRepository.keysPublisher
                 .compactMap { _ in
                     TangemPayAccount(keysRepository: userWalletModel.keysRepository)
