@@ -259,7 +259,11 @@ private extension CommonEthereumTransactionBuilder {
     ) throws -> SmartContractMethod {
         switch token.metadata.kind {
         case .fungible where token.metadata.yieldSupply != nil:
-            return SendMethod(tokenContractAddress: token.contractAddress, destination: destination, amount: amount)
+            return YieldSendMethod(
+                tokenContractAddress: token.contractAddress,
+                destination: destination,
+                amount: amount
+            )
 
         case .fungible:
             return TransferERC20TokenMethod(destination: destination, amount: amount)
