@@ -88,7 +88,7 @@ final class TangemPayAccount {
     }
 
     convenience init?(walletModel: any WalletModel) {
-        guard walletModel.tokenItem.blockchain == VisaUtilities.visaBlockchain else {
+        guard walletModel.tokenItem == TangemPayUtilities.walletModelIdentifyingTokenItem else {
             return nil
         }
 
@@ -112,7 +112,7 @@ final class TangemPayAccount {
     }
 
     convenience init?(userWalletModel: UserWalletModel) {
-        guard let walletModel = userWalletModel.visaWalletModel else {
+        guard let walletModel = userWalletModel.walletModelsManager.walletModels.tangemPayWalletModel else {
             return nil
         }
 
