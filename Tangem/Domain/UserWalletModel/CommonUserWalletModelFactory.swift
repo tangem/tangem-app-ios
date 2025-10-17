@@ -64,7 +64,6 @@ struct CommonUserWalletModelFactory {
             userWalletId: userWalletId,
             walletModelsManager: dependencies.walletModelsManager,
             userTokensManager: dependencies.userTokensManager,
-            userTokenListManager: dependencies.userTokenListManager,
             nftManager: dependencies.nftManager,
             keysRepository: dependencies.keysRepository,
             derivationManager: dependencies.derivationManager,
@@ -144,9 +143,19 @@ private struct CommonUserWalletModelDependencies {
 
         self.userTokenListManager = userTokenListManager
 
+        userTokensManager = CommonUserTokensManager(
+            userWalletId: userWalletId,
+            shouldLoadExpressAvailability: shouldLoadExpressAvailability,
+            userTokenListManager: userTokenListManager,
+            derivationStyle: config.derivationStyle,
+            existingCurves: config.existingCurves,
+            persistentBlockchains: config.persistentBlockchains,
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
+        )
+
         let walletManagersRepository = CommonWalletManagersRepository(
             keysProvider: keysRepository,
-            userTokenListManager: userTokenListManager,
+            userTokensManager: userTokensManager,
             walletManagerFactory: walletManagerFactory
         )
 
@@ -156,26 +165,21 @@ private struct CommonUserWalletModelDependencies {
         )
 
         let derivationManager = areHDWalletsSupported
-            ? CommonDerivationManager(keysRepository: keysRepository, userTokenListManager: userTokenListManager)
+            ? CommonDerivationManager(keysRepository: keysRepository, userTokensManager: userTokensManager)
             : nil
+
         self.derivationManager = derivationManager
 
-        userTokensManager = CommonUserTokensManager(
-            userWalletId: userWalletId,
-            shouldLoadExpressAvailability: shouldLoadExpressAvailability,
-            userTokenListManager: userTokenListManager,
-            walletModelsManager: walletModelsManager,
-            derivationStyle: config.derivationStyle,
-            derivationManager: derivationManager,
-            existingCurves: config.existingCurves,
-            hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
-        )
+        // [REDACTED_TODO_COMMENT]
+        userTokensManager.derivationManager = derivationManager
+        userTokensManager.walletModelsManager = walletModelsManager
+        userTokensManager.sync {}
 
         let userTokensPushNotificationsManager = CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
             derivationManager: derivationManager,
-            userTokenListManager: userTokenListManager
+            userTokensManager: userTokensManager
         )
 
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
@@ -210,6 +214,7 @@ private struct CommonUserWalletModelDependencies {
                 derivationStyle: config.derivationStyle,
                 derivationManager: derivationManager,
                 existingCurves: config.existingCurves,
+                persistentBlockchains: config.persistentBlockchains,
                 shouldLoadExpressAvailability: shouldLoadExpressAvailability,
                 hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
             )
