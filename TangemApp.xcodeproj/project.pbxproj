@@ -90,7 +90,7 @@
 		0AB346812E83CD8F004003A0 /* YieldModuleDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB346802E83CD8F004003A0 /* YieldModuleDTO.swift */; };
 		0AB346832E83CE15004003A0 /* YieldModuleDTO+PositionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB346822E83CE15004003A0 /* YieldModuleDTO+PositionStatus.swift */; };
 		0AB346852E84009A004003A0 /* YieldModuleMarketInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB346842E84009A004003A0 /* YieldModuleMarketInfo.swift */; };
-		0AB346872E8402A2004003A0 /* YieldModuleMarketsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB346862E8402A2004003A0 /* YieldModuleMarketsManager.swift */; };
+		0AB346872E8402A2004003A0 /* YieldModuleNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */; };
 		0AB346892E840E44004003A0 /* YieldModuleMarketsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */; };
 		0AB5A4732C5267CB00491764 /* SegmentedPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */; };
 		0AB8BD3C2DBB60AE00D88677 /* CommonReferralNotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8BD3B2DBB60AE00D88677 /* CommonReferralNotificationController.swift */; };
@@ -3355,7 +3355,6 @@
 		EA728C2F2E0054A30044145D /* IncomingURLValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */; };
 		EA728C352E0158930044145D /* CommonDeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */; };
 		EA728C392E0162FE0044145D /* DeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C382E0162FE0044145D /* DeeplinkPresenter.swift */; };
-		EA742A9C2E97791F0074FCD2 /* YieldModuleTokenInfoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA742A9B2E97791F0074FCD2 /* YieldModuleTokenInfoManager.swift */; };
 		EA77FE702E92C7A600D3D9BC /* YieldModuleiOS16Chart.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA77FE6F2E92C7A600D3D9BC /* YieldModuleiOS16Chart.swift */; };
 		EA77FE722E92C86800D3D9BC /* YieldModulePreiOS16Chart.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA77FE712E92C86800D3D9BC /* YieldModulePreiOS16Chart.swift */; };
 		EA7C2ADE2E532FAF0007211E /* HyperliquidExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7C2ADD2E532FAF0007211E /* HyperliquidExternalLinkProvider.swift */; };
@@ -4473,7 +4472,7 @@
 		0AB346802E83CD8F004003A0 /* YieldModuleDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleDTO.swift; sourceTree = "<group>"; };
 		0AB346822E83CE15004003A0 /* YieldModuleDTO+PositionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YieldModuleDTO+PositionStatus.swift"; sourceTree = "<group>"; };
 		0AB346842E84009A004003A0 /* YieldModuleMarketInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleMarketInfo.swift; sourceTree = "<group>"; };
-		0AB346862E8402A2004003A0 /* YieldModuleMarketsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleMarketsManager.swift; sourceTree = "<group>"; };
+		0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleNetworkManager.swift; sourceTree = "<group>"; };
 		0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleMarketsRepository.swift; sourceTree = "<group>"; };
 		0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedPicker.swift; sourceTree = "<group>"; };
 		0AB8BD3B2DBB60AE00D88677 /* CommonReferralNotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonReferralNotificationController.swift; sourceTree = "<group>"; };
@@ -7776,7 +7775,6 @@
 		EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLValidator.swift; sourceTree = "<group>"; };
 		EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeeplinkPresenter.swift; sourceTree = "<group>"; };
 		EA728C382E0162FE0044145D /* DeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkPresenter.swift; sourceTree = "<group>"; };
-		EA742A9B2E97791F0074FCD2 /* YieldModuleTokenInfoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleTokenInfoManager.swift; sourceTree = "<group>"; };
 		EA77FE6F2E92C7A600D3D9BC /* YieldModuleiOS16Chart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleiOS16Chart.swift; sourceTree = "<group>"; };
 		EA77FE712E92C86800D3D9BC /* YieldModulePreiOS16Chart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModulePreiOS16Chart.swift; sourceTree = "<group>"; };
 		EA7C2ADD2E532FAF0007211E /* HyperliquidExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HyperliquidExternalLinkProvider.swift; sourceTree = "<group>"; };
@@ -18864,8 +18862,7 @@
 			children = (
 				0A941BE32E6B29D200770474 /* YieldModule */,
 				0A941BE42E6B2A0700770474 /* YieldModuleManager.swift */,
-				EA742A9B2E97791F0074FCD2 /* YieldModuleTokenInfoManager.swift */,
-				0AB346862E8402A2004003A0 /* YieldModuleMarketsManager.swift */,
+				0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */,
 				0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */,
 				308631572E40E36C00D58D37 /* Accounts */,
 				B0D1AC302906718600584E6C /* Analytics */,
@@ -24996,7 +24993,7 @@
 				DC4F4C282DE1A0A100001442 /* WCTransactionWalletRow.swift in Sources */,
 				B0DD16292A331C2100CB23AA /* TokenDetailsCoordinatorView.swift in Sources */,
 				B0F318F62A738ACC009F131E /* LockedUserTokenListManager.swift in Sources */,
-				0AB346872E8402A2004003A0 /* YieldModuleMarketsManager.swift in Sources */,
+				0AB346872E8402A2004003A0 /* YieldModuleNetworkManager.swift in Sources */,
 				0F2786552E2CECA900742D0F /* MobileOnboardingFlowNavBarAction.swift in Sources */,
 				C2F1B3402DEA045700EDA3E1 /* WalletConnectUIFeedbackGenerator.swift in Sources */,
 				0A9246142E8EA15600656D69 /* BlockchainAccountInitializationView.swift in Sources */,
@@ -26396,7 +26393,6 @@
 				DC0003202DC2090600305FB6 /* SolanaScan.swift in Sources */,
 				EF066AA42E4C8BCE0026CEF8 /* SendFeeFinishViewModel.swift in Sources */,
 				EF530D542DD4F00A00AE67EA /* CommonSendStepsManager.swift in Sources */,
-				EA742A9C2E97791F0074FCD2 /* YieldModuleTokenInfoManager.swift in Sources */,
 				DC0003212DC2090600305FB6 /* WCServiceV2+LoggerStrings.swift in Sources */,
 				DC0003222DC2090600305FB6 /* BlockaidFactory.swift in Sources */,
 				3095FFA22E8407C400EC61B7 /* AccountDetailsActionsProvider.swift in Sources */,
