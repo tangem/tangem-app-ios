@@ -32,9 +32,9 @@ final class CommonYieldModuleAPIService {
 
 extension CommonYieldModuleAPIService: YieldModuleAPIService {
     func getYieldMarkets(
-        chains: [String]?
+        chainIDs: [String]?
     ) async throws -> YieldModuleDTO.Response.MarketsInfo {
-        try await request(for: .markets(chains: chains), decoder: decoder)
+        try await request(for: .markets(chains: chainIDs), decoder: decoder)
     }
 
     func getTokenPositionInfo(
@@ -62,6 +62,26 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
                 chainId: chainId,
                 window: window?.rawValue,
                 bucketSizeDays: bucketSizeDays
+            ),
+            decoder: decoder
+        )
+    }
+
+    func activate(tokenContractAddress: String, chainId: Int) async throws {
+        let _: YieldModuleDTO.Response.ActivateInfo = try await request(
+            for: .activate(
+                tokenContractAddress: tokenContractAddress,
+                chainId: chainId
+            ),
+            decoder: decoder
+        )
+    }
+
+    func deactivate(tokenContractAddress: String, chainId: Int) async throws {
+        let _: YieldModuleDTO.Response.ActivateInfo = try await request(
+            for: .deactivate(
+                tokenContractAddress: tokenContractAddress,
+                chainId: chainId
             ),
             decoder: decoder
         )
