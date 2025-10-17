@@ -29,7 +29,6 @@ class FakeUserWalletModel: UserWalletModel {
     let emailData: [EmailCollectedData] = []
     let backupInput: OnboardingInput? = nil
     let walletModelsManager: WalletModelsManager
-    let userTokenListManager: UserTokenListManager
     var nftManager: NFTManager { NFTManagerStub() }
     let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProvider
@@ -41,7 +40,6 @@ class FakeUserWalletModel: UserWalletModel {
     var cardsCount: Int
     var hasBackupCards: Bool { cardsCount > 1 }
     var emailConfig: EmailConfig? { nil }
-    var isTokensListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
     var cardSetLabel: String { config.cardSetLabel }
 
     var tangemApiAuthData: TangemApiAuthorizationData? {
@@ -67,7 +65,7 @@ class FakeUserWalletModel: UserWalletModel {
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
             derivationManager: nil,
-            userTokenListManager: userTokenListManager
+            userTokensManager: userTokensManager
         )
     }
 
@@ -101,7 +99,6 @@ class FakeUserWalletModel: UserWalletModel {
 
         walletModelsManager = FakeWalletModelsManager(walletManagers: walletManagers, isDelayed: isDelayed)
         let fakeUserTokenListManager = FakeUserTokenListManager(walletManagers: walletManagers, isDelayed: isDelayed)
-        userTokenListManager = fakeUserTokenListManager
         userTokensManager = FakeUserTokensManager(
             derivationManager: FakeDerivationManager(pendingDerivationsCount: 5),
             userTokenListManager: fakeUserTokenListManager
