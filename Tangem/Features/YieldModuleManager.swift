@@ -202,9 +202,13 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         default: throw YieldModuleError.inconsistentState
         }
 
-        return try await transactionDispatcher
+        let result = try await transactionDispatcher
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
+
+        try? await yieldModuleNetworkManager.activate(tokenContractAddress: token.contractAddress, chainId: chainId)
+
+        return result
     }
 
     func exitFee() async throws -> any YieldTransactionFee {
@@ -231,9 +235,13 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             fee: exitFee
         )
 
-        return try await transactionDispatcher
+        let result = try await transactionDispatcher
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
+
+        try? await yieldModuleNetworkManager.deactivate(tokenContractAddress: token.contractAddress, chainId: chainId)
+
+        return result
     }
 
     func approveFee() async throws -> any YieldTransactionFee {
@@ -321,16 +329,15 @@ private extension CommonYieldModuleManager {
         case .loaded:
             if let balance = walletModelData.balance,
                case .token(let token) = balance.type,
-               let yieldSupply = token.metadata.yieldSupply,
-               let allowance = EthereumUtils.parseEthereumDecimal(
-                   yieldSupply.allowance,
-                   decimalsCount: token.decimalCount
-               ) {
+               let yieldSupply = token.metadata.yieldSupply {
                 state = .active(
                     YieldSupplyInfo(
                         yieldContractAddress: yieldSupply.yieldContractAddress,
                         balance: balance,
-                        allowance: allowance
+                        isAllowancePermissionRequired: YieldAllowanceUtil().isPermissionRequired(
+                            allowance: yieldSupply.allowance
+                        ),
+                        yieldModuleBalanceValue: yieldSupply.amountValue
                     )
                 )
             } else {
