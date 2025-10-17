@@ -253,7 +253,7 @@
 "common_in_progress" = "En cours";
 "common_later" = "Plus tard";
 "common_learn_and_earn" = "Apprendre et Gagner";
-"common_learn_more" = "Learn more";
+"common_learn_more" = "Learn more";
 "common_left" = "Il reste %1$@";
 "common_legacy_bitcoin_address" = "Legacy Bitcoin";
 "common_locked_wallets" = "Locked Wallets";
