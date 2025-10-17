@@ -94,7 +94,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     func onReceiveButtonTap() {
-        coordinator?.openReceive(navigationContext: navigationContext)
+        coordinator?.receiveTapped()
         dependencies.analytics.logReceiveOpen()
     }
 
