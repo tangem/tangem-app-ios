@@ -329,16 +329,15 @@ private extension CommonYieldModuleManager {
         case .loaded:
             if let balance = walletModelData.balance,
                case .token(let token) = balance.type,
-               let yieldSupply = token.metadata.yieldSupply,
-               let allowance = EthereumUtils.parseEthereumDecimal(
-                   yieldSupply.allowance,
-                   decimalsCount: token.decimalCount
-               ) {
+               let yieldSupply = token.metadata.yieldSupply {
                 state = .active(
                     YieldSupplyInfo(
                         yieldContractAddress: yieldSupply.yieldContractAddress,
                         balance: balance,
-                        allowance: allowance
+                        isAllowancePermissionRequired: YieldAllowanceUtil().isPermissionRequired(
+                            allowance: yieldSupply.allowance
+                        ),
+                        yieldModuleBalanceValue: yieldSupply.amountValue
                     )
                 )
             } else {
