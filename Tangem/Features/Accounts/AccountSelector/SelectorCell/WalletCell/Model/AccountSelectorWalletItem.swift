@@ -24,6 +24,7 @@ struct AccountSelectorWalletItem: Identifiable {
         struct ActiveWallet {
             let id: String
             let tokensCount: String
+            let mainAccount: any BaseAccountModel
             let formattedBalanceTypePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>
         }
 
@@ -34,6 +35,7 @@ struct AccountSelectorWalletItem: Identifiable {
 }
 
 extension AccountSelectorWalletItem {
+    /// Init for locked wallet
     init(userWallet: any UserWalletModel) {
         id = userWallet.userWalletId.stringValue
         domainModel = userWallet
@@ -44,6 +46,7 @@ extension AccountSelectorWalletItem {
         ))
     }
 
+    /// Init for active wallet
     init(userWallet: any UserWalletModel, account: AccountModel) {
         id = userWallet.userWalletId.stringValue
         domainModel = userWallet
@@ -51,11 +54,13 @@ extension AccountSelectorWalletItem {
         walletImageProvider = userWallet.walletImageProvider
 
         let tokensCount: Int
+        let mainAccount: any BaseAccountModel
         let formattedBalanceTypePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>
 
         switch account {
         case .standard(.single(let cryptoAccount)):
             tokensCount = cryptoAccount.walletModelsManager.walletModels.count
+            mainAccount = cryptoAccount
             formattedBalanceTypePublisher = cryptoAccount.fiatTotalBalanceProvider.totalFiatBalancePublisher
         case .standard(.multiple):
             preconditionFailure("Multiple crypto accounts are not supported in AccountSelectorWalletItem")
@@ -64,6 +69,7 @@ extension AccountSelectorWalletItem {
         wallet = .active(.init(
             id: userWallet.userWalletId.stringValue,
             tokensCount: Localization.commonTokensCount(tokensCount),
+            mainAccount: mainAccount,
             formattedBalanceTypePublisher: formattedBalanceTypePublisher
         ))
     }
