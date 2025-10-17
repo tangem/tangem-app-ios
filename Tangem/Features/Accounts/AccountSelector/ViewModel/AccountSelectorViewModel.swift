@@ -82,7 +82,7 @@ final class AccountSelectorViewModel: ObservableObject {
                 }
 
                 userWallet.accountModelsManager.accountModelsPublisher
-                    .receive(on: DispatchQueue.main)
+                    .receiveOnMain()
                     .withWeakCaptureOf(self)
                     .sink { viewModel, cryptoAccounts in
                         viewModel.setDisplayMode(for: cryptoAccounts)
