@@ -154,7 +154,11 @@ struct ReferralView: View {
 
         case .accounts(let tokenType, let selectedAccountData):
             VStack {
-                AddressForRewardsSection(tokenType: tokenType, account: selectedAccountData)
+                AddressForRewardsSection(
+                    tokenType: tokenType,
+                    account: selectedAccountData,
+                    openAccountSelector: viewModel.openAccountSelector
+                )
 
                 Spacer(minLength: 40)
 
