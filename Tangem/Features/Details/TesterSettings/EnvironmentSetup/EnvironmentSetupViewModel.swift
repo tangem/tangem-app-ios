@@ -130,6 +130,16 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     set: { $0.stakingAPIType = StakingAPIType(rawValue: $1) ?? .prod }
                 )
             ),
+            DefaultPickerRowViewModel(
+                title: "YieldModule API type",
+                options: YieldModuleAPIType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: YieldModuleAPIType.prod.rawValue,
+                    get: { $0.yieldModuleAPIType.rawValue },
+                    set: { $0.yieldModuleAPIType = YieldModuleAPIType(rawValue: $1) ?? .prod }
+                )
+            ),
         ]
 
         featureStateViewModels = Feature.allCases.reversed().map { feature in

@@ -36,7 +36,7 @@ protocol YieldModuleManagerUpdater {
 }
 
 final class CommonYieldModuleManager {
-    @Injected(\.yieldModuleMarketsManager) private var yieldModuleMarketsManager: YieldModuleMarketsManager
+    @Injected(\.yieldModuleNetworkManager) private var yieldModuleNetworkManager: YieldModuleNetworkManager
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
     private let walletAddress: String
@@ -47,7 +47,6 @@ final class CommonYieldModuleManager {
 
     private let transactionProvider: YieldTransactionProvider
     private let transactionFeeProvider: YieldTransactionFeeProvider
-    private let tokenInfoManager: YieldModuleTokenInfoManager
 
     private var _state = CurrentValueSubject<YieldModuleManagerStateInfo?, Never>(nil)
     private var _walletModelData = CurrentValueSubject<WalletModelData?, Never>(nil)
@@ -64,7 +63,6 @@ final class CommonYieldModuleManager {
         ethereumNetworkProvider: EthereumNetworkProvider,
         transactionCreator: TransactionCreator,
         blockaidApiService: BlockaidAPIService,
-        tokenInfoManager: YieldModuleTokenInfoManager,
         pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
     ) {
         guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses(),
@@ -78,7 +76,6 @@ final class CommonYieldModuleManager {
         self.blockchain = blockchain
         self.chainId = chainId
         self.yieldSupplyService = yieldSupplyService
-        self.tokenInfoManager = tokenInfoManager
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
 
         transactionProvider = YieldTransactionProvider(
@@ -265,7 +262,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
     }
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo {
-        try await tokenInfoManager.fetchYieldTokenInfo(tokenContractAddress: token.contractAddress, chainId: chainId)
+        try await yieldModuleNetworkManager.fetchYieldTokenInfo(
+            tokenContractAddress: token.contractAddress,
+            chainId: chainId
+        )
     }
 }
 
@@ -273,7 +273,7 @@ private extension CommonYieldModuleManager {
     func bind() {
         Publishers.CombineLatest3(
             _walletModelData.compactMap { $0 },
-            yieldModuleMarketsManager.marketsPublisher.removeDuplicates(),
+            yieldModuleNetworkManager.marketsPublisher.removeDuplicates(),
             pendingTransactionsPublisher
         )
         .withWeakCaptureOf(self)
