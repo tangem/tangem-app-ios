@@ -55,30 +55,30 @@ extension MobileUserWalletConfig: UserWalletConfig {
         return blockchains
     }
 
-    var defaultBlockchains: [StorageEntry] {
+    var defaultBlockchains: [TokenItem] {
         let isTestnet = AppEnvironment.current.isTestnet
         let blockchains: [Blockchain] = [
             .bitcoin(testnet: isTestnet),
             .ethereum(testnet: isTestnet),
         ]
 
-        let entries: [StorageEntry] = blockchains.map {
+        let entries: [TokenItem] = blockchains.map {
             if let derivationStyle = derivationStyle {
                 let derivationPath = $0.derivationPath(for: derivationStyle)
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
-                return .init(blockchainNetwork: network, tokens: [])
+                return TokenItem.blockchain(network)
             }
 
             let network = BlockchainNetwork($0, derivationPath: nil)
-            return .init(blockchainNetwork: network, tokens: [])
+            return TokenItem.blockchain(network)
         }
 
         return entries
     }
 
-    var persistentBlockchains: [StorageEntry]? { nil }
+    var persistentBlockchains: [TokenItem] { [] }
 
-    var embeddedBlockchain: StorageEntry? { nil }
+    var embeddedBlockchain: TokenItem? { nil }
 
     var emailData: [EmailCollectedData] {
         EmailDataFactory().makeEmailData(for: mobileWalletInfo)
