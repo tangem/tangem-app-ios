@@ -74,10 +74,9 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
         }
 
         guard userWallet
-            .userTokenListManager
-            .userTokensList
-            .entries
-            .contains(where: { $0.blockchainNetwork.blockchain.networkId == blockchain.networkId })
+            .walletModelsManager
+            .walletModels
+            .contains(where: { $0.tokenItem.networkId == blockchain.networkId })
         else {
             throw WalletConnectTransactionRequestProcessingError.blockchainToAddIsMissingFromUserWallet(blockchain)
         }
