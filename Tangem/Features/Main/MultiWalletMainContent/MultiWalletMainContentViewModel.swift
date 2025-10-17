@@ -371,15 +371,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         let navigationContext = NFTNavigationInput(
             userWalletModel: userWalletModel,
+            name: userWalletModel.name,
             walletModelsManager: userWalletModel.walletModelsManager
         )
         let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(
             accountModelsManager: userWalletModel.accountModelsManager
         )
+        let nftAccountNavigationContextProvider = NFTAccountNavigationContextProvider(
+            userWalletModel: userWalletModel
+        )
 
         return NFTEntrypointViewModel(
             nftManager: userWalletModel.nftManager,
             accountForCollectionsProvider: accountForNFTCollectionsProvider,
+            nftAccountNavigationContextProvider: nftAccountNavigationContextProvider,
             navigationContext: navigationContext,
             analytics: NFTAnalytics.Entrypoint(
                 logCollectionsOpen: { state, collectionsCount, nftsCount, dummyCollectionsCount in
