@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemLocalization
 
 struct ReferralCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: ReferralCoordinator
@@ -26,6 +27,22 @@ struct ReferralCoordinatorView: CoordinatorView {
         NavHolder()
             .navigation(item: $coordinator.tosViewModel) {
                 WebViewContainer(viewModel: $0)
+            }
+            .floatingSheetContent(for: AccountSelectorViewModel.self) { viewModel in
+                VStack(spacing: 0) {
+                    BottomSheetHeaderView(
+                        title: Localization.commonChooseAccount,
+                        trailing: {
+                            CircleButton.close(action: coordinator.closeSheet)
+                        }
+                    )
+                    .padding(.horizontal, 16)
+
+                    AccountSelectorView(viewModel: viewModel)
+                }
+                .floatingSheetConfiguration { config in
+                    config.backgroundInteractionBehavior = .tapToDismiss
+                }
             }
             .emptyNavigationLink()
     }
