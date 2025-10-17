@@ -21,10 +21,12 @@ struct YieldModuleAPITarget: TargetType {
 
     var baseURL: URL {
         switch yieldModuleAPIType {
-        case .develop:
+        case .prod:
+            return URL(string: "https://yield.tangem.org/api/v1")!
+        case .dev:
             return URL(string: "https://yield.tests-d.com/api/v1")!
-        case .production:
-            return URL(string: "https://yield.tests-d.com/api/v1")!
+        case .stage:
+            return URL(string: "https://yield.tests-s.com/api/v1")!
         }
     }
 
@@ -72,16 +74,12 @@ struct YieldModuleAPITarget: TargetType {
     }
 }
 
-enum YieldModuleAPIType {
-    case develop
-    case production
+enum YieldModuleAPIType: String, CaseIterable {
+    case dev
+    case stage
+    case prod
 
     public var title: String {
-        switch self {
-        case .develop:
-            return "dev"
-        case .production:
-            return "prod"
-        }
+        rawValue
     }
 }
