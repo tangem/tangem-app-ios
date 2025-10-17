@@ -27,6 +27,10 @@ struct RewardView: View {
             Text(Localization.stakingDetailsNoRewardsToClaim)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
+        case .automaticRewards where data.networkType == .solana:
+            Text(Localization.stakingSolanaDetailsAutoClaimingRewardsDailyText)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+
         case .automaticRewards:
             Text(Localization.stakingDetailsAutoClaimingRewardsDailyText)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -62,9 +66,15 @@ struct RewardView: View {
 
         GroupedSection(
             [
-                RewardViewData(state: .noRewards),
+                RewardViewData(state: .noRewards, networkType: .solana),
                 RewardViewData(
-                    state: .rewards(claimable: true, fiatFormatted: "24.12$", cryptoFormatted: "23.421 SOL", action: {})
+                    state: .rewards(
+                        claimable: true,
+                        fiatFormatted: "24.12$",
+                        cryptoFormatted: "23.421 SOL",
+                        action: {}
+                    ),
+                    networkType: .solana
                 ),
             ]
         ) {

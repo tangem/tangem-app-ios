@@ -284,9 +284,9 @@ private extension StakingDetailsViewModel {
         let rewards = balances.rewards()
         switch rewards.sum() {
         case .zero where yield.rewardClaimingType == .auto:
-            rewardViewData = RewardViewData(state: .automaticRewards)
+            rewardViewData = RewardViewData(state: .automaticRewards, networkType: yield.item.network)
         case .zero:
-            rewardViewData = RewardViewData(state: .noRewards)
+            rewardViewData = RewardViewData(state: .noRewards, networkType: yield.item.network)
         case let rewardsValue:
             let rewardsCryptoFormatted = balanceFormatter.formatCryptoBalance(
                 rewardsValue,
@@ -312,7 +312,8 @@ private extension StakingDetailsViewModel {
                             rewardsValue: rewardsValue
                         )
                     }
-                }
+                },
+                networkType: yield.item.network
             )
         }
     }
