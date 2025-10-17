@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemUI
 
 @MainActor
 final class AccountSelectorViewModel: ObservableObject {
@@ -137,3 +138,5 @@ extension AccountSelectorViewModel {
         case selectItem(AccountSelectorCellModel)
     }
 }
+
+extension AccountSelectorViewModel: FloatingSheetContentViewModel {}
