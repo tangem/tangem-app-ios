@@ -62,7 +62,7 @@ private extension CommonNewTokenSelectorWalletsProvider {
         )
 
         let adapter = TokenSectionsAdapter(
-            userTokenListManager: cryptoAccount.userTokenListManager,
+            userTokensManager: cryptoAccount.userTokensManager,
             optionsProviding: OrganizeTokensOptionsManager(userTokensReorderer: cryptoAccount.userTokensManager),
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
