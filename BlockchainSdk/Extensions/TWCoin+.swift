@@ -140,7 +140,8 @@ extension CoinType {
              .pepecoin,
              .hyperliquidEVM,
              .quai,
-             .scroll:
+             .scroll,
+             .linea:
             // Blockchains that are not in WalletCore yet
             return nil
         }

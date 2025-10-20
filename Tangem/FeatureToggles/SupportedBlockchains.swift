@@ -72,6 +72,7 @@ struct SupportedBlockchains {
             .zkLinkNova(testnet: false),
             .quai(testnet: false),
             .scroll(testnet: false),
+            .linea(testnet: false),
         ]
     }
 
@@ -229,6 +230,7 @@ struct SupportedBlockchains {
             .hyperliquidEVM(testnet: true),
             .quai(testnet: true),
             .scroll(testnet: true),
+            .linea(testnet: true),
         ]
     }
 
