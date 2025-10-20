@@ -169,6 +169,8 @@ struct DerivationConfigV1: DerivationConfig {
         case .quai:
             // There are 4 nodes by default, the 5th node will be calculated dynamically when creating the WalletManager
             return "m/44'/994'/0'/0"
+        case .scroll:
+            return "m/44'/534352'/0'/0/0"
         }
     }
 }
