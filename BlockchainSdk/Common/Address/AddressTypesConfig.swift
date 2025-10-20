@@ -105,7 +105,8 @@ struct AddressTypesConfig {
              .pepecoin,
              .hyperliquidEVM,
              .quai,
-             .scroll:
+             .scroll,
+             .linea:
             return [.default]
         }
     }
