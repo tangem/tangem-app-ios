@@ -70,7 +70,8 @@ public struct AddressServiceFactory {
              .vanar,
              .zkLinkNova,
              .hyperliquidEVM,
-             .quai:
+             .quai,
+             .scroll:
             return EVMAddressService()
         case .rsk:
             return RskAddressService()
