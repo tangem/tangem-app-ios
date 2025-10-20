@@ -193,6 +193,8 @@ struct NetworkImageProvider: NFTChainIconProvider {
             filled ? Tokens.quaiFill : Tokens.quai
         case .scroll:
             filled ? Tokens.scrollFill : Tokens.scroll
+        case .linea:
+            filled ? Tokens.lineaFill : Tokens.linea
         }
     }
 
