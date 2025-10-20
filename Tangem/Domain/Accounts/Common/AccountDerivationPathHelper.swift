@@ -155,7 +155,8 @@ struct AccountDerivationPathHelper {
              .zkLinkNova,
              .pepecoin,
              .hyperliquidEVM,
-             .scroll:
+             .scroll,
+             .linea:
             return true
         case .chia, .quai:
             return false
