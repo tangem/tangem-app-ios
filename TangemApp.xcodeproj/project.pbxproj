@@ -389,6 +389,7 @@
 		2D5DCC3F2C330B11000EE379 /* PreviewWalletSelectorDataSourceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5DCC3E2C330B11000EE379 /* PreviewWalletSelectorDataSourceStub.swift */; };
 		2D5E67372E8D37A4007AE26D /* EthereumCalculateSignatureUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5E67362E8D37A4007AE26D /* EthereumCalculateSignatureUtils.swift */; };
 		2D5F47922C21F1FC00AB6C4B /* MarketsListChartsPreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5F47912C21F1FC00AB6C4B /* MarketsListChartsPreviewProvider.swift */; };
+		2D614C9A2E9E649C001A8DD1 /* ScrollExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D614C992E9E649C001A8DD1 /* ScrollExternalLinkProvider.swift */; };
 		2D61671E2C7632F9006FCEA6 /* MarketsTokensNetworkRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D61671D2C7632F9006FCEA6 /* MarketsTokensNetworkRoutable.swift */; };
 		2D6167202C763500006FCEA6 /* MarketsTokenNetworkSelectorCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D61671F2C763500006FCEA6 /* MarketsTokenNetworkSelectorCoordinator.swift */; };
 		2D6167222C763505006FCEA6 /* MarketsTokenNetworkSelectorCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6167212C763505006FCEA6 /* MarketsTokenNetworkSelectorCoordinatorView.swift */; };
@@ -4795,6 +4796,7 @@
 		2D5DCC3E2C330B11000EE379 /* PreviewWalletSelectorDataSourceStub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewWalletSelectorDataSourceStub.swift; sourceTree = "<group>"; };
 		2D5E67362E8D37A4007AE26D /* EthereumCalculateSignatureUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumCalculateSignatureUtils.swift; sourceTree = "<group>"; };
 		2D5F47912C21F1FC00AB6C4B /* MarketsListChartsPreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsListChartsPreviewProvider.swift; sourceTree = "<group>"; };
+		2D614C992E9E649C001A8DD1 /* ScrollExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollExternalLinkProvider.swift; sourceTree = "<group>"; };
 		2D61671D2C7632F9006FCEA6 /* MarketsTokensNetworkRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokensNetworkRoutable.swift; sourceTree = "<group>"; };
 		2D61671F2C763500006FCEA6 /* MarketsTokenNetworkSelectorCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenNetworkSelectorCoordinator.swift; sourceTree = "<group>"; };
 		2D6167212C763505006FCEA6 /* MarketsTokenNetworkSelectorCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenNetworkSelectorCoordinatorView.swift; sourceTree = "<group>"; };
@@ -13924,20 +13926,16 @@
 		B62D3CFE2CBC79D900C2460E /* OtherChains */ = {
 			isa = PBXGroup;
 			children = (
-				30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */,
-				305F5AEF2D63796900AB90EC /* ZKLinkNovaExternalLinkProvider.swift */,
 				C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */,
-				C2DD0E032D3EBA3000B45935 /* SonicExternalLinkProvider.swift */,
-				C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */,
-				C21707162D395290000AC361 /* BitrockExternalLinkProvider.swift */,
-				DC77F2562CD63813001B2929 /* CanxiumExternalLinkProvider.swift */,
 				B62D3CDD2CBC79D900C2460E /* ArbitrumExternalLinkProvider.swift */,
 				B62D3CDE2CBC79D900C2460E /* AreonExternalLinkProvider.swift */,
 				B62D3CDF2CBC79D900C2460E /* AuroraExternalLinkProvider.swift */,
 				B62D3CE02CBC79D900C2460E /* AvalancheExternalLinkProvider.swift */,
 				B62D3CE12CBC79D900C2460E /* BaseExternalLinkProvider.swift */,
+				C21707162D395290000AC361 /* BitrockExternalLinkProvider.swift */,
 				B62D3CE22CBC79D900C2460E /* BlastExternalLinkProvider.swift */,
 				B62D3CE32CBC79D900C2460E /* BSCExternalLinkProvider.swift */,
+				DC77F2562CD63813001B2929 /* CanxiumExternalLinkProvider.swift */,
 				B62D3CE42CBC79D900C2460E /* CoreExternalLinkProvider.swift */,
 				B62D3CE52CBC79D900C2460E /* CronosExternalLinkProvider.swift */,
 				B62D3CE62CBC79D900C2460E /* CyberExternalLinkProvider.swift */,
@@ -13955,14 +13953,19 @@
 				B62D3CF22CBC79D900C2460E /* MoonbeamExternalLinkProvider.swift */,
 				B62D3CF32CBC79D900C2460E /* MoonriverExternalLinkProvider.swift */,
 				B62D3CF42CBC79D900C2460E /* OctaExternalLinkProvider.swift */,
+				C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */,
 				B62D3CF52CBC79D900C2460E /* OptimismExternalLinkProvider.swift */,
 				B62D3CF62CBC79D900C2460E /* Playa3ullGamesExternalLinkProvider.swift */,
 				B62D3CF72CBC79D900C2460E /* PolygonExternalLinkProvider.swift */,
 				B62D3CF82CBC79D900C2460E /* PolygonZkEvmExternalLinkProvider.swift */,
 				B62D3CF92CBC79D900C2460E /* PulsechainExternalLinkProvider.swift */,
+				2D614C992E9E649C001A8DD1 /* ScrollExternalLinkProvider.swift */,
 				B62D3CFA2CBC79D900C2460E /* ShibariumExternalLinkProvider.swift */,
+				C2DD0E032D3EBA3000B45935 /* SonicExternalLinkProvider.swift */,
 				B62D3CFB2CBC79D900C2460E /* TaraxaExternalLinkProvider.swift */,
 				B62D3CFC2CBC79D900C2460E /* TelosExternalLinkProvider.swift */,
+				30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */,
+				305F5AEF2D63796900AB90EC /* ZKLinkNovaExternalLinkProvider.swift */,
 				B62D3CFD2CBC79D900C2460E /* ZkSyncExternalLinkProvider.swift */,
 			);
 			path = OtherChains;
@@ -27525,6 +27528,7 @@
 				2DB1D7082D56978D00AD43A3 /* ALPH+GroupIndex.swift in Sources */,
 				2DB1D7092D56978D00AD43A3 /* ALPH+GasBox.swift in Sources */,
 				2DB1D70A2D56978D00AD43A3 /* ALPH+UnsignedTransactionSerde.swift in Sources */,
+				2D614C9A2E9E649C001A8DD1 /* ScrollExternalLinkProvider.swift in Sources */,
 				B62D42C12CBC79DB00C2460E /* WalletManagerAssembly.swift in Sources */,
 				2DFDD6092DF1ECF700CB72B5 /* SuiContractAddressConverter.swift in Sources */,
 				B62D423D2CBC79DB00C2460E /* AddressService.swift in Sources */,
