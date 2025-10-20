@@ -16,6 +16,15 @@ struct SelectorReceiveAssetsView: View {
 
     var body: some View {
         GroupedScrollView(spacing: Layout.Container.spacingContent) {
+            ForEach(viewModel.sections, id: \.id) { section in
+                switch section.id {
+                case .default:
+                    defaultSectionView(viewModels: section.items)
+                case .domain:
+                    domainSectionView(viewModels: section.items)
+                }
+            }
+
             if let notificationInputs = viewModel.notificationInputs.nilIfEmpty {
                 VStack(spacing: Layout.Notification.verticalSpacing) {
                     ForEach(notificationInputs) { input in
@@ -23,38 +32,26 @@ struct SelectorReceiveAssetsView: View {
                     }
                 }
             }
-
-            ForEach(viewModel.sections, id: \.id) { section in
-                sectionView(header: section.header, viewModels: section.items)
-            }
         }
         .padding(.top, Layout.Container.paddingTop)
         .padding(.bottom, Layout.Container.paddingBottom)
     }
 
-    private func sectionView(
-        header: SelectorReceiveAssetsSection.Header?,
-        viewModels: [SelectorReceiveAssetsContentItemViewModel]
-    ) -> some View {
+    private func defaultSectionView(viewModels: [SelectorReceiveAssetsContentItemViewModel]) -> some View {
+        ForEach(viewModels, id: \.id) {
+            SelectorReceiveAssetsContentItemView(viewModel: $0)
+        }
+    }
+
+    private func domainSectionView(viewModels: [SelectorReceiveAssetsContentItemViewModel]) -> some View {
         GroupedSection(viewModels) {
             SelectorReceiveAssetsContentItemView(viewModel: $0)
-        } header: {
-            if let header, case .title(let text) = header {
-                DefaultHeaderView(text)
-                    .padding(.init(top: 10, leading: 0, bottom: 6, trailing: 0))
-            }
         }
-        .backgroundColor(Colors.Background.action)
     }
 }
 
 extension SelectorReceiveAssetsView {
     private enum Layout {
-        enum NavigationBar {
-            static let verticalPadding: CGFloat = 4
-            static let horizontalPadding: CGFloat = 16
-        }
-
         enum Notification {
             static let verticalSpacing: CGFloat = 14.0
         }

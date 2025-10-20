@@ -1,5 +1,5 @@
 //
-//  SelectorReceiveAssetsAddressItemView.swift
+//  SelectorReceiveAssetsDomainItemView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,22 +12,26 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-struct SelectorReceiveAssetsAddressItemView: View {
-    @ObservedObject private(set) var viewModel: SelectorReceiveAssetsAddressItemViewModel
+struct SelectorReceiveAssetsDomainItemView: View {
+    @ObservedObject private(set) var viewModel: SelectorReceiveAssetsDomainItemViewModel
 
     var body: some View {
-        Button(action: viewModel.itemButtonDidTap) {
+        VStack(alignment: .leading, spacing: .zero) {
             HStack(spacing: Layout.Container.contentSpacing) {
                 addressIconView(with: viewModel.address)
 
-                addressContentView(header: viewModel.title, value: viewModel.address)
+                addressContentView(value: viewModel.address)
+
+                Spacer(minLength: .zero)
 
                 buttonView
             }
-            .padding(.vertical, Layout.Container.verticalPadding)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .defaultRoundedBackground(
+            with: Colors.Background.action,
+            verticalPadding: Layout.Container.padding,
+            horizontalPadding: .zero
+        )
     }
 
     // MARK: - Private Implementation
@@ -37,26 +41,17 @@ struct SelectorReceiveAssetsAddressItemView: View {
             .frame(size: Layout.AddressIcon.bothDimensions)
     }
 
-    private func addressContentView(header: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: Layout.InfoView.verticalSpacing) {
-            Text(header)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-                .lineLimit(1)
-
+    private func addressContentView(value: String) -> some View {
+        VStack(alignment: .center, spacing: Layout.InfoView.verticalSpacing) {
             Text(value)
-                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
                 .lineLimit(1)
                 .truncationMode(.middle)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var buttonView: some View {
         HStack(spacing: Layout.ButtomView.horizontalSpacing) {
-            Button(action: viewModel.qrCodeButtonDidTap) {
-                SelectorReceiveRoundButtonView(actionType: .qr)
-            }
-
             Button(action: viewModel.copyAddressButtonDidTap) {
                 SelectorReceiveRoundButtonView(actionType: .copy)
             }
@@ -66,10 +61,10 @@ struct SelectorReceiveAssetsAddressItemView: View {
 
 // MARK: - Layout
 
-private extension SelectorReceiveAssetsAddressItemView {
+private extension SelectorReceiveAssetsDomainItemView {
     enum Layout {
         enum Container {
-            static let verticalPadding: CGFloat = 14
+            static let padding: CGFloat = 14
             static let contentSpacing: CGFloat = 12
         }
 
