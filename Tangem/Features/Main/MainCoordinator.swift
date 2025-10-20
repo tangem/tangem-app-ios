@@ -252,7 +252,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
         let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager)
         let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokenListManager: userWalletModel.userTokenListManager,
+            userTokensManager: userWalletModel.userTokensManager,
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: true
         )
@@ -646,6 +646,7 @@ extension MainCoordinator: NFTEntrypointRoutable {
     func openCollections(
         nftManager: NFTManager,
         accounForNFTCollectionsProvider: any AccountForNFTCollectionProviding,
+        nftAccountNavigationContextProvider: any NFTAccountNavigationContextProviding,
         navigationContext: NFTNavigationContext
     ) {
         mainBottomSheetUIManager.hide()
@@ -664,6 +665,7 @@ extension MainCoordinator: NFTEntrypointRoutable {
             with: .init(
                 nftManager: nftManager,
                 accounForNFTCollectionsProvider: accounForNFTCollectionsProvider,
+                nftAccountNavigationContextProvider: nftAccountNavigationContextProvider,
                 nftChainIconProvider: NetworkImageProvider(),
                 nftChainNameProvider: NFTChainNameProvider(),
                 priceFormatter: NFTPriceFormatter(),
