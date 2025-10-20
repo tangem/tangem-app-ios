@@ -107,6 +107,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case hyperliquidEVM(testnet: Bool)
     case quai(testnet: Bool)
     case scroll(testnet: Bool)
+    case linea(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -162,7 +163,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .pepecoin(let testnet),
              .hyperliquidEVM(let testnet),
              .quai(let testnet),
-             .scroll(let testnet):
+             .scroll(let testnet),
+             .linea(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -342,7 +344,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .zkLinkNova,
              .hyperliquidEVM,
              .quai,
-             .scroll:
+             .scroll,
+             .linea:
             return 18
         case .cardano,
              .xrp,
@@ -391,7 +394,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .cyber,
              .blast,
              .zkLinkNova,
-             .scroll:
+             .scroll,
+             .linea:
             return "ETH"
         case .ethereumClassic:
             return "ETC"
@@ -936,6 +940,7 @@ public extension Blockchain {
         case .hyperliquidEVM: return isTestnet ? 998 : 999
         case .quai: return isTestnet ? 15000 : 9
         case .scroll: return isTestnet ? 534351 : 534352
+        case .linea: return isTestnet ? 59141 : 59144
         default:
             return nil
         }
@@ -953,7 +958,8 @@ public extension Blockchain {
              .cyber,
              .blast,
              .zkLinkNova,
-             .scroll:
+             .scroll,
+             .linea:
             return true
         default:
             return false
@@ -1019,6 +1025,7 @@ public extension Blockchain {
         case .hyperliquidEVM: return true
         case .quai: return false // eth_feeHistory method returns error
         case .scroll: return true
+        case .linea: return true
         default:
             assertionFailure("Don't forget about evm here")
             return false
@@ -1173,6 +1180,7 @@ extension Blockchain: Codable {
         case .hyperliquidEVM: return "hyperliquid"
         case .quai: return "quai-network"
         case .scroll: return "scroll"
+        case .linea: return "linea"
         }
     }
 
@@ -1286,6 +1294,7 @@ extension Blockchain: Codable {
         case "hyperliquid": self = .hyperliquidEVM(testnet: isTestnet)
         case "quai-network": self = .quai(testnet: isTestnet)
         case "scroll": self = .scroll(testnet: isTestnet)
+        case "linea": self = .linea(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1576,6 +1585,11 @@ private extension Blockchain {
             case .network: return "scroll"
             case .coin: return "scroll-ethereum"
             }
+        case .linea:
+            switch type {
+            case .network: return "linea"
+            case .coin: return "linea-ethereum"
+            }
         }
     }
 
@@ -1641,7 +1655,8 @@ extension Blockchain {
              .vanar,
              .zkLinkNova,
              .hyperliquidEVM,
-             .scroll:
+             .scroll,
+             .linea:
             return EthereumWalletAssembly()
         case .optimism,
              .manta,
