@@ -50,8 +50,8 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
         let nonce = challengeResponse.nonce
         let sessionId = challengeResponse.sessionId
 
-        let signingRequestMessage = VisaUtilities.makeCustomerWalletSigningRequestMessage(nonce: nonce)
-        let eip191Message = VisaUtilities.makeEIP191Message(content: signingRequestMessage)
+        let signingRequestMessage = TangemPayUtilities.makeCustomerWalletSigningRequestMessage(nonce: nonce)
+        let eip191Message = TangemPayUtilities.makeEIP191Message(content: signingRequestMessage)
 
         guard let eip191MessageData = eip191Message.data(using: .utf8) else {
             throw VisaUtilitiesError.failedToCreateEIP191Message(content: signingRequestMessage)
