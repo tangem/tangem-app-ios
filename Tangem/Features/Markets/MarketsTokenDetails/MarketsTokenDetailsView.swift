@@ -242,13 +242,17 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var content: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: Constants.contentVerticalSpacing) {
             if viewModel.descriptionCanBeShowed {
                 description
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             portfolioView
+
+            if viewModel.accountsAwarePortfolioViewModel != nil {
+                aboutCoinHeader
+            }
 
             switch viewModel.state {
             case .loading:
@@ -271,7 +275,16 @@ struct MarketsTokenDetailsView: View {
     private var portfolioView: some View {
         if let portfolioViewModel = viewModel.portfolioViewModel {
             MarketsPortfolioContainerView(viewModel: portfolioViewModel)
+        } else if let accountsAwarePortfolioViewModel = viewModel.accountsAwarePortfolioViewModel {
+            MarketsAccountsAwarePortfolioContainerView(viewModel: accountsAwarePortfolioViewModel)
+                .padding(.bottom, 32 - Constants.contentVerticalSpacing)
         }
+    }
+
+    private var aboutCoinHeader: some View {
+        Text(Localization.marketsAboutCoinHeader)
+            .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ViewBuilder
@@ -359,6 +372,7 @@ private extension MarketsTokenDetailsView {
         static let scrollViewVerticalPadding = 16.0
         static let blockHorizontalPadding: CGFloat = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
+        static let contentVerticalSpacing: CGFloat = 14
     }
 }
 
