@@ -150,7 +150,8 @@ enum NFTChainConverter {
              .pepecoin,
              .hyperliquidEVM,
              .quai,
-             .scroll:
+             .scroll,
+             .linea:
             return nil
         }
     }
