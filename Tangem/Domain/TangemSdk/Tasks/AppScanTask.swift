@@ -269,9 +269,9 @@ final class AppScanTask: CardSessionRunnable {
             let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue) // [REDACTED_TODO_COMMENT]
 
             // Force add blockchains for demo cards
-            if let persistentBlockchains = config.persistentBlockchains {
+            if config.persistentBlockchains.isNotEmpty {
                 let converter = StorageEntryConverter()
-                tokenItemsRepository.append(converter.convertToStoredUserTokens(persistentBlockchains))
+                tokenItemsRepository.append(converter.convertToStoredUserTokens(tokenItems: config.persistentBlockchains))
             }
 
             let savedItems = tokenItemsRepository.getList().entries

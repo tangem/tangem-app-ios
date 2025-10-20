@@ -163,7 +163,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             initialSortingOption: .dragAndDrop
         )
         let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokenListManager: userWalletModel.userTokenListManager,
+            userTokensManager: userWalletModel.userTokensManager,
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
