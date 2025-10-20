@@ -1,5 +1,5 @@
 //
-//  SelectorReceiveDomainAssetsRoutable.swift
+//  SelectorReceiveAssetItemRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,4 +11,5 @@ import Foundation
 protocol SelectorReceiveAssetItemRoutable: AnyObject {
     func routeOnReceiveQR(with info: ReceiveAddressInfo)
     func copyToClipboard(with address: String)
+    func share(with address: String)
 }
