@@ -121,6 +121,10 @@ extension CommonKeysManager: KeysManager {
     var yieldModuleApiKey: String {
         keys.yieldModuleApiKey
     }
+
+    var yieldModuleApiKeyDev: String {
+        keys.yieldModuleApiKeyDev
+    }
 }
 
 extension CommonKeysManager {
@@ -164,5 +168,6 @@ extension CommonKeysManager {
         let blinkApiKey: String
         let tatumApiKey: String
         let yieldModuleApiKey: String
+        let yieldModuleApiKeyDev: String
     }
 }
