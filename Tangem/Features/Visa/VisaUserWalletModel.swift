@@ -509,8 +509,6 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var userTokensManager: any UserTokensManager { userWalletModel.userTokensManager }
 
-    var userTokenListManager: any UserTokenListManager { userWalletModel.userTokenListManager }
-
     var nftManager: any NFTManager { NotSupportedNFTManager() }
 
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
@@ -538,8 +536,6 @@ extension VisaUserWalletModel: UserWalletModel {
     var analyticsContextData: AnalyticsContextData { userWalletModel.analyticsContextData }
 
     var isUserWalletLocked: Bool { false }
-
-    var isTokensListEmpty: Bool { userWalletModel.isTokensListEmpty }
 
     var emailData: [EmailCollectedData] { userWalletModel.emailData }
 
