@@ -25,7 +25,7 @@ final class AccountsAwareUserTokensManager {
     private let derivationInfo: DerivationInfo
     private let existingCurves: [EllipticCurve]
     private let shouldLoadExpressAvailability: Bool
-    private let areLongHashesSupported: Bool
+    private let hardwareLimitationsUtil: HardwareLimitationsUtil
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
 
     private var isMainAccountManager: Bool {
@@ -38,8 +38,9 @@ final class AccountsAwareUserTokensManager {
         walletModelsManager: WalletModelsManager,
         derivationInfo: DerivationInfo,
         existingCurves: [EllipticCurve],
+        persistentBlockchains: [TokenItem],
         shouldLoadExpressAvailability: Bool,
-        areLongHashesSupported: Bool
+        hardwareLimitationsUtil: HardwareLimitationsUtil
     ) {
         self.userWalletId = userWalletId
         self.userTokenListManager = userTokenListManager
@@ -47,7 +48,13 @@ final class AccountsAwareUserTokensManager {
         self.derivationInfo = derivationInfo
         self.existingCurves = existingCurves
         self.shouldLoadExpressAvailability = shouldLoadExpressAvailability
-        self.areLongHashesSupported = areLongHashesSupported
+        self.hardwareLimitationsUtil = hardwareLimitationsUtil
+
+        if persistentBlockchains.isNotEmpty {
+            try? addInternal(persistentBlockchains, shouldUpload: true)
+        }
+
+        sync {}
     }
 
     private func withBlockchainNetwork(_ tokenItem: TokenItem) -> TokenItem {
@@ -84,12 +91,11 @@ final class AccountsAwareUserTokensManager {
     }
 
     private func addInternal(_ tokenItems: [TokenItem], shouldUpload: Bool) throws {
-        let entries = try tokenItems.map { tokenItem in
+        try tokenItems.forEach { tokenItem in
             try validateDerivation(for: tokenItem)
-            return StorageEntry(blockchainNetwork: tokenItem.blockchainNetwork, token: tokenItem.token)
         }
 
-        userTokenListManager.update(.append(entries), shouldUpload: shouldUpload)
+        userTokenListManager.update(.append(tokenItems), shouldUpload: shouldUpload)
     }
 
     private func removeInternal(_ tokenItem: TokenItem, shouldUpload: Bool) {
@@ -97,11 +103,7 @@ final class AccountsAwareUserTokensManager {
             return
         }
 
-        if let token = tokenItem.token {
-            userTokenListManager.update(.removeToken(token, in: tokenItem.blockchainNetwork), shouldUpload: shouldUpload)
-        } else {
-            userTokenListManager.update(.removeBlockchain(tokenItem.blockchainNetwork), shouldUpload: shouldUpload)
-        }
+        userTokenListManager.update(.remove(tokenItem), shouldUpload: shouldUpload)
     }
 
     private func loadSwapAvailabilityStateIfNeeded(forceReload: Bool) {
@@ -110,7 +112,7 @@ final class AccountsAwareUserTokensManager {
         }
 
         let converter = StorageEntryConverter()
-        let tokenItems = converter.convertToTokenItem(userTokenListManager.userTokensList.entries)
+        let tokenItems = converter.convertToTokenItems(userTokenListManager.userTokensList.entries)
 
         expressAvailabilityProvider.updateExpressAvailability(
             for: tokenItems,
@@ -175,6 +177,26 @@ final class AccountsAwareUserTokensManager {
 // MARK: - UserTokensManager protocol conformance
 
 extension AccountsAwareUserTokensManager: UserTokensManager {
+    var initialized: Bool {
+        userTokenListManager.initialized
+    }
+
+    var initializedPublisher: AnyPublisher<Bool, Never> {
+        userTokenListManager.initializedPublisher
+    }
+
+    var userTokens: [TokenItem] {
+        let converter = StorageEntryConverter()
+        return converter.convertToTokenItems(userTokenListManager.userTokensList.entries)
+    }
+
+    var userTokensPublisher: AnyPublisher<[TokenItem], Never> {
+        let converter = StorageEntryConverter()
+        return userTokenListManager.userTokensListPublisher
+            .map { converter.convertToTokenItems($0.entries) }
+            .eraseToAnyPublisher()
+    }
+
     var derivationManager: DerivationManager? {
         derivationInfo.derivationManager
     }
@@ -219,49 +241,22 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     func contains(_ tokenItem: TokenItem) -> Bool {
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        guard let targetEntry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork }) else {
-            return false
-        }
-
-        switch tokenItem {
-        case .blockchain:
-            return true
-        case .token(let token, _):
-            return targetEntry.tokens.contains(token)
-        }
+        return userTokens.contains(tokenItem)
     }
 
     func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        let targetsEntry = userTokenListManager.userTokens.filter {
-            $0.blockchainNetwork.blockchain.networkId == tokenItem.blockchainNetwork.blockchain.networkId
+        let targetsEntry = userTokens.filter {
+            $0.blockchain.networkId == tokenItem.blockchain.networkId
+                && $0.token == tokenItem.token
         }
 
-        guard targetsEntry.isNotEmpty else {
-            return false
-        }
-
-        switch tokenItem {
-        case .blockchain:
-            return true
-        case .token(let token, _):
-            return targetsEntry.flatMap(\.tokens).contains(token)
-        }
-    }
-
-    func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
-        let items = userTokenListManager.userTokens
-
-        if let network = items.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
-            return network.tokens
-        }
-
-        return []
+        return targetsEntry.isNotEmpty
     }
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
-        if AppUtils().hasLongHashesForSend(tokenItem), !areLongHashesSupported {
+        guard hardwareLimitationsUtil.canAdd(tokenItem) else {
             throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
@@ -313,11 +308,9 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
 
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        guard
-            let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork })
-        else {
-            return false
-        }
+        let existingTokens = userTokens
+            .filter { $0.blockchainNetwork == tokenItem.blockchainNetwork }
+            .compactMap(\.token)
 
         let tokensToAdd = pendingToAddItems
             .map(withBlockchainNetwork)
@@ -330,7 +323,7 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
             .compactMap(\.token)
 
         // Append to list of saved user tokens items that are pending addition, and delete the items that are pending removing
-        let tokenList = (entry.tokens + tokensToAdd).filter { !tokensToRemove.contains($0) }
+        let tokenList = (existingTokens + tokensToAdd).filter { !tokensToRemove.contains($0) }
 
         // We can remove token if there is no items in `tokenList`
         return tokenList.isEmpty
@@ -382,6 +375,10 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
             self?.handleUserTokensSync()
         }
+    }
+
+    func upload() {
+        userTokenListManager.upload()
     }
 }
 
