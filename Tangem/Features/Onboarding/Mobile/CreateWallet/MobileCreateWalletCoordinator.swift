@@ -12,7 +12,10 @@ class MobileCreateWalletCoordinator: CoordinatorObject {
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
-    @Published private(set) var viewModel: MobileCreateWalletViewModel?
+    @Published private(set) var rootViewModel: MobileCreateWalletViewModel?
+
+    // MARK: - Child coordinators
+
     @Published var onboardingCoordinator: OnboardingCoordinator?
 
     required init(
@@ -24,7 +27,7 @@ class MobileCreateWalletCoordinator: CoordinatorObject {
     }
 
     func start(with options: InputOptions) {
-        viewModel = MobileCreateWalletViewModel(coordinator: self, delegate: self)
+        rootViewModel = MobileCreateWalletViewModel(coordinator: self, delegate: self)
     }
 }
 
