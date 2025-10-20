@@ -132,7 +132,8 @@ struct TransactionParamsBuilder {
              .pepecoin,
              .hyperliquidEVM,
              .quai,
-             .scroll:
+             .scroll,
+             .linea:
             throw TransactionParamsBuilderError.extraIdNotSupported
         }
     }
