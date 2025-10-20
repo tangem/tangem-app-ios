@@ -11,21 +11,22 @@ import BlockchainSdk
 import TangemAssets
 
 struct TransactionSendAvailabilityProvider {
-    private let isSendingSupportedByCard: Bool
+    private let hardwareLimitationsUtil: HardwareLimitationsUtil
     private let networkIconProvider: NetworkImageProvider
 
-    init(isSendingSupportedByCard: Bool, networkIconProvider: NetworkImageProvider = NetworkImageProvider()) {
-        self.isSendingSupportedByCard = isSendingSupportedByCard
+    init(hardwareLimitationsUtil: HardwareLimitationsUtil, networkIconProvider: NetworkImageProvider = NetworkImageProvider()) {
+        self.hardwareLimitationsUtil = hardwareLimitationsUtil
         self.networkIconProvider = networkIconProvider
     }
 
     func sendingRestrictions(walletModel: any WalletModel) -> SendingRestrictions? {
-        guard isSendingSupportedByCard else {
+        switch hardwareLimitationsUtil.getSendLimitations(walletModel.tokenItem) {
+        case .oldCard:
             return .oldCard
-        }
-
-        if !AppUtils().canSend(walletModel.tokenItem) {
+        case .longHashes, .oldDevice:
             return .cantSignLongTransactions
+        case .none:
+            break
         }
 
         switch walletModel.availableBalanceProvider.balanceType {
