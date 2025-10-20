@@ -10,7 +10,6 @@ import Foundation
 
 struct SelectorReceiveAssetsSection: Identifiable {
     let id: Key
-    let header: Header?
     let items: [SelectorReceiveAssetsContentItemViewModel]
 }
 
@@ -24,14 +23,5 @@ extension SelectorReceiveAssetsSection {
 
         case domain
         case `default`
-        case legacy
-    }
-}
-
-// MARK: - Header
-
-extension SelectorReceiveAssetsSection {
-    enum Header {
-        case title(String)
     }
 }
