@@ -6,11 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Combine
+import Foundation
 import SwiftUI
-import TangemLocalization
-import TangemFoundation
-import TangemUIUtils
 
 class CreateWalletSelectorCoordinator: CoordinatorObject {
     let dismissAction: Action<OutputOptions>
