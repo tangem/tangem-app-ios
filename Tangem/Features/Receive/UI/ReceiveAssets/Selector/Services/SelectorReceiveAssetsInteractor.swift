@@ -55,6 +55,6 @@ extension CommonSelectorReceiveAssetsInteractor: SelectorReceiveAssetsInteractor
     func hasDomainNameAddresses() -> Bool {
         let currentAddressTypes = _addressTypesSubject.value
 
-        return currentAddressTypes.contains(where: { $0.id.hasPrefix(ReceiveAddressType.Constants.domainPrefix) })
+        return currentAddressTypes.contains(where: { $0.id.hasPrefix(ReceiveAddressType.Key.domain.rawValue) })
     }
 }
