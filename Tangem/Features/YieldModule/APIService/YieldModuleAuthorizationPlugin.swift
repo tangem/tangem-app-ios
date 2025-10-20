@@ -10,15 +10,13 @@ import Foundation
 import Moya
 
 struct YieldModuleAuthorizationPlugin: PluginType {
-    @Injected(\.keysManager) private var keysManager: KeysManager
+    private let apiKeyProvider = YieldModuleAPIKeyProvider()
 
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         var request = request
 
-        let apiKey = keysManager.yieldModuleApiKey
-
-        if !apiKey.isEmpty {
-            request.headers.add(name: "api-key", value: apiKey)
+        if let apiKeyHeader = apiKeyProvider.getApiKeyHeader() {
+            request.headers.add(apiKeyHeader)
         } else {
             assertionFailure("Yield Module API key is empty — header not added")
         }
