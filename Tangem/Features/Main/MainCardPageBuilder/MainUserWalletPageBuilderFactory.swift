@@ -105,7 +105,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 userTokensReorderer: model.userTokensManager
             )
             let sectionsAdapter = TokenSectionsAdapter(
-                userTokenListManager: model.userTokenListManager,
+                userTokensManager: model.userTokensManager,
                 optionsProviding: optionsManager,
                 preservesLastSortedOrderOnSwitchToDragAndDrop: false
             )
