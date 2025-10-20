@@ -197,6 +197,10 @@ public struct ExternalLinkProviderFactory {
             return HyperliquidExternalLinkProvider(isTestnet: isTestnet)
         case .quai:
             return QuaiExternalLinkProvider(isTestnet: isTestnet)
+        case .scroll:
+            return ScrollExternalLinkProvider(isTestnet: isTestnet)
+        case .linea:
+            return LineaExternalLinkProvider(isTestnet: isTestnet)
         }
     }
 }
