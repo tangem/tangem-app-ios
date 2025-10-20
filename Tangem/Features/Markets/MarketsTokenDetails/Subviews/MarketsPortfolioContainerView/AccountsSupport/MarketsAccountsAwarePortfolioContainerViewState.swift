@@ -8,6 +8,7 @@
 
 import TangemAccounts
 import Foundation
+import TangemFoundation
 
 extension MarketsAccountsAwarePortfolioContainerViewModel {
     enum TypeView {
@@ -34,6 +35,7 @@ extension MarketsAccountsAwarePortfolioContainerViewModel.TypeView {
     }
 
     struct UserWalletWithAccountsData {
+        let userWalletId: UserWalletId
         let userWalletName: String
         let accountsWithTokenItems: [AccountWithTokenItemsData]
     }
@@ -44,11 +46,13 @@ extension MarketsAccountsAwarePortfolioContainerViewModel.TypeView {
     }
 
     struct AccountData {
+        let id: AnyHashable
         let name: String
         let iconInfo: AccountIconView.ViewData
     }
 
     struct UserWalletWithTokensData {
+        let userWalletId: UserWalletId
         let userWalletName: String
         let tokenItems: [MarketsPortfolioTokenItemViewModel]
     }
