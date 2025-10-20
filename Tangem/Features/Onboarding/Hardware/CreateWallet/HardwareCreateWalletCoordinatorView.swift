@@ -1,5 +1,5 @@
 //
-//  MobileCreateWalletCoordinatorView.swift
+//  HardwareCreateWalletCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,24 +9,37 @@
 import SwiftUI
 import TangemUI
 
-struct MobileCreateWalletCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: MobileCreateWalletCoordinator
+struct HardwareCreateWalletCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: HardwareCreateWalletCoordinator
 
     var body: some View {
         ZStack {
             if let viewModel = coordinator.rootViewModel {
-                MobileCreateWalletView(viewModel: viewModel)
+                HardwareCreateWalletView(viewModel: viewModel)
                     .navigationLinks(links)
             }
+
+            sheets
         }
     }
+}
 
-    private var links: some View {
+// MARK: - Subviews
+
+private extension HardwareCreateWalletCoordinatorView {
+    var links: some View {
         NavHolder()
             .navigation(item: $coordinator.onboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
                     .navigationBarHidden(true)
             }
             .emptyNavigationLink()
+    }
+
+    var sheets: some View {
+        NavHolder()
+            .sheet(item: $coordinator.mailViewModel) {
+                MailView(viewModel: $0)
+            }
     }
 }
