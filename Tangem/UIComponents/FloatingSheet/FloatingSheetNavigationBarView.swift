@@ -1,5 +1,5 @@
 //
-//  WalletConnectNavigationBarView.swift
+//  FloatingSheetNavigationBarView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,13 +11,14 @@ import TangemAssets
 import TangemUI
 import TangemAccessibilityIdentifiers
 
-struct WalletConnectNavigationBarView: View {
+struct FloatingSheetNavigationBarView: View {
     var title: String?
     var subtitle: String?
     var backgroundColor: Color = Colors.Background.tertiary
     var bottomSeparatorLineIsVisible = false
     var backButtonAction: (() -> Void)?
     var closeButtonAction: (() -> Void)?
+    var titleAccessibilityIdentifier: String?
 
     var body: some View {
         ZStack {
@@ -27,7 +28,9 @@ struct WalletConnectNavigationBarView: View {
                 if let title {
                     Text(title)
                         .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.headerTitle)
+                        .ifLet(titleAccessibilityIdentifier) { view, identifier in
+                            view.accessibilityIdentifier(identifier)
+                        }
                 }
 
                 if let subtitle {
@@ -52,32 +55,20 @@ struct WalletConnectNavigationBarView: View {
 
     private var buttons: some View {
         HStack(spacing: .zero) {
-            sfButton(SFSymbol.chevronLeft, action: backButtonAction)
-            Spacer()
-            sfButton(SFSymbol.multiply, action: closeButtonAction)
-        }
-    }
-
-    @ViewBuilder
-    private func sfButton(_ systemName: String, action: (() -> Void)?) -> some View {
-        if let action {
-            Button(action: action) {
-                Image(systemName: systemName)
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Colors.Icon.secondary)
-                    .frame(width: 28, height: 28)
-                    .background {
-                        Circle()
-                            .fill(Colors.Button.secondary)
-                    }
-                    .contentShape(.circle)
+            if let backButtonAction {
+                CircleButton.back(action: backButtonAction)
             }
-            .buttonStyle(.plain)
+
+            Spacer()
+
+            if let closeButtonAction {
+                CircleButton.close(action: closeButtonAction)
+            }
         }
     }
 }
 
-extension WalletConnectNavigationBarView {
+extension FloatingSheetNavigationBarView {
     enum Layout {
         /// 8
         static let topPadding: CGFloat = 8
@@ -85,8 +76,8 @@ extension WalletConnectNavigationBarView {
         static let height: CGFloat = 44
     }
 
-    private enum SFSymbol {
-        static let chevronLeft = "chevron.left"
-        static let multiply = "multiply"
+    /// 52
+    public static var height: CGFloat {
+        FloatingSheetNavigationBarView.Layout.topPadding + FloatingSheetNavigationBarView.Layout.height
     }
 }
