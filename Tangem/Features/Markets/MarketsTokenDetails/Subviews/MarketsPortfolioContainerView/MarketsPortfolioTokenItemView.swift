@@ -73,7 +73,7 @@ struct MarketsPortfolioTokenItemView: View {
 
                 HStack(alignment: .center, spacing: 0) {
                     HStack(spacing: 6, content: {
-                        Text(viewModel.tokenItem.name)
+                        Text(viewModel.description)
                             .lineLimit(1)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                             .layoutPriority(1)
