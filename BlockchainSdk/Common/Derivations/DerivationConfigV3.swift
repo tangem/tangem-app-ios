@@ -80,7 +80,8 @@ struct DerivationConfigV3: DerivationConfig {
              .vanar,
              .zkLinkNova,
              .hyperliquidEVM,
-             .scroll:
+             .scroll,
+             .linea:
             return "m/44'/60'/0'/0/0"
         case .ethereumClassic:
             return "m/44'/61'/0'/0/0"
