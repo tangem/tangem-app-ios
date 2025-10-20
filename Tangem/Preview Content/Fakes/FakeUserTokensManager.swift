@@ -11,6 +11,22 @@ import Combine
 import BlockchainSdk
 
 class FakeUserTokensManager: UserTokensManager {
+    var initialized: Bool { true }
+
+    var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
+
+    var userTokens: [TokenItem] {
+        let converter = StorageEntryConverter()
+        return converter.convertToTokenItems(userTokenListManager.userTokensList.entries)
+    }
+
+    var userTokensPublisher: AnyPublisher<[TokenItem], Never> {
+        let converter = StorageEntryConverter()
+        return userTokenListManager.userTokensListPublisher
+            .map { converter.convertToTokenItems($0.entries) }
+            .eraseToAnyPublisher()
+    }
+
     var derivationManager: DerivationManager?
     var userTokenListManager: UserTokenListManager
 
@@ -36,15 +52,11 @@ class FakeUserTokensManager: UserTokensManager {
     }
 
     func contains(_ tokenItem: TokenItem) -> Bool {
-        userTokenListManager.userTokens.contains(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork })
+        userTokens.contains(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork })
     }
 
     func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
-        userTokenListManager.userTokens.contains { $0.blockchainNetwork.blockchain == tokenItem.blockchain }
-    }
-
-    func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [BlockchainSdk.Token] {
-        userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork })?.tokens ?? []
+        userTokens.contains { $0.blockchainNetwork.blockchain == tokenItem.blockchain }
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
@@ -64,6 +76,8 @@ class FakeUserTokensManager: UserTokensManager {
     func remove(_ tokenItem: TokenItem) {}
 
     func sync(completion: @escaping () -> Void) {}
+
+    func upload() {}
 }
 
 // MARK: - UserTokensReordering protocol conformance

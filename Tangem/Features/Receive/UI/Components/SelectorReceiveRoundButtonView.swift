@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemLocalization
 
 struct SelectorReceiveRoundButtonView: View {
     private let actionType: ActionType
@@ -18,30 +19,42 @@ struct SelectorReceiveRoundButtonView: View {
     }
 
     var body: some View {
-        actionType
-            .asset
-            .renderingMode(.template)
-            .resizable()
-            .frame(size: .init(bothDimensions: 20))
-            .foregroundStyle(Colors.Icon.informative)
-            .padding(Layout.paddingIcon)
-            .background(
-                Circle()
-                    .fill(Colors.Button.secondary)
-            )
-            .padding(Layout.paddingIconCircle)
+        HStack(alignment: .center, spacing: Layout.horizontalSpacing) {
+            actionType
+                .asset
+                .renderingMode(.template)
+                .resizable()
+                .frame(size: .init(bothDimensions: Layout.iconSize))
+                .foregroundStyle(Colors.Icon.primary1)
+
+            Text(actionType.title)
+                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+        }
+        .padding(.horizontal, Layout.horizontalPadding)
+        .padding(.vertical, Layout.verticalPadding)
+        .background(
+            RoundedRectangle(cornerRadius: Layout.cornerRadius)
+                .fill(Colors.Button.secondary)
+        )
     }
 }
 
 extension SelectorReceiveRoundButtonView {
     enum ActionType {
         case copy
-        case qr
+        case share
 
         var asset: Image {
             switch self {
-            case .copy: return Assets.copyNew.image
-            case .qr: return Assets.qrNew.image
+            case .copy: return Assets.Receive.copyButtonIcon.image
+            case .share: return Assets.Receive.shareButtonIcon.image
+            }
+        }
+
+        var title: String {
+            switch self {
+            case .copy: return Localization.commonCopy
+            case .share: return Localization.commonShare
             }
         }
     }
@@ -51,7 +64,10 @@ extension SelectorReceiveRoundButtonView {
 
 private extension SelectorReceiveRoundButtonView {
     enum Layout {
-        static let paddingIcon: CGFloat = 8
-        static let paddingIconCircle: CGFloat = 2
+        static let horizontalSpacing: CGFloat = 6
+        static let horizontalPadding: CGFloat = 12
+        static let verticalPadding: CGFloat = 8
+        static let cornerRadius: CGFloat = 24
+        static let iconSize: CGFloat = 20
     }
 }
