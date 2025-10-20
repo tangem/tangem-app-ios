@@ -54,6 +54,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     let walletModelId: WalletModelId
     let userWalletId: UserWalletId
     let name: String
+    let description: String
     let tokenIcon: TokenIconInfo
     let tokenItem: TokenItem
 
@@ -71,6 +72,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         walletModelId: WalletModelId,
         userWalletId: UserWalletId,
         name: String,
+        description: String,
         tokenIcon: TokenIconInfo,
         tokenItem: TokenItem,
         tokenItemInfoProvider: TokenItemInfoProvider,
@@ -80,6 +82,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         self.walletModelId = walletModelId
         self.userWalletId = userWalletId
         self.name = name
+        self.description = description
         self.tokenIcon = tokenIcon
         self.tokenItem = tokenItem
         self.tokenItemInfoProvider = tokenItemInfoProvider

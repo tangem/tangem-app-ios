@@ -82,17 +82,23 @@ struct MarketsPortfolioTokenItemFactory {
         let (id, provider, tokenItem, tokenIcon) = tokenItemInfoProviderItemBuilder
             .mapTokenItemViewModel(from: tokenItemType)
 
-        let name: String = switch namingStyle {
+        let name, description: String
+
+        switch namingStyle {
         case .tokenItemName:
-            tokenItem.name
+            name = tokenItem.name
+            description = tokenItem.networkName
+
         case .userWalletName:
-            userWalletInfo.userWalletName
+            name = userWalletInfo.userWalletName
+            description = tokenItem.name
         }
 
         return MarketsPortfolioTokenItemViewModel(
             walletModelId: id,
             userWalletId: userWalletInfo.userWalletId,
             name: name,
+            description: description,
             tokenIcon: tokenIcon,
             tokenItem: tokenItem,
             tokenItemInfoProvider: provider,
