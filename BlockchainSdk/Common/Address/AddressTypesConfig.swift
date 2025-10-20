@@ -104,7 +104,8 @@ struct AddressTypesConfig {
              .zkLinkNova,
              .pepecoin,
              .hyperliquidEVM,
-             .quai:
+             .quai,
+             .scroll:
             return [.default]
         }
     }
