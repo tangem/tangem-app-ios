@@ -384,13 +384,16 @@ extension CommonWalletModel: WalletModelUpdater {
             return updatePublisher.eraseToAnyPublisher()
         }
 
+        if case .loading = state {
+            return _state
+                .drop(while: { $0 == .loading })
+                .prefix(1)
+                .eraseToAnyPublisher()
+        }
+
         // Keep this before the async call
         let newUpdatePublisher = PassthroughSubject<WalletModelState, Never>()
         updatePublisher = newUpdatePublisher
-
-        if case .loading = state {
-            return newUpdatePublisher.eraseToAnyPublisher()
-        }
 
         if !silent {
             updateState(.loading)
