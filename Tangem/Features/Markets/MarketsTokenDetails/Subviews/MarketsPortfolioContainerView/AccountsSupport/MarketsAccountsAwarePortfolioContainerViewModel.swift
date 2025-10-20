@@ -250,6 +250,7 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 
                     if viewModels.isNotEmpty {
                         let accountData = TypeView.AccountData(
+                            id: account.id.toAnyHashable(),
                             name: account.name,
                             iconInfo: AccountIconViewBuilder().makeAccountIconViewData(accountModel: account)
                         )
@@ -266,6 +267,7 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
             if accountsWithTokenItems.isNotEmpty {
                 allUserWalletsWithAccountsData.append(
                     .init(
+                        userWalletId: walletData.userWalletId,
                         userWalletName: walletData.userWalletName,
                         accountsWithTokenItems: accountsWithTokenItems
                     )
@@ -297,7 +299,11 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 
             if viewModels.isNotEmpty {
                 allUserWalletsWithTokensData.append(
-                    .init(userWalletName: walletData.userWalletName, tokenItems: viewModels)
+                    .init(
+                        userWalletId: walletData.userWalletId,
+                        userWalletName: walletData.userWalletName,
+                        tokenItems: viewModels
+                    )
                 )
 
                 allTokenItemViewModels.append(contentsOf: viewModels)
