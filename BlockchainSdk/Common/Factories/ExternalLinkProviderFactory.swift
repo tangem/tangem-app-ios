@@ -199,6 +199,8 @@ public struct ExternalLinkProviderFactory {
             return QuaiExternalLinkProvider(isTestnet: isTestnet)
         case .scroll:
             return ScrollExternalLinkProvider(isTestnet: isTestnet)
+        case .linea:
+            return LineaExternalLinkProvider(isTestnet: isTestnet)
         }
     }
 }

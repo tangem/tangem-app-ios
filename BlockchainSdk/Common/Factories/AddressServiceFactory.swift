@@ -71,7 +71,8 @@ public struct AddressServiceFactory {
              .zkLinkNova,
              .hyperliquidEVM,
              .quai,
-             .scroll:
+             .scroll,
+             .linea:
             return EVMAddressService()
         case .rsk:
             return RskAddressService()
