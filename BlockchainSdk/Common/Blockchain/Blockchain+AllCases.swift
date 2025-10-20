@@ -102,6 +102,7 @@ public extension Blockchain {
         case .pepecoin: break
         case .hyperliquidEVM: break
         case .quai: break
+        case .scroll: break
             // READ BELOW:
             //
             // Did you get a compilation error here? If so, add your new blockchain to the array below
@@ -196,6 +197,7 @@ public extension Blockchain {
             .vanar(testnet: false),
             .pepecoin(testnet: false),
             .quai(testnet: false),
+            .scroll(testnet: false),
         ]
     }
 }
