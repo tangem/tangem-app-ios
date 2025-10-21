@@ -79,7 +79,7 @@ final class TangemPayMainViewModel: ObservableObject {
         if let depositAddress = tangemPayAccount.depositAddress {
             let receiveViewModel = ReceiveMainViewModel(
                 options: .init(
-                    tokenItem: VisaUtilities.usdcTokenItem,
+                    tokenItem: TangemPayUtilities.usdcTokenItem,
                     flow: .crypto,
                     addressTypesProvider: TangemPayReceiveAddressTypesProvider(address: depositAddress, colorScheme: .whiteBlack),
                     isYieldModuleActive: false
