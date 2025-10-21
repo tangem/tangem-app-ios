@@ -19,8 +19,6 @@ struct YieldModuleRateInfoChartContainer: View {
             switch state {
             case .loading:
                 makeTopContent(isLoading: true)
-                    .skeletonable(isShown: true)
-
                 YieldModuleChart(state: .loading)
 
             case .loaded(let data):
@@ -31,13 +29,16 @@ struct YieldModuleRateInfoChartContainer: View {
                 errorView { await retry() }
             }
         }
-        .defaultRoundedBackground()
+        .defaultRoundedBackground(with: Colors.Background.action)
     }
 
     private func makeTopContent(isLoading: Bool) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             title(isLoading: isLoading)
+                .skeletonable(isShown: isLoading)
+
             description(isLoading: isLoading)
+                .skeletonable(isShown: isLoading)
         }
     }
 
@@ -57,8 +58,7 @@ struct YieldModuleRateInfoChartContainer: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 200)
-        .defaultRoundedBackground()
+        .frame(height: 158)
     }
 
     private func title(isLoading: Bool) -> some View {
