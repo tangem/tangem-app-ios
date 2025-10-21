@@ -37,7 +37,7 @@ struct TokenItemView: View {
                     if viewModel.hasPendingTransactions {
                         ProgressDots(style: .small)
                     } else if let apy = viewModel.earnBadgeAPY {
-                        TokenItemEarnBadgeView(apy: apy)
+                        TokenItemEarnBadgeView(apy: apy, color: viewModel.earnBadgeTextColor)
                     }
                 }
             },
