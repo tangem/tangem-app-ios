@@ -62,7 +62,8 @@ class FakeBalanceWithButtonsInfoProvider {
         BalanceWithButtonsViewModel(
             buttonsPublisher: provider.buttonsPublisher,
             balanceProvider: provider,
-            balanceTypeSelectorProvider: provider
+            balanceTypeSelectorProvider: provider,
+            yieldModuleStatusProvider: provider
         )
     }
 }
