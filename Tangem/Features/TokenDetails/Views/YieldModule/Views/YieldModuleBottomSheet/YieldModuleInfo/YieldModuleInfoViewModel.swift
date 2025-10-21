@@ -11,9 +11,20 @@ import TangemUI
 import TangemFoundation
 import TangemLocalization
 import TangemAssets
+import TangemSdk
 
 final class YieldModuleInfoViewModel: ObservableObject {
+    // MARK: - Types
+
+    enum YieldAction {
+        case exit
+        case approve
+    }
+
     // MARK: - Injected
+
+    @Injected(\.alertPresenter)
+    private var alertPresenter: any AlertPresenter
 
     @Injected(\.floatingSheetPresenter)
     var floatingSheetPresenter: FloatingSheetPresenter
@@ -45,7 +56,13 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private(set) var apyState: LoadableTextView.State = .loading
 
     @Published
+    private(set) var minimalAmountState: LoadableTextView.State = .loading
+
+    @Published
     private(set) var chartState: YieldChartContainerState = .loading
+
+    @Published
+    private(set) var isProcessingRequest: Bool = false
 
     // MARK: - Dependencies
 
@@ -53,7 +70,6 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private weak var feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
     private let yieldManagerInteractor: YieldManagerInteractor
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
-    private let chartServices = YieldChartService()
 
     // MARK: - Properties
 
@@ -97,7 +113,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         self.availableBalance = availableBalance
 
         viewState = .earnInfo
-        prepareApy()
+        start()
     }
 
     // MARK: - Navigation
@@ -116,16 +132,27 @@ final class YieldModuleInfoViewModel: ObservableObject {
         viewState = .stopEarning
     }
 
-    func onApproveTap() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
-    }
+    func onAcctionTap(action: YieldAction) {
+        let token = walletModel.tokenItem
+        isProcessingRequest = true
 
-    func onStopEarningTap() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-            await yieldManagerInteractor.exit(with: walletModel.tokenItem)
+        Task { @MainActor [weak self] in
+            defer { self?.isProcessingRequest = false }
+
+            do {
+                switch action {
+                case .approve:
+                    try await self?.yieldManagerInteractor.approve(with: token)
+                case .exit:
+                    try await self?.yieldManagerInteractor.exit(with: token)
+                }
+
+                self?.floatingSheetPresenter.removeActiveSheet()
+            } catch let error where error.isCancellationError {
+                // Do nothing
+            } catch {
+                self?.alertPresenter.present(alert: AlertBuilder.makeOkErrorAlert(message: error.localizedDescription))
+            }
         }
     }
 
@@ -136,7 +163,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         chartState = .loading
 
         do {
-            let chartData = try await chartServices.getChartData()
+            let chartData = try await yieldManagerInteractor.getChartData()
             chartState = .loaded(chartData)
         } catch {
             chartState = .error(action: { [weak self] in
@@ -149,12 +176,21 @@ final class YieldModuleInfoViewModel: ObservableObject {
         feeConverter.formatCryptoBalance(availableBalance, prefix: "a")
     }
 
+    // MARK: - Public Implementation
+
     @MainActor
-    func fetchNetworkFee() async {
+    func fetchFee(for action: YieldAction) async {
         networkFeeState = .loading
+        notificationBannerParams = nil
 
         do {
-            let feeInCoins = try await yieldManagerInteractor.getExitFee()
+            let feeInCoins = switch action {
+            case .approve:
+                try await yieldManagerInteractor.getApproveFee()
+            case .exit:
+                try await yieldManagerInteractor.getExitFee()
+            }
+
             let feeValue = feeInCoins.totalFeeAmount.value
             let convertedFee = try await feeConverter.createFeeString(from: feeValue)
 
@@ -166,17 +202,16 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
         } catch {
             networkFeeState = .noData
-            showFeeErrorNotification()
+            showFeeErrorNotification { [weak self] in
+                await self?.fetchFee(for: action)
+            }
         }
     }
 
     func makeMyFundsSectionText() -> AttributedString {
-        let fullString = Localization.yieldModuleEarnSheetProviderDescription(
-            walletModel.tokenItem.name,
-            walletModel.tokenItem.currencySymbol
-        )
-            + " "
-            + Localization.commonReadMore
+        let tokenName = walletModel.tokenItem.name
+        let symbol = walletModel.tokenItem.currencySymbol
+        let fullString = Localization.yieldModuleEarnSheetProviderDescription(tokenName, symbol) + " " + Localization.commonReadMore
 
         var attr = AttributedString(fullString)
         attr.font = Fonts.Regular.caption1
@@ -192,14 +227,37 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     // MARK: - Private Implementation
 
-    private func prepareApy() {
+    private func getMinTopUp() {
         Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            minimalAmountState = .loading
+
+            do {
+                let minAmount = try await yieldManagerInteractor.getMinAmount()
+                let formatted = try await feeConverter.createMinimalAmountString(from: minAmount)
+                minimalAmountState = .loaded(text: formatted)
+            } catch {
+                minimalAmountState = .noData
+            }
+        }
+    }
+
+    private func getApy() {
+        Task { @MainActor [weak self] in
+            self?.apyState = .loading
+
             if let apy = try? await self?.yieldManagerInteractor.getApy() {
-                self?.apyState = .loaded(text: String(format: "%.1f%%", apy.doubleValue))
+                self?.apyState = .loaded(text: PercentFormatter().format(apy, option: .interval))
             } else {
                 self?.apyState = .noData
             }
         }
+    }
+
+    private func start() {
+        getMinTopUp()
+        getApy()
     }
 
     private func showApproveSheet() {
@@ -221,11 +279,11 @@ final class YieldModuleInfoViewModel: ObservableObject {
         }
     }
 
-    private func showFeeErrorNotification() {
+    private func showFeeErrorNotification(feeFetcher: @escaping () async -> Void) {
         notificationBannerParams = .feeUnreachable { [weak self] in
             guard let self else { return }
             runTask(in: self) { vm in
-                await vm.fetchNetworkFee()
+                await feeFetcher()
             }
         }
     }
@@ -284,7 +342,7 @@ extension YieldModuleInfoViewModel {
         var transferMode: String {
             switch self {
             case .active:
-                "Automatic"
+                Localization.yieldModuleTransferModeAutomatic
             case .paused:
                 Localization.yieldModuleStatusPaused
             }

@@ -40,4 +40,6 @@ struct CachedYieldModuleMarket: Codable {
     let apy: Decimal
     let isActive: Bool
     let chainId: Int?
+    let maxFeeNative: Decimal?
+    let maxFeeUSD: Decimal?
 }
