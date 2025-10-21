@@ -9,9 +9,14 @@
 import TangemUI
 import SwiftUI
 import TangemFoundation
+import struct TangemUIUtils.AlertBinder
+import TangemSdk
 
 final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Injected
+
+    @Injected(\.alertPresenter)
+    private var alertPresenter: any AlertPresenter
 
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
@@ -33,6 +38,9 @@ final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Published
 
     @Published
+    var alert: AlertBinder?
+
+    @Published
     private(set) var notificationBannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? = nil
 
     @Published
@@ -42,14 +50,22 @@ final class YieldModuleStartViewModel: ObservableObject {
     private(set) var tokenFeeState: LoadableTextView.State = .loading
 
     @Published
+    private(set) var maximumFeeState: LoadableTextView.State = .loading
+
+    @Published
+    private(set) var minimalAmountState: LoadableTextView.State = .loading
+
+    @Published
     private(set) var chartState: YieldChartContainerState = .loading
+
+    @Published
+    private(set) var isProcessingStartRequest: Bool = false
 
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
     private weak var coordinator: YieldModulePromoCoordinator?
     private let yieldManagerInteractor: YieldManagerInteractor
-    private let chartServices = YieldChartService()
 
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
 
@@ -74,6 +90,17 @@ final class YieldModuleStartViewModel: ObservableObject {
         default:
             return true
         }
+    }
+
+    var isNavigationToFeePolicyEnabled: Bool {
+        guard case .startEarning = viewState else { return true }
+        guard case .loaded = networkFeeState else { return false }
+
+        if case .feeUnreachable = notificationBannerParams {
+            return false
+        }
+
+        return true
     }
 
     // MARK: - Init
@@ -108,12 +135,20 @@ final class YieldModuleStartViewModel: ObservableObject {
     @MainActor
     func onStartEarnTap() {
         let token = walletModel.tokenItem
+        isProcessingStartRequest = true
 
-        runTask(in: self) { vm in
-            await vm.yieldManagerInteractor.enter(with: token)
+        Task { @MainActor [weak self] in
+            defer { self?.isProcessingStartRequest = false }
+
+            do {
+                try await self?.yieldManagerInteractor.enter(with: token)
+                self?.coordinator?.dismiss()
+            } catch let error where error.isCancellationError {
+                // Do nothing
+            } catch {
+                self?.alertPresenter.present(alert: AlertBuilder.makeOkErrorAlert(message: error.localizedDescription))
+            }
         }
-
-        coordinator?.dismiss()
     }
 
     @MainActor
@@ -128,7 +163,7 @@ final class YieldModuleStartViewModel: ObservableObject {
         chartState = .loading
 
         do {
-            let chartData = try await chartServices.getChartData()
+            let chartData = try await yieldManagerInteractor.getChartData()
             chartState = .loaded(chartData)
         } catch {
             chartState = .error(action: { [weak self] in
@@ -137,11 +172,42 @@ final class YieldModuleStartViewModel: ObservableObject {
         }
     }
 
-    func fetchNetworkFee() async {
-        await runOnMain {
-            tokenFeeState = .loading
-            networkFeeState = .loading
+    func fetchFees() {
+        Task { await fetchNetworkFee() }
+        Task { await fetchMaximumFee() }
+        Task { await fetchMinimalAmount() }
+    }
+
+    @MainActor
+    func fetchMinimalAmount() async {
+        minimalAmountState = .loading
+
+        do {
+            let minimalAmountInTokens = try await yieldManagerInteractor.getMinAmount()
+            let formatted = try await feeConverter.createMinimalAmountString(from: minimalAmountInTokens)
+            minimalAmountState = .loaded(text: formatted)
+        } catch {
+            minimalAmountState = .noData
         }
+    }
+
+    @MainActor
+    func fetchMaximumFee() async {
+        maximumFeeState = .loading
+
+        if let (maxFeeCurrencyFee, maxFiatFee) = await yieldManagerInteractor.getMaxFee(),
+           let feeInTokens = try? await feeConverter.createMaxFeeString(maxFeeCurrencyFee: maxFeeCurrencyFee, maxFiatFee: maxFiatFee) {
+            maximumFeeState = .loaded(text: feeInTokens)
+        } else {
+            maximumFeeState = .noData
+        }
+    }
+
+    @MainActor
+    func fetchNetworkFee() async {
+        tokenFeeState = .loading
+        networkFeeState = .loading
+        notificationBannerParams = nil
 
         do {
             let feeInCoins = try await yieldManagerInteractor.getEnterFee()
@@ -150,21 +216,17 @@ final class YieldModuleStartViewModel: ObservableObject {
             let convertedFee = try await feeConverter.createFeeString(from: feeValue)
             let feeInTokens = try await feeConverter.makeFeeInTokenString(from: feeValue)
 
-            await runOnMain {
-                networkFeeState = .loaded(text: convertedFee)
-                tokenFeeState = .loaded(text: feeInTokens)
+            networkFeeState = .loaded(text: convertedFee)
+            tokenFeeState = .loaded(text: feeInTokens)
 
-                if feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
-                    showNotEnoughFeeNotification()
-                }
+            if feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
+                showNotEnoughFeeNotification()
             }
 
         } catch {
-            await runOnMain {
-                tokenFeeState = .noData
-                networkFeeState = .noData
-                showFeeErrorNotification()
-            }
+            tokenFeeState = .noData
+            networkFeeState = .noData
+            showFeeErrorNotification()
         }
     }
 
