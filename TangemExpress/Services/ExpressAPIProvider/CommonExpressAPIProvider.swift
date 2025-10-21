@@ -33,7 +33,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         return assets
     }
 
-    func pairs(from: [ExpressWalletCurrency], to: [ExpressWalletCurrency]) async throws -> [ExpressPair] {
+    func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] {
         let from = from.map(expressAPIMapper.mapToDTOCurrency(currency:))
         let to = to.map(expressAPIMapper.mapToDTOCurrency(currency:))
         let request = ExpressDTO.Swap.Pairs.Request(from: from, to: to)
