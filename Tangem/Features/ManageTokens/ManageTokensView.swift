@@ -94,10 +94,10 @@ struct ManageTokensView: View {
     InjectedValues[\.tangemApiService] = fakeAPIService
     let adapter = ManageTokensAdapter(
         settings: .init(
-            longHashesSupported: fakeModel.config.hasFeature(.longHashes),
             existingCurves: fakeModel.config.existingCurves,
             supportedBlockchains: fakeModel.config.supportedBlockchains,
             userTokensManager: fakeModel.userTokensManager,
+            hardwareLimitationUtil: HardwareLimitationsUtil(config: fakeModel.config),
             analyticsSourceRawValue: "preview"
         )
     )
