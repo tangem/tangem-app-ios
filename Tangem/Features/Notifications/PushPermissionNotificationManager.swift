@@ -11,6 +11,7 @@ import TangemFoundation
 
 protocol PushPermissionNotificationDelegate: AnyObject {
     func showPushPermissionNotification(input: NotificationViewInput)
+    func hidePushPermissionNotification(with id: NotificationViewId)
 }
 
 protocol PushPermissionNotificationManager: AnyObject {
@@ -100,9 +101,10 @@ final class CommonPushPermissionNotificationManager: PushPermissionNotificationM
             severity: .info,
             settings: .init(
                 event: GeneralNotificationEvent.pushNotificationsPermissionRequest,
-                dismissAction: { [weak self] _ in
+                dismissAction: { [weak self] id in
                     guard let self else { return }
                     permissionManager.postponePermissionRequest()
+                    displayDelegate?.hidePushPermissionNotification(with: id)
                 }
             )
         )
