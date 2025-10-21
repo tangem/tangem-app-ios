@@ -61,11 +61,11 @@ public struct NFTCollectionsListView: View {
     private var content: some View {
         Group {
             switch viewModel.state {
-            case .loaded(let collections) where viewModel.isStateEmpty(collections: collections):
+            case .loaded(let displayMode) where viewModel.isStateEmpty(displayMode: displayMode):
                 noCollectionsView
 
-            case .loaded(let collections):
-                nonEmptyContentView(collections: collections)
+            case .loaded(let displayMode):
+                nonEmptyContentView(displayMode: displayMode)
 
             case .loading:
                 loadingView
@@ -102,9 +102,9 @@ public struct NFTCollectionsListView: View {
     }
 
     @ViewBuilder
-    private func nonEmptyContentView(collections: [NFTCollectionDisclosureGroupViewModel]) -> some View {
-        if collections.isNotEmpty {
-            collectionsContent(from: collections)
+    private func nonEmptyContentView(displayMode: NFTCollectionsListViewModel.DisplayMode) -> some View {
+        if displayMode.collections.isNotEmpty {
+            collectionsContent(from: displayMode)
         } else {
             emptySearchView
         }
@@ -115,7 +115,7 @@ public struct NFTCollectionsListView: View {
             .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
     }
 
-    private func collectionsContent(from collections: [NFTCollectionDisclosureGroupViewModel]) -> some View {
+    private func collectionsContent(from displayMode: NFTCollectionsListViewModel.DisplayMode) -> some View {
         ScrollViewReader { scrollViewProxy in
             RefreshScrollView(stateObject: viewModel.scrollViewStateObject) {
                 VStack(spacing: 0) {
@@ -124,36 +124,25 @@ public struct NFTCollectionsListView: View {
                             .padding(.bottom, 12)
                     }
 
-                    LazyVStack(spacing: 0.0) {
-                        ForEach(collections, id: \.id) { collectionViewModel in
-                            NFTCollectionDisclosureGroupView(viewModel: collectionViewModel)
-                                .id(collectionViewModel.id)
-                        }
-                    }
-                    .roundedBackground(
-                        with: Constants.RoundedBackground.color,
-                        verticalPadding: 0.0,
-                        horizontalPadding: Constants.RoundedBackground.padding,
-                        radius: Constants.RoundedBackground.radius
-                    )
-                    .readGeometry(\.frame.height, inCoordinateSpace: coordinateSpace, bindTo: $contentHeight)
-                    // We need this code to track view's heigh when row expands
-                    // .readGeometry only tracks it before list expands
-                    .background(
-                        GeometryReader { proxy in
-                            Color.clear
-                                .onChange(of: viewModel.tappedRowID) { rowID in
-                                    onCollectionHeightChanged(
-                                        geoProxy: proxy,
-                                        scrollProxy: scrollViewProxy,
-                                        tappedRowID: rowID
-                                    )
-                                }
-                                .onChange(of: viewModel.loadingTroublesViewData) { _ in
-                                    onCollectionHeightChanged(geoProxy: proxy)
-                                }
-                        }
-                    )
+                    makeContent(from: displayMode)
+                        .readGeometry(\.frame.height, inCoordinateSpace: coordinateSpace, bindTo: $contentHeight)
+                        // We need this code to track view's heigh when row expands
+                        // .readGeometry only tracks it before list expands
+                        .background(
+                            GeometryReader { proxy in
+                                Color.clear
+                                    .onChange(of: viewModel.tappedRowID) { rowID in
+                                        onCollectionHeightChanged(
+                                            geoProxy: proxy,
+                                            scrollProxy: scrollViewProxy,
+                                            tappedRowID: rowID
+                                        )
+                                    }
+                                    .onChange(of: viewModel.loadingTroublesViewData) { _ in
+                                        onCollectionHeightChanged(geoProxy: proxy)
+                                    }
+                            }
+                        )
 
                     Spacer()
                         .frame(height: buttonHeight + Constants.contentButtonSpacing)
@@ -164,6 +153,32 @@ public struct NFTCollectionsListView: View {
                 }
             }
             .coordinateSpace(name: coordinateSpaceName)
+        }
+    }
+
+    @ViewBuilder
+    private func makeContent(from displayMode: NFTCollectionsListViewModel.DisplayMode) -> some View {
+        switch displayMode {
+        case .flattenedList(let collections):
+            LazyVStack(spacing: 0.0) {
+                ForEach(collections, id: \.id) { collectionViewModel in
+                    NFTCollectionDisclosureGroupView(viewModel: collectionViewModel)
+                        .id(collectionViewModel.id)
+                }
+            }
+            .roundedBackground(
+                with: Constants.RoundedBackground.color,
+                verticalPadding: 0.0,
+                horizontalPadding: Constants.RoundedBackground.padding,
+                radius: Constants.RoundedBackground.radius
+            )
+
+        case .groupedList(let accountsWithCollectionViewModels):
+            LazyVStack(spacing: 0.0) {
+                ForEach(accountsWithCollectionViewModels, id: \.accountData.id) { accountWithCollectionViewModels in
+                    NFTCollectionsAccountsGrouped(accountWithCollectionViewModels: accountWithCollectionViewModels)
+                }
+            }
         }
     }
 
@@ -284,7 +299,7 @@ private extension NFTCollectionsListViewModel.ViewState {
     var animationValue: String {
         switch self {
         case .loading: "loading"
-        case .loaded(let value): "loaded_\(value.count)"
+        case .loaded(let value): "loaded_\(value.collections.count)"
         case .failedToLoad: "failedToLoad"
         }
     }
