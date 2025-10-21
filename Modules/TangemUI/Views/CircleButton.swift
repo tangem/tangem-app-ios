@@ -43,7 +43,7 @@ public struct CircleButton: View {
                 .padding(.vertical, size.contentPaddings(content: content).vertical)
                 .background {
                     RoundedRectangle(cornerRadius: viewSize.height / 2, style: .continuous)
-                        .fill(style.background)
+                        .fill(style.background(isDisabled: disabled))
                 }
                 .readGeometry(\.size, bindTo: $viewSize)
         }
@@ -166,7 +166,7 @@ public extension CircleButton {
 
         func textColor(isDisabled: Bool) -> Color {
             switch self {
-            case .primary: Colors.Text.primary2
+            case .primary: isDisabled ? Colors.Text.disabled : Colors.Text.primary2
             case .secondary: isDisabled ? Colors.Text.disabled : Colors.Text.primary1
             }
         }
@@ -178,10 +178,10 @@ public extension CircleButton {
             }
         }
 
-        var background: Color {
+        func background(isDisabled: Bool) -> Color {
             switch self {
-            case .primary: Colors.Button.primary
-            case .secondary: Colors.Button.secondary
+            case .primary: isDisabled ? Colors.Button.disabled : Colors.Button.primary
+            case .secondary: isDisabled ? Colors.Button.disabled : Colors.Button.secondary
             }
         }
     }
