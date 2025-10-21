@@ -133,7 +133,8 @@ struct TransactionParamsBuilder {
              .hyperliquidEVM,
              .quai,
              .scroll,
-             .linea:
+             .linea,
+             .arbitrumNova:
             throw TransactionParamsBuilderError.extraIdNotSupported
         }
     }

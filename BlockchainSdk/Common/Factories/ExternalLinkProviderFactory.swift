@@ -201,6 +201,8 @@ public struct ExternalLinkProviderFactory {
             return ScrollExternalLinkProvider(isTestnet: isTestnet)
         case .linea:
             return LineaExternalLinkProvider(isTestnet: isTestnet)
+        case .arbitrumNova:
+            return ArbitrumNovaExternalLinkProvider()
         }
     }
 }
