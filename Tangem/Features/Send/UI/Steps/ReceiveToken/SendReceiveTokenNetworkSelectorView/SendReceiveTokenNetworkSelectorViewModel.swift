@@ -16,6 +16,9 @@ protocol SendReceiveTokenNetworkSelectorViewRoutable: AnyObject {
 }
 
 class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
+    @Injected(\.expressPairsRepository)
+    private var expressPairsRepository: ExpressPairsRepository
+
     @Published var notification: NotificationViewInput?
     @Published var state: LoadingResult<[SendReceiveTokenNetworkSelectorNetworkViewData], String> = .loading
 
@@ -32,7 +35,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     private weak var receiveTokenOutput: SendReceiveTokenOutput?
     private let networks: [TokenItem]
     private let coin: CoinModel
-    private let expressRepository: ExpressRepository
+    private let userWalletInfo: UserWalletInfo
     private let receiveTokenBuilder: SendReceiveTokenBuilder
     private let analyticsLogger: SendReceiveTokensListAnalyticsLogger
 
@@ -45,7 +48,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         receiveTokenOutput: SendReceiveTokenOutput,
         networks: [TokenItem],
         coin: CoinModel,
-        expressRepository: ExpressRepository,
+        userWalletInfo: UserWalletInfo,
         receiveTokenBuilder: SendReceiveTokenBuilder,
         analyticsLogger: SendReceiveTokensListAnalyticsLogger,
         router: SendReceiveTokenNetworkSelectorViewRoutable
@@ -54,7 +57,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         self.receiveTokenOutput = receiveTokenOutput
         self.networks = networks
         self.coin = coin
-        self.expressRepository = expressRepository
+        self.userWalletInfo = userWalletInfo
         self.receiveTokenBuilder = receiveTokenBuilder
         self.analyticsLogger = analyticsLogger
         self.router = router
@@ -117,7 +120,11 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
             throw CommonError.objectReleased
         }
 
-        try await expressRepository.updatePairs(from: sourceToken.tokenItem.expressCurrency, to: networks.map(\.expressCurrency))
+        try await expressPairsRepository.updatePairs(
+            from: sourceToken.tokenItem.expressCurrency,
+            to: networks.map(\.expressCurrency),
+            userWalletInfo: userWalletInfo
+        )
 
         let items = try await availableNetworks().map { network in
             return mapToSendReceiveTokenNetworkSelectorNetworkViewData(tokenItem: network)
@@ -135,7 +142,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
             throw CommonError.objectReleased
         }
 
-        let pairs = await expressRepository.getPairs(from: sourceToken.tokenItem.expressCurrency)
+        let pairs = await expressPairsRepository.getPairs(from: sourceToken.tokenItem.expressCurrency)
         let availableNetworks = networks.filter { network in
             pairs.contains { $0.destination == network.expressCurrency.asCurrency }
         }
