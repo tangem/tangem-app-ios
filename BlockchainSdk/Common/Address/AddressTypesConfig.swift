@@ -106,7 +106,8 @@ struct AddressTypesConfig {
              .hyperliquidEVM,
              .quai,
              .scroll,
-             .linea:
+             .linea,
+             .arbitrumNova:
             return [.default]
         }
     }
