@@ -40,15 +40,15 @@ struct YieldModuleiOS16Chart: View {
             }
 
             if let average {
-                RuleMark(y: .value("Average", average / 100))
+                RuleMark(y: .value("Average", average))
                     .lineStyle(.init(lineWidth: 1, dash: [4, 4]))
-                    .foregroundStyle(.black.opacity(0.6))
+                    .foregroundStyle(Colors.Icon.primary1)
                     .annotation(position: .overlay, alignment: .leading) {
-                        Text(Localization.yieldModuleRateInfoSheetChartAverage(String(format: "%.2f", average) + "%"))
-                            .style(Fonts.Bold.caption2, color: Colors.Text.disabled)
+                        Text(Localization.yieldModuleRateInfoSheetChartAverage(PercentFormatter().format(average, option: .staking)))
+                            .style(Fonts.Bold.caption2, color: Colors.Text.primary2)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Rectangle().fill(Color.black).cornerRadius(8, corners: .allCorners))
+                            .background(Rectangle().fill(Colors.Icon.primary1).cornerRadius(8, corners: .allCorners))
                             .offset(y: -16)
                     }
             }
@@ -84,12 +84,14 @@ struct YieldModuleiOS16Chart: View {
 
     // MARK: - Private Implementation
 
-    private func averageApy() -> Double? {
+    private func averageApy() -> Decimal? {
         switch state {
         case .loading:
             return nil
         case .loaded(_, _, let avg):
-            return avg
+            return avg.map {
+                Decimal(floatLiteral: $0) / 100
+            }
         }
     }
 
