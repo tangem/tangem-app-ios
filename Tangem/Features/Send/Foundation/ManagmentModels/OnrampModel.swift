@@ -445,7 +445,7 @@ extension OnrampModel: OnrampProvidersOutput {
 extension OnrampModel: RecentOnrampTransactionParametersFinder {
     var recentOnrampTransaction: RecentOnrampTransactionParameters? {
         guard let recentTransaction = onrampPendingTransactionsRepository.recentTransaction,
-              recentTransaction.transactionStatus.isTerminated(branch: .onramp),
+              recentTransaction.transactionStatus.canBeUsedAsRecent,
               let paymentMethodId = recentTransaction.paymentMethod?.id else {
             return nil
         }
