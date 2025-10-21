@@ -198,10 +198,17 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        forgetViewModel = DefaultRowViewModel(
-            title: Localization.settingsForgetWallet,
-            action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
-        )
+        if userWalletModel.config.hasFeature(.userWalletBackup) {
+            forgetViewModel = DefaultRowViewModel(
+                title: Localization.settingsForgetWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapRemoveMobileWallet)
+            )
+        } else {
+            forgetViewModel = DefaultRowViewModel(
+                title: Localization.settingsForgetWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
+            )
+        }
     }
 
     func setupMobileViewModels() {
@@ -296,6 +303,10 @@ private extension UserWalletSettingsViewModel {
                 ConfirmationDialogViewModel.Button.cancel,
             ]
         )
+    }
+
+    func didTapRemoveMobileWallet() {
+        coordinator?.openMobileRemoveWalletNotification(userWalletModel: userWalletModel)
     }
 
     func didConfirmWalletDeletion() {
