@@ -68,6 +68,10 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         yieldModuleInfo.isYieldApproveNeeded
     }
 
+    var earnBadgeTextColor: Color {
+        yieldModuleInfo.isYieldActive ? Colors.Text.accent : Colors.Text.secondary
+    }
+
     private let tokenIcon: TokenIconInfo
     private let priceChangeUtility = PriceChangeUtility()
     private let loadableTokenBalanceViewStateBuilder: LoadableTokenBalanceViewStateBuilder
@@ -213,13 +217,19 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             return
         }
 
+        let formattedAPY = marketInfo.flatMap { PercentFormatter().format($0.apy, option: .interval) }
+
         let info = switch state {
         case .active(let supply):
-            YieldModuleInfo(isYieldApproveNeeded: supply.isAllowancePermissionRequired)
+            YieldModuleInfo(
+                isYieldApproveNeeded: supply.isAllowancePermissionRequired,
+                yieldAPY: formattedAPY,
+                isYieldActive: true
+            )
 
         case .notActive:
-            if let apy = marketInfo?.apy, marketInfo?.isActive == true {
-                YieldModuleInfo(yieldAPY: PercentFormatter().format(apy, option: .interval))
+            if let formattedAPY, marketInfo?.isActive == true {
+                YieldModuleInfo(yieldAPY: formattedAPY, isYieldActive: false)
             } else {
                 YieldModuleInfo.empty
             }
@@ -246,17 +256,14 @@ extension TokenItemViewModel: CustomStringConvertible {
 
 extension TokenItemViewModel {
     struct YieldModuleInfo {
-        var isYieldApproveNeeded: Bool
-        var yieldAPY: String?
+        let isYieldApproveNeeded: Bool
+        let yieldAPY: String?
+        let isYieldActive: Bool
 
-        init(isYieldApproveNeeded: Bool = false, yieldAPY: String? = nil) {
+        init(isYieldApproveNeeded: Bool = false, yieldAPY: String? = nil, isYieldActive: Bool = false) {
             self.isYieldApproveNeeded = isYieldApproveNeeded
             self.yieldAPY = yieldAPY
-        }
-
-        mutating func clear() {
-            isYieldApproveNeeded = false
-            yieldAPY = nil
+            self.isYieldActive = isYieldActive
         }
 
         static let empty = YieldModuleInfo(isYieldApproveNeeded: false, yieldAPY: nil)
