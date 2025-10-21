@@ -13,15 +13,16 @@ import TangemLocalization
 
 struct TokenItemEarnBadgeView: View {
     let apy: String
+    let color: Color
 
     private var background: some View {
-        RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Colors.Text.accent.opacity(0.1))
+        RoundedRectangle(cornerRadius: 4, style: .continuous).fill(color.opacity(0.1))
     }
 
     var body: some View {
         HStack(spacing: 6) {
             Text(Localization.yieldModuleEarnBadge(apy))
-                .style(Fonts.BoldStatic.caption2, color: Colors.Text.accent)
+                .style(Fonts.BoldStatic.caption2, color: color)
                 .fixedSize(horizontal: true, vertical: false)
                 .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenItemEarnBadge)
                 .padding(.horizontal, 6)
