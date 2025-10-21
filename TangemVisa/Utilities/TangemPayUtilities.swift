@@ -12,12 +12,23 @@ import TangemSdk
 public enum TangemPayUtilities {}
 
 public extension TangemPayUtilities {
+    static var mandatoryCurve: EllipticCurve {
+        .secp256k1
+    }
+
     static var blockchain: Blockchain {
         .polygon(testnet: false)
     }
 
-    static var derivationPath: DerivationPath? {
-        try? DerivationPath(rawPath: "m/44'/60'/999999'/0/0")
+    static var derivationPath: DerivationPath {
+        try! DerivationPath(rawPath: "m/44'/60'/999999'/0/0")
+    }
+
+    static func makeAddress(using walletPublicKey: Wallet.PublicKey) throws -> String {
+        try AddressServiceFactory(blockchain: TangemPayUtilities.blockchain)
+            .makeAddressService()
+            .makeAddress(for: walletPublicKey, with: .default)
+            .value
     }
 
     static func makeCustomerWalletSigningRequestMessage(nonce: String) -> String {
