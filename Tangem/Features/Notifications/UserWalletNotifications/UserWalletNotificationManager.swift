@@ -418,4 +418,8 @@ extension UserWalletNotificationManager: PushPermissionNotificationDelegate {
     func showPushPermissionNotification(input: NotificationViewInput) {
         addInputIfNeeded(input)
     }
+
+    func hidePushPermissionNotification(with id: NotificationViewId) {
+        hideNotification(with: id)
+    }
 }
