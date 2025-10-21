@@ -14,27 +14,23 @@ final class NewTokenSelectorViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published private(set) var wallets: [NewTokenSelectorWalletItemViewModel] = []
 
-    private let walletsProvider: NewTokenSelectorWalletsProvider
-    private let availabilityProvider: any NewTokenSelectorItemAvailabilityProvider
+    private let walletsProvider: any NewTokenSelectorWalletsProvider
     private weak var output: NewTokenSelectorViewModelOutput?
 
     private var bag: Set<AnyCancellable> = []
 
     init(
         walletsProvider: any NewTokenSelectorWalletsProvider,
-        availabilityProvider: any NewTokenSelectorItemAvailabilityProvider,
         output: any NewTokenSelectorViewModelOutput,
     ) {
         self.walletsProvider = walletsProvider
-        self.availabilityProvider = availabilityProvider
         self.output = output
 
         bind()
     }
 
     private func bind() {
-        walletsProvider
-            .walletsPublisher
+        walletsProvider.walletsPublisher
             .withWeakCaptureOf(self)
             .map { $0.mapToNewTokenSelectorWalletItemViewModels(wallets: $1) }
             .receiveOnMain()
@@ -70,14 +66,12 @@ extension NewTokenSelectorViewModel: NewTokenSelectorItemViewModelMapper {
     }
 
     func mapToNewTokenSelectorItemViewModel(item: NewTokenSelectorItem) -> NewTokenSelectorItemViewModel {
-        let disabledReason = availabilityProvider.isAvailable(item: item)
-
-        return NewTokenSelectorItemViewModel(
+        NewTokenSelectorItemViewModel(
             id: item.walletModel.id,
             name: item.walletModel.tokenItem.name,
             symbol: item.walletModel.tokenItem.currencySymbol,
             tokenIconInfo: TokenIconInfoBuilder().build(from: item.walletModel.tokenItem, isCustom: item.walletModel.isCustom),
-            disabledReason: disabledReason,
+            availabilityProvider: item.availabilityProvider,
             cryptoBalanceProvider: item.cryptoBalanceProvider,
             fiatBalanceProvider: item.fiatBalanceProvider,
             action: { [weak self] in
