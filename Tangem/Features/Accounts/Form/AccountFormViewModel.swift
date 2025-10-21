@@ -116,8 +116,10 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     // MARK: - ViewData
 
     var iconViewData: AccountIconView.ViewData {
+        // Can't use `AccountModelUtils.UI.iconColor` here because of slightly different logic of `nameMode` creation
+        // see nameMode
         AccountIconView.ViewData(
-            backgroundColor: selectedColor.color,
+            backgroundColor: AccountModelUtils.UI.iconColor(from: selectedColor.id),
             nameMode: nameMode
         )
     }
@@ -194,7 +196,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         close()
     }
 
-    // MARK: - Private methods
+    // MARK: - Private
 
     private func close() {
         closeAction()
