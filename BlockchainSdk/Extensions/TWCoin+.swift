@@ -141,7 +141,8 @@ extension CoinType {
              .hyperliquidEVM,
              .quai,
              .scroll,
-             .linea:
+             .linea,
+             .arbitrumNova:
             // Blockchains that are not in WalletCore yet
             return nil
         }
