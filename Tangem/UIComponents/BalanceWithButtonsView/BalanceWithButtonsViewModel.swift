@@ -18,10 +18,14 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
 
     @Published var balanceTypeValues: [BalanceType]?
     @Published var selectedBalanceType: BalanceType = .all
+    @Published var yieldModuleApy: String? = nil
+
+    @Published var shouldShowYieldBalanceInfo: Bool = false
 
     private let buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never>
     private weak var balanceProvider: BalanceWithButtonsViewModelBalanceProvider?
     private weak var balanceTypeSelectorProvider: BalanceTypeSelectorProvider?
+    private weak var yieldModuleStatusProvider: YieldModuleStatusProvider?
     private(set) var showYieldBalanceInfoAction: (() -> Void)?
 
     private var bag = Set<AnyCancellable>()
@@ -30,12 +34,14 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
         buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never>,
         balanceProvider: BalanceWithButtonsViewModelBalanceProvider,
         balanceTypeSelectorProvider: BalanceTypeSelectorProvider,
+        yieldModuleStatusProvider: YieldModuleStatusProvider,
         showYieldBalanceInfoAction: (() -> Void)? = nil
     ) {
         self.buttonsPublisher = buttonsPublisher
         self.balanceProvider = balanceProvider
         self.balanceTypeSelectorProvider = balanceTypeSelectorProvider
         self.showYieldBalanceInfoAction = showYieldBalanceInfoAction
+        self.yieldModuleStatusProvider = yieldModuleStatusProvider
 
         bind()
     }
@@ -44,6 +50,20 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
         guard let balanceProvider else {
             return
         }
+
+        yieldModuleStatusProvider?.yieldModuleState
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                switch (state.state, state.marketInfo) {
+                case (.active, .some(let info)):
+                    self?.shouldShowYieldBalanceInfo = true
+                    self?.yieldModuleApy = String(format: "%.2f%%", info.apy.doubleValue)
+                default:
+                    self?.shouldShowYieldBalanceInfo = false
+                    self?.yieldModuleApy = nil
+                }
+            }
+            .store(in: &bag)
 
         Publishers
             .CombineLatest3(
