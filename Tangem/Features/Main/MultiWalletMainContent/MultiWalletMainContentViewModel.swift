@@ -17,6 +17,8 @@ import TangemLocalization
 import TangemUI
 import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
+import TangemVisa
+import BlockchainSdk
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
@@ -125,9 +127,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
         if FeatureProvider.isAvailable(.visa) {
-            let tangemPayAccountPublisher = userWalletModel.walletModelsManager.walletModelsPublisher
-                .compactMap(\.tangemPayWalletModel)
-                .compactMap(TangemPayAccount.init)
+            let tangemPayAccountPublisher = userWalletModel.keysRepository.keysPublisher
+                .compactMap { _ in
+                    TangemPayAccount(keysRepository: userWalletModel.keysRepository)
+                }
                 .merge(with: userWalletModel.updatePublisher.compactMap(\.tangemPayAccount))
                 .share(replay: 1)
 
