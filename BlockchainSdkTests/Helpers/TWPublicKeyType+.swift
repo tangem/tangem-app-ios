@@ -79,7 +79,8 @@ extension PublicKeyType {
              .hyperliquidEVM,
              .quai,
              .scroll,
-             .linea:
+             .linea,
+             .arbitrumNova:
             self = PublicKeyType.secp256k1Extended
         case .stellar,
              .ton,
