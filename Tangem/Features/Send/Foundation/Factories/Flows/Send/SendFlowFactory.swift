@@ -161,9 +161,9 @@ extension SendFlowFactory: SendBaseBuildable {
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
                 input: sendModel,
                 sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
+                    userWalletInfo: userWalletInfo,
                     sourceTokenInput: sendModel,
                     receiveTokenOutput: sendModel,
-                    expressRepository: expressDependenciesFactory.expressRepository,
                     receiveTokenBuilder: makeSendReceiveTokenBuilder(),
                     analyticsLogger: analyticsLogger
                 )
