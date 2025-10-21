@@ -17,7 +17,8 @@ struct YieldModuleStartView: View {
     // MARK: - View Body
 
     var body: some View {
-        contentView.animation(.contentFrameUpdate, value: viewModel.viewState)
+        contentView
+            .animation(.contentFrameUpdate, value: viewModel.viewState)
     }
 
     // MARK: - Sub Views
@@ -116,6 +117,7 @@ struct YieldModuleStartView: View {
                 title: Localization.yieldModuleStartEarning,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
+                isLoading: viewModel.isProcessingStartRequest,
                 isDisabled: !viewModel.isButtonEnabled,
                 action: ctaButtonAction,
             ))
@@ -148,16 +150,18 @@ struct YieldModuleStartView: View {
                 footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
                 linkTitle: Localization.yieldModuleStartEarningSheetFeePolicy,
                 url: nil,
+                isLinkActive: viewModel.isNavigationToFeePolicyEnabled,
                 onLinkTapAction: viewModel.onShowFeePolicy
             )
-            .task {
-                await viewModel.fetchNetworkFee()
+            .onAppear {
+                viewModel.fetchFees()
             }
 
         case .feePolicy:
             YieldModuleFeePolicyView(
                 tokenFeeState: viewModel.tokenFeeState,
-                maximumFee: viewModel.maximumFee.formatted(),
+                maximumFeeState: viewModel.maximumFeeState,
+                minimalAmountState: viewModel.minimalAmountState,
                 blockchainName: viewModel.walletModel.tokenItem.blockchain.displayName,
             )
         }

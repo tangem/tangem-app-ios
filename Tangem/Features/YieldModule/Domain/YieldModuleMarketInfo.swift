@@ -14,4 +14,6 @@ struct YieldModuleMarketInfo: Codable, Equatable {
     let apy: Decimal
     let isActive: Bool
     let chainId: Int?
+    let maxFeeNative: Decimal?
+    let maxFeeUSD: Decimal?
 }

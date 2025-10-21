@@ -110,8 +110,12 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
                 && !didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession
                 && !didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession
         case .afterLoginBanner:
-            // Need exclude if display is required bottom sheet permission request
-            guard !isAvailable(in: .afterLogin) else {
+            // Need to exclude if display is required bottom sheet permission request or current session
+            guard
+                !isAvailable(in: .afterLogin),
+                !didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession,
+                !didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession
+            else {
                 return false
             }
 
