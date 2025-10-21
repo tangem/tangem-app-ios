@@ -69,16 +69,13 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
 
             let result = try await networkService.ethCall(request: request).async()
 
-            let resultNoHex = result.removeHexPrefix()
-            if resultNoHex.isEmpty || BigUInt(resultNoHex) == 0 {
+            guard let yieldContract = extractAddress(from: result) else {
                 throw YieldModuleError.noYieldContractFound
             }
 
-            let contractAddress = resultNoHex.stripLeadingZeroes().addHexPrefix()
+            await dataStorage.store(key: storageKey, value: yieldContract)
 
-            await dataStorage.store(key: storageKey, value: contractAddress)
-
-            return contractAddress
+            return yieldContract
         }
     }
 
@@ -92,9 +89,11 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
 
         let result = try await networkService.ethCall(request: request).async()
 
-        let resultNoHex = result.removeHexPrefix()
+        guard let yieldContract = extractAddress(from: result) else {
+            throw YieldModuleError.noYieldContractFound
+        }
 
-        return resultNoHex.stripLeadingZeroes().addHexPrefix()
+        return yieldContract
     }
 
     public func getYieldSupplyStatus(tokenContractAddress: String) async throws -> YieldSupplyStatus {
@@ -230,9 +229,35 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
     }
 }
 
+private extension EthereumYieldSupplyService {
+    func extractAddress(from hexString: String) -> String? {
+        let noHexPrefixString = hexString.removeHexPrefix()
+
+        let isZeroChar: ((Character) -> Bool) = { $0 == "0" }
+
+        guard noHexPrefixString.count >= Constants.ethereumAddressLength else {
+            return nil
+        }
+
+        // must be all zeros
+        let prefixToDrop = String(noHexPrefixString.prefix(noHexPrefixString.count - Constants.ethereumAddressLength))
+
+        // must be non-zero
+        let addressPart = String(noHexPrefixString.suffix(Constants.ethereumAddressLength))
+
+        guard prefixToDrop.allSatisfy(isZeroChar),
+              !addressPart.allSatisfy(isZeroChar) else {
+            return nil
+        }
+
+        return addressPart.addHexPrefix()
+    }
+}
+
 extension EthereumYieldSupplyService {
     enum Constants {
         static let yieldContractAddressStorageKey = "yieldContractAddressStorageKey"
+        static let ethereumAddressLength = 40
     }
 }
 
