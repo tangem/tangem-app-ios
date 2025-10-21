@@ -9,22 +9,23 @@
 import TangemExpress
 
 struct SendReceiveTokensListBuilder {
+    private let userWalletInfo: UserWalletInfo
+
     private let sourceTokenInput: any SendSourceTokenInput
     private let receiveTokenOutput: any SendReceiveTokenOutput
-    private let expressRepository: any ExpressRepository
     private let receiveTokenBuilder: SendReceiveTokenBuilder
     private let analyticsLogger: any SendReceiveTokensListAnalyticsLogger
 
     init(
+        userWalletInfo: UserWalletInfo,
         sourceTokenInput: any SendSourceTokenInput,
         receiveTokenOutput: any SendReceiveTokenOutput,
-        expressRepository: any ExpressRepository,
         receiveTokenBuilder: SendReceiveTokenBuilder,
         analyticsLogger: any SendReceiveTokensListAnalyticsLogger
     ) {
+        self.userWalletInfo = userWalletInfo
         self.sourceTokenInput = sourceTokenInput
         self.receiveTokenOutput = receiveTokenOutput
-        self.expressRepository = expressRepository
         self.receiveTokenBuilder = receiveTokenBuilder
         self.analyticsLogger = analyticsLogger
     }
@@ -48,7 +49,7 @@ struct SendReceiveTokensListBuilder {
             receiveTokenOutput: receiveTokenOutput,
             networks: networks,
             coin: coin,
-            expressRepository: expressRepository,
+            userWalletInfo: userWalletInfo,
             receiveTokenBuilder: receiveTokenBuilder,
             analyticsLogger: analyticsLogger,
             router: router
