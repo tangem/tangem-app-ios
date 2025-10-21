@@ -105,7 +105,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 userTokensReorderer: model.userTokensManager
             )
             let sectionsAdapter = TokenSectionsAdapter(
-                userTokenListManager: model.userTokenListManager,
+                userTokensManager: model.userTokensManager,
                 optionsProviding: optionsManager,
                 preservesLastSortedOrderOnSwitchToDragAndDrop: false
             )
@@ -161,7 +161,13 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         )
 
         let expressFactory = CommonExpressModulesFactory(
-            inputModel: .init(userWalletModel: model, initialWalletModel: walletModel)
+            inputModel: .init(
+                userWalletInfo: model.userWalletInfo,
+                userTokensManager: model.userTokensManager,
+                walletModelsManager: model.walletModelsManager,
+                initialWalletModel: walletModel,
+                destinationWalletModel: .none
+            )
         )
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()

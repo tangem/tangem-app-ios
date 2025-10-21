@@ -430,20 +430,6 @@ struct SendDependenciesBuilder {
         SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: makeFiatItem())
     }
 
-    func makeSendReceiveTokensListBuilder(
-        sendSourceTokenInput: SendSourceTokenInput,
-        receiveTokenOutput: SendReceiveTokenOutput,
-        analyticsLogger: any SendReceiveTokensListAnalyticsLogger
-    ) -> SendReceiveTokensListBuilder {
-        SendReceiveTokensListBuilder(
-            sourceTokenInput: sendSourceTokenInput,
-            receiveTokenOutput: receiveTokenOutput,
-            expressRepository: expressDependenciesFactory.expressRepository,
-            receiveTokenBuilder: makeSendReceiveTokenBuilder(),
-            analyticsLogger: analyticsLogger
-        )
-    }
-
     func makeExpressProviderFormatter() -> ExpressProviderFormatter {
         .init(balanceFormatter: .init())
     }
@@ -677,9 +663,10 @@ struct SendDependenciesBuilder {
 
         let factory = TangemExpressFactory()
         let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
-        let sortType: ProviderItemSorter.SortType = if FeatureProvider.isAvailable(.newOnrampUI) { .byOnrampProviderExpectedAmount
+        let providerItemSorter: ProviderItemSorter = if FeatureProvider.isAvailable(.newOnrampUI) {
+            ProviderItemSorterByOnrampProviderExpectedAmount()
         } else {
-            .byPaymentMethodPriority
+            ProviderItemSorterByPaymentMethodPriority()
         }
 
         let manager = factory.makeOnrampManager(
@@ -687,7 +674,7 @@ struct SendDependenciesBuilder {
             onrampRepository: repository,
             dataRepository: dataRepository,
             analyticsLogger: CommonExpressAnalyticsLogger(tokenItem: walletModel.tokenItem),
-            providerItemSorter: ProviderItemSorter(sortType: sortType),
+            providerItemSorter: providerItemSorter,
             preferredValues: preferredValues
         )
 

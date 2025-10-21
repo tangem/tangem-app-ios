@@ -22,43 +22,22 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case userWalletAccessCode
     case userWalletBackup
     case userWalletUpgrade
-
-    /// A Boolean value that indicates whether the wallet has hardware-imposed limitations.
-    case isHardwareLimited
-
-    case send
-    case receive
-
-    case topup
-    case withdrawal
+    case signing
     case exchange
     case staking
-
     case cardSettings
-
     case walletConnect
     case multiCurrency
     case resetToFactory
-    /// Count signed hashes to display warning for user if card already sign hashes in the past.
-    case signedHashesCounter
-    /// Is wallet allowed to participate in referral program
     case referralProgram
-
-    /// Synchronize tokens between devices using`userWalletId`
-    /// Only for issued cards with multiple wallets
-    case tokenSynchronization
-
     case swapping
     case displayHashesCount
     case transactionHistory
-
     case accessCodeRecoverySettings
-
-    case promotion
-
     case nft
-
     case isBalanceRestrictionActive
+    case nfcInteraction
+    case transactionPayloadLimit
 }
 
 extension UserWalletFeature {
