@@ -299,7 +299,7 @@ struct TestnetAPINodeInfoProvider {
              .xrp, .ducatus, .tezos, .dogecoin, .solana, .kusama, .dash, .gnosis,
              .terraV1, .terraV2, .cronos, .octa, .playa3ullGames, .radiant, .joystream,
              .bittensor, .internetComputer, .filecoin, .energyWebX, .canxium, .xodex, .clore,
-             .fact0rn:
+             .fact0rn, .arbitrumNova:
             return nil
         }
     }
