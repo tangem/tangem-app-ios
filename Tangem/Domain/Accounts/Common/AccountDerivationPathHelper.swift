@@ -156,7 +156,8 @@ struct AccountDerivationPathHelper {
              .pepecoin,
              .hyperliquidEVM,
              .scroll,
-             .linea:
+             .linea,
+             .arbitrumNova:
             return true
         case .chia, .quai:
             return false
