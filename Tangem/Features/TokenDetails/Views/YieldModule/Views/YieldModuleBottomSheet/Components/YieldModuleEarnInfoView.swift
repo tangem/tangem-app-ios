@@ -16,11 +16,13 @@ extension YieldModuleInfoView {
         // MARK: - Properties
 
         let apyState: LoadableTextView.State
+        let minAmountState: LoadableTextView.State
         let chartState: YieldChartContainerState
         let tokenName: String
         let tokenSymbol: String
         let transferMode: String
         let availableBalance: String
+        let readMoreUrl: URL
         let myFundsSectionText: AttributedString
 
         // MARK: - View Body
@@ -29,6 +31,7 @@ extension YieldModuleInfoView {
             VStack(spacing: 8) {
                 topSection
                 myFundsSection
+                bottomSection
             }
         }
 
@@ -53,7 +56,20 @@ extension YieldModuleInfoView {
 
                 YieldModuleEarnInfoChartContainer(state: chartState)
             }
-            .defaultRoundedBackground()
+            .defaultRoundedBackground(with: Colors.Background.action)
+        }
+
+        private var myFundsSection: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(Localization.yieldModuleEarnSheetMyFundsTitle)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+                providerTitle
+
+                myFundsDescription
+            }
+            .padding(.top, 4)
+            .defaultRoundedBackground(with: Colors.Background.action)
         }
 
         private var providerTitle: some View {
@@ -68,48 +84,49 @@ extension YieldModuleInfoView {
         }
 
         private var myFundsDescription: some View {
-            Text(myFundsSectionText)
-                .multilineTextAlignment(.leading)
+            VStack(spacing: 14) {
+                Text(myFundsSectionText)
+                    .multilineTextAlignment(.leading)
+
+                Divider().overlay(Colors.Stroke.primary)
+                    .padding(.horizontal, 4)
+
+                YieldFeeSection(
+                    leadingTitle: Localization.yieldModuleEarnSheetAvailableTitle,
+                    state: .loaded(text: availableBalance),
+                    footerText: nil,
+                    needsBackground: false
+                )
+            }
         }
 
-        private var myFundsSection: some View {
+        private var bottomSection: some View {
             VStack(alignment: .leading, spacing: .zero) {
-                Text(Localization.yieldModuleEarnSheetMyFundsTitle)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                    .padding(.top, 4)
-                    .padding(.bottom, 10)
-
-                providerTitle.padding(.bottom, 8)
-
-                myFundsDescription.padding(.bottom, 10)
-
                 VStack(spacing: 12) {
-                    row(title: Localization.yieldModuleEarnSheetTransfersTitle, trailing: transferMode)
-                    row(title: Localization.yieldModuleEarnSheetAvailableTitle, trailing: availableBalance)
+                    YieldFeeSection(
+                        leadingTitle: Localization.yieldModuleEarnSheetTransfersTitle,
+                        state: .loaded(text: transferMode),
+                        footerText: nil,
+                        needsBackground: false
+                    )
+
+                    Separator(color: Colors.Stroke.primary)
+                        .padding(.horizontal, 4)
+
+                    YieldFeeSection(
+                        leadingTitle: Localization.yieldModuleFeePolicySheetMinAmountTitle,
+                        state: minAmountState,
+                        footerText: nil,
+                        needsBackground: false
+                    )
                 }
+                .defaultRoundedBackground(with: Colors.Background.action)
+                .padding(.bottom, 10)
+
+                Text(Localization.yieldModuleFeePolicySheetMinAmountNote)
+                    .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                    .padding(.horizontal, 14)
             }
-            .defaultRoundedBackground()
-        }
-    }
-}
-
-private extension YieldModuleInfoView.YieldModuleEarnInfoView {
-    private func row(title: String, trailing: String) -> some View {
-        VStack(spacing: 14) {
-            Divider().overlay(Colors.Stroke.primary)
-
-            HStack {
-                Text(title)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                    .lineLimit(1)
-
-                Spacer()
-
-                Text(trailing)
-                    .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-                    .lineLimit(1)
-            }
-            .padding(.horizontal, 4)
         }
     }
 }
