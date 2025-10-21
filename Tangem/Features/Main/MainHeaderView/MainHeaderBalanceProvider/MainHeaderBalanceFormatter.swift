@@ -19,21 +19,13 @@ extension MainHeaderBalanceFormatter {
     }
 }
 
-struct CommonMainHeaderBalanceFormatter: MainHeaderBalanceFormatter {
-    func formatBalance(balance: Decimal?, currencyCode: String) -> AttributedString {
-        let balanceFormatter = BalanceFormatter()
-        let formattedBalance = balanceFormatter.formatFiatBalance(balance)
-        return balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance, formattingOptions: .defaultOptions)
-    }
-}
+// MARK: - Crypto
 
-struct VisaMainHeaderBalanceFormatter: MainHeaderBalanceFormatter {
+struct CommonMainHeaderBalanceFormatter: MainHeaderBalanceFormatter {
+    let balanceFormatter = BalanceFormatter()
+
     func formatBalance(balance: Decimal?, currencyCode: String) -> AttributedString {
-        let balanceFormatter = BalanceFormatter()
-        guard let balance else {
-            return balanceFormatter.formatAttributedTotalBalance(fiatBalance: BalanceFormatter.defaultEmptyBalanceString, formattingOptions: .defaultOptions)
-        }
-        let formattedBalance = balanceFormatter.formatCryptoBalance(balance, currencyCode: currencyCode)
+        let formattedBalance = balanceFormatter.formatFiatBalance(balance)
         return balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance, formattingOptions: .defaultOptions)
     }
 }
