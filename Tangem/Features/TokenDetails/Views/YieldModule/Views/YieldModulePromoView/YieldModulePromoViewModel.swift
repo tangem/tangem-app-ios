@@ -24,10 +24,10 @@ final class YieldModulePromoViewModel {
     // MARK: - Properties
 
     private let apy: Decimal
-    var apyString: String { "\(apy)" }
-    private(set) var tosUrl = URL(string: "https://tangem.com")!
-    private(set) var privacyPolicyUrl = URL(string: "https://tangem.com")!
-    private(set) var howIrWorksUrl = URL(string: "https://tangem.com")!
+    var apyString: String { PercentFormatter().format(apy, option: .interval) }
+    private(set) var tosUrl = URL(string: "https://aave.com/terms-of-service")!
+    private(set) var privacyPolicyUrl = URL(string: "https://aave.com/privacy-policy")!
+    private(set) var howIrWorksUrl = URL(string: "https://tangem.com/en/blog/post/savings-account")!
 
     // MARK: - Init
 
