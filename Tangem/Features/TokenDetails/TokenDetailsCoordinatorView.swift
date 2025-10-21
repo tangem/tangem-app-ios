@@ -53,7 +53,6 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             }
             .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
-                    .expressNavigationView()
             }
 
         NavHolder()
