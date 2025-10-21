@@ -17,6 +17,8 @@ import TangemLocalization
 import TangemUI
 import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
+import TangemVisa
+import BlockchainSdk
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
@@ -125,9 +127,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
         if FeatureProvider.isAvailable(.visa) {
-            let tangemPayAccountPublisher = userWalletModel.walletModelsManager.walletModelsPublisher
-                .compactMap(\.visaWalletModel)
-                .compactMap(TangemPayAccount.init)
+            let tangemPayAccountPublisher = userWalletModel.keysRepository.keysPublisher
+                .compactMap { _ in
+                    TangemPayAccount(keysRepository: userWalletModel.keysRepository)
+                }
                 .merge(with: userWalletModel.updatePublisher.compactMap(\.tangemPayAccount))
                 .share(replay: 1)
 
@@ -371,15 +374,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         let navigationContext = NFTNavigationInput(
             userWalletModel: userWalletModel,
+            name: userWalletModel.name,
             walletModelsManager: userWalletModel.walletModelsManager
         )
         let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(
             accountModelsManager: userWalletModel.accountModelsManager
         )
+        let nftAccountNavigationContextProvider = NFTAccountNavigationContextProvider(
+            userWalletModel: userWalletModel
+        )
 
         return NFTEntrypointViewModel(
             nftManager: userWalletModel.nftManager,
             accountForCollectionsProvider: accountForNFTCollectionsProvider,
+            nftAccountNavigationContextProvider: nftAccountNavigationContextProvider,
             navigationContext: navigationContext,
             analytics: NFTAnalytics.Entrypoint(
                 logCollectionsOpen: { state, collectionsCount, nftsCount, dummyCollectionsCount in
@@ -421,7 +429,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private func subscribeToTokenListSync(with sectionsPublisher: some Publisher<[Section], Never>) {
         let tokenListSyncPublisher = userWalletModel
-            .userTokenListManager
+            .userTokensManager
             .initializedPublisher
             .filter { $0 }
 
@@ -527,10 +535,15 @@ extension MultiWalletMainContentViewModel {
     private func openReferralProgram() {
         Analytics.log(.mainReferralProgramButtonParticipate)
 
+        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
+            .accounts(userWalletModel.accountModelsManager) :
+            .plainUserTokensManager(userWalletModel.userTokensManager)
+
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
             supportedBlockchains: userWalletModel.config.supportedBlockchains,
-            userTokensManager: userWalletModel.userTokensManager
+            workMode: workMode,
+            tokenIconInfoBuilder: TokenIconInfoBuilder()
         )
 
         coordinator?.openReferral(input: input)
@@ -745,7 +758,10 @@ private extension MultiWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+            expressTokensListAdapter: CommonExpressTokensListAdapter(
+                userTokensManager: userWalletModel.userTokensManager,
+                walletModelsManager: userWalletModel.walletModelsManager,
+            ),
             userWalletModel: userWalletModel
         )
     }

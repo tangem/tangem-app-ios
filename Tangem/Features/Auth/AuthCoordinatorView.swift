@@ -54,8 +54,8 @@ struct AuthCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var links: some View {
         NavHolder()
-            .navigation(item: $coordinator.createWalletSelectorCoordinator) {
-                CreateWalletSelectorCoordinatorView(coordinator: $0)
+            .navigation(item: $coordinator.addWalletSelectorCoordinator) {
+                AddWalletSelectorCoordinatorView(coordinator: $0)
             }
             .emptyNavigationLink()
     }
