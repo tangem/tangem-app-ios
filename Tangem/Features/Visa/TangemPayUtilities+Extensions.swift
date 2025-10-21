@@ -10,15 +10,6 @@ import BlockchainSdk
 import TangemVisa
 
 extension TangemPayUtilities {
-    static var walletModelIdentifyingTokenItem: TokenItem {
-        TokenItem.blockchain(
-            BlockchainNetwork(
-                TangemPayUtilities.blockchain,
-                derivationPath: TangemPayUtilities.derivationPath
-            )
-        )
-    }
-
     /// Hardcoded USDC token on visa blockchain network (currently - Polygon)
     static var usdcTokenItem: TokenItem {
         TokenItem.token(
@@ -30,13 +21,31 @@ extension TangemPayUtilities {
                 id: "usd-coin",
                 metadata: .fungibleTokenMetadata
             ),
-            TangemPayUtilities.walletModelIdentifyingTokenItem.blockchainNetwork
+            BlockchainNetwork(
+                TangemPayUtilities.blockchain,
+                derivationPath: TangemPayUtilities.derivationPath
+            )
         )
     }
-}
 
-extension Collection where Element == any WalletModel {
-    var tangemPayWalletModel: (any WalletModel)? {
-        first { $0.tokenItem == TangemPayUtilities.walletModelIdentifyingTokenItem }
+    static func getKey(from repository: KeysRepository) -> Wallet.PublicKey? {
+        return repository.keys
+            .first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })
+            .flatMap { key -> Wallet.PublicKey? in
+                guard let derivedKey = key.derivedKeys[TangemPayUtilities.derivationPath]
+                else {
+                    return nil
+                }
+
+                return Wallet.PublicKey(
+                    seedKey: key.publicKey,
+                    derivationType: .plain(
+                        .init(
+                            path: TangemPayUtilities.derivationPath,
+                            extendedPublicKey: derivedKey
+                        )
+                    )
+                )
+            }
     }
 }
