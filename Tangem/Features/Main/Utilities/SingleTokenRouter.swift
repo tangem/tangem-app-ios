@@ -70,17 +70,20 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openExchange(walletModel: any WalletModel) {
-        let input = CommonExpressModulesFactory.InputModel(userWalletModel: userWalletModel, initialWalletModel: walletModel)
-
-        let openExpressAction = { [weak self] in
-            guard let self else { return }
-            coordinator?.openExpress(input: input)
-        }
+        let input = CommonExpressModulesFactory.InputModel(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            userTokensManager: userWalletModel.userTokensManager,
+            walletModelsManager: userWalletModel.walletModelsManager,
+            initialWalletModel: walletModel,
+            destinationWalletModel: .none
+        )
 
         if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
-            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: openExpressAction)
+            openViaYieldNotice(tokenItem: walletModel.tokenItem) { [weak self] in
+                self?.coordinator?.openExpress(input: input)
+            }
         } else {
-            openExpressAction()
+            coordinator?.openExpress(input: input)
         }
     }
 
