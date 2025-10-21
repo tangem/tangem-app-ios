@@ -29,7 +29,7 @@ struct AccountSelectorView: View {
                     .padding(.top, 20)
             }
             .padding(.init(top: 12, leading: 16, bottom: 16, trailing: 16))
-            .animation(.easeInOut(duration: 0.25), value: viewModel.selectedAccount)
+            .animation(.easeInOut(duration: 0.25), value: viewModel.selectedItem)
         }
     }
 
