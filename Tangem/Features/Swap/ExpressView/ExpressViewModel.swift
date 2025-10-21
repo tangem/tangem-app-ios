@@ -49,7 +49,7 @@ final class ExpressViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let initialWallet: any WalletModel
-    private let userWalletModel: UserWalletModel
+    private let userWalletInfo: UserWalletInfo
     private let feeFormatter: FeeFormatter
     private let balanceFormatter: BalanceFormatter
     private let expressProviderFormatter: ExpressProviderFormatter
@@ -65,7 +65,7 @@ final class ExpressViewModel: ObservableObject {
 
     init(
         initialWallet: any WalletModel,
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         feeFormatter: FeeFormatter,
         balanceFormatter: BalanceFormatter,
         expressProviderFormatter: ExpressProviderFormatter,
@@ -75,7 +75,7 @@ final class ExpressViewModel: ObservableObject {
         coordinator: ExpressRoutable
     ) {
         self.initialWallet = initialWallet
-        self.userWalletModel = userWalletModel
+        self.userWalletInfo = userWalletInfo
         self.feeFormatter = feeFormatter
         self.balanceFormatter = balanceFormatter
         self.expressProviderFormatter = expressProviderFormatter
@@ -116,7 +116,7 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func didTapMainButton() {
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
+        if let disabledLocalizedReason = userWalletInfo.config.getDisabledLocalizedReason(for: .swapping) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
@@ -713,15 +713,10 @@ extension ExpressViewModel: NotificationTapDelegate {
 
 private extension ExpressViewModel {
     func openFeeCurrency() {
-        let walletModels = userWalletModel.walletModelsManager.walletModels
-        guard let feeCurrencyWalletModel = walletModels.first(where: {
-            $0.tokenItem == interactor.getSender().feeTokenItem
-        }) else {
-            assertionFailure("Fee currency '\(initialWallet.feeTokenItem.name)' for currency '\(initialWallet.tokenItem.name)' not found")
-            return
-        }
-
-        coordinator?.presentFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
+        coordinator?.presentFeeCurrency(
+            userWalletId: userWalletInfo.id,
+            feeTokenItem: interactor.getSender().feeTokenItem
+        )
     }
 
     func feeValue(from event: ExpressNotificationEvent) -> Decimal? {
