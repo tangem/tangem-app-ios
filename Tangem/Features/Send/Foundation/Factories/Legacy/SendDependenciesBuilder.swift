@@ -430,20 +430,6 @@ struct SendDependenciesBuilder {
         SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: makeFiatItem())
     }
 
-    func makeSendReceiveTokensListBuilder(
-        sendSourceTokenInput: SendSourceTokenInput,
-        receiveTokenOutput: SendReceiveTokenOutput,
-        analyticsLogger: any SendReceiveTokensListAnalyticsLogger
-    ) -> SendReceiveTokensListBuilder {
-        SendReceiveTokensListBuilder(
-            sourceTokenInput: sendSourceTokenInput,
-            receiveTokenOutput: receiveTokenOutput,
-            expressRepository: expressDependenciesFactory.expressRepository,
-            receiveTokenBuilder: makeSendReceiveTokenBuilder(),
-            analyticsLogger: analyticsLogger
-        )
-    }
-
     func makeExpressProviderFormatter() -> ExpressProviderFormatter {
         .init(balanceFormatter: .init())
     }
