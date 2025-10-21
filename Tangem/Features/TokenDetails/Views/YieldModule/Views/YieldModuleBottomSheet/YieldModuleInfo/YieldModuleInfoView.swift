@@ -104,6 +104,7 @@ struct YieldModuleInfoView: View {
                 title: Localization.commonConfirm,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
+                isLoading: viewModel.isProcessingRequest,
                 isDisabled: !viewModel.isButtonEnabled,
                 action: ctaButtonAction
             ))
@@ -128,11 +129,13 @@ struct YieldModuleInfoView: View {
         case .earnInfo:
             YieldModuleEarnInfoView(
                 apyState: viewModel.apyState,
+                minAmountState: viewModel.minimalAmountState,
                 chartState: viewModel.chartState,
                 tokenName: viewModel.walletModel.tokenItem.name,
                 tokenSymbol: viewModel.walletModel.tokenItem.currencySymbol,
                 transferMode: viewModel.activityState.transferMode,
                 availableBalance: viewModel.getAvailableBalanceString(),
+                readMoreUrl: viewModel.readMoreURL,
                 myFundsSectionText: viewModel.makeMyFundsSectionText()
             )
             .task {
@@ -146,10 +149,11 @@ struct YieldModuleInfoView: View {
                 footerText: Localization.yieldModuleApproveSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
                 url: viewModel.readMoreURL,
+                isLinkActive: false,
                 onLinkTapAction: nil
             )
             .task {
-                await viewModel.fetchNetworkFee()
+                await viewModel.fetchFee(for: .approve)
             }
 
         case .stopEarning:
@@ -159,10 +163,11 @@ struct YieldModuleInfoView: View {
                 footerText: Localization.yieldModuleStopEarningSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
                 url: viewModel.readMoreURL,
+                isLinkActive: false,
                 onLinkTapAction: nil
             )
             .task {
-                await viewModel.fetchNetworkFee()
+                await viewModel.fetchFee(for: .exit)
             }
         }
     }
@@ -172,9 +177,9 @@ struct YieldModuleInfoView: View {
         case .earnInfo:
             viewModel.onShowStopEarningSheet
         case .stopEarning:
-            viewModel.onStopEarningTap
+            { viewModel.onAcctionTap(action: .exit) }
         case .approve:
-            viewModel.onApproveTap
+            { viewModel.onAcctionTap(action: .approve) }
         }
     }
 }
