@@ -9,6 +9,7 @@
 import Combine
 import TangemVisa
 import TangemFoundation
+import TangemSdk
 
 final class TangemPayOfferViewModel: ObservableObject {
     @Published private(set) var isLoading = false
@@ -54,28 +55,25 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     private func makeTangemPayAccount() async throws -> TangemPayAccount {
-        let tangemPayAuthorizer = try await makeTangemPayAuthorizer()
+        let tangemPayAuthorizer = TangemPayAuthorizer(keysRepository: userWalletModel.keysRepository)
         let tokens = try await tangemPayAuthorizer.authorizeWithCustomerWallet()
-        return TangemPayAccount(authorizer: tangemPayAuthorizer, tokens: tokens)
-    }
 
-    private func makeTangemPayAuthorizer() async throws -> TangemPayAuthorizer {
-        if let walletModel = userWalletModel.walletModelsManager.walletModels.tangemPayWalletModel {
-            return TangemPayAuthorizer(walletModel: walletModel)
+        guard let walletPublicKey = TangemPayUtilities.getKey(from: userWalletModel.keysRepository) else {
+            throw TangemPayOfferError.unableToCreateWalletPublicKey
         }
 
-        _ = try await userWalletModel.userTokensManager.add(TangemPayUtilities.walletModelIdentifyingTokenItem)
+        let walletAddress = try TangemPayUtilities.makeAddress(using: walletPublicKey)
 
-        if let walletModel = userWalletModel.walletModelsManager.walletModels.tangemPayWalletModel {
-            return TangemPayAuthorizer(walletModel: walletModel)
-        }
-
-        throw TangemPayOfferError.unableToCreateRequiredWalletModel
+        return TangemPayAccount(
+            authorizer: tangemPayAuthorizer,
+            walletAddress: walletAddress,
+            tokens: tokens
+        )
     }
 }
 
 private extension TangemPayOfferViewModel {
     enum TangemPayOfferError: Error {
-        case unableToCreateRequiredWalletModel
+        case unableToCreateWalletPublicKey
     }
 }
