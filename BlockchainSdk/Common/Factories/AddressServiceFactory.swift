@@ -72,7 +72,8 @@ public struct AddressServiceFactory {
              .hyperliquidEVM,
              .quai,
              .scroll,
-             .linea:
+             .linea,
+             .arbitrumNova:
             return EVMAddressService()
         case .rsk:
             return RskAddressService()
