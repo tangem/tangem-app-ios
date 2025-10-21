@@ -13,6 +13,8 @@ import TangemAssets
 import TangemAccessibilityIdentifiers
 
 struct YieldStatusView: View {
+    // MARK: - View Model
+
     @ObservedObject
     var viewModel: YieldStatusViewModel
 
