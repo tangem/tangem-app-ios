@@ -17,7 +17,7 @@ import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
 
-class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
+class MainCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -310,7 +310,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
 // MARK: - SingleTokenBaseRoutable
 
-extension MainCoordinator: SingleTokenBaseRoutable {
+extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
     func openReceiveScreen(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
@@ -358,7 +358,10 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             input: .init(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
-                expressInput: .init(userWalletModel: userWalletModel)
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
             ),
             type: .send,
             source: .main
@@ -379,7 +382,10 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             input: .init(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
-                expressInput: .init(userWalletModel: userWalletModel)
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
             ),
             type: .sell(parameters: sellParameters),
             source: .main
@@ -389,27 +395,12 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openExpress(input: CommonExpressModulesFactory.InputModel) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.expressCoordinator = nil
-
-            guard let navigationInfo else {
-                return
-            }
-
-            self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
-        }
-
         let factory = CommonExpressModulesFactory(inputModel: input)
-        let coordinator = ExpressCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
+        let coordinator = makeExpressCoordinator(factory: factory)
 
         let openExpressBlock = { [weak self] in
-            guard let self else { return }
             coordinator.start(with: .default)
-            expressCoordinator = coordinator
+            self?.expressCoordinator = coordinator
         }
 
         Task { @MainActor [tangemStoriesPresenter] in
@@ -450,7 +441,10 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             input: .init(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
-                expressInput: .init(userWalletModel: userWalletModel)
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
             ),
             type: .onramp(parameters: parameters),
             source: .main
@@ -549,7 +543,10 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
         } else {
             .default(options: .init(
                 userWalletModel: userWalletModel,
-                expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+                expressTokensListAdapter: CommonExpressTokensListAdapter(
+                    userTokensManager: userWalletModel.userTokensManager,
+                    walletModelsManager: userWalletModel.walletModelsManager,
+                ),
                 tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
             ))
         }
