@@ -26,5 +26,7 @@ extension YieldModuleDTO.Response {
         let decimals: Int
         let chainId: Int?
         let chain: String
+        @FlexibleDecimal var maxFeeNative: Decimal?
+        @FlexibleDecimal var maxFeeUSD: Decimal?
     }
 }
