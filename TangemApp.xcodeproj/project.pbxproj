@@ -3936,7 +3936,6 @@
 		EF9F907F299CFCC7006F638F /* WebViewContainerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F907E299CFCC7006F638F /* WebViewContainerViewModel.swift */; };
 		EF9F9081299CFCE9006F638F /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F9080299CFCE9006F638F /* WebView.swift */; };
 		EF9F9090299FAE84006F638F /* SupportChatInputModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F908F299FAE84006F638F /* SupportChatInputModel.swift */; };
-		EFA01B2F2E968D7D005C91B8 /* OnrampNewTokenSelectorItemAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA01B252E968D7D005C91B8 /* OnrampNewTokenSelectorItemAvailabilityProvider.swift */; };
 		EFA01B302E968D7D005C91B8 /* NewTokenSelectorItemAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA01B242E968D7D005C91B8 /* NewTokenSelectorItemAvailabilityProvider.swift */; };
 		EFA01B362E968D7D005C91B8 /* NewTokenSelectorViewModelOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA01B2D2E968D7D005C91B8 /* NewTokenSelectorViewModelOutput.swift */; };
 		EFA1547E2CD24B7C00A0642C /* OnrampAmountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA1547D2CD24B7700A0642C /* OnrampAmountInteractor.swift */; };
@@ -4062,6 +4061,7 @@
 		EFBC5C792C00A79E00B662E0 /* StakeKitStakingAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C782C00A79E00B662E0 /* StakeKitStakingAPIService.swift */; };
 		EFBC5C8E2C00B8A000B662E0 /* StakeKitDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C8D2C00B8A000B662E0 /* StakeKitDTO.swift */; };
 		EFBC5C902C00B8B800B662E0 /* StakeKitDTO+Yield.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C8F2C00B8B800B662E0 /* StakeKitDTO+Yield.swift */; };
+		EFBD0B942EA78D6C0059FC09 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBD0B922EA78D6C0059FC09 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift */; };
 		EFC1AB732D79E618005F1C95 /* UTXONetworkAddressInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC1AB722D79E618005F1C95 /* UTXONetworkAddressInfoProvider.swift */; };
 		EFC377E02E7C268400B7B86A /* OnrampAmountBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC377DF2E7C268400B7B86A /* OnrampAmountBadge.swift */; };
 		EFC377E32E7C29C500B7B86A /* OnrampProviderProcessingTimeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC377E22E7C29C500B7B86A /* OnrampProviderProcessingTimeFormatter.swift */; };
@@ -8335,7 +8335,6 @@
 		EF9F9080299CFCE9006F638F /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		EF9F908F299FAE84006F638F /* SupportChatInputModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportChatInputModel.swift; sourceTree = "<group>"; };
 		EFA01B242E968D7D005C91B8 /* NewTokenSelectorItemAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenSelectorItemAvailabilityProvider.swift; sourceTree = "<group>"; };
-		EFA01B252E968D7D005C91B8 /* OnrampNewTokenSelectorItemAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampNewTokenSelectorItemAvailabilityProvider.swift; sourceTree = "<group>"; };
 		EFA01B2D2E968D7D005C91B8 /* NewTokenSelectorViewModelOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenSelectorViewModelOutput.swift; sourceTree = "<group>"; };
 		EFA1547D2CD24B7700A0642C /* OnrampAmountInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountInteractor.swift; sourceTree = "<group>"; };
 		EFA1547F2CD24B8000A0642C /* OnrampAmountInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountInputOutput.swift; sourceTree = "<group>"; };
@@ -8458,6 +8457,7 @@
 		EFBC5C782C00A79E00B662E0 /* StakeKitStakingAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitStakingAPIService.swift; sourceTree = "<group>"; };
 		EFBC5C8D2C00B8A000B662E0 /* StakeKitDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitDTO.swift; sourceTree = "<group>"; };
 		EFBC5C8F2C00B8B800B662E0 /* StakeKitDTO+Yield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakeKitDTO+Yield.swift"; sourceTree = "<group>"; };
+		EFBD0B922EA78D6C0059FC09 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenSelectorItemBuyAvailabilityProviderFactory.swift; sourceTree = "<group>"; };
 		EFC1AB722D79E618005F1C95 /* UTXONetworkAddressInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXONetworkAddressInfoProvider.swift; sourceTree = "<group>"; };
 		EFC377DF2E7C268400B7B86A /* OnrampAmountBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountBadge.swift; sourceTree = "<group>"; };
 		EFC377E22E7C29C500B7B86A /* OnrampProviderProcessingTimeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampProviderProcessingTimeFormatter.swift; sourceTree = "<group>"; };
@@ -22271,8 +22271,8 @@
 		EFA01B262E968D7D005C91B8 /* NewTokenSelectorItemAvailabilityProvider */ = {
 			isa = PBXGroup;
 			children = (
+				EFBD0B922EA78D6C0059FC09 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift */,
 				EFA01B242E968D7D005C91B8 /* NewTokenSelectorItemAvailabilityProvider.swift */,
-				EFA01B252E968D7D005C91B8 /* OnrampNewTokenSelectorItemAvailabilityProvider.swift */,
 			);
 			path = NewTokenSelectorItemAvailabilityProvider;
 			sourceTree = "<group>";
@@ -25875,7 +25875,6 @@
 				B6E9A8C52A997B09005CF137 /* MainFooterView.swift in Sources */,
 				EF0F34812E997C45000D9BC7 /* NewTokenSelectorWalletItemView.swift in Sources */,
 				EF0F34822E997C45000D9BC7 /* NewTokenSelectorWalletItemViewModel.swift in Sources */,
-				EFA01B2F2E968D7D005C91B8 /* OnrampNewTokenSelectorItemAvailabilityProvider.swift in Sources */,
 				EFA01B302E968D7D005C91B8 /* NewTokenSelectorItemAvailabilityProvider.swift in Sources */,
 				EA12320D2E9CF204009900EC /* OnrampAllOfferViewModelBuilder.swift in Sources */,
 				EFA01B362E968D7D005C91B8 /* NewTokenSelectorViewModelOutput.swift in Sources */,
@@ -26300,6 +26299,7 @@
 				B6E9A8C72A9A35B5005CF137 /* MainFooterViewModel.swift in Sources */,
 				B064284629BF451F00A8AA20 /* OnboardingSeedPhraseImportView.swift in Sources */,
 				DC26EE012E202BD50042C068 /* UserWalletBiometricsUnlocker.swift in Sources */,
+				EFBD0B942EA78D6C0059FC09 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift in Sources */,
 				2DBE29C32B3C4A8100109D5E /* DetentBottomSheetModifier.swift in Sources */,
 				B0F3391D2BEB4C9500441688 /* LoadingSingleWalletMainContentViewModel.swift in Sources */,
 				DC283AB82CCA60BB0043F7D2 /* ActionButtonViewModel.swift in Sources */,
