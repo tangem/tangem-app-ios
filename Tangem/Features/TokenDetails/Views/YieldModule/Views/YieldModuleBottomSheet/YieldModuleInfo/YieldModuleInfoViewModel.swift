@@ -50,7 +50,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
-    private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
+    private weak var feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
     private let yieldManagerInteractor: YieldManagerInteractor
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
     private let chartServices = YieldChartService()
@@ -85,7 +85,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     init(
         walletModel: any WalletModel,
-        feeCurrencyNavigator: (any FeeCurrencyNavigating)?,
+        feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?,
         yieldManagerInteractor: YieldManagerInteractor,
         activityState: ActivityState,
         availableBalance: Decimal
