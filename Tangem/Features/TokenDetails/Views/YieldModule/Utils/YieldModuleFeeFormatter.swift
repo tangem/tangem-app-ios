@@ -30,6 +30,40 @@ struct YieldModuleFeeFormatter {
 
     // MARK: - Public Implementation
 
+    func createMaxFeeString(maxFeeCurrencyFee: Decimal, maxFiatFee: Decimal) async throws -> String {
+        guard let feeCurrencyId = feeCurrency.id, let tokenId = token.id else {
+            throw YieldModuleFormatterFee.cannotFormatFee
+        }
+
+        let currencyToFiat = try await balanceConverter.convertToFiat(maxFeeCurrencyFee, currencyId: feeCurrencyId)
+
+        guard let fiatToToken = balanceConverter.convertFromFiat(currencyToFiat, currencyId: tokenId) else {
+            throw YieldModuleFormatterFee.cannotFormatFee
+        }
+
+        let formattedFiatFee = balanceFormatter.formatFiatBalance(maxFiatFee, currencyCode: AppConstants.usdCurrencyCode)
+        let formattedCryptoFee = balanceFormatter.formatCryptoBalance(
+            fiatToToken, currencyCode: token.currencySymbol,
+            formattingOptions: .defaultFiatFormattingOptions
+        )
+
+        let resultString = "\(formattedCryptoFee) \(AppConstants.dotSign) \(formattedFiatFee)"
+        return resultString
+    }
+
+    func createMinimalAmountString(from minAmountInCrypto: Decimal) async throws -> String {
+        guard let tokenCurrencyId = token.id else {
+            throw YieldModuleFormatterFee.cannotFormatFee
+        }
+
+        let minAmountInFiat = try await balanceConverter.convertToFiat(minAmountInCrypto, currencyId: tokenCurrencyId)
+        let formattedCryptoAmount = balanceFormatter.formatCryptoBalance(minAmountInCrypto, currencyCode: token.currencySymbol)
+        let formattedFiatAmount = balanceFormatter.formatFiatBalance(minAmountInFiat, currencyCode: AppConstants.usdCurrencyCode)
+
+        let resultString = "\(formattedCryptoAmount) \(AppConstants.dotSign) \(formattedFiatAmount)"
+        return resultString
+    }
+
     func formatCryptoBalance(_ balance: Decimal, prefix: String? = nil) -> String {
         balanceFormatter.formatCryptoBalance(balance, currencyCode: (prefix ?? "") + token.currencySymbol)
     }
