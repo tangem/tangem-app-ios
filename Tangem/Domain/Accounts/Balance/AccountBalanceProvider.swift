@@ -6,6 +6,44 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 
-typealias AccountBalanceProvider = TokenBalanceProvider
+protocol AccountBalanceProvider: TotalBalanceProvider {
+    var totalFiatBalance: LoadableTokenBalanceView.State { get }
+    var totalFiatBalancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> { get }
+}
+
+class CommonAccountBalanceProvider {
+    private let totalBalanceProvider: TotalBalanceProvider
+    private let loadableTokenBalanceViewStateBuilder = LoadableTokenBalanceViewStateBuilder()
+
+    init(totalBalanceProvider: TotalBalanceProvider) {
+        self.totalBalanceProvider = totalBalanceProvider
+    }
+}
+
+// MARK: - AccountBalanceProvider
+
+extension CommonAccountBalanceProvider: AccountBalanceProvider {
+    var totalBalance: TotalBalanceState {
+        totalBalanceProvider.totalBalance
+    }
+
+    var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> {
+        totalBalanceProvider.totalBalancePublisher
+    }
+
+    var totalFiatBalance: LoadableTokenBalanceView.State {
+        loadableTokenBalanceViewStateBuilder.buildTotalBalance(
+            state: totalBalanceProvider.totalBalance
+        )
+    }
+
+    var totalFiatBalancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
+        totalBalanceProvider.totalBalancePublisher
+            .withWeakCaptureOf(self)
+            .map { $0.loadableTokenBalanceViewStateBuilder.buildTotalBalance(state: $1) }
+            .eraseToAnyPublisher()
+    }
+}
