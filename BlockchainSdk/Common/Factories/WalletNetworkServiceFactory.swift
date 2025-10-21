@@ -94,7 +94,8 @@ extension WalletNetworkServiceFactory {
              .hyperliquidEVM,
              .quai,
              .scroll,
-             .linea:
+             .linea,
+             .arbitrumNova:
             return makeEthereumNetworkService(for: blockchain)
         case .rsk:
             throw Error.notImplemeneted
