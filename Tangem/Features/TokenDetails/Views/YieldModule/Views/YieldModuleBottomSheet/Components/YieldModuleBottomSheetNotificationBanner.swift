@@ -83,7 +83,7 @@ struct YieldModuleBottomSheetNotificationBanner: View {
 
             button
         }
-        .defaultRoundedBackground()
+        .defaultRoundedBackground(with: Colors.Background.action)
         .padding(.top, 26)
     }
 

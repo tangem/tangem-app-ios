@@ -65,32 +65,39 @@ struct YieldModuleBottomSheetContainerView<
     // MARK: - View Body
 
     var body: some View {
-        GroupedScrollView {
-            VStack(spacing: .zero) {
-                header
+        VStack(spacing: buttonTopPadding) {
+            GroupedScrollView {
+                VStack(spacing: .zero) {
+                    header
 
-                topContent
+                    topContent
 
-                titleView
-                    .padding(.top, 14)
-                    .padding(.horizontal, 14)
+                    titleView
+                        .padding(.top, 14)
+                        .padding(.horizontal, 14)
 
-                subtitleView
-                    .padding(.top, 8)
-                    .padding(.horizontal, 16)
+                    subtitleView
+                        .padding(.top, 8)
+                        .padding(.horizontal, 16)
 
-                subtitleFooter.padding(.top, 16)
+                    subtitleFooter
+                        .padding(.top, 16)
 
-                content.padding(.top, contentTopPadding)
+                    content
+                        .padding(.top, contentTopPadding)
 
-                if let notificationBanner {
-                    YieldModuleBottomSheetNotificationBanner(params: notificationBanner)
+                    if let notificationBanner {
+                        YieldModuleBottomSheetNotificationBanner(params: notificationBanner)
+                    }
                 }
-
-                button.padding(.top, buttonTopPadding)
+                .padding(.top, 8)
             }
-            .padding(.top, 8)
-            .padding(.bottom, 18)
+            .safeAreaInset(edge: .bottom) {
+                button
+                    .padding(.top, buttonTopPadding)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 18)
+            }
         }
     }
 
