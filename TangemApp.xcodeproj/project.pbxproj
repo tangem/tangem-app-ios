@@ -642,6 +642,7 @@
 		2DE0BA992CA93100002C09D9 /* BlockHeaderTitleButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BA982CA93100002C09D9 /* BlockHeaderTitleButtonView.swift */; };
 		2DE0BB602CAD41E3002C09D9 /* BlockHeaderTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BB5F2CAD41E3002C09D9 /* BlockHeaderTitleView.swift */; };
 		2DE0BBB42CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BBB32CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift */; };
+		2DE173F22EA6287200922CF9 /* ArbitrumNovaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE173F12EA6287100922CF9 /* ArbitrumNovaExternalLinkProvider.swift */; };
 		2DE66F0E2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE66F0D2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift */; };
 		2DFC278D2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278C2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift */; };
 		2DFC27922C78E833009B247E /* TokenItemInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278E2C78E833009B247E /* TokenItemInfoProvider.swift */; };
@@ -5061,6 +5062,7 @@
 		2DE0BA982CA93100002C09D9 /* BlockHeaderTitleButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockHeaderTitleButtonView.swift; sourceTree = "<group>"; };
 		2DE0BB5F2CAD41E3002C09D9 /* BlockHeaderTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockHeaderTitleView.swift; sourceTree = "<group>"; };
 		2DE0BBB32CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenDescriptionBottomSheetView.swift; sourceTree = "<group>"; };
+		2DE173F12EA6287100922CF9 /* ArbitrumNovaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitrumNovaExternalLinkProvider.swift; sourceTree = "<group>"; };
 		2DE66F0D2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushPermissionNotificationManager.swift; sourceTree = "<group>"; };
 		2DFC278C2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenContextActionsSectionBuilder.swift; sourceTree = "<group>"; };
 		2DFC278E2C78E833009B247E /* TokenItemInfoProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemInfoProvider.swift; sourceTree = "<group>"; };
@@ -13986,6 +13988,7 @@
 			children = (
 				C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */,
 				B62D3CDD2CBC79D900C2460E /* ArbitrumExternalLinkProvider.swift */,
+				2DE173F12EA6287100922CF9 /* ArbitrumNovaExternalLinkProvider.swift */,
 				B62D3CDE2CBC79D900C2460E /* AreonExternalLinkProvider.swift */,
 				B62D3CDF2CBC79D900C2460E /* AuroraExternalLinkProvider.swift */,
 				B62D3CE02CBC79D900C2460E /* AvalancheExternalLinkProvider.swift */,
@@ -14005,6 +14008,7 @@
 				B62D3CEC2CBC79D900C2460E /* FlareExternalLinkProvider.swift */,
 				B62D3CED2CBC79D900C2460E /* GnosisExternalLinkProvider.swift */,
 				B62D3CEE2CBC79D900C2460E /* KavaExternalLinkProvider.swift */,
+				2DDB4C382E9F92EC00759EAA /* LineaExternalLinkProvider.swift */,
 				B62D3CEF2CBC79D900C2460E /* LitecoinExternalLinkProvider.swift */,
 				B62D3CF02CBC79D900C2460E /* MantaExternalLinkProvider.swift */,
 				B62D3CF12CBC79D900C2460E /* MantleExternalLinkProvider.swift */,
@@ -27008,6 +27012,7 @@
 				B62D3FF82CBC79DA00C2460E /* OP_NOTIF.swift in Sources */,
 				B62D42802CBC79DB00C2460E /* AlgorandTransactionHistoryMapper.swift in Sources */,
 				0AE600F42D800A8D00F39047 /* TONStakingAccountInitializationStateProvider.swift in Sources */,
+				2DE173F22EA6287200922CF9 /* ArbitrumNovaExternalLinkProvider.swift in Sources */,
 				B62D403A2CBC79DA00C2460E /* AdaliteBalanceResponseDTO.swift in Sources */,
 				B62D40382CBC79DA00C2460E /* BitcoinCashWalletAssembly.swift in Sources */,
 				B62D420B2CBC79DB00C2460E /* XRPTransaction.swift in Sources */,

@@ -151,7 +151,8 @@ enum NFTChainConverter {
              .hyperliquidEVM,
              .quai,
              .scroll,
-             .linea:
+             .linea,
+             .arbitrumNova:
             return nil
         }
     }

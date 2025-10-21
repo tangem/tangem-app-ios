@@ -104,6 +104,7 @@ public extension Blockchain {
         case .quai: break
         case .scroll: break
         case .linea: break
+        case .arbitrumNova: break
             // READ BELOW:
             //
             // Did you get a compilation error here? If so, add your new blockchain to the array below
@@ -200,6 +201,7 @@ public extension Blockchain {
             .quai(testnet: false),
             .scroll(testnet: false),
             .linea(testnet: false),
+            .arbitrumNova,
         ]
     }
 }
