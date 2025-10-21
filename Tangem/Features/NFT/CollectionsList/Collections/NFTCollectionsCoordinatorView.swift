@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUIUtils
 import TangemNFT
 import TangemUI
+import TangemLocalization
 
 struct NFTCollectionsCoordinatorView: View {
     @ObservedObject var coordinator: NFTCollectionsCoordinator
@@ -33,6 +34,25 @@ struct NFTCollectionsCoordinatorView: View {
             }
             .sheet(item: $coordinator.assetDetailsCoordinator) {
                 NFTAssetDetailsCoordinatorView(coordinator: $0)
+            }
+            .floatingSheetContent(for: AccountSelectorViewModel.self) { viewModel in
+
+                // [REDACTED_TODO_COMMENT]
+
+                VStack(spacing: 0) {
+                    BottomSheetHeaderView(
+                        title: Localization.commonChooseAccount,
+                        trailing: {
+                            CircleButton.close(action: coordinator.closeSheet)
+                        }
+                    )
+                    .padding(.horizontal, 16)
+
+                    AccountSelectorView(viewModel: viewModel)
+                }
+                .floatingSheetConfiguration { config in
+                    config.backgroundInteractionBehavior = .tapToDismiss
+                }
             }
     }
 }
