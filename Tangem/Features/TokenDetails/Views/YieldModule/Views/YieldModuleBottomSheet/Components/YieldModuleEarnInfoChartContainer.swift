@@ -46,6 +46,6 @@ struct YieldModuleEarnInfoChartContainer: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 136)
-        .defaultRoundedBackground()
+        .defaultRoundedBackground(with: Colors.Background.action)
     }
 }
