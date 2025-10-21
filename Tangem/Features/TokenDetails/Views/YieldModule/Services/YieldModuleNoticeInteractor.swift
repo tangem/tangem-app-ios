@@ -9,8 +9,8 @@
 import Foundation
 
 final class YieldModuleNoticeInteractor {
-    @AppStorageCompat(StorageKey.shownYieldModuleAlerts)
-    private var shownYieldModuleAlerts: [String: Bool] = [:]
+    @AppStorageCompat(StorageKey.shownYieldModuleAlert)
+    private var shownYieldModuleAlert: [String: Bool] = [:]
 
     // MARK: - Public Implementation
 
@@ -18,22 +18,18 @@ final class YieldModuleNoticeInteractor {
     /// If the value is `true` or missing (`nil`), returns false.
     /// If the value is `false` marks the alert as shown
     func shouldShowYieldModuleAlert(for tokenItem: TokenItem) -> Bool {
-        return false
+        guard case .token(let token, let blockchainNetwork) = tokenItem else {
+            return false
+        }
 
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-//        guard case .token(let token, let blockchainNetwork) = tokenItem else {
-//            return false
-//        }
-//
-//        let key = yieldKey(contractAddress: token.contractAddress, networkId: blockchainNetwork.blockchain.networkId)
-//
-//        guard shownYieldModuleAlerts[key] == false else {
-//            return false
-//        }
-//
-//        shownYieldModuleAlerts[key] = true
-//        return true
+        let key = yieldKey(contractAddress: token.contractAddress, networkId: blockchainNetwork.blockchain.networkId)
+
+        guard shownYieldModuleAlert[key] == false else {
+            return false
+        }
+
+        shownYieldModuleAlert[key] = true
+        return true
     }
 
     func markWithdrawalAlertShouldShow(for tokenItem: TokenItem) {
@@ -42,7 +38,16 @@ final class YieldModuleNoticeInteractor {
         }
 
         let key = yieldKey(contractAddress: token.contractAddress, networkId: blockchainNetwork.blockchain.networkId)
-        shownYieldModuleAlerts[key] = false
+        shownYieldModuleAlert[key] = false
+    }
+
+    func deleteWithdrawalAlert(for tokenItem: TokenItem) {
+        guard case .token(let token, let blockchainNetwork) = tokenItem else {
+            return
+        }
+
+        let key = yieldKey(contractAddress: token.contractAddress, networkId: blockchainNetwork.blockchain.networkId)
+        shownYieldModuleAlert.removeValue(forKey: key)
     }
 
     // MARK: - Private Implementation
@@ -54,6 +59,6 @@ final class YieldModuleNoticeInteractor {
 
 extension YieldModuleNoticeInteractor {
     private enum StorageKey: String, RawRepresentable {
-        case shownYieldModuleAlerts = "yield_receive_shown_withdrawal_token_alerts"
+        case shownYieldModuleAlert = "yield_receive_shown_token_alerts"
     }
 }
