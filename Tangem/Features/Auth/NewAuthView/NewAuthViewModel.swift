@@ -276,33 +276,8 @@ private extension NewAuthViewModel {
     }
 
     func openAddWallet() {
-        let createNewWalletButton = ConfirmationDialogViewModel.Button(title: Localization.homeButtonCreateNewWallet) { [weak self] in
-            self?.openCreateWallet()
-        }
-
-        let buyTangemWalletButton = ConfirmationDialogViewModel.Button(title: Localization.detailsBuyWallet) { [weak self] in
-            self?.openBuyWallet()
-        }
-
-        confirmationDialog = ConfirmationDialogViewModel(
-            title: Localization.authInfoAddWalletTitle,
-            buttons: [
-                createNewWalletButton,
-                buyTangemWalletButton,
-                ConfirmationDialogViewModel.Button.cancel,
-            ]
-        )
-    }
-
-    func openCreateWallet() {
         Analytics.log(.buttonAddWallet, params: [.action: .create])
-        coordinator?.openCreateWallet()
-    }
-
-    func openBuyWallet() {
-        Analytics.log(.buttonAddWallet, params: [.action: .buy])
-        Analytics.log(.shopScreenOpened)
-        coordinator?.openShop()
+        coordinator?.openAddWallet()
     }
 
     func openOnboarding(with input: OnboardingInput) {
