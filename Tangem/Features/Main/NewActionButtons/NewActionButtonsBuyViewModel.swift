@@ -16,22 +16,21 @@ final class NewActionButtonsBuyViewModel: ObservableObject {
     @Injected(\.hotCryptoService)
     private var hotCryptoService: HotCryptoService
 
-    // MARK: - Published properties
+    // MARK: - ViewState
 
     @Published var alert: AlertBinder?
     @Published private(set) var hotCryptoItems: [HotCryptoToken] = []
 
-    // MARK: - Child viewModel
-
-    let walletsProvider = CommonNewTokenSelectorWalletsProvider()
-    let availabilityProvider = OnrampNewTokenSelectorItemAvailabilityProvider()
     lazy var tokenSelectorViewModel = NewTokenSelectorViewModel(
         walletsProvider: walletsProvider,
-        availabilityProvider: availabilityProvider,
         output: self
     )
 
-    // MARK: - Private property
+    // MARK: - Private
+
+    private let walletsProvider = CommonNewTokenSelectorWalletsProvider(
+        availabilityProviderFactory: NewTokenSelectorItemBuyAvailabilityProviderFactory()
+    )
 
     private weak var coordinator: ActionButtonsBuyRoutable?
 
