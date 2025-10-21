@@ -276,7 +276,7 @@ extension MainCoordinator {
                   let coordinator,
                   let userWalletModel = userWalletRepository.models.first,
                   // If it's not nil - user already received and accepted Tangem Pay offer
-                  TangemPayAccount(userWalletModel: userWalletModel) == nil
+                  TangemPayAccount(keysRepository: userWalletModel.keysRepository) == nil
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
