@@ -14,19 +14,47 @@ import TangemLocalization
 struct YieldFeeSection: View {
     let leadingTitle: String
     let state: LoadableTextView.State
-    let footerText: String
+    let footerText: String?
     let linkTitle: String?
     let url: URL?
+    let isLinkActive: Bool
     let onLinkTapAction: (() -> Void)?
+    let needsBackground: Bool
+
+    // MARK: - Init
+
+    init(
+        leadingTitle: String,
+        state: LoadableTextView.State,
+        footerText: String?,
+        needsBackground: Bool = true,
+        linkTitle: String? = nil,
+        url: URL? = nil,
+        isLinkActive: Bool = false,
+        onLinkTapAction: (() -> Void)? = nil
+    ) {
+        self.leadingTitle = leadingTitle
+        self.state = state
+        self.footerText = footerText
+        self.linkTitle = linkTitle
+        self.url = url
+        self.isLinkActive = isLinkActive
+        self.onLinkTapAction = onLinkTapAction
+        self.needsBackground = needsBackground
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             LoadableFeeRowView(leadingTitle: leadingTitle, state: state)
                 .padding(.horizontal, 4)
-                .defaultRoundedBackground(verticalPadding: 14)
+                .if(needsBackground) {
+                    $0.defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 14)
+                }
 
-            FooterText(footerText: footerText, linkTitle: linkTitle, url: url, onLinkTapAction: onLinkTapAction)
-                .padding(.horizontal, 14)
+            if let footerText {
+                FooterText(footerText: footerText, linkTitle: linkTitle, url: url, isLinkActive: isLinkActive, onLinkTapAction: onLinkTapAction)
+                    .padding(.horizontal, 14)
+            }
         }
     }
 }
@@ -60,16 +88,17 @@ extension YieldFeeSection {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .center) {
                     Text(leadingTitle)
-                        .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
                     Spacer()
 
                     LoadableTextView(
                         state: state,
-                        font: Fonts.Regular.body,
+                        font: Fonts.Regular.subheadline,
                         textColor: Colors.Text.tertiary,
                         loaderSize: .init(width: 90, height: 20)
                     )
+                    .minimumScaleFactor(0.8)
                 }
             }
         }
@@ -83,6 +112,7 @@ extension YieldFeeSection {
         let footerText: String
         let linkTitle: String?
         let url: URL?
+        let isLinkActive: Bool
         let onLinkTapAction: (() -> Void)?
 
         var body: some View {
@@ -90,7 +120,7 @@ extension YieldFeeSection {
 
             return Text(attr)
                 .environment(\.openURL, OpenURLAction { _ in
-                    if let onLinkTapAction {
+                    if let onLinkTapAction, isLinkActive {
                         onLinkTapAction()
                         return .handled
                     }
@@ -114,7 +144,7 @@ extension YieldFeeSection {
             attr.foregroundColor = Colors.Text.tertiary
 
             if let linkTitle, let range = attr.range(of: linkTitle) {
-                attr[range].foregroundColor = Colors.Text.accent
+                attr[range].foregroundColor = isLinkActive ? Colors.Text.accent : Colors.Text.disabled
 
                 if let url {
                     attr[range].link = url
