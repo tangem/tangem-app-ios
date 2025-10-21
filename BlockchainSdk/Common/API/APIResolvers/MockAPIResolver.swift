@@ -13,6 +13,8 @@ struct MockAPIResolver {
         switch providerType {
         case .mock:
             switch blockchain {
+            case .chia:
+                return .init(url: URL(string: "https://wiremock.tests-d.com/chia")!)
             case .cardano:
                 return .init(url: URL(string: "https://wiremock.tests-d.com/cardano")!)
             case .dogecoin:

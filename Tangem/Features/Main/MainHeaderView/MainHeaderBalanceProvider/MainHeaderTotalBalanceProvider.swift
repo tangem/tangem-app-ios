@@ -16,12 +16,12 @@ protocol MainHeaderBalanceProvider {
 }
 
 class CommonMainHeaderBalanceProvider {
-    private let totalBalanceProvider: TotalBalanceProviding
+    private let totalBalanceProvider: TotalBalanceProvider
     private let userWalletStateInfoProvider: MainHeaderUserWalletStateInfoProvider
     private let mainBalanceFormatter: MainHeaderBalanceFormatter
 
     init(
-        totalBalanceProvider: TotalBalanceProviding,
+        totalBalanceProvider: TotalBalanceProvider,
         userWalletStateInfoProvider: MainHeaderUserWalletStateInfoProvider,
         mainBalanceFormatter: MainHeaderBalanceFormatter
     ) {

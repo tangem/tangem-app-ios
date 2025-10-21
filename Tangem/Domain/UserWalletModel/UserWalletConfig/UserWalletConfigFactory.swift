@@ -31,16 +31,14 @@ struct UserWalletConfigFactory {
             if cardInfo.card.firmwareVersion <= .backupAvailable {
                 return LegacyConfig(card: cardInfo.card, walletData: nil)
             }
+
             let isWallet2 = cardInfo.card.firmwareVersion >= .ed25519Slip0010Available
 
-            switch (isWallet2, isDemo) {
-            case (true, _):
+            if isWallet2 {
                 return Wallet2Config(card: cardInfo.card, isDemo: isDemo)
-            case (false, true): // [REDACTED_TODO_COMMENT]
-                return GenericDemoConfig(card: cardInfo.card)
-            case (false, false):
-                return GenericConfig(card: cardInfo.card)
             }
+
+            return Wallet1Config(card: cardInfo.card, isDemo: isDemo)
         case .file(let noteData):
             if isS2CCard { // [REDACTED_TODO_COMMENT]
                 return Start2CoinConfig(card: cardInfo.card, walletData: noteData)

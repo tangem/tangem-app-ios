@@ -15,7 +15,7 @@ import TangemFoundation
 import TangemUI
 
 public final class NFTCollectionsListViewModel: ObservableObject {
-    typealias ViewState = LoadingValue<[NFTCollectionDisclosureGroupViewModel]>
+    typealias ViewState = LoadingValue<DisplayMode>
 
     // MARK: State
 
@@ -26,6 +26,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     @Published private(set) var rowExpanded = false
     @Published private(set) var tappedRowID: AnyHashable? = nil
     @Published private(set) var loadingTroublesViewData: NFTNotificationViewData?
+
     private(set) lazy var scrollViewStateObject: RefreshScrollViewStateObject = .init(refreshable: { [weak self] in
         await withCheckedContinuation { [weak self] pullToRefreshContinuation in
             guard self?.state.isLoading == false else {
@@ -48,7 +49,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         }
     )
 
-    private var collectionsViewModels: [NFTCollectionDisclosureGroupViewModel] = []
+    private var displayMode: DisplayMode = .flattenedList([])
     private var pullToRefreshContinuation: CheckedContinuation<Void, Never>?
     private var didAppear = false
     private var bag: Set<AnyCancellable> = []
@@ -56,7 +57,6 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     // MARK: Dependencies
 
     private let nftManager: NFTManager
-    // [REDACTED_TODO_COMMENT]
     private let accounForNFTCollectionsProvider: AccountForNFTCollectionProviding
     private let navigationContext: NFTNavigationContext
     private let dependencies: NFTCollectionsListDependencies
@@ -94,7 +94,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     func onReceiveButtonTap() {
-        coordinator?.openReceive(navigationContext: navigationContext)
+        coordinator?.receiveTapped()
         dependencies.analytics.logReceiveOpen()
     }
 
@@ -108,15 +108,15 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         switch state {
         case .failedToLoad:
             false
-        case .loaded(let collections) where isStateEmpty(collections: collections):
+        case .loaded(let displayMode) where isStateEmpty(displayMode: displayMode):
             false
         case .loaded, .loading:
             true
         }
     }
 
-    func isStateEmpty(collections: [NFTCollectionDisclosureGroupViewModel]) -> Bool {
-        collections.isEmpty && searchEntry.isEmpty
+    func isStateEmpty(displayMode: DisplayMode) -> Bool {
+        displayMode.collections.isEmpty && searchEntry.isEmpty
     }
 
     private func bind() {
@@ -129,7 +129,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, result in
-                viewModel.collectionsViewModels = result.viewState.value ?? []
+                viewModel.displayMode = result.viewState.value ?? .flattenedList([])
                 viewModel.loadingTroublesViewData = result.notificationViewData
                 viewModel.updateState(with: result)
                 viewModel.updatePullToRefreshCompletion(with: result)
@@ -178,7 +178,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     private func updateState(with result: ManagerStateMappingResult) {
         isShimmerActive = false
         // Since we are using the state queue, we need to access the most recent state here (`stateUpdater.mostRecentState`)
-        let currentCollections = stateUpdater.mostRecentState?.value ?? state.value ?? []
+        let currentCollections = stateUpdater.mostRecentState?.value?.collections ?? state.value?.collections ?? []
 
         switch result.viewState {
         case .loaded where didHaveErrorsWithEmptyCollections(result) && (state.isLoading || currentCollections.isEmpty):
@@ -189,7 +189,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             break // Keep previous state
 
         case .loaded:
-            updateState(to: .loaded(filteredCollections(entry: searchEntry)))
+            updateState(to: .loaded(filteredCollections(entry: searchEntry, from: displayMode)))
 
         case .loading where currentCollections.isEmpty:
             updateState(to: .loading)
@@ -218,8 +218,18 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
         case .loaded(let collectionsResult):
             let loadingTroublesViewData = collectionsResult.hasErrors ? makeNotificationViewData() : nil
+            let state = accounForNFTCollectionsProvider.provideAccountsWithCollectionsState(for: collectionsResult.value)
+
+            let viewState: NFTCollectionsListViewModel.ViewState = switch state {
+            case .singleAccount:
+                .loaded(.flattenedList(buildCollections(from: collectionsResult.value)))
+
+            case .multipleAccounts(let accountsWithCollections):
+                .loaded(.groupedList(buildAccountsWithCollectionViewModels(from: accountsWithCollections)))
+            }
+
             return .init(
-                viewState: .loaded(buildCollections(from: collectionsResult.value)),
+                viewState: viewState,
                 notificationViewData: loadingTroublesViewData
             )
         }
@@ -258,17 +268,36 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             }
     }
 
-    private func filterAndAssignCollections(for entry: String) {
-        guard case .loaded = state else { return }
-        updateState(to: .loaded(filteredCollections(entry: entry)))
+    private func buildAccountsWithCollectionViewModels(
+        from accountsWithCollections: [AccountWithCollectionsData]
+    ) -> [AccountWithCollectionViewModels] {
+        accountsWithCollections.map { accountWithCollectionsData in
+            AccountWithCollectionViewModels(
+                accountData: AccountWithCollectionViewModels.AccountData(
+                    id: accountWithCollectionsData.accountData.id,
+                    name: accountWithCollectionsData.accountData.name,
+                    iconData: accountWithCollectionsData.accountData.iconData
+                ),
+                collectionsViewModels: buildCollections(from: accountWithCollectionsData.collections)
+            )
+        }
     }
 
-    private func filteredCollections(entry: String) -> [NFTCollectionDisclosureGroupViewModel] {
-        guard entry.isNotEmpty else {
-            return collectionsViewModels
+    private func filterAndAssignCollections(for entry: String) {
+        guard case .loaded = state else { return }
+        updateState(to: .loaded(filteredCollections(entry: entry, from: displayMode)))
+    }
+
+    private func filteredCollections(entry: String, from displayMode: DisplayMode?) -> DisplayMode {
+        guard let displayMode else {
+            return .flattenedList([])
         }
 
-        let filteredCollections = collectionsViewModels.filter { collection in
+        guard entry.isNotEmpty else {
+            return displayMode
+        }
+
+        let filterCollection: (NFTCollectionDisclosureGroupViewModel) -> Bool = { collection in
             let collectionNameMatches = collection.name.localizedStandardContains(entry)
             var someAssetsNamesMatch: Bool {
                 let assetsViewModels = collection.viewState.value?.assetsViewModels ?? []
@@ -281,7 +310,22 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             return collectionNameMatches || someAssetsNamesMatch
         }
 
-        return filteredCollections
+        switch displayMode {
+        case .flattenedList(let collections):
+            return .flattenedList(collections.filter(filterCollection))
+
+        case .groupedList(let accountsWithCollections):
+            let filteredAccounts = accountsWithCollections.compactMap { accountWithCollections -> AccountWithCollectionViewModels? in
+                let filteredCollections = accountWithCollections.collectionsViewModels.filter(filterCollection)
+
+                guard filteredCollections.isNotEmpty else {
+                    return nil
+                }
+                return accountWithCollections.withUpdatedCollections(filteredCollections)
+            }
+
+            return .groupedList(filteredAccounts)
+        }
     }
 
     private func shouldLoadAssets(for collection: NFTCollection, isExpanded: Bool) -> Bool {
@@ -291,7 +335,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     private func didHaveErrorsWithEmptyCollections(_ result: ManagerStateMappingResult) -> Bool {
-        result.notificationViewData != nil && result.viewState.value?.isEmpty ?? false
+        result.notificationViewData != nil && result.viewState.value?.collections.isEmpty ?? false
     }
 
     private func onCollectionTap(collection: NFTCollection, isExpanded: Bool) {
@@ -322,10 +366,25 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
 // MARK: - Auxiliary types
 
-private extension NFTCollectionsListViewModel {
-    struct ManagerStateMappingResult {
+extension NFTCollectionsListViewModel {
+    private struct ManagerStateMappingResult {
         let viewState: ViewState
         let notificationViewData: NFTNotificationViewData?
+    }
+
+    enum DisplayMode {
+        case flattenedList([NFTCollectionDisclosureGroupViewModel])
+        case groupedList([AccountWithCollectionViewModels])
+
+        var collections: [NFTCollectionDisclosureGroupViewModel] {
+            switch self {
+            case .flattenedList(let viewModels):
+                viewModels
+
+            case .groupedList(let accountWithCollectionViewModels):
+                accountWithCollectionViewModels.flatMap(\.collectionsViewModels)
+            }
+        }
     }
 }
 
