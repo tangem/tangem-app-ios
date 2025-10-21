@@ -71,7 +71,6 @@ extension NewActionButtonsBuyViewModel: NewTokenSelectorViewModelOutput {
                 walletModel: item.walletModel,
                 expressInput: .init(
                     userWalletInfo: item.wallet.userWalletInfo,
-                    refcode: item.wallet.userWalletInfo.refcode,
                     walletModelsManager: item.account.walletModelsManager
                 )
             )
