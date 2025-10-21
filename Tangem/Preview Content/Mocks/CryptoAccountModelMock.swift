@@ -15,6 +15,7 @@ final class CryptoAccountModelMock {
     let id = AccountId()
     let isMainAccount: Bool
     let walletModelsManager: WalletModelsManager
+    let totalBalanceProvider: TotalBalanceProvider
     let userTokensManager: UserTokensManager
     let userTokenListManager: UserTokenListManager
 
@@ -42,11 +43,13 @@ final class CryptoAccountModelMock {
     init(
         isMainAccount: Bool,
         walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
+        totalBalanceProvider: TotalBalanceProvider = TotalBalanceProviderMock(),
         userTokensManager: UserTokensManager = UserTokensManagerMock(),
         userTokenListManager: UserTokenListManager = UserTokenListManagerMock()
     ) {
         self.isMainAccount = isMainAccount
         self.walletModelsManager = walletModelsManager
+        self.totalBalanceProvider = totalBalanceProvider
         self.userTokensManager = userTokensManager
         self.userTokenListManager = userTokenListManager
     }
@@ -108,7 +111,7 @@ extension CryptoAccountModelMock: CryptoAccountModel {
 
 extension CryptoAccountModelMock: BalanceProvidingAccountModel {
     var fiatTotalBalanceProvider: AccountBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
+        CommonAccountBalanceProvider(totalBalanceProvider: totalBalanceProvider)
     }
 
     var rateProvider: AccountRateProvider {
