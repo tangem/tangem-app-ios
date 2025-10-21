@@ -19,7 +19,7 @@ import Combine
 import TangemNFT
 import TangemUI
 
-final class NFTAssetDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating {
+final class NFTAssetDetailsCoordinator: CoordinatorObject, SendFeeCurrencyNavigating {
     let dismissAction: Action<NFTAsset?>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -84,7 +84,7 @@ final class NFTAssetDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating
     }
 
     private func makeSendCoordinatorDismissActionInternal(for asset: NFTAsset) -> Action<SendCoordinator.DismissOptions?> {
-        // Original action from `FeeCurrencyNavigating.makeSendCoordinatorDismissAction()`
+        // Original action from `SendFeeCurrencyNavigating.makeSendCoordinatorDismissAction()`
         let originalAction = makeSendCoordinatorDismissAction()
 
         return { [weak self] dismissOptions in
