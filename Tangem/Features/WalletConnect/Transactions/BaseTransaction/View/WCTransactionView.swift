@@ -12,6 +12,7 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WCTransactionView: View {
     @ObservedObject var viewModel: WCTransactionViewModel
@@ -76,11 +77,12 @@ struct WCTransactionView: View {
             title = nil
         }
 
-        return WalletConnectNavigationBarView(
+        return FloatingSheetNavigationBarView(
             title: title,
             backgroundColor: Colors.Background.tertiary,
             backButtonAction: backButtonAction,
-            closeButtonAction: closeButtonAction
+            closeButtonAction: closeButtonAction,
+            titleAccessibilityIdentifier: WalletConnectAccessibilityIdentifiers.headerTitle
         )
         .id(viewModel.presentationState.stateId)
         .transition(.opacity)
