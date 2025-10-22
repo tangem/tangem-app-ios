@@ -82,7 +82,7 @@ struct SendNewAmountTokenView: View {
         case .none:
             EmptyView()
         case .max(let action):
-            RoundedButton(title: Localization.sendMaxAmount, action: action)
+            CircleButton(title: Localization.sendMaxAmount, action: action)
         case .select(.none):
             Assets.Glyphs.selectIcon.image
                 .renderingMode(.template)

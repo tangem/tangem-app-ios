@@ -62,6 +62,10 @@ extension WCSolanaSignAllTransactionsHandler: WalletConnectMessageHandler {
         request.stringRepresentation
     }
 
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        .empty
+    }
+
     func handle() async throws -> RPCResult {
         let transactionsToSign: [Data] = try hashesToSign.map { try prepareTransactionToSign(hash: $0) }
 

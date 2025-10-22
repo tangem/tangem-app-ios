@@ -20,6 +20,8 @@ public final class NFTEntrypointViewModel: ObservableObject {
     }
 
     private let nftManager: NFTManager
+    private let accountForCollectionsProvider: AccountForNFTCollectionProviding
+    private let nftAccountNavigationContextProvider: any NFTAccountNavigationContextProviding
     private let navigationContext: NFTNavigationContext
     private let analytics: NFTAnalytics.Entrypoint
     private var bag: Set<AnyCancellable> = []
@@ -29,11 +31,15 @@ public final class NFTEntrypointViewModel: ObservableObject {
 
     public init(
         nftManager: NFTManager,
+        accountForCollectionsProvider: AccountForNFTCollectionProviding,
+        nftAccountNavigationContextProvider: any NFTAccountNavigationContextProviding,
         navigationContext: NFTNavigationContext,
         analytics: NFTAnalytics.Entrypoint,
         coordinator: NFTEntrypointRoutable?
     ) {
         self.nftManager = nftManager
+        self.accountForCollectionsProvider = accountForCollectionsProvider
+        self.nftAccountNavigationContextProvider = nftAccountNavigationContextProvider
         self.navigationContext = navigationContext
         self.coordinator = coordinator
         self.analytics = analytics
@@ -65,12 +71,19 @@ public final class NFTEntrypointViewModel: ObservableObject {
     }
 
     func openCollections() {
-        coordinator?.openCollections(nftManager: nftManager, navigationContext: navigationContext)
+        coordinator?.openCollections(
+            nftManager: nftManager,
+            accounForNFTCollectionsProvider: accountForCollectionsProvider,
+            nftAccountNavigationContextProvider: nftAccountNavigationContextProvider,
+            navigationContext: navigationContext
+        )
+
         let assetsWithoutCollectionCount = collections.reduce(into: 0) { sum, collection in
             if collection.id.collectionIdentifier == NFTDummyCollectionMapper.dummyCollectionIdentifier {
                 sum += collection.assetsCount
             }
         }
+
         analytics.logCollectionsOpen(
             collections.isEmpty ? "Empty" : "Full",
             collections.count,

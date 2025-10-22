@@ -33,6 +33,8 @@ struct ReceiveMainView: View {
                     .transition(.content)
             case .tokenAlert(let viewModel):
                 TokenAlertReceiveAssetsView(viewModel: viewModel)
+            case .yieldTokenAlert(let viewModel):
+                YieldNoticeReceiveView(viewModel: viewModel)
             case .none:
                 EmptyView()
             }
@@ -57,7 +59,7 @@ struct ReceiveMainView: View {
         var closeButtonAction: (() -> Void)?
 
         switch viewState {
-        case .tokenAlert:
+        case .tokenAlert, .yieldTokenAlert:
             title = nil
             backButtonAction = nil
             closeButtonAction = viewModel.onCloseTapAction
@@ -71,7 +73,7 @@ struct ReceiveMainView: View {
             closeButtonAction = viewModel.onCloseTapAction
         }
 
-        return ReceiveNavigationBarView(
+        return FloatingSheetNavigationBarView(
             title: title,
             backgroundColor: viewState.backgroundColor,
             backButtonAction: backButtonAction,
@@ -98,13 +100,6 @@ private extension AnyTransition {
 
 extension ReceiveMainView {
     private enum Layout {
-        /// 52
-        static let navigationBarHeight = ReceiveNavigationBarView.Layout.topPadding + ReceiveNavigationBarView.Layout.height
-        /// 12
-        static let contentTopPadding: CGFloat = 12
-        /// 20
-        static let contentBottomPadding: CGFloat = 20
-        ///
         static let scrollViewCoordinateSpace = "ReceiveAssetsCoordinatorView.ScrollView"
     }
 }

@@ -24,11 +24,10 @@ class CommonUserWalletModel {
 
     let walletModelsManager: WalletModelsManager
     let userTokensManager: UserTokensManager
-    let userTokenListManager: UserTokenListManager
     let nftManager: NFTManager
     let keysRepository: KeysRepository
     let derivationManager: DerivationManager?
-    let totalBalanceProvider: TotalBalanceProviding
+    let totalBalanceProvider: TotalBalanceProvider
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
@@ -56,11 +55,10 @@ class CommonUserWalletModel {
         userWalletId: UserWalletId,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
-        userTokenListManager: UserTokenListManager,
         nftManager: NFTManager,
         keysRepository: KeysRepository,
         derivationManager: DerivationManager?,
-        totalBalanceProvider: TotalBalanceProviding,
+        totalBalanceProvider: TotalBalanceProvider,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
         accountModelsManager: AccountModelsManager
     ) {
@@ -70,7 +68,6 @@ class CommonUserWalletModel {
         self.name = name
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
-        self.userTokenListManager = userTokenListManager
         self.nftManager = nftManager
         self.keysRepository = keysRepository
         self.derivationManager = derivationManager
@@ -79,8 +76,6 @@ class CommonUserWalletModel {
         self.accountModelsManager = accountModelsManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
-        appendPersistentBlockchains()
-        userTokensManager.sync {}
     }
 
     deinit {
@@ -101,14 +96,6 @@ class CommonUserWalletModel {
             // nothing to validate here
             return true
         }
-    }
-
-    private func appendPersistentBlockchains() {
-        guard let persistentBlockchains = config.persistentBlockchains else {
-            return
-        }
-
-        userTokenListManager.update(.append(persistentBlockchains), shouldUpload: true)
     }
 
     private func updateConfiguration(walletInfo: WalletInfo) {
@@ -268,6 +255,9 @@ extension CommonUserWalletModel: UserWalletModel {
                 mutableInfo.hasMnemonicBackup = true
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
+
+        case .tangemPayOfferAccepted(let tangemPayAccount):
+            _updatePublisher.send(.tangemPayOfferAccepted(tangemPayAccount))
         }
     }
 
@@ -315,8 +305,6 @@ extension CommonUserWalletModel: MainHeaderSupplementInfoProvider {
 extension CommonUserWalletModel: MainHeaderUserWalletStateInfoProvider {
     var isUserWalletLocked: Bool { false }
 
-    var isTokensListEmpty: Bool { userTokenListManager.userTokensList.entries.isEmpty }
-
     var hasImportedWallets: Bool {
         keysRepository.keys.contains(where: { $0.isImported ?? false })
     }
@@ -333,7 +321,7 @@ extension CommonUserWalletModel: KeysDerivingProvider {
     }
 }
 
-extension CommonUserWalletModel: TotalBalanceProviding {
+extension CommonUserWalletModel: TotalBalanceProvider {
     var totalBalance: TotalBalanceState {
         totalBalanceProvider.totalBalance
     }

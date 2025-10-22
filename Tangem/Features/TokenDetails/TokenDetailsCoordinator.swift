@@ -41,10 +41,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     private var safariHandle: SafariHandle?
     private var options: Options?
 
-    required init(
-        dismissAction: @escaping Action<Void>,
-        popToRootAction: @escaping Action<PopToRootOptions>
-    ) {
+    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -58,15 +55,21 @@ class TokenDetailsCoordinator: CoordinatorObject {
             walletModelsManager: options.userWalletModel.walletModelsManager
         )
 
+        let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
+
         let tokenRouter = SingleTokenRouter(
             userWalletModel: options.userWalletModel,
-            coordinator: self
+            coordinator: self,
+            yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         )
 
         let expressFactory = CommonExpressModulesFactory(
             inputModel: .init(
-                userWalletModel: options.userWalletModel,
-                initialWalletModel: options.walletModel
+                userWalletInfo: options.userWalletModel.userWalletInfo,
+                userTokensManager: options.userWalletModel.userTokensManager,
+                walletModelsManager: options.userWalletModel.walletModelsManager,
+                initialWalletModel: options.walletModel,
+                destinationWalletModel: .none
             )
         )
 
@@ -129,33 +132,46 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
-    func openYieldModulePromoView(walletModel: any WalletModel, info: YieldModuleInfo) {
-        let coordinator = YieldModulePromoCoordinator()
+    func openYieldModulePromoView(walletModel: any WalletModel, apy: Decimal, signer: any TangemSigner) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.yieldModulePromoCoordinator = nil
+        }
 
-        let options = YieldModulePromoCoordinator.Options(
+        guard let factory = YieldModuleFlowFactory(
             walletModel: walletModel,
-            apy: info.apy,
-            networkFee: info.networkFee,
-            maximumFee: info.maximumFee,
-            lastYearReturns: info.lastYearReturns,
-            tokenImageUrl: info.tokenImageUrl,
-        )
+            apy: apy,
+            signer: signer,
+            feeCurrencyNavigator: self,
+            dismissAction: dismissAction
+        ) else {
+            return
+        }
 
-        coordinator.start(with: options)
+        let coordinator = factory.getYieldPromoCoordinator()
         yieldModulePromoCoordinator = coordinator
     }
 
-    func openYieldEarnInfo(walletModel: any WalletModel, openFeeCurrencyAction: @escaping () -> Void) {
+    func openYieldEarnInfo(walletModel: any WalletModel, signer: any TangemSigner) {
+        guard
+            let factory = YieldModuleFlowFactory(
+                walletModel: walletModel,
+                signer: signer,
+                feeCurrencyNavigator: self,
+                dismissAction: dismissAction
+            ),
+            let vm = factory.makeYieldInfoViewModel()
+        else {
+            return
+        }
+
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(
-                sheet: YieldModuleInfoViewModel(walletModel: walletModel, openFeeCurrencyAction: openFeeCurrencyAction)
-            )
+            floatingSheetPresenter.enqueue(sheet: vm)
         }
     }
 
-    func openYieldBalanceInfo(params: YieldModuleViewConfigs.BalanceInfoParams) {
+    func openYieldBalanceInfo(tokenName: String, tokenId: String?) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldModuleBalanceInfoViewModel(params: params))
+            floatingSheetPresenter.enqueue(sheet: YieldModuleBalanceInfoViewModel(tokenName: tokenName, tokenId: tokenId))
         }
     }
 }
@@ -192,7 +208,9 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel
+            addressTypesProvider: walletModel,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -230,9 +248,16 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
+            ),
             type: .send,
-            source: .tokenDetails
+            source: .main
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
@@ -246,7 +271,14 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
 
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
+            ),
             type: .sell(parameters: sellParameters),
             source: .tokenDetails
         )
@@ -255,27 +287,12 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     func openExpress(input: CommonExpressModulesFactory.InputModel) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.expressCoordinator = nil
-
-            guard let navigationInfo else {
-                return
-            }
-
-            self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
-        }
-
         let factory = CommonExpressModulesFactory(inputModel: input)
-        let coordinator = ExpressCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
+        let coordinator = makeExpressCoordinator(factory: factory)
 
         let showExpressBlock = { [weak self] in
-            guard let self else { return }
             coordinator.start(with: .default)
-            expressCoordinator = coordinator
+            self?.expressCoordinator = coordinator
         }
 
         Task { @MainActor [tangemStoriesPresenter] in
@@ -314,7 +331,14 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
+            ),
             type: .onramp(parameters: parameters),
             source: .tokenDetails
         )
@@ -338,11 +362,11 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 }
 
-// MARK: - FeeCurrencyNavigating protocol conformance
+// MARK: - SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating protocol conformance
 
-extension TokenDetailsCoordinator: FeeCurrencyNavigating {
+extension TokenDetailsCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
     // [REDACTED_TODO_COMMENT]
-    /// - Note: This coordinator uses a custom implementation of the `FeeCurrencyNavigating.openFeeCurrency(for:userWalletModel:)` method.
+    /// - Note: This coordinator uses a custom implementation of the `SendFeeCurrencyNavigating.openFeeCurrency(for:userWalletModel:)` method.
     func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
         openTokenDetails(for: model)
     }

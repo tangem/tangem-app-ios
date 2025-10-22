@@ -17,7 +17,8 @@ struct YieldModuleStartView: View {
     // MARK: - View Body
 
     var body: some View {
-        contentView.animation(.contentFrameUpdate, value: viewModel.viewState)
+        contentView
+            .animation(.contentFrameUpdate, value: viewModel.viewState)
     }
 
     // MARK: - Sub Views
@@ -32,8 +33,7 @@ struct YieldModuleStartView: View {
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
             content: { mainContent },
-            notificationBanner: viewModel.notificationBannerParams,
-            buttonTopPadding: buttonTopPadding
+            buttonTopPadding: 24
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
@@ -65,10 +65,10 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetDescription
-        case .startEarning(let params):
-            Localization.yieldModuleStartEarningSheetDescription(params.tokenName)
-        case .feePolicy(let params):
-            Localization.yieldModuleFeePolicySheetDescription(params.tokenName)
+        case .startEarning:
+            Localization.yieldModuleStartEarningSheetDescription(viewModel.walletModel.tokenItem.name)
+        case .feePolicy:
+            Localization.yieldModuleFeePolicySheetDescription(viewModel.walletModel.tokenItem.name)
         }
     }
 
@@ -97,13 +97,20 @@ struct YieldModuleStartView: View {
     private var mainButton: MainButton {
         switch viewModel.viewState {
         case .rateInfo, .feePolicy:
-            .init(settings: .init(title: Localization.commonGotIt, style: .secondary, action: ctaButtonAction))
+            .init(settings: .init(
+                title: Localization.commonGotIt,
+                style: .secondary,
+                isDisabled: !viewModel.isButtonEnabled,
+                action: ctaButtonAction
+            ))
         case .startEarning:
             .init(settings: .init(
                 title: Localization.yieldModuleStartEarning,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
-                action: ctaButtonAction
+                isLoading: viewModel.isProcessingStartRequest,
+                isDisabled: !viewModel.isButtonEnabled,
+                action: ctaButtonAction,
             ))
         }
     }
@@ -114,30 +121,60 @@ struct YieldModuleStartView: View {
         case .rateInfo, .feePolicy:
             EmptyView()
         case .startEarning:
-            LendingPairIcon(tokenIconInfo: viewModel.getTokenIconInfo(), iconsSize: IconViewSizeSettings.tokenDetails.iconSize)
+            LendingPairIcon(tokenId: viewModel.walletModel.tokenItem.id, iconsSize: IconViewSizeSettings.tokenDetails.iconSize)
+        }
+    }
+
+    private var startEarningView: some View {
+        VStack(spacing: .zero) {
+            YieldFeeSection(
+                leadingTitle: Localization.commonNetworkFeeTitle,
+                state: viewModel.networkFeeState,
+                footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
+                linkTitle: Localization.yieldModuleStartEarningSheetFeePolicy,
+                url: nil,
+                isLinkActive: viewModel.isNavigationToFeePolicyEnabled,
+                onLinkTapAction: viewModel.onShowFeePolicy
+            )
+            .onAppear {
+                viewModel.fetchFees()
+            }
+
+            if let notificationBannerParams = viewModel.notificationBannerParams {
+                YieldModuleBottomSheetNotificationBannerView(params: notificationBannerParams)
+                    .padding(.top, 26)
+            }
         }
     }
 
     @ViewBuilder
     private var mainContent: some View {
         switch viewModel.viewState {
-        case .rateInfo(let params):
-            YieldModuleInterestRateInfoView(lastYearReturns: params.lastYearReturns)
+        case .rateInfo:
+            YieldModuleRateInfoChartContainer(state: viewModel.chartState)
+                .task {
+                    await viewModel.fetchChartData()
+                }
 
-        case .startEarning(let params):
-            YieldModuleStartEarningView(networkFee: params.networkFee, showFeePolicyAction: { viewModel.onShowFeePolicy(params: params) })
+        case .startEarning:
+            startEarningView
 
-        case .feePolicy(let params):
-            YieldModuleFeePolicyView(currentFee: params.networkFee, maximumFee: params.maximumFee, blockchainName: params.blockchainName)
+        case .feePolicy:
+            YieldModuleFeePolicyView(
+                tokenFeeState: viewModel.tokenFeeState,
+                maximumFeeState: viewModel.maximumFeeState,
+                minimalAmountState: viewModel.minimalAmountState,
+                blockchainName: viewModel.walletModel.tokenItem.blockchain.displayName,
+            )
         }
     }
 
     private var ctaButtonAction: () -> Void {
         switch viewModel.viewState {
         case .startEarning:
-            viewModel.onStartEarningTap
+            viewModel.onStartEarnTap
         case .rateInfo:
-            viewModel.onCloseTapAction
+            viewModel.onCloseTap
         case .feePolicy:
             viewModel.onBackAction
         }
@@ -168,7 +205,7 @@ private extension YieldModuleStartView {
         case .feePolicy:
             BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackAction() } })
         case .startEarning, .rateInfo:
-            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTapAction() } })
+            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTap() } })
         }
     }
 }

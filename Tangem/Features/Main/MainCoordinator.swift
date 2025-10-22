@@ -17,7 +17,7 @@ import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
 
-class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
+class MainCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -64,6 +64,7 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
+    @Published var tangemPayMainViewModel: TangemPayMainViewModel?
 
     // MARK: - Helpers
 
@@ -251,7 +252,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
         let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager)
         let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokenListManager: userWalletModel.userTokenListManager,
+            userTokensManager: userWalletModel.userTokensManager,
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: true
         )
@@ -289,7 +290,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         Task { @MainActor in
             let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
                 switch options {
-                case .dismiss, .finish:
+                case .dismiss, .upgraded:
                     self?.mobileUpgradeCoordinator = nil
                 }
             }
@@ -300,16 +301,23 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             mobileUpgradeCoordinator = coordinator
         }
     }
+
+    func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
+        mainBottomSheetUIManager.hide()
+        tangemPayMainViewModel = TangemPayMainViewModel(tangemPayAccount: tangemPayAccount)
+    }
 }
 
 // MARK: - SingleTokenBaseRoutable
 
-extension MainCoordinator: SingleTokenBaseRoutable {
+extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
     func openReceiveScreen(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel
+            addressTypesProvider: walletModel,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -347,10 +355,18 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
+            ),
             type: .send,
             source: .main
         )
+
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
@@ -363,7 +379,14 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
 
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
+            ),
             type: .sell(parameters: sellParameters),
             source: .main
         )
@@ -372,27 +395,12 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openExpress(input: CommonExpressModulesFactory.InputModel) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.expressCoordinator = nil
-
-            guard let navigationInfo else {
-                return
-            }
-
-            self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
-        }
-
         let factory = CommonExpressModulesFactory(inputModel: input)
-        let coordinator = ExpressCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
+        let coordinator = makeExpressCoordinator(factory: factory)
 
         let openExpressBlock = { [weak self] in
-            guard let self else { return }
             coordinator.start(with: .default)
-            expressCoordinator = coordinator
+            self?.expressCoordinator = coordinator
         }
 
         Task { @MainActor [tangemStoriesPresenter] in
@@ -430,7 +438,14 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
+            ),
             type: .onramp(parameters: parameters),
             source: .main
         )
@@ -479,7 +494,9 @@ extension MainCoordinator: VisaWalletRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: tokenItem,
-            addressTypesProvider: addressTypesProvider
+            addressTypesProvider: addressTypesProvider,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -521,16 +538,20 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
             }
         )
 
-        coordinator.start(
-            with: .default(
-                options: .init(
-                    userWalletModel: userWalletModel,
-                    expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
-                    tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
-                )
-            )
-        )
+        let options: ActionButtonsBuyCoordinator.Options = if FeatureProvider.isAvailable(.accounts) {
+            .new
+        } else {
+            .default(options: .init(
+                userWalletModel: userWalletModel,
+                expressTokensListAdapter: CommonExpressTokensListAdapter(
+                    userTokensManager: userWalletModel.userTokensManager,
+                    walletModelsManager: userWalletModel.walletModelsManager,
+                ),
+                tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
+            ))
+        }
 
+        coordinator.start(with: options)
         actionButtonsBuyCoordinator = coordinator
     }
 }
@@ -566,17 +587,14 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
             self?.actionButtonsSwapCoordinator = nil
         }
 
-        let openExpressBlock = { [weak self] in
-            guard let self else { return }
-            coordinator.start(with: .default)
-            actionButtonsSwapCoordinator = coordinator
-        }
-
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
                 story: .swap(.initialWithoutImages),
                 analyticsSource: .main,
-                presentCompletion: openExpressBlock
+                presentCompletion: { [weak self] in
+                    coordinator.start(with: FeatureProvider.isAvailable(.accounts) ? .new : .default)
+                    self?.actionButtonsSwapCoordinator = coordinator
+                }
             )
         }
     }
@@ -619,7 +637,12 @@ extension MainCoordinator {
 // MARK: - NFTEntrypointRoutable
 
 extension MainCoordinator: NFTEntrypointRoutable {
-    func openCollections(nftManager: NFTManager, navigationContext: NFTNavigationContext) {
+    func openCollections(
+        nftManager: NFTManager,
+        accounForNFTCollectionsProvider: any AccountForNFTCollectionProviding,
+        nftAccountNavigationContextProvider: any NFTAccountNavigationContextProviding,
+        navigationContext: NFTNavigationContext
+    ) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = NFTCollectionsCoordinator(
@@ -632,10 +655,11 @@ extension MainCoordinator: NFTEntrypointRoutable {
             }
         )
 
-        nftCollectionsCoordinator = coordinator
         coordinator.start(
             with: .init(
                 nftManager: nftManager,
+                accounForNFTCollectionsProvider: accounForNFTCollectionsProvider,
+                nftAccountNavigationContextProvider: nftAccountNavigationContextProvider,
                 nftChainIconProvider: NetworkImageProvider(),
                 nftChainNameProvider: NFTChainNameProvider(),
                 priceFormatter: NFTPriceFormatter(),
@@ -647,6 +671,8 @@ extension MainCoordinator: NFTEntrypointRoutable {
                 )
             )
         )
+
+        nftCollectionsCoordinator = coordinator
     }
 }
 

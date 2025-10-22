@@ -8,20 +8,38 @@
 
 import SwiftUI
 import TangemAssets
+import Kingfisher
 
 struct TransactionView: View {
     let viewModel: TransactionViewModel
 
     var body: some View {
         HStack(spacing: 12) {
-            viewModel.icon
-                .renderingMode(.template)
-                .foregroundColor(viewModel.iconColor)
-                .padding(10)
-                .background(viewModel.iconBackgroundColor)
-                .cornerRadiusContinuous(20)
+            if let iconURL = viewModel.iconURL {
+                KFImage(iconURL)
+                    .resizable()
+                    .placeholder {
+                        viewModel.icon
+                            .renderingMode(.template)
+                            .foregroundColor(viewModel.iconColor)
+                            .padding(10)
+                            .background(viewModel.iconBackgroundColor)
+                            .cornerRadiusContinuous(20)
+                    }
+                    .aspectRatio(contentMode: .fit)
+                    .frame(size: .init(bothDimensions: 40))
+                    .cornerRadiusContinuous(20)
+            } else {
+                viewModel.icon
+                    .renderingMode(.template)
+                    .foregroundColor(viewModel.iconColor)
+                    .padding(10)
+                    .background(viewModel.iconBackgroundColor)
+                    .cornerRadiusContinuous(20)
+            }
 
             textContent
+                .lineLimit(1)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 6)
@@ -68,7 +86,6 @@ struct TransactionView: View {
                 amount
                 subtitle
             }
-            .layoutPriority(2)
         }
     }
 
@@ -76,6 +93,8 @@ struct TransactionView: View {
         HStack(spacing: 8) {
             Text(viewModel.name)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .multilineTextAlignment(.leading)
+                .lineLimit(1)
 
             if viewModel.inProgress {
                 ProgressDots(style: .small)
@@ -99,6 +118,7 @@ struct TransactionView: View {
         if let amount = viewModel.formattedAmount {
             SensitiveText(amount)
                 .style(Fonts.Regular.subheadline, color: viewModel.amountColor)
+                .layoutPriority(2)
         }
     }
 

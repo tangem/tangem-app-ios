@@ -27,6 +27,12 @@ struct PushNotificationsHelpersFactory {
         return makeTrampolineForFlow(.afterLogin, using: interactor)
     }
 
+    func makeAvailabilityProviderForAfterLoginBanner(
+        using interactor: PushNotificationsInteractor
+    ) -> PushNotificationsAvailabilityProvider {
+        return makeTrampolineForFlow(.afterLoginBanner, using: interactor)
+    }
+
     func makePermissionManagerForWelcomeOnboarding(
         using interactor: PushNotificationsInteractor
     ) -> PushNotificationsPermissionManager {
@@ -42,6 +48,11 @@ struct PushNotificationsHelpersFactory {
     func makePermissionManagerForAfterLogin(
         using interactor: PushNotificationsInteractor) -> PushNotificationsPermissionManager {
         return makeTrampolineForFlow(.afterLogin, using: interactor)
+    }
+
+    func makePermissionManagerForAfterLoginBanner(
+        using interactor: PushNotificationsInteractor) -> PushNotificationsPermissionManager {
+        return makeTrampolineForFlow(.afterLoginBanner, using: interactor)
     }
 
     private func makeTrampolineForFlow(
