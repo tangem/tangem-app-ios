@@ -59,6 +59,19 @@ final class YieldTransactionFeeProvider {
         return try await fee(from: transactions)
     }
 
+    func currentNetworkFee() async throws -> Decimal {
+        let converter = BalanceConverter()
+
+        let parameters = try await ethereumNetworkProvider.getFee(
+            gasLimit: Constants.minimalTopUpGasLimit,
+            supportsEIP1559: blockchain.supportsEIP1559
+        )
+
+        let feeNative = parameters.calculateFee(decimalValue: blockchain.decimalValue)
+        let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: blockchain.currencyId)
+        return gasInFiat
+    }
+
     func minimalFee(tokenId: String) async throws -> Decimal {
         let converter = BalanceConverter()
 
