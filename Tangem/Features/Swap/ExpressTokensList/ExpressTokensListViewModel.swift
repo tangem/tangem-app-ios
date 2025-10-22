@@ -26,7 +26,7 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
 
     private let swapDirection: SwapDirection
     private let expressTokensListAdapter: ExpressTokensListAdapter
-    private let expressRepository: ExpressRepository
+    private let expressPairsRepository: ExpressPairsRepository
     private let expressInteractor: ExpressInteractor
     private let userWalletModelConfig: UserWalletConfig
     private weak var coordinator: ExpressTokensListRoutable?
@@ -44,14 +44,14 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     init(
         swapDirection: SwapDirection,
         expressTokensListAdapter: ExpressTokensListAdapter,
-        expressRepository: ExpressRepository,
+        expressPairsRepository: ExpressPairsRepository,
         expressInteractor: ExpressInteractor,
         coordinator: ExpressTokensListRoutable,
         userWalletModelConfig: UserWalletConfig
     ) {
         self.swapDirection = swapDirection
         self.expressTokensListAdapter = expressTokensListAdapter
-        self.expressRepository = expressRepository
+        self.expressPairsRepository = expressPairsRepository
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
         self.userWalletModelConfig = userWalletModelConfig
@@ -125,10 +125,10 @@ private extension ExpressTokensListViewModel {
     func loadAvailablePairs() async -> [ExpressCurrency] {
         switch swapDirection {
         case .fromSource(let wallet):
-            let pairs = await expressRepository.getPairs(from: wallet.tokenItem.expressCurrency)
+            let pairs = await expressPairsRepository.getPairs(from: wallet.tokenItem.expressCurrency)
             return pairs.map { $0.destination }
         case .toDestination(let wallet):
-            let pairs = await expressRepository.getPairs(to: wallet.tokenItem.expressCurrency)
+            let pairs = await expressPairsRepository.getPairs(to: wallet.tokenItem.expressCurrency)
             return pairs.map { $0.source }
         }
     }
