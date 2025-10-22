@@ -30,7 +30,7 @@ struct SendSummaryView: View {
                 if let stakingValidatorsCompactViewModel = viewModel.stakingValidatorsCompactViewModel {
                     StakingValidatorsCompactView(
                         viewModel: stakingValidatorsCompactViewModel,
-                        type: .enabled(action: viewModel.userDidTapValidator)
+                        type: stakingValidatorsCompactViewModel.canEditValidator ? .enabled(action: viewModel.userDidTapValidator) : .disabled
                     )
                     .infinityFrame(axis: .horizontal)
                 }

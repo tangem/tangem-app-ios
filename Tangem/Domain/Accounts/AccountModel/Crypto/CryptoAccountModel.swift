@@ -12,6 +12,8 @@ import Combine
 protocol CryptoAccountModel: BaseAccountModel, WalletModelBalancesProvider, AnyObject {
     var isMainAccount: Bool { get }
 
+    var descriptionString: String { get }
+
     var walletModelsManager: WalletModelsManager { get }
 
     var userTokensManager: UserTokensManager { get }
