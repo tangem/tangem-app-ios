@@ -38,8 +38,6 @@ class UserWalletModelMock: UserWalletModel {
 
     var userTokensManager: UserTokensManager { UserTokensManagerMock() }
 
-    var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
-
     var walletImageProvider: WalletImageProviding {
         CardImageProviderMock()
     }
@@ -68,8 +66,6 @@ class UserWalletModelMock: UserWalletModel {
 
     var isUserWalletLocked: Bool { false }
 
-    var isTokensListEmpty: Bool { false }
-
     var analyticsContextData: AnalyticsContextData {
         .init(
             productType: .other,
@@ -89,7 +85,7 @@ class UserWalletModelMock: UserWalletModel {
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
             derivationManager: nil,
-            userTokenListManager: userTokenListManager
+            userTokensManager: userTokensManager
         )
     }
 
