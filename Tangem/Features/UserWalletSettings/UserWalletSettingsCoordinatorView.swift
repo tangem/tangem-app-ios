@@ -39,8 +39,8 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.scanCardSettingsCoordinator) {
                 ScanCardSettingsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.mobileBackupTypesViewModel) {
-                MobileBackupTypesView(viewModel: $0)
+            .navigation(item: $coordinator.mobileBackupTypesCoordinator) {
+                MobileBackupTypesCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.accountDetailsCoordinator) {
                 AccountDetailsCoordinatorView(coordinator: $0)
@@ -51,6 +51,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.mobileRemoveWalletViewModel) {
                 MobileRemoveWalletView(viewModel: $0)
             }
+            .navigation(item: $coordinator.hardwareBackupTypesCoordinator) {
+                HardwareBackupTypesCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -58,13 +61,6 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
-                    .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
-                    .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-                        coordinator.modalOnboardingCoordinatorKeeper = value
-                    })
-            }
-            .sheet(item: $coordinator.mobileUpgradeCoordinator) {
-                MobileUpgradeCoordinatorView(coordinator: $0)
                     .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
                     .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                         coordinator.modalOnboardingCoordinatorKeeper = value
