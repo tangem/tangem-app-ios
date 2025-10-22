@@ -53,7 +53,6 @@ extension MobileUpgradeCoordinator {
         )
     }
 
-    /// For non-dismissable presentation
     func onDismissalAttempt() {
         onboardingCoordinator?.onDismissalAttempt()
     }
@@ -87,7 +86,7 @@ private extension MobileUpgradeCoordinator {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main:
-                self?.finish()
+                self?.upgradeCompleted()
             case .dismiss:
                 self?.onboardingCoordinator = nil
             }
@@ -102,8 +101,8 @@ private extension MobileUpgradeCoordinator {
         dismiss(with: .dismiss)
     }
 
-    func finish() {
-        dismiss(with: .finish)
+    func upgradeCompleted() {
+        dismiss(with: .upgraded)
     }
 }
 
@@ -117,6 +116,6 @@ extension MobileUpgradeCoordinator {
 
     enum OutputOptions {
         case dismiss
-        case finish
+        case upgraded
     }
 }
