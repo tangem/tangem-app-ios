@@ -133,6 +133,7 @@ struct YieldModuleInfoView: View {
         case .earnInfo:
             YieldModuleActiveСontentView(
                 apyState: viewModel.apyState,
+                apyTrend: viewModel.apyTrend,
                 minAmountState: viewModel.minimalAmountState,
                 chartState: viewModel.chartState,
                 networkFeeState: viewModel.currentNetworkFeeState,
@@ -143,7 +144,7 @@ struct YieldModuleInfoView: View {
                 transferMode: Localization.yieldModuleTransferModeAutomatic,
                 availableBalance: viewModel.getAvailableBalanceString(),
                 readMoreUrl: viewModel.readMoreURL,
-                myFundsSectionText: viewModel.makeMyFundsSectionText(),
+                myFundsSectionText: viewModel.makeMyFundsSectionText()
             )
 
         case .approve:
