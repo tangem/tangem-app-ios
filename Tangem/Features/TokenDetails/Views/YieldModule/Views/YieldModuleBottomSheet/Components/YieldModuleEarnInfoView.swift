@@ -13,11 +13,15 @@ import TangemUI
 
 extension YieldModuleInfoView {
     struct YieldModuleEarnInfoView: View {
-        typealias EarnInfoParams = YieldModuleViewConfigs.EarnInfoParams
-
         // MARK: - Properties
 
-        let params: EarnInfoParams
+        let apyState: LoadableTextView.State
+        let chartState: YieldChartContainerState
+        let tokenName: String
+        let tokenSymbol: String
+        let transferMode: String
+        let availableBalance: String
+        let myFundsSectionText: AttributedString
 
         // MARK: - View Body
 
@@ -32,19 +36,22 @@ extension YieldModuleInfoView {
 
         private var topSection: some View {
             VStack(alignment: .leading, spacing: .zero) {
-                Text(Localization.yieldModuleEarnSheetTotalEarningsTitle)
+                Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                    .padding(.top, 4)
-                    .padding(.bottom, 10)
+                    .padding(.bottom, 4)
 
-                Text(params.earningsData.totalEarnings)
-                    .style(Fonts.Bold.title2, color: Colors.Text.primary1)
-                    .padding(.bottom, 14)
+                LoadableTextView(
+                    state: apyState,
+                    font: Fonts.Bold.title2,
+                    textColor: Colors.Text.accent,
+                    loaderSize: .init(width: 100, height: 28)
+                )
+                .padding(.bottom, 8)
 
-                row(title: Localization.yieldModuleEarnSheetCurrentApyTitle, trailing: params.apy)
-                    .padding(.bottom, 18)
+                Divider().overlay(Colors.Stroke.primary)
+                    .padding(.bottom, 8)
 
-                // [REDACTED_TODO_COMMENT]
+                YieldModuleEarnInfoChartContainer(state: chartState)
             }
             .defaultRoundedBackground()
         }
@@ -61,23 +68,7 @@ extension YieldModuleInfoView {
         }
 
         private var myFundsDescription: some View {
-            var attr = AttributedString(
-                Localization.yieldModuleEarnSheetProviderDescription(
-                    params.tokenName,
-                    params.tokenSymbol
-                )
-            )
-            attr.font = Fonts.Regular.caption1
-            attr.foregroundColor = Colors.Text.tertiary
-
-            var linkPart = AttributedString(Localization.commonReadMore)
-            linkPart.font = Fonts.Regular.caption1
-            linkPart.foregroundColor = Colors.Text.accent
-
-            attr.append(AttributedString(" "))
-            attr.append(linkPart)
-
-            return Text(attr)
+            Text(myFundsSectionText)
                 .multilineTextAlignment(.leading)
         }
 
@@ -93,8 +84,8 @@ extension YieldModuleInfoView {
                 myFundsDescription.padding(.bottom, 10)
 
                 VStack(spacing: 12) {
-                    row(title: Localization.yieldModuleEarnSheetTransfersTitle, trailing: params.transferMode)
-                    row(title: Localization.yieldModuleEarnSheetAvailableTitle, trailing: params.availableFunds.availableBalance)
+                    row(title: Localization.yieldModuleEarnSheetTransfersTitle, trailing: transferMode)
+                    row(title: Localization.yieldModuleEarnSheetAvailableTitle, trailing: availableBalance)
                 }
             }
             .defaultRoundedBackground()

@@ -51,6 +51,10 @@ extension NotificationEvent {
                 switch event {
                 case .dustRestriction:
                     return SendAccessibilityIdentifiers.invalidAmountBanner
+                case .insufficientAmountToReserveAtDestination:
+                    return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
+                case .amountExceedMaximumUTXO:
+                    return SendAccessibilityIdentifiers.amountExceedMaximumUTXOBanner
                 default:
                     return nil
                 }

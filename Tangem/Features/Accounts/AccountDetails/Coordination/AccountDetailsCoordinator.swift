@@ -20,6 +20,10 @@ final class AccountDetailsCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: AccountDetailsViewModel?
 
+    // MARK: - Child coordinators
+
+    @Published var manageTokensCoordinator: ManageTokensCoordinator?
+
     // MARK: - Child view models
 
     @Published var editAccountViewModel: AccountFormViewModel?
@@ -48,11 +52,12 @@ final class AccountDetailsCoordinator: CoordinatorObject {
 extension AccountDetailsCoordinator {
     struct Options {
         let account: any BaseAccountModel
+        let userWalletConfig: UserWalletConfig
         let accountModelsManager: AccountModelsManager
     }
 }
 
-// MARK: - BaseEditableAccountDetailsRoutable
+// MARK: - BaseAccountDetailsRoutable
 
 extension AccountDetailsCoordinator: BaseAccountDetailsRoutable {
     func editAccount() {
@@ -77,5 +82,25 @@ extension AccountDetailsCoordinator: BaseAccountDetailsRoutable {
 extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
     func manageTokens() {
         // [REDACTED_TODO_COMMENT]
+        guard let options, let cryptoAccount = options.account as? any CryptoAccountModel else {
+            return
+        }
+
+        let coordinator = ManageTokensCoordinator(
+            dismissAction: { [weak self] in
+                self?.manageTokensCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(
+            with: ManageTokensCoordinator.Options(
+                walletModelsManager: cryptoAccount.walletModelsManager,
+                userTokensManager: cryptoAccount.userTokensManager,
+                userWalletConfig: options.userWalletConfig
+            )
+        )
+
+        manageTokensCoordinator = coordinator
     }
 }

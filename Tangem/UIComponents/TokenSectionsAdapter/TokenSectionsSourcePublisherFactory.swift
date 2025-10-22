@@ -14,7 +14,7 @@ import CombineExt
 /// method as the source of truth for creating token sections.
 struct TokenSectionsSourcePublisherFactory {
     func makeSourcePublisherForMainScreen(for userWalletModel: UserWalletModel) -> some Publisher<[any WalletModel], Never> {
-        let walletModelsPublisher = walletModelsPublisher(for: userWalletModel).eraseToAnyPublisher()
+        let walletModelsPublisher = walletModelsPublisher(for: userWalletModel.walletModelsManager).eraseToAnyPublisher()
 
         // Fiat balance changes for the coins and tokens for the user wallet
         let walletModelsBalanceChangesPublisher = userWalletModel
@@ -31,13 +31,16 @@ struct TokenSectionsSourcePublisherFactory {
 
     /// Fix [REDACTED_INFO]
     func makeSourcePublisher(for userWalletModel: UserWalletModel) -> some Publisher<[any WalletModel], Never> {
-        return walletModelsPublisher(for: userWalletModel)
+        return walletModelsPublisher(for: userWalletModel.walletModelsManager)
+    }
+
+    func makeSourcePublisher(for cryptoAccountModel: any CryptoAccountModel) -> some Publisher<[any WalletModel], Never> {
+        return walletModelsPublisher(for: cryptoAccountModel.walletModelsManager)
     }
 
     /// The contents of the coins and tokens collection for the user wallet
-    private func walletModelsPublisher(for userWalletModel: UserWalletModel) -> some Publisher<[any WalletModel], Never> {
-        userWalletModel
-            .walletModelsManager
+    private func walletModelsPublisher(for walletModelsManager: any WalletModelsManager) -> some Publisher<[any WalletModel], Never> {
+        walletModelsManager
             .walletModelsPublisher
             .share(replay: 1)
     }

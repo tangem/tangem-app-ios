@@ -19,6 +19,18 @@ enum AccountModel {
     case visa(any VisaAccountModel)
 }
 
+extension [AccountModel] {
+    func standard() -> AccountModel? {
+        first { account in
+            if case .standard = account {
+                return true
+            }
+
+            return false
+        }
+    }
+}
+
 // MARK: - Inner types
 
 extension AccountModel {

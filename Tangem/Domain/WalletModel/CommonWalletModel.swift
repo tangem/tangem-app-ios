@@ -367,7 +367,6 @@ extension CommonWalletModel: WalletModelUpdater {
     /// and `fetch()` in CommonTransactionHistoryService uses its own `cancellable`.
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
         _transactionHistoryService?.clearHistory()
-        _receiveAddressService.clear()
 
         return Publishers
             .CombineLatest(
@@ -566,6 +565,11 @@ extension CommonWalletModel: WalletModelHelpers {
             return nil
         }
 
+        let apiService = CommonYieldModuleAPIService(
+            provider: .init(configuration: .ephemeralConfiguration, additionalPlugins: [YieldModuleAuthorizationPlugin()]),
+            yieldModuleAPIType: AppEnvironment.current.isProduction ? .production : .develop
+        )
+
         let nonFilteredPendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never> =
             walletManager
                 .walletPublisher
@@ -577,10 +581,10 @@ extension CommonWalletModel: WalletModelHelpers {
             token: token,
             blockchain: wallet.blockchain,
             yieldSupplyService: yieldSupplyService,
-            tokenBalanceProvider: totalTokenBalanceProvider,
             ethereumNetworkProvider: ethereumNetworkProvider,
             transactionCreator: transactionCreator,
             blockaidApiService: BlockaidFactory().makeBlockaidAPIService(),
+            tokenInfoManager: CommonYieldModuleTokenInfoManager(yieldModuleAPIService: apiService),
             pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher
         )
     }
