@@ -143,7 +143,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
 
 // MARK: - MarketsPortfolioContainerRoutable
 
-extension MarketsTokenDetailsCoordinator: ExpressFeeCurrencyNavigating {
+extension MarketsTokenDetailsCoordinator {
     func openReceive(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
@@ -174,12 +174,15 @@ extension MarketsTokenDetailsCoordinator: ExpressFeeCurrencyNavigating {
             let openSwapBlock = { [weak self] in
                 guard let self else { return }
                 Task { @MainActor in
-                    self.expressCoordinator = self.portfolioCoordinatorFactory.makeExpressCoordinator(
+                    let coordinator = self.portfolioCoordinatorFactory.makeExpressCoordinator(
                         for: walletModel,
                         with: userWalletModel,
                         dismissAction: dismissAction,
                         popToRootAction: self.popToRootAction
                     )
+
+                    coordinator.start(with: .default)
+                    self.expressCoordinator = coordinator
                 }
             }
 
