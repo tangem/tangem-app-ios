@@ -39,6 +39,16 @@ public extension Sequence {
         return values
     }
 
+    func asyncFilter(_ isIncluded: (Element) async throws -> Bool) async rethrows -> [Element] {
+        var values: [Element] = []
+
+        for element in self where try await isIncluded(element) {
+            values.append(element)
+        }
+
+        return values
+    }
+
     func asyncSorted<T>(sort areInIncreasingOrder: (T, T) throws -> Bool, by value: @escaping (Element) async throws -> T) async rethrows -> [Element] {
         let values: [(element: Element, value: T)] = try await withThrowingTaskGroup(of: (Element, T).self) { group in
             for element in self {
