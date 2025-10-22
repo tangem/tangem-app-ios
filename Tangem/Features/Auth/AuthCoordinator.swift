@@ -27,7 +27,6 @@ class AuthCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator?
-    @Published var importWalletSelectorCoordinator: ImportWalletSelectorCoordinator?
 
     // MARK: - Child view models
 
@@ -95,20 +94,6 @@ extension AuthCoordinator: NewAuthRoutable {
         let inputOptions = CreateWalletSelectorCoordinator.InputOptions()
         coordinator.start(with: inputOptions)
         createWalletSelectorCoordinator = coordinator
-    }
-
-    func openImportWallet() {
-        let dismissAction: Action<ImportWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
-            switch options {
-            case .main(let userWallet):
-                self?.dismiss(with: .main(userWallet))
-            }
-        }
-
-        let coordinator = ImportWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = ImportWalletSelectorCoordinator.InputOptions()
-        coordinator.start(with: inputOptions)
-        importWalletSelectorCoordinator = coordinator
     }
 
     func openShop() {

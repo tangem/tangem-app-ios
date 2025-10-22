@@ -129,37 +129,40 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
-    func openYieldModulePromoView(walletModel: any WalletModel, apy: String, startEarnAction: @escaping () -> Void) {
+    func openYieldModulePromoView(walletModel: any WalletModel, apy: Decimal, signer: any TangemSigner) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.yieldModulePromoCoordinator = nil
         }
 
-        let coordinator = YieldModulePromoCoordinator(dismissAction: dismissAction)
-        let options = YieldModulePromoCoordinator.Options(
+        guard let factory = YieldModuleFlowFactory(
             walletModel: walletModel,
             apy: apy,
+            signer: signer,
             feeCurrencyNavigator: self,
-            startEarnAction: startEarnAction
-        )
+            dismissAction: dismissAction
+        ) else {
+            return
+        }
 
-        coordinator.start(with: options)
+        let coordinator = factory.getYieldPromoCoordinator()
         yieldModulePromoCoordinator = coordinator
     }
 
-    func openYieldEarnInfo(
-        walletModel: any WalletModel,
-        onGiveApproveAction: @escaping () -> Void,
-        onStopEarnAction: @escaping () -> Void
-    ) {
+    func openYieldEarnInfo(walletModel: any WalletModel, signer: any TangemSigner) {
+        guard
+            let factory = YieldModuleFlowFactory(
+                walletModel: walletModel,
+                signer: signer,
+                feeCurrencyNavigator: self,
+                dismissAction: dismissAction
+            ),
+            let vm = factory.makeYieldInfoViewModel()
+        else {
+            return
+        }
+
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(
-                sheet: YieldModuleInfoViewModel(
-                    walletModel: walletModel,
-                    feeCurrencyNavigator: self,
-                    onGiveApproveAction: onGiveApproveAction,
-                    onStopEarnAction: onStopEarnAction
-                )
-            )
+            floatingSheetPresenter.enqueue(sheet: vm)
         }
     }
 
@@ -243,7 +246,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             input: .init(
-                userWalletInfo: userWalletModel.sendWalletInfo,
+                userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
                 expressInput: .init(userWalletModel: userWalletModel)
             ),
@@ -263,7 +266,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
         let options = SendCoordinator.Options(
             input: .init(
-                userWalletInfo: userWalletModel.sendWalletInfo,
+                userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
                 expressInput: .init(userWalletModel: userWalletModel)
             ),
@@ -335,7 +338,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             input: .init(
-                userWalletInfo: userWalletModel.sendWalletInfo,
+                userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
                 expressInput: .init(userWalletModel: userWalletModel)
             ),

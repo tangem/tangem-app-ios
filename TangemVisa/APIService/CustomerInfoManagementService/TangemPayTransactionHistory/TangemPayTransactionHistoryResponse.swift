@@ -16,6 +16,19 @@ public extension TangemPayTransactionHistoryResponse {
         public let transactionType: TransactionType
         public let record: Record
 
+        public var transactionDate: Date {
+            switch record {
+            case .spend(let spend):
+                spend.postedAt ?? spend.authorizedAt
+            case .collateral(let collateral):
+                collateral.postedAt
+            case .payment(let payment):
+                payment.postedAt
+            case .fee(let fee):
+                fee.postedAt
+            }
+        }
+
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -79,6 +92,11 @@ public extension TangemPayTransactionHistoryResponse {
         public let declinedReason: String?
         public let authorizedAt: Date
         public let postedAt: Date?
+
+        // [REDACTED_TODO_COMMENT]
+        public var isDeclined: Bool {
+            status == "declined"
+        }
     }
 
     struct Collateral: Decodable, Equatable {
