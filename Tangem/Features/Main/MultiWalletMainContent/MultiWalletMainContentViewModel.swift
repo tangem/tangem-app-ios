@@ -17,6 +17,8 @@ import TangemLocalization
 import TangemUI
 import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
+import TangemVisa
+import BlockchainSdk
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
@@ -69,7 +71,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let userWalletNotificationManager: NotificationManager
     private let tokensNotificationManager: NotificationManager
     private let bannerNotificationManager: NotificationManager?
-    private let yieldModuleNotificationManager: NotificationManager
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
@@ -96,7 +97,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         userWalletNotificationManager: NotificationManager,
         tokensNotificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
-        yieldModuleNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         tokenSectionsAdapter: TokenSectionsAdapter,
         tokenRouter: SingleTokenRoutable,
@@ -108,7 +108,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.userWalletNotificationManager = userWalletNotificationManager
         self.tokensNotificationManager = tokensNotificationManager
         self.bannerNotificationManager = bannerNotificationManager
-        self.yieldModuleNotificationManager = yieldModuleNotificationManager
         self.rateAppController = rateAppController
         self.tokenSectionsAdapter = tokenSectionsAdapter
         self.tokenRouter = tokenRouter
@@ -125,9 +124,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
         if FeatureProvider.isAvailable(.visa) {
-            let tangemPayAccountPublisher = userWalletModel.walletModelsManager.walletModelsPublisher
-                .compactMap(\.tangemPayWalletModel)
-                .compactMap(TangemPayAccount.init)
+            let tangemPayAccountPublisher = userWalletModel.keysRepository.keysPublisher
+                .compactMap { _ in
+                    TangemPayAccount(keysRepository: userWalletModel.keysRepository)
+                }
                 .merge(with: userWalletModel.updatePublisher.compactMap(\.tangemPayAccount))
                 .share(replay: 1)
 
@@ -300,13 +300,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        yieldModuleNotificationManager
-            .notificationPublisher
-            .receive(on: DispatchQueue.main)
-            .removeDuplicates()
-            .assign(to: \.yieldModuleNotificationInputs, on: self, ownership: .weak)
-            .store(in: &bag)
-
         rateAppController.bind(
             isPageSelectedPublisher: isPageSelectedSubject,
             notificationsPublisher1: $notificationInputs,
@@ -426,7 +419,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private func subscribeToTokenListSync(with sectionsPublisher: some Publisher<[Section], Never>) {
         let tokenListSyncPublisher = userWalletModel
-            .userTokenListManager
+            .userTokensManager
             .initializedPublisher
             .filter { $0 }
 
@@ -755,7 +748,10 @@ private extension MultiWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+            expressTokensListAdapter: CommonExpressTokensListAdapter(
+                userTokensManager: userWalletModel.userTokensManager,
+                walletModelsManager: userWalletModel.walletModelsManager,
+            ),
             userWalletModel: userWalletModel
         )
     }

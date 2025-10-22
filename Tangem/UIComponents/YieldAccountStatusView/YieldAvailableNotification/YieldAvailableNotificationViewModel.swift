@@ -28,7 +28,8 @@ final class YieldAvailableNotificationViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(yieldModuleManager: YieldModuleManager, onButtonTap: @escaping (Decimal) -> Void) {
+    init(state: State, yieldModuleManager: YieldModuleManager, onButtonTap: @escaping (Decimal) -> Void) {
+        self.state = state
         self.yieldModuleManager = yieldModuleManager
         self.onButtonTap = onButtonTap
 
@@ -80,19 +81,22 @@ extension YieldAvailableNotificationViewModel {
         case unavailable
 
         var isLoading: Bool {
-            if case .loading = self { return true }
-            return false
+            switch self {
+            case .loading:
+                return true
+            default:
+                return false
+            }
         }
 
         var title: String {
             switch self {
-            case .available(let apy):
-                return Localization.yieldModuleTokenDetailsEarnNotificationTitle(apy)
+            case .available:
+                return Localization.yieldModuleTokenDetailsEarnNotificationTitle
             case .loading:
-                return Localization.yieldModuleTokenDetailsEarnNotificationTitle("0.0%")
+                return Localization.yieldModuleTokenDetailsEarnNotificationTitle
             case .unavailable:
-                // [REDACTED_TODO_COMMENT]
-                return "Earnings unavailable"
+                return Localization.yieldModuleUnavailableTitle
             }
         }
 
@@ -101,8 +105,7 @@ extension YieldAvailableNotificationViewModel {
             case .available, .loading:
                 return Localization.yieldModuleTokenDetailsEarnNotificationDescription
             case .unavailable:
-                // [REDACTED_TODO_COMMENT]
-                return "The interest service isn’t available at the moment. Please try again later."
+                return Localization.yieldModuleUnavailableSubtitle
             }
         }
 

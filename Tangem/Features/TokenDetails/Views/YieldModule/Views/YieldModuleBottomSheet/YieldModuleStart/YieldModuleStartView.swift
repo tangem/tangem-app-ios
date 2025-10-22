@@ -17,7 +17,8 @@ struct YieldModuleStartView: View {
     // MARK: - View Body
 
     var body: some View {
-        contentView.animation(.contentFrameUpdate, value: viewModel.viewState)
+        contentView
+            .animation(.contentFrameUpdate, value: viewModel.viewState)
     }
 
     // MARK: - Sub Views
@@ -32,8 +33,7 @@ struct YieldModuleStartView: View {
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
             content: { mainContent },
-            notificationBanner: bannerParams,
-            buttonTopPadding: buttonTopPadding
+            buttonTopPadding: 24
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
@@ -48,14 +48,6 @@ struct YieldModuleStartView: View {
         }
 
         return 32
-    }
-
-    private var bannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? {
-        if case .startEarning = viewModel.viewState {
-            return viewModel.notificationBannerParams
-        }
-
-        return nil
     }
 
     private var title: String? {
@@ -116,6 +108,7 @@ struct YieldModuleStartView: View {
                 title: Localization.yieldModuleStartEarning,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
+                isLoading: viewModel.isProcessingStartRequest,
                 isDisabled: !viewModel.isButtonEnabled,
                 action: ctaButtonAction,
             ))
@@ -132,6 +125,28 @@ struct YieldModuleStartView: View {
         }
     }
 
+    private var startEarningView: some View {
+        VStack(spacing: .zero) {
+            YieldFeeSection(
+                leadingTitle: Localization.commonNetworkFeeTitle,
+                state: viewModel.networkFeeState,
+                footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
+                linkTitle: Localization.yieldModuleStartEarningSheetFeePolicy,
+                url: nil,
+                isLinkActive: viewModel.isNavigationToFeePolicyEnabled,
+                onLinkTapAction: viewModel.onShowFeePolicy
+            )
+            .onAppear {
+                viewModel.fetchFees()
+            }
+
+            if let notificationBannerParams = viewModel.notificationBannerParams {
+                YieldModuleBottomSheetNotificationBannerView(params: notificationBannerParams)
+                    .padding(.top, 26)
+            }
+        }
+    }
+
     @ViewBuilder
     private var mainContent: some View {
         switch viewModel.viewState {
@@ -142,22 +157,13 @@ struct YieldModuleStartView: View {
                 }
 
         case .startEarning:
-            YieldFeeSection(
-                leadingTitle: Localization.commonNetworkFeeTitle,
-                state: viewModel.networkFeeState,
-                footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
-                linkTitle: Localization.yieldModuleStartEarningSheetFeePolicy,
-                url: nil,
-                onLinkTapAction: viewModel.onShowFeePolicy
-            )
-            .task {
-                await viewModel.fetchNetworkFee()
-            }
+            startEarningView
 
         case .feePolicy:
             YieldModuleFeePolicyView(
                 tokenFeeState: viewModel.tokenFeeState,
-                maximumFee: viewModel.maximumFee.formatted(),
+                maximumFeeState: viewModel.maximumFeeState,
+                minimalAmountState: viewModel.minimalAmountState,
                 blockchainName: viewModel.walletModel.tokenItem.blockchain.displayName,
             )
         }

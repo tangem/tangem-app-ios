@@ -25,7 +25,11 @@ protocol YieldModuleManager {
     func approveFee() async throws -> YieldTransactionFee
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String
 
+    func minimalFee() async throws -> Decimal
+    func currentNetworkFee() async throws -> Decimal
+
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
+    func fetchChartData() async throws -> YieldChartData
 }
 
 protocol YieldModuleManagerUpdater {
@@ -43,6 +47,7 @@ final class CommonYieldModuleManager {
     private let token: Token
     private let blockchain: Blockchain
     private let chainId: Int
+    private let tokenId: String
     private let yieldSupplyService: YieldSupplyService
 
     private let transactionProvider: YieldTransactionProvider
@@ -66,7 +71,8 @@ final class CommonYieldModuleManager {
         pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
     ) {
         guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses(),
-              let chainId = blockchain.chainId
+              let chainId = blockchain.chainId,
+              let tokenId = token.id
         else {
             return nil
         }
@@ -75,6 +81,7 @@ final class CommonYieldModuleManager {
         self.token = token
         self.blockchain = blockchain
         self.chainId = chainId
+        self.tokenId = tokenId
         self.yieldSupplyService = yieldSupplyService
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
 
@@ -117,6 +124,14 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             balance: balance
         )
         _walletModelData.send(data)
+    }
+
+    func currentNetworkFee() async throws -> Decimal {
+        try await transactionFeeProvider.currentNetworkFee()
+    }
+
+    func minimalFee() async throws -> Decimal {
+        try await transactionFeeProvider.minimalFee(tokenId: tokenId)
     }
 
     func enterFee() async throws -> YieldTransactionFee {
@@ -202,9 +217,13 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         default: throw YieldModuleError.inconsistentState
         }
 
-        return try await transactionDispatcher
+        let result = try await transactionDispatcher
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
+
+        try? await yieldModuleNetworkManager.activate(tokenContractAddress: token.contractAddress, chainId: chainId)
+
+        return result
     }
 
     func exitFee() async throws -> any YieldTransactionFee {
@@ -231,9 +250,13 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             fee: exitFee
         )
 
-        return try await transactionDispatcher
+        let result = try await transactionDispatcher
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
+
+        try? await yieldModuleNetworkManager.deactivate(tokenContractAddress: token.contractAddress, chainId: chainId)
+
+        return result
     }
 
     func approveFee() async throws -> any YieldTransactionFee {
@@ -266,6 +289,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             tokenContractAddress: token.contractAddress,
             chainId: chainId
         )
+    }
+
+    func fetchChartData() async throws -> YieldChartData {
+        try await yieldModuleNetworkManager.fetchChartData(tokenContractAddress: token.contractAddress, chainId: chainId)
     }
 }
 
@@ -321,16 +348,15 @@ private extension CommonYieldModuleManager {
         case .loaded:
             if let balance = walletModelData.balance,
                case .token(let token) = balance.type,
-               let yieldSupply = token.metadata.yieldSupply,
-               let allowance = EthereumUtils.parseEthereumDecimal(
-                   yieldSupply.allowance,
-                   decimalsCount: token.decimalCount
-               ) {
+               let yieldSupply = token.metadata.yieldSupply {
                 state = .active(
                     YieldSupplyInfo(
                         yieldContractAddress: yieldSupply.yieldContractAddress,
                         balance: balance,
-                        allowance: allowance
+                        isAllowancePermissionRequired: YieldAllowanceUtil().isPermissionRequired(
+                            allowance: yieldSupply.allowance
+                        ),
+                        yieldModuleBalanceValue: yieldSupply.amountValue
                     )
                 )
             } else {

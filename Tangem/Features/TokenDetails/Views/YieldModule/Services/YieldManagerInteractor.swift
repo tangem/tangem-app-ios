@@ -8,13 +8,16 @@
 
 import Foundation
 import TangemFoundation
+import enum BlockchainSdk.YieldModuleError
 
 actor YieldManagerInteractor {
     private(set) var enterFee: YieldTransactionFee?
     private var exitFee: YieldTransactionFee?
+    private var approveFee: YieldTransactionFee?
 
     private var enterFeeTask: Task<YieldTransactionFee, Error>?
     private var exitFeeTask: Task<YieldTransactionFee, Error>?
+    private var approveFeeTask: Task<YieldTransactionFee, Error>?
 
     // MARK: - Dependencies
 
@@ -36,6 +39,14 @@ actor YieldManagerInteractor {
 
     // MARK: - Public Implementation
 
+    func getIsApproveRequired() -> Bool {
+        guard case .active(let info) = manager.state?.state else {
+            return false
+        }
+
+        return info.isAllowancePermissionRequired
+    }
+
     func getApy() async throws -> Decimal {
         if let apy = manager.state?.marketInfo?.apy {
             return apy
@@ -45,11 +56,33 @@ actor YieldManagerInteractor {
         }
     }
 
+    func getMaxFee() -> (Decimal, Decimal)? {
+        if let marketInfo = manager.state?.marketInfo, let maxFeeNative = marketInfo.maxFeeNative, let maxFeeUSD = marketInfo.maxFeeUSD {
+            return (maxFeeNative, maxFeeUSD)
+        }
+
+        return nil
+    }
+
+    func getMinAmount() async throws -> Decimal {
+        try await manager.minimalFee()
+    }
+
+    func getChartData() async throws -> YieldChartData {
+        try await manager.fetchChartData()
+    }
+
+    func getCurrentNetworkFee() async throws -> Decimal {
+        try await manager.currentNetworkFee()
+    }
+
     func clearAll() {
         enterFee = nil
         exitFee = nil
+        approveFee = nil
         enterFeeTask = nil
         exitFeeTask = nil
+        approveFeeTask = nil
     }
 
     func getEnterFee() async throws -> YieldTransactionFee {
@@ -59,6 +92,17 @@ actor YieldManagerInteractor {
             setCache: { enterFee = $0 },
             loader: {
                 try await self.manager.enterFee()
+            }
+        )
+    }
+
+    func getApproveFee() async throws -> YieldTransactionFee {
+        try await loadFee(
+            getTask: { approveFeeTask },
+            setTask: { approveFeeTask = $0 },
+            setCache: { approveFee = $0 },
+            loader: {
+                try await self.manager.approveFee()
             }
         )
     }
@@ -74,31 +118,30 @@ actor YieldManagerInteractor {
         )
     }
 
-    /// Initiates the "enter" operation for the given token.
-    /// This is a fire-and-forget task: it triggers the manager call
-    /// and updates the withdrawal alert state on completion,
-    /// without propagating any result or error back to the caller.
-    func enter(with token: TokenItem) {
-        runTask(in: self) { actor in
-            guard let fee = await actor.enterFee else {
-                return
-            }
-
-            _ = try await actor.manager.enter(fee: fee, transactionDispatcher: actor.transactionDispatcher)
-            await actor.yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: token)
+    func approve(with token: TokenItem) async throws {
+        guard let fee = approveFee else {
+            throw YieldModuleError.feeNotFound
         }
+
+        _ = try await manager.approve(fee: fee, transactionDispatcher: transactionDispatcher)
     }
 
-    /// Initiates the "enter" operation for the given token.
-    /// This is also a fire-and-forget task
-    func exit(with token: TokenItem) {
-        runTask(in: self) { actor in
-            guard let fee = await actor.exitFee else {
-                return
-            }
-
-            _ = try? await actor.manager.exit(fee: fee, transactionDispatcher: actor.transactionDispatcher)
+    func enter(with token: TokenItem) async throws {
+        guard let fee = enterFee else {
+            throw YieldModuleError.feeNotFound
         }
+
+        _ = try await manager.enter(fee: fee, transactionDispatcher: transactionDispatcher)
+        await yieldModuleNotificationInteractor.markWithdrawalAlertShouldShow(for: token)
+    }
+
+    func exit(with token: TokenItem) async throws {
+        guard let fee = exitFee else {
+            throw YieldModuleError.feeNotFound
+        }
+
+        _ = try await manager.exit(fee: fee, transactionDispatcher: transactionDispatcher)
+        await yieldModuleNotificationInteractor.deleteWithdrawalAlert(for: token)
     }
 
     // MARK: - Heplers

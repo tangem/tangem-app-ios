@@ -59,6 +59,40 @@ final class YieldTransactionFeeProvider {
         return try await fee(from: transactions)
     }
 
+    func currentNetworkFee() async throws -> Decimal {
+        let converter = BalanceConverter()
+
+        let parameters = try await ethereumNetworkProvider.getFee(
+            gasLimit: Constants.minimalTopUpGasLimit,
+            supportsEIP1559: blockchain.supportsEIP1559
+        )
+
+        let feeNative = parameters.calculateFee(decimalValue: blockchain.decimalValue)
+        let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: blockchain.currencyId)
+        return gasInFiat
+    }
+
+    func minimalFee(tokenId: String) async throws -> Decimal {
+        let converter = BalanceConverter()
+
+        let parameters = try await ethereumNetworkProvider.getFee(
+            gasLimit: Constants.minimalTopUpGasLimit,
+            supportsEIP1559: blockchain.supportsEIP1559
+        )
+
+        let feeNative = parameters.calculateFee(decimalValue: blockchain.decimalValue)
+        let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: blockchain.currencyId)
+
+        guard let gasInToken = converter.convertFromFiat(gasInFiat, currencyId: tokenId) else {
+            throw YieldModuleError.minimalTopUpAmountNotFound
+        }
+
+        let feeBuffered = gasInToken * Constants.minimalTopUpBuffer
+        let minAmount = feeBuffered / Constants.minimalTopUpFeeLimit
+
+        return minAmount
+    }
+
     func reactivateFee(
         yieldContractAddress: String,
         tokenContractAddress: String,
@@ -405,7 +439,7 @@ private extension YieldTransactionFeeProvider {
             contractAddress: tokenContractAddress
         ).async()
 
-        return BigUInt(Data(hexString: allowanceString)) < Constants.maxAllowance / 2
+        return YieldAllowanceUtil().isPermissionRequired(allowance: allowanceString)
     }
 }
 
@@ -433,7 +467,9 @@ private extension Array where Element == Fee {
 extension YieldTransactionFeeProvider {
     enum Constants {
         static let zeroCoinAmount = "0x0"
-        static let maxAllowance = BigUInt(2).power(256) - 1
         static let estimatedGasLimit = 500_000 // gas units, provided by dbaturin
+        static let minimalTopUpGasLimit: BigUInt = 350_000
+        static let minimalTopUpBuffer: Decimal = 1.25
+        static let minimalTopUpFeeLimit: Decimal = 0.04
     }
 }
