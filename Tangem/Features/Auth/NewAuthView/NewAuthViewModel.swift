@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import SwiftUI
 import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
@@ -18,7 +17,7 @@ import class TangemSdk.BiometricsUtil
 final class NewAuthViewModel: ObservableObject {
     @Published var state: State?
     @Published var alert: AlertBinder?
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var isScanning: Bool = false
 
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
@@ -140,22 +139,21 @@ private extension NewAuthViewModel {
 
             let unlockResult = await unlocker.unlock()
 
-            viewModel.signInAnalyticsLogger.logSignInEvent(signInType: unlocker.analyticsSignInType)
-
             if case .success = unlockResult, unlocker.analyticsSignInType == .card {
                 Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
             }
 
-            await viewModel.handleUnlock(result: unlockResult, userWalletModel: userWalletModel)
+            await viewModel.handleUnlock(result: unlockResult, userWalletModel: userWalletModel, signInType: unlocker.analyticsSignInType)
         }
     }
 
-    func handleUnlock(result: UserWalletModelUnlockerResult, userWalletModel: UserWalletModel) async {
+    func handleUnlock(result: UserWalletModelUnlockerResult, userWalletModel: UserWalletModel, signInType: Analytics.SignInType) async {
         switch result {
         case .success(let userWalletId, let encryptionKey):
             do {
                 let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                 let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
                 await openMain(userWalletModel: userWalletModel)
             } catch {
                 incomingActionManager.discardIncomingAction()
@@ -168,6 +166,7 @@ private extension NewAuthViewModel {
             do {
                 let unlockMethod = UserWalletRepositoryUnlockMethod.biometrics(context)
                 let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
                 await openMain(userWalletModel: userWalletModel)
             } catch {
                 incomingActionManager.discardIncomingAction()
@@ -277,26 +276,27 @@ private extension NewAuthViewModel {
     }
 
     func openAddWallet() {
-        let sheet = ActionSheet(
-            title: Text(Localization.authInfoAddWalletTitle),
+        let createNewWalletButton = ConfirmationDialogViewModel.Button(title: Localization.homeButtonCreateNewWallet) { [weak self] in
+            self?.openCreateWallet()
+        }
+
+        let addExistingWalletButton = ConfirmationDialogViewModel.Button(title: Localization.homeButtonAddExistingWallet) { [weak self] in
+            self?.openImportWallet()
+        }
+
+        let buyTangemWalletButton = ConfirmationDialogViewModel.Button(title: Localization.detailsBuyWallet) { [weak self] in
+            self?.openBuyWallet()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.authInfoAddWalletTitle,
             buttons: [
-                .default(
-                    Text(Localization.homeButtonCreateNewWallet),
-                    action: weakify(self, forFunction: NewAuthViewModel.openCreateWallet)
-                ),
-                .default(
-                    Text(Localization.homeButtonAddExistingWallet),
-                    action: weakify(self, forFunction: NewAuthViewModel.openImportWallet)
-                ),
-                .default(
-                    Text(Localization.detailsBuyWallet),
-                    action: weakify(self, forFunction: NewAuthViewModel.openBuyWallet)
-                ),
-                .cancel(),
+                createNewWalletButton,
+                addExistingWalletButton,
+                buyTangemWalletButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func openCreateWallet() {
@@ -320,29 +320,28 @@ private extension NewAuthViewModel {
     }
 
     func openTroubleshooting(userWalletModel: UserWalletModel) {
-        let sheet = ActionSheet(
-            title: Text(Localization.alertTroubleshootingScanCardTitle),
-            message: Text(Localization.alertTroubleshootingScanCardMessage),
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.unlockWithCardTryAgain(userWalletModel: userWalletModel)
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.openScanCardManual()
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.openSupportRequest()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
-                .default(
-                    Text(Localization.alertButtonTryAgain),
-                    action: { [weak self] in
-                        self?.unlockWithCardTryAgain(userWalletModel: userWalletModel)
-                    }
-                ),
-                .default(
-                    Text(Localization.commonReadMore),
-                    action: weakify(self, forFunction: NewAuthViewModel.openScanCardManual)
-                ),
-                .default(
-                    Text(Localization.alertButtonRequestSupport),
-                    action: weakify(self, forFunction: NewAuthViewModel.openSupportRequest)
-                ),
-                .cancel(),
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func openScanCardManual() {
