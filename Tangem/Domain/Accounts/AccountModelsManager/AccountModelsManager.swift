@@ -16,6 +16,8 @@ protocol AccountModelsManager {
 
     var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> { get }
 
+    var accountModels: [AccountModel] { get }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { get }
 
     /// Archived + active
@@ -31,4 +33,18 @@ protocol AccountModelsManager {
     ) throws(AccountModelsManagerError)
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError)
+}
+
+extension AccountModelsManager {
+    var cryptoAccountModelsPublisher: AnyPublisher<[any CryptoAccountModel], Never> {
+        accountModelsPublisher.map { accountModels in
+            accountModels.flatMap { accountModel in
+                switch accountModel {
+                case .standard(.single(let cryptoAccountModel)): [cryptoAccountModel]
+                case .standard(.multiple(let cryptoAccountModels)): cryptoAccountModels
+                }
+            }
+        }
+        .eraseToAnyPublisher()
+    }
 }
