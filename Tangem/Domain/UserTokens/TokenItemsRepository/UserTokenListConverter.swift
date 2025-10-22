@@ -10,6 +10,7 @@ import Foundation
 import TangemFoundation
 import enum BlockchainSdk.Blockchain
 
+@available(iOS, deprecated: 100000.0, message: "Superseded by 'CryptoAccountsNetworkMapper', will be removed in the future ([REDACTED_INFO])")
 struct UserTokenListConverter {
     private let supportedBlockchains: Set<Blockchain>
     private weak var externalParametersProvider: UserTokenListExternalParametersProvider?
@@ -26,7 +27,7 @@ struct UserTokenListConverter {
 
         let tokens = storedUserTokenList
             .entries
-            .compactMap { entry in
+            .map { entry in
                 let network = entry.blockchainNetwork
                 let id = entry.isToken ? entry.id : network.blockchain.coinId
                 let name = entry.isToken ? entry.name : network.blockchain.coinDisplayName
@@ -54,7 +55,8 @@ struct UserTokenListConverter {
             tokens: tokens,
             group: convertToGroupType(groupingOption: storedUserTokenList.grouping),
             sort: convertToSortType(sortingOption: storedUserTokenList.sorting),
-            notifyStatus: notifyStatusValue
+            notifyStatus: notifyStatusValue,
+            version: Constants.apiVersion
         )
     }
 
@@ -114,9 +116,10 @@ struct UserTokenListConverter {
                     return token
                 }
             }
+            .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
 
         return StoredUserTokenList(
-            entries: entries.unique(),
+            entries: entries,
             grouping: convertToGroupingOption(groupType: remoteUserTokenList.group),
             sorting: convertToSortingOption(sortType: remoteUserTokenList.sort)
         )
@@ -142,5 +145,13 @@ struct UserTokenListConverter {
         case .balance:
             return .byBalance
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension UserTokenListConverter {
+    enum Constants {
+        static var apiVersion: Int { 0 }
     }
 }

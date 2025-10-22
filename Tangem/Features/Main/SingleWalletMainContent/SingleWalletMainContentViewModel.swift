@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
-import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, ObservableObject {
     // MARK: - ViewState
@@ -62,8 +62,8 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         bind()
     }
 
-    override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
-        delegate?.present(actionSheet: actionSheet)
+    override func present(confirmationDialog: ConfirmationDialogViewModel) {
+        delegate?.present(confirmationDialog: confirmationDialog)
     }
 
     override func copyDefaultAddress() {

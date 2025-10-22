@@ -11,14 +11,18 @@ import SwiftUI
 final class YieldModulePromoCoordinator: CoordinatorObject {
     // MARK: - Injected
 
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.floatingSheetPresenter)
+    private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - Propeties
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
-    @Published var rootViewModel: YieldModulePromoViewModel? = nil
+    @Published
+    var rootViewModel: YieldModulePromoViewModel? = nil
+
+    private weak var feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
 
     // MARK: - Init
 
@@ -30,26 +34,24 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     // MARK: - Public Implementation
 
     func start(with options: Options) {
-        rootViewModel = .init(
-            walletModel: options.walletModel,
-            apy: options.apy,
-            lastYearReturns: options.lastYearReturns,
-            networkFee: options.networkFee,
-            maximumFee: options.maximumFee,
-            tokenImageUrl: options.tokenImageUrl,
-            coordinator: self
-        )
+        rootViewModel = options.viewModel
+        feeCurrencyNavigator = options.feeCurrencyNavigator
     }
 
-    func openRateInfoSheet(params: YieldModuleViewConfigs.RateInfoParams, walletModel: any WalletModel) {
+    func openBottomSheet(viewModel: YieldModuleStartViewModel) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldModuleStartViewModel(walletModel: walletModel, viewState: .rateInfo(params: params)))
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
-    func openStartEarningSheet(params: YieldModuleViewConfigs.StartEarningParams, walletModel: any WalletModel) {
+    func openFeeCurrency(for feeWalletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        feeCurrencyNavigator?.openFeeCurrency(for: feeWalletModel, userWalletModel: userWalletModel)
+    }
+
+    func dismiss() {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldModuleStartViewModel(walletModel: walletModel, viewState: .startEarning(params: params)))
+            floatingSheetPresenter.removeActiveSheet()
+            dismissAction(())
         }
     }
 }
@@ -58,11 +60,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 
 extension YieldModulePromoCoordinator {
     struct Options {
-        let walletModel: any WalletModel
-        let apy: String
-        let networkFee: Decimal
-        let maximumFee: Decimal
-        let lastYearReturns: [String: Double]
-        let tokenImageUrl: URL?
+        let viewModel: YieldModulePromoViewModel
+        let feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
     }
 }

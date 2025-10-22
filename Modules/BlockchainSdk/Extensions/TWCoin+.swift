@@ -138,7 +138,11 @@ extension CoinType {
              .alephium,
              .vanar,
              .pepecoin,
-             .hyperliquidEVM:
+             .hyperliquidEVM,
+             .quai,
+             .scroll,
+             .linea,
+             .arbitrumNova:
             // Blockchains that are not in WalletCore yet
             return nil
         }

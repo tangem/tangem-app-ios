@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 
 enum APIProvider: String {
+    case blink
     case nownodes
     case quicknode
     case getblock
@@ -30,10 +31,12 @@ enum APIProvider: String {
     case onfinalityBittensor
     case tangemAlephium
     case koinospro
+    case tatum
     case mock
 
     var blockchainProvider: NetworkProviderType {
         switch self {
+        case .blink: return .blink
         case .nownodes: return .nowNodes
         case .quicknode: return .quickNode
         case .getblock: return .getBlock
@@ -54,6 +57,7 @@ enum APIProvider: String {
         case .onfinalityBittensor: return .onfinality
         case .tangemAlephium: return .tangemAlephium
         case .koinospro: return .koinosPro
+        case .tatum: return .tatum
         case .mock: return .mock
         }
     }

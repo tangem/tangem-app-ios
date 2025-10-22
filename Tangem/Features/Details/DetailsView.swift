@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct DetailsView: View {
     @ObservedObject private var viewModel: DetailsViewModel
@@ -39,7 +40,7 @@ struct DetailsView: View {
         .interContentPadding(8)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
-        .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
+        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .navigationTitle(Localization.detailsTitle)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear(perform: viewModel.onAppear)

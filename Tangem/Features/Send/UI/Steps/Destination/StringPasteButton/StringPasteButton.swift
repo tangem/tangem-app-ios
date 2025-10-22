@@ -53,14 +53,16 @@ struct StringPasteButton: View {
                 DispatchQueue.main.async { action(string) }
             }
         }
-        .tint(Colors.Text.primary1)
+        .tint(.black)
         .labelStyle(.titleOnly)
         .buttonBorderShape(.capsule)
+        .fixedSize()
+        .disableAnimations()
     }
 
     @ViewBuilder
     var custom: some View {
-        RoundedButton(title: Localization.commonPaste) {
+        CircleButton(title: Localization.commonPaste) {
             if let string = UIPasteboard.general.string {
                 action(string)
             }

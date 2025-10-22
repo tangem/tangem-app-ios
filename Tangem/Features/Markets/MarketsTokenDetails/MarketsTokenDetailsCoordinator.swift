@@ -38,6 +38,7 @@ class MarketsTokenDetailsCoordinator: CoordinatorObject {
     private var safariHandle: SafariHandle?
 
     private let portfolioCoordinatorFactory = MarketsTokenDetailsPortfolioCoordinatorFactory()
+    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Init
 
@@ -80,6 +81,18 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
                 walletDataProvider: walletDataProvider
             )
         )
+    }
+
+    func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
+        let viewModel = MarketsTokenAccountNetworkSelectorFlowViewModel(
+            inputData: .init(coinId: model.id, coinName: model.name, coinSymbol: model.symbol, networks: model.availableNetworks),
+            userWalletDataProvider: walletDataProvider,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType) {
@@ -135,7 +148,9 @@ extension MarketsTokenDetailsCoordinator {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel
+            addressTypesProvider: walletModel,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -149,26 +164,41 @@ extension MarketsTokenDetailsCoordinator {
     }
 
     func openExchange(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.expressCoordinator = nil
-        }
-
-        let openSwapBlock = { [weak self] in
+        let action = { [weak self] in
             guard let self else { return }
-            expressCoordinator = portfolioCoordinatorFactory.makeExpressCoordinator(
-                for: walletModel,
-                with: userWalletModel,
-                dismissAction: dismissAction,
-                popToRootAction: popToRootAction
-            )
+
+            let dismissAction: ExpressCoordinator.DismissAction = { [weak self] _ in
+                self?.expressCoordinator = nil
+            }
+
+            let openSwapBlock = { [weak self] in
+                guard let self else { return }
+                Task { @MainActor in
+                    let coordinator = self.portfolioCoordinatorFactory.makeExpressCoordinator(
+                        for: walletModel,
+                        with: userWalletModel,
+                        dismissAction: dismissAction,
+                        popToRootAction: self.popToRootAction
+                    )
+
+                    coordinator.start(with: .default)
+                    self.expressCoordinator = coordinator
+                }
+            }
+
+            Task { @MainActor [tangemStoriesPresenter] in
+                tangemStoriesPresenter.present(
+                    story: .swap(.initialWithoutImages),
+                    analyticsSource: .markets,
+                    presentCompletion: openSwapBlock
+                )
+            }
         }
 
-        Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
-                analyticsSource: .markets,
-                presentCompletion: openSwapBlock
-            )
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
+            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: action)
+        } else {
+            action()
         }
     }
 
@@ -179,12 +209,29 @@ extension MarketsTokenDetailsCoordinator {
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
+            ),
             type: .onramp(),
             source: .markets
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
+    }
+}
+
+// MARK: - MarketsTokenAccountNetworkSelectorRoutable
+
+extension MarketsTokenDetailsCoordinator: MarketsTokenAccountNetworkSelectorRoutable {
+    func close() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
@@ -198,6 +245,13 @@ extension MarketsTokenDetailsCoordinator {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 walletModel.update(silent: true)
             }
+        }
+    }
+
+    func openViaYieldNotice(tokenItem: TokenItem, action: @escaping () -> Void) {
+        let viewModel = YieldNoticeViewModel(tokenItem: tokenItem, action: action)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 }

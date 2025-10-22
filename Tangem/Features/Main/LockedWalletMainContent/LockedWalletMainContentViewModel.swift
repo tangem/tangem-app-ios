@@ -7,19 +7,18 @@
 //
 
 import Combine
-import SwiftUI
 import TangemFoundation
 import TangemUIUtils
 import TangemLocalization
 import class TangemSdk.BiometricsUtil
 
 protocol MainLockedUserWalletDelegate: AnyObject {
-    func openTroubleshooting(actionSheet: ActionSheetBinder)
+    func openTroubleshooting(confirmationDialog: ConfirmationDialogViewModel)
     func openScanCardManual()
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
 }
 
-class LockedWalletMainContentViewModel: ObservableObject {
+final class LockedWalletMainContentViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     lazy var lockedNotificationInput: NotificationViewInput = {
@@ -97,11 +96,22 @@ class LockedWalletMainContentViewModel: ObservableObject {
 private extension LockedWalletMainContentViewModel {
     func unlock() {
         runTask(in: self) { viewModel in
-            if BiometricsUtil.isAvailable, await AppSettings.shared.useBiometricAuthentication {
+            if viewModel.canUnlockWithBiometry() {
                 await viewModel.unlockWithBiometry()
             } else {
                 await viewModel.unlockWithFallback()
             }
+        }
+    }
+
+    func canUnlockWithBiometry() -> Bool {
+        guard BiometricsUtil.isAvailable else {
+            return false
+        }
+        if FeatureProvider.isAvailable(.mobileWallet) {
+            return AppSettings.shared.useBiometricAuthentication
+        } else {
+            return AppSettings.shared.saveUserWallets
         }
     }
 
@@ -110,7 +120,7 @@ private extension LockedWalletMainContentViewModel {
 
         do {
             let context = try await UserWalletBiometricsUnlocker().unlock()
-            let method = UserWalletRepositoryUnlockMethod.biometrics(context)
+            let method = UserWalletRepositoryUnlockMethod.biometricsUserWallet(userWalletId: userWalletModel.userWalletId, context: context)
             _ = try await userWalletRepository.unlock(with: method)
         } catch where error.isCancellationError {
             await unlockWithFallback()
@@ -188,21 +198,30 @@ private extension LockedWalletMainContentViewModel {
 
 private extension LockedWalletMainContentViewModel {
     func openTroubleshooting() {
-        let sheet = ActionSheet(
-            title: Text(Localization.alertTroubleshootingScanCardTitle),
-            message: Text(Localization.alertTroubleshootingScanCardMessage),
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.unlock()
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.openScanCardManual()
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.requestSupport()
+        }
+
+        let viewModel = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
-                .default(Text(Localization.alertButtonTryAgain), action: weakify(self, forFunction: LockedWalletMainContentViewModel.unlock)),
-                .default(Text(Localization.commonReadMore), action: weakify(self, forFunction: LockedWalletMainContentViewModel.openScanCardManual)),
-                .default(Text(Localization.alertButtonRequestSupport), action: weakify(self, forFunction: LockedWalletMainContentViewModel.requestSupport)),
-                .cancel(),
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak lockedUserWalletDelegate] in
-            let actionSheet = ActionSheetBinder(sheet: sheet)
-            lockedUserWalletDelegate?.openTroubleshooting(actionSheet: actionSheet)
-        }
+        lockedUserWalletDelegate?.openTroubleshooting(confirmationDialog: viewModel)
     }
 
     func openScanCardManual() {
@@ -237,7 +256,10 @@ private extension LockedWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+            expressTokensListAdapter: CommonExpressTokensListAdapter(
+                userTokensManager: userWalletModel.userTokensManager,
+                walletModelsManager: userWalletModel.walletModelsManager,
+            ),
             userWalletModel: userWalletModel
         )
     }

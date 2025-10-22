@@ -61,7 +61,7 @@ struct SendDestinationAdditionalFieldView: View {
     }
 
     private var pasteButton: some View {
-        StringPasteButton(style: .custom) { string in
+        StringPasteButton(style: .native) { string in
             viewModel.didTapPasteButton(string: string)
         }
     }

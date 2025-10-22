@@ -10,6 +10,7 @@ import Combine
 import TangemLocalization
 import SwiftUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct BalanceWithButtonsView: View {
     @ObservedObject var viewModel: BalanceWithButtonsViewModel
@@ -18,8 +19,19 @@ struct BalanceWithButtonsView: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
-                    Text(Localization.commonBalanceTitle)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    HStack(spacing: 4) {
+                        Text(Localization.commonBalanceTitle)
+                            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+                        if let apy = viewModel.yieldModuleApy {
+                            Text(AppConstants.dotSign)
+                                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+                            Text(Localization.yieldModuleTokenDetailsEarnNotificationApy + " " + apy)
+                                .style(Fonts.Bold.footnote, color: Colors.Text.accent)
+                        }
+                    }
+
                     Spacer()
 
                     balancePicker
@@ -34,6 +46,7 @@ struct BalanceWithButtonsView: View {
                         cornerRadius: 6
                     )
                 )
+                .accessibilityIdentifier(balanceAccessibilityIdentifier(for: viewModel.selectedBalanceType))
 
                 LoadableTokenBalanceView(
                     state: viewModel.cryptoBalance,
@@ -43,6 +56,11 @@ struct BalanceWithButtonsView: View {
                         padding: .init(top: 2, leading: 0, bottom: 2, trailing: 0)
                     )
                 )
+                .if(viewModel.shouldShowYieldBalanceInfo) {
+                    $0.yieldIdentificationIfNeeded {
+                        (viewModel.showYieldBalanceInfoAction ?? {})()
+                    }
+                }
             }
 
             ScrollableButtonsView(itemsHorizontalOffset: 14, itemsVerticalOffset: 3, buttonsInfo: viewModel.buttons)
@@ -51,6 +69,15 @@ struct BalanceWithButtonsView: View {
         .padding(.vertical, 14)
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(14)
+    }
+
+    private func balanceAccessibilityIdentifier(for balanceType: BalanceWithButtonsViewModel.BalanceType) -> String {
+        switch balanceType {
+        case .all:
+            return TokenAccessibilityIdentifiers.totalBalance
+        case .available:
+            return TokenAccessibilityIdentifiers.availableBalance
+        }
     }
 
     @ViewBuilder

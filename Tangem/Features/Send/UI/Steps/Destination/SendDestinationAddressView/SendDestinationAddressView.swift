@@ -77,13 +77,14 @@ struct SendDestinationAddressView: View {
     }
 
     private var scanQRButton: some View {
-        RoundedButton(image: Assets.Glyphs.scanQrIcon) {
+        CircleButton(image: Assets.Glyphs.scanQrIcon) {
             viewModel.didTapScanQRButton()
         }
+        .size(.medium)
     }
 
     private var pasteButton: some View {
-        StringPasteButton(style: .custom) { string in
+        StringPasteButton(style: .native) { string in
             viewModel.didTapPasteButton(string: string)
         }
     }
@@ -98,5 +99,6 @@ struct SendDestinationAddressView: View {
                 .foregroundStyle(Colors.Icon.informative)
                 .frame(width: 24, height: 24)
         }
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.addressClearButton)
     }
 }

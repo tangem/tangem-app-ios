@@ -25,8 +25,10 @@ extension WCTransactionViewModel {
         case transactionDetails
         case requestData(WCRequestDetailsInput)
         case feeSelector(FeeSelectorContentViewModel)
-        case customAllowance(WCCustomAllowanceInput)
-        case securityAlert(state: WCTransactionSecurityAlertState, input: WCTransactionSecurityAlertInput)
+        case customAllowance(WCCustomAllowanceViewModel)
+        case securityAlert(WCTransactionSecurityAlertViewModel)
+        case multipleTransactionsAlert(WCMultipleTransactionAlertViewModel)
+        case loading
 
         var stateId: String {
             switch self {
@@ -42,22 +44,28 @@ extension WCTransactionViewModel {
                 return "customAllowance"
             case .securityAlert:
                 return "securityAlert"
+            case .multipleTransactionsAlert:
+                return "multipleTransactionsAlert"
+            case .loading:
+                return "loading"
             }
         }
 
         static func == (lhs: PresentationState, rhs: PresentationState) -> Bool {
             switch (lhs, rhs) {
             case (.signing, .signing),
-                 (.transactionDetails, .transactionDetails):
+                 (.transactionDetails, .transactionDetails),
+                 (.multipleTransactionsAlert, .multipleTransactionsAlert),
+                 (.loading, .loading):
                 return true
             case (.requestData(let lhsInput), .requestData(let rhsInput)):
                 return lhsInput == rhsInput
-            case (.feeSelector, .feeSelector):
-                return true
-            case (.customAllowance(let lhsInput), .customAllowance(let rhsInput)):
-                return lhsInput == rhsInput
-            case (.securityAlert(let lhsState, let lhsInput), .securityAlert(let rhsState, let rhsInput)):
-                return lhsState == rhsState && lhsInput == rhsInput
+            case (.feeSelector(let lhsViewModel), .feeSelector(let rhsViewModel)):
+                return lhsViewModel.id == rhsViewModel.id
+            case (.customAllowance(let lhsViewModel), .customAllowance(let rhsViewModel)):
+                return lhsViewModel.id == rhsViewModel.id
+            case (.securityAlert(let lhsViewModel), .securityAlert(let rhsViewModel)):
+                return lhsViewModel == rhsViewModel
             default:
                 return false
             }

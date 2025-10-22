@@ -44,7 +44,7 @@ class CommonTangemApiService {
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
 
-            return try response.mapAPIResponseAndTangemAPIError(allowRedirectCodes: false, decoder: decoder)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false, decoder: decoder)
         }
     }
 
@@ -114,7 +114,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError> {
-        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list))
+        let target = TangemApiTarget(type: ._saveUserWalletTokens(key: key, list: list))
 
         return provider
             .requestPublisher(target)
@@ -122,6 +122,17 @@ extension CommonTangemApiService: TangemApiService {
             .mapTangemAPIError()
             .mapToVoid()
             .eraseToAnyPublisher()
+    }
+
+    func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
+        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            // An empty response (just zero bytes, not "{}", "[{}]" or similar) can't be mapped
+            // into the `EmptyGenericResponseDTO` DTO, therefore we just check for errors and status codes here
+            let _ = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+        }
     }
 
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> {
@@ -389,17 +400,15 @@ extension CommonTangemApiService: TangemApiService {
 
     // MARK: - Accounts
 
-    func getUserAccounts(userWalletId: String) async throws -> (revision: String, accounts: AccountsDTO.Response.Accounts) {
+    func getUserAccounts(
+        userWalletId: String
+    ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
         let target = TangemApiTarget(type: .getUserAccounts(userWalletId: userWalletId))
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
-
-            guard let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue) else {
-                throw TangemAPIError(code: .optimisticLockingFailed, message: "ETag header is missing in the response")
-            }
-
-            let accounts: AccountsDTO.Response.Accounts = try response.mapAPIResponseAndTangemAPIError(
+            let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
+            let accounts: AccountsDTO.Response.Accounts = try response.mapAPIResponseThrowingTangemAPIError(
                 allowRedirectCodes: true,
                 decoder: decoder
             )
@@ -408,13 +417,38 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
-    func saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts) async throws {
-        let target: TangemApiTarget.TargetType = .saveUserAccounts(userWalletId: userWalletId, revision: revision, accounts: accounts)
-        let _: EmptyGenericResponseDTO = try await request(for: target)
+    func saveUserAccounts(
+        userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts
+    ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
+        let target = TangemApiTarget(type: .saveUserAccounts(userWalletId: userWalletId, revision: revision, accounts: accounts))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
+            let accounts: AccountsDTO.Response.Accounts = try response.mapAPIResponseThrowingTangemAPIError(
+                allowRedirectCodes: true,
+                decoder: decoder
+            )
+
+            return (revision: revision, accounts: accounts)
+        }
     }
 
-    func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts {
-        try await request(for: .getArchivedUserAccounts(userWalletId: userWalletId), decoder: decoder)
+    func getArchivedUserAccounts(
+        userWalletId: String
+    ) async throws -> (revision: String?, archivedAccounts: AccountsDTO.Response.ArchivedAccounts) {
+        let target = TangemApiTarget(type: .getArchivedUserAccounts(userWalletId: userWalletId))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
+            let archivedAccounts: AccountsDTO.Response.ArchivedAccounts = try response.mapAPIResponseThrowingTangemAPIError(
+                allowRedirectCodes: true,
+                decoder: decoder
+            )
+
+            return (revision: revision, archivedAccounts: archivedAccounts)
+        }
     }
 }
 
