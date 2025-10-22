@@ -10,9 +10,11 @@ import SwiftUI
 import TangemAssets
 import TangemAccessibilityIdentifiers
 import TangemLocalization
+import TangemStaking
 
 struct TokenItemEarnBadgeView: View {
-    let apy: String
+    let rewardType: RewardType
+    let rewardValue: String
     let color: Color
 
     private var background: some View {
@@ -21,13 +23,20 @@ struct TokenItemEarnBadgeView: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            Text(Localization.yieldModuleEarnBadge(apy))
+            Text("\(rewardTypeString) \(rewardValue)")
                 .style(Fonts.BoldStatic.caption2, color: color)
                 .fixedSize(horizontal: true, vertical: false)
                 .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenItemEarnBadge)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
                 .background(background)
+        }
+    }
+
+    var rewardTypeString: String {
+        switch rewardType {
+        case .apr: Localization.stakingDetailsApr
+        case .apy: Localization.stakingDetailsApy
         }
     }
 }
