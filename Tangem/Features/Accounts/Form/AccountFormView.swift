@@ -92,8 +92,7 @@ struct AccountFormView: View {
                 accountName: $viewModel.accountName,
                 maxCharacters: viewModel.maxNameLength,
                 placeholderText: viewModel.placeholder,
-                color: viewModel.selectedColor.color,
-                nameMode: viewModel.nameMode
+                accountIconViewData: viewModel.iconViewData
             )
 
             AccountFormGridView(

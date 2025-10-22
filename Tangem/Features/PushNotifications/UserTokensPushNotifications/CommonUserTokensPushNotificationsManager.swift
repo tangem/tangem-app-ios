@@ -25,7 +25,9 @@ class CommonUserTokensPushNotificationsManager {
     private let derivationManager: DerivationManager?
     private let userTokenListManager: UserTokenListManager
 
-    private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.unavailable(reason: .notInitialized, enabledRemote: false))
+    private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(
+        .unavailable(reason: .notInitialized, enabledRemote: false)
+    )
 
     private var updateTask: Task<Void, Error>?
     private var cancellables = Set<AnyCancellable>()
@@ -201,22 +203,16 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 
 extension CommonUserTokensPushNotificationsManager: UserTokenListExternalParametersProvider {
     func provideTokenListAddresses() -> [WalletModelId: [String]]? {
-        guard let statusValue = provideTokenListNotifyStatusValue(), statusValue else {
-            return nil
-        }
-
         let walletModels = walletModelsManager.walletModels
+        let tokenListNotifyStatusValue = provideTokenListNotifyStatusValue()
 
-        let result: [WalletModelId: [String]] = walletModels
-            .reduce(into: [:]) { partialResult, walletModel in
-                let addresses = walletModel.addresses.map(\.value)
-                partialResult[walletModel.id] = addresses
-            }
-
-        return result
+        return UserTokenListExternalParametersHelper.provideTokenListAddresses(
+            with: walletModels,
+            tokenListNotifyStatusValue: tokenListNotifyStatusValue
+        )
     }
 
-    func provideTokenListNotifyStatusValue() -> Bool? {
-        status.isActive
+    func provideTokenListNotifyStatusValue() -> Bool {
+        UserTokenListExternalParametersHelper.provideTokenListNotifyStatusValue(with: self)
     }
 }
