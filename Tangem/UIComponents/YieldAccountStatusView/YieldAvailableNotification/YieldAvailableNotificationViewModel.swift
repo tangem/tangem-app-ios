@@ -91,10 +91,10 @@ extension YieldAvailableNotificationViewModel {
 
         var title: String {
             switch self {
-            case .available(let apy):
-                return Localization.yieldModuleTokenDetailsEarnNotificationTitle(apy)
+            case .available:
+                return Localization.yieldModuleTokenDetailsEarnNotificationTitle
             case .loading:
-                return Localization.yieldModuleTokenDetailsEarnNotificationTitle("0.0%")
+                return Localization.yieldModuleTokenDetailsEarnNotificationTitle
             case .unavailable:
                 return Localization.yieldModuleUnavailableTitle
             }
