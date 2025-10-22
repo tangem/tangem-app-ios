@@ -69,7 +69,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let userWalletNotificationManager: NotificationManager
     private let tokensNotificationManager: NotificationManager
     private let bannerNotificationManager: NotificationManager?
-    private let yieldModuleNotificationManager: NotificationManager
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
@@ -96,7 +95,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         userWalletNotificationManager: NotificationManager,
         tokensNotificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
-        yieldModuleNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         tokenSectionsAdapter: TokenSectionsAdapter,
         tokenRouter: SingleTokenRoutable,
@@ -108,7 +106,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.userWalletNotificationManager = userWalletNotificationManager
         self.tokensNotificationManager = tokensNotificationManager
         self.bannerNotificationManager = bannerNotificationManager
-        self.yieldModuleNotificationManager = yieldModuleNotificationManager
         self.rateAppController = rateAppController
         self.tokenSectionsAdapter = tokenSectionsAdapter
         self.tokenRouter = tokenRouter
@@ -298,13 +295,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        yieldModuleNotificationManager
-            .notificationPublisher
-            .receive(on: DispatchQueue.main)
-            .removeDuplicates()
-            .assign(to: \.yieldModuleNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
         rateAppController.bind(
