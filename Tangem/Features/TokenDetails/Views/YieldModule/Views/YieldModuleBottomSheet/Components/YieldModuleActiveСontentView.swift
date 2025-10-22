@@ -1,5 +1,5 @@
 //
-//  YieldModuleEarnInfoView.swift
+//  YieldModuleActiveСontentView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,12 +12,17 @@ import TangemAssets
 import TangemUI
 
 extension YieldModuleInfoView {
-    struct YieldModuleEarnInfoView: View {
+    struct YieldModuleActiveСontentView: View {
+        typealias NetworkFeeAmountState = YieldModuleInfoViewModel.NetworkFeeAmountState
+
         // MARK: - Properties
 
         let apyState: LoadableTextView.State
         let minAmountState: LoadableTextView.State
         let chartState: YieldChartContainerState
+        let networkFeeState: LoadableTextView.State
+        let networkFeeAmountState: NetworkFeeAmountState
+        let bannerParams: YieldModuleNotificationBannerParams?
         let tokenName: String
         let tokenSymbol: String
         let transferMode: String
@@ -30,6 +35,11 @@ extension YieldModuleInfoView {
         var body: some View {
             VStack(spacing: 8) {
                 topSection
+
+                if let bannerParams {
+                    YieldModuleBottomSheetNotificationBannerView(params: bannerParams)
+                }
+
                 myFundsSection
                 bottomSection
             }
@@ -88,7 +98,7 @@ extension YieldModuleInfoView {
                 Text(myFundsSectionText)
                     .multilineTextAlignment(.leading)
 
-                Divider().overlay(Colors.Stroke.primary)
+                Separator(color: Colors.Stroke.primary)
                     .padding(.horizontal, 4)
 
                 YieldFeeSection(
@@ -101,7 +111,7 @@ extension YieldModuleInfoView {
         }
 
         private var bottomSection: some View {
-            VStack(alignment: .leading, spacing: .zero) {
+            VStack(alignment: .leading, spacing: 10) {
                 VStack(spacing: 12) {
                     YieldFeeSection(
                         leadingTitle: Localization.yieldModuleEarnSheetTransfersTitle,
@@ -119,9 +129,31 @@ extension YieldModuleInfoView {
                         footerText: nil,
                         needsBackground: false
                     )
+
+                    Separator(color: Colors.Stroke.primary)
+                        .padding(.horizontal, 4)
+
+                    YieldFeeSection(
+                        leadingTitle: Localization.commonNetworkFeeTitle,
+                        state: networkFeeState,
+                        footerText: nil,
+                        needsBackground: false,
+                        leadingTextAccesoryView: {
+                            if case .warning = networkFeeAmountState {
+                                Assets.infoCircle16.image
+                                    .renderingMode(.template)
+                                    .foregroundStyle(Colors.Icon.warning)
+                            }
+                        }
+                    )
+                    .leadingTextColor(networkFeeAmountState.networkFeeDescriptionColor)
+                    .trailingTextColor(networkFeeAmountState.networkFeeColor)
                 }
                 .defaultRoundedBackground(with: Colors.Background.action)
-                .padding(.bottom, 10)
+
+                Text(networkFeeAmountState.footerText)
+                    .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                    .padding(.horizontal, 14)
 
                 Text(Localization.yieldModuleFeePolicySheetMinAmountNote)
                     .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
