@@ -18,6 +18,7 @@ extension YieldModuleInfoView {
         // MARK: - Properties
 
         let apyState: LoadableTextView.State
+        let apyTrend: YieldModuleInfoViewModel.ApyTrend
         let minAmountState: LoadableTextView.State
         let chartState: YieldChartContainerState
         let networkFeeState: LoadableTextView.State
@@ -47,21 +48,39 @@ extension YieldModuleInfoView {
 
         // MARK: - Sub Views
 
+        @ViewBuilder
+        private var apyTrendView: some View {
+            switch apyTrend {
+            case .increased, .loading:
+                Triangle()
+                    .fill(Colors.Icon.accent)
+                    .frame(width: 12, height: 10)
+                    .skeletonable(isShown: apyState == .loading)
+
+            case .none:
+                EmptyView()
+            }
+        }
+
         private var topSection: some View {
             VStack(alignment: .leading, spacing: .zero) {
                 Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                     .padding(.bottom, 4)
 
-                LoadableTextView(
-                    state: apyState,
-                    font: Fonts.Bold.title2,
-                    textColor: Colors.Text.accent,
-                    loaderSize: .init(width: 100, height: 28)
-                )
+                HStack {
+                    apyTrendView
+
+                    LoadableTextView(
+                        state: apyState,
+                        font: Fonts.Bold.title2,
+                        textColor: Colors.Text.accent,
+                        loaderSize: .init(width: 100, height: 28)
+                    )
+                }
                 .padding(.bottom, 8)
 
-                Divider().overlay(Colors.Stroke.primary)
+                Separator(color: Colors.Stroke.primary)
                     .padding(.bottom, 8)
 
                 YieldModuleEarnInfoChartContainer(state: chartState)
