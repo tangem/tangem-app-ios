@@ -29,10 +29,6 @@ class HardwareCreateWalletCoordinator: CoordinatorObject {
 
     @Published var mailViewModel: MailViewModel?
 
-    // MARK: - Helpers
-
-    var onDismissal: () -> Void = {}
-
     required init(
         dismissAction: @escaping Action<OutputOptions>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -47,6 +43,10 @@ class HardwareCreateWalletCoordinator: CoordinatorObject {
 extension HardwareCreateWalletCoordinator {
     func start(with options: InputOptions) {
         rootViewModel = HardwareCreateWalletViewModel(coordinator: self)
+    }
+
+    func onDismissalAttempt() {
+        onboardingCoordinator?.onDismissalAttempt()
     }
 }
 
