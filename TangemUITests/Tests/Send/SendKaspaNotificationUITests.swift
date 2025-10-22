@@ -16,7 +16,7 @@ final class SendKaspaNotificationUITests: BaseTestCase {
     func testNotificationNotDisplayed_WhenSenderHasLessThan84Inputs() {
         setAllureId(4223)
 
-        openSend(initialState: "less_then_84")
+        openSend(initialState: "less_than_84")
 
         SendScreen(app)
             .validate()
