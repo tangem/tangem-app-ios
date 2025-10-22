@@ -130,6 +130,9 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
     private func accountCard(_ accountWithTokens: AccountWithTokenItemsData) -> some View {
         VStack(spacing: .zero) {
             accountHeader(accountData: accountWithTokens.accountData)
+                .padding(.top, 14)
+                .padding(.bottom, 8)
+
             tokenItemsList(accountWithTokens.tokenItems)
         }
         .roundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: Constants.cardPadding)
