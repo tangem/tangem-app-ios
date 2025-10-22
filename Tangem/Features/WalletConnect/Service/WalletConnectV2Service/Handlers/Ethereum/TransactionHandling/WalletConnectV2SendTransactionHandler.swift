@@ -61,6 +61,10 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
         request.stringRepresentation
     }
 
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        .empty
+    }
+
     func handle() async throws -> RPCResult {
         let transactionToUse = sendableTransaction ?? WCSendableTransaction(from: wcTransaction)
         let transaction = try await transactionBuilder.buildTx(from: transactionToUse, for: walletModel)
