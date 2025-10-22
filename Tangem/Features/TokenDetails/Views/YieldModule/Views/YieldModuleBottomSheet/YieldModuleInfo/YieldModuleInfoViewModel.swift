@@ -12,6 +12,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemAssets
 import TangemSdk
+import SwiftUI
 
 final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Types
@@ -39,6 +40,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         didSet {
             previousState = oldValue
             notificationBannerParams = nil
+            start(for: viewState)
         }
     }
 
@@ -47,10 +49,13 @@ final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Published
 
     @Published
-    var notificationBannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? = nil
+    var notificationBannerParams: YieldModuleNotificationBannerParams? = nil
 
     @Published
     private(set) var networkFeeState: LoadableTextView.State = .loading
+
+    @Published
+    private(set) var networkFeeAmountState: NetworkFeeAmountState = .none
 
     @Published
     private(set) var apyState: LoadableTextView.State = .loading
@@ -59,10 +64,16 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private(set) var minimalAmountState: LoadableTextView.State = .loading
 
     @Published
+    private(set) var currentNetworkFeeState: LoadableTextView.State = .loading
+
+    @Published
     private(set) var chartState: YieldChartContainerState = .loading
 
     @Published
     private(set) var isProcessingRequest: Bool = false
+
+    @Published
+    private(set) var isMainButtonAvailable = false
 
     // MARK: - Dependencies
 
@@ -73,29 +84,10 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     // MARK: - Properties
 
-    private(set) var activityState: ActivityState
+    private(set) var activityState: ActivityState = .active
     private let availableBalance: Decimal
 
     private(set) var readMoreURL: URL = TangemBlogUrlBuilder().url(post: .fee)
-
-    var isButtonEnabled: Bool {
-        switch viewState {
-        case .earnInfo:
-            return true
-
-        case .stopEarning, .approve:
-            switch (networkFeeState, notificationBannerParams) {
-            case (.loaded, .notEnoughFeeCurrency):
-                return false
-            case (.loaded, .feeUnreachable):
-                return false
-            case (.loaded, .none):
-                return true
-            default:
-                return false
-            }
-        }
-    }
 
     // MARK: - Init
 
@@ -103,17 +95,15 @@ final class YieldModuleInfoViewModel: ObservableObject {
         walletModel: any WalletModel,
         feeCurrencyNavigator: (any FeeCurrencyNavigating)?,
         yieldManagerInteractor: YieldManagerInteractor,
-        activityState: ActivityState,
         availableBalance: Decimal
     ) {
         self.walletModel = walletModel
         self.feeCurrencyNavigator = feeCurrencyNavigator
         self.yieldManagerInteractor = yieldManagerInteractor
-        self.activityState = activityState
         self.availableBalance = availableBalance
 
         viewState = .earnInfo
-        start()
+        start(for: viewState)
     }
 
     // MARK: - Navigation
@@ -143,11 +133,12 @@ final class YieldModuleInfoViewModel: ObservableObject {
                 switch action {
                 case .approve:
                     try await self?.yieldManagerInteractor.approve(with: token)
+                    self?.onBackTap()
                 case .exit:
                     try await self?.yieldManagerInteractor.exit(with: token)
+                    self?.floatingSheetPresenter.removeActiveSheet()
                 }
 
-                self?.floatingSheetPresenter.removeActiveSheet()
             } catch let error where error.isCancellationError {
                 // Do nothing
             } catch {
@@ -158,17 +149,16 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     // MARK: - Public Implementation
 
-    @MainActor
-    func fetchChartData() async {
-        chartState = .loading
-
-        do {
-            let chartData = try await yieldManagerInteractor.getChartData()
-            chartState = .loaded(chartData)
-        } catch {
-            chartState = .error(action: { [weak self] in
-                await self?.fetchChartData()
-            })
+    func start(for viewState: ViewState) {
+        Task { @MainActor in
+            switch viewState {
+            case .earnInfo:
+                earnInfoStart()
+            case .stopEarning:
+                await fetchFee(for: .exit)
+            case .approve:
+                await fetchFee(for: .approve)
+            }
         }
     }
 
@@ -227,19 +217,38 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     // MARK: - Private Implementation
 
-    private func getMinTopUp() {
-        Task { @MainActor [weak self] in
-            guard let self else { return }
+    private func earnInfoStart() {
+        Task { await getMinTopUp() }
+        Task { await getApy() }
+        Task { await checkApproval() }
+        Task { await fetchChartData() }
+        Task { await fetchCurrentNetworkFee() }
+    }
 
-            minimalAmountState = .loading
+    @MainActor
+    private func getButtonAvailability() {
+        switch viewState {
+        case .earnInfo:
+            let isDisabled = notificationBannerParams?.isApproveNeeded ?? false
+            isMainButtonAvailable = !isDisabled
 
-            do {
-                let minAmount = try await yieldManagerInteractor.getMinAmount()
-                let formatted = try await feeConverter.createMinimalAmountString(from: minAmount)
-                minimalAmountState = .loaded(text: formatted)
-            } catch {
-                minimalAmountState = .noData
+        case .stopEarning, .approve:
+            guard case .loaded = networkFeeState else {
+                isMainButtonAvailable = false
+                return
             }
+
+            if case .notEnoughFeeCurrency = notificationBannerParams {
+                isMainButtonAvailable = false
+                return
+            }
+
+            if case .feeUnreachable = notificationBannerParams {
+                isMainButtonAvailable = false
+                return
+            }
+
+            isMainButtonAvailable = true
         }
     }
 
@@ -255,13 +264,81 @@ final class YieldModuleInfoViewModel: ObservableObject {
         }
     }
 
-    private func start() {
-        getMinTopUp()
-        getApy()
+    @MainActor
+    private func getMinTopUp() async {
+        minimalAmountState = .loading
+
+        do {
+            let minAmount = try await yieldManagerInteractor.getMinAmount()
+            let formatted = try await feeConverter.createMinimalAmountString(from: minAmount)
+
+            minimalAmountState = .loaded(text: formatted)
+        } catch {
+            minimalAmountState = .noData
+        }
     }
 
-    private func showApproveSheet() {
-        viewState = .approve
+    @MainActor
+    private func fetchCurrentNetworkFee() async {
+        currentNetworkFeeState = .loading
+
+        guard let maxFee = await yieldManagerInteractor.getMaxFee() else {
+            currentNetworkFeeState = .noData
+            return
+        }
+
+        do {
+            let networkFee = try await yieldManagerInteractor.getCurrentNetworkFee()
+            let maxFeeFormatted = try await feeConverter.createMaxFeeString(maxFeeCurrencyFee: maxFee.0, maxFiatFee: maxFee.1)
+
+            currentNetworkFeeState = .loaded(text: feeConverter.createCurrentNetworkFeeString(networkFee: networkFee))
+            networkFeeAmountState = networkFee > maxFee.1 ? .warning(fee: maxFeeFormatted) : .normal(fee: maxFeeFormatted)
+        } catch {
+            currentNetworkFeeState = .noData
+            return
+        }
+    }
+
+    @MainActor
+    private func fetchChartData() async {
+        chartState = .loading
+
+        do {
+            let chartData = try await yieldManagerInteractor.getChartData()
+            chartState = .loaded(chartData)
+        } catch {
+            chartState = .error(action: { [weak self] in
+                await self?.fetchChartData()
+            })
+        }
+    }
+
+    @MainActor
+    private func getApy() async {
+        apyState = .loading
+
+        if let apy = try? await yieldManagerInteractor.getApy() {
+            apyState = .loaded(text: PercentFormatter().format(apy, option: .interval))
+        } else {
+            apyState = .noData
+        }
+    }
+
+    @MainActor
+    private func checkApproval() async {
+        defer {
+            getButtonAvailability()
+        }
+
+        guard await yieldManagerInteractor.getIsApproveRequired() else {
+            activityState = .active
+            return
+        }
+
+        activityState = .paused
+        notificationBannerParams = .approveNeeded { [weak self] in
+            self?.viewState = .approve
+        }
     }
 
     private func showNotEnoughFeeNotification() {
@@ -345,6 +422,45 @@ extension YieldModuleInfoViewModel {
                 Localization.yieldModuleTransferModeAutomatic
             case .paused:
                 Localization.yieldModuleStatusPaused
+            }
+        }
+    }
+}
+
+extension YieldModuleInfoViewModel {
+    enum NetworkFeeAmountState {
+        case warning(fee: String)
+        case normal(fee: String)
+        case none
+
+        var networkFeeColor: Color {
+            switch self {
+            case .warning:
+                Colors.Text.warning
+            case .normal, .none:
+                Colors.Text.tertiary
+            }
+        }
+
+        var networkFeeDescriptionColor: Color {
+            switch self {
+            case .warning:
+                Colors.Text.warning
+            case .normal, .none:
+                Colors.Text.primary1
+            }
+        }
+
+        var footerText: String {
+            switch self {
+            case .warning:
+                // [REDACTED_TODO_COMMENT]
+                ""
+            case .normal:
+                // [REDACTED_TODO_COMMENT]
+                ""
+            case .none:
+                ""
             }
         }
     }

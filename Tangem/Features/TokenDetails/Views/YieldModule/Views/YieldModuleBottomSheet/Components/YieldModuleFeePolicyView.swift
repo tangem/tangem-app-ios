@@ -25,9 +25,10 @@ extension YieldModuleStartView {
                 minimalAmountSection
                 currentFeeSection
 
-                VStack(spacing: 14) {
+                VStack(alignment: .leading, spacing: 14) {
                     maximumFeeSection
                     serviceFeeText
+                        .padding(.leading, 14)
                 }
             }
         }
