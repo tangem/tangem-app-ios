@@ -33,8 +33,7 @@ struct YieldModuleStartView: View {
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
             content: { mainContent },
-            notificationBanner: bannerParams,
-            buttonTopPadding: buttonTopPadding
+            buttonTopPadding: 24
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
@@ -49,14 +48,6 @@ struct YieldModuleStartView: View {
         }
 
         return 32
-    }
-
-    private var bannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? {
-        if case .startEarning = viewModel.viewState {
-            return viewModel.notificationBannerParams
-        }
-
-        return nil
     }
 
     private var title: String? {
@@ -134,16 +125,8 @@ struct YieldModuleStartView: View {
         }
     }
 
-    @ViewBuilder
-    private var mainContent: some View {
-        switch viewModel.viewState {
-        case .rateInfo:
-            YieldModuleRateInfoChartContainer(state: viewModel.chartState)
-                .task {
-                    await viewModel.fetchChartData()
-                }
-
-        case .startEarning:
+    private var startEarningView: some View {
+        VStack(spacing: .zero) {
             YieldFeeSection(
                 leadingTitle: Localization.commonNetworkFeeTitle,
                 state: viewModel.networkFeeState,
@@ -156,6 +139,25 @@ struct YieldModuleStartView: View {
             .onAppear {
                 viewModel.fetchFees()
             }
+
+            if let notificationBannerParams = viewModel.notificationBannerParams {
+                YieldModuleBottomSheetNotificationBannerView(params: notificationBannerParams)
+                    .padding(.top, 26)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var mainContent: some View {
+        switch viewModel.viewState {
+        case .rateInfo:
+            YieldModuleRateInfoChartContainer(state: viewModel.chartState)
+                .task {
+                    await viewModel.fetchChartData()
+                }
+
+        case .startEarning:
+            startEarningView
 
         case .feePolicy:
             YieldModuleFeePolicyView(
