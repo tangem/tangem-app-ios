@@ -177,6 +177,8 @@ private extension TokenDetailsView {
         placement: .tokenDetails(walletModel.tokenItem)
     )
 
+    let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
+
     TokenDetailsView(viewModel: .init(
         userWalletModel: userWalletModel,
         walletModel: walletModel,
@@ -185,7 +187,11 @@ private extension TokenDetailsView {
         pendingExpressTransactionsManager: pendingTxsManager,
         xpubGenerator: nil,
         coordinator: coordinator,
-        tokenRouter: SingleTokenRouter(userWalletModel: userWalletModel, coordinator: coordinator),
+        tokenRouter: SingleTokenRouter(
+            userWalletModel: userWalletModel,
+            coordinator: coordinator,
+            yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
+        ),
         pendingTransactionDetails: nil
     ))
 }

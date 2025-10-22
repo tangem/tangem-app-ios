@@ -39,10 +39,6 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
 
         let userWalletId = UserWalletId(with: seedKey)
 
-        guard !privateInfoStorageManager.hasPrivateInfoData(for: userWalletId) else {
-            throw MobileWalletError.walletAlreadyExists
-        }
-
         try publicInfoStorageManager.storeData(
             UserWalletEncryptionKey(userWalletIdSeed: seedKey).symmetricKey.data,
             walletID: userWalletId,
