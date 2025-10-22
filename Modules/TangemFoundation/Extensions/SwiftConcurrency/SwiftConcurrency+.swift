@@ -146,6 +146,34 @@ public func runTask<T>(
     }
 }
 
+/// Runs an async operation and, if it doesn't finish within `thresholdSeconds`, calls `onLongRunning` once.
+@discardableResult
+public func runWithDelayedLoading<T>(
+    thresholdSeconds: TimeInterval = 0.3,
+    onLongRunning: @escaping @MainActor () async -> Void,
+    operation: @escaping () async throws -> T
+) -> Task<T, Error> {
+    Task {
+        // Start a delayed task that will call onLongRunning after the threshold unless cancelled.
+        let loadingTask = Task {
+            try await Task.sleep(seconds: thresholdSeconds)
+            try Task.checkCancellation()
+
+            await onLongRunning()
+        }
+
+        return try await withTaskCancellationHandler {
+            defer { loadingTask.cancel() }
+
+            // Run the main operation
+            let result = try await operation()
+            return result
+        } onCancel: {
+            loadingTask.cancel()
+        }
+    }
+}
+
 // MARK: - Convenience extensions
 
 public extension Task where Success == Never, Failure == Never {

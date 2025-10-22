@@ -587,17 +587,14 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
             self?.actionButtonsSwapCoordinator = nil
         }
 
-        let openExpressBlock = { [weak self] in
-            guard let self else { return }
-            coordinator.start(with: .default)
-            actionButtonsSwapCoordinator = coordinator
-        }
-
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
                 story: .swap(.initialWithoutImages),
                 analyticsSource: .main,
-                presentCompletion: openExpressBlock
+                presentCompletion: { [weak self] in
+                    coordinator.start(with: FeatureProvider.isAvailable(.accounts) ? .new : .default)
+                    self?.actionButtonsSwapCoordinator = coordinator
+                }
             )
         }
     }

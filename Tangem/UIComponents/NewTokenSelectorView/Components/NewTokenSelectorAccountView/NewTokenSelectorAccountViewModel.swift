@@ -21,7 +21,7 @@ final class NewTokenSelectorAccountViewModel: ObservableObject, Identifiable {
         header: HeaderType,
         account: NewTokenSelectorAccount,
         searchTextPublisher: AnyPublisher<String, Never>,
-        mapper: any NewTokenSelectorItemViewModelMapper
+        mapper: any NewTokenSelectorItemViewModelMapper,
     ) {
         self.header = header
         self.account = account
