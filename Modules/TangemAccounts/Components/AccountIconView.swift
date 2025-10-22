@@ -14,10 +14,7 @@ public struct AccountIconView: View {
     private let backgroundColor: Color
     private let nameMode: NameMode
 
-    private var padding: CGFloat = 0
-    private var cornerRadius: CGFloat = 0
-    private var size: CGSize = .init(bothDimensions: 16)
-    private var letterFontStyle: Font = Fonts.Bold.largeTitle
+    private var settings = Settings()
 
     public init(backgroundColor: Color, nameMode: NameMode) {
         self.backgroundColor = backgroundColor
@@ -26,8 +23,8 @@ public struct AccountIconView: View {
 
     public var body: some View {
         label
-            .frame(size: size)
-            .roundedBackground(with: backgroundColor, padding: padding, radius: cornerRadius)
+            .frame(size: settings.size)
+            .roundedBackground(with: backgroundColor, padding: settings.padding, radius: settings.cornerRadius)
             .animation(.default, value: nameMode)
     }
 
@@ -36,7 +33,7 @@ public struct AccountIconView: View {
         switch nameMode {
         case .letter(let letter):
             Text(letter)
-                .style(letterFontStyle, color: Colors.Text.constantWhite)
+                .style(settings.letterFontStyle, color: Colors.Text.constantWhite)
 
         case .imageType(let imageType, let config):
             imageType.image
@@ -57,6 +54,24 @@ public extension AccountIconView {
     }
 }
 
+// MARK: - Settings
+
+public extension AccountIconView {
+    struct Settings {
+        var padding: CGFloat = 0
+        var cornerRadius: CGFloat = 0
+        var size: CGSize = .init(bothDimensions: 16)
+        var letterFontStyle: Font = Fonts.Bold.largeTitle
+
+        static let middleSized: Self = .init(
+            padding: 8,
+            cornerRadius: 10,
+            size: CGSize(bothDimensions: 20),
+            letterFontStyle: Fonts.BoldStatic.title3
+        )
+    }
+}
+
 // MARK: - ImageConfig
 
 public extension AccountIconView.NameMode {
@@ -74,19 +89,23 @@ public extension AccountIconView.NameMode {
 // MARK: - Setupable
 
 extension AccountIconView: Setupable {
+    public func setMiddleSizedIconSettings() -> Self {
+        map { $0.settings = .middleSized }
+    }
+
     public func padding(_ value: CGFloat) -> Self {
-        map { $0.padding = value }
+        map { $0.settings.padding = value }
     }
 
     public func cornerRadius(_ value: CGFloat) -> Self {
-        map { $0.cornerRadius = value }
+        map { $0.settings.cornerRadius = value }
     }
 
-    public func imageSize(_ value: CGSize) -> Self {
-        map { $0.size = value }
+    public func size(_ value: CGSize) -> Self {
+        map { $0.settings.size = value }
     }
 
     public func letterFontStyle(_ value: Font) -> Self {
-        map { $0.letterFontStyle = value }
+        map { $0.settings.letterFontStyle = value }
     }
 }
