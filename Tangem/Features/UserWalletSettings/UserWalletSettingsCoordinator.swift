@@ -33,6 +33,7 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
     @Published var scanCardSettingsCoordinator: ScanCardSettingsCoordinator?
     @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator?
+    @Published var accountDetailsCoordinator: AccountDetailsCoordinator?
 
     // MARK: - Child view models
 
@@ -80,6 +81,24 @@ extension UserWalletSettingsCoordinator:
                 self?.accountFormViewModel = nil
             }
         )
+    }
+
+    func openAccountDetails(account: any BaseAccountModel, accountModelsManager: AccountModelsManager) {
+        let coordinator = AccountDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.accountDetailsCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(
+            with: AccountDetailsCoordinator.Options(
+                account: account,
+                accountModelsManager: accountModelsManager
+            )
+        )
+
+        accountDetailsCoordinator = coordinator
     }
 
     func openOnboardingModal(with options: OnboardingCoordinator.Options) {

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 import TangemLocalization
 import TangemAccessibilityIdentifiers
@@ -37,7 +38,7 @@ struct NewOnrampView: View {
     @ViewBuilder
     private var providersView: some View {
         switch viewModel.viewState {
-        case .amount:
+        case .presets, .continueButton:
             EmptyView()
         case .suggestedOffers(let offers):
             if let recent = offers.recent {
@@ -74,7 +75,25 @@ struct NewOnrampView: View {
     @ViewBuilder
     private var bottomContainer: some View {
         switch viewModel.viewState {
-        case .amount:
+        case .presets(let presets):
+            HStack(spacing: 4) {
+                ForEach(presets) { preset in
+                    Button(action: { viewModel.usedDidTapPreset(preset: preset) }) {
+                        Text(.init(preset.formatted))
+                            .padding(.vertical, 6)
+                            .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                            .infinityFrame(axis: .horizontal)
+                            .background(Colors.Button.secondary)
+                            .clipShape(Capsule())
+                    }
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.bottom, 8)
+            .animation(.default, value: keyboardActive)
+            .visible(keyboardActive)
+
+        case .continueButton:
             VStack(spacing: 16) {
                 if viewModel.shouldShowLegalText {
                     Text(.init(Localization.onrampLegalText))
@@ -96,6 +115,7 @@ struct NewOnrampView: View {
             .padding(.bottom, 14)
             .padding(.horizontal, 16)
             .transition(SendTransitions.transition)
+
         case .suggestedOffers:
             EmptyView()
         }
