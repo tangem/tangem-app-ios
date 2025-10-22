@@ -83,6 +83,19 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
         Analytics.log(.swapButtonPermissionCancel)
         coordinator?.userDidCancel()
     }
+
+    func didTapLearnMore() {
+        if case .token(let token, _) = tokenItem {
+            Analytics.log(
+                event: .swapButtonPermissionLearnMore,
+                params: [
+                    .blockchain: tokenItem.blockchain.displayName,
+                    .token: token.name,
+                ]
+            )
+        }
+        coordinator?.openLearnMore()
+    }
 }
 
 // MARK: - Navigation

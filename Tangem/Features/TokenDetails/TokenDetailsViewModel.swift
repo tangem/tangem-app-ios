@@ -155,7 +155,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .activate,
              .tangemPayViewKYCStatus,
              .allowPushPermissionRequest,
-             .postponePushPermissionRequest:
+             .postponePushPermissionRequest,
+             .givePermission:
             super.didTapNotification(with: id, action: action)
         }
     }
