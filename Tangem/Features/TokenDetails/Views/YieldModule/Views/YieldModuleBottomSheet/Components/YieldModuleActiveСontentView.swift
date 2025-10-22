@@ -174,7 +174,7 @@ extension YieldModuleInfoView {
                     .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
                     .padding(.horizontal, 14)
 
-                Text(Localization.yieldModuleFeePolicySheetMinAmountNote)
+                Text(Localization.yieldModuleFeePolicySheetMinAmountNote("", ""))
                     .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
                     .padding(.horizontal, 14)
             }
