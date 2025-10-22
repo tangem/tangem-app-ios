@@ -75,6 +75,9 @@ final class YieldModuleInfoViewModel: ObservableObject {
     @Published
     private(set) var isMainButtonAvailable = false
 
+    @Published
+    private(set) var apyTrend: ApyTrend = .none
+
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
@@ -173,6 +176,8 @@ final class YieldModuleInfoViewModel: ObservableObject {
         networkFeeState = .loading
         notificationBannerParams = nil
 
+        defer { getButtonAvailability() }
+
         do {
             let feeInCoins = switch action {
             case .approve:
@@ -252,18 +257,6 @@ final class YieldModuleInfoViewModel: ObservableObject {
         }
     }
 
-    private func getApy() {
-        Task { @MainActor [weak self] in
-            self?.apyState = .loading
-
-            if let apy = try? await self?.yieldManagerInteractor.getApy() {
-                self?.apyState = .loaded(text: PercentFormatter().format(apy, option: .interval))
-            } else {
-                self?.apyState = .noData
-            }
-        }
-    }
-
     @MainActor
     private func getMinTopUp() async {
         minimalAmountState = .loading
@@ -295,7 +288,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
             networkFeeAmountState = networkFee > maxFee.1 ? .warning(fee: maxFeeFormatted) : .normal(fee: maxFeeFormatted)
         } catch {
             currentNetworkFeeState = .noData
-            return
+            networkFeeAmountState = .none
         }
     }
 
@@ -316,10 +309,13 @@ final class YieldModuleInfoViewModel: ObservableObject {
     @MainActor
     private func getApy() async {
         apyState = .loading
+        apyTrend = .loading
 
         if let apy = try? await yieldManagerInteractor.getApy() {
-            apyState = .loaded(text: PercentFormatter().format(apy, option: .interval))
+            apyState = .loaded(text: PercentFormatter().format(apy, option: .staking))
+            apyTrend = .increased
         } else {
+            apyTrend = .none
             apyState = .noData
         }
     }
@@ -463,5 +459,13 @@ extension YieldModuleInfoViewModel {
                 ""
             }
         }
+    }
+}
+
+extension YieldModuleInfoViewModel {
+    enum ApyTrend {
+        case loading
+        case increased
+        case none
     }
 }
