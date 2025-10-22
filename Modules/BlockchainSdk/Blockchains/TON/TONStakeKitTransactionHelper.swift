@@ -8,6 +8,7 @@
 
 import Foundation
 import TonSwift
+import TangemFoundation
 
 class TONStakeKitTransactionHelper {
     private let transactionBuilder: TONTransactionBuilder
@@ -71,8 +72,8 @@ extension TONCompiledTransaction: Decodable {
 
         // extract Cell
         let message = try container.decode(String.self, forKey: TONCompiledTransaction.CodingKeys.message)
-        let decodedMessage: [UInt8] = try message.base64Decoded()
-        let cells = try Cell.fromBoc(src: Data(decodedMessage))
+        let decodedMessage = try message.base64DecodedData()
+        let cells = try Cell.fromBoc(src: decodedMessage)
 
         guard let cell = cells.first else {
             throw DecodingError.dataCorrupted(
