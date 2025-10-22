@@ -41,7 +41,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     var alert: AlertBinder?
 
     @Published
-    private(set) var notificationBannerParams: YieldModuleViewConfigs.YieldModuleNotificationBannerParams? = nil
+    private(set) var notificationBannerParams: YieldModuleNotificationBannerParams? = nil
 
     @Published
     private(set) var networkFeeState: LoadableTextView.State = .loading
