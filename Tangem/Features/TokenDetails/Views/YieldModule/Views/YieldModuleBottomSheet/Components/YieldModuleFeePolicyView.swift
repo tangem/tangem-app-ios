@@ -37,7 +37,7 @@ extension YieldModuleStartView {
             YieldFeeSection(
                 leadingTitle: Localization.yieldModuleFeePolicySheetMinAmountTitle,
                 state: minimalAmountState,
-                footerText: Localization.yieldModuleFeePolicySheetMinAmountNote
+                footerText: nil
             )
         }
 
