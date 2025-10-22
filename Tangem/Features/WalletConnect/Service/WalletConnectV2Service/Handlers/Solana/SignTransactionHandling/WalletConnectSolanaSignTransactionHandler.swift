@@ -64,24 +64,22 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
         request.stringRepresentation
     }
 
-    func handle() async throws -> RPCResult {
-        let transactionData = try Data(transaction.base64Decoded())
-        let withoutSignaturePlaceholders = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: transactionData)
-        let unsignedHash = withoutSignaturePlaceholders.transaction
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        let (canHandleTransaction, _, _) = try prepareTransaction()
 
-        guard FeatureProvider.isAvailable(.wcSolanaALT) else {
-            return try await handleDefaultTransaction(unsignedHash: unsignedHash)
+        if canHandleTransaction {
+            return .empty
+        } else {
+            return .multipleTransactions
         }
+    }
 
-        let canHandleTransaction = (try? hardwareLimitationsUtil.canHandleTransaction(
-            walletModel.tokenItem,
-            transaction: transactionData
-        )) ?? true
+    func handle() async throws -> RPCResult {
+        let (canHandleTransaction, unsignedHash, signatureCount) = try prepareTransaction()
 
         if canHandleTransaction {
             return try await handleDefaultTransaction(unsignedHash: unsignedHash)
         } else {
-            let signatureCount = withoutSignaturePlaceholders.signatureCount
             return try await handleLongTransaction(unsignedHash: unsignedHash, signatureCount: signatureCount)
         }
     }
@@ -122,6 +120,27 @@ private extension WalletConnectSolanaSignTransactionHandler {
 
         analyticsProvider.logCompleteHandleSolanaALTTransactionRequest(isSuccess: altResult)
 
-        throw WalletConnectTransactionRequestProcessingError.invalidPayload("Solana ALT handling error for request: \(request.description)")
+        throw WalletConnectTransactionRequestProcessingError.eraseMultipleTransactions
+    }
+
+    func prepareTransaction() throws -> (
+        canHandleTransaction: Bool,
+        unsignedHash: Data,
+        signatureCount: Int
+    ) {
+        let transactionData = try Data(transaction.base64Decoded())
+        let withoutSignaturePlaceholders = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: transactionData)
+        let unsignedHash = withoutSignaturePlaceholders.transaction
+
+        guard FeatureProvider.isAvailable(.wcSolanaALT) else {
+            return (true, unsignedHash, withoutSignaturePlaceholders.signatureCount)
+        }
+
+        let canHandleTransaction = (try? hardwareLimitationsUtil.canHandleTransaction(
+            walletModel.tokenItem,
+            transaction: transactionData
+        )) ?? true
+
+        return (canHandleTransaction, unsignedHash, withoutSignaturePlaceholders.signatureCount)
     }
 }
