@@ -119,6 +119,7 @@ extension CommonWCHandlersService: WCHandlersService {
             requestData: handler.requestData,
             blockchain: blockchain,
             verificationStatus: connectedDApp.verificationStatus,
+            validate: { try await handler.validate() },
             accept: { try await handler.handle() },
             reject: { RPCResult.error(.init(code: 0, message: "User rejected sign")) },
             updatableHandler: handler as? WCTransactionUpdatable
