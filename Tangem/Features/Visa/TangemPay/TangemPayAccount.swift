@@ -118,14 +118,12 @@ final class TangemPayAccount {
         self.init(authorizer: authorizer, walletAddress: walletAddress, tokens: tokens)
     }
 
-    #if ALPHA || BETA || DEBUG
     func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
         try await KYCService.start(
             getToken: customerInfoManagementService.loadKYCAccessToken,
             onDidDismiss: onDidDismiss
         )
     }
-    #endif // ALPHA || BETA || DEBUG
 
     func getTangemPayStatus() async throws -> TangemPayStatus {
         // Since customerInfo polling starts in the init - there is no need to make another call
@@ -238,7 +236,6 @@ extension TangemPayAccount: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .tangemPayViewKYCStatus:
-            #if ALPHA || BETA || DEBUG
             runTask(in: self) { tangemPayAccount in
                 do {
                     try await tangemPayAccount.launchKYC {
@@ -248,7 +245,6 @@ extension TangemPayAccount: NotificationTapDelegate {
                     // [REDACTED_TODO_COMMENT]
                 }
             }
-            #endif // ALPHA || BETA || DEBUG
 
         case .tangemPayCreateAccountAndIssueCard:
             didTapIssueOrderSubject.send(())

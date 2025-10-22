@@ -62,6 +62,8 @@
 	<string>To record video for chat support</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To share with chat support</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Please provide us with your geolocation data to prove your current location for TangemPay (VISA)</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>ScanTangemCardIntent</string>
