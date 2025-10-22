@@ -11,6 +11,8 @@ import TangemLocalization
 import BlockchainSdk
 
 class ReferralCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
 
@@ -24,6 +26,11 @@ class ReferralCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         referralViewModel = .init(input: options.input, coordinator: self)
+    }
+
+    @MainActor
+    func closeSheet() {
+        floatingSheetPresenter.removeActiveSheet()
     }
 }
 
@@ -39,5 +46,24 @@ extension ReferralCoordinator: ReferralRoutable {
             url: url,
             title: Localization.detailsReferralTitle
         )
+    }
+
+    func showAccountSelector(
+        selectedAccount: AccountSelectorCellModel,
+        userWalletModel: UserWalletModel,
+        onSelect: @escaping (any BaseAccountModel) -> Void
+    ) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: AccountSelectorViewModel(
+                    selectedItem: selectedAccount,
+                    userWalletModel: userWalletModel,
+                    onSelect: { [weak self] account in
+                        onSelect(account)
+                        self?.closeSheet()
+                    }
+                )
+            )
+        }
     }
 }
