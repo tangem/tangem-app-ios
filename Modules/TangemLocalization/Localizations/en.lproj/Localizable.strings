@@ -534,6 +534,7 @@
 "hw_backup_section_other_title" = "Other methods";
 "hw_backup_seed_description" = "Physical devices that securely store your private key offline.";
 "hw_backup_seed_title" = "Recovery phrase";
+"hw_backup_to_upgrade_description" = "To upgrade your wallet to hardware, back it up first.";
 "hw_create_keys_description" = "Your private keys are securely encrypted and stored on your phone";
 "hw_create_keys_title" = "Keys are stored in the app";
 "hw_create_seed_description" = "Create or restore your wallet using a recovery phrase — your built-in backup.";
