@@ -31,7 +31,7 @@ struct SettingsUserWalletRowView: View {
             content: { textViews },
             trailingIcon: {
                 if viewModel.isUserWalletBackupNeeded {
-                    BadgeView.noBackup
+                    Assets.redCircleWarning.image
                 }
 
                 if !viewModel.isUserWalletLocked {

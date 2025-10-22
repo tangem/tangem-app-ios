@@ -198,10 +198,17 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        forgetViewModel = DefaultRowViewModel(
-            title: Localization.settingsForgetWallet,
-            action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
-        )
+        if userWalletModel.config.hasFeature(.userWalletBackup) {
+            forgetViewModel = DefaultRowViewModel(
+                title: Localization.settingsForgetWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapRemoveMobileWallet)
+            )
+        } else {
+            forgetViewModel = DefaultRowViewModel(
+                title: Localization.settingsForgetWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
+            )
+        }
     }
 
     func setupMobileViewModels() {
@@ -236,15 +243,15 @@ private extension UserWalletSettingsViewModel {
 
             case .upgrade:
                 mobileUpgradeNotificationInput = mobileSettingsUtil.makeUpgradeNotificationInput(
-                    onContext: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationContext),
+                    onUpgrade: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationUpgrade),
                     onDismiss: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationDismiss)
                 )
             }
         }
     }
 
-    func onMobileUpgradeNotificationContext(context: MobileWalletContext) {
-        coordinator?.openMobileUpgrade(userWalletModel: userWalletModel, context: context)
+    func onMobileUpgradeNotificationUpgrade() {
+        coordinator?.openMobileUpgrade(userWalletModel: userWalletModel)
     }
 
     func onMobileUpgradeNotificationDismiss() {
@@ -296,6 +303,10 @@ private extension UserWalletSettingsViewModel {
                 ConfirmationDialogViewModel.Button.cancel,
             ]
         )
+    }
+
+    func didTapRemoveMobileWallet() {
+        coordinator?.openMobileRemoveWalletNotification(userWalletModel: userWalletModel)
     }
 
     func didConfirmWalletDeletion() {
