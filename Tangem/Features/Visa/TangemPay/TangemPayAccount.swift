@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import Combine
 import TangemVisa
 import TangemSdk
@@ -29,6 +30,7 @@ final class TangemPayAccount {
 
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let authorizer: TangemPayAuthorizer
+    private let walletAddress: String
     private let orderIdStorage: TangemPayOrderIdStorage
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
@@ -37,12 +39,13 @@ final class TangemPayAccount {
     private let didTapIssueOrderSubject = PassthroughSubject<Void, Never>()
     private var customerInfoPollingTask: Task<Void, Never>?
 
-    init(authorizer: TangemPayAuthorizer, tokens: VisaAuthorizationTokens) {
+    init(authorizer: TangemPayAuthorizer, walletAddress: String, tokens: VisaAuthorizationTokens) {
         self.authorizer = authorizer
+        self.walletAddress = walletAddress
 
         authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder()
             .build(
-                customerWalletAddress: authorizer.walletModel.defaultAddressString,
+                customerWalletAddress: walletAddress,
                 authorizationTokens: tokens,
                 refreshTokenSaver: nil
             )
@@ -51,7 +54,7 @@ final class TangemPayAccount {
             .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
 
         orderIdStorage = TangemPayOrderIdStorage(
-            customerWalletAddress: authorizer.walletModel.defaultAddressString,
+            customerWalletAddress: walletAddress,
             appSettings: .shared
         )
 
@@ -87,20 +90,22 @@ final class TangemPayAccount {
         startCustomerInfoPolling()
     }
 
-    convenience init?(walletModel: any WalletModel) {
-        guard walletModel.tokenItem.blockchain == VisaUtilities.visaBlockchain else {
+    convenience init?(keysRepository: KeysRepository) {
+        guard let walletPublicKey = TangemPayUtilities.getKey(from: keysRepository),
+              let walletAddress = try? TangemPayUtilities.makeAddress(using: walletPublicKey)
+        else {
             return nil
         }
 
         @Injected(\.visaRefreshTokenRepository) var visaRefreshTokenRepository: VisaRefreshTokenRepository
-        let visaRefreshTokenId = VisaRefreshTokenId.customerWalletAddress(walletModel.defaultAddressString)
+        let visaRefreshTokenId = VisaRefreshTokenId.customerWalletAddress(walletAddress)
 
         // If there was no refreshToken saved - means user never got tangem pay offer
         guard let refreshToken = visaRefreshTokenRepository.getToken(forVisaRefreshTokenId: visaRefreshTokenId) else {
             return nil
         }
 
-        let authorizer = TangemPayAuthorizer(walletModel: walletModel)
+        let authorizer = TangemPayAuthorizer(keysRepository: keysRepository)
 
         let tokens = VisaAuthorizationTokens(
             accessToken: nil,
@@ -108,15 +113,7 @@ final class TangemPayAccount {
             authorizationType: .customerWallet
         )
 
-        self.init(authorizer: authorizer, tokens: tokens)
-    }
-
-    convenience init?(userWalletModel: UserWalletModel) {
-        guard let walletModel = userWalletModel.visaWalletModel else {
-            return nil
-        }
-
-        self.init(walletModel: walletModel)
+        self.init(authorizer: authorizer, walletAddress: walletAddress, tokens: tokens)
     }
 
     #if ALPHA || BETA || DEBUG
@@ -212,7 +209,7 @@ final class TangemPayAccount {
     private func createOrder() async {
         do {
             try await prepareTokensHandler()
-            let order = try await customerInfoManagementService.placeOrder(walletAddress: authorizer.walletModel.defaultAddressString)
+            let order = try await customerInfoManagementService.placeOrder(walletAddress: walletAddress)
 
             orderIdStorage.saveOrderId(order.id)
         } catch {
