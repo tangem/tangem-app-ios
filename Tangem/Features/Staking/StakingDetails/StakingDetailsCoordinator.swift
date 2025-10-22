@@ -11,7 +11,7 @@ import Combine
 import TangemStaking
 import BlockchainSdk
 
-class StakingDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating {
+class StakingDetailsCoordinator: CoordinatorObject, SendFeeCurrencyNavigating {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -124,7 +124,10 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
                 input: .init(
                     userWalletInfo: options.userWalletModel.userWalletInfo,
                     walletModel: options.walletModel,
-                    expressInput: .init(userWalletModel: options.userWalletModel)
+                    expressInput: .init(
+                        userWalletInfo: options.userWalletModel.userWalletInfo,
+                        walletModelsManager: options.userWalletModel.walletModelsManager
+                    )
                 ),
                 type: sendType,
                 source: .stakingDetails
