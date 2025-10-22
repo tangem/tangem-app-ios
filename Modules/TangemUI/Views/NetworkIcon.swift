@@ -14,6 +14,7 @@ public struct NetworkIcon: View {
     private let imageAsset: ImageType
     private let isActive: Bool
     private var isDisabled: Bool
+    private let showBackground: Bool
     private let isMainIndicatorVisible: Bool
     private var size: CGSize
 
@@ -22,7 +23,7 @@ public struct NetworkIcon: View {
             .resizable()
             .frame(width: size.width, height: size.height)
             .overlay(indicatorOverlay)
-            .background(background)
+            .if(showBackground) { $0.background(background) }
     }
 
     @ViewBuilder
@@ -59,12 +60,14 @@ public struct NetworkIcon: View {
         isActive: Bool,
         isDisabled: Bool = false,
         isMainIndicatorVisible: Bool,
+        showBackground: Bool = true,
         size: CGSize = .init(width: 20, height: 20)
     ) {
         self.imageAsset = imageAsset
         self.isActive = isActive
         self.isDisabled = isDisabled
         self.isMainIndicatorVisible = isMainIndicatorVisible
+        self.showBackground = showBackground
         self.size = size
     }
 }
