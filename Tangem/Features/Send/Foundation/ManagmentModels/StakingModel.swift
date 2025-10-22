@@ -29,6 +29,8 @@ class StakingModel {
     private let _isLoading = CurrentValueSubject<Bool, Never>(false)
     private let _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
+    var onAmountUpdate: ((Decimal) -> Void)?
+
     // MARK: - Dependencies
 
     weak var router: SendModelRoutable?
@@ -228,7 +230,8 @@ private extension StakingModel {
                 amount: newAmount,
                 fee: fee,
                 isFeeIncluded: includeFee,
-                stakeOnDifferentValidator: hasPreviousStakeOnDifferentValidator
+                stakeOnDifferentValidator: hasPreviousStakeOnDifferentValidator,
+                amountToReduce: includeFee ? fee * Constants.reduceAmountMultiplier : nil
             )
         )
     }
@@ -505,6 +508,12 @@ extension StakingModel: NotificationTapDelegate {
             )
 
             router?.openAccountInitializationFlow(viewModel: viewModel)
+        case .reduceAmountBy(let amountToReduce, _, _):
+            guard let oldAmount = amount?.main else {
+                return
+            }
+            onAmountUpdate?(oldAmount - amountToReduce)
+            updateState()
         default:
             assertionFailure("StakingModel doesn't support notification action \(action)")
         }
@@ -598,6 +607,7 @@ extension StakingModel {
             let fee: Decimal
             let isFeeIncluded: Bool
             let stakeOnDifferentValidator: Bool
+            let amountToReduce: Decimal?
         }
     }
 }
@@ -616,5 +626,11 @@ enum StakingModelError: String, Hashable, LocalizedError {
 extension StakingModel: CustomStringConvertible {
     var description: String {
         objectDescription(self)
+    }
+}
+
+private extension StakingModel {
+    enum Constants {
+        static let reduceAmountMultiplier = Decimal(string: "3")!
     }
 }

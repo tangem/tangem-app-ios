@@ -48,7 +48,6 @@ struct UserSettingsAccountsSectionView: View {
             RowWithLeadingAndTrailingIcons(
                 leadingIcon: {
                     AccountIconView(data: model.accountIconViewData)
-                        .setMiddleSizedIconSettings()
                 },
                 content: {
                     VStack(alignment: .leading, spacing: 0) {

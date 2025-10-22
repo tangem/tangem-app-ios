@@ -14,6 +14,7 @@ import enum JSONRPC.RPCResult
 final class WalletConnectSolanaSignTransactionHandler {
     private let walletModel: any WalletModel
     private let signer: TangemSigner
+    private let hardwareLimitationsUtil: HardwareLimitationsUtil
     private let walletNetworkServiceFactory: WalletNetworkServiceFactory
     private let analyticsProvider: WalletConnectServiceAnalyticsProvider
     private let transaction: String
@@ -24,6 +25,7 @@ final class WalletConnectSolanaSignTransactionHandler {
         request: AnyCodable,
         blockchainId: String,
         signer: TangemSigner,
+        hardwareLimitationsUtil: HardwareLimitationsUtil,
         walletNetworkServiceFactory: WalletNetworkServiceFactory,
         walletModelProvider: WalletConnectWalletModelProvider,
         analyticsProvider: WalletConnectServiceAnalyticsProvider
@@ -44,6 +46,7 @@ final class WalletConnectSolanaSignTransactionHandler {
         }
 
         self.signer = signer
+        self.hardwareLimitationsUtil = hardwareLimitationsUtil
         self.walletNetworkServiceFactory = walletNetworkServiceFactory
         self.analyticsProvider = analyticsProvider
         self.request = request
@@ -62,57 +65,63 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
     }
 
     func handle() async throws -> RPCResult {
-        let (unsignedHash, signatureCount) = try prepareTransactionToSign(transaction)
+        let transactionData = try Data(transaction.base64Decoded())
+        let withoutSignaturePlaceholders = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: transactionData)
+        let unsignedHash = withoutSignaturePlaceholders.transaction
 
         guard FeatureProvider.isAvailable(.wcSolanaALT) else {
-            return try await defaultHandleTransaction(unsignedHash: unsignedHash)
+            return try await handleDefaultTransaction(unsignedHash: unsignedHash)
         }
 
-        switch SolanaWalletConnectTransactionRely.rely(transaction: unsignedHash) {
-        case .default:
-            return try await defaultHandleTransaction(unsignedHash: unsignedHash)
-        case .alt:
-            guard signatureCount == 1 else {
-                throw WalletConnectTransactionRequestProcessingError.invalidPayload("Signature count > 1")
-            }
+        let canHandleTransaction = (try? hardwareLimitationsUtil.canHandleTransaction(
+            walletModel.tokenItem,
+            transaction: transactionData
+        )) ?? true
 
-            analyticsProvider.logReceiveHandleSolanaALTTransactionRequest()
-
-            let transactionService = try SolanaALTTransactionService(
-                blockchain: walletModel.tokenItem.blockchain,
-                walletPublicKey: walletModel.publicKey,
-                walletNetworkServiceFactory: walletNetworkServiceFactory,
-                signer: signer
-            )
-
-            let altResult: Bool
-
-            do {
-                try await transactionService.send(transactionData: unsignedHash)
-                altResult = true
-            } catch {
-                altResult = false
-            }
-
-            analyticsProvider.logCompleteHandleSolanaALTTransactionRequest(isSuccess: altResult)
-
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload("Solana ALT handling error for request: \(request.description)")
+        if canHandleTransaction {
+            return try await handleDefaultTransaction(unsignedHash: unsignedHash)
+        } else {
+            let signatureCount = withoutSignaturePlaceholders.signatureCount
+            return try await handleLongTransaction(unsignedHash: unsignedHash, signatureCount: signatureCount)
         }
     }
 }
 
 private extension WalletConnectSolanaSignTransactionHandler {
-    func prepareTransactionToSign(_ transaction: String) throws -> (Data, Int) {
-        let data = try Data(transaction.base64Decoded())
-        return try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
-    }
-
-    func defaultHandleTransaction(unsignedHash: Data) async throws -> RPCResult {
+    func handleDefaultTransaction(unsignedHash: Data) async throws -> RPCResult {
         let solanaSigner = SolanaWalletConnectSigner(signer: signer)
         let signedHash = try await solanaSigner.sign(data: unsignedHash, using: walletModel)
 
         return .response(
             AnyCodable(WalletConnectSolanaSignTransactionDTO.Body(signature: signedHash.base58EncodedString))
         )
+    }
+
+    func handleLongTransaction(unsignedHash: Data, signatureCount: Int) async throws -> RPCResult {
+        guard signatureCount == 1 else {
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload("Signature count > 1")
+        }
+
+        analyticsProvider.logReceiveHandleSolanaALTTransactionRequest()
+
+        let transactionService = try SolanaALTTransactionService(
+            blockchain: walletModel.tokenItem.blockchain,
+            walletPublicKey: walletModel.publicKey,
+            walletNetworkServiceFactory: walletNetworkServiceFactory,
+            signer: signer
+        )
+
+        let altResult: Bool
+
+        do {
+            try await transactionService.send(transactionData: unsignedHash)
+            altResult = true
+        } catch {
+            altResult = false
+        }
+
+        analyticsProvider.logCompleteHandleSolanaALTTransactionRequest(isSuccess: altResult)
+
+        throw WalletConnectTransactionRequestProcessingError.invalidPayload("Solana ALT handling error for request: \(request.description)")
     }
 }
