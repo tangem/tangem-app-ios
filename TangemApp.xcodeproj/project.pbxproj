@@ -2672,6 +2672,8 @@
 		D8EDA0DA2E5F46C700422CA7 /* TroubleShootSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EDA0D92E5F46C700422CA7 /* TroubleShootSheet.swift */; };
 		D8EDA0DC2E5F4AF100422CA7 /* MailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EDA0DB2E5F4AF100422CA7 /* MailScreen.swift */; };
 		D8EDA17F2E60802000422CA7 /* SendScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EDA17E2E60802000422CA7 /* SendScreen.swift */; };
+		D8F18BCD2EA0D90200A4AF58 /* SendCommonNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F18BCC2EA0D90200A4AF58 /* SendCommonNotificationUITests.swift */; };
+		D8F18BCF2EA0D91300A4AF58 /* SendFeeSelectorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F18BCE2EA0D91300A4AF58 /* SendFeeSelectorScreen.swift */; };
 		D8F383792E6F138E00285AF8 /* WalletConnectQRScanScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F383782E6F138E00285AF8 /* WalletConnectQRScanScreen.swift */; };
 		D8FE50022DF84BF50017A0E3 /* PushPermissionRequestScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FE50012DF84BF50017A0E3 /* PushPermissionRequestScreen.swift */; };
 		DA0364B62E42E6EF00FDBDB7 /* TangemPayAvailabilityResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0364B52E42E6D100FDBDB7 /* TangemPayAvailabilityResponse.swift */; };
@@ -7086,6 +7088,8 @@
 		D8EDA0D92E5F46C700422CA7 /* TroubleShootSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TroubleShootSheet.swift; sourceTree = "<group>"; };
 		D8EDA0DB2E5F4AF100422CA7 /* MailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailScreen.swift; sourceTree = "<group>"; };
 		D8EDA17E2E60802000422CA7 /* SendScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendScreen.swift; sourceTree = "<group>"; };
+		D8F18BCC2EA0D90200A4AF58 /* SendCommonNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCommonNotificationUITests.swift; sourceTree = "<group>"; };
+		D8F18BCE2EA0D91300A4AF58 /* SendFeeSelectorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeSelectorScreen.swift; sourceTree = "<group>"; };
 		D8F383782E6F138E00285AF8 /* WalletConnectQRScanScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectQRScanScreen.swift; sourceTree = "<group>"; };
 		D8FE50012DF84BF50017A0E3 /* PushPermissionRequestScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushPermissionRequestScreen.swift; sourceTree = "<group>"; };
 		DA0364B52E42E6D100FDBDB7 /* TangemPayAvailabilityResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAvailabilityResponse.swift; sourceTree = "<group>"; };
@@ -11462,6 +11466,7 @@
 		7982B01C2DE70E1900C41EA5 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D8F18BCE2EA0D91300A4AF58 /* SendFeeSelectorScreen.swift */,
 				D85E200D2E8D106E004174E6 /* MarketsScreen.swift */,
 				D85E20092E854D5F004174E6 /* AppSettingsScreen.swift */,
 				D85E200A2E854D5F004174E6 /* CurrencySelectionScreen.swift */,
@@ -17160,6 +17165,7 @@
 		D892E6BE2E95114000D29113 /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				D8F18BCC2EA0D90200A4AF58 /* SendCommonNotificationUITests.swift */,
 				D81E0ED82E9E31060066E171 /* SendKaspaNotificationUITests.swift */,
 				D8C314C52E9853F200B9F552 /* SendXRPNotificationUITests.swift */,
 				D8C314C32E968C0700B9F552 /* SendNotificationDogecoinUITests.swift */,
@@ -27041,6 +27047,7 @@
 				D863E7532E65CEBB00912D52 /* ScanCardSettingsScreen.swift in Sources */,
 				7982B02E2DE7259E00C41EA5 /* MainScreen.swift in Sources */,
 				D863E7562E65CFA300912D52 /* DeviceSettingsScreen.swift in Sources */,
+				D8F18BCD2EA0D90200A4AF58 /* SendCommonNotificationUITests.swift in Sources */,
 				7982B0212DE70E1900C41EA5 /* StoriesScreen.swift in Sources */,
 				D892E6BF2E95114000D29113 /* SendCardanoNotificationUITests.swift in Sources */,
 				D852F82B2E5C86B400C71B7F /* OnrampCurrencySelectorScreen.swift in Sources */,
@@ -27095,6 +27102,7 @@
 				D8216C762E1FA192002CCA15 /* OrganizeTokensScreen.swift in Sources */,
 				D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */,
 				D85E200E2E8D106E004174E6 /* MarketsScreen.swift in Sources */,
+				D8F18BCF2EA0D91300A4AF58 /* SendFeeSelectorScreen.swift in Sources */,
 				D852F8452E5CBEA800C71B7F /* WalletConnectSheet.swift in Sources */,
 				D8FE50022DF84BF50017A0E3 /* PushPermissionRequestScreen.swift in Sources */,
 				7982B00B2DE70E0100C41EA5 /* TangemAPI.swift in Sources */,
