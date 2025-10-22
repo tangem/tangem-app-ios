@@ -53,24 +53,22 @@ public struct TwoLineRowWithIcon<
     }
 
     private var firstLine: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 8) {
             primaryLeadingView
-                .frame(minWidth: 0.3 * textBlockWidth, alignment: .leading)
-
-            Spacer(minLength: 8)
+                .frame(minWidth: 0.3 * textBlockWidth, maxWidth: .infinity, alignment: .leading)
 
             primaryTrailingView
+                .frame(alignment: .trailing)
         }
     }
 
     private var secondLine: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 12) {
             secondaryLeadingView
-                .frame(minWidth: 0.32 * textBlockWidth, alignment: .leading)
-
-            Spacer(minLength: 12)
+                .frame(minWidth: 0.32 * textBlockWidth, maxWidth: .infinity, alignment: .leading)
 
             secondaryTrailingView
+                .frame(alignment: .trailing)
         }
     }
 }
