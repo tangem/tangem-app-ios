@@ -41,7 +41,8 @@ class OnrampModel {
     // MARK: - Private injections
 
     private let userWalletId: String
-    private let walletModel: any WalletModel
+    private let tokenItem: TokenItem
+    private let defaultAddressString: String
     private let onrampManager: OnrampManager
     private let onrampDataRepository: OnrampDataRepository
     private let onrampRepository: OnrampRepository
@@ -54,7 +55,8 @@ class OnrampModel {
 
     init(
         userWalletId: String,
-        walletModel: any WalletModel,
+        tokenItem: TokenItem,
+        defaultAddressString: String,
         onrampManager: OnrampManager,
         onrampDataRepository: OnrampDataRepository,
         onrampRepository: OnrampRepository,
@@ -62,7 +64,8 @@ class OnrampModel {
         predefinedValues: PredefinedValues,
     ) {
         self.userWalletId = userWalletId
-        self.walletModel = walletModel
+        self.tokenItem = tokenItem
+        self.defaultAddressString = defaultAddressString
         self.onrampManager = onrampManager
         self.onrampDataRepository = onrampDataRepository
         self.onrampRepository = onrampRepository
@@ -329,8 +332,8 @@ private extension OnrampModel {
         OnrampPairRequestItem(
             fiatCurrency: currency,
             country: country,
-            destination: walletModel.tokenItem.expressCurrency,
-            address: walletModel.defaultAddressString
+            destination: tokenItem.expressCurrency,
+            address: defaultAddressString
         )
     }
 
@@ -449,7 +452,7 @@ extension OnrampModel: RecentOnrampProviderFinder {
             return nil
         }
 
-        let relatedToWallet = recentTransaction.destinationTokenTxInfo.tokenItem == walletModel.tokenItem
+        let relatedToWallet = recentTransaction.destinationTokenTxInfo.tokenItem == tokenItem
         guard relatedToWallet else {
             return nil
         }
@@ -504,8 +507,8 @@ extension OnrampModel: OnrampRedirectingOutput {
         let txData = SentOnrampTransactionData(
             txId: data.txId,
             provider: provider.provider,
-            destinationTokenItem: walletModel.tokenItem,
-            destinationAddress: walletModel.defaultAddressString,
+            destinationTokenItem: tokenItem,
+            destinationAddress: defaultAddressString,
             date: Date(),
             fromAmount: data.fromAmount,
             fromCurrencyCode: data.fromCurrencyCode,
