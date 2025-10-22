@@ -23,11 +23,6 @@ protocol FeeCurrencyNavigating where Self: AnyObject, Self: CoordinatorObject {
 extension FeeCurrencyNavigating {
     static var feeCurrencyNavigationDelay: TimeInterval { 0.6 }
 
-    var tokenDetailsCoordinator: TokenDetailsCoordinator? {
-        get { nil }
-        set { assertionFailure("If you don't want to have a tokenDetailsCoordinator. You should implement your own `openFeeCurrency` method") }
-    }
-
     func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
