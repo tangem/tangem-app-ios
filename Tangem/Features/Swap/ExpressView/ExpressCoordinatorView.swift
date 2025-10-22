@@ -19,11 +19,14 @@ struct ExpressCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        ZStack {
-            if let rootViewModel = coordinator.rootViewModel {
-                ExpressView(viewModel: rootViewModel)
+        NavigationView {
+            ZStack {
+                if let rootViewModel = coordinator.rootViewModel {
+                    ExpressView(viewModel: rootViewModel)
+                }
+
+                sheets
             }
-            sheets
         }
     }
 
@@ -56,19 +59,5 @@ struct ExpressCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.swappingSuccessCoordinator) {
                 SwappingSuccessCoordinatorView(coordinator: $0)
             }
-    }
-}
-
-extension ExpressCoordinatorView {
-    func expressNavigationView() -> some View {
-        NavigationView {
-            self
-                .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        CloseButton(dismiss: { coordinator.closeSwappingView() })
-                    }
-                }
-        }
     }
 }
