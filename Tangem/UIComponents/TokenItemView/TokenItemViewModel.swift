@@ -12,6 +12,7 @@ import SwiftUI
 import BlockchainSdk
 import TangemAssets
 import TangemFoundation
+import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 protocol TokenItemContextActionsProvider: AnyObject {
@@ -29,12 +30,12 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     @Published var balanceFiat: LoadableTokenBalanceView.State
     @Published var priceChangeState: TokenPriceChangeView.State = .loading
     @Published var tokenPrice: LoadableTextView.State = .loading
-    @Published var hasPendingTransactions: Bool = false
     @Published var contextActionSections: [TokenContextActionsSection] = []
-    @Published var isStaked: Bool = false
-    @Published private(set) var yieldModuleInfo: YieldModuleInfo = .empty
     @Published private var missingDerivation: Bool = false
     @Published private var networkUnreachable: Bool = false
+
+    @Published var leadingBadge: LeadingBadge?
+    @Published var trailingBadge: TrailingBadge?
 
     let tokenItem: TokenItem
 
@@ -57,19 +58,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         }
 
         return nil
-    }
-
-    var earnBadgeAPY: String? {
-        guard !hasPendingTransactions else { return nil }
-        return yieldModuleInfo.yieldAPY
-    }
-
-    var isYieldApproveNeeded: Bool {
-        yieldModuleInfo.isYieldApproveNeeded
-    }
-
-    var earnBadgeTextColor: Color {
-        yieldModuleInfo.isYieldActive ? Colors.Text.accent : Colors.Text.secondary
     }
 
     private let tokenIcon: TokenIconInfo
@@ -119,13 +107,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        infoProvider?.yieldModuleStatePublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                self?.setupYieldIndicators(marketInfo: state.marketInfo, state: state.state)
-            }
-            .store(in: &bag)
-
         infoProvider?.balancePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -167,14 +148,14 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        infoProvider?.isStakedPublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.isStaked, on: self, ownership: .weak)
+        infoProvider?.leadingBadgePublisher
+            .receiveOnMain()
+            .assign(to: \.leadingBadge, on: self, ownership: .weak)
             .store(in: &bag)
 
-        infoProvider?.hasPendingTransactions
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.hasPendingTransactions, on: self, ownership: .weak)
+        infoProvider?.trailingBadgePublisher
+            .receiveOnMain()
+            .assign(to: \.trailingBadge, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -211,36 +192,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func setupYieldIndicators(marketInfo: YieldModuleMarketInfo?, state: YieldModuleManagerState) {
-        guard FeatureProvider.isAvailable(.yieldModule) else {
-            yieldModuleInfo = .empty
-            return
-        }
-
-        let formattedAPY = marketInfo.flatMap { PercentFormatter().format($0.apy, option: .interval) }
-
-        let info = switch state {
-        case .active(let supply):
-            YieldModuleInfo(
-                isYieldApproveNeeded: supply.isAllowancePermissionRequired,
-                yieldAPY: formattedAPY,
-                isYieldActive: true
-            )
-
-        case .notActive:
-            if let formattedAPY, marketInfo?.isActive == true {
-                YieldModuleInfo(yieldAPY: formattedAPY, isYieldActive: false)
-            } else {
-                YieldModuleInfo.empty
-            }
-
-        case .disabled, .failedToLoad, .processing, .loading:
-            YieldModuleInfo.empty
-        }
-
-        yieldModuleInfo = info
-    }
-
     private func buildContextActions() {
         contextActionSections = contextActionsProvider?.buildContextActions(for: self) ?? []
     }
@@ -255,17 +206,20 @@ extension TokenItemViewModel: CustomStringConvertible {
 }
 
 extension TokenItemViewModel {
-    struct YieldModuleInfo {
-        let isYieldApproveNeeded: Bool
-        let yieldAPY: String?
-        let isYieldActive: Bool
+    enum LeadingBadge {
+        case pendingTransaction
+        case rewards(TokenItemViewModel.RewardsInfo)
+    }
 
-        init(isYieldApproveNeeded: Bool = false, yieldAPY: String? = nil, isYieldActive: Bool = false) {
-            self.isYieldApproveNeeded = isYieldApproveNeeded
-            self.yieldAPY = yieldAPY
-            self.isYieldActive = isYieldActive
-        }
+    enum TrailingBadge {
+        case isApproveNeeded
+    }
+}
 
-        static let empty = YieldModuleInfo(isYieldApproveNeeded: false, yieldAPY: nil)
+extension TokenItemViewModel {
+    struct RewardsInfo {
+        let type: RewardType
+        let rewardValue: String
+        let isActive: Bool
     }
 }
