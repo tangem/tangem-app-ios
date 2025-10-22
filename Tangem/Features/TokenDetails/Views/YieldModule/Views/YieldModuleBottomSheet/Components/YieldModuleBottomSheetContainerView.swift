@@ -16,8 +16,6 @@ struct YieldModuleBottomSheetContainerView<
     HeaderContent: View,
     TopContent: View
 >: View {
-    typealias NotificationBanner = YieldModuleViewConfigs.YieldModuleNotificationBannerParams
-
     // MARK: - Properties
 
     private let title: String?
@@ -31,7 +29,6 @@ struct YieldModuleBottomSheetContainerView<
     private let topContent: TopContent
     private let subtitleFooter: SubtitleFooter
     private let content: BodyContent
-    private let notificationBanner: NotificationBanner?
     private let header: HeaderContent
     private let button: MainButton
 
@@ -45,7 +42,6 @@ struct YieldModuleBottomSheetContainerView<
         @ViewBuilder topContent: () -> TopContent = { EmptyView() },
         @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
         @ViewBuilder content: () -> BodyContent = { EmptyView() },
-        notificationBanner: NotificationBanner? = nil,
         contentTopPadding: CGFloat = 24,
         buttonTopPadding: CGFloat = 32
     ) {
@@ -59,14 +55,13 @@ struct YieldModuleBottomSheetContainerView<
         self.contentTopPadding = contentTopPadding
         self.button = button
         self.buttonTopPadding = buttonTopPadding
-        self.notificationBanner = notificationBanner
     }
 
     // MARK: - View Body
 
     var body: some View {
-        VStack(spacing: buttonTopPadding) {
-            GroupedScrollView {
+        VStack(spacing: .zero) {
+            GroupedScrollView(showsIndicators: false) {
                 VStack(spacing: .zero) {
                     header
 
@@ -85,10 +80,6 @@ struct YieldModuleBottomSheetContainerView<
 
                     content
                         .padding(.top, contentTopPadding)
-
-                    if let notificationBanner {
-                        YieldModuleBottomSheetNotificationBanner(params: notificationBanner)
-                    }
                 }
                 .padding(.top, 8)
             }
