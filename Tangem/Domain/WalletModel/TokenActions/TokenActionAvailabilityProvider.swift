@@ -180,6 +180,7 @@ extension TokenActionAvailabilityProvider {
         case expressLoading
         case expressNotLoaded
         case missingAssetRequirement
+        case yieldModuleApproveNeeded
     }
 
     var isSwapAvailable: Bool {
@@ -201,6 +202,10 @@ extension TokenActionAvailabilityProvider {
     var swapAvailability: SwapActionAvailabilityStatus {
         if walletModel.isCustom {
             return .customToken
+        }
+
+        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+            return .yieldModuleApproveNeeded
         }
 
         if case .assetRequirement = receiveAvailability {
@@ -259,6 +264,7 @@ extension TokenActionAvailabilityProvider {
         case blockchainLoading
         case oldCard
         case hasOnlyCachedBalance
+        case yieldModuleApproveNeeded
     }
 
     var isSendAvailable: Bool {
@@ -270,6 +276,10 @@ extension TokenActionAvailabilityProvider {
     }
 
     var sendAvailability: SendActionAvailabilityStatus {
+        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+            return .yieldModuleApproveNeeded
+        }
+
         switch walletModel.sendingRestrictions {
         case .oldCard:
             return .oldCard
@@ -305,6 +315,7 @@ extension TokenActionAvailabilityProvider {
         case oldCard
         case hasOnlyCachedBalance
         case demo(disabledLocalizedReason: String)
+        case yieldModuleApproveNeeded
     }
 
     var isSellAvailable: Bool {
@@ -318,6 +329,10 @@ extension TokenActionAvailabilityProvider {
     var sellAvailability: SellActionAvailabilityStatus {
         if let disabledLocalizedReason = userWalletConfig.getDisabledLocalizedReason(for: .exchange) {
             return .demo(disabledLocalizedReason: disabledLocalizedReason)
+        }
+
+        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+            return .yieldModuleApproveNeeded
         }
 
         if !sellCryptoUtility.sellAvailable {
