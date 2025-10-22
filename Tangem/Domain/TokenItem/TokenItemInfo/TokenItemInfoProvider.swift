@@ -9,6 +9,7 @@
 import Combine
 import BlockchainSdk
 import TangemFoundation
+import TangemStaking
 
 protocol TokenItemInfoProvider: AnyObject {
     var quote: WalletModelRate { get }
@@ -20,9 +21,10 @@ protocol TokenItemInfoProvider: AnyObject {
     var balancePublisher: AnyPublisher<TokenBalanceType, Never> { get }
     var balanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
     var fiatBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
-    var yieldModuleStatePublisher: AnyPublisher<YieldModuleManagerStateInfo, Never> { get }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { get }
     var hasPendingTransactions: AnyPublisher<Bool, Never> { get }
-    var isStakedPublisher: AnyPublisher<Bool, Never> { get }
+
+    var leadingBadgePublisher: AnyPublisher<TokenItemViewModel.LeadingBadge?, Never> { get }
+    var trailingBadgePublisher: AnyPublisher<TokenItemViewModel.TrailingBadge?, Never> { get }
 }
