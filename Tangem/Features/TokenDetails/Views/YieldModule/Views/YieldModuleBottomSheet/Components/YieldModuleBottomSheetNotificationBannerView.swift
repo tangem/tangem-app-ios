@@ -1,5 +1,5 @@
 //
-//  YieldModuleBottomSheetNotificationBanner.swift
+//  YieldModuleBottomSheetNotificationBannerView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,10 +11,10 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-struct YieldModuleBottomSheetNotificationBanner: View {
+struct YieldModuleBottomSheetNotificationBannerView: View {
     // MARK: - Config
 
-    let params: YieldModuleViewConfigs.YieldModuleNotificationBannerParams
+    let params: YieldModuleNotificationBannerParams
 
     // MARK: - Properties
 
@@ -84,7 +84,6 @@ struct YieldModuleBottomSheetNotificationBanner: View {
             button
         }
         .defaultRoundedBackground(with: Colors.Background.action)
-        .padding(.top, 26)
     }
 
     // MARK: - Sub Views
