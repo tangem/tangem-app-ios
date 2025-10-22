@@ -31,7 +31,6 @@ struct YieldModuleInfoView: View {
             header: { makeHeader(viewState: viewModel.viewState) },
             topContent: { topContent },
             content: { mainContent },
-            notificationBanner: viewModel.notificationBannerParams,
             contentTopPadding: contentTopPadding,
             buttonTopPadding: buttonTopPadding
         )
@@ -98,14 +97,19 @@ struct YieldModuleInfoView: View {
     private var mainButton: MainButton {
         switch viewModel.viewState {
         case .earnInfo:
-            .init(settings: .init(title: Localization.yieldModuleStopEarning, style: .secondary, action: ctaButtonAction))
+            .init(settings: .init(
+                title: Localization.yieldModuleStopEarning,
+                style: .secondary,
+                isDisabled: !viewModel.isMainButtonAvailable,
+                action: ctaButtonAction
+            ))
         case .approve, .stopEarning:
             .init(settings: .init(
                 title: Localization.commonConfirm,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
                 isLoading: viewModel.isProcessingRequest,
-                isDisabled: !viewModel.isButtonEnabled,
+                isDisabled: !viewModel.isMainButtonAvailable,
                 action: ctaButtonAction
             ))
         }
@@ -127,20 +131,20 @@ struct YieldModuleInfoView: View {
     private var mainContent: some View {
         switch viewModel.viewState {
         case .earnInfo:
-            YieldModuleEarnInfoView(
+            YieldModuleActiveСontentView(
                 apyState: viewModel.apyState,
                 minAmountState: viewModel.minimalAmountState,
                 chartState: viewModel.chartState,
+                networkFeeState: viewModel.currentNetworkFeeState,
+                networkFeeAmountState: viewModel.networkFeeAmountState,
+                bannerParams: viewModel.notificationBannerParams,
                 tokenName: viewModel.walletModel.tokenItem.name,
                 tokenSymbol: viewModel.walletModel.tokenItem.currencySymbol,
-                transferMode: viewModel.activityState.transferMode,
+                transferMode: Localization.yieldModuleTransferModeAutomatic,
                 availableBalance: viewModel.getAvailableBalanceString(),
                 readMoreUrl: viewModel.readMoreURL,
-                myFundsSectionText: viewModel.makeMyFundsSectionText()
+                myFundsSectionText: viewModel.makeMyFundsSectionText(),
             )
-            .task {
-                await viewModel.fetchChartData()
-            }
 
         case .approve:
             YieldFeeSection(
@@ -149,12 +153,8 @@ struct YieldModuleInfoView: View {
                 footerText: Localization.yieldModuleApproveSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
                 url: viewModel.readMoreURL,
-                isLinkActive: false,
-                onLinkTapAction: nil
+                isLinkActive: true
             )
-            .task {
-                await viewModel.fetchFee(for: .approve)
-            }
 
         case .stopEarning:
             YieldFeeSection(
@@ -163,12 +163,8 @@ struct YieldModuleInfoView: View {
                 footerText: Localization.yieldModuleStopEarningSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
                 url: viewModel.readMoreURL,
-                isLinkActive: false,
-                onLinkTapAction: nil
+                isLinkActive: true
             )
-            .task {
-                await viewModel.fetchFee(for: .exit)
-            }
         }
     }
 
@@ -210,8 +206,7 @@ private extension YieldModuleInfoView {
             BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTap() } })
 
             VStack(spacing: 3) {
-                // [REDACTED_TODO_COMMENT]
-                Text("Aave Lending")
+                Text(Localization.yieldModuleEarnSheetTitle)
                     .style(Fonts.Bold.headline, color: Colors.Text.primary1)
 
                 HStack(spacing: 4) {
