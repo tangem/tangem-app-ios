@@ -8,56 +8,72 @@
 
 import Foundation
 import Combine
+import TangemUI
 
 @MainActor
 final class AccountSelectorViewModel: ObservableObject {
-    // MARK: - Dependencies
-
-    @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
-
     // MARK: - Published Properties
 
     @Published private(set) var displayMode: AccountSelectorDisplayMode = .wallets
     @Published private(set) var lockedWalletItems: [AccountSelectorWalletItem] = []
     @Published private(set) var walletItems: [AccountSelectorWalletItem] = []
     @Published private(set) var accountsSections: [AccountSelectorMultipleAccountsItem] = []
-    @Published private(set) var selectedAccount: AccountSelectorCellModel
+    @Published private(set) var selectedItem: AccountSelectorCellModel?
 
     // MARK: - Private Properties
 
-    private let onSelect: (AccountSelectorCellModel) -> Void
+    private let userWalletModels: [any UserWalletModel]
+    private let onSelect: (any BaseAccountModel) -> Void
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Initialization
 
     init(
-        selectedAccount: AccountSelectorCellModel,
-        onSelect: @escaping (AccountSelectorCellModel) -> Void
+        selectedItem: AccountSelectorCellModel? = nil,
+        userWalletModels: [any UserWalletModel],
+        onSelect: @escaping (any BaseAccountModel) -> Void
     ) {
+        self.selectedItem = selectedItem
+        self.userWalletModels = userWalletModels
         self.onSelect = onSelect
-        self.selectedAccount = selectedAccount
 
         bind()
+    }
+
+    convenience init(
+        selectedItem: AccountSelectorCellModel? = nil,
+        userWalletModel: any UserWalletModel,
+        onSelect: @escaping (any BaseAccountModel) -> Void
+    ) {
+        self.init(selectedItem: selectedItem, userWalletModels: [userWalletModel], onSelect: onSelect)
     }
 
     // MARK: - Public Methods
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .selectItem(let account):
-            selectedAccount = account
-            onSelect(account)
+        case .selectItem(let item):
+            selectedItem = item
+
+            switch item {
+            case .wallet(let model):
+                if case .active(let walletModel) = model.wallet {
+                    onSelect(walletModel.mainAccount)
+                }
+            case .account(let model):
+                onSelect(model.domainModel)
+            }
         }
     }
 
     func isCellSelected(for cell: AccountSelectorCellModel) -> Bool {
-        selectedAccount == cell
+        selectedItem == cell
     }
 
     // MARK: - Private Methods
 
     private func bind() {
-        userWalletRepository.models
+        userWalletModels
             .forEach { userWallet in
 
                 guard !userWallet.isUserWalletLocked else {
@@ -66,7 +82,7 @@ final class AccountSelectorViewModel: ObservableObject {
                 }
 
                 userWallet.accountModelsManager.accountModelsPublisher
-                    .receive(on: DispatchQueue.main)
+                    .receiveOnMain()
                     .withWeakCaptureOf(self)
                     .sink { viewModel, cryptoAccounts in
                         viewModel.setDisplayMode(for: cryptoAccounts)
@@ -74,7 +90,9 @@ final class AccountSelectorViewModel: ObservableObject {
                         viewModel.walletItems.removeAll(where: { $0.domainModel.userWalletId == userWallet.userWalletId })
                         viewModel.accountsSections.removeAll(where: { $0.walletId == userWallet.userWalletId.stringValue })
 
-                        let (wallets, accountsSections) = viewModel.makeUpdatedSelectorData(userWallet: userWallet, from: cryptoAccounts)
+                        let (wallets, accountsSections) = viewModel.makeUpdatedSelectorData(
+                            userWallet: userWallet, from: cryptoAccounts
+                        )
 
                         viewModel.walletItems.append(contentsOf: wallets)
                         viewModel.accountsSections.append(contentsOf: accountsSections)
@@ -120,3 +138,5 @@ extension AccountSelectorViewModel {
         case selectItem(AccountSelectorCellModel)
     }
 }
+
+extension AccountSelectorViewModel: FloatingSheetContentViewModel {}
