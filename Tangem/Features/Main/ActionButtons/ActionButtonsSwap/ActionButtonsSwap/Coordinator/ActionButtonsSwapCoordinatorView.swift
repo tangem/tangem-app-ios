@@ -29,6 +29,11 @@ struct ActionButtonsSwapCoordinatorView: View {
                         }
                 }
                 .transition(.opacity)
+            case .new(let viewModel):
+                NavigationView {
+                    NewActionButtonsSwapView(viewModel: viewModel)
+                }
+                .transition(SendTransitions.transition)
             case .express(let expressCoordinator):
                 ExpressCoordinatorView(coordinator: expressCoordinator)
                     .transition(SendTransitions.transition)
