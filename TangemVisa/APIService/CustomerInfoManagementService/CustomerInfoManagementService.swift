@@ -15,6 +15,8 @@ public protocol CustomerInfoManagementService {
 
     func placeOrder(walletAddress: String) async throws -> TangemPayOrderResponse
     func getOrder(orderId: String) async throws -> TangemPayOrderResponse
+
+    func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse
 }
 
 /// For backwards compatibility.
@@ -63,6 +65,12 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
         try await apiService.request(
             makeRequest(for: .getKYCAccessToken)
+        )
+    }
+
+    func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse {
+        try await apiService.request(
+            makeRequest(for: .getCardDetails(sessionId: sessionId))
         )
     }
 
