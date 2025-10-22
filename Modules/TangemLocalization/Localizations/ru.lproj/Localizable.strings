@@ -22,6 +22,8 @@
 "account_archived_recover_error_title" = "Невозможно восстановить аккаунт";
 "account_archived_recover" = "Recover";
 "account_archived_title" = "Archived";
+"account_could_not_archive_referral_program_message" = "This account participates in the referral program.";
+"account_could_not_archive_referral_program_title" = "This account cannot be archived.";
 "account_could_not_archive" = "We couldn’t archive account. Please try again later.";
 "account_could_not_create" = "We couldn’t create account. Please try again later.";
 "account_create_success_message" = "Account created";
@@ -42,6 +44,8 @@
 "account_form_title_edit" = "Edit account";
 "account_label_tokens_info" = "%1$@ in %2$@";
 "account_main_account_title" = "Основной аккаунт";
+"account_recover_limit_dialog_description" = "You have already exceeded the limit of %1$@ active accounts. Archive one to recover";
+"account_recover_limit_dialog_title" = "Can’t recover account";
 "account_recover_success_message" = "Account recovered";
 "account_reorder_description" = "Long tap on an account to reorder accounts";
 "account_unsaved_dialog_action_first" = "Продолжить редактирование";
@@ -1623,7 +1627,7 @@
 "wc_alert_wrong_card_title" = "Похоже, возникла проблема";
 "wc_all_dapps_disconnected" = "Все dapps отключены";
 "wc_allow_to_spend" = "Разрешение на использование";
-"wc_approve_description" = "By approving, you allow dApp or Smart contract to use tokens in future transactions.";
+"wc_approve_description" = "Подтверждая, вы разрешаете смарт-контракту использовать ваши токены в будущих транзакциях.";
 "wc_common_address" = "Адрес";
 "wc_common_connect" = "Подключение";
 "wc_common_loading" = "Загрузка";
@@ -1719,7 +1723,7 @@
 "xtz_withdrawal_message_warning" = "Чтобы не платить повышенную комиссию при следующем пополнении кошелька, уменьшите сумму на %@ XTZ";
 "yield_module_alert_description" = "Ваши средства сейчас размещены в протоколе AAVE, но вы можете управлять ими в любое время.";
 "yield_module_alert_title" = "Ваш %@ внесён в Aave";
-"yield_module_amount_not_transfered_to_aave_title" = "The amount received, %1$@ %2$@ was not deposited to Aave.";
+"yield_module_amount_not_transfered_to_aave_title" = "Supplying  %1$@ %2$@ to Aave is pending";
 "yield_module_approve_needed_notification_cta" = "Выдать разрешение";
 "yield_module_approve_needed_notification_description" = "Что-то пошло не так с вашим предыдущим разрешением, поэтому требуется новое. Выберите, как хотите продолжить.";
 "yield_module_approve_needed_notification_title" = "Необходимо разрешение";
@@ -1744,6 +1748,7 @@
 "yield_module_fee_policy_sheet_current_fee_note" = "Это текущая комиссия в сети %@.";
 "yield_module_fee_policy_sheet_current_fee_title" = "Текущая комиссия";
 "yield_module_fee_policy_sheet_description" = "Все следующие пополнения %@ автоматически поступят в Aave с удержанием комиссии за транзакцию.";
+"yield_module_fee_policy_sheet_fee_note" = "An approximate network fee of %1$@ (%2$@) will be deducted from each future top-up, and it won’t exceed your %3$@  (%4$@) limit.";
 "yield_module_fee_policy_sheet_max_fee_note" = "Если комиссия сети превысит максимальный лимит, транзакция не будет выполнена до тех пор, пока комиссия не снизится. Вы сможете изменить этот лимит позже.";
 "yield_module_fee_policy_sheet_max_fee_title" = "Максимальная комиссия";
 "yield_module_fee_policy_sheet_min_amount_note" = "Это минимальный депозит, который можно отправить в Aave. Чтобы депозиты оставались прибыльными, мы не обрабатываем их, когда комиссия сети превышает 4%% от суммы.";
