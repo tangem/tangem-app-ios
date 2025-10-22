@@ -34,11 +34,7 @@ struct TokenItemView: View {
                         .lineLimit(1)
                         .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenTitle)
 
-                    if viewModel.hasPendingTransactions {
-                        ProgressDots(style: .small)
-                    } else if let apy = viewModel.earnBadgeAPY {
-                        TokenItemEarnBadgeView(apy: apy, color: viewModel.earnBadgeTextColor)
-                    }
+                    leadingBadge
                 }
             },
             primaryTrailingView: {
@@ -47,15 +43,7 @@ struct TokenItemView: View {
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 } else {
                     HStack(spacing: 6) {
-                        if viewModel.isStaked {
-                            Assets.stakingMiniIcon.image
-                                .renderingMode(.template)
-                                .resizable()
-                                .foregroundColor(Colors.Icon.accent)
-                                .frame(width: 12, height: 12)
-                        } else if viewModel.isYieldApproveNeeded {
-                            yieldWarningIcon
-                        }
+                        trailingBadge
 
                         LoadableTokenBalanceView(
                             state: viewModel.balanceFiat,
@@ -114,6 +102,31 @@ struct TokenItemView: View {
         }
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
+    }
+
+    @ViewBuilder
+    var leadingBadge: some View {
+        switch viewModel.leadingBadge {
+        case .pendingTransaction:
+            ProgressDots(style: .small)
+        case .rewards(let rewardsInfo):
+            TokenItemEarnBadgeView(
+                rewardType: rewardsInfo.type,
+                rewardValue: rewardsInfo.rewardValue,
+                color: rewardsInfo.isActive ? Colors.Text.accent : Colors.Text.secondary
+            )
+        case .none:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    var trailingBadge: some View {
+        if case .isApproveNeeded = viewModel.trailingBadge {
+            yieldWarningIcon
+        } else {
+            EmptyView()
+        }
     }
 
     private var yieldWarningIcon: some View {
