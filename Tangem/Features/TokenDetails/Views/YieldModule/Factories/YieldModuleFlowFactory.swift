@@ -65,8 +65,7 @@ final class YieldModuleFlowFactory {
             walletModel: walletModel,
             feeCurrencyNavigator: feeCurrencyNavigator,
             yieldManagerInteractor: interactor,
-            activityState: info.isAllowancePermissionRequired ? .active : .paused,
-            availableBalance: info.yieldModuleBalanceValue
+            availableBalance: info.balance.value
         )
     }
 
