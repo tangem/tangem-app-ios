@@ -27,18 +27,35 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     @Published private var selectedProviderItem: ProviderItem?
 
     private let tokenItem: TokenItem
+    private let analyticsLogger: SendOnrampOffersAnalyticsLogger
+    private var shouldOnrampPaymentMethodScreenOpenedLogged: Bool = true
 
-    private lazy var onrampOfferViewModelBuilder = OnrampOfferViewModelBuilder(tokenItem: tokenItem)
+    private lazy var onrampOfferViewModelBuilder = OnrampAllOfferViewModelBuilder(tokenItem: tokenItem)
     private lazy var onrampProvidersItemViewModelBuilder = OnrampProviderItemViewModelBuilder(tokenItem: tokenItem)
     private weak var input: OnrampProvidersInput?
     private weak var output: OnrampOutput?
 
-    init(tokenItem: TokenItem, input: OnrampProvidersInput, output: OnrampOutput) {
+    init(
+        tokenItem: TokenItem,
+        analyticsLogger: SendOnrampOffersAnalyticsLogger,
+        input: OnrampProvidersInput,
+        output: OnrampOutput,
+    ) {
         self.tokenItem = tokenItem
+        self.analyticsLogger = analyticsLogger
         self.input = input
         self.output = output
 
         bind()
+    }
+
+    /// Because floating sheet use sheet content twice
+    /// then `onAppear` calls twice too
+    func onAppear() {
+        if shouldOnrampPaymentMethodScreenOpenedLogged {
+            analyticsLogger.logOnrampPaymentMethodScreenOpened()
+            shouldOnrampPaymentMethodScreenOpenedLogged = false
+        }
     }
 
     func onDisappear() {
@@ -64,8 +81,8 @@ private extension OnrampOffersSelectorViewModel {
             .compactMap { $0?.value }
             .map { providers in
                 providers
-                    .sorted { $0.paymentMethod.type.priority > $1.paymentMethod.type.priority }
-                    .filter { $0.hasSuccessfullyLoadedProviders() }
+                    .sorted(sorter: ProviderItemSorterBySuccessfullyLoadedProvidersWithPaymentMethodPriority())
+                    .filter { $0.hasSelectableProviders() }
             }
             .receiveOnMain()
             .assign(to: &$providersList)
@@ -76,15 +93,19 @@ private extension OnrampOffersSelectorViewModel {
             onrampProvidersItemViewModelBuilder.mapToOnrampProviderItemViewModel(
                 providerItem: providerItem
             ) { [weak self] in
+                self?.analyticsLogger.logOnrampPaymentMethodChosen(paymentMethod: providerItem.paymentMethod)
+                self?.analyticsLogger.logOnrampProvidersScreenOpened()
                 self?.selectedProviderItem = providerItem
             }
         }
     }
 
     func mapToOnrampOfferViewModels(item: ProviderItem) -> [OnrampOfferViewModel] {
-        let offers = item.successfullyLoadedProviders().map { provider in
+        let offers = item.selectableProviders().map { provider in
             onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
                 self?.close()
+                self?.analyticsLogger.logOnrampProviderChosen(provider: provider.provider)
+                self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
                 self?.output?.userDidRequestOnramp(provider: provider)
             }
         }
@@ -97,5 +118,12 @@ extension OnrampOffersSelectorViewModel {
     enum ViewState: Hashable {
         case paymentMethods([OnrampProviderItemViewModel])
         case offers([OnrampOfferViewModel])
+
+        var isPaymentMethods: Bool {
+            switch self {
+            case .offers: false
+            case .paymentMethods: true
+            }
+        }
     }
 }

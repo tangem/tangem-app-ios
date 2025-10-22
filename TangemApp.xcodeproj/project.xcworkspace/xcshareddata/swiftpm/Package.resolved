@@ -1,5 +1,5 @@
 {
-  "originHash" : "ff1ddd0ef49d687dcec5cec343f9b712ceb9f93d9ca13c28d5f52b78302f9dee",
+  "originHash" : "d4a84c39d9b0b62c6a1b30f611321536b444e2788bc3d0c8597be40cbcf1a409",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -71,6 +71,15 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
+      }
+    },
+    {
+      "identity" : "appsflyerframework-strict",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict",
+      "state" : {
+        "revision" : "841ef61f5933ad5382e8b47a3b67abdf5bb501e3",
+        "version" : "6.17.2"
       }
     },
     {
@@ -229,8 +238,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git",
       "state" : {
-        "revision" : "de2d8f77baaa5b1bb2ca475d4b6fffa21529be67",
-        "version" : "1.36.0"
+        "revision" : "8fac25e637570ebc56a5a5b19cef0c80549bd6ac",
+        "version" : "1.38.0"
       }
     },
     {

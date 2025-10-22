@@ -8,13 +8,16 @@
 
 import Foundation
 import Combine
+import TangemLocalization
+import TangemNFT
 
 final class CryptoAccountModelMock {
     let id = AccountId()
     let isMainAccount: Bool
-    let walletModelsManager: WalletModelsManager = WalletModelsManagerMock()
-    let userTokensManager: UserTokensManager = UserTokensManagerMock()
-    let userTokenListManager: UserTokenListManager = UserTokenListManagerMock()
+    let walletModelsManager: WalletModelsManager
+    let totalBalanceProvider: TotalBalanceProvider
+    let userTokensManager: UserTokensManager
+    let userTokenListManager: UserTokenListManager
 
     private(set) var name = "Mock Account" {
         didSet {
@@ -37,8 +40,18 @@ final class CryptoAccountModelMock {
 
     private let didChangeSubject = PassthroughSubject<Void, Never>()
 
-    init(isMainAccount: Bool) {
+    init(
+        isMainAccount: Bool,
+        walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
+        totalBalanceProvider: TotalBalanceProvider = TotalBalanceProviderMock(),
+        userTokensManager: UserTokensManager = UserTokensManagerMock(),
+        userTokenListManager: UserTokenListManager = UserTokenListManagerMock()
+    ) {
         self.isMainAccount = isMainAccount
+        self.walletModelsManager = walletModelsManager
+        self.totalBalanceProvider = totalBalanceProvider
+        self.userTokensManager = userTokensManager
+        self.userTokenListManager = userTokenListManager
     }
 }
 
@@ -56,6 +69,22 @@ extension CryptoAccountModelMock {
             id
         }
     }
+
+    private struct AccountRateProviderStub: AccountRateProvider {
+        var accountRate: AccountRate {
+            return .loaded(
+                quote: AccountQuote(
+                    priceChange24h: Decimal(stringValue: "1.23")!,
+                    priceChange7d: Decimal(stringValue: "0.23")!,
+                    priceChange30d: Decimal(stringValue: "-1.23")!
+                )
+            )
+        }
+
+        var accountRatePublisher: AnyPublisher<AccountRate, Never> {
+            .just(output: accountRate)
+        }
+    }
 }
 
 // MARK: - CryptoAccountModel protocol conformance
@@ -65,39 +94,27 @@ extension CryptoAccountModelMock: CryptoAccountModel {
         didChangeSubject.eraseToAnyPublisher()
     }
 
-    func setName(_ name: String) async throws {
+    var descriptionString: String {
+        Localization.accountFormAccountIndex(0)
+    }
+
+    func setName(_ name: String) {
         self.name = name
     }
 
-    func setIcon(_ icon: AccountModel.Icon) async throws {
+    func setIcon(_ icon: AccountModel.Icon) {
         self.icon = icon
     }
 }
 
-// MARK: - WalletModelBalancesProvider protocol conformance
+// MARK: - BalanceProvidingAccountModel protocol conformance
 
-extension CryptoAccountModelMock: WalletModelBalancesProvider {
-    var availableBalanceProvider: TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
+extension CryptoAccountModelMock: BalanceProvidingAccountModel {
+    var fiatTotalBalanceProvider: AccountBalanceProvider {
+        CommonAccountBalanceProvider(totalBalanceProvider: totalBalanceProvider)
     }
 
-    var stakingBalanceProvider: TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
-    }
-
-    var totalTokenBalanceProvider: TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
-    }
-
-    var fiatAvailableBalanceProvider: TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
-    }
-
-    var fiatStakingBalanceProvider: TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
-    }
-
-    var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
+    var rateProvider: AccountRateProvider {
+        AccountRateProviderStub()
     }
 }

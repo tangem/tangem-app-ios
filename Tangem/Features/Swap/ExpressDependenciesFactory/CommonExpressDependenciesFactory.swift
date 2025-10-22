@@ -11,6 +11,7 @@ import TangemFoundation
 
 class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     @Injected(\.onrampRepository) private var _onrampRepository: OnrampRepository
+    @Injected(\.expressPairsRepository) private var expressPairsRepository: any ExpressPairsRepository
 
     private let input: Input
     private let initialWallet: any ExpressInteractorSourceWallet
@@ -46,39 +47,44 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
 
 private extension CommonExpressDependenciesFactory {
     func makeExpressInteractor() -> ExpressInteractor {
+        let transactionValidator = CommonExpressProviderTransactionValidator(
+            tokenItem: initialWallet.tokenItem,
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: input.userWalletInfo.config)
+        )
+
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
             supportedProviderTypes: supportedProviderTypes,
-            operationType: operationType
+            operationType: operationType,
+            transactionValidator: transactionValidator
         )
 
         let interactor = ExpressInteractor(
-            userWalletId: input.userWalletId.stringValue,
+            userWalletInfo: input.userWalletInfo,
             initialWallet: initialWallet,
             destinationWallet: destinationWallet,
             expressManager: expressManager,
-            expressRepository: expressRepository,
+            expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressAnalyticsLogger: analyticsLogger,
-            expressAPIProvider: expressAPIProvider,
-            signer: input.signer
+            expressAPIProvider: expressAPIProvider
         )
 
         return interactor
     }
 
     func makeExpressRepository() -> ExpressRepository {
-        CommonExpressRepository(
-            walletModelsManager: input.walletModelsManager,
-            expressAPIProvider: expressAPIProvider
-        )
+        CommonExpressRepository(expressAPIProvider: expressAPIProvider)
     }
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
-        expressAPIProviderFactory.makeExpressAPIProvider(userWalletId: input.userWalletId, refcode: input.refcode)
+        expressAPIProviderFactory.makeExpressAPIProvider(
+            userWalletId: input.userWalletInfo.id,
+            refcode: input.userWalletInfo.refcode
+        )
     }
 
     func makeOnrampRepository() -> OnrampRepository {
@@ -97,25 +103,21 @@ private extension CommonExpressDependenciesFactory {
     }
 
     var expressDestinationService: ExpressDestinationService {
-        CommonExpressDestinationService(
-            walletModelsManager: input.walletModelsManager,
-            expressRepository: expressRepository
-        )
+        CommonExpressDestinationService(walletModelsManager: input.walletModelsManager)
     }
 }
 
 extension CommonExpressDependenciesFactory {
     struct Input {
-        let userWalletId: UserWalletId
-        let refcode: Refcode?
-        let signer: TangemSigner
+        let userWalletInfo: UserWalletInfo
         let walletModelsManager: WalletModelsManager
 
-        init(userWalletModel: UserWalletModel) {
-            userWalletId = userWalletModel.userWalletId
-            refcode = userWalletModel.refcodeProvider?.getRefcode()
-            signer = userWalletModel.signer
-            walletModelsManager = userWalletModel.walletModelsManager
+        init(
+            userWalletInfo: UserWalletInfo,
+            walletModelsManager: any WalletModelsManager
+        ) {
+            self.userWalletInfo = userWalletInfo
+            self.walletModelsManager = walletModelsManager
         }
     }
 }

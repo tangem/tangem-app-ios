@@ -15,6 +15,7 @@ protocol WalletConnectHandlersCreator: AnyObject {
         with params: AnyCodable,
         blockchainNetworkID: String,
         signer: TangemSigner,
+        hardwareLimitationsUtil: HardwareLimitationsUtil,
         walletModelProvider: WalletConnectWalletModelProvider,
         connectedDApp: WalletConnectConnectedDApp
     ) throws -> WalletConnectMessageHandler
@@ -37,6 +38,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
         with params: AnyCodable,
         blockchainNetworkID: String,
         signer: TangemSigner,
+        hardwareLimitationsUtil: HardwareLimitationsUtil,
         walletModelProvider: WalletConnectWalletModelProvider,
         connectedDApp: WalletConnectConnectedDApp
     ) throws -> WalletConnectMessageHandler {
@@ -102,8 +104,10 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 request: params,
                 blockchainId: blockchainNetworkID,
                 signer: signer,
+                hardwareLimitationsUtil: hardwareLimitationsUtil,
                 walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
-                walletModelProvider: walletModelProvider
+                walletModelProvider: walletModelProvider,
+                analyticsProvider: makeAnalyticsProvider(with: connectedDApp.dAppData)
             )
 
         case .solanaSignAllTransactions:
@@ -123,5 +127,11 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             // This page https://www.bnbchain.org/en/staking has WalletConnect in status 'Coming Soon'
             throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
         }
+    }
+
+    // MARK: - Private Implementation
+
+    private func makeAnalyticsProvider(with dAppData: WalletConnectDAppData?) -> WalletConnectServiceAnalyticsProvider {
+        CommonWalletConnectServiceAnalyticsProvider(dAppData: dAppData)
     }
 }

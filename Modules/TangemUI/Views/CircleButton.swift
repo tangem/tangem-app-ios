@@ -9,13 +9,14 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 public struct CircleButton: View {
     private let content: Content
     private let action: () -> Void
 
     private var disabled: Bool = false
-    private var style: Style = .primary
+    private var style: Style = .secondary
     private var size: Size = .small
 
     @State private var viewSize: CGSize = .zero
@@ -42,7 +43,7 @@ public struct CircleButton: View {
                 .padding(.vertical, size.contentPaddings(content: content).vertical)
                 .background {
                     RoundedRectangle(cornerRadius: viewSize.height / 2, style: .continuous)
-                        .fill(style.background)
+                        .fill(style.background(isDisabled: disabled))
                 }
                 .readGeometry(\.size, bindTo: $viewSize)
         }
@@ -161,22 +162,26 @@ public extension CircleButton {
 
     enum Style {
         case primary
+        case secondary
 
         func textColor(isDisabled: Bool) -> Color {
             switch self {
-            case .primary: isDisabled ? Colors.Text.disabled : Colors.Text.primary1
+            case .primary: isDisabled ? Colors.Text.disabled : Colors.Text.primary2
+            case .secondary: isDisabled ? Colors.Text.disabled : Colors.Text.primary1
             }
         }
 
         var iconColor: Color {
             switch self {
-            case .primary: Colors.Icon.informative
+            case .primary: Colors.Icon.primary2
+            case .secondary: Colors.Icon.informative
             }
         }
 
-        var background: Color {
+        func background(isDisabled: Bool) -> Color {
             switch self {
-            case .primary: Colors.Button.secondary
+            case .primary: isDisabled ? Colors.Button.disabled : Colors.Button.primary
+            case .secondary: isDisabled ? Colors.Button.disabled : Colors.Button.secondary
             }
         }
     }
@@ -189,7 +194,8 @@ public extension CircleButton {
         CircleButton(content: .icon(Assets.Glyphs.cross20ButtonNew), action: action)
     }
 
-    static func back(action: @escaping () -> Void) -> CircleButton {
+    static func back(action: @escaping () -> Void) -> some View {
         CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: action)
+            .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.circleButton)
     }
 }

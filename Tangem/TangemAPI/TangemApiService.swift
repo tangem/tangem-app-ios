@@ -46,8 +46,13 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - User token list management
 
+    @available(iOS, deprecated: 100000.0, message: "Superseded by 'getUserAccounts(userWalletId:)', will be removed in the future ([REDACTED_INFO])")
     func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError>
+
+    @available(iOS, deprecated: 100000.0, message: "Superseded by the async version of 'saveTokens(list:for:)', will be removed in the future ([REDACTED_INFO])")
     func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError>
+
+    func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws
 
     // MARK: - Action Buttons
 
@@ -130,9 +135,20 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - Accounts
 
-    func getUserAccounts(userWalletId: String) async throws -> (revision: String, accounts: AccountsDTO.Response.Accounts)
-    func saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts) async throws
-    func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts
+    /// - Returns: New revision for optimistic locking and the list of active accounts.
+    func getUserAccounts(
+        userWalletId: String
+    ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts)
+
+    /// - Returns: New revision for optimistic locking and the list of active accounts.
+    func saveUserAccounts(
+        userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts
+    ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts)
+
+    /// - Returns: New revision for optimistic locking and the list of archived accounts.
+    func getArchivedUserAccounts(
+        userWalletId: String
+    ) async throws -> (revision: String?, archivedAccounts: AccountsDTO.Response.ArchivedAccounts)
 }
 
 private struct TangemApiServiceKey: InjectionKey {

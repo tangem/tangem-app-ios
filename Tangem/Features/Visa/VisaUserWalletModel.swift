@@ -67,16 +67,21 @@ final class VisaUserWalletModel {
     }
 
     var transactionHistoryStatePublisher: AnyPublisher<TransactionHistoryServiceState, Never> {
-        transactionHistoryService.statePublisher
+        // Transaction history api changed during Visa 2.0 phase.
+        // Making this functionality work for Visa 1.0 would require new implementation
+        .empty
     }
 
     var transactionHistoryItems: [TransactionListItem] {
-        let historyMapper = VisaTransactionHistoryMapper(currencySymbol: currencySymbol)
-        return historyMapper.mapTransactionListItem(from: transactionHistoryService.items)
+        // Transaction history api changed during Visa 2.0 phase.
+        // Making this functionality work for Visa 1.0 would require new implementation
+        []
     }
 
     var canFetchMoreTransactionHistory: Bool {
-        transactionHistoryService.canFetchMoreHistory
+        // Transaction history api changed during Visa 2.0 phase.
+        // Making this functionality work for Visa 1.0 would require new implementation
+        false
     }
 
     var currencySymbol: String {
@@ -100,7 +105,6 @@ final class VisaUserWalletModel {
     let userWalletModel: UserWalletModel
     private var cardWalletAddress: String?
     private var cardInfo: CardInfo
-    private let transactionHistoryService: VisaTransactionHistoryService
     private var authorizationTokensHandler: VisaAuthorizationTokensHandler?
     private var visaPaymentAccountInteractor: VisaPaymentAccountInteractor?
 
@@ -115,7 +119,6 @@ final class VisaUserWalletModel {
     init(userWalletModel: UserWalletModel, cardInfo: CardInfo) {
         self.userWalletModel = userWalletModel
         self.cardInfo = cardInfo
-        transactionHistoryService = .init(cardId: cardInfo.card.cardId)
 
         let cardWalletAddress = VisaUtilities.makeAddress(using: userWalletModel.keysRepository.keys)?.value
         self.cardWalletAddress = cardWalletAddress
@@ -134,7 +137,9 @@ final class VisaUserWalletModel {
     }
 
     func transaction(with id: UInt64) -> VisaTransactionRecord? {
-        transactionHistoryService.items.first(where: { $0.id == id })
+        // Transaction history api changed during Visa 2.0 phase.
+        // Making this functionality work for Visa 1.0 would require new implementation
+        nil
     }
 
     func generalUpdateAsync() async {
@@ -176,14 +181,8 @@ final class VisaUserWalletModel {
     }
 
     func loadNextHistoryPage() {
-        guard historyReloadTask == nil else {
-            return
-        }
-
-        historyReloadTask = Task { [weak self] in
-            await self?.transactionHistoryService.loadNextPage()
-            self?.historyReloadTask = nil
-        }
+        // Transaction history api changed during Visa 2.0 phase.
+        // Making this functionality work for Visa 1.0 would require new implementation
     }
 
     private func initialSetup() {
@@ -313,7 +312,8 @@ final class VisaUserWalletModel {
     }
 
     private func reloadHistoryAsync() async {
-        await transactionHistoryService.reloadHistory()
+        // Transaction history api changed during Visa 2.0 phase.
+        // Making this functionality work for Visa 1.0 would require new implementation
     }
 }
 
@@ -399,10 +399,8 @@ extension VisaUserWalletModel {
         productInstanceId: String,
         authorizationTokensHandler: VisaAuthorizationTokensHandler
     ) {
-        let apiService = VisaAPIServiceBuilder()
-            .buildTransactionHistoryService(authorizationTokensHandler: authorizationTokensHandler)
-
-        transactionHistoryService.setupApiService(productInstanceId: productInstanceId, apiService: apiService)
+        // Transaction history api changed during Visa 2.0 phase.
+        // Making this functionality work for Visa 1.0 would require new implementation
     }
 }
 
@@ -511,8 +509,6 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var userTokensManager: any UserTokensManager { userWalletModel.userTokensManager }
 
-    var userTokenListManager: any UserTokenListManager { userWalletModel.userTokenListManager }
-
     var nftManager: any NFTManager { NotSupportedNFTManager() }
 
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
@@ -540,8 +536,6 @@ extension VisaUserWalletModel: UserWalletModel {
     var analyticsContextData: AnalyticsContextData { userWalletModel.analyticsContextData }
 
     var isUserWalletLocked: Bool { false }
-
-    var isTokensListEmpty: Bool { userWalletModel.isTokensListEmpty }
 
     var emailData: [EmailCollectedData] { userWalletModel.emailData }
 

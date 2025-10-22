@@ -43,43 +43,47 @@ struct WalletConnectView: View {
 
     private var navigationButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Menu {
-                Button(
-                    role: .destructive,
-                    action: { viewModel.handle(viewEvent: .disconnectAllDAppsButtonTapped) },
-                    label: {
-                        Text(viewModel.state.navigationBar.disconnectAllMenuTitle)
-                    }
-                )
-            } label: {
-                viewModel.state.navigationBar.trailingButtonAsset
-                    .image
-                    .foregroundStyle(Colors.Icon.primary1)
+            if viewModel.state.contentState.isContent {
+                Menu {
+                    Button(
+                        role: .destructive,
+                        action: { viewModel.handle(viewEvent: .disconnectAllDAppsButtonTapped) },
+                        label: {
+                            Text(viewModel.state.navigationBar.disconnectAllMenuTitle)
+                        }
+                    )
+                } label: {
+                    viewModel.state.navigationBar.trailingButtonAsset
+                        .image
+                        .foregroundStyle(Colors.Icon.primary1)
+                }
             }
-            .hidden(!viewModel.state.contentState.isContent)
-            .animation(.linear(duration: 0.2), value: viewModel.state.contentState.isContent)
         }
     }
 
+    @ViewBuilder
     private func newConnectionButton(_ proxy: GeometryProxy) -> some View {
-        MainButton(
-            title: viewModel.state.newConnectionButton.title,
-            isLoading: viewModel.state.newConnectionButton.isLoading,
-            action: {
-                viewModel.handle(viewEvent: .newConnectionButtonTapped)
+        if !viewModel.state.contentState.isLoading {
+            MainButton(
+                title: viewModel.state.newConnectionButton.title,
+                isLoading: viewModel.state.newConnectionButton.isLoading,
+                action: {
+                    viewModel.handle(viewEvent: .newConnectionButtonTapped)
+                }
+            )
+            .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.newConnectionButton)
+            .background {
+                if !viewModel.state.contentState.isEmpty {
+                    ListFooterOverlayShadowView(color: Colors.Background.secondary)
+                        .transition(.opacity)
+                }
             }
-        )
-        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.newConnectionButton)
-        .background {
-            if !viewModel.state.contentState.isEmpty {
-                ListFooterOverlayShadowView(color: Colors.Background.secondary)
-                    .transition(.opacity)
-            }
+            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
+            .padding(.horizontal, !viewModel.state.contentState.isContent ? 80 : 16)
+            .padding(.bottom, UIDevice.current.hasHomeScreenIndicator ? .zero : 8)
+            .offset(y: newConnectionButtonYOffset(proxy))
+            .animation(.easeInOut(duration: 0.2), value: viewModel.state.contentState.isEmpty)
         }
-        .padding(.horizontal, viewModel.state.contentState.isEmpty ? 80 : 16)
-        .padding(.bottom, UIDevice.current.hasHomeScreenIndicator ? .zero : 8)
-        .offset(y: newConnectionButtonYOffset(proxy))
-        .animation(.easeInOut(duration: 0.2), value: viewModel.state.contentState.isEmpty)
     }
 
     @ViewBuilder
@@ -89,7 +93,7 @@ struct WalletConnectView: View {
             emptyStateView(emptyContentState)
                 .padding(.top, -geometryProxy.safeAreaInsets.top)
                 .frame(height: geometryProxy.size.height - geometryProxy.safeAreaInsets.top)
-                .transition(.slideToTopWithFade)
+                .transition(.opacity)
 
         case .loading(let loadingContentState):
             loadingStateView(loadingContentState)
@@ -118,6 +122,7 @@ struct WalletConnectView: View {
 
                 Text(emptyContentState.subtitle)
                     .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                    .multilineTextAlignment(.center)
                     .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.noSessionsDescription)
             }
         }
@@ -188,7 +193,7 @@ struct WalletConnectView: View {
     }
 
     private func dAppRowView(_ dApp: WalletConnectViewState.ContentState.ConnectedDApp) -> some View {
-        return Button(action: { viewModel.handle(viewEvent: .dAppTapped(dApp.domainModel)) }) {
+        Button(action: { viewModel.handle(viewEvent: .dAppTapped(dApp.domainModel)) }) {
             HStack(spacing: 12) {
                 iconView(dApp)
 
@@ -260,7 +265,7 @@ struct WalletConnectView: View {
     }
 
     private func newConnectionButtonYOffset(_ proxy: GeometryProxy) -> CGFloat {
-        guard viewModel.state.contentState.isEmpty else {
+        guard !viewModel.state.contentState.isContent else {
             return .zero
         }
 

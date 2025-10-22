@@ -29,7 +29,13 @@ public enum SendAccessibilityIdentifiers {
 
     /// AddressTextView
     public static let addressTextView = "sendAddressTextView"
+    public static let addressClearButton = "sendAddressClearButton"
 
     /// Notification banners
     public static let invalidAmountBanner = "sendInvalidAmountBanner"
+    public static let insufficientAmountToReserveAtDestinationBanner = "sendInsufficientAmountToReserveAtDestinationBanner"
+    public static let amountExceedMaximumUTXOBanner = "sendAmountExceedMaximumUTXOBanner"
+    public static let customFeeTooLowBanner = "sendCustomFeeTooLowBanner"
+    public static let feeWillBeSubtractFromSendingAmountBanner = "sendfeeWillBeSubtractFromSendingAmountBanner"
+    public static let customFeeTooHighBanner = "sendCustomFeeTooHighBanner"
 }

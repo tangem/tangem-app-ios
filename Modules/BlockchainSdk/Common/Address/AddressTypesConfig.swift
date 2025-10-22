@@ -103,7 +103,11 @@ struct AddressTypesConfig {
              .vanar,
              .zkLinkNova,
              .pepecoin,
-             .hyperliquidEVM:
+             .hyperliquidEVM,
+             .quai,
+             .scroll,
+             .linea,
+             .arbitrumNova:
             return [.default]
         }
     }
