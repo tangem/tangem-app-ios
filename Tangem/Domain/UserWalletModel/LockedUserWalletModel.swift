@@ -20,14 +20,11 @@ class LockedUserWalletModel: UserWalletModel {
 
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
     let userTokensManager: UserTokensManager = LockedUserTokensManager()
-    let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
     let nftManager: NFTManager = NotSupportedNFTManager()
     let walletImageProvider: WalletImageProviding
     let config: UserWalletConfig
 
     var isUserWalletLocked: Bool { true }
-
-    var isTokensListEmpty: Bool { false }
 
     var tokensCount: Int? { nil }
 
@@ -83,7 +80,7 @@ class LockedUserWalletModel: UserWalletModel {
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
             derivationManager: nil,
-            userTokenListManager: userTokenListManager
+            userTokensManager: userTokensManager
         )
     }
 
@@ -141,14 +138,11 @@ extension LockedUserWalletModel: AnalyticsContextDataProvider {
             return nil
         }
 
-        let embeddedEntry = config.embeddedBlockchain
-        let baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
-
         return AnalyticsContextData(
             productType: config.productType,
             batchId: cardInfo.card.batchId,
             firmware: cardInfo.card.firmwareVersion.stringValue,
-            baseCurrency: baseCurrency,
+            baseCurrency: config.embeddedBlockchain?.currencySymbol,
             userWalletId: userWalletId
         )
     }
