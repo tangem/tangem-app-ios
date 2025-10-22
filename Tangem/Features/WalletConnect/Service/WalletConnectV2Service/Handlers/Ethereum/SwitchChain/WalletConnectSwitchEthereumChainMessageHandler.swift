@@ -22,6 +22,10 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
         try process(blockchain: blockchain, connectedDApp: connectedDApp)
     }
 
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        .empty
+    }
+
     func handle() async throws -> JSONRPC.RPCResult {
         assertionFailure("Should never be called. Must be refactored after wiping out old WalletConnect implementation.")
         return JSONRPC.RPCResult.error(.internalError)
