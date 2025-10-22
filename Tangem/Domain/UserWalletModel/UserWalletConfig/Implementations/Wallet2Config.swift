@@ -67,35 +67,37 @@ extension Wallet2Config: UserWalletConfig {
             .filter(supportedBlockchainFilter(for:))
     }
 
-    var defaultBlockchains: [StorageEntry] {
+    var defaultBlockchains: [TokenItem] {
+        if persistentBlockchains.isNotEmpty {
+            return persistentBlockchains
+        }
+
         let isTestnet = AppEnvironment.current.isTestnet
         let blockchains: [Blockchain] = [
             .bitcoin(testnet: isTestnet),
             .ethereum(testnet: isTestnet),
         ]
 
-        let entries: [StorageEntry] = blockchains.map {
+        let entries: [TokenItem] = blockchains.map {
             if let derivationStyle = derivationStyle {
                 let derivationPath = $0.derivationPath(for: derivationStyle)
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
-                return .init(blockchainNetwork: network, tokens: [])
+                return TokenItem.blockchain(network)
             }
 
             let network = BlockchainNetwork($0, derivationPath: nil)
-            return .init(blockchainNetwork: network, tokens: [])
+            return TokenItem.blockchain(network)
         }
 
         return entries
     }
 
-    var persistentBlockchains: [StorageEntry]? {
-        guard isDemo else {
-            return nil
-        }
+    var persistentBlockchains: [TokenItem] {
+        guard isDemo else { return [] }
 
         let blockchainIds = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
 
-        let entries: [StorageEntry] = blockchainIds.compactMap { coinId in
+        let entries: [TokenItem] = blockchainIds.compactMap { coinId in
             guard let blockchain = supportedBlockchains.first(where: { $0.coinId == coinId }) else {
                 return nil
             }
@@ -103,17 +105,17 @@ extension Wallet2Config: UserWalletConfig {
             if let derivationStyle = derivationStyle {
                 let derivationPath = blockchain.derivationPath(for: derivationStyle)
                 let network = BlockchainNetwork(blockchain, derivationPath: derivationPath)
-                return .init(blockchainNetwork: network, tokens: [])
+                return TokenItem.blockchain(network)
             }
 
             let network = BlockchainNetwork(blockchain, derivationPath: nil)
-            return .init(blockchainNetwork: network, tokens: [])
+            return TokenItem.blockchain(network)
         }
 
         return entries
     }
 
-    var embeddedBlockchain: StorageEntry? {
+    var embeddedBlockchain: TokenItem? {
         return nil
     }
 

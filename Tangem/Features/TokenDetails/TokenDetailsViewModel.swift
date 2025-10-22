@@ -26,6 +26,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
         balanceProvider: self,
         balanceTypeSelectorProvider: self,
+        yieldModuleStatusProvider: self,
         showYieldBalanceInfoAction: { [weak self] in
             self?.openYieldBalanceInfo()
         }
@@ -368,14 +369,24 @@ private extension TokenDetailsViewModel {
             return
         }
 
+        func makeEligibleVm() {
+            let vm = makeYieldNotificationViewModel(yieldManager: manager)
+            yieldModuleAvailability = .eligible(vm)
+        }
+
         switch state.state {
         case .active(let info):
-            let vm = makeYieldStatusViewModel(yieldManager: manager, state: .active(isApproveRequired: info.allowance == 0))
+            let vm = makeYieldStatusViewModel(
+                yieldManager: manager,
+                state: .active(isApproveRequired: info.isAllowancePermissionRequired)
+            )
             yieldModuleAvailability = .active(vm)
 
         case .notActive:
-            let vm = makeYieldNotificationViewModel(yieldManager: manager)
-            yieldModuleAvailability = .eligible(vm)
+            makeEligibleVm()
+
+        case .failedToLoad where state.marketInfo != nil:
+            makeEligibleVm()
 
         case .processing(let action):
             let vm = makeYieldStatusViewModel(yieldManager: manager, state: action == .enter ? .loading : .closing)
@@ -469,7 +480,16 @@ extension TokenDetailsViewModel {
     }
 
     func makeYieldNotificationViewModel(yieldManager: YieldModuleManager) -> YieldAvailableNotificationViewModel {
-        YieldAvailableNotificationViewModel(
+        var state: YieldAvailableNotificationViewModel.State {
+            if let apy = yieldManager.state?.marketInfo?.apy {
+                return .available(apy: apy)
+            }
+
+            return .loading
+        }
+
+        return YieldAvailableNotificationViewModel(
+            state: state,
             yieldModuleManager: yieldManager,
             onButtonTap: { [weak self] apy in
                 guard let self else { return }
@@ -482,13 +502,22 @@ extension TokenDetailsViewModel {
         )
     }
 
-    func openYieldModulePromo() {}
-
     func openYieldEarnInfo() {
         coordinator?.openYieldEarnInfo(walletModel: walletModel, signer: userWalletModel.signer)
     }
 
     func openYieldBalanceInfo() {
         coordinator?.openYieldBalanceInfo(tokenName: walletModel.tokenItem.name, tokenId: walletModel.tokenItem.id)
+    }
+}
+
+extension TokenDetailsViewModel: YieldModuleStatusProvider {
+    var yieldModuleState: AnyPublisher<YieldModuleManagerStateInfo, Never> {
+        walletModel.yieldModuleManager?
+            .statePublisher
+            .compactMap { $0 }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+            ?? Empty(completeImmediately: false).eraseToAnyPublisher()
     }
 }

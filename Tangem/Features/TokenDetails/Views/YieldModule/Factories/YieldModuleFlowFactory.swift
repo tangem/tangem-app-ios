@@ -17,7 +17,7 @@ final class YieldModuleFlowFactory {
     private let yieldModuleManager: any YieldModuleManager
     private let transactionDispatcher: YieldModuleTransactionDispatcher
     private let yieldPromoCoordinator: YieldModulePromoCoordinator
-    private let feeCurrencyNavigator: (any FeeCurrencyNavigating)?
+    private let feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
     private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Init
@@ -26,7 +26,7 @@ final class YieldModuleFlowFactory {
         walletModel: any WalletModel,
         apy: Decimal = .zero,
         signer: any TangemSigner,
-        feeCurrencyNavigator: (any FeeCurrencyNavigating)?,
+        feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?,
         dismissAction: @escaping Action<Void>
     ) {
         guard let manager = walletModel.yieldModuleManager,
@@ -65,7 +65,6 @@ final class YieldModuleFlowFactory {
             walletModel: walletModel,
             feeCurrencyNavigator: feeCurrencyNavigator,
             yieldManagerInteractor: interactor,
-            activityState: info.allowance == 0 ? .paused : .active,
             availableBalance: info.balance.value
         )
     }
