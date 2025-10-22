@@ -1,5 +1,5 @@
 //
-//  MobileBackupNeededView.swift
+//  MobileBackupToUpgradeNeededView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,14 +10,14 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct MobileBackupNeededView: View {
-    let viewModel: MobileBackupNeededViewModel
+struct MobileBackupToUpgradeNeededView: View {
+    let viewModel: MobileBackupToUpgradeNeededViewModel
 
     var body: some View {
         VStack(spacing: 0) {
             header
 
-            content
+            info
                 .padding(.top, 28)
                 .padding(.horizontal, 16)
 
@@ -34,13 +34,13 @@ struct MobileBackupNeededView: View {
 
 // MARK: - Subviews
 
-private extension MobileBackupNeededView {
+private extension MobileBackupToUpgradeNeededView {
     var header: some View {
         CircleButton.close(action: viewModel.onCloseTap)
             .frame(maxWidth: .infinity, alignment: .trailing)
     }
 
-    var content: some View {
+    var info: some View {
         VStack(spacing: 0) {
             Assets.lockedRefresh.image
                 .resizable()
