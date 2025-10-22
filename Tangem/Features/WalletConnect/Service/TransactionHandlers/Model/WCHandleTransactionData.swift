@@ -19,6 +19,7 @@ struct WCHandleTransactionData {
     let requestData: Data
     let dAppData: WalletConnectDAppData
     let verificationStatus: WalletConnectDAppVerificationStatus
+    let validate: () async throws -> WalletConnectMessageHandleRestrictionType
     let accept: () async throws -> Void
     let reject: () async throws -> Void
 
@@ -44,6 +45,10 @@ extension WCHandleTransactionData {
         verificationStatus = dto.verificationStatus
         dAppData = validatedRequest.dAppData
         updatableHandler = dto.updatableHandler
+
+        validate = {
+            try await dto.validate()
+        }
 
         accept = {
             let result = try await dto.accept()
