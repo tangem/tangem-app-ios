@@ -32,7 +32,7 @@ enum NotificationButtonActionType: Identifiable {
     case refreshFee
     case goToProvider
     case leaveAmount(amount: Decimal, amountFormatted: String)
-    case reduceAmountBy(amount: Decimal, amountFormatted: String)
+    case reduceAmountBy(amount: Decimal, amountFormatted: String, needsAttention: Bool = false)
     case reduceAmountTo(amount: Decimal, amountFormatted: String)
     case openLink(promotionLink: URL, buttonTitle: String)
     case swap
@@ -62,6 +62,7 @@ enum NotificationButtonActionType: Identifiable {
     case allowPushPermissionRequest
     case postponePushPermissionRequest
     case activate
+    case givePermission
 
     var id: Int {
         switch self {
@@ -73,7 +74,7 @@ enum NotificationButtonActionType: Identifiable {
         case .refreshFee: "refresh_fee".hashValue
         case .goToProvider: "goToProvider".hashValue
         case .leaveAmount(let amount, let amountFormatted): "leaveAmount\(amount)\(amountFormatted)".hashValue
-        case .reduceAmountBy(let amount, let amountFormatted): "reduceAmountBy\(amount)\(amountFormatted)".hashValue
+        case .reduceAmountBy(let amount, let amountFormatted, _): "reduceAmountBy\(amount)\(amountFormatted)".hashValue
         case .reduceAmountTo(let amount, let amountFormatted): "reduceAmountTo\(amount)\(amountFormatted)".hashValue
         case .openLink(let promotionLink, let buttonTitle): "openLink\(promotionLink)\(buttonTitle)".hashValue
         case .swap: "swap".hashValue
@@ -100,6 +101,7 @@ enum NotificationButtonActionType: Identifiable {
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
         case .activate: "activate".hashValue
+        case .givePermission: "givePermission".hashValue
         }
     }
 
@@ -121,7 +123,7 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.warningButtonRefresh
         case .goToProvider:
             return Localization.commonGoToProvider
-        case .reduceAmountBy(_, let amountFormatted):
+        case .reduceAmountBy(_, let amountFormatted, _):
             return Localization.sendNotificationReduceBy(amountFormatted)
         case .reduceAmountTo(_, let amountFormatted), .leaveAmount(_, let amountFormatted):
             return Localization.sendNotificationLeaveButton(amountFormatted)
@@ -176,6 +178,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonLater
         case .activate:
             return Localization.commonActivate
+        case .givePermission:
+            return Localization.givePermissionTitle
         }
     }
 
@@ -217,7 +221,8 @@ enum NotificationButtonActionType: Identifiable {
              .tangemPayViewKYCStatus,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
-             .activate:
+             .activate,
+             .givePermission:
             return nil
         }
     }
@@ -239,7 +244,6 @@ enum NotificationButtonActionType: Identifiable {
              .refresh,
              .refreshFee,
              .goToProvider,
-             .reduceAmountBy,
              .reduceAmountTo,
              .addHederaTokenAssociation,
              .retryKaspaTokenTransaction,
@@ -258,9 +262,10 @@ enum NotificationButtonActionType: Identifiable {
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
              .tangemPayViewKYCStatus,
-             .postponePushPermissionRequest:
+             .postponePushPermissionRequest,
+             .givePermission:
             return .secondary
-        case .openMobileFinishActivation(let needsAttention):
+        case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):
             return needsAttention ? .primary : .secondary
         }
     }

@@ -69,7 +69,7 @@ extension NewTokenSelectorItem {
 
     struct Account: Hashable {
         let name: String
-        let icon: AccountIconView.AccountIconViewData
+        let icon: AccountIconView.ViewData
 
         let walletModelsManager: any WalletModelsManager
 
