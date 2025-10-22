@@ -14,10 +14,6 @@ struct UserTokenListManagerMock: UserTokenListManager {
 
     var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 
-    var userTokens: [StorageEntry] { [] }
-
-    var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { .just(output: []) }
-
     var userTokensList: StoredUserTokenList { .empty }
 
     var userTokensListPublisher: AnyPublisher<StoredUserTokenList, Never> { .just(output: .empty) }

@@ -48,6 +48,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.archivedAccountsCoordinator) {
                 ArchivedAccountsCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.mobileRemoveWalletViewModel) {
+                MobileRemoveWalletView(viewModel: $0)
+            }
     }
 
     @ViewBuilder
@@ -75,6 +78,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: MobileBackupNeededViewModel.self) {
                 MobileBackupNeededView(viewModel: $0)
+            }
+            .floatingSheetContent(for: MobileRemoveWalletNotificationViewModel.self) {
+                MobileRemoveWalletNotificationView(viewModel: $0)
             }
             .sheet(item: $coordinator.accountFormViewModel) { viewModel in
                 NavigationView {
