@@ -16,7 +16,6 @@ struct MobileUpgradeCoordinatorView: CoordinatorView {
         NavigationView {
             content
                 .navigationLinks(links)
-                .navigationBarHidden(true)
         }
         .navigationViewStyle(.stack)
     }
@@ -29,7 +28,6 @@ private extension MobileUpgradeCoordinatorView {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 MobileUpgradeView(viewModel: rootViewModel)
-                    .navigationLinks(links)
             }
 
             sheets

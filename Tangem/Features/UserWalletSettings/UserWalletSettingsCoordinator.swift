@@ -32,13 +32,13 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var referralCoordinator: ReferralCoordinator?
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
     @Published var scanCardSettingsCoordinator: ScanCardSettingsCoordinator?
-    @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator?
     @Published var accountDetailsCoordinator: AccountDetailsCoordinator?
     @Published var archivedAccountsCoordinator: ArchivedAccountsCoordinator?
+    @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
+    @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
 
     // MARK: - Child view models
 
-    @Published var mobileBackupTypesViewModel: MobileBackupTypesViewModel?
     @Published var mailViewModel: MailViewModel?
     @Published var accountFormViewModel: AccountFormViewModel?
     @Published var mobileRemoveWalletViewModel: MobileRemoveWalletViewModel?
@@ -70,9 +70,7 @@ extension UserWalletSettingsCoordinator {
 
 extension UserWalletSettingsCoordinator:
     UserWalletSettingsRoutable,
-    TransactionNotificationsModalRoutable,
-    MobileBackupNeededRoutable,
-    MobileBackupTypesRoutable {
+    TransactionNotificationsModalRoutable {
     func addNewAccount(accountModelsManager: any AccountModelsManager) {
         accountFormViewModel = AccountFormViewModel(
             accountModelsManager: accountModelsManager,
@@ -178,7 +176,7 @@ extension UserWalletSettingsCoordinator:
     func openMobileBackupNeeded(userWalletModel: UserWalletModel) {
         Analytics.log(.walletSettingsNoticeBackupFirst)
 
-        let viewModel = MobileBackupNeededViewModel(userWalletModel: userWalletModel, routable: self)
+        let viewModel = MobileBackupNeededViewModel(userWalletModel: userWalletModel, coordinator: self)
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -186,9 +184,30 @@ extension UserWalletSettingsCoordinator:
     }
 
     func openMobileBackupTypes(userWalletModel: UserWalletModel) {
-        Analytics.log(.backupStarted)
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.mobileBackupTypesCoordinator = nil
+        }
 
-        mobileBackupTypesViewModel = MobileBackupTypesViewModel(userWalletModel: userWalletModel, routable: self)
+        let inputOptions = MobileBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
+        let coordinator = MobileBackupTypesCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: inputOptions)
+        mobileBackupTypesCoordinator = coordinator
+    }
+
+    func openMobileUpgrade(userWalletModel: UserWalletModel) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.hardwareBackupTypesCoordinator = nil
+            self?.dismiss()
+        }
+
+        let inputOptions = HardwareBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
+        let coordinator = HardwareBackupTypesCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: inputOptions)
+        hardwareBackupTypesCoordinator = coordinator
+    }
+
+    func openMobileOnboarding(input: MobileOnboardingInput) {
+        openOnboardingModal(with: .mobileInput(input))
     }
 
     func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel) {
@@ -221,44 +240,23 @@ extension UserWalletSettingsCoordinator:
             floatingSheetPresenter.removeActiveSheet()
         }
     }
+}
 
-    // MARK: - MobileBackupNeededRoutable
+// MARK: - MobileBackupNeededRoutable
 
-    func dismissMobileBackupNeeded() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
-    }
-
-    func openMobileOnboarding(input: MobileOnboardingInput) {
+extension UserWalletSettingsCoordinator: MobileBackupNeededRoutable {
+    func openMobileOnboardingFromMobileBackupNeeded(input: MobileOnboardingInput) {
+        dismissMobileBackupNeeded()
         openOnboardingModal(with: .mobileInput(input))
     }
 
-    // MARK: - MobileBackupTypesRoutable
-
-    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext) {
-        Task { @MainActor in
-            let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
-                switch options {
-                case .dismiss:
-                    self?.mobileUpgradeCoordinator = nil
-                case .finish:
-                    self?.mobileUpgradeCoordinator = nil
-                    self?.mobileBackupTypesViewModel = nil
-                }
-            }
-
-            let coordinator = MobileUpgradeCoordinator(dismissAction: dismissAction)
-            let inputOptions = MobileUpgradeCoordinator.InputOptions(userWalletModel: userWalletModel, context: context)
-            coordinator.start(with: inputOptions)
-            mobileUpgradeCoordinator = coordinator
-        }
+    func dismissMobileBackupNeeded() {
+        floatingSheetPresenter.removeActiveSheet()
     }
 }
 
 // MARK: - MobileRemoveWalletNotificationRoutable
 
-@MainActor
 extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable {
     func openMobileRemoveWallet(userWalletId: UserWalletId) {
         dismissMobileRemoveWalletNotification()
