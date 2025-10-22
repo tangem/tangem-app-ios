@@ -43,7 +43,6 @@ final class AppOverlaysManager {
         overlayWindow = Self.makeOverlayWindow(
             from: windowScene,
             sheetViewModel: floatingSheetViewModel,
-            storiesViewModel: tangemStoriesViewModel,
             sheetRegistry: sheetRegistry,
             alertPresenterViewModel: alertPresenterViewModel
         )
@@ -135,13 +134,11 @@ extension AppOverlaysManager {
     private static func makeOverlayWindow(
         from windowScene: UIWindowScene,
         sheetViewModel: FloatingSheetViewModel,
-        storiesViewModel: TangemStoriesViewModel,
         sheetRegistry: FloatingSheetRegistry,
         alertPresenterViewModel: AlertPresenterViewModel
     ) -> UIWindow {
         let rootView = OverlayRootView(
             floatingSheetViewModel: sheetViewModel,
-            tangemStoriesViewModel: storiesViewModel,
             alertPresenterViewModel: alertPresenterViewModel
         )
         .environment(\.floatingSheetRegistry, sheetRegistry)
@@ -152,6 +149,8 @@ extension AppOverlaysManager {
         let window = PassThroughWindow(windowScene: windowScene)
         window.windowLevel = .alert + 1
         window.isHidden = false
+        window.isOpaque = false
+        window.backgroundColor = .clear
         window.rootViewController = rootViewController
 
         return window

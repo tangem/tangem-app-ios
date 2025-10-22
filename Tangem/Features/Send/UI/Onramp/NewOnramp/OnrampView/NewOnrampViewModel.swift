@@ -14,12 +14,18 @@ import TangemFoundation
 
 final class NewOnrampViewModel: ObservableObject, Identifiable {
     @Published private(set) var onrampAmountViewModel: NewOnrampAmountViewModel
+
     var viewState: ViewState {
         if suggestedOffersIsVisible, let suggestedOffers {
             return .suggestedOffers(suggestedOffers)
         }
 
-        return .amount
+        if onrampAmountViewModel.decimalNumberTextFieldViewModel.value ?? 0 <= 0,
+           let presets = fiatPresetService.presets() {
+            return .presets(presets)
+        }
+
+        return .continueButton
     }
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
@@ -37,6 +43,7 @@ final class NewOnrampViewModel: ObservableObject, Identifiable {
     private let notificationManager: NotificationManager
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
 
+    private lazy var fiatPresetService = FiatPresetService()
     private lazy var onrampOfferViewModelBuilder = OnrampOfferViewModelBuilder(tokenItem: tokenItem)
 
     private var bag: Set<AnyCancellable> = []
@@ -55,6 +62,11 @@ final class NewOnrampViewModel: ObservableObject, Identifiable {
         self.analyticsLogger = analyticsLogger
 
         bind()
+    }
+
+    func usedDidTapPreset(preset: FiatPresetService.Preset) {
+        onrampAmountViewModel.decimalNumberTextFieldViewModel.update(value: preset.amount)
+        interactor.update(fiat: preset.amount)
     }
 
     func usedDidTapContinue() {
@@ -108,23 +120,30 @@ private extension NewOnrampViewModel {
 
         case .success(.some(let offers)):
             suggestedOffers = .init(
-                recent: offers.recent.map { mapToOnrampOfferViewModel(provider: $0) },
-                recommended: offers.recommended.map { mapToOnrampOfferViewModel(provider: $0) },
+                recent: offers.recent.map { mapToRecentOnrampOfferViewModel(provider: $0) },
+                recommended: offers.recommended.map { mapToRecommendedOnrampOfferViewModel(provider: $0) },
                 shouldShowAllOffersButton: offers.shouldShowAllOffersButton
             )
         }
     }
 
-    func mapToOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
+    func mapToRecentOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
+        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
+            self?.analyticsLogger.logOnrampRecentlyUsedClicked(provider: provider)
+            self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
+            self?.interactor.userDidRequestOnramp(provider: provider)
+        }
+
+        return viewModel
+    }
+
+    func mapToRecommendedOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
         let title = onrampOfferViewModelBuilder.mapToOnrampOfferViewModelTitle(provider: provider)
         let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
             switch title {
-            case .bestRate:
-                self?.analyticsLogger.logOnrampBestRateClicked(provider: provider)
-            case .fastest:
-                self?.analyticsLogger.logOnrampFastestMethodClicked(provider: provider)
-            case .text:
-                break
+            case .bestRate: self?.analyticsLogger.logOnrampBestRateClicked(provider: provider)
+            case .fastest: self?.analyticsLogger.logOnrampFastestMethodClicked(provider: provider)
+            case .text: break
             }
 
             self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
@@ -151,7 +170,8 @@ extension NewOnrampViewModel: SendStepViewAnimatable {
 
 extension NewOnrampViewModel {
     enum ViewState: Hashable {
-        case amount
+        case presets([FiatPresetService.Preset])
+        case continueButton
         case suggestedOffers(SuggestedOffers)
     }
 
@@ -159,5 +179,43 @@ extension NewOnrampViewModel {
         let recent: OnrampOfferViewModel?
         let recommended: [OnrampOfferViewModel]
         let shouldShowAllOffersButton: Bool
+    }
+}
+
+struct FiatPresetService {
+    @Injected(\.onrampRepository)
+    private var onrampRepository: OnrampRepository
+
+    private let amounts: [Decimal] = [50, 100, 200, 300, 500]
+    private let balanceFormatter = BalanceFormatter()
+
+    func presets() -> [Preset]? {
+        switch onrampRepository.preferenceCurrency?.identity.code {
+        case "USD":
+            return makePresets(for: "USD")
+        case "EUR":
+            return makePresets(for: "EUR")
+        default:
+            return nil
+        }
+    }
+
+    private func makePresets(for currencyCode: String) -> [Preset] {
+        return amounts.map { amount in
+            let formatted = balanceFormatter.formatFiatBalance(amount, currencyCode: currencyCode, formattingOptions: .init(
+                minFractionDigits: 0,
+                maxFractionDigits: 0,
+                formatEpsilonAsLowestRepresentableValue: true,
+                roundingType: .default(roundingMode: .plain, scale: 0)
+            ))
+            return Preset(amount: amount, formatted: formatted)
+        }
+    }
+
+    struct Preset: Hashable, Identifiable {
+        var id: Int { hashValue }
+
+        let amount: Decimal
+        let formatted: String
     }
 }
