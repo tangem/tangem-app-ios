@@ -83,6 +83,18 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         )
     }
 
+    func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
+        let viewModel = MarketsTokenAccountNetworkSelectorFlowViewModel(
+            inputData: .init(coinId: model.id, coinName: model.name, coinSymbol: model.symbol, networks: model.availableNetworks),
+            userWalletDataProvider: walletDataProvider,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
         let recipient = EmailConfig.default.recipient
@@ -207,6 +219,16 @@ extension MarketsTokenDetailsCoordinator: ExpressFeeCurrencyNavigating {
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
+    }
+}
+
+// MARK: - MarketsTokenAccountNetworkSelectorRoutable
+
+extension MarketsTokenDetailsCoordinator: MarketsTokenAccountNetworkSelectorRoutable {
+    func close() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
