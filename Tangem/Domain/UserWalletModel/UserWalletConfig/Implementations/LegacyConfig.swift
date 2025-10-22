@@ -113,7 +113,7 @@ extension LegacyConfig: UserWalletConfig {
     var generalNotificationEvents: [GeneralNotificationEvent] {
         var notifications = GeneralNotificationEventsFactory().makeNotifications(for: card)
 
-        if !hasFeature(.send) {
+        if !hasFeature(.signing) {
             notifications.append(.oldCard)
         }
 
@@ -163,7 +163,7 @@ extension LegacyConfig: UserWalletConfig {
             return .disabled()
         case .longTap:
             return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
-        case .send:
+        case .signing:
             if card.firmwareVersion.doubleValue >= 2.28
                 || card.settings.securityDelay <= 15000 {
                 return .available
@@ -172,12 +172,6 @@ extension LegacyConfig: UserWalletConfig {
             return .disabled()
         case .longHashes:
             return .hidden
-        case .signedHashesCounter:
-            if card.firmwareVersion.type != .release {
-                return .hidden
-            } else {
-                return .available
-            }
         case .backup:
             return .hidden
         case .twinning:
@@ -196,18 +190,11 @@ extension LegacyConfig: UserWalletConfig {
             }
 
             return .available
-        case .receive:
-            return .available
-        case .withdrawal:
-            return .available
         case .hdWallets:
             return .hidden
         case .staking:
             return .available
-        case .topup:
-            return .available
-        case .tokenSynchronization,
-             .swapping,
+        case .swapping,
              .nft:
             return isMultiwallet ? .available : .hidden
         case .referralProgram:
@@ -217,8 +204,6 @@ extension LegacyConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .accessCodeRecoverySettings:
-            return .hidden
-        case .promotion:
             return .hidden
         case .iCloudBackup:
             return .hidden
@@ -234,7 +219,9 @@ extension LegacyConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
-        case .isHardwareLimited:
+        case .nfcInteraction:
+            return .available
+        case .transactionPayloadLimit:
             return .available
         }
     }
