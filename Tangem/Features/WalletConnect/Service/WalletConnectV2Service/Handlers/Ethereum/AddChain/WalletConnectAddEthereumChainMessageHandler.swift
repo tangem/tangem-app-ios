@@ -38,6 +38,10 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
         try validate(blockchain: blockchainToAdd, connectedDApp: connectedDApp)
     }
 
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        .empty
+    }
+
     func handle() async throws -> JSONRPC.RPCResult {
         guard let reownBlockchainToAdd = WalletConnectBlockchainMapper.mapFromDomain(blockchainToAdd) else {
             throw WalletConnectTransactionRequestProcessingError.invalidPayload("Blockchain mapping error. Developer mistake.")
