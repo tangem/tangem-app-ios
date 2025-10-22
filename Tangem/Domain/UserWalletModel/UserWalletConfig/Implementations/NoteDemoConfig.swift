@@ -46,17 +46,17 @@ extension NoteDemoConfig: UserWalletConfig {
         [defaultBlockchain]
     }
 
-    var defaultBlockchains: [StorageEntry] {
+    var defaultBlockchains: [TokenItem] {
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
-        let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+        let entry = TokenItem.blockchain(network)
         return [entry]
     }
 
-    var persistentBlockchains: [StorageEntry]? {
+    var persistentBlockchains: [TokenItem] {
         return defaultBlockchains
     }
 
-    var embeddedBlockchain: StorageEntry? {
+    var embeddedBlockchain: TokenItem? {
         return defaultBlockchains.first
     }
 
@@ -102,11 +102,9 @@ extension NoteDemoConfig: UserWalletConfig {
             return .hidden
         case .longTap:
             return .hidden
-        case .send:
+        case .signing:
             return .available
         case .longHashes:
-            return .hidden
-        case .signedHashesCounter:
             return .hidden
         case .backup:
             return .hidden
@@ -120,17 +118,9 @@ extension NoteDemoConfig: UserWalletConfig {
             return .hidden
         case .resetToFactory:
             return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
-        case .receive:
-            return .available
-        case .withdrawal:
-            return .available
         case .hdWallets:
             return .hidden
         case .staking:
-            return .hidden
-        case .topup:
-            return .available
-        case .tokenSynchronization:
             return .hidden
         case .referralProgram:
             return .hidden
@@ -141,8 +131,6 @@ extension NoteDemoConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .accessCodeRecoverySettings:
-            return .hidden
-        case .promotion:
             return .hidden
         case .nft:
             return .hidden
@@ -159,6 +147,10 @@ extension NoteDemoConfig: UserWalletConfig {
         case .userWalletUpgrade:
             return .hidden
         case .cardSettings:
+            return .available
+        case .nfcInteraction:
+            return .available
+        case .transactionPayloadLimit:
             return .available
         }
     }

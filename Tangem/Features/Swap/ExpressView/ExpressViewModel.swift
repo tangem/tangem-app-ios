@@ -49,7 +49,7 @@ final class ExpressViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let initialWallet: any WalletModel
-    private let userWalletModel: UserWalletModel
+    private let userWalletInfo: UserWalletInfo
     private let feeFormatter: FeeFormatter
     private let balanceFormatter: BalanceFormatter
     private let expressProviderFormatter: ExpressProviderFormatter
@@ -65,7 +65,7 @@ final class ExpressViewModel: ObservableObject {
 
     init(
         initialWallet: any WalletModel,
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         feeFormatter: FeeFormatter,
         balanceFormatter: BalanceFormatter,
         expressProviderFormatter: ExpressProviderFormatter,
@@ -75,7 +75,7 @@ final class ExpressViewModel: ObservableObject {
         coordinator: ExpressRoutable
     ) {
         self.initialWallet = initialWallet
-        self.userWalletModel = userWalletModel
+        self.userWalletInfo = userWalletInfo
         self.feeFormatter = feeFormatter
         self.balanceFormatter = balanceFormatter
         self.expressProviderFormatter = expressProviderFormatter
@@ -116,7 +116,7 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func didTapMainButton() {
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
+        if let disabledLocalizedReason = userWalletInfo.config.getDisabledLocalizedReason(for: .swapping) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
@@ -127,9 +127,6 @@ final class ExpressViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
         case .swap:
             sendTransaction()
-        case .givePermission:
-            Analytics.log(.swapButtonGivePermission)
-            openApproveView()
         case .insufficientFunds:
             assertionFailure("Button should be disabled")
         }
@@ -520,8 +517,8 @@ private extension ExpressViewModel {
 
             mainButtonIsEnabled = false
         case .permissionRequired:
-            mainButtonState = .givePermission
-            mainButtonIsEnabled = true
+            mainButtonState = .swap
+            mainButtonIsEnabled = false
         case .readyToSwap, .previewCEX:
             mainButtonState = .swap
             mainButtonIsEnabled = true
@@ -654,7 +651,7 @@ extension ExpressViewModel: NotificationTapDelegate {
             interactor.refresh(type: .full)
         case .openFeeCurrency:
             openFeeCurrency()
-        case .reduceAmountBy(let amount, _):
+        case .reduceAmountBy(let amount, _, _):
             guard let value = sendCurrencyViewModel?.decimalNumberTextFieldViewModel.value else {
                 ExpressLogger.info("Couldn't find sendDecimalValue")
                 return
@@ -675,6 +672,9 @@ extension ExpressViewModel: NotificationTapDelegate {
             }
 
             updateSendDecimalValue(to: targetValue)
+        case .givePermission:
+            Analytics.log(.swapButtonGivePermission)
+            openApproveView()
         case .generateAddresses,
              .backupCard,
              .buyCrypto,
@@ -698,10 +698,12 @@ extension ExpressViewModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus:
+             .activate,
+             .tangemPayViewKYCStatus,
+             .allowPushPermissionRequest,
+             .postponePushPermissionRequest:
             return
         }
     }
@@ -711,15 +713,10 @@ extension ExpressViewModel: NotificationTapDelegate {
 
 private extension ExpressViewModel {
     func openFeeCurrency() {
-        let walletModels = userWalletModel.walletModelsManager.walletModels
-        guard let feeCurrencyWalletModel = walletModels.first(where: {
-            $0.tokenItem == interactor.getSender().feeTokenItem
-        }) else {
-            assertionFailure("Fee currency '\(initialWallet.feeTokenItem.name)' for currency '\(initialWallet.tokenItem.name)' not found")
-            return
-        }
-
-        coordinator?.presentFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
+        coordinator?.presentFeeCurrency(
+            userWalletId: userWalletInfo.id,
+            feeTokenItem: interactor.getSender().feeTokenItem
+        )
     }
 
     func feeValue(from event: ExpressNotificationEvent) -> Decimal? {
@@ -791,7 +788,6 @@ extension ExpressViewModel {
 
         case swap
         case insufficientFunds
-        case givePermission
         case permitAndSwap
 
         var title: String {
@@ -800,8 +796,6 @@ extension ExpressViewModel {
                 return Localization.swappingSwapAction
             case .insufficientFunds:
                 return Localization.swappingInsufficientFunds
-            case .givePermission:
-                return Localization.givePermissionTitle
             case .permitAndSwap:
                 return Localization.swappingPermitAndSwap
             }
@@ -811,7 +805,7 @@ extension ExpressViewModel {
             switch self {
             case .swap, .permitAndSwap:
                 return .trailing(Assets.tangemIcon)
-            case .givePermission, .insufficientFunds:
+            case .insufficientFunds:
                 return .none
             }
         }

@@ -11,6 +11,14 @@ import Combine
 import BlockchainSdk
 
 struct UserTokensManagerMock: UserTokensManager {
+    var initialized: Bool { true }
+
+    var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
+
+    var userTokens: [TokenItem] { [] }
+
+    var userTokensPublisher: AnyPublisher<[TokenItem], Never> { .just(output: []) }
+
     var derivationManager: DerivationManager? { nil }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {}
@@ -35,8 +43,8 @@ struct UserTokensManagerMock: UserTokensManager {
         return false
     }
 
-    func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
-        []
+    func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
+        true
     }
 
     func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
@@ -46,6 +54,8 @@ struct UserTokensManagerMock: UserTokensManager {
     func remove(_ tokenItem: TokenItem) {}
 
     func sync(completion: @escaping () -> Void) {}
+
+    func upload() {}
 }
 
 // MARK: - UserTokensReordering protocol conformance

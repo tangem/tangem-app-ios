@@ -102,6 +102,7 @@ extension Analytics {
 
         case success = "Success"
         case fail = "Fail"
+        case failed = "Failed"
 
         /// SelectedCurrency
         case selectedCurrencyApp = "App Currency"
@@ -260,6 +261,11 @@ extension Analytics {
         case set = "Set"
         case changing = "Changing"
 
+        // MARK: - Yield Module
+
+        // [REDACTED_TODO_COMMENT]
+        case yieldModuleApproveNeeded = "Yield Approve Required"
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
@@ -276,6 +282,10 @@ extension Analytics {
 
         static func seedState(for boolean: Bool) -> ParameterValue {
             return boolean ? .seedphrase : .seedless
+        }
+
+        static func successOrFailed(for boolean: Bool) -> ParameterValue {
+            return boolean ? .success : .failed
         }
     }
 }

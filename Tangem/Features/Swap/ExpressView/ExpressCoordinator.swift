@@ -9,10 +9,13 @@
 import Foundation
 import Combine
 import TangemExpress
-import UIKit
+import TangemFoundation
+import class UIKit.UIApplication
 
 final class ExpressCoordinator: CoordinatorObject {
-    let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>
+    @Injected(\.safariManager) private var safariManager: SafariManager
+
+    let dismissAction: DismissAction
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
@@ -36,7 +39,7 @@ final class ExpressCoordinator: CoordinatorObject {
 
     required init(
         factory: ExpressModulesFactory,
-        dismissAction: @escaping Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>,
+        dismissAction: @escaping DismissAction,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.factory = factory
@@ -54,6 +57,12 @@ final class ExpressCoordinator: CoordinatorObject {
 extension ExpressCoordinator {
     enum Options {
         case `default`
+    }
+
+    typealias DismissAction = Action<DismissOptions?>
+
+    enum DismissOptions {
+        case openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem)
     }
 }
 
@@ -99,8 +108,8 @@ extension ExpressCoordinator: ExpressRoutable {
         expressProvidersSelectorViewModel = factory.makeExpressProvidersSelectorViewModel(coordinator: self)
     }
 
-    func presentFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
-        dismiss(with: (walletModel, userWalletModel))
+    func presentFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem) {
+        dismiss(with: .openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem))
     }
 
     func closeSwappingView() {
@@ -136,6 +145,10 @@ extension ExpressCoordinator: ExpressApproveRoutable {
     func userDidCancel() {
         expressApproveViewModel = nil
         rootViewModel?.didCloseApproveSheet()
+    }
+
+    func openLearnMore() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .giveRevokePermission))
     }
 }
 

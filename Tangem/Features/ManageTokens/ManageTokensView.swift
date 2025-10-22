@@ -17,6 +17,10 @@ struct ManageTokensView: View {
 
     @State private var contentOffset: CGPoint = .zero
 
+    private var savingIcon: MainButton.Icon? {
+        viewModel.needsCardDerivation ? .trailing(Assets.tangemIcon) : nil
+    }
+
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -37,7 +41,7 @@ struct ManageTokensView: View {
 
                 MainButton(
                     title: Localization.commonSave,
-                    icon: .trailing(Assets.tangemIcon),
+                    icon: savingIcon,
                     isLoading: viewModel.isSavingChanges,
                     action: viewModel.saveChanges
                 )
@@ -90,10 +94,10 @@ struct ManageTokensView: View {
     InjectedValues[\.tangemApiService] = fakeAPIService
     let adapter = ManageTokensAdapter(
         settings: .init(
-            longHashesSupported: fakeModel.config.hasFeature(.longHashes),
             existingCurves: fakeModel.config.existingCurves,
             supportedBlockchains: fakeModel.config.supportedBlockchains,
             userTokensManager: fakeModel.userTokensManager,
+            hardwareLimitationUtil: HardwareLimitationsUtil(config: fakeModel.config),
             analyticsSourceRawValue: "preview"
         )
     )

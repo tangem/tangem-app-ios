@@ -9,6 +9,10 @@
 import Foundation
 
 public extension String {
+    func trim(toLength length: Int) -> String {
+        String(prefix(length))
+    }
+
     func base64DecodedData() throws -> Data {
         guard let data = Data(base64Encoded: self) else {
             throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Invalid Base64 string"))

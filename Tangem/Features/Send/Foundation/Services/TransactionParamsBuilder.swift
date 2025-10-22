@@ -130,7 +130,11 @@ struct TransactionParamsBuilder {
              .vanar,
              .zkLinkNova,
              .pepecoin,
-             .hyperliquidEVM:
+             .hyperliquidEVM,
+             .quai,
+             .scroll,
+             .linea,
+             .arbitrumNova:
             throw TransactionParamsBuilderError.extraIdNotSupported
         }
     }

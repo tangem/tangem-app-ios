@@ -9,7 +9,6 @@
 import Foundation
 
 struct StoredCryptoAccount: Codable, Equatable {
-    typealias Token = StoredUserTokenList.Entry
     typealias Grouping = StoredUserTokenList.Grouping
     typealias Sorting = StoredUserTokenList.Sorting
 
@@ -25,4 +24,22 @@ struct StoredCryptoAccount: Codable, Equatable {
     let tokens: [Token]
     let grouping: Grouping
     let sorting: Sorting
+}
+
+extension StoredCryptoAccount {
+    /// Similar to the `StoredUserTokenList.Entry` model.
+    struct Token: Codable, Hashable {
+        /// Container type, preserves currently unknown/unsupported to the client networks.
+        enum BlockchainNetworkContainer: Codable, Hashable {
+            case known(blockchainNetwork: BlockchainNetwork)
+            case unknown(networkId: String, rawDerivationPath: String?)
+        }
+
+        let id: String?
+        let name: String
+        let symbol: String
+        let decimalCount: Int
+        let blockchainNetwork: BlockchainNetworkContainer
+        let contractAddress: String?
+    }
 }

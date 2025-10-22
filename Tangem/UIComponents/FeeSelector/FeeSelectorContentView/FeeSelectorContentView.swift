@@ -11,6 +11,7 @@ import TangemUI
 import TangemUIUtils
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct FeeSelectorContentView: View {
     @ObservedObject var viewModel: FeeSelectorContentViewModel
@@ -29,7 +30,7 @@ struct FeeSelectorContentView: View {
                 SelectableSection(viewModel.feesRowData) { data in
                     FeeSelectorContentRowView(viewModel: data, isSelected: viewModel.isSelected(data.feeOption).asBinding)
                 }
-                // Should start when title starts (14 + 36 + 12)
+                // Should start where title starts (14 + 36 + 12)
                 .separatorPadding(.init(leading: 62, trailing: 14))
                 .padding(.horizontal, 14)
             }
@@ -44,6 +45,7 @@ struct FeeSelectorContentView: View {
                 )
                 .padding(.bottom, 16)
                 .padding(.horizontal, 16)
+                .accessibilityIdentifier(FeeAccessibilityIdentifiers.feeSelectorDoneButton)
             }
         }
         .onAppear(perform: viewModel.onAppear)

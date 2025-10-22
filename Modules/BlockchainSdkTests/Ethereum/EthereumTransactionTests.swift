@@ -62,7 +62,7 @@ struct EthereumTransactionTests {
         )
 
         // when
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 1, sourceAddress: sourceAddress)
+        let transactionBuilder = CommonEthereumTransactionBuilder(chainId: 1, sourceAddress: sourceAddress)
         let hashToSign = try transactionBuilder.buildForSign(transaction: transaction)
         let signatureInfo = SignatureInfo(signature: signature, publicKey: rawPublicKey, hash: hashToSign)
         let signedTransaction = try transactionBuilder.buildForSend(
@@ -152,7 +152,7 @@ struct EthereumTransactionTests {
         let fee = Fee(.zeroCoin(for: blockchain), parameters: feeParameters)
 
         // when
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 137, sourceAddress: sourceAddress)
+        let transactionBuilder = CommonEthereumTransactionBuilder(chainId: 137, sourceAddress: sourceAddress)
         let transaction = Transaction(
             amount: sendValue,
             fee: fee,
@@ -197,7 +197,7 @@ struct EthereumTransactionTests {
         let fee = Fee(.zeroCoin(for: blockchain), parameters: feeParameters)
 
         // when
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 137, sourceAddress: sourceAddress)
+        let transactionBuilder = CommonEthereumTransactionBuilder(chainId: 137, sourceAddress: sourceAddress)
         let transaction = Transaction(
             amount: sendValue,
             fee: fee,
@@ -249,7 +249,7 @@ struct EthereumTransactionTests {
         let param = EthereumTransactionParams(data: tokenMethod.data, nonce: nonce)
 
         // when
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 8453, sourceAddress: sourceAddress)
+        let transactionBuilder = CommonEthereumTransactionBuilder(chainId: 8453, sourceAddress: sourceAddress)
         let transaction = Transaction(
             amount: .zeroCoin(for: blockchain),
             fee: fee,
@@ -300,7 +300,7 @@ struct EthereumTransactionTests {
         let param = EthereumTransactionParams(data: payload, nonce: nonce)
 
         // when
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 8453, sourceAddress: sourceAddress)
+        let transactionBuilder = CommonEthereumTransactionBuilder(chainId: 8453, sourceAddress: sourceAddress)
         let transaction = Transaction(
             amount: .zeroCoin(for: blockchain),
             fee: fee,
@@ -340,7 +340,7 @@ struct EthereumTransactionTests {
         )
         let fee = Fee(.zeroCoin(for: blockchain), parameters: feeParameters)
 
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 1, sourceAddress: sourceAddress)
+        let transactionBuilder = CommonEthereumTransactionBuilder(chainId: 1, sourceAddress: sourceAddress)
 
         // when
         let l1Data = try transactionBuilder.buildDummyTransactionForL1(
@@ -379,7 +379,7 @@ struct EthereumTransactionTests {
         let walletAddress = Data(repeating: 0x0, count: 20).hexString // Just a dummy value to satisfy the compiler
         let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
 
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 10, sourceAddress: sourceAddress)
+        let transactionBuilder = CommonEthereumTransactionBuilder(chainId: 10, sourceAddress: sourceAddress)
         let amount = try #require(Decimal(stringValue: "1146241"))
 
         let payload = transactionBuilder.buildForApprove(
@@ -546,7 +546,7 @@ extension EthereumTransactionTests {
         let feeParameters = EthereumLegacyFeeParameters(gasLimit: BigUInt(21000), gasPrice: BigUInt(476190476190))
         let fee = Fee(.zeroCoin(for: blockchain), parameters: feeParameters)
 
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 1, sourceAddress: sourceAddress)
+        let transactionBuilder = CommonEthereumTransactionBuilder(chainId: 1, sourceAddress: sourceAddress)
 
         let transaction = Transaction(
             amount: sendValue,

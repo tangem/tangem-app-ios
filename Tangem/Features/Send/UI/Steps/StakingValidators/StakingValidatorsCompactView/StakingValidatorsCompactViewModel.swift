@@ -15,14 +15,13 @@ class StakingValidatorsCompactViewModel: ObservableObject, Identifiable {
     // Use the estimated size as initial value
     @Published var viewSize: CGSize = .init(width: 361, height: 88)
     @Published var selectedValidator: ValidatorCompactViewData?
+    @Published var canEditValidator: Bool
 
-    private weak var input: StakingValidatorsInput?
-
-    private let percentFormatter = PercentFormatter()
+    private let rewardRateFormatter = StakingValidatorRewardRateFormatter()
     private var bag: Set<AnyCancellable> = []
 
-    init(input: StakingValidatorsInput) {
-        self.input = input
+    init(input: StakingValidatorsInput, preferredValidatorsCount: Int) {
+        canEditValidator = preferredValidatorsCount > 1
 
         bind(input: input)
     }
@@ -44,9 +43,7 @@ class StakingValidatorsCompactViewModel: ObservableObject, Identifiable {
             address: validator.address,
             name: validator.name,
             imageURL: validator.iconURL,
-            aprFormatted: validator.apr.map {
-                "\(Localization.stakingDetailsApr) \(percentFormatter.format($0, option: .staking))"
-            }
+            aprFormatted: rewardRateFormatter.format(validator: validator, type: .short)
         )
     }
 }

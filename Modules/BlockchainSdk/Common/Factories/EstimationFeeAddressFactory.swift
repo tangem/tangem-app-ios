@@ -59,7 +59,8 @@ struct EstimationFeeAddressFactory {
              .zkSync, .moonbeam, .polygonZkEVM, .moonriver, .mantle,
              .flare, .taraxa, .base, .blast, .cyber, .energyWebEVM,
              .core, .canxium, .chiliz, .xodex, .odysseyChain, .bitrock,
-             .apeChain, .sonic, .vanar, .zkLinkNova, .hyperliquidEVM:
+             .apeChain, .sonic, .vanar, .zkLinkNova, .hyperliquidEVM,
+             .scroll, .linea, .arbitrumNova:
             return "0x52bb4012854f808CF9BAbd855e44E506dAf6C077"
         case .ethereumClassic:
             return "0xc49722a6f4Fe5A1347710dEAAa1fafF4c275689b"
@@ -118,6 +119,8 @@ struct EstimationFeeAddressFactory {
             return "16tfjvsTi34r5bhifdBtY793n3fmrM7EtvvtE8XUN1Hv1"
         case .pepecoin:
             return "PgbtQfZaNzLtwQ3hXBrj1KWhxBgaUEM7G6"
+        case .quai:
+            return "0x001895747a462F3cDEc145d565645D7fcEbe275d"
         }
     }
 }

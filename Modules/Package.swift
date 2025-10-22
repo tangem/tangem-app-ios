@@ -242,6 +242,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemLocalization",
                 "TangemLogger",
                 "TangemNetworkUtils",
+                "TangemAccounts",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]

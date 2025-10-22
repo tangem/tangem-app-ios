@@ -23,6 +23,7 @@ struct OnrampOfferView: View {
             bottomView
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
+        .opacity(viewModel.isAvailable ? 1 : 0.6)
     }
 
     private var topView: some View {
@@ -37,6 +38,8 @@ struct OnrampOfferView: View {
 
             CircleButton(title: Localization.commonBuy, action: viewModel.buyButtonAction)
                 .size(.medium)
+                .style(.primary)
+                .disabled(!viewModel.isAvailable)
         }
     }
 
@@ -46,6 +49,10 @@ struct OnrampOfferView: View {
         case .text(let text):
             Text(text)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+
+        case .great:
+            Text(Localization.expressProviderGreatRate)
+                .style(Fonts.Bold.caption1, color: Colors.Text.accent)
 
         case .bestRate:
             HStack(alignment: .center, spacing: 4) {
@@ -72,7 +79,10 @@ struct OnrampOfferView: View {
     private var amount: some View {
         HStack(spacing: 4) {
             Text(viewModel.amount.formatted)
-                .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                .style(
+                    Fonts.Bold.callout,
+                    color: viewModel.isAvailable ? Colors.Text.primary1 : Colors.Text.tertiary
+                )
 
             OnrampAmountBadge(badge: viewModel.amount.badge)
         }

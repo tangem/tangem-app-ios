@@ -88,12 +88,13 @@ struct WalletConnectConnectedDAppDetailsView: View {
             closeButtonAction = { viewModel.handle(viewEvent: .navigationCloseButtonTapped) }
         }
 
-        return WalletConnectNavigationBarView(
+        return FloatingSheetNavigationBarView(
             title: title,
             subtitle: subtitle,
             backgroundColor: backgroundColor,
             bottomSeparatorLineIsVisible: navigationBarBottomSeparatorIsVisible,
-            closeButtonAction: closeButtonAction
+            closeButtonAction: closeButtonAction,
+            titleAccessibilityIdentifier: WalletConnectAccessibilityIdentifiers.headerTitle
         )
         .id(viewModel.state.id)
         .transition(.opacity)
@@ -174,7 +175,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
                 .resizable()
                 .frame(width: 24, height: 24)
 
-            HStack(alignment: .bottom, spacing: 4) {
+            HStack(spacing: 4) {
                 Text(blockchain.name)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
@@ -247,7 +248,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
 extension WalletConnectConnectedDAppDetailsView {
     private enum Layout {
         /// 52
-        static let navigationBarHeight = WalletConnectNavigationBarView.Layout.topPadding + WalletConnectNavigationBarView.Layout.height
+        static let navigationBarHeight = FloatingSheetNavigationBarView.height
         /// 12
         static let contentTopPadding: CGFloat = 12
 

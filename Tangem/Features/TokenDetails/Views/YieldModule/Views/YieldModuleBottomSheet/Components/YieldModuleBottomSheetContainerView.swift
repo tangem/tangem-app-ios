@@ -16,8 +16,6 @@ struct YieldModuleBottomSheetContainerView<
     HeaderContent: View,
     TopContent: View
 >: View {
-    typealias NotificationBanner = YieldModuleViewConfigs.YieldModuleNotificationBannerParams
-
     // MARK: - Properties
 
     private let title: String?
@@ -31,7 +29,6 @@ struct YieldModuleBottomSheetContainerView<
     private let topContent: TopContent
     private let subtitleFooter: SubtitleFooter
     private let content: BodyContent
-    private let notificationBanner: NotificationBanner?
     private let header: HeaderContent
     private let button: MainButton
 
@@ -45,7 +42,6 @@ struct YieldModuleBottomSheetContainerView<
         @ViewBuilder topContent: () -> TopContent = { EmptyView() },
         @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
         @ViewBuilder content: () -> BodyContent = { EmptyView() },
-        notificationBanner: NotificationBanner? = nil,
         contentTopPadding: CGFloat = 24,
         buttonTopPadding: CGFloat = 32
     ) {
@@ -59,38 +55,40 @@ struct YieldModuleBottomSheetContainerView<
         self.contentTopPadding = contentTopPadding
         self.button = button
         self.buttonTopPadding = buttonTopPadding
-        self.notificationBanner = notificationBanner
     }
 
     // MARK: - View Body
 
     var body: some View {
-        GroupedScrollView {
-            VStack(spacing: .zero) {
-                header
+        VStack(spacing: .zero) {
+            GroupedScrollView(showsIndicators: false) {
+                VStack(spacing: .zero) {
+                    header
 
-                topContent
+                    topContent
 
-                titleView
-                    .padding(.top, 14)
-                    .padding(.horizontal, 14)
+                    titleView
+                        .padding(.top, 14)
+                        .padding(.horizontal, 14)
 
-                subtitleView
-                    .padding(.top, 8)
-                    .padding(.horizontal, 16)
+                    subtitleView
+                        .padding(.top, 8)
+                        .padding(.horizontal, 16)
 
-                subtitleFooter.padding(.top, 26)
+                    subtitleFooter
+                        .padding(.top, 16)
 
-                content.padding(.top, contentTopPadding)
-
-                if let notificationBanner {
-                    YieldModuleBottomSheetNotificationBanner(params: notificationBanner)
+                    content
+                        .padding(.top, contentTopPadding)
                 }
-
-                button.padding(.top, buttonTopPadding)
+                .padding(.top, 8)
             }
-            .padding(.top, 8)
-            .padding(.bottom, 18)
+            .safeAreaInset(edge: .bottom) {
+                button
+                    .padding(.top, buttonTopPadding)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 18)
+            }
         }
     }
 

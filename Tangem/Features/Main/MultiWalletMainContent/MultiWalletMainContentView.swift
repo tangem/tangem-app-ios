@@ -47,6 +47,12 @@ struct MultiWalletMainContentView: View {
                 NotificationView(input: input)
             }
 
+            // [REDACTED_TODO_COMMENT]
+            // [REDACTED_INFO]
+            if let viewModel = viewModel.tangemPayAccountViewModel {
+                TangemPayAccountView(viewModel: viewModel)
+            }
+
             tokensContent
                 .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
 
@@ -157,7 +163,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             initialSortingOption: .dragAndDrop
         )
         let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokenListManager: userWalletModel.userTokenListManager,
+            userTokensManager: userWalletModel.userTokensManager,
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
@@ -168,7 +174,6 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokensNotificationManager: FakeUserWalletNotificationManager(),
             bannerNotificationManager: nil,
-            yieldModuleNotificationManager: FakeWalletYieldNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenSectionsAdapter: tokenSectionsAdapter,
             tokenRouter: SingleTokenRoutableMock(),

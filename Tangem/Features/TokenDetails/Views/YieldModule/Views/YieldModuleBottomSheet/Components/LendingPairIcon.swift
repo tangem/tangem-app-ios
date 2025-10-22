@@ -11,15 +11,22 @@ import TangemAssets
 import TangemUI
 
 struct LendingPairIcon: View {
-    let tokenIconInfo: TokenIconInfo
+    let tokenId: String?
     let iconsSize: CGSize
 
     private var overlap: CGFloat { iconsSize.width * 0.4 }
     private let halo: CGFloat = 2
 
+    private var iconUrl: URL? {
+        tokenId.map { IconURLBuilder().tokenIconURL(id: $0, size: .large) }
+    }
+
     var body: some View {
         HStack(spacing: -overlap) {
-            IconView(url: tokenIconInfo.imageURL, size: iconsSize, forceKingfisher: true)
+            IconView(url: iconUrl, size: iconsSize, forceKingfisher: true)
+                .frame(size: iconsSize)
+                .clipShape(Circle())
+
             aaveLogo
         }
         .padding(.horizontal, overlap / 2)

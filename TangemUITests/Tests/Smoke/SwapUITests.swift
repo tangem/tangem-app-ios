@@ -8,7 +8,6 @@
 
 import XCTest
 
-// Excluded: [REDACTED_INFO]
 final class SwapUITests: BaseTestCase {
     let token = "Polygon"
     let amountToEnter = "100"
@@ -47,5 +46,20 @@ final class SwapUITests: BaseTestCase {
             .selectFeeOption(.priority)
             .validateFeeChanged()
             .validateReceivedAmount()
+    }
+
+    func testSwapNoInternet_showConnectionError() {
+        setAllureId(3546)
+
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
+
+        StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(token)
+            .tapSwapButton()
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
+            .enterFromAmount(amountToEnter)
+            .waitErrorShown(title: "Error", message: "There was an error. Please try again.")
     }
 }
