@@ -12,21 +12,20 @@ import TangemFoundation
 
 final class NewTokenSelectorViewModel: ObservableObject {
     @Published var searchText: String = ""
-    @Published private(set) var viewState: State = .empty
+    @Published private(set) var wallets: [NewTokenSelectorWalletItemViewModel] = []
 
-    private let provider: NewTokenSelectorViewModelContentProvider
-    private let filter: NewTokenSelectorViewModelSearchFilter
-    private let availabilityProvider: any NewTokenSelectorViewModelAvailabilityProvider
+    private let walletsProvider: NewTokenSelectorWalletsProvider
+    private let availabilityProvider: any NewTokenSelectorItemAvailabilityProvider
     private weak var output: NewTokenSelectorViewModelOutput?
 
+    private var bag: Set<AnyCancellable> = []
+
     init(
-        provider: any NewTokenSelectorViewModelContentProvider,
-        filter: any NewTokenSelectorViewModelSearchFilter,
-        availabilityProvider: any NewTokenSelectorViewModelAvailabilityProvider,
+        walletsProvider: any NewTokenSelectorWalletsProvider,
+        availabilityProvider: any NewTokenSelectorItemAvailabilityProvider,
         output: any NewTokenSelectorViewModelOutput,
     ) {
-        self.provider = provider
-        self.filter = filter
+        self.walletsProvider = walletsProvider
         self.availabilityProvider = availabilityProvider
         self.output = output
 
@@ -34,88 +33,43 @@ final class NewTokenSelectorViewModel: ObservableObject {
     }
 
     private func bind() {
-        Publishers
-            .CombineLatest(provider.itemsPublisher, $searchText)
+        walletsProvider
+            .walletsPublisher
             .withWeakCaptureOf(self)
-            .map { $0.mapToState($1.0, searchText: $1.1) }
+            .map { $0.mapToNewTokenSelectorWalletItemViewModels(wallets: $1) }
             .receiveOnMain()
-            .assign(to: &$viewState)
+            .assign(to: &$wallets)
     }
 
-    private func mapToState(_ list: NewTokenSelectorList, searchText: String) -> State {
-        let searchText = searchText.trimmed()
-        let filtered = searchText.isEmpty ? list : filter.filter(list: list, searchText: searchText)
-
-        if filtered.isEmpty {
-            return .empty
+    private func mapToNewTokenSelectorWalletItemViewModels(wallets: [NewTokenSelectorWallet]) -> [NewTokenSelectorWalletItemViewModel] {
+        let wallets = wallets.map { wallet in
+            mapToNewTokenSelectorWalletItemViewModel(wallet: wallet)
         }
 
-        // If at least one wallet has more then one accounts then all item have to wrapped
-        let hasMultipleAccounts = filtered.contains { $0.hasMultipleAccounts }
+        return wallets
+    }
+}
 
-        if hasMultipleAccounts {
-            let wrapped: [NewTokenSelectorGroupedSectionWrapperViewModel] = filtered.map { wallet in
-                let wrapperViewModel = mapToNewTokenSelectorGroupedSectionWrapperViewModel(
-                    wallet: wallet.wallet,
-                    items: wallet.list
-                )
+// MARK: - NewTokenSelectorItemViewModelMapper
 
-                return wrapperViewModel
-            }
-
-            return .walletsWithAccounts(wrapped)
-        }
-
-        let wallets: [NewTokenSelectorGroupedSectionViewModel] = filtered.flatMap { $0.list }.map { wallet in
-            let wrapperViewModel = mapToNewTokenSelectorGroupedSectionViewModel(
-                wallet: .init(name: wallet.account.name),
-                items: wallet.items
-            )
-
-            return wrapperViewModel
-        }
-
-        return .wallets(wallets)
+extension NewTokenSelectorViewModel: NewTokenSelectorItemViewModelMapper {
+    func mapToNewTokenSelectorWalletItemViewModel(wallet: NewTokenSelectorWallet) -> NewTokenSelectorWalletItemViewModel {
+        NewTokenSelectorWalletItemViewModel(wallet: wallet, mapper: self)
     }
 
-    private func mapToNewTokenSelectorGroupedSectionWrapperViewModel(
-        wallet: NewTokenSelectorItem.Wallet,
-        items: [NewTokenSelectorAccountListItem]
-    ) -> NewTokenSelectorGroupedSectionWrapperViewModel {
-        let sections = items.map { account in
-            mapToNewTokenSelectorGroupedSectionViewModel(account: account.account, items: account.items)
-        }
-
-        return NewTokenSelectorGroupedSectionWrapperViewModel(
-            isOpen: true,
-            wallet: wallet.name,
-            sections: sections
+    func mapToNewTokenSelectorAccountViewModel(
+        header: NewTokenSelectorAccountViewModel.HeaderType,
+        account: NewTokenSelectorAccount
+    ) -> NewTokenSelectorAccountViewModel {
+        NewTokenSelectorAccountViewModel(
+            header: header,
+            account: account,
+            searchTextPublisher: $searchText.eraseToAnyPublisher(),
+            mapper: self
         )
     }
 
-    private func mapToNewTokenSelectorGroupedSectionViewModel(
-        wallet: NewTokenSelectorItem.Wallet,
-        items: [NewTokenSelectorItem]
-    ) -> NewTokenSelectorGroupedSectionViewModel {
-        NewTokenSelectorGroupedSectionViewModel(
-            header: .wallet(wallet.name),
-            items: items.map(mapToNewTokenSelectorGroupedSectionViewModel)
-        )
-    }
-
-    private func mapToNewTokenSelectorGroupedSectionViewModel(
-        account: NewTokenSelectorItem.Account,
-        items: [NewTokenSelectorItem]
-    ) -> NewTokenSelectorGroupedSectionViewModel {
-        NewTokenSelectorGroupedSectionViewModel(
-            header: .account(icon: account.icon, name: account.name),
-            items: items.map(mapToNewTokenSelectorGroupedSectionViewModel)
-        )
-    }
-
-    private func mapToNewTokenSelectorGroupedSectionViewModel(
-        item: NewTokenSelectorItem
-    ) -> NewTokenSelectorItemViewModel {
+    func mapToNewTokenSelectorItemViewModel(item: NewTokenSelectorItem) -> NewTokenSelectorItemViewModel {
         let disabledReason = availabilityProvider.isAvailable(item: item)
 
         return NewTokenSelectorItemViewModel(
@@ -130,13 +84,5 @@ final class NewTokenSelectorViewModel: ObservableObject {
                 self?.output?.usedDidSelect(item: item)
             }
         )
-    }
-}
-
-extension NewTokenSelectorViewModel {
-    enum State {
-        case empty
-        case wallets([NewTokenSelectorGroupedSectionViewModel])
-        case walletsWithAccounts([NewTokenSelectorGroupedSectionWrapperViewModel])
     }
 }
