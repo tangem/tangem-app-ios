@@ -71,7 +71,7 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
 
             let resultNoHex = result.removeHexPrefix()
             if resultNoHex.isEmpty || BigUInt(resultNoHex) == 0 {
-                throw YieldModuleError.unableToParseData
+                throw YieldModuleError.noYieldContractFound
             }
 
             let contractAddress = resultNoHex.stripLeadingZeroes().addHexPrefix()
@@ -165,9 +165,12 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
                     do {
                         guard let self else { return (token, nil) }
 
-                        let yieldLendingStatus = try await self.getYieldSupplyStatus(
+                        guard let yieldLendingStatus = try? await self.getYieldSupplyStatus(
                             tokenContractAddress: token.contractAddress
-                        )
+                        ) else {
+                            return (token, nil)
+                        }
+
                         if yieldLendingStatus.active {
                             let balance = try await self.getBalance(
                                 yieldSupplyStatus: yieldLendingStatus,
@@ -177,6 +180,8 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
                         } else {
                             return (token, nil)
                         }
+                    } catch YieldModuleError.unsupportedBlockchain {
+                        return (token, nil)
                     } catch {
                         return (token, .failure(error))
                     }

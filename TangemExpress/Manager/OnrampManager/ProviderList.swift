@@ -68,7 +68,8 @@ public extension ProvidersList {
 
                 case .loaded(let quote) where bestQuote != nil:
                     let percent = quote.expectedAmount / bestQuote! - 1
-                    provider.update(globalAttractiveType: .loss(percent: percent))
+                    let rounded = percent.rounded(scale: 4)
+                    provider.update(globalAttractiveType: .loss(percent: rounded))
 
                 default:
                     provider.update(globalAttractiveType: .none)
@@ -79,7 +80,16 @@ public extension ProvidersList {
 
     func updateProcessingTimeTypes() {
         let providers = flatMap { $0.providers }
-        let fastest = providers.sorted(by: \.paymentMethod.type.processingTime).first
+
+        // Setup fastest badge only if there is more than one successfully loaded provider
+        guard providers.filter(\.isSuccessfullyLoaded).count > 1 else {
+            providers.forEach { $0.update(processingTimeType: .none) }
+            return
+        }
+
+        let fastest = providers
+            .filter(\.isSuccessfullyLoaded)
+            .min(by: \.paymentMethod.type.processingTime)
 
         providers.forEach { provider in
             switch provider {
