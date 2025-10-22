@@ -99,7 +99,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
-                    .expressNavigationView()
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
