@@ -44,7 +44,7 @@ actor YieldManagerInteractor {
             return false
         }
 
-        return info.balance.value == .zero
+        return info.isAllowancePermissionRequired
     }
 
     func getApy() async throws -> Decimal {
@@ -70,6 +70,10 @@ actor YieldManagerInteractor {
 
     func getChartData() async throws -> YieldChartData {
         try await manager.fetchChartData()
+    }
+
+    func getCurrentNetworkFee() async throws -> Decimal {
+        try await manager.currentNetworkFee()
     }
 
     func clearAll() {
