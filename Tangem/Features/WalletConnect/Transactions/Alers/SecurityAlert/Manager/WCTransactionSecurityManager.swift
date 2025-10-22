@@ -10,7 +10,7 @@ protocol WCTransactionSecurityManager {
         primaryAction: @escaping () -> Void,
         secondaryAction: @escaping () async -> Void,
         backAction: @escaping () -> Void
-    ) -> (state: WCTransactionSecurityAlertState, input: WCTransactionSecurityAlertInput)?
+    ) -> (state: WCTransactionAlertState, input: WCTransactionSecurityAlertInput)?
 
     func getDAppVerificationStatus(
         for topic: String,
@@ -42,7 +42,7 @@ final class CommonWCTransactionSecurityManager: WCTransactionSecurityManager {
         primaryAction: @escaping () -> Void,
         secondaryAction: @escaping () async -> Void,
         backAction: @escaping () -> Void
-    ) -> (state: WCTransactionSecurityAlertState, input: WCTransactionSecurityAlertInput)? {
+    ) -> (state: WCTransactionAlertState, input: WCTransactionSecurityAlertInput)? {
         guard let validationStatus = validationResult.validationStatus else { return nil }
 
         let input = WCTransactionSecurityAlertInput(
