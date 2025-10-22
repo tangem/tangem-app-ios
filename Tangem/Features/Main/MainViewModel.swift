@@ -22,6 +22,7 @@ final class MainViewModel: ObservableObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.wcService) private var wcService: WCService
+    @Injected(\.yieldModuleMarketsManager) private var yieldModuleMarketsManager: YieldModuleMarketsManager
 
     // MARK: - ViewState
 
@@ -119,6 +120,8 @@ final class MainViewModel: ObservableObject {
 
             Analytics.log(.mainScreenOpened, params: analyticsParameters)
         }
+
+        yieldModuleMarketsManager.updateMarkets()
 
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
@@ -379,10 +382,12 @@ final class MainViewModel: ObservableObject {
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
-        if pushNotificationsAvailabilityProvider.isAvailable {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pushNotificationAuthorizationRequestDelay) { [weak self] in
-                self?.coordinator?.openPushNotificationsAuthorization()
-            }
+        guard pushNotificationsAvailabilityProvider.isAvailable else {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pushNotificationAuthorizationRequestDelay) { [weak self] in
+            self?.coordinator?.openPushNotificationsAuthorization()
         }
     }
 
@@ -413,6 +418,8 @@ final class MainViewModel: ObservableObject {
         case .visaWallet(_, _, let viewModel):
             await viewModel.onPullToRefresh()
         }
+
+        yieldModuleMarketsManager.updateMarkets()
     }
 }
 
