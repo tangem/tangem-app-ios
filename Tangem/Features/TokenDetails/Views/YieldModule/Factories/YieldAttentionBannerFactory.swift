@@ -10,7 +10,7 @@ enum YieldAttentionBannerFactory {
     static func makeNotEnoughFeeCurrencyBanner(
         feeTokenItem: TokenItem,
         navigationAction: @MainActor @Sendable @escaping () -> Void
-    ) -> YieldModuleViewConfigs.YieldModuleNotificationBannerParams {
+    ) -> YieldModuleNotificationBannerParams {
         .notEnoughFeeCurrency(
             feeCurrencyName: feeTokenItem.name,
             tokenIcon: NetworkImageProvider().provide(by: feeTokenItem.blockchain, filled: true),
@@ -20,7 +20,7 @@ enum YieldAttentionBannerFactory {
 
     static func makeApproveRequiredBanner(
         navigationAction: @MainActor @Sendable @escaping () -> Void
-    ) -> YieldModuleViewConfigs.YieldModuleNotificationBannerParams {
+    ) -> YieldModuleNotificationBannerParams {
         .approveNeeded(buttonAction: navigationAction)
     }
 }
