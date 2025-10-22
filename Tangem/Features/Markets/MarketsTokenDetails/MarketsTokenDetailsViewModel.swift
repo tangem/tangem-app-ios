@@ -481,7 +481,10 @@ private extension MarketsTokenDetailsViewModel {
 
                     Analytics.log(event: .marketsChartButtonAddToPortfolio, params: [.token: info.symbol.uppercased()])
 
-                    coordinator?.openTokenSelector(with: info, walletDataProvider: walletDataProvider)
+                    Task { @MainActor [weak self] in
+                        guard let self else { return }
+                        coordinator?.openAccountsSelector(with: info, walletDataProvider: walletDataProvider)
+                    }
                 }
             )
         } else {

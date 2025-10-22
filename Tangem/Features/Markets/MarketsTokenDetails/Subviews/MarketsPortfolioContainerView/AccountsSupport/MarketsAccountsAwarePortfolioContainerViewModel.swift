@@ -108,9 +108,9 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
             }
 
             var networkIds = availableNetworksIds
-            let userTokenList = userWalletModel.userTokenListManager.userTokensList
-            for entry in userTokenList.entries {
-                guard let entryId = entry.coinId else {
+            let userTokenList = userWalletModel.userTokensManager.userTokens
+            for entry in userTokenList {
+                guard let entryId = entry.id else {
                     continue
                 }
 
@@ -165,20 +165,20 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
                     }.flatMap { $0 }
 
                     let walletModelsPublishers = cryptoAccounts.map(\.walletModelsManager.walletModelsPublisher)
-                    let userTokensListPublishers = cryptoAccounts.map(\.userTokenListManager.userTokensListPublisher)
+                    let userTokensPublishers = cryptoAccounts.map(\.userTokensManager.userTokensPublisher)
 
                     let combinedWalletModelsPublisher = walletModelsPublishers.combineLatest()
-                    let combinedUserTokensListPublishers = userTokensListPublishers.combineLatest()
+                    let combinedUserTokensPublishers = userTokensPublishers.combineLatest()
 
                     return Publishers.CombineLatest(
                         combinedWalletModelsPublisher,
-                        combinedUserTokensListPublishers
+                        combinedUserTokensPublishers
                     )
-                    .map { walletModelsArrays, userTokensListArrays in
+                    .map { walletModelsArrays, userTokensArrays in
                         viewModel.makeWalletData(
                             from: userWalletModel,
                             accountModels: accountModels,
-                            entries: userTokensListArrays.flatMap(\.entries),
+                            entries: userTokensArrays.flatMap { $0 },
                             walletModels: walletModelsArrays.flatMap { $0 }
                         )
                     }
@@ -250,6 +250,7 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 
                     if viewModels.isNotEmpty {
                         let accountData = TypeView.AccountData(
+                            id: account.id.toAnyHashable(),
                             name: account.name,
                             iconInfo: AccountIconViewBuilder().makeAccountIconViewData(accountModel: account)
                         )
@@ -266,6 +267,7 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
             if accountsWithTokenItems.isNotEmpty {
                 allUserWalletsWithAccountsData.append(
                     .init(
+                        userWalletId: walletData.userWalletId,
                         userWalletName: walletData.userWalletName,
                         accountsWithTokenItems: accountsWithTokenItems
                     )
@@ -297,7 +299,11 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 
             if viewModels.isNotEmpty {
                 allUserWalletsWithTokensData.append(
-                    .init(userWalletName: walletData.userWalletName, tokenItems: viewModels)
+                    .init(
+                        userWalletId: walletData.userWalletId,
+                        userWalletName: walletData.userWalletName,
+                        tokenItems: viewModels
+                    )
                 )
 
                 allTokenItemViewModels.append(contentsOf: viewModels)
@@ -328,7 +334,7 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     private func makeWalletData(
         from userWalletModel: UserWalletModel,
         accountModels: [AccountModel],
-        entries: [StoredUserTokenList.Entry],
+        entries: [TokenItem],
         walletModels: [any WalletModel]
     ) -> WalletData {
         WalletData(
@@ -463,7 +469,7 @@ extension MarketsAccountsAwarePortfolioContainerViewModel {
         let userWalletId: UserWalletId
         let userWalletName: String
         let accountModels: [AccountModel]
-        let entries: [StoredUserTokenList.Entry]
+        let entries: [TokenItem]
         let walletModels: [any WalletModel]
         let config: UserWalletConfig
     }

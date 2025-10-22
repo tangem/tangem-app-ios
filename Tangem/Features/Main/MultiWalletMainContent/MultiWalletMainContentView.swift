@@ -163,7 +163,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             initialSortingOption: .dragAndDrop
         )
         let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokenListManager: userWalletModel.userTokenListManager,
+            userTokensManager: userWalletModel.userTokensManager,
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
@@ -174,7 +174,6 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokensNotificationManager: FakeUserWalletNotificationManager(),
             bannerNotificationManager: nil,
-            yieldModuleNotificationManager: FakeWalletYieldNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenSectionsAdapter: tokenSectionsAdapter,
             tokenRouter: SingleTokenRoutableMock(),
