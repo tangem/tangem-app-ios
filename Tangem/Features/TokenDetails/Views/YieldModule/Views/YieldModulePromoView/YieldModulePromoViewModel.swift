@@ -11,65 +11,48 @@ import TangemLocalization
 import TangemAssets
 
 final class YieldModulePromoViewModel {
-    // MARK: - Properties
-
-    private let walletModel: any WalletModel
-    private(set) var apy: String
-    private var lastYearReturns: [String: Double] = [:]
-    private let networkFee: Decimal
-    private let maximumFee: Decimal
-    private let tokenImageUrl: URL?
-
-    private(set) var tosUrl = URL(string: "https://tangem.com")!
-    private(set) var privacyPolicyUrl = URL(string: "https://tangem.com")!
-    private(set) var howIrWorksUrl = URL(string: "https://tangem.com")!
-
-    // MARK: - Injected
-
-    @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.safariManager)
+    private var safariManager: SafariManager
 
     // MARK: - Dependencies
 
+    private let walletModel: any WalletModel
+    private let yieldManagerInteractor: YieldManagerInteractor
+    private let startFlowFactory: YieldStartFlowFactory
     private weak var coordinator: YieldModulePromoCoordinator?
+
+    // MARK: - Properties
+
+    private let apy: Decimal
+    var apyString: String { PercentFormatter().format(apy, option: .interval) }
+    private(set) var tosUrl = URL(string: "https://aave.com/terms-of-service")!
+    private(set) var privacyPolicyUrl = URL(string: "https://aave.com/privacy-policy")!
+    private(set) var howIrWorksUrl = URL(string: "https://tangem.com/en/blog/post/savings-account")!
 
     // MARK: - Init
 
     init(
         walletModel: any WalletModel,
-        apy: String,
-        lastYearReturns: [String: Double],
-        networkFee: Decimal,
-        maximumFee: Decimal,
-        tokenImageUrl: URL?,
-        coordinator: YieldModulePromoCoordinator
+        yieldManagerInteractor: YieldManagerInteractor,
+        apy: Decimal,
+        coordinator: YieldModulePromoCoordinator?,
+        startFlowFactory: YieldStartFlowFactory
     ) {
         self.walletModel = walletModel
         self.coordinator = coordinator
+        self.yieldManagerInteractor = yieldManagerInteractor
         self.apy = apy
-        self.lastYearReturns = lastYearReturns
-        self.networkFee = networkFee
-        self.maximumFee = maximumFee
-        self.tokenImageUrl = tokenImageUrl
+        self.startFlowFactory = startFlowFactory
     }
 
     // MARK: - Public Implementation
 
     func onInterestRateInfoTap() {
-        coordinator?.openRateInfoSheet(params: .init(lastYearReturns: lastYearReturns), walletModel: walletModel)
+        coordinator?.openBottomSheet(viewModel: startFlowFactory.makeInterestRateInfoVewModel())
     }
 
     func onContinueTap() {
-        coordinator?
-            .openStartEarningSheet(
-                params: .init(
-                    tokenName: walletModel.tokenItem.name,
-                    tokenId: walletModel.tokenItem.id,
-                    networkFee: networkFee.formatted(),
-                    maximumFee: maximumFee.formatted(),
-                    blockchainName: walletModel.tokenItem.blockchain.displayName
-                ),
-                walletModel: walletModel
-            )
+        coordinator?.openBottomSheet(viewModel: startFlowFactory.makeStartViewModel())
     }
 
     func onHowItWorksTap() {
@@ -98,12 +81,4 @@ final class YieldModulePromoViewModel {
 
         return attributedString
     }
-}
-
-struct YieldModuleInfo {
-    let apy: String
-    let networkFee: Decimal
-    let maximumFee: Decimal
-    let lastYearReturns: [String: Double]
-    let tokenImageUrl: URL?
 }

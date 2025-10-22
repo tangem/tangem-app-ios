@@ -13,31 +13,53 @@ import TangemLocalization
 
 extension YieldModuleStartView {
     struct YieldModuleFeePolicyView: View {
-        let currentFee: String
-        let maximumFee: String
+        // It is called "Current Fee" in this view
+        let tokenFeeState: LoadableTextView.State
+        let maximumFeeState: LoadableTextView.State
+        let minimalAmountState: LoadableTextView.State
+
         let blockchainName: String
 
         var body: some View {
-            VStack(spacing: 26) {
+            VStack(spacing: 20) {
+                minimalAmountSection
                 currentFeeSection
-                maximumFeeSection
+
+                VStack(alignment: .leading, spacing: 14) {
+                    maximumFeeSection
+                    serviceFeeText
+                        .padding(.leading, 14)
+                }
             }
+        }
+
+        private var minimalAmountSection: some View {
+            YieldFeeSection(
+                leadingTitle: Localization.yieldModuleFeePolicySheetMinAmountTitle,
+                state: minimalAmountState,
+                footerText: nil
+            )
         }
 
         private var currentFeeSection: some View {
-            GroupedSection(FeeModel(fee: currentFee)) { fee in
-                DefaultRowView(viewModel: .init(title: Localization.commonNetworkFeeTitle, detailsType: .text(fee.fee)))
-            } footer: {
-                DefaultFooterView(Localization.yieldModuleFeePolicySheetCurrentFeeNote(blockchainName))
-            }
+            YieldFeeSection(
+                leadingTitle: Localization.yieldModuleFeePolicySheetCurrentFeeTitle,
+                state: tokenFeeState,
+                footerText: Localization.yieldModuleFeePolicySheetCurrentFeeNote(blockchainName)
+            )
         }
 
         private var maximumFeeSection: some View {
-            GroupedSection(FeeModel(fee: maximumFee)) { fee in
-                DefaultRowView(viewModel: .init(title: Localization.yieldModuleFeePolicySheetMaxFeeTitle, detailsType: .text(fee.fee)))
-            } footer: {
-                DefaultFooterView(Localization.yieldModuleFeePolicySheetMaxFeeNote)
-            }
+            YieldFeeSection(
+                leadingTitle: Localization.yieldModuleFeePolicySheetMaxFeeTitle,
+                state: maximumFeeState,
+                footerText: Localization.yieldModuleFeePolicySheetMaxFeeNote
+            )
+        }
+
+        private var serviceFeeText: some View {
+            Text(Localization.yieldModuleFeePolicyTangemServiceFeeTitle)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
         }
     }
 }

@@ -15,7 +15,9 @@ import TangemFoundation
 final class WalletConnectSolanaSignTransactionHandler {
     private let walletModel: any WalletModel
     private let signer: TangemSigner
+    private let hardwareLimitationsUtil: HardwareLimitationsUtil
     private let walletNetworkServiceFactory: WalletNetworkServiceFactory
+    private let analyticsProvider: WalletConnectServiceAnalyticsProvider
     private let transaction: String
     private let request: AnyCodable
     private let encoder = JSONEncoder()
@@ -24,8 +26,10 @@ final class WalletConnectSolanaSignTransactionHandler {
         request: AnyCodable,
         blockchainId: String,
         signer: TangemSigner,
+        hardwareLimitationsUtil: HardwareLimitationsUtil,
         walletNetworkServiceFactory: WalletNetworkServiceFactory,
-        walletModelProvider: WalletConnectWalletModelProvider
+        walletModelProvider: WalletConnectWalletModelProvider,
+        analyticsProvider: WalletConnectServiceAnalyticsProvider
     ) throws {
         let parameters = try request.get(WalletConnectSolanaSignTransactionDTO.Response.self)
 
@@ -43,7 +47,9 @@ final class WalletConnectSolanaSignTransactionHandler {
         }
 
         self.signer = signer
+        self.hardwareLimitationsUtil = hardwareLimitationsUtil
         self.walletNetworkServiceFactory = walletNetworkServiceFactory
+        self.analyticsProvider = analyticsProvider
         self.request = request
     }
 }
@@ -59,47 +65,83 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
         request.stringRepresentation
     }
 
-    func handle() async throws -> RPCResult {
-        let (unsignedHash, signatureCount) = try prepareTransactionToSign(transaction)
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        let (canHandleTransaction, _, _) = try prepareTransaction()
 
-        guard FeatureProvider.isAvailable(.wcSolanaALT) else {
-            return try await defaultHandleTransaction(unsignedHash: unsignedHash)
+        if canHandleTransaction {
+            return .empty
+        } else {
+            return .multipleTransactions
         }
+    }
 
-        switch SolanaWalletConnectTransactionRely.rely(transaction: unsignedHash) {
-        case .default:
-            return try await defaultHandleTransaction(unsignedHash: unsignedHash)
-        case .alt:
-            guard signatureCount == 1 else {
-                throw WalletConnectTransactionRequestProcessingError.invalidPayload("Signature count > 1")
-            }
+    func handle() async throws -> RPCResult {
+        let (canHandleTransaction, unsignedHash, signatureCount) = try prepareTransaction()
 
-            let transactionService = try SolanaALTTransactionService(
-                blockchain: walletModel.tokenItem.blockchain,
-                walletPublicKey: walletModel.publicKey,
-                walletNetworkServiceFactory: walletNetworkServiceFactory,
-                signer: signer
-            )
-
-            try await transactionService.send(transactionData: unsignedHash)
-
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload("Solana ALT handling error for request: \(request.description)")
+        if canHandleTransaction {
+            return try await handleDefaultTransaction(unsignedHash: unsignedHash)
+        } else {
+            return try await handleLongTransaction(unsignedHash: unsignedHash, signatureCount: signatureCount)
         }
     }
 }
 
 private extension WalletConnectSolanaSignTransactionHandler {
-    func prepareTransactionToSign(_ transaction: String) throws -> (Data, Int) {
-        let data = try transaction.base64DecodedData()
-        return try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
-    }
-
-    func defaultHandleTransaction(unsignedHash: Data) async throws -> RPCResult {
+    func handleDefaultTransaction(unsignedHash: Data) async throws -> RPCResult {
         let solanaSigner = SolanaWalletConnectSigner(signer: signer)
         let signedHash = try await solanaSigner.sign(data: unsignedHash, using: walletModel)
 
         return .response(
             AnyCodable(WalletConnectSolanaSignTransactionDTO.Body(signature: signedHash.base58EncodedString))
         )
+    }
+
+    func handleLongTransaction(unsignedHash: Data, signatureCount: Int) async throws -> RPCResult {
+        guard signatureCount == 1 else {
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload("Signature count > 1")
+        }
+
+        analyticsProvider.logReceiveHandleSolanaALTTransactionRequest()
+
+        let transactionService = try SolanaALTTransactionService(
+            blockchain: walletModel.tokenItem.blockchain,
+            walletPublicKey: walletModel.publicKey,
+            walletNetworkServiceFactory: walletNetworkServiceFactory,
+            signer: signer
+        )
+
+        let altResult: Bool
+
+        do {
+            try await transactionService.send(transactionData: unsignedHash)
+            altResult = true
+        } catch {
+            altResult = false
+        }
+
+        analyticsProvider.logCompleteHandleSolanaALTTransactionRequest(isSuccess: altResult)
+
+        throw WalletConnectTransactionRequestProcessingError.eraseMultipleTransactions
+    }
+
+    func prepareTransaction() throws -> (
+        canHandleTransaction: Bool,
+        unsignedHash: Data,
+        signatureCount: Int
+    ) {
+        let transactionData = try Data(transaction.base64Decoded())
+        let withoutSignaturePlaceholders = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: transactionData)
+        let unsignedHash = withoutSignaturePlaceholders.transaction
+
+        guard FeatureProvider.isAvailable(.wcSolanaALT) else {
+            return (true, unsignedHash, withoutSignaturePlaceholders.signatureCount)
+        }
+
+        let canHandleTransaction = (try? hardwareLimitationsUtil.canHandleTransaction(
+            walletModel.tokenItem,
+            transaction: transactionData
+        )) ?? true
+
+        return (canHandleTransaction, unsignedHash, withoutSignaturePlaceholders.signatureCount)
     }
 }

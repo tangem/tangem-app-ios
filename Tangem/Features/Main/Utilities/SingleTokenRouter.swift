@@ -32,13 +32,20 @@ protocol SingleTokenRoutable {
 final class SingleTokenRouter: SingleTokenRoutable {
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     private let userWalletModel: UserWalletModel
     private weak var coordinator: SingleTokenBaseRoutable?
+    private let yieldModuleNoticeInteractor: YieldModuleNoticeInteractor
 
-    init(userWalletModel: UserWalletModel, coordinator: SingleTokenBaseRoutable?) {
+    init(
+        userWalletModel: UserWalletModel,
+        coordinator: SingleTokenBaseRoutable?,
+        yieldModuleNoticeInteractor: YieldModuleNoticeInteractor
+    ) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
+        self.yieldModuleNoticeInteractor = yieldModuleNoticeInteractor
     }
 
     func openReceive(walletModel: any WalletModel) {
@@ -50,12 +57,34 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openSend(walletModel: any WalletModel) {
-        coordinator?.openSend(userWalletModel: userWalletModel, walletModel: walletModel)
+        let openSendAction = { [weak self] in
+            guard let self else { return }
+            coordinator?.openSend(userWalletModel: userWalletModel, walletModel: walletModel)
+        }
+
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
+            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: openSendAction)
+        } else {
+            openSendAction()
+        }
     }
 
     func openExchange(walletModel: any WalletModel) {
-        let input = CommonExpressModulesFactory.InputModel(userWalletModel: userWalletModel, initialWalletModel: walletModel)
-        coordinator?.openExpress(input: input)
+        let input = CommonExpressModulesFactory.InputModel(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            userTokensManager: userWalletModel.userTokensManager,
+            walletModelsManager: userWalletModel.walletModelsManager,
+            initialWalletModel: walletModel,
+            destinationWalletModel: .none
+        )
+
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
+            openViaYieldNotice(tokenItem: walletModel.tokenItem) { [weak self] in
+                self?.coordinator?.openExpress(input: input)
+            }
+        } else {
+            coordinator?.openExpress(input: input)
+        }
     }
 
     func openStaking(walletModel: any WalletModel) {
@@ -139,6 +168,13 @@ final class SingleTokenRouter: SingleTokenRoutable {
         }
 
         return Blockchain.ethereum(testnet: false).coinId
+    }
+
+    private func openViaYieldNotice(tokenItem: TokenItem, action: @escaping () -> Void) {
+        let viewModel = YieldNoticeViewModel(tokenItem: tokenItem, action: action)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 }
 

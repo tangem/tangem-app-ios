@@ -41,7 +41,8 @@ class OnrampModel {
     // MARK: - Private injections
 
     private let userWalletId: String
-    private let walletModel: any WalletModel
+    private let tokenItem: TokenItem
+    private let defaultAddressString: String
     private let onrampManager: OnrampManager
     private let onrampDataRepository: OnrampDataRepository
     private let onrampRepository: OnrampRepository
@@ -54,7 +55,8 @@ class OnrampModel {
 
     init(
         userWalletId: String,
-        walletModel: any WalletModel,
+        tokenItem: TokenItem,
+        defaultAddressString: String,
         onrampManager: OnrampManager,
         onrampDataRepository: OnrampDataRepository,
         onrampRepository: OnrampRepository,
@@ -62,7 +64,8 @@ class OnrampModel {
         predefinedValues: PredefinedValues,
     ) {
         self.userWalletId = userWalletId
-        self.walletModel = walletModel
+        self.tokenItem = tokenItem
+        self.defaultAddressString = defaultAddressString
         self.onrampManager = onrampManager
         self.onrampDataRepository = onrampDataRepository
         self.onrampRepository = onrampRepository
@@ -329,8 +332,8 @@ private extension OnrampModel {
         OnrampPairRequestItem(
             fiatCurrency: currency,
             country: country,
-            destination: walletModel.tokenItem.expressCurrency,
-            address: walletModel.defaultAddressString
+            destination: tokenItem.expressCurrency,
+            address: defaultAddressString
         )
     }
 
@@ -437,28 +440,17 @@ extension OnrampModel: OnrampProvidersOutput {
     }
 }
 
-// MARK: - OnrampProvidersOutput
+// MARK: - RecentOnrampTransactionParametersFinder
 
-extension OnrampModel: RecentOnrampProviderFinder {
-    var recentOnrampProvider: OnrampProvider? {
-        guard let providers = _onrampProviders.value?.value else {
+extension OnrampModel: RecentOnrampTransactionParametersFinder {
+    var recentOnrampTransaction: RecentOnrampTransactionParameters? {
+        guard let recentTransaction = onrampPendingTransactionsRepository.recentTransaction,
+              recentTransaction.transactionStatus.canBeUsedAsRecent,
+              let paymentMethodId = recentTransaction.paymentMethod?.id else {
             return nil
         }
 
-        guard let recentTransaction = onrampPendingTransactionsRepository.recentTransaction else {
-            return nil
-        }
-
-        let relatedToWallet = recentTransaction.destinationTokenTxInfo.tokenItem == walletModel.tokenItem
-        guard relatedToWallet else {
-            return nil
-        }
-
-        let recent = providers.flatMap { $0.providers }.first(where: { provider in
-            provider.provider.id == recentTransaction.provider.id
-        })
-
-        return recent
+        return .init(providerId: recentTransaction.provider.id, paymentMethodId: paymentMethodId)
     }
 }
 
@@ -504,8 +496,9 @@ extension OnrampModel: OnrampRedirectingOutput {
         let txData = SentOnrampTransactionData(
             txId: data.txId,
             provider: provider.provider,
-            destinationTokenItem: walletModel.tokenItem,
-            destinationAddress: walletModel.defaultAddressString,
+            paymentMethod: provider.paymentMethod,
+            destinationTokenItem: tokenItem,
+            destinationAddress: defaultAddressString,
             date: Date(),
             fromAmount: data.fromAmount,
             fromCurrencyCode: data.fromCurrencyCode,

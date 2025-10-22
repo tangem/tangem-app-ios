@@ -51,7 +51,6 @@ protocol WalletModel:
 
     var stakingManager: StakingManager? { get }
     var stakeKitTransactionSender: StakeKitTransactionSender? { get }
-    var accountInitializationStateProvider: StakingAccountInitializationStateProvider? { get }
 
     // MARK: - Accounts
 
@@ -61,7 +60,8 @@ protocol WalletModel:
 
     // MARK: - Yield
 
-    var yieldService: YieldTokenService? { get }
+    // [REDACTED_TODO_COMMENT]
+    var yieldModuleManager: YieldModuleManager? { get }
 }
 
 extension WalletModel {
@@ -133,6 +133,8 @@ protocol WalletModelDependenciesProvider {
     var transactionValidator: TransactionValidator { get }
     var transactionSender: TransactionSender { get }
 
+    var multipleTransactionsSender: MultipleTransactionsSender? { get }
+
     var compiledTransactionSender: CompiledTransactionSender? { get }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { get }
@@ -140,6 +142,8 @@ protocol WalletModelDependenciesProvider {
     var ethereumTransactionSigner: EthereumTransactionSigner? { get }
 
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? { get }
+
+    var accountInitializationService: BlockchainAccountInitializationService? { get }
 }
 
 // MARK: - Tx history

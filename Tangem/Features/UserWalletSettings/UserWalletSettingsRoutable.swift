@@ -9,17 +9,22 @@
 import Foundation
 import TangemMobileWalletSdk
 
-protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggleRoutable {
-    func openAddNewAccount()
+protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggleRoutable, UserSettingsAccountsRoutable {
     func openOnboardingModal(with options: OnboardingCoordinator.Options)
 
     func openScanCardSettings(with input: ScanCardSettingsViewModel.Input)
     func openReferral(input: ReferralInputModel)
-    func openManageTokens(userWalletModel: UserWalletModel)
+
+    func openManageTokens(
+        walletModelsManager: WalletModelsManager,
+        userTokensManager: UserTokensManager,
+        userWalletConfig: UserWalletConfig
+    )
 
     func openMobileBackupNeeded(userWalletModel: UserWalletModel)
     func openMobileBackupTypes(userWalletModel: UserWalletModel)
-    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext)
+    func openMobileUpgrade(userWalletModel: UserWalletModel)
+    func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel)
 
     func openAppSettings()
 

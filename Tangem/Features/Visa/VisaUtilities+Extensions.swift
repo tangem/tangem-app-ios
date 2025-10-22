@@ -27,10 +27,3 @@ extension VisaUtilities {
         )
     }
 }
-
-extension UserWalletModel {
-    var visaWalletModel: (any WalletModel)? {
-        walletModelsManager.walletModels
-            .first { $0.tokenItem.blockchain == VisaUtilities.visaBlockchain }
-    }
-}

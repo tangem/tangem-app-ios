@@ -31,6 +31,9 @@ struct TokenActionAvailabilityAnalyticsMapper {
             return Analytics.ParameterValue.assetsNotFound
         case .missingAssetRequirement:
             return Analytics.ParameterValue.missingAssetRequirement
+        case .yieldModuleApproveNeeded:
+            // [REDACTED_TODO_COMMENT]
+            return Analytics.ParameterValue.yieldModuleApproveNeeded
         }
     }
 
@@ -52,6 +55,9 @@ struct TokenActionAvailabilityAnalyticsMapper {
             return Analytics.ParameterValue.oldCard
         case .hasOnlyCachedBalance:
             return Analytics.ParameterValue.caching
+        case .yieldModuleApproveNeeded:
+            // [REDACTED_TODO_COMMENT]
+            return Analytics.ParameterValue.yieldModuleApproveNeeded
         }
     }
 
@@ -105,6 +111,9 @@ struct TokenActionAvailabilityAnalyticsMapper {
             return Analytics.ParameterValue.unavailable
         case .demo:
             return Analytics.ParameterValue.demo
+        case .yieldModuleApproveNeeded:
+            // [REDACTED_TODO_COMMENT]
+            return Analytics.ParameterValue.yieldModuleApproveNeeded
         }
     }
 }

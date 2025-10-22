@@ -13,7 +13,7 @@ import TangemLocalization
 class CommonStakingStepsManager {
     private let provider: StakingModelStateProvider
     private let amountStep: SendAmountStep
-    private let validatorsStep: StakingValidatorsStep?
+    private let validatorsStep: StakingValidatorsStep
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
@@ -26,7 +26,7 @@ class CommonStakingStepsManager {
     init(
         provider: StakingModelStateProvider,
         amountStep: SendAmountStep,
-        validatorsStep: StakingValidatorsStep?,
+        validatorsStep: StakingValidatorsStep,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider
@@ -47,7 +47,8 @@ class CommonStakingStepsManager {
             .withWeakCaptureOf(self)
             .sink { stepsManager, state in
                 switch state {
-                case .loading, .networkError, .validationError:
+                case .loading, .networkError, .validationError,
+                     .blockchainAccountInitializationRequired, .blockchainAccountInitializationInProgress:
                     break
 
                 case .readyToApprove:
@@ -171,10 +172,6 @@ extension CommonStakingStepsManager: SendSummaryStepsRoutable {
     func summaryStepRequestEditValidators() {
         guard case .summary = currentStep().type else {
             assertionFailure("This code should only be called from summary")
-            return
-        }
-
-        guard let validatorsStep else {
             return
         }
 
