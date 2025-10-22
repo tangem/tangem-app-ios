@@ -12,8 +12,8 @@ import TangemAssets
 enum WCTransactionSecurityAlertFactory {
     static func makeSecurityAlertState(
         input: WCTransactionSecurityAlertInput
-    ) -> WCTransactionSecurityAlertState? {
-        let state: WCTransactionSecurityAlertState
+    ) -> WCTransactionAlertState? {
+        let state: WCTransactionAlertState
 
         switch input.validationStatus {
         case .malicious, .warning, .error:
