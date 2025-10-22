@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemSdk
 
-protocol DerivationManager {
+protocol DerivationManager: AnyObject {
     var hasPendingDerivations: AnyPublisher<Bool, Never> { get }
     var pendingDerivationsCount: AnyPublisher<Int, Never> { get }
 

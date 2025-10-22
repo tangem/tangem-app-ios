@@ -114,7 +114,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError> {
-        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list))
+        let target = TangemApiTarget(type: ._saveUserWalletTokens(key: key, list: list))
 
         return provider
             .requestPublisher(target)
@@ -122,6 +122,17 @@ extension CommonTangemApiService: TangemApiService {
             .mapTangemAPIError()
             .mapToVoid()
             .eraseToAnyPublisher()
+    }
+
+    func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
+        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            // An empty response (just zero bytes, not "{}", "[{}]" or similar) can't be mapped
+            // into the `EmptyGenericResponseDTO` DTO, therefore we just check for errors and status codes here
+            let _ = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+        }
     }
 
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> {
@@ -408,17 +419,18 @@ extension CommonTangemApiService: TangemApiService {
 
     func saveUserAccounts(
         userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts
-    ) async throws -> String? {
+    ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
         let target = TangemApiTarget(type: .saveUserAccounts(userWalletId: userWalletId, revision: revision, accounts: accounts))
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
             let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
-            // An empty response (just zero bytes, not "{}", "[{}]" or similar) can't be mapped
-            // into the `EmptyGenericResponseDTO` DTO, therefore we just check for errors and status codes here
-            let _ = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+            let accounts: AccountsDTO.Response.Accounts = try response.mapAPIResponseThrowingTangemAPIError(
+                allowRedirectCodes: true,
+                decoder: decoder
+            )
 
-            return revision
+            return (revision: revision, accounts: accounts)
         }
     }
 

@@ -22,6 +22,7 @@ actor CommonAccountModelsManager {
     }
 
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
+    private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
     private let walletModelsManagerFactory: AccountWalletModelsManagerFactory
     private let userTokensManagerFactory: AccountUserTokensManagerFactory
 
@@ -31,23 +32,27 @@ actor CommonAccountModelsManager {
 
     /// - Note: Manual synchronization is used for reads/writes, hence it is safe to mark this as `nonisolated(unsafe)`.
     private nonisolated(unsafe) var unsafeAccountModelsPublisher: AnyPublisher<[AccountModel], Never>?
+    private nonisolated(unsafe) var unsafeAccountModels: [AccountModel] = []
     private nonisolated let criticalSection: Lock
 
     init(
         userWalletId: UserWalletId,
         cryptoAccountsRepository: CryptoAccountsRepository,
+        archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         walletModelsManagerFactory: AccountWalletModelsManagerFactory,
         userTokensManagerFactory: AccountUserTokensManagerFactory,
         areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
+        self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
         self.walletModelsManagerFactory = walletModelsManagerFactory
         self.userTokensManagerFactory = userTokensManagerFactory
         self.areHDWalletsSupported = areHDWalletsSupported
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
         CryptoAccountsGlobalStateProvider.shared.register(self, forIdentifier: userWalletId)
+
         initialize()
     }
 
@@ -152,6 +157,11 @@ actor CommonAccountModelsManager {
                         .standard(cryptoAccounts),
                     ]
                 }
+                .handleEvents(receiveOutput: { [weak self] accountModels in
+                    self?.criticalSection {
+                        self?.unsafeAccountModels = accountModels
+                    }
+                })
                 .eraseToAnyPublisher()
 
             unsafeAccountModelsPublisher = publisher
@@ -200,6 +210,12 @@ extension CommonAccountModelsManager: AccountModelsManager {
     // [REDACTED_TODO_COMMENT]
     nonisolated var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
         .just(output: 0)
+    }
+
+    nonisolated var accountModels: [AccountModel] {
+        criticalSection {
+            unsafeAccountModels
+        }
     }
 
     nonisolated var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {

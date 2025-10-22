@@ -18,28 +18,17 @@ struct TokenItemInfoProviderItemBuilder {
             let tokenItem = walletModel.tokenItem
             let tokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: walletModel.isCustom)
 
-            return (
+            return TokenItemInfoProviderItem(
                 id: walletModel.id,
                 provider: DefaultTokenItemInfoProvider(walletModel: walletModel),
                 tokenItem: tokenItem,
                 tokenIconInfo: tokenIconInfo
             )
-        case .withoutDerivation(let userToken):
-            let tokenItem: TokenItem = {
-                let converter = StorageEntryConverter()
-                let blockchainNetwork = userToken.blockchainNetwork
+        case .withoutDerivation(let tokenItem):
+            let tokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: false)
 
-                if let token = converter.convertToToken(userToken) {
-                    return .token(token, blockchainNetwork)
-                }
-
-                return .blockchain(blockchainNetwork)
-            }()
-
-            let tokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: userToken.isCustom)
-
-            return (
-                id: userToken.walletModelId,
+            return TokenItemInfoProviderItem(
+                id: WalletModelId(tokenItem: tokenItem),
                 provider: TokenWithoutDerivationInfoProvider(),
                 tokenItem: tokenItem,
                 tokenIconInfo: tokenIconInfo

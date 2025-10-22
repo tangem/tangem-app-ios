@@ -65,8 +65,11 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
         let expressFactory = CommonExpressModulesFactory(
             inputModel: .init(
-                userWalletModel: options.userWalletModel,
-                initialWalletModel: options.walletModel
+                userWalletInfo: options.userWalletModel.userWalletInfo,
+                userTokensManager: options.userWalletModel.userTokensManager,
+                walletModelsManager: options.userWalletModel.walletModelsManager,
+                initialWalletModel: options.walletModel,
+                destinationWalletModel: .none
             )
         )
 
@@ -248,7 +251,10 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             input: .init(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
-                expressInput: .init(userWalletModel: userWalletModel)
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
             ),
             type: .send,
             source: .main
@@ -268,7 +274,10 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             input: .init(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
-                expressInput: .init(userWalletModel: userWalletModel)
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
             ),
             type: .sell(parameters: sellParameters),
             source: .tokenDetails
@@ -278,27 +287,12 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     func openExpress(input: CommonExpressModulesFactory.InputModel) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.expressCoordinator = nil
-
-            guard let navigationInfo else {
-                return
-            }
-
-            self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
-        }
-
         let factory = CommonExpressModulesFactory(inputModel: input)
-        let coordinator = ExpressCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
+        let coordinator = makeExpressCoordinator(factory: factory)
 
         let showExpressBlock = { [weak self] in
-            guard let self else { return }
             coordinator.start(with: .default)
-            expressCoordinator = coordinator
+            self?.expressCoordinator = coordinator
         }
 
         Task { @MainActor [tangemStoriesPresenter] in
@@ -340,7 +334,10 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             input: .init(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
-                expressInput: .init(userWalletModel: userWalletModel)
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
             ),
             type: .onramp(parameters: parameters),
             source: .tokenDetails
@@ -365,11 +362,11 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 }
 
-// MARK: - FeeCurrencyNavigating protocol conformance
+// MARK: - SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating protocol conformance
 
-extension TokenDetailsCoordinator: FeeCurrencyNavigating {
+extension TokenDetailsCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
     // [REDACTED_TODO_COMMENT]
-    /// - Note: This coordinator uses a custom implementation of the `FeeCurrencyNavigating.openFeeCurrency(for:userWalletModel:)` method.
+    /// - Note: This coordinator uses a custom implementation of the `SendFeeCurrencyNavigating.openFeeCurrency(for:userWalletModel:)` method.
     func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
         openTokenDetails(for: model)
     }
