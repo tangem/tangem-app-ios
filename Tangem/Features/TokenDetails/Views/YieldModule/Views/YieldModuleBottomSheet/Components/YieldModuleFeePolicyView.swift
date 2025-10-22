@@ -60,7 +60,6 @@ extension YieldModuleStartView {
         private var serviceFeeText: some View {
             Text(Localization.yieldModuleFeePolicyTangemServiceFeeTitle)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .frame(alignment: .leading)
         }
     }
 }
