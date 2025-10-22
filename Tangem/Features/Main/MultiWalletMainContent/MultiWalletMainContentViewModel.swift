@@ -115,6 +115,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.optionsEditing = optionsEditing
         self.coordinator = coordinator
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
+
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
             totalBalanceProvider: userWalletModel
@@ -133,12 +134,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             tangemPayAccountPublisher
                 .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
                 .receiveOnMain()
-                .assign(to: &$tangemPayNotificationInputs)
+                .assign(to: \.tangemPayNotificationInputs, on: self, ownership: .weak)
+                .store(in: &bag)
 
             tangemPayAccountPublisher
                 .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
                 .receiveOnMain()
-                .assign(to: &$tangemPayCardIssuingInProgress)
+                .assign(to: \.tangemPayCardIssuingInProgress, on: self, ownership: .weak)
+                .store(in: &bag)
 
             tangemPayAccountPublisher
                 .withWeakCaptureOf(self)
@@ -159,7 +162,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                         }
                 }
                 .receiveOnMain()
-                .assign(to: &$tangemPayAccountViewModel)
+                .assign(to: \.tangemPayAccountViewModel, on: self, ownership: .weak)
+                .store(in: &bag)
         }
     }
 
@@ -369,9 +373,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             userWalletModel: userWalletModel,
             walletModelsManager: userWalletModel.walletModelsManager
         )
+        let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(
+            accountModelsManager: userWalletModel.accountModelsManager
+        )
 
         return NFTEntrypointViewModel(
             nftManager: userWalletModel.nftManager,
+            accountForCollectionsProvider: accountForNFTCollectionsProvider,
             navigationContext: navigationContext,
             analytics: NFTAnalytics.Entrypoint(
                 logCollectionsOpen: { state, collectionsCount, nftsCount, dummyCollectionsCount in
