@@ -73,6 +73,10 @@ extension WalletConnectV2PersonalSignHandler: WalletConnectMessageHandler {
         request.stringRepresentation
     }
 
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        .empty
+    }
+
     func handle() async throws -> RPCResult {
         let personalMessageData = makePersonalMessageData(dataToSign)
         let hash = personalMessageData.sha3(.keccak256)
