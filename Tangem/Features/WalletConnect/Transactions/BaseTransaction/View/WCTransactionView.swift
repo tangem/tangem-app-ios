@@ -53,6 +53,12 @@ struct WCTransactionView: View {
             case .securityAlert(let viewModel):
                 WCTransactionSecurityAlertView(viewModel: viewModel)
                     .transition(.content)
+            case .multipleTransactionsAlert(let viewModel):
+                WCMultipleTransactionAlertView(viewModel: viewModel)
+                    .transition(.content)
+            case .loading:
+                WCTransactionSendLoadingView()
+                    .transition(.content)
             }
         }
     }
@@ -73,8 +79,11 @@ struct WCTransactionView: View {
             title = Localization.commonNetworkFeeTitle
         case .customAllowance:
             title = Localization.wcCustomAllowanceTitle
-        case .securityAlert:
+        case .securityAlert, .multipleTransactionsAlert:
             title = nil
+        case .loading:
+            title = nil
+            backButtonAction = nil
         }
 
         return FloatingSheetNavigationBarView(
@@ -113,6 +122,12 @@ struct WCTransactionView: View {
                 securityAlertFooter(viewModel: viewModel)
                     .transformEffect(.identity)
                     .transition(.footer)
+            case .multipleTransactionsAlert(let viewModel):
+                multipleTransactionAlertFooter(viewModel: viewModel)
+                    .transformEffect(.identity)
+                    .transition(.footer)
+            case .loading:
+                EmptyView()
             }
         }
         .padding(16)
@@ -176,12 +191,12 @@ struct WCTransactionView: View {
 
     private func securityAlertFooter(viewModel: WCTransactionSecurityAlertViewModel) -> some View {
         VStack(spacing: 8) {
-            makeSecurityAlertButton(
+            makeAlertButton(
                 from: viewModel.state.primaryButton,
                 action: { viewModel.handleViewAction(.primaryButtonTapped) }
             )
 
-            makeSecurityAlertButton(
+            makeAlertButton(
                 from: viewModel.state.secondaryButton,
                 icon: .trailing(Assets.tangemIcon),
                 action: { viewModel.handleViewAction(.secondaryButtonTapped) }
@@ -189,8 +204,22 @@ struct WCTransactionView: View {
         }
     }
 
-    private func makeSecurityAlertButton(
-        from state: WCTransactionSecurityAlertState.ButtonSettings,
+    private func multipleTransactionAlertFooter(viewModel: WCMultipleTransactionAlertViewModel) -> some View {
+        VStack(spacing: 8) {
+            makeAlertButton(
+                from: viewModel.state.secondaryButton,
+                action: { viewModel.handleViewAction(.secondaryButtonTapped) }
+            )
+
+            makeAlertButton(
+                from: viewModel.state.primaryButton,
+                action: { viewModel.handleViewAction(.primaryButtonTapped) }
+            )
+        }
+    }
+
+    private func makeAlertButton(
+        from state: WCTransactionAlertState.ButtonSettings,
         icon: MainButton.Icon? = nil,
         action: @escaping () -> Void
     ) -> MainButton {
