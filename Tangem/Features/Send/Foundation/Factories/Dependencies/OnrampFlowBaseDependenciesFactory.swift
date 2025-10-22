@@ -41,7 +41,7 @@ extension OnrampFlowBaseDependenciesFactory {
             onrampRepository: repository,
             dataRepository: dataRepository,
             analyticsLogger: analyticsLogger,
-            providerItemSorter: ProviderItemSorter(sortType: .byOnrampProviderExpectedAmount),
+            providerItemSorter: ProviderItemSorterByOnrampProviderExpectedAmount(),
             preferredValues: preferredValues
         )
 
