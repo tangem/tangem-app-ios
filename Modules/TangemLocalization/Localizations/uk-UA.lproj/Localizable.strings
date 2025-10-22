@@ -22,6 +22,8 @@
 "account_archived_recover_error_title" = "Can't recover account";
 "account_archived_recover" = "Recover";
 "account_archived_title" = "Archived";
+"account_could_not_archive_referral_program_message" = "This account participates in the referral program.";
+"account_could_not_archive_referral_program_title" = "This account cannot be archived.";
 "account_could_not_archive" = "We couldn’t archive account. Please try again later.";
 "account_could_not_create" = "We couldn’t create account. Please try again later.";
 "account_create_success_message" = "Account created";
@@ -42,6 +44,8 @@
 "account_form_title_edit" = "Edit account";
 "account_label_tokens_info" = "%1$@ in %2$@";
 "account_main_account_title" = "Main account";
+"account_recover_limit_dialog_description" = "You have already exceeded the limit of %1$@ active accounts. Archive one to recover";
+"account_recover_limit_dialog_title" = "Can’t recover account";
 "account_recover_success_message" = "Account recovered";
 "account_reorder_description" = "Long tap on an account to reorder accounts";
 "account_unsaved_dialog_action_first" = "Keep Editing";
@@ -1218,7 +1222,7 @@
 "story_web3_title" = "Web 3.0 сумісність";
 "sui_not_enough_coin_for_fee_description" = "Для відправки потрібна вхідна транзакція на суму не менше %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостатньо коштів";
-"swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
+"swap_approve_description" = "Підтверджуючи, ви дозволяєте смартконтракту використовувати ваші токени в майбутніх транзакціях.";
 "swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "Мережа стягує комісію за схвалення токену за підтвердження, що саме ви дозволяєте використовувати ваш токен для обміну.";
 "swap_promo_text" = "Обмінюйте більше токенів за вигіднішим курсом прямо у своєму гаманці.";
@@ -1623,7 +1627,7 @@
 "wc_alert_wrong_card_title" = "Схоже, виникла проблема";
 "wc_all_dapps_disconnected" = "Усі dApps відключені";
 "wc_allow_to_spend" = "Allow to spend";
-"wc_approve_description" = "By approving, you allow dApp or Smart contract to use tokens in future transactions.";
+"wc_approve_description" = "Підтверджуючи, ви дозволяєте dApp або смартконтракту використовувати токени в майбутніх транзакціях.";
 "wc_common_address" = "Адреса";
 "wc_common_connect" = "Підключення";
 "wc_common_loading" = "Loading";
@@ -1719,7 +1723,7 @@
 "xtz_withdrawal_message_warning" = "Щоб не платити підвищену комісію при наступному поповненні гаманця, зменште суму на %@ XTZ";
 "yield_module_alert_description" = "Your funds are currently supplied to the Aave protocol, but you can manage them at any time.";
 "yield_module_alert_title" = "Your %@ is supplied to Aave";
-"yield_module_amount_not_transfered_to_aave_title" = "The amount received, %1$@ %2$@ was not deposited to Aave.";
+"yield_module_amount_not_transfered_to_aave_title" = "Supplying  %1$@ %2$@ to Aave is pending";
 "yield_module_approve_needed_notification_cta" = "Give Approve";
 "yield_module_approve_needed_notification_description" = "Something went wrong with your previous approval, so we need a new one. Choose how you’d like to proceed.";
 "yield_module_approve_needed_notification_title" = "Approve needed";
@@ -1744,10 +1748,11 @@
 "yield_module_fee_policy_sheet_current_fee_note" = "This is the current supply fee on %@. The actual cost will be shown on the activation tab.";
 "yield_module_fee_policy_sheet_current_fee_title" = "Current fee";
 "yield_module_fee_policy_sheet_description" = "All future %@ deposits will be supplied to Aave automatically, with the transaction fee deducted.";
+"yield_module_fee_policy_sheet_fee_note" = "An approximate network fee of %1$@ (%2$@) will be deducted from each future top-up, and it won’t exceed your %3$@  (%4$@) limit.";
 "yield_module_fee_policy_sheet_max_fee_note" = "If network fees rise above maximum fee, the transaction won’t go through until they decrease. You can change this limit later.";
 "yield_module_fee_policy_sheet_max_fee_title" = "Maximum fee";
 "yield_module_fee_policy_sheet_min_amount_note" = "Це найменший депозит, який можна надіслати в Aave. Щоб депозити залишалися прибутковими, ми не обробляємо їх, коли комісія мережі перевищує 4%% від суми.";
-"yield_module_fee_policy_sheet_min_amount_title" = "Minimal deposit";
+"yield_module_fee_policy_sheet_min_amount_title" = "Minimum top-up";
 "yield_module_fee_policy_sheet_title" = "Fee policy";
 "yield_module_fee_policy_tangem_service_fee_title" = "Tangem also takes a 3%% service fee on yield earned.";
 "yield_module_high_fee_error" = "Your funds will be automatically supplied to Aave once network fees are lower or your balance meets the minimum required amount.";
@@ -1756,7 +1761,7 @@
 "yield_module_main_view_approve_notification_title" = "Token approvals needed";
 "yield_module_network_fee_unreachable_notification_description" = "Check your network connection";
 "yield_module_network_fee_unreachable_notification_title" = "Network fee info unreachable";
-"yield_module_promo_screen_auto_balance_subtitle" = "Every deposit you make will be suplied to Aave automatically.";
+"yield_module_promo_screen_auto_balance_subtitle" = "Every deposit you make will be supplied to Aave automatically.";
 "yield_module_promo_screen_auto_balance_title" = "Auto-Transfer to Aave";
 "yield_module_promo_screen_cash_out_subtitle" = "Send, swap, or sell your funds instantly, anytime you want.";
 "yield_module_promo_screen_cash_out_title" = "Access your funds anytime";
