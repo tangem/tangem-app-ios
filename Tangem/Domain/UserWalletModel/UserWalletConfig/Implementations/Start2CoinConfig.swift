@@ -51,17 +51,17 @@ extension Start2CoinConfig: UserWalletConfig {
         [defaultBlockchain]
     }
 
-    var defaultBlockchains: [StorageEntry] {
+    var defaultBlockchains: [TokenItem] {
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
-        let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+        let entry = TokenItem.blockchain(network)
         return [entry]
     }
 
-    var persistentBlockchains: [StorageEntry]? {
+    var persistentBlockchains: [TokenItem] {
         return defaultBlockchains
     }
 
-    var embeddedBlockchain: StorageEntry? {
+    var embeddedBlockchain: TokenItem? {
         return defaultBlockchains.first
     }
 
@@ -87,14 +87,8 @@ extension Start2CoinConfig: UserWalletConfig {
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
-        case .send:
+        case .signing:
             return .available
-        case .signedHashesCounter:
-            if card.firmwareVersion.type == .release {
-                return .available
-            }
-
-            return .hidden
         case .accessCode:
             return .hidden
         case .passcode:
@@ -115,17 +109,9 @@ extension Start2CoinConfig: UserWalletConfig {
             return .hidden
         case .resetToFactory:
             return .hidden
-        case .receive:
-            return .available
-        case .withdrawal:
-            return .available
         case .hdWallets:
             return .hidden
         case .staking:
-            return .hidden
-        case .topup:
-            return .available
-        case .tokenSynchronization:
             return .hidden
         case .referralProgram:
             return .hidden
@@ -136,8 +122,6 @@ extension Start2CoinConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .accessCodeRecoverySettings:
-            return .hidden
-        case .promotion:
             return .hidden
         case .nft:
             return .hidden
@@ -155,7 +139,9 @@ extension Start2CoinConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
-        case .isHardwareLimited:
+        case .nfcInteraction:
+            return .available
+        case .transactionPayloadLimit:
             return .available
         }
     }
