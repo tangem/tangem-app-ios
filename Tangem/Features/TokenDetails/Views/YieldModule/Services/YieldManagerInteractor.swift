@@ -79,8 +79,10 @@ actor YieldManagerInteractor {
     func clearAll() {
         enterFee = nil
         exitFee = nil
+        approveFee = nil
         enterFeeTask = nil
         exitFeeTask = nil
+        approveFeeTask = nil
     }
 
     func getEnterFee() async throws -> YieldTransactionFee {
