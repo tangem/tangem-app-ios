@@ -164,7 +164,7 @@ actor CommonAccountModelsManager {
         let persistentConfig = CryptoAccountPersistentConfig(
             derivationIndex: cryptoAccount.id.toPersistentIdentifier(),
             name: cryptoAccount.name,
-            iconName: cryptoAccount.icon.name.rawValue,
+            iconName: cryptoAccount.icon.nameOrLetter,
             iconColor: cryptoAccount.icon.color.rawValue,
         )
         // [REDACTED_TODO_COMMENT]
@@ -178,6 +178,11 @@ actor CommonAccountModelsManager {
 extension CommonAccountModelsManager: AccountModelsManager {
     nonisolated var canAddCryptoAccounts: Bool {
         areHDWalletsSupported
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    nonisolated var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+        .just(output: true)
     }
 
     nonisolated var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
@@ -195,7 +200,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         let persistentConfig = CryptoAccountPersistentConfig(
             derivationIndex: newDerivationIndex,
             name: name,
-            iconName: icon.name.rawValue,
+            iconName: icon.nameOrLetter,
             iconColor: icon.color.rawValue
         )
         // [REDACTED_TODO_COMMENT]
