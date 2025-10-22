@@ -26,6 +26,7 @@ protocol YieldModuleManager {
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String
 
     func minimalFee() async throws -> Decimal
+    func currentNetworkFee() async throws -> Decimal
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
     func fetchChartData() async throws -> YieldChartData
@@ -123,6 +124,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             balance: balance
         )
         _walletModelData.send(data)
+    }
+
+    func currentNetworkFee() async throws -> Decimal {
+        try await transactionFeeProvider.currentNetworkFee()
     }
 
     func minimalFee() async throws -> Decimal {

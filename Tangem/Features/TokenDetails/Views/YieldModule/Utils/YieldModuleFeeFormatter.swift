@@ -30,6 +30,10 @@ struct YieldModuleFeeFormatter {
 
     // MARK: - Public Implementation
 
+    func createCurrentNetworkFeeString(networkFee: Decimal) -> String {
+        balanceFormatter.formatFiatBalance(networkFee, currencyCode: AppConstants.usdCurrencyCode)
+    }
+
     func createMaxFeeString(maxFeeCurrencyFee: Decimal, maxFiatFee: Decimal) async throws -> String {
         guard let feeCurrencyId = feeCurrency.id, let tokenId = token.id else {
             throw YieldModuleFormatterFee.cannotFormatFee

@@ -18,18 +18,22 @@ final class YieldModuleNoticeInteractor {
     /// If the value is `true` or missing (`nil`), returns false.
     /// If the value is `false` marks the alert as shown
     func shouldShowYieldModuleAlert(for tokenItem: TokenItem) -> Bool {
-        guard case .token(let token, let blockchainNetwork) = tokenItem else {
-            return false
-        }
+        // [REDACTED_TODO_COMMENT]
+        // but it's kept here for the second iteration.
+        return false
 
-        let key = yieldKey(contractAddress: token.contractAddress, networkId: blockchainNetwork.blockchain.networkId)
-
-        guard shownYieldModuleAlert[key] == false else {
-            return false
-        }
-
-        shownYieldModuleAlert[key] = true
-        return true
+//        guard case .token(let token, let blockchainNetwork) = tokenItem else {
+//            return false
+//        }
+//
+//        let key = yieldKey(contractAddress: token.contractAddress, networkId: blockchainNetwork.blockchain.networkId)
+//
+//        guard shownYieldModuleAlert[key] == false else {
+//            return false
+//        }
+//
+//        shownYieldModuleAlert[key] = true
+//        return true
     }
 
     func markWithdrawalAlertShouldShow(for tokenItem: TokenItem) {
