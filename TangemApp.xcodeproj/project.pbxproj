@@ -3537,6 +3537,10 @@
 		EF154CC42DA67E4F004134C0 /* RavencoinTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF154CC32DA67E4F004134C0 /* RavencoinTransactionTests.swift */; };
 		EF15D62A2E30E5020080B000 /* SendDestinationInteractorSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF15D6292E30E5020080B000 /* SendDestinationInteractorSaver.swift */; };
 		EF15D6312E30EE790080B000 /* SendNewAmountInteractorSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF15D6302E30EE790080B000 /* SendNewAmountInteractorSaver.swift */; };
+		EF170E772EA0FCFF005AE9A0 /* NewActionButtonsSwapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF170E762EA0FCFF005AE9A0 /* NewActionButtonsSwapViewModel.swift */; };
+		EF170E792EA100D1005AE9A0 /* NewActionButtonsSwapHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF170E782EA100D1005AE9A0 /* NewActionButtonsSwapHeaderView.swift */; };
+		EF170E7B2EA1077F005AE9A0 /* NewActionButtonsSwapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF170E7A2EA1077F005AE9A0 /* NewActionButtonsSwapView.swift */; };
+		EF170E7F2EA1408C005AE9A0 /* NewTokenSelectorItemSwapAvailabilityProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF170E7E2EA1408C005AE9A0 /* NewTokenSelectorItemSwapAvailabilityProviderFactory.swift */; };
 		EF175D722E8BF93500B69415 /* StakingValidatorRewardRateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF175D712E8BF93500B69415 /* StakingValidatorRewardRateFormatter.swift */; };
 		EF175D742E8C26E300B69415 /* NewTokenSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF175D732E8C26E300B69415 /* NewTokenSelectorView.swift */; };
 		EF175D772E8C27FD00B69415 /* NewTokenSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF175D762E8C27FD00B69415 /* NewTokenSelectorViewModel.swift */; };
@@ -3761,6 +3765,7 @@
 		EF6CCBEB2C91D7C70002D2B4 /* CommonSendAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CCBEA2C91D7C50002D2B4 /* CommonSendAlertBuilder.swift */; };
 		EF6CCBED2C91D7DF0002D2B4 /* StakingSendAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CCBEC2C91D7DE0002D2B4 /* StakingSendAlertBuilder.swift */; };
 		EF6D642A2D56459400EA2BF2 /* AccountTotalBalanceStateBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6D64292D56459400EA2BF2 /* AccountTotalBalanceStateBuilder.swift */; };
+		EF6DFA332EA6D47300C5710D /* SwapNewTokenSelectorWalletsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6DFA322EA6D47300C5710D /* SwapNewTokenSelectorWalletsProvider.swift */; };
 		EF6ECA5C2D48215600415F23 /* StakingLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6ECA5B2D48215500415F23 /* StakingLogger.swift */; };
 		EF6ECA602D4821CB00415F23 /* ExpressLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6ECA5F2D4821C500415F23 /* ExpressLogger.swift */; };
 		EF6ECA622D482F3D00415F23 /* BlockchainSDKLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6ECA612D482F3500415F23 /* BlockchainSDKLogger.swift */; };
@@ -3962,6 +3967,7 @@
 		EF9F907F299CFCC7006F638F /* WebViewContainerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F907E299CFCC7006F638F /* WebViewContainerViewModel.swift */; };
 		EF9F9081299CFCE9006F638F /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F9080299CFCE9006F638F /* WebView.swift */; };
 		EF9F9090299FAE84006F638F /* SupportChatInputModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F908F299FAE84006F638F /* SupportChatInputModel.swift */; };
+		EFA01B2F2E968D7D005C91B8 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA01B252E968D7D005C91B8 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift */; };
 		EFA01B302E968D7D005C91B8 /* NewTokenSelectorItemAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA01B242E968D7D005C91B8 /* NewTokenSelectorItemAvailabilityProvider.swift */; };
 		EFA01B362E968D7D005C91B8 /* NewTokenSelectorViewModelOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA01B2D2E968D7D005C91B8 /* NewTokenSelectorViewModelOutput.swift */; };
 		EFA1547E2CD24B7C00A0642C /* OnrampAmountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA1547D2CD24B7700A0642C /* OnrampAmountInteractor.swift */; };
@@ -4087,7 +4093,6 @@
 		EFBC5C792C00A79E00B662E0 /* StakeKitStakingAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C782C00A79E00B662E0 /* StakeKitStakingAPIService.swift */; };
 		EFBC5C8E2C00B8A000B662E0 /* StakeKitDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C8D2C00B8A000B662E0 /* StakeKitDTO.swift */; };
 		EFBC5C902C00B8B800B662E0 /* StakeKitDTO+Yield.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C8F2C00B8B800B662E0 /* StakeKitDTO+Yield.swift */; };
-		EFBD0B942EA78D6C0059FC09 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBD0B922EA78D6C0059FC09 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift */; };
 		EFC1AB732D79E618005F1C95 /* UTXONetworkAddressInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC1AB722D79E618005F1C95 /* UTXONetworkAddressInfoProvider.swift */; };
 		EFC377E02E7C268400B7B86A /* OnrampAmountBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC377DF2E7C268400B7B86A /* OnrampAmountBadge.swift */; };
 		EFC377E32E7C29C500B7B86A /* OnrampProviderProcessingTimeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC377E22E7C29C500B7B86A /* OnrampProviderProcessingTimeFormatter.swift */; };
@@ -7951,6 +7956,10 @@
 		EF154CC32DA67E4F004134C0 /* RavencoinTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RavencoinTransactionTests.swift; sourceTree = "<group>"; };
 		EF15D6292E30E5020080B000 /* SendDestinationInteractorSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationInteractorSaver.swift; sourceTree = "<group>"; };
 		EF15D6302E30EE790080B000 /* SendNewAmountInteractorSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewAmountInteractorSaver.swift; sourceTree = "<group>"; };
+		EF170E762EA0FCFF005AE9A0 /* NewActionButtonsSwapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewActionButtonsSwapViewModel.swift; sourceTree = "<group>"; };
+		EF170E782EA100D1005AE9A0 /* NewActionButtonsSwapHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewActionButtonsSwapHeaderView.swift; sourceTree = "<group>"; };
+		EF170E7A2EA1077F005AE9A0 /* NewActionButtonsSwapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewActionButtonsSwapView.swift; sourceTree = "<group>"; };
+		EF170E7E2EA1408C005AE9A0 /* NewTokenSelectorItemSwapAvailabilityProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenSelectorItemSwapAvailabilityProviderFactory.swift; sourceTree = "<group>"; };
 		EF175D712E8BF93500B69415 /* StakingValidatorRewardRateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingValidatorRewardRateFormatter.swift; sourceTree = "<group>"; };
 		EF175D732E8C26E300B69415 /* NewTokenSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenSelectorView.swift; sourceTree = "<group>"; };
 		EF175D762E8C27FD00B69415 /* NewTokenSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenSelectorViewModel.swift; sourceTree = "<group>"; };
@@ -8183,6 +8192,7 @@
 		EF6CCBEA2C91D7C50002D2B4 /* CommonSendAlertBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSendAlertBuilder.swift; sourceTree = "<group>"; };
 		EF6CCBEC2C91D7DE0002D2B4 /* StakingSendAlertBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSendAlertBuilder.swift; sourceTree = "<group>"; };
 		EF6D64292D56459400EA2BF2 /* AccountTotalBalanceStateBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTotalBalanceStateBuilder.swift; sourceTree = "<group>"; };
+		EF6DFA322EA6D47300C5710D /* SwapNewTokenSelectorWalletsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapNewTokenSelectorWalletsProvider.swift; sourceTree = "<group>"; };
 		EF6ECA5B2D48215500415F23 /* StakingLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingLogger.swift; sourceTree = "<group>"; };
 		EF6ECA5F2D4821C500415F23 /* ExpressLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressLogger.swift; sourceTree = "<group>"; };
 		EF6ECA612D482F3500415F23 /* BlockchainSDKLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainSDKLogger.swift; sourceTree = "<group>"; };
@@ -8387,6 +8397,7 @@
 		EF9F9080299CFCE9006F638F /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		EF9F908F299FAE84006F638F /* SupportChatInputModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportChatInputModel.swift; sourceTree = "<group>"; };
 		EFA01B242E968D7D005C91B8 /* NewTokenSelectorItemAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenSelectorItemAvailabilityProvider.swift; sourceTree = "<group>"; };
+		EFA01B252E968D7D005C91B8 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenSelectorItemBuyAvailabilityProviderFactory.swift; sourceTree = "<group>"; };
 		EFA01B2D2E968D7D005C91B8 /* NewTokenSelectorViewModelOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenSelectorViewModelOutput.swift; sourceTree = "<group>"; };
 		EFA1547D2CD24B7700A0642C /* OnrampAmountInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountInteractor.swift; sourceTree = "<group>"; };
 		EFA1547F2CD24B8000A0642C /* OnrampAmountInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountInputOutput.swift; sourceTree = "<group>"; };
@@ -8509,7 +8520,6 @@
 		EFBC5C782C00A79E00B662E0 /* StakeKitStakingAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitStakingAPIService.swift; sourceTree = "<group>"; };
 		EFBC5C8D2C00B8A000B662E0 /* StakeKitDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitDTO.swift; sourceTree = "<group>"; };
 		EFBC5C8F2C00B8B800B662E0 /* StakeKitDTO+Yield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakeKitDTO+Yield.swift"; sourceTree = "<group>"; };
-		EFBD0B922EA78D6C0059FC09 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenSelectorItemBuyAvailabilityProviderFactory.swift; sourceTree = "<group>"; };
 		EFC1AB722D79E618005F1C95 /* UTXONetworkAddressInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXONetworkAddressInfoProvider.swift; sourceTree = "<group>"; };
 		EFC377DF2E7C268400B7B86A /* OnrampAmountBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountBadge.swift; sourceTree = "<group>"; };
 		EFC377E22E7C29C500B7B86A /* OnrampProviderProcessingTimeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampProviderProcessingTimeFormatter.swift; sourceTree = "<group>"; };
@@ -20510,6 +20520,7 @@
 			children = (
 				EF0423692E996D0800D80B0B /* NewTokenSelectorWalletsProvider.swift */,
 				EF04236C2E996D7400D80B0B /* CommonNewTokenSelectorWalletsProvider.swift */,
+				EF6DFA322EA6D47300C5710D /* SwapNewTokenSelectorWalletsProvider.swift */,
 			);
 			path = NewTokenSelectorWalletsProvider;
 			sourceTree = "<group>";
@@ -20721,6 +20732,25 @@
 				EFC990192CD4F0A90098B7C8 /* CommonOnrampProviderManager.swift */,
 			);
 			path = OnrampProviderManager;
+			sourceTree = "<group>";
+		};
+		EF170E742EA0FCA1005AE9A0 /* Buy */ = {
+			isa = PBXGroup;
+			children = (
+				EFFE8C582E983E0A00F9F06B /* NewActionButtonsBuyView.swift */,
+				EFFE8C562E98296600F9F06B /* NewActionButtonsBuyViewModel.swift */,
+			);
+			path = Buy;
+			sourceTree = "<group>";
+		};
+		EF170E752EA0FCA7005AE9A0 /* Swap */ = {
+			isa = PBXGroup;
+			children = (
+				EF170E7A2EA1077F005AE9A0 /* NewActionButtonsSwapView.swift */,
+				EF170E762EA0FCFF005AE9A0 /* NewActionButtonsSwapViewModel.swift */,
+				EF170E782EA100D1005AE9A0 /* NewActionButtonsSwapHeaderView.swift */,
+			);
+			path = Swap;
 			sourceTree = "<group>";
 		};
 		EF175D752E8C26E700B69415 /* NewTokenSelectorView */ = {
@@ -22460,8 +22490,9 @@
 		EFA01B262E968D7D005C91B8 /* NewTokenSelectorItemAvailabilityProvider */ = {
 			isa = PBXGroup;
 			children = (
-				EFBD0B922EA78D6C0059FC09 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift */,
 				EFA01B242E968D7D005C91B8 /* NewTokenSelectorItemAvailabilityProvider.swift */,
+				EFA01B252E968D7D005C91B8 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift */,
+				EF170E7E2EA1408C005AE9A0 /* NewTokenSelectorItemSwapAvailabilityProviderFactory.swift */,
 			);
 			path = NewTokenSelectorItemAvailabilityProvider;
 			sourceTree = "<group>";
@@ -23712,8 +23743,8 @@
 		EFFE8C552E98225F00F9F06B /* NewActionButtons */ = {
 			isa = PBXGroup;
 			children = (
-				EFFE8C582E983E0A00F9F06B /* NewActionButtonsBuyView.swift */,
-				EFFE8C562E98296600F9F06B /* NewActionButtonsBuyViewModel.swift */,
+				EF170E752EA0FCA7005AE9A0 /* Swap */,
+				EF170E742EA0FCA1005AE9A0 /* Buy */,
 			);
 			path = NewActionButtons;
 			sourceTree = "<group>";
@@ -24677,6 +24708,7 @@
 				DC7D3A0929E065E3007BCD23 /* BackupHelper.swift in Sources */,
 				DC72548C2A02B97A0003FE1B /* ResetToFactoryViewModelInput.swift in Sources */,
 				B03156A82A86369B001D9646 /* DefaultTokenItemInfoProvider.swift in Sources */,
+				EF170E792EA100D1005AE9A0 /* NewActionButtonsSwapHeaderView.swift in Sources */,
 				0FA453B62E1D3AFE0055B5BB /* MobileWrongAccessCodeStore.swift in Sources */,
 				0FA453B82E1D3AFE0055B5BB /* MobileUnlockView.swift in Sources */,
 				0FA453BA2E1D3AFE0055B5BB /* MobileAccessCodeState.swift in Sources */,
@@ -24713,6 +24745,7 @@
 				EFC7AD612DD6128500AE78E1 /* SendNewAmountTokenViewData.swift in Sources */,
 				B62EE31C2B28977B006BA412 /* RateAppResponse.swift in Sources */,
 				0F8414AD2E96A8D600D03FB6 /* AddWalletSelectorCoordinator.swift in Sources */,
+				EF6DFA332EA6D47300C5710D /* SwapNewTokenSelectorWalletsProvider.swift in Sources */,
 				0F84C11D2E142C4E00DC7FB1 /* MobileFinishActivationNeededViewModel.swift in Sources */,
 				EF4041432DE4819D002F996A /* FiatItem.swift in Sources */,
 				C2321F3E2E3018CD006428A8 /* WalletConnectAnalyticsLogger.swift in Sources */,
@@ -25133,6 +25166,7 @@
 				308631562E40E32600D58D37 /* AlertBuilder.swift in Sources */,
 				B04EADEA2A80D62E009B5768 /* SingleTokenBaseRoutable.swift in Sources */,
 				30B64C7E2DB8E1E3002FAE12 /* NFTAssetDetailsCoordinatorView.swift in Sources */,
+				EF170E7B2EA1077F005AE9A0 /* NewActionButtonsSwapView.swift in Sources */,
 				EF15D6312E30EE790080B000 /* SendNewAmountInteractorSaver.swift in Sources */,
 				DAAEC38D2BF31A8800184D7C /* SendFeatureProvider.swift in Sources */,
 				C27672D52DE726AA0037F1FC /* WalletConnectDAppDomainVerificationViewEvent.swift in Sources */,
@@ -25471,6 +25505,7 @@
 				B06997D02692EC5E0014A676 /* SellService.swift in Sources */,
 				EFBBA4982E8A84BB004F48ED /* SendSuggestedWalletsFactory.swift in Sources */,
 				DCBDC9E92CD14082003E76DD /* StoriesDelegate.swift in Sources */,
+				EF170E7F2EA1408C005AE9A0 /* NewTokenSelectorItemSwapAvailabilityProviderFactory.swift in Sources */,
 				EF15D62A2E30E5020080B000 /* SendDestinationInteractorSaver.swift in Sources */,
 				EF07082C2A16474F0072AA0E /* FeeFormatter.swift in Sources */,
 				EFA9FCA52C2AE91A00B0888A /* SendAmountInputOutput.swift in Sources */,
@@ -25846,6 +25881,7 @@
 				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,
 				DCBC945D299404510050BC35 /* CommonAnalyticsSessionContext.swift in Sources */,
 				B00371BE2A8A5E5900D77A4B /* FakeUserTokensManager.swift in Sources */,
+				EF170E772EA0FCFF005AE9A0 /* NewActionButtonsSwapViewModel.swift in Sources */,
 				DC261CA9292CF56600875E64 /* AuthCoordinatorView.swift in Sources */,
 				DC7C45672CF8B35000747589 /* ActionButtonsNotificationEvent.swift in Sources */,
 				DA76BF4A2CEF958700199317 /* OnrampPendingTransactionRecord.swift in Sources */,
@@ -26077,6 +26113,7 @@
 				B6E9A8C52A997B09005CF137 /* MainFooterView.swift in Sources */,
 				EF0F34812E997C45000D9BC7 /* NewTokenSelectorWalletItemView.swift in Sources */,
 				EF0F34822E997C45000D9BC7 /* NewTokenSelectorWalletItemViewModel.swift in Sources */,
+				EFA01B2F2E968D7D005C91B8 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift in Sources */,
 				EFA01B302E968D7D005C91B8 /* NewTokenSelectorItemAvailabilityProvider.swift in Sources */,
 				EA12320D2E9CF204009900EC /* OnrampAllOfferViewModelBuilder.swift in Sources */,
 				EFA01B362E968D7D005C91B8 /* NewTokenSelectorViewModelOutput.swift in Sources */,
@@ -26506,7 +26543,6 @@
 				B6E9A8C72A9A35B5005CF137 /* MainFooterViewModel.swift in Sources */,
 				B064284629BF451F00A8AA20 /* OnboardingSeedPhraseImportView.swift in Sources */,
 				DC26EE012E202BD50042C068 /* UserWalletBiometricsUnlocker.swift in Sources */,
-				EFBD0B942EA78D6C0059FC09 /* NewTokenSelectorItemBuyAvailabilityProviderFactory.swift in Sources */,
 				2DBE29C32B3C4A8100109D5E /* DetentBottomSheetModifier.swift in Sources */,
 				B0F3391D2BEB4C9500441688 /* LoadingSingleWalletMainContentViewModel.swift in Sources */,
 				DC283AB82CCA60BB0043F7D2 /* ActionButtonViewModel.swift in Sources */,
