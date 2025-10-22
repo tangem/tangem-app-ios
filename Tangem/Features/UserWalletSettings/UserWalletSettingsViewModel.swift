@@ -198,10 +198,17 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        forgetViewModel = DefaultRowViewModel(
-            title: Localization.settingsForgetWallet,
-            action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
-        )
+        if userWalletModel.config.hasFeature(.userWalletBackup) {
+            forgetViewModel = DefaultRowViewModel(
+                title: Localization.settingsForgetWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapRemoveMobileWallet)
+            )
+        } else {
+            forgetViewModel = DefaultRowViewModel(
+                title: Localization.settingsForgetWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
+            )
+        }
     }
 
     func setupMobileViewModels() {
@@ -298,6 +305,10 @@ private extension UserWalletSettingsViewModel {
         )
     }
 
+    func didTapRemoveMobileWallet() {
+        coordinator?.openMobileRemoveWalletNotification(userWalletModel: userWalletModel)
+    }
+
     func didConfirmWalletDeletion() {
         userWalletRepository.delete(userWalletId: userWalletModel.userWalletId)
         coordinator?.dismiss()
@@ -377,10 +388,15 @@ private extension UserWalletSettingsViewModel {
             return
         }
 
+        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
+            .accounts(userWalletModel.accountModelsManager) :
+            .plainUserTokensManager(userWalletModel.userTokensManager)
+
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
             supportedBlockchains: userWalletModel.config.supportedBlockchains,
-            userTokensManager: userWalletModel.userTokensManager
+            workMode: workMode,
+            tokenIconInfoBuilder: TokenIconInfoBuilder()
         )
 
         coordinator?.openReferral(input: input)

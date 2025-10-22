@@ -41,6 +41,7 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var mobileBackupTypesViewModel: MobileBackupTypesViewModel?
     @Published var mailViewModel: MailViewModel?
     @Published var accountFormViewModel: AccountFormViewModel?
+    @Published var mobileRemoveWalletViewModel: MobileRemoveWalletViewModel?
 
     // MARK: - Helpers
 
@@ -190,6 +191,14 @@ extension UserWalletSettingsCoordinator:
         mobileBackupTypesViewModel = MobileBackupTypesViewModel(userWalletModel: userWalletModel, routable: self)
     }
 
+    func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel) {
+        let viewModel = MobileRemoveWalletNotificationViewModel(userWalletModel: userWalletModel, coordinator: self)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openAppSettings() {
         UIApplication.openSystemSettings()
     }
@@ -244,5 +253,32 @@ extension UserWalletSettingsCoordinator:
             coordinator.start(with: inputOptions)
             mobileUpgradeCoordinator = coordinator
         }
+    }
+}
+
+// MARK: - MobileRemoveWalletNotificationRoutable
+
+@MainActor
+extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable {
+    func openMobileRemoveWallet(userWalletId: UserWalletId) {
+        dismissMobileRemoveWalletNotification()
+        mobileRemoveWalletViewModel = MobileRemoveWalletViewModel(userWalletId: userWalletId, delegate: self)
+    }
+
+    func openMobileOnboardingFromRemoveWalletNotification(input: MobileOnboardingInput) {
+        dismissMobileRemoveWalletNotification()
+        openOnboardingModal(with: .mobileInput(input))
+    }
+
+    func dismissMobileRemoveWalletNotification() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - MobileRemoveWalletDelegate
+
+extension UserWalletSettingsCoordinator: MobileRemoveWalletDelegate {
+    func didRemoveMobileWallet() {
+        dismiss()
     }
 }
