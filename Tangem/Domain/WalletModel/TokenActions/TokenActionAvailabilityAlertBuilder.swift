@@ -35,6 +35,8 @@ struct TokenActionAvailabilityAlertBuilder {
             return tryAgainLaterAlert
         case .oldCard:
             return oldCardAlert
+        case .yieldModuleApproveNeeded:
+            return .init(title: "", message: Localization.tokenButtonUnavailabilityReasonYieldSupplyApproval)
         }
     }
 
@@ -66,6 +68,8 @@ struct TokenActionAvailabilityAlertBuilder {
             )
         case .missingAssetRequirement:
             return .init(title: "", message: Localization.warningReceiveBlockedTokenTrustlineRequiredMessage)
+        case .yieldModuleApproveNeeded:
+            return .init(title: "", message: Localization.tokenButtonUnavailabilityReasonYieldSupplyApproval)
         }
     }
 
@@ -120,6 +124,8 @@ struct TokenActionAvailabilityAlertBuilder {
             return outOfDateBalanceAlert
         case .demo(let disabledLocalizedReason):
             return AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+        case .yieldModuleApproveNeeded:
+            return .init(title: "", message: Localization.tokenButtonUnavailabilityReasonYieldSupplyApproval)
         }
     }
 
