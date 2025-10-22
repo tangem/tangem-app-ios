@@ -36,10 +36,10 @@ class ManageTokensCoordinator: CoordinatorObject {
         let config = options.userWalletConfig
         let adapter = ManageTokensAdapter(
             settings: .init(
-                longHashesSupported: config.hasFeature(.longHashes),
                 existingCurves: config.existingCurves,
                 supportedBlockchains: Set(config.supportedBlockchains),
                 userTokensManager: options.userTokensManager,
+                hardwareLimitationUtil: HardwareLimitationsUtil(config: config),
                 analyticsSourceRawValue: analyticsSourceRawValue
             )
         )
