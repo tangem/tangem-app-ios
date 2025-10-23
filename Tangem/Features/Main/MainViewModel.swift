@@ -514,7 +514,7 @@ extension MainViewModel {
                     return walletModel.tokenItem.blockchain.chainId.map { String($0) }
                 }
             )
-            yieldModuleNetworkManager.updateMarkets(chainIDs: chainIDs.asArray)
+            yieldModuleNetworkManager.updateMarkets(chainIDs: chainIDs.toArray())
         }
     }
 }
