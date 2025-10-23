@@ -26,7 +26,7 @@ enum YieldModuleNotificationBannerParams {
             return false
         }
     }
-    
+
     var isFeeUnreachable: Bool {
         switch self {
         case .feeUnreachable:
@@ -35,7 +35,7 @@ enum YieldModuleNotificationBannerParams {
             return false
         }
     }
-    
+
     var isNotEnoughCurrency: Bool {
         switch self {
         case .notEnoughFeeCurrency:

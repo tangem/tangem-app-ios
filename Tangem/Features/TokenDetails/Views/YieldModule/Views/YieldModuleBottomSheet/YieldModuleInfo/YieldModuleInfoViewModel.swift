@@ -142,7 +142,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
             }
         }
     }
-    
+
     func onAcctionTap(action: YieldAction) {
         let token = walletModel.tokenItem
         isProcessingRequest = true
@@ -188,10 +188,10 @@ final class YieldModuleInfoViewModel: ObservableObject {
             case .exit:
                 try await yieldManagerInteractor.getExitFee()
             }
-            
+
             let feeValue = feeInCoins.totalFeeAmount.value
             let convertedFee = try await feeConverter.createFeeString(from: feeValue)
-            
+
             networkFeeState = networkFeeState.withFeeState(.loaded(text: convertedFee))
 
             if feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
@@ -231,14 +231,14 @@ final class YieldModuleInfoViewModel: ObservableObject {
         Task { await checkApproval() }
         Task { await fetchChartData() }
     }
-    
+
     @MainActor
     private func updateButtonAvailability() {
         switch viewState {
         case .earnInfo:
             let isDisabled = notificationBannerParams?.isApproveNeeded ?? false
             isMainButtonAvailable = !isDisabled
-            
+
         case .stopEarning, .approve:
             let feeUnreachable = notificationBannerParams?.isFeeUnreachable ?? false
             let notEnoughCurrency = notificationBannerParams?.isNotEnoughCurrency ?? false
@@ -247,7 +247,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
                 isMainButtonAvailable = false
                 return
             }
-            
+
             isMainButtonAvailable = true
         }
     }
@@ -347,7 +347,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         activityState = .paused
         notificationBannerParams = .approveNeeded { [weak self] in
             guard let self else { return }
-            networkFeeState =  networkFeeState.withFooterText(Localization.yieldModuleApproveSheetFeeNote)
+            networkFeeState = networkFeeState.withFooterText(Localization.yieldModuleApproveSheetFeeNote)
             viewState = .approve
         }
     }
