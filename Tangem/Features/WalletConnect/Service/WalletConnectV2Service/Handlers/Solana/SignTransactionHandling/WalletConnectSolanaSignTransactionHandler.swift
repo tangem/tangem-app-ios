@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
+import TangemFoundation
 
 final class WalletConnectSolanaSignTransactionHandler {
     private let walletModel: any WalletModel
@@ -128,7 +129,7 @@ private extension WalletConnectSolanaSignTransactionHandler {
         unsignedHash: Data,
         signatureCount: Int
     ) {
-        let transactionData = try Data(transaction.base64Decoded())
+        let transactionData = try transaction.base64DecodedData()
         let withoutSignaturePlaceholders = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: transactionData)
         let unsignedHash = withoutSignaturePlaceholders.transaction
 
