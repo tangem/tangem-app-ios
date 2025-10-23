@@ -128,12 +128,9 @@ struct YieldModuleStartView: View {
     private var startEarningView: some View {
         VStack(spacing: .zero) {
             YieldFeeSection(
+                sectionState: viewModel.networkFeeState,
                 leadingTitle: Localization.commonNetworkFeeTitle,
-                state: viewModel.networkFeeState,
-                footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
                 linkTitle: Localization.yieldModuleStartEarningSheetFeePolicy,
-                url: nil,
-                isLinkActive: viewModel.isNavigationToFeePolicyEnabled,
                 onLinkTapAction: viewModel.onShowFeePolicy
             )
             .onAppear {
@@ -161,10 +158,10 @@ struct YieldModuleStartView: View {
 
         case .feePolicy:
             YieldModuleFeePolicyView(
-                tokenFeeState: viewModel.tokenFeeState,
-                maximumFeeState: viewModel.maximumFeeState,
                 minimalAmountState: viewModel.minimalAmountState,
-                blockchainName: viewModel.walletModel.tokenItem.blockchain.displayName,
+                estimatedFeeState: viewModel.estimatedFeeState,
+                maximumFeeState: viewModel.maximumFeeState,
+                footerText: viewModel.feePolicyFooter
             )
         }
     }
