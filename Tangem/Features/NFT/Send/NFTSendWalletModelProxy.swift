@@ -158,6 +158,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
+    var minimalBalanceProvider: (any MinimalBalanceProvider)? {
+        nil
+    }
+
     var state: WalletModelState {
         tokenBalanceProvider.balanceType.value.map(WalletModelState.loaded) ?? .created
     }
