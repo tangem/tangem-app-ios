@@ -80,7 +80,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     private weak var coordinator: YieldModulePromoCoordinator?
     private let yieldManagerInteractor: YieldManagerInteractor
     private let notificationManager: YieldModuleNotificationManager
-
+    private let logger: YieldAnalyticsLogger
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
 
     // MARK: - Properties
@@ -93,12 +93,14 @@ final class YieldModuleStartViewModel: ObservableObject {
         walletModel: any WalletModel,
         viewState: ViewState,
         coordinator: YieldModulePromoCoordinator?,
-        yieldManagerInteractor: YieldManagerInteractor
+        yieldManagerInteractor: YieldManagerInteractor,
+        logger: YieldAnalyticsLogger
     ) {
         self.viewState = viewState
         self.walletModel = walletModel
         self.coordinator = coordinator
         self.yieldManagerInteractor = yieldManagerInteractor
+        self.logger = logger
 
         notificationManager = YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
     }
@@ -113,6 +115,7 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     @MainActor
     func onShowFeePolicy() {
+        logger.logEarningButtonFeePolicy()
         viewState = .feePolicy
     }
 
@@ -120,12 +123,14 @@ final class YieldModuleStartViewModel: ObservableObject {
     func onStartEarnTap() {
         let token = walletModel.tokenItem
         isProcessingStartRequest = true
+        logger.logEarningButtonStart()
 
         Task { @MainActor [weak self] in
             defer { self?.isProcessingStartRequest = false }
 
             do {
                 try await self?.yieldManagerInteractor.enter(with: token)
+                self?.logger.logEarningFundsEarned()
                 self?.coordinator?.dismiss()
             } catch let error where error.isCancellationError {
                 // Do nothing
@@ -205,6 +210,7 @@ final class YieldModuleStartViewModel: ObservableObject {
             networkFeeNotification = createFeeErrorNotification()
 
             if isFeeHigh {
+                logger.logEarningNoticeNotEnoughFeeShown()
                 networkFeeNotification = createNotEnoughFeeNotification()
             }
 
