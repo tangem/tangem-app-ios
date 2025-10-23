@@ -36,6 +36,9 @@ struct ExpressCoordinatorView: CoordinatorView {
             .iOS16UIKitSheet(item: $coordinator.expressTokensListViewModel) {
                 ExpressTokensListView(viewModel: $0)
             }
+            .sheet(item: $coordinator.swapTokenSelectorViewModel) {
+                SwapTokenSelectorView(viewModel: $0)
+            }
             .bottomSheet(
                 item: $coordinator.expressApproveViewModel,
                 backgroundColor: Colors.Background.tertiary

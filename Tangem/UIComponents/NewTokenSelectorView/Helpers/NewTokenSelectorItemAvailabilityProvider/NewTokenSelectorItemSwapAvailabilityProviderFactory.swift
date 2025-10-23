@@ -16,7 +16,7 @@ final class NewTokenSelectorItemSwapAvailabilityProviderFactory: NewTokenSelecto
     private var availableCurrencies: CurrentValueSubject<[ExpressCurrency]?, Never> = .init(nil)
     private var directionSubscription: AnyCancellable?
 
-    init(directionPublisher: some Publisher<SwapDirection?, Never>) {
+    init(directionPublisher: AnyPublisher<SwapDirection?, Never>) {
         directionSubscription = directionPublisher
             .withWeakCaptureOf(self)
             .asyncMap { provider, direction in
