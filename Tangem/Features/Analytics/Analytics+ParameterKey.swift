@@ -81,6 +81,7 @@ extension Analytics {
         case passphrase = "Passphrase"
         case button = "Button"
         case link = "Link"
+        case method = "Method"
 
         case fromSummary = "From Summary"
         case valid = "Valid"
