@@ -132,7 +132,6 @@ extension Analytics {
         case sendNonceInserted = "[Token / Send] Nonce Inserted"
         case sendMaxFeeInserted = "[Token / Send] Max Fee Inserted"
         case sendPriorityFeeInserted = "[Token / Send] Priority Fee Inserted"
-        case sendSubstractFromAmount = "[Token / Send] Substract From Amount"
         case sendConfirmScreenOpened = "[Token / Send] Confirm Screen Opened"
         case sendScreenReopened = "[Token / Send] Screen Reopened"
         case sendTransactionSentScreenOpened = "[Token / Send] Transaction Sent Screen Opened"
