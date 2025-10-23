@@ -233,6 +233,7 @@
 "common_enable" = "Enable";
 "common_enabled" = "Enabled";
 "common_error" = "Error";
+"common_estimated_fee" = "Estimated fee";
 "common_exchange" = "Swap";
 "common_explore_transaction_history" = "Explore transaction history";
 "common_explore" = "Explore";
@@ -463,7 +464,7 @@
 "express_more_providers_soon" = "More providers will be available soon";
 "express_provider_best_rate" = "Best rate";
 "express_provider_fca_warning_list" = "FCA Warning List";
-"express_provider_great_rate" = "Great rate";
+"express_provider_great_rate" = "Best choice";
 "express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Available up to %@";
 "express_provider_min_amount" = "Available from %@";
@@ -1797,6 +1798,6 @@
 "yield_module_transfer_mode_automatic" = "Automatic";
 "yield_module_unable_to_cover_fee_description" = "Deposit some %1$@ %2$@ to cover the network fee for transactions";
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
-"yield_module_unavailable_subtitle" = "The interest service isn’t available at the moment. Please try again later.";
-"yield_module_unavailable_title" = "Earnings unavailable";
+"yield_module_unavailable_subtitle" = "The Yield mode service isn’t available at the moment. Please try again later.";
+"yield_module_unavailable_title" = "Yield mode unavailable";
 "yield_supply_chart_loading_error" = "Unable to load chart...";

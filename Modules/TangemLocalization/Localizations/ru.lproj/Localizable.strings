@@ -233,6 +233,7 @@
 "common_enable" = "Включить";
 "common_enabled" = "Включено";
 "common_error" = "Ошибка";
+"common_estimated_fee" = "Estimated fee";
 "common_exchange" = "Обменять";
 "common_explore_transaction_history" = "Посмотреть историю транзакций";
 "common_explore" = "Обозреватель";
@@ -463,7 +464,7 @@
 "express_more_providers_soon" = "Больше провайдеров на подходе.\nСледите за обновлениями!";
 "express_provider_best_rate" = "Лучший курс";
 "express_provider_fca_warning_list" = "FCA Warning List";
-"express_provider_great_rate" = "Great rate";
+"express_provider_great_rate" = "Лучший выбор";
 "express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Доступно до %@";
 "express_provider_min_amount" = "Доступно с %@";
@@ -1797,6 +1798,6 @@
 "yield_module_transfer_mode_automatic" = "Автоматически";
 "yield_module_unable_to_cover_fee_description" = "Внесите немного %1$@ %2$@, чтобы покрыть комиссию сети за транзакции.";
 "yield_module_unable_to_cover_fee_title" = "Невозможно покрыть комиссию в %@";
-"yield_module_unavailable_subtitle" = "Сервис начисления процентов в данный момент недоступен. Пожалуйста, попробуйте позже.";
-"yield_module_unavailable_title" = "Данные о доходе недоступны";
+"yield_module_unavailable_subtitle" = "Сервис доходности в данный момент недоступен. Пожалуйста, попробуйте позже.";
+"yield_module_unavailable_title" = "Режим доходности недоступен";
 "yield_supply_chart_loading_error" = "Невозможно загрузить график";

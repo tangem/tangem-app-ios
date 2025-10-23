@@ -233,6 +233,7 @@
 "common_enable" = "Activer";
 "common_enabled" = "Activé";
 "common_error" = "Erreur";
+"common_estimated_fee" = "Estimated fee";
 "common_exchange" = "Echanger";
 "common_explore_transaction_history" = "Explorez l'historique des transactions";
 "common_explore" = "Explorez";
@@ -463,7 +464,7 @@
 "express_more_providers_soon" = "D'autres fournisseurs arriveront bientôt.\nRestez branchés !";
 "express_provider_best_rate" = "Meilleur taux";
 "express_provider_fca_warning_list" = "Liste d’avertissement de la FCA";
-"express_provider_great_rate" = "Great rate";
+"express_provider_great_rate" = "Best choice";
 "express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Disponible jusqu'à %@";
 "express_provider_min_amount" = "Disponible à partir de %@";
