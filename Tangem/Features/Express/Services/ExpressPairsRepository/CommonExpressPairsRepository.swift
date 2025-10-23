@@ -8,6 +8,7 @@
 
 import Combine
 import TangemExpress
+import TangemFoundation
 
 actor CommonExpressPairsRepository {
     @Injected(\.userWalletRepository)
@@ -92,10 +93,10 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
     }
 
     func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.destination == wallet.asCurrency }.asArray
+        pairs.filter { $0.destination == wallet.asCurrency }.toArray()
     }
 
     func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.source == wallet.asCurrency }.asArray
+        pairs.filter { $0.source == wallet.asCurrency }.toArray()
     }
 }
