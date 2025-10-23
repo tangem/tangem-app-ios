@@ -171,6 +171,12 @@ extension PolkadotWalletManager: MinimumBalanceRestrictable {
     }
 }
 
+extension PolkadotWalletManager: MinimalBalanceProvider {
+    func minimalBalance() -> Decimal {
+        minimumBalance.value
+    }
+}
+
 extension PolkadotWalletManager: ThenProcessable {}
 
 // MARK: - Dummy transaction signer
