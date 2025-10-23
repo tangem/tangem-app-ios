@@ -357,6 +357,10 @@ extension CommonWalletModel: WalletModel {
     var accountInitializationService: (any BlockchainAccountInitializationService)? {
         walletManager as? BlockchainAccountInitializationService
     }
+
+    var minimalBalanceProvider: (any MinimalBalanceProvider)? {
+        walletManager as? MinimalBalanceProvider
+    }
 }
 
 // MARK: - Updater
