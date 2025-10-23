@@ -3403,6 +3403,7 @@
 		EAFC9E422E2F8EA2005AE9BF /* XRPAddressValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFC9E412E2F8EA2005AE9BF /* XRPAddressValidationTests.swift */; };
 		EAFED5252EAA1D7E0048E6FB /* YieldFeeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFED5232EAA1D7E0048E6FB /* YieldFeeSection.swift */; };
 		EAFED5272EAA1D840048E6FB /* YieldFeeSectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFED5262EAA1D840048E6FB /* YieldFeeSectionState.swift */; };
+		EAFED5292EAA52310048E6FB /* YieldInfoFooterBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFED5282EAA52310048E6FB /* YieldInfoFooterBuilder.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
 		EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A272C08E65A001535C9 /* StakingCalculator.swift */; };
 		EF031A7F2C0DD243001535C9 /* SendAmountConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A7E2C0DD243001535C9 /* SendAmountConverter.swift */; };
@@ -7825,6 +7826,7 @@
 		EAFC9E412E2F8EA2005AE9BF /* XRPAddressValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddressValidationTests.swift; sourceTree = "<group>"; };
 		EAFED5232EAA1D7E0048E6FB /* YieldFeeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldFeeSection.swift; sourceTree = "<group>"; };
 		EAFED5262EAA1D840048E6FB /* YieldFeeSectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldFeeSectionState.swift; sourceTree = "<group>"; };
+		EAFED5282EAA52310048E6FB /* YieldInfoFooterBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldInfoFooterBuilder.swift; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
 		EF031A272C08E65A001535C9 /* StakingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCalculator.swift; sourceTree = "<group>"; };
 		EF031A7E2C0DD243001535C9 /* SendAmountConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountConverter.swift; sourceTree = "<group>"; };
@@ -20160,6 +20162,7 @@
 			children = (
 				EAD5E7EF2E7C08D000E30DF3 /* YieldModuleInfoView.swift */,
 				EAD5E7F42E7C099C00E30DF3 /* YieldModuleInfoViewModel.swift */,
+				EAFED5282EAA52310048E6FB /* YieldInfoFooterBuilder.swift */,
 			);
 			path = YieldModuleInfo;
 			sourceTree = "<group>";
@@ -26472,6 +26475,7 @@
 				5D384B9424FD51C000C2C92C /* DetailsViewModel.swift in Sources */,
 				EF8E53192E71AD3A00C03184 /* NewOnrampAmountViewModel.swift in Sources */,
 				2DC567692B0DFFAF00B0244F /* MarketsRoutable.swift in Sources */,
+				EAFED5292EAA52310048E6FB /* YieldInfoFooterBuilder.swift in Sources */,
 				B6BFDB6C2E43C41F00021D8D /* AccountModelsManagerMock.swift in Sources */,
 				DC0568DD2E0E86DA008A3770 /* WCAssetIconHelper.swift in Sources */,
 				DC295B502861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift in Sources */,

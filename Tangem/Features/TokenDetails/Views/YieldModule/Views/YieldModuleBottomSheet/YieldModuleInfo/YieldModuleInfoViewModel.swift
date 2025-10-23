@@ -52,19 +52,19 @@ final class YieldModuleInfoViewModel: ObservableObject {
     var notificationBannerParams: YieldModuleNotificationBannerParams? = nil
 
     @Published
-    private(set) var networkFeeState: LoadableTextView.State = .loading
-
-    @Published
-    private(set) var networkFeeAmountState: NetworkFeeAmountState = .none
-
-    @Published
     private(set) var apyState: LoadableTextView.State = .loading
 
     @Published
-    private(set) var minimalAmountState: LoadableTextView.State = .loading
+    private(set) var networkFeeState: YieldFeeSectionState = .init().withLinkActive(true)
 
     @Published
-    private(set) var currentNetworkFeeState: LoadableTextView.State = .loading
+    private(set) var minimalAmountState: YieldFeeSectionState = .init()
+
+    @Published
+    private(set) var estimatedFeeState: YieldFeeSectionState = .init()
+
+    @Published
+    private(set) var earInfoFooterText: AttributedString?
 
     @Published
     private(set) var chartState: YieldChartContainerState = .loading
@@ -77,6 +77,8 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     @Published
     private(set) var apyTrend: ApyTrend = .none
+
+    private var maxFee: String?
 
     // MARK: - Dependencies
 
@@ -123,8 +125,24 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     func onShowStopEarningSheet() {
         viewState = .stopEarning
+        networkFeeState = networkFeeState.withFooterText(Localization.yieldModuleStopEarningSheetFeeNote)
     }
 
+    // MARK: - Public Implementation
+
+    func start(for viewState: ViewState) {
+        Task { @MainActor in
+            switch viewState {
+            case .earnInfo:
+                earnInfoStart()
+            case .stopEarning:
+                await fetchFee(for: .exit)
+            case .approve:
+                await fetchFee(for: .approve)
+            }
+        }
+    }
+    
     func onAcctionTap(action: YieldAction) {
         let token = walletModel.tokenItem
         isProcessingRequest = true
@@ -150,21 +168,6 @@ final class YieldModuleInfoViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Public Implementation
-
-    func start(for viewState: ViewState) {
-        Task { @MainActor in
-            switch viewState {
-            case .earnInfo:
-                earnInfoStart()
-            case .stopEarning:
-                await fetchFee(for: .exit)
-            case .approve:
-                await fetchFee(for: .approve)
-            }
-        }
-    }
-
     func getAvailableBalanceString() -> String {
         feeConverter.formatCryptoBalance(availableBalance, prefix: "a")
     }
@@ -173,10 +176,10 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     @MainActor
     func fetchFee(for action: YieldAction) async {
-        networkFeeState = .loading
+        networkFeeState = networkFeeState.withFeeState(.loading)
         notificationBannerParams = nil
 
-        defer { getButtonAvailability() }
+        defer { updateButtonAvailability() }
 
         do {
             let feeInCoins = switch action {
@@ -185,18 +188,18 @@ final class YieldModuleInfoViewModel: ObservableObject {
             case .exit:
                 try await yieldManagerInteractor.getExitFee()
             }
-
+            
             let feeValue = feeInCoins.totalFeeAmount.value
             let convertedFee = try await feeConverter.createFeeString(from: feeValue)
-
-            networkFeeState = .loaded(text: convertedFee)
+            
+            networkFeeState = networkFeeState.withFeeState(.loaded(text: convertedFee))
 
             if feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
                 showNotEnoughFeeNotification()
             }
 
         } catch {
-            networkFeeState = .noData
+            networkFeeState = networkFeeState.withFeeState(.noData)
             showFeeErrorNotification { [weak self] in
                 await self?.fetchFee(for: action)
             }
@@ -223,72 +226,84 @@ final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Private Implementation
 
     private func earnInfoStart() {
-        Task { await getMinTopUp() }
+        Task { await getEarnInfoFees() }
         Task { await getApy() }
         Task { await checkApproval() }
         Task { await fetchChartData() }
-        Task { await fetchCurrentNetworkFee() }
     }
-
+    
     @MainActor
-    private func getButtonAvailability() {
+    private func updateButtonAvailability() {
         switch viewState {
         case .earnInfo:
             let isDisabled = notificationBannerParams?.isApproveNeeded ?? false
             isMainButtonAvailable = !isDisabled
-
+            
         case .stopEarning, .approve:
-            guard case .loaded = networkFeeState else {
+            let feeUnreachable = notificationBannerParams?.isFeeUnreachable ?? false
+            let notEnoughCurrency = notificationBannerParams?.isNotEnoughCurrency ?? false
+
+            guard case .loaded = networkFeeState.feeState, !feeUnreachable, !notEnoughCurrency else {
                 isMainButtonAvailable = false
                 return
             }
-
-            if case .notEnoughFeeCurrency = notificationBannerParams {
-                isMainButtonAvailable = false
-                return
-            }
-
-            if case .feeUnreachable = notificationBannerParams {
-                isMainButtonAvailable = false
-                return
-            }
-
+            
             isMainButtonAvailable = true
         }
     }
 
     @MainActor
-    private func getMinTopUp() async {
-        minimalAmountState = .loading
-
-        do {
-            let minAmount = try await yieldManagerInteractor.getMinAmount()
-            let formatted = try await feeConverter.createMinimalAmountString(from: minAmount)
-
-            minimalAmountState = .loaded(text: formatted)
-        } catch {
-            minimalAmountState = .noData
-        }
-    }
-
-    @MainActor
-    private func fetchCurrentNetworkFee() async {
-        currentNetworkFeeState = .loading
+    private func getEarnInfoFees() async {
+        minimalAmountState = minimalAmountState.withFeeState(.loading)
+        estimatedFeeState = estimatedFeeState.withFeeState(.loading)
+        maxFee = nil
 
         guard let maxFee = await yieldManagerInteractor.getMaxFee() else {
-            currentNetworkFeeState = .noData
+            estimatedFeeState = estimatedFeeState.withFeeState(.noData)
+            minimalAmountState = minimalAmountState.withFeeState(.noData)
             return
         }
 
         do {
-            let networkFee = try await yieldManagerInteractor.getCurrentNetworkFee()
-            let maxFeeFormatted = try await feeConverter.createMaxFeeString(maxFeeCurrencyFee: maxFee.0, maxFiatFee: maxFee.1)
+            let estimatedFee = try await yieldManagerInteractor.getCurrentNetworkFee()
+            let estimatedFeeFormatted = try await feeConverter.makeFormattedMinimalFee(from: estimatedFee)
 
-            currentNetworkFeeState = .loaded(text: feeConverter.createCurrentNetworkFeeString(networkFee: networkFee))
-            networkFeeAmountState = networkFee > maxFee.1 ? .warning(fee: maxFeeFormatted) : .normal(fee: maxFeeFormatted)
+            let minAmount = try await yieldManagerInteractor.getMinAmount()
+            let minAmountFormatted = try await feeConverter.makeFormattedMinimalFee(from: minAmount)
+
+            let maxFeeFormatted = try await feeConverter.makeFormattedMaximumFee(maxFeeCurrencyFee: maxFee.0, maxFiatFee: maxFee.1)
+
+            let isHighFee = estimatedFee > maxFee.1
+
+            estimatedFeeState = estimatedFeeState.withFeeState(.loaded(text: estimatedFeeFormatted.fiatFee)).withHighlighted(isHighFee)
+            minimalAmountState = minimalAmountState.withFeeState(.loaded(text: maxFeeFormatted.fiatFee))
+
+            let footerBuilder = YieldInfoFooterBuilder()
+
+            let footerText: AttributedString = if isHighFee {
+                footerBuilder.buildForHighFee(
+                    maxFeeFiat: maxFeeFormatted.fiatFee,
+                    minFeeFiat: minAmountFormatted.fiatFee,
+                    minFeeCrypto: minAmountFormatted.cryptoFee
+                )
+            } else {
+                footerBuilder.build(
+                    estimatedFeeFiat: estimatedFeeFormatted.fiatFee,
+                    estimatedFeeCrypto: estimatedFeeFormatted.cryptoFee,
+                    maxFeeFiat: maxFeeFormatted.fiatFee,
+                    maxFeeCrypto: maxFeeFormatted.cryptoFee,
+                    minFeeFiat: minAmountFormatted.fiatFee,
+                    minFeeCrypto: minAmountFormatted.cryptoFee
+                )
+            }
+
+            earInfoFooterText = footerText
+
         } catch {
-            currentNetworkFeeState = .noData
-            networkFeeAmountState = .none
+            minimalAmountState = minimalAmountState.withFeeState(.noData)
+            estimatedFeeState = estimatedFeeState.withFeeState(.noData)
+            self.maxFee = nil
+            earInfoFooterText = nil
         }
     }
 
@@ -322,9 +337,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     @MainActor
     private func checkApproval() async {
-        defer {
-            getButtonAvailability()
-        }
+        defer { updateButtonAvailability() }
 
         guard await yieldManagerInteractor.getIsApproveRequired() else {
             activityState = .active
@@ -333,7 +346,9 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
         activityState = .paused
         notificationBannerParams = .approveNeeded { [weak self] in
-            self?.viewState = .approve
+            guard let self else { return }
+            networkFeeState =  networkFeeState.withFooterText(Localization.yieldModuleApproveSheetFeeNote)
+            viewState = .approve
         }
     }
 
@@ -418,45 +433,6 @@ extension YieldModuleInfoViewModel {
                 Localization.yieldModuleTransferModeAutomatic
             case .paused:
                 Localization.yieldModuleStatusPaused
-            }
-        }
-    }
-}
-
-extension YieldModuleInfoViewModel {
-    enum NetworkFeeAmountState {
-        case warning(fee: String)
-        case normal(fee: String)
-        case none
-
-        var networkFeeColor: Color {
-            switch self {
-            case .warning:
-                Colors.Text.warning
-            case .normal, .none:
-                Colors.Text.tertiary
-            }
-        }
-
-        var networkFeeDescriptionColor: Color {
-            switch self {
-            case .warning:
-                Colors.Text.warning
-            case .normal, .none:
-                Colors.Text.primary1
-            }
-        }
-
-        var footerText: String {
-            switch self {
-            case .warning:
-                // [REDACTED_TODO_COMMENT]
-                ""
-            case .normal:
-                // [REDACTED_TODO_COMMENT]
-                ""
-            case .none:
-                ""
             }
         }
     }

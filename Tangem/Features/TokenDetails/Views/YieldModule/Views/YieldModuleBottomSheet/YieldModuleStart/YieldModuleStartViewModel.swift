@@ -49,10 +49,10 @@ final class YieldModuleStartViewModel: ObservableObject {
         footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
         isLinkActive: false
     )
-    
+
     @Published
     private(set) var isButtonEnabled: Bool = false
-    
+
     @Published
     private(set) var isNavigationToFeePolicyEnabled: Bool = false
 
@@ -85,8 +85,6 @@ final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Properties
 
     private(set) var maximumFee: Decimal = 0
-
-    
 
     // MARK: - Init
 
@@ -200,9 +198,9 @@ final class YieldModuleStartViewModel: ObservableObject {
             networkFeeState = networkFeeState
                 .withFeeState(.loaded(text: fiatFee))
                 .withLinkActive(true)
-            
+
             let isFeeHigh = feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType)
-            
+
             if isFeeHigh {
                 showNotEnoughFeeNotification()
             }
@@ -211,7 +209,7 @@ final class YieldModuleStartViewModel: ObservableObject {
             isButtonEnabled = !isFeeHigh
         } catch {
             showFeeErrorNotification()
-            
+
             networkFeeState = networkFeeState
                 .withFeeState(.noData)
                 .withLinkActive(false)
