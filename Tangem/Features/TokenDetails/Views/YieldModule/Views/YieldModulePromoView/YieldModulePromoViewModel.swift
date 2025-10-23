@@ -20,6 +20,7 @@ final class YieldModulePromoViewModel {
     private let yieldManagerInteractor: YieldManagerInteractor
     private let startFlowFactory: YieldStartFlowFactory
     private weak var coordinator: YieldModulePromoCoordinator?
+    private let logger: YieldAnalyticsLogger
 
     // MARK: - Properties
 
@@ -36,13 +37,17 @@ final class YieldModulePromoViewModel {
         yieldManagerInteractor: YieldManagerInteractor,
         apy: Decimal,
         coordinator: YieldModulePromoCoordinator?,
-        startFlowFactory: YieldStartFlowFactory
+        startFlowFactory: YieldStartFlowFactory,
+        logger: YieldAnalyticsLogger
     ) {
         self.walletModel = walletModel
         self.coordinator = coordinator
         self.yieldManagerInteractor = yieldManagerInteractor
         self.apy = apy
         self.startFlowFactory = startFlowFactory
+        self.logger = logger
+
+        logger.logEarningScreenInfoOpened()
     }
 
     // MARK: - Public Implementation
@@ -52,7 +57,10 @@ final class YieldModulePromoViewModel {
     }
 
     func onContinueTap() {
-        coordinator?.openBottomSheet(viewModel: startFlowFactory.makeStartViewModel())
+        if let coordinator {
+            logger.logStartEarningScreenOpened()
+            coordinator.openBottomSheet(viewModel: startFlowFactory.makeStartViewModel())
+        }
     }
 
     func onHowItWorksTap() {

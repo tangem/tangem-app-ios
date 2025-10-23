@@ -49,6 +49,7 @@ class StakingModel {
     private let feeTokenItem: TokenItem
     private let tokenIconInfo: TokenIconInfo
     private let accountInitializationService: BlockchainAccountInitializationService?
+    private let minimalBalanceProvider: MinimalBalanceProvider?
 
     private var timerTask: Task<Void, Error>?
     private var estimatedFeeTask: Task<Void, Never>?
@@ -64,6 +65,7 @@ class StakingModel {
         allowanceService: AllowanceService,
         analyticsLogger: StakingSendAnalyticsLogger,
         accountInitializationService: BlockchainAccountInitializationService?,
+        minimalBalanceProvider: MinimalBalanceProvider?,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         tokenIconInfo: TokenIconInfo
@@ -77,6 +79,7 @@ class StakingModel {
         self.allowanceService = allowanceService
         self.analyticsLogger = analyticsLogger
         self.accountInitializationService = accountInitializationService
+        self.minimalBalanceProvider = minimalBalanceProvider
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.tokenIconInfo = tokenIconInfo
@@ -119,12 +122,6 @@ private extension StakingModel {
     }
 
     func state(amount: Decimal, validator: ValidatorInfo, approvePolicy: ApprovePolicy) async throws -> StakingModel.State {
-        if let accountInitializationService,
-           try await accountInitializationService.isAccountInitialized() == false {
-            let fee = try await accountInitializationService.estimateInitializationFee()
-            return .blockchainAccountInitializationRequired(fee: fee)
-        }
-
         if let allowanceState = try await allowanceState(amount: amount, approvePolicy: approvePolicy) {
             switch allowanceState {
             case .permissionRequired(let approveData):
@@ -147,6 +144,15 @@ private extension StakingModel {
         }
 
         let fee = try await estimateFee(amount: amount, validator: validator)
+
+        if let accountInitializationService,
+           try await accountInitializationService.isAccountInitialized() == false {
+            let initializationFee = try await accountInitializationService.estimateInitializationFee()
+            return .blockchainAccountInitializationRequired(
+                initializationFee: initializationFee,
+                transactionFee: makeFee(value: fee)
+            )
+        }
 
         return makeState(amount: amount, fee: fee)
     }
@@ -193,7 +199,9 @@ private extension StakingModel {
             return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
         case .networkError(let error):
             return SendFee(option: .market, value: .failedToLoad(error: error))
-        case .blockchainAccountInitializationRequired, .blockchainAccountInitializationInProgress:
+        case .blockchainAccountInitializationRequired(_, let transactionFee):
+            return SendFee(option: .market, value: .loaded(transactionFee))
+        case .blockchainAccountInitializationInProgress:
             return SendFee(option: .market, value: .failedToLoad(error: StakingModelError.accountIsNotInitialized))
         }
     }
@@ -225,13 +233,17 @@ private extension StakingModel {
             balance.balanceType == .active && balance.validatorType.validator != validator
         }
 
+        let amountToReduceCalculation = { [minimalBalanceProvider] in
+            return fee * Constants.reduceAmountMultiplier + (minimalBalanceProvider?.minimalBalance() ?? .zero)
+        }
+
         return .readyToStake(
             .init(
                 amount: newAmount,
                 fee: fee,
                 isFeeIncluded: includeFee,
                 stakeOnDifferentValidator: hasPreviousStakeOnDifferentValidator,
-                amountToReduce: includeFee ? fee * Constants.reduceAmountMultiplier : nil
+                amountToReduce: includeFee ? amountToReduceCalculation() : nil
             )
         )
     }
@@ -490,19 +502,19 @@ extension StakingModel: NotificationTapDelegate {
             router?.openNetworkCurrency()
         case .activate:
             guard let accountInitializationService,
-                  case .blockchainAccountInitializationRequired(let fee) = _state.value else { return }
+                  case .blockchainAccountInitializationRequired(let initializationFee, _) = _state.value else { return }
 
             let viewModel = BlockchainAccountInitializationViewModel(
                 accountInitializationService: accountInitializationService,
                 transactionDispatcher: transactionDispatcher,
-                fee: fee,
+                fee: initializationFee,
                 feeTokenItem: feeTokenItem,
                 tokenIconInfo: tokenIconInfo,
                 onStartInitialization: { [weak self] in
                     self?.update(state: .blockchainAccountInitializationInProgress)
                 },
                 onInitialized: { [weak self] in
-                    self?.accountInitializationFee = fee
+                    self?.accountInitializationFee = initializationFee
                     self?.updateState()
                 }
             )
@@ -584,7 +596,7 @@ extension StakingModel: StakingBaseDataBuilderInput {
 extension StakingModel {
     enum State {
         case loading
-        case blockchainAccountInitializationRequired(fee: Fee)
+        case blockchainAccountInitializationRequired(initializationFee: Fee, transactionFee: Fee)
         case blockchainAccountInitializationInProgress
         case readyToApprove(approveData: ApproveTransactionData)
         case approveTransactionInProgress(stakingFee: Decimal)
