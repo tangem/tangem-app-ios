@@ -174,7 +174,7 @@ struct YieldModuleInfoView: View {
         case .earnInfo:
             viewModel.onShowStopEarningSheet
         case .stopEarning:
-            { viewModel.onAcctionTap(action: .exit) }
+            { viewModel.onAcctionTap(action: .stop) }
         case .approve:
             { viewModel.onAcctionTap(action: .approve) }
         }
