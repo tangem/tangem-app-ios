@@ -144,6 +144,7 @@ protocol WalletModelDependenciesProvider {
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? { get }
 
     var accountInitializationService: BlockchainAccountInitializationService? { get }
+    var minimalBalanceProvider: MinimalBalanceProvider? { get }
 }
 
 // MARK: - Tx history
