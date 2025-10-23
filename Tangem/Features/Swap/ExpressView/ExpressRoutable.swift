@@ -12,6 +12,7 @@ import TangemFoundation
 
 protocol ExpressRoutable: AnyObject {
     func presentSwappingTokenList(swapDirection: ExpressTokensListViewModel.SwapDirection)
+    func presentSwapTokenSelector(swapDirection: SwapTokenSelectorViewModel.SwapDirection)
     func presentFeeSelectorView()
     func presentApproveView(provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy)
     func presentProviderSelectorView()
