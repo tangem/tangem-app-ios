@@ -18,7 +18,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Types
 
     enum YieldAction {
-        case exit
+        case stop
         case approve
     }
 
@@ -84,6 +84,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
     private let yieldManagerInteractor: YieldManagerInteractor
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
+    private let logger: YieldAnalyticsLogger
 
     // MARK: - Properties
 
@@ -98,15 +99,18 @@ final class YieldModuleInfoViewModel: ObservableObject {
         walletModel: any WalletModel,
         feeCurrencyNavigator: (any FeeCurrencyNavigating)?,
         yieldManagerInteractor: YieldManagerInteractor,
-        availableBalance: Decimal
+        availableBalance: Decimal,
+        logger: YieldAnalyticsLogger
     ) {
         self.walletModel = walletModel
         self.feeCurrencyNavigator = feeCurrencyNavigator
         self.yieldManagerInteractor = yieldManagerInteractor
         self.availableBalance = availableBalance
+        self.logger = logger
 
         viewState = .earnInfo
         start(for: viewState)
+        logger.logEarningInProgressScreenOpened()
     }
 
     // MARK: - Navigation
@@ -122,6 +126,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     func onShowStopEarningSheet() {
+        logger.logEarningStopScreenOpened()
         viewState = .stopEarning
     }
 
@@ -137,14 +142,17 @@ final class YieldModuleInfoViewModel: ObservableObject {
                 case .approve:
                     try await self?.yieldManagerInteractor.approve(with: token)
                     self?.onBackTap()
-                case .exit:
+                case .stop:
+                    self?.logger.logEarningButtonStop()
                     try await self?.yieldManagerInteractor.exit(with: token)
+                    self?.logger.logEarningFundsWithdrawed()
                     self?.floatingSheetPresenter.removeActiveSheet()
                 }
 
             } catch let error where error.isCancellationError {
                 // Do nothing
             } catch {
+                self?.logError(error: error, action: action)
                 self?.alertPresenter.present(alert: AlertBuilder.makeOkErrorAlert(message: error.localizedDescription))
             }
         }
@@ -158,7 +166,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
             case .earnInfo:
                 earnInfoStart()
             case .stopEarning:
-                await fetchFee(for: .exit)
+                await fetchFee(for: .stop)
             case .approve:
                 await fetchFee(for: .approve)
             }
@@ -182,7 +190,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
             let feeInCoins = switch action {
             case .approve:
                 try await yieldManagerInteractor.getApproveFee()
-            case .exit:
+            case .stop:
                 try await yieldManagerInteractor.getExitFee()
             }
 
@@ -221,6 +229,15 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     // MARK: - Private Implementation
+
+    private func logError(error: Error, action: YieldAction) {
+        let analyticsAction: YieldAnalyticsAction = switch action {
+        case .approve: .approve
+        case .stop: .stop
+        }
+
+        logger.logEarningErrors(action: analyticsAction, error: error)
+    }
 
     private func earnInfoStart() {
         Task { await getMinTopUp() }
@@ -286,6 +303,11 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
             currentNetworkFeeState = .loaded(text: feeConverter.createCurrentNetworkFeeString(networkFee: networkFee))
             networkFeeAmountState = networkFee > maxFee.1 ? .warning(fee: maxFeeFormatted) : .normal(fee: maxFeeFormatted)
+
+            if case .warning = networkFeeAmountState {
+                logger.logEarningNoticeHighNetworkFeeShown()
+            }
+
         } catch {
             currentNetworkFeeState = .noData
             networkFeeAmountState = .none
@@ -333,6 +355,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
         activityState = .paused
         notificationBannerParams = .approveNeeded { [weak self] in
+            self?.logger.logEarningButtonGiveApprove()
             self?.viewState = .approve
         }
     }
