@@ -22,6 +22,13 @@ class CommonSendAnalyticsLogger {
     private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
     private let sendType: SendType
 
+    private var sourceFlow: Analytics.ParameterValue {
+        switch sendReceiveTokenInput?.receiveToken {
+        case .same, .none: .send
+        case .swap: .sendAndSwap
+        }
+    }
+
     init(
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
@@ -39,19 +46,19 @@ class CommonSendAnalyticsLogger {
 
 extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
     func logDestinationStepOpened() {
-        Analytics.log(.sendAddressScreenOpened)
+        Analytics.log(.sendAddressScreenOpened, params: [.source: sourceFlow])
     }
 
     func logDestinationStepReopened() {
-        Analytics.log(.sendScreenReopened, params: [.source: .address])
+        Analytics.log(.sendScreenReopened, params: [.method: .address])
     }
 
     func logQRScannerOpened() {
         Analytics.log(.sendButtonQRCode)
     }
 
-    func logSendAddressEntered(isAddressValid: Bool, source: Analytics.DestinationAddressSource) {
-        guard let parameterValue = source.parameterValue else {
+    func logSendAddressEntered(isAddressValid: Bool, addressSource: Analytics.DestinationAddressSource) {
+        guard let parameterValue = addressSource.parameterValue else {
             return
         }
 
@@ -63,8 +70,9 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
         Analytics.log(
             event,
             params: [
-                .source: parameterValue,
+                .method: parameterValue,
                 .validation: isAddressValid ? .success : .fail,
+                .source: sourceFlow,
             ]
         )
     }
@@ -76,7 +84,7 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorContentV
     func logFeeStepOpened() {
         switch tokenItem.token?.metadata.kind {
         case .fungible, .none:
-            Analytics.log(.sendFeeScreenOpened)
+            Analytics.log(.sendFeeScreenOpened, params: [.source: sourceFlow])
         case .nonFungible:
             Analytics.log(.nftCommissionScreenOpened)
         }
@@ -98,12 +106,22 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorContentV
         }
 
         let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: feeOption)
-        let event: Analytics.Event = switch tokenItem.token?.metadata.kind {
-        case .fungible, .none: .sendFeeSelected
-        case .nonFungible: .nftFeeSelected
+        let event: Analytics.Event
+        let source: Analytics.ParameterValue?
+
+        switch tokenItem.token?.metadata.kind {
+        case .fungible, .none:
+            event = .sendFeeSelected
+            source = sourceFlow
+        case .nonFungible:
+            event = .nftFeeSelected
+            source = nil
         }
 
-        Analytics.log(event: event, params: [.feeType: feeType.rawValue])
+        var params: [Analytics.ParameterKey: String] = [.feeType: feeType.rawValue]
+        params[.source] = source?.rawValue
+
+        Analytics.log(event: event, params: params)
     }
 
     func logSendNoticeTransactionDelaysArePossible() {
@@ -117,7 +135,7 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorContentV
 
 extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
     func logTapMaxAmount() {
-        var params: [Analytics.ParameterKey: String] = [:]
+        var params: [Analytics.ParameterKey: String] = [.source: sourceFlow.rawValue]
 
         if let token = sendSourceTokenInput?.sourceToken {
             params[.token] = token.tokenItem.currencySymbol
@@ -139,7 +157,10 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
     }
 
     func logAmountStepOpened() {
-        Analytics.log(.sendAmountScreenOpened)
+        Analytics.log(
+            .sendAmountScreenOpened,
+            params: [.source: sourceFlow]
+        )
     }
 
     func logAmountStepReopened() {
@@ -202,7 +223,7 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
     func logSummaryStepOpened() {
         switch tokenItem.token?.metadata.kind {
         case .fungible, .none:
-            Analytics.log(.sendConfirmScreenOpened)
+            Analytics.log(.sendConfirmScreenOpened, params: [.source: sourceFlow])
         case .nonFungible:
             Analytics.log(
                 event: .nftConfirmScreenOpened,
