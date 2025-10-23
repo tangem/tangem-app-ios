@@ -47,6 +47,7 @@ let package = Package(
         // Moya
         .package(url: "https://github.com/outfoxx/PotentCodables.git", .upToNextMajor(from: "3.2.0")),
         .package(url: "https://github.com/tesseract-one/ScaleCodec.swift", exact: "0.3.1"),
+        .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", from: "0.12.0"),
         .package(url: "git@github.com:tangem-developments/Solana.Swift.git", exact: "1.2.0-tangem18"),
         .package(url: "git@github.com:tangem-developments/stellar-ios-mac-sdk.git", exact: "3.1.0-tangem1"),
         .package(url: "https://github.com/valpackett/SwiftCBOR.git", exact: "0.5.0"),
@@ -189,6 +190,7 @@ var serviceModules: [PackageDescription.Target] {
                 .product(name: "OrderedCollections", package: "swift-collections"),
                 "PotentCodables", // For `PotentCBOR` only
                 .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
+                .product(name: "secp256k1", package: "secp256k1.swift"),
                 .product(name: "SolanaSwift", package: "Solana.Swift"),
                 .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
                 "SwiftCBOR",
