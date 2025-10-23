@@ -14,38 +14,29 @@ import TangemUIUtils
 
 struct YieldFeeSection<LeadingTextAccesoryView: View>: View {
     let leadingTitle: String
-    let state: LoadableTextView.State
-    let footerText: String?
     let linkTitle: String?
     let url: URL?
-    let isLinkActive: Bool
-    let onLinkTapAction: (() -> Void)?
     let needsBackground: Bool
+    let onLinkTapAction: (() -> Void)?
     let leadingTextAccesoryView: LeadingTextAccesoryView
 
-    private var settings: Settings = .init()
-
-    // MARK: - Init
+    let sectionState: YieldFeeSectionState
 
     init(
+        sectionState: YieldFeeSectionState,
         leadingTitle: String,
-        state: LoadableTextView.State,
-        footerText: String?,
         needsBackground: Bool = true,
         linkTitle: String? = nil,
         url: URL? = nil,
-        isLinkActive: Bool = false,
-        @ViewBuilder leadingTextAccesoryView: () -> LeadingTextAccesoryView = { EmptyView() },
-        onLinkTapAction: (() -> Void)? = nil
+        onLinkTapAction: (() -> Void)? = nil,
+        @ViewBuilder leadingTextAccesoryView: () -> LeadingTextAccesoryView = { EmptyView() }
     ) {
         self.leadingTitle = leadingTitle
-        self.state = state
-        self.footerText = footerText
+        self.sectionState = sectionState
+        self.needsBackground = needsBackground
         self.linkTitle = linkTitle
         self.url = url
-        self.isLinkActive = isLinkActive
         self.onLinkTapAction = onLinkTapAction
-        self.needsBackground = needsBackground
         self.leadingTextAccesoryView = leadingTextAccesoryView()
     }
 
@@ -53,18 +44,28 @@ struct YieldFeeSection<LeadingTextAccesoryView: View>: View {
         VStack(alignment: .leading, spacing: 8) {
             LoadableFeeRowView(
                 leadingTitle: leadingTitle,
-                state: state, leadingTextColor: settings.leadingTextColor,
-                trailingTextColor: settings.trailingTextColor,
+                state: sectionState.feeState,
+                isHighlighted: sectionState.isHighlighted,
                 leadingTextAccesoryView: leadingTextAccesoryView
             )
             .padding(.horizontal, 4)
-            .if(needsBackground) {
-                $0.defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 14)
+
+            .if(needsBackground) { view in
+                view.defaultRoundedBackground(
+                    with: Colors.Background.action,
+                    verticalPadding: 14
+                )
             }
 
-            if let footerText {
-                FooterText(footerText: footerText, linkTitle: linkTitle, url: url, isLinkActive: isLinkActive, onLinkTapAction: onLinkTapAction)
-                    .padding(.horizontal, 14)
+            if let footerText = sectionState.footerText {
+                FooterText(
+                    footerText: footerText,
+                    linkTitle: linkTitle,
+                    url: url,
+                    isLinkActive: sectionState.isLinkActive,
+                    onLinkTapAction: onLinkTapAction
+                )
+                .padding(.horizontal, 14)
             }
         }
     }
@@ -93,22 +94,19 @@ extension YieldFeeSection {
 extension YieldFeeSection {
     struct LoadableFeeRowView: View {
         let leadingTitle: String
-        var state: LoadableTextView.State
-        let leadingTextColor: Color
-        let trailingTextColor: Color
+        let state: LoadableTextView.State
+        let isHighlighted: Bool
         let leadingTextAccesoryView: LeadingTextAccesoryView
 
         init(
             leadingTitle: String,
             state: LoadableTextView.State,
-            leadingTextColor: Color,
-            trailingTextColor: Color,
+            isHighlighted: Bool,
             leadingTextAccesoryView: LeadingTextAccesoryView
         ) {
             self.leadingTitle = leadingTitle
             self.state = state
-            self.trailingTextColor = trailingTextColor
-            self.leadingTextColor = leadingTextColor
+            self.isHighlighted = isHighlighted
             self.leadingTextAccesoryView = leadingTextAccesoryView
         }
 
@@ -116,17 +114,21 @@ extension YieldFeeSection {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .center) {
                     Text(leadingTitle)
-                        .style(Fonts.Regular.subheadline, color: leadingTextColor)
+                        .style(
+                            Fonts.Regular.body,
+                            color: isHighlighted ? Colors.Text.warning : Colors.Text.primary1
+                        )
 
                     Spacer()
 
                     HStack {
                         leadingTextAccesoryView
+                            .foregroundStyle(isHighlighted ? Colors.Text.warning : Colors.Text.tertiary)
 
                         LoadableTextView(
                             state: state,
-                            font: Fonts.Regular.subheadline,
-                            textColor: trailingTextColor,
+                            font: Fonts.Regular.body,
+                            textColor: isHighlighted ? Colors.Text.warning : Colors.Text.tertiary,
                             loaderSize: .init(width: 90, height: 20)
                         )
                     }
@@ -186,26 +188,5 @@ extension YieldFeeSection {
 
             return attr
         }
-    }
-}
-
-extension YieldFeeSection {
-    struct Settings {
-        var leadingTextColor: Color = Colors.Text.primary1
-        var trailingTextColor: Color = Colors.Text.tertiary
-    }
-}
-
-extension YieldFeeSection: Setupable {
-    public func settings<V>(_ keyPath: WritableKeyPath<Settings, V>, _ value: V) -> Self {
-        map { $0.settings[keyPath: keyPath] = value }
-    }
-
-    public func trailingTextColor(_ color: Color) -> Self {
-        settings(\.trailingTextColor, color)
-    }
-
-    public func leadingTextColor(_ color: Color) -> Self {
-        settings(\.leadingTextColor, color)
     }
 }
