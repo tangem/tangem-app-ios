@@ -15,10 +15,10 @@ import TangemLocalization
 
 final class BlockchainAccountInitializationViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
 
     @Published var feeRowViewModel: DefaultRowViewModel
     @Published var isLoading = false
-    @Published var errorAlert: AlertBinder?
 
     let tokenIconInfo: TokenIconInfo
 
@@ -97,8 +97,10 @@ private extension BlockchainAccountInitializationViewModel {
             feeRowViewModel.update(detailsType: .loader)
             isLoading = true
         case .failedToLoad(let error):
-            errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
             isLoading = false
+            alertPresenter.present(
+                alert: AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+            )
         }
     }
 
