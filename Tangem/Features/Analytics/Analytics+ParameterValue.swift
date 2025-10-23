@@ -263,8 +263,8 @@ extension Analytics {
 
         // MARK: - Yield Module
 
-        // [REDACTED_TODO_COMMENT]
-        case yieldModuleApproveNeeded = "Yield Approve Required"
+        case yieldModuleApproveNeeded = "Approve Required"
+        case yieldModuleSourceInfo = "Earning"
 
         // MARK: - Common
 
