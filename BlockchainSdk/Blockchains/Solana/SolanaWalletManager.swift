@@ -355,3 +355,9 @@ extension SolanaWalletManager: CompiledTransactionSender, CompiledTransactionFee
         return TransactionSendResult(hash: hash)
     }
 }
+
+extension SolanaWalletManager: MinimalBalanceProvider {
+    func minimalBalance() -> Decimal {
+        minimalAmountForRentExemption.value
+    }
+}
