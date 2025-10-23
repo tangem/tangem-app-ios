@@ -15,8 +15,8 @@ import TangemFoundation
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 import TangemUI
-import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class StakingDetailsViewModel: ObservableObject {
     // MARK: - ViewState
@@ -32,7 +32,7 @@ final class StakingDetailsViewModel: ObservableObject {
     @Published var actionButtonLoading: Bool = false
     @Published var actionButtonState: ActionButtonState = .enabled
     @Published var actionButtonType: ActionButtonType?
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     private(set) lazy var scrollViewStateObject: RefreshScrollViewStateObject = .init(
@@ -49,10 +49,7 @@ final class StakingDetailsViewModel: ObservableObject {
     private let tokenItem: TokenItem
     private let tokenBalanceProvider: TokenBalanceProvider
     private let stakingManager: StakingManager
-    private let accountInitializedStateProvider: StakingAccountInitializationStateProvider?
     private weak var coordinator: StakingDetailsRoutable?
-
-    private var isAccountInitialized = true
 
     private lazy var balanceFormatter = BalanceFormatter()
     private lazy var percentFormatter = PercentFormatter()
@@ -65,14 +62,12 @@ final class StakingDetailsViewModel: ObservableObject {
         tokenItem: TokenItem,
         tokenBalanceProvider: TokenBalanceProvider,
         stakingManager: StakingManager,
-        coordinator: StakingDetailsRoutable,
-        accountInitializedStateProvider: StakingAccountInitializationStateProvider?
+        coordinator: StakingDetailsRoutable
     ) {
         self.tokenItem = tokenItem
         self.tokenBalanceProvider = tokenBalanceProvider
         self.stakingManager = stakingManager
         self.coordinator = coordinator
-        self.accountInitializedStateProvider = accountInitializedStateProvider
 
         bind()
     }
@@ -82,15 +77,6 @@ final class StakingDetailsViewModel: ObservableObject {
     }
 
     func userDidTapActionButton() {
-        if case .ton = tokenItem.blockchain, !isAccountInitialized {
-            alert = .init(
-                title: Localization.commonAttention,
-                message: Localization.stakingNotificationTonActivateAccount
-            )
-            Analytics.log(event: .stakingNoticeUninitializedAddress, params: [.token: tokenItem.currencySymbol])
-            return
-        }
-
         guard stakingManager.state.yieldInfo?.preferredValidators.allSatisfy({ $0.status == .full }) == false else {
             alert = .init(
                 title: Localization.stakingErrorNoValidatorsTitle,
@@ -151,16 +137,7 @@ private extension StakingDetailsViewModel {
     }
 
     func refresh() async {
-        async let updateState: Void = stakingManager.updateState(loadActions: true)
-
-        guard let accountInitializedStateProvider = accountInitializedStateProvider else {
-            return await updateState
-        }
-
-        async let isAccountInitialized = try? await accountInitializedStateProvider.isAccountInitialized()
-        let result = await (isAccountInitialized, updateState)
-
-        self.isAccountInitialized = result.0 ?? true
+        await stakingManager.updateState(loadActions: true)
     }
 
     func setupMainActionButton(state: TokenBalanceType) {
@@ -213,14 +190,11 @@ private extension StakingDetailsViewModel {
     func setupDetailsSection(yield: StakingYieldInfo) {
         var viewModels = [
             DefaultRowViewModel(
-                title: Localization.stakingDetailsAnnualPercentageRate,
+                title: yield.rewardType.title,
                 detailsType: .text(yield.rewardRateValues.formatted(formatter: percentFormatter)),
                 accessibilityIdentifier: StakingAccessibilityIdentifiers.annualPercentageRateValue,
                 secondaryAction: { [weak self] in
-                    self?.openBottomSheet(
-                        title: Localization.stakingDetailsAnnualPercentageRate,
-                        description: Localization.stakingDetailsAnnualPercentageRateInfo
-                    )
+                    self?.openBottomSheet(title: yield.rewardType.title, description: yield.rewardType.info)
                 }
             ),
             DefaultRowViewModel(
@@ -310,9 +284,9 @@ private extension StakingDetailsViewModel {
         let rewards = balances.rewards()
         switch rewards.sum() {
         case .zero where yield.rewardClaimingType == .auto:
-            rewardViewData = RewardViewData(state: .automaticRewards)
+            rewardViewData = RewardViewData(state: .automaticRewards, networkType: yield.item.network)
         case .zero:
-            rewardViewData = RewardViewData(state: .noRewards)
+            rewardViewData = RewardViewData(state: .noRewards, networkType: yield.item.network)
         case let rewardsValue:
             let rewardsCryptoFormatted = balanceFormatter.formatCryptoBalance(
                 rewardsValue,
@@ -338,7 +312,8 @@ private extension StakingDetailsViewModel {
                             rewardsValue: rewardsValue
                         )
                     }
-                }
+                },
+                networkType: yield.item.network
             )
         }
     }
@@ -379,14 +354,16 @@ private extension StakingDetailsViewModel {
             case .single(let action):
                 openFlow(for: action)
             case .multiple(let actions):
-                var buttons: [Alert.Button] = actions.map { action in
-                    .default(Text(action.displayType.title)) { [weak self] in
+                let buttons = actions.map { action in
+                    ConfirmationDialogViewModel.Button(title: action.displayType.title) { [weak self] in
                         self?.openFlow(for: action)
                     }
                 }
 
-                buttons.append(.cancel())
-                actionSheet = .init(sheet: .init(title: Text(Localization.commonSelectAction), buttons: buttons))
+                confirmationDialog = ConfirmationDialogViewModel(
+                    title: Localization.commonSelectAction,
+                    buttons: buttons + [ConfirmationDialogViewModel.Button.cancel]
+                )
             }
         } catch {
             alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)
@@ -593,6 +570,22 @@ private extension RewardRateValues {
             formatter.format(value, option: .staking)
         case .interval(let min, let max):
             formatter.formatInterval(min: min, max: max)
+        }
+    }
+}
+
+private extension RewardType {
+    var title: String {
+        switch self {
+        case .apr: Localization.stakingDetailsAnnualPercentageRate
+        case .apy: Localization.stakingDetailsAnnualPercentageYield
+        }
+    }
+
+    var info: String {
+        switch self {
+        case .apr: Localization.stakingDetailsAnnualPercentageRateInfo
+        case .apy: Localization.stakingDetailsAnnualPercentageYieldInfo
         }
     }
 }

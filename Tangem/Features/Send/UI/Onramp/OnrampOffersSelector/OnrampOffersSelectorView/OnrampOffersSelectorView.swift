@@ -43,13 +43,14 @@ struct OnrampOffersSelectorView: View {
             .subtitleSpacing(0)
             .padding(.horizontal, 16)
 
-            GroupedScrollView(alignment: .leading, spacing: 8) {
+            GroupedScrollView(contentType: .plain(alignment: .leading, spacing: 8)) {
                 content
             }
             .scrollBounceBehaviorBackport(.basedOnSize)
-            .animation(.contentFrameUpdate, value: viewModel.viewState)
+            .animation(.contentFrameUpdate, value: viewModel.viewState.isPaymentMethods)
             .padding(.bottom, 16)
         }
+        .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.tertiary

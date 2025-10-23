@@ -7,13 +7,11 @@
 //
 
 import Foundation
-import UIKit
-import SwiftUI
 import Combine
 import CombineExt
 import TangemLocalization
 import TangemUI
-import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemFoundation
 
 final class MainViewModel: ObservableObject {
@@ -22,13 +20,14 @@ final class MainViewModel: ObservableObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.wcService) private var wcService: WCService
+    @Injected(\.yieldModuleNetworkManager) private var yieldModuleNetworkManager: YieldModuleNetworkManager
 
     // MARK: - ViewState
 
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
@@ -120,6 +119,8 @@ final class MainViewModel: ObservableObject {
             Analytics.log(.mainScreenOpened, params: analyticsParameters)
         }
 
+        updateMarkets()
+
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
     }
@@ -178,14 +179,19 @@ final class MainViewModel: ObservableObject {
     func didTapDeleteWallet() {
         Analytics.log(.buttonDeleteWalletTapped)
 
-        let sheet = ActionSheet(
-            title: Text(Localization.userWalletListDeletePrompt),
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.userWalletListDeletePrompt,
             buttons: [
-                .destructive(Text(Localization.commonDelete), action: weakify(self, forFunction: MainViewModel.didConfirmWalletDeletion)),
-                .cancel(Text(Localization.commonCancel)),
+                ConfirmationDialogViewModel.Button(
+                    title: Localization.commonDelete,
+                    role: .destructive,
+                    action: { [weak self] in
+                        self?.didConfirmWalletDeletion()
+                    }
+                ),
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func didConfirmWalletDeletion() {
@@ -274,7 +280,7 @@ final class MainViewModel: ObservableObject {
                 guard let self else { return }
 
                 switch event {
-                case .unlockedBiometrics:
+                case .unlocked:
                     recreatePages()
                 case .locked:
                     isLoggingOut = true
@@ -282,7 +288,7 @@ final class MainViewModel: ObservableObject {
                     if let userWalletModel = userWalletRepository.models[userWalletId] {
                         addNewPage(for: userWalletModel)
                     }
-                case .unlocked(let userWalletId):
+                case .unlockedWallet(let userWalletId):
                     userWalletUnlocked(userWalletId: userWalletId)
                 case .deleted(let userWalletIds):
                     // This model is alive for enough time to receive the "deleted" event
@@ -379,10 +385,12 @@ final class MainViewModel: ObservableObject {
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
-        if pushNotificationsAvailabilityProvider.isAvailable {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pushNotificationAuthorizationRequestDelay) { [weak self] in
-                self?.coordinator?.openPushNotificationsAuthorization()
-            }
+        guard pushNotificationsAvailabilityProvider.isAvailable else {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pushNotificationAuthorizationRequestDelay) { [weak self] in
+            self?.coordinator?.openPushNotificationsAuthorization()
         }
     }
 
@@ -413,6 +421,8 @@ final class MainViewModel: ObservableObject {
         case .visaWallet(_, _, let viewModel):
             await viewModel.onPullToRefresh()
         }
+
+        updateMarkets(force: true)
     }
 }
 
@@ -443,8 +453,10 @@ private extension MainViewModel {
 // MARK: - Navigation
 
 extension MainViewModel: MainLockedUserWalletDelegate {
-    func openTroubleshooting(actionSheet: ActionSheetBinder) {
-        self.actionSheet = actionSheet
+    func openTroubleshooting(confirmationDialog: ConfirmationDialogViewModel) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.scanTroubleshootingDelay) {
+            self.confirmationDialog = confirmationDialog
+        }
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
@@ -469,8 +481,8 @@ extension MainViewModel: MultiWalletMainContentDelegate {
 }
 
 extension MainViewModel: SingleWalletMainContentDelegate {
-    func present(actionSheet: ActionSheetBinder) {
-        self.actionSheet = actionSheet
+    func present(confirmationDialog: ConfirmationDialogViewModel) {
+        self.confirmationDialog = confirmationDialog
     }
 }
 
@@ -490,6 +502,23 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
     }
 }
 
+// MARK: - Yield module
+
+extension MainViewModel {
+    func updateMarkets(force: Bool = false) {
+        if force || yieldModuleNetworkManager.markets.isEmpty {
+            let walletModels = userWalletRepository.models.flatMap { $0.walletModelsManager.walletModels }
+            let chainIDs = Set(
+                walletModels.compactMap { walletModel -> String? in
+                    guard walletModel.tokenItem.isToken, walletModel.yieldModuleManager != nil else { return nil }
+                    return walletModel.tokenItem.blockchain.chainId.map { String($0) }
+                }
+            )
+            yieldModuleNetworkManager.updateMarkets(chainIDs: chainIDs.asArray)
+        }
+    }
+}
+
 // MARK: - Constants
 
 private extension MainViewModel {
@@ -497,6 +526,7 @@ private extension MainViewModel {
         /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
+        static let scanTroubleshootingDelay = 0.5
         static let pushNotificationAuthorizationRequestDelay = 0.5
         // [REDACTED_TODO_COMMENT]
         static let bottomSheetVisibilityColdStartDelay = 0.5

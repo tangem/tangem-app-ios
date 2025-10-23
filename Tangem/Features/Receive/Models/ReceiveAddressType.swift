@@ -15,9 +15,9 @@ enum ReceiveAddressType: Identifiable {
     var id: String {
         switch self {
         case .address(let addressInfo):
-            return "\(Constants.addressPrefix)_\(addressInfo.id)"
+            return "\(key.id)_\(addressInfo.id)"
         case .domain(let addressName, let addressInfo):
-            return "\(Constants.domainPrefix)_\(addressName)_\(addressInfo.id)"
+            return "\(key.id)_\(addressName)_\(addressInfo.id)"
         }
     }
 
@@ -29,13 +29,33 @@ enum ReceiveAddressType: Identifiable {
             return info
         }
     }
+
+    var key: Key {
+        switch self {
+        case .address:
+            return .address
+        case .domain:
+            return .domain
+        }
+    }
+
+    var domainName: String? {
+        switch self {
+        case .address:
+            return nil
+        case .domain(let name, _):
+            return name
+        }
+    }
 }
 
-// MARK: - Constants
-
 extension ReceiveAddressType {
-    enum Constants {
-        static let addressPrefix = "address"
-        static let domainPrefix = "domain"
+    enum Key: String, Identifiable, Hashable {
+        var id: String {
+            rawValue
+        }
+
+        case domain
+        case address
     }
 }

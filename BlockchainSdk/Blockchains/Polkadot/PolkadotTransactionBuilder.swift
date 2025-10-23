@@ -41,11 +41,11 @@ class PolkadotTransactionBuilder {
         case .polkadot, .azero, .joystream, .bittensor:
             return Data(hexString: "0x0500")
         case .kusama:
-            return Data(hexString: "0x0400")
+            return Data(hexString: "0x0A00")
         case .westend:
             return Data(hexString: "0x0400")
         case .energyWebX:
-            return Data(hexString: "0x0a07")
+            return Data(hexString: "0x0A00")
         }
     }
 
@@ -72,6 +72,7 @@ class PolkadotTransactionBuilder {
         var message = Data()
         message.append(try encodeCall(amount: amount, destination: destination, rawAddress: rawAddress))
         message.append(try encodeEraNonceTip(era: meta.era, nonce: meta.nonce, tip: 0))
+        message.append(try encodeAssetIdIfNeeded())
         message.append(try encodeCheckMetadataHashExtensionModeIfNeeded(runtimeVersion: runtimeVersion))
         message.append(try encode(meta.specVersion))
         message.append(try encode(meta.transactionVersion))
@@ -97,6 +98,7 @@ class PolkadotTransactionBuilder {
         transactionData.append(Data(sigTypeEd25519))
         transactionData.append(signature)
         transactionData.append(try encodeEraNonceTip(era: meta.era, nonce: meta.nonce, tip: 0))
+        transactionData.append(try encodeAssetIdIfNeeded())
         transactionData.append(try encodeCheckMetadataHashExtensionModeIfNeeded(runtimeVersion: runtimeVersion))
         transactionData.append(try encodeCall(amount: amount, destination: destination, rawAddress: rawAddress))
 
@@ -144,7 +146,7 @@ class PolkadotTransactionBuilder {
         }
     }
 
-    private func encodeEraNonceTip(era: PolkadotBlockchainMeta.Era, nonce: UInt64, tip: UInt64) throws -> Data {
+    private func encodeEraNonceTip(era: PolkadotBlockchainMeta.Era, nonce: UInt32, tip: UInt64) throws -> Data {
         var data = Data()
 
         let encodedEra = encodeEra(era)
@@ -209,6 +211,30 @@ class PolkadotTransactionBuilder {
             // no actual payload is constructed and null is encoded instead
             let checkMetadataHashPayload = try encode(UInt8(0), .compact)
             data.append(checkMetadataHashPayload)
+        }
+
+        return data
+    }
+
+    /// Add assetId zero byte for chains migrated to asset hub
+    private func encodeAssetIdIfNeeded() throws -> Data {
+        var data = Data()
+
+        switch network {
+        case .kusama:
+            data.append(try encode(UInt8(0), .compact))
+        case .polkadot:
+            break
+        case .westend:
+            break
+        case .azero:
+            break
+        case .joystream:
+            break
+        case .bittensor:
+            break
+        case .energyWebX:
+            break
         }
 
         return data

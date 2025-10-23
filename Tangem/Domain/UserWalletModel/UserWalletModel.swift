@@ -14,7 +14,7 @@ import TangemFoundation
 
 protocol UserWalletModel:
     MainHeaderSupplementInfoProvider,
-    TotalBalanceProviding,
+    TotalBalanceProvider,
     MultiWalletMainHeaderSubtitleDataSource,
     AnalyticsContextDataProvider,
     MainHeaderUserWalletStateInfoProvider,
@@ -28,12 +28,12 @@ protocol UserWalletModel:
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
     var tangemApiAuthData: TangemApiAuthorizationData? { get }
-    var nftManager: NFTManager { get }
     var keysRepository: KeysRepository { get }
     var refcodeProvider: RefcodeProvider? { get }
     var signer: TangemSigner { get }
     var updatePublisher: AnyPublisher<UpdateResult, Never> { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
+    var nftManager: NFTManager { get }
     var walletImageProvider: WalletImageProviding { get }
     var accountModelsManager: AccountModelsManager { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
@@ -45,14 +45,11 @@ protocol UserWalletModel:
 
     // MARK: - Properties and methods to be deleted after migration to Accounts is complete
 
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'walletModelsManager' instead")
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'walletModelsManager' instead and remove this property ([REDACTED_INFO])")
     var walletModelsManager: WalletModelsManager { get }
 
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokensManager' instead")
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokensManager' instead and remove this property ([REDACTED_INFO])")
     var userTokensManager: UserTokensManager { get }
-
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokenListManager' instead")
-    var userTokenListManager: UserTokenListManager { get }
 }
 
 enum UpdateRequest {
@@ -62,11 +59,19 @@ enum UpdateRequest {
     case mnemonicBackupCompleted
     case iCloudBackupCompleted
     case accessCodeDidSet
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    case tangemPayOfferAccepted(TangemPayAccount)
 }
 
 enum UpdateResult {
     case configurationChanged(model: UserWalletModel)
     case nameDidChange(name: String)
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    case tangemPayOfferAccepted(TangemPayAccount)
 
     var newName: String? {
         switch self {
@@ -75,5 +80,14 @@ enum UpdateResult {
         default:
             return nil
         }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccount: TangemPayAccount? {
+        if case .tangemPayOfferAccepted(let tangemPayAccount) = self {
+            return tangemPayAccount
+        }
+        return nil
     }
 }

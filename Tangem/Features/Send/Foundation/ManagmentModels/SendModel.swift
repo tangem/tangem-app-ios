@@ -17,6 +17,7 @@ protocol SendModelRoutable: AnyObject {
     func openNetworkCurrency()
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
     func resetFlow()
+    func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel)
 }
 
 class SendModel {
@@ -96,22 +97,29 @@ private extension SendModel {
                 _amount.compactMap { $0?.crypto },
                 _destination.compactMap { $0?.value.transactionAddress },
                 _destinationAdditionalField,
-                _selectedFee.compactMap { $0.value.value }
+                _selectedFee.map { $0.value }
             )
             .withWeakCaptureOf(self)
-            .asyncMap { manager, args -> Result<BSDKTransaction, Error> in
+            .asyncMap { manager, args -> Result<BSDKTransaction, Error>? in
                 let (amount, destination, additionalField, fee) = args
 
-                do {
-                    let transaction = try await manager.makeTransaction(
-                        amountValue: amount,
-                        destination: destination,
-                        additionalField: additionalField,
-                        fee: fee
-                    )
+                switch fee {
+                case .loading:
+                    return .none
+                case .loaded(let fee):
+                    do {
+                        let transaction = try await manager.makeTransaction(
+                            amountValue: amount,
+                            destination: destination,
+                            additionalField: additionalField,
+                            fee: fee
+                        )
 
-                    return .success(transaction)
-                } catch {
+                        return .success(transaction)
+                    } catch {
+                        return .failure(error)
+                    }
+                case .failedToLoad(let error):
                     return .failure(error)
                 }
             }
@@ -788,7 +796,7 @@ extension SendModel: NotificationTapDelegate {
             sourceToken.availableBalanceProvider.balanceType.value.flatMap {
                 leaveMinimalAmountOnBalance(amountToLeave: amount, balance: $0)
             }
-        case .reduceAmountBy(let amount, _):
+        case .reduceAmountBy(let amount, _, _):
             _amount.value?.crypto.flatMap { reduceAmountBy(amount, source: $0) }
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
@@ -817,10 +825,13 @@ extension SendModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus:
+             .tangemPayViewKYCStatus,
+             .allowPushPermissionRequest,
+             .postponePushPermissionRequest,
+             .activate,
+             .givePermission:
             assertionFailure("Notification tap not handled")
         }
     }

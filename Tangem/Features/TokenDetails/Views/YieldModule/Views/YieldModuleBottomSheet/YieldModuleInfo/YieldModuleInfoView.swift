@@ -31,7 +31,6 @@ struct YieldModuleInfoView: View {
             header: { makeHeader(viewState: viewModel.viewState) },
             topContent: { topContent },
             content: { mainContent },
-            notificationBanner: viewModel.notificationBannerParams,
             contentTopPadding: contentTopPadding,
             buttonTopPadding: buttonTopPadding
         )
@@ -98,13 +97,19 @@ struct YieldModuleInfoView: View {
     private var mainButton: MainButton {
         switch viewModel.viewState {
         case .earnInfo:
-            .init(settings: .init(title: Localization.yieldModuleStopEarning, style: .secondary, action: ctaButtonAction))
+            .init(settings: .init(
+                title: Localization.yieldModuleStopEarning,
+                style: .secondary,
+                isDisabled: !viewModel.isMainButtonAvailable,
+                action: ctaButtonAction
+            ))
         case .approve, .stopEarning:
             .init(settings: .init(
                 title: Localization.commonConfirm,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
-                isDisabled: !viewModel.isButtonEnabled,
+                isLoading: viewModel.isProcessingRequest,
+                isDisabled: !viewModel.isMainButtonAvailable,
                 action: ctaButtonAction
             ))
         }
@@ -125,8 +130,22 @@ struct YieldModuleInfoView: View {
     @ViewBuilder
     private var mainContent: some View {
         switch viewModel.viewState {
-        case .earnInfo(let params):
-            YieldModuleEarnInfoView(params: params)
+        case .earnInfo:
+            YieldModuleActiveСontentView(
+                apyState: viewModel.apyState,
+                apyTrend: viewModel.apyTrend,
+                minAmountState: viewModel.minimalAmountState,
+                chartState: viewModel.chartState,
+                networkFeeState: viewModel.currentNetworkFeeState,
+                networkFeeAmountState: viewModel.networkFeeAmountState,
+                bannerParams: viewModel.notificationBannerParams,
+                tokenName: viewModel.walletModel.tokenItem.name,
+                tokenSymbol: viewModel.walletModel.tokenItem.currencySymbol,
+                transferMode: Localization.yieldModuleTransferModeAutomatic,
+                availableBalance: viewModel.getAvailableBalanceString(),
+                readMoreUrl: viewModel.readMoreURL,
+                myFundsSectionText: viewModel.makeMyFundsSectionText()
+            )
 
         case .approve:
             YieldFeeSection(
@@ -134,12 +153,9 @@ struct YieldModuleInfoView: View {
                 state: viewModel.networkFeeState,
                 footerText: Localization.yieldModuleApproveSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
-                url: viewModel.readMoreURLString,
-                onLinkTapAction: nil
+                url: viewModel.readMoreURL,
+                isLinkActive: true
             )
-            .task {
-                await viewModel.fetchNetworkFee()
-            }
 
         case .stopEarning:
             YieldFeeSection(
@@ -147,12 +163,9 @@ struct YieldModuleInfoView: View {
                 state: viewModel.networkFeeState,
                 footerText: Localization.yieldModuleStopEarningSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
-                url: viewModel.readMoreURLString,
-                onLinkTapAction: nil
+                url: viewModel.readMoreURL,
+                isLinkActive: true
             )
-            .task {
-                await viewModel.fetchNetworkFee()
-            }
         }
     }
 
@@ -161,9 +174,9 @@ struct YieldModuleInfoView: View {
         case .earnInfo:
             viewModel.onShowStopEarningSheet
         case .stopEarning:
-            viewModel.onStopEarningTap
+            { viewModel.onAcctionTap(action: .exit) }
         case .approve:
-            viewModel.onApproveTap
+            { viewModel.onAcctionTap(action: .approve) }
         }
     }
 }
@@ -214,8 +227,8 @@ private extension YieldModuleInfoView {
         switch viewState {
         case .stopEarning, .approve:
             BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackTap() } })
-        case .earnInfo(let params):
-            earnInfoHeader(status: params.status.description)
+        case .earnInfo:
+            earnInfoHeader(status: viewModel.activityState.description)
         }
     }
 }

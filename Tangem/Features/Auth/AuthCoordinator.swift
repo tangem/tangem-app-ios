@@ -26,8 +26,7 @@ class AuthCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator?
-    @Published var importWalletSelectorCoordinator: ImportWalletSelectorCoordinator?
+    @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
 
     // MARK: - Child view models
 
@@ -83,35 +82,17 @@ extension AuthCoordinator: AuthRoutable {
 // MARK: - NewAuthRoutable
 
 extension AuthCoordinator: NewAuthRoutable {
-    func openCreateWallet() {
-        let dismissAction: Action<CreateWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
+    func openAddWallet() {
+        let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main(let userWallet):
                 self?.dismiss(with: .main(userWallet))
             }
         }
 
-        let coordinator = CreateWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = CreateWalletSelectorCoordinator.InputOptions()
+        let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
+        let inputOptions = AddWalletSelectorCoordinator.InputOptions()
         coordinator.start(with: inputOptions)
-        createWalletSelectorCoordinator = coordinator
-    }
-
-    func openImportWallet() {
-        let dismissAction: Action<ImportWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
-            switch options {
-            case .main(let userWallet):
-                self?.dismiss(with: .main(userWallet))
-            }
-        }
-
-        let coordinator = ImportWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = ImportWalletSelectorCoordinator.InputOptions()
-        coordinator.start(with: inputOptions)
-        importWalletSelectorCoordinator = coordinator
-    }
-
-    func openShop() {
-        safariManager.openURL(AppConstants.getWebShopUrl(isExistingUser: true))
+        addWalletSelectorCoordinator = coordinator
     }
 }

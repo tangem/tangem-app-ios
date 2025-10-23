@@ -8,14 +8,14 @@
 
 import Foundation
 import Combine
-import SwiftUI
+import UIKit
 import BlockchainSdk
 import TangemFoundation
 import TangemStories
 import TangemLocalization
 import TangemUI
-import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
@@ -109,7 +109,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         prepareSelf()
     }
 
-    func presentActionSheet(_ actionSheet: ActionSheetBinder) {
+    func present(confirmationDialog: ConfirmationDialogViewModel) {
         assertionFailure("Must be reimplemented")
     }
 
@@ -144,6 +144,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
+    @MainActor
     func onPullToRefresh() async {
         guard updateTask == nil else {
             return
@@ -153,7 +154,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             miniChartsProvider.fetch(for: [id], with: miniChartPriceIntervalType)
         }
 
-        await runOnMain { isReloadingTransactionHistory = true }
+        isReloadingTransactionHistory = true
         updateTask = runTask(in: self) { viewModel in
             // Ignore the CancelationError() here
             // WalletModel.generalUpdate() has not error throwing
@@ -164,7 +165,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         await updateTask?.value
 
         AppLogger.info(self, "♻️ loading state changed")
-        await runOnMain { isReloadingTransactionHistory = false }
+        isReloadingTransactionHistory = false
 
         updateTask = nil
     }
@@ -600,17 +601,18 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        let addressButtons: [Alert.Button] = addresses.enumerated().map { index, address in
-            .default(Text(address.localizedName)) {
+        let addressButtons = addresses.enumerated().map { index, address in
+            ConfirmationDialogViewModel.Button(title: address.localizedName) {
                 callback(index)
             }
         }
 
-        let sheet = ActionSheet(
-            title: Text(Localization.tokenDetailsChooseAddress),
-            buttons: addressButtons + [.cancel(Text(Localization.commonCancel))]
+        let viewModel = ConfirmationDialogViewModel(
+            title: Localization.tokenDetailsChooseAddress,
+            buttons: addressButtons + [ConfirmationDialogViewModel.Button.cancel]
         )
-        presentActionSheet(ActionSheetBinder(sheet: sheet))
+
+        present(confirmationDialog: viewModel)
     }
 
     func openExplorer(at url: URL) {

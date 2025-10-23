@@ -13,8 +13,8 @@ import TangemLocalization
 import TangemFoundation
 import TangemAccessibilityIdentifiers
 import TangemMobileWalletSdk
-import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - Injected
@@ -41,7 +41,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published var forgetViewModel: DefaultRowViewModel?
 
     @Published var alert: AlertBinder?
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     // MARK: - Private
 
@@ -110,18 +110,21 @@ private extension UserWalletSettingsViewModel {
             }
             .store(in: &bag)
 
-        userWalletModel.accountModelsManager
-            .accountModelsPublisher
-            .withWeakCaptureOf(self)
-            .map { viewModel, accounts in
-                UserSettingsAccountsViewModel(
-                    accountModels: accounts,
-                    accountModelsManager: viewModel.userWalletModel.accountModelsManager,
-                    coordinator: viewModel.coordinator
-                )
-            }
-            .assign(to: \.accountsViewModel, on: self, ownership: .weak)
-            .store(in: &bag)
+        if FeatureProvider.isAvailable(.accounts) {
+            userWalletModel.accountModelsManager
+                .accountModelsPublisher
+                .withWeakCaptureOf(self)
+                .map { viewModel, accounts in
+                    UserSettingsAccountsViewModel(
+                        accountModels: accounts,
+                        accountModelsManager: viewModel.userWalletModel.accountModelsManager,
+                        userWalletConfig: viewModel.userWalletModel.config,
+                        coordinator: viewModel.coordinator
+                    )
+                }
+                .assign(to: \.accountsViewModel, on: self, ownership: .weak)
+                .store(in: &bag)
+        }
     }
 
     func setupView() {
@@ -195,10 +198,17 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        forgetViewModel = DefaultRowViewModel(
-            title: Localization.settingsForgetWallet,
-            action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
-        )
+        if userWalletModel.config.hasFeature(.userWalletBackup) {
+            forgetViewModel = DefaultRowViewModel(
+                title: Localization.settingsForgetWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapRemoveMobileWallet)
+            )
+        } else {
+            forgetViewModel = DefaultRowViewModel(
+                title: Localization.settingsForgetWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
+            )
+        }
     }
 
     func setupMobileViewModels() {
@@ -233,15 +243,15 @@ private extension UserWalletSettingsViewModel {
 
             case .upgrade:
                 mobileUpgradeNotificationInput = mobileSettingsUtil.makeUpgradeNotificationInput(
-                    onContext: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationContext),
+                    onUpgrade: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationUpgrade),
                     onDismiss: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationDismiss)
                 )
             }
         }
     }
 
-    func onMobileUpgradeNotificationContext(context: MobileWalletContext) {
-        coordinator?.openMobileUpgrade(userWalletModel: userWalletModel, context: context)
+    func onMobileUpgradeNotificationUpgrade() {
+        coordinator?.openMobileUpgrade(userWalletModel: userWalletModel)
     }
 
     func onMobileUpgradeNotificationDismiss() {
@@ -278,17 +288,25 @@ private extension UserWalletSettingsViewModel {
     func didTapDeleteWallet() {
         Analytics.log(.buttonDeleteWalletTapped)
 
-        let sheet = ActionSheet(
-            title: Text(Localization.userWalletListDeletePrompt),
+        let deleteButton = ConfirmationDialogViewModel.Button(
+            title: Localization.commonDelete,
+            role: .destructive,
+            action: { [weak self] in
+                self?.didConfirmWalletDeletion()
+            }
+        )
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.userWalletListDeletePrompt,
             buttons: [
-                .destructive(
-                    Text(Localization.commonDelete),
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.didConfirmWalletDeletion)
-                ),
-                .cancel(Text(Localization.commonCancel)),
+                deleteButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-        actionSheet = ActionSheetBinder(sheet: sheet)
+    }
+
+    func didTapRemoveMobileWallet() {
+        coordinator?.openMobileRemoveWalletNotification(userWalletModel: userWalletModel)
     }
 
     func didConfirmWalletDeletion() {
@@ -335,7 +353,11 @@ private extension UserWalletSettingsViewModel {
     func openManageTokens() {
         Analytics.log(.settingsButtonManageTokens)
 
-        coordinator?.openManageTokens(userWalletModel: userWalletModel)
+        coordinator?.openManageTokens(
+            walletModelsManager: userWalletModel.walletModelsManager,
+            userTokensManager: userWalletModel.userTokensManager,
+            userWalletConfig: userWalletModel.config
+        )
     }
 
     func openCardSettings() {
@@ -366,10 +388,15 @@ private extension UserWalletSettingsViewModel {
             return
         }
 
+        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
+            .accounts(userWalletModel.accountModelsManager) :
+            .plainUserTokensManager(userWalletModel.userTokensManager)
+
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
             supportedBlockchains: userWalletModel.config.supportedBlockchains,
-            userTokensManager: userWalletModel.userTokensManager
+            workMode: workMode,
+            tokenIconInfoBuilder: TokenIconInfoBuilder()
         )
 
         coordinator?.openReferral(input: input)
