@@ -146,7 +146,7 @@ class CommonEthereumTransactionBuilder: EthereumTransactionBuilder {
     func buildTxCompilerPreSigningOutput(input: EthereumSigningInput) throws -> TxCompilerPreSigningOutput {
         let txInputData = try input.serializedData()
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
-        let preSigningOutput = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
+        let preSigningOutput = try TxCompilerPreSigningOutput(serializedBytes: preImageHashes)
 
         if preSigningOutput.error != .ok {
             BSDKLogger.error("EthereumPreSigningOutput has a error", error: preSigningOutput.errorMessage)
@@ -187,7 +187,7 @@ class CommonEthereumTransactionBuilder: EthereumTransactionBuilder {
             publicKeys: publicKeys
         )
 
-        let output = try EthereumSigningOutput(serializedData: compileWithSignatures)
+        let output = try EthereumSigningOutput(serializedBytes: compileWithSignatures)
 
         if output.error != .ok {
             BSDKLogger.error("EthereumSigningOutput has a error", error: output.errorMessage)
