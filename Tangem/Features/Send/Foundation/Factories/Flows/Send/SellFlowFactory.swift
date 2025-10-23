@@ -12,7 +12,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
     let sellParameters: PredefinedSellParameters
 
     let shouldShowFeeSelector: Bool
@@ -41,7 +41,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     )
 
     init(
-        userWalletInfo: SendWalletInfo,
+        userWalletInfo: UserWalletInfo,
         sellParameters: PredefinedSellParameters,
         walletModel: any WalletModel,
         expressInput: CommonExpressDependenciesFactory.Input
@@ -166,6 +166,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
         notificationManager.setupManager(with: sendModel)
 
         // Logger setup
+        analyticsLogger.setup(sendDestinationInput: sendModel)
         analyticsLogger.setup(sendFeeInput: sendModel)
         analyticsLogger.setup(sendSourceTokenInput: sendModel)
         analyticsLogger.setup(sendReceiveTokenInput: sendModel)
@@ -201,9 +202,9 @@ extension SellFlowFactory: SendBaseBuildable {
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
                 input: sendModel,
                 sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
+                    userWalletInfo: userWalletInfo,
                     sourceTokenInput: sendModel,
                     receiveTokenOutput: sendModel,
-                    expressRepository: expressDependenciesFactory.expressRepository,
                     receiveTokenBuilder: makeSendReceiveTokenBuilder(),
                     analyticsLogger: analyticsLogger
                 )

@@ -84,7 +84,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             selectedIcon = GridItemImage(id: account.icon.name, kind: gridItemImageKind)
 
         case .create:
-            let randomAccountColor = AccountModelUtils.UI.getRadomColor()
+            let randomAccountColor = AccountModelUtils.UI.getRandomIconColor()
             let color = AccountModelUtils.UI.iconColor(from: randomAccountColor)
             selectedColor = GridItemColor(id: randomAccountColor, color: color)
             selectedIcon = GridItemImage(
@@ -100,6 +100,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         self.flowType = flowType
         self.closeAction = closeAction
         self.accountModelsManager = accountModelsManager
+
+        // [REDACTED_TODO_COMMENT]
         description = if let cryptoAccount = flowType.account as? any CryptoAccountModel {
             cryptoAccount.descriptionString
         } else {
@@ -113,21 +115,13 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     // MARK: - ViewData
 
-    var nameMode: AccountIconView.NameMode {
-        switch selectedIcon.kind {
-        case .image(let imageType):
-            return .imageType(imageType)
-
-        case .letter:
-            if let firstLetter = accountName.first {
-                return .letter(String(firstLetter))
-            }
-
-            return .imageType(
-                Assets.tangemIcon,
-                AccountIconView.NameMode.ImageConfig(opacity: 0.4)
-            )
-        }
+    var iconViewData: AccountIconView.ViewData {
+        // Can't use `AccountModelUtils.UI.iconColor` here because of slightly different logic of `nameMode` creation
+        // see nameMode
+        AccountIconView.ViewData(
+            backgroundColor: AccountModelUtils.UI.iconColor(from: selectedColor.id),
+            nameMode: nameMode
+        )
     }
 
     var placeholder: String {
@@ -202,7 +196,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         close()
     }
 
-    // MARK: - Private methods
+    // MARK: - Private
 
     private func close() {
         closeAction()
@@ -220,6 +214,23 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             }
             .assign(to: \.description, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private var nameMode: AccountIconView.NameMode {
+        switch selectedIcon.kind {
+        case .image(let imageType):
+            return .imageType(imageType)
+
+        case .letter:
+            if let firstLetter = accountName.first {
+                return .letter(String(firstLetter))
+            }
+
+            return .imageType(
+                Assets.tangemIcon,
+                AccountIconView.NameMode.ImageConfig(opacity: 0.4)
+            )
+        }
     }
 
     // MARK: - Alerts

@@ -187,7 +187,10 @@ private extension CommonDeeplinkPresenter {
             with: .default(
                 options: .init(
                     userWalletModel: userWalletModel,
-                    expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+                    expressTokensListAdapter: CommonExpressTokensListAdapter(
+                        userTokensManager: userWalletModel.userTokensManager,
+                        walletModelsManager: userWalletModel.walletModelsManager,
+                    ),
                     tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
                 )
             )
@@ -215,7 +218,7 @@ private extension CommonDeeplinkPresenter {
     private func constructSwapViewController(userWalletModel: UserWalletModel) -> UIViewController {
         let coordinator = coordinatorFactory.makeSwapCoordinator(
             userWalletModel: userWalletModel,
-            dismissAction: { UIApplication.dismissTop() }
+            dismissAction: { _ in UIApplication.dismissTop() }
         )
 
         coordinator.start(with: .default)
@@ -279,15 +282,23 @@ private extension CommonDeeplinkPresenter {
         deeplinkString: String,
         userWalletModel: UserWalletModel
     ) -> UIViewController {
+        var viewController: UIViewController?
+
         let viewModel = TangemPayOnboardingViewModel(
             deeplinkString: deeplinkString,
             userWalletModel: userWalletModel,
-            closeOfferScreen: { UIApplication.dismissTop() }
+            closeOfferScreen: { @MainActor in
+                viewController?.dismiss(animated: true)
+                // To exclude reference cycle possibility
+                viewController = nil
+            }
         )
 
         let view = TangemPayOnboardingView(viewModel: viewModel)
         let controller = UIHostingController(rootView: view)
         controller.modalPresentationStyle = .overFullScreen
+
+        viewController = controller
 
         return controller
     }

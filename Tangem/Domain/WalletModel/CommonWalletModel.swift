@@ -14,6 +14,7 @@ import BlockchainSdk
 import TangemStaking
 import TangemFoundation
 import TangemExpress
+import TangemSdk
 
 class CommonWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
@@ -63,8 +64,6 @@ class CommonWalletModel {
     private var assetRequirementsTaskCancellable: AnyCancellable?
     private let isAssetRequirementsTaskInProgressSubject: CurrentValueSubject<Bool, Never> = .init(false)
 
-    private let amountType: Amount.AmountType
-    private let blockchainNetwork: BlockchainNetwork
     private let _state: CurrentValueSubject<WalletModelState, Never> = .init(.created)
     private lazy var _rate: CurrentValueSubject<WalletModelRate, Never> = .init(.loading(cached: quotesRepository.quote(for: tokenItem)))
 
@@ -73,12 +72,21 @@ class CommonWalletModel {
 
     private var bag = Set<AnyCancellable>()
 
+    private var amountType: Amount.AmountType {
+        tokenItem.amountType
+    }
+
+    private var blockchainNetwork: BlockchainNetwork {
+        tokenItem.blockchainNetwork
+    }
+
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> {
         isAssetRequirementsTaskInProgressSubject.eraseToAnyPublisher()
     }
 
     init(
         userWalletId: UserWalletId,
+        tokenItem: TokenItem,
         walletManager: WalletManager,
         stakingManager: StakingManager?,
         featureManager: WalletModelFeaturesManager,
@@ -86,7 +94,6 @@ class CommonWalletModel {
         receiveAddressService: ReceiveAddressService,
         sendAvailabilityProvider: TransactionSendAvailabilityProvider,
         tokenBalancesRepository: TokenBalancesRepository,
-        amountType: Amount.AmountType,
         shouldPerformHealthCheck: Bool,
         isCustom: Bool
     ) {
@@ -96,24 +103,11 @@ class CommonWalletModel {
         _stakingManager = stakingManager
         _transactionHistoryService = transactionHistoryService
         _receiveAddressService = receiveAddressService
-        self.amountType = amountType
+        self.tokenItem = tokenItem
         self.isCustom = isCustom
         self.sendAvailabilityProvider = sendAvailabilityProvider
         self.tokenBalancesRepository = tokenBalancesRepository
 
-        blockchainNetwork = BlockchainNetwork(
-            walletManager.wallet.blockchain,
-            derivationPath: walletManager.wallet.publicKey.derivationPath
-        )
-
-        let tokenItem = switch amountType {
-        case .coin, .reserve, .feeResource:
-            TokenItem.blockchain(blockchainNetwork)
-        case .token(let token):
-            TokenItem.token(token, blockchainNetwork)
-        }
-
-        self.tokenItem = tokenItem
         id = WalletModelId(tokenItem: tokenItem)
 
         bind()
@@ -181,8 +175,12 @@ class CommonWalletModel {
 
     private func updateState(_ state: WalletModelState) {
         AppLogger.info(self, "Updating state. New state is \(state)")
-        DispatchQueue.main.async { [weak self] in // captured as weak at call stack
-            self?._state.value = state
+        DispatchQueue.main.async { [_state, _yieldModuleManager, wallet, amountType] in
+            _yieldModuleManager?.updateState(
+                walletModelState: state,
+                balance: wallet.amounts[amountType]
+            )
+            _state.value = state
         }
     }
 
@@ -213,7 +211,7 @@ class CommonWalletModel {
         case .none:
             _rate.send(.failure(cached: rate.quote))
         case .some(let quote):
-            _rate.send(.loaded(quote))
+            _rate.send(.loaded(quote: quote))
         }
     }
 
@@ -356,8 +354,8 @@ extension CommonWalletModel: WalletModel {
         walletManager as? StakeKitTransactionSender
     }
 
-    var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? {
-        walletManager as? StakingAccountInitializationStateProvider
+    var accountInitializationService: (any BlockchainAccountInitializationService)? {
+        walletManager as? BlockchainAccountInitializationService
     }
 }
 
@@ -369,7 +367,6 @@ extension CommonWalletModel: WalletModelUpdater {
     /// and `fetch()` in CommonTransactionHistoryService uses its own `cancellable`.
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
         _transactionHistoryService?.clearHistory()
-        _receiveAddressService.clear()
 
         return Publishers
             .CombineLatest(
@@ -563,21 +560,26 @@ extension CommonWalletModel: WalletModelHelpers {
     func makeYieldModuleManager() -> (YieldModuleManager & YieldModuleManagerUpdater)? {
         guard case .token(let token, _) = tokenItem,
               let yieldSupplyService = walletManager.yieldSupplyService,
-              let ethereumNetworkProvider,
-              let ethereumTransactionDataBuilder
+              let ethereumNetworkProvider
         else {
             return nil
         }
+
+        let nonFilteredPendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never> =
+            walletManager
+                .walletPublisher
+                .map { $0.pendingTransactions }
+                .eraseToAnyPublisher()
+
         return CommonYieldModuleManager(
             walletAddress: wallet.defaultAddress.value,
             token: token,
             blockchain: wallet.blockchain,
             yieldSupplyService: yieldSupplyService,
-            tokenBalanceProvider: totalTokenBalanceProvider,
             ethereumNetworkProvider: ethereumNetworkProvider,
-            ethereumTransactionDataBuilder: ethereumTransactionDataBuilder,
             transactionCreator: transactionCreator,
-            blockaidApiService: BlockaidFactory().makeBlockaidAPIService()
+            blockaidApiService: BlockaidFactory().makeBlockaidAPIService(),
+            pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher
         )
     }
 }

@@ -331,12 +331,18 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
                 reviewAnswer: .undefined,
                 createdAt: Date()
             ),
-            card: nil
+            card: nil,
+            balance: nil,
+            depositAddress: nil
         )
     }
 
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
         VisaKYCAccessTokenResponse(token: "", locale: "")
+    }
+
+    func getBalance() async throws -> TangemPayBalance {
+        .init(currency: "", availableBalance: .zero)
     }
 
     func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse {
@@ -346,6 +352,10 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
             pan: .init(secret: "", iv: ""),
             cvv: .init(secret: "", iv: "")
         )
+    }
+
+    func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse {
+        TangemPayTransactionHistoryResponse(transactions: [])
     }
 
     func getOrder(orderId: String) async throws -> TangemPayOrderResponse {

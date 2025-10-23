@@ -8,8 +8,9 @@
 
 import Foundation
 import Combine
+import TangemNFT
 
-protocol CryptoAccountModel: BaseAccountModel, WalletModelBalancesProvider, AnyObject {
+protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, AnyObject {
     var isMainAccount: Bool { get }
 
     var descriptionString: String { get }

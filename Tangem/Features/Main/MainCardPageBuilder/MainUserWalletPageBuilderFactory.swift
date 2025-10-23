@@ -105,7 +105,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 userTokensReorderer: model.userTokensManager
             )
             let sectionsAdapter = TokenSectionsAdapter(
-                userTokenListManager: model.userTokenListManager,
+                userTokensManager: model.userTokensManager,
                 optionsProviding: optionsManager,
                 preservesLastSortedOrderOnSwitchToDragAndDrop: false
             )
@@ -125,14 +125,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             }()
 
-            let yieldModuleNotificationManager = WalletYieldNotificationManager(userWalletId: model.userWalletId)
-
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
-                yieldModuleNotificationManager: yieldModuleNotificationManager,
                 rateAppController: rateAppController,
                 tokenSectionsAdapter: sectionsAdapter,
                 tokenRouter: tokenRouter,
@@ -161,7 +158,13 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         )
 
         let expressFactory = CommonExpressModulesFactory(
-            inputModel: .init(userWalletModel: model, initialWalletModel: walletModel)
+            inputModel: .init(
+                userWalletInfo: model.userWalletInfo,
+                userTokensManager: model.userTokensManager,
+                walletModelsManager: model.walletModelsManager,
+                initialWalletModel: walletModel,
+                destinationWalletModel: .none
+            )
         )
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()

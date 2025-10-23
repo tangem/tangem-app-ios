@@ -10,6 +10,8 @@ import enum BlockchainSdk.Blockchain
 struct TokenActionAvailabilityProvider {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
+    private let userWalletsActionButtonsAvailabilityProvider = UserWalletsActionButtonsAvailabilityProvider()
+
     private let userWalletConfig: UserWalletConfig
     private let walletModel: any WalletModel
     private let sellCryptoUtility: SellCryptoUtility
@@ -178,6 +180,7 @@ extension TokenActionAvailabilityProvider {
         case expressLoading
         case expressNotLoaded
         case missingAssetRequirement
+        case yieldModuleApproveNeeded
     }
 
     var isSwapAvailable: Bool {
@@ -201,6 +204,10 @@ extension TokenActionAvailabilityProvider {
             return .customToken
         }
 
+        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+            return .yieldModuleApproveNeeded
+        }
+
         if case .assetRequirement = receiveAvailability {
             return .missingAssetRequirement
         }
@@ -219,10 +226,12 @@ extension TokenActionAvailabilityProvider {
              .zeroFeeCurrencyBalance,
              .none:
             break
-        case .zeroWalletBalance where userWalletConfig.isFeatureVisible(.isBalanceRestrictionActive):
-            return .hidden
         case .zeroWalletBalance:
-            break
+            if userWalletConfig.hasFeature(.isBalanceRestrictionActive) {
+                return userWalletsActionButtonsAvailabilityProvider.isActionButtonsAvailable(walletModel: walletModel) ? .available : .hidden
+            } else {
+                break
+            }
         }
 
         let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
@@ -255,6 +264,7 @@ extension TokenActionAvailabilityProvider {
         case blockchainLoading
         case oldCard
         case hasOnlyCachedBalance
+        case yieldModuleApproveNeeded
     }
 
     var isSendAvailable: Bool {
@@ -266,6 +276,10 @@ extension TokenActionAvailabilityProvider {
     }
 
     var sendAvailability: SendActionAvailabilityStatus {
+        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+            return .yieldModuleApproveNeeded
+        }
+
         switch walletModel.sendingRestrictions {
         case .oldCard:
             return .oldCard
@@ -301,6 +315,7 @@ extension TokenActionAvailabilityProvider {
         case oldCard
         case hasOnlyCachedBalance
         case demo(disabledLocalizedReason: String)
+        case yieldModuleApproveNeeded
     }
 
     var isSellAvailable: Bool {
@@ -314,6 +329,10 @@ extension TokenActionAvailabilityProvider {
     var sellAvailability: SellActionAvailabilityStatus {
         if let disabledLocalizedReason = userWalletConfig.getDisabledLocalizedReason(for: .exchange) {
             return .demo(disabledLocalizedReason: disabledLocalizedReason)
+        }
+
+        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+            return .yieldModuleApproveNeeded
         }
 
         if !sellCryptoUtility.sellAvailable {

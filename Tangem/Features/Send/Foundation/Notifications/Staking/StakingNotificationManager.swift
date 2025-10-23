@@ -54,6 +54,12 @@ private extension CommonStakingNotificationManager {
         case .approveTransactionInProgress:
             show(notification: .approveTransactionInProgress)
             hideErrorNotifications()
+        case .blockchainAccountInitializationRequired:
+            show(notification: .tonAccountInitialization)
+            hideErrorNotifications()
+        case .blockchainAccountInitializationInProgress:
+            hideAccountInitializationNotification()
+            hideErrorNotifications()
         case .readyToApprove:
             hideApproveInProgressNotification()
             hideErrorNotifications()
@@ -76,7 +82,19 @@ private extension CommonStakingNotificationManager {
                     )
                 )
 
-                events.append(.maxAmountStaking)
+                if let amountToReduce = readyToStake.amountToReduce {
+                    let amountToReduceFormatted = formatter.formatCryptoBalance(
+                        amountToReduce,
+                        currencyCode: feeTokenItem.currencySymbol
+                    )
+
+                    events.append(
+                        .maxAmountStaking(
+                            reduceAmount: amountToReduce,
+                            reduceAmountFormatted: amountToReduceFormatted
+                        )
+                    )
+                }
             }
 
             if !tokenItem.supportsStakingOnDifferentValidators, readyToStake.stakeOnDifferentValidator {
@@ -273,6 +291,15 @@ private extension CommonStakingNotificationManager {
         notificationInputsSubject.value.removeAll { input in
             switch input.settings.event {
             case StakingNotificationEvent.approveTransactionInProgress: true
+            default: false
+            }
+        }
+    }
+
+    func hideAccountInitializationNotification() {
+        notificationInputsSubject.value.removeAll { input in
+            switch input.settings.event {
+            case StakingNotificationEvent.tonAccountInitialization: true
             default: false
             }
         }

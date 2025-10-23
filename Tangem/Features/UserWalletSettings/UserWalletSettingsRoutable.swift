@@ -14,11 +14,17 @@ protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggl
 
     func openScanCardSettings(with input: ScanCardSettingsViewModel.Input)
     func openReferral(input: ReferralInputModel)
-    func openManageTokens(userWalletModel: UserWalletModel)
+
+    func openManageTokens(
+        walletModelsManager: WalletModelsManager,
+        userTokensManager: UserTokensManager,
+        userWalletConfig: UserWalletConfig
+    )
 
     func openMobileBackupNeeded(userWalletModel: UserWalletModel)
     func openMobileBackupTypes(userWalletModel: UserWalletModel)
-    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext)
+    func openMobileUpgrade(userWalletModel: UserWalletModel)
+    func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel)
 
     func openAppSettings()
 

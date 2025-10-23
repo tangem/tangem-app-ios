@@ -9,7 +9,10 @@
 import TangemAccounts
 
 enum AccountModelToUserSettingsViewDataMapper {
-    static func map(from accountModel: AccountModel, onTap: @escaping (any BaseAccountModel) -> Void) -> [UserSettingsAccountRowViewData] {
+    static func map(
+        from accountModel: AccountModel,
+        onTap: @escaping (any BaseAccountModel) -> Void
+    ) -> [UserSettingsAccountRowViewData] {
         switch accountModel {
         case .standard(let cryptoAccounts):
             mapStandardCryptoAccounts(cryptoAccounts, onTap: onTap)
@@ -47,21 +50,14 @@ enum AccountModelToUserSettingsViewDataMapper {
         _ accountModel: any BaseAccountModel,
         onTap: @escaping (any BaseAccountModel) -> Void
     ) -> UserSettingsAccountRowViewData {
-        let iconNameMode: AccountIconView.NameMode = switch accountModel.icon.name {
-        case .letter:
-            .letter(String(accountModel.name.first ?? "_"))
-
-        default:
-            .imageType(AccountModelUtils.UI.iconAsset(from: accountModel.icon.name))
-        }
+        let accountIconViewData = AccountIconViewBuilder().makeAccountIconViewData(accountModel: accountModel)
 
         return UserSettingsAccountRowViewData(
             id: "\(accountModel.id)",
             name: accountModel.name,
-            iconNameMode: iconNameMode,
+            accountIconViewData: accountIconViewData,
             // [REDACTED_TODO_COMMENT]
             description: "",
-            iconColor: AccountModelUtils.UI.iconColor(from: accountModel.icon.color),
             onTap: {
                 onTap(accountModel)
             }
