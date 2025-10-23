@@ -14,7 +14,7 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
     let manager: any StakingManager
     let action: RestakingModel.Action
     var actionType: StakingAction.ActionType { action.displayType }
@@ -30,7 +30,7 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
 
     init(
         walletModel: any WalletModel,
-        userWalletInfo: SendWalletInfo,
+        userWalletInfo: UserWalletInfo,
         manager: any StakingManager,
         action: StakingSingleActionModel.Action,
     ) {
@@ -161,7 +161,7 @@ extension StakingSingleActionFlowFactory: SendSummaryStepBuildable {
                 tokenItem: tokenItem,
                 destinationEditableType: .noEditable,
                 amountEditableType: .noEditable,
-                actionType: .stake
+                actionType: sendFlowActionType()
             )
         )
     }

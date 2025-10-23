@@ -85,10 +85,6 @@ class StoriesViewModel: ObservableObject {
         delegate?.createWallet()
     }
 
-    func onImportWallet() {
-        delegate?.importWallet()
-    }
-
     func onScanCard() {
         delegate?.scanCard()
     }

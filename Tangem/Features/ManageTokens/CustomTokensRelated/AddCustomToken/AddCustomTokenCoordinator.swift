@@ -34,21 +34,21 @@ class AddCustomTokenCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        let userWalletModel = options.userWalletModel
-        let supportedBlockchains = Array(userWalletModel.config.supportedBlockchains)
-            .filter { $0.curve.supportsDerivation }
+        let userWalletConfig = options.userWalletConfig
+        let supportedBlockchains = Array(userWalletConfig.supportedBlockchains)
+            .filter { $0.curve.supportsDerivation && $0.isSupportedNetworkCustomDerivation }
             .sorted(by: \.displayName)
 
         let settings = AddCustomTokenViewModel.ManageTokensSettings(
             supportedBlockchains: supportedBlockchains,
-            hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
-            derivationStyle: userWalletModel.config.derivationStyle,
+            hdWalletsSupported: userWalletConfig.hasFeature(.hdWallets),
+            derivationStyle: userWalletConfig.derivationStyle,
             analyticsSourceRawValue: options.analyticsSourceRawValue
         )
 
         rootViewModel = AddCustomTokenViewModel(
             settings: settings,
-            userWalletModel: options.userWalletModel,
+            userTokensManager: options.userTokensManager,
             coordinator: self
         )
     }
@@ -58,7 +58,8 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
 extension AddCustomTokenCoordinator {
     struct Options {
-        let userWalletModel: UserWalletModel
+        let userWalletConfig: UserWalletConfig
+        let userTokensManager: UserTokensManager
         let analyticsSourceRawValue: String
     }
 }

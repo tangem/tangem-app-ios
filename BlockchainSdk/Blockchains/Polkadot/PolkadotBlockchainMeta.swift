@@ -13,7 +13,7 @@ struct PolkadotBlockchainMeta {
     let transactionVersion: UInt32
     let genesisHash: String
     let blockHash: String
-    let nonce: UInt64
+    let nonce: UInt32
     let era: Era
 
     struct Era {

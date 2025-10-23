@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemAssets
+import TangemAccounts
 
 extension AccountModelUtils {
     enum UI {
@@ -82,8 +83,12 @@ extension AccountModelUtils {
             }
         }
 
-        static func getRadomColor() -> AccountModel.Icon.Color {
+        static func getRandomIconColor() -> AccountModel.Icon.Color {
             AccountModel.Icon.Color.allCases.randomElement() ?? .azure
+        }
+
+        static func getRandomIconName() -> AccountModel.Icon.Name {
+            AccountModel.Icon.Name.allCases.randomElement() ?? .star
         }
     }
 }
@@ -97,5 +102,24 @@ extension AccountModelUtils.UI {
 
     static func iconImage(from name: AccountModel.Icon.Name) -> Image {
         return iconAsset(from: name).image
+    }
+
+    static func iconViewData(
+        icon: AccountModel.Icon,
+        accountName: String
+    ) -> AccountIconView.ViewData {
+        AccountIconView.ViewData(
+            backgroundColor: iconColor(from: icon.color),
+            nameMode: nameMode(from: icon.name, accountName: accountName)
+        )
+    }
+
+    static func nameMode(from name: AccountModel.Icon.Name, accountName: String) -> AccountIconView.NameMode {
+        switch name {
+        case .letter:
+            .letter(accountName.first.map { String($0) } ?? "")
+        default:
+            .imageType(iconAsset(from: name))
+        }
     }
 }

@@ -9,17 +9,18 @@
 import Combine
 import SwiftUI
 import TangemFoundation
-import TangemUIUtils
 import TangemLocalization
 import TangemAssets
 import TangemSdk
 import TangemNetworkUtils
 import TangemMobileWalletSdk
+import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class MobileUpgradeViewModel: ObservableObject {
     @Published var isScanning: Bool = false
 
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     lazy var info = makeInfo()
@@ -223,27 +224,28 @@ private extension MobileUpgradeViewModel {
     }
 
     func openTroubleshooting() {
-        let sheet = ActionSheet(
-            title: Text(Localization.alertTroubleshootingScanCardTitle),
-            message: Text(Localization.alertTroubleshootingScanCardMessage),
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.scanCardTryAgain()
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.openScanCardManual()
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.requestSupport()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
-                .default(
-                    Text(Localization.alertButtonTryAgain),
-                    action: weakify(self, forFunction: MobileUpgradeViewModel.scanCardTryAgain)
-                ),
-                .default(
-                    Text(Localization.commonReadMore),
-                    action: weakify(self, forFunction: MobileUpgradeViewModel.openScanCardManual)
-                ),
-                .default(
-                    Text(Localization.alertButtonRequestSupport),
-                    action: weakify(self, forFunction: MobileUpgradeViewModel.requestSupport)
-                ),
-                .cancel(),
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func openBuyCard() {

@@ -26,7 +26,7 @@ struct NFTSendUtil {
     /// NFTs require specially prepared and created `SendCoordinator.Options` in order for the Send flow to work properly.
     func makeOptions(for asset: NFTAsset, in collection: NFTCollection) -> SendCoordinator.Options {
         let sendAvailabilityProvider = TransactionSendAvailabilityProvider(
-            isSendingSupportedByCard: userWalletModel.config.hasFeature(.send)
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: userWalletModel.config)
         )
         let tokenItem = makeTokenItem(asset: asset, mainTokenWalletModel: walletModel)
         let tokenBalanceProvider = NFTSendFixedBalanceProvider(tokenItem: tokenItem, fixedValue: NFTSendUtil.amountToSend)
@@ -42,9 +42,12 @@ struct NFTSendUtil {
 
         return SendCoordinator.Options(
             input: .init(
-                userWalletInfo: userWalletModel.sendWalletInfo,
+                userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModelProxy,
-                expressInput: .init(userWalletModel: userWalletModel)
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
             ),
             type: .nft(parameters: parameters),
             source: .nft

@@ -11,54 +11,48 @@ import TangemLocalization
 import TangemAssets
 
 final class YieldModulePromoViewModel {
-    // MARK: - Injected
-
     @Injected(\.safariManager)
     private var safariManager: SafariManager
-
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: UserWalletRepository
 
     // MARK: - Dependencies
 
     private let walletModel: any WalletModel
+    private let yieldManagerInteractor: YieldManagerInteractor
+    private let startFlowFactory: YieldStartFlowFactory
     private weak var coordinator: YieldModulePromoCoordinator?
-    private weak var tokenDetailsCoordinator: TokenDetailsRoutable?
 
     // MARK: - Properties
 
-    private(set) var apy: String
-    private(set) var tosUrl = URL(string: "https://tangem.com")!
-    private(set) var privacyPolicyUrl = URL(string: "https://tangem.com")!
-    private(set) var howIrWorksUrl = URL(string: "https://tangem.com")!
-
-    private let startEarnAction: () -> Void
+    private let apy: Decimal
+    var apyString: String { PercentFormatter().format(apy, option: .interval) }
+    private(set) var tosUrl = URL(string: "https://aave.com/terms-of-service")!
+    private(set) var privacyPolicyUrl = URL(string: "https://aave.com/privacy-policy")!
+    private(set) var howIrWorksUrl = URL(string: "https://tangem.com/en/blog/post/savings-account")!
 
     // MARK: - Init
 
     init(
         walletModel: any WalletModel,
-        apy: String,
-        coordinator: YieldModulePromoCoordinator,
-        startEarnAction: @escaping () -> Void
+        yieldManagerInteractor: YieldManagerInteractor,
+        apy: Decimal,
+        coordinator: YieldModulePromoCoordinator?,
+        startFlowFactory: YieldStartFlowFactory
     ) {
         self.walletModel = walletModel
         self.coordinator = coordinator
+        self.yieldManagerInteractor = yieldManagerInteractor
         self.apy = apy
-        self.startEarnAction = startEarnAction
+        self.startFlowFactory = startFlowFactory
     }
 
     // MARK: - Public Implementation
 
     func onInterestRateInfoTap() {
-        coordinator?.openRateInfoSheet(walletModel: walletModel)
+        coordinator?.openBottomSheet(viewModel: startFlowFactory.makeInterestRateInfoVewModel())
     }
 
     func onContinueTap() {
-        coordinator?.openStartEarningSheet(walletModel: walletModel, startEarnAction: { [weak self] in
-            self?.coordinator?.dismiss()
-            self?.startEarnAction()
-        })
+        coordinator?.openBottomSheet(viewModel: startFlowFactory.makeStartViewModel())
     }
 
     func onHowItWorksTap() {
