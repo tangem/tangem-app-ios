@@ -42,7 +42,7 @@ final class NewActionButtonsSwapViewModel: ObservableObject {
         // `directionPublisher` for filter with available pairs from `filterTokenItem`
         availabilityProviderFactory: NewTokenSelectorItemSwapAvailabilityProviderFactory(
             // Here only possible pair `from`
-            directionPublisher: filterTokenItem.map { $0.map { .fromSource($0) } }
+            directionPublisher: filterTokenItem.map { $0.map { .fromSource($0) } }.eraseToAnyPublisher()
         )
     )
 

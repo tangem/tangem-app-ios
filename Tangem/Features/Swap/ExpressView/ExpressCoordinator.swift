@@ -29,6 +29,7 @@ final class ExpressCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var expressTokensListViewModel: ExpressTokensListViewModel?
+    @Published var swapTokenSelectorViewModel: SwapTokenSelectorViewModel?
     @Published var expressFeeSelectorViewModel: ExpressFeeSelectorViewModel?
     @Published var expressProvidersSelectorViewModel: ExpressProvidersSelectorViewModel?
     @Published var expressApproveViewModel: ExpressApproveViewModel?
@@ -71,6 +72,10 @@ extension ExpressCoordinator {
 extension ExpressCoordinator: ExpressRoutable {
     func presentSwappingTokenList(swapDirection: ExpressTokensListViewModel.SwapDirection) {
         expressTokensListViewModel = factory.makeExpressTokensListViewModel(swapDirection: swapDirection, coordinator: self)
+    }
+
+    func presentSwapTokenSelector(swapDirection: SwapTokenSelectorViewModel.SwapDirection) {
+        swapTokenSelectorViewModel = factory.makeSwapTokenSelectorViewModel(swapDirection: swapDirection, coordinator: self)
     }
 
     func presentFeeSelectorView() {
@@ -122,6 +127,14 @@ extension ExpressCoordinator: ExpressRoutable {
 extension ExpressCoordinator: ExpressTokensListRoutable {
     func closeExpressTokensList() {
         expressTokensListViewModel = nil
+    }
+}
+
+// MARK: - SwapTokenSelectorRoutable
+
+extension ExpressCoordinator: SwapTokenSelectorRoutable {
+    func closeSwapTokenSelector() {
+        swapTokenSelectorViewModel = nil
     }
 }
 
