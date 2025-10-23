@@ -57,6 +57,18 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         )
     }
 
+    func makeSwapTokenSelectorViewModel(
+        swapDirection: SwapTokenSelectorViewModel.SwapDirection,
+        coordinator: any SwapTokenSelectorRoutable
+    ) -> SwapTokenSelectorViewModel {
+        SwapTokenSelectorViewModel(
+            swapDirection: swapDirection,
+            expressPairsRepository: expressPairsRepository,
+            expressInteractor: expressInteractor,
+            coordinator: coordinator
+        )
+    }
+
     func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel {
         ExpressFeeSelectorViewModel(
             feeFormatter: feeFormatter,

@@ -104,11 +104,19 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func userDidTapChangeSourceButton() {
-        coordinator?.presentSwappingTokenList(swapDirection: .toDestination(initialWallet))
+        if FeatureProvider.isAvailable(.accounts) {
+            coordinator?.presentSwapTokenSelector(swapDirection: .toDestination(initialWallet.tokenItem))
+        } else {
+            coordinator?.presentSwappingTokenList(swapDirection: .toDestination(initialWallet))
+        }
     }
 
     func userDidTapChangeDestinationButton() {
-        coordinator?.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
+        if FeatureProvider.isAvailable(.accounts) {
+            coordinator?.presentSwapTokenSelector(swapDirection: .fromSource(initialWallet.tokenItem))
+        } else {
+            coordinator?.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
+        }
     }
 
     func userDidTapPriceChangeInfoButton(message: String) {
