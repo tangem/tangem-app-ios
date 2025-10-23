@@ -32,22 +32,13 @@ struct YieldModuleStartView: View {
             header: { makeHeader(viewState: viewModel.viewState) },
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
-            content: { mainContent },
-            buttonTopPadding: 24
+            content: { mainContent }
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
-    }
-
-    private var buttonTopPadding: CGFloat {
-        if viewModel.notificationBannerParams != nil {
-            return 24
-        }
-
-        return 32
     }
 
     private var title: String? {
@@ -131,15 +122,11 @@ struct YieldModuleStartView: View {
                 sectionState: viewModel.networkFeeState,
                 leadingTitle: Localization.commonNetworkFeeTitle,
                 linkTitle: Localization.yieldModuleStartEarningSheetFeePolicy,
-                onLinkTapAction: viewModel.onShowFeePolicy
+                onLinkTapAction: viewModel.onShowFeePolicy,
+                notification: viewModel.networkFeeNotification
             )
             .onAppear {
                 viewModel.fetchFees()
-            }
-
-            if let notificationBannerParams = viewModel.notificationBannerParams {
-                YieldModuleBottomSheetNotificationBannerView(params: notificationBannerParams)
-                    .padding(.top, 26)
             }
         }
     }

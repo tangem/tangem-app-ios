@@ -39,8 +39,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     var viewState: ViewState {
         didSet {
             previousState = oldValue
-            notificationBannerParams = nil
-            start(for: viewState)
+            networkFeeNotification = nil
         }
     }
 
@@ -49,7 +48,10 @@ final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Published
 
     @Published
-    var notificationBannerParams: YieldModuleNotificationBannerParams? = nil
+    private(set) var earnInfoNotifications = [YieldModuleNotificationBannerParams]()
+
+    @Published
+    private(set) var networkFeeNotification: YieldModuleNotificationBannerParams? = nil
 
     @Published
     private(set) var apyState: LoadableTextView.State = .loading
@@ -73,7 +75,10 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private(set) var isProcessingRequest: Bool = false
 
     @Published
-    private(set) var isMainButtonAvailable = false
+    private(set) var isOpenExitSheetButtonAvailable = false
+
+    @Published
+    private(set) var isActionButtonAvailable = true
 
     @Published
     private(set) var apyTrend: ApyTrend = .none
@@ -86,6 +91,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
     private let yieldManagerInteractor: YieldManagerInteractor
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
+    private let notificationManager: YieldModuleNotificationManager
 
     // MARK: - Properties
 
@@ -106,6 +112,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         self.feeCurrencyNavigator = feeCurrencyNavigator
         self.yieldManagerInteractor = yieldManagerInteractor
         self.availableBalance = availableBalance
+        notificationManager = YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
 
         viewState = .earnInfo
         start(for: viewState)
@@ -125,6 +132,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     func onShowStopEarningSheet() {
         viewState = .stopEarning
+        start(for: .stopEarning)
         networkFeeState = networkFeeState.withFooterText(Localization.yieldModuleStopEarningSheetFeeNote)
     }
 
@@ -136,9 +144,9 @@ final class YieldModuleInfoViewModel: ObservableObject {
             case .earnInfo:
                 earnInfoStart()
             case .stopEarning:
-                await fetchFee(for: .exit)
+                await fetchNetworkFee(for: .exit)
             case .approve:
-                await fetchFee(for: .approve)
+                await fetchNetworkFee(for: .approve)
             }
         }
     }
@@ -154,12 +162,11 @@ final class YieldModuleInfoViewModel: ObservableObject {
                 switch action {
                 case .approve:
                     try await self?.yieldManagerInteractor.approve(with: token)
-                    self?.onBackTap()
                 case .exit:
                     try await self?.yieldManagerInteractor.exit(with: token)
-                    self?.floatingSheetPresenter.removeActiveSheet()
                 }
 
+                self?.floatingSheetPresenter.removeActiveSheet()
             } catch let error where error.isCancellationError {
                 // Do nothing
             } catch {
@@ -173,38 +180,6 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     // MARK: - Public Implementation
-
-    @MainActor
-    func fetchFee(for action: YieldAction) async {
-        networkFeeState = networkFeeState.withFeeState(.loading)
-        notificationBannerParams = nil
-
-        defer { updateButtonAvailability() }
-
-        do {
-            let feeInCoins = switch action {
-            case .approve:
-                try await yieldManagerInteractor.getApproveFee()
-            case .exit:
-                try await yieldManagerInteractor.getExitFee()
-            }
-
-            let feeValue = feeInCoins.totalFeeAmount.value
-            let convertedFee = try await feeConverter.createFeeString(from: feeValue)
-
-            networkFeeState = networkFeeState.withFeeState(.loaded(text: convertedFee))
-
-            if feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
-                showNotEnoughFeeNotification()
-            }
-
-        } catch {
-            networkFeeState = networkFeeState.withFeeState(.noData)
-            showFeeErrorNotification { [weak self] in
-                await self?.fetchFee(for: action)
-            }
-        }
-    }
 
     func makeMyFundsSectionText() -> AttributedString {
         let tokenName = walletModel.tokenItem.name
@@ -226,29 +201,45 @@ final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Private Implementation
 
     private func earnInfoStart() {
+        Task { await checkWarnings() }
         Task { await getEarnInfoFees() }
         Task { await getApy() }
-        Task { await checkApproval() }
         Task { await fetchChartData() }
     }
 
     @MainActor
-    private func updateButtonAvailability() {
-        switch viewState {
-        case .earnInfo:
-            let isDisabled = notificationBannerParams?.isApproveNeeded ?? false
-            isMainButtonAvailable = !isDisabled
+    private func fetchNetworkFee(for action: YieldAction) async {
+        networkFeeState = networkFeeState.withFeeState(.loading)
+        networkFeeNotification = nil
+        isActionButtonAvailable = false
 
-        case .stopEarning, .approve:
-            let feeUnreachable = notificationBannerParams?.isFeeUnreachable ?? false
-            let notEnoughCurrency = notificationBannerParams?.isNotEnoughCurrency ?? false
-
-            guard case .loaded = networkFeeState.feeState, !feeUnreachable, !notEnoughCurrency else {
-                isMainButtonAvailable = false
-                return
+        do {
+            let feeInCoins = switch action {
+            case .approve:
+                try await yieldManagerInteractor.getApproveFee()
+            case .exit:
+                try await yieldManagerInteractor.getExitFee()
             }
 
-            isMainButtonAvailable = true
+            let feeValue = feeInCoins.totalFeeAmount.value
+            let convertedFee = try await feeConverter.createFeeString(from: feeValue)
+
+            networkFeeState = networkFeeState.withFeeState(.loaded(text: convertedFee))
+
+            let isHighFee = feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType)
+
+            if isHighFee {
+                networkFeeNotification = createNotEnoughFeeNotification()
+            }
+
+            isActionButtonAvailable = !isHighFee
+        } catch {
+            isActionButtonAvailable = false
+            networkFeeState = networkFeeState.withFeeState(.noData)
+
+            let notification = createFeeErrorNotification(yieldAction: action)
+
+            networkFeeNotification = notification
         }
     }
 
@@ -312,6 +303,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         chartState = .loading
 
         do {
+            try await Task.sleep(seconds: 0.5)
             let chartData = try await yieldManagerInteractor.getChartData()
             chartState = .loaded(chartData)
         } catch {
@@ -336,43 +328,24 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     @MainActor
-    private func checkApproval() async {
-        defer { updateButtonAvailability() }
+    private func checkWarnings() async {
+        earnInfoNotifications = []
 
-        guard await yieldManagerInteractor.getIsApproveRequired() else {
-            activityState = .active
-            return
+        activityState = .active
+        isOpenExitSheetButtonAvailable = true
+
+        let isApproveRequired = await yieldManagerInteractor.getIsApproveRequired()
+        let undepositedAmount = await yieldManagerInteractor.getUndepositedAmounts()
+
+        if isApproveRequired {
+            activityState = .paused
+            isOpenExitSheetButtonAvailable = false
+            earnInfoNotifications.append(createApproveRequiredNotification())
         }
 
-        activityState = .paused
-        notificationBannerParams = .approveNeeded { [weak self] in
-            guard let self else { return }
-            networkFeeState = networkFeeState.withFooterText(Localization.yieldModuleApproveSheetFeeNote)
-            viewState = .approve
-        }
-    }
-
-    private func showNotEnoughFeeNotification() {
-        notificationBannerParams = .notEnoughFeeCurrency(
-            feeCurrencyName: walletModel.feeTokenItem.name,
-            tokenIcon: NetworkImageProvider().provide(by: walletModel.feeTokenItem.blockchain, filled: true)
-        ) { [weak self] in
-            guard let self else { return }
-
-            if let selectedUserWalletModel = userWalletRepository.selectedModel,
-               let feeWalletModel = getFeeCurrencyWalletModel(in: selectedUserWalletModel) {
-                onCloseTap()
-                feeCurrencyNavigator?.openFeeCurrency(for: feeWalletModel, userWalletModel: selectedUserWalletModel)
-            }
-        }
-    }
-
-    private func showFeeErrorNotification(feeFetcher: @escaping () async -> Void) {
-        notificationBannerParams = .feeUnreachable { [weak self] in
-            guard let self else { return }
-            runTask(in: self) { vm in
-                await feeFetcher()
-            }
+        if let undepositedAmount {
+            let formatted = feeConverter.formatDecimal(undepositedAmount)
+            earnInfoNotifications.append(createHasUndepositedAmountsNotification(undepositedAmount: formatted))
         }
     }
 
@@ -413,6 +386,8 @@ extension YieldModuleInfoViewModel {
 
 extension YieldModuleInfoViewModel: FloatingSheetContentViewModel {}
 
+// MARK: - ActivityState
+
 extension YieldModuleInfoViewModel {
     enum ActivityState: Equatable {
         case active
@@ -438,10 +413,49 @@ extension YieldModuleInfoViewModel {
     }
 }
 
+// MARK: - ApyTrend
+
 extension YieldModuleInfoViewModel {
     enum ApyTrend {
         case loading
         case increased
         case none
+    }
+}
+
+// MARK: - Notification Builders
+
+private extension YieldModuleInfoViewModel {
+    func createApproveRequiredNotification() -> YieldModuleNotificationBannerParams {
+        notificationManager.createApproveRequiredNotification { [weak self] in
+            guard let self else { return }
+            networkFeeState = networkFeeState.withFooterText(Localization.yieldModuleApproveSheetFeeNote)
+            viewState = .approve
+            start(for: .approve)
+        }
+    }
+
+    func createHasUndepositedAmountsNotification(undepositedAmount: String) -> YieldModuleNotificationBannerParams {
+        notificationManager.createHasUndepositedAmountsNotification(undepositedAmount: undepositedAmount)
+    }
+
+    func createNotEnoughFeeNotification() -> YieldModuleNotificationBannerParams {
+        notificationManager.createNotEnoughFeeCurrencyNotification { [weak self] in
+            guard let self else { return }
+
+            if let selectedUserWalletModel = userWalletRepository.selectedModel,
+               let feeWalletModel = getFeeCurrencyWalletModel(in: selectedUserWalletModel) {
+                onCloseTap()
+                feeCurrencyNavigator?.openFeeCurrency(for: feeWalletModel, userWalletModel: selectedUserWalletModel)
+            }
+        }
+    }
+
+    func createFeeErrorNotification(yieldAction: YieldAction) -> YieldModuleNotificationBannerParams {
+        notificationManager.createFeeUnreachableNotification { [weak self] in
+            Task { @MainActor [weak self] in
+                await self?.fetchNetworkFee(for: yieldAction)
+            }
+        }
     }
 }

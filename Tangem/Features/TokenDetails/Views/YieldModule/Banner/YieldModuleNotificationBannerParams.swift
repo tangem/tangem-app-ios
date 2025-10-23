@@ -7,8 +7,9 @@
 //
 
 import TangemAssets
+import Foundation
 
-enum YieldModuleNotificationBannerParams {
+enum YieldModuleNotificationBannerParams: Identifiable {
     enum Position {
         case `default`
         case approveTop
@@ -17,6 +18,20 @@ enum YieldModuleNotificationBannerParams {
     case notEnoughFeeCurrency(feeCurrencyName: String, tokenIcon: ImageType, buttonAction: @MainActor @Sendable () -> Void)
     case approveNeeded(buttonAction: @MainActor @Sendable () -> Void)
     case feeUnreachable(buttonAction: @MainActor @Sendable () -> Void)
+    case hasUndepositedAmounts(amount: String, currencySymbol: String)
+
+    var id: String {
+        switch self {
+        case .notEnoughFeeCurrency:
+            "notEnoughFeeCurrency"
+        case .approveNeeded:
+            "approveNeeded"
+        case .feeUnreachable:
+            "feeUnreachable"
+        case .hasUndepositedAmounts:
+            "hasUndepositedAmounts"
+        }
+    }
 
     var isApproveNeeded: Bool {
         switch self {

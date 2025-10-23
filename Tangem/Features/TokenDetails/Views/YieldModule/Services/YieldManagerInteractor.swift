@@ -47,6 +47,14 @@ actor YieldManagerInteractor {
         return info.isAllowancePermissionRequired
     }
 
+    func getUndepositedAmounts() -> Decimal? {
+        guard case .active(let info) = manager.state?.state, !info.nonYieldModuleBalanceValue.isZero else {
+            return nil
+        }
+
+        return info.nonYieldModuleBalanceValue
+    }
+
     func getApy() async throws -> Decimal {
         if let apy = manager.state?.marketInfo?.apy {
             return apy
