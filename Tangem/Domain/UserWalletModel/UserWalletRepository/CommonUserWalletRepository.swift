@@ -74,6 +74,11 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         await unlockUnprotectedMobileWalletsIfNeeded()
 
+        let allUnlocked = self.models.allConforms { !$0.isUserWalletLocked }
+        if allUnlocked {
+            unlockInternal()
+        }
+
         AppLogger.info(self)
     }
 
