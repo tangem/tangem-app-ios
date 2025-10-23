@@ -86,6 +86,7 @@ extension StakingFlowFactory {
             ),
             analyticsLogger: analyticsLogger,
             accountInitializationService: walletModelDependenciesProvider.accountInitializationService,
+            minimalBalanceProvider: walletModelDependenciesProvider.minimalBalanceProvider,
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
             tokenIconInfo: tokenIconInfo
