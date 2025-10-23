@@ -40,15 +40,27 @@ extension NotificationEvent {
                 return MainAccessibilityIdentifiers.developerCardBanner
             case .seedSupport:
                 return MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner
+            case .missingDerivation:
+                return MainAccessibilityIdentifiers.missingDerivationNotification
             default:
                 return nil
             }
         } else if let sendNotificationEvent = self as? SendNotificationEvent {
             switch sendNotificationEvent {
+            case .customFeeTooLow:
+                return SendAccessibilityIdentifiers.customFeeTooLowBanner
+            case .customFeeTooHigh:
+                return SendAccessibilityIdentifiers.customFeeTooHighBanner
+            case .feeWillBeSubtractFromSendingAmount:
+                return SendAccessibilityIdentifiers.feeWillBeSubtractFromSendingAmountBanner
             case .validationErrorEvent(let event):
                 switch event {
                 case .dustRestriction:
                     return SendAccessibilityIdentifiers.invalidAmountBanner
+                case .insufficientAmountToReserveAtDestination:
+                    return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
+                case .amountExceedMaximumUTXO:
+                    return SendAccessibilityIdentifiers.amountExceedMaximumUTXOBanner
                 default:
                     return nil
                 }

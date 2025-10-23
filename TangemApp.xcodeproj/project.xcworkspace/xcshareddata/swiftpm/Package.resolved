@@ -1,5 +1,5 @@
 {
-  "originHash" : "b89ac4fe5c9261975866cfaee5657a41a406dbc0af800bd023cc514a51451d5d",
+  "originHash" : "5c6234568d61f044b9879ccb8c732f1cb9bf05cd0211b5439df2c858a9cf3667",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -71,6 +71,15 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
+      }
+    },
+    {
+      "identity" : "appsflyerframework-strict",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict",
+      "state" : {
+        "revision" : "841ef61f5933ad5382e8b47a3b67abdf5bb501e3",
+        "version" : "6.17.2"
       }
     },
     {
@@ -231,8 +240,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git",
       "state" : {
-        "revision" : "de2d8f77baaa5b1bb2ca475d4b6fffa21529be67",
-        "version" : "1.36.0"
+        "revision" : "8fac25e637570ebc56a5a5b19cef0c80549bd6ac",
+        "version" : "1.38.0"
       }
     },
     {
@@ -402,8 +411,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/Solana.Swift.git",
       "state" : {
-        "revision" : "dce306775e5abfdbfdc51f9e809147dc6c62b089",
-        "version" : "1.2.0-tangem17"
+        "revision" : "9ebd28be65dd60322b91a114b2645f1f4171d9d2",
+        "version" : "1.2.0-tangem18"
       }
     },
     {

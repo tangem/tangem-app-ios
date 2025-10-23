@@ -47,10 +47,7 @@ struct UserSettingsAccountsSectionView: View {
         Button(action: model.onTap) {
             RowWithLeadingAndTrailingIcons(
                 leadingIcon: {
-                    AccountIconView(backgroundColor: model.iconColor, nameMode: model.iconNameMode)
-                        .padding(8)
-                        .cornerRadius(10)
-                        .imageSize(.init(bothDimensions: 20))
+                    AccountIconView(data: model.accountIconViewData)
                 },
                 content: {
                     VStack(alignment: .leading, spacing: 0) {

@@ -12,6 +12,11 @@ import TangemFoundation
 import Combine
 
 final class ActionButtonsSwapViewModel: ObservableObject {
+    // MARK: Inject
+
+    @Injected(\.expressPairsRepository)
+    private var expressPairsRepository: ExpressPairsRepository
+
     // MARK: Published property
 
     @Published var sourceToken: ActionButtonsTokenSelectorItem?
@@ -60,28 +65,17 @@ final class ActionButtonsSwapViewModel: ObservableObject {
         return notificationManager
     }()
 
-    private let expressRepository: ExpressRepository
     private let userWalletModel: UserWalletModel
     private let sourceSwapTokenSelectorViewModel: ActionButtonsTokenSelectorViewModel
 
     init(
         coordinator: some ActionButtonsSwapRoutable,
         userWalletModel: some UserWalletModel,
-        sourceSwapTokeSelectorViewModel: ActionButtonsTokenSelectorViewModel
+        sourceSwapTokenSelectorViewModel: ActionButtonsTokenSelectorViewModel
     ) {
         self.coordinator = coordinator
         self.userWalletModel = userWalletModel
-        sourceSwapTokenSelectorViewModel = sourceSwapTokeSelectorViewModel
-
-        let expressAPIProviderFactory = ExpressAPIProviderFactory().makeExpressAPIProvider(
-            userWalletId: userWalletModel.userWalletId,
-            refcode: userWalletModel.refcodeProvider?.getRefcode()
-        )
-
-        expressRepository = CommonExpressRepository(
-            walletModelsManager: userWalletModel.walletModelsManager,
-            expressAPIProvider: expressAPIProviderFactory
-        )
+        self.sourceSwapTokenSelectorViewModel = sourceSwapTokenSelectorViewModel
 
         bind()
     }
@@ -142,12 +136,14 @@ final class ActionButtonsSwapViewModel: ObservableObject {
         tokenSelectorState = .loading
 
         do {
-            try await expressRepository.updatePairs(for: token.walletModel.tokenItem.expressCurrency)
+            try await expressPairsRepository.updatePairs(
+                for: token.walletModel.tokenItem.expressCurrency,
+                userWalletInfo: userWalletModel.userWalletInfo
+            )
 
             destinationTokenSelectorViewModel = makeToSwapTokenSelectorViewModel(
                 from: token,
-                userWalletModel: userWalletModel,
-                expressRepository: expressRepository
+                userWalletModel: userWalletModel
             )
 
             tokenSelectorState = isNotAvailablePairs ? .noAvailablePairs : .loaded
@@ -169,6 +165,7 @@ final class ActionButtonsSwapViewModel: ObservableObject {
         ActionButtonsAnalyticsService.trackTokenClicked(.swap, tokenSymbol: token.infoProvider.tokenItem.currencySymbol)
 
         sourceToken = token
+        coordinator?.showYieldNotificationIfNeeded(for: token.walletModel, completion: nil)
         await updatePairs(for: token, userWalletModel: userWalletModel)
     }
 
@@ -180,13 +177,19 @@ final class ActionButtonsSwapViewModel: ObservableObject {
 
         guard let sourceToken, let destinationToken else { return }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.coordinator?.openExpress(
-                for: sourceToken.walletModel,
-                and: destinationToken.walletModel,
-                with: self.userWalletModel
-            )
+        let openExpressAction = { [weak coordinator, userWalletModel] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                coordinator?.openExpress(input: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    userTokensManager: userWalletModel.userTokensManager,
+                    walletModelsManager: userWalletModel.walletModelsManager,
+                    initialWalletModel: sourceToken.walletModel,
+                    destinationWalletModel: destinationToken.walletModel
+                ))
+            }
         }
+
+        coordinator?.showYieldNotificationIfNeeded(for: token.walletModel, completion: openExpressAction)
     }
 }
 
@@ -237,15 +240,16 @@ private extension ActionButtonsSwapViewModel {
     func makeToSwapTokenSelectorViewModel(
         from token: ActionButtonsTokenSelectorItem,
         userWalletModel: UserWalletModel,
-        expressRepository: some ExpressRepository
     ) -> ActionButtonsTokenSelectorViewModel {
         .init(
             tokenSelectorItemBuilder: ActionButtonsTokenSelectorItemBuilder(),
             strings: SwapTokenSelectorStrings(tokenName: token.infoProvider.tokenItem.name),
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+            expressTokensListAdapter: CommonExpressTokensListAdapter(
+                userTokensManager: userWalletModel.userTokensManager,
+                walletModelsManager: userWalletModel.walletModelsManager,
+            ),
             tokenSorter: SwapDestinationTokenAvailabilitySorter(
                 sourceTokenWalletModel: token.walletModel,
-                expressRepository: expressRepository,
                 userWalletModelConfig: userWalletModel.config
             )
         )

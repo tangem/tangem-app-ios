@@ -22,7 +22,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     @Published
     var rootViewModel: YieldModulePromoViewModel? = nil
 
-    private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
+    private weak var feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
 
     // MARK: - Init
 
@@ -34,35 +34,18 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     // MARK: - Public Implementation
 
     func start(with options: Options) {
-        rootViewModel = .init(
-            walletModel: options.walletModel,
-            apy: options.apy,
-            coordinator: self,
-            startEarnAction: options.startEarnAction
-        )
-
+        rootViewModel = options.viewModel
         feeCurrencyNavigator = options.feeCurrencyNavigator
     }
 
-    func openRateInfoSheet(walletModel: any WalletModel) {
+    func openBottomSheet(viewModel: YieldModuleStartViewModel) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldModuleStartViewModel(walletModel: walletModel, viewState: .rateInfo))
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
-    func openStartEarningSheet(walletModel: any WalletModel, startEarnAction: @escaping () -> Void) {
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(
-                sheet: YieldModuleStartViewModel(
-                    walletModel: walletModel,
-                    viewState: .startEarning,
-                    openFeeCurrencyAction: { [weak self] feeWalletModel, selectedUserModel in
-                        self?.feeCurrencyNavigator?.openFeeCurrency(for: feeWalletModel, userWalletModel: selectedUserModel)
-                    },
-                    startEarnAction: startEarnAction
-                )
-            )
-        }
+    func openFeeCurrency(for feeWalletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        feeCurrencyNavigator?.openFeeCurrency(for: feeWalletModel, userWalletModel: userWalletModel)
     }
 
     func dismiss() {
@@ -77,9 +60,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 
 extension YieldModulePromoCoordinator {
     struct Options {
-        let walletModel: any WalletModel
-        let apy: String
-        let feeCurrencyNavigator: any FeeCurrencyNavigating
-        let startEarnAction: () -> Void
+        let viewModel: YieldModulePromoViewModel
+        let feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
     }
 }

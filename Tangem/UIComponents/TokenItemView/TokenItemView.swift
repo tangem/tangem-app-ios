@@ -34,13 +34,7 @@ struct TokenItemView: View {
                         .lineLimit(1)
                         .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenTitle)
 
-                    if viewModel.hasPendingTransactions {
-                        ProgressDots(style: .small)
-                    }
-
-                    if viewModel.isYieldAvailable, !viewModel.hasPendingTransactions {
-                        earnBadge.padding(.leading, -2)
-                    }
+                    leadingBadge
                 }
             },
             primaryTrailingView: {
@@ -49,18 +43,13 @@ struct TokenItemView: View {
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 } else {
                     HStack(spacing: 6) {
-                        if viewModel.isStaked {
-                            Assets.stakingMiniIcon.image
-                                .renderingMode(.template)
-                                .resizable()
-                                .foregroundColor(Colors.Icon.accent)
-                                .frame(width: 12, height: 12)
-                        }
+                        trailingBadge
 
                         LoadableTokenBalanceView(
                             state: viewModel.balanceFiat,
                             style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
-                            loader: .init(size: .init(width: 40, height: 12))
+                            loader: .init(size: .init(width: 40, height: 12)),
+                            accessibilityIdentifier: MainAccessibilityIdentifiers.tokenBalance(for: viewModel.name)
                         )
                         .layoutPriority(3)
                     }
@@ -115,12 +104,33 @@ struct TokenItemView: View {
         // [REDACTED_INFO]
     }
 
-    private var earnBadge: some View {
-        TokenItemEarnBadgeView(apy: "TEST")
+    @ViewBuilder
+    var leadingBadge: some View {
+        switch viewModel.leadingBadge {
+        case .pendingTransaction:
+            ProgressDots(style: .small)
+        case .rewards(let rewardsInfo):
+            TokenItemEarnBadgeView(
+                rewardType: rewardsInfo.type,
+                rewardValue: rewardsInfo.rewardValue,
+                color: rewardsInfo.isActive ? Colors.Text.accent : Colors.Text.secondary
+            )
+        case .none:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    var trailingBadge: some View {
+        if case .isApproveNeeded = viewModel.trailingBadge {
+            yieldWarningIcon
+        } else {
+            EmptyView()
+        }
     }
 
     private var yieldWarningIcon: some View {
-        Assets.attention.image
+        Assets.attention20.image
             .resizable()
             .frame(width: 12, height: 12)
     }

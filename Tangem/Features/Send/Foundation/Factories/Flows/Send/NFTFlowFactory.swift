@@ -13,7 +13,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
     let nftAssetStepBuilder: NFTAssetStepBuilder
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
 
     let walletAddresses: [String]
     let suggestedWallets: [SendDestinationSuggestedWallet]
@@ -46,7 +46,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     )
 
     init(
-        userWalletInfo: SendWalletInfo,
+        userWalletInfo: UserWalletInfo,
         nftAssetStepBuilder: NFTAssetStepBuilder,
         walletModel: any WalletModel,
         expressInput: CommonExpressDependenciesFactory.Input
@@ -127,6 +127,7 @@ extension NFTFlowFactory: SendGenericFlowFactory {
         notificationManager.setupManager(with: sendModel)
 
         // Logger setup
+        analyticsLogger.setup(sendDestinationInput: sendModel)
         analyticsLogger.setup(sendFeeInput: sendModel)
         analyticsLogger.setup(sendSourceTokenInput: sendModel)
         analyticsLogger.setup(sendReceiveTokenInput: sendModel)
@@ -166,9 +167,9 @@ extension NFTFlowFactory: SendBaseBuildable {
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
                 input: sendModel,
                 sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
+                    userWalletInfo: userWalletInfo,
                     sourceTokenInput: sendModel,
                     receiveTokenOutput: sendModel,
-                    expressRepository: expressDependenciesFactory.expressRepository,
                     receiveTokenBuilder: makeSendReceiveTokenBuilder(),
                     analyticsLogger: analyticsLogger
                 )

@@ -7,6 +7,7 @@
 //
 
 import TangemFoundation
+import TangemExpress
 
 // `Subsystems`:
 // `000` - ExpressRepositoryError
@@ -15,8 +16,9 @@ import TangemFoundation
 // `003` - ExpressDestinationServiceError
 // `004` - CommonExpressAvailabilityProvider.Error
 // `005` - ExpressTransactionBuilderError
-// `006` -
+// `006` - ExpressProviderError
 // `007` -
+// `008` -
 
 extension ExpressRepositoryError: UniversalError {
     var errorCode: Int {
@@ -72,6 +74,17 @@ extension ExpressTransactionBuilderError: UniversalError {
             103005000
         case .transactionDataForSwapOperationNotFound:
             103005001
+        }
+    }
+}
+
+extension ExpressProviderError: @retroactive UniversalError {
+    public var errorCode: Int {
+        switch self {
+        case .transactionDataNotFound:
+            103006000
+        case .transactionSizeNotSupported:
+            103006001
         }
     }
 }

@@ -14,7 +14,7 @@ class RestakingFlowFactory: StakingFlowDependenciesFactory {
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
     let manager: any StakingManager
     let action: RestakingModel.Action
     var actionType: StakingAction.ActionType { action.displayType }
@@ -29,7 +29,7 @@ class RestakingFlowFactory: StakingFlowDependenciesFactory {
     lazy var notificationManager = makeStakingNotificationManager()
 
     init(
-        userWalletInfo: SendWalletInfo,
+        userWalletInfo: UserWalletInfo,
         manager: any StakingManager,
         action: RestakingModel.Action,
         walletModel: any WalletModel,
@@ -169,7 +169,7 @@ extension RestakingFlowFactory: StakingValidatorsStepBuildable {
     }
 
     var stakingValidatorsTypes: StakingValidatorsStepBuilder.Types {
-        StakingValidatorsStepBuilder.Types(actionType: .stake, currentValidator: .none)
+        StakingValidatorsStepBuilder.Types(actionType: sendFlowActionType(), currentValidator: restakingModel.validator)
     }
 
     var stakingValidatorsDependencies: StakingValidatorsStepBuilder.Dependencies {
@@ -194,7 +194,7 @@ extension RestakingFlowFactory: SendSummaryStepBuildable {
                 tokenItem: tokenItem,
                 destinationEditableType: .editable,
                 amountEditableType: .noEditable,
-                actionType: .stake
+                actionType: sendFlowActionType()
             )
         )
     }

@@ -9,7 +9,7 @@
 import Foundation
 
 @propertyWrapper
-public struct FlexibleDecimal: Decodable {
+public struct FlexibleDecimal: Decodable, Equatable {
     public var wrappedValue: Decimal?
 
     public init(wrappedValue: Decimal?) {

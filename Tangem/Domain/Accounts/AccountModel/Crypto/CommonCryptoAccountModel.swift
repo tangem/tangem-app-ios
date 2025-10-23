@@ -10,10 +10,12 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemLocalization
+import TangemNFT
 
 final class CommonCryptoAccountModel {
     let walletModelsManager: WalletModelsManager
     let userTokensManager: UserTokensManager
+    let accountBalanceProvider: AccountBalanceProvider
 
     private(set) var icon: AccountModel.Icon {
         didSet {
@@ -42,7 +44,6 @@ final class CommonCryptoAccountModel {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     private let didChangeSubject = PassthroughSubject<Void, Never>()
     private let accountId: AccountId
     private let derivationIndex: Int
@@ -55,7 +56,8 @@ final class CommonCryptoAccountModel {
         accountIcon: AccountModel.Icon,
         derivationIndex: Int,
         walletModelsManager: WalletModelsManager,
-        userTokensManager: UserTokensManager
+        userTokensManager: UserTokensManager,
+        accountBalanceProvider: AccountBalanceProvider,
     ) {
         self.accountId = accountId
         _name = accountName
@@ -63,6 +65,7 @@ final class CommonCryptoAccountModel {
         self.derivationIndex = derivationIndex
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
+        self.accountBalanceProvider = accountBalanceProvider
     }
 }
 
@@ -77,16 +80,25 @@ extension CommonCryptoAccountModel {
         accountIcon: AccountModel.Icon,
         derivationIndex: Int,
         walletModelsManager: WalletModelsManager,
-        userTokensManager: UserTokensManager
+        userTokensManager: UserTokensManager,
     ) {
         let accountId = AccountId(userWalletId: userWalletId, derivationIndex: derivationIndex)
+        let accountBalanceProvider = CommonAccountBalanceProvider(
+            totalBalanceProvider: AccountTotalBalanceProvider(
+                walletModelsManager: walletModelsManager,
+                analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger(),
+                derivationManager: userTokensManager.derivationManager
+            )
+        )
+
         self.init(
             accountId: accountId,
             accountName: accountName,
             accountIcon: accountIcon,
             derivationIndex: derivationIndex,
             walletModelsManager: walletModelsManager,
-            userTokensManager: userTokensManager
+            userTokensManager: userTokensManager,
+            accountBalanceProvider: accountBalanceProvider
         )
     }
 }
@@ -128,45 +140,16 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
     }
 }
 
-// MARK: - WalletModelBalancesProvider protocol conformance
+// MARK: - BalanceProvidingAccountModel protocol conformance
 
-extension CommonCryptoAccountModel: WalletModelBalancesProvider {
-    /// - Note: An aggregated balance provider that combines all available balances for all wallet models in this account.
-    var availableBalanceProvider: TokenBalanceProvider {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
+extension CommonCryptoAccountModel: BalanceProvidingAccountModel {
+    var fiatTotalBalanceProvider: AccountBalanceProvider {
+        accountBalanceProvider
     }
 
-    // [REDACTED_TODO_COMMENT]
-    /// - Note: An aggregated balance provider that combines all available balances for all wallet models in this account.
-    var stakingBalanceProvider: TokenBalanceProvider {
+    var rateProvider: AccountRateProvider {
         // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
-    /// - Note: An aggregated balance provider that combines all available balances for all wallet models in this account.
-    var totalTokenBalanceProvider: TokenBalanceProvider {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
-    /// - Note: An aggregated balance provider that combines all available balances for all wallet models in this account.
-    var fiatAvailableBalanceProvider: TokenBalanceProvider {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    /// - Note: An aggregated balance provider that combines all available balances for all wallet models in this account.
-    var fiatStakingBalanceProvider: TokenBalanceProvider {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
-    /// - Note: An aggregated balance provider that combines all available balances for all wallet models in this account.
-    var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
+        fatalError("\(#function) not implemented yet!")
     }
 }
 
