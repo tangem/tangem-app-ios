@@ -77,7 +77,7 @@ protocol SendBaseViewAnalyticsLogger {
 // MARK: - SendSteps
 
 protocol SendDestinationAnalyticsLogger {
-    func logSendAddressEntered(isAddressValid: Bool, source: Analytics.DestinationAddressSource)
+    func logSendAddressEntered(isAddressValid: Bool, addressSource: Analytics.DestinationAddressSource)
     func logQRScannerOpened()
 
     func logDestinationStepOpened()
