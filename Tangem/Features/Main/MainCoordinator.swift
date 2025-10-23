@@ -574,7 +574,7 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
             }
         )
 
-        coordinator.start(with: .default)
+        coordinator.start(with: FeatureProvider.isAvailable(.accounts) ? .new : .default)
         actionButtonsSellCoordinator = coordinator
     }
 }
