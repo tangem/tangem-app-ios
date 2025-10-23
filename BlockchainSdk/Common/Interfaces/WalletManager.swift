@@ -168,3 +168,9 @@ extension AssetRequirementsManager {
         // No-op
     }
 }
+
+// MARK: - MinimalBalanceProvider
+
+public protocol MinimalBalanceProvider {
+    func minimalBalance() -> Decimal
+}
