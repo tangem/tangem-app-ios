@@ -152,7 +152,7 @@ struct YieldModuleInfoView: View {
                 linkTitle: Localization.commonReadMore,
                 url: viewModel.readMoreURL
             )
-            
+
         case .stopEarning:
             YieldFeeSection(
                 sectionState: viewModel.networkFeeState,
