@@ -68,5 +68,6 @@ extension NewTokenSelectorItemViewModel {
     enum DisabledReason {
         case unavailableForSwap
         case unavailableForOnramp
+        case unavailableForSell
     }
 }
