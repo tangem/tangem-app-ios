@@ -95,6 +95,7 @@ var serviceModules: [PackageDescription.Target] {
                 "Kingfisher",
                 "TangemAssets",
                 "TangemLocalization",
+                "TangemFoundation",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -109,6 +110,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemUIUtils",
                 "TangemLocalization",
                 "TangemAccessibilityIdentifiers",
+                "TangemLogger",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -121,6 +123,7 @@ var serviceModules: [PackageDescription.Target] {
             dependencies: [
                 .product(name: "TangemSdk", package: "tangem-sdk-ios"),
                 .target(name: "TrezorCrypto"),
+                "TangemFoundation",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -157,6 +160,7 @@ var featureModules: [PackageDescription.Target] {
                 "Kingfisher",
                 "TangemLocalization",
                 "TangemUI",
+                "TangemFoundation",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
