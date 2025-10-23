@@ -49,6 +49,7 @@ class StakingModel {
     private let feeTokenItem: TokenItem
     private let tokenIconInfo: TokenIconInfo
     private let accountInitializationService: BlockchainAccountInitializationService?
+    private let minimalBalanceProvider: MinimalBalanceProvider?
 
     private var timerTask: Task<Void, Error>?
     private var estimatedFeeTask: Task<Void, Never>?
@@ -64,6 +65,7 @@ class StakingModel {
         allowanceService: AllowanceService,
         analyticsLogger: StakingSendAnalyticsLogger,
         accountInitializationService: BlockchainAccountInitializationService?,
+        minimalBalanceProvider: MinimalBalanceProvider?,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         tokenIconInfo: TokenIconInfo
@@ -77,6 +79,7 @@ class StakingModel {
         self.allowanceService = allowanceService
         self.analyticsLogger = analyticsLogger
         self.accountInitializationService = accountInitializationService
+        self.minimalBalanceProvider = minimalBalanceProvider
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.tokenIconInfo = tokenIconInfo
@@ -225,13 +228,17 @@ private extension StakingModel {
             balance.balanceType == .active && balance.validatorType.validator != validator
         }
 
+        let amountToReduceCalculation = { [minimalBalanceProvider] in
+            return fee * Constants.reduceAmountMultiplier + (minimalBalanceProvider?.minimalBalance() ?? .zero)
+        }
+
         return .readyToStake(
             .init(
                 amount: newAmount,
                 fee: fee,
                 isFeeIncluded: includeFee,
                 stakeOnDifferentValidator: hasPreviousStakeOnDifferentValidator,
-                amountToReduce: includeFee ? fee * Constants.reduceAmountMultiplier : nil
+                amountToReduce: includeFee ? amountToReduceCalculation() : nil
             )
         )
     }
