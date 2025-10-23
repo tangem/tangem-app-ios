@@ -136,35 +136,29 @@ struct YieldModuleInfoView: View {
                 apyTrend: viewModel.apyTrend,
                 minAmountState: viewModel.minimalAmountState,
                 chartState: viewModel.chartState,
-                networkFeeState: viewModel.currentNetworkFeeState,
-                networkFeeAmountState: viewModel.networkFeeAmountState,
+                estimatedFeeState: viewModel.estimatedFeeState,
                 bannerParams: viewModel.notificationBannerParams,
-                tokenName: viewModel.walletModel.tokenItem.name,
-                tokenSymbol: viewModel.walletModel.tokenItem.currencySymbol,
                 transferMode: Localization.yieldModuleTransferModeAutomatic,
                 availableBalance: viewModel.getAvailableBalanceString(),
                 readMoreUrl: viewModel.readMoreURL,
-                myFundsSectionText: viewModel.makeMyFundsSectionText()
+                myFundsSectionText: viewModel.makeMyFundsSectionText(),
+                earInfoFooterText: viewModel.earInfoFooterText
             )
 
         case .approve:
             YieldFeeSection(
+                sectionState: viewModel.networkFeeState,
                 leadingTitle: Localization.commonNetworkFeeTitle,
-                state: viewModel.networkFeeState,
-                footerText: Localization.yieldModuleApproveSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
-                url: viewModel.readMoreURL,
-                isLinkActive: true
+                url: viewModel.readMoreURL
             )
-
+            
         case .stopEarning:
             YieldFeeSection(
+                sectionState: viewModel.networkFeeState,
                 leadingTitle: Localization.commonNetworkFeeTitle,
-                state: viewModel.networkFeeState,
-                footerText: Localization.yieldModuleStopEarningSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
-                url: viewModel.readMoreURL,
-                isLinkActive: true
+                url: viewModel.readMoreURL
             )
         }
     }

@@ -26,6 +26,24 @@ enum YieldModuleNotificationBannerParams {
             return false
         }
     }
+    
+    var isFeeUnreachable: Bool {
+        switch self {
+        case .feeUnreachable:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var isNotEnoughCurrency: Bool {
+        switch self {
+        case .notEnoughFeeCurrency:
+            return true
+        default:
+            return false
+        }
+    }
 
     var bannedPosition: Position {
         switch self {
