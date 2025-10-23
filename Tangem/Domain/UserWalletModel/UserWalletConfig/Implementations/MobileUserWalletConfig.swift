@@ -113,7 +113,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
         case .resetToFactory: return .hidden
         case .hdWallets: return .available
         case .staking: return .available
-        case .referralProgram: return .hidden
+        case .referralProgram: return .available
         case .swapping: return .available
         case .displayHashesCount: return .available
         case .transactionHistory: return .hidden
