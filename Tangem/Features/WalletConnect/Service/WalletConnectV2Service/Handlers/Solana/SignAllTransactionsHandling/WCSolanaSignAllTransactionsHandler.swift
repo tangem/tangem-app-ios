@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
+import TangemFoundation
 
 final class WCSolanaSignAllTransactionsHandler {
     private let walletModel: any WalletModel
@@ -44,7 +45,7 @@ final class WCSolanaSignAllTransactionsHandler {
     }
 
     private func prepareTransactionToSign(hash: String) throws -> Data {
-        let data = try Data(hash.base64Decoded())
+        let data = try hash.base64DecodedData()
         let (signature, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
         return signature
     }
