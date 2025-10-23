@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import TangemExpress
 import BlockchainSdk
+import TangemExpress
+import TangemFoundation
 
 struct CommonExpressProviderTransactionValidator: ExpressProviderTransactionValidator {
     // MARK: - Private Properties
@@ -34,7 +35,7 @@ struct CommonExpressProviderTransactionValidator: ExpressProviderTransactionVali
             // For other blockchains, the method’s behavior must be carefully extended,
             // since the transaction data format and encoding may differ.
             case .solana:
-                let transactionData = try Data(data.base64Decoded())
+                let transactionData = try data.base64DecodedData()
                 return try hardwareLimitationsUtil.canHandleTransaction(tokenItem, transaction: transactionData)
 
             default:
