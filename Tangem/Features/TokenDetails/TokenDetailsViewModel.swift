@@ -382,6 +382,13 @@ private extension TokenDetailsViewModel {
             )
             yieldModuleAvailability = .active(vm)
 
+            if info.isAllowancePermissionRequired {
+                Analytics.log(
+                    event: .earningNoticeApproveNeeded,
+                    params: [.token: walletModel.tokenItem.currencySymbol, .blockchain: walletModel.tokenItem.blockchain.displayName]
+                )
+            }
+
         case .notActive:
             makeEligibleVm()
 
@@ -507,6 +514,11 @@ extension TokenDetailsViewModel {
     }
 
     func openYieldBalanceInfo() {
+        Analytics.log(
+            event: .earningEarnedFundsInfo,
+            params: [.token: walletModel.tokenItem.currencySymbol, .blockchain: walletModel.tokenItem.blockchain.displayName]
+        )
+
         coordinator?.openYieldBalanceInfo(tokenName: walletModel.tokenItem.name, tokenId: walletModel.tokenItem.id)
     }
 }
