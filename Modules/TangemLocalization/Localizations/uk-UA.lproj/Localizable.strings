@@ -233,6 +233,7 @@
 "common_enable" = "Увімкнути";
 "common_enabled" = "Увімкнено";
 "common_error" = "Помилка";
+"common_estimated_fee" = "Estimated fee";
 "common_exchange" = "Обміняти";
 "common_explore_transaction_history" = "Переглянути історію транзакцій";
 "common_explore" = "Оглядач";
@@ -463,7 +464,7 @@
 "express_more_providers_soon" = "Незабаром з'являться нові провайдери.\nСлідкуйте за новинами!";
 "express_provider_best_rate" = "Найкращий курс";
 "express_provider_fca_warning_list" = "Список попереджень FCA";
-"express_provider_great_rate" = "Great rate";
+"express_provider_great_rate" = "Best choice";
 "express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Доступно до %@";
 "express_provider_min_amount" = "Доступно від %@";
@@ -1797,6 +1798,6 @@
 "yield_module_transfer_mode_automatic" = "Automatic";
 "yield_module_unable_to_cover_fee_description" = "Deposit some %1$@ %2$@ to cover the network fee for transactions";
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
-"yield_module_unavailable_subtitle" = "The interest service isn’t available at the moment. Please try again later.";
-"yield_module_unavailable_title" = "Earnings unavailable";
+"yield_module_unavailable_subtitle" = "The Yield mode service isn’t available at the moment. Please try again later.";
+"yield_module_unavailable_title" = "Yield mode unavailable";
 "yield_supply_chart_loading_error" = "Unable to load chart...";
