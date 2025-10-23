@@ -206,7 +206,7 @@ private extension UserWalletSettingsViewModel {
         } else {
             forgetViewModel = DefaultRowViewModel(
                 title: Localization.settingsForgetWallet,
-                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapForgetWallet)
             )
         }
     }
@@ -285,11 +285,11 @@ private extension UserWalletSettingsViewModel {
         }
     }
 
-    func didTapDeleteWallet() {
+    func didTapForgetWallet() {
         Analytics.log(.buttonDeleteWalletTapped)
 
         let deleteButton = ConfirmationDialogViewModel.Button(
-            title: Localization.commonDelete,
+            title: Localization.commonForget,
             role: .destructive,
             action: { [weak self] in
                 self?.didConfirmWalletDeletion()
