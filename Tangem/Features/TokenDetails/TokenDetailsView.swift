@@ -10,8 +10,8 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
-import TangemFoundation
 
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
@@ -48,6 +48,8 @@ struct TokenDetailsView: View {
                         tapAction: viewModel.openMarketsTokenDetails
                     )
                 }
+
+                yieldStatueView
 
                 if let activeStakingViewData = viewModel.activeStakingViewData {
                     ActiveStakingView(data: activeStakingViewData)
@@ -88,7 +90,7 @@ struct TokenDetailsView: View {
         .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: scrollOffsetHandler.onViewAppear)
         .alert(item: $viewModel.alert) { $0.alert }
-        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
+        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .coordinateSpace(name: coordinateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
@@ -129,6 +131,20 @@ struct TokenDetailsView: View {
             } label: {
                 NavbarDotsImage()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var yieldStatueView: some View {
+        switch viewModel.yieldModuleAvailability {
+        case .checking, .notApplicable:
+            EmptyView()
+
+        case .eligible(let vm):
+            YieldAvailableNotificationView(viewModel: vm)
+
+        case .enter(let vm), .exit(let vm), .active(let vm):
+            YieldStatusView(viewModel: vm)
         }
     }
 }

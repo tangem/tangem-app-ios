@@ -9,7 +9,7 @@
 import struct TangemUI.TokenIconInfo
 
 class SendFlowFactory: SendFlowBaseDependenciesFactory {
-    let userWalletInfo: SendWalletInfo
+    let userWalletInfo: UserWalletInfo
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
@@ -38,7 +38,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     )
 
     init(
-        userWalletInfo: SendWalletInfo,
+        userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
         expressInput: CommonExpressDependenciesFactory.Input,
     ) {
@@ -118,6 +118,7 @@ extension SendFlowFactory: SendGenericFlowFactory {
         notificationManager.setupManager(with: sendModel)
 
         // Logger setup
+        analyticsLogger.setup(sendDestinationInput: sendModel)
         analyticsLogger.setup(sendFeeInput: sendModel)
         analyticsLogger.setup(sendSourceTokenInput: sendModel)
         analyticsLogger.setup(sendReceiveTokenInput: sendModel)
@@ -160,9 +161,9 @@ extension SendFlowFactory: SendBaseBuildable {
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
                 input: sendModel,
                 sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
+                    userWalletInfo: userWalletInfo,
                     sourceTokenInput: sendModel,
                     receiveTokenOutput: sendModel,
-                    expressRepository: expressDependenciesFactory.expressRepository,
                     receiveTokenBuilder: makeSendReceiveTokenBuilder(),
                     analyticsLogger: analyticsLogger
                 )

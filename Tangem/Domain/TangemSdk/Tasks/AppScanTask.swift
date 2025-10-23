@@ -12,7 +12,6 @@ import BlockchainSdk
 import TangemVisa
 import SwiftUI
 import TangemFoundation
-import TangemNetworkUtils
 
 enum DefaultWalletData: Codable {
     case file(WalletData)
@@ -270,9 +269,9 @@ final class AppScanTask: CardSessionRunnable {
             let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue) // [REDACTED_TODO_COMMENT]
 
             // Force add blockchains for demo cards
-            if let persistentBlockchains = config.persistentBlockchains {
+            if config.persistentBlockchains.isNotEmpty {
                 let converter = StorageEntryConverter()
-                tokenItemsRepository.append(converter.convertToStoredUserTokens(persistentBlockchains))
+                tokenItemsRepository.append(converter.convertToStoredUserTokens(tokenItems: config.persistentBlockchains))
             }
 
             let savedItems = tokenItemsRepository.getList().entries
@@ -296,7 +295,7 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func runScanTask(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        let scanTask = ScanTask(networkService: .init(session: TangemTrustEvaluatorUtil.sharedSession, additionalHeaders: DeviceInfo().asHeaders()))
+        let scanTask = ScanTask(networkService: TangemSdkNetworkServiceFactory().makeService())
         scanTask.run(in: session) { result in
             switch result {
             case .success:

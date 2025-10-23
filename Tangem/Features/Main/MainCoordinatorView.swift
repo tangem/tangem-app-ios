@@ -83,6 +83,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.nftCollectionsCoordinator) {
                 NFTCollectionsCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.tangemPayMainViewModel) {
+                TangemPayMainView(viewModel: $0)
+            }
     }
 
     @ViewBuilder
@@ -96,7 +99,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
-                    .expressNavigationView()
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)

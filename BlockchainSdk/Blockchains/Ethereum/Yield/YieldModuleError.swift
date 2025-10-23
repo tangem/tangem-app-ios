@@ -11,9 +11,11 @@ import Foundation
 public enum YieldModuleError: Error {
     case unableToParseData
     case unsupportedBlockchain
+    case noYieldContractFound
     case feeNotFound
-    case balanceNotFound
     case yieldIsAlreadyActive
     case inconsistentState
     case yieldIsNotActive
+    case maxNetworkFeeNotFound
+    case minimalTopUpAmountNotFound
 }

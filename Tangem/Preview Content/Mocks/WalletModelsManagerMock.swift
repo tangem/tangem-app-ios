@@ -9,9 +9,9 @@
 import Foundation
 import Combine
 
-struct WalletModelsManagerMock: WalletModelsManager {
+class WalletModelsManagerMock: WalletModelsManager {
     var isInitialized: Bool { true }
-    var walletModels: [any WalletModel] { [] }
+    var walletModels: [any WalletModel] { [CommonWalletModel.mockETH] }
     var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { .just(output: walletModels) }
 
     func updateAll(silent: Bool, completion: @escaping () -> Void) {

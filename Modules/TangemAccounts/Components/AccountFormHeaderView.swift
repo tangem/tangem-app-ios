@@ -17,21 +17,18 @@ public struct AccountFormHeaderView: View {
 
     private let maxCharacters: Int
     private let placeholderText: String
-    private let color: Color
-    private let nameMode: AccountIconView.NameMode
+    private let accountIconViewData: AccountIconView.ViewData
 
     public init(
         accountName: Binding<String>,
         maxCharacters: Int,
         placeholderText: String,
-        color: Color,
-        nameMode: AccountIconView.NameMode
+        accountIconViewData: AccountIconView.ViewData
     ) {
         _accountName = accountName
         self.maxCharacters = maxCharacters
         self.placeholderText = placeholderText
-        self.color = color
-        self.nameMode = nameMode
+        self.accountIconViewData = accountIconViewData
     }
 
     public var body: some View {
@@ -50,10 +47,8 @@ public struct AccountFormHeaderView: View {
     private var colorWithPreview: some View {
         HStack {
             Spacer()
-            AccountIconView(backgroundColor: color, nameMode: nameMode)
-                .cornerRadius(24)
-                .padding(24)
-                .imageSize(.init(bothDimensions: 40))
+            AccountIconView(data: accountIconViewData)
+                .settings(.largeSized)
             Spacer()
         }
     }
@@ -74,7 +69,7 @@ public struct AccountFormHeaderView: View {
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
             .frame(height: originalTextFieldHeight)
             // Mikhail Andreev - Needed to be constrained from here coz for some reason it
-            // is not possible to doit from ViewModel
+            // is not possible to do it from ViewModel
             .onChange(of: accountName) { newValue in
                 accountName = String(newValue.prefix(maxCharacters))
             }
@@ -93,16 +88,20 @@ public struct AccountFormHeaderView: View {
                 accountName: $accountName,
                 maxCharacters: 20,
                 placeholderText: "New account",
-                color: Colors.Accounts.vitalGreen,
-                nameMode: .letter("N")
+                accountIconViewData: AccountIconView.ViewData(
+                    backgroundColor: Colors.Accounts.vitalGreen,
+                    nameMode: .letter("N")
+                )
             )
 
             AccountFormHeaderView(
                 accountName: $accountName,
                 maxCharacters: 20,
                 placeholderText: "New account",
-                color: Colors.Accounts.ufoGreen,
-                nameMode: .imageType(Assets.Accounts.airplane)
+                accountIconViewData: AccountIconView.ViewData(
+                    backgroundColor: Colors.Accounts.ufoGreen,
+                    nameMode: .imageType(Assets.Accounts.airplane)
+                )
             )
         }
         .padding(.horizontal, 16)

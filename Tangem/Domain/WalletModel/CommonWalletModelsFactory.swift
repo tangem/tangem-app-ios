@@ -99,17 +99,27 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
     func makeWalletModels(from walletManager: WalletManager) -> [any WalletModel] {
         var types: [Amount.AmountType] = [.coin]
         types += walletManager.cardTokens.map { Amount.AmountType.token(value: $0) }
-        return makeWalletModels(for: types, walletManager: walletManager)
+
+        let currentDerivation = walletManager.wallet.publicKey.derivationPath
+        let currentBlockchain = walletManager.wallet.blockchain
+        let blockchainNetwork = BlockchainNetwork(currentBlockchain, derivationPath: currentDerivation)
+
+        return makeWalletModels(for: types, walletManager: walletManager, blockchainNetwork: blockchainNetwork)
     }
 
-    func makeWalletModels(for types: [Amount.AmountType], walletManager: WalletManager) -> [any WalletModel] {
+    func makeWalletModels(
+        for types: [Amount.AmountType],
+        walletManager: WalletManager,
+        blockchainNetwork: BlockchainNetwork
+    ) -> [any WalletModel] {
         var models: [any WalletModel] = []
 
-        let currentBlockchain = walletManager.wallet.blockchain
-        let currentDerivation = walletManager.wallet.publicKey.derivationPath
+        let currentBlockchain = blockchainNetwork.blockchain
+        let currentDerivation = blockchainNetwork.derivationPath
         let isMainCoinCustom = !isDerivationDefault(blockchain: currentBlockchain, derivationPath: currentDerivation)
-        let blockchainNetwork = BlockchainNetwork(currentBlockchain, derivationPath: currentDerivation)
-        let sendAvailabilityProvider = TransactionSendAvailabilityProvider(isSendingSupportedByCard: config.hasFeature(.send))
+        let sendAvailabilityProvider = TransactionSendAvailabilityProvider(
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
+        )
         let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
 
         if types.contains(.coin) {
@@ -130,6 +140,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
             let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: .coin)
             let mainCoinModel = CommonWalletModel(
                 userWalletId: userWalletId,
+                tokenItem: tokenItem,
                 walletManager: walletManager,
                 stakingManager: makeStakingManager(
                     publicKey: walletManager.wallet.publicKey.blockchainKey,
@@ -141,7 +152,6 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 receiveAddressService: receiveAddressService,
                 sendAvailabilityProvider: sendAvailabilityProvider,
                 tokenBalancesRepository: tokenBalancesRepository,
-                amountType: .coin,
                 shouldPerformHealthCheck: shouldPerformHealthCheck,
                 isCustom: isMainCoinCustom
             )
@@ -169,6 +179,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: amountType)
                 let tokenModel = CommonWalletModel(
                     userWalletId: userWalletId,
+                    tokenItem: tokenItem,
                     walletManager: walletManager,
                     stakingManager: makeStakingManager(
                         publicKey: walletManager.wallet.publicKey.blockchainKey,
@@ -180,7 +191,6 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     receiveAddressService: receiveAddressService,
                     sendAvailabilityProvider: sendAvailabilityProvider,
                     tokenBalancesRepository: tokenBalancesRepository,
-                    amountType: amountType,
                     shouldPerformHealthCheck: shouldPerformHealthCheck,
                     isCustom: isTokenCustom
                 )

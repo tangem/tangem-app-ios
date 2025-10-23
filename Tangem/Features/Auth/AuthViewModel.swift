@@ -10,15 +10,16 @@ import Foundation
 import SwiftUI
 import TangemSdk
 import TangemLocalization
-import TangemUIUtils
 import TangemFoundation
+import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class AuthViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     var unlockWithBiometryButtonTitle: String {
         Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name)
@@ -29,6 +30,8 @@ final class AuthViewModel: ObservableObject {
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
+
+    private let signInAnalyticsLogger = SignInAnalyticsLogger()
 
     private weak var coordinator: AuthRoutable?
 
@@ -55,6 +58,22 @@ final class AuthViewModel: ObservableObject {
         openMail()
     }
 
+    func onAppear() {
+        Analytics.log(.signInScreenOpened)
+        incomingActionManager.becomeFirstResponder(self)
+
+        if unlockOnAppear {
+            DispatchQueue.main.async {
+                self.unlockOnAppear = false
+                self.unlockWithBiometry()
+            }
+        }
+    }
+
+    func onDisappear() {
+        incomingActionManager.resignFirstResponder(self)
+    }
+
     func unlockWithBiometryButtonTapped() {
         Analytics.log(.buttonBiometricSignIn)
         unlockWithBiometry()
@@ -65,7 +84,7 @@ final class AuthViewModel: ObservableObject {
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
-
+                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
                 await runOnMain {
                     viewModel.openMain(with: userWalletModel)
                 }
@@ -104,12 +123,7 @@ final class AuthViewModel: ObservableObject {
             case .error(let error):
                 Analytics.logScanError(error, source: .signIn)
                 Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
-                viewModel.incomingActionManager.discardIncomingAction()
-
-                await runOnMain {
-                    viewModel.isScanningCard = false
-                    viewModel.error = error.alertBinder
-                }
+                await viewModel.handleScanError(error)
 
             case .onboarding(let input, _):
                 Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
@@ -133,15 +147,17 @@ final class AuthViewModel: ObservableObject {
                 Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
                 let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
-                guard let userWalletId = UserWalletId(config: config),
-                      let encryptionKey = UserWalletEncryptionKey(config: config) else {
-                    throw UserWalletRepositoryError.cantUnlockWallet
-                }
-
                 do {
+                    guard let userWalletId = UserWalletId(config: config),
+                          let encryptionKey = UserWalletEncryptionKey(config: config) else {
+                        throw UserWalletRepositoryError.cantUnlockWallet
+                    }
+
                     let userWalletModel = try await viewModel.userWalletRepository.unlock(
                         with: .encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                     )
+
+                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
 
                     await runOnMain {
                         viewModel.isScanningCard = false
@@ -150,45 +166,41 @@ final class AuthViewModel: ObservableObject {
 
                 } catch UserWalletRepositoryError.notFound {
                     // new card scanned, add it
-                    if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
-                        walletInfo: .cardWallet(cardInfo),
-                        keys: .cardWallet(keys: cardInfo.card.wallets)
-                    ) {
-                        try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
-
-                        await runOnMain {
-                            viewModel.isScanningCard = false
-                            viewModel.openMain(with: newUserWalletModel)
-                        }
-                    } else {
-                        throw UserWalletRepositoryError.cantUnlockWallet
-                    }
+                    await viewModel.handleNotFound(cardInfo: cardInfo)
                 } catch {
-                    viewModel.incomingActionManager.discardIncomingAction()
-
-                    await runOnMain {
-                        viewModel.isScanningCard = false
-                        viewModel.error = error.alertBinder
-                    }
+                    await viewModel.handleScanError(error)
                 }
             }
         }
     }
 
-    func onAppear() {
-        Analytics.log(.signInScreenOpened)
-        incomingActionManager.becomeFirstResponder(self)
-
-        if unlockOnAppear {
-            DispatchQueue.main.async {
-                self.unlockOnAppear = false
-                self.unlockWithBiometry()
+    private func handleNotFound(cardInfo: CardInfo) async {
+        do {
+            if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                walletInfo: .cardWallet(cardInfo),
+                keys: .cardWallet(keys: cardInfo.card.wallets)
+            ) {
+                try userWalletRepository.add(userWalletModel: newUserWalletModel)
+                signInAnalyticsLogger.logSignInEvent(signInType: .card)
+                await runOnMain {
+                    isScanningCard = false
+                    openMain(with: newUserWalletModel)
+                }
+            } else {
+                throw UserWalletRepositoryError.cantUnlockWallet
             }
+        } catch {
+            await handleScanError(error)
         }
     }
 
-    func onDisappear() {
-        incomingActionManager.resignFirstResponder(self)
+    private func handleScanError(_ error: Error) async {
+        incomingActionManager.discardIncomingAction()
+
+        await runOnMain {
+            isScanningCard = false
+            self.error = error.alertBinder
+        }
     }
 }
 
@@ -196,18 +208,28 @@ final class AuthViewModel: ObservableObject {
 
 extension AuthViewModel {
     func openTroubleshooting() {
-        let sheet = ActionSheet(
-            title: Text(Localization.alertTroubleshootingScanCardTitle),
-            message: Text(Localization.alertTroubleshootingScanCardMessage),
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.tryAgain()
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.openScanCardManual()
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.requestSupport()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
-                .default(Text(Localization.alertButtonTryAgain), action: weakify(self, forFunction: AuthViewModel.tryAgain)),
-                .default(Text(Localization.commonReadMore), action: weakify(self, forFunction: AuthViewModel.openScanCardManual)),
-                .default(Text(Localization.alertButtonRequestSupport), action: weakify(self, forFunction: AuthViewModel.requestSupport)),
-                .cancel(),
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func openMail() {

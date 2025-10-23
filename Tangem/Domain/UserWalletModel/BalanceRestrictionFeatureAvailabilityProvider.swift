@@ -11,7 +11,7 @@ import Combine
 
 final class BalanceRestrictionFeatureAvailabilityProvider {
     private let userWalletConfig: UserWalletConfig
-    private let totalBalanceProvider: TotalBalanceProviding
+    private let totalBalanceProvider: TotalBalanceProvider
 
     private let isActionButtonsAvailableSubject: CurrentValueSubject<Bool, Never>
     private var bag = Set<AnyCancellable>()
@@ -20,7 +20,11 @@ final class BalanceRestrictionFeatureAvailabilityProvider {
         isActionButtonsAvailableSubject.eraseToAnyPublisher()
     }
 
-    init(userWalletConfig: UserWalletConfig, totalBalanceProvider: TotalBalanceProviding) {
+    var isActionButtonsAvailable: Bool {
+        isActionButtonsAvailableSubject.value
+    }
+
+    init(userWalletConfig: UserWalletConfig, totalBalanceProvider: TotalBalanceProvider) {
         self.userWalletConfig = userWalletConfig
         self.totalBalanceProvider = totalBalanceProvider
 
@@ -39,7 +43,7 @@ final class BalanceRestrictionFeatureAvailabilityProvider {
                 switch totalBalanceState {
                 case .empty: false
                 case .loading(let cached): (cached ?? 0) > 0
-                case .failed: false
+                case .failed(let cached, _): (cached ?? 0) > 0
                 case .loaded(let balance): balance > 0
                 }
             }

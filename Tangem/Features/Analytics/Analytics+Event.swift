@@ -240,6 +240,7 @@ extension Analytics {
         case swapButtonPermissionCancel = "[Swap] Button - Permission Cancel"
         case swapButtonPermitAndSwap = "[Swap] Button - Permit and Swap"
         case swapButtonSwipe = "[Swap] Button - Swipe"
+        case swapButtonPermissionLearnMore = "[Swap] Button - Permission Learn More"
         case swapSwapInProgressScreenOpened = "[Swap] Swap in Progress Screen Opened"
 
         case swapProviderClicked = "[Swap] Provider Clicked"
@@ -346,6 +347,9 @@ extension Analytics {
         // MARK: - Promo
 
         case promoChangellyActivity = "[Promo] Changelly Activity"
+        case promoPushBanner = "[Promo] Push Banner"
+        case promoButtonAllowPush = "[Promo] Button - Allow Push"
+        case promoButtonLaterPush = "[Promo] Button - Later Push"
 
         // MARK: - Push notifications
 

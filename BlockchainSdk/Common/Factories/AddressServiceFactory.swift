@@ -69,7 +69,11 @@ public struct AddressServiceFactory {
              .sonic,
              .vanar,
              .zkLinkNova,
-             .hyperliquidEVM:
+             .hyperliquidEVM,
+             .quai,
+             .scroll,
+             .linea,
+             .arbitrumNova:
             return EVMAddressService()
         case .rsk:
             return RskAddressService()

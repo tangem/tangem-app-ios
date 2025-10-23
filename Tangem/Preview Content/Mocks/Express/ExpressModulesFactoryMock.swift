@@ -12,6 +12,9 @@ import TangemExpress
 import BlockchainSdk
 
 class ExpressModulesFactoryMock: ExpressModulesFactory {
+    @Injected(\.expressPairsRepository)
+    private var expressPairsRepository: ExpressPairsRepository
+
     private let initialWalletModel: any WalletModel = CommonWalletModel.mockETH
     private let userWalletModel: UserWalletModel = UserWalletModelMock()
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
@@ -21,11 +24,13 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     private lazy var expressAPIProvider = makeExpressAPIProvider()
     private lazy var expressRepository = makeExpressRepository()
 
+    private var userWalletInfo: UserWalletInfo { userWalletModel.userWalletInfo }
+
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
         let notificationManager = notificationManager
         let model = ExpressViewModel(
             initialWallet: initialWalletModel,
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
             feeFormatter: feeFormatter,
             balanceFormatter: balanceFormatter,
             expressProviderFormatter: expressProviderFormatter,
@@ -45,7 +50,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         ExpressTokensListViewModel(
             swapDirection: swapDirection,
             expressTokensListAdapter: expressTokensListAdapter,
-            expressRepository: expressRepository,
+            expressPairsRepository: expressPairsRepository,
             expressInteractor: expressInteractor,
             coordinator: coordinator,
             userWalletModelConfig: userWalletModel.config
@@ -151,14 +156,14 @@ private extension ExpressModulesFactoryMock {
     var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
-        CommonExpressTokensListAdapter(userWalletModel: userWalletModel)
+        CommonExpressTokensListAdapter(
+            userTokensManager: userWalletModel.userTokensManager,
+            walletModelsManager: userWalletModel.walletModelsManager,
+        )
     }
 
     var expressDestinationService: ExpressDestinationService {
-        CommonExpressDestinationService(
-            walletModelsManager: walletModelsManager,
-            expressRepository: expressRepository
-        )
+        CommonExpressDestinationService(walletModelsManager: walletModelsManager)
     }
 
     // MARK: - Methods
@@ -172,35 +177,33 @@ private extension ExpressModulesFactoryMock {
 
     func makeExpressInteractor() -> ExpressInteractor {
         let analyticsLogger = ExpressAnalyticsLoggerMock()
+        let transactionValidator = ExpressProviderTransactionValidatorMock()
 
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
             supportedProviderTypes: .swap,
-            operationType: .swap
+            operationType: .swap,
+            transactionValidator: transactionValidator
         )
 
         let interactor = ExpressInteractor(
-            userWalletId: userWalletId,
+            userWalletInfo: userWalletInfo,
             initialWallet: initialWalletModel.asExpressInteractorWallet,
             destinationWallet: .loading,
             expressManager: expressManager,
-            expressRepository: expressRepository,
+            expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressAnalyticsLogger: analyticsLogger,
             expressAPIProvider: expressAPIProvider,
-            signer: signer
         )
 
         return interactor
     }
 
     func makeExpressRepository() -> ExpressRepository {
-        CommonExpressRepository(
-            walletModelsManager: walletModelsManager,
-            expressAPIProvider: expressAPIProvider
-        )
+        CommonExpressRepository(expressAPIProvider: expressAPIProvider)
     }
 }
