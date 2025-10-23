@@ -31,8 +31,7 @@ struct YieldModuleInfoView: View {
             header: { makeHeader(viewState: viewModel.viewState) },
             topContent: { topContent },
             content: { mainContent },
-            contentTopPadding: contentTopPadding,
-            buttonTopPadding: buttonTopPadding
+            contentTopPadding: contentTopPadding
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
@@ -47,28 +46,6 @@ struct YieldModuleInfoView: View {
             8
         default:
             24
-        }
-    }
-
-    private var horizontalPadding: CGFloat {
-        switch viewModel.viewState {
-        case .earnInfo:
-            0
-        default:
-            16
-        }
-    }
-
-    private var buttonTopPadding: CGFloat {
-        if viewModel.notificationBannerParams != nil {
-            return 24
-        }
-
-        switch viewModel.viewState {
-        case .earnInfo:
-            return 16
-        default:
-            return 32
         }
     }
 
@@ -100,7 +77,7 @@ struct YieldModuleInfoView: View {
             .init(settings: .init(
                 title: Localization.yieldModuleStopEarning,
                 style: .secondary,
-                isDisabled: !viewModel.isMainButtonAvailable,
+                isDisabled: !viewModel.isOpenExitSheetButtonAvailable,
                 action: ctaButtonAction
             ))
         case .approve, .stopEarning:
@@ -109,7 +86,7 @@ struct YieldModuleInfoView: View {
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
                 isLoading: viewModel.isProcessingRequest,
-                isDisabled: !viewModel.isMainButtonAvailable,
+                isDisabled: !viewModel.isActionButtonAvailable,
                 action: ctaButtonAction
             ))
         }
@@ -137,7 +114,7 @@ struct YieldModuleInfoView: View {
                 minAmountState: viewModel.minimalAmountState,
                 chartState: viewModel.chartState,
                 estimatedFeeState: viewModel.estimatedFeeState,
-                bannerParams: viewModel.notificationBannerParams,
+                notifications: viewModel.earnInfoNotifications,
                 transferMode: Localization.yieldModuleTransferModeAutomatic,
                 availableBalance: viewModel.getAvailableBalanceString(),
                 readMoreUrl: viewModel.readMoreURL,
@@ -150,7 +127,8 @@ struct YieldModuleInfoView: View {
                 sectionState: viewModel.networkFeeState,
                 leadingTitle: Localization.commonNetworkFeeTitle,
                 linkTitle: Localization.commonReadMore,
-                url: viewModel.readMoreURL
+                url: viewModel.readMoreURL,
+                notification: viewModel.networkFeeNotification
             )
 
         case .stopEarning:
@@ -158,7 +136,8 @@ struct YieldModuleInfoView: View {
                 sectionState: viewModel.networkFeeState,
                 leadingTitle: Localization.commonNetworkFeeTitle,
                 linkTitle: Localization.commonReadMore,
-                url: viewModel.readMoreURL
+                url: viewModel.readMoreURL,
+                notification: viewModel.networkFeeNotification
             )
         }
     }

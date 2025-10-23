@@ -18,6 +18,7 @@ struct YieldFeeSection<LeadingTextAccesoryView: View>: View {
     let url: URL?
     let needsBackground: Bool
     let onLinkTapAction: (() -> Void)?
+    let notification: YieldModuleNotificationBannerParams?
     let leadingTextAccesoryView: LeadingTextAccesoryView
 
     let sectionState: YieldFeeSectionState
@@ -29,6 +30,7 @@ struct YieldFeeSection<LeadingTextAccesoryView: View>: View {
         linkTitle: String? = nil,
         url: URL? = nil,
         onLinkTapAction: (() -> Void)? = nil,
+        notification: YieldModuleNotificationBannerParams? = nil,
         @ViewBuilder leadingTextAccesoryView: () -> LeadingTextAccesoryView = { EmptyView() }
     ) {
         self.leadingTitle = leadingTitle
@@ -37,10 +39,25 @@ struct YieldFeeSection<LeadingTextAccesoryView: View>: View {
         self.linkTitle = linkTitle
         self.url = url
         self.onLinkTapAction = onLinkTapAction
+        self.notification = notification
         self.leadingTextAccesoryView = leadingTextAccesoryView()
     }
 
     var body: some View {
+        VStack(spacing: 14) {
+            feeSection
+            notificationView
+        }
+    }
+
+    @ViewBuilder
+    private var notificationView: some View {
+        if let notification {
+            YieldModuleBottomSheetNotificationBannerView(params: notification)
+        }
+    }
+
+    private var feeSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             LoadableFeeRowView(
                 leadingTitle: leadingTitle,

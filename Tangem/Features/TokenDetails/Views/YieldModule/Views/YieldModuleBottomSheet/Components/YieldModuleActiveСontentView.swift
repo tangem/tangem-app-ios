@@ -20,7 +20,7 @@ extension YieldModuleInfoView {
         let minAmountState: YieldFeeSectionState
         let chartState: YieldChartContainerState
         let estimatedFeeState: YieldFeeSectionState
-        let bannerParams: YieldModuleNotificationBannerParams?
+        let notifications: [YieldModuleNotificationBannerParams]
         let transferMode: String
         let availableBalance: String
         let readMoreUrl: URL
@@ -33,16 +33,21 @@ extension YieldModuleInfoView {
             VStack(spacing: 8) {
                 topSection
 
-                if let bannerParams {
-                    YieldModuleBottomSheetNotificationBannerView(params: bannerParams)
-                }
+                notificationsView
 
                 myFundsSection
+
                 bottomSection
             }
         }
 
         // MARK: - Sub Views
+
+        private var notificationsView: some View {
+            ForEach(notifications) { notification in
+                YieldModuleBottomSheetNotificationBannerView(params: notification)
+            }
+        }
 
         @ViewBuilder
         private var apyTrendView: some View {

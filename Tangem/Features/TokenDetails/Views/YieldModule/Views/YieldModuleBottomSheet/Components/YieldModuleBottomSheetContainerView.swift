@@ -18,6 +18,9 @@ struct YieldModuleBottomSheetContainerView<
 >: View {
     // MARK: - Properties
 
+    @State
+    private var introspectResponderChainID = UUID()
+
     private let title: String?
     private let subtitle: String?
 
@@ -43,7 +46,7 @@ struct YieldModuleBottomSheetContainerView<
         @ViewBuilder subtitleFooter: () -> SubtitleFooter = { EmptyView() },
         @ViewBuilder content: () -> BodyContent = { EmptyView() },
         contentTopPadding: CGFloat = 24,
-        buttonTopPadding: CGFloat = 32
+        buttonTopPadding: CGFloat = 16
     ) {
         self.header = header()
         self.topContent = topContent()
@@ -60,35 +63,46 @@ struct YieldModuleBottomSheetContainerView<
     // MARK: - View Body
 
     var body: some View {
-        VStack(spacing: .zero) {
-            GroupedScrollView(showsIndicators: false) {
-                VStack(spacing: .zero) {
-                    header
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: .zero) {
+                topContent
 
-                    topContent
+                titleView
+                    .padding(.top, 14)
+                    .padding(.horizontal, 14)
 
-                    titleView
-                        .padding(.top, 14)
-                        .padding(.horizontal, 14)
-
-                    subtitleView
-                        .padding(.top, 8)
-                        .padding(.horizontal, 16)
-
-                    subtitleFooter
-                        .padding(.top, 16)
-
-                    content
-                        .padding(.top, contentTopPadding)
-                }
-                .padding(.top, 8)
-            }
-            .safeAreaInset(edge: .bottom) {
-                button
-                    .padding(.top, buttonTopPadding)
+                subtitleView
+                    .padding(.top, 8)
                     .padding(.horizontal, 16)
-                    .padding(.bottom, 18)
+
+                subtitleFooter
+                    .padding(.top, 16)
+
+                content
+                    .padding(.top, contentTopPadding)
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 0)
+        }
+        .introspectResponderChain(
+            introspectedType: UIScrollView.self,
+            includeSubviews: true,
+            updateOnChangeOf: introspectResponderChainID,
+            action: { scrollView in
+                scrollView.alwaysBounceVertical = false
+            }
+        )
+        .safeAreaInset(edge: .top) {
+            header
+                .padding(.top, 8)
+                .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+                .padding(.horizontal, 16)
+        }
+        .safeAreaInset(edge: .bottom) {
+            button
+                .padding(.top, buttonTopPadding)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 18)
         }
     }
 

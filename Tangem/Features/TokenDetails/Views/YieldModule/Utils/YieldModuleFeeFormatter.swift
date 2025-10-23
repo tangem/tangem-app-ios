@@ -35,6 +35,10 @@ struct YieldModuleFeeFormatter {
 
     // MARK: - Public Implementation
 
+    func formatDecimal(_ value: Decimal) -> String {
+        balanceFormatter.formatDecimal(value)
+    }
+
     func createCurrentNetworkFeeString(networkFee: Decimal) -> String {
         balanceFormatter.formatFiatBalance(networkFee, currencyCode: AppConstants.usdCurrencyCode)
     }
