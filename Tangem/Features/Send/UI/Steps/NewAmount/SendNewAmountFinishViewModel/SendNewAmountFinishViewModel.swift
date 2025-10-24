@@ -30,9 +30,9 @@ class SendNewAmountFinishViewModel: ObservableObject, Identifiable {
     init(
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
-        receiveTokenInput: SendReceiveTokenInput,
-        receiveTokenAmountInput: SendReceiveTokenAmountInput,
-        swapProvidersInput: SendSwapProvidersInput,
+        receiveTokenInput: SendReceiveTokenInput? = nil,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
+        swapProvidersInput: SendSwapProvidersInput? = nil,
     ) {
         walletName = sourceTokenInput.sourceToken.wallet
         tokenIconInfo = sourceTokenInput.sourceToken.tokenIconInfo
@@ -86,9 +86,9 @@ private extension SendNewAmountFinishViewModel {
     func bind(
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
-        receiveTokenInput: SendReceiveTokenInput,
-        receiveTokenAmountInput: SendReceiveTokenAmountInput,
-        swapProvidersInput: SendSwapProvidersInput
+        receiveTokenInput: SendReceiveTokenInput?,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput?,
+        swapProvidersInput: SendSwapProvidersInput?
     ) {
         Publishers.CombineLatest(
             sourceTokenInput.sourceTokenPublisher,
@@ -98,6 +98,10 @@ private extension SendNewAmountFinishViewModel {
         .receiveOnMain()
         .sink { $0.updateView(sourceToken: $1.0, sourceAmount: $1.1) }
         .store(in: &bag)
+
+        guard let receiveTokenInput, let receiveTokenAmountInput, let swapProvidersInput else {
+            return
+        }
 
         Publishers.CombineLatest(
             receiveTokenInput.receiveTokenPublisher,
