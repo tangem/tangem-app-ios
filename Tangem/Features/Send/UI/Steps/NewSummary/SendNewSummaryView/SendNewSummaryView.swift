@@ -22,6 +22,8 @@ struct SendNewSummaryView: View {
 
             destinationSectionView
 
+            stakingValidatorsView
+
             feeSectionView
 
             notificationsView
@@ -39,7 +41,7 @@ struct SendNewSummaryView: View {
     private var amountSectionView: some View {
         if let sendAmountCompactViewModel = viewModel.sendAmountCompactViewModel {
             SendNewAmountCompactView(viewModel: sendAmountCompactViewModel)
-                .allowsHitTesting(viewModel.amountCompactViewType.editable)
+                .tappable(viewModel.amountEditableType.isEditable)
         }
     }
 
@@ -60,7 +62,19 @@ struct SendNewSummaryView: View {
             Button(action: viewModel.userDidTapDestination) {
                 SendDestinationCompactView(viewModel: destinationCompactViewModel)
             }
-            .allowsHitTesting(viewModel.destinationCompactViewType.editable)
+            .allowsHitTesting(viewModel.destinationEditableType.isEditable)
+        }
+    }
+
+    // MARK: - Validators
+
+    @ViewBuilder
+    private var stakingValidatorsView: some View {
+        if let stakingValidatorsCompactViewModel = viewModel.stakingValidatorsCompactViewModel {
+            Button(action: viewModel.userDidTapValidator) {
+                StakingValidatorsCompactView(viewModel: stakingValidatorsCompactViewModel, type: .enabled())
+            }
+            .allowsHitTesting(stakingValidatorsCompactViewModel.canEditValidator)
         }
     }
 
