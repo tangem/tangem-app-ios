@@ -35,9 +35,9 @@ class SendNewAmountCompactViewModel: ObservableObject, Identifiable {
     init(
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
-        receiveTokenInput: SendReceiveTokenInput,
-        receiveTokenAmountInput: SendReceiveTokenAmountInput,
-        swapProvidersInput: SendSwapProvidersInput
+        receiveTokenInput: SendReceiveTokenInput? = nil,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
+        swapProvidersInput: SendSwapProvidersInput? = nil
     ) {
         sendAmountCompactViewModel = .init(sourceToken: sourceTokenInput.sourceToken)
         sendAmountCompactViewModel.bind(amountPublisher: sourceTokenAmountInput.sourceAmountPublisher)
@@ -68,11 +68,24 @@ class SendNewAmountCompactViewModel: ObservableObject, Identifiable {
 // MARK: - SendNewAmountCompactViewModel
 
 private extension SendNewAmountCompactViewModel {
-    func bind(receiveTokenInput: SendReceiveTokenInput, receiveTokenAmountInput: SendReceiveTokenAmountInput, swapProvidersInput: SendSwapProvidersInput) {
+    func bind(
+        receiveTokenInput: SendReceiveTokenInput?,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput?,
+        swapProvidersInput: SendSwapProvidersInput?
+    ) {
+        guard let receiveTokenInput, let receiveTokenAmountInput, let swapProvidersInput else {
+            return
+        }
+
         receiveTokenInput
             .receiveTokenPublisher
             .withWeakCaptureOf(self)
-            .map { $0.mapToSendNewAmountCompactTokenViewModel(receiveTokenAmountInput: receiveTokenAmountInput, receiveToken: $1) }
+            .map {
+                $0.mapToSendNewAmountCompactTokenViewModel(
+                    receiveTokenAmountInput: receiveTokenAmountInput,
+                    receiveToken: $1
+                )
+            }
             .receiveOnMain()
             .assign(to: &$sendReceiveTokenCompactViewModel)
 
