@@ -125,6 +125,8 @@ private struct CommonUserWalletModelDependencies {
 
         let shouldLoadExpressAvailability = config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange)
         let areHDWalletsSupported = config.hasFeature(.hdWallets)
+        let hasTokenSynchronization = config.hasFeature(.multiCurrency)
+        let defaultBlockchains = config.defaultBlockchains
 
         let keysRepository = CommonKeysRepository(
             userWalletId: userWalletId,
@@ -137,8 +139,8 @@ private struct CommonUserWalletModelDependencies {
             userWalletId: userWalletId.value,
             supportedBlockchains: config.supportedBlockchains,
             hdWalletsSupported: areHDWalletsSupported,
-            hasTokenSynchronization: config.hasFeature(.multiCurrency),
-            defaultBlockchains: config.defaultBlockchains
+            hasTokenSynchronization: hasTokenSynchronization,
+            defaultBlockchains: defaultBlockchains
         )
 
         self.userTokenListManager = userTokenListManager
@@ -198,11 +200,17 @@ private struct CommonUserWalletModelDependencies {
                 userWalletId: userWalletId,
                 mapper: mapper
             )
+            let defaultAccountFactory = DefaultAccountFactory(
+                userWalletId: userWalletId,
+                defaultBlockchains: defaultBlockchains
+            )
             let cryptoAccountsRepository = CommonCryptoAccountsRepository(
                 tokenItemsRepository: tokenItemsRepository,
+                defaultAccountFactory: defaultAccountFactory,
                 networkService: networkService,
                 persistentStorage: persistentStorage,
-                storageController: persistentStorage
+                storageController: persistentStorage,
+                hasTokenSynchronization: hasTokenSynchronization
             )
             let walletModelsFactory = config.makeWalletModelsFactory(userWalletId: userWalletId)
             let walletModelsManagerFactory = CommonAccountWalletModelsManagerFactory(
@@ -218,7 +226,6 @@ private struct CommonUserWalletModelDependencies {
                 shouldLoadExpressAvailability: shouldLoadExpressAvailability,
                 hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
             )
-
             let accountModelsManager = CommonAccountModelsManager(
                 userWalletId: userWalletId,
                 cryptoAccountsRepository: cryptoAccountsRepository,
