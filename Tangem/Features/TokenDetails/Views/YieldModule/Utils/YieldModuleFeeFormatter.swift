@@ -8,6 +8,11 @@
 
 import Foundation
 
+struct YieldFormattedFee {
+    let fiatFee: String
+    let cryptoFee: String
+}
+
 enum YieldModuleFormatterFee: Error {
     case cannotFormatFee
 }
@@ -30,46 +35,44 @@ struct YieldModuleFeeFormatter {
 
     // MARK: - Public Implementation
 
+    func formatDecimal(_ value: Decimal) -> String {
+        balanceFormatter.formatDecimal(value)
+    }
+
     func createCurrentNetworkFeeString(networkFee: Decimal) -> String {
         balanceFormatter.formatFiatBalance(networkFee, currencyCode: AppConstants.usdCurrencyCode)
     }
 
-    func createMaxFeeString(maxFeeCurrencyFee: Decimal, maxFiatFee: Decimal) async throws -> String {
-//        guard let feeCurrencyId = feeCurrency.id, let tokenId = token.id else {
-//            throw YieldModuleFormatterFee.cannotFormatFee
-//        }
-//
-//        let currencyToFiat = try await balanceConverter.convertToFiat(maxFeeCurrencyFee, currencyId: feeCurrencyId)
+    func makeFormattedMaximumFee(maxFeeCurrencyFee: Decimal, maxFiatFee: Decimal) async throws -> YieldFormattedFee {
+        guard let feeCurrencyId = feeCurrency.id, let tokenId = token.id else {
+            throw YieldModuleFormatterFee.cannotFormatFee
+        }
 
-//        guard let fiatToToken = balanceConverter.convertFromFiat(currencyToFiat, currencyId: tokenId) else {
-//            throw YieldModuleFormatterFee.cannotFormatFee
-//        }
+        let currencyToFiat = try await balanceConverter.convertToFiat(maxFeeCurrencyFee, currencyId: feeCurrencyId)
+
+        guard let fiatToToken = balanceConverter.convertFromFiat(currencyToFiat, currencyId: tokenId) else {
+            throw YieldModuleFormatterFee.cannotFormatFee
+        }
 
         let formattedFiatFee = balanceFormatter.formatFiatBalance(maxFiatFee, currencyCode: AppConstants.usdCurrencyCode)
-//        let formattedCryptoFee = balanceFormatter.formatCryptoBalance(
-//            fiatToToken, currencyCode: token.currencySymbol,
-//            formattingOptions: .defaultFiatFormattingOptions
-//        )
+        let formattedCryptoFee = balanceFormatter.formatCryptoBalance(
+            fiatToToken, currencyCode: token.currencySymbol,
+            formattingOptions: .defaultFiatFormattingOptions
+        )
 
-        let resultString = formattedFiatFee
-        return resultString
-//        let resultString = "\(formattedCryptoFee) \(AppConstants.dotSign) \(formattedFiatFee)"
-//        return resultString
+        return YieldFormattedFee(fiatFee: formattedFiatFee, cryptoFee: formattedCryptoFee)
     }
 
-    func createMinimalAmountString(from minAmountInCrypto: Decimal) async throws -> String {
+    func makeFormattedMinimalFee(from minAmountInCrypto: Decimal) async throws -> YieldFormattedFee {
         guard let tokenCurrencyId = token.id else {
             throw YieldModuleFormatterFee.cannotFormatFee
         }
 
         let minAmountInFiat = try await balanceConverter.convertToFiat(minAmountInCrypto, currencyId: tokenCurrencyId)
-//        let formattedCryptoAmount = balanceFormatter.formatCryptoBalance(minAmountInCrypto, currencyCode: token.currencySymbol)
+        let formattedCryptoAmount = balanceFormatter.formatCryptoBalance(minAmountInCrypto, currencyCode: token.currencySymbol)
         let formattedFiatAmount = balanceFormatter.formatFiatBalance(minAmountInFiat, currencyCode: AppConstants.usdCurrencyCode)
 
-        let resultString = formattedFiatAmount
-        return resultString
-//        let resultString = "\(formattedCryptoAmount) \(AppConstants.dotSign) \(formattedFiatAmount)"
-//        return resultString
+        return YieldFormattedFee(fiatFee: formattedFiatAmount, cryptoFee: formattedCryptoAmount)
     }
 
     func formatCryptoBalance(_ balance: Decimal, prefix: String? = nil) -> String {
@@ -83,20 +86,7 @@ struct YieldModuleFeeFormatter {
 
         let converted = try await balanceConverter.convertToFiat(networkFee, currencyId: id)
         let formattedFiatFee = balanceFormatter.formatFiatBalance(converted, currencyCode: AppConstants.usdCurrencyCode)
-        let formattedCryptoFee = balanceFormatter.formatCryptoBalance(networkFee, currencyCode: feeCurrency.currencySymbol)
-        let resultString = "\(formattedCryptoFee) \(AppConstants.dotSign) \(formattedFiatFee)"
-        return resultString
-    }
-
-    func makeFeeInTokenString(from networkFee: Decimal) async throws -> String {
-        let (tokenAmount, fiatAmount) = try await convertFeeToToken(networkFee: networkFee)
-        let formattedFiatFee = balanceFormatter.formatFiatBalance(fiatAmount, currencyCode: AppConstants.usdCurrencyCode)
-        let formattedCryptoFee = balanceFormatter.formatCryptoBalance(
-            tokenAmount, currencyCode: token.currencySymbol,
-            formattingOptions: .defaultFiatFormattingOptions
-        )
-
-        return "\(formattedCryptoFee) \(AppConstants.dotSign) \(formattedFiatFee)"
+        return formattedFiatFee
     }
 
     // MARK: - Private Implementation
