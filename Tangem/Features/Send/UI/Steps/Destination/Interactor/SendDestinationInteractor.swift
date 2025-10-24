@@ -97,13 +97,13 @@ class CommonSendDestinationInteractor {
         case .success(.some(let address)):
             _destinationValid.send(true)
             _destinationError.send(.none)
-            dependenciesBuilder.analyticsLogger.logSendAddressEntered(isAddressValid: true, source: source)
+            dependenciesBuilder.analyticsLogger.logSendAddressEntered(isAddressValid: true, addressSource: source)
             saver.update(address: address)
 
         case .failure(let error):
             _destinationValid.send(false)
             _destinationError.send(error)
-            dependenciesBuilder.analyticsLogger.logSendAddressEntered(isAddressValid: false, source: source)
+            dependenciesBuilder.analyticsLogger.logSendAddressEntered(isAddressValid: false, addressSource: source)
             saver.update(address: .none)
         }
     }

@@ -14,17 +14,20 @@ class YieldModuleTransactionDispatcher {
     private let walletModelUpdater: WalletModelUpdater
     private let transactionSigner: TangemSigner
     private let transactionsSender: MultipleTransactionsSender
+    private let logger: YieldAnalyticsLogger
 
     init(
         blockchain: Blockchain,
         walletModelUpdater: WalletModelUpdater,
         transactionsSender: MultipleTransactionsSender,
-        transactionSigner: TangemSigner
+        transactionSigner: TangemSigner,
+        logger: YieldAnalyticsLogger
     ) {
         self.blockchain = blockchain
         self.walletModelUpdater = walletModelUpdater
         self.transactionsSender = transactionsSender
         self.transactionSigner = transactionSigner
+        self.logger = logger
     }
 }
 
@@ -37,6 +40,7 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
+        logger.logTransactionSent()
         return result
     }
 
@@ -59,6 +63,10 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
                 transferTransactions,
                 signer: transactionSigner
             ).async()
+
+            transferTransactions.forEach { _ in
+                logger.logTransactionSent()
+            }
 
             walletModelUpdater.updateAfterSendingTransaction()
 
