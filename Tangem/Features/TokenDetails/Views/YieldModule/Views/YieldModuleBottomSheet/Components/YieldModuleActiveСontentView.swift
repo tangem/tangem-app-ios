@@ -13,23 +13,19 @@ import TangemUI
 
 extension YieldModuleInfoView {
     struct YieldModuleActiveСontentView: View {
-        typealias NetworkFeeAmountState = YieldModuleInfoViewModel.NetworkFeeAmountState
-
         // MARK: - Properties
 
         let apyState: LoadableTextView.State
         let apyTrend: YieldModuleInfoViewModel.ApyTrend
-        let minAmountState: LoadableTextView.State
+        let minAmountState: YieldFeeSectionState
         let chartState: YieldChartContainerState
-        let networkFeeState: LoadableTextView.State
-        let networkFeeAmountState: NetworkFeeAmountState
-        let bannerParams: YieldModuleNotificationBannerParams?
-        let tokenName: String
-        let tokenSymbol: String
+        let estimatedFeeState: YieldFeeSectionState
+        let notifications: [YieldModuleNotificationBannerParams]
         let transferMode: String
         let availableBalance: String
         let readMoreUrl: URL
         let myFundsSectionText: AttributedString
+        let earInfoFooterText: AttributedString?
 
         // MARK: - View Body
 
@@ -37,16 +33,21 @@ extension YieldModuleInfoView {
             VStack(spacing: 8) {
                 topSection
 
-                if let bannerParams {
-                    YieldModuleBottomSheetNotificationBannerView(params: bannerParams)
-                }
+                notificationsView
 
                 myFundsSection
+
                 bottomSection
             }
         }
 
         // MARK: - Sub Views
+
+        private var notificationsView: some View {
+            ForEach(notifications) { notification in
+                YieldModuleBottomSheetNotificationBannerView(params: notification)
+            }
+        }
 
         @ViewBuilder
         private var apyTrendView: some View {
@@ -121,10 +122,10 @@ extension YieldModuleInfoView {
                     .padding(.horizontal, 4)
 
                 YieldFeeSection(
+                    sectionState: .init(feeState: .loaded(text: availableBalance), isLinkActive: true),
                     leadingTitle: Localization.yieldModuleEarnSheetAvailableTitle,
-                    state: .loaded(text: availableBalance),
-                    footerText: nil,
-                    needsBackground: false
+                    needsBackground: false,
+                    url: readMoreUrl
                 )
             }
         }
@@ -133,9 +134,8 @@ extension YieldModuleInfoView {
             VStack(alignment: .leading, spacing: 10) {
                 VStack(spacing: 12) {
                     YieldFeeSection(
+                        sectionState: .init(feeState: .loaded(text: transferMode)),
                         leadingTitle: Localization.yieldModuleEarnSheetTransfersTitle,
-                        state: .loaded(text: transferMode),
-                        footerText: nil,
                         needsBackground: false
                     )
 
@@ -143,9 +143,8 @@ extension YieldModuleInfoView {
                         .padding(.horizontal, 4)
 
                     YieldFeeSection(
+                        sectionState: minAmountState,
                         leadingTitle: Localization.yieldModuleFeePolicySheetMinAmountTitle,
-                        state: minAmountState,
-                        footerText: nil,
                         needsBackground: false
                     )
 
@@ -153,26 +152,23 @@ extension YieldModuleInfoView {
                         .padding(.horizontal, 4)
 
                     YieldFeeSection(
+                        sectionState: estimatedFeeState,
                         leadingTitle: Localization.commonNetworkFeeTitle,
-                        state: networkFeeState,
-                        footerText: nil,
                         needsBackground: false,
-                        leadingTextAccesoryView: {
-                            if case .warning = networkFeeAmountState {
+                        leadingTextAccessoryView: {
+                            if estimatedFeeState.isHighlighted {
                                 Assets.infoCircle16.image
                                     .renderingMode(.template)
-                                    .foregroundStyle(Colors.Icon.warning)
                             }
                         }
                     )
-                    .leadingTextColor(networkFeeAmountState.networkFeeDescriptionColor)
-                    .trailingTextColor(networkFeeAmountState.networkFeeColor)
                 }
                 .defaultRoundedBackground(with: Colors.Background.action)
 
-                Text(networkFeeAmountState.footerText)
-                    .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
-                    .padding(.horizontal, 14)
+                if let earInfoFooterText {
+                    Text(earInfoFooterText)
+                        .padding(.leading, 14)
+                }
             }
         }
     }
