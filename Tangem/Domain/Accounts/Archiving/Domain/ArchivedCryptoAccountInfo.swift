@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import TangemLocalization
 
 /// Not a full-fledged account model, just represents some info about an archived crypto account.
@@ -46,6 +47,23 @@ extension ArchivedCryptoAccountInfo: Identifiable {
     }
 }
 
+// MARK: - CustomStringConvertible protocol conformance
+
+extension ArchivedCryptoAccountInfo: CustomStringConvertible {
+    var description: String {
+        objectDescription(
+            String(describing: Self.self),
+            userInfo: [
+                "name": name,
+                "icon": icon,
+                "id": id,
+                "derivationIndex": derivationIndex,
+                "counters": "\(tokensCount) tokens, \(networksCount) networks",
+            ]
+        )
+    }
+}
+
 // MARK: - BaseAccountModel protocol conformance
 
 extension ArchivedCryptoAccountInfo: BaseAccountModel {
@@ -59,5 +77,32 @@ extension ArchivedCryptoAccountInfo: BaseAccountModel {
 
     var didChangePublisher: AnyPublisher<Void, Never> {
         .empty
+    }
+}
+
+// MARK: - CryptoAccountPersistentConfigConvertible protocol conformance
+
+extension ArchivedCryptoAccountInfo: CryptoAccountPersistentConfigConvertible {
+    func toPersistentConfig() -> CryptoAccountPersistentConfig {
+        return CryptoAccountPersistentConfig(
+            derivationIndex: derivationIndex,
+            name: name,
+            icon: icon
+        )
+    }
+}
+
+// MARK: - Convenience extensions
+
+extension ArchivedCryptoAccountInfo {
+    func withName(_ newName: String) -> Self {
+        return .init(
+            accountId: accountId,
+            name: newName,
+            icon: icon,
+            tokensCount: tokensCount,
+            networksCount: networksCount,
+            derivationIndex: derivationIndex
+        )
     }
 }
