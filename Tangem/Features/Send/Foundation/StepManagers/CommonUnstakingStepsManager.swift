@@ -11,9 +11,9 @@ import TangemStaking
 import TangemLocalization
 
 class CommonUnstakingStepsManager {
-    private let amountStep: SendAmountStep
-    private let summaryStep: SendSummaryStep
-    private let finishStep: SendFinishStep
+    private let amountStep: SendNewAmountStep
+    private let summaryStep: SendNewSummaryStep
+    private let finishStep: SendNewFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
     private let action: UnstakingModel.Action
     private let isPartialUnstakeAllowed: Bool
@@ -22,9 +22,9 @@ class CommonUnstakingStepsManager {
     private weak var output: SendStepsManagerOutput?
 
     init(
-        amountStep: SendAmountStep,
-        summaryStep: SendSummaryStep,
-        finishStep: SendFinishStep,
+        amountStep: SendNewAmountStep,
+        summaryStep: SendNewSummaryStep,
+        finishStep: SendNewFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider,
         action: UnstakingModel.Action,
         isPartialUnstakeAllowed: Bool
@@ -46,7 +46,7 @@ class CommonUnstakingStepsManager {
 
     private func getNextStep() -> SendStep? {
         switch currentStep().type {
-        case .amount:
+        case .newAmount:
             return summaryStep
         default:
             assertionFailure("There is no next step")
@@ -107,11 +107,11 @@ extension CommonUnstakingStepsManager: SendStepsManager {
 
     var navigationBarSettings: SendStepNavigationBarSettings {
         switch currentStep().type {
-        case .amount:
+        case .newAmount:
             return .init(title: Localization.commonAmount, trailingViewType: .closeButton)
-        case .summary:
+        case .newSummary:
             return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, trailingViewType: .closeButton)
-        case .finish:
+        case .newFinish:
             return .init(trailingViewType: .closeButton)
         default:
             return .empty
@@ -122,10 +122,10 @@ extension CommonUnstakingStepsManager: SendStepsManager {
         let isEditAction = stack.contains(where: { $0.type.isSummary })
 
         switch currentStep().type {
-        case .amount where isEditAction: return .init(action: .continue)
-        case .amount: return .init(action: .next)
-        case .summary: return .init(action: .action)
-        case .finish: return .init(action: .close)
+        case .newAmount where isEditAction: return .init(action: .continue)
+        case .newAmount: return .init(action: .next)
+        case .newSummary: return .init(action: .action)
+        case .newFinish: return .init(action: .close)
         default: return .empty
         }
     }
