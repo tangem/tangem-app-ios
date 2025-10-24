@@ -67,15 +67,13 @@ extension UnstakingFlowFactory {
     ) -> UnstakingModel {
         UnstakingModel(
             stakingManager: stakingManager,
+            sendSourceToken: makeSourceToken(),
             transactionDispatcher: makeStakingTransactionDispatcher(
                 stakingManger: stakingManager,
                 analyticsLogger: analyticsLogger
             ),
-            transactionValidator: walletModelDependenciesProvider.transactionValidator,
             analyticsLogger: analyticsLogger,
             action: action,
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem
         )
     }
 }
@@ -117,27 +115,32 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
         let isPartialUnstakeAllowed = unstakingModel.isPartialUnstakeAllowed
 
         let amount = makeSendAmountStep()
-        amount.interactor.externalUpdate(amount: action.amount)
+        amount.amountUpdater.externalUpdate(amount: action.amount)
 
-        let sendFeeCompactViewModel = SendFeeCompactViewModel(
-            input: unstakingModel,
+        let sendFeeCompactViewModel = SendNewFeeCompactViewModel(
             feeTokenItem: feeTokenItem,
             isFeeApproximate: isFeeApproximate()
         )
 
-        let summary = makeSendSummaryStep(
+        let sendFeeFinishViewModel = SendFeeFinishViewModel(
+            feeTokenItem: feeTokenItem,
+            isFeeApproximate: isFeeApproximate()
+        )
+
+        let summary = makeSendNewSummaryStep(
             sendAmountCompactViewModel: amount.compact,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
         )
 
         let finish = makeSendFinishStep(
-            sendAmountCompactViewModel: amount.compact,
-            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            sendAmountFinishViewModel: amount.finish,
+            sendFeeFinishViewModel: sendFeeFinishViewModel,
             router: router
         )
 
         // Steps
         sendFeeCompactViewModel.bind(input: unstakingModel)
+        sendFeeFinishViewModel.bind(input: unstakingModel)
 
         // Notifications setup
         notificationManager.setup(provider: unstakingModel, input: unstakingModel)
@@ -148,7 +151,7 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
 
         let stepsManager = CommonUnstakingStepsManager(
             amountStep: amount.step,
-            summaryStep: summary.step,
+            summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider(),
             action: action,
@@ -157,7 +160,7 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
 
-        summary.step.set(router: stepsManager)
+        summary.set(router: stepsManager)
         unstakingModel.router = viewModel
 
         if !isPartialUnstakeAllowed {
@@ -185,80 +188,70 @@ extension UnstakingFlowFactory: SendBaseBuildable {
     }
 }
 
-// MARK: - SendAmountStepBuildable
+// MARK: - SendNewAmountStepBuildable
 
-extension UnstakingFlowFactory: SendAmountStepBuildable {
-    var amountIO: SendAmountStepBuilder.IO {
-        SendAmountStepBuilder.IO(input: unstakingModel, output: unstakingModel)
-    }
-
-    var amountTypes: SendAmountStepBuilder.Types {
-        SendAmountStepBuilder.Types(
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            maxAmount: maxAmount(),
-            settings: makeSendAmountViewModelSettings()
+extension UnstakingFlowFactory: SendNewAmountStepBuildable {
+    var newAmountIO: SendNewAmountStepBuilder.IO {
+        SendNewAmountStepBuilder.IO(
+            sourceIO: (input: unstakingModel, output: unstakingModel),
+            sourceAmountIO: (input: unstakingModel, output: unstakingModel)
         )
     }
 
-    var amountDependencies: SendAmountStepBuilder.Dependencies {
-        SendAmountStepBuilder.Dependencies(
-            sendFeeProvider: unstakingModel,
-            sendQRCodeService: .none,
+    var newAmountDependencies: SendNewAmountStepBuilder.Dependencies {
+        SendNewAmountStepBuilder.Dependencies(
             sendAmountValidator: UnstakingAmountValidator(
                 tokenItem: tokenItem,
                 stakedAmount: action.amount,
                 stakingManagerStatePublisher: manager.statePublisher
             ),
             amountModifier: .none,
+            notificationService: .none,
             analyticsLogger: analyticsLogger
         )
     }
 }
 
-// MARK: - SendSummaryStepBuildable
+// MARK: - SendNewSummaryStepBuildable
 
-extension UnstakingFlowFactory: SendSummaryStepBuildable {
-    var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: unstakingModel, output: unstakingModel)
+extension UnstakingFlowFactory: SendNewSummaryStepBuildable {
+    var newSummaryIO: SendNewSummaryStepBuilder.IO {
+        SendNewSummaryStepBuilder.IO(input: unstakingModel, output: unstakingModel)
     }
 
-    var summaryTypes: SendSummaryStepBuilder.Types {
-        SendSummaryStepBuilder.Types(
+    var newSummaryTypes: SendNewSummaryStepBuilder.Types {
+        SendNewSummaryStepBuilder.Types(
             settings: .init(
-                tokenItem: tokenItem,
                 destinationEditableType: unstakingModel.isPartialUnstakeAllowed ? .editable : .noEditable,
                 amountEditableType: unstakingModel.isPartialUnstakeAllowed ? .editable : .noEditable,
-                actionType: sendFlowActionType()
             )
         )
     }
 
-    var summaryDependencies: SendSummaryStepBuilder.Dependencies {
-        SendSummaryStepBuilder.Dependencies(
+    var newSummaryDependencies: SendNewSummaryStepBuilder.Dependencies {
+        SendNewSummaryStepBuilder.Dependencies(
             sendFeeProvider: unstakingModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
+            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
             stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder()
         )
     }
 }
 
-// MARK: - SendFinishStepBuildable
+// MARK: - SendNewFinishStepBuildable
 
-extension UnstakingFlowFactory: SendFinishStepBuildable {
-    var finishIO: SendFinishStepBuilder.IO {
-        SendFinishStepBuilder.IO(input: unstakingModel)
+extension UnstakingFlowFactory: SendNewFinishStepBuildable {
+    var newFinishIO: SendNewFinishStepBuilder.IO {
+        SendNewFinishStepBuilder.IO(input: unstakingModel)
     }
 
-    var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: tokenItem)
+    var newFinishTypes: SendNewFinishStepBuilder.Types {
+        SendNewFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
-    var finishDependencies: SendFinishStepBuilder.Dependencies {
-        SendFinishStepBuilder.Dependencies(
-            analyticsLogger: analyticsLogger,
-        )
+    var newFinishDependencies: SendNewFinishStepBuilder.Dependencies {
+        SendNewFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
     }
 }

@@ -11,8 +11,8 @@ import TangemStaking
 import TangemLocalization
 
 class CommonStakingSingleActionStepsManager {
-    private let summaryStep: SendSummaryStep
-    private let finishStep: SendFinishStep
+    private let summaryStep: SendNewSummaryStep
+    private let finishStep: SendNewFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
     private let action: StakingSingleActionModel.Action
 
@@ -20,8 +20,8 @@ class CommonStakingSingleActionStepsManager {
     private weak var output: SendStepsManagerOutput?
 
     init(
-        summaryStep: SendSummaryStep,
-        finishStep: SendFinishStep,
+        summaryStep: SendNewSummaryStep,
+        finishStep: SendNewFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider,
         action: UnstakingModel.Action
     ) {
@@ -79,9 +79,9 @@ extension CommonStakingSingleActionStepsManager: SendStepsManager {
 
     var navigationBarSettings: SendStepNavigationBarSettings {
         switch currentStep().type {
-        case .summary:
+        case .newSummary:
             return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, trailingViewType: .closeButton)
-        case .finish:
+        case .newFinish:
             return .init(trailingViewType: .closeButton)
         default:
             return .empty
@@ -90,8 +90,8 @@ extension CommonStakingSingleActionStepsManager: SendStepsManager {
 
     var bottomBarSettings: SendStepBottomBarSettings {
         switch currentStep().type {
-        case .summary: .init(action: .action)
-        case .finish: .init(action: .close)
+        case .newSummary: .init(action: .action)
+        case .newFinish: .init(action: .close)
         default: .empty
         }
     }
