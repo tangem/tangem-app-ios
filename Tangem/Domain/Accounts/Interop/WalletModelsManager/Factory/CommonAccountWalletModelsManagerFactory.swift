@@ -8,6 +8,7 @@
 
 import Foundation
 
+// [REDACTED_TODO_COMMENT]
 struct CommonAccountWalletModelsManagerFactory {
     private let walletManagersRepository: WalletManagersRepository
     private let walletModelsFactory: WalletModelsFactory
