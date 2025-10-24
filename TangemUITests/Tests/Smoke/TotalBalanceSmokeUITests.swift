@@ -187,7 +187,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
 
     func testSynchronizeAddressesButtonExistsAndTotalBalanceShowsDash() {
         setAllureId(148)
-        launchApp(tangemApiType: .mock)
+        launchApp()
 
         StoriesScreen(app)
             .scanMockWallet(name: .wallet)
