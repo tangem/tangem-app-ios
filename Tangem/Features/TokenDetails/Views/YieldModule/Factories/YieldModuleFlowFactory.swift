@@ -65,7 +65,8 @@ final class YieldModuleFlowFactory {
             walletModel: walletModel,
             feeCurrencyNavigator: feeCurrencyNavigator,
             yieldManagerInteractor: interactor,
-            availableBalance: info.balance.value
+            availableBalance: info.balance.value,
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
         )
     }
 
@@ -80,7 +81,8 @@ final class YieldModuleFlowFactory {
             yieldManagerInteractor: interactor,
             apy: apy,
             coordinator: yieldPromoCoordinator,
-            startFlowFactory: startFlowFactory
+            startFlowFactory: startFlowFactory,
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
         )
     }
 
@@ -93,7 +95,8 @@ final class YieldModuleFlowFactory {
             yieldManagerInteractor: interactor,
             apy: apy,
             coordinator: coordinator,
-            startFlowFactory: startFlowFactory
+            startFlowFactory: startFlowFactory,
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
         )
     }
 
@@ -109,7 +112,8 @@ final class YieldModuleFlowFactory {
         YieldStartFlowFactory(
             walletModel: walletModel,
             yieldManagerInteractor: interactor,
-            coordinator: yieldPromoCoordinator
+            coordinator: yieldPromoCoordinator,
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
         )
     }
 }
