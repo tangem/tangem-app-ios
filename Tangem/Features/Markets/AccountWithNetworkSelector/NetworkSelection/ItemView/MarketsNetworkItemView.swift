@@ -16,34 +16,39 @@ struct MarketsNetworkItemView: View {
     @ObservedObject var viewModel: MarketsNetworkSelectorItemViewModel
 
     var body: some View {
-        HStack(spacing: 8) {
-            icon
+        Button(action: viewModel.handleTap) {
+            HStack(spacing: 8) {
+                icon
 
-            HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text(viewModel.networkName.uppercased())
-                    .style(Fonts.Bold.subheadline, color: viewModel.networkNameForegroundColor)
-                    .lineLimit(2)
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text(viewModel.networkName.uppercased())
+                        .style(Fonts.Bold.subheadline, color: viewModel.networkNameForegroundColor)
+                        .lineLimit(2)
 
-                if let contractName = viewModel.contractName {
-                    Text(contractName)
-                        .style(Fonts.Regular.caption1, color: viewModel.contractNameForegroundColor)
-                        .padding(.leading, 2)
-                        .lineLimit(1)
-                        .fixedSize()
+                    if let contractName = viewModel.contractName {
+                        Text(contractName)
+                            .style(Fonts.Regular.caption1, color: viewModel.contractNameForegroundColor)
+                            .padding(.leading, 2)
+                            .lineLimit(1)
+                            .fixedSize()
+                    }
+                }
+
+                Spacer(minLength: 0)
+
+                if viewModel.isReadonly {
+                    CircleButton(title: Localization.commonAdded, action: {})
+                        .tint(Colors.Control.unchecked)
+                        .scaleEffect(0.8)
+                        .disabled(viewModel.isReadonly)
+                        .accessibilityIdentifier(TokenAccessibilityIdentifiers.networkSwitch(for: viewModel.networkName))
                 }
             }
-
-            Spacer(minLength: 0)
-
-            if viewModel.isReadonly {
-                CircleButton(title: Localization.commonAdded, action: {})
-                    .tint(Colors.Control.unchecked)
-                    .scaleEffect(0.8)
-                    .disabled(viewModel.isReadonly)
-                    .accessibilityIdentifier(TokenAccessibilityIdentifiers.networkSwitch(for: viewModel.networkName))
-            }
+            .padding(.vertical, 16)
+            .contentShape(.rect)
         }
-        .padding(.vertical, 16)
+        .buttonStyle(.plain)
+        .disabled(viewModel.isReadonly)
     }
 
     private var icon: some View {
