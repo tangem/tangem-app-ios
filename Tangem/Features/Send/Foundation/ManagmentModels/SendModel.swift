@@ -438,6 +438,8 @@ extension SendModel: SendReceiveTokenOutput {
         let newReceiveToken = SendReceiveTokenType.same(_sendingToken.value)
         resetFlow(newReceiveToken: newReceiveToken, reset: { [weak self] in
             self?._receivedToken.send(newReceiveToken)
+
+            self?.analyticsLogger.logAmountStepOpened()
         })
     }
 
@@ -447,8 +449,10 @@ extension SendModel: SendReceiveTokenOutput {
         resetFlow(newReceiveToken: newReceiveToken, reset: { [weak self] in
             self?._receivedToken.send(newReceiveToken)
             selected(true)
-        }, cancel: {
+            self?.analyticsLogger.logAmountStepOpened()
+        }, cancel: { [weak self] in
             selected(false)
+            self?.analyticsLogger.logAmountStepOpened()
         })
     }
 }
