@@ -17,11 +17,13 @@ final class MarketsNetworkSelectorViewModel: FloatingSheetContentViewModel {
     private let networks: [NetworkModel]
     private let selectedUserWalletModel: UserWalletModel?
     private let selectedAccount: any CryptoAccountModel
+    private let onSelectNetwork: ((TokenItem) -> Void)?
 
     init(
         data: MarketsTokensNetworkSelectorViewModel.InputData,
         selectedUserWalletModel: UserWalletModel?,
-        selectedAccount: any CryptoAccountModel
+        selectedAccount: any CryptoAccountModel,
+        onSelectNetwork: ((TokenItem) -> Void)? = nil
     ) {
         coinId = data.coinId
         coinName = data.coinName
@@ -30,15 +32,26 @@ final class MarketsNetworkSelectorViewModel: FloatingSheetContentViewModel {
 
         self.selectedUserWalletModel = selectedUserWalletModel
         self.selectedAccount = selectedAccount
+        self.onSelectNetwork = onSelectNetwork
 
         tokenItemViewModels = tokenItems
             .enumerated()
-            .map { index, element in
+            .map { [weak self] index, element in
                 MarketsNetworkSelectorItemViewModel(
                     tokenItem: element,
-                    isReadonly: isAdded(element),
+                    isReadonly: self?.isAdded(element) ?? false,
+                    onTap: { [weak self] in
+                        self?.handleNetworkSelection(element)
+                    }
                 )
             }
+    }
+
+    private func handleNetworkSelection(_ tokenItem: TokenItem) {
+        // Don't allow selection if already added
+        guard !isAdded(tokenItem) else { return }
+
+        onSelectNetwork?(tokenItem)
     }
 
     private var tokenItems: [TokenItem] {
