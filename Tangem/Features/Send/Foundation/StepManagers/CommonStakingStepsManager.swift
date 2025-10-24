@@ -12,10 +12,10 @@ import TangemLocalization
 
 class CommonStakingStepsManager {
     private let provider: StakingModelStateProvider
-    private let amountStep: SendAmountStep
+    private let amountStep: SendNewAmountStep
     private let validatorsStep: StakingValidatorsStep
-    private let summaryStep: SendSummaryStep
-    private let finishStep: SendFinishStep
+    private let summaryStep: SendNewSummaryStep
+    private let finishStep: SendNewFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
 
     private var stack: [SendStep]
@@ -25,10 +25,10 @@ class CommonStakingStepsManager {
 
     init(
         provider: StakingModelStateProvider,
-        amountStep: SendAmountStep,
+        amountStep: SendNewAmountStep,
         validatorsStep: StakingValidatorsStep,
-        summaryStep: SendSummaryStep,
-        finishStep: SendFinishStep,
+        summaryStep: SendNewSummaryStep,
+        finishStep: SendNewFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider
     ) {
         self.provider = provider
@@ -68,7 +68,7 @@ class CommonStakingStepsManager {
 
     private func getNextStep() -> SendStep? {
         switch currentStep().type {
-        case .amount:
+        case .newAmount:
             return summaryStep
         default:
             assertionFailure("There is no next step")
@@ -105,13 +105,13 @@ extension CommonStakingStepsManager: SendStepsManager {
 
     var navigationBarSettings: SendStepNavigationBarSettings {
         switch currentStep().type {
-        case .amount:
+        case .newAmount:
             return .init(title: Localization.commonAmount, trailingViewType: .closeButton)
         case .validators:
             return .init(title: Localization.stakingValidator, trailingViewType: .closeButton)
-        case .summary:
+        case .newSummary:
             return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, trailingViewType: .closeButton)
-        case .finish:
+        case .newFinish:
             return .init(trailingViewType: .closeButton)
         default:
             return .empty
@@ -122,11 +122,11 @@ extension CommonStakingStepsManager: SendStepsManager {
         let isEditAction = stack.contains(where: { $0.type.isSummary })
 
         switch currentStep().type {
-        case .amount where isEditAction: return .init(action: .continue)
+        case .newAmount where isEditAction: return .init(action: .continue)
         case .validators where isEditAction: return .init(action: .continue)
-        case .amount: return .init(action: .next)
-        case .summary: return .init(action: .action)
-        case .finish: return .init(action: .close)
+        case .newAmount: return .init(action: .next)
+        case .newSummary: return .init(action: .action)
+        case .newFinish: return .init(action: .close)
         default: return .empty
         }
     }
@@ -170,7 +170,7 @@ extension CommonStakingStepsManager: SendStepsManager {
 
 extension CommonStakingStepsManager: SendSummaryStepsRoutable {
     func summaryStepRequestEditValidators() {
-        guard case .summary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
@@ -179,19 +179,11 @@ extension CommonStakingStepsManager: SendSummaryStepsRoutable {
     }
 
     func summaryStepRequestEditAmount() {
-        guard case .summary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
 
         next(step: amountStep)
-    }
-
-    func summaryStepRequestEditDestination() {
-        assertionFailure("This steps is not tappable in this flow")
-    }
-
-    func summaryStepRequestEditFee() {
-        assertionFailure("This steps is not tappable in this flow")
     }
 }
