@@ -11,8 +11,8 @@ import TangemLocalization
 
 class CommonRestakingStepsManager {
     private let validatorsStep: StakingValidatorsStep
-    private let summaryStep: SendSummaryStep
-    private let finishStep: SendFinishStep
+    private let summaryStep: SendNewSummaryStep
+    private let finishStep: SendNewFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
     private let actionType: SendFlowActionType
 
@@ -21,8 +21,8 @@ class CommonRestakingStepsManager {
 
     init(
         validatorsStep: StakingValidatorsStep,
-        summaryStep: SendSummaryStep,
-        finishStep: SendFinishStep,
+        summaryStep: SendNewSummaryStep,
+        finishStep: SendNewFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider,
         actionType: SendFlowActionType
     ) {
@@ -87,9 +87,9 @@ extension CommonRestakingStepsManager: SendStepsManager {
         switch currentStep().type {
         case .validators:
             return .init(title: Localization.stakingValidator, trailingViewType: .closeButton)
-        case .summary:
+        case .newSummary:
             return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, trailingViewType: .closeButton)
-        case .finish:
+        case .newFinish:
             return .init(trailingViewType: .closeButton)
         default:
             return .empty
@@ -102,8 +102,8 @@ extension CommonRestakingStepsManager: SendStepsManager {
         switch currentStep().type {
         case .validators where isEditAction: return .init(action: .continue)
         case .validators: return .init(action: .next)
-        case .summary: return .init(action: .action)
-        case .finish: return .init(action: .close)
+        case .newSummary: return .init(action: .action)
+        case .newFinish: return .init(action: .close)
         default: return .empty
         }
     }
@@ -135,7 +135,7 @@ extension CommonRestakingStepsManager: SendStepsManager {
 
 extension CommonRestakingStepsManager: SendSummaryStepsRoutable {
     func summaryStepRequestEditValidators() {
-        guard case .summary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
