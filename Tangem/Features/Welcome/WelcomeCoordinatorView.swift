@@ -17,7 +17,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
         NavigationView {
             content
                 .navigationLinks(links)
-                .navigationBarHidden(true)
         }
         .navigationViewStyle(.stack)
     }
