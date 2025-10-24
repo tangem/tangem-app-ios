@@ -81,14 +81,12 @@ final class AccountForNFTCollectionProvider {
         accountIDs: [AnyHashable],
         accountToCollections: [AnyHashable: (account: any CryptoAccountModel, collections: [NFTCollection])]
     ) -> [AccountWithCollectionsData] {
-        let iconBuilder = AccountIconViewBuilder()
-
-        return accountIDs.compactMap { accountId in
+        accountIDs.compactMap { accountId in
             guard let tuple = accountToCollections[accountId] else {
                 return nil
             }
 
-            let iconData = iconBuilder.makeAccountIconViewData(accountModel: tuple.account)
+            let iconData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: tuple.account)
             let accountData = AccountForNFTData(
                 id: accountId,
                 iconData: iconData,

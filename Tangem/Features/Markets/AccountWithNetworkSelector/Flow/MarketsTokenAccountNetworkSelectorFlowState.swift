@@ -17,8 +17,8 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
     enum ViewState: Equatable {
         case accountSelector(viewModel: AccountSelectorViewModel, context: NavigationContext)
         case networksSelection(viewModel: MarketsNetworkSelectorViewModel, context: NavigationContext)
+        case addToken(viewModel: MarketsAddTokenViewModel)
         // [REDACTED_TODO_COMMENT]
-        // case addToken(viewModel: AddTokenViewModel)
         // case getToken(viewModel: GetTokenViewModel)
 
         var id: String {
@@ -27,8 +27,8 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
                 "accountSelector"
             case .networksSelection:
                 "networksSelection"
-                // case .addToken:
-                //     "addToken"
+            case .addToken:
+                "addToken"
                 // case .getToken:
                 //     "getToken"
             }
@@ -42,8 +42,25 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
 
             case .networksSelection(_, let context):
                 return context != .root
-                // case .addToken:
-                //     return false  // Cannot go back from addToken screen
+
+            case .addToken:
+                return false
+                // case .getToken:
+                //     return true   // Can go back to addToken
+            }
+        }
+
+        /// Returns true if the current state allows close navigation
+        var canBeClosed: Bool {
+            switch self {
+            case .accountSelector(_, let context):
+                return context != .fromAddToken
+
+            case .networksSelection(_, let context):
+                return context != .fromAddToken
+
+            case .addToken:
+                return true
                 // case .getToken:
                 //     return true   // Can go back to addToken
             }
@@ -60,8 +77,8 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
                 return true
             case (.networksSelection, .networksSelection):
                 return true
-            // case (.addToken, .addToken):
-            //     return true
+            case (.addToken, .addToken):
+                return true
             // case (.getToken, .getToken):
             //     return true
             default:
