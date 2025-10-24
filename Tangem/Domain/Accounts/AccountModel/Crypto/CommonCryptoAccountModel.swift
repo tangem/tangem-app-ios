@@ -168,3 +168,15 @@ extension CommonCryptoAccountModel: CustomStringConvertible {
         )
     }
 }
+
+// MARK: - CryptoAccountPersistentConfigConvertible protocol conformance
+
+extension CommonCryptoAccountModel: CryptoAccountPersistentConfigConvertible {
+    func toPersistentConfig() -> CryptoAccountPersistentConfig {
+        return CryptoAccountPersistentConfig(
+            derivationIndex: derivationIndex,
+            name: _name,
+            icon: icon
+        )
+    }
+}
