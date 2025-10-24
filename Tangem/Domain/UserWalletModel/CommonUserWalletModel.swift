@@ -82,26 +82,12 @@ class CommonUserWalletModel {
         AppLogger.debug(self)
     }
 
-    private func validateBackup(_ backupStatus: Card.BackupStatus?, wallets: [CardDTO.Wallet]) -> Bool {
-        switch walletInfo {
-        case .cardWallet(let cardInfo):
-            let backupValidator = BackupValidator()
-            if !backupValidator.validate(backupStatus: cardInfo.card.backupStatus, wallets: wallets) {
-                return false
-            }
-
-            return true
-
-        case .mobileWallet:
-            // nothing to validate here
-            return true
-        }
-    }
-
-    private func updateConfiguration(walletInfo: WalletInfo) {
+    private func updateConfiguration(walletInfo: WalletInfo, shouldSave: Bool = true) {
         self.walletInfo = walletInfo
         config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
-        userWalletRepository.save(userWalletModel: self)
+        if shouldSave {
+            userWalletRepository.save(userWalletModel: self)
+        }
         _updatePublisher.send(.configurationChanged(model: self))
     }
 }
@@ -190,32 +176,29 @@ extension CommonUserWalletModel: UserWalletModel {
             userWalletRepository.savePublicData()
             _updatePublisher.send(.nameDidChange(name: name))
 
-        case .backupCompleted:
-            // we have to read an actual status from backup validator
-            _updatePublisher.send(.configurationChanged(model: self))
+        case .backupCompleted(let card, let associatedCardIds):
+            var mutableCardInfo = CardInfo(
+                card: CardDTO(card: card),
+                walletData: .none,
+                associatedCardIds: associatedCardIds
+            )
 
-        case .backupStarted(let card):
             switch walletInfo {
-            case .cardWallet(let cardInfo):
-                var mutableCardInfo = cardInfo
-                for updatedWallet in card.wallets {
-                    mutableCardInfo.card.wallets[updatedWallet.publicKey]?.hasBackup = updatedWallet.hasBackup
-                }
-
-                mutableCardInfo.card.settings = CardDTO.Settings(settings: card.settings)
-                mutableCardInfo.card.isAccessCodeSet = card.isAccessCodeSet
-                mutableCardInfo.card.backupStatus = card.backupStatus
-                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo))
-
-                _cardHeaderImagePublisher.send(config.cardHeaderImage)
-                // prevent save until onboarding completed
-                if userWalletRepository.models[userWalletId] != nil {
-                    userWalletRepository.save(userWalletModel: self)
-                }
-            case .mobileWallet(let info):
-                var mutableCardInfo = CardInfo(card: CardDTO(card: card), walletData: .none, associatedCardIds: [])
+            case .cardWallet(let existingInfo):
                 for wallet in mutableCardInfo.card.wallets {
-                    if let existingDerivedKeys = info.keys[wallet.publicKey]?.derivedKeys {
+                    if let existingDerivedKeys = existingInfo.card.wallets[wallet.publicKey]?.derivedKeys {
+                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                    }
+                }
+
+                // prevent save until onboarding completed
+                let shouldSave = userWalletRepository.models[userWalletId] != nil
+                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo), shouldSave: shouldSave)
+                _cardHeaderImagePublisher.send(config.cardHeaderImage)
+
+            case .mobileWallet(let existingInfo):
+                for wallet in mutableCardInfo.card.wallets {
+                    if let existingDerivedKeys = existingInfo.keys[wallet.publicKey]?.derivedKeys {
                         mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
                     }
                 }
@@ -278,16 +261,7 @@ extension CommonUserWalletModel: UserWalletModel {
     func validate() -> Bool {
         switch walletInfo {
         case .cardWallet(let cardInfo):
-            let pendingBackupManager = PendingBackupManager()
-            if pendingBackupManager.fetchPendingCard(cardInfo.card.cardId) != nil {
-                return false
-            }
-
-            guard validateBackup(cardInfo.card.backupStatus, wallets: cardInfo.card.wallets) else {
-                return false
-            }
-
-            return true
+            return BackupValidator().validate(cardInfo: cardInfo)
         case .mobileWallet:
             return true
         }
