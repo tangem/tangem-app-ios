@@ -16,8 +16,10 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var addressClearButton = button(.addressClearButton)
     private lazy var nextButton = button(.nextButton)
     private lazy var backButton = button(.backButton)
+    private lazy var maxButton = button(.maxButton)
     private lazy var feeBlock = otherElement(.networkFeeBlock)
     private lazy var invalidAmountBanner = staticText(.invalidAmountBanner)
+    private lazy var remainingAmountIsLessThanRentExemptionBanner = staticText(.remainingAmountIsLessThanRentExemptionBanner)
     private lazy var insufficientAmountToReserveAtDestinationBanner = staticText(.insufficientAmountToReserveAtDestinationBanner)
     private lazy var amountExceedMaximumUTXOBanner = staticText(.amountExceedMaximumUTXOBanner)
     private lazy var customFeeTooLowBanner = staticText(.customFeeTooLowBanner)
@@ -69,6 +71,14 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 
     @discardableResult
+    func tapMaxButton() -> Self {
+        XCTContext.runActivity(named: "Tap Max button") { _ in
+            maxButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
     func tapBackButton() -> Self {
         XCTContext.runActivity(named: "Tap Back button") { _ in
             backButton.waitAndTap()
@@ -107,6 +117,22 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func waitForInvalidAmountBannerNotExists() -> Self {
         XCTContext.runActivity(named: "Validate invalid amount banner does not exist") { _ in
             XCTAssertTrue(invalidAmountBanner.waitForNonExistence(timeout: .robustUIUpdate), "Invalid amount banner should not be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForRemainingAmountIsLessThanRentExemptionBanner() -> Self {
+        XCTContext.runActivity(named: "Validate remaining amount is less than rent exemption banner exists") { _ in
+            waitAndAssertTrue(remainingAmountIsLessThanRentExemptionBanner, "Remaining amount is less than rent exemption banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForRemainingAmountIsLessThanRentExemptionBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Validate remaining amount is less than rent exemption banner does not exist") { _ in
+            XCTAssertTrue(remainingAmountIsLessThanRentExemptionBanner.waitForNonExistence(timeout: .robustUIUpdate), "Remaining amount is less than rent exemption banner should not be displayed")
         }
         return self
     }
@@ -195,8 +221,10 @@ enum SendScreenElement: String, UIElement {
     case addressClearButton
     case nextButton
     case backButton
+    case maxButton
     case networkFeeBlock
     case invalidAmountBanner
+    case remainingAmountIsLessThanRentExemptionBanner
     case insufficientAmountToReserveAtDestinationBanner
     case amountExceedMaximumUTXOBanner
     case customFeeTooLowBanner
@@ -217,10 +245,14 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.sendViewNextButton
         case .backButton:
             return CommonUIAccessibilityIdentifiers.circleButton
+        case .maxButton:
+            return SendAccessibilityIdentifiers.maxAmountButton
         case .networkFeeBlock:
             return SendAccessibilityIdentifiers.networkFeeBlock
         case .invalidAmountBanner:
             return SendAccessibilityIdentifiers.invalidAmountBanner
+        case .remainingAmountIsLessThanRentExemptionBanner:
+            return SendAccessibilityIdentifiers.remainingAmountIsLessThanRentExemptionBanner
         case .insufficientAmountToReserveAtDestinationBanner:
             return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
         case .amountExceedMaximumUTXOBanner:
