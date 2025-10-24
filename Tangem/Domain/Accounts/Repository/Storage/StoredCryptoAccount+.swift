@@ -11,6 +11,19 @@ import struct BlockchainSdk.Token
 
 // MARK: - Convenience extensions
 
+extension StoredCryptoAccount {
+    init(config: CryptoAccountPersistentConfig, tokens: [StoredCryptoAccount.Token] = []) {
+        self.init(
+            derivationIndex: config.derivationIndex,
+            name: config.name,
+            icon: .init(iconName: config.iconName, iconColor: config.iconColor),
+            tokens: tokens,
+            grouping: .none, // [REDACTED_TODO_COMMENT]
+            sorting: .manual // [REDACTED_TODO_COMMENT]
+        )
+    }
+}
+
 extension StoredCryptoAccount.Token {
     var isToken: Bool { contractAddress != nil }
 
@@ -25,23 +38,19 @@ extension StoredCryptoAccount.Token {
     }
 
     var walletModelId: WalletModelId? {
-        guard let blockchainNetwork = blockchainNetwork.knownValue else {
+        guard let tokenItem = toTokenItem() else {
             return nil
         }
 
-        if let token = toBSDKToken() {
-            return WalletModelId(tokenItem: .token(token, blockchainNetwork))
-        }
-
-        return WalletModelId(tokenItem: .blockchain(blockchainNetwork))
+        return WalletModelId(tokenItem: tokenItem)
     }
 
-    func toBSDKToken() -> Token? {
+    func toBSDKToken() -> BlockchainSdk.Token? {
         guard let contractAddress else {
             return nil
         }
 
-        return Token(
+        return BlockchainSdk.Token(
             name: name,
             symbol: symbol,
             contractAddress: contractAddress,
@@ -49,6 +58,18 @@ extension StoredCryptoAccount.Token {
             id: id,
             metadata: .fungibleTokenMetadata // By definition, in the domain layer we're dealing only with fungible tokens
         )
+    }
+
+    func toTokenItem() -> TokenItem? {
+        guard let blockchainNetwork = blockchainNetwork.knownValue else {
+            return nil
+        }
+
+        guard let bsdkToken = toBSDKToken() else {
+            return .blockchain(blockchainNetwork)
+        }
+
+        return .token(bsdkToken, blockchainNetwork)
     }
 }
 
