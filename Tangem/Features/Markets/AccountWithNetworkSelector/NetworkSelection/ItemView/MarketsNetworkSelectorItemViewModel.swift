@@ -17,6 +17,7 @@ class MarketsNetworkSelectorItemViewModel: Identifiable, ObservableObject {
     let networkName: String
     let contractName: String?
     let isReadonly: Bool
+    let onTap: (() -> Void)?
 
     var networkNameForegroundColor: Color {
         isReadonly ? Colors.Text.disabled : Colors.Text.primary1
@@ -38,13 +39,20 @@ class MarketsNetworkSelectorItemViewModel: Identifiable, ObservableObject {
     init(
         tokenItem: TokenItem,
         isReadonly: Bool,
-        blockchainIconProvider: NetworkImageProvider = NetworkImageProvider()
+        blockchainIconProvider: NetworkImageProvider = NetworkImageProvider(),
+        onTap: (() -> Void)? = nil
     ) {
         self.tokenItem = tokenItem
         self.isReadonly = isReadonly
+        self.onTap = onTap
         imageAsset = blockchainIconProvider.provide(by: tokenItem.blockchain, filled: false)
         imageAssetSelected = blockchainIconProvider.provide(by: tokenItem.blockchain, filled: true)
         networkName = tokenItem.blockchain.displayName
         contractName = tokenItem.contractName
+    }
+
+    func handleTap() {
+        guard !isReadonly else { return }
+        onTap?()
     }
 }
