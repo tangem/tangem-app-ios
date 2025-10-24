@@ -32,22 +32,13 @@ struct YieldModuleStartView: View {
             header: { makeHeader(viewState: viewModel.viewState) },
             topContent: { topContent },
             subtitleFooter: { subtitleFooter },
-            content: { mainContent },
-            buttonTopPadding: 24
+            content: { mainContent }
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
-    }
-
-    private var buttonTopPadding: CGFloat {
-        if viewModel.notificationBannerParams != nil {
-            return 24
-        }
-
-        return 32
     }
 
     private var title: String? {
@@ -128,21 +119,14 @@ struct YieldModuleStartView: View {
     private var startEarningView: some View {
         VStack(spacing: .zero) {
             YieldFeeSection(
+                sectionState: viewModel.networkFeeState,
                 leadingTitle: Localization.commonNetworkFeeTitle,
-                state: viewModel.networkFeeState,
-                footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
                 linkTitle: Localization.yieldModuleStartEarningSheetFeePolicy,
-                url: nil,
-                isLinkActive: viewModel.isNavigationToFeePolicyEnabled,
-                onLinkTapAction: viewModel.onShowFeePolicy
+                onLinkTapAction: viewModel.onShowFeePolicy,
+                notification: viewModel.networkFeeNotification
             )
             .onAppear {
                 viewModel.fetchFees()
-            }
-
-            if let notificationBannerParams = viewModel.notificationBannerParams {
-                YieldModuleBottomSheetNotificationBannerView(params: notificationBannerParams)
-                    .padding(.top, 26)
             }
         }
     }
@@ -161,10 +145,10 @@ struct YieldModuleStartView: View {
 
         case .feePolicy:
             YieldModuleFeePolicyView(
-                tokenFeeState: viewModel.tokenFeeState,
-                maximumFeeState: viewModel.maximumFeeState,
                 minimalAmountState: viewModel.minimalAmountState,
-                blockchainName: viewModel.walletModel.tokenItem.blockchain.displayName,
+                estimatedFeeState: viewModel.estimatedFeeState,
+                maximumFeeState: viewModel.maximumFeeState,
+                footerText: viewModel.feePolicyFooter
             )
         }
     }
