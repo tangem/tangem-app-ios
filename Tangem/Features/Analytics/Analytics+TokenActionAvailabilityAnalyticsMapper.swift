@@ -32,7 +32,6 @@ struct TokenActionAvailabilityAnalyticsMapper {
         case .missingAssetRequirement:
             return Analytics.ParameterValue.missingAssetRequirement
         case .yieldModuleApproveNeeded:
-            // [REDACTED_TODO_COMMENT]
             return Analytics.ParameterValue.yieldModuleApproveNeeded
         }
     }
@@ -56,7 +55,6 @@ struct TokenActionAvailabilityAnalyticsMapper {
         case .hasOnlyCachedBalance:
             return Analytics.ParameterValue.caching
         case .yieldModuleApproveNeeded:
-            // [REDACTED_TODO_COMMENT]
             return Analytics.ParameterValue.yieldModuleApproveNeeded
         }
     }
@@ -112,7 +110,6 @@ struct TokenActionAvailabilityAnalyticsMapper {
         case .demo:
             return Analytics.ParameterValue.demo
         case .yieldModuleApproveNeeded:
-            // [REDACTED_TODO_COMMENT]
             return Analytics.ParameterValue.yieldModuleApproveNeeded
         }
     }
