@@ -24,16 +24,30 @@ enum SendNewAmountStepBuilder {
     struct IO {
         let sourceIO: (input: SendSourceTokenInput, output: SendSourceTokenOutput)
         let sourceAmountIO: (input: SendSourceTokenAmountInput, output: SendSourceTokenAmountOutput)
-        let receiveIO: (input: SendReceiveTokenInput, output: SendReceiveTokenOutput)
-        let receiveAmountIO: (input: SendReceiveTokenAmountInput, output: SendReceiveTokenAmountOutput)
-        let swapProvidersInput: SendSwapProvidersInput
+        let receiveIO: (input: SendReceiveTokenInput, output: SendReceiveTokenOutput)?
+        let receiveAmountIO: (input: SendReceiveTokenAmountInput, output: SendReceiveTokenAmountOutput)?
+        let swapProvidersInput: SendSwapProvidersInput?
+
+        init(
+            sourceIO: (input: SendSourceTokenInput, output: SendSourceTokenOutput),
+            sourceAmountIO: (input: SendSourceTokenAmountInput, output: SendSourceTokenAmountOutput),
+            receiveIO: (input: SendReceiveTokenInput, output: SendReceiveTokenOutput)? = nil,
+            receiveAmountIO: (input: SendReceiveTokenAmountInput, output: SendReceiveTokenAmountOutput)? = nil,
+            swapProvidersInput: SendSwapProvidersInput? = nil
+        ) {
+            self.sourceIO = sourceIO
+            self.sourceAmountIO = sourceAmountIO
+            self.receiveIO = receiveIO
+            self.receiveAmountIO = receiveAmountIO
+            self.swapProvidersInput = swapProvidersInput
+        }
     }
 
     struct Dependencies {
         let sendAmountValidator: any SendAmountValidator
         let amountModifier: (any SendAmountModifier)?
         let notificationService: (any SendAmountNotificationService)?
-        let analyticsLogger: any SendAnalyticsLogger
+        let analyticsLogger: any SendAmountAnalyticsLogger
     }
 
     typealias ReturnValue = (step: SendNewAmountStep, amountUpdater: SendAmountExternalUpdater, compact: SendNewAmountCompactViewModel, finish: SendNewAmountFinishViewModel)
@@ -42,16 +56,16 @@ enum SendNewAmountStepBuilder {
         let interactorSaver = CommonSendNewAmountInteractorSaver(
             sourceTokenAmountInput: io.sourceAmountIO.input,
             sourceTokenAmountOutput: io.sourceAmountIO.output,
-            receiveTokenInput: io.receiveIO.input,
-            receiveTokenOutput: io.receiveIO.output
+            receiveTokenInput: io.receiveIO?.input,
+            receiveTokenOutput: io.receiveIO?.output
         )
 
         let interactor = CommonSendNewAmountInteractor(
             sourceTokenInput: io.sourceIO.input,
             sourceTokenAmountInput: io.sourceAmountIO.input,
-            receiveTokenInput: io.receiveIO.input,
-            receiveTokenOutput: io.receiveIO.output,
-            receiveTokenAmountInput: io.receiveAmountIO.input,
+            receiveTokenInput: io.receiveIO?.input,
+            receiveTokenOutput: io.receiveIO?.output,
+            receiveTokenAmountInput: io.receiveAmountIO?.input,
             validator: dependencies.sendAmountValidator,
             amountModifier: dependencies.amountModifier,
             notificationService: dependencies.notificationService,
@@ -75,8 +89,8 @@ enum SendNewAmountStepBuilder {
         let compact = SendNewAmountCompactViewModel(
             sourceTokenInput: io.sourceIO.input,
             sourceTokenAmountInput: io.sourceAmountIO.input,
-            receiveTokenInput: io.receiveIO.input,
-            receiveTokenAmountInput: io.receiveAmountIO.input,
+            receiveTokenInput: io.receiveIO?.input,
+            receiveTokenAmountInput: io.receiveAmountIO?.input,
             swapProvidersInput: io.swapProvidersInput
         )
 
@@ -84,8 +98,8 @@ enum SendNewAmountStepBuilder {
         let finish = SendNewAmountFinishViewModel(
             sourceTokenInput: io.sourceIO.input,
             sourceTokenAmountInput: io.sourceAmountIO.input,
-            receiveTokenInput: io.receiveIO.input,
-            receiveTokenAmountInput: io.receiveAmountIO.input,
+            receiveTokenInput: io.receiveIO?.input,
+            receiveTokenAmountInput: io.receiveAmountIO?.input,
             swapProvidersInput: io.swapProvidersInput,
         )
 
