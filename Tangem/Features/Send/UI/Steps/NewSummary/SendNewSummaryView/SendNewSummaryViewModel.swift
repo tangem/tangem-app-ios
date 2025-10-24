@@ -17,30 +17,16 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?
     @Published private(set) var sendFeeCompactViewModel: SendNewFeeCompactViewModel?
 
-    @Published var showHint = false
+    let destinationEditableType: Settings.EditableType
+    let amountEditableType: Settings.EditableType
+
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var notificationButtonIsLoading = false
 
     @Published var transactionDescription: AttributedString?
     @Published var transactionDescriptionIsVisible: Bool = false
 
-    var destinationCompactViewType: SendCompactViewEditableType {
-        switch destinationEditableType {
-        case .editable: .enabled(action: userDidTapDestination)
-        case .noEditable: .enabled()
-        }
-    }
-
-    var amountCompactViewType: SendCompactViewEditableType {
-        switch amountEditableType {
-        case .editable: .enabled(action: userDidTapAmount)
-        case .noEditable: .enabled()
-        }
-    }
-
     private let interactor: SendNewSummaryInteractor
-    private let destinationEditableType: Settings.EditableType
-    private let amountEditableType: Settings.EditableType
     private let notificationManager: NotificationManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
 
@@ -121,9 +107,8 @@ extension SendNewSummaryViewModel: SendNewAmountCompactRoutable {
 // MARK: - Private
 
 private extension SendNewSummaryViewModel {
-    private func didTapSummary() {
+    func didTapSummary() {
         AppSettings.shared.userDidTapSendScreenSummary = true
-        showHint = false
     }
 
     func bind() {
@@ -158,6 +143,13 @@ extension SendNewSummaryViewModel {
         enum EditableType: Hashable {
             case editable
             case noEditable
+
+            var isEditable: Bool {
+                switch self {
+                case .editable: true
+                case .noEditable: false
+                }
+            }
         }
     }
 }
