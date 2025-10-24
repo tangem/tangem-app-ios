@@ -32,6 +32,10 @@ struct SendNewFinishView: View {
                 SendDestinationCompactView(viewModel: sendDestinationCompactViewModel)
             }
 
+            if let stakingValidatorsCompactViewModel = viewModel.stakingValidatorsCompactViewModel {
+                StakingValidatorsCompactView(viewModel: stakingValidatorsCompactViewModel, type: .enabled())
+            }
+
             if let sendFeeCompactViewModel = viewModel.sendFeeFinishViewModel {
                 SendFeeFinishView(viewModel: sendFeeCompactViewModel)
             }
