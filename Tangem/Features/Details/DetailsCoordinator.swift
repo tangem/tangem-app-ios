@@ -34,7 +34,7 @@ class DetailsCoordinator: CoordinatorObject {
 
     @Published var mailViewModel: MailViewModel?
     @Published var supportChatViewModel: SupportChatViewModel?
-    @Published var tosViewModel: TOSViewModel?
+    @Published var tosViewModel: DetailsTOSViewModel?
     @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
     @Published var logsViewModel: LogsViewModel?
 
@@ -132,7 +132,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openTOS() {
-        tosViewModel = .init(bottomOverlayHeight: 0)
+        tosViewModel = DetailsTOSViewModel()
     }
 
     func openScanCardManual() {

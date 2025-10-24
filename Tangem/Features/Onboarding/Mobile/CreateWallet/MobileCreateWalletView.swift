@@ -18,7 +18,8 @@ struct MobileCreateWalletView: View {
     var body: some View {
         content
             .padding(.horizontal, 16)
-            .overlay(creatingOverlay)
+            .safeAreaInset(edge: .top) { navigationBar }
+            .allowsHitTesting(!viewModel.isCreating)
             .onAppear(perform: viewModel.onAppear)
     }
 }
@@ -26,6 +27,21 @@ struct MobileCreateWalletView: View {
 // MARK: - Subviews
 
 private extension MobileCreateWalletView {
+    var navigationBar: some View {
+        NavigationBar(
+            title: .empty,
+            settings: .init(backgroundColor: .clear),
+            leftButtons: {
+                BackButton(
+                    height: viewModel.navBarHeight,
+                    isVisible: true,
+                    isEnabled: true,
+                    action: viewModel.onBackTap
+                )
+            }
+        )
+    }
+
     var content: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 0) {
@@ -78,6 +94,7 @@ private extension MobileCreateWalletView {
             MainButton(
                 title: viewModel.createButtonTitle,
                 style: .secondary,
+                isLoading: viewModel.isCreating,
                 action: viewModel.onCreateTap
             )
 
@@ -86,17 +103,6 @@ private extension MobileCreateWalletView {
                 style: .primary,
                 action: viewModel.onImportTap
             )
-        }
-    }
-
-    @ViewBuilder
-    var creatingOverlay: some View {
-        if viewModel.isCreating {
-            ZStack {
-                Colors.Overlays.overlayPrimary
-                    .ignoresSafeArea()
-                ActivityIndicatorView()
-            }
         }
     }
 }
