@@ -17,6 +17,11 @@ public extension Swift.Collection {
         return isEmpty ? nil : self
     }
 
+    /// Returns the single element if collection contains exactly one element, otherwise returns nil
+    var onlyElement: Element? {
+        return count == 1 ? first : nil
+    }
+
     /// Simple extension for checking process in empty collection
     /// Use `allConforms` for check each element to satisfy a condition
     /// `allSatisfy` return `true`, if collection `isEmpty`
