@@ -162,21 +162,14 @@ extension CommonUserTokensManager: UserTokensManager {
         }
     }
 
-    func contains(_ tokenItem: TokenItem) -> Bool {
+    func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        return userTokens.contains(tokenItem)
-    }
-
-    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
-        let tokenItem = withBlockchainNetwork(tokenItem)
-
-        let targetsEntry = userTokens.filter {
-            $0.blockchain.networkId == tokenItem.blockchain.networkId
-                && $0.token == tokenItem.token
+        return userTokens.contains { existingTokenItem in
+            return derivationInsensitive
+                ? existingTokenItem.blockchain.networkId == tokenItem.blockchain.networkId && existingTokenItem.token == tokenItem.token
+                : existingTokenItem == tokenItem
         }
-
-        return targetsEntry.isNotEmpty
     }
 
     func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
