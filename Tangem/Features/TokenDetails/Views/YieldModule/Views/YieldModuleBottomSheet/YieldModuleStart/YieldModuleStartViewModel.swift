@@ -11,6 +11,7 @@ import SwiftUI
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 import TangemSdk
+import TangemLocalization
 
 final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Injected
@@ -41,19 +42,31 @@ final class YieldModuleStartViewModel: ObservableObject {
     var alert: AlertBinder?
 
     @Published
-    private(set) var notificationBannerParams: YieldModuleNotificationBannerParams? = nil
+    private(set) var networkFeeNotification: YieldModuleNotificationBannerParams? = nil
 
     @Published
-    private(set) var networkFeeState: LoadableTextView.State = .loading
+    private(set) var networkFeeState = YieldFeeSectionState(
+        footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
+        isLinkActive: false
+    )
 
     @Published
-    private(set) var tokenFeeState: LoadableTextView.State = .loading
+    private(set) var isButtonEnabled: Bool = true
 
     @Published
-    private(set) var maximumFeeState: LoadableTextView.State = .loading
+    private(set) var isNavigationToFeePolicyEnabled: Bool = false
 
     @Published
-    private(set) var minimalAmountState: LoadableTextView.State = .loading
+    private(set) var minimalAmountState: YieldFeeSectionState = .init()
+
+    @Published
+    private(set) var estimatedFeeState: YieldFeeSectionState = .init()
+
+    @Published
+    private(set) var maximumFeeState: YieldFeeSectionState = .init()
+
+    @Published
+    private(set) var feePolicyFooter: String?
 
     @Published
     private(set) var chartState: YieldChartContainerState = .loading
@@ -66,43 +79,13 @@ final class YieldModuleStartViewModel: ObservableObject {
     private(set) var walletModel: any WalletModel
     private weak var coordinator: YieldModulePromoCoordinator?
     private let yieldManagerInteractor: YieldManagerInteractor
+    private let notificationManager: YieldModuleNotificationManager
     private let logger: YieldAnalyticsLogger
-
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
 
     // MARK: - Properties
 
     private(set) var maximumFee: Decimal = 0
-
-    var isButtonEnabled: Bool {
-        switch viewState {
-        case .startEarning:
-            switch (networkFeeState, notificationBannerParams) {
-            case (.loaded, .notEnoughFeeCurrency):
-                return false
-            case (.loaded, .feeUnreachable):
-                return false
-            case (.loaded, .none):
-                return true
-            default:
-                return false
-            }
-
-        default:
-            return true
-        }
-    }
-
-    var isNavigationToFeePolicyEnabled: Bool {
-        guard case .startEarning = viewState else { return true }
-        guard case .loaded = networkFeeState else { return false }
-
-        if case .feeUnreachable = notificationBannerParams {
-            return false
-        }
-
-        return true
-    }
 
     // MARK: - Init
 
@@ -118,15 +101,15 @@ final class YieldModuleStartViewModel: ObservableObject {
         self.coordinator = coordinator
         self.yieldManagerInteractor = yieldManagerInteractor
         self.logger = logger
+
+        notificationManager = YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
     }
 
     // MARK: - Navigation
 
-    @MainActor
     func onCloseTap() {
-        floatingSheetPresenter.removeActiveSheet()
-        runTask(in: self) { vm in
-            await vm.yieldManagerInteractor.clearAll()
+        Task { @MainActor [weak self] in
+            self?.floatingSheetPresenter.removeActiveSheet()
         }
     }
 
@@ -180,85 +163,101 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     func fetchFees() {
         Task { await fetchNetworkFee() }
-        Task { await fetchMaximumFee() }
         Task { await fetchMinimalAmount() }
+        Task { await fetchEstimatedAndMaximumFee() }
     }
 
     @MainActor
     func fetchMinimalAmount() async {
-        minimalAmountState = .loading
+        minimalAmountState = minimalAmountState.withFeeState(.loading)
 
         do {
             let minimalAmountInTokens = try await yieldManagerInteractor.getMinAmount()
-            let formatted = try await feeConverter.createMinimalAmountString(from: minimalAmountInTokens)
-            minimalAmountState = .loaded(text: formatted)
+            let minimalFee = try await feeConverter.makeFormattedMinimalFee(from: minimalAmountInTokens)
+
+            minimalAmountState = minimalAmountState
+                .withFeeState(.loaded(text: minimalFee.fiatFee))
+                .withFooterText(Localization.yieldModuleFeePolicySheetMinAmountNote(minimalFee.fiatFee, minimalFee.cryptoFee))
+
         } catch {
-            minimalAmountState = .noData
-        }
-    }
-
-    @MainActor
-    func fetchMaximumFee() async {
-        maximumFeeState = .loading
-
-        if let (maxFeeCurrencyFee, maxFiatFee) = await yieldManagerInteractor.getMaxFee(),
-           let feeInTokens = try? await feeConverter.createMaxFeeString(maxFeeCurrencyFee: maxFeeCurrencyFee, maxFiatFee: maxFiatFee) {
-            maximumFeeState = .loaded(text: feeInTokens)
-        } else {
-            maximumFeeState = .noData
+            minimalAmountState = minimalAmountState
+                .withFeeState(.noData)
+                .withFooterText(nil)
         }
     }
 
     @MainActor
     func fetchNetworkFee() async {
-        tokenFeeState = .loading
-        networkFeeState = .loading
-        notificationBannerParams = nil
+        networkFeeState = networkFeeState
+            .withFeeState(.loading)
+            .withLinkActive(false)
+
+        networkFeeNotification = nil
+        isButtonEnabled = false
+        isNavigationToFeePolicyEnabled = false
 
         do {
             let feeInCoins = try await yieldManagerInteractor.getEnterFee()
             let feeValue = feeInCoins.totalFeeAmount.value
+            let fiatFee = try await feeConverter.createFeeString(from: feeValue)
 
-            let convertedFee = try await feeConverter.createFeeString(from: feeValue)
-            let feeInTokens = try await feeConverter.makeFeeInTokenString(from: feeValue)
+            networkFeeState = networkFeeState
+                .withFeeState(.loaded(text: fiatFee))
+                .withLinkActive(true)
 
-            networkFeeState = .loaded(text: convertedFee)
-            tokenFeeState = .loaded(text: feeInTokens)
+            let isFeeHigh = feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType)
 
-            if feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType) {
-                showNotEnoughFeeNotification()
+            if isFeeHigh {
+                logger.logEarningNoticeNotEnoughFeeShown()
+                networkFeeNotification = createNotEnoughFeeNotification()
             }
 
+            isNavigationToFeePolicyEnabled = true
+            isButtonEnabled = !isFeeHigh
         } catch {
-            tokenFeeState = .noData
-            networkFeeState = .noData
-            showFeeErrorNotification()
+            networkFeeNotification = createFeeErrorNotification()
+
+            networkFeeState = networkFeeState
+                .withFeeState(.noData)
+                .withLinkActive(false)
+
+            isButtonEnabled = false
+            isNavigationToFeePolicyEnabled = false
         }
     }
 
     // MARK: - Private Implementation
 
-    private func showNotEnoughFeeNotification() {
-        notificationBannerParams = .notEnoughFeeCurrency(
-            feeCurrencyName: walletModel.feeTokenItem.name,
-            tokenIcon: NetworkImageProvider().provide(by: walletModel.feeTokenItem.blockchain, filled: true)
-        ) { [weak self] in
-            if let selectedUserWalletModel = self?.userWalletRepository.selectedModel,
-               let feeWalletModel = self?.getFeeCurrencyWalletModel(in: selectedUserWalletModel) {
-                self?.onCloseTap()
-                self?.coordinator?.openFeeCurrency(for: feeWalletModel, userWalletModel: selectedUserWalletModel)
-            }
+    @MainActor
+    private func fetchEstimatedAndMaximumFee() async {
+        estimatedFeeState = estimatedFeeState.withFeeState(.loading)
+        maximumFeeState = maximumFeeState.withFeeState(.loading)
+
+        guard let maxFee = await yieldManagerInteractor.getMaxFee() else {
+            estimatedFeeState = estimatedFeeState.withFeeState(.noData)
+            maximumFeeState = maximumFeeState.withFeeState(.noData)
+            return
         }
 
-        logger.logEarningNoticeNotEnoughFeeShown()
-    }
+        do {
+            let estimatedFee = try await yieldManagerInteractor.getCurrentNetworkFee()
+            let estimatedFeeFormatted = try await feeConverter.makeFormattedMinimalFee(from: estimatedFee)
+            let maxFeeFormatted = try await feeConverter.makeFormattedMaximumFee(maxFeeCurrencyFee: maxFee.0, maxFiatFee: maxFee.1)
 
-    private func showFeeErrorNotification() {
-        notificationBannerParams = .feeUnreachable { [weak self] in
-            guard let self else { return }
-            runTask(in: self) { vm in
-                await vm.fetchNetworkFee()
-            }
+            estimatedFeeState = estimatedFeeState.withFeeState(.loaded(text: estimatedFeeFormatted.fiatFee))
+            maximumFeeState = maximumFeeState.withFeeState(.loaded(text: maxFeeFormatted.fiatFee))
+
+            feePolicyFooter = Localization.yieldModuleFeePolicySheetFeeNote(
+                estimatedFeeFormatted.fiatFee,
+                estimatedFeeFormatted.cryptoFee,
+                maxFeeFormatted.fiatFee,
+                maxFeeFormatted.cryptoFee
+            )
+
+        } catch {
+            estimatedFeeState = estimatedFeeState.withFeeState(.noData)
+            maximumFeeState = maximumFeeState.withFeeState(.noData)
+            feePolicyFooter = nil
         }
     }
 
@@ -302,3 +301,26 @@ extension YieldModuleStartViewModel {
 // MARK: - FloatingSheetContentViewModel
 
 extension YieldModuleStartViewModel: FloatingSheetContentViewModel {}
+
+// MARK: - Notification Builders
+
+private extension YieldModuleStartViewModel {
+    func createNotEnoughFeeNotification() -> YieldModuleNotificationBannerParams {
+        notificationManager.createNotEnoughFeeCurrencyNotification { [weak self] in
+            if let selectedUserWalletModel = self?.userWalletRepository.selectedModel,
+               let feeWalletModel = self?.getFeeCurrencyWalletModel(in: selectedUserWalletModel) {
+                self?.onCloseTap()
+                self?.coordinator?.openFeeCurrency(for: feeWalletModel, userWalletModel: selectedUserWalletModel)
+            }
+        }
+    }
+
+    func createFeeErrorNotification() -> YieldModuleNotificationBannerParams {
+        notificationManager.createFeeUnreachableNotification { [weak self] in
+            Task { [weak self] in
+                try await Task.sleep(seconds: 0.5)
+                await self?.fetchNetworkFee()
+            }
+        }
+    }
+}
