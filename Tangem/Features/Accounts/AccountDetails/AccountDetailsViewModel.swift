@@ -7,10 +7,11 @@
 //
 
 import Foundation
-import TangemAccounts
 import SwiftUI
-import TangemUI
 import Combine
+import TangemUI
+import TangemAccounts
+import TangemFoundation
 import TangemLocalization
 
 final class AccountDetailsViewModel: ObservableObject {
@@ -28,11 +29,13 @@ final class AccountDetailsViewModel: ObservableObject {
 
     private let account: any BaseAccountModel
     private let accountModelsManager: AccountModelsManager
-    private let actions: [AccountDetailsAction]
-
-    private var bag = Set<AnyCancellable>()
-
     private weak var coordinator: AccountDetailsRoutable?
+
+    // MARK: - Internal state
+
+    private let actions: [AccountDetailsAction]
+    private var archiveAccountTask: Task<Void, Never>?
+    private var bag = Set<AnyCancellable>()
 
     init(
         account: any BaseAccountModel,
@@ -69,16 +72,15 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - Methods
 
     func archiveAccount() {
-        do {
-            try accountModelsManager.archiveCryptoAccount(withIdentifier: account.id)
-
-            coordinator?.close()
-
-            Toast(view: SuccessToast(text: Localization.accountArchiveSuccessMessage))
-                .present(layout: .top(padding: 24), type: .temporary(interval: 4))
-        } catch {
-            Toast(view: WarningToast(text: Localization.genericError))
-                .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+        archiveAccountTask?.cancel()
+        archiveAccountTask = runTask(in: self) { viewModel in
+            do {
+                let identifier = viewModel.account.id
+                try await viewModel.accountModelsManager.archiveCryptoAccount(withIdentifier: identifier)
+                await viewModel.handleAccountArchivingSuccess()
+            } catch {
+                await viewModel.handleAccountArchivingFailure(error: error)
+            }
         }
     }
 
@@ -109,6 +111,22 @@ final class AccountDetailsViewModel: ObservableObject {
     private func applySnapshot() {
         accountName = account.name
         accountIcon = account.icon
+    }
+
+    @MainActor
+    private func handleAccountArchivingSuccess() {
+        coordinator?.close()
+
+        Toast(view: SuccessToast(text: Localization.accountArchiveSuccessMessage))
+            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+    }
+
+    @MainActor
+    private func handleAccountArchivingFailure(error: Error) {
+        Toast(view: WarningToast(text: Localization.genericError))
+            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+
+        AccountsLogger.error("Failed to archive account", error: error)
     }
 }
 
