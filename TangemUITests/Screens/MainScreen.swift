@@ -239,8 +239,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait for total balance displayed as dash") { _ in
             waitAndAssertTrue(totalBalance, "Total balance element should exist")
             XCTAssertTrue(totalBalance.label.contains("–"), "Total balance should be displayed as dash")
-            return self
         }
+        return self
     }
 
     @discardableResult
@@ -411,8 +411,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func waitForSynchronizeAddressesButtonExists() -> Self {
         XCTContext.runActivity(named: "Wait for synchronize addresses button exists") { _ in
             waitAndAssertTrue(missingDerivationNotification, "Missing derivation notification should exist")
-            return self
         }
+        return self
     }
 
     private func isGrouped() -> Bool {
