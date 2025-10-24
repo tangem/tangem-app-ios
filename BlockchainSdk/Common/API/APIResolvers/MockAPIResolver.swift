@@ -19,6 +19,8 @@ struct MockAPIResolver {
                 return .init(url: URL(string: "https://wiremock.tests-d.com/cardano")!)
             case .dogecoin:
                 return .init(url: URL(string: "https://wiremock.tests-d.com/dogecoin")!)
+            case .solana:
+                return .init(url: URL(string: "https://wiremock.tests-d.com/solana")!)
             default:
                 return nil
             }

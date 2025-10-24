@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct SendNewAmountTokenView: View {
     let data: SendNewAmountTokenViewData
@@ -83,6 +84,7 @@ struct SendNewAmountTokenView: View {
             EmptyView()
         case .max(let action):
             CircleButton(title: Localization.sendMaxAmount, action: action)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.maxAmountButton)
         case .select(.none):
             Assets.Glyphs.selectIcon.image
                 .renderingMode(.template)
