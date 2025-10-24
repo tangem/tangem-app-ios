@@ -30,7 +30,7 @@ extension AccountSelectorAccountItem: Hashable {
 }
 
 extension AccountSelectorAccountItem {
-    init(userWallet: any UserWalletModel, account: any CryptoAccountModel) {
+    init(account: any CryptoAccountModel) {
         id = account.id
         name = account.name
         tokensCount = Localization.commonTokensCount(account.walletModelsManager.walletModels.count)
