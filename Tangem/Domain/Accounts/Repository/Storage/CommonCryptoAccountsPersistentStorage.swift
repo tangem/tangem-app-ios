@@ -50,18 +50,10 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
         }
     }
 
-    func appendNewOrUpdateExisting(account: StoredCryptoAccount) {
+    func appendNewOrUpdateExisting(accounts: [StoredCryptoAccount]) {
         workingQueue.async(flags: .barrier) {
-            var editedItems = self.unsafeFetch()
-            var isDirty = false
-
-            if let targetIndex = editedItems.firstIndex(where: { $0.derivationIndex == account.derivationIndex }) {
-                isDirty = editedItems[targetIndex] != account
-                editedItems[targetIndex] = account
-            } else {
-                isDirty = true
-                editedItems.append(account)
-            }
+            let currentItems = self.unsafeFetch()
+            let (editedItems, isDirty) = StoredCryptoAccountsMerger.merge(oldAccounts: currentItems, newAccounts: accounts)
 
             if isDirty {
                 self.unsafeSave(editedItems)
