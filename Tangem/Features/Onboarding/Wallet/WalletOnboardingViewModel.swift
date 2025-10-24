@@ -607,7 +607,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             let mnemonic = try Mnemonic(with: mnemonicPhrase)
             let mnemonicPassphrase = try mobileSdk.exportPassphrase(context: context)
 
-            isMainButtonBusy = true
+            isSupplementButtonBusy = true
 
             createWalletOnPrimaryCard(
                 using: mnemonic,
@@ -619,6 +619,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             )
 
         } catch {
+            isSupplementButtonBusy = false
             alert = error.alertBinder
         }
     }
@@ -693,6 +694,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
 
             isMainButtonBusy = false
+            isSupplementButtonBusy = false
         }
     }
 
