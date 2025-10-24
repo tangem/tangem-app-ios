@@ -1,0 +1,46 @@
+//
+//  UnarchivedCryptoAccountConditionsValidator.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+struct UnarchivedCryptoAccountConditionsValidator {
+    let newAccountName: String
+    let identifier: any AccountModelPersistentIdentifierConvertible
+    let remoteState: CryptoAccountsRemoteState
+}
+
+// MARK: - CryptoAccountConditionsValidator protocol conformance
+
+extension UnarchivedCryptoAccountConditionsValidator: CryptoAccountConditionsValidator {
+    func validate() async throws {
+        guard !identifier.isMainAccount else {
+            // Main account cannot be unarchived by definition
+            throw Error.isMainAccount
+        }
+
+        guard remoteState.accounts.count < AccountModelUtils.maxNumberOfAccounts else {
+            AccountsLogger.warning("The number of accounts exceeded the limit")
+            throw Error.tooManyAccounts
+        }
+
+        guard !remoteState.contains(accountWithName: newAccountName) else {
+            // It's a recoverable error in this flow, therefore no logging needed here
+            throw Error.accountHasDuplicatedName
+        }
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension UnarchivedCryptoAccountConditionsValidator {
+    enum Error: Swift.Error {
+        case isMainAccount
+        case tooManyAccounts
+        case accountHasDuplicatedName
+    }
+}

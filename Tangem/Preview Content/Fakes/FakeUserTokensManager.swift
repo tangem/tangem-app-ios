@@ -51,12 +51,12 @@ class FakeUserTokensManager: UserTokensManager {
         })
     }
 
-    func contains(_ tokenItem: TokenItem) -> Bool {
-        userTokens.contains(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork })
-    }
-
-    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
-        userTokens.contains { $0.blockchainNetwork.blockchain == tokenItem.blockchain }
+    func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
+        return userTokens.contains { userToken in
+            return derivationInsensitive
+                ? userToken.blockchainNetwork.blockchain == tokenItem.blockchain
+                : userToken.blockchainNetwork == tokenItem.blockchainNetwork
+        }
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
