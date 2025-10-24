@@ -35,7 +35,7 @@ enum UTXOPreImageTransactionBuilderFee {
     }
 }
 
-struct UTXOPreImageTransaction {
+struct UTXOPreImageTransaction: Hashable {
     let outputs: [ScriptUnspentOutput]
     let destination: Int
     let change: Int
