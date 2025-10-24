@@ -66,8 +66,7 @@ extension StakingFlowFactory {
     ) -> StakingModel {
         StakingModel(
             stakingManager: stakingManager,
-            transactionCreator: walletModelDependenciesProvider.transactionCreator,
-            transactionValidator: walletModelDependenciesProvider.transactionValidator,
+            sendSourceToken: makeSourceToken(),
             feeIncludedCalculator: makeStakingFeeIncludedCalculator(),
             stakingTransactionDispatcher: makeStakingTransactionDispatcher(
                 stakingManger: stakingManager,
@@ -87,9 +86,6 @@ extension StakingFlowFactory {
             analyticsLogger: analyticsLogger,
             accountInitializationService: walletModelDependenciesProvider.accountInitializationService,
             minimalBalanceProvider: walletModelDependenciesProvider.minimalBalanceProvider,
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            tokenIconInfo: tokenIconInfo
         )
     }
 }
@@ -98,35 +94,35 @@ extension StakingFlowFactory {
 
 extension StakingFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
-        let sendFeeCompactViewModel = SendFeeCompactViewModel(
-            input: stakingModel,
+        let amount = makeSendAmountStep()
+        let validators = makeStakingValidatorsStep()
+
+        let sendFeeCompactViewModel = SendNewFeeCompactViewModel(
             feeTokenItem: feeTokenItem,
             isFeeApproximate: isFeeApproximate()
         )
 
-        let amount = makeSendAmountStep()
+        let sendFeeFinishViewModel = SendFeeFinishViewModel(
+            feeTokenItem: feeTokenItem,
+            isFeeApproximate: isFeeApproximate()
+        )
 
-        stakingModel.onAmountUpdate = { [interactor = amount.interactor] newAmount in
-            interactor.externalUpdate(amount: newAmount)
-        }
-
-        let validators = makeStakingValidatorsStep()
-
-        let summary = makeSendSummaryStep(
-            stakingValidatorsCompactViewModel: validators.compact,
+        let summary = makeSendNewSummaryStep(
             sendAmountCompactViewModel: amount.compact,
+            stakingValidatorsCompactViewModel: validators.compact,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
         )
 
         let finish = makeSendFinishStep(
-            sendAmountCompactViewModel: amount.compact,
+            sendAmountFinishViewModel: amount.finish,
             stakingValidatorsCompactViewModel: validators.compact,
-            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            sendFeeFinishViewModel: sendFeeFinishViewModel,
             router: router
         )
 
         // Steps
         sendFeeCompactViewModel.bind(input: stakingModel)
+        sendFeeFinishViewModel.bind(input: stakingModel)
 
         // Notifications setup
         notificationManager.setup(provider: stakingModel, input: stakingModel)
@@ -139,15 +135,16 @@ extension StakingFlowFactory: SendGenericFlowFactory {
             provider: stakingModel,
             amountStep: amount.step,
             validatorsStep: validators.step,
-            summaryStep: summary.step,
+            summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider()
         )
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
+        summary.set(router: stepsManager)
 
-        summary.step.set(router: stepsManager)
         stakingModel.router = viewModel
+        stakingModel.amountExternalUpdater = amount.amountUpdater
 
         return viewModel
     }
@@ -170,32 +167,25 @@ extension StakingFlowFactory: SendBaseBuildable {
     }
 }
 
-// MARK: - SendAmountStepBuildable
+// MARK: - SendNewAmountStepBuildable
 
-extension StakingFlowFactory: SendAmountStepBuildable {
-    var amountIO: SendAmountStepBuilder.IO {
-        SendAmountStepBuilder.IO(input: stakingModel, output: stakingModel)
-    }
-
-    var amountTypes: SendAmountStepBuilder.Types {
-        SendAmountStepBuilder.Types(
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            maxAmount: maxAmount(),
-            settings: makeSendAmountViewModelSettings()
+extension StakingFlowFactory: SendNewAmountStepBuildable {
+    var newAmountIO: SendNewAmountStepBuilder.IO {
+        SendNewAmountStepBuilder.IO(
+            sourceIO: (input: stakingModel, output: stakingModel),
+            sourceAmountIO: (input: stakingModel, output: stakingModel)
         )
     }
 
-    var amountDependencies: SendAmountStepBuilder.Dependencies {
-        SendAmountStepBuilder.Dependencies(
-            sendFeeProvider: stakingModel,
-            sendQRCodeService: .none,
+    var newAmountDependencies: SendNewAmountStepBuilder.Dependencies {
+        SendNewAmountStepBuilder.Dependencies(
             sendAmountValidator: StakingAmountValidator(
                 tokenItem: tokenItem,
                 validator: walletModelDependenciesProvider.transactionValidator,
                 stakingManagerStatePublisher: manager.statePublisher
             ),
             amountModifier: StakingAmountModifier(tokenItem: tokenItem, actionType: sendFlowActionType()),
+            notificationService: .none,
             analyticsLogger: analyticsLogger
         )
     }
@@ -221,49 +211,43 @@ extension StakingFlowFactory: StakingValidatorsStepBuildable {
     }
 }
 
-// MARK: - SendSummaryStepBuildable
+// MARK: - SendNewSummaryStepBuildable
 
-extension StakingFlowFactory: SendSummaryStepBuildable {
-    var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: stakingModel, output: stakingModel)
+extension StakingFlowFactory: SendNewSummaryStepBuildable {
+    var newSummaryIO: SendNewSummaryStepBuilder.IO {
+        SendNewSummaryStepBuilder.IO(input: stakingModel, output: stakingModel)
     }
 
-    var summaryTypes: SendSummaryStepBuilder.Types {
-        SendSummaryStepBuilder.Types(
-            settings: .init(
-                tokenItem: tokenItem,
-                destinationEditableType: .editable,
-                amountEditableType: .editable,
-                actionType: sendFlowActionType()
-            )
+    var newSummaryTypes: SendNewSummaryStepBuilder.Types {
+        SendNewSummaryStepBuilder.Types(
+            settings: .init(destinationEditableType: .editable, amountEditableType: .editable)
         )
     }
 
-    var summaryDependencies: SendSummaryStepBuilder.Dependencies {
-        SendSummaryStepBuilder.Dependencies(
+    var newSummaryDependencies: SendNewSummaryStepBuilder.Dependencies {
+        SendNewSummaryStepBuilder.Dependencies(
             sendFeeProvider: stakingModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
+            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
             stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder()
         )
     }
 }
 
-// MARK: - SendFinishStepBuildable
+// MARK: - SendNewFinishStepBuildable
 
-extension StakingFlowFactory: SendFinishStepBuildable {
-    var finishIO: SendFinishStepBuilder.IO {
-        SendFinishStepBuilder.IO(input: stakingModel)
+extension StakingFlowFactory: SendNewFinishStepBuildable {
+    var newFinishIO: SendNewFinishStepBuilder.IO {
+        SendNewFinishStepBuilder.IO(input: stakingModel)
     }
 
-    var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: tokenItem)
+    var newFinishTypes: SendNewFinishStepBuilder.Types {
+        SendNewFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
-    var finishDependencies: SendFinishStepBuilder.Dependencies {
-        SendFinishStepBuilder.Dependencies(
-            analyticsLogger: analyticsLogger,
-        )
+    var newFinishDependencies: SendNewFinishStepBuilder.Dependencies {
+        SendNewFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
     }
 }

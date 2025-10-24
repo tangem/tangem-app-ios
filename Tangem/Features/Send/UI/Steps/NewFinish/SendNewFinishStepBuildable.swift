@@ -17,6 +17,7 @@ extension SendNewFinishStepBuildable {
         sendAmountFinishViewModel: SendNewAmountFinishViewModel? = nil,
         nftAssetCompactViewModel: NFTAssetCompactViewModel? = nil,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel? = nil,
+        stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel? = nil,
         sendFeeFinishViewModel: SendFeeFinishViewModel? = nil,
         router: SendRoutable,
     ) -> SendNewFinishStepBuilder.ReturnValue {
@@ -27,6 +28,7 @@ extension SendNewFinishStepBuildable {
             sendAmountFinishViewModel: sendAmountFinishViewModel,
             nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
+            stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeFinishViewModel: sendFeeFinishViewModel,
             router: router,
         )
@@ -55,6 +57,7 @@ enum SendNewFinishStepBuilder {
         sendAmountFinishViewModel: SendNewAmountFinishViewModel?,
         nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
+        stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeFinishViewModel: SendFeeFinishViewModel?,
         router: SendRoutable,
     ) -> ReturnValue {
@@ -63,6 +66,7 @@ enum SendNewFinishStepBuilder {
             sendAmountFinishViewModel: sendAmountFinishViewModel,
             nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
+            stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeFinishViewModel: sendFeeFinishViewModel,
             sendFinishAnalyticsLogger: dependencies.analyticsLogger,
             tokenItem: types.tokenItem,
