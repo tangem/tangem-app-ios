@@ -86,6 +86,7 @@ protocol WalletModelUpdater {
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never>
 
     /// Do not use with flatMap.
+    /// - Note: This publisher may emit a single value and then complete. Similar to ``Publishers.Just``.
     @discardableResult
     func update(silent: Bool) -> AnyPublisher<WalletModelState, Never>
 
