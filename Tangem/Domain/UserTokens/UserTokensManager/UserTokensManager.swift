@@ -23,8 +23,7 @@ protocol UserTokensManager: UserTokensReordering, UserTokensSyncService {
 
     func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void)
 
-    func contains(_ tokenItem: TokenItem) -> Bool
-    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool
+    func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool
 
     /// Checks if any tokenItem needs derivation by card
     func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool
