@@ -24,9 +24,9 @@ extension AccountSelectorMultipleAccountsItem {
 
         switch accountModel {
         case .standard(.single(let account)):
-            accounts = [.init(userWallet: userWallet, account: account)]
+            accounts = [.init(account: account)]
         case .standard(.multiple(let accounts)):
-            self.accounts = accounts.map { .init(userWallet: userWallet, account: $0) }
+            self.accounts = accounts.map { .init(account: $0) }
         }
     }
 }
