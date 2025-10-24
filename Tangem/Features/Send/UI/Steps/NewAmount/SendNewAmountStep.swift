@@ -14,13 +14,13 @@ class SendNewAmountStep {
     private let viewModel: SendNewAmountViewModel
     private let interactor: SendNewAmountInteractor
     private let interactorSaver: SendNewAmountInteractorSaver
-    private let analyticsLogger: SendAnalyticsLogger
+    private let analyticsLogger: SendAmountAnalyticsLogger
 
     init(
         viewModel: SendNewAmountViewModel,
         interactor: SendNewAmountInteractor,
         interactorSaver: SendNewAmountInteractorSaver,
-        analyticsLogger: SendAnalyticsLogger,
+        analyticsLogger: SendAmountAnalyticsLogger,
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
