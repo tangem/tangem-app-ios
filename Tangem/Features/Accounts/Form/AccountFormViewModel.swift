@@ -28,7 +28,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     // MARK: - Static state
 
-    let maxNameLength = 20
+    var maxNameLength: Int { AccountModelUtils.maxAccountNameLength }
+
     let colors: [GridItemColor] = AccountModel.Icon.Color
         .allCases
         .map { iconColor in

@@ -9,7 +9,10 @@
 import Foundation
 
 struct StoredCryptoAccount: Codable, Equatable {
+    // [REDACTED_TODO_COMMENT]
     typealias Grouping = StoredUserTokenList.Grouping
+
+    // [REDACTED_TODO_COMMENT]
     typealias Sorting = StoredUserTokenList.Sorting
 
     struct Icon: Codable, Equatable {
@@ -25,6 +28,8 @@ struct StoredCryptoAccount: Codable, Equatable {
     let grouping: Grouping
     let sorting: Sorting
 }
+
+// MARK: - Inner types
 
 extension StoredCryptoAccount {
     /// Similar to the `StoredUserTokenList.Entry` model.
