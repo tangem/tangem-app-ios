@@ -52,9 +52,9 @@ class CommonSendNewAmountInteractor {
     init(
         sourceTokenInput: any SendSourceTokenInput,
         sourceTokenAmountInput: any SendSourceTokenAmountInput,
-        receiveTokenInput: any SendReceiveTokenInput,
-        receiveTokenOutput: any SendReceiveTokenOutput,
-        receiveTokenAmountInput: any SendReceiveTokenAmountInput,
+        receiveTokenInput: (any SendReceiveTokenInput)?,
+        receiveTokenOutput: (any SendReceiveTokenOutput)?,
+        receiveTokenAmountInput: (any SendReceiveTokenAmountInput)?,
         validator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
         notificationService: SendAmountNotificationService?,
@@ -88,9 +88,10 @@ class CommonSendNewAmountInteractor {
     private func bind() {
         _cachedAmount
             .withWeakCaptureOf(self)
-            .sink { interactor, amount in
-                interactor.validateAndUpdate(amount: amount)
-            }
+            .tryMap { try $0.modifyIfNeeded(amount: $1) }
+            .replaceError(with: .none)
+            .withWeakCaptureOf(self)
+            .sink { $0.validateAndUpdate(amount: $1) }
             .store(in: &bag)
     }
 
@@ -101,15 +102,7 @@ class CommonSendNewAmountInteractor {
                 try validator.validate(amount: crypto)
             }
 
-            let modifiedAmount = try modifyIfNeeded(amount: amount)
-
-            if let modifiedCryptoAmount = modifiedAmount?.crypto, modifiedCryptoAmount != amount?.crypto {
-                // additional validation if amount has changed
-                _cachedAmount.send(modifiedAmount)
-                return
-            }
-
-            update(amount: modifiedAmount, isValid: modifiedAmount != .none, error: .none)
+            update(amount: amount, isValid: amount != .none, error: .none)
         } catch SendAmountValidatorError.zeroAmount {
             update(amount: .none, isValid: false, error: .none)
         } catch {
