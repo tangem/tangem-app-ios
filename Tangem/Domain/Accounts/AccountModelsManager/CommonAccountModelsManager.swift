@@ -310,7 +310,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
                 try await validator.validate()
                 break
             } catch UnarchivedCryptoAccountConditionsValidator.Error.accountHasDuplicatedName {
-                let newName = info.name + Constants.duplicatedAccountNameSuffix
+                let newName = UnarchivedCryptoAccountNameIndexer.makeAccountName(from: info.name)
                 info = info.withName(newName)
             } catch {
                 AccountsLogger.error("A attempt to unarchive account for user wallet \(userWalletId) failed to fulfill the conditions", error: error)
@@ -357,13 +357,5 @@ private extension CommonAccountModelsManager {
         case new(newAccountName: String, remoteState: CryptoAccountsRemoteState)
         case archive(identifier: any AccountModelPersistentIdentifierConvertible)
         case unarchive(info: ArchivedCryptoAccountInfo, remoteState: CryptoAccountsRemoteState)
-    }
-}
-
-// MARK: - Constant
-
-private extension CommonAccountModelsManager {
-    enum Constants {
-        static let duplicatedAccountNameSuffix = "(1)"
     }
 }
