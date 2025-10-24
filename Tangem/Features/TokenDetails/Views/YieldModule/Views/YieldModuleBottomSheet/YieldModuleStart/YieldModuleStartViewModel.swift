@@ -66,6 +66,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     private(set) var walletModel: any WalletModel
     private weak var coordinator: YieldModulePromoCoordinator?
     private let yieldManagerInteractor: YieldManagerInteractor
+    private let logger: YieldAnalyticsLogger
 
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
 
@@ -109,12 +110,14 @@ final class YieldModuleStartViewModel: ObservableObject {
         walletModel: any WalletModel,
         viewState: ViewState,
         coordinator: YieldModulePromoCoordinator?,
-        yieldManagerInteractor: YieldManagerInteractor
+        yieldManagerInteractor: YieldManagerInteractor,
+        logger: YieldAnalyticsLogger
     ) {
         self.viewState = viewState
         self.walletModel = walletModel
         self.coordinator = coordinator
         self.yieldManagerInteractor = yieldManagerInteractor
+        self.logger = logger
     }
 
     // MARK: - Navigation
@@ -129,6 +132,7 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     @MainActor
     func onShowFeePolicy() {
+        logger.logEarningButtonFeePolicy()
         viewState = .feePolicy
     }
 
@@ -136,12 +140,14 @@ final class YieldModuleStartViewModel: ObservableObject {
     func onStartEarnTap() {
         let token = walletModel.tokenItem
         isProcessingStartRequest = true
+        logger.logEarningButtonStart()
 
         Task { @MainActor [weak self] in
             defer { self?.isProcessingStartRequest = false }
 
             do {
                 try await self?.yieldManagerInteractor.enter(with: token)
+                self?.logger.logEarningFundsEarned()
                 self?.coordinator?.dismiss()
             } catch let error where error.isCancellationError {
                 // Do nothing
@@ -243,6 +249,8 @@ final class YieldModuleStartViewModel: ObservableObject {
                 self?.coordinator?.openFeeCurrency(for: feeWalletModel, userWalletModel: selectedUserWalletModel)
             }
         }
+
+        logger.logEarningNoticeNotEnoughFeeShown()
     }
 
     private func showFeeErrorNotification() {
