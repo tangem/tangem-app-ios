@@ -37,6 +37,10 @@ extension MobileCreateWalletCoordinator: MobileCreateWalletRoutable {
     func openOnboarding(options: OnboardingCoordinator.Options) {
         openOnboarding(inputOptions: options)
     }
+
+    func closeMobileCreateWallet() {
+        dismiss(with: .dismiss)
+    }
 }
 
 // MARK: - MobileCreateWalletDelegate
@@ -77,5 +81,6 @@ extension MobileCreateWalletCoordinator {
 
     enum OutputOptions {
         case main(userWalletModel: UserWalletModel)
+        case dismiss
     }
 }
