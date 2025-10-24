@@ -37,7 +37,7 @@ struct DetailsCoordinatorView: CoordinatorView {
                 AppSettingsCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.tosViewModel) {
-                TOSView(viewModel: $0)
+                DetailsTOSView(viewModel: $0)
             }
             .navigation(item: $coordinator.addWalletSelectorCoordinator) {
                 AddWalletSelectorCoordinatorView(coordinator: $0)
