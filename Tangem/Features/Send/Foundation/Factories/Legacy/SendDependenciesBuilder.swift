@@ -487,64 +487,6 @@ struct SendDependenciesBuilder {
 
     // MARK: - Staking
 
-    func makeUnstakingModel(
-        stakingManager: some StakingManager,
-        analyticsLogger: any StakingSendAnalyticsLogger,
-        action: UnstakingModel.Action,
-    ) -> UnstakingModel {
-        UnstakingModel(
-            stakingManager: stakingManager,
-            transactionDispatcher: makeStakingTransactionDispatcher(
-                stakingManger: stakingManager,
-                analyticsLogger: analyticsLogger
-            ),
-            transactionValidator: walletModel.transactionValidator,
-            analyticsLogger: analyticsLogger,
-            action: action,
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem
-        )
-    }
-
-    func makeRestakingModel(
-        stakingManager: some StakingManager,
-        analyticsLogger: any StakingSendAnalyticsLogger,
-        action: RestakingModel.Action
-    ) -> RestakingModel {
-        RestakingModel(
-            stakingManager: stakingManager,
-            transactionDispatcher: makeStakingTransactionDispatcher(
-                stakingManger: stakingManager,
-                analyticsLogger: analyticsLogger
-            ),
-            transactionValidator: walletModel.transactionValidator,
-            sendAmountValidator: makeRestakingSendAmountValidator(stakingManager: stakingManager, action: action.type),
-            analyticsLogger: analyticsLogger,
-            action: action,
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem
-        )
-    }
-
-    func makeStakingSingleActionModel(
-        stakingManager: some StakingManager,
-        analyticsLogger: any StakingSendAnalyticsLogger,
-        action: UnstakingModel.Action
-    ) -> StakingSingleActionModel {
-        StakingSingleActionModel(
-            stakingManager: stakingManager,
-            transactionDispatcher: makeStakingTransactionDispatcher(
-                stakingManger: stakingManager,
-                analyticsLogger: analyticsLogger
-            ),
-            transactionValidator: walletModel.transactionValidator,
-            analyticsLogger: analyticsLogger,
-            action: action,
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem
-        )
-    }
-
     func makeStakingNotificationManager() -> StakingNotificationManager {
         CommonStakingNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
     }
