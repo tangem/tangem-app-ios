@@ -2273,6 +2273,7 @@
 		B65DB33E2BB4101000BE0501 /* AccountHealthChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65DB33D2BB4101000BE0501 /* AccountHealthChecker.swift */; };
 		B65E1F092A94CFB000A58DDE /* OrganizeTokensDragAndDropActionsCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65E1F082A94CFB000A58DDE /* OrganizeTokensDragAndDropActionsCache.swift */; };
 		B660E23D2E1431060069A5E8 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = B660E23C2E1431060069A5E8 /* ZIPFoundation */; };
+		B6634C682EAA2E900014C593 /* UnarchivedCryptoAccountNameIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6634C672EAA2E900014C593 /* UnarchivedCryptoAccountNameIndexer.swift */; };
 		B66383F42E7DEFB60033380D /* CryptoAccountPersistentConfigConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66383F32E7DEFB60033380D /* CryptoAccountPersistentConfigConvertible.swift */; };
 		B6654ACC2B5EB73200249008 /* CommonRateAppController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6654ACB2B5EB73200249008 /* CommonRateAppController.swift */; };
 		B6662CF82E72541500198D8D /* TangemAPIErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6662CF72E72541500198D8D /* TangemAPIErrorMapper.swift */; };
@@ -2413,6 +2414,7 @@
 		B6C3B56E2AA1823A0017241C /* CardsInfoPagerScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */; };
 		B6C6CAD92EA6757000DA38F9 /* HardwareLimitationsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C6CAD82EA6757000DA38F9 /* HardwareLimitationsUtil.swift */; };
 		B6C94F152E68B5A000459BF8 /* AccountModelPersistentIdentifierConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C94F142E68B5A000459BF8 /* AccountModelPersistentIdentifierConvertible.swift */; };
+		B6C97AFE2EAA5F0200861D69 /* UnarchivedCryptoAccountNameIndexerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C97AFD2EAA5F0200861D69 /* UnarchivedCryptoAccountNameIndexerTests.swift */; };
 		B6C9C82E2DCC061400F2757C /* TokenMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C9C82D2DCC061400F2757C /* TokenMetadata.swift */; };
 		B6CA91352BB55F4400752999 /* PolkadotAccountHealthBackgroundTaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CA91342BB55F4300752999 /* PolkadotAccountHealthBackgroundTaskManager.swift */; };
 		B6CA91372BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CA91362BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift */; };
@@ -6739,6 +6741,7 @@
 		B65D3FCC2A6712BB00FEEFE8 /* CardsInfoPagerContentSwitchingAnimationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerContentSwitchingAnimationModifier.swift; sourceTree = "<group>"; };
 		B65DB33D2BB4101000BE0501 /* AccountHealthChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountHealthChecker.swift; sourceTree = "<group>"; };
 		B65E1F082A94CFB000A58DDE /* OrganizeTokensDragAndDropActionsCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensDragAndDropActionsCache.swift; sourceTree = "<group>"; };
+		B6634C672EAA2E900014C593 /* UnarchivedCryptoAccountNameIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnarchivedCryptoAccountNameIndexer.swift; sourceTree = "<group>"; };
 		B66383F32E7DEFB60033380D /* CryptoAccountPersistentConfigConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountPersistentConfigConvertible.swift; sourceTree = "<group>"; };
 		B6654ACB2B5EB73200249008 /* CommonRateAppController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonRateAppController.swift; sourceTree = "<group>"; };
 		B6662CF72E72541500198D8D /* TangemAPIErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemAPIErrorMapper.swift; sourceTree = "<group>"; };
@@ -6863,6 +6866,7 @@
 		B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerScrollState.swift; sourceTree = "<group>"; };
 		B6C6CAD82EA6757000DA38F9 /* HardwareLimitationsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareLimitationsUtil.swift; sourceTree = "<group>"; };
 		B6C94F142E68B5A000459BF8 /* AccountModelPersistentIdentifierConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountModelPersistentIdentifierConvertible.swift; sourceTree = "<group>"; };
+		B6C97AFD2EAA5F0200861D69 /* UnarchivedCryptoAccountNameIndexerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnarchivedCryptoAccountNameIndexerTests.swift; sourceTree = "<group>"; };
 		B6C9C82D2DCC061400F2757C /* TokenMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenMetadata.swift; sourceTree = "<group>"; };
 		B6CA91342BB55F4300752999 /* PolkadotAccountHealthBackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkadotAccountHealthBackgroundTaskManager.swift; sourceTree = "<group>"; };
 		B6CA91362BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountHealthCheckBackgroundTask.swift; sourceTree = "<group>"; };
@@ -11246,24 +11250,25 @@
 		5D3F77DB24BF56DC00E8695B /* TangemTests */ = {
 			isa = PBXGroup;
 			children = (
-				EAF6A6822DF9C44A0094B883 /* Features */,
-				DA64DACA2C08BE7B000CBC1E /* UserWalletNameIndexationTests.swift */,
-				DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */,
-				0A1992A52B5FBDF800344312 /* CurrencyTests.swift */,
-				5D3F77DC24BF56DC00E8695B /* TangemTests.swift */,
-				EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */,
-				5D51037A27C53E6E0025EA55 /* EIP712TypedDataTests.swift */,
-				DA19D8C72B39AE6B001C91C4 /* QRCodeParserTests.swift */,
-				5D20811427D23DED00D8A970 /* EIP712Data */,
-				5D3F77DE24BF56DC00E8695B /* Info.plist */,
 				B03AC9922BD8DB26000CBC50 /* APIListTests.swift */,
 				B097A3652C106AC1003CFD38 /* APIURLValidatorTests.swift */,
 				DC19EB312C187192003DD903 /* CommonXPUBGeneratorTests.swift */,
-				DC32C23F2C5BE36F007E8208 /* SendCryptoValueFormatterTests.swift */,
-				B0751ED82C69E3F5009066C8 /* DefaultAmountNotationFormatterTests.swift */,
+				0A1992A52B5FBDF800344312 /* CurrencyTests.swift */,
 				B672633D2C7FB0D400F120E6 /* DecimalExtensionsTests.swift */,
+				EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */,
+				B0751ED82C69E3F5009066C8 /* DefaultAmountNotationFormatterTests.swift */,
+				5D20811427D23DED00D8A970 /* EIP712Data */,
+				5D51037A27C53E6E0025EA55 /* EIP712TypedDataTests.swift */,
+				EAF6A6822DF9C44A0094B883 /* Features */,
+				5D3F77DE24BF56DC00E8695B /* Info.plist */,
 				0ABAA2F42E56074100024627 /* MobileWalletAddressesTests.swift */,
+				DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */,
+				DA19D8C72B39AE6B001C91C4 /* QRCodeParserTests.swift */,
+				DC32C23F2C5BE36F007E8208 /* SendCryptoValueFormatterTests.swift */,
+				5D3F77DC24BF56DC00E8695B /* TangemTests.swift */,
 				0AEBBB2D2E570E1400B0F6C6 /* test_addresses.json */,
+				B6C97AFD2EAA5F0200861D69 /* UnarchivedCryptoAccountNameIndexerTests.swift */,
+				DA64DACA2C08BE7B000CBC1E /* UserWalletNameIndexationTests.swift */,
 			);
 			path = TangemTests;
 			sourceTree = "<group>";
@@ -13565,6 +13570,7 @@
 			children = (
 				B61F712E2E949DEF002C3C66 /* Domain */,
 				B61F712D2E949DEF002C3C66 /* Provider */,
+				B6C97AFC2EAA5EB900861D69 /* Utils */,
 				B6017FC32E9860D1004F0046 /* Validation */,
 			);
 			path = Archiving;
@@ -16628,6 +16634,14 @@
 				B6DF90642CA317A70099FED5 /* MainBottomSheetFooterShadowView.swift */,
 			);
 			path = MainBottomSheet;
+			sourceTree = "<group>";
+		};
+		B6C97AFC2EAA5EB900861D69 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				B6634C672EAA2E900014C593 /* UnarchivedCryptoAccountNameIndexer.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 		B6CAC2192E46C5FD002DFA82 /* Repository */ = {
@@ -25886,6 +25900,7 @@
 				EFB23F2D2CBE7F24005A6719 /* OnrampModel.swift in Sources */,
 				EF9448E12ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift in Sources */,
 				EF8D926C2EA265770084B428 /* CommonExpressPairsRepository.swift in Sources */,
+				B6634C682EAA2E900014C593 /* UnarchivedCryptoAccountNameIndexer.swift in Sources */,
 				EF9E2A532B56A5DF00418559 /* WalletModel+Mock.swift in Sources */,
 				5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */,
 				0F2786572E2D6C8400742D0F /* MobileOnboardingFlowStepTransformable.swift in Sources */,
@@ -27164,6 +27179,7 @@
 				B0751ED92C69E3F5009066C8 /* DefaultAmountNotationFormatterTests.swift in Sources */,
 				B03AC9932BD8DB26000CBC50 /* APIListTests.swift in Sources */,
 				DC19EB322C187192003DD903 /* CommonXPUBGeneratorTests.swift in Sources */,
+				B6C97AFE2EAA5F0200861D69 /* UnarchivedCryptoAccountNameIndexerTests.swift in Sources */,
 				DC32C2402C5BE36F007E8208 /* SendCryptoValueFormatterTests.swift in Sources */,
 				0A1992A62B5FBDF800344312 /* CurrencyTests.swift in Sources */,
 				EF6221B3292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift in Sources */,
