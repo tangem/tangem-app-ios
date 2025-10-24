@@ -38,6 +38,22 @@ class BranchAndBoundPreImageTransactionBuilder {
 
 extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuilder {
     func preImage(outputs: [ScriptUnspentOutput], changeScript: UTXOScriptType, destination: UTXOPreImageDestination, fee: Fee) async throws -> UTXOPreImageTransaction {
+        // Wrap selection on the low priority Task to avoid UI lugging
+        return try await Task(priority: .background) {
+            try await makeUTXOPreImageTransaction(outputs: outputs, changeScript: changeScript, destination: destination, fee: fee)
+        }.value
+    }
+}
+
+// MARK: - Private
+
+private extension BranchAndBoundPreImageTransactionBuilder {
+    func makeUTXOPreImageTransaction(
+        outputs: [ScriptUnspentOutput],
+        changeScript: UTXOScriptType,
+        destination: UTXOPreImageDestination,
+        fee: Fee
+    ) async throws -> UTXOPreImageTransaction {
         guard destination.amount > 0 else {
             throw Error.wrongAmount
         }
@@ -68,19 +84,15 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
 
         return bestVariant
     }
-}
 
-// MARK: - Private
-
-private extension BranchAndBoundPreImageTransactionBuilder {
     func select(in context: Context, sorted inputs: [Input]) throws -> UTXOPreImageTransaction? {
-        var bestVariant: UTXOPreImageTransaction?
+        var bestVariant: UTXOPreImageTransaction? = simpleSelect(in: context, sorted: inputs)
         var tries = 0
         var stack: [State] = [State(selected: [], index: 0, remaining: context.total, currentValue: 0)]
 
         // If we have too many inputs do not start algorithm
         if inputs.count > Constants.maxInputs {
-            return try simpleSelect(in: context, sorted: inputs)
+            return simpleSelect(in: context, sorted: inputs)
         }
 
         while !stack.isEmpty {
@@ -103,13 +115,13 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             }
 
             let selectedInputs = state.selected.map { inputs[$0] }
-            let variants = variantBuilders
+            let variant = variantBuilders
                 .compactMap { try? $0.variant(in: context, selected: selectedInputs, currentValue: state.currentValue) }
-                .sorted(by: { $0.better(than: $1) })
+                .min()
 
-            if let variant = variants.first {
+            if let variant {
                 // If variant is better then use it as the best
-                if bestVariant == nil || variant.better(than: bestVariant!) {
+                if bestVariant == nil || variant < bestVariant! {
                     bestVariant = variant
                 }
 
@@ -137,17 +149,17 @@ private extension BranchAndBoundPreImageTransactionBuilder {
         return bestVariant
     }
 
-    func simpleSelect(in context: Context, sorted inputs: [Input]) throws -> UTXOPreImageTransaction? {
+    func simpleSelect(in context: Context, sorted inputs: [Input]) -> UTXOPreImageTransaction? {
         guard let (selectedIndices, value) = simpleSelection(from: inputs, target: context.destination.amount) else {
             return nil
         }
 
         let selectedInputs = selectedIndices.map { inputs[$0] }
-        let variants = variantBuilders
+        let variant = variantBuilders
             .compactMap { try? $0.variant(in: context, selected: selectedInputs, currentValue: value) }
-            .sorted(by: { $0.better(than: $1) })
+            .min()
 
-        return variants.first
+        return variant
     }
 
     func simpleSelection(from inputs: [Input], target: Int) -> (selected: [Int], value: Int)? {
@@ -204,22 +216,26 @@ extension BranchAndBoundPreImageTransactionBuilder: CustomStringConvertible {
     }
 }
 
-private extension UTXOPreImageTransaction {
-    func better(than transaction: UTXOPreImageTransaction) -> Bool {
-        switch size {
+// MARK: - UTXOPreImageTransaction + Comparable
+
+extension UTXOPreImageTransaction: Comparable {
+    static func < (lhs: UTXOPreImageTransaction, rhs: UTXOPreImageTransaction) -> Bool {
+        switch lhs.size {
         // Main priority to reduce the size
-        case ..<transaction.size: return true
+        case ..<rhs.size: return true
 
         // If size is same then compare change
         // Select with less change
-        case transaction.size:
-            return change < transaction.change
+        case lhs.size:
+            return lhs.change < rhs.change
 
         default:
             return false
         }
     }
 }
+
+// MARK: - UTXOPreImageTransaction + CustomStringConvertible
 
 extension UTXOPreImageTransaction: CustomStringConvertible {
     var description: String {
