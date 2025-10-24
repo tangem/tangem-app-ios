@@ -299,7 +299,7 @@ private extension MobileOnboardingAccessCodeViewModel {
 
         MobileAccessCodeSkipHelper.append(userWalletId: userWalletModel.userWalletId)
         // Workaround to manually trigger update event for userWalletModel publisher
-        userWalletModel.update(type: .backupCompleted)
+        userWalletModel.update(type: .accessCodeDidSet)
         runTask(in: self) { viewModel in
             await viewModel.onAccessCodeComplete()
         }
