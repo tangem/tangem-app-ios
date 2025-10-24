@@ -9,6 +9,7 @@
 import Foundation
 import struct BlockchainSdk.Token
 
+@available(iOS, deprecated: 100000.0, message: "Deprecated entry, isn't used in Accounts, will be removed in the future ([REDACTED_INFO])")
 struct StorageEntryConverter {
     // MARK: - StoredUserTokenList.Entry to Token
 

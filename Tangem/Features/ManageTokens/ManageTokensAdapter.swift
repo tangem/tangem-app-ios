@@ -124,7 +124,7 @@ private extension ManageTokensAdapter {
     }
 
     func isAdded(_ tokenItem: TokenItem) -> Bool {
-        return userTokensManager.contains(tokenItem)
+        return userTokensManager.contains(tokenItem, derivationInsensitive: false)
     }
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
@@ -201,7 +201,7 @@ private extension ManageTokensAdapter {
     }
 
     func showWarningDeleteAlertIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
-        guard !isSelected, userTokensManager.contains(tokenItem) else {
+        guard !isSelected, userTokensManager.contains(tokenItem, derivationInsensitive: false) else {
             onSelect(isSelected, tokenItem)
             return
         }
