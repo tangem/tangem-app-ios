@@ -34,10 +34,11 @@ extension CommonAccountUserTokensManagerFactory: AccountUserTokensManagerFactory
             derivationStyle: derivationStyle,
             derivationManager: derivationManager
         )
+        let userTokensRepository = DummyUserTokensRepository()
 
         return AccountsAwareUserTokensManager(
             userWalletId: userWalletId,
-            userTokenListManager: userTokenListManager,
+            userTokensRepository: userTokensRepository,
             walletModelsManager: walletModelsManager,
             derivationInfo: derivationInfo,
             existingCurves: existingCurves,

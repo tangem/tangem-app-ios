@@ -11,6 +11,7 @@ import TangemSdk
 import TangemFoundation
 import BlockchainSdk
 
+// [REDACTED_TODO_COMMENT]
 struct AccountDerivationPathHelper {
     private let blockchain: Blockchain
 
