@@ -16,6 +16,7 @@ struct MobileCreateWalletCoordinatorView: CoordinatorView {
         ZStack {
             if let viewModel = coordinator.rootViewModel {
                 MobileCreateWalletView(viewModel: viewModel)
+                    .navigationBarHidden(true)
                     .navigationLinks(links)
             }
         }
