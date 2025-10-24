@@ -42,6 +42,8 @@ extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
             switch options {
             case .main(let userWalletModel):
                 self?.openMain(userWalletModel: userWalletModel)
+            case .dismiss:
+                self?.mobileCreateWalletCoordinator = nil
             }
         }
 
@@ -56,6 +58,10 @@ extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
 extension CreateWalletSelectorCoordinator: MobileCreateWalletRoutable {
     func openOnboarding(options: OnboardingCoordinator.Options) {
         openOnboarding(inputOptions: options)
+    }
+
+    func closeMobileCreateWallet() {
+        mobileCreateWalletCoordinator = nil
     }
 }
 
