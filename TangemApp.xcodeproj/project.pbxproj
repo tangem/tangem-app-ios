@@ -2675,6 +2675,7 @@
 		D8C314C62E9853F200B9F552 /* SendXRPNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C314C52E9853F200B9F552 /* SendXRPNotificationUITests.swift */; };
 		D8C314C82E98F69200B9F552 /* SendXLMNotificaitonUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C314C72E98F69200B9F552 /* SendXLMNotificaitonUITests.swift */; };
 		D8CD7E3E2E9E951400CA6DF6 /* SendChiaNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CD7E3D2E9E951400CA6DF6 /* SendChiaNotificationUITests.swift */; };
+		D8D528012EA62759000CD5C3 /* SendSolanaNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D528002EA62759000CD5C3 /* SendSolanaNotificationUITests.swift */; };
 		D8DEEABB2E14252800DACD4B /* TangemAPIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */; };
 		D8E15EED2E40FEB500E217BB /* StakingDetailsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E15EEC2E40FEB500E217BB /* StakingDetailsScreen.swift */; };
 		D8E15EF02E41156B00E217BB /* StakingSendScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E15EEF2E41156B00E217BB /* StakingSendScreen.swift */; };
@@ -7112,6 +7113,7 @@
 		D8C314C52E9853F200B9F552 /* SendXRPNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendXRPNotificationUITests.swift; sourceTree = "<group>"; };
 		D8C314C72E98F69200B9F552 /* SendXLMNotificaitonUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendXLMNotificaitonUITests.swift; sourceTree = "<group>"; };
 		D8CD7E3D2E9E951400CA6DF6 /* SendChiaNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendChiaNotificationUITests.swift; sourceTree = "<group>"; };
+		D8D528002EA62759000CD5C3 /* SendSolanaNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSolanaNotificationUITests.swift; sourceTree = "<group>"; };
 		D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemAPIType.swift; sourceTree = "<group>"; };
 		D8E15EEC2E40FEB500E217BB /* StakingDetailsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingDetailsScreen.swift; sourceTree = "<group>"; };
 		D8E15EEF2E41156B00E217BB /* StakingSendScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSendScreen.swift; sourceTree = "<group>"; };
@@ -17259,6 +17261,7 @@
 		D892E6BE2E95114000D29113 /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				D8D528002EA62759000CD5C3 /* SendSolanaNotificationUITests.swift */,
 				D8F18BCC2EA0D90200A4AF58 /* SendCommonNotificationUITests.swift */,
 				D81E0ED82E9E31060066E171 /* SendKaspaNotificationUITests.swift */,
 				D8C314C52E9853F200B9F552 /* SendXRPNotificationUITests.swift */,
@@ -27219,6 +27222,7 @@
 				D8EDA0DC2E5F4AF100422CA7 /* MailScreen.swift in Sources */,
 				D8E15EED2E40FEB500E217BB /* StakingDetailsScreen.swift in Sources */,
 				D852F83F2E5CA2C300C71B7F /* QAToolsClient.swift in Sources */,
+				D8D528012EA62759000CD5C3 /* SendSolanaNotificationUITests.swift in Sources */,
 				D8E17CE42E37B6E600E9D791 /* ReferralScreen.swift in Sources */,
 				D8F383792E6F138E00285AF8 /* WalletConnectQRScanScreen.swift in Sources */,
 				D8E17CE52E37B6E600E9D791 /* DetailsScreen.swift in Sources */,
