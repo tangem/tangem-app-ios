@@ -3402,6 +3402,7 @@
 		EA12320D2E9CF204009900EC /* OnrampAllOfferViewModelBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA12320C2E9CF204009900EC /* OnrampAllOfferViewModelBuilder.swift */; };
 		EA1C22782E8EBAE30084F6DE /* YieldChartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1C22772E8EBAE30084F6DE /* YieldChartData.swift */; };
 		EA1C227A2E8EBAFE0084F6DE /* YieldChartContainerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1C22792E8EBAFE0084F6DE /* YieldChartContainerState.swift */; };
+		EA1F2F392EA8FAD400DFCC9D /* YieldAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1F2F382EA8FAD400DFCC9D /* YieldAnalyticsLogger.swift */; };
 		EA265A112E5F302F00C6EA3F /* TokenItemEarnBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA265A102E5F302F00C6EA3F /* TokenItemEarnBadgeView.swift */; };
 		EA277E2D2E96B47600E16884 /* YieldModuleEarnInfoChartContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA277E2C2E96B47600E16884 /* YieldModuleEarnInfoChartContainer.swift */; };
 		EA2961912DF999D100BC651C /* DucatusTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */; };
@@ -7838,6 +7839,7 @@
 		EA12320C2E9CF204009900EC /* OnrampAllOfferViewModelBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAllOfferViewModelBuilder.swift; sourceTree = "<group>"; };
 		EA1C22772E8EBAE30084F6DE /* YieldChartData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldChartData.swift; sourceTree = "<group>"; };
 		EA1C22792E8EBAFE0084F6DE /* YieldChartContainerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldChartContainerState.swift; sourceTree = "<group>"; };
+		EA1F2F382EA8FAD400DFCC9D /* YieldAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAnalyticsLogger.swift; sourceTree = "<group>"; };
 		EA265A102E5F302F00C6EA3F /* TokenItemEarnBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemEarnBadgeView.swift; sourceTree = "<group>"; };
 		EA277E2C2E96B47600E16884 /* YieldModuleEarnInfoChartContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleEarnInfoChartContainer.swift; sourceTree = "<group>"; };
 		EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DucatusTransactionTests.swift; sourceTree = "<group>"; };
@@ -20541,6 +20543,7 @@
 			children = (
 				EAF8FDE02E8013C60025D2F1 /* YieldModuleNoticeInteractor.swift */,
 				EAA877162E8C0FE5003AF427 /* YieldManagerInteractor.swift */,
+				EA1F2F382EA8FAD400DFCC9D /* YieldAnalyticsLogger.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -25156,6 +25159,7 @@
 				DC261CAA292CF56600875E64 /* AuthView.swift in Sources */,
 				B09BB860259A075600B92000 /* ButtonStyles.swift in Sources */,
 				DC0CC5B42B0D3F0E00E32CAC /* TwinPreflightReadFilter.swift in Sources */,
+				EA1F2F392EA8FAD400DFCC9D /* YieldAnalyticsLogger.swift in Sources */,
 				B0EBE8C02C80A8E800ABCEE8 /* TokenContextActionsSection.swift in Sources */,
 				C28E01682E798A8C00B47571 /* AppsFlyerAnalyticsEventConverter.swift in Sources */,
 				B0B469512C11B3CD000D9387 /* AddCustomTokenNetworksListView.swift in Sources */,
