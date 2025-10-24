@@ -68,6 +68,6 @@ final class MarketsNetworkSelectorViewModel: FloatingSheetContentViewModel {
     }
 
     private func isAdded(_ tokenItem: TokenItem) -> Bool {
-        selectedAccount.userTokensManager.contains(tokenItem)
+        selectedAccount.userTokensManager.contains(tokenItem, derivationInsensitive: false)
     }
 }
