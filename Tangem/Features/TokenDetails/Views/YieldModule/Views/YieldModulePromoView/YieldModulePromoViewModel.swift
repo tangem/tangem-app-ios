@@ -28,7 +28,7 @@ final class YieldModulePromoViewModel {
     var apyString: String { PercentFormatter().format(apy, option: .interval) }
     private(set) var tosUrl = URL(string: "https://aave.com/terms-of-service")!
     private(set) var privacyPolicyUrl = URL(string: "https://aave.com/privacy-policy")!
-    private(set) var howIrWorksUrl = URL(string: "https://tangem.com/en/blog/post/savings-account")!
+    private(set) var howIrWorksUrl = URL(string: "https://tangem.com/en/blog/post/yield-mode")!
 
     // MARK: - Init
 
