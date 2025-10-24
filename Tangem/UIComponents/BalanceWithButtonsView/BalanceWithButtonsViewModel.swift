@@ -57,7 +57,7 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
                 switch (state.state, state.marketInfo) {
                 case (.active, .some(let info)):
                     self?.shouldShowYieldBalanceInfo = true
-                    self?.yieldModuleApy = String(format: "%.2f%%", info.apy.doubleValue)
+                    self?.yieldModuleApy = PercentFormatter().format(info.apy, option: .staking)
                 default:
                     self?.shouldShowYieldBalanceInfo = false
                     self?.yieldModuleApy = nil

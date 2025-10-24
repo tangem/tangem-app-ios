@@ -65,7 +65,7 @@ final class YieldModuleFlowFactory {
             walletModel: walletModel,
             feeCurrencyNavigator: feeCurrencyNavigator,
             yieldManagerInteractor: interactor,
-            availableBalance: info.balance.value,
+            availableBalance: info.yieldModuleBalanceValue,
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
         )
     }

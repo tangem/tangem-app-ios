@@ -64,34 +64,23 @@ struct YieldStatusView: View {
 
     @ViewBuilder
     private var title: some View {
-        switch viewModel.state {
-        case .active:
-            // [REDACTED_TODO_COMMENT]
-            Text("Aave lending is active")
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-        default:
-            // [REDACTED_TODO_COMMENT]
-            Text("Aave lending")
-                .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
-        }
+        Text(Localization.yieldModuleTokenDetailsEarnNotificationEarningOnYourBalanceTitle)
+            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
     }
 
     @ViewBuilder
     private var descriptionText: some View {
         switch viewModel.state {
         case .loading:
-            // [REDACTED_TODO_COMMENT]
-            Text("Processing")
+            Text(Localization.yieldModuleTokenDetailsEarnNotificationProcessing)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
         case .active:
-            // [REDACTED_TODO_COMMENT]
-            Text("Interest accrues automatically")
+            Text(Localization.yieldModuleTokenDetailsEarnNotificationEarningOnYourBalanceSubtitle)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
         case .closing:
-            // [REDACTED_TODO_COMMENT]
-            Text("Stop supplying")
+            Text(Localization.yieldModuleStopEarning)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
     }
@@ -124,9 +113,9 @@ struct YieldStatusView: View {
     @ViewBuilder
     private var trailingView: some View {
         switch viewModel.state {
-        case .active(let isApproveNeeded):
+        case .active(let isApproveNeeded, let hasUndepositedAmounts):
             HStack(spacing: 2) {
-                if isApproveNeeded {
+                if isApproveNeeded || hasUndepositedAmounts {
                     warning
                 }
 
