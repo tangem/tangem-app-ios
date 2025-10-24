@@ -255,7 +255,8 @@ extension SellFlowFactory: SendNewSummaryStepBuildable {
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder()
+            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
+            stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder(),
         )
     }
 }

@@ -45,7 +45,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let interactor: SendNewAmountInteractor
-    private let analyticsLogger: SendAnalyticsLogger
+    private let analyticsLogger: SendAmountAnalyticsLogger
     private var sendAmountFormatter: SendAmountFormatter
     private var balanceFormatter: BalanceFormatter = .init()
     private let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
@@ -55,7 +55,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     init(
         sourceToken: SendSourceToken,
         interactor: SendNewAmountInteractor,
-        analyticsLogger: SendAnalyticsLogger
+        analyticsLogger: SendAmountAnalyticsLogger
     ) {
         cryptoTextFieldViewModel = .init(maximumFractionDigits: sourceToken.tokenItem.decimalCount)
         cryptoTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: sourceToken.tokenItem.currencySymbol)
@@ -209,7 +209,6 @@ extension SendNewAmountViewModel {
         fiatTextFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: sourceToken.fiatItem.currencyCode)
 
         sendAmountFormatter = .init(tokenItem: sourceToken.tokenItem, fiatItem: sourceToken.fiatItem, balanceFormatter: balanceFormatter)
-        alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
     }
 
     func updateReceivedToken(receiveToken: SendReceiveTokenType, amount: LoadingResult<SendAmount, Error>) {
