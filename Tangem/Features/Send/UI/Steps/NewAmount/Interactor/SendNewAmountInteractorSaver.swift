@@ -30,8 +30,8 @@ class CommonSendNewAmountInteractorSaver: SendNewAmountInteractorSaver {
     init(
         sourceTokenAmountInput: any SendSourceTokenAmountInput,
         sourceTokenAmountOutput: any SendSourceTokenAmountOutput,
-        receiveTokenInput: any SendReceiveTokenInput,
-        receiveTokenOutput: any SendReceiveTokenOutput,
+        receiveTokenInput: (any SendReceiveTokenInput)?,
+        receiveTokenOutput: (any SendReceiveTokenOutput)?,
     ) {
         self.sourceTokenAmountInput = sourceTokenAmountInput
         self.sourceTokenAmountOutput = sourceTokenAmountOutput

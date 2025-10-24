@@ -23371,8 +23371,8 @@
 		EFC7AD5E2DD4F44B00AE78E1 /* NewAmount */ = {
 			isa = PBXGroup;
 			children = (
-				EFC7AD5C2DD4F44000AE78E1 /* SendNewAmountStep.swift */,
 				EFF8F1C12E8560B300A5EF0C /* SendNewAmountStepBuildable.swift */,
+				EFC7AD5C2DD4F44000AE78E1 /* SendNewAmountStep.swift */,
 				EFADE7922E0ED86C00CA7916 /* SendSourceTokenInput.swift */,
 				EFADE79B2E0EF42E00CA7916 /* SendSourceTokenAmountInput.swift */,
 				EF3045F82DD3636700E14B3B /* SendNewAmountView */,
