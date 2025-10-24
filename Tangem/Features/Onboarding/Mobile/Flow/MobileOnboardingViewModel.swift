@@ -148,7 +148,7 @@ private extension MobileOnboardingViewModel {
     func onAccessCodeNeedsAlertSkip(userWalletModel: UserWalletModel) {
         MobileAccessCodeSkipHelper.append(userWalletId: userWalletModel.userWalletId)
         // Workaround to manually trigger update event for userWalletModel publisher
-        userWalletModel.update(type: .backupCompleted)
+        userWalletModel.update(type: .accessCodeDidSet)
         closeOnboarding()
     }
 
