@@ -13,20 +13,17 @@ import TangemLocalization
 
 extension YieldModuleStartView {
     struct YieldModuleFeePolicyView: View {
-        // It is called "Current Fee" in this view
-        let tokenFeeState: LoadableTextView.State
-        let maximumFeeState: LoadableTextView.State
-        let minimalAmountState: LoadableTextView.State
-
-        let blockchainName: String
+        let minimalAmountState: YieldFeeSectionState
+        let estimatedFeeState: YieldFeeSectionState
+        let maximumFeeState: YieldFeeSectionState
+        let footerText: String?
 
         var body: some View {
             VStack(spacing: 20) {
                 minimalAmountSection
-                currentFeeSection
 
                 VStack(alignment: .leading, spacing: 14) {
-                    maximumFeeSection
+                    bottomSection
                     serviceFeeText
                         .padding(.leading, 14)
                 }
@@ -34,42 +31,40 @@ extension YieldModuleStartView {
         }
 
         private var minimalAmountSection: some View {
-            YieldFeeSection(
-                leadingTitle: Localization.yieldModuleFeePolicySheetMinAmountTitle,
-                state: minimalAmountState,
-                footerText: nil
-            )
+            YieldFeeSection(sectionState: minimalAmountState, leadingTitle: Localization.yieldModuleFeePolicySheetMinAmountTitle)
         }
 
-        private var currentFeeSection: some View {
-            YieldFeeSection(
-                leadingTitle: Localization.yieldModuleFeePolicySheetCurrentFeeTitle,
-                state: tokenFeeState,
-                footerText: Localization.yieldModuleFeePolicySheetCurrentFeeNote(blockchainName)
-            )
-        }
+        private var bottomSection: some View {
+            VStack(alignment: .leading, spacing: 10) {
+                VStack(spacing: 12) {
+                    YieldFeeSection(
+                        sectionState: estimatedFeeState,
+                        leadingTitle: Localization.commonNetworkFeeTitle,
+                        needsBackground: false
+                    )
 
-        private var maximumFeeSection: some View {
-            YieldFeeSection(
-                leadingTitle: Localization.yieldModuleFeePolicySheetMaxFeeTitle,
-                state: maximumFeeState,
-                footerText: Localization.yieldModuleFeePolicySheetMaxFeeNote
-            )
+                    Separator(color: Colors.Stroke.primary)
+                        .padding(.horizontal, 4)
+
+                    YieldFeeSection(
+                        sectionState: maximumFeeState,
+                        leadingTitle: Localization.yieldModuleFeePolicySheetMaxFeeTitle,
+                        needsBackground: false
+                    )
+                }
+                .defaultRoundedBackground(with: Colors.Background.action)
+
+                if let footerText {
+                    Text(footerText)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .padding(.horizontal, 14)
+                }
+            }
         }
 
         private var serviceFeeText: some View {
             Text(Localization.yieldModuleFeePolicyTangemServiceFeeTitle)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
         }
-    }
-}
-
-extension YieldModuleStartView {
-    struct FeeModel: Identifiable {
-        var id: String {
-            fee
-        }
-
-        let fee: String
     }
 }
