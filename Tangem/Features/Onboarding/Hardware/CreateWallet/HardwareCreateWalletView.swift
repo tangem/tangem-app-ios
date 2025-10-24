@@ -18,6 +18,7 @@ struct HardwareCreateWalletView: View {
     var body: some View {
         content
             .padding(.horizontal, 16)
+            .allowsHitTesting(!viewModel.isScanning)
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .alert(item: $viewModel.alert, content: { $0.alert })
     }
@@ -104,6 +105,7 @@ private extension HardwareCreateWalletView {
                 title: viewModel.scanButtonTitle,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
+                isLoading: viewModel.isScanning,
                 action: viewModel.onScanTap
             )
         }
