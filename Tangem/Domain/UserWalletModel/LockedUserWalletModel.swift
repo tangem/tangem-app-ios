@@ -14,9 +14,11 @@ import TangemNFT
 import BlockchainSdk
 import TangemVisa
 import TangemFoundation
+import TangemMobileWalletSdk
 
 class LockedUserWalletModel: UserWalletModel {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
     let userTokensManager: UserTokensManager = LockedUserTokensManager()
@@ -106,7 +108,7 @@ class LockedUserWalletModel: UserWalletModel {
 
     var name: String { userWallet.name }
     let backupInput: OnboardingInput? = nil
-    let userWallet: StoredUserWallet
+    var userWallet: StoredUserWallet
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
 
@@ -121,7 +123,49 @@ class LockedUserWalletModel: UserWalletModel {
         return true
     }
 
-    func update(type: UpdateRequest) {}
+    func update(type: UpdateRequest) {
+        switch type {
+        case .backupCompleted(let card, let associatedCardIds):
+            var mutableCardInfo = CardInfo(
+                card: CardDTO(card: card),
+                walletData: .none,
+                associatedCardIds: associatedCardIds
+            )
+
+            switch userWallet.walletInfo {
+            case .cardWallet(let existingInfo):
+                for wallet in mutableCardInfo.card.wallets {
+                    if let existingDerivedKeys = existingInfo.card.wallets[wallet.publicKey]?.derivedKeys {
+                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                    }
+                }
+
+                userWallet.walletInfo = .cardWallet(mutableCardInfo)
+                userWalletRepository.save(userWalletModel: self)
+
+            case .mobileWallet(let existingInfo):
+                for wallet in mutableCardInfo.card.wallets {
+                    if let existingDerivedKeys = existingInfo.keys[wallet.publicKey]?.derivedKeys {
+                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                    }
+                }
+
+                userWallet.walletInfo = .cardWallet(mutableCardInfo)
+                userWalletRepository.save(userWalletModel: self)
+                cleanMobileWallet()
+            }
+        case .newName:
+            break
+        case .accessCodeDidSet:
+            break
+        case .iCloudBackupCompleted:
+            break
+        case .mnemonicBackupCompleted:
+            break
+        case .tangemPayOfferAccepted:
+            break
+        }
+    }
 
     func addAssociatedCard(cardId: String) {}
 }
@@ -165,6 +209,17 @@ extension LockedUserWalletModel: AssociatedCardIdsProvider {
             return cardInfo.associatedCardIds
         case .mobileWallet:
             return []
+        }
+    }
+}
+
+private extension LockedUserWalletModel {
+    func cleanMobileWallet() {
+        let mobileSdk = CommonMobileWalletSdk()
+        do {
+            try mobileSdk.delete(walletIDs: [userWalletId])
+        } catch {
+            AppLogger.error("Failed to delete mobile wallet after upgrade:", error: error)
         }
     }
 }
