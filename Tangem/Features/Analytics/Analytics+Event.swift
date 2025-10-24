@@ -132,7 +132,6 @@ extension Analytics {
         case sendNonceInserted = "[Token / Send] Nonce Inserted"
         case sendMaxFeeInserted = "[Token / Send] Max Fee Inserted"
         case sendPriorityFeeInserted = "[Token / Send] Priority Fee Inserted"
-        case sendSubstractFromAmount = "[Token / Send] Substract From Amount"
         case sendConfirmScreenOpened = "[Token / Send] Confirm Screen Opened"
         case sendScreenReopened = "[Token / Send] Screen Reopened"
         case sendTransactionSentScreenOpened = "[Token / Send] Transaction Sent Screen Opened"
@@ -552,5 +551,24 @@ extension Analytics {
 
         case nftErrors = "[NFT] NFT Errors"
         case nftToggleSwitch = "[Settings / Wallet] NFT toggle switch"
+
+        // MARK: - Yield
+
+        case earningScreenInfoOpened = "[Earning] Earning Screen Info Opened"
+        case earningStartScreen = "[Earning] Start Earning Screen"
+        case earningButtonStart = "[Earning] Button - Start Earning"
+        case earningStopScreen = "[Earning] Stop Earning Screen"
+        case earningButtonStop = "[Earning] Button - Stop Earning"
+        case earningButtonFeePolicy = "[Earning] Button - Fee Policy"
+        case earningInProgressScreen = "[Earning] Earn In Progress Screen"
+        case earningFundsEarned = "[Earning] Funds Earned"
+        case earningFundsWithdrawed = "[Earning] Funds Withdrawed"
+        case earningEarnedFundsInfo = "[Earning] Earned Funds Info"
+        case earningNoticeNotEnoughFee = "[Earning] Notice - Not Enough Fee"
+        case earningNoticeApproveNeeded = "[Earning] Notice - Approve Needed"
+        case earningButtonGiveApprove = "[Earning] Button - Give Approve"
+        case earningNoticeHighNetworkFee = "[Earning] Notice - High Network Fee"
+        case earningErrors = "[Earning] Earn Errors"
+        case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
     }
 }
