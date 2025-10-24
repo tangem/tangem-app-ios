@@ -29,6 +29,10 @@ struct MarketsTokenAccountNetworkSelectorFlowView: View {
             case .networksSelection(let marketsNetworkSelectorViewModel, _):
                 MarketsNetworkSelectorView(viewModel: marketsNetworkSelectorViewModel)
                     .transition(.content)
+
+            case .addToken(let addTokenViewModel):
+                MarketsAddTokenView(viewModel: addTokenViewModel)
+                    .transition(.content)
             }
         }
         .safeAreaInset(edge: .top, spacing: .zero) {
@@ -45,7 +49,7 @@ struct MarketsTokenAccountNetworkSelectorFlowView: View {
     private func header(from viewState: MarketsTokenAccountNetworkSelectorFlowViewModel.ViewState) -> some View {
         let title: String
         let backButtonAction = viewState.canGoBack ? { viewModel.back() } : nil
-        let closeButtonAction = { viewModel.close() }
+        let closeButtonAction = viewState.canBeClosed ? { viewModel.close() } : nil
 
         switch viewState {
         case .accountSelector:
@@ -53,6 +57,9 @@ struct MarketsTokenAccountNetworkSelectorFlowView: View {
 
         case .networksSelection:
             title = Localization.commonChooseNetwork
+
+        case .addToken:
+            title = Localization.commonAddToken
         }
 
         return FloatingSheetNavigationBarView(
