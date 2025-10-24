@@ -114,7 +114,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError> {
-        let target = TangemApiTarget(type: ._saveUserWalletTokens(key: key, list: list))
+        let target = TangemApiTarget(type: .saveUserWalletTokensLegacy(key: key, list: list))
 
         return provider
             .requestPublisher(target)

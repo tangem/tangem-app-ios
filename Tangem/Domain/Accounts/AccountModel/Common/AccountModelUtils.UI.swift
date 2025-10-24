@@ -11,6 +11,7 @@ import SwiftUI
 import TangemAssets
 import TangemAccounts
 
+// [REDACTED_TODO_COMMENT]
 extension AccountModelUtils {
     enum UI {
         static func iconColor(from color: AccountModel.Icon.Color) -> Color {
