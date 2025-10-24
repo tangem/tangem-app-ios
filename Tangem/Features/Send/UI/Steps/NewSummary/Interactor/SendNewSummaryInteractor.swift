@@ -24,19 +24,22 @@ class CommonSendNewSummaryInteractor {
 
     private let sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder
     private let swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
+    private let stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
 
     init(
         input: SendSummaryInput,
         output: SendSummaryOutput,
-        receiveTokenAmountInput: SendReceiveTokenAmountInput,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput?,
         sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder,
-        swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
+        swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder,
+        stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
     ) {
         self.input = input
         self.output = output
         self.receiveTokenAmountInput = receiveTokenAmountInput
         self.sendDescriptionBuilder = sendDescriptionBuilder
         self.swapDescriptionBuilder = swapDescriptionBuilder
+        self.stakingDescriptionBuilder = stakingDescriptionBuilder
     }
 }
 
@@ -65,7 +68,6 @@ extension CommonSendNewSummaryInteractor: SendNewSummaryInteractor {
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
         guard let receiveTokenAmountInput else {
-            assertionFailure("ReceiveTokenAmountInput is not found")
             return Empty().eraseToAnyPublisher()
         }
 
@@ -90,8 +92,11 @@ extension CommonSendNewSummaryInteractor: SendNewSummaryInteractor {
 private extension CommonSendNewSummaryInteractor {
     private func summaryDescription(data: SendSummaryTransactionData?) -> AttributedString? {
         switch data {
-        case .none, .staking:
+        case .none:
             return nil
+        case .staking(let amount, let schedule):
+            let description = stakingDescriptionBuilder.makeDescription(amount: amount, schedule: schedule)
+            return description
         case .send(let amount, let fee):
             let description = sendDescriptionBuilder.makeDescription(amount: amount, fee: fee)
             return description
