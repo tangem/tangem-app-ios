@@ -109,10 +109,13 @@ class NFTCollectionsCoordinator: CoordinatorObject {
             floatingSheetPresenter.enqueue(
                 sheet: AccountSelectorViewModel(
                     userWalletModel: input.userWalletModel,
-                    onSelect: { [weak self] accountCellModel in
+                    onSelect: { [weak self] result in
                         self?.closeSheet()
 
-                        let navigationContext = options.nftAccountNavigationContextProvider.provide(for: accountCellModel.id.toAnyHashable())
+                        let navigationContext = options.nftAccountNavigationContextProvider.provide(
+                            for: result.cryptoAccountModel?.id.toAnyHashable()
+                        )
+
                         guard let navigationContext else {
                             return
                         }
