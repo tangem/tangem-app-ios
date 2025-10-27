@@ -453,6 +453,21 @@ extension OnboardingViewModel {
         coordinator?.closeOnboarding()
     }
 
+    func openSupportChat() {
+        let dataCollector = DetailsFeedbackDataCollector(
+            data: [
+                .init(
+                    userWalletEmailData: input.cardInput.emailData,
+                    walletModels: userWalletModel?.walletModelsManager.walletModels ?? []
+                ),
+            ]
+        )
+
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        coordinator?.openSupportChat(input: .init(logsComposer: logsComposer))
+        logAnalytics(.chatScreenOpened)
+    }
+
     func openSupport() {
         logAnalytics(.requestSupport, params: [.source: .onboarding])
 
