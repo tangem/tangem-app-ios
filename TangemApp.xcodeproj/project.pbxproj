@@ -3109,6 +3109,7 @@
 		DC37A0772A584BD000C2A3F2 /* WalletModelsManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC37A0752A584BD000C2A3F2 /* WalletModelsManagerMock.swift */; };
 		DC37A0782A584BD000C2A3F2 /* UserTokensManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC37A0762A584BD000C2A3F2 /* UserTokensManagerMock.swift */; };
 		DC39CBEA2E8E808500C1B70D /* AccountSelectorWalletCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC39CBE92E8E808500C1B70D /* AccountSelectorWalletCellView.swift */; };
+		DC3B19572EAA74ED00CC198A /* AccountSelectorViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3B19562EAA74ED00CC198A /* AccountSelectorViewState.swift */; };
 		DC3B49F42893E50700C207EA /* StoredUserWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3B49F32893E50700C207EA /* StoredUserWallet.swift */; };
 		DC3B49F62893E51B00C207EA /* UserWalletConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3B49F52893E51B00C207EA /* UserWalletConfig.swift */; };
 		DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3B49F92893EEA600C207EA /* UserWalletConfigFeatures.swift */; };
@@ -7550,6 +7551,7 @@
 		DC37A0752A584BD000C2A3F2 /* WalletModelsManagerMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletModelsManagerMock.swift; sourceTree = "<group>"; };
 		DC37A0762A584BD000C2A3F2 /* UserTokensManagerMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserTokensManagerMock.swift; sourceTree = "<group>"; };
 		DC39CBE92E8E808500C1B70D /* AccountSelectorWalletCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSelectorWalletCellView.swift; sourceTree = "<group>"; };
+		DC3B19562EAA74ED00CC198A /* AccountSelectorViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSelectorViewState.swift; sourceTree = "<group>"; };
 		DC3B49F32893E50700C207EA /* StoredUserWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredUserWallet.swift; sourceTree = "<group>"; };
 		DC3B49F52893E51B00C207EA /* UserWalletConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletConfig.swift; sourceTree = "<group>"; };
 		DC3B49F92893EEA600C207EA /* UserWalletConfigFeatures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletConfigFeatures.swift; sourceTree = "<group>"; };
@@ -18900,6 +18902,14 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		DC3B19582EAA74F100CC198A /* State */ = {
+			isa = PBXGroup;
+			children = (
+				DC3B19562EAA74ED00CC198A /* AccountSelectorViewState.swift */,
+			);
+			path = State;
+			sourceTree = "<group>";
+		};
 		DC3B49F22893E4F300C207EA /* UserWalletConfig */ = {
 			isa = PBXGroup;
 			children = (
@@ -19218,6 +19228,7 @@
 		DC7AFA2A2E840856005AA071 /* AccountSelector */ = {
 			isa = PBXGroup;
 			children = (
+				DC3B19582EAA74F100CC198A /* State */,
 				DCB5734F2E8BF685003D54E6 /* SelectorCell */,
 				DCB573592E8C0AF2003D54E6 /* Model */,
 				DCB573582E8C0AE9003D54E6 /* ViewModel */,
@@ -25462,6 +25473,7 @@
 				5D39515925597DA5002CC452 /* CommonWalletModel.swift in Sources */,
 				EF6EDD8C296D6B51001B21A3 /* SendDecimalNumberTextField.swift in Sources */,
 				EFF8F1C02E85608E00A5EF0C /* SendDestinationStepBuildable.swift in Sources */,
+				DC3B19572EAA74ED00CC198A /* AccountSelectorViewState.swift in Sources */,
 				C2E60C952D8D80B900093E35 /* FloatingSheetViewModel.swift in Sources */,
 				DC2F88E82E142C3D0034D437 /* Staking+UniversalError.swift in Sources */,
 				0F2786392E2B8B0200742D0F /* MobileOnboardingSeedPhraseIntroStep.swift in Sources */,

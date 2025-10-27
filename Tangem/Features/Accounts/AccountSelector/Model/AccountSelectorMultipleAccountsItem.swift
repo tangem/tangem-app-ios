@@ -18,15 +18,9 @@ struct AccountSelectorMultipleAccountsItem: Identifiable, Hashable {
 }
 
 extension AccountSelectorMultipleAccountsItem {
-    init(userWallet: any UserWalletModel, accountModel: AccountModel) {
+    init(userWallet: any UserWalletModel, accounts: [AccountSelectorAccountItem]) {
         walletId = userWallet.userWalletId.stringValue
         walletName = userWallet.name
-
-        switch accountModel {
-        case .standard(.single(let account)):
-            accounts = [.init(account: account)]
-        case .standard(.multiple(let accounts)):
-            self.accounts = accounts.map { .init(account: $0) }
-        }
+        self.accounts = accounts
     }
 }
