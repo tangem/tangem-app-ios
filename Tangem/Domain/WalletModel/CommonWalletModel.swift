@@ -578,6 +578,12 @@ extension CommonWalletModel: WalletModelHelpers {
                 .map { $0.pendingTransactions }
                 .eraseToAnyPublisher()
 
+        let yieldModuleStateRepository = CommonYieldModuleStateRepository(
+            walletModelId: WalletModelId(tokenItem: tokenItem),
+            userWalletId: userWalletId,
+            token: token
+        )
+
         return CommonYieldModuleManager(
             walletAddress: wallet.defaultAddress.value,
             token: token,
@@ -586,6 +592,7 @@ extension CommonWalletModel: WalletModelHelpers {
             ethereumNetworkProvider: ethereumNetworkProvider,
             transactionCreator: transactionCreator,
             blockaidApiService: BlockaidFactory().makeBlockaidAPIService(),
+            yieldModuleStateRepository: yieldModuleStateRepository,
             pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher
         )
     }
