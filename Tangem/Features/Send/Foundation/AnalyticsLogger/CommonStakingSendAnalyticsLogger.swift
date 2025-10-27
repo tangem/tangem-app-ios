@@ -205,7 +205,7 @@ extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             .source: Analytics.ParameterValue.transactionSourceStaking.rawValue,
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
             .blockchain: tokenItem.blockchain.displayName,
-            .feeType: fee.option.rawValue,
+            .feeType: fee.option.analyticsValue.rawValue,
             .walletForm: signerType,
         ])
 
