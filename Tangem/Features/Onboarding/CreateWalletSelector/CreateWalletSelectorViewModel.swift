@@ -115,7 +115,11 @@ private extension CreateWalletSelectorViewModel {
                 }
 
             case .onboarding(let input, _):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue])
+                Analytics.log(
+                    .cardWasScanned,
+                    params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue],
+                    contextParams: input.cardInput.getContextParams()
+                )
 
                 viewModel.incomingActionManager.discardIncomingAction()
 
@@ -134,7 +138,11 @@ private extension CreateWalletSelectorViewModel {
                 }
 
             case .success(let cardInfo):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue])
+                Analytics.log(
+                    .cardWasScanned,
+                    params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue],
+                    contextParams: .custom(cardInfo.analyticsContextData)
+                )
 
                 do {
                     if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
