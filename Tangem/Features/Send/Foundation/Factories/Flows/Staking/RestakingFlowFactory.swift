@@ -86,12 +86,12 @@ extension RestakingFlowFactory {
 
 extension RestakingFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
-        let sendAmountCompactViewModel = SendNewAmountCompactViewModel(
+        let sendAmountCompactViewModel = SendAmountCompactViewModel(
             sourceTokenInput: restakingModel,
             sourceTokenAmountInput: restakingModel,
         )
 
-        let sendAmountFinishViewModel = SendNewAmountFinishViewModel(
+        let sendAmountFinishViewModel = SendAmountFinishViewModel(
             sourceTokenInput: restakingModel,
             sourceTokenAmountInput: restakingModel,
         )
@@ -108,7 +108,7 @@ extension RestakingFlowFactory: SendGenericFlowFactory {
 
         let validators = makeStakingValidatorsStep()
 
-        let summary = makeSendNewSummaryStep(
+        let summary = makeSendSummaryStep(
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: validators.compact,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
@@ -186,15 +186,15 @@ extension RestakingFlowFactory: StakingValidatorsStepBuildable {
     }
 }
 
-// MARK: - SendNewSummaryStepBuildable
+// MARK: - SendSummaryStepBuildable
 
-extension RestakingFlowFactory: SendNewSummaryStepBuildable {
-    var newSummaryIO: SendNewSummaryStepBuilder.IO {
-        SendNewSummaryStepBuilder.IO(input: restakingModel, output: restakingModel)
+extension RestakingFlowFactory: SendSummaryStepBuildable {
+    var summaryIO: SendSummaryStepBuilder.IO {
+        SendSummaryStepBuilder.IO(input: restakingModel, output: restakingModel)
     }
 
-    var newSummaryTypes: SendNewSummaryStepBuilder.Types {
-        SendNewSummaryStepBuilder.Types(
+    var summaryTypes: SendSummaryStepBuilder.Types {
+        SendSummaryStepBuilder.Types(
             settings: .init(
                 destinationEditableType: .editable,
                 amountEditableType: .noEditable
@@ -202,8 +202,8 @@ extension RestakingFlowFactory: SendNewSummaryStepBuildable {
         )
     }
 
-    var newSummaryDependencies: SendNewSummaryStepBuilder.Dependencies {
-        SendNewSummaryStepBuilder.Dependencies(
+    var summaryDependencies: SendSummaryStepBuilder.Dependencies {
+        SendSummaryStepBuilder.Dependencies(
             sendFeeProvider: restakingModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
@@ -214,18 +214,18 @@ extension RestakingFlowFactory: SendNewSummaryStepBuildable {
     }
 }
 
-// MARK: - SendNewFinishStepBuildable
+// MARK: - SendFinishStepBuildable
 
-extension RestakingFlowFactory: SendNewFinishStepBuildable {
-    var newFinishIO: SendNewFinishStepBuilder.IO {
-        SendNewFinishStepBuilder.IO(input: restakingModel)
+extension RestakingFlowFactory: SendFinishStepBuildable {
+    var finishIO: SendFinishStepBuilder.IO {
+        SendFinishStepBuilder.IO(input: restakingModel)
     }
 
-    var newFinishTypes: SendNewFinishStepBuilder.Types {
-        SendNewFinishStepBuilder.Types(tokenItem: tokenItem)
+    var finishTypes: SendFinishStepBuilder.Types {
+        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
-    var newFinishDependencies: SendNewFinishStepBuilder.Dependencies {
-        SendNewFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
+    var finishDependencies: SendFinishStepBuilder.Dependencies {
+        SendFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
     }
 }
