@@ -9,13 +9,13 @@
 import Foundation
 import BlockchainSdk
 
-enum YieldModuleManagerState: Equatable {
+indirect enum YieldModuleManagerState: Equatable {
     case disabled
     case loading
     case notActive
     case processing(action: ProcessingAction)
     case active(YieldSupplyInfo)
-    case failedToLoad(error: String)
+    case failedToLoad(error: String, cachedState: YieldModuleManagerState?)
 
     var balance: Amount? {
         if case .active(let value) = self {
