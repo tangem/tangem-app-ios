@@ -15,17 +15,19 @@ struct NewActionButtonsBuyView: View {
     @ObservedObject var viewModel: NewActionButtonsBuyViewModel
 
     var body: some View {
-        NewTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel)
-            .searchType(.native)
-            .background(Colors.Background.tertiary.ignoresSafeArea())
-            .navigationTitle(Localization.commonBuy)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    CloseButton { viewModel.close() }
-                }
+        NewTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
+            NewTokenSelectorEmptyContentView(message: Localization.actionButtonsBuyEmptySearchMessage)
+        }
+        .searchType(.native)
+        .background(Colors.Background.tertiary.ignoresSafeArea())
+        .navigationTitle(Localization.commonBuy)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                CircleButton.close(action: viewModel.close)
             }
-            .onAppear(perform: viewModel.onAppear)
-            .alert(item: $viewModel.alert) { $0.alert }
+        }
+        .onAppear(perform: viewModel.onAppear)
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 }
