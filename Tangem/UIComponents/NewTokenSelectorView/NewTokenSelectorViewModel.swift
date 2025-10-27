@@ -12,7 +12,8 @@ import TangemFoundation
 
 final class NewTokenSelectorViewModel: ObservableObject {
     @Published var searchText: String = ""
-    @Published private(set) var wallets: [NewTokenSelectorWalletItemViewModel] = []
+    @Published private(set) var wallets: [NewTokenSelectorWalletItemViewModel]?
+    @Published private(set) var contentVisibility: ContentVisibility = .visible
 
     private let walletsProvider: any NewTokenSelectorWalletsProvider
     private weak var output: NewTokenSelectorViewModelOutput?
@@ -30,11 +31,25 @@ final class NewTokenSelectorViewModel: ObservableObject {
     }
 
     private func bind() {
-        walletsProvider.walletsPublisher
+        walletsProvider
+            .walletsPublisher
             .withWeakCaptureOf(self)
             .map { $0.mapToNewTokenSelectorWalletItemViewModels(wallets: $1) }
             .receiveOnMain()
             .assign(to: &$wallets)
+
+        $wallets
+            .compactMap { wallets -> [AnyPublisher<Int, Never>]? in
+                wallets?.map { $0.$visibleItemsCount.compactMap { $0 }.eraseToAnyPublisher() }
+            }
+            .flatMapLatest { visibleItemsCountPublishers in
+                visibleItemsCountPublishers
+                    .combineLatest().map { $0.sum() }
+                    .removeDuplicates()
+            }
+            .map { $0 == .zero ? .empty : .visible }
+            .removeDuplicates()
+            .assign(to: &$contentVisibility)
     }
 
     private func mapToNewTokenSelectorWalletItemViewModels(wallets: [NewTokenSelectorWallet]) -> [NewTokenSelectorWalletItemViewModel] {
@@ -60,7 +75,9 @@ extension NewTokenSelectorViewModel: NewTokenSelectorItemViewModelMapper {
         NewTokenSelectorAccountViewModel(
             header: header,
             account: account,
-            searchTextPublisher: $searchText.eraseToAnyPublisher(),
+            searchTextPublisher: $searchText
+                .debounce(for: .seconds(0.2), if: { !$0.isEmpty })
+                .eraseToAnyPublisher(),
             mapper: self
         )
     }
@@ -78,5 +95,12 @@ extension NewTokenSelectorViewModel: NewTokenSelectorItemViewModelMapper {
                 self?.output?.usedDidSelect(item: item)
             }
         )
+    }
+}
+
+extension NewTokenSelectorViewModel {
+    enum ContentVisibility: Equatable {
+        case visible
+        case empty
     }
 }
