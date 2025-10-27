@@ -76,16 +76,12 @@ extension OnrampFlowBaseDependenciesFactory {
     func makeOnrampBaseDataBuilder(
         onrampRepository: OnrampRepository,
         onrampDataRepository: OnrampDataRepository,
-        providersBuilder: OnrampProvidersBuilder,
-        paymentMethodsBuilder: OnrampPaymentMethodsBuilder,
         onrampRedirectingBuilder: OnrampRedirectingBuilder
     ) -> OnrampBaseDataBuilder {
         CommonOnrampBaseDataBuilder(
             config: userWalletInfo.config,
             onrampRepository: onrampRepository,
             onrampDataRepository: onrampDataRepository,
-            providersBuilder: providersBuilder,
-            paymentMethodsBuilder: paymentMethodsBuilder,
             onrampRedirectingBuilder: onrampRedirectingBuilder
         )
     }
