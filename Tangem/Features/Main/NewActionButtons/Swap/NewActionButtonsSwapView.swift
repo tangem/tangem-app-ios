@@ -93,9 +93,11 @@ struct NewActionButtonsSwapView: View {
             Spacer()
 
         case .selector:
-            NewTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel)
-                .searchType(.native)
-                .transition(.opacity)
+            NewTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
+                NewTokenSelectorEmptyContentView(message: Localization.actionButtonsSwapEmptySearchMessage)
+            }
+            .searchType(.native)
+            .transition(.opacity)
         }
     }
 
