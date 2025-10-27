@@ -101,5 +101,16 @@ extension OnboardingInput {
                 ) // we assume that cache exists
             }
         }
+
+        func getContextParams() -> Analytics.ContextParams {
+            switch self {
+            case .cardInfo(let cardInfo):
+                return .custom(cardInfo.analyticsContextData)
+            case .userWalletModel(let userWalletModel, _, _):
+                return .custom(userWalletModel.analyticsContextData)
+            case .cardId:
+                return .default
+            }
+        }
     }
 }

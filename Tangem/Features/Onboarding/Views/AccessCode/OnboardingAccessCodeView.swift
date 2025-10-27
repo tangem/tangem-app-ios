@@ -235,6 +235,6 @@ extension OnboardingAccessCodeView {
 
 struct OnboardingAccessCodeView_Previews: PreviewProvider {
     static var previews: some View {
-        OnboardingAccessCodeView(viewModel: .init(successHandler: { _ in }))
+        OnboardingAccessCodeView(viewModel: .init(analyticsContextParams: .default, successHandler: { _ in }))
     }
 }
