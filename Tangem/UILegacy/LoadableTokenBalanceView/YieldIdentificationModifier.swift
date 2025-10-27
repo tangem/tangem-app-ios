@@ -11,18 +11,13 @@ import TangemUI
 import TangemAssets
 
 struct YieldIdentificationModifier: ViewModifier {
-    let state: LoadableTokenBalanceView.State
     let showInfoAction: () -> Void
 
     func body(content: Content) -> some View {
-        if case .loaded = state {
-            HStack(spacing: 4) {
-                exchangeIcon
-                content
-                infoButton
-            }
-        } else {
+        HStack(spacing: 4) {
+            exchangeIcon
             content
+            infoButton
         }
     }
 
@@ -49,6 +44,6 @@ struct YieldIdentificationModifier: ViewModifier {
 
 extension LoadableTokenBalanceView {
     func yieldIdentificationIfNeeded(showInfoAction: @escaping () -> Void) -> some View {
-        modifier(YieldIdentificationModifier(state: state, showInfoAction: showInfoAction))
+        modifier(YieldIdentificationModifier(showInfoAction: showInfoAction))
     }
 }
