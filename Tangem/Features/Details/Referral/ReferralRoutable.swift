@@ -13,8 +13,8 @@ protocol ReferralRoutable: AnyObject {
     func dismiss()
     @MainActor
     func showAccountSelector(
-        selectedAccount: AccountSelectorCellModel,
+        selectedAccount: any BaseAccountModel,
         userWalletModel: UserWalletModel,
-        onSelect: @escaping (any BaseAccountModel) -> Void
+        onSelect: @escaping (any CryptoAccountModel) -> Void
     )
 }
