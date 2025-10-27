@@ -233,7 +233,7 @@
 "common_enable" = "Activer";
 "common_enabled" = "Activé";
 "common_error" = "Erreur";
-"common_estimated_fee" = "Estimated fee";
+"common_estimated_fee" = "Network service fee";
 "common_exchange" = "Echanger";
 "common_explore_transaction_history" = "Explorez l'historique des transactions";
 "common_explore" = "Explorez";
@@ -1755,7 +1755,7 @@
 "yield_module_fee_policy_sheet_min_amount_note" = "Le montant minimum est calculé à partir des frais de réseau actuels afin de garantir qu'il ne dépasse pas 4 %%, ce qui donne un minimum de %1$@ (%2$@).";
 "yield_module_fee_policy_sheet_min_amount_title" = "Recharge minimale";
 "yield_module_fee_policy_sheet_title" = "Politique tarifaire";
-"yield_module_fee_policy_tangem_service_fee_title" = "Tangem prélève également des frais de service de 3%% sur les revenus générés.";
+"yield_module_fee_policy_tangem_service_fee_title" = "Tangem prélève également des frais de service de 15%% sur les revenus générés.";
 "yield_module_high_fee_error" = "Vos fonds seront automatiquement transférés vers Aave dès que les frais de réseau seront moins élevés ou que votre solde atteindra le montant minimum requis.";
 "yield_module_historical_returns" = "Rendements historiques";
 "yield_module_main_view_approve_notification_description" = "Approval for your token in the Yield mode has been revoked. Open the token to grant permission again.";
@@ -1767,7 +1767,7 @@
 "yield_module_promo_screen_cash_out_subtitle" = "Envoyez, échangez ou vendez vos fonds instantanément, quand vous le souhaitez.";
 "yield_module_promo_screen_cash_out_title" = "Accédez à vos fonds à tout moment";
 "yield_module_promo_screen_how_it_works_button_title" = "Comment ça marche ?";
-"yield_module_promo_screen_self_custodial_subtitle" = "Aave est un protocole décentralisé qui gère plus de 81,9 milliards de dollars en valeur totale.";
+"yield_module_promo_screen_self_custodial_subtitle" = "Aave est un protocole décentralisé qui gère plus de 61 milliards de dollars en valeur totale.";
 "yield_module_promo_screen_self_custodial_title" = "Décentralisé et auto-détenu";
 "yield_module_promo_screen_terms_disclaimer" = "En utilisant ce service, vous acceptez les conditions générales du fournisseur %1$@ et %2$@.";
 "yield_module_promo_screen_title" = "Connecter Aave";
