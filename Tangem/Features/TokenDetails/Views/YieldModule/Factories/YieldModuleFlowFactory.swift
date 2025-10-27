@@ -55,17 +55,10 @@ final class YieldModuleFlowFactory {
     }
 
     func makeYieldInfoViewModel() -> YieldModuleInfoViewModel? {
-        guard case .active(let info) = yieldModuleManager.state?.state else {
-            return nil
-        }
-
-        let interactor = makeInteractor()
-
         return YieldModuleInfoViewModel(
             walletModel: walletModel,
             feeCurrencyNavigator: feeCurrencyNavigator,
-            yieldManagerInteractor: interactor,
-            availableBalance: info.yieldModuleBalanceValue,
+            yieldManagerInteractor: makeInteractor(),
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
         )
     }

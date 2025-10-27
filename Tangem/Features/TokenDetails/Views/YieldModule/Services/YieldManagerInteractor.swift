@@ -39,6 +39,10 @@ actor YieldManagerInteractor {
 
     // MARK: - Public Implementation
 
+    func getAvailableBalance() -> Decimal? {
+        manager.state?.state.activeInfo?.yieldModuleBalanceValue
+    }
+
     func getIsApproveRequired() -> Bool {
         guard case .active(let info) = manager.state?.state else {
             return false
