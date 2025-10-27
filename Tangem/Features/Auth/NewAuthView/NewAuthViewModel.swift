@@ -140,7 +140,11 @@ private extension NewAuthViewModel {
             let unlockResult = await unlocker.unlock()
 
             if case .success = unlockResult, unlocker.analyticsSignInType == .card {
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
+                Analytics.log(
+                    .cardWasScanned,
+                    params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue],
+                    contextParams: .custom(userWalletModel.analyticsContextData)
+                )
             }
 
             await viewModel.handleUnlock(result: unlockResult, userWalletModel: userWalletModel, signInType: unlocker.analyticsSignInType)
