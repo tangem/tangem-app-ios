@@ -6,15 +6,15 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import TangemLocalization
 import Combine
+import TangemLocalization
 
 struct AccountSelectorAccountItem: Identifiable {
     let id: AnyHashable
     let name: String
     let tokensCount: String
     let icon: AccountModel.Icon
-    let domainModel: any BaseAccountModel
+    let domainModel: any CryptoAccountModel
     let formattedBalanceTypePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>
 }
 
