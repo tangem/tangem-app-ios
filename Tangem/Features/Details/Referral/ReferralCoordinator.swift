@@ -49,18 +49,21 @@ extension ReferralCoordinator: ReferralRoutable {
     }
 
     func showAccountSelector(
-        selectedAccount: AccountSelectorCellModel,
+        selectedAccount: any BaseAccountModel,
         userWalletModel: UserWalletModel,
-        onSelect: @escaping (any BaseAccountModel) -> Void
+        onSelect: @escaping (any CryptoAccountModel) -> Void
     ) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
                 sheet: AccountSelectorViewModel(
                     selectedItem: selectedAccount,
                     userWalletModel: userWalletModel,
-                    onSelect: { [weak self] account in
-                        onSelect(account)
-                        self?.closeSheet()
+                    onSelect: { [weak self] result in
+                        defer { self?.closeSheet() }
+
+                        guard let cryptoAccountModel = result.cryptoAccountModel else { return }
+
+                        onSelect(cryptoAccountModel)
                     }
                 )
             )

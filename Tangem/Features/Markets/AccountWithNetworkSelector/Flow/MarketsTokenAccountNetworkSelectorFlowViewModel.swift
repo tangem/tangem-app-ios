@@ -84,10 +84,8 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
             openAccountSelector(
                 selectedItem: nil,
                 context: .root,
-                onSelectAccount: { [weak self] baseAccountModel in
-                    guard let cryptoAccount = baseAccountModel as? (any CryptoAccountModel) else {
-                        return
-                    }
+                onSelectAccount: { [weak self] result in
+                    guard let cryptoAccount = result.cryptoAccountModel else { return }
 
                     self?.openNetworkSelectionOrAddToken(
                         cryptoAccount: cryptoAccount,
@@ -157,9 +155,9 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
     }
 
     func openAccountSelector(
-        selectedItem: AccountSelectorCellModel?,
+        selectedItem: (any CryptoAccountModel)?,
         context: NavigationContext,
-        onSelectAccount: @escaping (any BaseAccountModel) -> Void
+        onSelectAccount: @escaping (AccountSelectorCellModel) -> Void
     ) {
         // Only push to stack if navigating from addToken screen
         // Don't push if this is the initial entry (context == .root)
@@ -277,14 +275,12 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         tokenItem: TokenItem
     ) {
         openAccountSelector(
-            selectedItem: .account(AccountSelectorAccountItem(account: cryptoAccount)),
+            selectedItem: cryptoAccount,
             context: .fromAddToken,
-            onSelectAccount: { [weak self] baseAccountModel in
-                guard let newCryptoAccount = baseAccountModel as? (any CryptoAccountModel) else {
-                    return
-                }
+            onSelectAccount: { [weak self] result in
+                guard let cryptoAccountModel = result.cryptoAccountModel else { return }
 
-                self?.openAddToken(tokenItem: tokenItem, cryptoAccount: newCryptoAccount)
+                self?.openAddToken(tokenItem: tokenItem, cryptoAccount: cryptoAccountModel)
             }
         )
     }
