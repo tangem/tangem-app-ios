@@ -371,7 +371,7 @@ private extension CommonYieldModuleManager {
                         isAllowancePermissionRequired: YieldAllowanceUtil().isPermissionRequired(
                             allowance: yieldSupply.allowance
                         ),
-                        yieldModuleBalanceValue: yieldSupply.amountValue
+                        yieldModuleBalanceValue: yieldSupply.protocolBalanceValue
                     )
                 )
             } else {
