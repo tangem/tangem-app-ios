@@ -1073,7 +1073,7 @@ extension WalletOnboardingViewModel {
 
 extension WalletOnboardingViewModel {
     func openAccessCode() {
-        coordinator?.openAccessCodeView(callback: saveAccessCode)
+        coordinator?.openAccessCodeView(analyticsContextParams: getContextParams(), callback: saveAccessCode)
     }
 }
 
