@@ -126,7 +126,11 @@ final class AuthViewModel: ObservableObject {
                 await viewModel.handleScanError(error)
 
             case .onboarding(let input, _):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
+                Analytics.log(
+                    .cardWasScanned,
+                    params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue],
+                    contextParams: input.cardInput.getContextParams()
+                )
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -144,7 +148,12 @@ final class AuthViewModel: ObservableObject {
                 }
 
             case .success(let cardInfo):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
+                Analytics.log(
+                    .cardWasScanned,
+                    params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue],
+                    contextParams: .custom(cardInfo.analyticsContextData)
+                )
+
                 let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
                 do {
