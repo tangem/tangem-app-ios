@@ -45,3 +45,15 @@ extension AccountModelsManager {
         .eraseToAnyPublisher()
     }
 }
+
+extension AccountModelsManager {
+    var hasMultipleAccounts: Bool {
+        accountModels.contains { accountModel in
+            if case .standard(.multiple) = accountModel {
+                return true
+            }
+
+            return false
+        }
+    }
+}
