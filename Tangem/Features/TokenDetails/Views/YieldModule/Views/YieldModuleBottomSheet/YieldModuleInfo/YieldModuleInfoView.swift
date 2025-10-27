@@ -113,9 +113,9 @@ struct YieldModuleInfoView: View {
                 minAmountState: viewModel.minimalAmountState,
                 chartState: viewModel.chartState,
                 estimatedFeeState: viewModel.estimatedFeeState,
+                availableBalanceState: viewModel.availableBalanceState,
                 notifications: viewModel.earnInfoNotifications,
                 transferMode: Localization.yieldModuleTransferModeAutomatic,
-                availableBalance: viewModel.getAvailableBalanceString(),
                 readMoreUrl: viewModel.readMoreURL,
                 myFundsSectionText: viewModel.makeMyFundsSectionText(),
                 earInfoFooterText: viewModel.earInfoFooterText
