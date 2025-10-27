@@ -18,21 +18,6 @@ enum FeeOption: Hashable, Equatable, Comparable {
     case fast
     case custom
 
-    var rawValue: String {
-        switch self {
-        case .suggestedByDApp(let dappName):
-            "suggestedByDapp \(dappName)"
-        case .slow:
-            "slow"
-        case .market:
-            "market"
-        case .fast:
-            "fast"
-        case .custom:
-            "custom"
-        }
-    }
-
     var icon: ImageType {
         switch self {
         case .suggestedByDApp:
