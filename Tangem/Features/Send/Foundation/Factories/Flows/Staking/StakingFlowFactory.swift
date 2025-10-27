@@ -107,7 +107,7 @@ extension StakingFlowFactory: SendGenericFlowFactory {
             isFeeApproximate: isFeeApproximate()
         )
 
-        let summary = makeSendNewSummaryStep(
+        let summary = makeSendSummaryStep(
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: validators.compact,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
@@ -167,18 +167,18 @@ extension StakingFlowFactory: SendBaseBuildable {
     }
 }
 
-// MARK: - SendNewAmountStepBuildable
+// MARK: - SendAmountStepBuildable
 
-extension StakingFlowFactory: SendNewAmountStepBuildable {
-    var newAmountIO: SendNewAmountStepBuilder.IO {
-        SendNewAmountStepBuilder.IO(
+extension StakingFlowFactory: SendAmountStepBuildable {
+    var amountIO: SendAmountStepBuilder.IO {
+        SendAmountStepBuilder.IO(
             sourceIO: (input: stakingModel, output: stakingModel),
             sourceAmountIO: (input: stakingModel, output: stakingModel)
         )
     }
 
-    var newAmountDependencies: SendNewAmountStepBuilder.Dependencies {
-        SendNewAmountStepBuilder.Dependencies(
+    var amountDependencies: SendAmountStepBuilder.Dependencies {
+        SendAmountStepBuilder.Dependencies(
             sendAmountValidator: StakingAmountValidator(
                 tokenItem: tokenItem,
                 validator: walletModelDependenciesProvider.transactionValidator,
@@ -211,21 +211,21 @@ extension StakingFlowFactory: StakingValidatorsStepBuildable {
     }
 }
 
-// MARK: - SendNewSummaryStepBuildable
+// MARK: - SendSummaryStepBuildable
 
-extension StakingFlowFactory: SendNewSummaryStepBuildable {
-    var newSummaryIO: SendNewSummaryStepBuilder.IO {
-        SendNewSummaryStepBuilder.IO(input: stakingModel, output: stakingModel)
+extension StakingFlowFactory: SendSummaryStepBuildable {
+    var summaryIO: SendSummaryStepBuilder.IO {
+        SendSummaryStepBuilder.IO(input: stakingModel, output: stakingModel)
     }
 
-    var newSummaryTypes: SendNewSummaryStepBuilder.Types {
-        SendNewSummaryStepBuilder.Types(
+    var summaryTypes: SendSummaryStepBuilder.Types {
+        SendSummaryStepBuilder.Types(
             settings: .init(destinationEditableType: .editable, amountEditableType: .editable)
         )
     }
 
-    var newSummaryDependencies: SendNewSummaryStepBuilder.Dependencies {
-        SendNewSummaryStepBuilder.Dependencies(
+    var summaryDependencies: SendSummaryStepBuilder.Dependencies {
+        SendSummaryStepBuilder.Dependencies(
             sendFeeProvider: stakingModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
@@ -236,18 +236,18 @@ extension StakingFlowFactory: SendNewSummaryStepBuildable {
     }
 }
 
-// MARK: - SendNewFinishStepBuildable
+// MARK: - SendFinishStepBuildable
 
-extension StakingFlowFactory: SendNewFinishStepBuildable {
-    var newFinishIO: SendNewFinishStepBuilder.IO {
-        SendNewFinishStepBuilder.IO(input: stakingModel)
+extension StakingFlowFactory: SendFinishStepBuildable {
+    var finishIO: SendFinishStepBuilder.IO {
+        SendFinishStepBuilder.IO(input: stakingModel)
     }
 
-    var newFinishTypes: SendNewFinishStepBuilder.Types {
-        SendNewFinishStepBuilder.Types(tokenItem: tokenItem)
+    var finishTypes: SendFinishStepBuilder.Types {
+        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
-    var newFinishDependencies: SendNewFinishStepBuilder.Dependencies {
-        SendNewFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
+    var finishDependencies: SendFinishStepBuilder.Dependencies {
+        SendFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
     }
 }
