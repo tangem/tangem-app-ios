@@ -55,6 +55,7 @@
 		0A5544C62DF6FD0E00BF409C /* KeyInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5544C52DF6FD0E00BF409C /* KeyInfo.swift */; };
 		0A5544C82DF72A8D00BF409C /* PublicKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5544C72DF72A8D00BF409C /* PublicKeyProvider.swift */; };
 		0A66678F2D1C0749008BE9D4 /* CardanoStakeKitTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A66678E2D1C0749008BE9D4 /* CardanoStakeKitTransactionHelper.swift */; };
+		0A6EB33B2EAB5E230006DB1C /* YieldModuleStateRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6EB33A2EAB5E230006DB1C /* YieldModuleStateRepository.swift */; };
 		0A713CEC2CAA6DA30042FC27 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		0A713CF02CAA76530042FC27 /* CommonRestakingStepsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A713CEF2CAA76530042FC27 /* CommonRestakingStepsManager.swift */; };
 		0A74F7382E44D8200069344F /* SettingsMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A74F7372E44D8200069344F /* SettingsMigrator.swift */; };
@@ -4442,6 +4443,7 @@
 		0A5544C52DF6FD0E00BF409C /* KeyInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyInfo.swift; sourceTree = "<group>"; };
 		0A5544C72DF72A8D00BF409C /* PublicKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicKeyProvider.swift; sourceTree = "<group>"; };
 		0A66678E2D1C0749008BE9D4 /* CardanoStakeKitTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoStakeKitTransactionHelper.swift; sourceTree = "<group>"; };
+		0A6EB33A2EAB5E230006DB1C /* YieldModuleStateRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleStateRepository.swift; sourceTree = "<group>"; };
 		0A713CEF2CAA76530042FC27 /* CommonRestakingStepsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonRestakingStepsManager.swift; sourceTree = "<group>"; };
 		0A74F7372E44D8200069344F /* SettingsMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrator.swift; sourceTree = "<group>"; };
 		0A7FF63C2C888D380072C2E8 /* StakingAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAnalyticsLogger.swift; sourceTree = "<group>"; };
@@ -18877,6 +18879,7 @@
 				0AF62CDE2EA286BF0009737E /* YieldAllowanceUtil.swift */,
 				0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */,
 				0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */,
+				0A6EB33A2EAB5E230006DB1C /* YieldModuleStateRepository.swift */,
 				EA742A9D2E97A02F0074FCD2 /* YieldModuleChartManager.swift */,
 				308631572E40E36C00D58D37 /* Accounts */,
 				B0D1AC302906718600584E6C /* Analytics */,
@@ -26181,6 +26184,7 @@
 				EF0E1D9C2CE37DA4003D47AA /* OnrampProvidersViewModel.swift in Sources */,
 				DC8F7BD12E0C919F00B3F5DB /* WCFeeSelectorFactory.swift in Sources */,
 				DC8F7BD32E0C919F00B3F5DB /* WCEthTransactionDetailsView.swift in Sources */,
+				0A6EB33B2EAB5E230006DB1C /* YieldModuleStateRepository.swift in Sources */,
 				EF0E1D9D2CE37DA4003D47AA /* OnrampProvidersCompactProviderViewData.swift in Sources */,
 				EF0E1D9E2CE37DA4003D47AA /* OnrampProvidersInteractor.swift in Sources */,
 				C2075EFB2DE6231C009AD2F7 /* BlockaidSiteScanMapper.swift in Sources */,
