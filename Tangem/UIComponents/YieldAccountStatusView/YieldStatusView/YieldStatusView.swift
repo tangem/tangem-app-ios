@@ -45,6 +45,7 @@ struct YieldStatusView: View {
             VStack(alignment: .leading, spacing: 6) {
                 title
                 descriptionText
+                    .multilineTextAlignment(.leading)
             }
 
             Spacer()
@@ -74,11 +75,9 @@ struct YieldStatusView: View {
         case .loading:
             Text(Localization.yieldModuleTokenDetailsEarnNotificationProcessing)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-
         case .active:
             Text(Localization.yieldModuleTokenDetailsEarnNotificationEarningOnYourBalanceSubtitle)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-
         case .closing:
             Text(Localization.yieldModuleStopEarning)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
