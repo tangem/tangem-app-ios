@@ -18,8 +18,10 @@ struct NewActionButtonsSellView: View {
         VStack(spacing: 12) {
             notifications
 
-            NewTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel)
-                .searchType(.native)
+            NewTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
+                NewTokenSelectorEmptyContentView(message: Localization.actionButtonsSellEmptySearchMessage)
+            }
+            .searchType(.native)
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationTitle(Localization.commonSell)
