@@ -3873,7 +3873,7 @@
 		EF8BE6C02CCA9CC3001FBA2B /* CommonOnrampDataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8BE6BF2CCA9CC3001FBA2B /* CommonOnrampDataRepository.swift */; };
 		EF8BE6C42CCB95D7001FBA2B /* OnrampRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8BE6C32CCB95D7001FBA2B /* OnrampRoutable.swift */; };
 		EF8C09CC2E9553AC00C5A02A /* AccountIconViewBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8C09CB2E9553AC00C5A02A /* AccountIconViewBuilder.swift */; };
-		EF8C09CE2E95740F00C5A02A /* NewTokenSelectorViewEmptyContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8C09CD2E95740F00C5A02A /* NewTokenSelectorViewEmptyContent.swift */; };
+		EF8C09CE2E95740F00C5A02A /* NewTokenSelectorEmptyContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8C09CD2E95740F00C5A02A /* NewTokenSelectorEmptyContentView.swift */; };
 		EF8D25AF2E0071D7000AB410 /* BalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D25AE2E0071D7000AB410 /* BalanceProvider.swift */; };
 		EF8D25B22E007B62000AB410 /* ExpressSourceWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D25B12E007B62000AB410 /* ExpressSourceWallet.swift */; };
 		EF8D25B42E007B69000AB410 /* ExpressDestinationWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D25B32E007B69000AB410 /* ExpressDestinationWallet.swift */; };
@@ -8332,7 +8332,7 @@
 		EF8BE6BF2CCA9CC3001FBA2B /* CommonOnrampDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonOnrampDataRepository.swift; sourceTree = "<group>"; };
 		EF8BE6C32CCB95D7001FBA2B /* OnrampRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampRoutable.swift; sourceTree = "<group>"; };
 		EF8C09CB2E9553AC00C5A02A /* AccountIconViewBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountIconViewBuilder.swift; sourceTree = "<group>"; };
-		EF8C09CD2E95740F00C5A02A /* NewTokenSelectorViewEmptyContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenSelectorViewEmptyContent.swift; sourceTree = "<group>"; };
+		EF8C09CD2E95740F00C5A02A /* NewTokenSelectorEmptyContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenSelectorEmptyContentView.swift; sourceTree = "<group>"; };
 		EF8D25AE2E0071D7000AB410 /* BalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceProvider.swift; sourceTree = "<group>"; };
 		EF8D25B12E007B62000AB410 /* ExpressSourceWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressSourceWallet.swift; sourceTree = "<group>"; };
 		EF8D25B32E007B69000AB410 /* ExpressDestinationWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressDestinationWallet.swift; sourceTree = "<group>"; };
@@ -22675,7 +22675,7 @@
 		EFA01B382E968DCC005C91B8 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				EF8C09CD2E95740F00C5A02A /* NewTokenSelectorViewEmptyContent.swift */,
+				EF8C09CD2E95740F00C5A02A /* NewTokenSelectorEmptyContentView.swift */,
 				EF0F34802E997C45000D9BC7 /* NewTokenSelectorWalletItemView */,
 				EF175D862E8D36FB00B69415 /* NewTokenSelectorAccountView */,
 				EF175D812E8D36D100B69415 /* NewTokenSelectorItemView */,
@@ -24652,7 +24652,7 @@
 				B012A11C2AA617000079BAB4 /* NotificationManager.swift in Sources */,
 				B6B3BB5D2D70D385002EBB56 /* NFTAvailabilityProvider.swift in Sources */,
 				EFB932032C3EAF7900C999E9 /* SendStepType.swift in Sources */,
-				EF8C09CE2E95740F00C5A02A /* NewTokenSelectorViewEmptyContent.swift in Sources */,
+				EF8C09CE2E95740F00C5A02A /* NewTokenSelectorEmptyContentView.swift in Sources */,
 				B66771E92DE3C7CA007563D0 /* CachesDirectoryStorage.File+.swift in Sources */,
 				0F25E1982EA12C8D00C67A34 /* MobileOnboardingUpgradeViewModel.swift in Sources */,
 				B656718F2DB2A4260037CD33 /* NFTReceiveCoordinatorView.swift in Sources */,
