@@ -81,12 +81,12 @@ extension StakingSingleActionFlowFactory {
 
 extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
-        let sendAmountCompactViewModel = SendNewAmountCompactViewModel(
+        let sendAmountCompactViewModel = SendAmountCompactViewModel(
             sourceTokenInput: actionModel,
             sourceTokenAmountInput: actionModel
         )
 
-        let sendNewAmountFinishViewModel = SendNewAmountFinishViewModel(
+        let sendAmountFinishViewModel = SendAmountFinishViewModel(
             sourceTokenInput: actionModel,
             sourceTokenAmountInput: actionModel
         )
@@ -101,13 +101,13 @@ extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
             isFeeApproximate: isFeeApproximate()
         )
 
-        let summary = makeSendNewSummaryStep(
+        let summary = makeSendSummaryStep(
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
         )
 
         let finish = makeSendFinishStep(
-            sendAmountFinishViewModel: sendNewAmountFinishViewModel,
+            sendAmountFinishViewModel: sendAmountFinishViewModel,
             sendFeeFinishViewModel: sendFeeFinishViewModel,
             router: router
         )
@@ -155,15 +155,15 @@ extension StakingSingleActionFlowFactory: SendBaseBuildable {
     }
 }
 
-// MARK: - SendNewSummaryStepBuildable
+// MARK: - SendSummaryStepBuildable
 
-extension StakingSingleActionFlowFactory: SendNewSummaryStepBuildable {
-    var newSummaryIO: SendNewSummaryStepBuilder.IO {
-        SendNewSummaryStepBuilder.IO(input: actionModel, output: actionModel)
+extension StakingSingleActionFlowFactory: SendSummaryStepBuildable {
+    var summaryIO: SendSummaryStepBuilder.IO {
+        SendSummaryStepBuilder.IO(input: actionModel, output: actionModel)
     }
 
-    var newSummaryTypes: SendNewSummaryStepBuilder.Types {
-        SendNewSummaryStepBuilder.Types(
+    var summaryTypes: SendSummaryStepBuilder.Types {
+        SendSummaryStepBuilder.Types(
             settings: .init(
                 destinationEditableType: .noEditable,
                 amountEditableType: .noEditable,
@@ -171,8 +171,8 @@ extension StakingSingleActionFlowFactory: SendNewSummaryStepBuildable {
         )
     }
 
-    var newSummaryDependencies: SendNewSummaryStepBuilder.Dependencies {
-        SendNewSummaryStepBuilder.Dependencies(
+    var summaryDependencies: SendSummaryStepBuilder.Dependencies {
+        SendSummaryStepBuilder.Dependencies(
             sendFeeProvider: actionModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
@@ -183,18 +183,18 @@ extension StakingSingleActionFlowFactory: SendNewSummaryStepBuildable {
     }
 }
 
-// MARK: - SendNewFinishStepBuildable
+// MARK: - SendFinishStepBuildable
 
-extension StakingSingleActionFlowFactory: SendNewFinishStepBuildable {
-    var newFinishIO: SendNewFinishStepBuilder.IO {
-        SendNewFinishStepBuilder.IO(input: actionModel)
+extension StakingSingleActionFlowFactory: SendFinishStepBuildable {
+    var finishIO: SendFinishStepBuilder.IO {
+        SendFinishStepBuilder.IO(input: actionModel)
     }
 
-    var newFinishTypes: SendNewFinishStepBuilder.Types {
-        SendNewFinishStepBuilder.Types(tokenItem: tokenItem)
+    var finishTypes: SendFinishStepBuilder.Types {
+        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
-    var newFinishDependencies: SendNewFinishStepBuilder.Dependencies {
-        SendNewFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
+    var finishDependencies: SendFinishStepBuilder.Dependencies {
+        SendFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
     }
 }
