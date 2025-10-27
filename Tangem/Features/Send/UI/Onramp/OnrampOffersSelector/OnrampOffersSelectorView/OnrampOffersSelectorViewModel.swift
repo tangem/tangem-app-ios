@@ -33,13 +33,13 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     private lazy var onrampOfferViewModelBuilder = OnrampAllOfferViewModelBuilder(tokenItem: tokenItem)
     private lazy var onrampProvidersItemViewModelBuilder = OnrampProviderItemViewModelBuilder(tokenItem: tokenItem)
     private weak var input: OnrampProvidersInput?
-    private weak var output: OnrampOutput?
+    private weak var output: OnrampSummaryOutput?
 
     init(
         tokenItem: TokenItem,
         analyticsLogger: SendOnrampOffersAnalyticsLogger,
         input: OnrampProvidersInput,
-        output: OnrampOutput,
+        output: OnrampSummaryOutput,
     ) {
         self.tokenItem = tokenItem
         self.analyticsLogger = analyticsLogger

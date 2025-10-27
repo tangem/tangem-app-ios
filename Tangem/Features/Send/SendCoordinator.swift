@@ -37,7 +37,6 @@ class SendCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var qrScanViewCoordinator: QRScanViewCoordinator?
-    @Published var onrampProvidersCoordinator: OnrampProvidersCoordinator?
     @Published var onrampCountryDetectionCoordinator: OnrampCountryDetectionCoordinator?
     @Published var sendReceiveTokenCoordinator: SendReceiveTokenCoordinator?
 
@@ -84,16 +83,6 @@ extension SendCoordinator {
         let input: SendInput
         let type: SendType
         let source: Source
-
-        init(
-            input: SendDependenciesBuilder.Input,
-            type: SendType,
-            source: Source
-        ) {
-            self.input = input
-            self.type = type
-            self.source = source
-        }
     }
 
     enum Source {
@@ -269,19 +258,6 @@ extension SendCoordinator: OnrampRoutable {
         }
     }
 
-    func openOnrampProviders(providersBuilder: OnrampProvidersBuilder, paymentMethodsBuilder: OnrampPaymentMethodsBuilder) {
-        let coordinator = OnrampProvidersCoordinator(
-            onrampProvidersBuilder: providersBuilder,
-            onrampPaymentMethodsBuilder: paymentMethodsBuilder,
-            dismissAction: { [weak self] in
-                self?.onrampProvidersCoordinator = nil
-            }, popToRootAction: popToRootAction
-        )
-
-        coordinator.start(with: .default)
-        onrampProvidersCoordinator = coordinator
-    }
-
     func openOnrampRedirecting(onrampRedirectingBuilder: OnrampRedirectingBuilder) {
         onrampRedirectingViewModel = onrampRedirectingBuilder.makeOnrampRedirectingViewModel(coordinator: self)
     }
@@ -331,14 +307,6 @@ extension SendCoordinator: OnrampSettingsRoutable {
 extension SendCoordinator: OnrampCurrencySelectorRoutable {
     func dismissCurrencySelector() {
         onrampCurrencySelectorViewModel = nil
-    }
-}
-
-// MARK: - OnrampAmountRoutable
-
-extension SendCoordinator: OnrampAmountRoutable {
-    func openOnrampCurrencySelector() {
-        rootViewModel?.openOnrampCurrencySelectorView()
     }
 }
 
