@@ -20,9 +20,9 @@ extension YieldModuleInfoView {
         let minAmountState: YieldFeeSectionState
         let chartState: YieldChartContainerState
         let estimatedFeeState: YieldFeeSectionState
+        let availableBalanceState: YieldFeeSectionState
         let notifications: [YieldModuleNotificationBannerParams]
         let transferMode: String
-        let availableBalance: String
         let readMoreUrl: URL
         let myFundsSectionText: AttributedString
         let earInfoFooterText: AttributedString?
@@ -122,7 +122,7 @@ extension YieldModuleInfoView {
                     .padding(.horizontal, 4)
 
                 YieldFeeSection(
-                    sectionState: .init(feeState: .loaded(text: availableBalance), isLinkActive: true),
+                    sectionState: availableBalanceState,
                     leadingTitle: Localization.yieldModuleEarnSheetAvailableTitle,
                     needsBackground: false,
                     url: readMoreUrl
