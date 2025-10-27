@@ -66,6 +66,9 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private(set) var estimatedFeeState: YieldFeeSectionState = .init()
 
     @Published
+    private(set) var availableBalanceState: YieldFeeSectionState = .init()
+
+    @Published
     private(set) var earInfoFooterText: AttributedString?
 
     @Published
@@ -94,8 +97,6 @@ final class YieldModuleInfoViewModel: ObservableObject {
     // MARK: - Properties
 
     private(set) var activityState: ActivityState = .active
-    private let availableBalance: Decimal
-
     private(set) var readMoreURL: URL = TangemBlogUrlBuilder().url(post: .fee)
 
     // MARK: - Init
@@ -104,13 +105,11 @@ final class YieldModuleInfoViewModel: ObservableObject {
         walletModel: any WalletModel,
         feeCurrencyNavigator: (any FeeCurrencyNavigating)?,
         yieldManagerInteractor: YieldManagerInteractor,
-        availableBalance: Decimal,
         logger: YieldAnalyticsLogger
     ) {
         self.walletModel = walletModel
         self.feeCurrencyNavigator = feeCurrencyNavigator
         self.yieldManagerInteractor = yieldManagerInteractor
-        self.availableBalance = availableBalance
         notificationManager = YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
         self.logger = logger
 
@@ -181,10 +180,6 @@ final class YieldModuleInfoViewModel: ObservableObject {
         }
     }
 
-    func getAvailableBalanceString() -> String {
-        feeConverter.formatCryptoBalance(availableBalance, prefix: "a")
-    }
-
     func makeMyFundsSectionText() -> AttributedString {
         let tokenName = walletModel.tokenItem.name
         let symbol = walletModel.tokenItem.currencySymbol
@@ -214,10 +209,22 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     private func earnInfoStart() {
+        Task { await getAvailableFunds() }
         Task { await checkWarnings() }
         Task { await getEarnInfoFees() }
         Task { await getApy() }
         Task { await fetchChartData() }
+    }
+
+    @MainActor
+    private func getAvailableFunds() async {
+        if let availableBalance = await yieldManagerInteractor.getAvailableBalance() {
+            availableBalanceState = availableBalanceState.withFeeState(
+                .loaded(text: feeConverter.formatCryptoBalance(availableBalance, prefix: "a"))
+            )
+        } else {
+            availableBalanceState = availableBalanceState.withFeeState(.noData)
+        }
     }
 
     @MainActor
