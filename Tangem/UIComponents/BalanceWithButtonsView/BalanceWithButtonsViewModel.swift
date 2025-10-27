@@ -51,17 +51,12 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
             return
         }
 
-        yieldModuleStatusProvider?.yieldModuleState
+        yieldModuleStatusProvider?
+            .yieldModuleState
+            .filter { $0.state != .loading }
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                switch (state.state, state.marketInfo) {
-                case (.active, .some(let info)):
-                    self?.shouldShowYieldBalanceInfo = true
-                    self?.yieldModuleApy = PercentFormatter().format(info.apy, option: .staking)
-                default:
-                    self?.shouldShowYieldBalanceInfo = false
-                    self?.yieldModuleApy = nil
-                }
+            .sink { [weak self] stateInfo in
+                self?.updateYieldModuleInfo(stateInfo)
             }
             .store(in: &bag)
 
@@ -128,6 +123,19 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
             let builder = LoadableTokenBalanceViewStateBuilder()
             fiatBalance = builder.buildAttributedTotalBalance(type: type == .all ? all : available)
         }
+    }
+
+    private func updateYieldModuleInfo(_ info: YieldModuleManagerStateInfo) {
+        guard let marketInfo = info.marketInfo,
+              info.state.isEffectivelyActive
+        else {
+            shouldShowYieldBalanceInfo = false
+            yieldModuleApy = nil
+            return
+        }
+
+        shouldShowYieldBalanceInfo = true
+        yieldModuleApy = PercentFormatter().format(marketInfo.apy, option: .staking)
     }
 }
 
