@@ -53,6 +53,8 @@ final class CommonYieldModuleManager {
     private let transactionProvider: YieldTransactionProvider
     private let transactionFeeProvider: YieldTransactionFeeProvider
 
+    private let yieldModuleStateRepository: YieldModuleStateRepository
+
     private var _state = CurrentValueSubject<YieldModuleManagerStateInfo?, Never>(nil)
     private var _walletModelData = CurrentValueSubject<WalletModelData?, Never>(nil)
 
@@ -68,6 +70,7 @@ final class CommonYieldModuleManager {
         ethereumNetworkProvider: EthereumNetworkProvider,
         transactionCreator: TransactionCreator,
         blockaidApiService: BlockaidAPIService,
+        yieldModuleStateRepository: YieldModuleStateRepository,
         pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
     ) {
         guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses(),
@@ -83,6 +86,7 @@ final class CommonYieldModuleManager {
         self.chainId = chainId
         self.tokenId = tokenId
         self.yieldSupplyService = yieldSupplyService
+        self.yieldModuleStateRepository = yieldModuleStateRepository
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
 
         transactionProvider = YieldTransactionProvider(
@@ -313,6 +317,17 @@ private extension CommonYieldModuleManager {
             )
         }
         .removeDuplicates()
+        .handleEvents(
+            receiveOutput: { [yieldModuleStateRepository] state in
+                switch state.state {
+                case .disabled:
+                    yieldModuleStateRepository.clearState()
+                case .processing, .active, .notActive:
+                    yieldModuleStateRepository.storeState(state.state)
+                default: break
+                }
+            }
+        )
         .sink { [_state] result in
             _state.send(result)
         }
@@ -365,7 +380,7 @@ private extension CommonYieldModuleManager {
         case .noAccount:
             state = .disabled
         case .failed(error: let error):
-            state = .failedToLoad(error: error)
+            state = .failedToLoad(error: error, cachedState: yieldModuleStateRepository.state())
         }
 
         return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: state)
