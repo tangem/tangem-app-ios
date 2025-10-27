@@ -273,6 +273,7 @@ private extension TokenDetailsViewModel {
     private func bind() {
         walletModel.yieldModuleManager?.statePublisher
             .compactMap { $0 }
+            .filter { $0.state != .loading }
             .receiveOnMain()
             .sink { [weak self] state in
                 self?.updateYieldAvailability(state: state)
@@ -364,17 +365,23 @@ private extension TokenDetailsViewModel {
     }
 
     private func updateYieldAvailability(state: YieldModuleManagerStateInfo) {
+        yieldModuleAvailability = makeYieldAvailability(state: state.state, marketInfo: state.marketInfo)
+    }
+
+    private func makeYieldAvailability(
+        state: YieldModuleManagerState,
+        marketInfo: YieldModuleMarketInfo?
+    ) -> YieldModuleAvailability {
         guard FeatureProvider.isAvailable(.yieldModule), let manager = walletModel.yieldModuleManager else {
-            yieldModuleAvailability = .notApplicable
-            return
+            return .notApplicable
         }
 
-        func makeEligibleVm() {
+        func makeEligibleVm() -> YieldModuleAvailability {
             let vm = makeYieldNotificationViewModel(yieldManager: manager)
-            yieldModuleAvailability = .eligible(vm)
+            return .eligible(vm)
         }
 
-        switch state.state {
+        switch state {
         case .active(let info):
             let vm = makeYieldStatusViewModel(
                 yieldManager: manager,
@@ -383,8 +390,6 @@ private extension TokenDetailsViewModel {
                     hasUndepositedAmounts: !info.nonYieldModuleBalanceValue.isZero
                 )
             )
-            yieldModuleAvailability = .active(vm)
-
             if info.isAllowancePermissionRequired {
                 Analytics.log(
                     event: .earningNoticeApproveNeeded,
@@ -392,18 +397,30 @@ private extension TokenDetailsViewModel {
                 )
             }
 
-        case .notActive:
-            makeEligibleVm()
+            return .active(vm)
 
-        case .failedToLoad where state.marketInfo != nil:
-            makeEligibleVm()
+        case .notActive:
+            return makeEligibleVm()
 
         case .processing(let action):
             let vm = makeYieldStatusViewModel(yieldManager: manager, state: action == .enter ? .loading : .closing)
-            yieldModuleAvailability = (action == .enter) ? .enter(vm) : .exit(vm)
+            return (action == .enter) ? .enter(vm) : .exit(vm)
 
-        case .disabled, .loading, .failedToLoad:
-            yieldModuleAvailability = .notApplicable
+        case .disabled:
+            return .notApplicable
+
+        case .loading:
+            AppLogger.warning("Loading state should not be passed here to avoid blinking on UI")
+            return .notApplicable
+
+        case .failedToLoad(_, .some(let cachedState)):
+            return makeYieldAvailability(state: cachedState, marketInfo: marketInfo)
+
+        case .failedToLoad where marketInfo != nil:
+            return makeEligibleVm()
+
+        case .failedToLoad:
+            return .notApplicable
         }
     }
 }
