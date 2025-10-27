@@ -75,7 +75,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     private(set) var isProcessingRequest: Bool = false
 
     @Published
-    private(set) var isActionButtonAvailable = true
+    private(set) var isActionButtonAvailable = false
 
     @Published
     private(set) var apyTrend: ApyTrend = .none
