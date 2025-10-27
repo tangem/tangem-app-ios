@@ -1,9 +1,9 @@
 //
 //  SendFinishStep.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
@@ -21,7 +21,6 @@ class SendFinishStep {
 
 extension SendFinishStep: SendStep {
     var type: SendStepType { .finish(viewModel) }
-    var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         .just(output: true)
