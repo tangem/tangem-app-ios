@@ -98,7 +98,7 @@ extension NFTFlowFactory: SendGenericFlowFactory {
 
         // Destination editable
         // Amount noEditable
-        let summary = makeSendNewSummaryStep(
+        let summary = makeSendSummaryStep(
             sendDestinationCompactViewModel: destination.compact,
             nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendFeeCompactViewModel: fee.compact
@@ -244,19 +244,19 @@ extension NFTFlowFactory: SendFeeStepBuildable {
     }
 }
 
-// MARK: - SendNewSummaryStepBuildable
+// MARK: - SendSummaryStepBuildable
 
-extension NFTFlowFactory: SendNewSummaryStepBuildable {
-    var newSummaryIO: SendNewSummaryStepBuilder.IO {
-        SendNewSummaryStepBuilder.IO(input: sendModel, output: sendModel, receiveTokenAmountInput: sendModel)
+extension NFTFlowFactory: SendSummaryStepBuildable {
+    var summaryIO: SendSummaryStepBuilder.IO {
+        SendSummaryStepBuilder.IO(input: sendModel, output: sendModel, receiveTokenAmountInput: sendModel)
     }
 
-    var newSummaryTypes: SendNewSummaryStepBuilder.Types {
+    var summaryTypes: SendSummaryStepBuilder.Types {
         .init(settings: .init(destinationEditableType: .editable, amountEditableType: .noEditable))
     }
 
-    var newSummaryDependencies: SendNewSummaryStepBuilder.Dependencies {
-        SendNewSummaryStepBuilder.Dependencies(
+    var summaryDependencies: SendSummaryStepBuilder.Dependencies {
+        SendSummaryStepBuilder.Dependencies(
             sendFeeProvider: sendFeeProvider,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
@@ -267,19 +267,19 @@ extension NFTFlowFactory: SendNewSummaryStepBuildable {
     }
 }
 
-// MARK: - SendNewFinishStepBuildable
+// MARK: - SendFinishStepBuildable
 
-extension NFTFlowFactory: SendNewFinishStepBuildable {
-    var newFinishIO: SendNewFinishStepBuilder.IO {
-        SendNewFinishStepBuilder.IO(input: sendModel)
+extension NFTFlowFactory: SendFinishStepBuildable {
+    var finishIO: SendFinishStepBuilder.IO {
+        SendFinishStepBuilder.IO(input: sendModel)
     }
 
-    var newFinishTypes: SendNewFinishStepBuilder.Types {
-        SendNewFinishStepBuilder.Types(tokenItem: tokenItem)
+    var finishTypes: SendFinishStepBuilder.Types {
+        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
-    var newFinishDependencies: SendNewFinishStepBuilder.Dependencies {
-        SendNewFinishStepBuilder.Dependencies(
+    var finishDependencies: SendFinishStepBuilder.Dependencies {
+        SendFinishStepBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
         )
     }
