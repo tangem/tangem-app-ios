@@ -94,24 +94,10 @@ final class ReferralViewModel: ObservableObject {
         }
 
         coordinator?.showAccountSelector(
-            selectedAccount: .account(
-                AccountSelectorAccountItem(
-                    id: selectedCryptoAccount.id.toAnyHashable(),
-                    name: selectedCryptoAccount.name,
-                    tokensCount: "\(selectedCryptoAccount.walletModelsManager.walletModels.count)",
-                    icon: selectedCryptoAccount.icon,
-                    domainModel: selectedCryptoAccount,
-                    formattedBalanceTypePublisher: selectedCryptoAccount.fiatTotalBalanceProvider.totalFiatBalancePublisher
-                )
-            ),
+            selectedAccount: selectedCryptoAccount,
             userWalletModel: selectedUserWallet,
-            onSelect: { [weak self] account in
-                guard
-                    let self,
-                    let cryptoAccountModel = findAccount(by: account.id.toAnyHashable())
-                else {
-                    return
-                }
+            onSelect: { [weak self] cryptoAccountModel in
+                guard let self else { return }
 
                 let accountData = SelectedAccountViewData(
                     id: cryptoAccountModel.id.toAnyHashable(),
