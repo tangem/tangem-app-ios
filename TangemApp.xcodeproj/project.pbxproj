@@ -36,7 +36,7 @@
 		0A3D2C952E8AB0620080996F /* YieldSupplyInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3D2C942E8AB0620080996F /* YieldSupplyInfo.swift */; };
 		0A3E3E402DF86F17008143E1 /* KeysDerivingMobileWalletInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3E3E3F2DF86F17008143E1 /* KeysDerivingMobileWalletInteractor.swift */; };
 		0A3F470A2E7BDE2200F3DCEC /* YieldSendMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F47032E7BDE2200F3DCEC /* YieldSendMethod.swift */; };
-		0A3F470B2E7BDE2200F3DCEC /* ProtocolBalanceMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F47002E7BDE2200F3DCEC /* ProtocolBalanceMethod.swift */; };
+		0A3F470B2E7BDE2200F3DCEC /* EffectiveProtocolBalanceMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F47002E7BDE2200F3DCEC /* EffectiveProtocolBalanceMethod.swift */; };
 		0A3F470C2E7BDE2200F3DCEC /* InitYieldTokenMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F46FF2E7BDE2200F3DCEC /* InitYieldTokenMethod.swift */; };
 		0A3F470D2E7BDE2200F3DCEC /* EnterProtocolMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F46FE2E7BDE2200F3DCEC /* EnterProtocolMethod.swift */; };
 		0A3F470E2E7BDE2200F3DCEC /* DeployYieldModuleMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F46FC2E7BDE2200F3DCEC /* DeployYieldModuleMethod.swift */; };
@@ -4429,7 +4429,7 @@
 		0A3F46FD2E7BDE2200F3DCEC /* EffectiveBalanceMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectiveBalanceMethod.swift; sourceTree = "<group>"; };
 		0A3F46FE2E7BDE2200F3DCEC /* EnterProtocolMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterProtocolMethod.swift; sourceTree = "<group>"; };
 		0A3F46FF2E7BDE2200F3DCEC /* InitYieldTokenMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitYieldTokenMethod.swift; sourceTree = "<group>"; };
-		0A3F47002E7BDE2200F3DCEC /* ProtocolBalanceMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolBalanceMethod.swift; sourceTree = "<group>"; };
+		0A3F47002E7BDE2200F3DCEC /* EffectiveProtocolBalanceMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectiveProtocolBalanceMethod.swift; sourceTree = "<group>"; };
 		0A3F47012E7BDE2200F3DCEC /* ReactivateTokenMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactivateTokenMethod.swift; sourceTree = "<group>"; };
 		0A3F47032E7BDE2200F3DCEC /* YieldSendMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSendMethod.swift; sourceTree = "<group>"; };
 		0A3F47052E7BDE2200F3DCEC /* WithdrawAndDeactivateMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithdrawAndDeactivateMethod.swift; sourceTree = "<group>"; };
@@ -8950,7 +8950,7 @@
 				0A3F46FD2E7BDE2200F3DCEC /* EffectiveBalanceMethod.swift */,
 				0A3F46FE2E7BDE2200F3DCEC /* EnterProtocolMethod.swift */,
 				0A3F46FF2E7BDE2200F3DCEC /* InitYieldTokenMethod.swift */,
-				0A3F47002E7BDE2200F3DCEC /* ProtocolBalanceMethod.swift */,
+				0A3F47002E7BDE2200F3DCEC /* EffectiveProtocolBalanceMethod.swift */,
 				0A3F47012E7BDE2200F3DCEC /* ReactivateTokenMethod.swift */,
 				0A3F47032E7BDE2200F3DCEC /* YieldSendMethod.swift */,
 				0A3F47052E7BDE2200F3DCEC /* WithdrawAndDeactivateMethod.swift */,
@@ -27775,7 +27775,7 @@
 				EFA6A8542D79D1E6002FEB90 /* KaspaTransactionRecordMapper.swift in Sources */,
 				B62D3FCE2CBC79DA00C2460E /* OP_BOOLAND.swift in Sources */,
 				0A3F470A2E7BDE2200F3DCEC /* YieldSendMethod.swift in Sources */,
-				0A3F470B2E7BDE2200F3DCEC /* ProtocolBalanceMethod.swift in Sources */,
+				0A3F470B2E7BDE2200F3DCEC /* EffectiveProtocolBalanceMethod.swift in Sources */,
 				0A3F470C2E7BDE2200F3DCEC /* InitYieldTokenMethod.swift in Sources */,
 				0A3F470D2E7BDE2200F3DCEC /* EnterProtocolMethod.swift in Sources */,
 				0A3F470E2E7BDE2200F3DCEC /* DeployYieldModuleMethod.swift in Sources */,
