@@ -68,10 +68,7 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
             input: .init(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
-                expressInput: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
+                expressInput: .init(userWalletInfo: userWalletModel.userWalletInfo)
             ),
             type: .onramp(),
             source: .actionButtons
