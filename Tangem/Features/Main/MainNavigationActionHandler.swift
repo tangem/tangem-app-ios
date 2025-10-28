@@ -228,10 +228,15 @@ extension MainCoordinator {
                 return false
             }
 
+            let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
+                .accounts(userWalletModel.accountModelsManager) :
+                .plainUserTokensManager(userWalletModel.userTokensManager)
+
             let input = ReferralInputModel(
                 userWalletId: userWalletModel.userWalletId.value,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
-                userTokensManager: userWalletModel.userTokensManager
+                workMode: workMode,
+                tokenIconInfoBuilder: TokenIconInfoBuilder()
             )
 
             coordinator.openDeepLink(.referral(input: input))
@@ -271,7 +276,7 @@ extension MainCoordinator {
                   let coordinator,
                   let userWalletModel = userWalletRepository.models.first,
                   // If it's not nil - user already received and accepted Tangem Pay offer
-                  TangemPayAccount(userWalletModel: userWalletModel) == nil
+                  TangemPayAccount(keysRepository: userWalletModel.keysRepository) == nil
             else {
                 incomingActionManager.discardIncomingAction()
                 return false

@@ -43,7 +43,7 @@ struct OnrampOffersSelectorView: View {
             .subtitleSpacing(0)
             .padding(.horizontal, 16)
 
-            GroupedScrollView(alignment: .leading, spacing: 8) {
+            GroupedScrollView(contentType: .plain(alignment: .leading, spacing: 8)) {
                 content
             }
             .scrollBounceBehaviorBackport(.basedOnSize)
