@@ -22,7 +22,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     @Published
     var rootViewModel: YieldModulePromoViewModel? = nil
 
-    private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
+    private weak var feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
 
     // MARK: - Init
 
@@ -61,6 +61,6 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 extension YieldModulePromoCoordinator {
     struct Options {
         let viewModel: YieldModulePromoViewModel
-        let feeCurrencyNavigator: (any FeeCurrencyNavigating)?
+        let feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
     }
 }
