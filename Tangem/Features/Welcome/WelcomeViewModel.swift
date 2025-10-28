@@ -96,7 +96,11 @@ final class WelcomeViewModel: ObservableObject {
                 await viewModel.handleError(error)
 
             case .onboarding(let input, _):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue])
+                Analytics.log(
+                    .cardWasScanned,
+                    params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue],
+                    contextParams: input.cardInput.getContextParams()
+                )
                 viewModel.incomingActionManager.discardIncomingAction(if: { !$0.isPromoDeeplink })
 
                 await runOnMain {
@@ -114,7 +118,11 @@ final class WelcomeViewModel: ObservableObject {
                 }
 
             case .success(let cardInfo):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue])
+                Analytics.log(
+                    .cardWasScanned,
+                    params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue],
+                    contextParams: .custom(cardInfo.analyticsContextData)
+                )
 
                 let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
