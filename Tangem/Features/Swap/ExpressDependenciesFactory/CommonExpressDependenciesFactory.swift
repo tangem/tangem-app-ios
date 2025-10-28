@@ -68,7 +68,7 @@ private extension CommonExpressDependenciesFactory {
             expressManager: expressManager,
             expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
-            expressDestinationService: expressDestinationService,
+            expressDestinationService: CommonExpressDestinationService(userWalletId: input.userWalletInfo.id),
             expressAnalyticsLogger: analyticsLogger,
             expressAPIProvider: expressAPIProvider
         )
@@ -100,10 +100,6 @@ private extension CommonExpressDependenciesFactory {
     /// Because there will be inly initial tokenItem without updating
     var analyticsLogger: ExpressAnalyticsLogger {
         CommonExpressAnalyticsLogger(tokenItem: initialWallet.tokenItem)
-    }
-
-    var expressDestinationService: ExpressDestinationService {
-        CommonExpressDestinationService(walletModelsManager: input.walletModelsManager)
     }
 }
 
