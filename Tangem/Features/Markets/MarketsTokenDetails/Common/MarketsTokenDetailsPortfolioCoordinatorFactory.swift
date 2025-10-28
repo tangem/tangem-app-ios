@@ -29,8 +29,6 @@ struct MarketsTokenDetailsPortfolioCoordinatorFactory {
     ) -> ExpressCoordinator {
         let input = CommonExpressModulesFactory.InputModel(
             userWalletInfo: userWalletModel.userWalletInfo,
-            userTokensManager: userWalletModel.userTokensManager,
-            walletModelsManager: userWalletModel.walletModelsManager,
             initialWalletModel: walletModel,
             destinationWalletModel: .none
         )
