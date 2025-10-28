@@ -602,6 +602,11 @@ extension CommonWalletModel: WalletModelHelpers {
 
 extension CommonWalletModel: WalletModelFeeProvider {
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
+        if isDemo {
+            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
+            return .justWithError(output: demoFees)
+        }
+
         return walletManager.estimatedFee(amount: amount)
     }
 
@@ -623,7 +628,12 @@ extension CommonWalletModel: WalletModelFeeProvider {
     }
 
     func getFee(compiledTransaction data: Data) async throws -> [Fee] {
-        try await compiledTransactionFeeProvider?.getFee(compiledTransaction: data) ?? []
+        if isDemo {
+            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
+            return demoFees
+        }
+
+        return try await compiledTransactionFeeProvider?.getFee(compiledTransaction: data) ?? []
     }
 }
 
