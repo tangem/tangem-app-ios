@@ -1789,6 +1789,7 @@
 "yield_module_stop_earning_sheet_description" = "Выключив эту функцию, вы выведёте средства из Aave, получите их обратно в %@ в своем кошельке и перестанете зарабатывать награды.";
 "yield_module_stop_earning_sheet_fee_note" = "Комиссия сети будет вычтена из суммы вашего вывода.";
 "yield_module_stop_earning" = "Завершить заработок";
+"yield_module_supply" = "Supply";
 "yield_module_supply_apr" = "Годовая доходность (APY)";
 "yield_module_supply" = "Supply";
 "yield_module_token_details_earn_notification_apy" = "APY";
