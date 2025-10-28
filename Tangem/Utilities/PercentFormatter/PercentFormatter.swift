@@ -87,6 +87,8 @@ extension PercentFormatter.Option {
 
     static let express = PercentFormatter.Option(fractionDigits: .one, prefix: .default, suffix: .default)
     static let onramp = PercentFormatter.Option(fractionDigits: .two, prefix: .onlyMinus, suffix: .default)
+
+    static let yield = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .yield)
 }
 
 // MARK: Options
@@ -123,6 +125,7 @@ extension PercentFormatter {
     struct Suffix: Hashable {
         static let empty = Suffix(value: "")
         static let `default` = Suffix(value: " %")
+        static let yield = Suffix(value: "%")
 
         let value: String
     }
