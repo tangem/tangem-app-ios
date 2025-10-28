@@ -47,10 +47,18 @@ extension NotificationEvent {
             }
         } else if let sendNotificationEvent = self as? SendNotificationEvent {
             switch sendNotificationEvent {
+            case .customFeeTooLow:
+                return SendAccessibilityIdentifiers.customFeeTooLowBanner
+            case .customFeeTooHigh:
+                return SendAccessibilityIdentifiers.customFeeTooHighBanner
+            case .feeWillBeSubtractFromSendingAmount:
+                return SendAccessibilityIdentifiers.feeWillBeSubtractFromSendingAmountBanner
             case .validationErrorEvent(let event):
                 switch event {
                 case .dustRestriction:
                     return SendAccessibilityIdentifiers.invalidAmountBanner
+                case .remainingAmountIsLessThanRentExemption:
+                    return SendAccessibilityIdentifiers.remainingAmountIsLessThanRentExemptionBanner
                 case .insufficientAmountToReserveAtDestination:
                     return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
                 case .amountExceedMaximumUTXO:
