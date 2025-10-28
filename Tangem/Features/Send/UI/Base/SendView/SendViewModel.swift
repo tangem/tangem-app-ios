@@ -239,9 +239,7 @@ private extension SendViewModel {
                 self?.openMail(error: error)
             })
         case .demoAlert:
-            showAlert(AlertBuilder.makeDemoAlert(Localization.alertDemoFeatureDisabled) { [weak self] in
-                self?.coordinator?.dismiss(reason: .other)
-            })
+            showAlert(AlertBuilder.makeDemoAlert())
         }
     }
 
