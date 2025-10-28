@@ -34,10 +34,15 @@ public enum SendAccessibilityIdentifiers {
 
     /// Notification banners
     public static let invalidAmountBanner = "sendInvalidAmountBanner"
-    public static let remainingAmountIsLessThanRentExemptionBanner = "sendRemainingAmountIsLessThanRentExemptionBanner"
     public static let insufficientAmountToReserveAtDestinationBanner = "sendInsufficientAmountToReserveAtDestinationBanner"
     public static let amountExceedMaximumUTXOBanner = "sendAmountExceedMaximumUTXOBanner"
     public static let customFeeTooLowBanner = "sendCustomFeeTooLowBanner"
     public static let feeWillBeSubtractFromSendingAmountBanner = "sendfeeWillBeSubtractFromSendingAmountBanner"
     public static let customFeeTooHighBanner = "sendCustomFeeTooHighBanner"
+    public static let highFeeNotificationBanner = "sendHighFeeNotificationBanner"
+    public static let existentialDepositWarningBanner = "sendExistentialDepositWarningBanner"
+    public static let remainingAmountIsLessThanRentExemptionBanner = "sendRemainingAmountIsLessThanRentExemptionBanner"
+    public static let reduceFeeButton = "sendReduceFeeButton"
+    public static let leaveAmountButton = "sendLeaveAmountButton"
+    public static let fromWalletButton = "sendFromWalletButton"
 }
