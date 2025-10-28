@@ -31,8 +31,7 @@ struct YieldModuleInfoView: View {
             header: { makeHeader(viewState: viewModel.viewState) },
             topContent: { topContent },
             content: { mainContent },
-            contentTopPadding: contentTopPadding,
-            buttonTopPadding: buttonTopPadding
+            contentTopPadding: contentTopPadding
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
@@ -47,28 +46,6 @@ struct YieldModuleInfoView: View {
             8
         default:
             24
-        }
-    }
-
-    private var horizontalPadding: CGFloat {
-        switch viewModel.viewState {
-        case .earnInfo:
-            0
-        default:
-            16
-        }
-    }
-
-    private var buttonTopPadding: CGFloat {
-        if viewModel.notificationBannerParams != nil {
-            return 24
-        }
-
-        switch viewModel.viewState {
-        case .earnInfo:
-            return 16
-        default:
-            return 32
         }
     }
 
@@ -100,7 +77,6 @@ struct YieldModuleInfoView: View {
             .init(settings: .init(
                 title: Localization.yieldModuleStopEarning,
                 style: .secondary,
-                isDisabled: !viewModel.isMainButtonAvailable,
                 action: ctaButtonAction
             ))
         case .approve, .stopEarning:
@@ -109,7 +85,7 @@ struct YieldModuleInfoView: View {
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
                 isLoading: viewModel.isProcessingRequest,
-                isDisabled: !viewModel.isMainButtonAvailable,
+                isDisabled: !viewModel.isActionButtonAvailable,
                 action: ctaButtonAction
             ))
         }
@@ -136,35 +112,31 @@ struct YieldModuleInfoView: View {
                 apyTrend: viewModel.apyTrend,
                 minAmountState: viewModel.minimalAmountState,
                 chartState: viewModel.chartState,
-                networkFeeState: viewModel.currentNetworkFeeState,
-                networkFeeAmountState: viewModel.networkFeeAmountState,
-                bannerParams: viewModel.notificationBannerParams,
-                tokenName: viewModel.walletModel.tokenItem.name,
-                tokenSymbol: viewModel.walletModel.tokenItem.currencySymbol,
+                estimatedFeeState: viewModel.estimatedFeeState,
+                availableBalanceState: viewModel.availableBalanceState,
+                notifications: viewModel.earnInfoNotifications,
                 transferMode: Localization.yieldModuleTransferModeAutomatic,
-                availableBalance: viewModel.getAvailableBalanceString(),
                 readMoreUrl: viewModel.readMoreURL,
-                myFundsSectionText: viewModel.makeMyFundsSectionText()
+                myFundsSectionText: viewModel.makeMyFundsSectionText(),
+                earInfoFooterText: viewModel.earInfoFooterText
             )
 
         case .approve:
             YieldFeeSection(
+                sectionState: viewModel.networkFeeState,
                 leadingTitle: Localization.commonNetworkFeeTitle,
-                state: viewModel.networkFeeState,
-                footerText: Localization.yieldModuleApproveSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
                 url: viewModel.readMoreURL,
-                isLinkActive: true
+                notification: viewModel.networkFeeNotification
             )
 
         case .stopEarning:
             YieldFeeSection(
+                sectionState: viewModel.networkFeeState,
                 leadingTitle: Localization.commonNetworkFeeTitle,
-                state: viewModel.networkFeeState,
-                footerText: Localization.yieldModuleStopEarningSheetFeeNote,
                 linkTitle: Localization.commonReadMore,
                 url: viewModel.readMoreURL,
-                isLinkActive: true
+                notification: viewModel.networkFeeNotification
             )
         }
     }

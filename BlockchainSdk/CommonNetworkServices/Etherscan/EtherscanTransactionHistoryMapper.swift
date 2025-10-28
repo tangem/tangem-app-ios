@@ -76,6 +76,9 @@ final class EtherscanTransactionHistoryMapper {
         switch amountType {
         case .coin where transaction.isContractInteraction,
              .token where transaction.isContractInteraction:
+            if let methodId = transaction.methodId {
+                return .contractMethodIdentifier(id: methodId)
+            }
             let methodName = transaction.functionName?.components(separatedBy: Constants.methodNameSeparator).first?.nilIfEmpty
             if let methodName {
                 return .contractMethodName(name: methodName)
