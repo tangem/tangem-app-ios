@@ -225,7 +225,11 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
 
-        try? await yieldModuleNetworkManager.activate(tokenContractAddress: token.contractAddress, chainId: chainId)
+        try? await yieldModuleNetworkManager.activate(
+            tokenContractAddress: token.contractAddress,
+            walletAddress: walletAddress,
+            chainId: chainId
+        )
 
         return result
     }
@@ -258,7 +262,11 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
 
-        try? await yieldModuleNetworkManager.deactivate(tokenContractAddress: token.contractAddress, chainId: chainId)
+        try? await yieldModuleNetworkManager.deactivate(
+            tokenContractAddress: token.contractAddress,
+            walletAddress: walletAddress,
+            chainId: chainId
+        )
 
         return result
     }
