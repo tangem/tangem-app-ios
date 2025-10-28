@@ -376,9 +376,13 @@ private extension TokenDetailsViewModel {
             return .notApplicable
         }
 
-        func makeEligibleVm() -> YieldModuleAvailability {
-            let vm = makeYieldNotificationViewModel(yieldManager: manager)
-            return .eligible(vm)
+        func makeEligibleViewModelIfPossible() -> YieldModuleAvailability {
+            if let apy = marketInfo?.apy {
+                let vm = makeYieldNotificationViewModel(apy: apy)
+                return .eligible(vm)
+            } else {
+                return .notApplicable
+            }
         }
 
         switch state {
@@ -400,7 +404,7 @@ private extension TokenDetailsViewModel {
             return .active(vm)
 
         case .notActive:
-            return makeEligibleVm()
+            return makeEligibleViewModelIfPossible()
 
         case .processing(let action):
             let vm = makeYieldStatusViewModel(yieldManager: manager, state: action == .enter ? .loading : .closing)
@@ -416,11 +420,8 @@ private extension TokenDetailsViewModel {
         case .failedToLoad(_, .some(let cachedState)):
             return makeYieldAvailability(state: cachedState, marketInfo: marketInfo)
 
-        case .failedToLoad where marketInfo != nil:
-            return makeEligibleVm()
-
         case .failedToLoad:
-            return .notApplicable
+            return makeEligibleViewModelIfPossible()
         }
     }
 }
@@ -506,18 +507,9 @@ extension TokenDetailsViewModel {
         })
     }
 
-    func makeYieldNotificationViewModel(yieldManager: YieldModuleManager) -> YieldAvailableNotificationViewModel {
-        var state: YieldAvailableNotificationViewModel.State {
-            if let apy = yieldManager.state?.marketInfo?.apy {
-                return .available(apy: apy)
-            }
-
-            return .loading
-        }
-
-        return YieldAvailableNotificationViewModel(
-            state: state,
-            yieldModuleManager: yieldManager,
+    func makeYieldNotificationViewModel(apy: Decimal) -> YieldAvailableNotificationViewModel {
+        YieldAvailableNotificationViewModel(
+            apy: apy,
             onButtonTap: { [weak self] apy in
                 guard let self else { return }
                 coordinator?.openYieldModulePromoView(
