@@ -175,6 +175,7 @@
 "cardano_max_amount_has_token_title" = "Недостаточно ADA";
 "common_accept" = "Принять";
 "common_access_denied" = "Доступ запрещен";
+"common_account" = "Account";
 "common_accounts" = "Accounts";
 "common_activate" = "Активировать";
 "common_add_to_portfolio" = "Добавить в портфель";
@@ -1724,7 +1725,7 @@
 "xtz_withdrawal_message_warning" = "Чтобы не платить повышенную комиссию при следующем пополнении кошелька, уменьшите сумму на %@ XTZ";
 "yield_module_alert_description" = "При активном режиме доходности все будущие депозиты на этот адрес будут направляться в Aave. Вы по-прежнему можете свободно управлять своими средствами.";
 "yield_module_alert_title" = "Ваш %@ внесён в Aave";
-"yield_module_amount_not_transfered_to_aave_title" = "Supplying  %1$@ %2$@ to Aave is pending";
+"yield_module_amount_not_transfered_to_aave_title" = "Supplying %1$@ %2$@ to Aave is pending";
 "yield_module_approve_needed_notification_cta" = "Выдать разрешение";
 "yield_module_approve_needed_notification_description" = "Разрешение для вашего токена было отозвано. Выдайте его снова, чтобы продолжить работу сервиса.";
 "yield_module_approve_needed_notification_title" = "Необходимо разрешение";
@@ -1749,7 +1750,7 @@
 "yield_module_fee_policy_sheet_current_fee_note" = "Это текущая комиссия в сети %@.";
 "yield_module_fee_policy_sheet_current_fee_title" = "Текущая комиссия";
 "yield_module_fee_policy_sheet_description" = "Все следующие пополнения %@ автоматически поступят в Aave с удержанием комиссии за транзакцию.";
-"yield_module_fee_policy_sheet_fee_note" = "An approximate network fee of %1$@ (%2$@) will be deducted from each future top-up, and it won’t exceed your %3$@  (%4$@) limit.";
+"yield_module_fee_policy_sheet_fee_note" = "An approximate network fee of %1$@ (%2$@) will be deducted from each future top-up, and it won’t exceed your %3$@ (%4$@) limit.";
 "yield_module_fee_policy_sheet_max_fee_note" = "Если комиссия сети превысит максимальный лимит, транзакция не будет выполнена до тех пор, пока комиссия не снизится. Вы сможете изменить этот лимит позже.";
 "yield_module_fee_policy_sheet_max_fee_title" = "Максимальная комиссия";
 "yield_module_fee_policy_sheet_min_amount_note" = "Это минимальный депозит, который можно отправить в Aave. Чтобы депозиты оставались прибыльными, мы не обрабатываем их, когда комиссия сети превышает %1$@%2$@от суммы.";
@@ -1790,12 +1791,13 @@
 "yield_module_stop_earning" = "Завершить заработок";
 "yield_module_supply" = "Supply";
 "yield_module_supply_apr" = "Годовая доходность (APY)";
+"yield_module_supply" = "Supply";
 "yield_module_token_details_earn_notification_apy" = "APY";
-"yield_module_token_details_earn_notification_description" = "Пусть ваши деньги работают — зарабатывайте проценты на свой баланс.";
+"yield_module_token_details_earn_notification_description" = "Interest accrues automatically";
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Проценты начисляются автоматически.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Режим доходности";
 "yield_module_token_details_earn_notification_processing" = "Отправка ваших средств";
-"yield_module_token_details_earn_notification_title" = "Пусть ваш баланс работает на вас!";
+"yield_module_token_details_earn_notification_title" = "Yield Mode";
 "yield_module_transfer_mode_automatic" = "Автоматически";
 "yield_module_unable_to_cover_fee_description" = "Внесите немного %1$@ %2$@, чтобы покрыть комиссию сети за транзакции.";
 "yield_module_unable_to_cover_fee_title" = "Невозможно покрыть комиссию в %@";
