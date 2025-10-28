@@ -47,15 +47,6 @@ public extension VisaUtilities {
         .polygon(testnet: isTestnet)
     }
 
-    static func makeCustomerWalletSigningRequestMessage(nonce: String) -> String {
-        // This message format is defined by backend
-        "Tangem Pay wants to sign in with your account. Nonce: \(nonce)"
-    }
-
-    static func makeEIP191Message(content: String) -> String {
-        "\u{19}Ethereum Signed Message:\n\(content.count)\(content)"
-    }
-
     static func isVisaCard(_ card: Card) -> Bool {
         return isVisaCard(firmwareVersion: card.firmwareVersion, batchId: card.batchId)
     }
@@ -84,15 +75,6 @@ public extension VisaUtilities {
         }
     }
 
-    static func makeAddress(publicKey: Wallet.PublicKey, isTestnet: Bool) throws(VisaUtilitiesError) -> Address {
-        do {
-            let walletAddress = try makeAddressService(isTestnet: isTestnet).makeAddress(for: publicKey, with: .default)
-            return walletAddress
-        } catch {
-            throw .failedToCreateAddress(error)
-        }
-    }
-
     static func makeAddress(using cardActivationResponse: CardActivationResponse, isTestnet: Bool) throws -> Address {
         guard let wallet = cardActivationResponse.signedActivationOrder.cardSignedOrder.wallets.first(where: { $0.curve == mandatoryCurve }) else {
             throw VisaActivationError.missingWallet
@@ -105,14 +87,6 @@ public extension VisaUtilities {
 /// - NOTE: We need to use this isTestnet = false, because in BlockchainSdk we have if for testnet `DerivationPath` generation
 /// that didn't work properly, and for Visa we must generate derive keys using polygon derivation
 public extension VisaUtilities {
-    static var visaDefaultDerivationStyle: DerivationStyle {
-        .v3
-    }
-
-    static var visaDefaultDerivationPath: DerivationPath? {
-        VisaUtilities.visaBlockchain(isTestnet: false).derivationPath(for: visaDefaultDerivationStyle)
-    }
-
     static func visaDerivationPath(style: DerivationStyle) -> DerivationPath? {
         VisaUtilities.visaBlockchain(isTestnet: false).derivationPath(for: style)
     }
