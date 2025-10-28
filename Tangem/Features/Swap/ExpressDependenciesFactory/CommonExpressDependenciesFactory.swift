@@ -106,14 +106,9 @@ private extension CommonExpressDependenciesFactory {
 extension CommonExpressDependenciesFactory {
     struct Input {
         let userWalletInfo: UserWalletInfo
-        let walletModelsManager: WalletModelsManager
 
-        init(
-            userWalletInfo: UserWalletInfo,
-            walletModelsManager: any WalletModelsManager
-        ) {
+        init(userWalletInfo: UserWalletInfo) {
             self.userWalletInfo = userWalletInfo
-            self.walletModelsManager = walletModelsManager
         }
     }
 }

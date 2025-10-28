@@ -531,10 +531,7 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
                 let input = SendInput(
                     userWalletInfo: userWalletModel.userWalletInfo,
                     walletModel: model.walletModel,
-                    expressInput: .init(
-                        userWalletInfo: userWalletModel.userWalletInfo,
-                        walletModelsManager: userWalletModel.walletModelsManager
-                    )
+                    expressInput: .init(userWalletInfo: userWalletModel.userWalletInfo)
                 )
 
                 self?.openSendToSell(input: input, sellParameters: model.sellParameters)
