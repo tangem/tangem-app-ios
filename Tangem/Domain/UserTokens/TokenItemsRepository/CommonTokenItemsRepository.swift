@@ -126,7 +126,13 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
 
     func remove(_ entries: [StoredUserTokenList.Entry]) {
         lockQueue.sync {
-            let deletedEntriesKeys = entries
+            let networksToRemove = entries
+                .filter { $0.contractAddress == nil }
+                .map { StorageEntryKey(blockchainNetwork: $0.blockchainNetwork, contractAddresses: nil) }
+                .toSet()
+
+            let tokensToRemove = entries
+                .filter { $0.contractAddress != nil }
                 .map { StorageEntryKey(blockchainNetwork: $0.blockchainNetwork, contractAddresses: $0.contractAddress) }
                 .toSet()
 
@@ -135,8 +141,13 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
             var editedEntries = existingEntries
 
             editedEntries.removeAll { entry in
-                let key = StorageEntryKey(blockchainNetwork: entry.blockchainNetwork, contractAddresses: entry.contractAddress)
-                return deletedEntriesKeys.contains(key)
+                let networkKey = StorageEntryKey(blockchainNetwork: entry.blockchainNetwork, contractAddresses: nil)
+                if networksToRemove.contains(networkKey) {
+                    return true
+                }
+
+                let tokenKey = StorageEntryKey(blockchainNetwork: entry.blockchainNetwork, contractAddresses: entry.contractAddress)
+                return tokensToRemove.contains(tokenKey)
             }
 
             let hasRemoved = editedEntries.count != existingEntries.count

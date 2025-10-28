@@ -343,7 +343,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private func checkLocalStorage() throws {
         guard let tokenItem = try? enteredTokenItem() else { return }
 
-        if userTokensManager.contains(tokenItem) {
+        if userTokensManager.contains(tokenItem, derivationInsensitive: false) {
             throw TokenSearchError.alreadyAdded
         }
     }
