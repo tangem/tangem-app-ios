@@ -454,8 +454,6 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             coordinator.openExchange(
                 input: .init(
                     userWalletInfo: userWalletModel.userWalletInfo,
-                    userTokensManager: userWalletModel.userTokensManager,
-                    walletModelsManager: userWalletModel.walletModelsManager,
                     initialWalletModel: walletModel,
                     destinationWalletModel: .none
                 )
