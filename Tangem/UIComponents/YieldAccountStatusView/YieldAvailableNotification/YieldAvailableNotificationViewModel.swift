@@ -33,7 +33,7 @@ final class YieldAvailableNotificationViewModel: ObservableObject {
     func makeTitleText() -> AttributedString {
         let space = AttributedString(" ")
 
-        var title = AttributedString(Localization.yieldModuleTokenDetailsEarnNotificationEarningOnYourBalanceTitle)
+        var title = AttributedString(Localization.yieldModuleTokenDetailsEarnNotificationTitle)
         title.foregroundColor = Colors.Text.primary1
         title.font = Fonts.Bold.subheadline
 
