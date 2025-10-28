@@ -44,7 +44,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
         userWalletInfo: UserWalletInfo,
         sellParameters: PredefinedSellParameters,
         walletModel: any WalletModel,
-        expressInput: CommonExpressDependenciesFactory.Input
+        expressInput: ExpressDependenciesInput
     ) {
         self.userWalletInfo = userWalletInfo
         self.sellParameters = sellParameters
@@ -70,8 +70,6 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
         )
         expressDependenciesFactory = CommonExpressDependenciesFactory(
             input: expressInput,
-            initialWallet: walletModel.asExpressInteractorWallet,
-            destinationWallet: .none,
             // We support only `CEX` in `Send With Swap` flow
             supportedProviderTypes: [.cex],
             operationType: .swapAndSend

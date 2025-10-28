@@ -26,7 +26,6 @@ class ExpressInteractor {
     // MARK: - Dependencies
 
     private let userWalletInfo: UserWalletInfo
-    private let initialWallet: any ExpressInteractorSourceWallet
     private let expressManager: ExpressManager
     private let expressPairsRepository: ExpressPairsRepository
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
@@ -43,8 +42,7 @@ class ExpressInteractor {
 
     init(
         userWalletInfo: UserWalletInfo,
-        initialWallet: Source,
-        destinationWallet: Destination?,
+        swappingPair: SwappingPair,
         expressManager: ExpressManager,
         expressPairsRepository: ExpressPairsRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
@@ -53,7 +51,6 @@ class ExpressInteractor {
         expressAPIProvider: ExpressAPIProvider
     ) {
         self.userWalletInfo = userWalletInfo
-        self.initialWallet = initialWallet
         self.expressManager = expressManager
         self.expressPairsRepository = expressPairsRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
@@ -61,11 +58,8 @@ class ExpressInteractor {
         self.expressAnalyticsLogger = expressAnalyticsLogger
         self.expressAPIProvider = expressAPIProvider
 
-        _swappingPair = .init(
-            SwappingPair(sender: initialWallet, destination: destinationWallet)
-        )
-
-        initialLoading(wallet: initialWallet)
+        _swappingPair = .init(swappingPair)
+        initialLoading(wallet: swappingPair.sender)
     }
 }
 
@@ -363,8 +357,8 @@ private extension ExpressInteractor {
             Analytics.log(
                 event: .swapNoticeNotEnoughFee,
                 params: [
-                    .token: initialWallet.tokenItem.currencySymbol,
-                    .blockchain: initialWallet.tokenItem.blockchain.displayName,
+                    .token: _swappingPair.value.sender.tokenItem.currencySymbol,
+                    .blockchain: _swappingPair.value.sender.tokenItem.blockchain.displayName,
                 ]
             )
         }
