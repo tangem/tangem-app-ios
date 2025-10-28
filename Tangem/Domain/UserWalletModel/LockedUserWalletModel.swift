@@ -158,6 +158,8 @@ class LockedUserWalletModel: UserWalletModel {
             break
         case .accessCodeDidSet:
             break
+        case .accessCodeDidSkip:
+            break
         case .iCloudBackupCompleted:
             break
         case .mnemonicBackupCompleted:
