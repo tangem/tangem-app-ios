@@ -6,14 +6,15 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import TangemLocalization
 import Combine
+import TangemLocalization
 
 struct AccountSelectorAccountItem: Identifiable {
-    let id: String
+    let id: AnyHashable
     let name: String
     let tokensCount: String
     let icon: AccountModel.Icon
+    let domainModel: any CryptoAccountModel
     let formattedBalanceTypePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>
 }
 
@@ -29,11 +30,12 @@ extension AccountSelectorAccountItem: Hashable {
 }
 
 extension AccountSelectorAccountItem {
-    init(userWallet: any UserWalletModel, account: any CryptoAccountModel) {
-        id = "\(account.id)"
+    init(account: any CryptoAccountModel) {
+        id = account.id
         name = account.name
         tokensCount = Localization.commonTokensCount(account.walletModelsManager.walletModels.count)
         icon = account.icon
-        formattedBalanceTypePublisher = account.formattedBalanceTypePublisher
+        domainModel = account
+        formattedBalanceTypePublisher = account.fiatTotalBalanceProvider.totalFiatBalancePublisher
     }
 }
