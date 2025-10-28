@@ -59,6 +59,10 @@ extension WalletConnectV2SignTypedDataHandler: WalletConnectMessageHandler {
         request.stringRepresentation
     }
 
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        .empty
+    }
+
     func handle() async throws -> RPCResult {
         let hash = typedData.signHash
 

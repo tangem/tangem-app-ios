@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemLocalization
+
 protocol SendFinishStepBuildable {
     var finishIO: SendFinishStepBuilder.IO { get }
     var finishTypes: SendFinishStepBuilder.Types { get }
@@ -14,20 +16,25 @@ protocol SendFinishStepBuildable {
 
 extension SendFinishStepBuildable {
     func makeSendFinishStep(
-        sendAmountCompactViewModel: SendAmountCompactViewModel? = nil,
-        onrampAmountCompactViewModel: OnrampAmountCompactViewModel? = nil,
+        sendAmountFinishViewModel: SendAmountFinishViewModel? = nil,
+        nftAssetCompactViewModel: NFTAssetCompactViewModel? = nil,
+        sendDestinationCompactViewModel: SendDestinationCompactViewModel? = nil,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel? = nil,
-        sendFeeCompactViewModel: SendFeeCompactViewModel? = nil,
+        sendFeeFinishViewModel: SendFeeFinishViewModel? = nil,
+        onrampAmountCompactViewModel: OnrampAmountCompactViewModel? = nil,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel? = nil,
         router: SendRoutable,
     ) -> SendFinishStepBuilder.ReturnValue {
         SendFinishStepBuilder.make(
-            io: finishIO, types: finishTypes,
+            io: finishIO,
+            types: finishTypes,
             dependencies: finishDependencies,
-            sendAmountCompactViewModel: sendAmountCompactViewModel,
-            onrampAmountCompactViewModel: onrampAmountCompactViewModel,
+            sendAmountFinishViewModel: sendAmountFinishViewModel,
+            nftAssetCompactViewModel: nftAssetCompactViewModel,
+            sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            sendFeeFinishViewModel: sendFeeFinishViewModel,
+            onrampAmountCompactViewModel: onrampAmountCompactViewModel,
             onrampStatusCompactViewModel: onrampStatusCompactViewModel,
             router: router,
         )
@@ -40,7 +47,16 @@ enum SendFinishStepBuilder {
     }
 
     struct Types {
+        let title: String
         let tokenItem: TokenItem
+
+        init(
+            title: String = Localization.sentTransactionSentTitle,
+            tokenItem: TokenItem
+        ) {
+            self.title = title
+            self.tokenItem = tokenItem
+        }
     }
 
     struct Dependencies {
@@ -53,22 +69,31 @@ enum SendFinishStepBuilder {
         io: IO,
         types: Types,
         dependencies: Dependencies,
-        sendAmountCompactViewModel: SendAmountCompactViewModel?,
-        onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
+        sendAmountFinishViewModel: SendAmountFinishViewModel?,
+        nftAssetCompactViewModel: NFTAssetCompactViewModel?,
+        sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?,
+        sendFeeFinishViewModel: SendFeeFinishViewModel?,
+        onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel?,
         router: SendRoutable,
     ) -> ReturnValue {
+        let settings = SendFinishViewModel.Settings(
+            title: types.title,
+            possibleToShowExploreButtons: !types.tokenItem.blockchain.isTransactionAsync
+        )
+
         let viewModel = SendFinishViewModel(
             input: io.input,
-            tokenItem: types.tokenItem,
-            sendFinishAnalyticsLogger: dependencies.analyticsLogger,
-            sendAmountCompactViewModel: sendAmountCompactViewModel,
-            onrampAmountCompactViewModel: onrampAmountCompactViewModel,
+            sendAmountFinishViewModel: sendAmountFinishViewModel,
+            nftAssetCompactViewModel: nftAssetCompactViewModel,
+            sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            sendFeeFinishViewModel: sendFeeFinishViewModel,
+            onrampAmountCompactViewModel: onrampAmountCompactViewModel,
             onrampStatusCompactViewModel: onrampStatusCompactViewModel,
+            settings: settings,
+            analyticsLogger: dependencies.analyticsLogger,
             coordinator: router
         )
 

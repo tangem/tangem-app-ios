@@ -114,7 +114,7 @@ extension ActionButtonsBuyViewModel {
             do {
                 try userWalletModel.userTokensManager.addTokenItemPrecondition(tokenItem)
 
-                let isNotAddedToken = !userWalletModel.userTokensManager.containsDerivationInsensitive(tokenItem)
+                let isNotAddedToken = !userWalletModel.userTokensManager.contains(tokenItem, derivationInsensitive: true)
 
                 return isNotAddedToken
             } catch {

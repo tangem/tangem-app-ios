@@ -274,7 +274,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
 private extension MarketsTokensNetworkSelectorViewModel {
     func isAdded(_ tokenItem: TokenItem) -> Bool {
         if let userTokensManager = selectedUserWalletModel?.userTokensManager {
-            return userTokensManager.contains(tokenItem)
+            return userTokensManager.contains(tokenItem, derivationInsensitive: false)
         }
 
         return false
