@@ -1788,6 +1788,7 @@
 "yield_module_stop_earning_sheet_description" = "Al desactivar esto, retirará sus fondos de Aave a %@ en su billetera y dejará de ganar recompensas.";
 "yield_module_stop_earning_sheet_fee_note" = "La comisión de red se deducirá del importe que retire.";
 "yield_module_stop_earning" = "Desactivar el modo de rendimiento";
+"yield_module_supply" = "Supply";
 "yield_module_supply_apr" = "Suministro APY";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Deje que sus fondos hagan el trabajo mientras usted mantiene el control.";
