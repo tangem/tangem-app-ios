@@ -261,7 +261,11 @@ extension MainCoordinator {
             let input = SendInput(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
-                expressInput: .init(userWalletInfo: userWalletModel.userWalletInfo)
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    source: walletModel.asExpressInteractorWallet,
+                    destination: .loadingAndSet
+                )
             )
 
             let options = StakingDetailsCoordinator.Options(sendInput: input, manager: stakingManager)

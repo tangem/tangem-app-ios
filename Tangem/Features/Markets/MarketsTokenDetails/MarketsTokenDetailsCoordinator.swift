@@ -155,7 +155,7 @@ extension MarketsTokenDetailsCoordinator {
         }
     }
 
-    func openExchange(input: CommonExpressModulesFactory.InputModel) {
+    func openExchange(input: ExpressDependenciesInput) {
         let action = { [weak self] in
             guard let self else { return }
 
@@ -166,7 +166,7 @@ extension MarketsTokenDetailsCoordinator {
             let openSwapBlock = { [weak self] in
                 guard let self else { return }
                 Task { @MainActor in
-                    let factory = CommonExpressModulesFactory(inputModel: input)
+                    let factory = CommonExpressModulesFactory(input: input)
                     let coordinator = ExpressCoordinator(
                         factory: factory,
                         dismissAction: dismissAction,
@@ -187,8 +187,8 @@ extension MarketsTokenDetailsCoordinator {
             }
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.initialWalletModel.tokenItem) {
-            openViaYieldNotice(tokenItem: input.initialWalletModel.tokenItem, action: action)
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.source.tokenItem) {
+            openViaYieldNotice(tokenItem: input.source.tokenItem, action: action)
         } else {
             action()
         }

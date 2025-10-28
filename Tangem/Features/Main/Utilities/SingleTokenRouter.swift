@@ -72,10 +72,10 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openExchange(walletModel: any WalletModel) {
-        let input = CommonExpressModulesFactory.InputModel(
+        let input = ExpressDependenciesInput(
             userWalletInfo: userWalletModel.userWalletInfo,
-            initialWalletModel: walletModel,
-            destinationWalletModel: .none
+            source: walletModel.asExpressInteractorWallet,
+            destination: .loadingAndSet
         )
 
         if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
@@ -193,7 +193,11 @@ private extension SingleTokenRouter {
         SendInput(
             userWalletInfo: userWalletModel.userWalletInfo,
             walletModel: walletModel,
-            expressInput: .init(userWalletInfo: userWalletModel.userWalletInfo)
+            expressInput: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                source: walletModel.asExpressInteractorWallet,
+                destination: .loadingAndSet
+            )
         )
     }
 }
