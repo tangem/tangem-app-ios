@@ -175,6 +175,7 @@
 "cardano_max_amount_has_token_title" = "Nicht genug ADA";
 "common_accept" = "Akzeptieren";
 "common_access_denied" = "Zugang verweigert";
+"common_account" = "Account";
 "common_accounts" = "Konten";
 "common_activate" = "Aktivieren";
 "common_add_to_portfolio" = "Zum Portfolio hinzufügen";
@@ -331,7 +332,7 @@
 "common_transaction_failed" = "Transaktion fehlgeschlagen";
 "common_transaction_status" = "Transaktionsstatus";
 "common_transactions" = "Transaktionen";
-"common_transfer" = "Überweisung";
+"common_transfer" = "Überweiseung";
 "common_unable_to_load" = "Die Daten konnten nicht geladen werden…";
 "common_understand" = "Ich verstehe";
 "common_unknown_error" = "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.";
@@ -1790,12 +1791,13 @@
 "yield_module_stop_earning" = "Deaktiviere den Yield-Modus";
 "yield_module_supply" = "Supply";
 "yield_module_supply_apr" = "Effektiver Jahreszins für Versorgung";
+"yield_module_supply" = "Supply";
 "yield_module_token_details_earn_notification_apy" = "Effektiver Jahreszins";
-"yield_module_token_details_earn_notification_description" = "Lass Dein Geld arbeiten – verdiene Zinsen auf Dein Guthaben.";
+"yield_module_token_details_earn_notification_description" = "Interest accrues automatically";
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Zinsen fallen automatisch an";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Ertragsmodus";
 "yield_module_token_details_earn_notification_processing" = "Bearbeitung Deiner Einzahlung";
-"yield_module_token_details_earn_notification_title" = "Lass dein Guthaben arbeiten";
+"yield_module_token_details_earn_notification_title" = "Yield Mode";
 "yield_module_transfer_mode_automatic" = "Automatisch";
 "yield_module_unable_to_cover_fee_description" = "Einzahlung von %1$@ %2$@ zur Deckung der Netzwerkgebühr für Transaktionen";
 "yield_module_unable_to_cover_fee_title" = "Die Gebühr %@ kann nicht gedeckt werden";
