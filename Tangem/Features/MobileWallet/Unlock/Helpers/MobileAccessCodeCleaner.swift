@@ -50,7 +50,6 @@ private extension MobileAccessCodeCleaner {
         case .deleted(let userWalletIds):
             userWalletIds.forEach {
                 cleanWrongAccessCode(userWalletId: $0)
-                cleanSkippedAccessCode(userWalletId: $0)
             }
 
         default:
@@ -61,10 +60,6 @@ private extension MobileAccessCodeCleaner {
     func cleanWrongAccessCode(userWalletId: UserWalletId) {
         commonStorageManager.removeWrongAccessCode(userWalletId: userWalletId)
         sessionStorageManager.removeWrongAccessCode(userWalletId: userWalletId)
-    }
-
-    func cleanSkippedAccessCode(userWalletId: UserWalletId) {
-        MobileAccessCodeSkipHelper.remove(userWalletId: userWalletId)
     }
 }
 
