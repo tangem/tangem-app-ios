@@ -432,11 +432,18 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             return
         }
 
+        let expressInput = ExpressDependenciesInput(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            source: walletModel.asExpressInteractorWallet,
+            destination: .loadingAndSet
+        )
+
         let sendInput = SendInput(
             userWalletInfo: userWalletModel.userWalletInfo,
             walletModel: walletModel,
-            expressInput: .init(userWalletInfo: userWalletModel.userWalletInfo)
+            expressInput: expressInput
         )
+
         let analyticsParams = makeAnalyticsParams(for: walletModel)
 
         switch action {
@@ -448,13 +455,7 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-            coordinator.openExchange(
-                input: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    initialWalletModel: walletModel,
-                    destinationWalletModel: .none
-                )
-            )
+            coordinator.openExchange(input: expressInput)
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             if let stakingManager = walletModel.stakingManager {
