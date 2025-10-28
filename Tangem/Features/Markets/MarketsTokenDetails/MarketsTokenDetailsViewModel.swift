@@ -37,7 +37,10 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var metricsViewModel: MarketsTokenDetailsMetricsViewModel?
     @Published private(set) var pricePerformanceViewModel: MarketsTokenDetailsPricePerformanceViewModel?
     @Published private(set) var linksSections: [MarketsTokenDetailsLinkSection] = []
+
     @Published private(set) var portfolioViewModel: MarketsPortfolioContainerViewModel?
+    @Published private(set) var accountsAwarePortfolioViewModel: MarketsAccountsAwarePortfolioContainerViewModel?
+
     @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
     @Published var securityScoreDetailsViewModel: MarketsTokenDetailsSecurityScoreDetailsViewModel?
@@ -423,7 +426,7 @@ private extension MarketsTokenDetailsViewModel {
     }
 
     func makeBlocksViewModels(using model: MarketsTokenDetailsModel) {
-        portfolioViewModel?.update(networks: model.availableNetworks)
+        updatePortfolio(networks: model.availableNetworks)
 
         setupInsights(model.insights)
 
@@ -466,20 +469,40 @@ private extension MarketsTokenDetailsViewModel {
             return
         }
 
-        portfolioViewModel = .init(
-            inputData: .init(coinId: tokenInfo.id),
-            walletDataProvider: walletDataProvider,
-            coordinator: coordinator,
-            addTokenTapAction: { [weak self] in
-                guard let self, let info = loadedInfo else {
-                    return
+        if FeatureProvider.isAvailable(.accounts) {
+            accountsAwarePortfolioViewModel = MarketsAccountsAwarePortfolioContainerViewModel(
+                inputData: .init(coinId: tokenInfo.id),
+                walletDataProvider: walletDataProvider,
+                coordinator: coordinator,
+                addTokenTapAction: { [weak self] in
+                    guard let self, let info = loadedInfo else {
+                        return
+                    }
+
+                    Analytics.log(event: .marketsChartButtonAddToPortfolio, params: [.token: info.symbol.uppercased()])
+
+                    Task { @MainActor [weak self] in
+                        guard let self else { return }
+                        coordinator?.openAccountsSelector(with: info, walletDataProvider: walletDataProvider)
+                    }
                 }
+            )
+        } else {
+            portfolioViewModel = .init(
+                inputData: .init(coinId: tokenInfo.id),
+                walletDataProvider: walletDataProvider,
+                coordinator: coordinator,
+                addTokenTapAction: { [weak self] in
+                    guard let self, let info = loadedInfo else {
+                        return
+                    }
 
-                Analytics.log(event: .marketsChartButtonAddToPortfolio, params: [.token: info.symbol.uppercased()])
+                    Analytics.log(event: .marketsChartButtonAddToPortfolio, params: [.token: info.symbol.uppercased()])
 
-                coordinator?.openTokenSelector(with: info, walletDataProvider: walletDataProvider)
-            }
-        )
+                    coordinator?.openTokenSelector(with: info, walletDataProvider: walletDataProvider)
+                }
+            )
+        }
     }
 
     func sendBlocksAnalyticsErrors(_ error: Error) {
@@ -508,6 +531,11 @@ private extension MarketsTokenDetailsViewModel {
                 infoRouter: self
             )
         }
+    }
+
+    private func updatePortfolio(networks: [NetworkModel]) {
+        portfolioViewModel?.update(networks: networks)
+        accountsAwarePortfolioViewModel?.update(networks: networks)
     }
 }
 

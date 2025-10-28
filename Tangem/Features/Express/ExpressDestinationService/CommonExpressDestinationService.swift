@@ -13,16 +13,12 @@ import TangemFoundation
 struct CommonExpressDestinationService {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
+    @Injected(\.expressPairsRepository) private var expressPairsRepository: ExpressPairsRepository
 
     private let walletModelsManager: WalletModelsManager
-    private let expressRepository: ExpressRepository
 
-    init(
-        walletModelsManager: WalletModelsManager,
-        expressRepository: ExpressRepository
-    ) {
+    init(walletModelsManager: WalletModelsManager) {
         self.walletModelsManager = walletModelsManager
-        self.expressRepository = expressRepository
     }
 }
 
@@ -30,7 +26,7 @@ struct CommonExpressDestinationService {
 
 extension CommonExpressDestinationService: ExpressDestinationService {
     func getDestination(source: any ExpressInteractorSourceWallet) async throws -> any ExpressInteractorSourceWallet {
-        let availablePairs = await expressRepository.getPairs(from: source.tokenItem.expressCurrency)
+        let availablePairs = await expressPairsRepository.getPairs(from: source.tokenItem.expressCurrency)
         let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
             let isNotSource = wallet.id != source.id
             let isAvailable = expressAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)

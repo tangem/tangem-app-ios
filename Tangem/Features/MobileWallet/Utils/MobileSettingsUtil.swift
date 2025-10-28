@@ -101,13 +101,13 @@ extension MobileSettingsUtil {
 
 extension MobileSettingsUtil {
     func makeUpgradeNotificationInput(
-        onContext: @escaping (MobileWalletContext) -> Void,
+        onUpgrade: @escaping () -> Void,
         onDismiss: @escaping () -> Void
     ) -> NotificationViewInput {
         let factory = NotificationsFactory()
 
-        let action: NotificationView.NotificationAction = { [weak self] _ in
-            self?.onUpgradeNotificationTap(onContext: onContext)
+        let action: NotificationView.NotificationAction = { _ in
+            onUpgrade()
         }
 
         let buttonAction: NotificationView.NotificationButtonTapAction = { _, _ in }
@@ -122,19 +122,6 @@ extension MobileSettingsUtil {
             buttonAction: buttonAction,
             dismissAction: dismissAction
         )
-    }
-
-    func onUpgradeNotificationTap(onContext: @escaping (MobileWalletContext) -> Void) {
-        runTask(in: self) { viewModel in
-            let unlockResult = await viewModel.unlock()
-
-            switch unlockResult {
-            case .successful(let context):
-                onContext(context)
-            case .canceled, .failed:
-                break
-            }
-        }
     }
 
     func onUpgradeNotificationDismiss(onDismiss: @escaping () -> Void) {
