@@ -44,7 +44,7 @@ struct YieldModuleFeeFormatter {
     }
 
     func makeFormattedMaximumFee(maxFeeCurrencyFee: Decimal, maxFiatFee: Decimal) async throws -> YieldFormattedFee {
-        guard let feeCurrencyId = feeCurrency.id, let tokenId = token.id else {
+        guard let feeCurrencyId = feeCurrency.currencyId, let tokenId = token.id else {
             throw YieldModuleFormatterFee.cannotFormatFee
         }
 
@@ -80,7 +80,7 @@ struct YieldModuleFeeFormatter {
     }
 
     func createFeeString(from networkFee: Decimal) async throws -> String {
-        guard let id = feeCurrency.id else {
+        guard let id = feeCurrency.currencyId else {
             throw YieldModuleFormatterFee.cannotFormatFee
         }
 
@@ -92,7 +92,7 @@ struct YieldModuleFeeFormatter {
     // MARK: - Private Implementation
 
     private func convertFeeToToken(networkFee: Decimal) async throws -> (token: Decimal, fiat: Decimal) {
-        guard let feeCurrencyId = feeCurrency.id, let tokenId = token.id else {
+        guard let feeCurrencyId = feeCurrency.currencyId, let tokenId = token.id else {
             throw YieldModuleFormatterFee.cannotFormatFee
         }
 
