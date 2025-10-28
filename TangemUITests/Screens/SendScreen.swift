@@ -25,6 +25,11 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var customFeeTooLowBanner = staticText(.customFeeTooLowBanner)
     private lazy var customFeeTooHighBanner = staticText(.customFeeTooHighBanner)
     private lazy var feeWillBeSubtractFromSendingAmountBanner = staticText(.feeWillBeSubtractFromSendingAmountBanner)
+    private lazy var highFeeNotificationBanner = staticText(.highFeeNotificationBanner)
+    private lazy var existentialDepositWarningBanner = staticText(.existentialDepositWarningBanner)
+    private lazy var reduceFeeButton = button(.reduceFeeButton)
+    private lazy var leaveAmountButton = button(.leaveAmountButton)
+    private lazy var fromWalletButton = button(.fromWalletButton)
 
     @discardableResult
     func validate() -> Self {
@@ -42,6 +47,21 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func enterAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Enter amount '\(amount)' in amount field") { _ in
             amountTextField.typeText(amount)
+        }
+        return self
+    }
+
+    @discardableResult
+    func clearAmount() -> Self {
+        XCTContext.runActivity(named: "Clear amount field") { _ in
+            XCTAssertTrue(amountTextField.waitForExistence(timeout: .robustUIUpdate), "Amount text field should exist")
+
+            let currentText = amountTextField.getValue()
+            let textLength = currentText.count
+
+            for _ in 0 ..< textLength {
+                amountTextField.typeText(XCUIKeyboardKey.delete.rawValue)
+            }
         }
         return self
     }
@@ -212,6 +232,80 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         }
         return self
     }
+
+    @discardableResult
+    func waitForHighFeeNotificationBanner() -> Self {
+        XCTContext.runActivity(named: "Validate high fee notification banner exists") { _ in
+            waitAndAssertTrue(highFeeNotificationBanner, "High fee notification banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForHighFeeNotificationBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Validate high fee notification banner does not exist") { _ in
+            XCTAssertTrue(highFeeNotificationBanner.waitForNonExistence(timeout: .robustUIUpdate), "High fee notification banner should not be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForExistentialDepositWarningBanner() -> Self {
+        XCTContext.runActivity(named: "Validate existential deposit warning banner exists") { _ in
+            waitAndAssertTrue(existentialDepositWarningBanner, "Existential deposit warning banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForExistentialDepositWarningBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Validate existential deposit warning banner does not exist") { _ in
+            XCTAssertTrue(existentialDepositWarningBanner.waitForState(state: .notHittable), "Existential deposit warning banner should not be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func reduceFee() -> Self {
+        XCTContext.runActivity(named: "Tap reduce fee button") { _ in
+            reduceFeeButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapLeaveAmountButton() -> Self {
+        XCTContext.runActivity(named: "Tap leave amount button") { _ in
+            leaveAmountButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapFromWalletButton() -> Self {
+        XCTContext.runActivity(named: "Tap from wallet button") { _ in
+            fromWalletButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func validateAmountDecreased(from previousAmount: Decimal) -> Self {
+        XCTContext.runActivity(named: "Validate amount decreased from \(previousAmount)") { _ in
+            let currentAmount = getAmountNumericValue()
+            XCTAssertLessThan(currentAmount, previousAmount, "Current amount (\(currentAmount)) should be less than previous amount (\(previousAmount))")
+        }
+        return self
+    }
+
+    func getAmountNumericValue() -> Decimal {
+        XCTContext.runActivity(named: "Get amount numeric value") { _ in
+            XCTAssertTrue(amountTextField.waitForExistence(timeout: .robustUIUpdate), "Amount text field should exist")
+            let amountText = amountTextField.getValue()
+            XCTAssertFalse(amountText.isEmpty, "Amount should not be empty")
+            return NumericValueHelper.parseNumericValue(from: amountText)
+        }
+    }
 }
 
 enum SendScreenElement: String, UIElement {
@@ -230,6 +324,11 @@ enum SendScreenElement: String, UIElement {
     case customFeeTooLowBanner
     case customFeeTooHighBanner
     case feeWillBeSubtractFromSendingAmountBanner
+    case highFeeNotificationBanner
+    case existentialDepositWarningBanner
+    case reduceFeeButton
+    case leaveAmountButton
+    case fromWalletButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -263,6 +362,16 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.customFeeTooHighBanner
         case .feeWillBeSubtractFromSendingAmountBanner:
             return SendAccessibilityIdentifiers.feeWillBeSubtractFromSendingAmountBanner
+        case .highFeeNotificationBanner:
+            return SendAccessibilityIdentifiers.highFeeNotificationBanner
+        case .existentialDepositWarningBanner:
+            return SendAccessibilityIdentifiers.existentialDepositWarningBanner
+        case .reduceFeeButton:
+            return SendAccessibilityIdentifiers.reduceFeeButton
+        case .leaveAmountButton:
+            return SendAccessibilityIdentifiers.leaveAmountButton
+        case .fromWalletButton:
+            return SendAccessibilityIdentifiers.fromWalletButton
         }
     }
 }
