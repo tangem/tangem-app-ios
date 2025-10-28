@@ -215,7 +215,17 @@ extension CommonUserWalletModel: UserWalletModel {
                 break
             case .mobileWallet(let info):
                 var mutableInfo = info
-                mutableInfo.isAccessCodeSet = true
+                mutableInfo.accessCodeStatus = .set
+                updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
+            }
+
+        case .accessCodeDidSkip:
+            switch walletInfo {
+            case .cardWallet:
+                break
+            case .mobileWallet(let info):
+                var mutableInfo = info
+                mutableInfo.accessCodeStatus = .skipped
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
 
