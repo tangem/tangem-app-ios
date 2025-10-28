@@ -12,8 +12,6 @@ import Combine
 import TangemStaking
 
 class StakingValidatorsCompactViewModel: ObservableObject, Identifiable {
-    // Use the estimated size as initial value
-    @Published var viewSize: CGSize = .init(width: 361, height: 88)
     @Published var selectedValidator: ValidatorCompactViewData?
     @Published var canEditValidator: Bool
 
