@@ -27,13 +27,13 @@ struct MarketsTokenDetailsPortfolioCoordinatorFactory {
         dismissAction: @escaping ExpressCoordinator.DismissAction,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) -> ExpressCoordinator {
-        let input = CommonExpressModulesFactory.InputModel(
+        let input = ExpressDependenciesInput(
             userWalletInfo: userWalletModel.userWalletInfo,
-            initialWalletModel: walletModel,
-            destinationWalletModel: .none
+            source: walletModel.asExpressInteractorWallet,
+            destination: .loadingAndSet
         )
 
-        let factory = CommonExpressModulesFactory(inputModel: input)
+        let factory = CommonExpressModulesFactory(input: input)
         let coordinator = ExpressCoordinator(
             factory: factory,
             dismissAction: dismissAction,
