@@ -23,7 +23,8 @@ protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggl
 
     func openMobileBackupNeeded(userWalletModel: UserWalletModel)
     func openMobileBackupTypes(userWalletModel: UserWalletModel)
-    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext)
+    func openMobileUpgrade(userWalletModel: UserWalletModel)
+    func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel)
 
     func openAppSettings()
 

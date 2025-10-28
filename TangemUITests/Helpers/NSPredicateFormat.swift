@@ -13,4 +13,5 @@ enum NSPredicateFormat: String {
     case hittable = "isHittable == 1"
     case labelContains = "label CONTAINS[c] %@"
     case identifierContains = "identifier CONTAINS %@"
+    case labelBeginsWith = "label BEGINSWITH %@"
 }

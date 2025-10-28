@@ -11,6 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemSdk
 
+// [REDACTED_TODO_COMMENT]
 @available(*, deprecated, message: "[REDACTED_TODO_COMMENT]")
 final class AccountWalletManagersRepositoryAdapter {
     private let derivationIndex: Int
