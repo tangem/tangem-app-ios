@@ -268,7 +268,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     }
 }
 
-// MARK: - SendStepViewAnimatable
+// MARK: - SendDestinationAddressViewRoutable
 
 extension SendDestinationViewModel: SendDestinationAddressViewRoutable {
     func didTapScanQRButton() {
@@ -296,12 +296,6 @@ extension SendDestinationViewModel: SendDestinationExternalUpdatableViewModel {
 
         additionalFieldViewModel?.update(text: value)
     }
-}
-
-// MARK: - SendStepViewAnimatable
-
-extension SendDestinationViewModel: SendStepViewAnimatable {
-    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
 }
 
 private extension SendDestinationSuggested.DestinationType {
