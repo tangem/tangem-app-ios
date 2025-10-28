@@ -13,5 +13,5 @@ public struct TokenYieldSupply: Hashable, Equatable, Codable {
     public let isActive: Bool
     public let isInitialized: Bool
     public let allowance: String
-    public let amountValue: Decimal
+    public let protocolBalanceValue: Decimal
 }

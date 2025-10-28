@@ -9,13 +9,13 @@
 import Foundation
 import BlockchainSdk
 
-enum YieldModuleManagerState: Equatable {
+indirect enum YieldModuleManagerState: Equatable {
     case disabled
     case loading
     case notActive
     case processing(action: ProcessingAction)
     case active(YieldSupplyInfo)
-    case failedToLoad(error: String)
+    case failedToLoad(error: String, cachedState: YieldModuleManagerState?)
 
     var balance: Amount? {
         if case .active(let value) = self {
@@ -38,4 +38,36 @@ struct YieldModuleManagerStateInfo: Equatable {
 
 extension YieldModuleManagerStateInfo {
     static let empty = YieldModuleManagerStateInfo(marketInfo: nil, state: .notActive)
+}
+
+extension YieldModuleManagerState {
+    var isEffectivelyActive: Bool {
+        switch self {
+        case .active:
+            true
+        case .failedToLoad(_, let cached?):
+            cached.isEffectivelyActive
+        default:
+            false
+        }
+    }
+
+    var cachedState: YieldModuleManagerState? {
+        if case .failedToLoad(_, let cachedState) = self {
+            return cachedState
+        }
+
+        return nil
+    }
+
+    var activeInfo: YieldSupplyInfo? {
+        switch self {
+        case .active(let info):
+            return info
+        case .failedToLoad(_, let cached?):
+            return cached.activeInfo
+        default:
+            return nil
+        }
+    }
 }

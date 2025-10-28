@@ -17,7 +17,10 @@ class OnboardingAccessCodeViewModel: ObservableObject, Identifiable {
     @Published var secondEnteredCode: String = ""
     @Published var error: OnboardingAccessCodeView.AccessCodeError = .none
 
-    init(successHandler: @escaping (String) -> Void) {
+    private let analyticsContextParams: Analytics.ContextParams
+
+    init(analyticsContextParams: Analytics.ContextParams, successHandler: @escaping (String) -> Void) {
+        self.analyticsContextParams = analyticsContextParams
         self.successHandler = successHandler
     }
 
@@ -25,21 +28,21 @@ class OnboardingAccessCodeViewModel: ObservableObject, Identifiable {
         let nextState: OnboardingAccessCodeView.ViewState
         switch state {
         case .intro:
-            Analytics.log(.settingAccessCodeStarted)
+            Analytics.log(.settingAccessCodeStarted, contextParams: analyticsContextParams)
             nextState = .inputCode
         case .inputCode:
             guard isAccessCodeValid() else {
                 return
             }
 
-            Analytics.log(.accessCodeEntered)
+            Analytics.log(.accessCodeEntered, contextParams: analyticsContextParams)
             nextState = .repeatCode
         case .repeatCode:
             guard isAccessCodeValid() else {
                 return
             }
 
-            Analytics.log(.accessCodeReEntered)
+            Analytics.log(.accessCodeReEntered, contextParams: analyticsContextParams)
             successHandler(secondEnteredCode)
             return
         }
