@@ -175,6 +175,7 @@
 "cardano_max_amount_has_token_title" = "ADA insuficiente";
 "common_accept" = "Aceptar";
 "common_access_denied" = "Acceso denegado";
+"common_account" = "Account";
 "common_accounts" = "Accounts";
 "common_activate" = "Activate";
 "common_add_to_portfolio" = "Añadir al portafolio";
@@ -1790,12 +1791,13 @@
 "yield_module_stop_earning" = "Desactivar el modo de rendimiento";
 "yield_module_supply" = "Supply";
 "yield_module_supply_apr" = "Suministro APY";
+"yield_module_supply" = "Supply";
 "yield_module_token_details_earn_notification_apy" = "APY";
-"yield_module_token_details_earn_notification_description" = "Deje que sus fondos hagan el trabajo mientras usted mantiene el control.";
+"yield_module_token_details_earn_notification_description" = "Interest accrues automatically";
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Los intereses se devengan automáticamente";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Modo de rendimiento";
 "yield_module_token_details_earn_notification_processing" = "Procesando su depósito";
-"yield_module_token_details_earn_notification_title" = "Haga que sus activos trabajen para usted";
+"yield_module_token_details_earn_notification_title" = "Yield Mode";
 "yield_module_transfer_mode_automatic" = "Automático";
 "yield_module_unable_to_cover_fee_description" = "Deposite algo de %1$@ %2$@ para cubrir la tarifa de red para las transacciones";
 "yield_module_unable_to_cover_fee_title" = "No se puede cubrir la tarifa %@";
