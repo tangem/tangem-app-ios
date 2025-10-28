@@ -137,44 +137,6 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     }
 }
 
-struct PendingExpressTransactionsFactory {
-    let userWalletInfo: UserWalletInfo
-    let walletModel: any WalletModel
-    let userTokensManager: any UserTokensManager
-
-    func makePendingExpressTransactionsManager() -> any PendingExpressTransactionsManager {
-        let tokenFinder = CommonTokenFinder(supportedBlockchains: userWalletInfo.config.supportedBlockchains)
-
-        let expressRefundedTokenHandler = CommonExpressRefundedTokenHandler(
-            userTokensManager: userTokensManager,
-            tokenFinder: tokenFinder
-        )
-
-        let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
-            userWalletId: userWalletInfo.id,
-            refcode: userWalletInfo.refcode
-        )
-
-        let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
-            userWalletId: userWalletInfo.id.stringValue,
-            walletModel: walletModel,
-            expressAPIProvider: expressAPIProvider,
-            expressRefundedTokenHandler: expressRefundedTokenHandler
-        )
-
-        let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
-            userWalletId: userWalletInfo.id.stringValue,
-            walletModel: walletModel,
-            expressAPIProvider: expressAPIProvider
-        )
-
-        return CompoundPendingTransactionsManager(
-            first: pendingExpressTransactionsManager,
-            second: pendingOnrampTransactionsManager
-        )
-    }
-}
-
 // MARK: Dependencies
 
 private extension CommonExpressModulesFactory {
@@ -252,21 +214,15 @@ private extension CommonExpressModulesFactory {
 extension CommonExpressModulesFactory {
     struct InputModel {
         let userWalletInfo: UserWalletInfo
-        let userTokensManager: UserTokensManager
-        let walletModelsManager: WalletModelsManager
         let initialWalletModel: any WalletModel
         let destinationWalletModel: (any WalletModel)?
 
         init(
             userWalletInfo: UserWalletInfo,
-            userTokensManager: UserTokensManager,
-            walletModelsManager: WalletModelsManager,
             initialWalletModel: any WalletModel,
             destinationWalletModel: (any WalletModel)?
         ) {
             self.userWalletInfo = userWalletInfo
-            self.userTokensManager = userTokensManager
-            self.walletModelsManager = walletModelsManager
             self.initialWalletModel = initialWalletModel
             self.destinationWalletModel = destinationWalletModel
         }
