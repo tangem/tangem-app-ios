@@ -15,6 +15,7 @@ protocol WalletConnectHandlersCreator: AnyObject {
         with params: AnyCodable,
         blockchainNetworkID: String,
         signer: TangemSigner,
+        hardwareLimitationsUtil: HardwareLimitationsUtil,
         walletModelProvider: WalletConnectWalletModelProvider,
         connectedDApp: WalletConnectConnectedDApp
     ) throws -> WalletConnectMessageHandler
@@ -37,6 +38,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
         with params: AnyCodable,
         blockchainNetworkID: String,
         signer: TangemSigner,
+        hardwareLimitationsUtil: HardwareLimitationsUtil,
         walletModelProvider: WalletConnectWalletModelProvider,
         connectedDApp: WalletConnectConnectedDApp
     ) throws -> WalletConnectMessageHandler {
@@ -102,6 +104,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 request: params,
                 blockchainId: blockchainNetworkID,
                 signer: signer,
+                hardwareLimitationsUtil: hardwareLimitationsUtil,
                 walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
                 walletModelProvider: walletModelProvider,
                 analyticsProvider: makeAnalyticsProvider(with: connectedDApp.dAppData)
