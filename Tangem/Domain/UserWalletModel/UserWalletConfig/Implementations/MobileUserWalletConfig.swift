@@ -88,6 +88,10 @@ extension MobileUserWalletConfig: UserWalletConfig {
         mobileWalletInfo.keys.first?.publicKey
     }
 
+    var userWalletAccessCodeStatus: UserWalletAccessCodeStatus {
+        mobileWalletInfo.accessCodeStatus
+    }
+
     var productType: Analytics.ProductType {
         .mobileWallet
     }
@@ -132,10 +136,6 @@ extension MobileUserWalletConfig: UserWalletConfig {
 
             return .available
         case .userWalletAccessCode:
-            if mobileWalletInfo.isAccessCodeSet {
-                return .disabled()
-            }
-
             return .available
         case .userWalletBackup:
             return .available
