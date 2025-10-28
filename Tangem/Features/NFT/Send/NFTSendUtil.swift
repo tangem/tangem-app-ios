@@ -44,7 +44,11 @@ struct NFTSendUtil {
             input: .init(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModelProxy,
-                expressInput: .init(userWalletInfo: userWalletModel.userWalletInfo)
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    source: walletModel.asExpressInteractorWallet,
+                    destination: .loadingAndSet
+                )
             ),
             type: .nft(parameters: parameters),
             source: .nft
