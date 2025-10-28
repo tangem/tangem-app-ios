@@ -38,6 +38,10 @@ extension NewAuthWalletViewModel {
     func onTap() {
         item.action()
     }
+
+    func isUnlocking(with userWalletId: UserWalletId?) -> Bool {
+        item.isUnlocking(userWalletId)
+    }
 }
 
 // MARK: - Private methods
