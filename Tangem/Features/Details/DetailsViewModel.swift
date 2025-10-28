@@ -223,27 +223,8 @@ extension DetailsViewModel {
         coordinator?.openScanCardManual()
     }
 
-    func openAddNewUserWallet() {
-        let createNewWalletButton = ConfirmationDialogViewModel.Button(title: Localization.homeButtonCreateNewWallet) { [weak self] in
-            self?.openCreateWallet()
-        }
-
-        let buyTangemWalletButton = ConfirmationDialogViewModel.Button(title: Localization.detailsBuyWallet) { [weak self] in
-            self?.openBuyWallet()
-        }
-
-        confirmationDialog = ConfirmationDialogViewModel(
-            title: Localization.userWalletListAddButton,
-            buttons: [
-                createNewWalletButton,
-                buyTangemWalletButton,
-                ConfirmationDialogViewModel.Button.cancel,
-            ]
-        )
-    }
-
-    func openCreateWallet() {
-        coordinator?.openCreateWallet()
+    func openAddWallet() {
+        coordinator?.openAddWallet()
     }
 
     func requestSupport() {
@@ -313,7 +294,7 @@ private extension DetailsViewModel {
         if FeatureProvider.isAvailable(.mobileWallet) {
             addNewUserWalletViewModel = DefaultRowViewModel(
                 title: Localization.userWalletListAddButton,
-                action: weakify(self, forFunction: DetailsViewModel.openAddNewUserWallet)
+                action: weakify(self, forFunction: DetailsViewModel.openAddWallet)
             )
         } else {
             addOrScanNewUserWalletViewModel = DefaultRowViewModel(

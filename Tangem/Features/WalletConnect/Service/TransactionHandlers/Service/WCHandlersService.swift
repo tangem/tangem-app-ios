@@ -34,6 +34,7 @@ final class CommonWCHandlersService {
         for request: Request,
         blockchain: BlockchainSdk.Blockchain,
         signer: TangemSigner,
+        hardwareLimitationsUtil: HardwareLimitationsUtil,
         walletModelProvider: WalletConnectWalletModelProvider,
         connectedDApp: WalletConnectConnectedDApp
     ) throws -> WalletConnectMessageHandler {
@@ -48,6 +49,7 @@ final class CommonWCHandlersService {
             with: request.params,
             blockchainNetworkID: blockchain.networkId,
             signer: signer,
+            hardwareLimitationsUtil: hardwareLimitationsUtil,
             walletModelProvider: walletModelProvider,
             connectedDApp: connectedDApp
         )
@@ -99,6 +101,7 @@ extension CommonWCHandlersService: WCHandlersService {
             for: validatedRequest.request,
             blockchain: validatedRequest.targetBlockchain,
             signer: validatedRequest.userWalletModel.signer,
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: validatedRequest.userWalletModel.config),
             walletModelProvider: validatedRequest.userWalletModel.wcWalletModelProvider,
             connectedDApp: connectedDApp
         )
@@ -116,6 +119,7 @@ extension CommonWCHandlersService: WCHandlersService {
             requestData: handler.requestData,
             blockchain: blockchain,
             verificationStatus: connectedDApp.verificationStatus,
+            validate: { try await handler.validate() },
             accept: { try await handler.handle() },
             reject: { RPCResult.error(.init(code: 0, message: "User rejected sign")) },
             updatableHandler: handler as? WCTransactionUpdatable

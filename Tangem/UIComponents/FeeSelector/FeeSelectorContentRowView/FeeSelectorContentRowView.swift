@@ -29,6 +29,7 @@ struct FeeSelectorContentRowView: SelectableSectionRow {
 
             customFeeFields
         }
+        .accessibilityIdentifier(viewModel.feeOption.accessibilityIdentifier)
     }
 
     private var mainContent: some View {

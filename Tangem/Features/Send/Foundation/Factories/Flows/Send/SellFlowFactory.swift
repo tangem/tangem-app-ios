@@ -114,7 +114,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
             input: sendModel
         )
 
-        let sendAmountCompactViewModel = SendNewAmountCompactViewModel(
+        let sendAmountCompactViewModel = SendAmountCompactViewModel(
             sourceTokenInput: sendModel,
             sourceTokenAmountInput: sendModel,
             receiveTokenInput: sendModel,
@@ -122,7 +122,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
             swapProvidersInput: sendModel
         )
 
-        let sendAmountFinishViewModel = SendNewAmountFinishViewModel(
+        let sendAmountFinishViewModel = SendAmountFinishViewModel(
             sourceTokenInput: sendModel,
             sourceTokenAmountInput: sendModel,
             receiveTokenInput: sendModel,
@@ -134,7 +134,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
 
         // Destination .disable
         // Amount .disable
-        let summary = makeSendNewSummaryStep(
+        let summary = makeSendSummaryStep(
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             sendFeeCompactViewModel: fee.compact
@@ -202,9 +202,9 @@ extension SellFlowFactory: SendBaseBuildable {
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
                 input: sendModel,
                 sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
+                    userWalletInfo: userWalletInfo,
                     sourceTokenInput: sendModel,
                     receiveTokenOutput: sendModel,
-                    expressRepository: expressDependenciesFactory.expressRepository,
                     receiveTokenBuilder: makeSendReceiveTokenBuilder(),
                     analyticsLogger: analyticsLogger
                 )
@@ -238,41 +238,42 @@ extension SellFlowFactory: SendFeeStepBuildable {
     }
 }
 
-// MARK: - SendNewSummaryStepBuildable
+// MARK: - SendSummaryStepBuildable
 
-extension SellFlowFactory: SendNewSummaryStepBuildable {
-    var newSummaryIO: SendNewSummaryStepBuilder.IO {
-        SendNewSummaryStepBuilder.IO(input: sendModel, output: sendModel, receiveTokenAmountInput: sendModel)
+extension SellFlowFactory: SendSummaryStepBuildable {
+    var summaryIO: SendSummaryStepBuilder.IO {
+        SendSummaryStepBuilder.IO(input: sendModel, output: sendModel, receiveTokenAmountInput: sendModel)
     }
 
-    var newSummaryTypes: SendNewSummaryStepBuilder.Types {
+    var summaryTypes: SendSummaryStepBuilder.Types {
         .init(settings: .init(destinationEditableType: .noEditable, amountEditableType: .noEditable))
     }
 
-    var newSummaryDependencies: SendNewSummaryStepBuilder.Dependencies {
-        SendNewSummaryStepBuilder.Dependencies(
+    var summaryDependencies: SendSummaryStepBuilder.Dependencies {
+        SendSummaryStepBuilder.Dependencies(
             sendFeeProvider: sendFeeProvider,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder()
+            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
+            stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder(),
         )
     }
 }
 
-// MARK: - SendNewFinishStepBuildable
+// MARK: - SendFinishStepBuildable
 
-extension SellFlowFactory: SendNewFinishStepBuildable {
-    var newFinishIO: SendNewFinishStepBuilder.IO {
-        SendNewFinishStepBuilder.IO(input: sendModel)
+extension SellFlowFactory: SendFinishStepBuildable {
+    var finishIO: SendFinishStepBuilder.IO {
+        SendFinishStepBuilder.IO(input: sendModel)
     }
 
-    var newFinishTypes: SendNewFinishStepBuilder.Types {
-        SendNewFinishStepBuilder.Types(tokenItem: tokenItem)
+    var finishTypes: SendFinishStepBuilder.Types {
+        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
-    var newFinishDependencies: SendNewFinishStepBuilder.Dependencies {
-        SendNewFinishStepBuilder.Dependencies(
+    var finishDependencies: SendFinishStepBuilder.Dependencies {
+        SendFinishStepBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
         )
     }
