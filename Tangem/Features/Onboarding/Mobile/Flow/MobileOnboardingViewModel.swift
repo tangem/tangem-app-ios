@@ -49,7 +49,7 @@ extension MobileOnboardingViewModel {
                 return
             }
 
-        case .seedPhraseBackup(let userWalletModel):
+        case .seedPhraseBackup(let userWalletModel), .seedPhraseBackupToUpgrade(let userWalletModel, _):
             guard isBackupNotNeeded(for: userWalletModel) else {
                 alert = makeBackupNeedsAlert()
                 return
@@ -80,6 +80,12 @@ private extension MobileOnboardingViewModel {
             MobileOnboardingBackupSeedPhraseFlowBuilder(userWalletModel: userWalletModel, coordinator: self)
         case .seedPhraseReveal(let context):
             MobileOnboardingRevealSeedPhraseFlowBuilder(context: context, coordinator: self)
+        case .seedPhraseBackupToUpgrade(let userWalletModel, let onContinue):
+            MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder(
+                userWalletModel: userWalletModel,
+                coordinator: self,
+                onContinue: onContinue
+            )
         }
     }
 }
@@ -142,7 +148,7 @@ private extension MobileOnboardingViewModel {
     func onAccessCodeNeedsAlertSkip(userWalletModel: UserWalletModel) {
         MobileAccessCodeSkipHelper.append(userWalletId: userWalletModel.userWalletId)
         // Workaround to manually trigger update event for userWalletModel publisher
-        userWalletModel.update(type: .backupCompleted)
+        userWalletModel.update(type: .accessCodeDidSet)
         closeOnboarding()
     }
 

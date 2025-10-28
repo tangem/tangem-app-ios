@@ -198,10 +198,17 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        forgetViewModel = DefaultRowViewModel(
-            title: Localization.settingsForgetWallet,
-            action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
-        )
+        if userWalletModel.config.hasFeature(.userWalletBackup) {
+            forgetViewModel = DefaultRowViewModel(
+                title: Localization.settingsForgetWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapRemoveMobileWallet)
+            )
+        } else {
+            forgetViewModel = DefaultRowViewModel(
+                title: Localization.settingsForgetWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapForgetWallet)
+            )
+        }
     }
 
     func setupMobileViewModels() {
@@ -236,15 +243,15 @@ private extension UserWalletSettingsViewModel {
 
             case .upgrade:
                 mobileUpgradeNotificationInput = mobileSettingsUtil.makeUpgradeNotificationInput(
-                    onContext: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationContext),
+                    onUpgrade: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationUpgrade),
                     onDismiss: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationDismiss)
                 )
             }
         }
     }
 
-    func onMobileUpgradeNotificationContext(context: MobileWalletContext) {
-        coordinator?.openMobileUpgrade(userWalletModel: userWalletModel, context: context)
+    func onMobileUpgradeNotificationUpgrade() {
+        coordinator?.openMobileUpgrade(userWalletModel: userWalletModel)
     }
 
     func onMobileUpgradeNotificationDismiss() {
@@ -278,11 +285,11 @@ private extension UserWalletSettingsViewModel {
         }
     }
 
-    func didTapDeleteWallet() {
+    func didTapForgetWallet() {
         Analytics.log(.buttonDeleteWalletTapped)
 
         let deleteButton = ConfirmationDialogViewModel.Button(
-            title: Localization.commonDelete,
+            title: Localization.commonForget,
             role: .destructive,
             action: { [weak self] in
                 self?.didConfirmWalletDeletion()
@@ -296,6 +303,10 @@ private extension UserWalletSettingsViewModel {
                 ConfirmationDialogViewModel.Button.cancel,
             ]
         )
+    }
+
+    func didTapRemoveMobileWallet() {
+        coordinator?.openMobileRemoveWalletNotification(userWalletModel: userWalletModel)
     }
 
     func didConfirmWalletDeletion() {
@@ -377,10 +388,15 @@ private extension UserWalletSettingsViewModel {
             return
         }
 
+        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
+            .accounts(userWalletModel.accountModelsManager) :
+            .plainUserTokensManager(userWalletModel.userTokensManager)
+
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
             supportedBlockchains: userWalletModel.config.supportedBlockchains,
-            userTokensManager: userWalletModel.userTokensManager
+            workMode: workMode,
+            tokenIconInfoBuilder: TokenIconInfoBuilder()
         )
 
         coordinator?.openReferral(input: input)

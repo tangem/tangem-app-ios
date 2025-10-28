@@ -15,6 +15,7 @@ import BlockchainSdk
 import TangemUI
 import TangemLocalization
 import TangemUIUtils
+import TangemAssets
 
 @MainActor
 final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewModel & WCTransactionViewModelDisplayData {
@@ -380,19 +381,30 @@ private extension WCTransactionViewModel {
         do {
             analyticsLogger.logSignButtonTapped(transactionData: transactionData)
 
-            try await transactionData.accept()
+            switch try await transactionData.validate() {
+            case .empty:
+                try await transactionData.accept()
+                successSignTransaction(onComplete: onComplete)
+            case .multipleTransactions:
+                let input = WCMultipleTransactionAlertInput(
+                    primaryAction: { [weak self] in
+                        do {
+                            try await self?.handleMultipleSignTransaction(onComplete: onComplete)
+                        } catch {
+                            self?.errorSignTransaction(with: error, onComplete: onComplete)
+                        }
+                    },
+                    secondaryAction: { [weak self] in self?.returnToTransactionDetails() },
+                    backAction: { [weak self] in self?.returnToTransactionDetails() }
+                )
 
-            onComplete?()
-            analyticsLogger.logSignatureRequestHandled(transactionData: transactionData, simulationState: simulationState)
+                let state = WCMultipleTransactionsAlertFactory.makeMultipleTransactionAlertState()
+                let viewModel = WCMultipleTransactionAlertViewModel(state: state, input: input)
 
-            toastFactory.makeSuccessToast(with: Localization.sendTransactionSuccess)
-
-            floatingSheetPresenter.removeActiveSheet()
+                presentationState = .multipleTransactionsAlert(viewModel)
+            }
         } catch {
-            onComplete?()
-            analyticsLogger.logSignatureRequestFailed(transactionData: transactionData, error: error)
-
-            toastFactory.makeWarningToast(with: error.localizedDescription)
+            errorSignTransaction(with: error, onComplete: onComplete)
         }
     }
 
@@ -501,5 +513,38 @@ private extension WCTransactionViewModel {
         }
 
         return WCTransactionAddressRowViewModel(address: mainAddress)
+    }
+
+    private func successSignTransaction(onComplete: (() -> Void)? = nil) {
+        onComplete?()
+
+        analyticsLogger.logSignatureRequestHandled(transactionData: transactionData, simulationState: simulationState)
+
+        toastFactory.makeSuccessToast(with: Localization.sendTransactionSuccess)
+
+        floatingSheetPresenter.removeActiveSheet()
+    }
+
+    private func errorSignTransaction(with error: Error, onComplete: (() -> Void)? = nil) {
+        onComplete?()
+
+        analyticsLogger.logSignatureRequestFailed(transactionData: transactionData, error: error)
+
+        toastFactory.makeWarningToast(with: error.localizedDescription)
+    }
+
+    private func handleMultipleSignTransaction(onComplete: (() -> Void)? = nil) async throws {
+        do {
+            presentationState = .loading
+            try await transactionData.accept()
+            successSignTransaction(onComplete: onComplete)
+        } catch let error as WalletConnectTransactionRequestProcessingError {
+            if case .eraseMultipleTransactions = error {
+                successSignTransaction(onComplete: onComplete)
+                return
+            }
+
+            throw error
+        }
     }
 }
