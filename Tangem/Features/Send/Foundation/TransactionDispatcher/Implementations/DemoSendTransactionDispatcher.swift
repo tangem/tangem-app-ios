@@ -28,11 +28,8 @@ class DemoSendTransactionDispatcher {
 
 extension DemoSendTransactionDispatcher: TransactionDispatcher {
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
-        guard case .transfer = transaction else {
-            throw TransactionDispatcherResult.Error.transactionNotFound
-        }
-
         let hash = Data.randomData(count: 32)
+        let mapper = TransactionDispatcherResultMapper()
 
         do {
             _ = try await transactionSigner
@@ -40,9 +37,10 @@ extension DemoSendTransactionDispatcher: TransactionDispatcher {
                 .mapAndEraseSendTxError(tx: hash.hexString)
                 .async()
         } catch {
-            throw TransactionDispatcherResultMapper().mapError(error.toUniversalError(), transaction: transaction)
+            throw mapper.mapError(error.toUniversalError(), transaction: transaction)
         }
 
+        // At the end show demo alert for user
         throw TransactionDispatcherResult.Error.demoAlert
     }
 }
