@@ -58,6 +58,7 @@ enum UpdateRequest {
     case mnemonicBackupCompleted
     case iCloudBackupCompleted
     case accessCodeDidSet
+    case accessCodeDidSkip
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
