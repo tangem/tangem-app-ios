@@ -273,6 +273,7 @@ private extension TokenDetailsViewModel {
     private func bind() {
         walletModel.yieldModuleManager?.statePublisher
             .compactMap { $0 }
+            .filter { $0.state != .loading }
             .receiveOnMain()
             .sink { [weak self] state in
                 self?.updateYieldAvailability(state: state)
@@ -364,24 +365,35 @@ private extension TokenDetailsViewModel {
     }
 
     private func updateYieldAvailability(state: YieldModuleManagerStateInfo) {
+        yieldModuleAvailability = makeYieldAvailability(state: state.state, marketInfo: state.marketInfo)
+    }
+
+    private func makeYieldAvailability(
+        state: YieldModuleManagerState,
+        marketInfo: YieldModuleMarketInfo?
+    ) -> YieldModuleAvailability {
         guard FeatureProvider.isAvailable(.yieldModule), let manager = walletModel.yieldModuleManager else {
-            yieldModuleAvailability = .notApplicable
-            return
+            return .notApplicable
         }
 
-        func makeEligibleVm() {
-            let vm = makeYieldNotificationViewModel(yieldManager: manager)
-            yieldModuleAvailability = .eligible(vm)
+        func makeEligibleViewModelIfPossible() -> YieldModuleAvailability {
+            if let apy = marketInfo?.apy {
+                let vm = makeYieldNotificationViewModel(apy: apy)
+                return .eligible(vm)
+            } else {
+                return .notApplicable
+            }
         }
 
-        switch state.state {
+        switch state {
         case .active(let info):
             let vm = makeYieldStatusViewModel(
                 yieldManager: manager,
-                state: .active(isApproveRequired: info.isAllowancePermissionRequired)
+                state: .active(
+                    isApproveRequired: info.isAllowancePermissionRequired,
+                    hasUndepositedAmounts: !info.nonYieldModuleBalanceValue.isZero
+                )
             )
-            yieldModuleAvailability = .active(vm)
-
             if info.isAllowancePermissionRequired {
                 Analytics.log(
                     event: .earningNoticeApproveNeeded,
@@ -389,18 +401,27 @@ private extension TokenDetailsViewModel {
                 )
             }
 
-        case .notActive:
-            makeEligibleVm()
+            return .active(vm)
 
-        case .failedToLoad where state.marketInfo != nil:
-            makeEligibleVm()
+        case .notActive:
+            return makeEligibleViewModelIfPossible()
 
         case .processing(let action):
             let vm = makeYieldStatusViewModel(yieldManager: manager, state: action == .enter ? .loading : .closing)
-            yieldModuleAvailability = (action == .enter) ? .enter(vm) : .exit(vm)
+            return (action == .enter) ? .enter(vm) : .exit(vm)
 
-        case .disabled, .loading, .failedToLoad:
-            yieldModuleAvailability = .notApplicable
+        case .disabled:
+            return .notApplicable
+
+        case .loading:
+            AppLogger.warning("Loading state should not be passed here to avoid blinking on UI")
+            return .notApplicable
+
+        case .failedToLoad(_, .some(let cachedState)):
+            return makeYieldAvailability(state: cachedState, marketInfo: marketInfo)
+
+        case .failedToLoad:
+            return makeEligibleViewModelIfPossible()
         }
     }
 }
@@ -486,18 +507,9 @@ extension TokenDetailsViewModel {
         })
     }
 
-    func makeYieldNotificationViewModel(yieldManager: YieldModuleManager) -> YieldAvailableNotificationViewModel {
-        var state: YieldAvailableNotificationViewModel.State {
-            if let apy = yieldManager.state?.marketInfo?.apy {
-                return .available(apy: apy)
-            }
-
-            return .loading
-        }
-
-        return YieldAvailableNotificationViewModel(
-            state: state,
-            yieldModuleManager: yieldManager,
+    func makeYieldNotificationViewModel(apy: Decimal) -> YieldAvailableNotificationViewModel {
+        YieldAvailableNotificationViewModel(
+            apy: apy,
             onButtonTap: { [weak self] apy in
                 guard let self else { return }
                 coordinator?.openYieldModulePromoView(
