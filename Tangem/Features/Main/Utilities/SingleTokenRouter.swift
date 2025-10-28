@@ -190,14 +190,6 @@ private extension SingleTokenRouter {
     }
 
     func makeSendInput(for walletModel: any WalletModel) -> SendInput {
-        SendInput(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            walletModel: walletModel,
-            expressInput: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                source: walletModel.asExpressInteractorWallet,
-                destination: .loadingAndSet
-            )
-        )
+        SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
     }
 }
