@@ -272,11 +272,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             destination: .loadingAndSet
         )
 
-        let sendInput = SendInput(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            walletModel: walletModel,
-            expressInput: expressInput
-        )
+        let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
 
         let analyticsParams: [Analytics.ParameterKey: String] = [
             .source: Analytics.ParameterValue.market.rawValue,

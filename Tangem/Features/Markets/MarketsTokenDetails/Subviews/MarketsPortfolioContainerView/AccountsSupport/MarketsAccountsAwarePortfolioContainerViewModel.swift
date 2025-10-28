@@ -438,12 +438,7 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             destination: .loadingAndSet
         )
 
-        let sendInput = SendInput(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            walletModel: walletModel,
-            expressInput: expressInput
-        )
-
+        let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
         let analyticsParams = makeAnalyticsParams(for: walletModel)
 
         switch action {

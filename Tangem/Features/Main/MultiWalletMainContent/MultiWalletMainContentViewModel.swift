@@ -612,15 +612,7 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
         case .openMobileUpgrade:
             openMobileUpgrade()
         case .openBuyCrypto(let walletModel, let parameters):
-            let input = SendInput(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModel: walletModel,
-                expressInput: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    source: walletModel.asExpressInteractorWallet,
-                    destination: .loadingAndSet
-                )
-            )
+            let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
             coordinator?.openOnramp(input: input, parameters: parameters)
         case .allowPushPermissionRequest, .postponePushPermissionRequest:
             userWalletNotificationManager.dismissNotification(with: id)
