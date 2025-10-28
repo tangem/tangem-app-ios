@@ -1788,6 +1788,7 @@
 "yield_module_stop_earning_sheet_description" = "Turning this off will withdraw your assets from Aave, convert them back to %@ in your wallet, and stop yield accrual.";
 "yield_module_stop_earning_sheet_fee_note" = "The network fee will be deducted from the amount you withdraw.";
 "yield_module_stop_earning" = "Disable yield mode";
+"yield_module_supply" = "Supply";
 "yield_module_supply_apr" = "Supply APY";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Let your funds do the work while you stay in control.";
