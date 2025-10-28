@@ -269,10 +269,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         let sendInput = SendInput(
             userWalletInfo: userWalletModel.userWalletInfo,
             walletModel: walletModel,
-            expressInput: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModelsManager: userWalletModel.walletModelsManager
-            )
+            expressInput: .init(userWalletInfo: userWalletModel.userWalletInfo)
         )
 
         let analyticsParams: [Analytics.ParameterKey: String] = [

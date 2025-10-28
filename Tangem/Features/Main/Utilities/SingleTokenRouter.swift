@@ -193,10 +193,7 @@ private extension SingleTokenRouter {
         SendInput(
             userWalletInfo: userWalletModel.userWalletInfo,
             walletModel: walletModel,
-            expressInput: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModelsManager: userWalletModel.walletModelsManager
-            )
+            expressInput: .init(userWalletInfo: userWalletModel.userWalletInfo)
         )
     }
 }

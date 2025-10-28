@@ -615,10 +615,7 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             let input = SendInput(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
-                expressInput: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
+                expressInput: .init(userWalletInfo: userWalletModel.userWalletInfo)
             )
             coordinator?.openOnramp(input: input, parameters: parameters)
         case .allowPushPermissionRequest, .postponePushPermissionRequest:
