@@ -67,20 +67,22 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
         )
     }
 
-    func activate(tokenContractAddress: String, chainId: Int) async throws {
+    func activate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws {
         let _: YieldModuleDTO.Response.ActivateInfo = try await request(
             for: .activate(
                 tokenContractAddress: tokenContractAddress,
+                walletAddress: walletAddress,
                 chainId: chainId
             ),
             decoder: decoder
         )
     }
 
-    func deactivate(tokenContractAddress: String, chainId: Int) async throws {
+    func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws {
         let _: YieldModuleDTO.Response.ActivateInfo = try await request(
             for: .deactivate(
                 tokenContractAddress: tokenContractAddress,
+                walletAddress: walletAddress,
                 chainId: chainId
             ),
             decoder: decoder

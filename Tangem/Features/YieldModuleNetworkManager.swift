@@ -20,8 +20,8 @@ protocol YieldModuleNetworkManager {
 
     func fetchYieldTokenInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleTokenInfo
     func fetchChartData(tokenContractAddress: String, chainId: Int) async throws -> YieldChartData
-    func activate(tokenContractAddress: String, chainId: Int) async throws
-    func deactivate(tokenContractAddress: String, chainId: Int) async throws
+    func activate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
+    func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
 }
 
 final class CommonYieldModuleNetworkManager {
@@ -88,12 +88,20 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
         )
     }
 
-    func activate(tokenContractAddress: String, chainId: Int) async throws {
-        try await yieldModuleAPIService.activate(tokenContractAddress: tokenContractAddress, chainId: chainId)
+    func activate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws {
+        try await yieldModuleAPIService.activate(
+            tokenContractAddress: tokenContractAddress,
+            walletAddress: walletAddress,
+            chainId: chainId
+        )
     }
 
-    func deactivate(tokenContractAddress: String, chainId: Int) async throws {
-        try await yieldModuleAPIService.deactivate(tokenContractAddress: tokenContractAddress, chainId: chainId)
+    func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws {
+        try await yieldModuleAPIService.deactivate(
+            tokenContractAddress: tokenContractAddress,
+            walletAddress: walletAddress,
+            chainId: chainId
+        )
     }
 }
 
