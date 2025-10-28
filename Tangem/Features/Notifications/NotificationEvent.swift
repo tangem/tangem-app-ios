@@ -66,6 +66,13 @@ extension NotificationEvent {
                 default:
                     return nil
                 }
+            case .withdrawalNotificationEvent(let withdrawalEvent):
+                switch withdrawalEvent {
+                case .reduceAmountBecauseFeeIsTooHigh:
+                    return SendAccessibilityIdentifiers.highFeeNotificationBanner
+                default:
+                    return nil
+                }
             default:
                 return nil
             }
@@ -73,6 +80,8 @@ extension NotificationEvent {
             switch tokenEvent {
             case .noAccount:
                 return TokenAccessibilityIdentifiers.topUpWalletBanner
+            case .existentialDepositWarning:
+                return SendAccessibilityIdentifiers.existentialDepositWarningBanner
             default:
                 return nil
             }
