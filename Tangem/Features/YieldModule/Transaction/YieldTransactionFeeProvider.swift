@@ -16,6 +16,7 @@ final class YieldTransactionFeeProvider {
     private let ethereumNetworkProvider: EthereumNetworkProvider
     private let blockaidApiService: BlockaidAPIService
     private let yieldSupplyContractAddresses: YieldSupplyContractAddresses
+    private let tokenBalanceProvider: TokenBalanceProvider
 
     init(
         walletAddress: String,
@@ -23,12 +24,14 @@ final class YieldTransactionFeeProvider {
         ethereumNetworkProvider: EthereumNetworkProvider,
         blockaidApiService: BlockaidAPIService,
         yieldSupplyContractAddresses: YieldSupplyContractAddresses,
+        tokenBalanceProvider: TokenBalanceProvider
     ) {
         self.walletAddress = walletAddress
         self.blockchain = blockchain
         self.ethereumNetworkProvider = ethereumNetworkProvider
         self.blockaidApiService = blockaidApiService
         self.yieldSupplyContractAddresses = yieldSupplyContractAddresses
+        self.tokenBalanceProvider = tokenBalanceProvider
     }
 
     func deployFee(
@@ -42,7 +45,9 @@ final class YieldTransactionFeeProvider {
             maxNetworkFee: maxNetworkFee
         )
 
-        return try await fee(from: transactions)
+        let fees = try await fees(from: transactions)
+
+        return try DeployEnterFee(fees: fees)
     }
 
     func initializeFee(
@@ -56,7 +61,82 @@ final class YieldTransactionFeeProvider {
             maxNetworkFee: maxNetworkFee
         )
 
-        return try await fee(from: transactions)
+        let fees = try await fees(from: transactions)
+
+        return try InitEnterFee(fees: fees)
+    }
+
+    func reactivateFee(
+        yieldContractAddress: String,
+        tokenContractAddress: String,
+        tokenDecimalCount: Int,
+        maxNetworkFee: BigUInt
+    ) async throws -> ReactivateEnterFee {
+        var transactions = [TransactionData]()
+
+        transactions.append(
+            reactivateTransactionData(
+                yieldContractAddress: yieldContractAddress,
+                tokenContractAddress: tokenContractAddress,
+                maxNetworkFee: maxNetworkFee
+            )
+        )
+
+        let isPermissionRequired = try await isPermissionRequired(
+            yieldContractAddress: yieldContractAddress,
+            tokenContractAddress: tokenContractAddress,
+            tokenDecimalCount: tokenDecimalCount
+        )
+
+        if isPermissionRequired {
+            transactions.append(
+                approveTransactionData(
+                    yieldContractAddress: yieldContractAddress,
+                    tokenContractAddress: tokenContractAddress
+                )
+            )
+        }
+
+        if isEnterTransactionAvailable {
+            transactions.append(
+                enterTransactionData(
+                    yieldContractAddress: yieldContractAddress,
+                    tokenContractAddress: tokenContractAddress
+                )
+            )
+        }
+
+        let fees = try await fees(from: transactions)
+
+        return try ReactivateEnterFee(
+            fees: fees,
+            isEnterAvailable: isEnterTransactionAvailable,
+            isPermissionRequired: isPermissionRequired
+        )
+    }
+
+    func exitFee(yieldContractAddress: String, tokenContractAddress: String) async throws -> ExitFee {
+        let transactions = [
+            exitTransactionData(
+                yieldContractAddress: yieldContractAddress,
+                tokenContractAddress: tokenContractAddress
+            ),
+        ]
+
+        let fees = try await fees(from: transactions)
+        return try ExitFee(fees: fees)
+    }
+
+    func approveFee(yieldContractAddress: String, tokenContractAddress: String) async throws -> ApproveFee {
+        let transactions = [
+            approveTransactionData(
+                yieldContractAddress: yieldContractAddress,
+                tokenContractAddress: tokenContractAddress
+            ),
+        ]
+
+        let fees = try await fees(from: transactions)
+        return try ApproveFee(fees: fees)
     }
 
     func currentNetworkFee() async throws -> Decimal {
@@ -92,44 +172,6 @@ final class YieldTransactionFeeProvider {
 
         return minAmount
     }
-
-    func reactivateFee(
-        yieldContractAddress: String,
-        tokenContractAddress: String,
-        tokenDecimalCount: Int,
-        maxNetworkFee: BigUInt
-    ) async throws -> ReactivateEnterFee {
-        let transactions = try await reactivateTransactions(
-            tokenContractAddress: tokenContractAddress,
-            yieldContractAddress: yieldContractAddress,
-            tokenDecimalCount: tokenDecimalCount,
-            maxNetworkFee: maxNetworkFee
-        )
-
-        return try await fee(from: transactions)
-    }
-
-    func exitFee(yieldContractAddress: String, tokenContractAddress: String) async throws -> ExitFee {
-        let transactions = [
-            exitTransactionData(
-                yieldContractAddress: yieldContractAddress,
-                tokenContractAddress: tokenContractAddress
-            ),
-        ]
-
-        return try await fee(from: transactions)
-    }
-
-    func approveFee(yieldContractAddress: String, tokenContractAddress: String) async throws -> ApproveFee {
-        let transactions = [
-            approveTransactionData(
-                yieldContractAddress: yieldContractAddress,
-                tokenContractAddress: tokenContractAddress
-            ),
-        ]
-
-        return try await fee(from: transactions)
-    }
 }
 
 // MARK: - Transaction builders
@@ -157,12 +199,14 @@ private extension YieldTransactionFeeProvider {
             )
         )
 
-        transactions.append(
-            enterTransactionData(
-                yieldContractAddress: yieldContractAddress,
-                tokenContractAddress: tokenContractAddress
+        if isEnterTransactionAvailable {
+            transactions.append(
+                enterTransactionData(
+                    yieldContractAddress: yieldContractAddress,
+                    tokenContractAddress: tokenContractAddress
+                )
             )
-        )
+        }
 
         return transactions
     }
@@ -189,51 +233,14 @@ private extension YieldTransactionFeeProvider {
             )
         )
 
-        transactions.append(
-            enterTransactionData(
-                yieldContractAddress: yieldContractAddress,
-                tokenContractAddress: tokenContractAddress
-            )
-        )
-
-        return transactions
-    }
-
-    private func reactivateTransactions(
-        tokenContractAddress: String,
-        yieldContractAddress: String,
-        tokenDecimalCount: Int,
-        maxNetworkFee: BigUInt
-    ) async throws -> [TransactionData] {
-        var transactions = [TransactionData]()
-
-        transactions.append(
-            reactivateTransactionData(
-                yieldContractAddress: yieldContractAddress,
-                tokenContractAddress: tokenContractAddress,
-                maxNetworkFee: maxNetworkFee
-            )
-        )
-
-        if try await isPermissionRequired(
-            yieldContractAddress: yieldContractAddress,
-            tokenContractAddress: tokenContractAddress,
-            tokenDecimalCount: tokenDecimalCount
-        ) {
+        if isEnterTransactionAvailable {
             transactions.append(
-                approveTransactionData(
+                enterTransactionData(
                     yieldContractAddress: yieldContractAddress,
                     tokenContractAddress: tokenContractAddress
                 )
             )
         }
-
-        transactions.append(
-            enterTransactionData(
-                yieldContractAddress: yieldContractAddress,
-                tokenContractAddress: tokenContractAddress
-            )
-        )
 
         return transactions
     }
@@ -242,7 +249,7 @@ private extension YieldTransactionFeeProvider {
 // MARK: - Fee estimation
 
 private extension YieldTransactionFeeProvider {
-    func fee<T: YieldTransactionFee>(from transactions: [TransactionData]) async throws -> T {
+    func fees(from transactions: [TransactionData]) async throws -> [Fee] {
         let fees = try await estimateFees(
             transactions: transactions
         )
@@ -251,7 +258,7 @@ private extension YieldTransactionFeeProvider {
             throw YieldModuleError.feeNotFound
         }
 
-        return try T(fees: fees)
+        return fees
     }
 
     func estimateFees(transactions: [TransactionData]) async throws -> [Fee] {
@@ -440,6 +447,10 @@ private extension YieldTransactionFeeProvider {
         ).async()
 
         return YieldAllowanceUtil().isPermissionRequired(allowance: allowanceString)
+    }
+
+    var isEnterTransactionAvailable: Bool {
+        (tokenBalanceProvider.balanceType.value ?? .zero) > 0
     }
 }
 
