@@ -50,7 +50,7 @@ enum AccountModelToUserSettingsViewDataMapper {
         _ accountModel: any BaseAccountModel,
         onTap: @escaping (any BaseAccountModel) -> Void
     ) -> UserSettingsAccountRowViewData {
-        let accountIconViewData = AccountIconViewBuilder().makeAccountIconViewData(accountModel: accountModel)
+        let accountIconViewData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: accountModel)
 
         return UserSettingsAccountRowViewData(
             id: "\(accountModel.id)",
