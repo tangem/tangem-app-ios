@@ -216,5 +216,30 @@
        "info": "ERC1155",
        "source": "https://eips.ethereum.org/EIPS/eip-1155",
        "name": "safeTransferFrom"
-   }
+   },
+   "0xcbeda14c": {
+       "info": "ERC1155",
+       "source": "https://eips.ethereum.org/EIPS/eip-1155",
+       "name": "yieldDeploy"
+   },
+   "0xebd4b81c": {
+       "info": "ERC1155",
+       "source": "https://eips.ethereum.org/EIPS/eip-1155",
+       "name": "yieldInit"
+   },
+   "0xc478e956": {
+       "info": "ERC1155",
+       "source": "https://eips.ethereum.org/EIPS/eip-1155",
+       "name": "yieldReactivate"
+   },
+   "0x79be55f7": {
+       "info": "ERC1155",
+       "source": "https://eips.ethereum.org/EIPS/eip-1155",
+       "name": "yieldEnter"
+   },
+   "0xc65e6dcf": {
+       "info": "ERC1155",
+       "source": "https://eips.ethereum.org/EIPS/eip-1155",
+       "name": "yieldWithdraw"
+   },
 }
