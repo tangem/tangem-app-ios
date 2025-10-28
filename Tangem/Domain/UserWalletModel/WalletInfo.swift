@@ -71,7 +71,7 @@ enum WalletInfo: Codable {
 struct MobileWalletInfo: Codable, AnalyticsContextDataProvider {
     var hasMnemonicBackup: Bool
     var hasICloudBackup: Bool
-    var isAccessCodeSet: Bool
+    var accessCodeStatus: UserWalletAccessCodeStatus
     var keys: [KeyInfo]
 
     var analyticsContextData: AnalyticsContextData {
