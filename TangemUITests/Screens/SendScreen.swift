@@ -16,9 +16,15 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var addressClearButton = button(.addressClearButton)
     private lazy var nextButton = button(.nextButton)
     private lazy var backButton = button(.backButton)
+    private lazy var maxButton = button(.maxButton)
+    private lazy var feeBlock = otherElement(.networkFeeBlock)
     private lazy var invalidAmountBanner = staticText(.invalidAmountBanner)
+    private lazy var remainingAmountIsLessThanRentExemptionBanner = staticText(.remainingAmountIsLessThanRentExemptionBanner)
     private lazy var insufficientAmountToReserveAtDestinationBanner = staticText(.insufficientAmountToReserveAtDestinationBanner)
     private lazy var amountExceedMaximumUTXOBanner = staticText(.amountExceedMaximumUTXOBanner)
+    private lazy var customFeeTooLowBanner = staticText(.customFeeTooLowBanner)
+    private lazy var customFeeTooHighBanner = staticText(.customFeeTooHighBanner)
+    private lazy var feeWillBeSubtractFromSendingAmountBanner = staticText(.feeWillBeSubtractFromSendingAmountBanner)
 
     @discardableResult
     func validate() -> Self {
@@ -59,8 +65,15 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     @discardableResult
     func tapNextButton() -> Self {
         XCTContext.runActivity(named: "Tap Next button") { _ in
-            XCTAssertTrue(nextButton.isEnabled, "Next button should be enabled")
             nextButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapMaxButton() -> Self {
+        XCTContext.runActivity(named: "Tap Max button") { _ in
+            maxButton.waitAndTap()
         }
         return self
     }
@@ -71,6 +84,17 @@ final class SendScreen: ScreenBase<SendScreenElement> {
             backButton.waitAndTap()
         }
         return self
+    }
+
+    @discardableResult
+    func tapFeeBlock() -> SendFeeSelectorScreen {
+        XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
+            let predicate = NSPredicate(format: NSPredicateFormat.labelBeginsWith.rawValue, "Network fee")
+            let networkFeeButton = app.buttons.matching(predicate).firstMatch
+            XCTAssertTrue(networkFeeButton.waitForExistence(timeout: .robustUIUpdate), "Network fee button should exist")
+            networkFeeButton.tap()
+        }
+        return SendFeeSelectorScreen(app)
     }
 
     @discardableResult
@@ -93,6 +117,22 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func waitForInvalidAmountBannerNotExists() -> Self {
         XCTContext.runActivity(named: "Validate invalid amount banner does not exist") { _ in
             XCTAssertTrue(invalidAmountBanner.waitForNonExistence(timeout: .robustUIUpdate), "Invalid amount banner should not be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForRemainingAmountIsLessThanRentExemptionBanner() -> Self {
+        XCTContext.runActivity(named: "Validate remaining amount is less than rent exemption banner exists") { _ in
+            waitAndAssertTrue(remainingAmountIsLessThanRentExemptionBanner, "Remaining amount is less than rent exemption banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForRemainingAmountIsLessThanRentExemptionBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Validate remaining amount is less than rent exemption banner does not exist") { _ in
+            XCTAssertTrue(remainingAmountIsLessThanRentExemptionBanner.waitForNonExistence(timeout: .robustUIUpdate), "Remaining amount is less than rent exemption banner should not be displayed")
         }
         return self
     }
@@ -130,6 +170,30 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 
     @discardableResult
+    func waitForCustomFeeTooLowBanner() -> Self {
+        XCTContext.runActivity(named: "Check custom fee too low banner exists") { _ in
+            waitAndAssertTrue(customFeeTooLowBanner, "Custom fee too low banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForCustomFeeTooHighBanner() -> Self {
+        XCTContext.runActivity(named: "Check custom fee too high banner exists") { _ in
+            waitAndAssertTrue(customFeeTooHighBanner, "Custom fee too high banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForFeeWillBeSubtractFromSendingAmountBanner() -> Self {
+        XCTContext.runActivity(named: "Check fee will be substract form sending amount banner exists") { _ in
+            waitAndAssertTrue(feeWillBeSubtractFromSendingAmountBanner, "Fee will be substract form sending amount banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForSendButtonDisabled() -> Self {
         XCTContext.runActivity(named: "Validate Send button is disabled") { _ in
             let sendButton = app.buttons["Send"].firstMatch
@@ -144,7 +208,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         XCTContext.runActivity(named: "Validate Send button is enabled") { _ in
             let sendButton = app.buttons["Send"].firstMatch
             waitAndAssertTrue(sendButton, "Send button should exist")
-            XCTAssertTrue(sendButton.isEnabled, "Send button should be enabled")
+            XCTAssertTrue(sendButton.waitForState(state: .enabled), "Send button should be enabled")
         }
         return self
     }
@@ -157,9 +221,15 @@ enum SendScreenElement: String, UIElement {
     case addressClearButton
     case nextButton
     case backButton
+    case maxButton
+    case networkFeeBlock
     case invalidAmountBanner
+    case remainingAmountIsLessThanRentExemptionBanner
     case insufficientAmountToReserveAtDestinationBanner
     case amountExceedMaximumUTXOBanner
+    case customFeeTooLowBanner
+    case customFeeTooHighBanner
+    case feeWillBeSubtractFromSendingAmountBanner
 
     var accessibilityIdentifier: String {
         switch self {
@@ -175,12 +245,24 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.sendViewNextButton
         case .backButton:
             return CommonUIAccessibilityIdentifiers.circleButton
+        case .maxButton:
+            return SendAccessibilityIdentifiers.maxAmountButton
+        case .networkFeeBlock:
+            return SendAccessibilityIdentifiers.networkFeeBlock
         case .invalidAmountBanner:
             return SendAccessibilityIdentifiers.invalidAmountBanner
+        case .remainingAmountIsLessThanRentExemptionBanner:
+            return SendAccessibilityIdentifiers.remainingAmountIsLessThanRentExemptionBanner
         case .insufficientAmountToReserveAtDestinationBanner:
             return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
         case .amountExceedMaximumUTXOBanner:
             return SendAccessibilityIdentifiers.amountExceedMaximumUTXOBanner
+        case .customFeeTooLowBanner:
+            return SendAccessibilityIdentifiers.customFeeTooLowBanner
+        case .customFeeTooHighBanner:
+            return SendAccessibilityIdentifiers.customFeeTooHighBanner
+        case .feeWillBeSubtractFromSendingAmountBanner:
+            return SendAccessibilityIdentifiers.feeWillBeSubtractFromSendingAmountBanner
         }
     }
 }

@@ -1,9 +1,9 @@
 //
 //  SendSummaryStep.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
@@ -12,17 +12,20 @@ import SwiftUI
 
 class SendSummaryStep {
     private let viewModel: SendSummaryViewModel
-    private let input: SendSummaryInput
+    private let interactor: SendSummaryInteractor
     private let analyticsLogger: SendSummaryAnalyticsLogger
+    private let sendFeeProvider: SendFeeProvider
 
     init(
         viewModel: SendSummaryViewModel,
-        input: SendSummaryInput,
-        analyticsLogger: SendSummaryAnalyticsLogger
+        interactor: SendSummaryInteractor,
+        analyticsLogger: SendSummaryAnalyticsLogger,
+        sendFeeProvider: SendFeeProvider
     ) {
         self.viewModel = viewModel
-        self.input = input
+        self.interactor = interactor
         self.analyticsLogger = analyticsLogger
+        self.sendFeeProvider = sendFeeProvider
     }
 
     func set(router: SendSummaryStepsRoutable) {
@@ -34,13 +37,17 @@ class SendSummaryStep {
 
 extension SendSummaryStep: SendStep {
     var type: SendStepType { .summary(viewModel) }
-    var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
+
+    var isUpdatingPublisher: AnyPublisher<Bool, Never> {
+        interactor.isUpdatingPublisher.eraseToAnyPublisher()
+    }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
-        input.isReadyToSendPublisher.eraseToAnyPublisher()
+        interactor.isReadyToSendPublisher.eraseToAnyPublisher()
     }
 
     func willAppear(previous step: any SendStep) {
         analyticsLogger.logSummaryStepOpened()
+        sendFeeProvider.updateFees()
     }
 }

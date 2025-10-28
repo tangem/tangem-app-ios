@@ -11,6 +11,7 @@ import TangemSdk
 import TangemFoundation
 import BlockchainSdk
 
+// [REDACTED_TODO_COMMENT]
 struct AccountDerivationPathHelper {
     private let blockchain: Blockchain
 
@@ -154,7 +155,10 @@ struct AccountDerivationPathHelper {
              .vanar,
              .zkLinkNova,
              .pepecoin,
-             .hyperliquidEVM:
+             .hyperliquidEVM,
+             .scroll,
+             .linea,
+             .arbitrumNova:
             return true
         case .chia, .quai:
             return false

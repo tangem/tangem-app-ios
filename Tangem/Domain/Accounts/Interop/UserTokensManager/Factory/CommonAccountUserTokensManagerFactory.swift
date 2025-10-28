@@ -16,8 +16,9 @@ struct CommonAccountUserTokensManagerFactory {
     let derivationStyle: DerivationStyle?
     let derivationManager: DerivationManager?
     let existingCurves: [EllipticCurve]
+    let persistentBlockchains: [TokenItem]
     let shouldLoadExpressAvailability: Bool
-    let areLongHashesSupported: Bool
+    let hardwareLimitationsUtil: HardwareLimitationsUtil
 }
 
 // MARK: - AccountUserTokensManagerFactory protocol conformance
@@ -33,15 +34,17 @@ extension CommonAccountUserTokensManagerFactory: AccountUserTokensManagerFactory
             derivationStyle: derivationStyle,
             derivationManager: derivationManager
         )
+        let userTokensRepository = DummyUserTokensRepository()
 
         return AccountsAwareUserTokensManager(
             userWalletId: userWalletId,
-            userTokenListManager: userTokenListManager,
+            userTokensRepository: userTokensRepository,
             walletModelsManager: walletModelsManager,
             derivationInfo: derivationInfo,
             existingCurves: existingCurves,
+            persistentBlockchains: persistentBlockchains,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
-            areLongHashesSupported: areLongHashesSupported
+            hardwareLimitationsUtil: hardwareLimitationsUtil
         )
     }
 }

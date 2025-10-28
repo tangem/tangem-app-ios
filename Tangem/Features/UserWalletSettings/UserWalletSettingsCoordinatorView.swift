@@ -39,14 +39,20 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.scanCardSettingsCoordinator) {
                 ScanCardSettingsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.mobileBackupTypesViewModel) {
-                MobileBackupTypesView(viewModel: $0)
+            .navigation(item: $coordinator.mobileBackupTypesCoordinator) {
+                MobileBackupTypesCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.accountDetailsCoordinator) {
                 AccountDetailsCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.archivedAccountsCoordinator) {
                 ArchivedAccountsCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.mobileRemoveWalletViewModel) {
+                MobileRemoveWalletView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.hardwareBackupTypesCoordinator) {
+                HardwareBackupTypesCoordinatorView(coordinator: $0)
             }
     }
 
@@ -60,13 +66,6 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-            .sheet(item: $coordinator.mobileUpgradeCoordinator) {
-                MobileUpgradeCoordinatorView(coordinator: $0)
-                    .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
-                    .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-                        coordinator.modalOnboardingCoordinatorKeeper = value
-                    })
-            }
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
             }
@@ -75,6 +74,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: MobileBackupNeededViewModel.self) {
                 MobileBackupNeededView(viewModel: $0)
+            }
+            .floatingSheetContent(for: MobileRemoveWalletNotificationViewModel.self) {
+                MobileRemoveWalletNotificationView(viewModel: $0)
             }
             .sheet(item: $coordinator.accountFormViewModel) { viewModel in
                 NavigationView {

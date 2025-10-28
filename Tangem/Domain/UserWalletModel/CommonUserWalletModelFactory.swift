@@ -64,7 +64,6 @@ struct CommonUserWalletModelFactory {
             userWalletId: userWalletId,
             walletModelsManager: dependencies.walletModelsManager,
             userTokensManager: dependencies.userTokensManager,
-            userTokenListManager: dependencies.userTokenListManager,
             nftManager: dependencies.nftManager,
             keysRepository: dependencies.keysRepository,
             derivationManager: dependencies.derivationManager,
@@ -125,8 +124,9 @@ private struct CommonUserWalletModelDependencies {
         }
 
         let shouldLoadExpressAvailability = config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange)
-        let areLongHashesSupported = config.hasFeature(.longHashes)
         let areHDWalletsSupported = config.hasFeature(.hdWallets)
+        let hasTokenSynchronization = config.hasFeature(.multiCurrency)
+        let defaultBlockchains = config.defaultBlockchains
 
         let keysRepository = CommonKeysRepository(
             userWalletId: userWalletId,
@@ -139,15 +139,25 @@ private struct CommonUserWalletModelDependencies {
             userWalletId: userWalletId.value,
             supportedBlockchains: config.supportedBlockchains,
             hdWalletsSupported: areHDWalletsSupported,
-            hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
-            defaultBlockchains: config.defaultBlockchains
+            hasTokenSynchronization: hasTokenSynchronization,
+            defaultBlockchains: defaultBlockchains
         )
 
         self.userTokenListManager = userTokenListManager
 
+        userTokensManager = CommonUserTokensManager(
+            userWalletId: userWalletId,
+            shouldLoadExpressAvailability: shouldLoadExpressAvailability,
+            userTokenListManager: userTokenListManager,
+            derivationStyle: config.derivationStyle,
+            existingCurves: config.existingCurves,
+            persistentBlockchains: config.persistentBlockchains,
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
+        )
+
         let walletManagersRepository = CommonWalletManagersRepository(
             keysProvider: keysRepository,
-            userTokenListManager: userTokenListManager,
+            userTokensManager: userTokensManager,
             walletManagerFactory: walletManagerFactory
         )
 
@@ -157,32 +167,21 @@ private struct CommonUserWalletModelDependencies {
         )
 
         let derivationManager = areHDWalletsSupported
-            ? CommonDerivationManager(keysRepository: keysRepository, userTokenListManager: userTokenListManager)
+            ? CommonDerivationManager(keysRepository: keysRepository, userTokensManager: userTokensManager)
             : nil
+
         self.derivationManager = derivationManager
 
-        totalBalanceProvider = TotalBalanceProvider(
-            userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager,
-            derivationManager: derivationManager
-        )
-
-        userTokensManager = CommonUserTokensManager(
-            userWalletId: userWalletId,
-            shouldLoadExpressAvailability: shouldLoadExpressAvailability,
-            userTokenListManager: userTokenListManager,
-            walletModelsManager: walletModelsManager,
-            derivationStyle: config.derivationStyle,
-            derivationManager: derivationManager,
-            existingCurves: config.existingCurves,
-            longHashesSupported: areLongHashesSupported
-        )
+        // [REDACTED_TODO_COMMENT]
+        userTokensManager.derivationManager = derivationManager
+        userTokensManager.walletModelsManager = walletModelsManager
+        userTokensManager.sync {}
 
         let userTokensPushNotificationsManager = CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
             derivationManager: derivationManager,
-            userTokenListManager: userTokenListManager
+            userTokensManager: userTokensManager
         )
 
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
@@ -201,11 +200,17 @@ private struct CommonUserWalletModelDependencies {
                 userWalletId: userWalletId,
                 mapper: mapper
             )
+            let defaultAccountFactory = DefaultAccountFactory(
+                userWalletId: userWalletId,
+                defaultBlockchains: defaultBlockchains
+            )
             let cryptoAccountsRepository = CommonCryptoAccountsRepository(
                 tokenItemsRepository: tokenItemsRepository,
+                defaultAccountFactory: defaultAccountFactory,
                 networkService: networkService,
                 persistentStorage: persistentStorage,
-                storageController: persistentStorage
+                storageController: persistentStorage,
+                hasTokenSynchronization: hasTokenSynchronization
             )
             let walletModelsFactory = config.makeWalletModelsFactory(userWalletId: userWalletId)
             let walletModelsManagerFactory = CommonAccountWalletModelsManagerFactory(
@@ -217,17 +222,25 @@ private struct CommonUserWalletModelDependencies {
                 derivationStyle: config.derivationStyle,
                 derivationManager: derivationManager,
                 existingCurves: config.existingCurves,
+                persistentBlockchains: config.persistentBlockchains,
                 shouldLoadExpressAvailability: shouldLoadExpressAvailability,
-                areLongHashesSupported: areLongHashesSupported
+                hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
             )
-
-            return CommonAccountModelsManager(
+            let accountModelsManager = CommonAccountModelsManager(
                 userWalletId: userWalletId,
                 cryptoAccountsRepository: cryptoAccountsRepository,
+                archivedCryptoAccountsProvider: networkService,
                 walletModelsManagerFactory: walletModelsManagerFactory,
                 userTokensManagerFactory: userTokensManagerFactory,
                 areHDWalletsSupported: areHDWalletsSupported
             )
+
+            mapper.externalParametersProvider = AccountsAwareUserTokenListExternalParametersProvider(
+                accountModelsManager: accountModelsManager,
+                userTokensPushNotificationsManager: userTokensPushNotificationsManager
+            )
+
+            return accountModelsManager
         }
 
         accountModelsManager = FeatureProvider.isAvailable(.accounts)
@@ -250,6 +263,22 @@ private struct CommonUserWalletModelDependencies {
                 }
             )
         )
+
+        totalBalanceProvider = if FeatureProvider.isAvailable(.accounts) {
+            CombineTotalBalanceProvider(
+                accountModelsManager: accountModelsManager,
+                analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
+            )
+        } else {
+            AccountTotalBalanceProvider(
+                walletModelsManager: walletModelsManager,
+                analyticsLogger: CommonTotalBalanceProviderAnalyticsLogger(
+                    userWalletId: userWalletId,
+                    walletModelsManager: walletModelsManager
+                ),
+                derivationManager: derivationManager
+            )
+        }
     }
 
     func update(from model: UserWalletModel) {
