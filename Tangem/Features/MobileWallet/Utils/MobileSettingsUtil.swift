@@ -16,11 +16,11 @@ final class MobileSettingsUtil {
     private var dismissedNotifications: UserWalletDismissedNotifications
 
     private var isAccessCodeFeatureAvailable: Bool {
-        userWalletConfig.isFeatureVisible(.userWalletAccessCode)
+        userWalletConfig.hasFeature(.userWalletAccessCode)
     }
 
-    private var isAccessCodeNeeded: Bool {
-        userWalletConfig.hasFeature(.userWalletAccessCode)
+    private var isAccessCodeSet: Bool {
+        userWalletConfig.userWalletAccessCodeStatus.hasAccessCode
     }
 
     private var isBackupFeatureAvailable: Bool {
@@ -64,7 +64,7 @@ extension MobileSettingsUtil {
         }
 
         if isAccessCodeFeatureAvailable {
-            settings.append(isAccessCodeNeeded ? .setAccessCode : .changeAccessCode)
+            settings.append(isAccessCodeSet ? .changeAccessCode : .setAccessCode)
         }
 
         if isBackupFeatureAvailable {
