@@ -169,6 +169,12 @@ private extension LockedWalletMainContentViewModel {
             }
 
         case .success(let userWalletId, let encryptionKey):
+            Analytics.log(
+                .cardWasScanned,
+                params: [.source: Analytics.CardScanSource.mainUnlock.cardWasScannedParameterValue],
+                contextParams: .userWallet(userWalletId)
+            )
+
             do {
                 let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                 _ = try await userWalletRepository.unlock(with: method)
