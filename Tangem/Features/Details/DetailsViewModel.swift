@@ -375,7 +375,11 @@ private extension DetailsViewModel {
                 }
 
             case .onboarding(let input, _):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.settings.cardWasScannedParameterValue])
+                Analytics.log(
+                    .cardWasScanned,
+                    params: [.source: Analytics.CardScanSource.settings.cardWasScannedParameterValue],
+                    contextParams: input.cardInput.getContextParams()
+                )
 
                 await runOnMain {
                     viewModel.isScanning = false
@@ -391,7 +395,11 @@ private extension DetailsViewModel {
                 }
 
             case .success(let cardInfo):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.settings.cardWasScannedParameterValue])
+                Analytics.log(
+                    .cardWasScanned,
+                    params: [.source: Analytics.CardScanSource.settings.cardWasScannedParameterValue],
+                    contextParams: .custom(cardInfo.analyticsContextData)
+                )
 
                 do {
                     let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
