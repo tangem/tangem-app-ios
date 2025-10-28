@@ -10,105 +10,95 @@ import Foundation
 import BlockchainSdk
 
 public protocol YieldTransactionFee {
-    init(fees: [Fee]) throws
-
     var totalFeeAmount: Amount { get }
 }
 
 struct DeployEnterFee: YieldTransactionFee {
     let deployFee: Fee
     let approveFee: Fee
-    let enterFee: Fee
+    let enterFee: Fee?
 
     init(fees: [Fee]) throws {
-        guard fees.count == 3 else {
+        guard fees.count >= 2 else {
             throw YieldModuleError.feeNotFound
         }
 
         deployFee = fees[0]
         approveFee = fees[1]
-        enterFee = fees[2]
+        enterFee = fees[safe: 2]
     }
 
     var totalFeeAmount: Amount {
-        deployFee.amount + approveFee.amount + enterFee.amount
+        if let enterFee {
+            deployFee.amount + approveFee.amount + enterFee.amount
+        } else {
+            deployFee.amount + approveFee.amount
+        }
     }
 }
 
 struct InitEnterFee: YieldTransactionFee {
     let initFee: Fee
-    let enterFee: EnterFee
+    let approveFee: Fee
+    let enterFee: Fee?
 
     init(fees: [Fee]) throws {
-        guard fees.count == 3 else { // on enter approve is mandatory
+        guard fees.count >= 2 else {
             throw YieldModuleError.feeNotFound
         }
 
         initFee = fees[0]
-        let approveFee = fees[1]
-        let enterFee = fees[2]
-
-        self.enterFee = EnterFee(enterFee: enterFee, approveFee: approveFee)
+        approveFee = fees[1]
+        enterFee = fees[safe: 2]
     }
 
     var totalFeeAmount: Amount {
-        initFee.amount + enterFee.totalFeeAmount
+        if let enterFee {
+            initFee.amount + approveFee.amount + enterFee.amount
+        } else {
+            initFee.amount + approveFee.amount
+        }
     }
 }
 
 struct ReactivateEnterFee: YieldTransactionFee {
     let reactivateFee: Fee
-    let enterFee: EnterFee
+    let approveFee: Fee?
+    let enterFee: Fee?
 
-    init(fees: [Fee]) throws {
-        reactivateFee = fees[0]
-
-        let approveFee: Fee?
-        let enterFee: Fee
-
+    init(fees: [Fee], isEnterAvailable: Bool, isPermissionRequired: Bool) throws {
         switch fees.count {
-        case 2: // without approve
-            approveFee = nil
-            enterFee = fees[1]
-        case 3: // with approve
+        case 3:
+            reactivateFee = fees[0]
             approveFee = fees[1]
             enterFee = fees[2]
-        default:
-            throw YieldModuleError.feeNotFound
-        }
-
-        self.enterFee = EnterFee(enterFee: enterFee, approveFee: approveFee)
-    }
-
-    var totalFeeAmount: Amount {
-        reactivateFee.amount + enterFee.totalFeeAmount
-    }
-}
-
-struct EnterFee {
-    let enterFee: Fee
-    let approveFee: Fee?
-}
-
-extension EnterFee: YieldTransactionFee {
-    init(fees: [Fee]) throws {
-        switch fees.count {
-        case 1:
-            enterFee = fees[0]
+        case 2 where isPermissionRequired && !isEnterAvailable:
+            reactivateFee = fees[0]
+            approveFee = fees[1]
+            enterFee = nil
+        case 2 where isEnterAvailable && !isPermissionRequired:
+            reactivateFee = fees[0]
             approveFee = nil
-        case 2:
-            approveFee = fees[0]
             enterFee = fees[1]
+        case 1 where !isEnterAvailable && !isPermissionRequired:
+            reactivateFee = fees[0]
+            approveFee = nil
+            enterFee = nil
         default:
             throw YieldModuleError.feeNotFound
         }
     }
 
     var totalFeeAmount: Amount {
-        if let approveFee {
-            enterFee.amount + approveFee.amount
-        } else {
-            enterFee.amount
+        switch (approveFee, enterFee) {
+        case (.some(let approveFee), .some(let enterFee)):
+            approveFee.amount + enterFee.amount + reactivateFee.amount
+        case (.some(let approveFee), _):
+            approveFee.amount + reactivateFee.amount
+        case (_, .some(let enterFee)):
+            enterFee.amount + reactivateFee.amount
+        default:
+            reactivateFee.amount
         }
     }
 }
