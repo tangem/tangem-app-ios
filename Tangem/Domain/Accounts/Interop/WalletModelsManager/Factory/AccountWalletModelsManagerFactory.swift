@@ -8,6 +8,7 @@
 
 import Foundation
 
+// [REDACTED_TODO_COMMENT]
 /// Produces `WalletModelsManager` instances for a specific account identified by its derivation index.
 protocol AccountWalletModelsManagerFactory {
     func makeWalletModelsManager(forAccountWithDerivationIndex derivationIndex: Int) -> WalletModelsManager

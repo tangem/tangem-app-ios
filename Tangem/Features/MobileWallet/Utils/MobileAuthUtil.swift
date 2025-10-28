@@ -122,6 +122,14 @@ private extension MobileAuthUtil {
         else {
             throw MobileWalletError.encryptionKeyMismatched
         }
+
+        if BiometricsUtil.isAvailable,
+           AppSettings.shared.useBiometricAuthentication,
+           !AppSettings.shared.requireAccessCodes,
+           !mobileWalletSdk.isBiometricsEnabled(for: userWalletId) {
+            try? mobileWalletSdk.refreshBiometrics(context: context)
+        }
+
         return .successful(context)
     }
 }

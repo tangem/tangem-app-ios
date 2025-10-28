@@ -12,29 +12,32 @@ import TangemAssets
 
 struct NewTokenSelectorWalletItemView: View {
     @ObservedObject var viewModel: NewTokenSelectorWalletItemViewModel
-    let shouldShowSeparator: Bool
 
     var body: some View {
         switch viewModel.viewType {
-        case .none:
-            EmptyView()
-        case .wallet(let viewModel):
-            NewTokenSelectorAccountView(viewModel: viewModel)
-        case .accounts(let walletName, let accounts):
+        case .wallet(let accountViewModel) where viewModel.contentVisibility == .visible:
+            NewTokenSelectorAccountView(viewModel: accountViewModel)
+
+        case .accounts(let walletName, let accounts) where viewModel.contentVisibility == .visible:
             header(walletName: walletName)
 
             if viewModel.isOpen {
                 ForEach(accounts) {
                     NewTokenSelectorAccountView(viewModel: $0)
                 }
-            } else if shouldShowSeparator {
+            } else {
                 Separator(color: Colors.Stroke.primary)
             }
+
+        case .none, .wallet, .accounts:
+            EmptyView()
         }
     }
 
     private func header(walletName: String) -> some View {
-        Button(action: { viewModel.isOpen.toggle() }) {
+        Button(action: {
+            withAnimation(.easeInOut) { viewModel.isOpen.toggle() }
+        }) {
             HStack(spacing: .zero) {
                 Text(walletName)
                     .style(Fonts.Bold.headline, color: Colors.Text.primary1)

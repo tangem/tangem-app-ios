@@ -54,6 +54,10 @@ extension WalletConnectSolanaSignMessageHandler: WalletConnectMessageHandler {
         request.stringRepresentation
     }
 
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        .empty
+    }
+
     func handle() async throws -> RPCResult {
         do {
             let signature = try await signer.sign(data: message.base58DecodedData, using: walletModel)
