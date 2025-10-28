@@ -605,38 +605,44 @@ private extension ExpressViewModel {
         runTask(in: self) { root in
             do {
                 let sentTransactionData = try await root.interactor.send()
-
                 try Task.checkCancellation()
 
                 await root.openSuccessView(sentTransactionData: sentTransactionData)
-            } catch TransactionDispatcherResult.Error.userCancelled {
-                root.restartTimer()
-            } catch let error as ExpressAPIError {
-                await runOnMain {
-                    let message = error.localizedMessage
-                    root.alert = AlertBinder(title: Localization.commonError, message: message)
-                }
-            } catch let error as ValidationError {
-                let factory = BlockchainSDKNotificationMapper(
-                    tokenItem: root.interactor.getSender().tokenItem,
-                    feeTokenItem: root.interactor.getSender().feeTokenItem
-                )
-
-                let validationErrorEvent = factory.mapToValidationErrorEvent(error)
-                let message = validationErrorEvent.description ?? error.localizedDescription
-
-                await runOnMain {
-                    root.alert = AlertBinder(title: Localization.commonError, message: message)
-                }
             } catch {
-                await runOnMain {
-                    root.alert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
-                }
+                await root.proceed(error: error)
             }
 
-            await runOnMain {
+            await MainActor.run {
                 root.mainButtonIsLoading = false
             }
+        }
+    }
+
+    @MainActor
+    func proceed(error: Error) {
+        switch error {
+        case let error where error.isCancellationError:
+            restartTimer()
+
+        case TransactionDispatcherResult.Error.demoAlert:
+            alert = AlertBuilder.makeDemoAlert()
+
+        case let error as ExpressAPIError:
+            let message = error.localizedMessage
+            alert = AlertBinder(title: Localization.commonError, message: message)
+
+        case let error as ValidationError:
+            let factory = BlockchainSDKNotificationMapper(
+                tokenItem: interactor.getSender().tokenItem,
+                feeTokenItem: interactor.getSender().feeTokenItem
+            )
+
+            let validationErrorEvent = factory.mapToValidationErrorEvent(error)
+            let message = validationErrorEvent.description ?? error.localizedDescription
+            alert = AlertBinder(title: Localization.commonError, message: message)
+
+        default:
+            alert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
         }
     }
 }
