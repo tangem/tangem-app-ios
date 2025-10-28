@@ -20,6 +20,7 @@ struct EtherscanTransactionHistoryResult {
         let contractAddress: String?
         let from: String
         let functionName: String?
+        let methodId: String?
         let gasPrice: String
         let gasUsed: String
         let hash: String
@@ -67,6 +68,7 @@ extension EtherscanTransactionHistoryResult.Transaction: Decodable {
         case contractAddress
         case from
         case functionName
+        case methodId
         case gasPrice
         case gasUsed
         case hash
@@ -84,6 +86,7 @@ extension EtherscanTransactionHistoryResult.Transaction: Decodable {
         contractAddress = try container.decodeIfPresent(String.self, forKey: CodingKeys.contractAddress)
         from = try container.decode(String.self, forKey: CodingKeys.from)
         functionName = try container.decodeIfPresent(String.self, forKey: CodingKeys.functionName)
+        methodId = try container.decodeIfPresent(String.self, forKey: CodingKeys.methodId)
         gasPrice = try container.decode(String.self, forKey: CodingKeys.gasPrice)
         gasUsed = try container.decode(String.self, forKey: CodingKeys.gasUsed)
         hash = try container.decode(String.self, forKey: CodingKeys.hash)
