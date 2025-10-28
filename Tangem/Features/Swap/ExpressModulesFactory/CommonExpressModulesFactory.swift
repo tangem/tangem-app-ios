@@ -19,14 +19,12 @@ class CommonExpressModulesFactory {
     private var expressPairsRepository: ExpressPairsRepository
 
     private let userWalletInfo: UserWalletInfo
-    private let userTokensManager: UserTokensManager
-    private let walletModelsManager: WalletModelsManager
-
     private let initialWalletModel: any WalletModel
     private let destinationWalletModel: (any WalletModel)?
-    private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
     // MARK: - Internal
+
+    private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
@@ -34,8 +32,6 @@ class CommonExpressModulesFactory {
 
     init(inputModel: InputModel) {
         userWalletInfo = inputModel.userWalletInfo
-        userTokensManager = inputModel.userTokensManager
-        walletModelsManager = inputModel.walletModelsManager
         initialWalletModel = inputModel.initialWalletModel
         destinationWalletModel = inputModel.destinationWalletModel
     }
@@ -67,7 +63,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     ) -> ExpressTokensListViewModel {
         ExpressTokensListViewModel(
             swapDirection: swapDirection,
-            expressTokensListAdapter: expressTokensListAdapter,
+            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletInfo.id),
             expressPairsRepository: expressPairsRepository,
             expressInteractor: expressInteractor,
             coordinator: coordinator,
@@ -139,6 +135,12 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             coordinator: coordinator
         )
     }
+}
+
+struct PendingExpressTransactionsFactory {
+    let userWalletInfo: UserWalletInfo
+    let walletModel: any WalletModel
+    let userTokensManager: any UserTokensManager
 
     func makePendingExpressTransactionsManager() -> any PendingExpressTransactionsManager {
         let tokenFinder = CommonTokenFinder(supportedBlockchains: userWalletInfo.config.supportedBlockchains)
@@ -148,18 +150,21 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             tokenFinder: tokenFinder
         )
 
-        let expressAPIProvider = makeExpressAPIProvider()
+        let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
+            userWalletId: userWalletInfo.id,
+            refcode: userWalletInfo.refcode
+        )
 
         let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
             userWalletId: userWalletInfo.id.stringValue,
-            walletModel: initialWalletModel,
+            walletModel: walletModel,
             expressAPIProvider: expressAPIProvider,
             expressRefundedTokenHandler: expressRefundedTokenHandler
         )
 
         let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
             userWalletId: userWalletInfo.id.stringValue,
-            walletModel: initialWalletModel,
+            walletModel: walletModel,
             expressAPIProvider: expressAPIProvider
         )
 
@@ -200,19 +205,6 @@ private extension CommonExpressModulesFactory {
     /// Becase there will be inly initial tokenItem without updating
     var analyticsLogger: ExpressAnalyticsLogger { CommonExpressAnalyticsLogger(tokenItem: initialWalletModel.tokenItem) }
 
-    var expressTokensListAdapter: ExpressTokensListAdapter {
-        CommonExpressTokensListAdapter(
-            userTokensManager: userTokensManager,
-            walletModelsManager: walletModelsManager
-        )
-    }
-
-    var expressDestinationService: ExpressDestinationService {
-        CommonExpressDestinationService(
-            walletModelsManager: walletModelsManager
-        )
-    }
-
     // MARK: - Methods
 
     func makeExpressRepository() -> ExpressRepository {
@@ -248,7 +240,7 @@ private extension CommonExpressModulesFactory {
             expressManager: expressManager,
             expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
-            expressDestinationService: expressDestinationService,
+            expressDestinationService: CommonExpressDestinationService(userWalletId: userWalletInfo.id),
             expressAnalyticsLogger: analyticsLogger,
             expressAPIProvider: expressAPIProvider,
         )
