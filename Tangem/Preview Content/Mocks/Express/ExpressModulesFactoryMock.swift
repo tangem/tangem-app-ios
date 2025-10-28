@@ -29,8 +29,8 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
         let notificationManager = notificationManager
         let model = ExpressViewModel(
-            initialWallet: initialWalletModel,
             userWalletInfo: userWalletModel.userWalletInfo,
+            initialTokenItem: initialWalletModel.tokenItem,
             feeFormatter: feeFormatter,
             balanceFormatter: balanceFormatter,
             expressProviderFormatter: expressProviderFormatter,
@@ -111,7 +111,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     func makeExpressSuccessSentViewModel(data: SentExpressTransactionData, coordinator: ExpressSuccessSentRoutable) -> ExpressSuccessSentViewModel {
         ExpressSuccessSentViewModel(
             data: data,
-            initialWallet: initialWalletModel,
+            initialTokenItem: initialWalletModel.tokenItem,
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             providerFormatter: providerFormatter,
@@ -199,8 +199,7 @@ private extension ExpressModulesFactoryMock {
 
         let interactor = ExpressInteractor(
             userWalletInfo: userWalletInfo,
-            initialWallet: initialWalletModel.asExpressInteractorWallet,
-            destinationWallet: .loading,
+            swappingPair: .init(sender: initialWalletModel.asExpressInteractorWallet, destination: .loading),
             expressManager: expressManager,
             expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,

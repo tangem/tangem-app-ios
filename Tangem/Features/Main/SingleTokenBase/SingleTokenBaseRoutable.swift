@@ -15,7 +15,7 @@ protocol SingleTokenBaseRoutable: AnyObject {
     func openSellCrypto(at url: URL, action: @escaping (String) -> Void)
     func openSend(input: SendInput)
     func openSendToSell(input: SendInput, sellParameters: PredefinedSellParameters)
-    func openExpress(input: CommonExpressModulesFactory.InputModel)
+    func openExpress(input: ExpressDependenciesInput)
     func openStaking(options: StakingDetailsCoordinator.Options)
     func openInSafari(url: URL)
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel)
