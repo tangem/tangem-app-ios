@@ -259,7 +259,7 @@ private extension UserWalletSettingsViewModel {
     }
 
     func mobileAccessCodeAction() {
-        let hasAccessCode = userWalletModel.config.hasFeature(.userWalletAccessCode)
+        let hasAccessCode = userWalletModel.config.userWalletAccessCodeStatus.hasAccessCode
         Analytics.log(.walletSettingsButtonAccessCode, params: [.action: hasAccessCode ? .changing : .set])
 
         runTask(in: self) { viewModel in
