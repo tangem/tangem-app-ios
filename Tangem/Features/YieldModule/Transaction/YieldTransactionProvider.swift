@@ -37,26 +37,36 @@ final class YieldTransactionProvider {
         maxNetworkFee: BigUInt,
         fee: DeployEnterFee
     ) async throws -> [Transaction] {
-        let deployTransaction = try await deployTransaction(
-            walletAddress: walletAddress,
-            tokenContractAddress: tokenContractAddress,
-            maxNetworkFee: maxNetworkFee,
-            fee: fee.deployFee
+        var transactions = [Transaction]()
+
+        transactions.append(
+            try await deployTransaction(
+                walletAddress: walletAddress,
+                tokenContractAddress: tokenContractAddress,
+                maxNetworkFee: maxNetworkFee,
+                fee: fee.deployFee
+            )
         )
 
-        let approveTransaction = try await approveTransaction(
-            tokenContractAddress: tokenContractAddress,
-            yieldContractAddress: yieldContractAddress,
-            fee: fee.approveFee,
+        transactions.append(
+            try await approveTransaction(
+                tokenContractAddress: tokenContractAddress,
+                yieldContractAddress: yieldContractAddress,
+                fee: fee.approveFee,
+            )
         )
 
-        let enterResult = try await enterTransaction(
-            tokenContractAddress: tokenContractAddress,
-            yieldContractAddress: yieldContractAddress,
-            fee: fee.enterFee
-        )
+        if let enterFee = fee.enterFee {
+            transactions.append(
+                try await enterTransaction(
+                    tokenContractAddress: tokenContractAddress,
+                    yieldContractAddress: yieldContractAddress,
+                    fee: enterFee
+                )
+            )
+        }
 
-        return [deployTransaction, approveTransaction, enterResult]
+        return transactions
     }
 
     // MARK: - Init
@@ -69,32 +79,32 @@ final class YieldTransactionProvider {
     ) async throws -> [Transaction] {
         var transactions = [Transaction]()
 
-        let initModuleTransaction = try await initModuleTransaction(
-            tokenContractAddress: tokenContractAddress,
-            yieldContractAddress: yieldContractAddress,
-            maxNetworkFee: maxNetworkFee,
-            fee: fee.initFee
-        )
-
-        transactions.append(initModuleTransaction)
-
-        if let approveFee = fee.enterFee.approveFee {
-            let requestPermissionsTransaction = try await approveTransaction(
+        transactions.append(
+            try await initModuleTransaction(
                 tokenContractAddress: tokenContractAddress,
                 yieldContractAddress: yieldContractAddress,
-                fee: approveFee
+                maxNetworkFee: maxNetworkFee,
+                fee: fee.initFee
             )
-
-            transactions.append(requestPermissionsTransaction)
-        }
-
-        let enterResult = try await enterTransaction(
-            tokenContractAddress: tokenContractAddress,
-            yieldContractAddress: yieldContractAddress,
-            fee: fee.enterFee.enterFee
         )
 
-        transactions.append(enterResult)
+        transactions.append(
+            try await approveTransaction(
+                tokenContractAddress: tokenContractAddress,
+                yieldContractAddress: yieldContractAddress,
+                fee: fee.approveFee
+            )
+        )
+
+        if let enterFee = fee.enterFee {
+            transactions.append(
+                try await enterTransaction(
+                    tokenContractAddress: tokenContractAddress,
+                    yieldContractAddress: yieldContractAddress,
+                    fee: enterFee
+                )
+            )
+        }
 
         return transactions
     }
@@ -109,60 +119,34 @@ final class YieldTransactionProvider {
     ) async throws -> [Transaction] {
         var transactions = [Transaction]()
 
-        let reactivateTokenTransaction = try await reactivateTokenTransaction(
-            tokenContractAddress: tokenContractAddress,
-            yieldContractAddress: yieldContractAddress,
-            maxNetworkFee: maxNetworkFee,
-            fee: fee.reactivateFee
-        )
-
-        transactions.append(reactivateTokenTransaction)
-
-        if let approveFee = fee.enterFee.approveFee {
-            let requestPermissionsTransaction = try await approveTransaction(
+        transactions.append(
+            try await reactivateTokenTransaction(
                 tokenContractAddress: tokenContractAddress,
                 yieldContractAddress: yieldContractAddress,
-                fee: approveFee
+                maxNetworkFee: maxNetworkFee,
+                fee: fee.reactivateFee
             )
-
-            transactions.append(requestPermissionsTransaction)
-        }
-
-        let enterResult = try await enterTransaction(
-            tokenContractAddress: tokenContractAddress,
-            yieldContractAddress: yieldContractAddress,
-            fee: fee.enterFee.enterFee
         )
-
-        transactions.append(enterResult)
-
-        return transactions
-    }
-
-    func enterTransactions(
-        tokenContractAddress: String,
-        yieldContractAddress: String,
-        fee: EnterFee
-    ) async throws -> [Transaction] {
-        var transactions = [Transaction]()
 
         if let approveFee = fee.approveFee {
-            let requestPermissionsTransaction = try await approveTransaction(
-                tokenContractAddress: tokenContractAddress,
-                yieldContractAddress: yieldContractAddress,
-                fee: approveFee
+            transactions.append(
+                try await approveTransaction(
+                    tokenContractAddress: tokenContractAddress,
+                    yieldContractAddress: yieldContractAddress,
+                    fee: approveFee
+                )
             )
-
-            transactions.append(requestPermissionsTransaction)
         }
 
-        let enterResult = try await enterTransaction(
-            tokenContractAddress: tokenContractAddress,
-            yieldContractAddress: yieldContractAddress,
-            fee: fee.enterFee
-        )
-
-        transactions.append(enterResult)
+        if let enterFee = fee.enterFee {
+            transactions.append(
+                try await enterTransaction(
+                    tokenContractAddress: tokenContractAddress,
+                    yieldContractAddress: yieldContractAddress,
+                    fee: enterFee
+                )
+            )
+        }
 
         return transactions
     }
