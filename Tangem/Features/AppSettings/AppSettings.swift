@@ -125,9 +125,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.isSendWithSwapOnboardNotificationHidden)
     var isSendWithSwapOnboardNotificationHidden: Bool = false
 
-    @AppStorageCompat(StorageType.userWalletIdsWithSkippedAccessCode)
-    var userWalletIdsWithSkippedAccessCode: [String] = []
-
     @AppStorageCompat(StorageType.settingsVersion)
     var settingsVersion: Int = 0
 
