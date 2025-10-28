@@ -67,6 +67,7 @@ final class CommonYieldModuleManager {
         token: Token,
         blockchain: Blockchain,
         yieldSupplyService: YieldSupplyService,
+        tokenBalanceProvider: TokenBalanceProvider,
         ethereumNetworkProvider: EthereumNetworkProvider,
         transactionCreator: TransactionCreator,
         blockaidApiService: BlockaidAPIService,
@@ -102,6 +103,7 @@ final class CommonYieldModuleManager {
             ethereumNetworkProvider: ethereumNetworkProvider,
             blockaidApiService: blockaidApiService,
             yieldSupplyContractAddresses: yieldSupplyContractAddresses,
+            tokenBalanceProvider: tokenBalanceProvider
         )
 
         bind()
