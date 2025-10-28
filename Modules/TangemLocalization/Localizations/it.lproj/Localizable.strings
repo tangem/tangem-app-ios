@@ -175,6 +175,7 @@
 "cardano_max_amount_has_token_title" = "Not enough ADA";
 "common_accept" = "Accetta";
 "common_access_denied" = "Access denied";
+"common_account" = "Account";
 "common_accounts" = "Accounts";
 "common_activate" = "Activate";
 "common_add_to_portfolio" = "Add to portfolio";
@@ -1724,7 +1725,7 @@
 "xtz_withdrawal_message_warning" = "Per evitare di pagare una commissione maggiore la prossima volta che ricarichi il tuo portafoglio, riduci l'importo di %@ XTZ";
 "yield_module_alert_description" = "With Yield mode active, all future deposits to this address will go to Aave. You can still manage your funds freely.";
 "yield_module_alert_title" = "Your %@ is supplied to Aave";
-"yield_module_amount_not_transfered_to_aave_title" = "Supplying  %1$@ %2$@ to Aave is pending";
+"yield_module_amount_not_transfered_to_aave_title" = "Supplying %1$@ %2$@ to Aave is pending";
 "yield_module_approve_needed_notification_cta" = "Give Approve";
 "yield_module_approve_needed_notification_description" = "Your token’s approval has been revoked. Grant it again to resume service functionality.";
 "yield_module_approve_needed_notification_title" = "Approve needed";
@@ -1749,7 +1750,7 @@
 "yield_module_fee_policy_sheet_current_fee_note" = "This is the current supply fee on %@. The actual cost will be shown on the activation tab.";
 "yield_module_fee_policy_sheet_current_fee_title" = "Current fee";
 "yield_module_fee_policy_sheet_description" = "All future %@ deposits will be supplied to Aave automatically, with the transaction fee deducted.";
-"yield_module_fee_policy_sheet_fee_note" = "An approximate network fee of %1$@ (%2$@) will be deducted from each future top-up, and it won’t exceed your %3$@  (%4$@) limit.";
+"yield_module_fee_policy_sheet_fee_note" = "An approximate network fee of %1$@ (%2$@) will be deducted from each future top-up, and it won’t exceed your %3$@ (%4$@) limit.";
 "yield_module_fee_policy_sheet_max_fee_note" = "If network fees rise above maximum fee, the transaction won’t go through until they decrease. You can change this limit later.";
 "yield_module_fee_policy_sheet_max_fee_title" = "Maximum fee";
 "yield_module_fee_policy_sheet_min_amount_note" = "The minimum amount is calculated from the current network fee to ensure it does not exceed 4%%, which makes the minimum %1$@ (%2$@).";
@@ -1790,12 +1791,13 @@
 "yield_module_stop_earning" = "Disable yield mode";
 "yield_module_supply" = "Supply";
 "yield_module_supply_apr" = "Supply APY";
+"yield_module_supply" = "Supply";
 "yield_module_token_details_earn_notification_apy" = "APY";
-"yield_module_token_details_earn_notification_description" = "Let your funds do the work while you stay in control.";
+"yield_module_token_details_earn_notification_description" = "Interest accrues automatically";
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Interest accrues automatically";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Yield mode";
 "yield_module_token_details_earn_notification_processing" = "Processing your deposit";
-"yield_module_token_details_earn_notification_title" = "Interest accrues automatically";
+"yield_module_token_details_earn_notification_title" = "Yield Mode";
 "yield_module_transfer_mode_automatic" = "Automatic";
 "yield_module_unable_to_cover_fee_description" = "Deposit some %1$@ %2$@ to cover the network fee for transactions";
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
