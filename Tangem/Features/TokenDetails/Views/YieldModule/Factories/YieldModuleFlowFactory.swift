@@ -15,7 +15,7 @@ final class YieldModuleFlowFactory {
 
     private let walletModel: any WalletModel
     private let yieldModuleManager: any YieldModuleManager
-    private let transactionDispatcher: YieldModuleTransactionDispatcher
+    private let transactionDispatcher: any TransactionDispatcher
     private let yieldPromoCoordinator: YieldModulePromoCoordinator
     private let feeCurrencyNavigator: (any FeeCurrencyNavigating)?
     private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
