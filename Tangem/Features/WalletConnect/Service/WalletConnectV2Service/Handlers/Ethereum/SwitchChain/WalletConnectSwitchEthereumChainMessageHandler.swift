@@ -22,6 +22,10 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
         try process(blockchain: blockchain, connectedDApp: connectedDApp)
     }
 
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        .empty
+    }
+
     func handle() async throws -> JSONRPC.RPCResult {
         assertionFailure("Should never be called. Must be refactored after wiping out old WalletConnect implementation.")
         return JSONRPC.RPCResult.error(.internalError)
@@ -74,10 +78,9 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
         }
 
         guard userWallet
-            .userTokenListManager
-            .userTokensList
-            .entries
-            .contains(where: { $0.blockchainNetwork.blockchain.networkId == blockchain.networkId })
+            .walletModelsManager
+            .walletModels
+            .contains(where: { $0.tokenItem.networkId == blockchain.networkId })
         else {
             throw WalletConnectTransactionRequestProcessingError.blockchainToAddIsMissingFromUserWallet(blockchain)
         }

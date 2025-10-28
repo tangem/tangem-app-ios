@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct TransactionNotificationsModalView: View {
     @ObservedObject var viewModel: TransactionNotificationsModalViewModel
@@ -37,11 +38,10 @@ struct TransactionNotificationsModalView: View {
     }
 
     private var navigationBarView: some View {
-        // [REDACTED_TODO_COMMENT]
-        #warning("[REDACTED_TODO_COMMENT]")
-        return WalletConnectNavigationBarView(
+        return FloatingSheetNavigationBarView(
             title: "",
-            closeButtonAction: viewModel.onGotItTapAction
+            closeButtonAction: viewModel.onGotItTapAction,
+            titleAccessibilityIdentifier: WalletConnectAccessibilityIdentifiers.headerTitle
         )
         .padding(.bottom, Layout.NavigationBar.bottomPadding)
     }
