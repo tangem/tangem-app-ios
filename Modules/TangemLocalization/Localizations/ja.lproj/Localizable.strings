@@ -1788,6 +1788,7 @@
 "yield_module_stop_earning_sheet_description" = "これをオフにすると、Aave からウォレットの %@ に資金が引き出され、報酬の獲得が停止します。";
 "yield_module_stop_earning_sheet_fee_note" = "出金金額からネットワーク手数料が差し引かれます。";
 "yield_module_stop_earning" = "利回りモードを無効にする";
+"yield_module_supply" = "Supply";
 "yield_module_supply_apr" = "供給APY";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "自分で管理しながら、資金に働かせましょう。";
