@@ -49,6 +49,5 @@ enum StorageType: String {
     case isSendWithSwapOnboardNotificationHidden = "is_send_with_swap_onboard_notification_hidden"
     case useBiometricAuthentication = "use_biometric_authentication"
     case settingsVersion = "settings_version"
-    case userWalletIdsWithSkippedAccessCode = "user_wallet_ids_with_skipped_access_code"
     case tangemPayOrderIdForCustomerWalletAddress = "tangem_pay_order_id_for_customer_wallet_address"
 }
