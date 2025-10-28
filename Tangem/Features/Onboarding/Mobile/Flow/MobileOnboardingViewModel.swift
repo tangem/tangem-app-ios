@@ -33,24 +33,24 @@ extension MobileOnboardingViewModel {
     func onDismissalAttempt() {
         switch input.flow {
         case .walletActivate(let userWalletModel):
-            guard isBackupNotNeeded(for: userWalletModel) else {
+            if isBackupNeeded(for: userWalletModel) {
                 alert = makeBackupNeedsAlert()
                 return
             }
 
-            guard isAccessCodeNotNeeded(for: userWalletModel) else {
+            if isAccessCodeNeeded(for: userWalletModel) {
                 alert = makeAccessCodeNeedsAlert(userWalletModel: userWalletModel)
                 return
             }
 
         case .accessCode(let userWalletModel, _):
-            guard isAccessCodeNotNeeded(for: userWalletModel) else {
+            if isAccessCodeNeeded(for: userWalletModel) {
                 alert = makeAccessCodeCreationAlert()
                 return
             }
 
         case .seedPhraseBackup(let userWalletModel), .seedPhraseBackupToUpgrade(let userWalletModel, _):
-            guard isBackupNotNeeded(for: userWalletModel) else {
+            if isBackupNeeded(for: userWalletModel) {
                 alert = makeBackupNeedsAlert()
                 return
             }
@@ -93,12 +93,12 @@ private extension MobileOnboardingViewModel {
 // MARK: - Helpers
 
 private extension MobileOnboardingViewModel {
-    func isBackupNotNeeded(for userWalletModel: UserWalletModel) -> Bool {
-        !userWalletModel.config.hasFeature(.mnemonicBackup)
+    func isBackupNeeded(for userWalletModel: UserWalletModel) -> Bool {
+        userWalletModel.config.hasFeature(.mnemonicBackup)
     }
 
-    func isAccessCodeNotNeeded(for userWalletModel: UserWalletModel) -> Bool {
-        !userWalletModel.config.hasFeature(.userWalletAccessCode)
+    func isAccessCodeNeeded(for userWalletModel: UserWalletModel) -> Bool {
+        userWalletModel.config.userWalletAccessCodeStatus == .none
     }
 }
 
@@ -146,9 +146,7 @@ private extension MobileOnboardingViewModel {
     }
 
     func onAccessCodeNeedsAlertSkip(userWalletModel: UserWalletModel) {
-        MobileAccessCodeSkipHelper.append(userWalletId: userWalletModel.userWalletId)
-        // Workaround to manually trigger update event for userWalletModel publisher
-        userWalletModel.update(type: .accessCodeDidSet)
+        userWalletModel.update(type: .accessCodeDidSkip)
         closeOnboarding()
     }
 
