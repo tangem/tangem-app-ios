@@ -55,6 +55,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var userWalletIdSeed: Data? { get }
 
+    var userWalletAccessCodeStatus: UserWalletAccessCodeStatus { get }
+
     var productType: Analytics.ProductType { get }
 
     var cardHeaderImage: ImageType? { get }
@@ -87,6 +89,10 @@ extension UserWalletConfig {
 
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
         getFeatureAvailability(feature).disabledLocalizedReason
+    }
+
+    var userWalletAccessCodeStatus: UserWalletAccessCodeStatus {
+        .none
     }
 
     var emailConfig: EmailConfig? {
