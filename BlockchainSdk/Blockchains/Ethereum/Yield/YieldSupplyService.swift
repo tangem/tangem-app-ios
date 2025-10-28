@@ -16,7 +16,6 @@ public protocol YieldSupplyService {
     func getYieldSupplyStatus(tokenContractAddress: String) async throws -> YieldSupplyStatus
     func getBalance(yieldSupplyStatus: YieldSupplyStatus, token: Token) async throws -> Amount
     func getBalances(address: String, tokens: [Token]) async -> [Token: Result<Amount, Error>]
-    func getProtocolBalance(token: Token) async throws -> Decimal
     func allowance(tokenContractAddress: String) async throws -> String
 }
 
@@ -110,44 +109,35 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
     }
 
     public func getBalance(yieldSupplyStatus: YieldSupplyStatus, token: Token) async throws -> Amount {
-        let effectiveMethod = EffectiveBalanceMethod(tokenContractAddress: token.contractAddress)
-
-        async let yieldContract = getYieldContract()
-
-        let effectiveRequest = try await YieldSmartContractRequest(
-            contractAddress: yieldContract,
-            method: effectiveMethod
-        )
-
         async let allowance = allowance(tokenContractAddress: token.contractAddress)
-        async let effectiveBalance = networkService.ethCall(request: effectiveRequest).async()
+
+        async let effectiveBalance = getEffectiveBalance(token: token)
+        async let effectiveProtocolBalance = getEffectiveProtocolBalance(token: token)
 
         do {
-            let (allowanceResult, effectiveBalanceResult) = try await (allowance, effectiveBalance)
-            guard let result = EthereumUtils.parseEthereumDecimal(
-                effectiveBalanceResult,
-                decimalsCount: token.decimalCount
-            ) else {
-                throw YieldModuleError.unableToParseData
-            }
+            let (allowanceResult, effectiveBalanceResult, effectiveProtocolBalanceResult) = try await (
+                allowance,
+                effectiveBalance,
+                effectiveProtocolBalance
+            )
 
-            return Amount(
+            return try await Amount(
                 with: wallet.blockchain,
                 type: .token(
                     value: token.withMetadata(
                         TokenMetadata(
                             kind: .fungible,
                             yieldSupply: TokenYieldSupply(
-                                yieldContractAddress: try await yieldContract,
+                                yieldContractAddress: getYieldContract(),
                                 isActive: yieldSupplyStatus.active,
                                 isInitialized: yieldSupplyStatus.initialized,
                                 allowance: allowanceResult,
-                                amountValue: result
+                                protocolBalanceValue: effectiveProtocolBalanceResult
                             )
                         )
                     )
                 ),
-                value: result
+                value: effectiveBalanceResult
             )
         } catch {
             throw YieldModuleError.unableToParseData
@@ -200,26 +190,6 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
         }
     }
 
-    public func getProtocolBalance(token: Token) async throws -> Decimal {
-        let method = ProtocolBalanceMethod(tokenContractAddress: token.contractAddress)
-
-        async let request = YieldSmartContractRequest(
-            contractAddress: getYieldContract(),
-            method: method
-        )
-
-        let protocolBalance = try await networkService.ethCall(request: request).async()
-
-        guard let result = EthereumUtils.parseEthereumDecimal(
-            protocolBalance,
-            decimalsCount: wallet.blockchain.decimalCount
-        ) else {
-            throw YieldModuleError.unableToParseData
-        }
-
-        return result
-    }
-
     public func allowance(tokenContractAddress: String) async throws -> String {
         try await networkService.getAllowance(
             owner: wallet.address,
@@ -251,6 +221,38 @@ private extension EthereumYieldSupplyService {
         }
 
         return addressPart.addHexPrefix()
+    }
+}
+
+private extension EthereumYieldSupplyService {
+    private func getEffectiveBalance(token: Token) async throws -> Decimal {
+        let method = EffectiveBalanceMethod(tokenContractAddress: token.contractAddress)
+
+        return try await getBalance(method: method, decimalsCount: token.decimalCount)
+    }
+
+    private func getEffectiveProtocolBalance(token: Token) async throws -> Decimal {
+        let method = EffectiveProtocolBalanceMethod(tokenContractAddress: token.contractAddress)
+
+        return try await getBalance(method: method, decimalsCount: token.decimalCount)
+    }
+
+    private func getBalance(method: SmartContractMethod, decimalsCount: Int) async throws -> Decimal {
+        async let request = YieldSmartContractRequest(
+            contractAddress: getYieldContract(),
+            method: method
+        )
+
+        let balance = try await networkService.ethCall(request: request).async()
+
+        guard let result = EthereumUtils.parseEthereumDecimal(
+            balance,
+            decimalsCount: decimalsCount
+        ) else {
+            throw YieldModuleError.unableToParseData
+        }
+
+        return result
     }
 }
 
