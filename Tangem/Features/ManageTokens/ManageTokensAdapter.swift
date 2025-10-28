@@ -17,9 +17,9 @@ import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 class ManageTokensAdapter {
-    private let longHashesSupported: Bool
     private let existingCurves: [EllipticCurve]
     private let userTokensManager: UserTokensManager
+    private let hardwareLimitationUtil: HardwareLimitationsUtil
     private let loader: TokensListDataLoader
 
     /// This parameter is required due to the fact that the adapter is used in various places
@@ -58,7 +58,7 @@ class ManageTokensAdapter {
     }
 
     init(settings: Settings) {
-        longHashesSupported = settings.longHashesSupported
+        hardwareLimitationUtil = settings.hardwareLimitationUtil
         existingCurves = settings.existingCurves
         userTokensManager = settings.userTokensManager
         loader = TokensListDataLoader(supportedBlockchains: settings.supportedBlockchains)
@@ -124,7 +124,7 @@ private extension ManageTokensAdapter {
     }
 
     func isAdded(_ tokenItem: TokenItem) -> Bool {
-        return userTokensManager.contains(tokenItem)
+        return userTokensManager.contains(tokenItem, derivationInsensitive: false)
     }
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
@@ -149,7 +149,7 @@ private extension ManageTokensAdapter {
 
     func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
         if selected {
-            if AppUtils().hasLongHashesForSend(tokenItem), !longHashesSupported {
+            if !hardwareLimitationUtil.canAdd(tokenItem) {
                 displayAlertAndUpdateSelection(
                     for: tokenItem,
                     title: Localization.commonAttention,
@@ -201,7 +201,7 @@ private extension ManageTokensAdapter {
     }
 
     func showWarningDeleteAlertIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
-        guard !isSelected, userTokensManager.contains(tokenItem) else {
+        guard !isSelected, userTokensManager.contains(tokenItem, derivationInsensitive: false) else {
             onSelect(isSelected, tokenItem)
             return
         }
@@ -328,10 +328,10 @@ private extension ManageTokensAdapter {
 
 extension ManageTokensAdapter {
     struct Settings {
-        let longHashesSupported: Bool
         let existingCurves: [EllipticCurve]
         let supportedBlockchains: Set<Blockchain>
         let userTokensManager: UserTokensManager
+        let hardwareLimitationUtil: HardwareLimitationsUtil
         let analyticsSourceRawValue: String
     }
 }
