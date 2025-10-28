@@ -21,14 +21,14 @@ actor YieldManagerInteractor {
 
     // MARK: - Dependencies
 
-    private let transactionDispatcher: YieldModuleTransactionDispatcher
+    private let transactionDispatcher: any TransactionDispatcher
     private let manager: YieldModuleManager
     private let yieldModuleNotificationInteractor: YieldModuleNoticeInteractor
 
     // MARK: - Init
 
     init(
-        transactionDispatcher: YieldModuleTransactionDispatcher,
+        transactionDispatcher: any TransactionDispatcher,
         manager: YieldModuleManager,
         yieldModuleNotificationInteractor: YieldModuleNoticeInteractor
     ) {
