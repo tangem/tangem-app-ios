@@ -11,6 +11,7 @@ import TangemUI
 import TangemUIUtils
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct SendAmountCompactView: View {
     @ObservedObject var viewModel: SendAmountCompactViewModel
@@ -28,6 +29,7 @@ struct SendAmountCompactView: View {
                 SendAmountCompactTokenView(viewModel: viewModel.sendAmountCompactViewModel)
             }
             .allowsHitTesting(tappable)
+            .accessibilityIdentifier(SendAccessibilityIdentifiers.fromWalletButton)
 
             if let receiveTokenViewModel = viewModel.sendReceiveTokenCompactViewModel {
                 FixedSpacer(length: 8)
