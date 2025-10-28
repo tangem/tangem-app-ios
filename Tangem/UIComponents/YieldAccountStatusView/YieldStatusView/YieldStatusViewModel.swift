@@ -40,7 +40,7 @@ final class YieldStatusViewModel: ObservableObject {
 extension YieldStatusViewModel {
     enum State: Equatable {
         case loading
-        case active(isApproveRequired: Bool)
+        case active(isApproveRequired: Bool, hasUndepositedAmounts: Bool)
         case closing
     }
 }
