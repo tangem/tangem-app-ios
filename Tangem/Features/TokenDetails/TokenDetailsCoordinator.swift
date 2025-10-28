@@ -63,7 +63,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
             yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         )
 
-        let expressFactory = PendingExpressTransactionsFactory(
+        let expressFactory = ExpressPendingTransactionsFactory(
             userWalletInfo: options.userWalletModel.userWalletInfo,
             walletModel: options.walletModel,
             userTokensManager: options.userWalletModel.userTokensManager,
