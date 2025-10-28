@@ -73,7 +73,7 @@ struct ReceiveMainView: View {
             closeButtonAction = viewModel.onCloseTapAction
         }
 
-        return ReceiveNavigationBarView(
+        return FloatingSheetNavigationBarView(
             title: title,
             backgroundColor: viewState.backgroundColor,
             backButtonAction: backButtonAction,
@@ -100,13 +100,6 @@ private extension AnyTransition {
 
 extension ReceiveMainView {
     private enum Layout {
-        /// 52
-        static let navigationBarHeight = ReceiveNavigationBarView.Layout.topPadding + ReceiveNavigationBarView.Layout.height
-        /// 12
-        static let contentTopPadding: CGFloat = 12
-        /// 20
-        static let contentBottomPadding: CGFloat = 20
-        ///
         static let scrollViewCoordinateSpace = "ReceiveAssetsCoordinatorView.ScrollView"
     }
 }

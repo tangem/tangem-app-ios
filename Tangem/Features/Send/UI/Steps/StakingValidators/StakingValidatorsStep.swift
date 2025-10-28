@@ -31,7 +31,6 @@ class StakingValidatorsStep {
 
 extension StakingValidatorsStep: SendStep {
     var type: SendStepType { .validators(viewModel) }
-    var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         .just(output: true)

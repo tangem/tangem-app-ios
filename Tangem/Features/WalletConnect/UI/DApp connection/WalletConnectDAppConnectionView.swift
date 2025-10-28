@@ -113,12 +113,13 @@ struct WalletConnectDAppConnectionView: View {
             closeButtonAction = { viewModel.handle(viewEvent: .closeButtonTapped) }
         }
 
-        return WalletConnectNavigationBarView(
+        return FloatingSheetNavigationBarView(
             title: title,
             backgroundColor: backgroundColor,
             bottomSeparatorLineIsVisible: navigationBarBottomSeparatorIsVisible,
             backButtonAction: backButtonAction,
-            closeButtonAction: closeButtonAction
+            closeButtonAction: closeButtonAction,
+            titleAccessibilityIdentifier: WalletConnectAccessibilityIdentifiers.headerTitle
         )
         .id(viewModel.state.id)
         .transition(.opacity)
@@ -287,7 +288,7 @@ private extension WalletConnectErrorViewState.Button.Style {
 extension WalletConnectDAppConnectionView {
     private enum Layout {
         /// 52
-        static let navigationBarHeight = WalletConnectNavigationBarView.Layout.topPadding + WalletConnectNavigationBarView.Layout.height
+        static let navigationBarHeight = FloatingSheetNavigationBarView.height
         /// 12
         static let contentTopPadding: CGFloat = 12
 
