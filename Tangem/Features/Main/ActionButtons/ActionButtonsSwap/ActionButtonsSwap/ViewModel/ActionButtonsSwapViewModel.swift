@@ -181,8 +181,8 @@ final class ActionButtonsSwapViewModel: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 coordinator?.openExpress(input: .init(
                     userWalletInfo: userWalletModel.userWalletInfo,
-                    initialWalletModel: sourceToken.walletModel,
-                    destinationWalletModel: destinationToken.walletModel
+                    source: sourceToken.walletModel.asExpressInteractorWallet,
+                    destination: .chosen(destinationToken.walletModel.asExpressInteractorWallet)
                 ))
             }
         }
