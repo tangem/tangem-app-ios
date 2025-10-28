@@ -26,10 +26,12 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
             return Localization.yieldModuleUnableToCoverFeeTitle(feeCurrencyName)
         case .feeUnreachable:
             return Localization.yieldModuleNetworkFeeUnreachableNotificationTitle
+        case .hasUndepositedAmounts(let amount, let currencySymbol):
+            return Localization.yieldModuleDepositErrorNotificationTitle(amount, currencySymbol)
         }
     }
 
-    private var description: String {
+    private var description: String? {
         switch params {
         case .approveNeeded:
             return Localization.yieldModuleApproveNeededNotificationDescription
@@ -37,38 +39,37 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
             return Localization.yieldModuleUnableToCoverFeeDescription(feeCurrencyName, "")
         case .feeUnreachable:
             return Localization.yieldModuleNetworkFeeUnreachableNotificationDescription
+        case .hasUndepositedAmounts:
+            return nil
         }
     }
 
-    private var buttonTitleText: String {
-        switch params {
-        case .approveNeeded:
-            Localization.yieldModuleApproveNeededNotificationCta
-        case .notEnoughFeeCurrency(let feeCurrencyName, _, _):
-            Localization.commonBuyCurrency(feeCurrencyName)
-        case .feeUnreachable:
-            Localization.warningButtonRefresh
-        }
-    }
+    private var buttonConfig: ButtonConfig? {
+        var title: String
+        var action: () -> Void
+        var style: MainButton.Style
 
-    private var buttonAction: () -> Void {
         switch params {
-        case .approveNeeded(let action):
-            return action
-        case .notEnoughFeeCurrency(_, _, let action):
-            return action
-        case .feeUnreachable(let action):
-            return action
-        }
-    }
+        case .approveNeeded(let buttonAction):
+            title = Localization.yieldModuleApproveNeededNotificationCta
+            action = buttonAction
+            style = .primary
 
-    private var buttonStyleColor: MainButton.Style {
-        switch params {
-        case .approveNeeded:
-            return .primary
-        case .notEnoughFeeCurrency, .feeUnreachable:
-            return .secondary
+        case .notEnoughFeeCurrency(let currencyName, _, let buttonAction):
+            title = Localization.commonBuyCurrency(currencyName)
+            action = buttonAction
+            style = .secondary
+
+        case .feeUnreachable(let buttonAction):
+            title = Localization.warningButtonRefresh
+            action = buttonAction
+            style = .secondary
+
+        case .hasUndepositedAmounts:
+            return nil
         }
+
+        return ButtonConfig(title: title, action: action, style: style)
     }
 
     // MARK: - View Body
@@ -93,6 +94,7 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
             icon
                 .resizable()
                 .frame(size: .init(bothDimensions: 16))
+
             Spacer()
         }
     }
@@ -106,7 +108,7 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
 
     private var icon: Image {
         switch params {
-        case .approveNeeded, .feeUnreachable:
+        case .approveNeeded, .feeUnreachable, .hasUndepositedAmounts:
             return Assets.attention.image
         case .notEnoughFeeCurrency(_, let tokenIcon, _):
             return tokenIcon.image
@@ -118,12 +120,33 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
             .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
     }
 
+    @ViewBuilder
     private var descriptionView: some View {
-        Text(description)
-            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+        if let description {
+            Text(description)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+        }
     }
 
+    @ViewBuilder
     private var button: some View {
-        MainButton(title: buttonTitleText, style: buttonStyleColor, size: .notification, action: buttonAction)
+        if let buttonConfig {
+            MainButton(
+                title: buttonConfig.title,
+                style: buttonConfig.style,
+                size: .notification,
+                action: buttonConfig.action
+            )
+        }
+    }
+}
+
+// MARK: - ButtonConfig
+
+private extension YieldModuleBottomSheetNotificationBannerView {
+    struct ButtonConfig {
+        let title: String
+        let action: () -> Void
+        let style: MainButton.Style
     }
 }
