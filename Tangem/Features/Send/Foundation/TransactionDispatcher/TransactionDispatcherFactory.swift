@@ -23,7 +23,11 @@ struct TransactionDispatcherFactory {
     }
 
     func makeExpressDispatcher() -> TransactionDispatcher {
-        ExpressTransactionDispatcher(
+        if walletModel.isDemo {
+            return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        }
+
+        return ExpressTransactionDispatcher(
             walletModel: walletModel,
             transactionSigner: signer,
             sendTransactionDispatcher: makeSendDispatcher()
@@ -34,7 +38,11 @@ struct TransactionDispatcherFactory {
         stakingManger: some StakingManager,
         analyticsLogger: any StakingAnalyticsLogger
     ) -> TransactionDispatcher {
-        StakingTransactionDispatcher(
+        if walletModel.isDemo {
+            return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        }
+
+        return StakingTransactionDispatcher(
             walletModel: walletModel,
             transactionSigner: signer,
             pendingHashesSender: StakingDependenciesFactory().makePendingHashesSender(),
@@ -47,7 +55,11 @@ struct TransactionDispatcherFactory {
         )
     }
 
-    func makeYieldModuleDispatcher() -> YieldModuleTransactionDispatcher? {
+    func makeYieldModuleDispatcher() -> TransactionDispatcher? {
+        if walletModel.isDemo {
+            return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        }
+
         guard let transactionsSender = walletModel.multipleTransactionsSender else { return nil }
 
         return YieldModuleTransactionDispatcher(
