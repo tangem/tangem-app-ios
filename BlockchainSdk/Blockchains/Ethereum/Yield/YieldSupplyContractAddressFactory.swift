@@ -48,7 +48,12 @@ class YieldSupplyContractAddressFactory {
 
     private static var supportedBlockchains: [Blockchain] {
         [
-            .ethereum(testnet: true),
+            .ethereum(testnet: false),
+            .avalanche(testnet: false),
+            .arbitrum(testnet: false),
+            .optimism(testnet: false),
+            .base(testnet: false),
+            .bsc(testnet: false),
             .polygon(testnet: false),
         ]
     }
