@@ -17,8 +17,8 @@ struct YieldModuleAPITarget: TargetType {
         case markets(chains: [String]?)
         case token(tokenContractAddress: String, chainId: Int)
         case chart(tokenContractAddress: String, chainId: Int, window: String?, bucketSizeDays: Int?)
-        case activate(tokenContractAddress: String, chainId: Int)
-        case deactivate(tokenContractAddress: String, chainId: Int)
+        case activate(tokenContractAddress: String, walletAddress: String, chainId: Int)
+        case deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int)
     }
 
     var baseURL: URL {
@@ -74,12 +74,13 @@ struct YieldModuleAPITarget: TargetType {
                 parameters["bucketSizeDays"] = bucketSizeDays
             }
             return .requestParameters(parameters: parameters, encoding: URLEncoding(destination: .queryString))
-        case .activate(let tokenContractAddress, let chainId),
-             .deactivate(let tokenContractAddress, let chainId):
+        case .activate(let tokenContractAddress, let walletAddress, let chainId),
+             .deactivate(let tokenContractAddress, let walletAddress, let chainId):
             return .requestParameters(
                 parameters: [
                     "tokenAddress": tokenContractAddress,
                     "chainId": chainId,
+                    "userAddress": walletAddress,
                 ],
                 encoding: URLEncoding(destination: .httpBody)
             )
