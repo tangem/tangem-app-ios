@@ -37,20 +37,13 @@ struct YieldAvailableNotificationView: View {
 
     @ViewBuilder
     private var button: some View {
-        switch viewModel.state {
-        case .available, .loading:
-            MainButton(
-                title: Localization.commonGetStarted,
-                style: .secondary,
-                size: .notification,
-                isLoading: viewModel.state.isLoading,
-                action: { viewModel.onGetStartedTap() }
-            )
-            .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.yieldModuleNotificationButton)
-
-        case .unavailable:
-            EmptyView()
-        }
+        MainButton(
+            title: Localization.commonGetStarted,
+            style: .secondary,
+            size: .notification,
+            action: { viewModel.onGetStartedTap() }
+        )
+        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.yieldModuleNotificationButton)
     }
 
     private var messageIconContent: some View {
@@ -58,19 +51,16 @@ struct YieldAvailableNotificationView: View {
             icon
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.state.title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                Text(viewModel.makeTitleText())
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.yieldModuleNotificationTitle)
-                    .skeletonable(isShown: viewModel.state.isLoading)
 
-                Text(viewModel.state.description)
+                Text(Localization.yieldModuleTokenDetailsEarnNotificationDescription)
                     .multilineTextAlignment(.leading)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .infinityFrame(axis: .horizontal, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.yieldModuleNotificationMessage)
-                    .skeletonable(isShown: viewModel.state.isLoading)
             }
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
@@ -78,7 +68,7 @@ struct YieldAvailableNotificationView: View {
     }
 
     private var icon: some View {
-        viewModel.state.icon
+        Assets.YieldModule.yieldModuleLogo.image
             .resizable()
             .frame(size: .init(bothDimensions: 36))
             .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.yieldModuleNotificationIcon)
