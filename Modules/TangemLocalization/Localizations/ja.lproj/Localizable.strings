@@ -175,6 +175,7 @@
 "cardano_max_amount_has_token_title" = "ADAが不足しています。";
 "common_accept" = "受け入れる";
 "common_access_denied" = "アクセスが拒否されました";
+"common_account" = "アカウント";
 "common_accounts" = "アカウント";
 "common_activate" = "有効化";
 "common_add_to_portfolio" = "ポートフォリオに追加";
@@ -233,7 +234,7 @@
 "common_enable" = "有効にする";
 "common_enabled" = "有効";
 "common_error" = "エラー";
-"common_estimated_fee" = "推定手数料";
+"common_estimated_fee" = "ネットワークサービス手数料";
 "common_exchange" = "スワップ";
 "common_explore_transaction_history" = "取引履歴を調べる";
 "common_explore" = "移動する";
@@ -1741,7 +1742,7 @@
 "yield_module_earn_sheet_fee_description" = "貸付のために入金する際は、残高から%1$@以下のネットワーク手数料が差し引かれます。";
 "yield_module_earn_sheet_high_fee_description" = "現在、ネットワーク手数料が高すぎるため貸付を実行できません。手数料が%1$@以下に下がり次第、資金が供給されます。";
 "yield_module_earn_sheet_my_funds_title" = "私の資金";
-"yield_module_earn_sheet_provider_description" = "あなたの%1$@はAaveに預けられ、利息が付きます。あなたは%2$@トークンを保有しており、これは残高を表し、時間の経過とともに増加します。入金すると資金はAaveに供給され、取引手数料を差し引いた利息が付きます。";
+"yield_module_earn_sheet_provider_description" = "あなたの%1$@は現在Aaveにデプロイされ、利回りを生んでいます。あなたは%2$@トークンを保有しており、これはあなたの残高を表し、自動的に利回りが発生します。追加入金すると、手数料を差し引いた上でAaveに資産が追加され、さらに利回りを得られるようになります。";
 "yield_module_earn_sheet_title" = "利息モード";
 "yield_module_earn_sheet_total_earnings_title" = "総収益";
 "yield_module_earn_sheet_transfers_title" = "Aaveへの送金";
@@ -1758,7 +1759,7 @@
 "yield_module_fee_policy_tangem_service_fee_title" = "Tangemはまた、得られた利回りに対して15%%のサービス手数料を差し引きます。";
 "yield_module_high_fee_error" = "ネットワーク手数料が下がるか、残高が最低必要額に達すると、資金は自動的にAaveに供給されます。";
 "yield_module_historical_returns" = "過去のリターン";
-"yield_module_main_view_approve_notification_description" = "Approval for your token in the Yield mode has been revoked. Open the token to grant permission again.";
+"yield_module_main_view_approve_notification_description" = "利息モードでのトークンの承認が取り消されました。トークンを開いて再度許可してください。";
 "yield_module_main_view_approve_notification_title" = "トークンの承認が必要です";
 "yield_module_network_fee_unreachable_notification_description" = "ネットワーク接続を確認してください";
 "yield_module_network_fee_unreachable_notification_title" = "ネットワーク手数料についての情報にアクセスできません";
@@ -1767,7 +1768,7 @@
 "yield_module_promo_screen_cash_out_subtitle" = "いつでも、即座に資金を送信、交換、売却できます。";
 "yield_module_promo_screen_cash_out_title" = "いつでも資金にアクセス可能";
 "yield_module_promo_screen_how_it_works_button_title" = "使い方";
-"yield_module_promo_screen_self_custodial_subtitle" = "Aaveは、総額819億ドル以上の資産を管理する分散型プロトコルです。";
+"yield_module_promo_screen_self_custodial_subtitle" = "Aaveは、総額610億ドル以上の資産を管理する分散型プロトコルです。";
 "yield_module_promo_screen_self_custodial_title" = "分散型・自己管理型";
 "yield_module_promo_screen_terms_disclaimer" = "このサービスを利用することにより、プロバイダー\n%1$@および%2$@に同意するものとします。";
 "yield_module_promo_screen_title" = "Aave を接続";
@@ -1785,17 +1786,18 @@
 "yield_module_start_earning" = "資産を供給する";
 "yield_module_status_active" = "アクティブ";
 "yield_module_status_paused" = "停止中";
-"yield_module_stop_earning_sheet_description" = "これをオフにすると、Aave からウォレットの %@ に資金が引き出され、報酬の獲得が停止します。";
+"yield_module_stop_earning_sheet_description" = "これをオフにすると、Aaveから資産が引き出され、ウォレット内の%@に変換され、利回りの発生が停止します。";
 "yield_module_stop_earning_sheet_fee_note" = "出金金額からネットワーク手数料が差し引かれます。";
 "yield_module_stop_earning" = "利回りモードを無効にする";
 "yield_module_supply" = "Supply";
 "yield_module_supply_apr" = "供給APY";
+"yield_module_supply" = "供給";
 "yield_module_token_details_earn_notification_apy" = "APY";
-"yield_module_token_details_earn_notification_description" = "自分で管理しながら、資金に働かせましょう。";
+"yield_module_token_details_earn_notification_description" = "Interest accrues automatically";
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "利息は自動的に発生します";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "利回りモード";
 "yield_module_token_details_earn_notification_processing" = "入金の処理中";
-"yield_module_token_details_earn_notification_title" = "資産を有効活用しましょう";
+"yield_module_token_details_earn_notification_title" = "Yield Mode";
 "yield_module_transfer_mode_automatic" = "自動";
 "yield_module_unable_to_cover_fee_description" = "取引のネットワーク手数料をカバーするために、 %1$@ %2$@を入金してください";
 "yield_module_unable_to_cover_fee_title" = "%@手数料を支払えません";
