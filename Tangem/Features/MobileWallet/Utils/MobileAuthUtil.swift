@@ -25,7 +25,7 @@ final class MobileAuthUtil {
     )
 
     private var isAccessCodeSet: Bool {
-        !config.hasFeature(.userWalletAccessCode)
+        config.userWalletAccessCodeStatus.hasAccessCode
     }
 
     private var isAccessCodeRequired: Bool {
