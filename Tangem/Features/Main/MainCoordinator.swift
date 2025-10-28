@@ -528,16 +528,7 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
                 self?.actionButtonsSellCoordinator = nil
                 guard let model else { return }
 
-                let input = SendInput(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModel: model.walletModel,
-                    expressInput: .init(
-                        userWalletInfo: userWalletModel.userWalletInfo,
-                        source: model.walletModel.asExpressInteractorWallet,
-                        destination: .loadingAndSet
-                    )
-                )
-
+                let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: model.walletModel)
                 self?.openSendToSell(input: input, sellParameters: model.sellParameters)
             }
         )
