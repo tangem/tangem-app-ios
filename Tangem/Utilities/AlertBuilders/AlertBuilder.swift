@@ -73,7 +73,7 @@ enum AlertBuilder {
         ))
     }
 
-    static func makeDemoAlert(_ message: String, okAction: @escaping (() -> Void) = {}) -> AlertBinder {
+    static func makeDemoAlert(_ message: String = Localization.alertDemoFeatureDisabled, okAction: @escaping (() -> Void) = {}) -> AlertBinder {
         .init(alert: Alert(
             title: Text(warningTitle),
             message: Text(message),
