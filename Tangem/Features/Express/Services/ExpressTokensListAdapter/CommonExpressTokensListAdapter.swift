@@ -36,12 +36,13 @@ extension CommonExpressTokensListAdapter: ExpressTokensListAdapter {
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
 
-        return withExtendedLifetime(tokenSectionsAdapter) { adapter in
-            adapter.organizedSections(from: tokenSectionsSourcePublisher, on: .global())
-                .map { section -> [any WalletModel] in
-                    section.flatMap { $0.items.compactMap { $0.walletModel } }
-                }
-                .eraseToAnyPublisher()
-        }
+        return tokenSectionsAdapter
+            .organizedSections(from: tokenSectionsSourcePublisher, on: .global())
+            .map { section -> [any WalletModel] in
+                withExtendedLifetime(tokenSectionsAdapter) {}
+
+                return section.flatMap { $0.items.compactMap { $0.walletModel } }
+            }
+            .eraseToAnyPublisher()
     }
 }
