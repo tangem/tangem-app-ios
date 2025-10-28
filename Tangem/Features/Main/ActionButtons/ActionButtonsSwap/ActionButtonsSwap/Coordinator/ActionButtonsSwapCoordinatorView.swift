@@ -14,25 +14,31 @@ struct ActionButtonsSwapCoordinatorView: View {
     @ObservedObject var coordinator: ActionButtonsSwapCoordinator
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                if let viewModel = coordinator.actionButtonsSwapViewModel {
+        ZStack {
+            switch coordinator.viewType {
+            case .none:
+                EmptyView()
+            case .legacy(let viewModel):
+                NavigationView {
                     ActionButtonsSwapView(viewModel: viewModel)
-                        .opacity(coordinator.expressCoordinator == nil ? 1 : 0)
-                        .animation(.easeIn, value: coordinator.expressCoordinator == nil)
+                        .navigationBarTitle(Text(Localization.actionButtonsSwapNavigationBarTitle), displayMode: .inline)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarLeading) {
+                                CloseButton(dismiss: { coordinator.dismiss() })
+                            }
+                        }
                 }
-
-                if let expressCoordinator = coordinator.expressCoordinator {
-                    ExpressCoordinatorView(coordinator: expressCoordinator)
-                        .transition(.opacity.animation(.easeInOut))
+                .transition(.opacity)
+            case .new(let viewModel):
+                NavigationView {
+                    NewActionButtonsSwapView(viewModel: viewModel)
                 }
-            }
-            .navigationBarTitle(Text(Localization.actionButtonsSwapNavigationBarTitle), displayMode: .inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    CloseButton(dismiss: { coordinator.dismiss() })
-                }
+                .transition(SendTransitions.transition)
+            case .express(let expressCoordinator):
+                ExpressCoordinatorView(coordinator: expressCoordinator)
+                    .transition(SendTransitions.transition)
             }
         }
+        .animation(SendTransitions.animation, value: coordinator.viewType?.id)
     }
 }
