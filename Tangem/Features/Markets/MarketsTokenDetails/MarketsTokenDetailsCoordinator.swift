@@ -83,6 +83,18 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         )
     }
 
+    func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
+        let viewModel = MarketsTokenAccountNetworkSelectorFlowViewModel(
+            inputData: .init(coinId: model.id, coinName: model.name, coinSymbol: model.symbol, networks: model.availableNetworks),
+            userWalletDataProvider: walletDataProvider,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
         let recipient = EmailConfig.default.recipient
@@ -155,19 +167,22 @@ extension MarketsTokenDetailsCoordinator {
         let action = { [weak self] in
             guard let self else { return }
 
-            let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
+            let dismissAction: ExpressCoordinator.DismissAction = { [weak self] _ in
                 self?.expressCoordinator = nil
             }
 
             let openSwapBlock = { [weak self] in
                 guard let self else { return }
                 Task { @MainActor in
-                    self.expressCoordinator = self.portfolioCoordinatorFactory.makeExpressCoordinator(
+                    let coordinator = self.portfolioCoordinatorFactory.makeExpressCoordinator(
                         for: walletModel,
                         with: userWalletModel,
                         dismissAction: dismissAction,
                         popToRootAction: self.popToRootAction
                     )
+
+                    coordinator.start(with: .default)
+                    self.expressCoordinator = coordinator
                 }
             }
 
@@ -197,13 +212,26 @@ extension MarketsTokenDetailsCoordinator {
             input: .init(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 walletModel: walletModel,
-                expressInput: .init(userWalletModel: userWalletModel)
+                expressInput: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
             ),
             type: .onramp(),
             source: .markets
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
+    }
+}
+
+// MARK: - MarketsTokenAccountNetworkSelectorRoutable
+
+extension MarketsTokenDetailsCoordinator: MarketsTokenAccountNetworkSelectorRoutable {
+    func close() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
