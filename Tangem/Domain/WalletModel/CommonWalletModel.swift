@@ -578,6 +578,12 @@ extension CommonWalletModel: WalletModelHelpers {
                 .map { $0.pendingTransactions }
                 .eraseToAnyPublisher()
 
+        let yieldModuleStateRepository = CommonYieldModuleStateRepository(
+            walletModelId: WalletModelId(tokenItem: tokenItem),
+            userWalletId: userWalletId,
+            token: token
+        )
+
         return CommonYieldModuleManager(
             walletAddress: wallet.defaultAddress.value,
             token: token,
@@ -586,6 +592,7 @@ extension CommonWalletModel: WalletModelHelpers {
             ethereumNetworkProvider: ethereumNetworkProvider,
             transactionCreator: transactionCreator,
             blockaidApiService: BlockaidFactory().makeBlockaidAPIService(),
+            yieldModuleStateRepository: yieldModuleStateRepository,
             pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher
         )
     }
@@ -595,6 +602,11 @@ extension CommonWalletModel: WalletModelHelpers {
 
 extension CommonWalletModel: WalletModelFeeProvider {
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
+        if isDemo {
+            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
+            return .justWithError(output: demoFees)
+        }
+
         return walletManager.estimatedFee(amount: amount)
     }
 
@@ -616,7 +628,12 @@ extension CommonWalletModel: WalletModelFeeProvider {
     }
 
     func getFee(compiledTransaction data: Data) async throws -> [Fee] {
-        try await compiledTransactionFeeProvider?.getFee(compiledTransaction: data) ?? []
+        if isDemo {
+            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
+            return demoFees
+        }
+
+        return try await compiledTransactionFeeProvider?.getFee(compiledTransaction: data) ?? []
     }
 }
 
