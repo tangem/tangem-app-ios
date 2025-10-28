@@ -28,13 +28,13 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var userWalletSettingsCoordinator: UserWalletSettingsCoordinator?
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
-    @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator?
+    @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
 
     // MARK: - Child view models
 
     @Published var mailViewModel: MailViewModel?
     @Published var supportChatViewModel: SupportChatViewModel?
-    @Published var tosViewModel: TOSViewModel?
+    @Published var tosViewModel: DetailsTOSViewModel?
     @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
     @Published var logsViewModel: LogsViewModel?
 
@@ -101,18 +101,18 @@ extension DetailsCoordinator: DetailsRoutable {
         modalOnboardingCoordinator = coordinator
     }
 
-    func openCreateWallet() {
-        let dismissAction: Action<CreateWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
+    func openAddWallet() {
+        let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main:
                 self?.dismiss()
             }
         }
 
-        let coordinator = CreateWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = CreateWalletSelectorCoordinator.InputOptions()
+        let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
+        let inputOptions = AddWalletSelectorCoordinator.InputOptions()
         coordinator.start(with: inputOptions)
-        createWalletSelectorCoordinator = coordinator
+        addWalletSelectorCoordinator = coordinator
     }
 
     func openAppSettings() {
@@ -132,7 +132,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openTOS() {
-        tosViewModel = .init(bottomOverlayHeight: 0)
+        tosViewModel = DetailsTOSViewModel()
     }
 
     func openScanCardManual() {
