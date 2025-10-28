@@ -23,6 +23,10 @@ final class WCLinksUITests: BaseTestCase {
             .acceptToSIfNeeded()
             .allowPushNotificationsIfNeeded()
             .scanMockWallet(name: .wallet2)
+
+        app.swipeDown()
+
+        MainScreen(app)
             .organizeTokens()
         app.terminate()
 
@@ -52,7 +56,7 @@ final class WCLinksUITests: BaseTestCase {
         setAllureId(3958)
 
         getWcURI()
-        launchApp()
+        launchApp(tangemApiType: .mock)
         StoriesScreen(app)
             .scanMockWallet(name: .wallet2)
 
@@ -76,7 +80,7 @@ final class WCLinksUITests: BaseTestCase {
         setAllureId(3959)
 
         getWcURI()
-        launchApp()
+        launchApp(tangemApiType: .mock)
         StoriesScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
@@ -101,7 +105,7 @@ final class WCLinksUITests: BaseTestCase {
 
         getWcURI()
         UIPasteboard.general.string = wcURI.replacingOccurrences(of: "tangem://wc?uri=", with: "")
-        launchApp()
+        launchApp(tangemApiType: .mock)
 
         StoriesScreen(app)
             .scanMockWallet(name: .wallet2)
