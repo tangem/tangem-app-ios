@@ -21,14 +21,14 @@ actor YieldManagerInteractor {
 
     // MARK: - Dependencies
 
-    private let transactionDispatcher: YieldModuleTransactionDispatcher
+    private let transactionDispatcher: any TransactionDispatcher
     private let manager: YieldModuleManager
     private let yieldModuleNotificationInteractor: YieldModuleNoticeInteractor
 
     // MARK: - Init
 
     init(
-        transactionDispatcher: YieldModuleTransactionDispatcher,
+        transactionDispatcher: any TransactionDispatcher,
         manager: YieldModuleManager,
         yieldModuleNotificationInteractor: YieldModuleNoticeInteractor
     ) {
@@ -39,12 +39,24 @@ actor YieldManagerInteractor {
 
     // MARK: - Public Implementation
 
+    func getAvailableBalance() -> Decimal? {
+        manager.state?.state.activeInfo?.yieldModuleBalanceValue
+    }
+
     func getIsApproveRequired() -> Bool {
         guard case .active(let info) = manager.state?.state else {
             return false
         }
 
         return info.isAllowancePermissionRequired
+    }
+
+    func getUndepositedAmounts() -> Decimal? {
+        guard case .active(let info) = manager.state?.state, !info.nonYieldModuleBalanceValue.isZero else {
+            return nil
+        }
+
+        return info.nonYieldModuleBalanceValue
     }
 
     func getApy() async throws -> Decimal {
