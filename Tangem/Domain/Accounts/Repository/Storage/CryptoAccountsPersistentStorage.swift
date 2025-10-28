@@ -10,7 +10,18 @@ import Foundation
 
 protocol CryptoAccountsPersistentStorage {
     func getList() -> [StoredCryptoAccount]
-    func appendNewOrUpdateExisting(account: StoredCryptoAccount)
+    func appendNewOrUpdateExisting(accounts: [StoredCryptoAccount])
     func removeAll(where shouldBeRemoved: @escaping (StoredCryptoAccount) -> Bool)
-    func removeAll()
+}
+
+// MARK: - Convenience extensions
+
+extension CryptoAccountsPersistentStorage {
+    func appendNewOrUpdateExisting(account: StoredCryptoAccount) {
+        appendNewOrUpdateExisting(accounts: [account])
+    }
+
+    func removeAll() {
+        removeAll { _ in true }
+    }
 }
