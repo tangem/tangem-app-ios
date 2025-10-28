@@ -157,14 +157,10 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             walletModelsManager: model.walletModelsManager
         )
 
-        let expressFactory = CommonExpressModulesFactory(
-            inputModel: .init(
-                userWalletInfo: model.userWalletInfo,
-                userTokensManager: model.userTokensManager,
-                walletModelsManager: model.walletModelsManager,
-                initialWalletModel: walletModel,
-                destinationWalletModel: .none
-            )
+        let expressFactory = PendingExpressTransactionsFactory(
+            userWalletInfo: model.userWalletInfo,
+            walletModel: walletModel,
+            userTokensManager: model.userTokensManager,
         )
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
