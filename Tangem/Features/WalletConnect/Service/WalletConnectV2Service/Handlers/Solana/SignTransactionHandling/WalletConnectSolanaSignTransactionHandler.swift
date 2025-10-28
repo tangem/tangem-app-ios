@@ -109,17 +109,17 @@ private extension WalletConnectSolanaSignTransactionHandler {
             signer: signer
         )
 
-        let altResult: Bool
-
         do {
             try await transactionService.send(transactionData: unsignedHash)
-            altResult = true
         } catch {
-            altResult = false
+            WCLogger.error("Failed to send solana_signTransaction", error: error)
+            analyticsProvider.logCompleteHandleSolanaALTTransactionRequest(isSuccess: false)
+            throw error
         }
 
-        analyticsProvider.logCompleteHandleSolanaALTTransactionRequest(isSuccess: altResult)
+        analyticsProvider.logCompleteHandleSolanaALTTransactionRequest(isSuccess: true)
 
+        // [REDACTED_USERNAME], this error is handled in UI gracefully. Normal ALT flow.
         throw WalletConnectTransactionRequestProcessingError.eraseMultipleTransactions
     }
 
