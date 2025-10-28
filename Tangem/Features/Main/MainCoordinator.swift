@@ -330,15 +330,6 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
         }
     }
 
-    func openBuyCrypto(at url: URL, action: @escaping () -> Void) {
-        Analytics.log(.topupScreenOpened)
-
-        safariHandle = safariManager.openURL(url) { [weak self] _ in
-            self?.safariHandle = nil
-            action()
-        }
-    }
-
     func openSellCrypto(at url: URL, action: @escaping (String) -> Void) {
         Analytics.log(.withdrawScreenOpened)
 
@@ -348,45 +339,26 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
         }
     }
 
-    func openSend(userWalletModel: UserWalletModel, walletModel: any WalletModel) {
+    func openSend(input: SendInput) {
         guard SendFeatureProvider.shared.isAvailable else {
             return
         }
 
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(
-            input: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModel: walletModel,
-                expressInput: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
-            ),
-            type: .send,
-            source: .main
-        )
+        let options = SendCoordinator.Options(input: input, type: .send, source: .main)
 
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
 
-    func openSendToSell(userWalletModel: UserWalletModel, walletModel: any WalletModel, sellParameters: PredefinedSellParameters) {
+    func openSendToSell(input: SendInput, sellParameters: PredefinedSellParameters) {
         guard SendFeatureProvider.shared.isAvailable else {
             return
         }
 
         let coordinator = makeSendCoordinator()
-
         let options = SendCoordinator.Options(
-            input: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModel: walletModel,
-                expressInput: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
-            ),
+            input: input,
             type: .sell(parameters: sellParameters),
             source: .main
         )
@@ -435,17 +407,10 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
         marketsTokenDetailsCoordinator = coordinator
     }
 
-    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters) {
+    func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModel: walletModel,
-                expressInput: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
-            ),
+            input: input,
             type: .onramp(parameters: parameters),
             source: .main
         )
@@ -543,10 +508,7 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
         } else {
             .default(options: .init(
                 userWalletModel: userWalletModel,
-                expressTokensListAdapter: CommonExpressTokensListAdapter(
-                    userTokensManager: userWalletModel.userTokensManager,
-                    walletModelsManager: userWalletModel.walletModelsManager,
-                ),
+                expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
                 tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
             ))
         }
@@ -566,11 +528,16 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
                 self?.actionButtonsSellCoordinator = nil
                 guard let model else { return }
 
-                self?.openSendToSell(
-                    userWalletModel: userWalletModel,
+                let input = SendInput(
+                    userWalletInfo: userWalletModel.userWalletInfo,
                     walletModel: model.walletModel,
-                    sellParameters: model.sellParameters
+                    expressInput: .init(
+                        userWalletInfo: userWalletModel.userWalletInfo,
+                        walletModelsManager: userWalletModel.walletModelsManager
+                    )
                 )
+
+                self?.openSendToSell(input: input, sellParameters: model.sellParameters)
             }
         )
 

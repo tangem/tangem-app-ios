@@ -168,14 +168,11 @@ private extension ExpressModulesFactoryMock {
     var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
-        CommonExpressTokensListAdapter(
-            userTokensManager: userWalletModel.userTokensManager,
-            walletModelsManager: userWalletModel.walletModelsManager,
-        )
+        CommonExpressTokensListAdapter(userWalletId: userWalletInfo.id)
     }
 
     var expressDestinationService: ExpressDestinationService {
-        CommonExpressDestinationService(walletModelsManager: walletModelsManager)
+        CommonExpressDestinationService(userWalletId: userWalletInfo.id)
     }
 
     // MARK: - Methods
