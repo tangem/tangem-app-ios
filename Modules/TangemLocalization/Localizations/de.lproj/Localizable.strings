@@ -1789,6 +1789,7 @@
 "yield_module_stop_earning_sheet_description" = "Wenn Du diese Option deaktivierst, wird Dein Geld von Aave auf %@ in Deiner Wallet abgehoben und es werden keine Belohnungen mehr verdient.";
 "yield_module_stop_earning_sheet_fee_note" = "Die Netzwerkgebühr wird von dem Betrag, den Du abhebst, abgezogen.";
 "yield_module_stop_earning" = "Deaktiviere den Yield-Modus";
+"yield_module_supply" = "Supply";
 "yield_module_supply_apr" = "Effektiver Jahreszins für Versorgung";
 "yield_module_supply" = "Supply";
 "yield_module_token_details_earn_notification_apy" = "Effektiver Jahreszins";
