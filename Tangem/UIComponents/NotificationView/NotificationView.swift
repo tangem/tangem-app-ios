@@ -41,6 +41,7 @@ struct NotificationView: View {
         .background(settings.event.colorScheme.background)
         .cornerRadiusContinuous(14)
         .accessibilityIdentifier(settings.event.accessibilityIdentifier)
+        .accessibilityElement(children: .combine)
     }
 
     @ViewBuilder
@@ -98,7 +99,8 @@ struct NotificationView: View {
                             }
                         )
                         .setIsLoading(to: buttonInfo.isWithLoader && isLoading)
-                        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationButton)
+                        .accessibilityIdentifier(buttonAccessibilityIdentifier(for: buttonInfo.actionType))
+                        .accessibilityElement(children: .ignore)
                     }
                 }
             }
@@ -180,6 +182,17 @@ struct NotificationView: View {
                     ),
                 alignment: .bottomTrailing
             )
+    }
+
+    private func buttonAccessibilityIdentifier(for actionType: NotificationButtonActionType) -> String {
+        switch actionType {
+        case .reduceAmountBy:
+            return SendAccessibilityIdentifiers.reduceFeeButton
+        case .leaveAmount:
+            return SendAccessibilityIdentifiers.leaveAmountButton
+        default:
+            return CommonUIAccessibilityIdentifiers.notificationButton
+        }
     }
 }
 
