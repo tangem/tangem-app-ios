@@ -368,8 +368,9 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
-    var account: any CryptoAccountModel {
-        mainTokenWalletModel.account
+    var account: (any CryptoAccountModel)? {
+        get { mainTokenWalletModel.account }
+        set { mainTokenWalletModel.account = newValue }
     }
 
     static func == (lhs: NFTSendWalletModelProxy, rhs: NFTSendWalletModelProxy) -> Bool {
