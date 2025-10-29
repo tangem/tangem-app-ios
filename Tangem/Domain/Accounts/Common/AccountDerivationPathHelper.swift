@@ -48,15 +48,16 @@ struct AccountDerivationPathHelper {
         let nodes = derivationPath.nodes
 
         switch nodes.count {
+        case _ where blockchain.isQuai,
+             _ where blockchain.isTezos:
+            // Some non-UTXO blockchains (like Tezos, Quai and so on) require special handling
+            return Constants.nonUTXONonStandardDerivationNodeIndex
         case 5 where blockchain.isUTXO:
             return Constants.utxoDerivationNodeIndex
         case 3 where !blockchain.isUTXO,
              5 where !blockchain.isUTXO:
             // For non-UTXO blockchains we use the last node as account node (either 3rd or 5th)
             return nodes.count - 1
-        case 4 where blockchain.isTezos:
-            // Some non-UTXO blockchains (like Tezos) have 4 nodes in the derivation path
-            return Constants.nonUTXONonStandardDerivationNodeIndex
         default:
             // Currently, there are no blockchains with other derivation path nodes count
             // Such blockchains should be handled here explicitly
@@ -156,11 +157,12 @@ struct AccountDerivationPathHelper {
              .zkLinkNova,
              .pepecoin,
              .hyperliquidEVM,
+             .quai,
              .scroll,
              .linea,
              .arbitrumNova:
             return true
-        case .chia, .quai:
+        case .chia:
             return false
         }
     }
@@ -172,7 +174,7 @@ private extension AccountDerivationPathHelper {
     enum Constants {
         /// 3rd node for UTXO blockchains (m / purpose' / coin_type' / account' / change / address_index)
         static let utxoDerivationNodeIndex = 2
-        /// 3rd node for some non-UTXO blockchains (like Tezos) which have 4 nodes (m / purpose' / coin_type' / account' / unspecified)
+        /// 3rd node for some non-UTXO blockchains (like Tezos, Quai and so on) (m / purpose' / coin_type' / account' / unspecified)
         static let nonUTXONonStandardDerivationNodeIndex = 2
     }
 }
@@ -182,6 +184,13 @@ private extension AccountDerivationPathHelper {
 private extension Blockchain {
     var isTezos: Bool {
         if case .tezos = self {
+            return true
+        }
+        return false
+    }
+
+    var isQuai: Bool {
+        if case .quai = self {
             return true
         }
         return false
