@@ -181,10 +181,8 @@ final class ActionButtonsSwapViewModel: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 coordinator?.openExpress(input: .init(
                     userWalletInfo: userWalletModel.userWalletInfo,
-                    userTokensManager: userWalletModel.userTokensManager,
-                    walletModelsManager: userWalletModel.walletModelsManager,
-                    initialWalletModel: sourceToken.walletModel,
-                    destinationWalletModel: destinationToken.walletModel
+                    source: sourceToken.walletModel.asExpressInteractorWallet,
+                    destination: .chosen(destinationToken.walletModel.asExpressInteractorWallet)
                 ))
             }
         }
@@ -244,10 +242,7 @@ private extension ActionButtonsSwapViewModel {
         .init(
             tokenSelectorItemBuilder: ActionButtonsTokenSelectorItemBuilder(),
             strings: SwapTokenSelectorStrings(tokenName: token.infoProvider.tokenItem.name),
-            expressTokensListAdapter: CommonExpressTokensListAdapter(
-                userTokensManager: userWalletModel.userTokensManager,
-                walletModelsManager: userWalletModel.walletModelsManager,
-            ),
+            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
             tokenSorter: SwapDestinationTokenAvailabilitySorter(
                 sourceTokenWalletModel: token.walletModel,
                 userWalletModelConfig: userWalletModel.config
