@@ -250,7 +250,26 @@ private struct CommonUserWalletModelDependencies {
             return accountModelsManager
         }
 
-        accountModelsManager = hasAccounts ? makeAccountModelsManager() : DummyCommonAccountModelsManager()
+        if AppEnvironment.current.isDebug, AppEnvironment.current != .production {
+            accountModelsManager = AccountModelsManagerMock(
+                walletModelsManager: CommonWalletModelsManager(
+                    walletManagersRepository: walletManagersRepository,
+                    walletModelsFactory: config.makeWalletModelsFactory(userWalletId: userWalletId)
+                ),
+                userTokensManager: userTokensManager,
+                totalBalanceProvider: AccountTotalBalanceProvider(
+                    walletModelsManager: walletModelsManager,
+                    analyticsLogger: CommonTotalBalanceProviderAnalyticsLogger(
+                        userWalletId: userWalletId,
+                        // [REDACTED_TODO_COMMENT]
+                        walletModelsManager: walletModelsManager
+                    ),
+                    derivationManager: derivationManager
+                ),
+            )
+        } else {
+            accountModelsManager = hasAccounts ? makeAccountModelsManager() : DummyCommonAccountModelsManager()
+        }
         nftManager = makeNFTManager(userWalletId: userWalletId, hasAccounts: hasAccounts)
         totalBalanceProvider = makeTotalBalanceProvider(userWalletId: userWalletId, hasAccounts: hasAccounts)
     }
