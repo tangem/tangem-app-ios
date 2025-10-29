@@ -415,26 +415,12 @@ final class ReferralViewModel: ObservableObject {
         findAccount(by: selectedForReferralAccount?.id)
     }
 
-    private func findAccount(by id: AnyHashable) -> (any CryptoAccountModel)? {
+    private func findAccount(by id: some Hashable) -> (any CryptoAccountModel)? {
         switch workMode {
         case .plainUserTokensManager:
             return nil
-
         case .accounts:
-            switch accountModel {
-            case .standard(let cryptoAccounts):
-                switch cryptoAccounts {
-                case .single(let cryptoAccountModel):
-                    return cryptoAccountModel.id.toAnyHashable() == id ?
-                        cryptoAccountModel :
-                        nil
-                case .multiple(let cryptoAccountModels):
-                    return cryptoAccountModels.first { $0.id.toAnyHashable() == id }
-                }
-
-            case nil:
-                return nil
-            }
+            return accountModel?.cryptoAccount(with: id)
         }
     }
 }
