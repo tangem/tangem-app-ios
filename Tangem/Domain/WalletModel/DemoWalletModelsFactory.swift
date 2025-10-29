@@ -19,14 +19,15 @@ struct DemoWalletModelsFactory {
 }
 
 extension DemoWalletModelsFactory: WalletModelsFactory {
-    func makeWalletModels(from walletManager: WalletManager) -> [any WalletModel] {
-        return factory.makeWalletModels(from: walletManager)
+    func makeWalletModels(from walletManager: any WalletManager, cryptoAccountModel: (any CryptoAccountModel)?) -> [any WalletModel] {
+        return factory.makeWalletModels(from: walletManager, cryptoAccountModel: cryptoAccountModel)
     }
 
     func makeWalletModels(
         for types: [Amount.AmountType],
         walletManager: WalletManager,
-        blockchainNetwork: BlockchainNetwork
+        blockchainNetwork: BlockchainNetwork,
+        cryptoAccountModel: (any CryptoAccountModel)?
     ) -> [any WalletModel] {
         let blockchain = walletManager.wallet.blockchain
         let derivationPath = walletManager.wallet.publicKey.derivationPath
@@ -35,7 +36,8 @@ extension DemoWalletModelsFactory: WalletModelsFactory {
         let models = factory.makeWalletModels(
             for: types,
             walletManager: walletManager,
-            blockchainNetwork: blockchainNetwork
+            blockchainNetwork: blockchainNetwork,
+            cryptoAccountModel: cryptoAccountModel,
         )
 
         let demoUtil = DemoUtil()
