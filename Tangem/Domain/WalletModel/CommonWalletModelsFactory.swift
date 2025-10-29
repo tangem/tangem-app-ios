@@ -96,7 +96,7 @@ struct CommonWalletModelsFactory {
 }
 
 extension CommonWalletModelsFactory: WalletModelsFactory {
-    func makeWalletModels(from walletManager: WalletManager) -> [any WalletModel] {
+    func makeWalletModels(from walletManager: WalletManager, cryptoAccountModel: (any CryptoAccountModel)?) -> [any WalletModel] {
         var types: [Amount.AmountType] = [.coin]
         types += walletManager.cardTokens.map { Amount.AmountType.token(value: $0) }
 
@@ -104,13 +104,19 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         let currentBlockchain = walletManager.wallet.blockchain
         let blockchainNetwork = BlockchainNetwork(currentBlockchain, derivationPath: currentDerivation)
 
-        return makeWalletModels(for: types, walletManager: walletManager, blockchainNetwork: blockchainNetwork)
+        return makeWalletModels(
+            for: types,
+            walletManager: walletManager,
+            blockchainNetwork: blockchainNetwork,
+            cryptoAccountModel: cryptoAccountModel
+        )
     }
 
     func makeWalletModels(
         for types: [Amount.AmountType],
         walletManager: WalletManager,
-        blockchainNetwork: BlockchainNetwork
+        blockchainNetwork: BlockchainNetwork,
+        cryptoAccountModel: (any CryptoAccountModel)?
     ) -> [any WalletModel] {
         var models: [any WalletModel] = []
 
@@ -142,6 +148,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 userWalletId: userWalletId,
                 tokenItem: tokenItem,
                 walletManager: walletManager,
+                cryptoAccountModel: cryptoAccountModel,
                 stakingManager: makeStakingManager(
                     publicKey: walletManager.wallet.publicKey.blockchainKey,
                     tokenItem: tokenItem,
@@ -181,6 +188,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     userWalletId: userWalletId,
                     tokenItem: tokenItem,
                     walletManager: walletManager,
+                    cryptoAccountModel: cryptoAccountModel,
                     stakingManager: makeStakingManager(
                         publicKey: walletManager.wallet.publicKey.blockchainKey,
                         tokenItem: tokenItem,
