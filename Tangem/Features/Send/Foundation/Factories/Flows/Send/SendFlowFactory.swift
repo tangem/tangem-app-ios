@@ -37,11 +37,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
         swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
     )
 
-    init(
-        userWalletInfo: UserWalletInfo,
-        walletModel: any WalletModel,
-        expressInput: CommonExpressDependenciesFactory.Input,
-    ) {
+    init(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
         self.userWalletInfo = userWalletInfo
 
         tokenItem = walletModel.tokenItem
@@ -67,10 +63,15 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
             walletModel: walletModel,
             userWalletInfo: userWalletInfo
         )
+
+        let expressDependenciesInput = ExpressDependenciesInput(
+            userWalletInfo: userWalletInfo,
+            source: walletModel.asExpressInteractorWallet,
+            destination: .none
+        )
+
         expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressInput,
-            initialWallet: walletModel.asExpressInteractorWallet,
-            destinationWallet: .none,
+            input: expressDependenciesInput,
             // We support only `CEX` in `Send With Swap` flow
             supportedProviderTypes: [.cex],
             operationType: .swapAndSend
