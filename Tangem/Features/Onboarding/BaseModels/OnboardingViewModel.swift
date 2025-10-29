@@ -159,9 +159,12 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             settings: .init(
                 existingCurves: userWalletModel.config.existingCurves,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
-                userTokensManager: userWalletModel.userTokensManager,
                 hardwareLimitationUtil: HardwareLimitationsUtil(config: userWalletModel.config),
-                analyticsSourceRawValue: analyticsSourceRawValue
+                analyticsSourceRawValue: analyticsSourceRawValue,
+                context: LegacyManageTokensContext(
+                    userTokensManager: userWalletModel.userTokensManager,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
             )
         )
 
