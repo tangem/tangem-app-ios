@@ -91,7 +91,6 @@ struct YieldModuleStartView: View {
             .init(settings: .init(
                 title: Localization.commonGotIt,
                 style: .secondary,
-                isDisabled: !viewModel.isButtonEnabled,
                 action: ctaButtonAction
             ))
         case .startEarning:
