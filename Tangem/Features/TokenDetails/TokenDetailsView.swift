@@ -204,7 +204,7 @@ private extension TokenDetailsView {
         xpubGenerator: nil,
         coordinator: coordinator,
         tokenRouter: SingleTokenRouter(
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
             coordinator: coordinator,
             yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         ),

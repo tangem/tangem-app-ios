@@ -14,7 +14,7 @@ protocol SendGenericFlowBaseDependenciesFactory {
     var feeTokenItem: TokenItem { get }
     var tokenIconInfo: TokenIconInfo { get }
     var userWalletInfo: UserWalletInfo { get }
-    var account: any BaseAccountModel { get }
+    var account: (any BaseAccountModel)? { get }
 
     var walletModelBalancesProvider: WalletModelBalancesProvider { get }
     var walletModelDependenciesProvider: WalletModelDependenciesProvider { get }
@@ -26,7 +26,12 @@ protocol SendGenericFlowBaseDependenciesFactory {
 
 extension SendGenericFlowBaseDependenciesFactory {
     func makeSendTokenHeader() -> SendTokenHeader {
-        guard userWalletInfo.hasMultipleAccounts else {
+        guard !userWalletInfo.hasMultipleAccounts else {
+            return .wallet(name: userWalletInfo.name)
+        }
+
+        guard let account else {
+            assertionFailure("Wrong case when wallet `hasMultipleAccounts` but `account` is nil")
             return .wallet(name: userWalletInfo.name)
         }
 

@@ -421,13 +421,13 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
     func openPendingExpressTransactionDetails(
         pendingTransaction: PendingTransaction,
         tokenItem: TokenItem,
-        userWalletModel: UserWalletModel,
-        pendingTransactionsManager: PendingExpressTransactionsManager
+        userWalletInfo: UserWalletInfo,
+        pendingTransactionsManager: any PendingExpressTransactionsManager
     ) {
         pendingExpressTxStatusBottomSheetViewModel = PendingExpressTxStatusBottomSheetViewModel(
             pendingTransaction: pendingTransaction,
             currentTokenItem: tokenItem,
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletInfo,
             pendingTransactionsManager: pendingTransactionsManager,
             router: self
         )
@@ -565,6 +565,8 @@ extension MainCoordinator: PendingExpressTxStatusRoutable {
     func openURL(_ url: URL) {
         safariManager.openURL(url)
     }
+
+    func openCurrency(tokenItem: TokenItem, userWalletInfo: UserWalletInfo) {}
 
     func openCurrency(tokenItem: TokenItem, userWalletModel: UserWalletModel) {
         pendingExpressTxStatusBottomSheetViewModel = nil
