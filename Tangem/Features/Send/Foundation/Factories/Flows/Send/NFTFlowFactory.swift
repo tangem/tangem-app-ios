@@ -9,6 +9,7 @@
 import struct TangemUI.TokenIconInfo
 
 class NFTFlowFactory: SendFlowBaseDependenciesFactory {
+    let account: any BaseAccountModel
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
@@ -53,6 +54,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
         self.userWalletInfo = userWalletInfo
         self.nftAssetStepBuilder = nftAssetStepBuilder
 
+        account = walletModel.account
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
