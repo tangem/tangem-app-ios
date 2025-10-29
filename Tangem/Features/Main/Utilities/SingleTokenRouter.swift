@@ -53,29 +53,29 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openOnramp(walletModel: any WalletModel) {
-        coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel, parameters: .none)
+        let input = makeSendInput(for: walletModel)
+        coordinator?.openOnramp(input: input, parameters: .none)
     }
 
     func openSend(walletModel: any WalletModel) {
+        let input = makeSendInput(for: walletModel)
+
         let openSendAction = { [weak self] in
-            guard let self else { return }
-            coordinator?.openSend(userWalletModel: userWalletModel, walletModel: walletModel)
+            self?.coordinator?.openSend(input: input)
         }
 
         if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
-            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: openSendAction)
+            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: { openSendAction() })
         } else {
             openSendAction()
         }
     }
 
     func openExchange(walletModel: any WalletModel) {
-        let input = CommonExpressModulesFactory.InputModel(
+        let input = ExpressDependenciesInput(
             userWalletInfo: userWalletModel.userWalletInfo,
-            userTokensManager: userWalletModel.userTokensManager,
-            walletModelsManager: userWalletModel.walletModelsManager,
-            initialWalletModel: walletModel,
-            destinationWalletModel: .none
+            source: walletModel.asExpressInteractorWallet,
+            destination: .loadingAndSet
         )
 
         if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
@@ -93,13 +93,8 @@ final class SingleTokenRouter: SingleTokenRoutable {
             return
         }
 
-        coordinator?.openStaking(
-            options: .init(
-                userWalletModel: userWalletModel,
-                walletModel: walletModel,
-                manager: stakingManager
-            )
-        )
+        let input = makeSendInput(for: walletModel)
+        coordinator?.openStaking(options: .init(sendInput: input, manager: stakingManager))
     }
 
     func openSell(for walletModel: any WalletModel) {
@@ -116,9 +111,10 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel) {
+        let input = makeSendInput(for: walletModel)
+
         coordinator?.openSendToSell(
-            userWalletModel: userWalletModel,
-            walletModel: walletModel,
+            input: input,
             sellParameters: .init(amount: request.amount, destination: request.targetAddress, tag: request.tag)
         )
     }
@@ -178,18 +174,22 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 }
 
-// MARK: - Utilities functions
+// MARK: - Private utilities functions
 
-extension SingleTokenRouter {
-    private func sendAnalyticsEvent(_ event: Analytics.Event, for walletModel: any WalletModel) {
+private extension SingleTokenRouter {
+    func sendAnalyticsEvent(_ event: Analytics.Event, for walletModel: any WalletModel) {
         Analytics.log(event: event, params: [.token: walletModel.tokenItem.currencySymbol])
     }
 
-    private func buildSellCryptoUtility(for walletModel: any WalletModel) -> SellCryptoUtility {
+    func buildSellCryptoUtility(for walletModel: any WalletModel) -> SellCryptoUtility {
         SellCryptoUtility(
             blockchain: walletModel.tokenItem.blockchain,
             address: walletModel.defaultAddressString,
             amountType: walletModel.tokenItem.amountType
         )
+    }
+
+    func makeSendInput(for walletModel: any WalletModel) -> SendInput {
+        SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
     }
 }
