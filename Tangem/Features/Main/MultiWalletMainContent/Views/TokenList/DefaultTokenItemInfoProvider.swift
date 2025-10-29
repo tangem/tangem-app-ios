@@ -170,7 +170,14 @@ private enum LeadingBadgeMapper {
 
         let formattedRewardValue = PercentFormatter().format(marketInfo.apy, option: .staking)
 
-        let rewardsInfo: RewardsInfo? = switch state {
+        let actualState: YieldModuleManagerState = switch state {
+        case .failedToLoad(_, .some(let cachedState)):
+            cachedState
+        default:
+            state
+        }
+
+        let rewardsInfo: RewardsInfo? = switch actualState {
         case .active:
             RewardsInfo(
                 type: .apy,
