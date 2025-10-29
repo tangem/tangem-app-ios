@@ -17,11 +17,13 @@ import TangemLocalization
 final class AccountsAwareUserTokensManager {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
+    weak var walletModelsManager: WalletModelsManager?
+    weak var derivationManager: DerivationManager?
+    // [REDACTED_TODO_COMMENT]
     weak var keysDerivingProvider: KeysDerivingProvider?
 
     private let userWalletId: UserWalletId
     private let userTokensRepository: UserTokensRepository
-    private let walletModelsManager: WalletModelsManager
     private let derivationInfo: DerivationInfo
     private let existingCurves: [EllipticCurve]
     private let shouldLoadExpressAvailability: Bool
@@ -35,7 +37,6 @@ final class AccountsAwareUserTokensManager {
     init(
         userWalletId: UserWalletId,
         userTokensRepository: UserTokensRepository,
-        walletModelsManager: WalletModelsManager,
         derivationInfo: DerivationInfo,
         existingCurves: [EllipticCurve],
         persistentBlockchains: [TokenItem],
@@ -44,17 +45,16 @@ final class AccountsAwareUserTokensManager {
     ) {
         self.userWalletId = userWalletId
         self.userTokensRepository = userTokensRepository
-        self.walletModelsManager = walletModelsManager
         self.derivationInfo = derivationInfo
         self.existingCurves = existingCurves
         self.shouldLoadExpressAvailability = shouldLoadExpressAvailability
         self.hardwareLimitationsUtil = hardwareLimitationsUtil
 
         if persistentBlockchains.isNotEmpty {
-            try? addInternal(persistentBlockchains, shouldUpload: true)
+            userTokensRepository.performBatchUpdates { updater in
+                try? addInternal(persistentBlockchains, using: updater)
+            }
         }
-
-        sync {}
     }
 
     private func withBlockchainNetwork(_ tokenItem: TokenItem) -> TokenItem {
@@ -90,7 +90,7 @@ final class AccountsAwareUserTokensManager {
         }
     }
 
-    private func addInternal(_ tokenItems: [TokenItem], shouldUpload: Bool) throws {
+    private func addInternal(_ tokenItems: [TokenItem], using updater: UserTokensRepositoryBatchUpdater) throws {
         var tokenItems = tokenItems
         let tokens = tokenItems.filter { $0.isToken }
 
@@ -105,15 +105,13 @@ final class AccountsAwareUserTokensManager {
             try validateDerivation(for: tokenItem)
         }
 
-        userTokensRepository.update(.append(tokenItems), shouldUpload: shouldUpload)
+        updater.append(tokenItems)
     }
 
-    private func removeInternal(_ tokenItem: TokenItem, shouldUpload: Bool) {
-        guard canRemove(tokenItem) else {
-            return
+    private func removeInternal(_ tokenItems: [TokenItem], using updater: UserTokensRepositoryBatchUpdater) {
+        for tokenItem in tokenItems where canRemove(tokenItem) {
+            updater.remove(tokenItem)
         }
-
-        userTokensRepository.update(.remove(tokenItem), shouldUpload: shouldUpload)
     }
 
     private func loadSwapAvailabilityStateIfNeeded(forceReload: Bool) {
@@ -121,8 +119,8 @@ final class AccountsAwareUserTokensManager {
             return
         }
 
-        let converter = StorageEntryConverter()
-        let tokenItems = converter.convertToTokenItems(userTokensRepository.cryptoAccount.tokens)
+        let storedEntries = userTokensRepository.cryptoAccount.tokens
+        let tokenItems = StoredEntryConverter.convertToTokenItems(storedEntries)
 
         expressAvailabilityProvider.updateExpressAvailability(
             for: tokenItems,
@@ -172,7 +170,7 @@ final class AccountsAwareUserTokensManager {
 
     private func handleUserTokensSync() {
         loadSwapAvailabilityStateIfNeeded(forceReload: true)
-        walletModelsManager.updateAll(silent: false) { [weak self] in
+        walletModelsManager?.updateAll(silent: false) { [weak self] in
             self?.handleWalletModelsUpdate()
         }
     }
@@ -230,7 +228,7 @@ final class AccountsAwareUserTokensManager {
 
 extension AccountsAwareUserTokensManager: UserTokensManager {
     var initialized: Bool {
-        false // [REDACTED_TODO_COMMENT]
+        true // [REDACTED_TODO_COMMENT]
     }
 
     var initializedPublisher: AnyPublisher<Bool, Never> {
@@ -238,15 +236,17 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     }
 
     var userTokens: [TokenItem] {
-        [] // [REDACTED_TODO_COMMENT]
+        userTokensRepository
+            .cryptoAccount
+            .tokens
+            .compactMap { $0.toTokenItem() }
     }
 
     var userTokensPublisher: AnyPublisher<[TokenItem], Never> {
-        .just(output: userTokens) // [REDACTED_TODO_COMMENT]
-    }
-
-    var derivationManager: DerivationManager? {
-        derivationInfo.derivationManager
+        userTokensRepository
+            .cryptoAccountPublisher
+            .map { $0.tokens.compactMap { $0.toTokenItem() } }
+            .eraseToAnyPublisher()
     }
 
     func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
@@ -322,7 +322,7 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
 
         let walletModelId = WalletModelId(tokenItem: tokenItem)
 
-        guard let walletModel = walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
+        guard let walletModel = walletModelsManager?.walletModels.first(where: { $0.id == walletModelId }) else {
             throw Error.addressNotFound
         }
 
@@ -333,7 +333,9 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         let tokenItems = tokenItems.map { withBlockchainNetwork($0) }
 
         do {
-            try addInternal(tokenItems, shouldUpload: true)
+            try userTokensRepository.performBatchUpdates { updater in
+                try addInternal(tokenItems, using: updater)
+            }
         } catch {
             completion(.failure(error))
             return
@@ -373,7 +375,9 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     func remove(_ tokenItem: TokenItem) {
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        removeInternal(tokenItem, shouldUpload: true)
+        userTokensRepository.performBatchUpdates { updater in
+            removeInternal([tokenItem], using: updater)
+        }
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
@@ -394,13 +398,11 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         let itemsToRemove = itemsToRemove.map { withBlockchainNetwork($0) }
         let itemsToAdd = itemsToAdd.map { withBlockchainNetwork($0) }
 
-        itemsToRemove.forEach {
-            removeInternal($0, shouldUpload: false)
+        try userTokensRepository.performBatchUpdates { updater in
+            removeInternal(itemsToRemove, using: updater)
+            try addInternal(itemsToAdd, using: updater)
+            loadSwapAvailabilityStateIfNeeded(forceReload: true)
         }
-
-        try addInternal(itemsToAdd, shouldUpload: false)
-        loadSwapAvailabilityStateIfNeeded(forceReload: true)
-        userTokensRepository.upload()
     }
 
     func sync(completion: @escaping () -> Void) {
@@ -416,10 +418,6 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         userTokensRepository.updateLocalRepositoryFromServer { [weak self] _ in
             self?.handleUserTokensSync()
         }
-    }
-
-    func upload() {
-        // [REDACTED_TODO_COMMENT]
     }
 }
 
@@ -486,10 +484,10 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
                 promise(.success((updateRequest, existingAccount)))
             }
             .filter { input in
-                let (updateInfo, existingAccount) = input
-                return updateInfo.tokens != existingAccount.tokens
-                    || updateInfo.grouping != existingAccount.grouping
-                    || updateInfo.sorting != existingAccount.sorting
+                let (updateRequest, existingAccount) = input
+                return updateRequest.tokens != existingAccount.tokens
+                    || updateRequest.grouping != existingAccount.grouping
+                    || updateRequest.sorting != existingAccount.sorting
             }
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { input in
@@ -502,8 +500,10 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
             })
             .receive(on: DispatchQueue.main)
             .map { input in
-                let (userTokensManager, (updateInfo, _)) = input
-                userTokensManager.userTokensRepository.update(with: updateInfo)
+                let (userTokensManager, (updateRequest, _)) = input
+                userTokensManager.userTokensRepository.performBatchUpdates { updater in
+                    updater.update(updateRequest)
+                }
             }
         }
         .eraseToAnyPublisher()
@@ -516,7 +516,6 @@ extension AccountsAwareUserTokensManager {
     struct DerivationInfo {
         let derivationIndex: Int
         let derivationStyle: DerivationStyle?
-        let derivationManager: DerivationManager?
     }
 
     enum Error: LocalizedError {
@@ -539,36 +538,6 @@ extension AccountsAwareUserTokensManager {
                  .accountDerivationNodeMismatch:
                 // [REDACTED_TODO_COMMENT]
                 return Localization.genericErrorCode(errorCode)
-            }
-        }
-    }
-}
-
-private extension AccountsAwareUserTokensManager {
-    struct StorageEntryConverter {
-        func convertToTokenItems(_ entries: [StoredCryptoAccount.Token]) -> [TokenItem] {
-            entries.compactMap { entry -> TokenItem? in
-                let blockchainNetwork: BlockchainNetwork
-                switch entry.blockchainNetwork {
-                case .known(let _blockchainNetwork):
-                    blockchainNetwork = _blockchainNetwork
-                case .unknown:
-                    // Unsupported network and/or token, filtering it out
-                    return nil
-                }
-
-                guard let contractAddress = entry.contractAddress else {
-                    return .blockchain(blockchainNetwork)
-                }
-
-                let token = Token(
-                    name: entry.name,
-                    symbol: entry.symbol,
-                    contractAddress: contractAddress,
-                    decimalCount: entry.decimalCount,
-                    id: entry.id
-                )
-                return .token(token, blockchainNetwork)
             }
         }
     }
