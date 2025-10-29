@@ -269,7 +269,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         estimatedFeeState = estimatedFeeState.withFeeState(.loading)
         maxFee = nil
 
-        guard let maxFee = await yieldManagerInteractor.getMaxFee() else {
+        guard let maxFeeNative = await yieldManagerInteractor.getMaxFeeNative() else {
             estimatedFeeState = estimatedFeeState.withFeeState(.noData)
             minimalAmountState = minimalAmountState.withFeeState(.noData)
             return
@@ -282,9 +282,10 @@ final class YieldModuleInfoViewModel: ObservableObject {
             let minAmount = try await yieldManagerInteractor.getMinAmount()
             let minAmountFormatted = try await feeConverter.makeFormattedMinimalFee(from: minAmount)
 
-            let maxFeeFormatted = try await feeConverter.makeFormattedMaximumFee(maxFeeCurrencyFee: maxFee.0, maxFiatFee: maxFee.1)
+            let maxFeeInFiat = try await feeConverter.convertToFiat(maxFeeNative)
+            let maxFeeFormatted = try await feeConverter.makeFormattedMaximumFee(maxFeeNative: maxFeeNative)
 
-            let isHighFee = estimatedFee > maxFee.1
+            let isHighFee = estimatedFee > maxFeeInFiat
 
             if isHighFee {
                 logger.logEarningNoticeHighNetworkFeeShown()
@@ -316,7 +317,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         } catch {
             minimalAmountState = minimalAmountState.withFeeState(.noData)
             estimatedFeeState = estimatedFeeState.withFeeState(.noData)
-            self.maxFee = nil
+            maxFee = nil
             earInfoFooterText = nil
         }
     }
