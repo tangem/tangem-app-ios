@@ -60,9 +60,14 @@ class ManageTokensAdapter {
     init(settings: Settings) {
         hardwareLimitationUtil = settings.hardwareLimitationUtil
         existingCurves = settings.existingCurves
-        userTokensManager = settings.userTokensManager
-        loader = TokensListDataLoader(supportedBlockchains: settings.supportedBlockchains)
+        userTokensManager = settings.context.userTokensManager
         analyticsSourceRawValue = settings.analyticsSourceRawValue
+
+        let filteredBlockchains = settings.supportedBlockchains.filter { blockchain in
+            settings.context.canManageBlockchain(blockchain)
+        }
+
+        loader = TokensListDataLoader(supportedBlockchains: filteredBlockchains)
 
         bind()
     }
@@ -330,8 +335,8 @@ extension ManageTokensAdapter {
     struct Settings {
         let existingCurves: [EllipticCurve]
         let supportedBlockchains: Set<Blockchain>
-        let userTokensManager: UserTokensManager
         let hardwareLimitationUtil: HardwareLimitationsUtil
         let analyticsSourceRawValue: String
+        let context: ManageTokensContext
     }
 }
