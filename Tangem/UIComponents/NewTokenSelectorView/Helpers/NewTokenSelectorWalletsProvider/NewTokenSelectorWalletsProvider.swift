@@ -30,7 +30,7 @@ extension NewTokenSelectorWallet {
 // MARK: - Nested Account
 
 struct NewTokenSelectorAccount {
-    let account: NewTokenSelectorItem.Account
+    let account: any CryptoAccountModel
     let itemsPublisher: AnyPublisher<[NewTokenSelectorItem], Never>
 }
 
@@ -40,9 +40,9 @@ struct NewTokenSelectorItem: Hashable, Identifiable {
     var id: String { walletModel.id.id }
 
     let wallet: Wallet
-    let account: Account
-    let availabilityProvider: NewTokenSelectorItemAvailabilityProvider
+    let account: any CryptoAccountModel
     let walletModel: any WalletModel
+    let availabilityProvider: NewTokenSelectorItemAvailabilityProvider
 
     var cryptoBalanceProvider: TokenBalanceProvider { walletModel.totalTokenBalanceProvider }
     var fiatBalanceProvider: TokenBalanceProvider { walletModel.fiatTotalTokenBalanceProvider }
@@ -56,7 +56,7 @@ struct NewTokenSelectorItem: Hashable, Identifiable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(wallet)
-        hasher.combine(account)
+        hasher.combine(account.id)
         hasher.combine(walletModel.id)
     }
 
@@ -68,20 +68,6 @@ struct NewTokenSelectorItem: Hashable, Identifiable {
 extension NewTokenSelectorItem {
     struct Wallet: Hashable {
         let userWalletInfo: UserWalletInfo
-    }
-
-    struct Account: Hashable {
-        let name: String
-        let icon: AccountIconView.ViewData
-
-        static func == (lhs: NewTokenSelectorItem.Account, rhs: NewTokenSelectorItem.Account) -> Bool {
-            lhs.hashValue == rhs.hashValue
-        }
-
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(name)
-            hasher.combine(icon)
-        }
     }
 
     enum AvailabilityType {

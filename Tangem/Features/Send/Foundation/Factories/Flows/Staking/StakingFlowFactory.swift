@@ -11,7 +11,7 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class StakingFlowFactory: StakingFlowDependenciesFactory {
-    let account: any BaseAccountModel
+    let account: (any BaseAccountModel)?
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
@@ -29,6 +29,10 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
     lazy var stakingModel = makeStakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
     lazy var notificationManager = makeStakingNotificationManager()
+
+    convenience init(input: SendInput, manager: any StakingManager) {
+        self.init(userWalletInfo: input.userWalletInfo, manager: manager, walletModel: input.walletModel)
+    }
 
     init(
         userWalletInfo: UserWalletInfo,

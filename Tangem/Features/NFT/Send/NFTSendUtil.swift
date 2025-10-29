@@ -41,7 +41,7 @@ struct NFTSendUtil {
         let parameters = PredefinedNFTParameters(asset: asset, collection: collection)
 
         return SendCoordinator.Options(
-            input: .init(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModelProxy),
+            input: .init(userWalletInfo: userWalletModel.userWalletInfo, account: .none, walletModel: walletModelProxy),
             type: .nft(parameters: parameters),
             source: .nft
         )

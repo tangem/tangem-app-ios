@@ -59,9 +59,6 @@ class CommonNewTokenSelectorWalletsProvider: NewTokenSelectorWalletsProvider {
 
     func mapToNewTokenSelectorAccount(wallet: any UserWalletModel, cryptoAccount: any CryptoAccountModel) -> NewTokenSelectorAccount {
         let selectorWallet = NewTokenSelectorItem.Wallet(userWalletInfo: wallet.userWalletInfo)
-        let iconViewData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: cryptoAccount)
-        let selectorAccount = NewTokenSelectorItem.Account(name: cryptoAccount.name, icon: iconViewData)
-
         let adapter = TokenSectionsAdapter(
             userTokensManager: cryptoAccount.userTokensManager,
             optionsProviding: OrganizeTokensOptionsManager(userTokensReorderer: cryptoAccount.userTokensManager),
@@ -82,28 +79,28 @@ class CommonNewTokenSelectorWalletsProvider: NewTokenSelectorWalletsProvider {
 
                 return walletModels.map { walletModel in
                     provider.mapToNewTokenSelectorItem(
-                        selectorWallet: selectorWallet, selectorAccount: selectorAccount, walletModel: walletModel
+                        selectorWallet: selectorWallet, selectorAccount: cryptoAccount, walletModel: walletModel
                     )
                 }
             }
             .eraseToAnyPublisher()
 
-        return NewTokenSelectorAccount(account: selectorAccount, itemsPublisher: itemsPublisher)
+        return NewTokenSelectorAccount(account: cryptoAccount, itemsPublisher: itemsPublisher)
     }
 
     func mapToNewTokenSelectorItem(
         selectorWallet: NewTokenSelectorItem.Wallet,
-        selectorAccount: NewTokenSelectorItem.Account,
+        selectorAccount: any CryptoAccountModel,
         walletModel: any WalletModel
     ) -> NewTokenSelectorItem {
         NewTokenSelectorItem(
             wallet: selectorWallet,
             account: selectorAccount,
+            walletModel: walletModel,
             availabilityProvider: availabilityProviderFactory.makeAvailabilityProvider(
                 userWalletInfo: selectorWallet.userWalletInfo,
                 walletModel: walletModel
             ),
-            walletModel: walletModel
         )
     }
 }
