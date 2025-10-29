@@ -49,7 +49,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     private let pendingTransaction: PendingTransaction
     private let currentTokenItem: TokenItem
-    private let userWalletModel: UserWalletModel
+    private let userWalletInfo: UserWalletInfo
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
@@ -66,13 +66,13 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     init(
         pendingTransaction: PendingTransaction,
         currentTokenItem: TokenItem,
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         pendingTransactionsManager: PendingExpressTransactionsManager,
         router: PendingExpressTxStatusRoutable
     ) {
         self.pendingTransaction = pendingTransaction
         self.currentTokenItem = currentTokenItem
-        self.userWalletModel = userWalletModel
+        self.userWalletInfo = userWalletInfo
         self.pendingTransactionsManager = pendingTransactionsManager
         self.router = router
 
@@ -163,7 +163,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     private func openCurrency(tokenItem: TokenItem) {
         Analytics.log(.tokenButtonGoToToken)
-        router?.openCurrency(tokenItem: tokenItem, userWalletModel: userWalletModel)
+        router?.openCurrency(tokenItem: tokenItem, userWalletInfo: userWalletInfo)
     }
 
     private func loadEmptyFiatRates() {
