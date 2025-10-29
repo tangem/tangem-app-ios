@@ -262,10 +262,7 @@ private extension LockedWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            expressTokensListAdapter: CommonExpressTokensListAdapter(
-                userTokensManager: userWalletModel.userTokensManager,
-                walletModelsManager: userWalletModel.walletModelsManager,
-            ),
+            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
             userWalletModel: userWalletModel
         )
     }
