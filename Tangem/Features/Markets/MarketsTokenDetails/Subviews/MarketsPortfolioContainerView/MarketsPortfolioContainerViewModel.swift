@@ -266,6 +266,14 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             return
         }
 
+        let expressInput = ExpressDependenciesInput(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            source: walletModel.asExpressInteractorWallet,
+            destination: .loadingAndSet
+        )
+
+        let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+
         let analyticsParams: [Analytics.ParameterKey: String] = [
             .source: Analytics.ParameterValue.market.rawValue,
             .token: walletModel.tokenItem.currencySymbol.uppercased(),
@@ -275,16 +283,18 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         switch action {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
-            coordinator.openOnramp(for: walletModel, with: userWalletModel)
+            coordinator.openOnramp(input: sendInput)
         case .receive:
             Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-            coordinator.openExchange(for: walletModel, with: userWalletModel)
+            coordinator.openExchange(input: expressInput)
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
-            coordinator.openStaking(for: walletModel, with: userWalletModel)
+            if let stakingManager = walletModel.stakingManager {
+                coordinator.openStaking(input: sendInput, stakingManager: stakingManager)
+            }
         case .hide, .marketsDetails, .send, .sell, .copyAddress:
             // An empty value because it is not available
             return
