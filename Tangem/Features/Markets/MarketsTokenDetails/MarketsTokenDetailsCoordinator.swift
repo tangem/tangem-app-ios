@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemStaking
 import struct TangemUIUtils.AlertBinder
 
 class MarketsTokenDetailsCoordinator: CoordinatorObject {
@@ -120,21 +121,12 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         }
     }
 
-    func openStaking(for walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
-        guard let stakingManager = walletModel.stakingManager else {
-            return
-        }
-
+    func openStaking(input: SendInput, stakingManager: any StakingManager) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.stakingDetailsCoordinator = nil
         }
 
-        let options = StakingDetailsCoordinator.Options(
-            userWalletModel: userWalletModel,
-            walletModel: walletModel,
-            manager: stakingManager
-        )
-
+        let options = StakingDetailsCoordinator.Options(sendInput: input, manager: stakingManager)
         let coordinator = StakingDetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: options)
         stakingDetailsCoordinator = coordinator
@@ -163,7 +155,7 @@ extension MarketsTokenDetailsCoordinator {
         }
     }
 
-    func openExchange(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
+    func openExchange(input: ExpressDependenciesInput) {
         let action = { [weak self] in
             guard let self else { return }
 
@@ -174,9 +166,9 @@ extension MarketsTokenDetailsCoordinator {
             let openSwapBlock = { [weak self] in
                 guard let self else { return }
                 Task { @MainActor in
-                    let coordinator = self.portfolioCoordinatorFactory.makeExpressCoordinator(
-                        for: walletModel,
-                        with: userWalletModel,
+                    let factory = CommonExpressModulesFactory(input: input)
+                    let coordinator = ExpressCoordinator(
+                        factory: factory,
                         dismissAction: dismissAction,
                         popToRootAction: self.popToRootAction
                     )
@@ -195,31 +187,20 @@ extension MarketsTokenDetailsCoordinator {
             }
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
-            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: action)
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.source.tokenItem) {
+            openViaYieldNotice(tokenItem: input.source.tokenItem, action: action)
         } else {
             action()
         }
     }
 
-    func openOnramp(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
+    func openOnramp(input: SendInput) {
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
-        let options = SendCoordinator.Options(
-            input: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModel: walletModel,
-                expressInput: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
-            ),
-            type: .onramp(),
-            source: .markets
-        )
+        let options = SendCoordinator.Options(input: input, type: .onramp(), source: .markets)
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }

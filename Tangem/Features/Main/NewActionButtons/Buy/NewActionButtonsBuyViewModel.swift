@@ -64,15 +64,7 @@ extension NewActionButtonsBuyViewModel: NewTokenSelectorViewModelOutput {
     func usedDidSelect(item: NewTokenSelectorItem) {
         ActionButtonsAnalyticsService.trackTokenClicked(.buy, tokenSymbol: item.walletModel.tokenItem.currencySymbol)
 
-        coordinator?.openOnramp(
-            input: .init(
-                userWalletInfo: item.wallet.userWalletInfo,
-                walletModel: item.walletModel,
-                expressInput: .init(
-                    userWalletInfo: item.wallet.userWalletInfo,
-                    walletModelsManager: item.account.walletModelsManager
-                )
-            )
-        )
+        let sendInput = SendInput(userWalletInfo: item.wallet.userWalletInfo, walletModel: item.walletModel)
+        coordinator?.openOnramp(input: sendInput)
     }
 }

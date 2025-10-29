@@ -124,11 +124,11 @@ private extension ExpressTokensListViewModel {
 
     func loadAvailablePairs() async -> [ExpressCurrency] {
         switch swapDirection {
-        case .fromSource(let wallet):
-            let pairs = await expressPairsRepository.getPairs(from: wallet.tokenItem.expressCurrency)
+        case .fromSource(let tokenItem):
+            let pairs = await expressPairsRepository.getPairs(from: tokenItem.expressCurrency)
             return pairs.map { $0.destination }
-        case .toDestination(let wallet):
-            let pairs = await expressPairsRepository.getPairs(to: wallet.tokenItem.expressCurrency)
+        case .toDestination(let tokenItem):
+            let pairs = await expressPairsRepository.getPairs(to: tokenItem.expressCurrency)
             return pairs.map { $0.source }
         }
     }
@@ -142,7 +142,7 @@ private extension ExpressTokensListViewModel {
 
         walletModels
             .forEach { walletModel in
-                guard walletModel.id != swapDirection.wallet.id else { return }
+                guard walletModel.id != .init(tokenItem: swapDirection.tokenItem) else { return }
                 let availabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModelConfig, walletModel: walletModel)
                 let isAvailable = availableCurrenciesSet.contains(walletModel.tokenItem.expressCurrency.asCurrency)
                 let isSwapAvailable = availabilityProvider.isSwapAvailable
@@ -229,8 +229,8 @@ extension ExpressTokensListViewModel {
     }
 
     enum SwapDirection {
-        case fromSource(any WalletModel)
-        case toDestination(any WalletModel)
+        case fromSource(TokenItem)
+        case toDestination(TokenItem)
 
         var name: String {
             switch self {
@@ -241,12 +241,12 @@ extension ExpressTokensListViewModel {
             }
         }
 
-        var wallet: any WalletModel {
+        var tokenItem: TokenItem {
             switch self {
-            case .fromSource(let walletModel):
-                return walletModel
-            case .toDestination(let walletModel):
-                return walletModel
+            case .fromSource(let tokenItem):
+                return tokenItem
+            case .toDestination(let tokenItem):
+                return tokenItem
             }
         }
     }

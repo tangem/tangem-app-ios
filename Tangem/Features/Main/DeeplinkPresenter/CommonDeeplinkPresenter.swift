@@ -187,10 +187,7 @@ private extension CommonDeeplinkPresenter {
             with: .default(
                 options: .init(
                     userWalletModel: userWalletModel,
-                    expressTokensListAdapter: CommonExpressTokensListAdapter(
-                        userTokensManager: userWalletModel.userTokensManager,
-                        walletModelsManager: userWalletModel.walletModelsManager,
-                    ),
+                    expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
                     tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
                 )
             )
