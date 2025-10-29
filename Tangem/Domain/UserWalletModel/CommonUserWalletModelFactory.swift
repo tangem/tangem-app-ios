@@ -11,6 +11,7 @@ import TangemNFT
 import TangemMobileWalletSdk
 import TangemFoundation
 
+// [REDACTED_TODO_COMMENT]
 struct CommonUserWalletModelFactory {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -105,13 +106,11 @@ struct CommonUserWalletModelFactory {
 
 private struct CommonUserWalletModelDependencies {
     let keysRepository: KeysRepository
-    let userTokenListManager: UserTokenListManager
     let walletModelsManager: WalletModelsManager
     let derivationManager: CommonDerivationManager?
-    let totalBalanceProvider: TotalBalanceProvider
+    var totalBalanceProvider: TotalBalanceProvider! // [REDACTED_TODO_COMMENT]
     let userTokensManager: CommonUserTokensManager
-    let nftManager: NFTManager
-    let accountsWalletModelsAggregator: AccountsWalletModelsAggregating
+    var nftManager: NFTManager! // [REDACTED_TODO_COMMENT]
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
@@ -126,6 +125,7 @@ private struct CommonUserWalletModelDependencies {
         let shouldLoadExpressAvailability = config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange)
         let areHDWalletsSupported = config.hasFeature(.hdWallets)
         let hasTokenSynchronization = config.hasFeature(.multiCurrency)
+        let hasAccounts = FeatureProvider.isAvailable(.accounts)
         let defaultBlockchains = config.defaultBlockchains
 
         let keysRepository = CommonKeysRepository(
@@ -143,7 +143,7 @@ private struct CommonUserWalletModelDependencies {
             defaultBlockchains: defaultBlockchains
         )
 
-        self.userTokenListManager = userTokenListManager
+        let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
 
         userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,
@@ -152,7 +152,7 @@ private struct CommonUserWalletModelDependencies {
             derivationStyle: config.derivationStyle,
             existingCurves: config.existingCurves,
             persistentBlockchains: config.persistentBlockchains,
-            hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
+            hardwareLimitationsUtil: hardwareLimitationsUtil
         )
 
         let walletManagersRepository = CommonWalletManagersRepository(
@@ -179,9 +179,10 @@ private struct CommonUserWalletModelDependencies {
 
         let userTokensPushNotificationsManager = CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager,
-            derivationManager: derivationManager,
-            userTokensManager: userTokensManager
+            walletModelsManager: walletModelsManager, // [REDACTED_TODO_COMMENT]
+            userTokensManager: userTokensManager, // [REDACTED_TODO_COMMENT]
+            remoteStatusSyncing: userTokensManager, // [REDACTED_TODO_COMMENT]
+            derivationManager: derivationManager
         )
 
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
@@ -190,6 +191,7 @@ private struct CommonUserWalletModelDependencies {
         // Inline func is used here to avoid long parameter list in the method signature.
         func makeAccountModelsManager() -> AccountModelsManager {
             let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
+            let auxiliaryDataStorage = CommonCryptoAccountsAuxiliaryDataStorage(storageIdentifier: userWalletId.stringValue)
             let persistentStorage = CommonCryptoAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
             let remoteIdentifierBuilder = CryptoAccountsRemoteIdentifierBuilder(userWalletId: userWalletId)
             let mapper = CryptoAccountsNetworkMapper(
@@ -208,30 +210,35 @@ private struct CommonUserWalletModelDependencies {
                 tokenItemsRepository: tokenItemsRepository,
                 defaultAccountFactory: defaultAccountFactory,
                 networkService: networkService,
+                auxiliaryDataStorage: auxiliaryDataStorage,
                 persistentStorage: persistentStorage,
                 storageController: persistentStorage,
                 hasTokenSynchronization: hasTokenSynchronization
             )
-            let walletModelsFactory = config.makeWalletModelsFactory(userWalletId: userWalletId)
-            let walletModelsManagerFactory = CommonAccountWalletModelsManagerFactory(
-                walletManagersRepository: walletManagersRepository,
-                walletModelsFactory: walletModelsFactory
-            )
-            let userTokensManagerFactory = CommonAccountUserTokensManagerFactory(
-                userTokenListManager: userTokenListManager,
+            let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
                 derivationStyle: config.derivationStyle,
-                derivationManager: derivationManager,
+                keysRepository: keysRepository,
+                walletManagerFactory: walletManagerFactory,
                 existingCurves: config.existingCurves,
                 persistentBlockchains: config.persistentBlockchains,
+                hardwareLimitationsUtil: hardwareLimitationsUtil,
+                areHDWalletsSupported: areHDWalletsSupported,
                 shouldLoadExpressAvailability: shouldLoadExpressAvailability,
-                hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
+                userTokensRepositoryProvider: { derivationIndex in
+                    return UserTokensRepositoryAdapter(
+                        innerRepository: cryptoAccountsRepository,
+                        derivationIndex: derivationIndex
+                    )
+                },
+                walletModelsFactoryProvider: { userWalletId in
+                    return config.makeWalletModelsFactory(userWalletId: userWalletId)
+                }
             )
             let accountModelsManager = CommonAccountModelsManager(
                 userWalletId: userWalletId,
                 cryptoAccountsRepository: cryptoAccountsRepository,
                 archivedCryptoAccountsProvider: networkService,
-                walletModelsManagerFactory: walletModelsManagerFactory,
-                userTokensManagerFactory: userTokensManagerFactory,
+                dependenciesFactory: dependenciesFactory,
                 areHDWalletsSupported: areHDWalletsSupported
             )
 
@@ -243,42 +250,48 @@ private struct CommonUserWalletModelDependencies {
             return accountModelsManager
         }
 
-        accountModelsManager = FeatureProvider.isAvailable(.accounts)
-            ? makeAccountModelsManager()
-            : DummyCommonAccountModelsManager()
+        accountModelsManager = hasAccounts ? makeAccountModelsManager() : DummyCommonAccountModelsManager()
+        nftManager = makeNFTManager(userWalletId: userWalletId, hasAccounts: hasAccounts)
+        totalBalanceProvider = makeTotalBalanceProvider(userWalletId: userWalletId, hasAccounts: hasAccounts)
+    }
 
-        accountsWalletModelsAggregator = CommonAccountsWalletModelsAggregator(accountModelsManager: accountModelsManager)
+    func makeTotalBalanceProvider(userWalletId: UserWalletId, hasAccounts: Bool) -> TotalBalanceProvider {
+        if hasAccounts {
+            let analyticsLogger = CommonTotalBalanceProviderAnalyticsLogger(
+                userWalletId: userWalletId,
+                walletModelsManager: walletModelsManager // [REDACTED_TODO_COMMENT]
+            )
 
-        let walletModelsPublisher = FeatureProvider.isAvailable(.accounts)
+            return AccountTotalBalanceProvider(
+                walletModelsManager: walletModelsManager, // [REDACTED_TODO_COMMENT]
+                analyticsLogger: analyticsLogger,
+                derivationManager: derivationManager
+            )
+        }
+
+        return CombineTotalBalanceProvider(
+            accountModelsManager: accountModelsManager,
+            analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
+        )
+    }
+
+    func makeNFTManager(userWalletId: UserWalletId, hasAccounts: Bool) -> NFTManager {
+        let accountsWalletModelsAggregator = CommonAccountsWalletModelsAggregator(accountModelsManager: accountModelsManager)
+
+        let walletModelsPublisher = hasAccounts
             ? accountsWalletModelsAggregator.walletModelsPublisher
             : walletModelsManager.walletModelsPublisher
 
-        nftManager = CommonNFTManager(
+        return CommonNFTManager(
             userWalletId: userWalletId,
             walletModelsPublisher: walletModelsPublisher,
-            walletModelsManager: walletModelsManager,
+            walletModelsManager: walletModelsManager, // [REDACTED_TODO_COMMENT]
             analytics: NFTAnalytics.Error(
                 logError: { errorCode, description in
                     Analytics.log(event: .nftErrors, params: [.errorCode: errorCode, .errorDescription: description])
                 }
             )
         )
-
-        totalBalanceProvider = if FeatureProvider.isAvailable(.accounts) {
-            CombineTotalBalanceProvider(
-                accountModelsManager: accountModelsManager,
-                analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
-            )
-        } else {
-            AccountTotalBalanceProvider(
-                walletModelsManager: walletModelsManager,
-                analyticsLogger: CommonTotalBalanceProviderAnalyticsLogger(
-                    userWalletId: userWalletId,
-                    walletModelsManager: walletModelsManager
-                ),
-                derivationManager: derivationManager
-            )
-        }
     }
 
     func update(from model: UserWalletModel) {
