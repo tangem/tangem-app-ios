@@ -12,9 +12,9 @@ import TangemFoundation
 
 final class AccountModelsManagerMock {
     private let walletModelsManager: WalletModelsManager
-    private let totalBalanceProvider: any TotalBalanceProvider
     private let userTokensManager: UserTokensManager
-    private let userTokenListManager: UserTokenListManager
+    private let totalBalanceProvider: any TotalBalanceProvider
+
     private let accountModelsSubject = CurrentValueSubject<[AccountModel], Never>([])
     private let totalAccountsCountSubject = CurrentValueSubject<Int, Never>(0)
 
@@ -29,29 +29,27 @@ final class AccountModelsManagerMock {
 
     init(
         walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
-        totalBalanceProvider: any TotalBalanceProvider = TotalBalanceProviderMock(),
         userTokensManager: UserTokensManager = UserTokensManagerMock(),
-        userTokenListManager: UserTokenListManager = UserTokenListManagerMock()
+        totalBalanceProvider: any TotalBalanceProvider = TotalBalanceProviderMock(),
     ) {
         self.walletModelsManager = walletModelsManager
-        self.totalBalanceProvider = totalBalanceProvider
         self.userTokensManager = userTokensManager
-        self.userTokenListManager = userTokenListManager
+        self.totalBalanceProvider = totalBalanceProvider
 
         // `defer` is used to trigger the `didSet` observer
         defer {
             let mainAccount = CryptoAccountModelMock(
                 isMainAccount: true,
                 walletModelsManager: walletModelsManager,
-                totalBalanceProvider: totalBalanceProvider,
                 userTokensManager: userTokensManager,
+                totalBalanceProvider: totalBalanceProvider,
             )
 
             let secondAccount = CryptoAccountModelMock(
                 isMainAccount: false,
                 walletModelsManager: walletModelsManager,
+                userTokensManager: userTokensManager,
                 totalBalanceProvider: totalBalanceProvider,
-                userTokensManager: userTokensManager
             )
 
             cryptoAccountModels = [mainAccount, secondAccount]
