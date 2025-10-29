@@ -11,6 +11,7 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class StakingFlowFactory: StakingFlowDependenciesFactory {
+    let account: any BaseAccountModel
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
@@ -37,6 +38,7 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
         self.userWalletInfo = userWalletInfo
         self.manager = manager
 
+        account = walletModel.account
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
