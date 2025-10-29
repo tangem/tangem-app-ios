@@ -11,10 +11,12 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
+    let account: any BaseAccountModel
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
     let userWalletInfo: UserWalletInfo
+
     let manager: any StakingManager
     let action: RestakingModel.Action
     var actionType: StakingAction.ActionType { action.displayType }
@@ -38,6 +40,7 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
         self.manager = manager
         self.action = action
 
+        account = walletModel.account
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
