@@ -34,6 +34,4 @@ protocol ExpressModulesFactory {
         data: SentExpressTransactionData,
         coordinator: ExpressSuccessSentRoutable
     ) -> ExpressSuccessSentViewModel
-
-    func makePendingExpressTransactionsManager() -> PendingExpressTransactionsManager
 }
