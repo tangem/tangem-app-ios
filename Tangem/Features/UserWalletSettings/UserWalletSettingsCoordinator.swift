@@ -155,10 +155,14 @@ extension UserWalletSettingsCoordinator:
         }
 
         let coordinator = ManageTokensCoordinator(dismissAction: dismissAction)
+        let context = LegacyManageTokensContext(
+            userTokensManager: userTokensManager,
+            walletModelsManager: walletModelsManager
+        )
+
         coordinator.start(
             with: .init(
-                walletModelsManager: walletModelsManager,
-                userTokensManager: userTokensManager,
+                context: context,
                 userWalletConfig: userWalletConfig
             )
         )
