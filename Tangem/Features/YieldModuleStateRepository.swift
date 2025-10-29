@@ -99,7 +99,7 @@ extension CommonYieldModuleStateRepository: YieldModuleStateRepository {
         updateBlock(&stateForUserWallet)
 
         currentState.updateValue(stateForUserWallet, forKey: userWalletId.stringValue)
-        storage.store(value: currentState)
+        try? storage.storeAndWait(value: currentState)
     }
 
     private func getCurrentState() -> [String: [String: CachedYieldModuleState]] {
