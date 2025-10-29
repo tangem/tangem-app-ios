@@ -22,8 +22,7 @@ actor CommonAccountModelsManager {
 
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
     private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
-    private let walletModelsManagerFactory: AccountWalletModelsManagerFactory
-    private let userTokensManagerFactory: AccountUserTokensManagerFactory
+    private let dependenciesFactory: CryptoAccountDependenciesFactory
 
     private let executor: any SerialExecutor
     private let userWalletId: UserWalletId
@@ -38,15 +37,13 @@ actor CommonAccountModelsManager {
         userWalletId: UserWalletId,
         cryptoAccountsRepository: CryptoAccountsRepository,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
-        walletModelsManagerFactory: AccountWalletModelsManagerFactory,
-        userTokensManagerFactory: AccountUserTokensManagerFactory,
+        dependenciesFactory: CryptoAccountDependenciesFactory,
         areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
         self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
-        self.walletModelsManagerFactory = walletModelsManagerFactory
-        self.userTokensManagerFactory = userTokensManagerFactory
+        self.dependenciesFactory = dependenciesFactory
         self.areHDWalletsSupported = areHDWalletsSupported
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
@@ -108,13 +105,9 @@ actor CommonAccountModelsManager {
             }
 
             let derivationIndex = storedCryptoAccount.derivationIndex
-            let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
-                forAccountWithDerivationIndex: derivationIndex
-            )
-            let userTokensManager = userTokensManagerFactory.makeUserTokensManager(
+            let dependencies = dependenciesFactory.makeDependencies(
                 forAccountWithDerivationIndex: derivationIndex,
-                userWalletId: userWalletId,
-                walletModelsManager: walletModelsManager
+                userWalletId: userWalletId
             )
 
             let cryptoAccount = CommonCryptoAccountModel(
@@ -122,8 +115,8 @@ actor CommonAccountModelsManager {
                 accountName: storedCryptoAccount.name,
                 accountIcon: accountIcon,
                 derivationIndex: derivationIndex,
-                walletModelsManager: walletModelsManager,
-                userTokensManager: userTokensManager
+                walletModelsManager: dependencies.walletModelsManager,
+                userTokensManager: dependencies.userTokensManager
             )
 
             // Updating `cache` within this `compactMap` loop to reduce the number of iterations
@@ -183,11 +176,19 @@ actor CommonAccountModelsManager {
     private func makeConditionsValidator(for flow: ValidationFlow) -> CryptoAccountConditionsValidator {
         switch flow {
         case .new(let newAccountName, let remoteState):
-            NewCryptoAccountConditionsValidator(newAccountName: newAccountName, remoteState: remoteState)
+            return NewCryptoAccountConditionsValidator(newAccountName: newAccountName, remoteState: remoteState)
         case .archive(let identifier):
-            ArchivedCryptoAccountConditionsValidator(identifier: identifier)
+            let accountModelPublisher = accountModelsPublisher
+                .compactMap { $0.cryptoAccount(with: identifier) }
+                .eraseToAnyPublisher()
+
+            return ArchivedCryptoAccountConditionsValidator(
+                userWalletId: userWalletId,
+                accountIdentifier: identifier,
+                accountModelPublisher: accountModelPublisher
+            )
         case .unarchive(let info, let remoteState):
-            UnarchivedCryptoAccountConditionsValidator(
+            return UnarchivedCryptoAccountConditionsValidator(
                 newAccountName: info.name,
                 identifier: info.id,
                 remoteState: remoteState
@@ -198,7 +199,6 @@ actor CommonAccountModelsManager {
     /// - Note: `cryptoAccountsRepository` has internal synchronization mechanism, therefore this is a `nonisolated` method.
     private nonisolated func saveCryptoAccount(_ cryptoAccount: CommonCryptoAccountModel) {
         let persistentConfig = cryptoAccount.toPersistentConfig()
-        // [REDACTED_TODO_COMMENT]
         cryptoAccountsRepository.updateExistingCryptoAccount(withConfig: persistentConfig)
     }
 }
@@ -211,13 +211,17 @@ extension CommonAccountModelsManager: AccountModelsManager {
     }
 
     nonisolated var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
-        // [REDACTED_TODO_COMMENT]
-        .just(output: true)
+        cryptoAccountsRepository
+            .auxiliaryDataPublisher
+            .map { $0.archivedAccountsCount > 0 }
+            .eraseToAnyPublisher()
     }
 
     nonisolated var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
-        // [REDACTED_TODO_COMMENT]
-        .just(output: 0)
+        cryptoAccountsRepository
+            .auxiliaryDataPublisher
+            .map(\.totalAccountsCount)
+            .eraseToAnyPublisher()
     }
 
     nonisolated var accountModels: [AccountModel] {
@@ -286,7 +290,12 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .cannotArchiveCryptoAccount
         }
 
-        cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
+        do {
+            try await cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
+        } catch {
+            AccountsLogger.error("Failed to archive existing crypto account with id \(identifier) for user wallet \(userWalletId)", error: error)
+            throw .cannotUnarchiveCryptoAccount
+        }
     }
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountModelsManagerError) {
@@ -324,6 +333,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
             try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: persistentConfig, remoteState: remoteState)
         } catch {
             AccountsLogger.error("Failed to unarchive existing crypto account with id \(info.id) for user wallet \(userWalletId)", error: error)
+            throw .cannotUnarchiveCryptoAccount
         }
     }
 }
