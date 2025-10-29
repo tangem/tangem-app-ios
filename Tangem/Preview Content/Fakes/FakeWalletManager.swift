@@ -36,7 +36,10 @@ class FakeWalletManager: WalletManager {
                 isDemo: false
             ),
             userWalletId: UserWalletId(value: Data())
-        ).makeWalletModels(from: self)
+        ).makeWalletModels(
+            from: self,
+            cryptoAccountModel: CryptoAccountModelMock(isMainAccount: true)
+        )
 
         bind()
         updateWalletModels()
