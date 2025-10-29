@@ -318,7 +318,7 @@ private extension CommonYieldModuleManager {
     func bind() {
         let statePublisher = Publishers.CombineLatest3(
             _walletModelData.compactMap { $0 },
-            yieldModuleNetworkManager.marketsPublisher.removeDuplicates(),
+            yieldModuleNetworkManager.marketsPublisher.filter { !$0.isEmpty }.removeDuplicates(),
             pendingTransactionsPublisher
         )
         .withWeakCaptureOf(self)
