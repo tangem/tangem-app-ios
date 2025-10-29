@@ -207,9 +207,7 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func getArchivedUserAccounts(
-        userWalletId: String
-    ) async throws -> (revision: String?, archivedAccounts: AccountsDTO.Response.ArchivedAccounts) {
+    func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts {
         throw "Not implemented"
     }
 

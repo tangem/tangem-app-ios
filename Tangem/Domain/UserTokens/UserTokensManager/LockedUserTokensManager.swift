@@ -50,8 +50,12 @@ struct LockedUserTokensManager: UserTokensManager {
     func remove(_ tokenItem: TokenItem) {}
 
     func sync(completion: @escaping () -> Void) {}
+}
 
-    func upload() {}
+// MARK: - UserTokensPushNotificationsRemoteStatusSyncing protocol conformance
+
+extension LockedUserTokensManager: UserTokensPushNotificationsRemoteStatusSyncing {
+    func syncRemoteStatus() {}
 }
 
 // MARK: - UserTokensReordering protocol conformance

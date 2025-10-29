@@ -76,8 +76,6 @@ class FakeUserTokensManager: UserTokensManager {
     func remove(_ tokenItem: TokenItem) {}
 
     func sync(completion: @escaping () -> Void) {}
-
-    func upload() {}
 }
 
 // MARK: - UserTokensReordering protocol conformance
