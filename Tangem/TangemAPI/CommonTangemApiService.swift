@@ -434,20 +434,12 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
-    func getArchivedUserAccounts(
-        userWalletId: String
-    ) async throws -> (revision: String?, archivedAccounts: AccountsDTO.Response.ArchivedAccounts) {
+    func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts {
         let target = TangemApiTarget(type: .getArchivedUserAccounts(userWalletId: userWalletId))
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
-            let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
-            let archivedAccounts: AccountsDTO.Response.ArchivedAccounts = try response.mapAPIResponseThrowingTangemAPIError(
-                allowRedirectCodes: true,
-                decoder: decoder
-            )
-
-            return (revision: revision, archivedAccounts: archivedAccounts)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
         }
     }
 }
