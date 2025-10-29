@@ -676,6 +676,8 @@
 		30005CD82D5CC9BD00CB41AE /* VanarExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */; };
 		300B38052DDB3C39007BDD32 /* NFTExternalLinksProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */; };
 		300C26342DAFA29600C7E0B0 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = 300C26332DAFA29600C7E0B0 /* CombineExt */; };
+		300D25292EAFB20200AB4A83 /* LegacyManageTokensContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300D25282EAFB20200AB4A83 /* LegacyManageTokensContext.swift */; };
+		300D252B2EAFB21200AB4A83 /* AccountsAwareManageTokensContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300D252A2EAFB21200AB4A83 /* AccountsAwareManageTokensContext.swift */; };
 		300E06BD2D7734F8006317EC /* ICPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06BC2D7734ED006317EC /* ICPAddressTests.swift */; };
 		300E06BF2D7736EC006317EC /* KaspaAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06BE2D7736E2006317EC /* KaspaAddressTests.swift */; };
 		300E06C12D773D25006317EC /* LitecoinAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06C02D773D1D006317EC /* LitecoinAddressTests.swift */; };
@@ -751,6 +753,7 @@
 		30A5A4472E0D423E00ACFD5A /* Token+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30A5A4462E0D423E00ACFD5A /* Token+.swift */; };
 		30A5A44A2E0D508200ACFD5A /* TransferERC721TokenMethodTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30A5A4492E0D508000ACFD5A /* TransferERC721TokenMethodTestCase.swift */; };
 		30A5A44C2E0D526F00ACFD5A /* TransferERC1155TokenMethodTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30A5A44B2E0D526900ACFD5A /* TransferERC1155TokenMethodTestCase.swift */; };
+		30A654AD2EA9305600B90B25 /* ManageTokensContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30A654AC2EA9305600B90B25 /* ManageTokensContext.swift */; };
 		30A736492E16B39C00691D83 /* BigUInt+littleEndian.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30A736482E16B39000691D83 /* BigUInt+littleEndian.swift */; };
 		30ACF1DB2D943FD100ED26C6 /* NetworkImageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30ACF1DA2D943FC300ED26C6 /* NetworkImageProvider.swift */; };
 		30AD199F2E85595700EAE0A0 /* ArchivedAccountsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30AD199E2E85594F00EAE0A0 /* ArchivedAccountsView.swift */; };
@@ -5104,6 +5107,8 @@
 		2DFDD6082DF1ECF700CB72B5 /* SuiContractAddressConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuiContractAddressConverter.swift; sourceTree = "<group>"; };
 		30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VanarExternalLinkProvider.swift; sourceTree = "<group>"; };
 		300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTExternalLinksProvider.swift; sourceTree = "<group>"; };
+		300D25282EAFB20200AB4A83 /* LegacyManageTokensContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyManageTokensContext.swift; sourceTree = "<group>"; };
+		300D252A2EAFB21200AB4A83 /* AccountsAwareManageTokensContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareManageTokensContext.swift; sourceTree = "<group>"; };
 		300E06BC2D7734ED006317EC /* ICPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICPAddressTests.swift; sourceTree = "<group>"; };
 		300E06BE2D7736E2006317EC /* KaspaAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaAddressTests.swift; sourceTree = "<group>"; };
 		300E06C02D773D1D006317EC /* LitecoinAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LitecoinAddressTests.swift; sourceTree = "<group>"; };
@@ -5177,6 +5182,7 @@
 		30A5A4462E0D423E00ACFD5A /* Token+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Token+.swift"; sourceTree = "<group>"; };
 		30A5A4492E0D508000ACFD5A /* TransferERC721TokenMethodTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferERC721TokenMethodTestCase.swift; sourceTree = "<group>"; };
 		30A5A44B2E0D526900ACFD5A /* TransferERC1155TokenMethodTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferERC1155TokenMethodTestCase.swift; sourceTree = "<group>"; };
+		30A654AC2EA9305600B90B25 /* ManageTokensContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensContext.swift; sourceTree = "<group>"; };
 		30A736482E16B39000691D83 /* BigUInt+littleEndian.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigUInt+littleEndian.swift"; sourceTree = "<group>"; };
 		30ACF1DA2D943FC300ED26C6 /* NetworkImageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkImageProvider.swift; sourceTree = "<group>"; };
 		30AD199E2E85594F00EAE0A0 /* ArchivedAccountsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivedAccountsView.swift; sourceTree = "<group>"; };
@@ -10812,6 +10818,16 @@
 			path = TangemNFT;
 			sourceTree = "<group>";
 		};
+		304EF5232EA7C37A00541325 /* ManageTokensContext */ = {
+			isa = PBXGroup;
+			children = (
+				300D252A2EAFB21200AB4A83 /* AccountsAwareManageTokensContext.swift */,
+				300D25282EAFB20200AB4A83 /* LegacyManageTokensContext.swift */,
+				30A654AC2EA9305600B90B25 /* ManageTokensContext.swift */,
+			);
+			path = ManageTokensContext;
+			sourceTree = "<group>";
+		};
 		30502FA82E950640006A3888 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -12825,6 +12841,7 @@
 		B0B3FF6C2C0757B900B61EF7 /* ManageTokens */ = {
 			isa = PBXGroup;
 			children = (
+				304EF5232EA7C37A00541325 /* ManageTokensContext */,
 				B0F1CC372C086B0D000DE4A0 /* ManageTokensCoordinator.swift */,
 				B0F1CC392C086B18000DE4A0 /* ManageTokensCoordinatorView.swift */,
 				B055B66C2C0887C6003DFFEB /* ManageTokensRoutable.swift */,
@@ -24684,6 +24701,7 @@
 				2DC5677B2B0E047700B0244F /* MainBottomSheetHeaderInputView.swift in Sources */,
 				DC0568CF2E0CF439008A3770 /* WCCustomAllowanceViewModel.swift in Sources */,
 				DCD1AA6C2E9973E600C78540 /* TangemAPIKeyProvider.swift in Sources */,
+				300D252B2EAFB21200AB4A83 /* AccountsAwareManageTokensContext.swift in Sources */,
 				DCBF4D272D8B497F002C2B8E /* BSDKTransaction.swift in Sources */,
 				0FFA35072E05428C00ACB48F /* MobileOnboardingSeedPhraseRecoveryViewModel.swift in Sources */,
 				DCBF4D282D8B497F002C2B8E /* GenericWalletManagerFactory.swift in Sources */,
@@ -24772,6 +24790,7 @@
 				0A713CF02CAA76530042FC27 /* CommonRestakingStepsManager.swift in Sources */,
 				0AC9EFF92CAE9B2C005F868F /* CommonStakingSingleActionStepsManager.swift in Sources */,
 				DCE6BE9C2E140E70001DB530 /* ThirdParty+UniversalError.swift in Sources */,
+				30A654AD2EA9305600B90B25 /* ManageTokensContext.swift in Sources */,
 				B6C315B12E957F4C002B30A9 /* AccountsAwareUserTokenListExternalParametersProvider.swift in Sources */,
 				B09C33D72D141D2F005CB730 /* VisaOnboardingViewModelsBuilder.swift in Sources */,
 				EFD39C982A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift in Sources */,
@@ -25914,6 +25933,7 @@
 				2D96E9692E55D25300B69F91 /* ReceiveMainView.swift in Sources */,
 				2D96E96A2E55D25300B69F91 /* ReceiveNotificationEvent.swift in Sources */,
 				2D96E96E2E55D25300B69F91 /* ReceiveFlowCoordinator.swift in Sources */,
+				300D25292EAFB20200AB4A83 /* LegacyManageTokensContext.swift in Sources */,
 				3027D3262E82BF90001E15FB /* AccountFormView.swift in Sources */,
 				3027D3272E82BF90001E15FB /* AccountFormViewModel.swift in Sources */,
 				3074AB172E9FA56E0097BACF /* NFTAccountNavigationContextProvider.swift in Sources */,
