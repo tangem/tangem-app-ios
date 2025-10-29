@@ -13,10 +13,12 @@ import TangemFoundation
 import struct TangemUI.TokenIconInfo
 import struct TangemUIUtils.AlertBinder
 
+// Localization.sendFromWalletName(sourceToken.wallet)
+
 class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
-    let title: String
+    let title: Title
     let tokenIconInfo: TokenIconInfo
 
     var tokenCurrencySymbol: String { tokenItem.currencySymbol }
@@ -37,7 +39,7 @@ class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
     convenience init(receiveToken: SendReceiveToken) {
         self.init(
-            title: Localization.sendWithSwapRecipientAmountTitle,
+            title: .text(Localization.sendWithSwapRecipientAmountTitle),
             tokenIconInfo: receiveToken.tokenIconInfo,
             tokenItem: receiveToken.tokenItem,
             fiatItem: receiveToken.fiatItem,
@@ -47,7 +49,7 @@ class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
     convenience init(sourceToken: SendSourceToken) {
         self.init(
-            title: Localization.sendFromWalletName(sourceToken.wallet),
+            title: .header(sourceToken.header),
             tokenIconInfo: sourceToken.tokenIconInfo,
             tokenItem: sourceToken.tokenItem,
             fiatItem: sourceToken.fiatItem,
@@ -56,7 +58,7 @@ class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
     }
 
     init(
-        title: String,
+        title: Title,
         tokenIconInfo: TokenIconInfo,
         tokenItem: TokenItem,
         fiatItem: FiatItem,
@@ -133,7 +135,14 @@ class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
     }
 }
 
+// MARK: - Types
+
 extension SendAmountCompactTokenViewModel {
+    enum Title {
+        case text(String)
+        case header(SendTokenHeader)
+    }
+
     struct HighPriceImpactWarning {
         let percent: String
         let infoMessage: String
