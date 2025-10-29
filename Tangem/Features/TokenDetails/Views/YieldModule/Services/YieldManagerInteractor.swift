@@ -68,9 +68,9 @@ actor YieldManagerInteractor {
         }
     }
 
-    func getMaxFee() -> (Decimal, Decimal)? {
-        if let marketInfo = manager.state?.marketInfo, let maxFeeNative = marketInfo.maxFeeNative, let maxFeeUSD = marketInfo.maxFeeUSD {
-            return (maxFeeNative, maxFeeUSD)
+    func getMaxFeeNative() -> Decimal? {
+        if let marketInfo = manager.state?.marketInfo, let maxFeeNative = marketInfo.maxFeeNative {
+            return maxFeeNative
         }
 
         return nil

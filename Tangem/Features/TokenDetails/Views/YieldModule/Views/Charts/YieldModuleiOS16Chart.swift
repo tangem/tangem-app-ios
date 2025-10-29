@@ -79,7 +79,7 @@ struct YieldModuleiOS16Chart: View {
                 }
             }
         }
-        .chartYScale(domain: 0.0 ... 0.12)
+        .chartYScale(domain: 0.0 ... Constants.maxYValue)
     }
 
     // MARK: - Private Implementation
@@ -101,7 +101,7 @@ struct YieldModuleiOS16Chart: View {
             return (0 ... 31).map { Bar(idx: $0, apr: 0) }
         case .loaded(let data, _, _):
             return data.enumerated().map { index, bar in
-                Bar(idx: index, apr: bar / 100)
+                Bar(idx: index, apr: min(bar / 100, Constants.maxYValue))
             }
         }
     }
@@ -139,5 +139,12 @@ extension YieldModuleiOS16Chart {
         let id = UUID()
         let idx: Int
         let apr: Double
+    }
+}
+
+@available(iOS 16.0, *)
+extension YieldModuleiOS16Chart {
+    enum Constants {
+        static let maxYValue: Double = 0.12
     }
 }
