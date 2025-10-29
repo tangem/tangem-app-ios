@@ -412,6 +412,7 @@
 "email_subject_wc_error" = "Error de WalletConnect";
 "error_wrong_wallet_tapped" = "Ha usado una tarjeta de otra billetera. Toque la tarjeta asociada con esta billetera";
 "eth_gas_required_exceeds_allowance" = "No hay fondos suficientes para la transacción. Por favor, recargue su cuenta.";
+"exchange_token_description" = "Swap any asset in your portfolio for this token";
 "exchange_tokens_available_tokens_header" = "Mis tokens";
 "exchange_tokens_empty_tokens" = "Aún no ha añadido ningún token. Agregue tokens a través de Mercados para hacer intercambios";
 "exchange_tokens_unavailable_tokens_header" = "No se puede intercambiar por %@";
@@ -1276,6 +1277,15 @@
 "tangempay_card_details_error_text" = "Failed to load data. Try again later.";
 "tangempay_card_details_freeze_card" = "Freeze Card";
 "tangempay_card_details_hide_text" = "Hide";
+"tangempay_card_details_open_wallet_button" = "Open Google Wallet";
+"tangempay_card_details_open_wallet_notification_subtitle" = "Set up Tangem Pay in a few taps and start paying with Google Pay.";
+"tangempay_card_details_open_wallet_notification_title" = "Add your card to Google Pay";
+"tangempay_card_details_open_wallet_step_1" = "Open Google Wallet";
+"tangempay_card_details_open_wallet_step_2" = "Tap “Add a card”";
+"tangempay_card_details_open_wallet_step_3" = "Enter the card details manually";
+"tangempay_card_details_open_wallet_step_4" = "Verify card using the OTP sent to your device.";
+"tangempay_card_details_open_wallet_step_5" = "All set! Your card is ready to use.";
+"tangempay_card_details_open_wallet_title" = "Add card to Google Pay";
 "tangempay_card_details_receive_error_description" = "Technical issues detected. Please try again later or contact support.";
 "tangempay_card_details_receive_error_title" = "Receive unavailable now";
 "tangempay_card_details_reveal_text" = "Reveal";
@@ -1789,7 +1799,6 @@
 "yield_module_stop_earning_sheet_description" = "Al desactivar esto, retirará sus fondos de Aave a %@ en su billetera y dejará de ganar recompensas.";
 "yield_module_stop_earning_sheet_fee_note" = "La comisión de red se deducirá del importe que retire.";
 "yield_module_stop_earning" = "Desactivar el modo de rendimiento";
-"yield_module_supply" = "Supply";
 "yield_module_supply_apr" = "Suministro APY";
 "yield_module_supply" = "Supply";
 "yield_module_token_details_earn_notification_apy" = "APY";
