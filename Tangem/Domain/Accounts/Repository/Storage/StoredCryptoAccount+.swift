@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import struct BlockchainSdk.Token
 
 // MARK: - Convenience extensions
 
@@ -20,6 +19,17 @@ extension StoredCryptoAccount {
             tokens: tokens,
             grouping: .none, // [REDACTED_TODO_COMMENT]
             sorting: .manual // [REDACTED_TODO_COMMENT]
+        )
+    }
+
+    func withTokens(_ newTokens: [StoredCryptoAccount.Token]) -> Self {
+        return StoredCryptoAccount(
+            derivationIndex: derivationIndex,
+            name: name,
+            icon: icon,
+            tokens: newTokens,
+            grouping: grouping,
+            sorting: sorting
         )
     }
 }
@@ -43,33 +53,6 @@ extension StoredCryptoAccount.Token {
         }
 
         return WalletModelId(tokenItem: tokenItem)
-    }
-
-    func toBSDKToken() -> BlockchainSdk.Token? {
-        guard let contractAddress else {
-            return nil
-        }
-
-        return BlockchainSdk.Token(
-            name: name,
-            symbol: symbol,
-            contractAddress: contractAddress,
-            decimalCount: decimalCount,
-            id: id,
-            metadata: .fungibleTokenMetadata // By definition, in the domain layer we're dealing only with fungible tokens
-        )
-    }
-
-    func toTokenItem() -> TokenItem? {
-        guard let blockchainNetwork = blockchainNetwork.knownValue else {
-            return nil
-        }
-
-        guard let bsdkToken = toBSDKToken() else {
-            return .blockchain(blockchainNetwork)
-        }
-
-        return .token(bsdkToken, blockchainNetwork)
     }
 }
 

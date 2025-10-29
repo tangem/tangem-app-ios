@@ -45,23 +45,21 @@ final class AccountModelsManagerMock {
                 walletModelsManager: walletModelsManager,
                 totalBalanceProvider: totalBalanceProvider,
                 userTokensManager: userTokensManager,
-                userTokenListManager: userTokenListManager
             )
 
             let secondAccount = CryptoAccountModelMock(
                 isMainAccount: false,
                 walletModelsManager: walletModelsManager,
                 totalBalanceProvider: totalBalanceProvider,
-                userTokensManager: userTokensManager,
-                userTokenListManager: userTokenListManager
+                userTokensManager: userTokensManager
             )
 
             cryptoAccountModels = [mainAccount, secondAccount]
         }
     }
 
-    private func removeCryptoAccount(withIdentifier identifier: AnyHashable) {
-        cryptoAccountModels.removeAll { $0.id.toPersistentIdentifier().toAnyHashable() == identifier }
+    func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws {
+        cryptoAccountModels.removeAll { $0.id.toPersistentIdentifier().toAnyHashable() == identifier.toAnyHashable() }
     }
 }
 
@@ -115,8 +113,12 @@ extension AccountModelsManagerMock: AccountModelsManager {
 
     func archiveCryptoAccount(
         withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
-    ) throws(AccountModelsManagerError) {
-        removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier().toAnyHashable())
+    ) async throws(AccountModelsManagerError) {
+        do {
+            try await removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
+        } catch {
+            throw .cannotArchiveCryptoAccount
+        }
     }
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
