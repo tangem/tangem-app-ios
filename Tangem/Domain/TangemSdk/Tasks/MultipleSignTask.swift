@@ -67,7 +67,7 @@ class MultipleSignTask: CardSessionRunnable {
                     MultipleSignTaskResponse(
                         signatures: signResponse.signatures,
                         card: signResponse.card,
-                        publicKey: signData.publicKey,
+                        publicKey: signResponse.publicKey,
                         hashes: signData.hashes
                     )
                 )
