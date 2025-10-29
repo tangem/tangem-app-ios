@@ -29,6 +29,7 @@ struct AccountDetailsView: View {
 
             actionSheets
         }
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     private var accountSection: some View {

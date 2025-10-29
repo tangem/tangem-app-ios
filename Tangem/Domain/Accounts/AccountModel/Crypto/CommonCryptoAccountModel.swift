@@ -122,11 +122,6 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         didChangeSubject.eraseToAnyPublisher()
     }
 
-    var userTokenListManager: UserTokenListManager {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
     var descriptionString: String {
         Localization.accountFormAccountIndex(derivationIndex)
     }
@@ -164,6 +159,8 @@ extension CommonCryptoAccountModel: CustomStringConvertible {
                 "icon": icon,
                 "id": id,
                 "derivationIndex": derivationIndex,
+                "User tokens count": userTokensManager.userTokens.count,
+                "Wallet models count": walletModelsManager.walletModels.count,
             ]
         )
     }
