@@ -198,20 +198,10 @@ final class CryptoAccountsNetworkMapper {
         }
 
         let legacyTokens = map(tokens: response.unassignedTokens)
-        let nextDerivationIndex = response.wallet.totalAccounts
-
-        if accounts.count != nextDerivationIndex {
-            AccountsLogger.warning(
-                String(
-                    format: "Back-end inconsistency: incorrect next derivation index: '%d' vs '%d'",
-                    nextDerivationIndex,
-                    accounts.count
-                )
-            )
-        }
+        let counters = mapCounters(from: response.wallet)
 
         return RemoteCryptoAccountsInfo(
-            nextDerivationIndex: nextDerivationIndex,
+            counters: counters,
             accounts: accounts,
             legacyTokens: legacyTokens
         )
@@ -262,6 +252,13 @@ final class CryptoAccountsNetworkMapper {
                 return nil
             }
             .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
+    }
+
+    private func mapCounters(from wallet: AccountsDTO.Response.Accounts.Wallet) -> RemoteCryptoAccountsInfo.Counters {
+        return RemoteCryptoAccountsInfo.Counters(
+            archived: wallet.totalArchivedAccounts,
+            total: wallet.totalAccounts
+        )
     }
 
     /// - Throws: `HDWalletError` if the derivation path is invalid.
