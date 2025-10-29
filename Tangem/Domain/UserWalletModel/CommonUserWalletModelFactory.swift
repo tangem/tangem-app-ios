@@ -257,21 +257,21 @@ private struct CommonUserWalletModelDependencies {
 
     func makeTotalBalanceProvider(userWalletId: UserWalletId, hasAccounts: Bool) -> TotalBalanceProvider {
         if hasAccounts {
-            let analyticsLogger = CommonTotalBalanceProviderAnalyticsLogger(
-                userWalletId: userWalletId,
-                walletModelsManager: walletModelsManager // [REDACTED_TODO_COMMENT]
-            )
-
-            return AccountTotalBalanceProvider(
-                walletModelsManager: walletModelsManager, // [REDACTED_TODO_COMMENT]
-                analyticsLogger: analyticsLogger,
-                derivationManager: derivationManager
+            return CombineTotalBalanceProvider(
+                accountModelsManager: accountModelsManager,
+                analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
             )
         }
 
-        return CombineTotalBalanceProvider(
-            accountModelsManager: accountModelsManager,
-            analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
+        // [REDACTED_TODO_COMMENT]
+        return AccountTotalBalanceProvider(
+            walletModelsManager: walletModelsManager,
+            analyticsLogger: CommonTotalBalanceProviderAnalyticsLogger(
+                userWalletId: userWalletId,
+                // [REDACTED_TODO_COMMENT]
+                walletModelsManager: walletModelsManager
+            ),
+            derivationManager: derivationManager
         )
     }
 
