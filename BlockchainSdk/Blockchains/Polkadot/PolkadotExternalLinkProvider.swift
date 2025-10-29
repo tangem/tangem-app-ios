@@ -22,12 +22,12 @@ extension PolkadotExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(transaction hash: String) -> URL? {
-        let subdomain = isTestnet ? "westend" : "polkadot"
+        let subdomain = isTestnet ? "westend" : "assethub-polkadot"
         return URL(string: "https://\(subdomain).subscan.io/extrinsic/\(hash)")
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        let subdomain = isTestnet ? "westend" : "polkadot"
+        let subdomain = isTestnet ? "westend" : "assethub-polkadot"
         return URL(string: "https://\(subdomain).subscan.io/account/\(address)")
     }
 }
