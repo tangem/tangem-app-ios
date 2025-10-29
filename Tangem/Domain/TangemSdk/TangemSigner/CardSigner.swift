@@ -60,7 +60,12 @@ extension CardSigner: TangemSigner {
     }
 
     func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
-        let signCommand = MultipleSignTask(dataToSign: dataToSign, seedKey: walletPublicKey.seedKey)
+        let signCommand = MultipleSignTask(
+            dataToSign: dataToSign,
+            seedKey: walletPublicKey.seedKey,
+            pairKey: twinKey?.getPairKey(for: walletPublicKey.seedKey)
+        )
+
         return sdk.startSessionPublisher(with: signCommand, filter: filter, initialMessage: initialMessage)
             .handleEvents(
                 receiveOutput: { [weak self] response in
