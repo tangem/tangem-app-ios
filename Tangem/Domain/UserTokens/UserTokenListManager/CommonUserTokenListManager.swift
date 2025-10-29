@@ -103,8 +103,11 @@ extension CommonUserTokenListManager: UserTokenListManager {
             let storedUserToken = converter.convertToStoredUserToken(tokenItem: entry)
             tokenItemsRepository.remove([storedUserToken])
             if entry.isBlockchain {
+                // [REDACTED_TODO_COMMENT]
                 wcService.handleHiddenBlockchainFromCurrentUserWallet(entry.blockchainNetwork.blockchain)
             }
+        case .update:
+            break // No-op, not supported
         }
 
         notifyAboutTokenListUpdates()
