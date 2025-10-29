@@ -64,8 +64,9 @@ class FakeUserWalletModel: UserWalletModel {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
+            userTokensManager: userTokensManager,
+            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub(),
             derivationManager: nil,
-            userTokensManager: userTokensManager
         )
     }
 
