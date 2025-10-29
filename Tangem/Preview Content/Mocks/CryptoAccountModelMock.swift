@@ -17,7 +17,6 @@ final class CryptoAccountModelMock {
     let walletModelsManager: WalletModelsManager
     let totalBalanceProvider: TotalBalanceProvider
     let userTokensManager: UserTokensManager
-    let userTokenListManager: UserTokenListManager
 
     private(set) var name = "Mock Account" {
         didSet {
@@ -44,14 +43,12 @@ final class CryptoAccountModelMock {
         isMainAccount: Bool,
         walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
         totalBalanceProvider: TotalBalanceProvider = TotalBalanceProviderMock(),
-        userTokensManager: UserTokensManager = UserTokensManagerMock(),
-        userTokenListManager: UserTokenListManager = UserTokenListManagerMock()
+        userTokensManager: UserTokensManager = UserTokensManagerMock()
     ) {
         self.isMainAccount = isMainAccount
         self.walletModelsManager = walletModelsManager
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensManager = userTokensManager
-        self.userTokenListManager = userTokenListManager
     }
 }
 
