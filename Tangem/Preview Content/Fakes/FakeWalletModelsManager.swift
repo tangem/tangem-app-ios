@@ -35,6 +35,10 @@ class FakeWalletModelsManager: WalletModelsManager {
         self.isDelayed = isDelayed
     }
 
+    func update(cryptoAccount: any CryptoAccountModel) {
+        walletModelsSubject.value.forEach { $0.account = cryptoAccount }
+    }
+
     func updateAll(silent: Bool, completion: @escaping () -> Void) {
         let publishers = walletModels.map {
             $0.update(silent: silent)

@@ -66,6 +66,8 @@ final class CommonCryptoAccountModel {
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
         self.accountBalanceProvider = accountBalanceProvider
+
+        walletModelsManager.update(cryptoAccount: self)
     }
 }
 

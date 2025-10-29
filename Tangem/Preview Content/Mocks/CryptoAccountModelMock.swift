@@ -15,8 +15,8 @@ final class CryptoAccountModelMock {
     let id = AccountId()
     let isMainAccount: Bool
     let walletModelsManager: WalletModelsManager
-    let totalBalanceProvider: TotalBalanceProvider
     let userTokensManager: UserTokensManager
+    let totalBalanceProvider: TotalBalanceProvider
 
     private(set) var name = "Mock Account" {
         didSet {
@@ -42,13 +42,19 @@ final class CryptoAccountModelMock {
     init(
         isMainAccount: Bool,
         walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
+        userTokensManager: UserTokensManager = UserTokensManagerMock(),
         totalBalanceProvider: TotalBalanceProvider = TotalBalanceProviderMock(),
-        userTokensManager: UserTokensManager = UserTokensManagerMock()
     ) {
         self.isMainAccount = isMainAccount
         self.walletModelsManager = walletModelsManager
-        self.totalBalanceProvider = totalBalanceProvider
         self.userTokensManager = userTokensManager
+        self.totalBalanceProvider = totalBalanceProvider
+
+        walletModelsManager.update(cryptoAccount: self)
+    }
+
+    deinit {
+        print("CryptoAccountModelMock ->>")
     }
 }
 
