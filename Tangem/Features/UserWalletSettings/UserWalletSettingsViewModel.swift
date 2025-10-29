@@ -113,6 +113,7 @@ private extension UserWalletSettingsViewModel {
         if FeatureProvider.isAvailable(.accounts) {
             userWalletModel.accountModelsManager
                 .accountModelsPublisher
+                .receiveOnMain()
                 .withWeakCaptureOf(self)
                 .map { viewModel, accounts in
                     UserSettingsAccountsViewModel(
