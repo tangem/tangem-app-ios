@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 protocol SendGenericFlowBaseDependenciesFactory {
@@ -13,6 +14,7 @@ protocol SendGenericFlowBaseDependenciesFactory {
     var feeTokenItem: TokenItem { get }
     var tokenIconInfo: TokenIconInfo { get }
     var userWalletInfo: UserWalletInfo { get }
+    var account: any BaseAccountModel { get }
 
     var walletModelBalancesProvider: WalletModelBalancesProvider { get }
     var walletModelDependenciesProvider: WalletModelDependenciesProvider { get }
@@ -23,9 +25,18 @@ protocol SendGenericFlowBaseDependenciesFactory {
 // MARK: - Common dependencies
 
 extension SendGenericFlowBaseDependenciesFactory {
+    func makeSendTokenHeader() -> SendTokenHeader {
+        guard userWalletInfo.hasMultipleAccounts else {
+            return .wallet(name: userWalletInfo.name)
+        }
+
+        let icon = AccountIconViewBuilder.makeAccountIconViewData(accountModel: account)
+        return .account(name: account.name, icon: icon)
+    }
+
     func makeSourceToken() -> SendSourceToken {
         SendSourceToken(
-            wallet: userWalletInfo.name,
+            header: makeSendTokenHeader(),
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
             tokenIconInfo: tokenIconInfo,

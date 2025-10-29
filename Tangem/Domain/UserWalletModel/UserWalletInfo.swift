@@ -12,6 +12,7 @@ struct UserWalletInfo {
     let name: String
     let id: UserWalletId
     let config: UserWalletConfig
+    let hasMultipleAccounts: Bool
     let refcode: Refcode?
     let signer: any TangemSigner
     let emailDataProvider: any EmailDataProvider
@@ -38,10 +39,17 @@ extension UserWalletInfo: Hashable {
 
 extension UserWalletModel {
     var userWalletInfo: UserWalletInfo {
-        .init(
+        let hasMultipleAccounts = accountModelsManager.accountModels.contains(where: { accountModel in
+            switch accountModel {
+            case .standard(let cryptoAccounts): cryptoAccounts.state == .multiple
+            }
+        })
+
+        return UserWalletInfo(
             name: name,
             id: userWalletId,
             config: config,
+            hasMultipleAccounts: hasMultipleAccounts,
             refcode: refcodeProvider?.getRefcode(),
             signer: signer,
             emailDataProvider: self
