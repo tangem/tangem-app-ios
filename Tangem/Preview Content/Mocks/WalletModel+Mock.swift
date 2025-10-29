@@ -32,6 +32,7 @@ extension CommonWalletModel {
             userWalletId: .init(with: Data()),
             tokenItem: tokenItem,
             walletManager: EthereumWalletManagerMock(),
+            cryptoAccountModel: CryptoAccountModelMock(isMainAccount: true),
             stakingManager: StakingManagerMock(),
             featureManager: WalletModelFeaturesManagerMock(),
             transactionHistoryService: nil,
