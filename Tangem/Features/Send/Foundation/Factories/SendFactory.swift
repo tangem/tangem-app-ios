@@ -16,10 +16,7 @@ struct SendFactory {
     func flowFactory(options: SendCoordinator.Options) -> any SendGenericFlowFactory {
         switch options.type {
         case .send:
-            SendFlowFactory(
-                userWalletInfo: options.input.userWalletInfo,
-                walletModel: options.input.walletModel
-            )
+            SendFlowFactory(input: options.input)
 
         case .nft(let parameters):
             NFTFlowFactory(
