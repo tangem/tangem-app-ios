@@ -233,7 +233,7 @@ final class YieldModuleStartViewModel: ObservableObject {
         estimatedFeeState = estimatedFeeState.withFeeState(.loading)
         maximumFeeState = maximumFeeState.withFeeState(.loading)
 
-        guard let maxFee = await yieldManagerInteractor.getMaxFee() else {
+        guard let maxFeeNative = await yieldManagerInteractor.getMaxFeeNative() else {
             estimatedFeeState = estimatedFeeState.withFeeState(.noData)
             maximumFeeState = maximumFeeState.withFeeState(.noData)
             return
@@ -242,7 +242,7 @@ final class YieldModuleStartViewModel: ObservableObject {
         do {
             let estimatedFee = try await yieldManagerInteractor.getCurrentNetworkFee()
             let estimatedFeeFormatted = try await feeConverter.makeFormattedMinimalFee(from: estimatedFee)
-            let maxFeeFormatted = try await feeConverter.makeFormattedMaximumFee(maxFeeCurrencyFee: maxFee.0, maxFiatFee: maxFee.1)
+            let maxFeeFormatted = try await feeConverter.makeFormattedMaximumFee(maxFeeNative: maxFeeNative)
 
             estimatedFeeState = estimatedFeeState.withFeeState(.loaded(text: estimatedFeeFormatted.fiatFee))
             maximumFeeState = maximumFeeState.withFeeState(.loaded(text: maxFeeFormatted.fiatFee))
