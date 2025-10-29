@@ -10,7 +10,7 @@ import struct TangemUI.TokenIconInfo
 
 class SendFlowFactory: SendFlowBaseDependenciesFactory {
     let userWalletInfo: UserWalletInfo
-    let account: any BaseAccountModel
+    let account: (any BaseAccountModel)?
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo

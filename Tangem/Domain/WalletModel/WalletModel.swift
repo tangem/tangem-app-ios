@@ -55,8 +55,9 @@ protocol WalletModel:
     // MARK: - Accounts
 
     // [REDACTED_TODO_COMMENT]
-    /// - Warning: Unowned, has the meaningful value only when accounts feature toggle is enabled.
-    var account: any CryptoAccountModel { get }
+    // [REDACTED_TODO_COMMENT]
+    /// - Warning: Weak,  has the meaningful value only when accounts feature toggle is enabled.
+    var account: (any CryptoAccountModel)? { get }
 
     // MARK: - Yield
 
