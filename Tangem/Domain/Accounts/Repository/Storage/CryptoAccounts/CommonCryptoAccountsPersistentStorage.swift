@@ -53,7 +53,8 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
     func appendNewOrUpdateExisting(accounts: [StoredCryptoAccount]) {
         workingQueue.async(flags: .barrier) {
             let currentItems = self.unsafeFetch()
-            let (editedItems, isDirty) = StoredCryptoAccountsMerger.merge(oldAccounts: currentItems, newAccounts: accounts)
+            let merger = StoredCryptoAccountsMerger(preserveTokens: false)
+            let (editedItems, isDirty) = merger.merge(oldAccounts: currentItems, newAccounts: accounts)
 
             if isDirty {
                 self.unsafeSave(editedItems)

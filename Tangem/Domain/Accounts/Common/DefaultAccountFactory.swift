@@ -20,16 +20,7 @@ struct DefaultAccountFactory {
 
     func makeDefaultAccount() -> StoredCryptoAccount {
         let config = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
-        let tokens: [StoredCryptoAccount.Token] = defaultBlockchains.map { tokenItem in
-            StoredCryptoAccount.Token(
-                id: tokenItem.id,
-                name: tokenItem.name,
-                symbol: tokenItem.currencySymbol,
-                decimalCount: tokenItem.decimalCount,
-                blockchainNetwork: .known(blockchainNetwork: tokenItem.blockchainNetwork),
-                contractAddress: tokenItem.contractAddress
-            )
-        }
+        let tokens = StoredEntryConverter.convertToStoredEntries(defaultBlockchains)
 
         return StoredCryptoAccount(config: config, tokens: tokens)
     }

@@ -9,15 +9,13 @@
 import Foundation
 import Combine
 
-// [REDACTED_TODO_COMMENT]
 protocol UserTokensRepository {
     typealias Completion = (Result<Void, Swift.Error>) -> Void
+    typealias BatchUpdates = (UserTokensRepositoryBatchUpdater) throws -> Void
 
     var cryptoAccountPublisher: AnyPublisher<StoredCryptoAccount, Never> { get }
     var cryptoAccount: StoredCryptoAccount { get }
 
-    func update(_ type: UserTokenListUpdateType, shouldUpload: Bool)
-    func update(with request: UserTokensRepositoryUpdateRequest)
+    func performBatchUpdates(_ batchUpdates: BatchUpdates) rethrows
     func updateLocalRepositoryFromServer(_ completion: @escaping Completion)
-    func upload()
 }

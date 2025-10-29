@@ -9,8 +9,16 @@
 import Foundation
 
 struct RemoteCryptoAccountsInfo {
-    /// Index for the derivation path to be used when creating a new account.
-    let nextDerivationIndex: Int
+    let counters: Counters
     let accounts: [StoredCryptoAccount]
     let legacyTokens: [StoredCryptoAccount.Token]
+}
+
+// MARK: - Inner types
+
+extension RemoteCryptoAccountsInfo {
+    struct Counters {
+        let archived: Int
+        let total: Int
+    }
 }

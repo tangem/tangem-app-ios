@@ -21,7 +21,8 @@ class LockedUserWalletModel: UserWalletModel {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
-    let userTokensManager: UserTokensManager = LockedUserTokensManager()
+    var userTokensManager: UserTokensManager { _userTokensManager }
+    private let _userTokensManager = LockedUserTokensManager()
     let nftManager: NFTManager = NotSupportedNFTManager()
     let walletImageProvider: WalletImageProviding
     let config: UserWalletConfig
@@ -81,8 +82,9 @@ class LockedUserWalletModel: UserWalletModel {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
-            derivationManager: nil,
-            userTokensManager: userTokensManager
+            userTokensManager: userTokensManager,
+            remoteStatusSyncing: _userTokensManager,
+            derivationManager: nil
         )
     }
 
