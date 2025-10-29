@@ -50,8 +50,12 @@ struct UserTokensManagerMock: UserTokensManager {
     func remove(_ tokenItem: TokenItem) {}
 
     func sync(completion: @escaping () -> Void) {}
+}
 
-    func upload() {}
+// MARK: - UserTokensPushNotificationsRemoteStatusSyncing protocol conformance
+
+extension UserTokensManagerMock: UserTokensPushNotificationsRemoteStatusSyncing {
+    func syncRemoteStatus() {}
 }
 
 // MARK: - UserTokensReordering protocol conformance

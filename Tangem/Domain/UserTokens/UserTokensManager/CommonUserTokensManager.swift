@@ -325,10 +325,6 @@ extension CommonUserTokensManager: UserTokensManager {
             self?.handleUserTokensSync()
         }
     }
-
-    func upload() {
-        userTokenListManager.upload()
-    }
 }
 
 // MARK: - UserTokensReordering protocol conformance
@@ -406,6 +402,16 @@ extension CommonUserTokensManager: UserTokensReordering {
         .eraseToAnyPublisher()
     }
 }
+
+// MARK: - UserTokensPushNotificationsRemoteStatusSyncing protocol conformance
+
+extension CommonUserTokensManager: UserTokensPushNotificationsRemoteStatusSyncing {
+    func syncRemoteStatus() {
+        userTokenListManager.upload()
+    }
+}
+
+// MARK: - Auxiliary types
 
 extension CommonUserTokensManager {
     enum Error: LocalizedError {
