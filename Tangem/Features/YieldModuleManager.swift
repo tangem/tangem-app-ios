@@ -62,6 +62,8 @@ final class CommonYieldModuleManager {
 
     private var bag = Set<AnyCancellable>()
 
+    private let scheduleWalletUpdate: () -> Void
+
     init?(
         walletAddress: String,
         token: Token,
@@ -72,7 +74,8 @@ final class CommonYieldModuleManager {
         transactionCreator: TransactionCreator,
         blockaidApiService: BlockaidAPIService,
         yieldModuleStateRepository: YieldModuleStateRepository,
-        pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
+        pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>,
+        scheduleWalletUpdate: @escaping () -> Void
     ) {
         guard let yieldSupplyContractAddresses = try? yieldSupplyService.getYieldSupplyContractAddresses(),
               let chainId = blockchain.chainId,
@@ -89,6 +92,7 @@ final class CommonYieldModuleManager {
         self.yieldSupplyService = yieldSupplyService
         self.yieldModuleStateRepository = yieldModuleStateRepository
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
+        self.scheduleWalletUpdate = scheduleWalletUpdate
 
         transactionProvider = YieldTransactionProvider(
             token: token,
@@ -312,7 +316,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
 private extension CommonYieldModuleManager {
     func bind() {
-        Publishers.CombineLatest3(
+        let statePublisher = Publishers.CombineLatest3(
             _walletModelData.compactMap { $0 },
             yieldModuleNetworkManager.marketsPublisher.removeDuplicates(),
             pendingTransactionsPublisher
@@ -327,21 +331,25 @@ private extension CommonYieldModuleManager {
             )
         }
         .removeDuplicates()
-        .handleEvents(
-            receiveOutput: { [yieldModuleStateRepository] state in
-                switch state.state {
-                case .disabled:
-                    yieldModuleStateRepository.clearState()
-                case .processing, .active, .notActive:
-                    yieldModuleStateRepository.storeState(state.state)
-                default: break
+
+        statePublisher
+            .handleEvents(
+                receiveOutput: { [weak self] in
+                    self?.updateStateCacheIfNeeded(state: $0)
                 }
+            )
+            .sink { [_state] result in
+                _state.send(result)
             }
-        )
-        .sink { [_state] result in
-            _state.send(result)
-        }
-        .store(in: &bag)
+            .store(in: &bag)
+
+        statePublisher
+            .map(\.state)
+            .sink { [weak self] state in
+                guard case .processing = state else { return }
+                self?.scheduleWalletUpdate()
+            }
+            .store(in: &bag)
     }
 
     func mapResults(
@@ -445,6 +453,18 @@ private extension CommonYieldModuleManager {
         let maxNetworkFeeToken = maxCoinNetworkFeeDecimal * coinPrice.price / tokenPrice.price
 
         return EthereumUtils.mapToBigUInt(maxNetworkFeeToken)
+    }
+}
+
+private extension CommonYieldModuleManager {
+    func updateStateCacheIfNeeded(state: YieldModuleManagerStateInfo) {
+        switch state.state {
+        case .disabled:
+            yieldModuleStateRepository.clearState()
+        case .processing, .active, .notActive:
+            yieldModuleStateRepository.storeState(state.state)
+        default: break
+        }
     }
 }
 
