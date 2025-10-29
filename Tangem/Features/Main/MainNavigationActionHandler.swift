@@ -258,12 +258,8 @@ extension MainCoordinator {
                 return false
             }
 
-            let options = StakingDetailsCoordinator.Options(
-                userWalletModel: userWalletModel,
-                walletModel: walletModel,
-                manager: stakingManager
-            )
-
+            let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+            let options = StakingDetailsCoordinator.Options(sendInput: input, manager: stakingManager)
             coordinator.openDeepLink(.staking(options: options))
             return true
         }
