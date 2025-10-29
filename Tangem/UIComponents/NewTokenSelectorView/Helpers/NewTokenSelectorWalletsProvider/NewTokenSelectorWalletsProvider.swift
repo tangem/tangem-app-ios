@@ -74,9 +74,6 @@ extension NewTokenSelectorItem {
         let name: String
         let icon: AccountIconView.ViewData
 
-        let userTokensManager: any UserTokensManager
-        let walletModelsManager: any WalletModelsManager
-
         static func == (lhs: NewTokenSelectorItem.Account, rhs: NewTokenSelectorItem.Account) -> Bool {
             lhs.hashValue == rhs.hashValue
         }
