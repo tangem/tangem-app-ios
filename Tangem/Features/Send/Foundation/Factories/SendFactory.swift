@@ -18,8 +18,7 @@ struct SendFactory {
         case .send:
             SendFlowFactory(
                 userWalletInfo: options.input.userWalletInfo,
-                walletModel: options.input.walletModel,
-                expressInput: options.input.expressInput
+                walletModel: options.input.walletModel
             )
 
         case .nft(let parameters):
@@ -30,16 +29,14 @@ struct SendFactory {
                     asset: parameters.asset,
                     collection: parameters.collection
                 ),
-                walletModel: options.input.walletModel,
-                expressInput: options.input.expressInput
+                walletModel: options.input.walletModel
             )
 
         case .sell(let parameters):
             SellFlowFactory(
                 userWalletInfo: options.input.userWalletInfo,
                 sellParameters: parameters,
-                walletModel: options.input.walletModel,
-                expressInput: options.input.expressInput
+                walletModel: options.input.walletModel
             )
 
         // We are using restaking flow here because it doesn't allow to edit amount
@@ -92,8 +89,7 @@ struct SendFactory {
                 userWalletInfo: options.input.userWalletInfo,
                 parameters: parameters,
                 source: options.source,
-                walletModel: options.input.walletModel,
-                expressInput: options.input.expressInput
+                walletModel: options.input.walletModel
             )
         }
     }
