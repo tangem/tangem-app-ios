@@ -30,6 +30,7 @@
 "account_details_archive_action" = "アーカイブ";
 "account_details_archive_description" = "このアカウントをアーカイブしますが、いつでも復元できます。";
 "account_details_archive" = "アカウントをアーカイブする";
+"account_details_archiving" = "Archiving...";
 "account_details_title" = "アカウント";
 "account_edit_success_message" = "アカウントが保存されました";
 "account_for_rewards" = "報酬用のアカウント";
