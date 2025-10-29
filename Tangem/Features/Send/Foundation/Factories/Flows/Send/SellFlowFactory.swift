@@ -9,6 +9,7 @@
 import struct TangemUI.TokenIconInfo
 
 class SellFlowFactory: SendFlowBaseDependenciesFactory {
+    let account: any BaseAccountModel
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
@@ -48,6 +49,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
         self.userWalletInfo = userWalletInfo
         self.sellParameters = sellParameters
 
+        account = walletModel.account
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
