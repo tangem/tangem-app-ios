@@ -20,6 +20,11 @@ extension SolanaError: @retroactive LocalizedError {
         case .invalidRequest(let reason):
             return "invalidRequest (\(reason ?? ""))"
         case .invalidResponse(let error):
+            /// This Solana error indicates a lack of funds for the transfer.
+            if error.code == -32002, error.message?.contains(Constants.transactionSimulationFailedMessage) ?? false {
+                return "The transaction couldn’t be completed. Your account has insufficient SOL for this transfer. Please top up your balance and try again.(Error: -32002 / 0x1)"
+            }
+            
             return "invalidResponse (\(error.code ?? -1))"
         case .socket:
             return "socket"
@@ -38,5 +43,11 @@ extension SolanaError: @retroactive LocalizedError {
         case .invalidMNemonic:
             return "invalidMnemonic"
         }
+    }
+}
+
+fileprivate extension SolanaError {
+    enum Constants {
+        static let transactionSimulationFailedMessage = "Transaction simulation failed: Transaction results in an account (0) with insufficient funds for rent"
     }
 }
