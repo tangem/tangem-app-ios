@@ -30,6 +30,7 @@
 "account_details_archive_action" = "Archivar";
 "account_details_archive_description" = "Estás archivando esta cuenta, pero siempre puede recuperarla.";
 "account_details_archive" = "Archivar cuenta";
+"account_details_archiving" = "Archiving...";
 "account_details_title" = "Cuenta";
 "account_edit_success_message" = "Account saved";
 "account_for_rewards" = "Account for rewards";
