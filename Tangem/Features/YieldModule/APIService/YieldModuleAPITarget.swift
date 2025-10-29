@@ -82,7 +82,7 @@ struct YieldModuleAPITarget: TargetType {
                     "chainId": chainId,
                     "userAddress": walletAddress,
                 ],
-                encoding: URLEncoding(destination: .httpBody)
+                encoding: JSONEncoding.default
             )
         }
     }
