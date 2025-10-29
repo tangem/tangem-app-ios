@@ -48,7 +48,6 @@ protocol UserTokensManager: UserTokensReordering, UserTokensSyncService {
     func remove(_ tokenItem: TokenItem)
 
     func sync(completion: @escaping () -> Void)
-    func upload()
 }
 
 // MARK: - Default implementation
