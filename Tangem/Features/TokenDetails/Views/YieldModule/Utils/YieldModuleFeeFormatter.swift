@@ -35,6 +35,14 @@ struct YieldModuleFeeFormatter {
 
     // MARK: - Public Implementation
 
+    func convertToFiat(_ value: Decimal) async throws -> Decimal {
+        guard let feeCurrencyId = feeCurrency.currencyId else {
+            throw YieldModuleFormatterFee.cannotFormatFee
+        }
+
+        return try await balanceConverter.convertToFiat(value, currencyId: feeCurrencyId)
+    }
+
     func formatDecimal(_ value: Decimal) -> String {
         balanceFormatter.formatDecimal(value)
     }
@@ -43,21 +51,25 @@ struct YieldModuleFeeFormatter {
         balanceFormatter.formatFiatBalance(networkFee, currencyCode: AppConstants.usdCurrencyCode)
     }
 
-    func makeFormattedMaximumFee(maxFeeCurrencyFee: Decimal, maxFiatFee: Decimal) async throws -> YieldFormattedFee {
+    func makeFormattedMaximumFee(maxFeeNative: Decimal) async throws -> YieldFormattedFee {
         guard let feeCurrencyId = feeCurrency.currencyId, let tokenId = token.id else {
             throw YieldModuleFormatterFee.cannotFormatFee
         }
 
-        let currencyToFiat = try await balanceConverter.convertToFiat(maxFeeCurrencyFee, currencyId: feeCurrencyId)
+        let coinToFiat = try await balanceConverter.convertToFiat(maxFeeNative, currencyId: feeCurrencyId)
 
-        guard let fiatToToken = balanceConverter.convertFromFiat(currencyToFiat, currencyId: tokenId) else {
+        guard let fiatToToken = balanceConverter.convertFromFiat(coinToFiat, currencyId: tokenId) else {
             throw YieldModuleFormatterFee.cannotFormatFee
         }
 
-        let formattedFiatFee = balanceFormatter.formatFiatBalance(maxFiatFee, currencyCode: AppConstants.usdCurrencyCode)
+        let formattedFiatFee = balanceFormatter.formatFiatBalance(
+            coinToFiat,
+            currencyCode: AppConstants.usdCurrencyCode
+        )
+
         let formattedCryptoFee = balanceFormatter.formatCryptoBalance(
-            fiatToToken, currencyCode: token.currencySymbol,
-            formattingOptions: .defaultFiatFormattingOptions
+            fiatToToken,
+            currencyCode: token.currencySymbol
         )
 
         return YieldFormattedFee(fiatFee: formattedFiatFee, cryptoFee: formattedCryptoFee)
