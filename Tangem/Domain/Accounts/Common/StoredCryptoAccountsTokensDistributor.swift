@@ -188,18 +188,3 @@ enum StoredCryptoAccountsTokensDistributor {
         return Int(tokenAccountDerivationNode.rawIndex)
     }
 }
-
-// MARK: - Convenience extensions
-
-private extension StoredCryptoAccount {
-    func withTokens(_ newTokens: [StoredCryptoAccount.Token]) -> Self {
-        return StoredCryptoAccount(
-            derivationIndex: derivationIndex,
-            name: name,
-            icon: icon,
-            tokens: newTokens,
-            grouping: grouping,
-            sorting: sorting
-        )
-    }
-}
