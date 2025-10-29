@@ -55,15 +55,17 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel.tokenItem.token?.customTokenColor
     }
 
-    var canHideToken: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
+    var canHideToken: Bool { userWalletInfo.config.hasFeature(.multiCurrency) }
 
     var canGenerateXPUB: Bool { xpubGenerator != nil }
 
     var hasDotsMenu: Bool { canHideToken || canGenerateXPUB }
 
     init(
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
+        userTokensManager: any UserTokensManager,
+        walletModelsManager: any WalletModelsManager,
         notificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
@@ -78,7 +80,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.pendingTransactionDetails = pendingTransactionDetails
 
         super.init(
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletInfo,
+            userTokensManager: userTokensManager,
             walletModel: walletModel,
             notificationManager: notificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
@@ -198,7 +201,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
 extension TokenDetailsViewModel {
     func hideTokenButtonAction() {
-        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem) {
+        if userTokensManager.canRemove(walletModel.tokenItem) {
             showHideWarningAlert()
         } else {
             showUnableToHideAlert()
@@ -257,7 +260,7 @@ extension TokenDetailsViewModel {
             ]
         )
 
-        userWalletModel.userTokensManager.remove(walletModel.tokenItem)
+        userTokensManager.remove(walletModel.tokenItem)
         dismiss()
     }
 }
@@ -434,7 +437,7 @@ private extension TokenDetailsViewModel {
     }
 
     func openFeeCurrency() {
-        guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+        guard let feeCurrencyWalletModel = walletModelsManager.walletModels.first(where: {
             $0.tokenItem == walletModel.feeTokenItem
         }) else {
             assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
@@ -515,14 +518,14 @@ extension TokenDetailsViewModel {
                 coordinator?.openYieldModulePromoView(
                     walletModel: walletModel,
                     apy: apy,
-                    signer: userWalletModel.signer
+                    signer: userWalletInfo.signer
                 )
             }
         )
     }
 
     func openYieldEarnInfo() {
-        coordinator?.openYieldEarnInfo(walletModel: walletModel, signer: userWalletModel.signer)
+        coordinator?.openYieldEarnInfo(walletModel: walletModel, signer: userWalletInfo.signer)
     }
 
     func openYieldBalanceInfo() {

@@ -95,7 +95,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
         let tokenRouter = SingleTokenRouter(
-            userWalletModel: model,
+            userWalletInfo: model.userWalletInfo,
             coordinator: coordinator,
             yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         )
