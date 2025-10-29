@@ -38,7 +38,7 @@ class MultipleRewardsCoordinator: CoordinatorObject {
         self.options = options
 
         rootViewModel = .init(
-            tokenItem: options.walletModel.tokenItem,
+            tokenItem: options.sendInput.walletModel.tokenItem,
             stakingManager: options.manager,
             coordinator: self
         )
@@ -63,14 +63,7 @@ extension MultipleRewardsCoordinator: MultipleRewardsRoutable {
         })
 
         coordinator.start(with: .init(
-            input: .init(
-                userWalletInfo: options.userWalletModel.userWalletInfo,
-                walletModel: options.walletModel,
-                expressInput: .init(
-                    userWalletInfo: options.userWalletModel.userWalletInfo,
-                    walletModelsManager: options.userWalletModel.walletModelsManager
-                )
-            ),
+            input: options.sendInput,
             type: .stakingSingleAction(manager: options.manager, action: action),
             source: .stakingDetails
         ))

@@ -57,8 +57,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         userWalletInfo: UserWalletInfo,
         parameters: PredefinedOnrampParameters,
         source: SendCoordinator.Source,
-        walletModel: any WalletModel,
-        expressInput: CommonExpressDependenciesFactory.Input,
+        walletModel: any WalletModel
     ) {
         self.userWalletInfo = userWalletInfo
         self.parameters = parameters
@@ -86,11 +85,15 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
             userWalletId: userWalletInfo.id.stringValue,
             walletModel: walletModel
         )
+
+        let expressDependenciesInput = ExpressDependenciesInput(
+            userWalletInfo: userWalletInfo,
+            source: walletModel.asExpressInteractorWallet,
+            destination: .none
+        )
+
         expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressInput,
-            initialWallet: walletModel.asExpressInteractorWallet,
-            destinationWallet: .none,
-            // We support only `CEX` in `Send With Swap` flow
+            input: expressDependenciesInput,
             supportedProviderTypes: [.onramp],
             operationType: .onramp
         )
