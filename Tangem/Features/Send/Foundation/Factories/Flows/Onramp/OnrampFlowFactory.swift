@@ -15,7 +15,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let parameters: PredefinedOnrampParameters
     let source: SendCoordinator.Source
 
-    let account: any BaseAccountModel
+    let account: (any BaseAccountModel)?
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
@@ -53,6 +53,15 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
             onrampManager: dependencies.manager
         )
     )
+
+    convenience init(input: SendInput, parameters: PredefinedOnrampParameters, source: SendCoordinator.Source,) {
+        self.init(
+            userWalletInfo: input.userWalletInfo,
+            parameters: parameters,
+            source: source,
+            walletModel: input.walletModel,
+        )
+    }
 
     init(
         userWalletInfo: UserWalletInfo,

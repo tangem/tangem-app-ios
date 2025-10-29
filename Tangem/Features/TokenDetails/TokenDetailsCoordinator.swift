@@ -50,47 +50,50 @@ class TokenDetailsCoordinator: CoordinatorObject {
         self.options = options
 
         let notificationManager = SingleTokenNotificationManager(
-            userWalletId: options.userWalletModel.userWalletId,
+            userWalletId: options.userWalletInfo.id,
             walletModel: options.walletModel,
-            walletModelsManager: options.userWalletModel.walletModelsManager
+            walletModelsManager: options.walletModelsManager
         )
 
         let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
         let tokenRouter = SingleTokenRouter(
-            userWalletModel: options.userWalletModel,
+            userWalletInfo: options.userWalletInfo,
             coordinator: self,
             yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         )
 
         let expressFactory = ExpressPendingTransactionsFactory(
-            userWalletInfo: options.userWalletModel.userWalletInfo,
+            userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
-            userTokensManager: options.userWalletModel.userTokensManager,
+            userTokensManager: options.userTokensManager,
         )
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
 
         let bannerNotificationManager: BannerNotificationManager? = {
-            guard options.userWalletModel.config.hasFeature(.multiCurrency) else {
+            guard options.userWalletInfo.config.hasFeature(.multiCurrency) else {
                 return nil
             }
 
             return BannerNotificationManager(
-                userWallet: options.userWalletModel,
+                userWalletInfo: options.userWalletInfo,
+                walletModelsManager: options.walletModelsManager,
                 placement: .tokenDetails(options.walletModel.tokenItem)
             )
         }()
 
-        let factory = XPUBGeneratorFactory(cardInteractor: options.userWalletModel.keysDerivingInteractor)
+        let factory = XPUBGeneratorFactory(cardInteractor: options.keysDerivingInteractor)
         let xpubGenerator = factory.makeXPUBGenerator(
             for: options.walletModel.tokenItem.blockchain,
             publicKey: options.walletModel.publicKey
         )
 
         tokenDetailsViewModel = .init(
-            userWalletModel: options.userWalletModel,
+            userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
+            userTokensManager: options.userTokensManager,
+            walletModelsManager: options.walletModelsManager,
             notificationManager: notificationManager,
             bannerNotificationManager: bannerNotificationManager,
             pendingExpressTransactionsManager: pendingTransactionsManager,
@@ -108,17 +111,26 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
 extension TokenDetailsCoordinator {
     struct Options {
-        let userWalletModel: UserWalletModel
+        let userWalletInfo: UserWalletInfo
+        let keysDerivingInteractor: any KeysDeriving
+        let walletModelsManager: any WalletModelsManager
+        let userTokensManager: any UserTokensManager
         let walletModel: any WalletModel
         /// Initialized when a deeplink is received for an onramp or exchange (swap) status update related to a specific transaction
         let pendingTransactionDetails: PendingTransactionDetails?
 
         init(
-            userWalletModel: UserWalletModel,
+            userWalletInfo: UserWalletInfo,
+            keysDerivingInteractor: any KeysDeriving,
+            walletModelsManager: any WalletModelsManager,
+            userTokensManager: any UserTokensManager,
             walletModel: any WalletModel,
-            pendingTransactionDetails: PendingTransactionDetails? = nil
+            pendingTransactionDetails: PendingTransactionDetails?
         ) {
-            self.userWalletModel = userWalletModel
+            self.userWalletInfo = userWalletInfo
+            self.keysDerivingInteractor = keysDerivingInteractor
+            self.walletModelsManager = walletModelsManager
+            self.userTokensManager = userTokensManager
             self.walletModel = walletModel
             self.pendingTransactionDetails = pendingTransactionDetails
         }
@@ -178,6 +190,8 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
     func openURL(_ url: URL) {
         safariManager.openURL(url)
     }
+
+    func openCurrency(tokenItem: TokenItem, userWalletInfo: UserWalletInfo) {}
 
     func openCurrency(tokenItem: TokenItem, userWalletModel: UserWalletModel) {
         pendingExpressTxStatusBottomSheetViewModel = nil
@@ -311,13 +325,13 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     func openPendingExpressTransactionDetails(
         pendingTransaction: PendingTransaction,
         tokenItem: TokenItem,
-        userWalletModel: UserWalletModel,
-        pendingTransactionsManager: PendingExpressTransactionsManager
+        userWalletInfo: UserWalletInfo,
+        pendingTransactionsManager: any PendingExpressTransactionsManager
     ) {
         pendingExpressTxStatusBottomSheetViewModel = PendingExpressTxStatusBottomSheetViewModel(
             pendingTransaction: pendingTransaction,
             currentTokenItem: tokenItem,
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletInfo,
             pendingTransactionsManager: pendingTransactionsManager,
             router: self
         )
@@ -348,7 +362,11 @@ private extension TokenDetailsCoordinator {
 
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         coordinator.start(
-            with: .init(userWalletModel: options.userWalletModel, walletModel: walletModel)
+            with: .init(
+                userWalletInfo: options.userWalletInfo,
+                walletModelsManager: options.walletModelsManager,
+                walletModel: walletModel
+            )
         )
 
         tokenDetailsCoordinator = coordinator

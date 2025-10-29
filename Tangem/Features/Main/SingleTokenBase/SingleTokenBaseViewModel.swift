@@ -37,9 +37,11 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     )
 
-    let notificationManager: NotificationManager
-    let userWalletModel: UserWalletModel
+    let userWalletInfo: UserWalletInfo
+    let userTokensManager: any UserTokensManager
+    let walletModelsManager: any WalletModelsManager
     let walletModel: any WalletModel
+    let notificationManager: NotificationManager
 
     var availableActions: [TokenActionType] = []
 
@@ -90,19 +92,21 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let miniChartPriceIntervalType = MarketsPriceIntervalType.day
 
     init(
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
+        userTokensManager: any UserTokensManager,
         walletModel: any WalletModel,
         notificationManager: NotificationManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         tokenRouter: SingleTokenRoutable
     ) {
-        self.userWalletModel = userWalletModel
+        self.userWalletInfo = userWalletInfo
+        self.userTokensManager = userTokensManager
         self.walletModel = walletModel
+        self.notificationManager = notificationManager
         tokenActionAvailabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletModel.config,
+            userWalletConfig: userWalletInfo.config,
             walletModel: walletModel
         )
-        self.notificationManager = notificationManager
         self.pendingExpressTransactionsManager = pendingExpressTransactionsManager
         self.tokenRouter = tokenRouter
 
@@ -225,7 +229,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private func fulfillRequirementsPublisher() -> AnyPublisher<AlertBinder?, Never> {
         walletModel
-            .fulfillRequirements(signer: userWalletModel.signer)
+            .fulfillRequirements(signer: userWalletInfo.signer)
             .materialize()
             .failures()
             .withWeakCaptureOf(self)
