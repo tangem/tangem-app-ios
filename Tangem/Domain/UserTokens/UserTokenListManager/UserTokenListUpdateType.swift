@@ -12,4 +12,5 @@ import struct BlockchainSdk.Token
 enum UserTokenListUpdateType {
     case append(_ entries: [TokenItem])
     case remove(_ entry: TokenItem)
+    case update(_ request: UserTokensRepositoryUpdateRequest)
 }
