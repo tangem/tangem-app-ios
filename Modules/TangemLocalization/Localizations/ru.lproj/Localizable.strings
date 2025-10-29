@@ -30,6 +30,7 @@
 "account_details_archive_action" = "Архив";
 "account_details_archive_description" = "Вы архивируете свой аккаунт, но в любое время можете вернуть его обратно";
 "account_details_archive" = "Archive account";
+"account_details_archiving" = "Archiving...";
 "account_details_title" = "Account";
 "account_edit_success_message" = "Account saved";
 "account_for_rewards" = "Account for rewards";
