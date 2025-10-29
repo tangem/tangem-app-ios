@@ -8,7 +8,6 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
 struct UserTokensRepositoryUpdateRequest {
     let tokens: [StoredCryptoAccount.Token]
     let grouping: StoredCryptoAccount.Grouping
