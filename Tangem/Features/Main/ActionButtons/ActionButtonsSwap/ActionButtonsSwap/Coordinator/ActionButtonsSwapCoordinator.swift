@@ -74,8 +74,8 @@ extension ActionButtonsSwapCoordinator {
 // MARK: - ActionButtonsSwapRoutable
 
 extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
-    func openExpress(input: CommonExpressModulesFactory.InputModel) {
-        let factory = CommonExpressModulesFactory(inputModel: input)
+    func openExpress(input: ExpressDependenciesInput) {
+        let factory = CommonExpressModulesFactory(input: input)
         let coordinator = ExpressCoordinator(
             factory: factory,
             dismissAction: dismissAction,
