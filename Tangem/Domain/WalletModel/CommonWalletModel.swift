@@ -247,7 +247,10 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
-    var account: any CryptoAccountModel { _account }
+    var account: (any CryptoAccountModel)? {
+        get { _account }
+        set { _account = newValue }
+    }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
 

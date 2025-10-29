@@ -14,6 +14,7 @@ class WalletModelsManagerMock: WalletModelsManager {
     var walletModels: [any WalletModel] { [CommonWalletModel.mockETH] }
     var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { .just(output: walletModels) }
 
+    func update(cryptoAccount: any CryptoAccountModel) {}
     func updateAll(silent: Bool, completion: @escaping () -> Void) {
         completion()
     }
