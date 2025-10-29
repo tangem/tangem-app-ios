@@ -13,5 +13,6 @@ protocol WalletModelsManager: AnyObject {
     var walletModels: [any WalletModel] { get }
     var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { get }
 
+    func update(cryptoAccount: any CryptoAccountModel)
     func updateAll(silent: Bool, completion: @escaping () -> Void)
 }
