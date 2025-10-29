@@ -48,8 +48,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     init(
         userWalletInfo: UserWalletInfo,
         nftAssetStepBuilder: NFTAssetStepBuilder,
-        walletModel: any WalletModel,
-        expressInput: CommonExpressDependenciesFactory.Input
+        walletModel: any WalletModel
     ) {
         self.userWalletInfo = userWalletInfo
         self.nftAssetStepBuilder = nftAssetStepBuilder
@@ -77,10 +76,15 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
             walletModel: walletModel,
             userWalletInfo: userWalletInfo
         )
+
+        let expressDependenciesInput = ExpressDependenciesInput(
+            userWalletInfo: userWalletInfo,
+            source: walletModel.asExpressInteractorWallet,
+            destination: .none
+        )
+
         expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressInput,
-            initialWallet: walletModel.asExpressInteractorWallet,
-            destinationWallet: .none,
+            input: expressDependenciesInput,
             // We support only `CEX` in `Send With Swap` flow
             supportedProviderTypes: [.cex],
             operationType: .swapAndSend

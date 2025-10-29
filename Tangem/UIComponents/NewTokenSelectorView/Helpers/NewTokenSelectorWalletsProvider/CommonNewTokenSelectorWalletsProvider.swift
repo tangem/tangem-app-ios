@@ -59,14 +59,8 @@ class CommonNewTokenSelectorWalletsProvider: NewTokenSelectorWalletsProvider {
 
     func mapToNewTokenSelectorAccount(wallet: any UserWalletModel, cryptoAccount: any CryptoAccountModel) -> NewTokenSelectorAccount {
         let selectorWallet = NewTokenSelectorItem.Wallet(userWalletInfo: wallet.userWalletInfo)
-        let account = cryptoAccount
-        let iconViewData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: account)
-        let selectorAccount = NewTokenSelectorItem.Account(
-            name: cryptoAccount.name,
-            icon: iconViewData,
-            userTokensManager: cryptoAccount.userTokensManager,
-            walletModelsManager: cryptoAccount.walletModelsManager
-        )
+        let iconViewData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: cryptoAccount)
+        let selectorAccount = NewTokenSelectorItem.Account(name: cryptoAccount.name, icon: iconViewData)
 
         let adapter = TokenSectionsAdapter(
             userTokensManager: cryptoAccount.userTokensManager,
