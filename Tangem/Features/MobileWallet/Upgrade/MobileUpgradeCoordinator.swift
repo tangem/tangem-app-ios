@@ -7,13 +7,13 @@
 //
 
 import Combine
-import SwiftUI
-import TangemLocalization
 import TangemFoundation
-import TangemUIUtils
+import TangemLocalization
 import TangemMobileWalletSdk
 
-class MobileUpgradeCoordinator: CoordinatorObject {
+final class MobileUpgradeCoordinator: CoordinatorObject {
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
+
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -24,10 +24,6 @@ class MobileUpgradeCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var onboardingCoordinator: OnboardingCoordinator?
-
-    // MARK: - Child view models
-
-    @Published var mailViewModel: MailViewModel?
 
     // MARK: - Helpers
 
@@ -67,11 +63,11 @@ extension MobileUpgradeCoordinator: MobileUpgradeRoutable {
 
     func openMail(dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(
-            logsComposer: logsComposer,
-            recipient: recipient,
-            emailType: .failedToScanCard
-        )
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 
     func closeMobileUpgrade() {
