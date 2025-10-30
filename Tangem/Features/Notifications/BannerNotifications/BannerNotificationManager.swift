@@ -10,12 +10,13 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemExpress
+import TangemLocalization
 
 class BannerNotificationManager {
     @Injected(\.bannerPromotionService) private var bannerPromotionService: BannerPromotionService
     @Injected(\.onrampRepository) private var onrampRepository: OnrampRepository
 
-    private let notificationInputsSubject: CurrentValueSubject<NotificationViewInput?, Never> = .init(.none)
+    private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private weak var delegate: NotificationTapDelegate?
 
     private let userWallet: UserWalletModel
@@ -24,8 +25,8 @@ class BannerNotificationManager {
     private let analyticsService: NotificationsAnalyticsService
     private let predefinedOnrampParametersBuilder: PredefinedOnrampParametersBuilder
 
-    private let activePromotion: CurrentValueSubject<ActivePromotionInfo?, Never> = .init(.none)
-    private var promotionUpdateTask: Task<Void, Error>?
+    private let activePromotions: CurrentValueSubject<[ActivePromotionInfo], Never> = .init([])
+    private var promotionUpdateTasks: [PromotionProgramName: Task<Void, Error>] = [:]
     private var analyticsSubscription: AnyCancellable?
     private var activePromotionSubscription: AnyCancellable?
 
@@ -43,7 +44,7 @@ class BannerNotificationManager {
     private func load() {
         switch placement {
         case .main:
-            loadActivePromotionInfo(programName: .sepa)
+            loadActivePromotions(programNames: [.sepa, .visaWaitlist])
         case .tokenDetails:
             break
         }
@@ -58,56 +59,97 @@ class BannerNotificationManager {
                 manager.analyticsService.sendEventsIfNeeded(for: notifications)
             })
 
-        activePromotionSubscription = activePromotion
+        activePromotionSubscription = activePromotions
             .withWeakCaptureOf(self)
-            .flatMapLatest { manager, activePromotion -> AnyPublisher<NotificationViewInput?, Never> in
-                guard let activePromotion else {
-                    return Just(nil).eraseToAnyPublisher()
+            .flatMapLatest { manager, activePromotions -> AnyPublisher<[NotificationViewInput], Never> in
+                guard !activePromotions.isEmpty else {
+                    return Just([]).eraseToAnyPublisher()
                 }
 
-                return manager
-                    .makeEvent(promotion: activePromotion)
-                    .withWeakCaptureOf(manager)
-                    .map { manager, event in
-                        event.flatMap { manager.makeNotificationViewInput(event: $0) }
-                    }
+                let eventPublishers = activePromotions.map { promotion in
+                    manager.makeEvent(promotion: promotion)
+                        .withWeakCaptureOf(manager)
+                        .map { manager, event -> NotificationViewInput? in
+                            event.flatMap { manager.makeNotificationViewInput(event: $0) }
+                        }
+                }
+
+                return Publishers.MergeMany(eventPublishers)
+                    .collect()
+                    .map { $0.compactMap { $0 } }
                     .eraseToAnyPublisher()
             }
             .assign(to: \.notificationInputsSubject.value, on: self, ownership: .weak)
     }
 
-    private func loadActivePromotionInfo(programName: PromotionProgramName) {
-        promotionUpdateTask?.cancel()
-        promotionUpdateTask = runTask(in: self) { manager in
-            guard let promotion = await manager.bannerPromotionService.activePromotion(
-                promotion: programName,
-                on: manager.placement
-            ) else {
-                await runOnMain { manager.notificationInputsSubject.send(.none) }
-                return
-            }
+    private func loadActivePromotions(programNames: [PromotionProgramName]) {
+        // Cancel previous tasks
+        promotionUpdateTasks.values.forEach { $0.cancel() }
+        promotionUpdateTasks.removeAll()
 
-            try Task.checkCancellation()
-            manager.activePromotion.send(promotion)
+        // Load each promotion independently
+        for programName in programNames {
+            let task = runTask(in: self) { manager in
+                guard let promotion = await manager.bannerPromotionService.activePromotion(
+                    promotion: programName,
+                    on: manager.placement
+                ) else {
+                    await runOnMain {
+                        manager.removePromotion(programName: programName)
+                    }
+                    return
+                }
+
+                try Task.checkCancellation()
+                await runOnMain {
+                    manager.addOrUpdatePromotion(promotion)
+                }
+            }
+            promotionUpdateTasks[programName] = task
         }
+    }
+
+    private func addOrUpdatePromotion(_ promotion: ActivePromotionInfo) {
+        var currentPromotions = activePromotions.value
+        // Remove existing promotion with the same name if exists
+        currentPromotions.removeAll { $0.bannerPromotion == promotion.bannerPromotion }
+        // Add new promotion
+        currentPromotions.append(promotion)
+        activePromotions.send(currentPromotions)
+    }
+
+    private func removePromotion(programName: PromotionProgramName) {
+        var currentPromotions = activePromotions.value
+        currentPromotions.removeAll { $0.bannerPromotion == programName }
+        activePromotions.send(currentPromotions)
     }
 
     private func makeNotificationViewInput(event: BannerNotificationEvent) -> NotificationViewInput? {
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
             self?.delegate?.didTapNotification(with: id, action: action)
 
-            var params = event.analytics.analyticsParams
-            params[.action] = Analytics.ParameterValue.clicked.rawValue
-            Analytics.log(event: .promotionBannerClicked, params: params)
+            switch event.programName {
+            case .sepa:
+                var params = event.analytics.analyticsParams
+                params[.action] = Analytics.ParameterValue.clicked.rawValue
+                Analytics.log(event: .promotionBannerClicked, params: params)
+            case .visaWaitlist:
+                Analytics.log(event: .promotionButtonJoinNow, params: event.analytics.analyticsParams)
+            }
         }
 
         let dismissAction: NotificationView.NotificationAction = { [weak self, placement] id in
             self?.bannerPromotionService.hide(promotion: event.programName, on: placement)
             self?.dismissNotification(with: id)
 
-            var params = event.analytics.analyticsParams
-            params[.action] = Analytics.ParameterValue.closed.rawValue
-            Analytics.log(event: .promotionBannerClicked, params: params)
+            switch event.programName {
+            case .sepa:
+                var params = event.analytics.analyticsParams
+                params[.action] = Analytics.ParameterValue.closed.rawValue
+                Analytics.log(event: .promotionBannerClicked, params: params)
+            case .visaWaitlist:
+                Analytics.log(event: .promotionButtonClose, params: event.analytics.analyticsParams)
+            }
         }
 
         let input = NotificationsFactory()
@@ -121,6 +163,8 @@ class BannerNotificationManager {
         switch promotion.bannerPromotion {
         case .sepa:
             return sepaEvent(promotion: promotion, analytics: analytics)
+        case .visaWaitlist:
+            return visaWaitlistEvent(promotion: promotion, analytics: analytics)
         }
     }
 
@@ -153,17 +197,31 @@ class BannerNotificationManager {
             }
             .eraseToAnyPublisher()
     }
+
+    private func visaWaitlistEvent(promotion: ActivePromotionInfo, analytics: BannerNotificationEventAnalyticsParamsBuilder) -> AnyPublisher<BannerNotificationEvent?, Never> {
+        guard let link = promotion.link else {
+            return .just(output: nil)
+        }
+
+        let event = BannerNotificationEvent(
+            programName: promotion.bannerPromotion,
+            analytics: analytics,
+            buttonAction: .init(.openLink(promotionLink: link, buttonTitle: Localization.notificationReferralPromoButton))
+        )
+
+        return .just(output: event)
+    }
 }
 
 // MARK: - NotificationManager
 
 extension BannerNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
-        [notificationInputsSubject.value].compactMap(\.self)
+        notificationInputsSubject.value
     }
 
     var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> {
-        notificationInputsSubject.map { [$0].compactMap(\.self) }.eraseToAnyPublisher()
+        notificationInputsSubject.eraseToAnyPublisher()
     }
 
     func setupManager(with delegate: NotificationTapDelegate?) {
@@ -171,6 +229,8 @@ extension BannerNotificationManager: NotificationManager {
     }
 
     func dismissNotification(with id: NotificationViewId) {
-        notificationInputsSubject.send(.none)
+        var currentInputs = notificationInputsSubject.value
+        currentInputs.removeAll { $0.id == id }
+        notificationInputsSubject.send(currentInputs)
     }
 }
