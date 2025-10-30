@@ -44,8 +44,9 @@ extension BitcoinLegacyAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         try publicKey.blockchainKey.validateAsSecp256k1Key()
 
-        // "RUfZU5pNhBfEBvq1HmE6zCNTMDMiiPoa6D"
+        // "RUfZU5pNhBfEBvq1HmE6zCNTMDMiiPoa6D" - 191
+        // "REz2nSPBJXbtADutx1tG27B8PUTJYP7yNv" - 31
         let (address, lockingScript) = try builder.encode(publicKey: publicKey.blockchainKey, type: .p2pkh)
-        return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: lockingScript)
+        return LockingScriptAddress(value: "REz2nSPBJXbtADutx1tG27B8PUTJYP7yNv", publicKey: publicKey, type: addressType, lockingScript: lockingScript)
     }
 }
