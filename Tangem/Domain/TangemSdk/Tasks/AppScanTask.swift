@@ -329,9 +329,12 @@ final class AppScanTask: CardSessionRunnable {
                         recipient: EmailConfig.default.recipient,
                         emailType: .activatedCard
                     )
-                    let mailView = MailView(viewModel: mailViewModel)
-                    let controller = UIHostingController(rootView: mailView)
-                    AppPresenter.shared.show(controller)
+
+                    let mailPresenter: MailComposePresenter = InjectedValues[\.mailComposePresenter]
+                    Task { @MainActor in
+                        mailPresenter.present(viewModel: mailViewModel)
+                    }
+
                     completion(.failure(.userCancelled))
                 } cancelAction: {
                     completion(.failure(.userCancelled))
