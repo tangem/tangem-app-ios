@@ -13,7 +13,9 @@ import TangemFoundation
 import TangemUIUtils
 import TangemMobileWalletSdk
 
-class HardwareCreateWalletCoordinator: CoordinatorObject {
+final class HardwareCreateWalletCoordinator: CoordinatorObject {
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
+
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -24,10 +26,6 @@ class HardwareCreateWalletCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var onboardingCoordinator: OnboardingCoordinator?
-
-    // MARK: - Child view models
-
-    @Published var mailViewModel: MailViewModel?
 
     required init(
         dismissAction: @escaping Action<OutputOptions>,
@@ -63,11 +61,15 @@ extension HardwareCreateWalletCoordinator: HardwareCreateWalletRoutable {
 
     func openMail(dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(
+        let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
             recipient: recipient,
             emailType: .failedToScanCard
         )
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 }
 
