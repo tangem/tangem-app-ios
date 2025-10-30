@@ -22,7 +22,7 @@ struct BannerNotificationEvent: NotificationEvent {
     var colorScheme: NotificationView.ColorScheme { programName.colorScheme }
     var severity: NotificationView.Severity { .info }
     var isDismissable: Bool { true }
-    var analyticsEvent: Analytics.Event? { .promotionBannerAppeared }
+    var analyticsEvent: Analytics.Event? { programName.analyticsEvent }
     var analyticsParams: [Analytics.ParameterKey: String] { analytics.analyticsParams }
     var isOneShotAnalyticsEvent: Bool { true }
 }
@@ -31,12 +31,14 @@ extension PromotionProgramName {
     var title: String {
         switch self {
         case .sepa: Localization.notificationSepaTitle
+        case .visaWaitlist: Localization.notificationVisaWaitlistPromoTitle
         }
     }
 
     var description: String? {
         switch self {
         case .sepa: Localization.notificationSepaText
+        case .visaWaitlist: Localization.notificationVisaWaitlistPromoText
         }
     }
 
@@ -47,12 +49,18 @@ extension PromotionProgramName {
                 iconType: .image(Assets.sepaBannerImage.image),
                 size: .init(bothDimensions: 54)
             )
+        case .visaWaitlist:
+            .init(
+                iconType: .image(Assets.promotionVisaWaitlist.image),
+                size: .init(bothDimensions: 54)
+            )
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
         case .sepa: .primary
+        case .visaWaitlist: .primary
         }
     }
 }
