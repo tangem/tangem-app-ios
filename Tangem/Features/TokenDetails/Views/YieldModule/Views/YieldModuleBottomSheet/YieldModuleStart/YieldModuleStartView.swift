@@ -124,9 +124,6 @@ struct YieldModuleStartView: View {
                 onLinkTapAction: viewModel.onShowFeePolicy,
                 notification: viewModel.networkFeeNotification
             )
-            .onAppear {
-                viewModel.fetchFees()
-            }
         }
     }
 
@@ -135,13 +132,8 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .rateInfo:
             YieldModuleRateInfoChartContainer(state: viewModel.chartState)
-                .task {
-                    await viewModel.fetchChartData()
-                }
-
         case .startEarning:
             startEarningView
-
         case .feePolicy:
             YieldModuleFeePolicyView(
                 minimalAmountState: viewModel.minimalAmountState,
