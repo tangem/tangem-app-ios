@@ -68,6 +68,7 @@ class BannerNotificationManager {
 
                 let eventPublishers = activePromotions.map { promotion in
                     manager.makeEvent(promotion: promotion)
+                        .first()
                         .withWeakCaptureOf(manager)
                         .map { manager, event -> NotificationViewInput? in
                             event.flatMap { manager.makeNotificationViewInput(event: $0) }
@@ -77,6 +78,7 @@ class BannerNotificationManager {
                 return Publishers.MergeMany(eventPublishers)
                     .collect()
                     .map { $0.compactMap { $0 } }
+                    .receiveOnMain()
                     .eraseToAnyPublisher()
             }
             .assign(to: \.notificationInputsSubject.value, on: self, ownership: .weak)
@@ -160,6 +162,7 @@ class BannerNotificationManager {
 
     private func makeEvent(promotion: ActivePromotionInfo) -> AnyPublisher<BannerNotificationEvent?, Never> {
         let analytics = BannerNotificationEventAnalyticsParamsBuilder(programName: promotion.bannerPromotion, placement: placement)
+
         switch promotion.bannerPromotion {
         case .sepa:
             return sepaEvent(promotion: promotion, analytics: analytics)
@@ -199,14 +202,18 @@ class BannerNotificationManager {
     }
 
     private func visaWaitlistEvent(promotion: ActivePromotionInfo, analytics: BannerNotificationEventAnalyticsParamsBuilder) -> AnyPublisher<BannerNotificationEvent?, Never> {
-        guard let link = promotion.link else {
-            return .just(output: nil)
+        let buttonAction: NotificationButtonAction?
+
+        if let link = promotion.link {
+            buttonAction = .init(.openLink(promotionLink: link, buttonTitle: Localization.notificationReferralPromoButton))
+        } else {
+            buttonAction = nil
         }
 
         let event = BannerNotificationEvent(
             programName: promotion.bannerPromotion,
             analytics: analytics,
-            buttonAction: .init(.openLink(promotionLink: link, buttonTitle: Localization.notificationReferralPromoButton))
+            buttonAction: buttonAction
         )
 
         return .just(output: event)
