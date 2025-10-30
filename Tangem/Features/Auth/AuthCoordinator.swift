@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class AuthCoordinator: CoordinatorObject {
+final class AuthCoordinator: CoordinatorObject {
     typealias OutputOptions = ScanDismissOptions
 
     // MARK: - Dependencies
@@ -17,6 +17,7 @@ class AuthCoordinator: CoordinatorObject {
     let dismissAction: Action<ScanDismissOptions>
     let popToRootAction: Action<PopToRootOptions>
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Root view model
@@ -27,10 +28,6 @@ class AuthCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
-
-    // MARK: - Child view models
-
-    @Published var mailViewModel: MailViewModel?
 
     required init(
         dismissAction: @escaping Action<ScanDismissOptions>,
@@ -71,7 +68,9 @@ extension AuthCoordinator: AuthRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+
+        mailPresenter.present(viewModel: mailViewModel)
     }
 
     func openScanCardManual() {
