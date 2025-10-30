@@ -49,6 +49,7 @@ private extension MobileCreateWalletView {
 
                 Text(viewModel.title)
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                    .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
                     .padding(.top, 20)
 
@@ -92,16 +93,16 @@ private extension MobileCreateWalletView {
     var actionButtons: some View {
         VStack(spacing: 8) {
             MainButton(
-                title: viewModel.createButtonTitle,
+                title: viewModel.importButtonTitle,
                 style: .secondary,
-                isLoading: viewModel.isCreating,
-                action: viewModel.onCreateTap
+                action: viewModel.onImportTap
             )
 
             MainButton(
-                title: viewModel.importButtonTitle,
+                title: viewModel.createButtonTitle,
                 style: .primary,
-                action: viewModel.onImportTap
+                isLoading: viewModel.isCreating,
+                action: viewModel.onCreateTap
             )
         }
     }
