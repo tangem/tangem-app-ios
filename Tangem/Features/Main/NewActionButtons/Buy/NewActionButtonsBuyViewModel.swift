@@ -68,3 +68,22 @@ extension NewActionButtonsBuyViewModel: NewTokenSelectorViewModelOutput {
         coordinator?.openOnramp(input: sendInput)
     }
 }
+
+// MARK: - NewTokenSelectorViewModelOutput
+
+private extension NewActionButtonsBuyViewModel {
+    func bind() {
+        hotCryptoService.hotCryptoItemsPublisher
+            .withWeakCaptureOf(self)
+            .asyncMap { hotCryptoItems in
+
+            }
+    }
+
+    func setupHotCrypto(hotCryptoItems: [HotCryptoDTO.Response.HotToken]) async throws {
+        let hotCryptoItems = hotCryptoItems.map { item in
+            
+        }
+    }
+}
+
