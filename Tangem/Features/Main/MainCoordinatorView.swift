@@ -91,9 +91,6 @@ struct MainCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
-            }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
