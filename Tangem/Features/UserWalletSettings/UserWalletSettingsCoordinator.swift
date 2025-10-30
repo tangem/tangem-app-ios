@@ -13,7 +13,7 @@ import TangemFoundation
 import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 
-class UserWalletSettingsCoordinator: CoordinatorObject {
+final class UserWalletSettingsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -39,7 +39,7 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var mailViewModel: MailViewModel?
+    @Published var mobileBackupTypesViewModel: MobileBackupTypesViewModel?
     @Published var accountFormViewModel: AccountFormViewModel?
     @Published var mobileRemoveWalletViewModel: MobileRemoveWalletViewModel?
 
