@@ -1309,7 +1309,6 @@
 		B0F3391B2BEB4C7D00441688 /* LoadingSingleWalletMainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F3391A2BEB4C7D00441688 /* LoadingSingleWalletMainContentView.swift */; };
 		B0F3391D2BEB4C9500441688 /* LoadingSingleWalletMainContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F3391C2BEB4C9500441688 /* LoadingSingleWalletMainContentViewModel.swift */; };
 		B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */; };
-		B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */; };
 		B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */; };
 		B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */; };
 		B0F8E87C2D097EEC00458246 /* VisaOnboardingViewModelBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F8E87B2D097EEC00458246 /* VisaOnboardingViewModelBuilder.swift */; };
@@ -2592,6 +2591,8 @@
 		C27A0EEE2D3648D400AC2336 /* OdysseyChainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */; };
 		C281C9B72DFDA33800372F54 /* WalletConnectDAppSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C281C9B62DFDA30400372F54 /* WalletConnectDAppSession.swift */; };
 		C287C61D2D410D640068B899 /* ApeChainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */; };
+		C28CF4022E9FA5BC0099797D /* MailComposePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28CF4012E9FA5B50099797D /* MailComposePresenter.swift */; };
+		C28CF4042E9FC1920099797D /* NoMailAccountPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28CF4032E9FC18C0099797D /* NoMailAccountPlaceholderView.swift */; };
 		C28E01682E798A8C00B47571 /* AppsFlyerAnalyticsEventConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28E01672E798A7700B47571 /* AppsFlyerAnalyticsEventConverter.swift */; };
 		C28E016B2E79A6FA00B47571 /* AppsFlyerLib-Strict in Frameworks */ = {isa = PBXBuildFile; productRef = C28E016A2E79A6FA00B47571 /* AppsFlyerLib-Strict */; };
 		C2A6B54C2E02506D00F160C0 /* WalletConnectDAppSessionsExtender.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A6B54B2E02506400F160C0 /* WalletConnectDAppSessionsExtender.swift */; };
@@ -5756,7 +5757,6 @@
 		B0F3391A2BEB4C7D00441688 /* LoadingSingleWalletMainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingSingleWalletMainContentView.swift; sourceTree = "<group>"; };
 		B0F3391C2BEB4C9500441688 /* LoadingSingleWalletMainContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingSingleWalletMainContentViewModel.swift; sourceTree = "<group>"; };
 		B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailType.swift; sourceTree = "<group>"; };
-		B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailView.swift; sourceTree = "<group>"; };
 		B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceInfoProvider.swift; sourceTree = "<group>"; };
 		B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileEncryptionUtility.swift; sourceTree = "<group>"; };
 		B0F8E87B2D097EEC00458246 /* VisaOnboardingViewModelBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingViewModelBuilder.swift; sourceTree = "<group>"; };
@@ -6993,6 +6993,8 @@
 		C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdysseyChainExternalLinkProvider.swift; sourceTree = "<group>"; };
 		C281C9B62DFDA30400372F54 /* WalletConnectDAppSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppSession.swift; sourceTree = "<group>"; };
 		C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApeChainExternalLinkProvider.swift; sourceTree = "<group>"; };
+		C28CF4012E9FA5B50099797D /* MailComposePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailComposePresenter.swift; sourceTree = "<group>"; };
+		C28CF4032E9FC18C0099797D /* NoMailAccountPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoMailAccountPlaceholderView.swift; sourceTree = "<group>"; };
 		C28E01672E798A7700B47571 /* AppsFlyerAnalyticsEventConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerAnalyticsEventConverter.swift; sourceTree = "<group>"; };
 		C2A6B54B2E02506400F160C0 /* WalletConnectDAppSessionsExtender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppSessionsExtender.swift; sourceTree = "<group>"; };
 		C2B885512E1424340086B214 /* ReownWalletConnectDAppSessionExtensionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReownWalletConnectDAppSessionExtensionService.swift; sourceTree = "<group>"; };
@@ -11883,8 +11885,9 @@
 		B043FA1826B16B1D00D77729 /* Email */ = {
 			isa = PBXGroup;
 			children = (
+				C28CF4032E9FC18C0099797D /* NoMailAccountPlaceholderView.swift */,
+				C28CF4012E9FA5B50099797D /* MailComposePresenter.swift */,
 				B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */,
-				B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */,
 				B020FFB325DE7F9300EF422C /* DataCollectors.swift */,
 				DC66BBE82859A8CC00CDF765 /* MailViewModel.swift */,
 				DCD9CBA229F7F4D800440C93 /* LogsComposer.swift */,
@@ -25113,6 +25116,7 @@
 				B085154D26D7797400E1A836 /* TwinsOnboardingView.swift in Sources */,
 				EF914D4E2A604615001F00B2 /* QuotesDTO.swift in Sources */,
 				B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */,
+				C28CF4022E9FA5BC0099797D /* MailComposePresenter.swift in Sources */,
 				DCA70E4B2DE9A6CC004EEC0A /* WCRequestDetailsEIP712Parser.swift in Sources */,
 				0F2786492E2BAC1300742D0F /* MobileOnboardingSeedPhraseRevealStep.swift in Sources */,
 				DAD60F292BB6E80B00F9E4D9 /* SendMainButtonType.swift in Sources */,
@@ -26577,6 +26581,8 @@
 				EF8E53122E71A60400C03184 /* OnrampSummaryStepBuildable.swift in Sources */,
 				DC04693A2B8E6BE400C785D1 /* SellActionURLHelper.swift in Sources */,
 				B018770F2CEC90BC00794300 /* VisaOnboardingAccessCodeSetupViewModel.swift in Sources */,
+				EFF763E12C4E38B600E846F4 /* SendStepViewAnimatable.swift in Sources */,
+				C28CF4042E9FC1920099797D /* NoMailAccountPlaceholderView.swift in Sources */,
 				2D9FABA82E13F739005AE305 /* AddressResolverFactoryProvider.swift in Sources */,
 				EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */,
 				DA8C67342B0B451F00E1C9B8 /* AmountSummaryViewData.swift in Sources */,
@@ -26786,7 +26792,6 @@
 				DC6091352E338D0700A842EE /* WCTransactionFeeManager.swift in Sources */,
 				0F48DC282E44C60A0095D3C8 /* MobileOnboardingFlowLoadingOverlay.swift in Sources */,
 				EF52564A2D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift in Sources */,
-				B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */,
 				EF8C09CC2E9553AC00C5A02A /* AccountIconViewBuilder.swift in Sources */,
 				EFFA436D2E02EA30001E0E54 /* SendReceiveTokenCoordinatorView.swift in Sources */,
 				EFB9320D2C3EC0C800C999E9 /* ValidatorView.swift in Sources */,

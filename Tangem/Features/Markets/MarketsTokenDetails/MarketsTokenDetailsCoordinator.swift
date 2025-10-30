@@ -10,10 +10,11 @@ import Foundation
 import TangemStaking
 import struct TangemUIUtils.AlertBinder
 
-class MarketsTokenDetailsCoordinator: CoordinatorObject {
+final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
@@ -34,7 +35,6 @@ class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
-    @Published var mailViewModel: MailViewModel? = nil
 
     private var safariHandle: SafariHandle?
 
@@ -99,7 +99,11 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
         let recipient = EmailConfig.default.recipient
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 
     func openURL(_ url: URL) {
