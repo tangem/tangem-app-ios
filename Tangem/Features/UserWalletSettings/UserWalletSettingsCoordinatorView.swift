@@ -12,10 +12,6 @@ import TangemUI
 struct UserWalletSettingsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: UserWalletSettingsCoordinator
 
-    init(coordinator: UserWalletSettingsCoordinator) {
-        self.coordinator = coordinator
-    }
-
     var body: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
@@ -27,7 +23,6 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
         }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.manageTokensCoordinator) {
@@ -56,7 +51,6 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             }
     }
 
-    @ViewBuilder
     private var sheets: some View {
         NavHolder()
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
@@ -65,9 +59,6 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                     .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
-            }
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
             }
             .floatingSheetContent(for: TransactionNotificationsModalViewModel.self) {
                 TransactionNotificationsModalView(viewModel: $0)

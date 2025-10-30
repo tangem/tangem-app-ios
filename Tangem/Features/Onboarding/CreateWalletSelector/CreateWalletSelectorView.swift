@@ -26,7 +26,6 @@ struct CreateWalletSelectorView: View {
             .onAppear(perform: viewModel.onAppear)
             .alert(item: $viewModel.error, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
-            .sheet(item: $viewModel.mailViewModel) { MailView(viewModel: $0) }
             .environment(\.colorScheme, .dark)
     }
 }
