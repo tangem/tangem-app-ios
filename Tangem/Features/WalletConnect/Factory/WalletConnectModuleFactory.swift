@@ -25,6 +25,7 @@ enum WalletConnectModuleFactory {
     @Injected(\.dAppVerificationService) private static var dAppVerificationService: any WalletConnectDAppVerificationService
     @Injected(\.dAppIconURLResolver) private static var dAppIconURLResolver: WalletConnectDAppIconURLResolver
     @Injected(\.floatingSheetPresenter) private static var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.mailComposePresenter) private static var mailPresenter: MailComposePresenter
 
     private static let openSystemSettingsAction = UIApplication.openSystemSettings
     private static let cameraAccessProvider = AVWalletConnectCameraAccessProvider()
@@ -397,8 +398,8 @@ enum WalletConnectModuleFactory {
                 recipient: EmailConfig.default.recipient,
                 emailType: .walletConnectUntypedError(formattedErrorCode: Self.formattedErrorCode(from: error))
             )
-            let mailView = MailView(viewModel: mailViewModel)
-            AppPresenter.shared.show(UIHostingController(rootView: mailView))
+
+            mailPresenter.present(viewModel: mailViewModel)
         }
     }
 }

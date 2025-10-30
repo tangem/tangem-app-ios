@@ -16,7 +16,7 @@ import TangemStaking
 import TangemUIUtils
 import TangemFoundation
 
-class SendCoordinator: CoordinatorObject {
+final class SendCoordinator: CoordinatorObject {
     enum DismissOptions {
         case openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem)
         case closeButtonTap
@@ -27,6 +27,7 @@ class SendCoordinator: CoordinatorObject {
 
     // MARK: - Dependencies
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
@@ -42,7 +43,6 @@ class SendCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var mailViewModel: MailViewModel?
     @Published var expressApproveViewModel: ExpressApproveViewModel?
 
     @Published var onrampSettingsViewModel: OnrampSettingsViewModel?
@@ -139,7 +139,11 @@ extension SendCoordinator: SendRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToSendTx)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToSendTx)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 
     func openExplorer(url: URL) {
