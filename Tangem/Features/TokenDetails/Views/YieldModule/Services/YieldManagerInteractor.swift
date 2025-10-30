@@ -173,12 +173,15 @@ actor YieldManagerInteractor {
         let new = Task { try await loader() }
         setTask(new)
 
+        defer {
+            setTask(nil)
+        }
+
         do {
             let fee = try await new.value
             setCache(fee)
             return fee
         } catch {
-            setTask(nil)
             throw error
         }
     }
