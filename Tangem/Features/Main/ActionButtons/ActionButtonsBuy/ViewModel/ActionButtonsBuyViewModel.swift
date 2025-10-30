@@ -166,7 +166,10 @@ extension ActionButtonsBuyViewModel {
         ActionButtonsAnalyticsService.hotTokenClicked(tokenSymbol: walletModel.tokenItem.currencySymbol)
 
         coordinator?.closeAddToPortfolio()
-        coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self, userWalletModel] in
+            self?.coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
+        }
     }
 }
 
