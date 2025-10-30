@@ -7,14 +7,15 @@
 //
 
 import Foundation
-import UIKit
+import class UIKit.UIApplication
 
-class DetailsCoordinator: CoordinatorObject {
+final class DetailsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
 
@@ -32,7 +33,6 @@ class DetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var mailViewModel: MailViewModel?
     @Published var supportChatViewModel: SupportChatViewModel?
     @Published var tosViewModel: DetailsTOSViewModel?
     @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
@@ -48,7 +48,9 @@ class DetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: DetailsCoordinator.Options) {
-        detailsViewModel = DetailsViewModel(coordinator: self)
+        Task { @MainActor in
+            detailsViewModel = DetailsViewModel(coordinator: self)
+        }
     }
 }
 
@@ -123,7 +125,9 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+
+        mailPresenter.present(viewModel: mailViewModel)
     }
 
     func openSupportChat(input: SupportChatInputModel) {
