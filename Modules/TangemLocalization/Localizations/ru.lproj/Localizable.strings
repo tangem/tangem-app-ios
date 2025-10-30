@@ -754,6 +754,8 @@
 "notification_sepa_button" = "Купить криптовалюту";
 "notification_sepa_text" = "Наслаждайтесь **нулевой комиссией** при покупке криптовалюты через SEPA-переводы.";
 "notification_sepa_title" = "Покупайте крипту через SEPA";
+"notification_visa_waitlist_promo_text" = "Присоединяйтесь к списку ожидания и получите уникальную платёжную карту, не похожую ни на одну другую.";
+"notification_visa_waitlist_promo_title" = "Tangem Visa Card";
 "onboarding_access_code_feature_1_description" = "Установите единый код доступа для защиты всех ваших карт или колец";
 "onboarding_access_code_feature_1_title" = "Защита";
 "onboarding_access_code_feature_2_description" = "Установите индивидуальный код доступа для каждой карты или кольца позже.";
