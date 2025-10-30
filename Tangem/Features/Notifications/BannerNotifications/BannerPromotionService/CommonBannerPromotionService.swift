@@ -24,11 +24,21 @@ extension CommonBannerPromotionService: BannerPromotionService {
 
         do {
             let promotionInfo = try await tangemApiService.expressPromotion(request: .init(programName: promotion.rawValue))
+
             let now = Date()
             if promotionInfo.all.status == .active, now < promotionInfo.all.timeline.end {
-                let link = promotionInfo.all.link.flatMap { URL(string: $0) }
+                let link: URL?
+
+                switch promotion {
+                case .visaWaitlist:
+                    link = URL(string: Constants.visaWaitlinkLink)
+                default:
+                    link = promotionInfo.all.link.flatMap { URL(string: $0) }
+                }
+
                 return .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline, link: link)
             }
+
         } catch {
             AppLogger.error("Check promotions catch error", error: error)
         }
@@ -52,5 +62,11 @@ extension CommonBannerPromotionService: BannerPromotionService {
         case .tokenDetails:
             AppSettings.shared.tokenPromotionDismissed.insert(promotion.rawValue)
         }
+    }
+}
+
+private extension CommonBannerPromotionService {
+    enum Constants {
+        static let visaWaitlinkLink = "https://tangem.com/en/cardwaitlist/?utm_source=tangem-app-banner&utm_medium=banner&utm_campaign=tangempaywaitlist"
     }
 }
