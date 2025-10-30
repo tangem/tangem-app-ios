@@ -292,7 +292,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
             }
 
             estimatedFeeState = estimatedFeeState.withFeeState(.loaded(text: estimatedFeeFormatted.fiatFee)).withHighlighted(isHighFee)
-            minimalAmountState = minimalAmountState.withFeeState(.loaded(text: maxFeeFormatted.fiatFee))
+            minimalAmountState = minimalAmountState.withFeeState(.loaded(text: minAmountFormatted.fiatFee))
 
             let footerBuilder = YieldInfoFooterBuilder()
 
