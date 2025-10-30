@@ -100,7 +100,6 @@ private extension OnrampSummaryViewModel {
             return .suggestedOffers(.init(
                 recent: offers.recent.map { mapToRecentOnrampOfferViewModel(provider: $0) },
                 recommended: offers.recommended.map { mapToRecommendedOnrampOfferViewModel(provider: $0) },
-                shouldShowAllOffersButton: offers.shouldShowAllOffersButton
             ))
         }
     }
@@ -154,6 +153,5 @@ extension OnrampSummaryViewModel {
     struct SuggestedOffers: Hashable {
         let recent: OnrampOfferViewModel?
         let recommended: [OnrampOfferViewModel]
-        let shouldShowAllOffersButton: Bool
     }
 }
