@@ -83,11 +83,9 @@ struct OnrampSummaryView: View {
             .padding(.top, 12)
         }
 
-        if offers.shouldShowAllOffersButton {
-            MainButton(title: Localization.onrampAllOffersButtonTitle, style: .secondary) {
-                keyboardActive = false
-                viewModel.userDidTapAllOffersButton()
-            }
+        MainButton(title: Localization.onrampAllOffersButtonTitle, style: .secondary) {
+            keyboardActive = false
+            viewModel.userDidTapAllOffersButton()
         }
     }
 
