@@ -199,7 +199,6 @@ private extension CommonOnrampSummaryInteractor {
             }()
 
             let suggested = ([recent] + recommended).compactMap(\.self).filter(\.isSuccessfullyLoaded).toSet()
-            let hasAnotherProviders = !successfullyLoadedProviders.toSet().subtracting(suggested).isEmpty
 
             guard !suggested.isEmpty else {
                 return .success(.none)
@@ -207,8 +206,7 @@ private extension CommonOnrampSummaryInteractor {
 
             let suggestedOffers = OnrampSummaryInteractorSuggestedOffer(
                 recent: recent,
-                recommended: recommended,
-                shouldShowAllOffersButton: hasAnotherProviders
+                recommended: recommended
             )
 
             return .success(suggestedOffers)
@@ -219,7 +217,6 @@ private extension CommonOnrampSummaryInteractor {
 struct OnrampSummaryInteractorSuggestedOffer: Hashable {
     let recent: OnrampProvider?
     let recommended: [OnrampProvider]
-    let shouldShowAllOffersButton: Bool
 }
 
 protocol RecentOnrampTransactionParametersFinder: AnyObject {
