@@ -62,8 +62,8 @@ struct TangemPayTransactionHistoryMapper {
         switch record {
         case .spend(let spend):
             formatSpend(spend, index: index)
-        case .collateral:
-            nil
+        case .collateral(let collateral):
+            formatCollateral(collateral, index: index)
         case .payment(let payment):
             formatPayment(payment, index: index)
         case .fee(let fee):
@@ -75,18 +75,41 @@ struct TangemPayTransactionHistoryMapper {
         _ spend: TangemPayTransactionHistoryResponse.Spend,
         index: Int
     ) -> TransactionViewModel {
-        TransactionViewModel(
+        let sign: String
+        if spend.amount == 0 || spend.isDeclined {
+            sign = ""
+        } else {
+            sign = "–"
+        }
+
+        return TransactionViewModel(
             hash: "N/A",
             index: index,
             interactionAddress: .custom(message: spend.enrichedMerchantCategory ?? spend.merchantCategory ?? spend.merchantCategoryCode),
-            timeFormatted: (spend.postedAt ?? spend.authorizedAt).formatted(date: .omitted, time: .shortened),
-            amount: "\(spend.isDeclined ? "" : "–")$\(spend.amount)",
+            timeFormatted: (spend.authorizedAt ?? spend.postedAt).formatted(date: .omitted, time: .shortened),
+            amount: "\(sign)$\(spend.amount)",
             isOutgoing: true,
             transactionType: .tangemPay(
                 name: spend.enrichedMerchantName ?? spend.merchantName ?? "Card payment",
                 icon: spend.enrichedMerchantIcon,
                 isDeclined: spend.isDeclined
             ),
+            status: .confirmed
+        )
+    }
+
+    private func formatCollateral(
+        _ collateral: TangemPayTransactionHistoryResponse.Collateral,
+        index: Int
+    ) -> TransactionViewModel {
+        TransactionViewModel(
+            hash: "N/A",
+            index: index,
+            interactionAddress: .custom(message: "Transfer"),
+            timeFormatted: (collateral.postedAt).formatted(date: .omitted, time: .shortened),
+            amount: "$\(collateral.amount)",
+            isOutgoing: false,
+            transactionType: .tangemPayTransfer(name: "Deposit"),
             status: .confirmed
         )
     }
