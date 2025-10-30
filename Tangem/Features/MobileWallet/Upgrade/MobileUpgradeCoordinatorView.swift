@@ -29,8 +29,6 @@ private extension MobileUpgradeCoordinatorView {
             if let rootViewModel = coordinator.rootViewModel {
                 MobileUpgradeView(viewModel: rootViewModel)
             }
-
-            sheets
         }
     }
 
@@ -41,12 +39,5 @@ private extension MobileUpgradeCoordinatorView {
                     .navigationBarHidden(true)
             }
             .emptyNavigationLink()
-    }
-
-    var sheets: some View {
-        NavHolder()
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
-            }
     }
 }
