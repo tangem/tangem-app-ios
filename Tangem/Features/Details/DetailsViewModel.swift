@@ -15,6 +15,7 @@ import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
 
+@MainActor
 final class DetailsViewModel: ObservableObject {
     // MARK: - Injected
 
@@ -361,18 +362,13 @@ private extension DetailsViewModel {
 
             switch result {
             case .error(let error) where error.isCancellationError:
-                await runOnMain {
-                    viewModel.isScanning = false
-                }
+                viewModel.isScanning = false
 
             case .error(let error):
                 Analytics.logScanError(error, source: .settings)
                 Analytics.logVisaCardScanErrorIfNeeded(error, source: .settings)
-
-                await runOnMain {
-                    viewModel.isScanning = false
-                    viewModel.alert = error.alertBinder
-                }
+                viewModel.isScanning = false
+                viewModel.alert = error.alertBinder
 
             case .onboarding(let input, _):
                 Analytics.log(
@@ -381,18 +377,13 @@ private extension DetailsViewModel {
                     contextParams: input.cardInput.getContextParams()
                 )
 
-                await runOnMain {
-                    viewModel.isScanning = false
-                    viewModel.openOnboarding(with: input)
-                }
+                viewModel.isScanning = false
+                viewModel.openOnboarding(with: input)
 
             case .scanTroubleshooting:
                 Analytics.log(.cantScanTheCard, params: [.source: .settings])
-
-                await runOnMain {
-                    viewModel.isScanning = false
-                    viewModel.openTroubleshooting()
-                }
+                viewModel.isScanning = false
+                viewModel.openTroubleshooting()
 
             case .success(let cardInfo):
                 Analytics.log(
@@ -419,7 +410,7 @@ private extension DetailsViewModel {
                         throw UserWalletRepositoryError.cantUnlockWallet
                     }
 
-                    if await AppSettings.shared.saveUserWallets {
+                    if AppSettings.shared.saveUserWallets {
                         try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
                     } else {
                         let currentUserWalletId = viewModel.userWalletRepository.selectedModel?.userWalletId
@@ -430,16 +421,12 @@ private extension DetailsViewModel {
                         }
                     }
 
-                    await runOnMain {
-                        viewModel.isScanning = false
-                        viewModel.coordinator?.dismiss()
-                    }
+                    viewModel.isScanning = false
+                    viewModel.coordinator?.dismiss()
 
                 } catch {
-                    await runOnMain {
-                        viewModel.isScanning = false
-                        viewModel.alert = error.alertBinder
-                    }
+                    viewModel.isScanning = false
+                    viewModel.alert = error.alertBinder
                 }
             }
         }
