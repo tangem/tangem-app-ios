@@ -38,7 +38,10 @@ extension SendFlowBaseDependenciesFactory {
     }
 
     func makeSwapManager() -> SwapManager {
-        CommonSwapManager(interactor: expressDependenciesFactory.expressInteractor)
+        CommonSwapManager(
+            userWalletConfig: userWalletInfo.config,
+            interactor: expressDependenciesFactory.expressInteractor
+        )
     }
 
     func makeSendAlertBuilder() -> SendAlertBuilder {
