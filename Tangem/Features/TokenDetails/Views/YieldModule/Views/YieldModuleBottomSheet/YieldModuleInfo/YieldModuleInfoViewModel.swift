@@ -249,6 +249,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
             let isHighFee = feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType)
 
             if isHighFee {
+                logger.logEarningNoticeNotEnoughFeeShown()
                 networkFeeNotification = createNotEnoughFeeNotification()
             }
 
