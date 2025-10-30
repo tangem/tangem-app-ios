@@ -6,7 +6,6 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
 import TangemUI
 
@@ -21,7 +20,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
         .navigationViewStyle(.stack)
     }
 
-    @ViewBuilder
     private var content: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
@@ -39,7 +37,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
         }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.createWalletSelectorCoordinator) {
@@ -48,7 +45,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
             .emptyNavigationLink()
     }
 
-    @ViewBuilder
     private var sheets: some View {
         NavHolder()
             .sheet(item: $coordinator.promotionCoordinator) {
@@ -56,9 +52,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.searchTokensViewModel) {
                 WelcomeSearchTokensView(viewModel: $0)
-            }
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
             }
     }
 }
