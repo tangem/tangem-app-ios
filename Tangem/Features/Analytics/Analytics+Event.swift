@@ -336,6 +336,10 @@ extension Analytics {
         case bitcoinPromoDeeplinkActivation = "[Promotion] Bitcoin Promo Deep Link Activation"
         case bitcoinPromoActivation = "[Promotion] Bitcoin Promo Activation"
 
+        case promotionVisaWaitlist = "[Promotion] Visa Waitlist"
+        case promotionButtonJoinNow = "[Promotion] Button - Join Now"
+        case promotionButtonClose = "[Promotion] Button - Close"
+
         // MARK: - Errors
 
         case cantScanTheCard = "[Errors] Cant Scan The Card"
