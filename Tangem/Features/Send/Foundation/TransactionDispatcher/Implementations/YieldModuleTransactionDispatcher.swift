@@ -63,11 +63,9 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
                 transferTransactions,
                 signer: transactionSigner
             ).async()
-
             transferTransactions.forEach { _ in
                 logger.logTransactionSent()
             }
-
             walletModelUpdater.updateAfterSendingTransaction()
 
             return hashes.map { hash in
