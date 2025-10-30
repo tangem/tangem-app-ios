@@ -754,6 +754,8 @@
 "notification_sepa_button" = "暗号資産を買い付ける";
 "notification_sepa_text" = "SEPA送金で暗号資産を買い付けると、**手数料 0%% ** になります。";
 "notification_sepa_title" = "SEPAで暗号資産を購入";
+"notification_visa_waitlist_promo_text" = "事前申し込み受付中。他にない特別なカードを、いち早く体験しよう。";
+"notification_visa_waitlist_promo_title" = "Tangem Visaカード";
 "onboarding_access_code_feature_1_description" = "すべてのデバイスを保護するには、単一のアクセスコードを設定してください。";
 "onboarding_access_code_feature_1_title" = "保護する";
 "onboarding_access_code_feature_2_description" = "後で各カードおよびリングに個別のアクセスコードを設定できます。";
