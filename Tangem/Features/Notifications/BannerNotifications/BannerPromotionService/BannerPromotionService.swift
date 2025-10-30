@@ -47,11 +47,21 @@ enum BannerPromotionPlacement {
 
 enum PromotionProgramName: String, Hashable, CaseIterable {
     case sepa
+    case visaWaitlist = "visa-waitlist"
+
+    var analyticsEvent: Analytics.Event? {
+        switch self {
+        case .sepa: Analytics.Event.promotionBannerAppeared
+        case .visaWaitlist: Analytics.Event.promotionVisaWaitlist
+        }
+    }
 
     var analyticsValue: Analytics.ParameterValue {
         switch self {
         case .sepa:
             return Analytics.ParameterValue.sepa
+        case .visaWaitlist:
+            return Analytics.ParameterValue.visaWaitlist
         }
     }
 }
