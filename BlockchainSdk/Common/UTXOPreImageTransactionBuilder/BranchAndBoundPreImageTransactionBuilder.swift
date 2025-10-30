@@ -72,11 +72,18 @@ private extension BranchAndBoundPreImageTransactionBuilder {
         }
 
         let sorted = outputs.sorted { $0.amount > $1.amount }
-        let context = Context(startDate: .now, changeScript: changeScript, destination: destination, fee: fee, total: Int(total))
+        let context = Context(
+            startDate: .now,
+            changeScript: changeScript,
+            destination: destination,
+            fee: fee,
+            inputsCount: outputs.count,
+            total: Int(total)
+        )
 
-        logger.debug(self, "Start selection in: \(context.startDate.formatted(date: .omitted, time: .complete))")
+        logger.debug(self, "Start selection for context: \(context)")
         let bestVariant = try select(in: context, sorted: sorted)
-        logger.debug(self, "End selection done with: \(Date.now.timeIntervalSince(context.startDate)) sec with bestVariant: \(String(describing: bestVariant))")
+        logger.debug(self, "End selection done with: \(Date.now.timeIntervalSince(context.startDate)) sec with bestVariant: \(String(describing: bestVariant)) for context: \(context)")
 
         guard let bestVariant, !bestVariant.outputs.isEmpty else {
             throw Error.unableToFindSuitableUTXOs
@@ -255,6 +262,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
         let changeScript: UTXOScriptType
         let destination: UTXOPreImageDestination
         let fee: UTXOPreImageTransactionBuilderFee
+        let inputsCount: Int
         let total: Int
     }
 
