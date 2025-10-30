@@ -31,6 +31,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     var viewState: ViewState {
         didSet {
             previousState = oldValue
+            fetchData(for: viewState)
         }
     }
 
@@ -103,6 +104,7 @@ final class YieldModuleStartViewModel: ObservableObject {
         self.logger = logger
 
         notificationManager = YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
+        fetchData(for: viewState)
     }
 
     // MARK: - Navigation
@@ -135,6 +137,7 @@ final class YieldModuleStartViewModel: ObservableObject {
             } catch let error where error.isCancellationError {
                 // Do nothing
             } catch {
+                self?.logger.logEarningErrors(action: .start, error: error)
                 self?.alertPresenter.present(alert: AlertBuilder.makeOkErrorAlert(message: error.localizedDescription))
             }
         }
@@ -147,28 +150,36 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     // MARK: - Public Implementation
 
-    @MainActor
-    func fetchChartData() async {
-        chartState = .loading
+    private func fetchChartData() {
+        Task { @MainActor [weak self] in
+            self?.chartState = .loading
 
-        do {
-            let chartData = try await yieldManagerInteractor.getChartData()
-            chartState = .loaded(chartData)
-        } catch {
-            chartState = .error(action: { [weak self] in
-                await self?.fetchChartData()
-            })
+            do {
+                let chartData = try await self?.yieldManagerInteractor.getChartData()
+
+                if let chartData {
+                    self?.chartState = .loaded(chartData)
+                } else {
+                    self?.chartState = .error(action: { [weak self] in
+                        self?.fetchChartData()
+                    })
+                }
+            } catch {
+                self?.chartState = .error(action: { [weak self] in
+                    self?.fetchChartData()
+                })
+            }
         }
     }
 
-    func fetchFees() {
+    private func fetchFees() {
         Task { await fetchNetworkFee() }
         Task { await fetchMinimalAmount() }
         Task { await fetchEstimatedAndMaximumFee() }
     }
 
     @MainActor
-    func fetchMinimalAmount() async {
+    private func fetchMinimalAmount() async {
         minimalAmountState = minimalAmountState.withFeeState(.loading)
 
         do {
@@ -186,8 +197,21 @@ final class YieldModuleStartViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Private Implementation
+
+    private func fetchData(for state: ViewState) {
+        switch state {
+        case .rateInfo:
+            fetchChartData()
+        case .startEarning:
+            fetchFees()
+        case .feePolicy:
+            break
+        }
+    }
+
     @MainActor
-    func fetchNetworkFee() async {
+    private func fetchNetworkFee() async {
         networkFeeState = networkFeeState
             .withFeeState(.loading)
             .withLinkActive(false)
@@ -225,8 +249,6 @@ final class YieldModuleStartViewModel: ObservableObject {
             isNavigationToFeePolicyEnabled = false
         }
     }
-
-    // MARK: - Private Implementation
 
     @MainActor
     private func fetchEstimatedAndMaximumFee() async {
