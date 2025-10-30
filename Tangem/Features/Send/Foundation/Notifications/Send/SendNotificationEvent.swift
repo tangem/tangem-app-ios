@@ -6,11 +6,13 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import SwiftUI
 import Foundation
 import TangemLocalization
-import SwiftUI
 import TangemAssets
+import TangemMacro
 
+@AssociatedValueInsensitiveEquatable
 enum SendNotificationEvent {
     // The send flow specific notifications
     case networkFeeUnreachable
