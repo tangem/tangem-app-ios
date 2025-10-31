@@ -11,7 +11,7 @@ import XCTest
 final class MainActionButtonsUITests: BaseTestCase {
     private let token = "Polygon"
 
-    func testLongTapBuy_OpensOnrampForToken() {
+    func testLongTapBuy_OpensOnrampForToken() throws {
         let expectedTitle = "Buy \(token)"
 
         setAllureId(82)
@@ -21,12 +21,16 @@ final class MainActionButtonsUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .longPressToken(token)
 
-        contextMenu
+        try contextMenu
             .waitForActionButtons()
             .tapBuy()
             .tapCurrencySelector()
             .selectCurrency("USD")
-            .validate(amount: "", currency: "", title: expectedTitle)
+            .waitForAmountFieldDisplay(
+                amount: "",
+                currency: "$",
+                title: expectedTitle
+            )
     }
 
     func testLongTapCopyAddress_CopiesAndShowsToast() {
