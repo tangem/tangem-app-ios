@@ -214,6 +214,7 @@ private extension MobileOnboardingAccessCodeViewModel {
 
         await MainActor.run {
             AppSettings.shared.useBiometricAuthentication = true
+            AppSettings.shared.requireAccessCodes = false
         }
 
         userWalletRepository.onBiometricsChanged(enabled: true)
