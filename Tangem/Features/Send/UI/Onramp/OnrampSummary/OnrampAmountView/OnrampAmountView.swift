@@ -111,6 +111,7 @@ struct OnrampAmountView: View {
                 .prefixSuffixOptions(viewModel.currentFieldOptions)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.amountInputField)
+                .prefixSuffixAccessibilityIdentifier(OnrampAccessibilityIdentifiers.currencySymbolPrefix)
 
             errorView
         }
@@ -124,7 +125,6 @@ struct OnrampAmountView: View {
                 .lineLimit(2)
                 .padding(.vertical, 2)
                 .multilineTextAlignment(.center)
-                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.cryptoAmountLabel)
         }
     }
 }
