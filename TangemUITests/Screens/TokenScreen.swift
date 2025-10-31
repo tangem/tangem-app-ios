@@ -84,7 +84,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     @discardableResult
-    func validateStakingInfo() -> Self {
+    func waitForStakingInfo() -> Self {
         XCTContext.runActivity(named: "Validate staking information on token screen") { _ in
             XCTAssertTrue(nativeStakingBlock.waitForExistence(timeout: .robustUIUpdate), "Native staking block should be displayed")
             XCTAssertTrue(nativeStakingTitle.waitForExistence(timeout: .robustUIUpdate), "Native staking title should be displayed")

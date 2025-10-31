@@ -87,6 +87,7 @@ struct OnrampSummaryView: View {
             keyboardActive = false
             viewModel.userDidTapAllOffersButton()
         }
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.allOffersButton)
     }
 
     @ViewBuilder
