@@ -41,7 +41,7 @@ final class SendTezosNotificationUITests: BaseTestCase {
         setAllureId(4229)
 
         let sendScreen = SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .tapMaxButton()
 
         let amountBeforeReduceFee = sendScreen.getAmountNumericValue()
@@ -63,7 +63,7 @@ final class SendTezosNotificationUITests: BaseTestCase {
         setAllureId(4230)
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.1")
             .tapNextButton()
             .enterDestination(destinationAddress)
