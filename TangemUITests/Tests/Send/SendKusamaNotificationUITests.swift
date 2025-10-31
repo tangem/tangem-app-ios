@@ -42,7 +42,7 @@ final class SendKusamaNotificationUITests: BaseTestCase {
 
         // the remaining balance is less than the required deposit
         let sendScreen = SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.300333")
             .tapNextButton()
             .enterDestination(destinationAddress)
