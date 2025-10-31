@@ -37,8 +37,12 @@ struct OnboardingUtils {
 
     func processSaveUserWalletRequestResult(agreed: Bool) {
         AppSettings.shared.askedToSaveUserWallets = true
+        AppSettings.shared.useBiometricAuthentication = agreed
 
-        AppSettings.shared.saveUserWallets = agreed
+        if !FeatureProvider.isAvailable(.mobileWallet) {
+            AppSettings.shared.saveUserWallets = agreed
+        }
+
         AppSettings.shared.saveAccessCodes = agreed
 
         Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.toggleState(for: agreed)])
