@@ -17,12 +17,9 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     private lazy var networkFeeBlock = staticText(.networkFeeBlock)
 
     @discardableResult
-    func validateAmountValue(_ expectedAmount: String) -> Self {
+    func waitForAmountValue(_ expectedAmount: String) -> Self {
         XCTContext.runActivity(named: "Validate amount value: \(expectedAmount)") { _ in
-            XCTAssertTrue(
-                amountValue.waitForExistence(timeout: .robustUIUpdate),
-                "Amount value element should exist"
-            )
+            waitAndAssertTrue(amountValue, "Amount value element should exist")
 
             let predicate = NSPredicate(format: "label CONTAINS %@", expectedAmount)
             let expectation = XCTNSPredicateExpectation(predicate: predicate, object: amountValue)
@@ -36,8 +33,8 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     }
 
     @discardableResult
-    func validate() -> Self {
-        XCTContext.runActivity(named: "Validate Send Summary Screen") { _ in
+    func waitForDisplay() -> Self {
+        XCTContext.runActivity(named: "Wait for display: Send Summary Screen") { _ in
             XCTAssertTrue(validatorBlock.waitForExistence(timeout: .robustUIUpdate), "Validator block should be displayed")
             XCTAssertTrue(networkFeeBlock.waitForExistence(timeout: .robustUIUpdate), "Network fee block should be displayed")
             XCTAssertTrue(stakeButton.waitForExistence(timeout: .robustUIUpdate), "Stake button should exist")
