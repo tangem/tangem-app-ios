@@ -19,7 +19,7 @@ final class SendChiaNotificationUITests: BaseTestCase {
         openSend(initialState: "less_than_15")
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount(amount)
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -34,7 +34,7 @@ final class SendChiaNotificationUITests: BaseTestCase {
         openSend(initialState: "equal_15")
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount(amount)
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -49,7 +49,7 @@ final class SendChiaNotificationUITests: BaseTestCase {
         openSend(initialState: "more_than_15")
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount(amount)
             .tapNextButton()
             .enterDestination(destinationAddress)

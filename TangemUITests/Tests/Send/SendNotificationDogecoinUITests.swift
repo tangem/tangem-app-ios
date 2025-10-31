@@ -36,7 +36,7 @@ final class SendNotificationDogecoinUITests: BaseTestCase {
         setAllureId(4211)
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.02")
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -49,7 +49,7 @@ final class SendNotificationDogecoinUITests: BaseTestCase {
         setAllureId(4212)
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.005")
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -64,7 +64,7 @@ final class SendNotificationDogecoinUITests: BaseTestCase {
         try skipDueToBug("[REDACTED_INFO]", description: "Send: fee error when sending Dogecoin")
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("9.995")
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -79,7 +79,7 @@ final class SendNotificationDogecoinUITests: BaseTestCase {
         try skipDueToBug("[REDACTED_INFO]", description: "Send: fee error when sending Dogecoin")
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("9")
             .tapNextButton()
             .enterDestination(destinationAddress)
