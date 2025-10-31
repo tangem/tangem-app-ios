@@ -19,7 +19,7 @@ public extension TangemPayTransactionHistoryResponse {
         public var transactionDate: Date {
             switch record {
             case .spend(let spend):
-                spend.authorizedAt ?? spend.postedAt
+                spend.authorizedAt
             case .collateral(let collateral):
                 collateral.postedAt
             case .payment(let payment):
@@ -90,8 +90,8 @@ public extension TangemPayTransactionHistoryResponse {
         public let cardType: String
         public let status: String
         public let declinedReason: String?
-        public let authorizedAt: Date?
-        public let postedAt: Date
+        public let authorizedAt: Date
+        public let postedAt: Date?
 
         // [REDACTED_TODO_COMMENT]
         public var isDeclined: Bool {

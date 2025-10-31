@@ -86,7 +86,7 @@ struct TangemPayTransactionHistoryMapper {
             hash: "N/A",
             index: index,
             interactionAddress: .custom(message: spend.enrichedMerchantCategory ?? spend.merchantCategory ?? spend.merchantCategoryCode),
-            timeFormatted: (spend.authorizedAt ?? spend.postedAt).formatted(date: .omitted, time: .shortened),
+            timeFormatted: spend.authorizedAt.formatted(date: .omitted, time: .shortened),
             amount: "\(sign)$\(spend.amount)",
             isOutgoing: true,
             transactionType: .tangemPay(
