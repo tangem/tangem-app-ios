@@ -65,7 +65,7 @@ public struct AssociatedValueInsensitiveEquatableMarco: MemberMacro {
         }
 
         let code = """
-        static func ~= (lhs: \(enumName), rhs: \(enumName)) -> Bool {
+        static func == (lhs: \(enumName), rhs: \(enumName)) -> Bool {
           \(switchBody)
         }
         """
