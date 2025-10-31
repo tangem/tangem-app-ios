@@ -40,6 +40,7 @@ final class TangemPayOfferViewModel: ObservableObject {
                 switch tangemPayStatus {
                 case .kycRequired:
                     try await tangemPayAccount.launchKYC {
+                        tangemPayAccount.reloadCustomerInfo()
                         runTask(in: viewModel) { viewModel in
                             await viewModel.closeOfferScreen()
                         }
@@ -55,7 +56,7 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     private func makeTangemPayAccount() async throws -> TangemPayAccount {
-        let tangemPayAuthorizer = TangemPayAuthorizer(keysRepository: userWalletModel.keysRepository)
+        let tangemPayAuthorizer = TangemPayAuthorizer(userWalletModel: userWalletModel)
         let tokens = try await tangemPayAuthorizer.authorizeWithCustomerWallet()
 
         guard let walletPublicKey = TangemPayUtilities.getKey(from: userWalletModel.keysRepository) else {
