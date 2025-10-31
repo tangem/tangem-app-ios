@@ -41,7 +41,7 @@ final class SendSolanaNotificationUITests: BaseTestCase {
         setAllureId(564)
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.0016941")
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -54,7 +54,7 @@ final class SendSolanaNotificationUITests: BaseTestCase {
         setAllureId(565)
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .tapMaxButton()
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -67,7 +67,7 @@ final class SendSolanaNotificationUITests: BaseTestCase {
         setAllureId(566)
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.001689338")
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -80,7 +80,7 @@ final class SendSolanaNotificationUITests: BaseTestCase {
         setAllureId(567)
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.0000941")
             .tapNextButton()
             .enterDestination(destinationAddress)

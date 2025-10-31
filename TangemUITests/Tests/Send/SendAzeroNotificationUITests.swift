@@ -42,7 +42,7 @@ final class SendAzeroNotificationUITests: BaseTestCase {
 
         // the remaining balance is less than the required deposit
         let sendScreen = SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.099876587544")
             .tapNextButton()
             .enterDestination(destinationAddress)
