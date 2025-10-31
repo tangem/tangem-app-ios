@@ -32,7 +32,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var fromWalletButton = button(.fromWalletButton)
 
     @discardableResult
-    func validate() -> Self {
+    func waitForDisplay() -> Self {
         XCTContext.runActivity(named: "Validate Send screen is displayed") { _ in
             XCTAssertTrue(titleLabel.waitForExistence(timeout: .robustUIUpdate), "Title should exist")
             XCTAssertTrue(amountTextField.exists, "Amount text field should exist")
