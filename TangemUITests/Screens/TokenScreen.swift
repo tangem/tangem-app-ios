@@ -42,15 +42,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     @discardableResult
-    func tapHideFromContextMenu() -> MainScreen {
-        XCTContext.runActivity(named: "Tap Hide from context menu") { _ in
-            app.buttons["Hide token"].waitAndTap()
-            app.alerts.firstMatch.buttons["Hide"].waitAndTap()
-            return MainScreen(app)
-        }
-    }
-
-    @discardableResult
     func tapActionButton(_ action: TokenAction) -> Self {
         XCTContext.runActivity(named: "Tap token action button: \(action.rawValue)") { _ in
             XCTAssertTrue(actionButtons.waitForExistence(timeout: .robustUIUpdate), "Action buttons container should exist")
