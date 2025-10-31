@@ -12,6 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 struct QRCodeReceiveAssetsView: View {
     @ObservedObject var viewModel: QRCodeReceiveAssetsViewModel
@@ -47,10 +48,12 @@ struct QRCodeReceiveAssetsView: View {
                     .transaction { transaction in
                         transaction.animation = nil
                     }
+                    .accessibilityIdentifier(QRCodeAccessibilityIdentifiers.qrCodeImage)
 
                 VStack(alignment: .center, spacing: 4) {
                     Text(Localization.commonAddress)
                         .style(Fonts.Bold.callout, color: Colors.Text.tertiary)
+                        .accessibilityIdentifier(QRCodeAccessibilityIdentifiers.addressHeader)
 
                     Button {
                         viewModel.copyToClipboard()
@@ -59,6 +62,7 @@ struct QRCodeReceiveAssetsView: View {
                             .contentShape(Rectangle())
                             .animation(nil, value: viewModel.addressInfo)
                     }
+                    .accessibilityIdentifier(QRCodeAccessibilityIdentifiers.addressText)
                 }
                 .padding(.horizontal, 32)
                 .padding(.top, 20)
