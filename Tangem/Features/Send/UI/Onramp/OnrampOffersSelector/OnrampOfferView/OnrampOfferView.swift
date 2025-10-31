@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnrampOfferView: View {
     let viewModel: OnrampOfferViewModel
@@ -83,6 +84,7 @@ struct OnrampOfferView: View {
                     Fonts.Bold.callout,
                     color: viewModel.isAvailable ? Colors.Text.primary1 : Colors.Text.tertiary
                 )
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.provider.name))
 
             OnrampAmountBadge(badge: viewModel.amount.badge)
         }
