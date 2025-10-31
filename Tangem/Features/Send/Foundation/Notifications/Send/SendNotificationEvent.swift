@@ -12,7 +12,6 @@ import TangemLocalization
 import TangemAssets
 import TangemMacro
 
-@AssociatedValueInsensitiveEquatable
 enum SendNotificationEvent {
     // The send flow specific notifications
     case networkFeeUnreachable
