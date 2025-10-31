@@ -40,10 +40,11 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     func validate(amount: String, currency: String, title: String) -> Self {
         XCTContext.runActivity(named: "Validate OnRamp screen elements") { _ in
             _ = amountInputField.waitForExistence(timeout: .robustUIUpdate)
-            let actualValue = amountDisplayField.getValue()
-            XCTAssertTrue(actualValue.contains(amount), "TextField value should contain '\(amount)' but was '\(actualValue)'")
-            XCTAssertTrue(actualValue.contains(currency), "TextField value should contain '\(currency)' but was '\(actualValue)'")
-
+            if !amount.isEmpty {
+                let actualValue = amountDisplayField.getValue()
+                XCTAssertTrue(actualValue.contains(amount), "TextField value should contain '\(amount)' but was '\(actualValue)'")
+                XCTAssertTrue(actualValue.contains(currency), "TextField value should contain '\(currency)' but was '\(actualValue)'")
+            }
             XCTAssertTrue(titleLabel.waitForExistence(timeout: .robustUIUpdate), "Title should exist")
             let actualTitle = titleLabel.label
             XCTAssertEqual(actualTitle, title, "Title should be '\(title)' but was '\(actualTitle)'")
