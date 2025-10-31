@@ -12,6 +12,7 @@ import TangemLocalization
 import TangemAssets
 import TangemMacro
 
+@CaseFlagable
 enum SendNotificationEvent {
     // The send flow specific notifications
     case networkFeeUnreachable
