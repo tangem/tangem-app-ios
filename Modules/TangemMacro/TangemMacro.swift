@@ -18,7 +18,7 @@
 /// }
 ///
 /// let value = MyEnum.a(42)
-/// if MyEnum.a ~= value { /* true */ }
+/// MyEnum.a(12) == value is `true`
 /// ```
 @attached(member, names: arbitrary)
 public macro AssociatedValueInsensitiveEquatable() = #externalMacro(
