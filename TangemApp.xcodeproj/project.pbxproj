@@ -2679,6 +2679,10 @@
 		D87591F92E69DA520088BBEA /* shibaNoWallets.json in Resources */ = {isa = PBXBuildFile; fileRef = D87591F82E69DA520088BBEA /* shibaNoWallets.json */; };
 		D87591FB2E69DAD90088BBEA /* wallet2NoWallets.json in Resources */ = {isa = PBXBuildFile; fileRef = D87591FA2E69DAD90088BBEA /* wallet2NoWallets.json */; };
 		D875922B2E6B5E380088BBEA /* FeedbackUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D875922A2E6B5E380088BBEA /* FeedbackUITests.swift */; };
+		D876699B2EB116C100E53613 /* ReceiveQRCodeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87669992EB116C100E53613 /* ReceiveQRCodeSheet.swift */; };
+		D876699C2EB116C100E53613 /* MoonPayPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87669972EB116C100E53613 /* MoonPayPage.swift */; };
+		D876699D2EB116C100E53613 /* NetworkSelectionWarningSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87669982EB116C100E53613 /* NetworkSelectionWarningSheet.swift */; };
+		D876699E2EB116C100E53613 /* ReceiveTemplatesSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D876699A2EB116C100E53613 /* ReceiveTemplatesSheet.swift */; };
 		D8796D6B2E2847F20034ADAB /* XCTest+Allure.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8796D6A2E2847F20034ADAB /* XCTest+Allure.swift */; };
 		D8796DAD2E2A4AF30034ADAB /* UITestOnrampRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8796DAC2E2A4AF30034ADAB /* UITestOnrampRepository.swift */; };
 		D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */; };
@@ -2702,6 +2706,8 @@
 		D8E17CE42E37B6E600E9D791 /* ReferralScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E17CE22E37B6E600E9D791 /* ReferralScreen.swift */; };
 		D8E17CE52E37B6E600E9D791 /* DetailsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E17CE12E37B6E600E9D791 /* DetailsScreen.swift */; };
 		D8E7CEA32E56102400CD9726 /* SwapStoriesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E7CEA22E56102400CD9726 /* SwapStoriesScreen.swift */; };
+		D8E851F42EB0C74B0085DAC3 /* ContextMenuScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E851F32EB0C74B0085DAC3 /* ContextMenuScreen.swift */; };
+		D8E851FC2EB0E7870085DAC3 /* MainActionButtonsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E851FA2EB0E7870085DAC3 /* MainActionButtonsUITests.swift */; };
 		D8EDA0DA2E5F46C700422CA7 /* TroubleShootSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EDA0D92E5F46C700422CA7 /* TroubleShootSheet.swift */; };
 		D8EDA0DC2E5F4AF100422CA7 /* MailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EDA0DB2E5F4AF100422CA7 /* MailScreen.swift */; };
 		D8EDA17F2E60802000422CA7 /* SendScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EDA17E2E60802000422CA7 /* SendScreen.swift */; };
@@ -7082,6 +7088,10 @@
 		D87591F82E69DA520088BBEA /* shibaNoWallets.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shibaNoWallets.json; sourceTree = "<group>"; };
 		D87591FA2E69DAD90088BBEA /* wallet2NoWallets.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = wallet2NoWallets.json; sourceTree = "<group>"; };
 		D875922A2E6B5E380088BBEA /* FeedbackUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackUITests.swift; sourceTree = "<group>"; };
+		D87669972EB116C100E53613 /* MoonPayPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayPage.swift; sourceTree = "<group>"; };
+		D87669982EB116C100E53613 /* NetworkSelectionWarningSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSelectionWarningSheet.swift; sourceTree = "<group>"; };
+		D87669992EB116C100E53613 /* ReceiveQRCodeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveQRCodeSheet.swift; sourceTree = "<group>"; };
+		D876699A2EB116C100E53613 /* ReceiveTemplatesSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveTemplatesSheet.swift; sourceTree = "<group>"; };
 		D8796D6A2E2847F20034ADAB /* XCTest+Allure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Allure.swift"; sourceTree = "<group>"; };
 		D8796DAC2E2A4AF30034ADAB /* UITestOnrampRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestOnrampRepository.swift; sourceTree = "<group>"; };
 		D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScreen.swift; sourceTree = "<group>"; };
@@ -7105,6 +7115,8 @@
 		D8E17CE12E37B6E600E9D791 /* DetailsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsScreen.swift; sourceTree = "<group>"; };
 		D8E17CE22E37B6E600E9D791 /* ReferralScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralScreen.swift; sourceTree = "<group>"; };
 		D8E7CEA22E56102400CD9726 /* SwapStoriesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapStoriesScreen.swift; sourceTree = "<group>"; };
+		D8E851F32EB0C74B0085DAC3 /* ContextMenuScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuScreen.swift; sourceTree = "<group>"; };
+		D8E851FA2EB0E7870085DAC3 /* MainActionButtonsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainActionButtonsUITests.swift; sourceTree = "<group>"; };
 		D8EDA0D92E5F46C700422CA7 /* TroubleShootSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TroubleShootSheet.swift; sourceTree = "<group>"; };
 		D8EDA0DB2E5F4AF100422CA7 /* MailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailScreen.swift; sourceTree = "<group>"; };
 		D8EDA17E2E60802000422CA7 /* SendScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendScreen.swift; sourceTree = "<group>"; };
@@ -11481,6 +11493,11 @@
 		7982B01C2DE70E1900C41EA5 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D87669972EB116C100E53613 /* MoonPayPage.swift */,
+				D87669982EB116C100E53613 /* NetworkSelectionWarningSheet.swift */,
+				D87669992EB116C100E53613 /* ReceiveQRCodeSheet.swift */,
+				D876699A2EB116C100E53613 /* ReceiveTemplatesSheet.swift */,
+				D8E851F32EB0C74B0085DAC3 /* ContextMenuScreen.swift */,
 				D8F18BCE2EA0D91300A4AF58 /* SendFeeSelectorScreen.swift */,
 				D85E200D2E8D106E004174E6 /* MarketsScreen.swift */,
 				D85E20092E854D5F004174E6 /* AppSettingsScreen.swift */,
@@ -11513,6 +11530,7 @@
 		7982B01F2DE70E1900C41EA5 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				D8E851FB2EB0E7870085DAC3 /* ActionButtons */,
 				D892E6BE2E95114000D29113 /* Send */,
 				D852F81C2E5C86AB00C71B7F /* Smoke */,
 			);
@@ -17263,6 +17281,14 @@
 				D89ABED82E31979900855B00 /* SwapScreen.swift */,
 			);
 			path = Swap;
+			sourceTree = "<group>";
+		};
+		D8E851FB2EB0E7870085DAC3 /* ActionButtons */ = {
+			isa = PBXGroup;
+			children = (
+				D8E851FA2EB0E7870085DAC3 /* MainActionButtonsUITests.swift */,
+			);
+			path = ActionButtons;
 			sourceTree = "<group>";
 		};
 		D8EDA0DD2E5F4AF800422CA7 /* Feedback */ = {
@@ -26947,6 +26973,7 @@
 				D8EDA0DA2E5F46C700422CA7 /* TroubleShootSheet.swift in Sources */,
 				7982B0202DE70E1900C41EA5 /* XCTestCase+Extensions.swift in Sources */,
 				D863E7532E65CEBB00912D52 /* ScanCardSettingsScreen.swift in Sources */,
+				D8E851F42EB0C74B0085DAC3 /* ContextMenuScreen.swift in Sources */,
 				7982B02E2DE7259E00C41EA5 /* MainScreen.swift in Sources */,
 				D863E7562E65CFA300912D52 /* DeviceSettingsScreen.swift in Sources */,
 				D8F18BCD2EA0D90200A4AF58 /* SendCommonNotificationUITests.swift in Sources */,
@@ -27003,6 +27030,10 @@
 				D8C314C42E968C0700B9F552 /* SendNotificationDogecoinUITests.swift in Sources */,
 				D85E200C2E854D5F004174E6 /* CurrencySelectionScreen.swift in Sources */,
 				D863E7502E65C77D00912D52 /* ResetCardScreen.swift in Sources */,
+				D876699B2EB116C100E53613 /* ReceiveQRCodeSheet.swift in Sources */,
+				D876699C2EB116C100E53613 /* MoonPayPage.swift in Sources */,
+				D876699D2EB116C100E53613 /* NetworkSelectionWarningSheet.swift in Sources */,
+				D876699E2EB116C100E53613 /* ReceiveTemplatesSheet.swift in Sources */,
 				D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */,
 				D866EE882E54C0970071311E /* TwinOnboardingScreen.swift in Sources */,
 				D8D528052EA7BE3F000CD5C3 /* NumericValueHelper.swift in Sources */,
@@ -27015,6 +27046,7 @@
 				7982B00B2DE70E0100C41EA5 /* TangemAPI.swift in Sources */,
 				D875922B2E6B5E380088BBEA /* FeedbackUITests.swift in Sources */,
 				7982B00C2DE70E0100C41EA5 /* Timeouts.swift in Sources */,
+				D8E851FC2EB0E7870085DAC3 /* MainActionButtonsUITests.swift in Sources */,
 				D80903F32E1575DF0031E6CE /* ExpressAPI.swift in Sources */,
 				D826F6C42EAA58D900CA6353 /* SendKusamaNotificationUITests.swift in Sources */,
 				D8E7CEA32E56102400CD9726 /* SwapStoriesScreen.swift in Sources */,
