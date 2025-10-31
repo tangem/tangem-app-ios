@@ -42,7 +42,7 @@ final class SendPolkadotNotificationUITests: BaseTestCase {
 
         // the remaining balance is less than the required deposit
         let sendScreen = SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("1.299")
             .tapNextButton()
             .enterDestination(destinationAddress)
