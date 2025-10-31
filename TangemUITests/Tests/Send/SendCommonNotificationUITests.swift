@@ -22,7 +22,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .tapToken(ethTokenName)
             .tapSendButton()
-            .validate()
+            .waitForDisplay()
     }
 
     func testNotificationDisplayed_WhenCustomFeeLowerThanSlow() {
