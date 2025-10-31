@@ -143,7 +143,10 @@ private enum LeadingBadgeMapper {
                 )
             )
         case .staked(let staked):
-            let rewardRates = staked.balances.compactMap { $0.validatorType.validator?.rewardRate }
+            let rewardRates = staked.balances.compactMap { balance -> Decimal? in
+                guard case .active = balance.balanceType else { return nil }
+                return balance.validatorType.validator?.rewardRate
+            }
 
             guard !rewardRates.isEmpty else {
                 return nil
