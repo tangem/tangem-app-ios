@@ -63,6 +63,7 @@ struct SendAmountTokenView: View {
                         style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
                         loader: .init(size: CGSize(width: 130, height: 15))
                     )
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.balanceLabel)
                 case .receive(let state):
                     LoadableTextView(
                         state: state,
