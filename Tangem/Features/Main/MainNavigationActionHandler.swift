@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemVisa
 
 extension MainCoordinator {
     final class MainNavigationActionHandler {
@@ -272,7 +273,7 @@ extension MainCoordinator {
                   let coordinator,
                   let userWalletModel = userWalletRepository.models.first,
                   // If it's not nil - user already received and accepted Tangem Pay offer
-                  TangemPayAccount(keysRepository: userWalletModel.keysRepository) == nil
+                  TangemPayUtilities.getWalletAddressAndRefreshToken(keysRepository: userWalletModel.keysRepository) == nil
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
