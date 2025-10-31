@@ -90,22 +90,12 @@ final class TangemPayAccount {
         startCustomerInfoPolling()
     }
 
-    convenience init?(keysRepository: KeysRepository) {
-        guard let walletPublicKey = TangemPayUtilities.getKey(from: keysRepository),
-              let walletAddress = try? TangemPayUtilities.makeAddress(using: walletPublicKey)
-        else {
+    convenience init?(userWalletModel: UserWalletModel) {
+        guard let (walletAddress, refreshToken) = TangemPayUtilities.getWalletAddressAndRefreshToken(keysRepository: userWalletModel.keysRepository) else {
             return nil
         }
 
-        @Injected(\.visaRefreshTokenRepository) var visaRefreshTokenRepository: VisaRefreshTokenRepository
-        let visaRefreshTokenId = VisaRefreshTokenId.customerWalletAddress(walletAddress)
-
-        // If there was no refreshToken saved - means user never got tangem pay offer
-        guard let refreshToken = visaRefreshTokenRepository.getToken(forVisaRefreshTokenId: visaRefreshTokenId) else {
-            return nil
-        }
-
-        let authorizer = TangemPayAuthorizer(keysRepository: keysRepository)
+        let authorizer = TangemPayAuthorizer(userWalletModel: userWalletModel)
 
         let tokens = VisaAuthorizationTokens(
             accessToken: nil,
@@ -150,6 +140,13 @@ final class TangemPayAccount {
         }
     }
 
+    func reloadCustomerInfo() {
+        runTask(in: self) { tangemPayAccount in
+            let customerInfo = try await tangemPayAccount.getCustomerInfo()
+            tangemPayAccount.customerInfoSubject.send(customerInfo)
+        }
+    }
+
     private func startCustomerInfoPolling() {
         customerInfoPollingTask?.cancel()
 
@@ -183,13 +180,6 @@ final class TangemPayAccount {
         }
     }
 
-    private func reloadCustomerInfo() {
-        runTask(in: self) { tangemPayAccount in
-            let customerInfo = try await tangemPayAccount.getCustomerInfo()
-            tangemPayAccount.customerInfoSubject.send(customerInfo)
-        }
-    }
-
     private func getCustomerInfo() async throws -> VisaCustomerInfoResponse {
         try await prepareTokensHandler()
         return try await customerInfoManagementService.loadCustomerInfo()
@@ -202,7 +192,17 @@ final class TangemPayAccount {
         }
 
         if await authorizationTokensHandler.accessTokenExpired {
-            try await authorizationTokensHandler.forceRefreshToken()
+            do {
+                try await authorizationTokensHandler.forceRefreshToken()
+            } catch {
+                // Call of `forceRefreshToken` func could fail if same refresh becomes invalid (not expired, but invalid)
+                // That could happen if:
+                // 1. Token refresh called twice on the same device (could happen in there is a race condition somewhere)
+                // 2. User have one TangemPay account linked to more than one device
+                // (i.e. calling token refresh on one device automatically makes refresh token on second device invalid)
+                let tokens = try await authorizer.authorizeWithCustomerWallet()
+                try await authorizationTokensHandler.setupTokens(tokens)
+            }
         }
     }
 
