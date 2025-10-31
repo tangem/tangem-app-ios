@@ -246,5 +246,6 @@ struct TONPreSignData {
 extension TONTransactionBuilder {
     enum Constants {
         static let jettonTransferProcessingFee: Decimal = 0.05 // used to cover token transfer fees, commonly used value after TON fee reduction, actual costs now are ~10 times less, excess is returned
+        static let jettonTransferProcessingFeeForActiveWallet: Decimal = 0.0001 // reduced fee when recipient's jetton wallet is already active
     }
 }
