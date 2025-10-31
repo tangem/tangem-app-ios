@@ -12,6 +12,9 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [
         .iOS(.v15),
+        // [REDACTED_USERNAME]
+        // We forced to add macOS minimum target version
+        // that `swift-syntax` dependence can complied
         .macOS(.v10_15),
     ],
     products: [
