@@ -205,14 +205,13 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         return self
     }
 
-    @discardableResult
-    func longPressToken(_ tokenName: String) -> TokenScreen {
+    func longPressToken(_ tokenName: String) -> ContextMenuScreen {
         XCTContext.runActivity(named: "Long press token: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let tokenElement = tokensList.staticTextByLabel(label: tokenName)
             waitAndAssertTrue(tokenElement, "Token '\(tokenName)' should exist")
             tokenElement.press(forDuration: 1.0)
-            return TokenScreen(app)
+            return ContextMenuScreen(app)
         }
     }
 
