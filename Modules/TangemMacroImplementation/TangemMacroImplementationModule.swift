@@ -13,5 +13,6 @@ import SwiftSyntaxMacros
 struct TangemMacroImplementationModule: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         AssociatedValueInsensitiveEquatableMarco.self,
+        CaseFlagableMacro.self,
     ]
 }
