@@ -11,10 +11,13 @@ import TangemVisa
 import TangemSdk
 
 final class TangemPayAuthorizer {
-    let keysRepository: KeysRepository
+    private let userWalletModel: UserWalletModel
+    private var keysRepository: KeysRepository {
+        userWalletModel.keysRepository
+    }
 
-    init(keysRepository: KeysRepository) {
-        self.keysRepository = keysRepository
+    init(userWalletModel: UserWalletModel) {
+        self.userWalletModel = userWalletModel
     }
 
     func authorizeWithCustomerWallet() async throws -> VisaAuthorizationTokens {
@@ -22,12 +25,12 @@ final class TangemPayAuthorizer {
             throw TangemPayAuthorizerError.requiredCurveNotFound
         }
 
-        let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
-
         let task = CustomerWalletAuthorizationTask(
             seedKey: seedKey,
             authorizationService: VisaAPIServiceBuilder().buildAuthorizationService()
         )
+
+        let tangemSdk = userWalletModel.config.makeTangemSdk()
 
         let response = try await withCheckedThrowingContinuation { continuation in
             tangemSdk.startSession(with: task) { result in
