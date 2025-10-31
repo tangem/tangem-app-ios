@@ -10,6 +10,7 @@ import SwiftUI
 import Combine
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct SendAmountCompactTokenView: View {
     @ObservedObject var viewModel: SendAmountCompactTokenViewModel
@@ -58,6 +59,7 @@ struct SendAmountCompactTokenView: View {
                 Text(viewModel.amountText)
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .minimumScaleFactor(SendAmountStep.Constants.amountMinTextScale)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.sendAmountViewValue)
             }
 
             HStack(spacing: 4) {
