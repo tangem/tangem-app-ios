@@ -345,7 +345,8 @@ extension VisaUserWalletModel {
             .build(
                 cardId: cardId,
                 cardActivationStatus: .activated(authTokens: tokens),
-                refreshTokenSaver: self
+                refreshTokenSaver: self,
+                allowRefresherTask: true
             )
 
         if await authorizationTokensHandler.refreshTokenExpired {
@@ -512,6 +513,10 @@ extension VisaUserWalletModel: UserWalletModel {
     var nftManager: any NFTManager { NotSupportedNFTManager() }
 
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { .empty }
 
     var signer: TangemSigner { userWalletModel.signer }
 
