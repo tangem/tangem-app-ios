@@ -102,7 +102,7 @@ public extension TangemPayTransactionHistoryResponse {
     struct Collateral: Decodable, Equatable {
         public let amount: Double
         public let currency: String
-        public let memo: String
+        public let memo: String?
         public let chainId: Double
         public let walletAddress: String
         public let transactionHash: String
