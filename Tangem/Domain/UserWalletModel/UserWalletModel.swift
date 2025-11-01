@@ -39,6 +39,10 @@ protocol UserWalletModel:
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
     var name: String { get }
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { get }
+
     func validate() -> Bool
     func update(type: UpdateRequest)
     func addAssociatedCard(cardId: String)
