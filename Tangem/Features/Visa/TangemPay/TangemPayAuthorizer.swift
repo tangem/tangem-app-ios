@@ -11,17 +11,16 @@ import TangemVisa
 import TangemSdk
 
 final class TangemPayAuthorizer {
-    private let userWalletModel: UserWalletModel
-    private var keysRepository: KeysRepository {
-        userWalletModel.keysRepository
-    }
+    private weak var userWalletModel: UserWalletModel?
 
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
     }
 
     func authorizeWithCustomerWallet() async throws -> VisaAuthorizationTokens {
-        guard let seedKey = keysRepository.keys.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey else {
+        guard let userWalletModel,
+              let seedKey = userWalletModel.keysRepository.keys.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey
+        else {
             throw TangemPayAuthorizerError.requiredCurveNotFound
         }
 
@@ -45,7 +44,7 @@ final class TangemPayAuthorizer {
             }
         }
 
-        keysRepository.update(derivations: response.derivationResult)
+        userWalletModel.keysRepository.update(derivations: response.derivationResult)
         return response.tokens
     }
 }
