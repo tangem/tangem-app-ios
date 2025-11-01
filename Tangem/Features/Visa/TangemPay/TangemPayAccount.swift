@@ -47,7 +47,8 @@ final class TangemPayAccount {
             .build(
                 customerWalletAddress: walletAddress,
                 authorizationTokens: tokens,
-                refreshTokenSaver: nil
+                refreshTokenSaver: nil,
+                allowRefresherTask: false
             )
 
         customerInfoManagementService = VisaCustomerCardInfoProviderBuilder()
