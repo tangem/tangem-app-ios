@@ -124,27 +124,19 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
         if FeatureProvider.isAvailable(.visa) {
-            let tangemPayAccountPublisher = userWalletModel.keysRepository.keysPublisher
-                .compactMap { _ in
-                    TangemPayAccount(userWalletModel: userWalletModel)
-                }
-                .merge(with: userWalletModel.updatePublisher.compactMap(\.tangemPayAccount))
-                .first()
-                .share(replay: 1)
-
-            tangemPayAccountPublisher
+            userWalletModel.tangemPayAccountPublisher
                 .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
                 .receiveOnMain()
                 .assign(to: \.tangemPayNotificationInputs, on: self, ownership: .weak)
                 .store(in: &bag)
 
-            tangemPayAccountPublisher
+            userWalletModel.tangemPayAccountPublisher
                 .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
                 .receiveOnMain()
                 .assign(to: \.tangemPayCardIssuingInProgress, on: self, ownership: .weak)
                 .store(in: &bag)
 
-            tangemPayAccountPublisher
+            userWalletModel.tangemPayAccountPublisher
                 .withWeakCaptureOf(self)
                 .flatMapLatest { viewModel, tangemPayAccount in
                     tangemPayAccount.tangemPayCardDetailsPublisher
