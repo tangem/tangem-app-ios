@@ -36,6 +36,7 @@ final class CommonWCHandlersService {
         signer: TangemSigner,
         hardwareLimitationsUtil: HardwareLimitationsUtil,
         walletModelProvider: WalletConnectWalletModelProvider,
+        wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         connectedDApp: WalletConnectConnectedDApp
     ) throws -> WalletConnectMessageHandler {
         let method = request.method
@@ -51,6 +52,7 @@ final class CommonWCHandlersService {
             signer: signer,
             hardwareLimitationsUtil: hardwareLimitationsUtil,
             walletModelProvider: walletModelProvider,
+            wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
             connectedDApp: connectedDApp
         )
     }
@@ -73,9 +75,19 @@ extension CommonWCHandlersService: WCHandlersService {
             throw WalletConnectTransactionRequestProcessingError.userWalletRepositoryIsLocked
         }
 
-        guard
-            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == connectedDApp.userWalletID })
-        else {
+        let userWalletModel: any UserWalletModel
+
+        if let userWalletID = connectedDApp.userWalletID, let model = userWalletRepository.models.first(where: {
+            $0.userWalletId.stringValue == userWalletID
+        }) {
+            userWalletModel = model
+        } else if let accountId = connectedDApp.accountId, let model = userWalletRepository.models.first(where: {
+            $0.accountModelsManager.accountModels.contains {
+                $0.firstAvailableStandard().id.walletConnectIdentifierString == accountId
+            }
+        }) {
+            userWalletModel = model
+        } else {
             WCLogger.warning("Failed to find target user wallet")
             throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
         }
@@ -103,6 +115,7 @@ extension CommonWCHandlersService: WCHandlersService {
             signer: validatedRequest.userWalletModel.signer,
             hardwareLimitationsUtil: HardwareLimitationsUtil(config: validatedRequest.userWalletModel.config),
             walletModelProvider: validatedRequest.userWalletModel.wcWalletModelProvider,
+            wcAccountsWalletModelProvider: validatedRequest.userWalletModel.wcAccountsWalletModelProvider,
             connectedDApp: connectedDApp
         )
 
