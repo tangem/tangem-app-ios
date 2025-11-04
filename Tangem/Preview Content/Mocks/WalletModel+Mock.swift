@@ -28,7 +28,6 @@ extension CommonWalletModel {
             receiveAddressService: DummyReceiveAddressService(addressInfos: []),
             sendAvailabilityProvider: TransactionSendAvailabilityProvider(isSendingSupportedByCard: true),
             tokenBalancesRepository: TokenBalancesRepositoryMock(),
-            shouldPerformHealthCheck: false,
             isCustom: false
         )
     }()
