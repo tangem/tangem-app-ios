@@ -47,13 +47,25 @@ extension AccountModelsManager {
 }
 
 extension AccountModelsManager {
-    var hasMultipleAccounts: Bool {
-        accountModels.contains { accountModel in
-            if case .standard(.multiple) = accountModel {
-                return true
+    func findCryptoAccountModel(by accountId: String) -> (any CryptoAccountModel)? {
+        for accountModel in accountModels {
+            switch accountModel {
+            case .standard(let cryptoAccounts):
+                switch cryptoAccounts {
+                case .single(let cryptoAccountModel):
+                    if cryptoAccountModel.id.walletConnectIdentifierString == accountId {
+                        return cryptoAccountModel
+                    }
+                case .multiple(let cryptoAccountModels):
+                    if let cryptoAccountModel = cryptoAccountModels.first(where: {
+                        $0.id.walletConnectIdentifierString == accountId
+                    }) {
+                        return cryptoAccountModel
+                    }
+                }
             }
-
-            return false
         }
+
+        return nil
     }
 }
