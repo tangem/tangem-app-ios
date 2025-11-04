@@ -258,7 +258,13 @@ private extension YieldTransactionFeeProvider {
             throw YieldModuleError.feeNotFound
         }
 
-        return fees
+        return fees.map {
+            $0.increasingGasLimit(
+                byPercents: EthereumFeeParametersConstants.defaultGasLimitIncreasePercent,
+                blockchain: blockchain,
+                decimalValue: blockchain.decimalValue
+            )
+        }
     }
 
     func estimateFees(transactions: [TransactionData]) async throws -> [Fee] {
