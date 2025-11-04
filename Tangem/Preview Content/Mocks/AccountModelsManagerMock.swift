@@ -66,6 +66,10 @@ final class AccountModelsManagerMock {
 // MARK: - AccountModelsManager protocol conformance
 
 extension AccountModelsManagerMock: AccountModelsManager {
+    var hasMultipleAccounts: Bool {
+        true
+    }
+
     var canAddCryptoAccounts: Bool {
         true
     }
