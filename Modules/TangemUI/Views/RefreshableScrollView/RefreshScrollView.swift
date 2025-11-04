@@ -13,7 +13,8 @@ import TangemFoundation
 public struct RefreshScrollView<Content: View>: View {
     // Init
 
-    @ObservedObject private var stateObject: RefreshScrollViewStateObject
+    @ObservedObject
+    private var stateObject: RefreshScrollViewStateObject
     private let contentSettings: ContentSettings
     private let showsIndicators: Bool
     private let content: () -> Content
@@ -21,7 +22,10 @@ public struct RefreshScrollView<Content: View>: View {
     // Internal
 
     @State private var introspectResponderChainID = UUID()
-    private let coordinateSpaceName = UUID()
+
+    // Setupable
+
+    private var contentOffset: Binding<CGPoint>?
 
     public init(
         stateObject: RefreshScrollViewStateObject,
@@ -39,11 +43,18 @@ public struct RefreshScrollView<Content: View>: View {
         ZStack(alignment: .top) {
             CustomRefreshControl(stateObject: stateObject.refreshControlStateObject)
 
-            if #available(iOS 18.0, *) {
-                scrollView
-            } else {
-                legacyScrollView
+            EnhanceScrollView(.vertical, showsIndicators: showsIndicators) {
+                scrollContent
             }
+            .readContentOffset(
+                contentOffset: .init(
+                    get: { stateObject.contentOffset },
+                    set: { newValue in
+                        stateObject.contentOffset = newValue
+                        contentOffset?.wrappedValue = newValue
+                    }
+                )
+            )
         }
         .introspectResponderChain(
             introspectedType: UIScrollView.self,
@@ -56,29 +67,6 @@ public struct RefreshScrollView<Content: View>: View {
         .onAppear {
             introspectResponderChainID = .init()
         }
-    }
-
-    @available(iOS 18.0, *)
-    var scrollView: some View {
-        ScrollView(.vertical) {
-            scrollContent
-        }
-        .scrollIndicators(showsIndicators ? .automatic : .hidden)
-        .onScrollGeometryChange(for: ScrollGeometry.self, of: \.self) { _, newValue in
-            let yOffset = newValue.contentOffset.y + newValue.contentInsets.top
-
-            stateObject.contentOffset = .init(x: newValue.contentOffset.x, y: yOffset)
-        }
-    }
-
-    var legacyScrollView: some View {
-        ScrollView(.vertical, showsIndicators: showsIndicators) {
-            scrollContent.readContentOffset(
-                inCoordinateSpace: .named(coordinateSpaceName),
-                bindTo: $stateObject.contentOffset
-            )
-        }
-        .coordinateSpace(name: coordinateSpaceName)
     }
 
     @ViewBuilder
@@ -102,6 +90,14 @@ public extension RefreshScrollView {
             spacing: CGFloat? = nil,
             pinnedViews: PinnedScrollableViews = .init()
         )
+    }
+}
+
+// MARK: - Setupable
+
+extension RefreshScrollView: Setupable {
+    public func readContentOffset(contentOffset: Binding<CGPoint>) -> Self {
+        map { $0.contentOffset = contentOffset }
     }
 }
 

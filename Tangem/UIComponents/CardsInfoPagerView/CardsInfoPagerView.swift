@@ -265,15 +265,21 @@ struct CardsInfoPagerView<
                     RefreshScrollView(stateObject: refreshScrollViewStateObject) {
                         makeContent(with: geometryProxy)
                     }
+                    .readContentOffset(
+                        contentOffset: scrollState.contentOffsetSubject.asWriteOnlyBinding(.zero)
+                    )
                 } else {
-                    ScrollView(showsIndicators: false) {
+                    EnhanceScrollView {
                         makeContent(with: geometryProxy)
                     }
+                    .readContentOffset(
+                        contentOffset: scrollState.contentOffsetSubject.asWriteOnlyBinding(.zero)
+                    )
                 }
             }
             .onChange(of: scrollDetector.isScrolling) { [oldValue = scrollDetector.isScrolling] newValue in
                 if newValue != oldValue, !newValue {
-                    performVerticalScrollIfNeeded(with: scrollViewProxy)
+                    performVerticalScrollIfNeeded(geometryProxy: geometryProxy, scrollViewProxy: scrollViewProxy)
                 }
             }
             .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
@@ -522,8 +528,11 @@ struct CardsInfoPagerView<
 
     // MARK: - Vertical auto scrolling support (collapsible/expandable header)
 
-    private func performVerticalScrollIfNeeded(with scrollViewProxy: ScrollViewProxy) {
+    private func performVerticalScrollIfNeeded(geometryProxy: GeometryProxy, scrollViewProxy: ScrollViewProxy) {
         let yOffset = scrollState.rawContentOffset.y - Constants.headerVerticalPadding
+        print("geometryProxy.safeAreaInsets.top ->>", geometryProxy.safeAreaInsets.top)
+        print("scrollState.rawContentOffset.y ->>", scrollState.rawContentOffset.y)
+        print("headerHeight ->>", headerHeight)
 
         guard 0.0 <= yOffset, yOffset < headerHeight else { return }
 

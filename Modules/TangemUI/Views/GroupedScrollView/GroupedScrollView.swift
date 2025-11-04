@@ -13,7 +13,7 @@ import TangemUIUtils
 
 public struct GroupedScrollView<Content: View>: View {
     private let contentType: ContentType
-    private let showsIndicators: Bool?
+    private let showsIndicators: Bool
     private let content: () -> Content
 
     private var interContentPadding: CGFloat = 0
@@ -26,7 +26,7 @@ public struct GroupedScrollView<Content: View>: View {
         @ViewBuilder content: @escaping () -> Content
     ) {
         contentType = .lazy(alignment: alignment, spacing: spacing)
-        showsIndicators = nil
+        showsIndicators = true
         self.content = content
     }
 
@@ -42,10 +42,9 @@ public struct GroupedScrollView<Content: View>: View {
         self.content = content
     }
 
-    @available(iOS, deprecated: 16.0, message: "Use the scrollIndicators(:_) modifier instead")
     public init(
         contentType: ContentType,
-        showsIndicators: Bool,
+        showsIndicators: Bool = true,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.contentType = contentType
@@ -53,17 +52,8 @@ public struct GroupedScrollView<Content: View>: View {
         self.content = content
     }
 
-    public init(
-        contentType: ContentType,
-        @ViewBuilder content: @escaping () -> Content
-    ) {
-        self.contentType = contentType
-        self.content = content
-        showsIndicators = nil
-    }
-
     public var body: some View {
-        makeScrollView {
+        EnhanceScrollView(showsIndicators: showsIndicators) {
             contentView
                 .padding(.horizontal, horizontalPadding)
                 .padding(.vertical, interContentPadding)
@@ -77,15 +67,6 @@ public struct GroupedScrollView<Content: View>: View {
             VStack(alignment: alignment, spacing: spacing, content: content)
         case .lazy(let alignment, let spacing):
             LazyVStack(alignment: alignment, spacing: spacing, content: content)
-        }
-    }
-
-    @ViewBuilder
-    private func makeScrollView<ScrollViewContent: View>(content: () -> ScrollViewContent) -> some View {
-        if let showsIndicators {
-            ScrollView(showsIndicators: showsIndicators, content: content)
-        } else {
-            ScrollView(content: content)
         }
     }
 }
