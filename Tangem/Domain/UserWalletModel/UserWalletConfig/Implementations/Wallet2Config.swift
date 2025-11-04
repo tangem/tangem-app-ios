@@ -96,6 +96,8 @@ extension Wallet2Config: UserWalletConfig {
         guard isDemo else { return [] }
 
         let blockchainIds = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
+            .filter { card.walletCurves.contains($0.curve) }
+            .map { $0.coinId }
 
         let entries: [TokenItem] = blockchainIds.compactMap { coinId in
             guard let blockchain = supportedBlockchains.first(where: { $0.coinId == coinId }) else {
