@@ -475,7 +475,7 @@
 "express_more_providers_soon" = "Pronto habrá más proveedores disponibles";
 "express_provider_best_rate" = "Mejor tarifa";
 "express_provider_fca_warning_list" = "Lista de advertencias de la FCA";
-"express_provider_great_rate" = "Best choice";
+"express_provider_great_rate" = "Mejor opción";
 "express_provider_in_fca_warning_list" = "Proveedor en la lista de advertencias de la FCA";
 "express_provider_max_amount" = "Disponible hasta %@";
 "express_provider_min_amount" = "Disponible desde %@";
@@ -923,7 +923,7 @@
 "organize_tokens_sort_by_balance" = "Por saldo";
 "organize_tokens_title" = "Organizar tokens";
 "organize_tokens_ungroup" = "Desagrupar";
-"provider_name_support" = "%s support";
+"provider_name_support" = "Soporte de %s";
 "push_notifications_more_info" = "Más información";
 "push_notifications_permission_alert_description" = "Puede activar las Notificaciones para Tangem en Ajustes.";
 "push_notifications_permission_alert_negative_button" = "Activar más tarde";
@@ -1108,7 +1108,7 @@
 "settings_wallet_name_title" = "Nombre";
 "stake_token_description" = "Haga que su token trabaje para Ud.";
 "staking_account_initialization_footer" = "A network fee is a small payment required to process and confirm your transaction on the blockchain.";
-"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_account_initialization_message" = "Para comenzar a hacer staking, debe activar su cuenta TON con una auto-transacción de 1 TON. Los fondos permanecerán en su billetera; este paso solo es necesario para habilitar su cuenta para staking.";
 "staking_account_initialization_title" = "Account activation";
 "staking_active_footer" = "Para deshacer el staking de sus activos, pulse en el bloque de arriba";
 "staking_active" = "Activo";
@@ -1179,7 +1179,7 @@
 "staking_notification_restake_rewards_text" = "Reinvierta las recompensas obtenidas en el monto apostado, aumentando las ganancias potenciales.";
 "staking_notification_restake_text" = "La opción de volver a staking le permite mover sus fondos de un validador a otro sin necesidad de retirarlos.";
 "staking_notification_stake_entire_balance_text" = "Está a punto de hacer staking con todo su saldo. Recomendamos dejar una pequeña cantidad para cubrir las tarifas de red para hacer unstaking o reclamar recompensas.";
-"staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_notification_ton_account_initialization_message" = "Para empezar a hacer staking, primero debes activar tu cuenta de TON.";
 "staking_notification_ton_account_initialization_title" = "Account activation";
 "staking_notification_ton_activate_account" = "Para empezar a hacer staking en TON, realice primero una transacción de salida de cualquier importe - esto activará su billetera.";
 "staking_notification_ton_extra_reserve_info" = "Es posible que se requieran hasta 0.2 TON además de la tarifa de red para completar la transacción. Cualquier cantidad no utilizada será reembolsada.";
@@ -1839,6 +1839,7 @@
 "yield_module_status_paused" = "En pausa";
 "yield_module_stop_earning_sheet_description" = "Al desactivar esto, retirará sus fondos de Aave a %@ en su billetera y dejará de ganar recompensas.";
 "yield_module_stop_earning_sheet_fee_note" = "La comisión de red se deducirá del importe que retire.";
+"yield_module_stop_earning_sheet_title" = "Desactivar el modo de rendimiento";
 "yield_module_stop_earning" = "Desactivar el modo de rendimiento";
 "yield_module_supply_apr" = "Suministro APY";
 "yield_module_supply" = "Supply";
