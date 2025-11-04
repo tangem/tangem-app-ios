@@ -89,6 +89,16 @@ enum WalletConnectModuleFactory {
     ) -> WalletConnectDAppConnectionViewModel? {
         let filteredUserWallets = Self.userWalletRepository.models.filter { $0.config.isFeatureVisible(.walletConnect) }
 
+        let hasMultipleAccountsWallet = filteredUserWallets.filter {
+            $0.accountModelsManager.accountModels.contains { accountModel in
+                if case .standard(.multiple) = accountModel {
+                    return true
+                }
+
+                return false
+            }
+        }.isNotEmpty
+
         guard filteredUserWallets.isNotEmpty else {
             assertionFailure("UserWalletRepository does not have any UserWalletModel that supports WalletConnect feature. Developer mistake.")
             return nil
@@ -109,18 +119,26 @@ enum WalletConnectModuleFactory {
             uri: uri
         )
 
+        let migrateToAccountsUseCase = WalletConnectToAccountsMigrationUseCase(
+            connectedDAppRepository: connectedDAppRepository,
+            userWalletRepository: userWalletRepository,
+            appSettings: AppSettings.shared,
+            logger: WCLogger
+        )
+
         let interactor = WalletConnectDAppConnectionInteractor(
             getDAppConnectionProposal: getDAppConnectionProposalUseCase,
             resolveAvailableBlockchains: WalletConnectResolveAvailableBlockchainsUseCase(),
             approveDAppProposal: WalletConnectApproveDAppProposalUseCase(dAppProposalApprovalService: dAppProposalApprovalService),
             rejectDAppProposal: WalletConnectRejectDAppProposalUseCase(dAppProposalApprovalService: dAppProposalApprovalService),
-            persistConnectedDApp: WalletConnectPersistConnectedDAppUseCase(repository: connectedDAppRepository)
+            persistConnectedDApp: WalletConnectPersistConnectedDAppUseCase(repository: connectedDAppRepository),
+            migrateToAccounts: migrateToAccountsUseCase
         )
 
         let hapticFeedbackGenerator = WalletConnectUIFeedbackGenerator()
 
         let connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
-            state: .loading(selectedUserWalletName: selectedUserWallet.name, walletSelectionIsAvailable: filteredUserWallets.count > 1),
+            state: .loading(selectedUserWalletName: selectedUserWallet.name, targetSelectionIsAvailable: filteredUserWallets.count > 1 || hasMultipleAccountsWallet),
             interactor: interactor,
             analyticsLogger: CommonWalletConnectDAppConnectionRequestAnalyticsLogger(source: source),
             logger: WCLogger,
