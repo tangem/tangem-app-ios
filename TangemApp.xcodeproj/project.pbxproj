@@ -139,10 +139,6 @@
 		0F25E1732E9E90C600C67A34 /* HardwareBackupTypesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25E1722E9E90C600C67A34 /* HardwareBackupTypesView.swift */; };
 		0F25E1792E9E90E500C67A34 /* HardwareBackupTypesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25E1782E9E90E500C67A34 /* HardwareBackupTypesViewModel.swift */; };
 		0F25E17B2E9E912200C67A34 /* HardwareBackupTypesRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25E17A2E9E912200C67A34 /* HardwareBackupTypesRoutable.swift */; };
-		0F25E1932EA12C2D00C67A34 /* MobileOnboardingUpgradeStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25E1922EA12C2D00C67A34 /* MobileOnboardingUpgradeStep.swift */; };
-		0F25E1962EA12C8700C67A34 /* MobileOnboardingUpgradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25E1952EA12C8700C67A34 /* MobileOnboardingUpgradeView.swift */; };
-		0F25E1982EA12C8D00C67A34 /* MobileOnboardingUpgradeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25E1972EA12C8D00C67A34 /* MobileOnboardingUpgradeViewModel.swift */; };
-		0F25E19A2EA12CA700C67A34 /* MobileOnboardingUpgradeDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25E1992EA12CA700C67A34 /* MobileOnboardingUpgradeDelegate.swift */; };
 		0F25E19C2EA13B1C00C67A34 /* MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F25E19B2EA13B1C00C67A34 /* MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder.swift */; };
 		0F2784FD2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2784FC2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift */; };
 		0F2785182E290E2A00742D0F /* MobileSettingsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */; };
@@ -4584,10 +4580,6 @@
 		0F25E1722E9E90C600C67A34 /* HardwareBackupTypesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareBackupTypesView.swift; sourceTree = "<group>"; };
 		0F25E1782E9E90E500C67A34 /* HardwareBackupTypesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareBackupTypesViewModel.swift; sourceTree = "<group>"; };
 		0F25E17A2E9E912200C67A34 /* HardwareBackupTypesRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareBackupTypesRoutable.swift; sourceTree = "<group>"; };
-		0F25E1922EA12C2D00C67A34 /* MobileOnboardingUpgradeStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingUpgradeStep.swift; sourceTree = "<group>"; };
-		0F25E1952EA12C8700C67A34 /* MobileOnboardingUpgradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingUpgradeView.swift; sourceTree = "<group>"; };
-		0F25E1972EA12C8D00C67A34 /* MobileOnboardingUpgradeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingUpgradeViewModel.swift; sourceTree = "<group>"; };
-		0F25E1992EA12CA700C67A34 /* MobileOnboardingUpgradeDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingUpgradeDelegate.swift; sourceTree = "<group>"; };
 		0F25E19B2EA13B1C00C67A34 /* MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder.swift; sourceTree = "<group>"; };
 		0F2784FC2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowRoutable.swift; sourceTree = "<group>"; };
 		0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSettingsUtil.swift; sourceTree = "<group>"; };
@@ -9079,16 +9071,6 @@
 			path = HardwareBackupTypes;
 			sourceTree = "<group>";
 		};
-		0F25E1942EA12C5500C67A34 /* Upgrade */ = {
-			isa = PBXGroup;
-			children = (
-				0F25E1952EA12C8700C67A34 /* MobileOnboardingUpgradeView.swift */,
-				0F25E1972EA12C8D00C67A34 /* MobileOnboardingUpgradeViewModel.swift */,
-				0F25E1992EA12CA700C67A34 /* MobileOnboardingUpgradeDelegate.swift */,
-			);
-			path = Upgrade;
-			sourceTree = "<group>";
-		};
 		0F2786162E2AD93400742D0F /* Flow */ = {
 			isa = PBXGroup;
 			children = (
@@ -9127,7 +9109,6 @@
 				0F27863A2E2B8BF900742D0F /* MobileOnboardingSeedPhraseRecoveryStep.swift */,
 				0F27863C2E2B904A00742D0F /* MobileOnboardingSeedPhraseValidationStep.swift */,
 				0F2786482E2BAC1300742D0F /* MobileOnboardingSeedPhraseRevealStep.swift */,
-				0F25E1922EA12C2D00C67A34 /* MobileOnboardingUpgradeStep.swift */,
 			);
 			path = Steps;
 			sourceTree = "<group>";
@@ -9422,7 +9403,6 @@
 				0FFA35032E05400700ACB48F /* SeedPhraseRecovery */,
 				0FB934052E4A91AD00DAB673 /* SeedPhraseValidation */,
 				0F84C1232E1683CD00DC7FB1 /* SeedPhraseReveal */,
-				0F25E1942EA12C5500C67A34 /* Upgrade */,
 				0FFA350D2E058FD400ACB48F /* AccessCode */,
 				0FFA34BE2E02D3E700ACB48F /* Success */,
 			);
@@ -24440,7 +24420,6 @@
 				EFB932032C3EAF7900C999E9 /* SendStepType.swift in Sources */,
 				EF8C09CE2E95740F00C5A02A /* NewTokenSelectorEmptyContentView.swift in Sources */,
 				B66771E92DE3C7CA007563D0 /* CachesDirectoryStorage.File+.swift in Sources */,
-				0F25E1982EA12C8D00C67A34 /* MobileOnboardingUpgradeViewModel.swift in Sources */,
 				B656718F2DB2A4260037CD33 /* NFTReceiveCoordinatorView.swift in Sources */,
 				EF04236A2E996D0800D80B0B /* NewTokenSelectorWalletsProvider.swift in Sources */,
 				B65671902DB2A4260037CD33 /* NFTReceiveCoordinator.swift in Sources */,
@@ -24718,7 +24697,6 @@
 				B6B3BB5F2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift in Sources */,
 				DC8F7BDF2E0CBC3F00B3F5DB /* WCCustomAllowanceView.swift in Sources */,
 				2D22765D2C0F0A4F006BB6A1 /* MarketsListOrderBottomSheetViewModel.swift in Sources */,
-				0F25E19A2EA12CA700C67A34 /* MobileOnboardingUpgradeDelegate.swift in Sources */,
 				B0CE1E492A309F9E00D297F8 /* FakeCryptoBalanceProvider.swift in Sources */,
 				DC9A4A302AB4AE320031C7C2 /* UserCodeRecoveringCardInteractor.swift in Sources */,
 				B6ACD0102AD69B50005A6CA3 /* OrganizeTokensDragAndDropMarkView.swift in Sources */,
@@ -24907,7 +24885,6 @@
 				B0EA18AD2C465D860023B72A /* DescriptionBottomSheetView.swift in Sources */,
 				DC075F912DE1A4600092457A /* WCSolanaDefaultTransactionDetailsView.swift in Sources */,
 				B0F8E87C2D097EEC00458246 /* VisaOnboardingViewModelBuilder.swift in Sources */,
-				0F25E1962EA12C8700C67A34 /* MobileOnboardingUpgradeView.swift in Sources */,
 				0AF14E782E435C8C00D9B40F /* NewAppSettingsViewModel.swift in Sources */,
 				0F27861C2E2ADAAB00742D0F /* MobileOnboardingFlowStep.swift in Sources */,
 				DC0BA52A2CA2E112009D9233 /* CommonUserWalletModelFactory.swift in Sources */,
@@ -25551,7 +25528,6 @@
 				DABA435627BFC41700718AC6 /* StoriesBottomButtons.swift in Sources */,
 				B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */,
 				B022DB3D26C24D13006F18B4 /* ConfettiGenerator.swift in Sources */,
-				0F25E1932EA12C2D00C67A34 /* MobileOnboardingUpgradeStep.swift in Sources */,
 				B67EA5892D9A250A00441EA8 /* NotSupportedNFTManager.swift in Sources */,
 				B6A373082A45CF2B0076A11C /* UserTokenListUpdateType.swift in Sources */,
 				B0A943602565010900A7958E /* TwinsWalletCreationUtil.swift in Sources */,
@@ -26607,7 +26583,6 @@
 				EF8E53122E71A60400C03184 /* OnrampSummaryStepBuildable.swift in Sources */,
 				DC04693A2B8E6BE400C785D1 /* SellActionURLHelper.swift in Sources */,
 				B018770F2CEC90BC00794300 /* VisaOnboardingAccessCodeSetupViewModel.swift in Sources */,
-				EFF763E12C4E38B600E846F4 /* SendStepViewAnimatable.swift in Sources */,
 				C28CF4042E9FC1920099797D /* NoMailAccountPlaceholderView.swift in Sources */,
 				2D9FABA82E13F739005AE305 /* AddressResolverFactoryProvider.swift in Sources */,
 				EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */,
