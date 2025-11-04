@@ -383,6 +383,24 @@ private extension EthereumWalletManager {
         return fees
     }
 
+    func getYieldModuleInteractionFee(yieldContractAddress: String, transferData: Data) -> AnyPublisher<[Fee], Error> {
+        getFee(
+            destination: yieldContractAddress,
+            value: nil,
+            data: transferData
+        )
+        .map { [wallet] fees in
+            fees.map {
+                $0.increasingGasLimit(
+                    byPercents: EthereumFeeParametersConstants.defaultGasLimitIncreasePercent,
+                    blockchain: wallet.blockchain,
+                    decimalValue: wallet.blockchain.decimalValue
+                )
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+
     func updateWallet(with response: EthereumInfoResponse, yieldTokensBalances: [Token: Result<Amount, Error>]) {
         wallet.add(coinValue: response.balance)
 
@@ -436,8 +454,18 @@ extension EthereumWalletManager: TransactionFeeProvider {
                             amount: sanitizedAmount
                         )
 
-                        let contractAddress = token.metadata.yieldSupply.flatMap { $0.yieldContractAddress } ?? token.contractAddress
-                        return walletManager.getFee(destination: contractAddress, value: nil, data: transferData)
+                        if let yieldContractAddress = token.metadata.yieldSupply.flatMap({ $0.yieldContractAddress }) {
+                            return walletManager.getYieldModuleInteractionFee(
+                                yieldContractAddress: yieldContractAddress,
+                                transferData: transferData
+                            )
+                        } else {
+                            return walletManager.getFee(
+                                destination: token.contractAddress,
+                                value: nil,
+                                data: transferData
+                            )
+                        }
                     } catch {
                         return .anyFail(error: error)
                     }
