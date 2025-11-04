@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BigInt
 
 public protocol FeeParameters {}
 
@@ -39,5 +40,22 @@ extension Fee: CustomStringConvertible {
             string += "\nFee parameters: \(parameters)"
         }
         return string
+    }
+}
+
+public extension Fee {
+    func increasingGasLimit(byPercents: BigUInt, blockchain: Blockchain, decimalValue: Decimal) -> Fee {
+        guard let parameters = parameters as? EthereumFeeParameters else {
+            return self
+        }
+
+        let gasLimit = parameters.gasLimit * (BigUInt(100) + byPercents) / BigUInt(100)
+        let newParameters = parameters.changingGasLimit(to: gasLimit)
+        let feeValue = newParameters.calculateFee(decimalValue: decimalValue)
+
+        var amount = amount
+        amount.value = feeValue
+
+        return Fee(amount, parameters: newParameters)
     }
 }
