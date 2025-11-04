@@ -461,12 +461,6 @@ extension KaspaKRC20.Error: UniversalError {
     }
 }
 
-extension SubscanAPIResult.Error: UniversalError {
-    public var errorCode: Int {
-        102022000
-    }
-}
-
 extension SS58.Error: UniversalError {
     public var errorCode: Int {
         switch self {
