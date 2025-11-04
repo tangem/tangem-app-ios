@@ -1,3 +1,4 @@
+
 //
 //  WalletConnectConnectedDAppDetailsViewState.swift
 //  TangemApp
@@ -34,6 +35,7 @@ extension WalletConnectConnectedDAppDetailsViewState {
         var navigationBar: NavigationBar
         let dAppDescriptionSection: EntitySummaryView.ViewState
         let walletSection: WalletSection?
+        let connectionTargetSection: ConnectionTargetSection?
         let dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel?
         let connectedNetworksSection: ConnectedNetworksSection?
         var disconnectButton = DisconnectButton(isLoading: false)
@@ -44,6 +46,17 @@ extension WalletConnectConnectedDAppDetailsViewState.DAppDetails {
     struct NavigationBar: Equatable {
         let title = Localization.wcConnectedAppTitle
         var connectedTime: String
+    }
+
+    struct ConnectionTargetSection: Equatable {
+        let iconAsset = Assets.Glyphs.walletNew
+        let targetName: String
+        let target: Target
+
+        init(targetName: String, target: Target) {
+            self.targetName = targetName
+            self.target = target
+        }
     }
 
     struct WalletSection: Equatable {
@@ -72,5 +85,21 @@ extension WalletConnectConnectedDAppDetailsViewState.DAppDetails {
         let iconAsset: ImageType
         let name: String
         let currencySymbol: String
+    }
+}
+
+extension WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectionTargetSection {
+    enum Target: Equatable {
+        case wallet(WCWalletTarget = WCWalletTarget())
+        case account(WCAccountTarget)
+
+        struct WCWalletTarget: Equatable {
+            let label = Localization.wcCommonWallet
+        }
+
+        struct WCAccountTarget: Equatable {
+            let label = Localization.accountDetailsTitle
+            let icon: AccountModel.Icon
+        }
     }
 }
