@@ -50,11 +50,7 @@ struct UserWalletConfigFactory {
                 return Wallet1Config(card: cardInfo.card, isDemo: true)
             }
 
-            if isDemo {
-                return NoteDemoConfig(card: cardInfo.card, noteData: noteData)
-            } else {
-                return NoteConfig(card: cardInfo.card, noteData: noteData)
-            }
+            return NoteConfig(card: cardInfo.card, noteData: noteData, isDemo: isDemo)
         case .twin(let walletData, let twinData):
             return TwinConfig(card: cardInfo.card, walletData: walletData, twinData: twinData)
         case .legacy(let walletData):
