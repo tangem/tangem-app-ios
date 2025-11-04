@@ -19,7 +19,7 @@ final class HardwareCreateWalletViewModel: ObservableObject {
     @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
-    let screenTitle = Localization.walletCreateCommonTitle
+    let screenTitle = Localization.hardwareWalletCreateTitle
     let buyButtonTitle = Localization.detailsBuyWallet
     let scanButtonTitle = Localization.homeButtonScan
 
@@ -55,23 +55,23 @@ extension HardwareCreateWalletViewModel {
     func makeInfoItems() -> [InfoItem] {
         let keyTrait = InfoItem(
             icon: Assets.Glyphs.mobileSecurity,
-            title: Localization.hwUpgradeKeyMigrationTitle,
-            subtitle: Localization.hwUpgradeKeyMigrationDescription
+            title: Localization.hardwareWalletKeyFeatureTitle,
+            subtitle: Localization.hardwareWalletKeyFeatureDescription
         )
 
-        let fundsTrait = InfoItem(
+        let backupTrait = InfoItem(
             icon: Assets.Visa.securityCheck,
-            title: Localization.hwUpgradeFundsAccessTitle,
-            subtitle: Localization.hwUpgradeFundsAccessDescription
+            title: Localization.hardwareWalletBackupFeatureTitle,
+            subtitle: Localization.hardwareWalletBackupFeatureDescription
         )
 
         let securityTrait = InfoItem(
             icon: Assets.lock24,
-            title: Localization.hwUpgradeGeneralSecurityTitle,
-            subtitle: Localization.hwUpgradeGeneralSecurityDescription
+            title: Localization.hardwareWalletSecurityFeatureTitle,
+            subtitle: Localization.hardwareWalletSecurityFeatureDescription
         )
 
-        return [keyTrait, fundsTrait, securityTrait]
+        return [keyTrait, backupTrait, securityTrait]
     }
 }
 
