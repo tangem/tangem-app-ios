@@ -83,11 +83,11 @@ extension PolkadotNetwork {
     var existentialDeposit: Amount {
         switch self {
         case .polkadot(let curve):
-            return Amount(with: .polkadot(curve: curve, testnet: false), value: 1)
+            // https://support.polkadot.network/support/solutions/articles/65000181800-what-is-asset-hub-and-how-do-i-use-it-
+            return Amount(with: .polkadot(curve: curve, testnet: false), value: Decimal(stringValue: "0.01")!)
         case .kusama(let curve):
-            // This value was ALSO found experimentally, just like the one on the Westend.
-            // It is different from what official documentation is telling us.
-            return Amount(with: .kusama(curve: curve), value: Decimal(stringValue: "0.000333333333")!)
+            // https://support.polkadot.network/support/solutions/articles/65000181800-what-is-asset-hub-and-how-do-i-use-it-
+            return Amount(with: .kusama(curve: curve), value: Decimal(stringValue: "0.000003333")!)
         case .westend(let curve):
             // This value was found experimentally by sending transactions with different values to inactive accounts.
             // This is the lowest amount that activates an account on the Westend network.
