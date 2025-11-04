@@ -152,7 +152,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         }
     }
 
-    func onAcctionTap(action: YieldAction) {
+    func onActionTap(action: YieldAction) {
         let token = walletModel.tokenItem
         isProcessingRequest = true
 
