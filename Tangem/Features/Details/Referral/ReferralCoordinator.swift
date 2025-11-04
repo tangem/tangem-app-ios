@@ -59,11 +59,8 @@ extension ReferralCoordinator: ReferralRoutable {
                     selectedItem: selectedAccount,
                     userWalletModel: userWalletModel,
                     onSelect: { [weak self] result in
-                        defer { self?.closeSheet() }
-
-                        guard let cryptoAccountModel = result.cryptoAccountModel else { return }
-
-                        onSelect(cryptoAccountModel)
+                        result.cryptoAccountModel.flatMap { onSelect($0) }
+                        self?.closeSheet()
                     }
                 )
             )
