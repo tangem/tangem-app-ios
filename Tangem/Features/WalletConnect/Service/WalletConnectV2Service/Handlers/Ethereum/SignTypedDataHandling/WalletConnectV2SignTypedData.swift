@@ -46,6 +46,41 @@ struct WalletConnectV2SignTypedDataHandler {
         self.signer = signer
         request = requestParams
     }
+
+    init(
+        requestParams: AnyCodable,
+        blockchainId: String,
+        signer: WalletConnectSigner,
+        wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
+        accountId: String
+    ) throws {
+        let params = try requestParams.get([String].self)
+
+        guard params.count >= 2 else {
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
+        }
+
+        message = params[1]
+
+        let targetAddress = params[0]
+
+        walletModel = try wcAccountsWalletModelProvider.getModel(
+            with: targetAddress,
+            blockchainId: blockchainId,
+            accountId: accountId
+        )
+
+        guard
+            let messageData = message.data(using: .utf8),
+            let typedData = try? JSONDecoder().decode(EIP712TypedData.self, from: messageData)
+        else {
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
+        }
+
+        self.typedData = typedData
+        self.signer = signer
+        request = requestParams
+    }
 }
 
 extension WalletConnectV2SignTypedDataHandler: WalletConnectMessageHandler {

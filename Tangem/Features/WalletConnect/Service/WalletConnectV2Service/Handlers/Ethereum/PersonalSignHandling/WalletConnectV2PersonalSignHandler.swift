@@ -55,6 +55,40 @@ struct WalletConnectV2PersonalSignHandler {
         self.signer = signer
     }
 
+    init(
+        request: AnyCodable,
+        blockchainId: String,
+        signer: WalletConnectSigner,
+        wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
+        accountId: String
+    ) throws {
+        let castedParams: [String]
+        do {
+            castedParams = try request.get([String].self)
+
+            if castedParams.count < 2 {
+                throw WalletConnectTransactionRequestProcessingError.invalidPayload(request.description)
+            }
+
+            let targetAddress = castedParams[1]
+
+            walletModel = try wcAccountsWalletModelProvider.getModel(
+                with: targetAddress,
+                blockchainId: blockchainId,
+                accountId: accountId
+            )
+
+            self.request = request
+        } catch {
+            let stringRepresentation = request.stringRepresentation
+            WCLogger.error("Failed to create sign handler", error: error)
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload(stringRepresentation)
+        }
+
+        message = castedParams[0]
+        self.signer = signer
+    }
+
     private func makePersonalMessageData(_ data: Data) -> Data {
         let prefix = "\u{19}Ethereum Signed Message:\n"
         let prefixData = (prefix + "\(data.count)").data(using: .utf8)!
