@@ -19,18 +19,8 @@ struct BalanceWithButtonsView: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
-                    HStack(spacing: 4) {
-                        Text(Localization.commonBalanceTitle)
-                            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-                        if let apy = viewModel.yieldModuleApy {
-                            Text(AppConstants.dotSign)
-                                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-                            Text(Localization.yieldModuleTokenDetailsEarnNotificationApy + " " + apy)
-                                .style(Fonts.Bold.footnote, color: Colors.Text.accent)
-                        }
-                    }
+                    Text(Localization.commonBalanceTitle)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                     Spacer()
 
