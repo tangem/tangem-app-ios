@@ -29,6 +29,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
 
     private let coordinatorFactory: MainCoordinatorChildFactory
     private let navigationActionHandler: MainNavigationActionHandler
@@ -108,6 +109,11 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
         swipeDiscoveryHelper.delegate = viewModel
         mainViewModel = viewModel
+
+        mobileFinishActivationManager.observe(
+            userWalletId: options.userWalletModel.userWalletId,
+            onActivation: weakify(self, forFunction: MainCoordinator.openMobileFinishActivation)
+        )
 
         setupUI()
         bind()
@@ -285,7 +291,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openMobileFinishActivation(userWalletModel: UserWalletModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
-                sheet: MobileFinishActivationNeededViewModel(userWalletModel: userWalletModel, routable: self)
+                sheet: MobileFinishActivationNeededViewModel(userWalletModel: userWalletModel, coordinator: self)
             )
         }
     }
