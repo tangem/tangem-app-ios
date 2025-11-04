@@ -33,6 +33,31 @@ private extension EmailDataCollector {
         let messageToConvert = "\(sessionPrefix)\n\(collectedString)"
         return messageToConvert.data(using: .utf8)
     }
+
+    func makeExplorerLinks(with walletModel: any WalletModel) -> [EmailCollectedData] {
+        var dataToFormat: [EmailCollectedData] = []
+
+        if walletModel.addressNames.count > 1 {
+            var explorerLinks = "Multiple explorers links: "
+            var addresses = "Multiple addresses: "
+            let suffix = " ; \n"
+            walletModel.addressNames.enumerated().forEach {
+                let namePrefix = $0.element + " - "
+                addresses += namePrefix + walletModel.displayAddress(for: $0.offset) + suffix
+                explorerLinks += namePrefix + (walletModel.exploreURL(for: $0.offset)?.absoluteString ?? "") + suffix
+            }
+            explorerLinks.removeLast(suffix.count)
+            addresses.removeLast(suffix.count)
+
+            dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: addresses))
+            dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: explorerLinks))
+        } else if walletModel.addressNames.count == 1 {
+            dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: walletModel.displayAddress(for: 0)))
+            dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: walletModel.exploreURL(for: 0)?.absoluteString ?? ""))
+        }
+
+        return dataToFormat
+    }
 }
 
 // MARK: - BaseDataCollector
@@ -118,6 +143,8 @@ struct SendScreenDataCollector: EmailDataCollector {
             data.append(EmailCollectedData(type: .wallet(.exceptionWalletManagerHost), data: exceptionHost))
             data.append(EmailCollectedData(type: .send(.transactionHex), data: txHex))
         }
+
+        data.append(contentsOf: makeExplorerLinks(with: walletModel))
 
         return formatData(data)
     }
@@ -294,24 +321,8 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
                 }
 
                 dataToFormat.append(EmailCollectedData(type: .wallet(.walletManagerHost), data: walletModel.blockchainDataProvider.currentHost))
-                if walletModel.addressNames.count > 1 {
-                    var explorerLinks = "Multiple explorers links: "
-                    var addresses = "Multiple addresses: "
-                    let suffix = " ; \n"
-                    walletModel.addressNames.enumerated().forEach {
-                        let namePrefix = $0.element + " - "
-                        addresses += namePrefix + walletModel.displayAddress(for: $0.offset) + suffix
-                        explorerLinks += namePrefix + (walletModel.exploreURL(for: $0.offset)?.absoluteString ?? "") + suffix
-                    }
-                    explorerLinks.removeLast(suffix.count)
-                    addresses.removeLast(suffix.count)
 
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: addresses))
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: explorerLinks))
-                } else if walletModel.addressNames.count == 1 {
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: walletModel.displayAddress(for: 0)))
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: walletModel.exploreURL(for: 0)?.absoluteString ?? ""))
-                }
+                dataToFormat.append(contentsOf: makeExplorerLinks(with: walletModel))
             }
 
             dataToFormat.append(.separator(.dashes))
