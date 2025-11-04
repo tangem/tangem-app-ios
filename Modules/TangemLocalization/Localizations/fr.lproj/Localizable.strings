@@ -475,7 +475,7 @@
 "express_more_providers_soon" = "D'autres fournisseurs arriveront bientôt.\nRestez branchés !";
 "express_provider_best_rate" = "Meilleur taux";
 "express_provider_fca_warning_list" = "Liste d’avertissement de la FCA";
-"express_provider_great_rate" = "Best choice";
+"express_provider_great_rate" = "Meilleur choix";
 "express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Disponible jusqu'à %@";
 "express_provider_min_amount" = "Disponible à partir de %@";
@@ -923,7 +923,7 @@
 "organize_tokens_sort_by_balance" = "Par solde";
 "organize_tokens_title" = "Organiser les jetons";
 "organize_tokens_ungroup" = "Dégrouper";
-"provider_name_support" = "%s support";
+"provider_name_support" = "Assistance %s";
 "push_notifications_more_info" = "Plus d'infos";
 "push_notifications_permission_alert_description" = "Vous pouvez activer les notifications pour Tangem dans les paramètres.";
 "push_notifications_permission_alert_negative_button" = "Activer plus tard";
@@ -1179,7 +1179,7 @@
 "staking_notification_restake_rewards_text" = "Réinvestissez vos récompenses gagnées dans le montant que vous avez staké, augmentant ainsi vos gains potentiels.";
 "staking_notification_restake_text" = "L'option de restaker vous permet de déplacer vos fonds d'un validateur à un autre sans avoir besoin de les déstaker.";
 "staking_notification_stake_entire_balance_text" = "Vous êtes sur le point de staker l'intégralité de votre solde. Nous vous recommandons de laisser un petit montant pour couvrir les frais de réseau pour unstaking ou la réclamation des récompenses.";
-"staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_notification_ton_account_initialization_message" = "Pour commencer le staking, vous devez d’abord activer votre compte TON";
 "staking_notification_ton_account_initialization_title" = "Account activation";
 "staking_notification_ton_activate_account" = "Pour commencer à staker TON, effectuez d'abord une transaction sortante de n'importe quel montant — cela activera votre portefeuille.";
 "staking_notification_ton_extra_reserve_info" = "Jusqu'à 0,2 TON peuvent être requis en plus des frais de réseau pour terminer la transaction. Tout montant non utilisé sera remboursé.";
@@ -1839,6 +1839,7 @@
 "yield_module_status_paused" = "En pause";
 "yield_module_stop_earning_sheet_description" = "En désactivant cela, vos fonds seront retirés d'Aave vers %@ dans votre portefeuille et vous ne gagnerez plus de récompenses.";
 "yield_module_stop_earning_sheet_fee_note" = "Les frais de réseau seront déduits du montant que vous retirez.";
+"yield_module_stop_earning_sheet_title" = "Désactiver le mode rendement";
 "yield_module_stop_earning" = "Désactiver le mode rendement";
 "yield_module_supply_apr" = "Rendement annuel brut (APY)";
 "yield_module_supply" = "Supply";
