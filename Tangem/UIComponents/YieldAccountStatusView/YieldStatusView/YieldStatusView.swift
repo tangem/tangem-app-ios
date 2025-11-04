@@ -45,10 +45,10 @@ struct YieldStatusView: View {
             VStack(alignment: .leading, spacing: 6) {
                 title
                 descriptionText
-                    .multilineTextAlignment(.leading)
             }
+            .multilineTextAlignment(.leading)
 
-            Spacer()
+            Spacer(minLength: 0)
 
             trailingView
         }
@@ -65,8 +65,7 @@ struct YieldStatusView: View {
 
     @ViewBuilder
     private var title: some View {
-        Text(Localization.yieldModuleTokenDetailsEarnNotificationEarningOnYourBalanceTitle)
-            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+        Text(viewModel.title)
     }
 
     @ViewBuilder
@@ -112,7 +111,7 @@ struct YieldStatusView: View {
     @ViewBuilder
     private var trailingView: some View {
         switch viewModel.state {
-        case .active(let isApproveNeeded, let hasUndepositedAmounts):
+        case .active(let isApproveNeeded, let hasUndepositedAmounts, _):
             HStack(spacing: 2) {
                 if isApproveNeeded || hasUndepositedAmounts {
                     warning
