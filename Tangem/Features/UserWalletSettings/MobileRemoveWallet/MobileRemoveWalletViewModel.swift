@@ -11,6 +11,7 @@ import Combine
 import TangemFoundation
 import TangemAssets
 import TangemUIUtils
+import TangemLocalization
 
 final class MobileRemoveWalletViewModel: ObservableObject {
     @Published var isRemoveChecked = false
@@ -18,10 +19,9 @@ final class MobileRemoveWalletViewModel: ObservableObject {
     @Published var isActionEnabled = false
     @Published var confirmationDialog: ConfirmationDialogViewModel?
 
-    // [REDACTED_TODO_COMMENT]
-    let navigationTitle = "Forget wallet"
-    let removeInfo = "I understand that removing my wallet does not delete it—but simply removes it from my device."
-    let backupInfo = "I understand that if I haven't backed up my wallet before removing it, I may lose access to it."
+    let navigationTitle = Localization.hwRemoveWalletNavTitle
+    let removeInfo = Localization.hwRemoveWalletWarningDevice
+    let backupInfo = Localization.hwRemoveWalletWarningAccess
 
     lazy var attentionItem: AttentionItem = makeAttentionItem()
     lazy var actionItem: ActionItem = makeActionItem()
@@ -50,31 +50,30 @@ private extension MobileRemoveWalletViewModel {
             .assign(to: &$isActionEnabled)
     }
 
-    // [REDACTED_TODO_COMMENT]
     func makeAttentionItem() -> AttentionItem {
         AttentionItem(
             icon: Assets.attentionRed,
-            title: "Attention",
-            subtitle: "This wallet will be permanently removed from your device"
+            title: Localization.commonAttention,
+            subtitle: Localization.hwRemoveWalletAttentionDescription
         )
     }
 
     func makeActionItem() -> ActionItem {
         ActionItem(
-            title: "Forget wallet",
+            title: Localization.hwRemoveWalletActionForgetTitle,
             action: weakify(self, forFunction: MobileRemoveWalletViewModel.onForgetTap)
         )
     }
 
     func onForgetTap() {
         let forgetButton = ConfirmationDialogViewModel.Button(
-            title: "Forget",
+            title: Localization.commonForget,
             role: .destructive,
             action: weakify(self, forFunction: MobileRemoveWalletViewModel.onConfirmForgetTap)
         )
 
         confirmationDialog = ConfirmationDialogViewModel(
-            title: "Are you sure you want to do this?",
+            title: Localization.hwRemoveWalletConfirmationTitle,
             buttons: [
                 forgetButton,
                 ConfirmationDialogViewModel.Button.cancel,
