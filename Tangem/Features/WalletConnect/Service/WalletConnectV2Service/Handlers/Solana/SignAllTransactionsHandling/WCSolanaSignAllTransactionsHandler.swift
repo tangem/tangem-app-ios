@@ -43,6 +43,34 @@ final class WCSolanaSignAllTransactionsHandler {
         self.request = request
     }
 
+    init(
+        request: AnyCodable,
+        blockchainId: String,
+        signer: WalletConnectSigner,
+        wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
+        accountId: String
+    ) throws(WalletConnectTransactionRequestProcessingError) {
+        do {
+            let parameters = try request.get(WCSolanaSignAllTransactionsDTO.Response.self)
+
+            guard
+                let walletModel = wcAccountsWalletModelProvider.getModel(with: blockchainId, accountId: accountId)
+            else {
+                throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
+            }
+
+            self.walletModel = walletModel
+            hashesToSign = parameters.transactions
+        } catch {
+            let stringRepresentation = request.stringRepresentation
+            WCLogger.info("[WC 2.0] Failed to create sign handler. Raised error: \(error)")
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload(stringRepresentation)
+        }
+
+        self.signer = signer
+        self.request = request
+    }
+
     private func prepareTransactionToSign(hash: String) throws -> Data {
         let data = try Data(hash.base64Decoded())
         let (signature, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
