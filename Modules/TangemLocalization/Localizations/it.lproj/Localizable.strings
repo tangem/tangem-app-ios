@@ -735,6 +735,8 @@
 "notification_sepa_button" = "Buy crypto";
 "notification_sepa_text" = "Enjoy **0%% fees** when purchasing crypto via SEPA transfers.";
 "notification_sepa_title" = "Buy Crypto with SEPA";
+"notification_visa_waitlist_promo_text" = "Join the waitlist and get a payment card unlike any other";
+"notification_visa_waitlist_promo_title" = "Tangem Visa Card";
 "onboarding_access_code_feature_1_description" = "Set up a single access code to protect all your devices.";
 "onboarding_access_code_feature_1_title" = "Protect";
 "onboarding_access_code_feature_2_description" = "Set an individual access code for each card or ring later.";
