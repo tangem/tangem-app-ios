@@ -38,7 +38,11 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var createWalletCurves: [EllipticCurve] {
-        [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
+        if card.settings.maxWalletsCount == 1, let curve = card.supportedCurves.first {
+            return [curve]
+        }
+
+        return [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
     }
 
     var derivationStyle: DerivationStyle? {
@@ -140,7 +144,7 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var productType: Analytics.ProductType {
-        return .wallet2
+        isDemo ? .demoWallet : .wallet2
     }
 
     var cardHeaderImage: ImageType? {
@@ -402,6 +406,10 @@ extension Wallet2Config: UserWalletConfig {
         case .hdWallets:
             return card.settings.isHDWalletAllowed ? .available : .hidden
         case .staking:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .referralProgram:
             if isDemo {
