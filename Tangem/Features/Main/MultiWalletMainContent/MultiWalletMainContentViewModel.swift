@@ -66,6 +66,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
+    @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
+
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
     private let userWalletModel: UserWalletModel
     private let userWalletNotificationManager: NotificationManager
@@ -178,6 +180,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 checkedContinuation.resume()
             }
         }
+    }
+
+    func onFirstAppear() {
+        finishMobileActivationIfNeeded()
+    }
+
+    func finishMobileActivationIfNeeded() {
+        mobileFinishActivationManager.activateIfNeeded(userWalletModel: userWalletModel)
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -532,13 +542,9 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openReferral(input: input)
     }
 
-    private func openMobileFinishActivation(needsAttention: Bool) {
+    private func openMobileFinishActivation() {
         Analytics.log(.mainButtonFinishNow)
-        if needsAttention {
-            coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
-        } else {
-            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
-        }
+        coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
     }
 
     private func openMobileUpgrade() {
@@ -600,8 +606,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openReferralProgram:
             openReferralProgram()
-        case .openMobileFinishActivation(let needsAttention):
-            openMobileFinishActivation(needsAttention: needsAttention)
+        case .openMobileFinishActivation:
+            openMobileFinishActivation()
         case .openMobileUpgrade:
             openMobileUpgrade()
         case .openBuyCrypto(let walletModel, let parameters):
