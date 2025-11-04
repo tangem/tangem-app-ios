@@ -8,9 +8,9 @@
 
 import Combine
 import Foundation
+import TangemAssets
 import TangemLogger
 import TangemUI
-import TangemAssets
 
 @MainActor
 final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
@@ -163,13 +163,45 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         verifiedDomainAction: @escaping () -> Void
     ) -> WalletConnectConnectedDAppDetailsViewState {
         let imageProvider = NetworkImageProvider()
-        let walletName: String
 
-        if let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == dApp.userWalletID }) {
+        var walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection? = nil
+        var connectionTargetSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectionTargetSection? = nil
+        var walletName = ""
+
+        if let userWalletModel = userWalletRepository.models
+            .first(where: { $0.userWalletId.stringValue == dApp.userWalletID }) {
             walletName = userWalletModel.name
         } else {
             logger.warning("UserWalletModel not found for \(dApp.dAppData.name) dApp")
-            walletName = ""
+        }
+
+        if let accountId = dApp.accountId {
+            outer: for accountModel in userWalletRepository.models
+                .flatMap(\.accountModelsManager.accountModels) {
+                switch accountModel {
+                case .standard(.single(let cryptoAccount)):
+                    if cryptoAccount.id.walletConnectIdentifierString == accountId {
+                        connectionTargetSection = .init(
+                            targetName: walletName,
+                            target: .wallet()
+                        )
+                        walletSection = nil
+                        break outer
+                    }
+
+                case .standard(.multiple(let cryptoAccounts)):
+                    if let cryptoAccount = cryptoAccounts.first(where: { $0.id.walletConnectIdentifierString == accountId }) {
+                        connectionTargetSection = .init(
+                            targetName: cryptoAccount.name,
+                            target: .account(.init(icon: cryptoAccount.icon))
+                        )
+                        walletSection = nil
+                        break outer
+                    }
+                }
+            }
+        } else {
+            walletSection = .init(walletName: walletName)
         }
 
         let verifcationStatusIconConfig = EntitySummaryView.ViewState.TitleInfoConfig(
@@ -195,7 +227,8 @@ extension WalletConnectConnectedDAppDetailsViewModel {
                             : nil
                     )
                 ),
-                walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection(walletName: walletName),
+                walletSection: walletSection,
+                connectionTargetSection: connectionTargetSection,
                 dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(dApp.verificationStatus),
                 connectedNetworksSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectedNetworksSection(
                     blockchains: dApp.dAppBlockchains.map { dAppBlockchain in
