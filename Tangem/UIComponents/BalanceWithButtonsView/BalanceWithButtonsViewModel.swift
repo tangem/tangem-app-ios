@@ -18,7 +18,6 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
 
     @Published var balanceTypeValues: [BalanceType]?
     @Published var selectedBalanceType: BalanceType = .all
-    @Published var yieldModuleApy: String? = nil
 
     @Published var shouldShowYieldBalanceInfo: Bool = false
 
@@ -130,12 +129,10 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
               info.state.isEffectivelyActive
         else {
             shouldShowYieldBalanceInfo = false
-            yieldModuleApy = nil
             return
         }
 
         shouldShowYieldBalanceInfo = true
-        yieldModuleApy = PercentFormatter().format(marketInfo.apy, option: .staking)
     }
 }
 
