@@ -84,7 +84,13 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
             ).async()
 
             // For EVM networks increase gas limit
-            fees = fees.map { increaseGasLimit(fee: $0) }
+            fees = fees.map {
+                $0.increasingGasLimit(
+                    byPercents: EthereumFeeParametersConstants.defaultGasLimitIncreasePercent,
+                    blockchain: feeTokenItem.blockchain,
+                    decimalValue: feeTokenItem.decimalValue
+                )
+            }
 
             return try mapToExpressFee(fees: fees)
         }
@@ -109,17 +115,5 @@ private extension CommonExpressFeeProvider {
         default:
             throw ExpressFeeProviderError.feeNotFound
         }
-    }
-
-    func increaseGasLimit(fee: Fee) -> Fee {
-        guard let parameters = fee.parameters as? EthereumFeeParameters else {
-            return fee
-        }
-
-        let gasLimit = parameters.gasLimit * BigUInt(112) / BigUInt(100)
-        let newParameters = parameters.changingGasLimit(to: gasLimit)
-        let feeValue = newParameters.calculateFee(decimalValue: feeTokenItem.decimalValue)
-        let amount = Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: feeValue)
-        return Fee(amount, parameters: newParameters)
     }
 }
