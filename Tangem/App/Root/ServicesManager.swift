@@ -36,7 +36,6 @@ protocol ServicesManager {
 final class CommonServicesManager {
     @Injected(\.sellService) private var sellService: SellService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
@@ -163,7 +162,6 @@ extension CommonServicesManager: ServicesManager {
         configureBlockchainSdkExceptionHandler()
 
         sellService.initialize()
-        accountHealthChecker.initialize()
         apiListProvider.initialize()
         userTokensPushNotificationsService.initialize()
         pushNotificationsInteractor.initialize()
