@@ -391,7 +391,8 @@ private extension TokenDetailsViewModel {
                 yieldManager: manager,
                 state: .active(
                     isApproveRequired: info.isAllowancePermissionRequired,
-                    hasUndepositedAmounts: !info.nonYieldModuleBalanceValue.isZero
+                    hasUndepositedAmounts: !info.nonYieldModuleBalanceValue.isZero,
+                    apy: marketInfo?.apy
                 )
             )
             if info.isAllowancePermissionRequired {
