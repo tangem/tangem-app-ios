@@ -64,11 +64,11 @@ final class RateAppService {
         var shouldRequestRateApp = false
 
         defer {
-            if shouldRequestRateApp {
-                requestRateApp()
-            } else {
-                dismissAppRate()
-            }
+//            if shouldRequestRateApp {
+            requestRateApp()
+//            } else {
+//                dismissAppRate()
+//            }
         }
 
         if userRespondedToLastRequestedReview {
