@@ -548,6 +548,10 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var wcWalletModelProvider: any WalletConnectWalletModelProvider { NotSupportedWalletConnectWalletModelProvider() }
 
+    var wcAccountsWalletModelProvider: any WalletConnectAccountsWalletModelProvider {
+        NotSupportedWalletConnectAccountsWalletModelProvider()
+    }
+
     var refcodeProvider: RefcodeProvider? { userWalletModel.refcodeProvider }
 
     var keysDerivingInteractor: any KeysDeriving { userWalletModel.keysDerivingInteractor }
