@@ -56,7 +56,7 @@ struct YieldModuleInfoView: View {
         case .approve:
             Localization.yieldModuleApproveSheetTitle
         case .stopEarning:
-            Localization.yieldModuleStopEarning
+            Localization.yieldModuleStopEarningSheetTitle
         }
     }
 
@@ -146,9 +146,9 @@ struct YieldModuleInfoView: View {
         case .earnInfo:
             viewModel.onShowStopEarningSheet
         case .stopEarning:
-            { viewModel.onAcctionTap(action: .stop) }
+            { viewModel.onActionTap(action: .stop) }
         case .approve:
-            { viewModel.onAcctionTap(action: .approve) }
+            { viewModel.onActionTap(action: .approve) }
         }
     }
 }
