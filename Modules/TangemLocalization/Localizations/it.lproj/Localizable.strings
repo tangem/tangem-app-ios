@@ -1179,7 +1179,7 @@
 "staking_notification_restake_rewards_text" = "Reinvests your earned rewards in your staked amount, increasing potential earnings.";
 "staking_notification_restake_text" = "Restake lets you move your funds from one validator to another without the need to unstake";
 "staking_notification_stake_entire_balance_text" = "If you stake your entire balance, you’ll need to pay a network fee when you unstake. We recommend leaving a small amount in your wallet to cover network fees.";
-"staking_notification_ton_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_notification_ton_account_initialization_message" = "To start staking, you need to activate your TON account first.";
 "staking_notification_ton_account_initialization_title" = "Account activation";
 "staking_notification_ton_activate_account" = "To start staking in TON, first send a small transaction to your own address — this will activate your wallet.";
 "staking_notification_ton_extra_reserve_info" = "Up to 0.2 TON may be required in addition to the network fee to complete the transaction. Any unused amount will be refunded.";
@@ -1839,6 +1839,7 @@
 "yield_module_status_paused" = "Paused";
 "yield_module_stop_earning_sheet_description" = "Turning this off will withdraw your assets from Aave, convert them back to %@ in your wallet, and stop yield accrual.";
 "yield_module_stop_earning_sheet_fee_note" = "The network fee will be deducted from the amount you withdraw.";
+"yield_module_stop_earning_sheet_title" = "Disable yield mode";
 "yield_module_stop_earning" = "Disable yield mode";
 "yield_module_supply_apr" = "Supply APY";
 "yield_module_supply" = "Supply";
