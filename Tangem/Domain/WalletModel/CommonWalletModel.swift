@@ -19,7 +19,6 @@ import TangemSdk
 class CommonWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
-    @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
 
     let id: WalletModelId
     let userWalletId: UserWalletId
@@ -94,7 +93,6 @@ class CommonWalletModel {
         receiveAddressService: ReceiveAddressService,
         sendAvailabilityProvider: TransactionSendAvailabilityProvider,
         tokenBalancesRepository: TokenBalancesRepository,
-        shouldPerformHealthCheck: Bool,
         isCustom: Bool
     ) {
         self.userWalletId = userWalletId
@@ -111,7 +109,6 @@ class CommonWalletModel {
         id = WalletModelId(tokenItem: tokenItem)
 
         bind()
-        performHealthCheckIfNeeded(shouldPerform: shouldPerformHealthCheck)
     }
 
     deinit {
@@ -130,14 +127,6 @@ class CommonWalletModel {
                 self?.updateQuote(quote: quote)
             }
             .store(in: &bag)
-    }
-
-    private func performHealthCheckIfNeeded(shouldPerform: Bool) {
-        if shouldPerform {
-            DispatchQueue.main.async {
-                self.accountHealthChecker.performAccountCheckIfNeeded(self.wallet.address)
-            }
-        }
     }
 
     // MARK: - State updates
