@@ -118,8 +118,10 @@ extension RefreshScrollViewDelegate: UIScrollViewDelegate {
         withVelocity velocity: CGPoint,
         targetContentOffset: UnsafeMutablePointer<CGPoint>
     ) {
-        internalScrollViewDelegate?.scrollViewWillEndDragging?(scrollView, withVelocity: velocity, targetContentOffset: targetContentOffset)
         willEndDragging(scrollView, targetContentOffset: targetContentOffset)
+        print("targetContentOffset 1 ->>", targetContentOffset.pointee)
+        internalScrollViewDelegate?.scrollViewWillEndDragging?(scrollView, withVelocity: velocity, targetContentOffset: targetContentOffset)
+        print("targetContentOffset 2 ->>", targetContentOffset.pointee)
     }
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
