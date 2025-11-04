@@ -135,7 +135,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 userWalletConfig: config,
                 tokenItem: tokenItem
             )
-            let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: .coin)
+
             let mainCoinModel = CommonWalletModel(
                 userWalletId: userWalletId,
                 tokenItem: tokenItem,
@@ -150,7 +150,6 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 receiveAddressService: receiveAddressService,
                 sendAvailabilityProvider: sendAvailabilityProvider,
                 tokenBalancesRepository: tokenBalancesRepository,
-                shouldPerformHealthCheck: shouldPerformHealthCheck,
                 isCustom: isMainCoinCustom
             )
             models.append(mainCoinModel)
@@ -174,7 +173,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     userWalletConfig: config,
                     tokenItem: tokenItem
                 )
-                let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: amountType)
+
                 let tokenModel = CommonWalletModel(
                     userWalletId: userWalletId,
                     tokenItem: tokenItem,
@@ -189,7 +188,6 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     receiveAddressService: receiveAddressService,
                     sendAvailabilityProvider: sendAvailabilityProvider,
                     tokenBalancesRepository: tokenBalancesRepository,
-                    shouldPerformHealthCheck: shouldPerformHealthCheck,
                     isCustom: isTokenCustom
                 )
                 models.append(tokenModel)
@@ -197,15 +195,5 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         }
 
         return models
-    }
-
-    /// For now, an account health check is only required for Polkadot Mainnet.
-    private func shouldPerformHealthCheck(blockchain: Blockchain, amountType: Amount.AmountType) -> Bool {
-        switch (blockchain, amountType) {
-        case (.polkadot(_, let isTestnet), .coin):
-            return !isTestnet
-        default:
-            return false
-        }
     }
 }
