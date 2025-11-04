@@ -27,7 +27,11 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var createWalletCurves: [EllipticCurve] {
-        [.secp256k1, .ed25519, .bls12381_G2_AUG]
+        if card.settings.maxWalletsCount == 1, let curve = card.supportedCurves.first {
+            return [curve]
+        }
+
+        return [.secp256k1, .ed25519, .bls12381_G2_AUG]
     }
 
     var derivationStyle: DerivationStyle? {
@@ -79,6 +83,8 @@ extension GenericDemoConfig: UserWalletConfig {
 
     var persistentBlockchains: [StorageEntry]? {
         let blockchainIds = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
+            .filter { card.walletCurves.contains($0.curve) }
+            .map { $0.coinId }
 
         let entries: [StorageEntry] = blockchainIds.compactMap { coinId in
             guard let blockchain = supportedBlockchains.first(where: { $0.coinId == coinId }) else {
