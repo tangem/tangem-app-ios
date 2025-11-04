@@ -6,9 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import SwiftUI
 import Foundation
 import TangemLocalization
-import SwiftUI
 import TangemAssets
 
 enum SendNotificationEvent {
