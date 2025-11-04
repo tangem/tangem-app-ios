@@ -38,6 +38,7 @@ struct AccountSelectorAccountCellView: View {
                     )
                 )
             )
+            .settings(.defaultSized)
 
             VStack(alignment: .leading, spacing: 6) {
                 Text(viewModel.accountModel.name)
