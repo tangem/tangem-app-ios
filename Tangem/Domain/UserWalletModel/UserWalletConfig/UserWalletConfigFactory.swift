@@ -49,7 +49,7 @@ struct UserWalletConfigFactory {
             }
 
             if demoUtil.isDemoNoteAsMultiWallet(cardId: cardInfo.card.cardId) {
-                return GenericDemoConfig(card: cardInfo.card)
+                return Wallet2Config(card: cardInfo.card, isDemo: isDemo)
             }
 
             if isDemo {
