@@ -45,6 +45,39 @@ final class WalletConnectV2SignTransactionHandler {
         self.signer = signer
         request = requestParams
     }
+
+    init(
+        requestParams: AnyCodable,
+        blockchainId: String,
+        transactionBuilder: WCEthTransactionBuilder,
+        signer: TangemSigner,
+        wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
+        accountId: String
+    ) throws {
+        do {
+            let params = try requestParams.get([WalletConnectEthTransaction].self)
+
+            guard let ethTransaction = params.first else {
+                throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
+            }
+
+            wcTransaction = ethTransaction
+
+            walletModel = try wcAccountsWalletModelProvider.getModel(
+                with: ethTransaction.from,
+                blockchainId: blockchainId,
+                accountId: accountId
+            )
+
+        } catch {
+            WCLogger.error(error: error)
+            throw error
+        }
+
+        self.transactionBuilder = transactionBuilder
+        self.signer = signer
+        request = requestParams
+    }
 }
 
 extension WalletConnectV2SignTransactionHandler: WalletConnectMessageHandler, WCTransactionUpdatable {
