@@ -17,7 +17,7 @@ struct XDCExternalLinkProvider: ExternalLinkProvider {
         if isTestnet {
             return "https://apothem.xdcscan.io"
         } else {
-            return "https://xdcscan.io"
+            return "https://xdcscan.com"
         }
     }
 
