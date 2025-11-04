@@ -112,11 +112,11 @@ private extension MobileUpgradeView {
             )
 
             MainButton(
-                title: viewModel.scanButtonTitle,
+                title: viewModel.upgradeButtonTitle,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
                 isLoading: viewModel.isScanning,
-                action: viewModel.onScanTap
+                action: viewModel.onUpgradeTap
             )
         }
     }
