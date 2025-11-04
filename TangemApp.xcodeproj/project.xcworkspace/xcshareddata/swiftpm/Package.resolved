@@ -231,8 +231,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git",
       "state" : {
-        "revision" : "de2d8f77baaa5b1bb2ca475d4b6fffa21529be67",
-        "version" : "1.36.0"
+        "revision" : "d5cf86061be9515d37552551443fc8b955ad49a2",
+        "version" : "1.39.0"
       }
     },
     {
