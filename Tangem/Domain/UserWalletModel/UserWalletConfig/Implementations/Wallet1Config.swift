@@ -37,7 +37,12 @@ extension Wallet1Config: UserWalletConfig {
     }
 
     var createWalletCurves: [EllipticCurve] {
-        [.secp256k1, .ed25519, .bls12381_G2_AUG]
+        // Workaround for notes as demo multiwallets
+        if isDemo, card.settings.maxWalletsCount == 1, let curve = card.supportedCurves.first {
+            return [curve]
+        }
+
+        return [.secp256k1, .ed25519, .bls12381_G2_AUG]
     }
 
     var derivationStyle: DerivationStyle? {
@@ -88,6 +93,8 @@ extension Wallet1Config: UserWalletConfig {
         guard isDemo else { return [] }
 
         let blockchainIds = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
+            .filter { card.walletCurves.contains($0.curve) }
+            .map { $0.coinId }
 
         let entries: [TokenItem] = blockchainIds.compactMap { coinId in
             guard let blockchain = supportedBlockchains.first(where: { $0.coinId == coinId }) else {
