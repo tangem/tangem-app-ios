@@ -72,6 +72,7 @@ struct MultiWalletMainContentView: View {
             }
         }
         .padding(.horizontal, 16)
+        .onFirstAppear(perform: viewModel.onFirstAppear)
         .bindAlert($viewModel.error)
     }
 
