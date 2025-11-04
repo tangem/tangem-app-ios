@@ -142,6 +142,10 @@ extension Wallet1Config: UserWalletConfig {
     }
 
     var productType: Analytics.ProductType {
+        if isDemo {
+            return .demoWallet
+        }
+
         return card.firmwareVersion.doubleValue >= 4.39 ? .wallet : .other
     }
 
