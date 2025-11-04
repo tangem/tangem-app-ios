@@ -38,7 +38,6 @@ extension CommonWalletModel {
             receiveAddressService: DummyReceiveAddressService(addressInfos: []),
             sendAvailabilityProvider: sendAvailabilityProvider,
             tokenBalancesRepository: TokenBalancesRepositoryMock(),
-            shouldPerformHealthCheck: false,
             isCustom: false
         )
     }()
