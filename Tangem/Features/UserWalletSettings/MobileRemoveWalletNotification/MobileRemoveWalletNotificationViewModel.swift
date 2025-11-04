@@ -17,13 +17,12 @@ import protocol TangemUI.FloatingSheetContentViewModel
 final class MobileRemoveWalletNotificationViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
-    // [REDACTED_TODO_COMMENT]
-    let title = "Forget this wallet?"
+    let title = Localization.hwRemoveWalletNotificationTitle
 
     var description: String {
         isBackupNeeded ?
-            "If you forget this wallet without a backup, you’ll permanently lose access to your funds." :
-            "A backup for this wallet exists. Review it before forgetting to make sure you can recover later."
+            Localization.hwRemoveWalletNotificationDescriptionWithoutBackup :
+            Localization.hwRemoveWalletNotificationDescriptionHasBackup
     }
 
     lazy var removeAction: Action = makeRemoveAction()
@@ -55,16 +54,15 @@ extension MobileRemoveWalletNotificationViewModel {
 
 private extension MobileRemoveWalletNotificationViewModel {
     func makeRemoveAction() -> Action {
-        // [REDACTED_TODO_COMMENT]
         Action(
-            title: isBackupNeeded ? "Forget Anyway" : "Forget wallet",
+            title: isBackupNeeded ? Localization.hwRemoveWalletNotificationActionForgetAnyway : Localization.hwRemoveWalletNotificationActionForget,
             handler: weakify(self, forFunction: MobileRemoveWalletNotificationViewModel.removeHandler)
         )
     }
 
     func makeBackupAction() -> Action {
         Action(
-            title: isBackupNeeded ? "Go to backup" : "View backup",
+            title: isBackupNeeded ? Localization.hwRemoveWalletNotificationActionBackupGo : Localization.hwRemoveWalletNotificationActionBackupView,
             handler: weakify(self, forFunction: MobileRemoveWalletNotificationViewModel.backupHandler)
         )
     }
