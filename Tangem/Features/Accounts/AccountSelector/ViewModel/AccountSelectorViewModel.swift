@@ -41,7 +41,16 @@ final class AccountSelectorViewModel: ObservableObject {
         self.cryptoAccountModelsFilter = cryptoAccountModelsFilter
         self.onSelect = onSelect
 
-        displayMode = userWalletModels.contains(where: \.accountModelsManager.hasMultipleAccounts) ? .accounts : .wallets
+        let hasMultipleAccounts = userWalletModels.contains { walletModel in
+            walletModel.accountModelsManager.accountModels.contains { accountModel in
+                if case .standard(.multiple) = accountModel {
+                    return true
+                }
+                return false
+            }
+        }
+
+        displayMode = hasMultipleAccounts ? .accounts : .wallets
 
         switch displayMode {
         case .accounts:

@@ -70,11 +70,24 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
             throw WalletConnectTransactionRequestProcessingError.blockchainToAddDuplicate(blockchain)
         }
 
-        guard
-            let userWallet = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == connectedDApp.userWalletID }),
-            !userWallet.isUserWalletLocked
-        else {
+        let userWallet: any UserWalletModel
+
+        if let userWalletID = connectedDApp.userWalletID, let model = userWalletRepository.models.first(where: {
+            $0.userWalletId.stringValue == userWalletID
+        }) {
+            userWallet = model
+        } else if let accountId = connectedDApp.accountId, let model = userWalletRepository.models.first(where: {
+            $0.accountModelsManager.accountModels.contains {
+                $0.firstAvailableStandard().id.walletConnectIdentifierString == accountId
+            }
+        }) {
+            userWallet = model
+        } else {
             throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
+        }
+
+        guard !userWallet.isUserWalletLocked else {
+            throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
         }
 
         guard userWallet

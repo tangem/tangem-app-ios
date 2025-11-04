@@ -51,6 +51,40 @@ final class WalletConnectSolanaSignTransactionHandler {
         self.analyticsProvider = analyticsProvider
         self.request = request
     }
+
+    init(
+        request: AnyCodable,
+        blockchainId: String,
+        signer: TangemSigner,
+        hardwareLimitationsUtil: HardwareLimitationsUtil,
+        walletNetworkServiceFactory: WalletNetworkServiceFactory,
+        wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
+        accountId: String,
+        analyticsProvider: WalletConnectServiceAnalyticsProvider
+    ) throws {
+        let parameters = try request.get(WalletConnectSolanaSignTransactionDTO.Response.self)
+
+        do {
+            guard
+                let walletModel = wcAccountsWalletModelProvider.getModel(with: blockchainId, accountId: accountId)
+            else {
+                throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
+            }
+
+            self.walletModel = walletModel
+            transaction = parameters.transaction
+        } catch {
+            let stringRepresentation = request.stringRepresentation
+            WCLogger.error("Failed to create sign handler", error: error)
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload(stringRepresentation)
+        }
+
+        self.signer = signer
+        self.hardwareLimitationsUtil = hardwareLimitationsUtil
+        self.walletNetworkServiceFactory = walletNetworkServiceFactory
+        self.analyticsProvider = analyticsProvider
+        self.request = request
+    }
 }
 
 extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler {
