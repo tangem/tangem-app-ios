@@ -28,14 +28,14 @@ extension CommonBannerPromotionService: BannerPromotionService {
             let now = Date()
             if promotionInfo.all.status == .active, now < promotionInfo.all.timeline.end {
                 let link: URL?
-                
+
                 switch promotion {
                 case .visaWaitlist:
                     link = URL(string: Constants.visaWaitlinkLink)
                 default:
                     link = promotionInfo.all.link.flatMap { URL(string: $0) }
                 }
-                
+
                 return .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline, link: link)
             }
 
