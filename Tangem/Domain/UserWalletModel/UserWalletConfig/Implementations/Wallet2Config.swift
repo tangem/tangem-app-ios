@@ -49,7 +49,7 @@ extension Wallet2Config: UserWalletConfig {
         guard hasFeature(.hdWallets) else {
             return nil
         }
-        
+
         return .v3
     }
 
@@ -148,9 +148,9 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var cardHeaderImage: ImageType? {
-        // Case with broken backup (e.g. CardLinked)
+        // Case with broken backup (e.g. CardLinked) and demo notes as wallets with maxWalletsCount == 1
         if cardsCount == 1 {
-            return nil
+            return card.settings.maxWalletsCount == 1 ? Assets.Cards.wallet2Double : nil
         }
 
         // Wallet 2.0 cards can't be used without backup, so min number of cards = 2
