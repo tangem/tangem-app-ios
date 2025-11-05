@@ -525,23 +525,6 @@ extension MultiWalletMainContentViewModel {
         tokenRouter.openSell(for: walletModel)
     }
 
-    private func openReferralProgram() {
-        Analytics.log(.mainReferralProgramButtonParticipate)
-
-        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
-            .accounts(userWalletModel.accountModelsManager) :
-            .plainUserTokensManager(userWalletModel.userTokensManager)
-
-        let input = ReferralInputModel(
-            userWalletId: userWalletModel.userWalletId.value,
-            supportedBlockchains: userWalletModel.config.supportedBlockchains,
-            workMode: workMode,
-            tokenIconInfoBuilder: TokenIconInfoBuilder()
-        )
-
-        coordinator?.openReferral(input: input)
-    }
-
     private func openMobileFinishActivation() {
         Analytics.log(.mainButtonFinishNow)
         coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
@@ -604,8 +587,6 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             }
         case .seedSupport2No:
             userWalletNotificationManager.dismissNotification(with: id)
-        case .openReferralProgram:
-            openReferralProgram()
         case .openMobileFinishActivation:
             openMobileFinishActivation()
         case .openMobileUpgrade:
