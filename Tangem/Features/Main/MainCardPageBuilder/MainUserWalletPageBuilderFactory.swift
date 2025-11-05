@@ -71,12 +71,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             coordinator: coordinator
         )
 
-        let referralNotificationController = CommonReferralNotificationController(userWalletModel: model)
-
         let userWalletNotificationManager = UserWalletNotificationManager(
             userWalletModel: model,
-            rateAppController: rateAppController,
-            referralNotificationController: referralNotificationController
+            rateAppController: rateAppController
         )
 
         if model.isUserWalletLocked {
