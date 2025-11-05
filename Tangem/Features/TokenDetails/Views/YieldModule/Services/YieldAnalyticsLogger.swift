@@ -44,7 +44,10 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
     // MARK: - Earning analytics
 
     func logTransactionSent() {
-        Analytics.log(.transactionSent, params: [.source: .yieldModuleSourceInfo])
+        var params = tokenBlockchainParams()
+        params[.source] = Analytics.ParameterValue.yieldModuleSourceInfo.rawValue
+
+        Analytics.log(event: .transactionSent, params: params)
     }
 
     func logStartEarningScreenOpened() {
@@ -121,6 +124,9 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
 
 extension CommonYieldAnalyticsLogger {
     func tokenBlockchainParams() -> [Analytics.ParameterKey: String] {
-        [.token: tokenItem.currencySymbol, .blockchain: tokenItem.blockchain.displayName]
+        [
+            .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
+            .blockchain: tokenItem.blockchain.displayName,
+        ]
     }
 }
