@@ -17,8 +17,6 @@ struct TOSView: View {
         WebViewContainer(viewModel: viewModel.webViewModel)
             .overlay(bottomOverlay)
             .edgesIgnoringSafeArea(.bottom)
-            .navigationTitle(Localization.disclaimerTitle)
-            .navigationBarTitleDisplayMode(.inline)
     }
 
     @ViewBuilder
