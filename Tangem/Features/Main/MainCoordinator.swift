@@ -45,7 +45,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator?
-    @Published var referralCoordinator: ReferralCoordinator?
     @Published var nftCollectionsCoordinator: NFTCollectionsCoordinator?
 
     // MARK: - Child coordinators (Other)
@@ -273,19 +272,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             optionsProviding: optionsManager,
             optionsEditing: optionsManager
         )
-    }
-
-    func openReferral(input: ReferralInputModel) {
-        mainBottomSheetUIManager.hide()
-        let coordinator = coordinatorFactory.makeReferralCoordinator(
-            dismissAction: { [weak self] _ in
-                self?.referralCoordinator = nil
-            }
-        )
-
-        coordinator.start(with: .init(input: input))
-        referralCoordinator = coordinator
-        Analytics.log(.referralScreenOpened)
     }
 
     func openMobileFinishActivation(userWalletModel: UserWalletModel) {
