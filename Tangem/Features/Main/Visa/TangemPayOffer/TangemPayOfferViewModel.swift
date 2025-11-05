@@ -40,7 +40,7 @@ final class TangemPayOfferViewModel: ObservableObject {
                 switch tangemPayStatus {
                 case .kycRequired:
                     try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.reloadCustomerInfo()
+                        tangemPayAccount.loadCustomerInfo()
                         runTask(in: viewModel) { viewModel in
                             await viewModel.closeOfferScreen()
                         }
