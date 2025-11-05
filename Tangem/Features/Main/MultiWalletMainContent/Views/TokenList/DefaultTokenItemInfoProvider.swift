@@ -75,7 +75,7 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
     var leadingBadgePublisher: AnyPublisher<TokenItemViewModel.LeadingBadge?, Never> {
         Publishers.CombineLatest3(
             hasPendingTransactions,
-            yieldModuleStatePublisher,
+            yieldModuleStatePublisher.filter { $0?.state != .loading },
             walletModel.stakingManagerStatePublisher.filter { $0 != .loading }
         )
         .map { hasPendingTransactions, yieldModuleState, stakingManagerState -> TokenItemViewModel.LeadingBadge? in
@@ -94,6 +94,7 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 
     var trailingBadgePublisher: AnyPublisher<TokenItemViewModel.TrailingBadge?, Never> {
         yieldModuleStatePublisher
+            .filter { $0?.state != .loading }
             .map { state -> TokenItemViewModel.TrailingBadge? in
                 guard case .active(let supply) = state?.state else { return nil }
                 return supply.isAllowancePermissionRequired ? .isApproveNeeded : nil
