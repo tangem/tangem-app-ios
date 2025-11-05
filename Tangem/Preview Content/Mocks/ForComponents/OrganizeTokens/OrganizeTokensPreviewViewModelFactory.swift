@@ -17,7 +17,7 @@ struct OrganizeTokensPreviewViewModelFactory {
             initialSortingOption: configuration.sortingOption
         )
         let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokenListManager: userWalletModel.userTokenListManager,
+            userTokensManager: userWalletModel.userTokensManager,
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
