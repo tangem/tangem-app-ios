@@ -31,6 +31,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
+    @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -128,46 +129,27 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
-    func openYieldModulePromoView(walletModel: any WalletModel, apy: Decimal, signer: any TangemSigner) {
+    func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.yieldModulePromoCoordinator = nil
         }
 
-        guard let factory = YieldModuleFlowFactory(
-            walletModel: walletModel,
-            apy: apy,
-            signer: signer,
-            feeCurrencyNavigator: self,
-            dismissAction: dismissAction
-        ) else {
-            return
-        }
-
-        let coordinator = factory.getYieldPromoCoordinator()
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, feeCurrencyNavigator: self, dismissAction: dismissAction)
         yieldModulePromoCoordinator = coordinator
     }
 
-    func openYieldEarnInfo(walletModel: any WalletModel, signer: any TangemSigner) {
-        guard
-            let factory = YieldModuleFlowFactory(
-                walletModel: walletModel,
-                signer: signer,
-                feeCurrencyNavigator: self,
-                dismissAction: dismissAction
-            ),
-            let vm = factory.makeYieldInfoViewModel()
-        else {
-            return
+    func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.yieldModuleActiveCoordinator = nil
         }
 
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: vm)
-        }
+        let coordinator = factory.makeYieldActiveCoordinator(feeCurrencyNavigator: self, dismissAction: dismissAction)
+        yieldModuleActiveCoordinator = coordinator
     }
 
-    func openYieldBalanceInfo(tokenName: String, tokenId: String?) {
+    func openYieldBalanceInfo(factory: YieldModuleFlowFactory) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldModuleBalanceInfoViewModel(tokenName: tokenName, tokenId: tokenId))
+            floatingSheetPresenter.enqueue(sheet: factory.makeYieldModuleBalanceInfoViewModel())
         }
     }
 }
