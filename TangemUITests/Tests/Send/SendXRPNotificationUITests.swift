@@ -37,7 +37,7 @@ final class SendXRPNotificationUITests: BaseTestCase {
         setAllureId(4255)
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.5")
             .tapNextButton()
             .enterDestination(nonActivatedAddress)
@@ -56,7 +56,7 @@ final class SendXRPNotificationUITests: BaseTestCase {
         setAllureId(4285)
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("1")
             .tapNextButton()
             .enterDestination(nonActivatedAddress)
@@ -75,7 +75,7 @@ final class SendXRPNotificationUITests: BaseTestCase {
         setAllureId(4284)
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("2")
             .tapNextButton()
             .enterDestination(nonActivatedAddress)

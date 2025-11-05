@@ -38,7 +38,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let data: SentExpressTransactionData
-    private let initialWallet: any WalletModel
+    private let initialTokenItem: TokenItem
     private let balanceConverter: BalanceConverter
     private let balanceFormatter: BalanceFormatter
     private let providerFormatter: ExpressProviderFormatter
@@ -47,7 +47,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
 
     init(
         data: SentExpressTransactionData,
-        initialWallet: any WalletModel,
+        initialTokenItem: TokenItem,
         balanceConverter: BalanceConverter,
         balanceFormatter: BalanceFormatter,
         providerFormatter: ExpressProviderFormatter,
@@ -55,7 +55,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         coordinator: ExpressSuccessSentRoutable
     ) {
         self.data = data
-        self.initialWallet = initialWallet
+        self.initialTokenItem = initialTokenItem
         self.balanceConverter = balanceConverter
         self.balanceFormatter = balanceFormatter
         self.providerFormatter = providerFormatter
@@ -81,7 +81,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
             return
         }
 
-        Analytics.log(event: .swapButtonExplore, params: [.token: initialWallet.tokenItem.currencySymbol])
+        Analytics.log(event: .swapButtonExplore, params: [.token: initialTokenItem.currencySymbol])
         coordinator?.openWebView(url: exploreURL)
     }
 
@@ -90,7 +90,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
             return
         }
 
-        Analytics.log(event: .swapButtonStatus, params: [.token: initialWallet.tokenItem.currencySymbol])
+        Analytics.log(event: .swapButtonStatus, params: [.token: initialTokenItem.currencySymbol])
         coordinator?.openWebView(url: externalTxUrl)
     }
 
