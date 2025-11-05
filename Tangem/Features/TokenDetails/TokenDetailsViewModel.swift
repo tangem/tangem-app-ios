@@ -16,6 +16,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.ConfirmationDialogViewModel
+import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var confirmationDialog: ConfirmationDialogViewModel?
@@ -172,11 +173,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             .token: walletModel.tokenItem.currencySymbol,
             .source: Analytics.ParameterValue.token.rawValue,
         ])
-        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
-            .present(
-                layout: .bottom(padding: 80),
-                type: .temporary()
-            )
+        Toast(
+            view: SuccessToast(text: Localization.walletNotificationAddressCopied)
+                .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
+        )
+        .present(
+            layout: .bottom(padding: 80),
+            type: .temporary()
+        )
     }
 
     override func openMarketsTokenDetails() {
