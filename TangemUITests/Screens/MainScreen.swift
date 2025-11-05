@@ -11,9 +11,9 @@ import TangemAccessibilityIdentifiers
 import Foundation
 
 final class MainScreen: ScreenBase<MainScreenElement> {
-    private lazy var buyTitle = staticText(.buyTitle)
-    private lazy var exchangeTitle = staticText(.exchangeTitle)
-    private lazy var sellTitle = staticText(.sellTitle)
+    private lazy var buyActionButton = staticText(.buyTitle)
+    private lazy var swapActionButton = staticText(.exchangeTitle)
+    private lazy var sellActionButton = staticText(.sellTitle)
     private lazy var tokensList = otherElement(.tokensList)
     private lazy var organizeTokensButton = button(.organizeTokensButton)
     private lazy var detailsButton = button(.detailsButton)
@@ -23,7 +23,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
     private lazy var missingDerivationNotification = button(.missingDerivationNotification)
 
-    func validate(cardType: CardMockAccessibilityIdentifiers) {
+    @discardableResult
+    func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
         XCTContext.runActivity(named: "Validate MainPage for card type: \(cardType.rawValue)") { _ in
             validateHeaderCardImage(for: cardType)
 
@@ -36,12 +37,42 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 XCTAssertTrue(buttonTexts.contains("Receive"), "Receive button should exist")
             case .wallet, .wallet2, .walletDemo, .wallet2Demo, .shiba, .four12, .v3seckp, .ring:
                 XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
-                XCTAssertTrue(buyTitle.waitForExistence(timeout: .robustUIUpdate), "Buy button should exist for wallet cards")
-                XCTAssertTrue(exchangeTitle.exists, "Exchange button should exist for wallet cards")
-                XCTAssertTrue(sellTitle.exists, "Sell button should exist for wallet cards")
+                XCTAssertTrue(buyActionButton.waitForExistence(timeout: .robustUIUpdate), "Buy button should exist for wallet cards")
+                XCTAssertTrue(swapActionButton.exists, "Exchange button should exist for wallet cards")
+                XCTAssertTrue(sellActionButton.exists, "Sell button should exist for wallet cards")
             default:
                 XCTFail("Provide card verification methods for card type: \(String(describing: cardType))")
             }
+        }
+        return self
+    }
+
+    // MARK: - Main action buttons
+
+    @discardableResult
+    func tapMainBuy() -> BuyTokenSelectorScreen {
+        XCTContext.runActivity(named: "Tap Buy action on main screen") { _ in
+            waitAndAssertTrue(buyActionButton, "Buy title should exist on main screen")
+            buyActionButton.waitAndTap()
+            return BuyTokenSelectorScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapMainSwap() -> SwapTokenSelectorScreen {
+        XCTContext.runActivity(named: "Tap Exchange action on main screen") { _ in
+            waitAndAssertTrue(swapActionButton, "Exchange title should exist on main screen")
+            swapActionButton.waitAndTap()
+            return SwapTokenSelectorScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapMainSell() -> SellTokenSelectorScreen {
+        XCTContext.runActivity(named: "Tap Sell action on main screen") { _ in
+            waitAndAssertTrue(sellActionButton, "Sell title should exist on main screen")
+            sellActionButton.waitAndTap()
+            return SellTokenSelectorScreen(app)
         }
     }
 
@@ -410,6 +441,34 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func waitForSynchronizeAddressesButtonExists() -> Self {
         XCTContext.runActivity(named: "Wait for synchronize addresses button exists") { _ in
             waitAndAssertTrue(missingDerivationNotification, "Missing derivation notification should exist")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitActionButtonsEnabled() -> Self {
+        XCTContext.runActivity(named: "Validate action buttons are enabled") { _ in
+            waitAndAssertTrue(buyActionButton, "Buy button should exist")
+            waitAndAssertTrue(swapActionButton, "Exchange button should exist")
+            waitAndAssertTrue(sellActionButton, "Sell button should exist")
+
+            XCTAssertTrue(buyActionButton.isEnabled, "Buy button should be enabled")
+            XCTAssertTrue(swapActionButton.isEnabled, "Exchange button should be enabled")
+            XCTAssertTrue(sellActionButton.isEnabled, "Sell button should be enabled")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitActionButtonsDisabled() -> Self {
+        XCTContext.runActivity(named: "Validate action buttons are disabled") { _ in
+            waitAndAssertTrue(buyActionButton, "Buy button should exist")
+            waitAndAssertTrue(swapActionButton, "Exchange button should exist")
+            waitAndAssertTrue(sellActionButton, "Sell button should exist")
+
+            XCTAssertFalse(buyActionButton.isEnabled, "Buy button should be disabled")
+            XCTAssertFalse(swapActionButton.isEnabled, "Exchange button should be disabled")
+            XCTAssertFalse(sellActionButton.isEnabled, "Sell button should be disabled")
         }
         return self
     }
