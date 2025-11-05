@@ -205,14 +205,13 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         return self
     }
 
-    @discardableResult
-    func longPressToken(_ tokenName: String) -> TokenScreen {
+    func longPressToken(_ tokenName: String) -> ContextMenuScreen {
         XCTContext.runActivity(named: "Long press token: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let tokenElement = tokensList.staticTextByLabel(label: tokenName)
             waitAndAssertTrue(tokenElement, "Token '\(tokenName)' should exist")
             tokenElement.press(forDuration: 1.0)
-            return TokenScreen(app)
+            return ContextMenuScreen(app)
         }
     }
 
@@ -239,8 +238,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait for total balance displayed as dash") { _ in
             waitAndAssertTrue(totalBalance, "Total balance element should exist")
             XCTAssertTrue(totalBalance.label.contains("–"), "Total balance should be displayed as dash")
-            return self
         }
+        return self
     }
 
     @discardableResult
@@ -261,7 +260,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getTotalBalanceNumericValue() -> Decimal {
         XCTContext.runActivity(named: "Get total balance numeric value") { _ in
             let balanceText = getTotalBalanceValue()
-            return parseNumericValue(from: balanceText)
+            return NumericValueHelper.parseNumericValue(from: balanceText)
         }
     }
 
@@ -325,7 +324,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getAllTokenBalancesNumeric(tokenName: String) -> [Decimal] {
         XCTContext.runActivity(named: "Get all balances (numeric) for token: \(tokenName)") { _ in
             let labels = getAllTokenBalances(tokenName: tokenName)
-            return labels.map { parseNumericValue(from: $0) }
+            return labels.map { NumericValueHelper.parseNumericValue(from: $0) }
         }
     }
 
@@ -364,7 +363,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getTokenBalanceNumeric(tokenName: String, tokenIndex: Int = 0) -> Decimal {
         XCTContext.runActivity(named: "Get balance (numeric) for token: \(tokenName) at index: \(tokenIndex)") { _ in
             let label = getTokenBalance(tokenName: tokenName, tokenIndex: tokenIndex)
-            return parseNumericValue(from: label)
+            return NumericValueHelper.parseNumericValue(from: label)
         }
     }
 
@@ -411,8 +410,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func waitForSynchronizeAddressesButtonExists() -> Self {
         XCTContext.runActivity(named: "Wait for synchronize addresses button exists") { _ in
             waitAndAssertTrue(missingDerivationNotification, "Missing derivation notification should exist")
-            return self
         }
+        return self
     }
 
     private func isGrouped() -> Bool {
@@ -424,33 +423,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             }
 
         return !networkHeaders.isEmpty
-    }
-
-    private func parseNumericValue(from balanceText: String) -> Decimal {
-        if balanceText.contains("–") {
-            XCTFail("Balance should have numeric value instead of dash")
-        }
-
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.locale = Locale.current
-
-        // Parsing with original text first
-        if let number = formatter.number(from: balanceText) {
-            return number.decimalValue
-        }
-
-        // If that fails, try removing common currency symbols and parsing again
-        let cleanedText = balanceText
-            .replacingOccurrences(of: "[$₽€£¥]", with: "", options: .regularExpression)
-            .trimmingCharacters(in: .whitespaces)
-
-        if let number = formatter.number(from: cleanedText) {
-            return number.decimalValue
-        }
-
-        XCTFail("Failed to parse balance text '\(balanceText)' as Decimal")
-        return Decimal(0)
     }
 }
 
