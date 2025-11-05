@@ -708,7 +708,6 @@ extension ExpressViewModel: NotificationTapDelegate {
              .seedSupport2No,
              .seedSupport2Yes,
              .unlock,
-             .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
