@@ -21,13 +21,35 @@ struct CommonWalletModelsFactory {
         self.userWalletId = userWalletId
     }
 
-    private func isDerivationDefault(blockchain: Blockchain, derivationPath: DerivationPath?) -> Bool {
+    private func isMainCoinCustom(blockchain: Blockchain, derivationPath: DerivationPath?) -> Bool {
         guard let derivationStyle = config.derivationStyle else {
-            return true
+            return false
         }
 
-        let defaultDerivation = blockchain.derivationPath(for: derivationStyle)
-        return derivationPath == defaultDerivation
+        guard let defaultDerivationPath = blockchain.derivationPath(for: derivationStyle) else {
+            return false
+        }
+
+        guard let derivationPath else {
+            return false
+        }
+
+        if derivationPath == defaultDerivationPath {
+            return false
+        }
+
+        let helper = AccountDerivationPathHelper(blockchain: blockchain)
+
+        guard let accountNode = helper.extractAccountDerivationNode(from: derivationPath) else {
+            return false
+        }
+
+        let expectedAccountPath = helper.makeDerivationPath(
+            from: defaultDerivationPath,
+            forAccountWithIndex: Int(accountNode.index)
+        )
+
+        return expectedAccountPath != derivationPath
     }
 
     private func makeTransactionHistoryService(tokenItem: TokenItem, addresses: [String]) -> TransactionHistoryService? {
@@ -116,7 +138,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
 
         let currentBlockchain = blockchainNetwork.blockchain
         let currentDerivation = blockchainNetwork.derivationPath
-        let isMainCoinCustom = !isDerivationDefault(blockchain: currentBlockchain, derivationPath: currentDerivation)
+        let isMainCoinCustom = isMainCoinCustom(blockchain: currentBlockchain, derivationPath: currentDerivation)
         let sendAvailabilityProvider = TransactionSendAvailabilityProvider(
             hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
         )
