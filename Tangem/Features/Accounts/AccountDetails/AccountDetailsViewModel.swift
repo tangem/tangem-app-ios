@@ -7,11 +7,13 @@
 //
 
 import Foundation
-import TangemAccounts
 import SwiftUI
-import TangemUI
 import Combine
+import TangemUI
+import TangemAccounts
+import TangemFoundation
 import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 final class AccountDetailsViewModel: ObservableObject {
     typealias AccountDetailsRoutable =
@@ -22,17 +24,20 @@ final class AccountDetailsViewModel: ObservableObject {
 
     @Published private(set) var accountName: String = ""
     @Published private(set) var accountIcon = AccountModel.Icon(name: .letter, color: .azure)
+    @Published var alert: AlertBinder?
     @Published var archiveAccountDialogPresented = false
 
     // MARK: - Dependencies
 
     private let account: any BaseAccountModel
     private let accountModelsManager: AccountModelsManager
-    private let actions: [AccountDetailsAction]
-
-    private var bag = Set<AnyCancellable>()
-
     private weak var coordinator: AccountDetailsRoutable?
+
+    // MARK: - Internal state
+
+    private let actions: [AccountDetailsAction]
+    private var archiveAccountTask: Task<Void, Never>?
+    private var bag = Set<AnyCancellable>()
 
     init(
         account: any BaseAccountModel,
@@ -51,10 +56,7 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - View data
 
     var accountIconViewData: AccountIconView.ViewData {
-        AccountIconView.ViewData(
-            backgroundColor: AccountModelUtils.UI.iconColor(from: account.icon.color),
-            nameMode: AccountModelUtils.UI.nameMode(from: account.icon.name, accountName: account.name)
-        )
+        AccountModelUtils.UI.iconViewData(icon: account.icon, accountName: account.name)
     }
 
     var canBeArchived: Bool {
@@ -72,16 +74,15 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - Methods
 
     func archiveAccount() {
-        do {
-            try accountModelsManager.archiveCryptoAccount(withIdentifier: account.id)
-
-            coordinator?.close()
-
-            Toast(view: SuccessToast(text: Localization.accountArchiveSuccessMessage))
-                .present(layout: .top(padding: 24), type: .temporary(interval: 4))
-        } catch {
-            Toast(view: WarningToast(text: Localization.genericError))
-                .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+        archiveAccountTask?.cancel()
+        archiveAccountTask = runTask(in: self) { viewModel in
+            do {
+                let identifier = viewModel.account.id
+                try await viewModel.accountModelsManager.archiveCryptoAccount(withIdentifier: identifier)
+                await viewModel.handleAccountArchivingSuccess()
+            } catch {
+                await viewModel.handleAccountArchivingFailure(error: error)
+            }
         }
     }
 
@@ -112,6 +113,40 @@ final class AccountDetailsViewModel: ObservableObject {
     private func applySnapshot() {
         accountName = account.name
         accountIcon = account.icon
+    }
+
+    @MainActor
+    private func handleAccountArchivingSuccess() {
+        coordinator?.close()
+
+        Toast(view: SuccessToast(text: Localization.accountArchiveSuccessMessage))
+            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+    }
+
+    @MainActor
+    private func handleAccountArchivingFailure(error: Error) {
+        let title: String
+        let message: String
+        let buttonTitle: String
+
+        switch error {
+        case let error as ArchivedCryptoAccountConditionsValidator.Error where error == .participatesInReferralProgram:
+            title = Localization.accountCouldNotArchiveReferralProgramTitle
+            message = Localization.accountCouldNotArchiveReferralProgramMessage
+            buttonTitle = Localization.commonGotIt
+        default:
+            title = Localization.commonSomethingWentWrong
+            message = Localization.accountCouldNotArchive
+            buttonTitle = Localization.commonOk
+        }
+
+        alert = AlertBuilder.makeAlert(
+            title: title,
+            message: message,
+            primaryButton: .default(Text(buttonTitle))
+        )
+
+        AccountsLogger.error("Failed to archive account", error: error)
     }
 }
 
