@@ -157,11 +157,14 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         let manageTokensAdapter = ManageTokensAdapter(
             settings: .init(
-                longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
                 existingCurves: userWalletModel.config.existingCurves,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
-                userTokensManager: userWalletModel.userTokensManager,
-                analyticsSourceRawValue: analyticsSourceRawValue
+                hardwareLimitationUtil: HardwareLimitationsUtil(config: userWalletModel.config),
+                analyticsSourceRawValue: analyticsSourceRawValue,
+                context: LegacyManageTokensContext(
+                    userTokensManager: userWalletModel.userTokensManager,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
             )
         )
 
