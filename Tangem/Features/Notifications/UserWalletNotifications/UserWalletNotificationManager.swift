@@ -210,7 +210,7 @@ final class UserWalletNotificationManager {
     private func showMobileActivationNotificationIfNeeded() {
         let config = userWalletModel.config
         let needBackup = config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
-        let needAccessCode = config.hasFeature(.userWalletAccessCode) && !MobileAccessCodeSkipHelper.has(userWalletId: userWalletModel.userWalletId)
+        let needAccessCode = config.hasFeature(.userWalletAccessCode) && config.userWalletAccessCodeStatus == .none
 
         guard needBackup || needAccessCode else {
             return
