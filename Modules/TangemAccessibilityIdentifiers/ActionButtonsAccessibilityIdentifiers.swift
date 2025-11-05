@@ -22,4 +22,7 @@ public enum ActionButtonsAccessibilityIdentifiers {
     public static let addressCopiedToast = "\(prefix)AddressCopiedToast"
     public static let addressCopiedToastTitle = "\(prefix)AddressCopiedToastTitle"
     public static let addressCopiedToastMessage = "\(prefix)AddressCopiedToastMessage"
+
+    /// Buy token selector screen
+    public static let buyTokenSelectorTokensList = "\(prefix)BuyTokenSelectorTokensList"
 }
