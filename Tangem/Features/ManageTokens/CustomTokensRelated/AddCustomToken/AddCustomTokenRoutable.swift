@@ -15,5 +15,11 @@ protocol AddCustomTokenRoutable: AnyObject {
     func openWalletSelector(with dataSource: WalletSelectorDataSource)
     func closeWalletSelector()
     func openNetworkSelector(selectedBlockchainNetworkId: String?, blockchains: [Blockchain])
-    func openDerivationSelector(selectedDerivationOption: AddCustomTokenDerivationOption, defaultDerivationPath: DerivationPath, blockchainDerivationOptions: [AddCustomTokenDerivationOption])
+    func openDerivationSelector(
+        selectedDerivationOption: AddCustomTokenDerivationOption,
+        defaultDerivationPath: DerivationPath,
+        blockchainDerivationOptions: [AddCustomTokenDerivationOption],
+        context: ManageTokensContext,
+        blockchain: Blockchain
+    )
 }
