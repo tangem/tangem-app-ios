@@ -1,5 +1,5 @@
 //
-//  MainActionButtonsUITests.swift
+//  MainLongTapActionButtonsUITests.swift
 //  TangemUITests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import XCTest
 
-final class MainActionButtonsUITests: BaseTestCase {
+final class MainLongTapActionButtonsUITests: BaseTestCase {
     private let token = "Polygon"
 
     func testLongTapBuy_OpensOnrampForToken() throws {
