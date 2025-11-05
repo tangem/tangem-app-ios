@@ -824,7 +824,6 @@ extension SendModel: NotificationTapDelegate {
              .seedSupportNo,
              .seedSupport2Yes,
              .seedSupport2No,
-             .openReferralProgram,
              .unlock,
              .addTokenTrustline,
              .openMobileFinishActivation,

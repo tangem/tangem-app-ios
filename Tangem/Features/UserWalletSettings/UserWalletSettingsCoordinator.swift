@@ -142,7 +142,6 @@ extension UserWalletSettingsCoordinator:
         let coordinator = ReferralCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .init(input: input))
         referralCoordinator = coordinator
-        Analytics.log(.referralScreenOpened)
     }
 
     func openManageTokens(
