@@ -190,6 +190,16 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
         }
         return self
     }
+
+    @discardableResult
+    func waitForTitle(_ expectedTitle: String) -> Self {
+        XCTContext.runActivity(named: "Validate Onramp screen title") { _ in
+            waitAndAssertTrue(titleLabel, "Title should exist on Onramp screen")
+            let actualTitle = titleLabel.label
+            XCTAssertEqual(actualTitle, expectedTitle, "Title should be '\(expectedTitle)' but was '\(actualTitle)'")
+        }
+        return self
+    }
 }
 
 enum OnrampScreenElement: String, UIElement {
@@ -206,7 +216,7 @@ enum OnrampScreenElement: String, UIElement {
         case .title:
             return SendAccessibilityIdentifiers.sendViewTitle
         case .closeButton:
-            return CommonUIAccessibilityIdentifiers.closeButton
+            return "Close"
         case .settingsButton:
             return OnrampAccessibilityIdentifiers.settingsButton
         case .allOffersButton:
