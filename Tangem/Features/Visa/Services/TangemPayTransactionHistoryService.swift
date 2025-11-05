@@ -38,10 +38,7 @@ extension TangemPayTransactionHistoryService {
                     return .loading
 
                 case .loading:
-                    let transactions = service.storage
-                        .read()
-                        .filter { $0.transactionType != .collateral }
-
+                    let transactions = service.storage.read()
                     return transactions.isEmpty
                         ? .loading
                         : .loaded(service.mapper.formatTransactions(transactions))
@@ -50,10 +47,7 @@ extension TangemPayTransactionHistoryService {
                     return .error(error)
 
                 case .loaded:
-                    let transactions = service.storage
-                        .read()
-                        .filter { $0.transactionType != .collateral }
-
+                    let transactions = service.storage.read()
                     return .loaded(service.mapper.formatTransactions(transactions))
                 }
             }
