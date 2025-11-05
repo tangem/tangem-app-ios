@@ -1,9 +1,9 @@
 //
 //  SendFinishView.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
@@ -20,63 +20,65 @@ struct SendFinishView: View {
                 header(transactionTime: transactionTime)
             }
 
-            if let sendAmountCompactViewModel = viewModel.sendAmountCompactViewModel {
-                SendAmountCompactView(
-                    viewModel: sendAmountCompactViewModel,
-                    type: .enabled()
-                )
+            if let sendAmountFinishViewModel = viewModel.sendAmountFinishViewModel {
+                SendAmountFinishView(viewModel: sendAmountFinishViewModel)
             }
 
             if let onrampAmountCompactViewModel = viewModel.onrampAmountCompactViewModel {
-                OnrampAmountCompactView(
-                    viewModel: onrampAmountCompactViewModel
-                )
+                OnrampAmountCompactView(viewModel: onrampAmountCompactViewModel)
+            }
+
+            if let nftAssetCompactViewModel = viewModel.nftAssetCompactViewModel {
+                NFTAssetCompactView(viewModel: nftAssetCompactViewModel)
+            }
+
+            if let sendDestinationCompactViewModel = viewModel.sendDestinationCompactViewModel {
+                SendDestinationCompactView(viewModel: sendDestinationCompactViewModel)
             }
 
             if let stakingValidatorsCompactViewModel = viewModel.stakingValidatorsCompactViewModel {
-                StakingValidatorsCompactView(
-                    viewModel: stakingValidatorsCompactViewModel,
-                    type: .enabled()
-                )
+                StakingValidatorsCompactView(viewModel: stakingValidatorsCompactViewModel)
             }
 
-            if let sendFeeCompactViewModel = viewModel.sendFeeCompactViewModel {
-                SendFeeCompactView(
-                    viewModel: sendFeeCompactViewModel,
-                    type: .enabled()
-                )
+            if let sendFeeCompactViewModel = viewModel.sendFeeFinishViewModel {
+                SendFeeFinishView(viewModel: sendFeeCompactViewModel)
             }
 
             if let onrampStatusCompactViewModel = viewModel.onrampStatusCompactViewModel {
                 OnrampStatusCompactView(viewModel: onrampStatusCompactViewModel)
             }
         }
+        .onAppear(perform: viewModel.onAppear)
         .safeAreaInset(edge: .bottom, spacing: .zero) {
             if let url = viewModel.transactionURL {
                 bottomButtons(url: url)
             }
         }
-        .onAppear(perform: viewModel.onAppear)
     }
 
     // MARK: - Header
 
     @ViewBuilder
     private func header(transactionTime: String) -> some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 12) {
             Assets.inProgress.image
+                .resizable()
+                .frame(width: 56, height: 56)
 
-            VStack(spacing: 6) {
-                Text(Localization.commonInProgress)
+            VStack(spacing: 4) {
+                Text(Localization.sentTransactionSentTitle)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
 
                 Text(transactionTime)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .lineLimit(1)
             }
+            .lineLimit(1)
         }
-        .transition(.move(edge: .top).combined(with: .opacity))
-        .padding(.top, 4)
+        .transition(
+            .offset(y: -30)
+                .combined(with: .opacity)
+                .animation(SendTransitions.animation)
+        )
         .padding(.bottom, 10)
     }
 
@@ -98,6 +100,8 @@ struct SendFinishView: View {
         }
         .padding(.bottom, 8)
         .padding(.horizontal, 16)
-        .transition(.opacity.animation(SendTransitions.animation))
+        .transition(
+            .opacity.animation(SendTransitions.animation)
+        )
     }
 }
