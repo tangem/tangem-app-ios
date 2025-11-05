@@ -125,14 +125,7 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     }
 
     private func updateYieldModuleInfo(_ info: YieldModuleManagerStateInfo) {
-        guard let marketInfo = info.marketInfo,
-              info.state.isEffectivelyActive
-        else {
-            shouldShowYieldBalanceInfo = false
-            return
-        }
-
-        shouldShowYieldBalanceInfo = true
+        shouldShowYieldBalanceInfo = info.state.isEffectivelyActive && info.marketInfo != nil
     }
 }
 
