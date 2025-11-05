@@ -45,10 +45,10 @@ enum StorageType: String {
     case applicationUid = "application_uid"
     case lastStoredFCMToken = "last_stored_FCM_token"
     case didMigrateWalletConnectSavedSessions = "tangem_did_migrate_wallet_connect_saved_sessions"
+    case didMigrateWalletConnectToV2 = "tangem_did_migrate_wallet_connect_to_v2"
     case allowanceUserWalletIdTransactionsPush = "allowance_user_wallet_id_transactions_push"
     case isSendWithSwapOnboardNotificationHidden = "is_send_with_swap_onboard_notification_hidden"
     case useBiometricAuthentication = "use_biometric_authentication"
     case settingsVersion = "settings_version"
-    case userWalletIdsWithSkippedAccessCode = "user_wallet_ids_with_skipped_access_code"
     case tangemPayOrderIdForCustomerWalletAddress = "tangem_pay_order_id_for_customer_wallet_address"
 }
