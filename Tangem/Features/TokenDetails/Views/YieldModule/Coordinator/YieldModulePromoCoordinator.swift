@@ -14,6 +14,9 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
 
+    @Injected(\.safariManager)
+    private var safariManager: any SafariManager
+
     // MARK: - Propeties
 
     let dismissAction: Action<Void>
@@ -32,6 +35,10 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     }
 
     // MARK: - Public Implementation
+
+    func openUrl(url: URL) {
+        safariManager.openURL(url)
+    }
 
     func start(with options: Options) {
         rootViewModel = options.viewModel
