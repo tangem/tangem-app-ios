@@ -6,11 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Combine
+import Foundation
 import SwiftUI
-import TangemLocalization
-import TangemFoundation
-import TangemUIUtils
 
 class CreateWalletSelectorCoordinator: CoordinatorObject {
     let dismissAction: Action<OutputOptions>
@@ -45,6 +42,8 @@ extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
             switch options {
             case .main(let userWalletModel):
                 self?.openMain(userWalletModel: userWalletModel)
+            case .dismiss:
+                self?.mobileCreateWalletCoordinator = nil
             }
         }
 
@@ -59,6 +58,10 @@ extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
 extension CreateWalletSelectorCoordinator: MobileCreateWalletRoutable {
     func openOnboarding(options: OnboardingCoordinator.Options) {
         openOnboarding(inputOptions: options)
+    }
+
+    func closeMobileCreateWallet() {
+        mobileCreateWalletCoordinator = nil
     }
 }
 
