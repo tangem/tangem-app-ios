@@ -48,8 +48,8 @@ final class ExpressViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let initialWallet: any WalletModel
-    private let userWalletModel: UserWalletModel
+    private let userWalletInfo: UserWalletInfo
+    private let initialTokenItem: TokenItem
     private let feeFormatter: FeeFormatter
     private let balanceFormatter: BalanceFormatter
     private let expressProviderFormatter: ExpressProviderFormatter
@@ -64,8 +64,8 @@ final class ExpressViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        initialWallet: any WalletModel,
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
+        initialTokenItem: TokenItem,
         feeFormatter: FeeFormatter,
         balanceFormatter: BalanceFormatter,
         expressProviderFormatter: ExpressProviderFormatter,
@@ -74,8 +74,8 @@ final class ExpressViewModel: ObservableObject {
         interactor: ExpressInteractor,
         coordinator: ExpressRoutable
     ) {
-        self.initialWallet = initialWallet
-        self.userWalletModel = userWalletModel
+        self.userWalletInfo = userWalletInfo
+        self.initialTokenItem = initialTokenItem
         self.feeFormatter = feeFormatter
         self.balanceFormatter = balanceFormatter
         self.expressProviderFormatter = expressProviderFormatter
@@ -84,7 +84,7 @@ final class ExpressViewModel: ObservableObject {
         self.interactor = interactor
         self.coordinator = coordinator
 
-        Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialWallet.tokenItem.currencySymbol])
+        Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialTokenItem.currencySymbol])
         setupView()
         bind()
     }
@@ -104,11 +104,19 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func userDidTapChangeSourceButton() {
-        coordinator?.presentSwappingTokenList(swapDirection: .toDestination(initialWallet))
+        if FeatureProvider.isAvailable(.accounts) {
+            coordinator?.presentSwapTokenSelector(swapDirection: .toDestination(initialTokenItem))
+        } else {
+            coordinator?.presentSwappingTokenList(swapDirection: .toDestination(initialTokenItem))
+        }
     }
 
     func userDidTapChangeDestinationButton() {
-        coordinator?.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
+        if FeatureProvider.isAvailable(.accounts) {
+            coordinator?.presentSwapTokenSelector(swapDirection: .fromSource(initialTokenItem))
+        } else {
+            coordinator?.presentSwappingTokenList(swapDirection: .fromSource(initialTokenItem))
+        }
     }
 
     func userDidTapPriceChangeInfoButton(message: String) {
@@ -116,6 +124,11 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func didTapMainButton() {
+        if let disabledLocalizedReason = userWalletInfo.config.getDisabledLocalizedReason(for: .swapping) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
         switch mainButtonState {
         case .permitAndSwap:
             Analytics.log(.swapButtonPermitAndSwap)
@@ -187,7 +200,7 @@ private extension ExpressViewModel {
         sendCurrencyViewModel = SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
                 titleState: .text(Localization.swappingFromTitle),
-                canChangeCurrency: interactor.getSender().id != initialWallet.id
+                canChangeCurrency: interactor.getSender().id != .init(tokenItem: initialTokenItem)
             ),
             decimalNumberTextFieldViewModel: .init(maximumFractionDigits: interactor.getSender().tokenItem.decimalCount)
         )
@@ -195,7 +208,7 @@ private extension ExpressViewModel {
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             expressCurrencyViewModel: .init(
                 titleState: .text(Localization.swappingToTitle),
-                canChangeCurrency: interactor.getDestination()?.id != initialWallet.id
+                canChangeCurrency: interactor.getDestination()?.id != .init(tokenItem: initialTokenItem)
             )
         )
 
@@ -300,7 +313,7 @@ private extension ExpressViewModel {
     // MARK: - Send view bubble
 
     func updateSendView(wallet: any ExpressInteractorSourceWallet) {
-        sendCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
+        sendCurrencyViewModel?.update(wallet: wallet, initialWalletId: .init(tokenItem: initialTokenItem))
 
         // If we have amount then we should round and update it with new decimalCount
         guard let amount = sendCurrencyViewModel?.decimalNumberTextFieldViewModel.value else {
@@ -342,7 +355,7 @@ private extension ExpressViewModel {
     // MARK: - Receive view bubble
 
     func updateReceiveView(wallet: ExpressInteractor.Destination?) {
-        receiveCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
+        receiveCurrencyViewModel?.update(wallet: wallet, initialWalletId: .init(tokenItem: initialTokenItem))
     }
 
     func updateFiatValue(expectAmount: Decimal?) {
@@ -714,15 +727,10 @@ extension ExpressViewModel: NotificationTapDelegate {
 
 private extension ExpressViewModel {
     func openFeeCurrency() {
-        let walletModels = userWalletModel.walletModelsManager.walletModels
-        guard let feeCurrencyWalletModel = walletModels.first(where: {
-            $0.tokenItem == interactor.getSender().feeTokenItem
-        }) else {
-            assertionFailure("Fee currency '\(initialWallet.feeTokenItem.name)' for currency '\(initialWallet.tokenItem.name)' not found")
-            return
-        }
-
-        coordinator?.presentFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
+        coordinator?.presentFeeCurrency(
+            userWalletId: userWalletInfo.id,
+            feeTokenItem: interactor.getSender().feeTokenItem
+        )
     }
 
     func feeValue(from event: ExpressNotificationEvent) -> Decimal? {

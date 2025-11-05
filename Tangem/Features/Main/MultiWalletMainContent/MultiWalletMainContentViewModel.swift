@@ -17,6 +17,8 @@ import TangemLocalization
 import TangemUI
 import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
+import TangemVisa
+import BlockchainSdk
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
@@ -63,6 +65,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     // MARK: - Dependencies
+
+    @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
 
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
     private let userWalletModel: UserWalletModel
@@ -122,25 +126,19 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
         if FeatureProvider.isAvailable(.visa) {
-            let tangemPayAccountPublisher = userWalletModel.walletModelsManager.walletModelsPublisher
-                .compactMap(\.visaWalletModel)
-                .compactMap(TangemPayAccount.init)
-                .merge(with: userWalletModel.updatePublisher.compactMap(\.tangemPayAccount))
-                .share(replay: 1)
-
-            tangemPayAccountPublisher
+            userWalletModel.tangemPayAccountPublisher
                 .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
                 .receiveOnMain()
                 .assign(to: \.tangemPayNotificationInputs, on: self, ownership: .weak)
                 .store(in: &bag)
 
-            tangemPayAccountPublisher
+            userWalletModel.tangemPayAccountPublisher
                 .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
                 .receiveOnMain()
                 .assign(to: \.tangemPayCardIssuingInProgress, on: self, ownership: .weak)
                 .store(in: &bag)
 
-            tangemPayAccountPublisher
+            userWalletModel.tangemPayAccountPublisher
                 .withWeakCaptureOf(self)
                 .flatMapLatest { viewModel, tangemPayAccount in
                     tangemPayAccount.tangemPayCardDetailsPublisher
@@ -182,6 +180,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 checkedContinuation.resume()
             }
         }
+    }
+
+    func onFirstAppear() {
+        finishMobileActivationIfNeeded()
+    }
+
+    func finishMobileActivationIfNeeded() {
+        mobileFinishActivationManager.activateIfNeeded(userWalletModel: userWalletModel)
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -361,15 +367,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         let navigationContext = NFTNavigationInput(
             userWalletModel: userWalletModel,
+            name: userWalletModel.name,
             walletModelsManager: userWalletModel.walletModelsManager
         )
         let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(
             accountModelsManager: userWalletModel.accountModelsManager
         )
+        let nftAccountNavigationContextProvider = NFTAccountNavigationContextProvider(
+            userWalletModel: userWalletModel
+        )
 
         return NFTEntrypointViewModel(
             nftManager: userWalletModel.nftManager,
             accountForCollectionsProvider: accountForNFTCollectionsProvider,
+            nftAccountNavigationContextProvider: nftAccountNavigationContextProvider,
             navigationContext: navigationContext,
             analytics: NFTAnalytics.Entrypoint(
                 logCollectionsOpen: { state, collectionsCount, nftsCount, dummyCollectionsCount in
@@ -411,7 +422,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private func subscribeToTokenListSync(with sectionsPublisher: some Publisher<[Section], Never>) {
         let tokenListSyncPublisher = userWalletModel
-            .userTokenListManager
+            .userTokensManager
             .initializedPublisher
             .filter { $0 }
 
@@ -517,22 +528,23 @@ extension MultiWalletMainContentViewModel {
     private func openReferralProgram() {
         Analytics.log(.mainReferralProgramButtonParticipate)
 
+        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
+            .accounts(userWalletModel.accountModelsManager) :
+            .plainUserTokensManager(userWalletModel.userTokensManager)
+
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
             supportedBlockchains: userWalletModel.config.supportedBlockchains,
-            userTokensManager: userWalletModel.userTokensManager
+            workMode: workMode,
+            tokenIconInfoBuilder: TokenIconInfoBuilder()
         )
 
         coordinator?.openReferral(input: input)
     }
 
-    private func openMobileFinishActivation(needsAttention: Bool) {
+    private func openMobileFinishActivation() {
         Analytics.log(.mainButtonFinishNow)
-        if needsAttention {
-            coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
-        } else {
-            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
-        }
+        coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
     }
 
     private func openMobileUpgrade() {
@@ -594,12 +606,13 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openReferralProgram:
             openReferralProgram()
-        case .openMobileFinishActivation(let needsAttention):
-            openMobileFinishActivation(needsAttention: needsAttention)
+        case .openMobileFinishActivation:
+            openMobileFinishActivation()
         case .openMobileUpgrade:
             openMobileUpgrade()
         case .openBuyCrypto(let walletModel, let parameters):
-            coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel, parameters: parameters)
+            let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+            coordinator?.openOnramp(input: input, parameters: parameters)
         case .allowPushPermissionRequest, .postponePushPermissionRequest:
             userWalletNotificationManager.dismissNotification(with: id)
         default:
@@ -735,7 +748,7 @@ private extension MultiWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
             userWalletModel: userWalletModel
         )
     }
