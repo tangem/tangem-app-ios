@@ -41,26 +41,6 @@ extension StakingFlowDependenciesFactory {
 // MARK: - Shared dependencies
 
 extension StakingFlowDependenciesFactory {
-    func makeCurrencyPickerData() -> SendCurrencyPickerData {
-        SendCurrencyPickerData(
-            cryptoIconURL: tokenIconInfo.imageURL,
-            cryptoCurrencyCode: tokenItem.currencySymbol,
-            fiatIconURL: makeFiatItem().iconURL,
-            fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
-            disabled: !possibleToConvertToFiat()
-        )
-    }
-
-    func makeSendAmountViewModelSettings() -> SendAmountViewModel.Settings {
-        SendAmountViewModel.Settings(
-            walletHeaderText: walletHeaderText(),
-            tokenItem: tokenItem,
-            tokenIconInfo: tokenIconInfo,
-            balanceFormatted: formattedBalance(),
-            currencyPickerData: makeCurrencyPickerData()
-        )
-    }
-
     func makeStakingTransactionDispatcher(
         stakingManger: some StakingManager,
         analyticsLogger: any StakingAnalyticsLogger

@@ -27,6 +27,10 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         .just(output: 0)
     }
 
+    var accountModels: [AccountModel] {
+        []
+    }
+
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         return AnyPublisher.just(output: [])
     }

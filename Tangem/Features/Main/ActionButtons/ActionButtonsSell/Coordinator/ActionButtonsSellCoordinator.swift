@@ -12,6 +12,7 @@ final class ActionButtonsSellCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     @Published private(set) var actionButtonsSellViewModel: ActionButtonsSellViewModel?
+    @Published private(set) var newActionButtonsSellViewModel: NewActionButtonsSellViewModel?
 
     let dismissAction: Action<ActionButtonsSendToSellModel?>
     let popToRootAction: Action<PopToRootOptions>
@@ -37,11 +38,16 @@ final class ActionButtonsSellCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        actionButtonsSellViewModel = ActionButtonsSellViewModel(
-            tokenSelectorViewModel: makeTokenSelectorViewModel(),
-            coordinator: self,
-            userWalletModel: userWalletModel
-        )
+        switch options {
+        case .default:
+            actionButtonsSellViewModel = ActionButtonsSellViewModel(
+                tokenSelectorViewModel: makeTokenSelectorViewModel(),
+                coordinator: self,
+                userWalletModel: userWalletModel
+            )
+        case .new:
+            newActionButtonsSellViewModel = NewActionButtonsSellViewModel(coordinator: self)
+        }
     }
 
     private func makeTokenSelectorViewModel() -> ActionButtonsTokenSelectorViewModel {
@@ -53,6 +59,8 @@ final class ActionButtonsSellCoordinator: CoordinatorObject {
         )
     }
 }
+
+// MARK: - ActionButtonsSellRoutable
 
 extension ActionButtonsSellCoordinator: ActionButtonsSellRoutable {
     func openSellCrypto(
@@ -75,5 +83,6 @@ extension ActionButtonsSellCoordinator: ActionButtonsSellRoutable {
 extension ActionButtonsSellCoordinator {
     enum Options {
         case `default`
+        case new
     }
 }

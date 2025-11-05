@@ -7,12 +7,14 @@
 //
 
 import Foundation
+import TangemStaking
 import struct TangemUIUtils.AlertBinder
 
-class MarketsTokenDetailsCoordinator: CoordinatorObject {
+final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
@@ -33,7 +35,6 @@ class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
-    @Published var mailViewModel: MailViewModel? = nil
 
     private var safariHandle: SafariHandle?
 
@@ -83,10 +84,26 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         )
     }
 
+    func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
+        let viewModel = MarketsTokenAccountNetworkSelectorFlowViewModel(
+            inputData: .init(coinId: model.id, coinName: model.name, coinSymbol: model.symbol, networks: model.availableNetworks),
+            userWalletDataProvider: walletDataProvider,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
         let recipient = EmailConfig.default.recipient
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 
     func openURL(_ url: URL) {
@@ -108,21 +125,12 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         }
     }
 
-    func openStaking(for walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
-        guard let stakingManager = walletModel.stakingManager else {
-            return
-        }
-
+    func openStaking(input: SendInput, stakingManager: any StakingManager) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.stakingDetailsCoordinator = nil
         }
 
-        let options = StakingDetailsCoordinator.Options(
-            userWalletModel: userWalletModel,
-            walletModel: walletModel,
-            manager: stakingManager
-        )
-
+        let options = StakingDetailsCoordinator.Options(sendInput: input, manager: stakingManager)
         let coordinator = StakingDetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: options)
         stakingDetailsCoordinator = coordinator
@@ -151,23 +159,26 @@ extension MarketsTokenDetailsCoordinator {
         }
     }
 
-    func openExchange(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
+    func openExchange(input: ExpressDependenciesInput) {
         let action = { [weak self] in
             guard let self else { return }
 
-            let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
+            let dismissAction: ExpressCoordinator.DismissAction = { [weak self] _ in
                 self?.expressCoordinator = nil
             }
 
             let openSwapBlock = { [weak self] in
                 guard let self else { return }
                 Task { @MainActor in
-                    self.expressCoordinator = self.portfolioCoordinatorFactory.makeExpressCoordinator(
-                        for: walletModel,
-                        with: userWalletModel,
+                    let factory = CommonExpressModulesFactory(input: input)
+                    let coordinator = ExpressCoordinator(
+                        factory: factory,
                         dismissAction: dismissAction,
                         popToRootAction: self.popToRootAction
                     )
+
+                    coordinator.start(with: .default)
+                    self.expressCoordinator = coordinator
                 }
             }
 
@@ -180,30 +191,32 @@ extension MarketsTokenDetailsCoordinator {
             }
         }
 
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
-            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: action)
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: input.source.tokenItem) {
+            openViaYieldNotice(tokenItem: input.source.tokenItem, action: action)
         } else {
             action()
         }
     }
 
-    func openOnramp(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
+    func openOnramp(input: SendInput) {
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
-        let options = SendCoordinator.Options(
-            input: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModel: walletModel,
-                expressInput: .init(userWalletModel: userWalletModel)
-            ),
-            type: .onramp(),
-            source: .markets
-        )
+        let options = SendCoordinator.Options(input: input, type: .onramp(), source: .markets)
         coordinator.start(with: options)
         sendCoordinator = coordinator
+    }
+}
+
+// MARK: - MarketsTokenAccountNetworkSelectorRoutable
+
+extension MarketsTokenDetailsCoordinator: MarketsTokenAccountNetworkSelectorRoutable {
+    func close() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 

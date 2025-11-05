@@ -11,8 +11,6 @@ import Combine
 import BlockchainSdk
 
 class SendFeeCompactViewModel: ObservableObject, Identifiable {
-    // Use the estimated size as initial value
-    @Published var viewSize: CGSize = .init(width: 361, height: 76)
     @Published var selectedFeeRowViewModel: FeeRowViewModel?
     @Published var canEditFee: Bool = false
 
