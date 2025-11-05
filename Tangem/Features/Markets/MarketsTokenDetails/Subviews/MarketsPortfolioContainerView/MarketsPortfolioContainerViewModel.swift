@@ -24,8 +24,6 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
     // MARK: - Private Properties
 
     private let walletDataProvider: MarketsWalletDataProvider
-    private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
-
     private weak var coordinator: MarketsPortfolioContainerRoutable?
     private var addTokenTapAction: (() -> Void)?
 
@@ -140,9 +138,9 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
             }
 
             var networkIds = availableNetworksIds
-            let userTokenList = userWalletModel.userTokenListManager.userTokensList
-            for entry in userTokenList.entries {
-                guard let entryId = entry.coinId else {
+            let userTokenList = userWalletModel.userTokensManager.userTokens
+            for entry in userTokenList {
+                guard let entryId = entry.id else {
                     continue
                 }
 
@@ -177,7 +175,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
         let tokenItemViewModelByUserWalletModels: [MarketsPortfolioTokenItemViewModel] = walletDataProvider.userWalletModels
             .reduce(into: []) { partialResult, userWalletModel in
                 let walletModels = userWalletModel.walletModelsManager.walletModels
-                let entries = userWalletModel.userTokenListManager.userTokensList.entries
+                let entries = userWalletModel.userTokensManager.userTokens
 
                 let viewModels: [MarketsPortfolioTokenItemViewModel] = portfolioTokenItemFactory.makeViewModels(
                     coinId: coinId,
@@ -217,7 +215,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
     }
 
     private func bindToTokensListsUpdates(userWalletModels: [UserWalletModel]) {
-        let publishers = userWalletModels.map { $0.userTokenListManager.userTokensListPublisher }
+        let publishers = userWalletModels.map { $0.userTokensManager.userTokensPublisher }
         let walletModelsPublishers = userWalletModels.map { $0.walletModelsManager.walletModelsPublisher }
 
         let manyUserTokensListPublishers = Publishers.MergeMany(publishers)
@@ -268,6 +266,14 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             return
         }
 
+        let expressInput = ExpressDependenciesInput(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            source: walletModel.asExpressInteractorWallet,
+            destination: .loadingAndSet
+        )
+
+        let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+
         let analyticsParams: [Analytics.ParameterKey: String] = [
             .source: Analytics.ParameterValue.market.rawValue,
             .token: walletModel.tokenItem.currencySymbol.uppercased(),
@@ -277,16 +283,18 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         switch action {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
-            coordinator.openOnramp(for: walletModel, with: userWalletModel)
+            coordinator.openOnramp(input: sendInput)
         case .receive:
             Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-            coordinator.openExchange(for: walletModel, with: userWalletModel)
+            coordinator.openExchange(input: expressInput)
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
-            coordinator.openStaking(for: walletModel, with: userWalletModel)
+            if let stakingManager = walletModel.stakingManager {
+                coordinator.openStaking(input: sendInput, stakingManager: stakingManager)
+            }
         case .hide, .marketsDetails, .send, .sell, .copyAddress:
             // An empty value because it is not available
             return
