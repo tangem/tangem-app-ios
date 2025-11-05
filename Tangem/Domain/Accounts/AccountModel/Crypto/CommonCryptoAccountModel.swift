@@ -15,6 +15,7 @@ import TangemNFT
 final class CommonCryptoAccountModel {
     let walletModelsManager: WalletModelsManager
     let userTokensManager: UserTokensManager
+    let accountBalanceProvider: AccountBalanceProvider
 
     private(set) var icon: AccountModel.Icon {
         didSet {
@@ -55,7 +56,8 @@ final class CommonCryptoAccountModel {
         accountIcon: AccountModel.Icon,
         derivationIndex: Int,
         walletModelsManager: WalletModelsManager,
-        userTokensManager: UserTokensManager
+        userTokensManager: UserTokensManager,
+        accountBalanceProvider: AccountBalanceProvider,
     ) {
         self.accountId = accountId
         _name = accountName
@@ -63,6 +65,7 @@ final class CommonCryptoAccountModel {
         self.derivationIndex = derivationIndex
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
+        self.accountBalanceProvider = accountBalanceProvider
     }
 }
 
@@ -80,13 +83,22 @@ extension CommonCryptoAccountModel {
         userTokensManager: UserTokensManager,
     ) {
         let accountId = AccountId(userWalletId: userWalletId, derivationIndex: derivationIndex)
+        let accountBalanceProvider = CommonAccountBalanceProvider(
+            totalBalanceProvider: AccountTotalBalanceProvider(
+                walletModelsManager: walletModelsManager,
+                analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger(),
+                derivationManager: userTokensManager.derivationManager
+            )
+        )
+
         self.init(
             accountId: accountId,
             accountName: accountName,
             accountIcon: accountIcon,
             derivationIndex: derivationIndex,
             walletModelsManager: walletModelsManager,
-            userTokensManager: userTokensManager
+            userTokensManager: userTokensManager,
+            accountBalanceProvider: accountBalanceProvider
         )
     }
 }
@@ -110,11 +122,6 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         didChangeSubject.eraseToAnyPublisher()
     }
 
-    var userTokenListManager: UserTokenListManager {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
     var descriptionString: String {
         Localization.accountFormAccountIndex(derivationIndex)
     }
@@ -132,8 +139,7 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
 
 extension CommonCryptoAccountModel: BalanceProvidingAccountModel {
     var fiatTotalBalanceProvider: AccountBalanceProvider {
-        // [REDACTED_TODO_COMMENT]
-        fatalError("\(#function) not implemented yet!")
+        accountBalanceProvider
     }
 
     var rateProvider: AccountRateProvider {
@@ -153,7 +159,21 @@ extension CommonCryptoAccountModel: CustomStringConvertible {
                 "icon": icon,
                 "id": id,
                 "derivationIndex": derivationIndex,
+                "User tokens count": userTokensManager.userTokens.count,
+                "Wallet models count": walletModelsManager.walletModels.count,
             ]
+        )
+    }
+}
+
+// MARK: - CryptoAccountPersistentConfigConvertible protocol conformance
+
+extension CommonCryptoAccountModel: CryptoAccountPersistentConfigConvertible {
+    func toPersistentConfig() -> CryptoAccountPersistentConfig {
+        return CryptoAccountPersistentConfig(
+            derivationIndex: derivationIndex,
+            name: _name,
+            icon: icon
         )
     }
 }

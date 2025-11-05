@@ -12,7 +12,7 @@ public protocol ExpressAPIProvider {
     /// Requests from Express API `exchangeAvailable` state for currencies included in filter
     /// - Returns: All `ExpressCurrency` that available to exchange specified by filter
     func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset]
-    func pairs(from: [ExpressWalletCurrency], to: [ExpressWalletCurrency]) async throws -> [ExpressPair]
+    func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair]
 
     func providers(branch: ExpressBranch) async throws -> [ExpressProvider]
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote

@@ -6,25 +6,32 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import TangemVisa
+import TangemSdk
 
 final class TangemPayAuthorizer {
-    let walletModel: any WalletModel
+    private weak var userWalletModel: UserWalletModel?
 
-    init(walletModel: any WalletModel) {
-        self.walletModel = walletModel
+    init(userWalletModel: UserWalletModel) {
+        self.userWalletModel = userWalletModel
     }
 
     func authorizeWithCustomerWallet() async throws -> VisaAuthorizationTokens {
-        let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
+        guard let userWalletModel,
+              let seedKey = userWalletModel.keysRepository.keys.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey
+        else {
+            throw TangemPayAuthorizerError.requiredCurveNotFound
+        }
 
         let task = CustomerWalletAuthorizationTask(
-            walletPublicKey: walletModel.publicKey,
-            walletAddress: walletModel.defaultAddressString,
+            seedKey: seedKey,
             authorizationService: VisaAPIServiceBuilder().buildAuthorizationService()
         )
 
-        let tokens = try await withCheckedThrowingContinuation { continuation in
+        let tangemSdk = userWalletModel.config.makeTangemSdk()
+
+        let response = try await withCheckedThrowingContinuation { continuation in
             tangemSdk.startSession(with: task) { result in
                 switch result {
                 case .success(let hashResponse):
@@ -37,6 +44,11 @@ final class TangemPayAuthorizer {
             }
         }
 
-        return tokens
+        userWalletModel.keysRepository.update(derivations: response.derivationResult)
+        return response.tokens
     }
+}
+
+enum TangemPayAuthorizerError: Error {
+    case requiredCurveNotFound
 }

@@ -36,32 +36,30 @@ class UnstakingModel {
     // MARK: - Private injections
 
     private let stakingManager: StakingManager
+    private let sendSourceToken: SendSourceToken
     private let transactionDispatcher: TransactionDispatcher
-    private let transactionValidator: TransactionValidator
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let initialAction: Action
-    private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
+
+    private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
+    private var tokenItem: TokenItem { sendSourceToken.tokenItem }
+    private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
 
     private var estimatedFeeTask: Task<Void, Never>?
     init(
         stakingManager: StakingManager,
+        sendSourceToken: SendSourceToken,
         transactionDispatcher: TransactionDispatcher,
-        transactionValidator: TransactionValidator,
         analyticsLogger: StakingSendAnalyticsLogger,
-        action: Action,
-        tokenItem: TokenItem,
-        feeTokenItem: TokenItem
+        action: Action
     ) {
         self.stakingManager = stakingManager
+        self.sendSourceToken = sendSourceToken
         self.transactionDispatcher = transactionDispatcher
-        self.transactionValidator = transactionValidator
         self.analyticsLogger = analyticsLogger
         initialAction = action
-        self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
 
-        let fiat = tokenItem.currencyId.flatMap {
+        let fiat = sendSourceToken.tokenItem.currencyId.flatMap {
             BalanceConverter().convertToFiat(action.amount, currencyId: $0)
         }
 
@@ -164,7 +162,7 @@ private extension UnstakingModel {
 
 private extension UnstakingModel {
     private func send() async throws -> TransactionDispatcherResult {
-        guard amount?.crypto != nil else {
+        guard sourceAmount.value?.crypto != nil else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
@@ -226,22 +224,48 @@ extension UnstakingModel: SendFeeProvider {
     }
 }
 
-// MARK: - SendAmountInput
+// MARK: - SendSourceTokenInput
 
-extension UnstakingModel: SendAmountInput {
-    var amount: SendAmount? {
-        _amount.value
+extension UnstakingModel: SendSourceTokenInput {
+    var sourceToken: SendSourceToken {
+        sendSourceToken
     }
 
-    var amountPublisher: AnyPublisher<SendAmount?, Never> {
-        _amount.eraseToAnyPublisher()
+    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> {
+        .just(output: sourceToken)
     }
 }
 
-// MARK: - SendAmountOutput
+// MARK: - SendSourceTokenOutput
 
-extension UnstakingModel: SendAmountOutput {
-    func amountDidChanged(amount: SendAmount?) {
+extension UnstakingModel: SendSourceTokenOutput {
+    func userDidSelect(sourceToken: SendSourceToken) {}
+}
+
+// MARK: - SendSourceTokenAmountInput
+
+extension UnstakingModel: SendSourceTokenAmountInput {
+    var sourceAmount: LoadingResult<SendAmount, any Error> {
+        switch _amount.value {
+        case .none: .failure(SendAmountError.noAmount)
+        case .some(let amount): .success(amount)
+        }
+    }
+
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
+        _amount.map { amount in
+            switch amount {
+            case .none: .failure(SendAmountError.noAmount)
+            case .some(let amount): .success(amount)
+            }
+        }.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - SendSourceTokenAmountOutput
+
+extension UnstakingModel: SendSourceTokenAmountOutput {
+    func sourceAmountDidChanged(amount: SendAmount?) {
         _amount.send(amount)
     }
 }
