@@ -52,7 +52,10 @@ final class TangemPayAccount {
             )
 
         customerInfoManagementService = VisaCustomerCardInfoProviderBuilder()
-            .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
+            .buildCustomerInfoManagementService(
+                authorizationTokensHandler: authorizationTokensHandler,
+                authorizeWithCustomerWallet: authorizer.authorizeWithCustomerWallet
+            )
 
         orderIdStorage = TangemPayOrderIdStorage(
             customerWalletAddress: walletAddress,
@@ -109,8 +112,6 @@ final class TangemPayAccount {
 
     #if ALPHA || BETA || DEBUG
     func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
-        try await prepareTokensHandler()
-
         try await KYCService.start(
             getToken: customerInfoManagementService.loadKYCAccessToken,
             onDidDismiss: onDidDismiss
@@ -125,14 +126,13 @@ final class TangemPayAccount {
         }
 
         // This will never happen since the sequence written above will never be terminated without emitting a value
-        return try await getCustomerInfo().tangemPayStatus
+        return try await customerInfoManagementService.loadCustomerInfo().tangemPayStatus
     }
 
     @discardableResult
     func loadBalance() -> Task<Void, Never> {
         runTask(in: self) { tangemPayAccount in
             do {
-                try await tangemPayAccount.prepareTokensHandler()
                 let balance = try await tangemPayAccount.customerInfoManagementService.getBalance()
                 tangemPayAccount.balanceSubject.send(balance)
             } catch {
@@ -141,10 +141,15 @@ final class TangemPayAccount {
         }
     }
 
-    func reloadCustomerInfo() {
+    @discardableResult
+    func loadCustomerInfo() -> Task<Void, Never> {
         runTask(in: self) { tangemPayAccount in
-            let customerInfo = try await tangemPayAccount.getCustomerInfo()
-            tangemPayAccount.customerInfoSubject.send(customerInfo)
+            do {
+                let customerInfo = try await tangemPayAccount.customerInfoManagementService.loadCustomerInfo()
+                tangemPayAccount.customerInfoSubject.send(customerInfo)
+            } catch {
+                // [REDACTED_TODO_COMMENT]
+            }
         }
     }
 
@@ -154,7 +159,7 @@ final class TangemPayAccount {
         let polling = PollingSequence(
             interval: .minute,
             request: { [weak self] in
-                try await self?.getCustomerInfo()
+                try await self?.customerInfoManagementService.loadCustomerInfo()
             }
         )
 
@@ -181,37 +186,9 @@ final class TangemPayAccount {
         }
     }
 
-    private func getCustomerInfo() async throws -> VisaCustomerInfoResponse {
-        try await prepareTokensHandler()
-        return try await customerInfoManagementService.loadCustomerInfo()
-    }
-
-    private func prepareTokensHandler() async throws {
-        if await authorizationTokensHandler.refreshTokenExpired {
-            let tokens = try await authorizer.authorizeWithCustomerWallet()
-            try await authorizationTokensHandler.setupTokens(tokens)
-        }
-
-        if await authorizationTokensHandler.accessTokenExpired {
-            do {
-                try await authorizationTokensHandler.forceRefreshToken()
-            } catch {
-                // Call of `forceRefreshToken` func could fail if same refresh becomes invalid (not expired, but invalid)
-                // That could happen if:
-                // 1. Token refresh called twice on the same device (could happen in there is a race condition somewhere)
-                // 2. User have one TangemPay account linked to more than one device
-                // (i.e. calling token refresh on one device automatically makes refresh token on second device invalid)
-                let tokens = try await authorizer.authorizeWithCustomerWallet()
-                try await authorizationTokensHandler.setupTokens(tokens)
-            }
-        }
-    }
-
     private func createOrder() async {
         do {
-            try await prepareTokensHandler()
             let order = try await customerInfoManagementService.placeOrder(walletAddress: walletAddress)
-
             orderIdStorage.saveOrderId(order.id)
         } catch {
             // [REDACTED_TODO_COMMENT]
@@ -241,7 +218,7 @@ extension TangemPayAccount: NotificationTapDelegate {
             runTask(in: self) { tangemPayAccount in
                 do {
                     try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.reloadCustomerInfo()
+                        tangemPayAccount.loadCustomerInfo()
                     }
                 } catch {
                     // [REDACTED_TODO_COMMENT]
