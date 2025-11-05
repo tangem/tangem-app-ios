@@ -81,7 +81,7 @@ public extension TangemPayTransactionHistoryResponse {
         public let receipt: Bool
         public let merchantName: String?
         public let merchantCategory: String?
-        public let merchantCategoryCode: String
+        public let merchantCategoryCode: String?
         public let merchantId: String?
         public let enrichedMerchantIcon: URL?
         public let enrichedMerchantName: String?
@@ -103,27 +103,32 @@ public extension TangemPayTransactionHistoryResponse {
         public let amount: Double
         public let currency: String
         public let memo: String?
-        public let chainId: Double
-        public let walletAddress: String
-        public let transactionHash: String
+        public let chainId: Double?
+        public let walletAddress: String?
+        public let transactionHash: String?
         public let postedAt: Date
     }
 
     struct Payment: Decodable, Equatable {
         public let amount: Double
         public let currency: String
-        public let memo: String
-        public let chainId: Double
-        public let walletAddress: String
-        public let transactionHash: String
-        public let status: String
+        public let memo: String?
+        public let chainId: Double?
+        public let walletAddress: String?
+        public let transactionHash: String?
+        public let status: PaymentStatus
         public let postedAt: Date
+    }
+
+    enum PaymentStatus: String, Decodable, Equatable {
+        case pending
+        case completed
     }
 
     struct Fee: Decodable, Equatable {
         public let amount: Double
         public let currency: String
-        public let description: String
+        public let description: String?
         public let postedAt: Date
     }
 }
