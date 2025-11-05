@@ -91,15 +91,11 @@ struct MainCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
-            }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
             .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
-                    .expressNavigationView()
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)

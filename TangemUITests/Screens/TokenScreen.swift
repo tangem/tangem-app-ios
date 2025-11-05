@@ -42,15 +42,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     @discardableResult
-    func tapHideFromContextMenu() -> MainScreen {
-        XCTContext.runActivity(named: "Tap Hide from context menu") { _ in
-            app.buttons["Hide token"].waitAndTap()
-            app.alerts.firstMatch.buttons["Hide"].waitAndTap()
-            return MainScreen(app)
-        }
-    }
-
-    @discardableResult
     func tapActionButton(_ action: TokenAction) -> Self {
         XCTContext.runActivity(named: "Tap token action button: \(action.rawValue)") { _ in
             XCTAssertTrue(actionButtons.waitForExistence(timeout: .robustUIUpdate), "Action buttons container should exist")
@@ -93,7 +84,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     @discardableResult
-    func validateStakingInfo() -> Self {
+    func waitForStakingInfo() -> Self {
         XCTContext.runActivity(named: "Validate staking information on token screen") { _ in
             XCTAssertTrue(nativeStakingBlock.waitForExistence(timeout: .robustUIUpdate), "Native staking block should be displayed")
             XCTAssertTrue(nativeStakingTitle.waitForExistence(timeout: .robustUIUpdate), "Native staking title should be displayed")
