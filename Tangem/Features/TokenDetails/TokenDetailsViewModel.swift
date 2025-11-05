@@ -148,7 +148,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .seedSupportYes,
              .seedSupport2No,
              .seedSupport2Yes,
-             .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
