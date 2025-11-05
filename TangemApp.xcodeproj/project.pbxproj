@@ -95,7 +95,6 @@
 		0AB346872E8402A2004003A0 /* YieldModuleNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */; };
 		0AB346892E840E44004003A0 /* YieldModuleMarketsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */; };
 		0AB5A4732C5267CB00491764 /* SegmentedPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */; };
-		0AB8BD3C2DBB60AE00D88677 /* CommonReferralNotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8BD3B2DBB60AE00D88677 /* CommonReferralNotificationController.swift */; };
 		0AB8BD3E2DBB7EFD00D88677 /* ReferralConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */; };
 		0ABAA2F52E56074100024627 /* MobileWalletAddressesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABAA2F42E56074100024627 /* MobileWalletAddressesTests.swift */; };
 		0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */ = {isa = PBXBuildFile; productRef = 0ABC61142C410AFD00065EBA /* TweetNacl */; };
@@ -4529,7 +4528,6 @@
 		0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleNetworkManager.swift; sourceTree = "<group>"; };
 		0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleMarketsRepository.swift; sourceTree = "<group>"; };
 		0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedPicker.swift; sourceTree = "<group>"; };
-		0AB8BD3B2DBB60AE00D88677 /* CommonReferralNotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonReferralNotificationController.swift; sourceTree = "<group>"; };
 		0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralConstants.swift; sourceTree = "<group>"; };
 		0ABAA2F42E56074100024627 /* MobileWalletAddressesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletAddressesTests.swift; sourceTree = "<group>"; };
 		0ABCEE662E3B954000662B9F /* WalletInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInitializer.swift; sourceTree = "<group>"; };
@@ -11937,7 +11935,6 @@
 				B04CD34329122C8D001EA84A /* ReferralCoordinatorView.swift */,
 				DC6DACFE2A98DF1F00AEBB8C /* ReferralInputModel.swift */,
 				0ACBC5A02DBA97B600272646 /* ReferralNotificationController.swift */,
-				0AB8BD3B2DBB60AE00D88677 /* CommonReferralNotificationController.swift */,
 				306DA7FB2E97F05000545BFE /* AddressForRewardsSection.swift */,
 			);
 			path = Referral;
@@ -24738,7 +24735,6 @@
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
 				EF5E5A822B70FF3700D19BBB /* CommonBannerPromotionService.swift in Sources */,
 				301EF4DA2EA50A5800B1C9C1 /* MarketsUserWalletFinder.swift in Sources */,
-				0AB8BD3C2DBB60AE00D88677 /* CommonReferralNotificationController.swift in Sources */,
 				DC295B542861F104006CB7B6 /* OnboardingRoutable.swift in Sources */,
 				EF3CC86C2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift in Sources */,
 				0FA453C62E1D47910055B5BB /* MobileAccessCodeConfiguration.swift in Sources */,
@@ -25259,7 +25255,6 @@
 				EF729B4A2AF1091900D80205 /* ExpressFeeSelectorViewModel.swift in Sources */,
 				EFAD40AC2A976E7500364D65 /* TransactionListItem.swift in Sources */,
 				0FF8F96B2EA9384500251C53 /* NewAuthWalletView+EnvironmentValues.swift in Sources */,
-				EAD5E7F02E7C08D000E30DF3 /* YieldModuleInfoView.swift in Sources */,
 				EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */,
 				B06C3A292BFE31E3005E6D40 /* ManageTokensListLoader.swift in Sources */,
 				DC9090512D393B2F00BF7A43 /* HotCryptoAddToPortfolioBottomSheetView.swift in Sources */,
@@ -25325,7 +25320,6 @@
 				B696109A2A428CA300CF88B7 /* OrganizeTokensListItemView.swift in Sources */,
 				EF82F8162EAFAD77006A46BB /* OnrampSummaryRoutable.swift in Sources */,
 				DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */,
-				EFA154822CD2542700A0642C /* OnrampAmountBuilder.swift in Sources */,
 				EAE484372EB0F59000086EBD /* YieldModuleTransactionView.swift in Sources */,
 				0F2511312EA782FB009D78EE /* MobileBackupToUpgradeNeededViewModel.swift in Sources */,
 				EF41A3CC2D38089B00FA7020 /* TokenBalancesStorage.swift in Sources */,
@@ -25334,7 +25328,6 @@
 				B61F71302E949DFF002C3C66 /* ArchivedCryptoAccountsProvider.swift in Sources */,
 				DC7D39FD29E024A2007BCD23 /* TangemSdkFactory.swift in Sources */,
 				EAE4843D2EB0FD0C00086EBD /* YieldModuleTransactionFlowFactory.swift in Sources */,
-				DA559C3E2B0261F400F59584 /* SendAmountView.swift in Sources */,
 				DC70C01D2B95F189002205BA /* FactorySettingsResettingMock.swift in Sources */,
 				B6EAA5F92A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift in Sources */,
 				EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */,
