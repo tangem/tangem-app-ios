@@ -46,6 +46,10 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var derivationStyle: DerivationStyle? {
+        guard hasFeature(.hdWallets) else {
+            return nil
+        }
+        
         return .v3
     }
 
