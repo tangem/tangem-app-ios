@@ -25,15 +25,13 @@ class ExpressInteractor {
 
     // MARK: - Dependencies
 
-    private let userWalletId: String
-    private let initialWallet: any ExpressInteractorSourceWallet
+    private let userWalletInfo: UserWalletInfo
     private let expressManager: ExpressManager
-    private let expressRepository: ExpressRepository
+    private let expressPairsRepository: ExpressPairsRepository
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
     private let expressAnalyticsLogger: ExpressAnalyticsLogger
     private let expressAPIProvider: ExpressAPIProvider
-    private let signer: TangemSigner
 
     // MARK: - Options
 
@@ -43,32 +41,25 @@ class ExpressInteractor {
     private var updateStateTask: Task<Void, Error>?
 
     init(
-        userWalletId: String,
-        initialWallet: Source,
-        destinationWallet: Destination?,
+        userWalletInfo: UserWalletInfo,
+        swappingPair: SwappingPair,
         expressManager: ExpressManager,
-        expressRepository: ExpressRepository,
+        expressPairsRepository: ExpressPairsRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
         expressAnalyticsLogger: ExpressAnalyticsLogger,
-        expressAPIProvider: ExpressAPIProvider,
-        signer: TangemSigner
+        expressAPIProvider: ExpressAPIProvider
     ) {
-        self.userWalletId = userWalletId
-        self.initialWallet = initialWallet
+        self.userWalletInfo = userWalletInfo
         self.expressManager = expressManager
-        self.expressRepository = expressRepository
+        self.expressPairsRepository = expressPairsRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
         self.expressAnalyticsLogger = expressAnalyticsLogger
         self.expressAPIProvider = expressAPIProvider
-        self.signer = signer
 
-        _swappingPair = .init(
-            SwappingPair(sender: initialWallet, destination: destinationWallet)
-        )
-
-        initialLoading(wallet: initialWallet)
+        _swappingPair = .init(swappingPair)
+        initialLoading(wallet: swappingPair.sender)
     }
 }
 
@@ -264,7 +255,10 @@ extension ExpressInteractor {
         if shouldTrackAnalytics {
             logTransactionSentAnalyticsEvent(data: sentTransactionData, signerType: result.dispatcherResult.signerType)
         }
-        expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData, userWalletId: userWalletId)
+        expressPendingTransactionRepository.swapTransactionDidSend(
+            sentTransactionData,
+            userWalletId: userWalletInfo.id.stringValue
+        )
 
         return sentTransactionData
     }
@@ -280,7 +274,7 @@ extension ExpressInteractor {
 
         let sender = getSender()
         let transaction = try await sender.expressTransactionBuilder.makeApproveTransaction(data: state.data, fee: fee)
-        let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .express(transaction))
+        let result = try await sender.transactionDispatcher(signer: userWalletInfo.signer).send(transaction: .express(transaction))
 
         ExpressLogger.info("Sent the approve transaction with result: \(result)")
         sender.allowanceService.didSendApproveTransaction(for: state.data.spender)
@@ -363,8 +357,8 @@ private extension ExpressInteractor {
             Analytics.log(
                 event: .swapNoticeNotEnoughFee,
                 params: [
-                    .token: initialWallet.tokenItem.currencySymbol,
-                    .blockchain: initialWallet.tokenItem.blockchain.displayName,
+                    .token: _swappingPair.value.sender.tokenItem.currencySymbol,
+                    .blockchain: _swappingPair.value.sender.tokenItem.blockchain.displayName,
                 ]
             )
         }
@@ -514,7 +508,7 @@ private extension ExpressInteractor {
         let fee = try state.fees.selectedFee()
         let sender = getSender()
         let transaction = try await sender.expressTransactionBuilder.makeTransaction(data: state.data, fee: fee)
-        let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .express(transaction))
+        let result = try await sender.transactionDispatcher(signer: userWalletInfo.signer).send(transaction: .express(transaction))
 
         return TransactionSendResultState(dispatcherResult: result, data: state.data, fee: fee, provider: provider)
     }
@@ -524,7 +518,7 @@ private extension ExpressInteractor {
         let sender = getSender()
         let data = try await expressManager.requestData()
         let transaction = try await sender.expressTransactionBuilder.makeTransaction(data: data, fee: fee)
-        let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .express(transaction))
+        let result = try await sender.transactionDispatcher(signer: userWalletInfo.signer).send(transaction: .express(transaction))
 
         return TransactionSendResultState(dispatcherResult: result, data: data, fee: fee, provider: provider)
     }
@@ -610,7 +604,10 @@ private extension ExpressInteractor {
 
     func initialLoading(wallet: any ExpressInteractorSourceWallet) async -> RestrictionType? {
         do {
-            try await expressRepository.updatePairs(for: wallet.tokenItem.expressCurrency)
+            try await expressPairsRepository.updatePairs(
+                for: wallet.tokenItem.expressCurrency,
+                userWalletInfo: userWalletInfo
+            )
 
             switch _swappingPair.value.destination {
             case .none:

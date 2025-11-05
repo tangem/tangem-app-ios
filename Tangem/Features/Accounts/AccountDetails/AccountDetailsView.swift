@@ -29,6 +29,7 @@ struct AccountDetailsView: View {
 
             actionSheets
         }
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     private var accountSection: some View {
@@ -54,7 +55,7 @@ struct AccountDetailsView: View {
                 }
             }
         )
-        .defaultRoundedBackground()
+        .defaultRoundedBackground(with: Colors.Background.action)
     }
 
     @ViewBuilder
@@ -70,7 +71,7 @@ struct AccountDetailsView: View {
                     Assets.chevronRight.image
                         .foregroundColor(Colors.Icon.informative)
                 }
-                .defaultRoundedBackground()
+                .defaultRoundedBackground(with: Colors.Background.action)
             }
         }
     }
@@ -83,7 +84,7 @@ struct AccountDetailsView: View {
                     Text(Localization.accountDetailsArchive)
                         .style(Fonts.Regular.callout, color: Colors.Text.warning)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .defaultRoundedBackground()
+                        .defaultRoundedBackground(with: Colors.Background.action)
                 }
 
                 Text(Localization.accountDetailsArchiveDescription)
