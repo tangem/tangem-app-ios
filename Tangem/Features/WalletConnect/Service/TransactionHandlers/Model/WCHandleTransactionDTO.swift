@@ -20,6 +20,7 @@ struct WCHandleTransactionDTO {
     let requestData: Data
     let blockchain: BlockchainSdk.Blockchain
     let verificationStatus: WalletConnectDAppVerificationStatus
+    let validate: () async throws -> WalletConnectMessageHandleRestrictionType
     let accept: () async throws -> RPCResult
     let reject: () throws -> RPCResult
 
