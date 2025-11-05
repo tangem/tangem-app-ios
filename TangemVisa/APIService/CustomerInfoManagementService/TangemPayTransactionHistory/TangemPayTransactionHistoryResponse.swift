@@ -19,7 +19,7 @@ public extension TangemPayTransactionHistoryResponse {
         public var transactionDate: Date {
             switch record {
             case .spend(let spend):
-                spend.postedAt ?? spend.authorizedAt
+                spend.authorizedAt
             case .collateral(let collateral):
                 collateral.postedAt
             case .payment(let payment):
@@ -102,7 +102,7 @@ public extension TangemPayTransactionHistoryResponse {
     struct Collateral: Decodable, Equatable {
         public let amount: Double
         public let currency: String
-        public let memo: String
+        public let memo: String?
         public let chainId: Double
         public let walletAddress: String
         public let transactionHash: String

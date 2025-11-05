@@ -12,21 +12,19 @@ import TangemFoundation
 
 final class NewTokenSelectorViewModel: ObservableObject {
     @Published var searchText: String = ""
-    @Published private(set) var wallets: [NewTokenSelectorWalletItemViewModel] = []
+    @Published private(set) var wallets: [NewTokenSelectorWalletItemViewModel]?
+    @Published private(set) var contentVisibility: ContentVisibility = .visible
 
-    private let walletsProvider: NewTokenSelectorWalletsProvider
-    private let availabilityProvider: any NewTokenSelectorItemAvailabilityProvider
+    private let walletsProvider: any NewTokenSelectorWalletsProvider
     private weak var output: NewTokenSelectorViewModelOutput?
 
     private var bag: Set<AnyCancellable> = []
 
     init(
         walletsProvider: any NewTokenSelectorWalletsProvider,
-        availabilityProvider: any NewTokenSelectorItemAvailabilityProvider,
         output: any NewTokenSelectorViewModelOutput,
     ) {
         self.walletsProvider = walletsProvider
-        self.availabilityProvider = availabilityProvider
         self.output = output
 
         bind()
@@ -39,6 +37,19 @@ final class NewTokenSelectorViewModel: ObservableObject {
             .map { $0.mapToNewTokenSelectorWalletItemViewModels(wallets: $1) }
             .receiveOnMain()
             .assign(to: &$wallets)
+
+        $wallets
+            .compactMap { wallets -> [AnyPublisher<Int, Never>]? in
+                wallets?.map { $0.$visibleItemsCount.compactMap { $0 }.eraseToAnyPublisher() }
+            }
+            .flatMapLatest { visibleItemsCountPublishers in
+                visibleItemsCountPublishers
+                    .combineLatest().map { $0.sum() }
+                    .removeDuplicates()
+            }
+            .map { $0 == .zero ? .empty : .visible }
+            .removeDuplicates()
+            .assign(to: &$contentVisibility)
     }
 
     private func mapToNewTokenSelectorWalletItemViewModels(wallets: [NewTokenSelectorWallet]) -> [NewTokenSelectorWalletItemViewModel] {
@@ -64,25 +75,32 @@ extension NewTokenSelectorViewModel: NewTokenSelectorItemViewModelMapper {
         NewTokenSelectorAccountViewModel(
             header: header,
             account: account,
-            searchTextPublisher: $searchText.eraseToAnyPublisher(),
+            searchTextPublisher: $searchText
+                .debounce(for: .seconds(0.2), if: { !$0.isEmpty })
+                .eraseToAnyPublisher(),
             mapper: self
         )
     }
 
     func mapToNewTokenSelectorItemViewModel(item: NewTokenSelectorItem) -> NewTokenSelectorItemViewModel {
-        let disabledReason = availabilityProvider.isAvailable(item: item)
-
-        return NewTokenSelectorItemViewModel(
+        NewTokenSelectorItemViewModel(
             id: item.walletModel.id,
             name: item.walletModel.tokenItem.name,
             symbol: item.walletModel.tokenItem.currencySymbol,
             tokenIconInfo: TokenIconInfoBuilder().build(from: item.walletModel.tokenItem, isCustom: item.walletModel.isCustom),
-            disabledReason: disabledReason,
+            availabilityProvider: item.availabilityProvider,
             cryptoBalanceProvider: item.cryptoBalanceProvider,
-            fiatBalanceProvider: item.cryptoBalanceProvider,
+            fiatBalanceProvider: item.fiatBalanceProvider,
             action: { [weak self] in
                 self?.output?.usedDidSelect(item: item)
             }
         )
+    }
+}
+
+extension NewTokenSelectorViewModel {
+    enum ContentVisibility: Equatable {
+        case visible
+        case empty
     }
 }

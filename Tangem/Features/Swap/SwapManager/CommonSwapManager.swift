@@ -16,13 +16,19 @@ class CommonSwapManager {
 
     @Injected(\.expressAvailabilityProvider)
     private var expressAvailabilityProvider: ExpressAvailabilityProvider
+
+    private let userWalletConfig: any UserWalletConfig
     private let interactor: ExpressInteractor
 
     // Private
     private var refreshDataTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
 
-    init(interactor: ExpressInteractor) {
+    init(
+        userWalletConfig: any UserWalletConfig,
+        interactor: ExpressInteractor
+    ) {
+        self.userWalletConfig = userWalletConfig
         self.interactor = interactor
 
         bind()
@@ -34,9 +40,9 @@ class CommonSwapManager {
 extension CommonSwapManager: SwapManager {
     var isSwapAvailable: Bool {
         let canSwap = expressAvailabilityProvider.canSwap(tokenItem: swappingPair.sender.tokenItem)
-        let hasMemo = SendDestinationAdditionalFieldType.type(for: swappingPair.sender.tokenItem.blockchain) != nil
+        let isMultiCurrency = userWalletConfig.hasFeature(.multiCurrency)
 
-        return canSwap && !hasMemo
+        return canSwap && isMultiCurrency
     }
 
     var swappingPair: SwapManagerSwappingPair {
