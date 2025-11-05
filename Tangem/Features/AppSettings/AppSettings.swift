@@ -98,9 +98,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.userWalletIdsWithNFTEnabled)
     var userWalletIdsWithNFTEnabled: [String] = []
 
-    @AppStorageCompat(StorageType.showReferralProgramOnMain)
-    var showReferralProgramOnMain: Bool = true
-
     @AppStorageCompat(StorageType.marketsTooltipWasShown)
     var marketsTooltipWasShown: Bool = false
 
