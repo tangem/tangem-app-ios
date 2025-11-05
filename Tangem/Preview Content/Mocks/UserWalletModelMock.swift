@@ -25,6 +25,12 @@ class UserWalletModelMock: UserWalletModel {
         )
     }
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> {
+        .empty
+    }
+
     var name: String { "" }
     var hasBackupCards: Bool { false }
     var emailConfig: EmailConfig? { nil }
@@ -37,8 +43,6 @@ class UserWalletModelMock: UserWalletModel {
     var walletModelsManager: WalletModelsManager { WalletModelsManagerMock() }
 
     var userTokensManager: UserTokensManager { UserTokensManagerMock() }
-
-    var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
 
     var walletImageProvider: WalletImageProviding {
         CardImageProviderMock()
@@ -68,8 +72,6 @@ class UserWalletModelMock: UserWalletModel {
 
     var isUserWalletLocked: Bool { false }
 
-    var isTokensListEmpty: Bool { false }
-
     var analyticsContextData: AnalyticsContextData {
         .init(
             productType: .other,
@@ -84,12 +86,17 @@ class UserWalletModelMock: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
+        CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
+    }
+
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
-            derivationManager: nil,
-            userTokenListManager: userTokenListManager
+            userTokensManager: userTokensManager,
+            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub(),
+            derivationManager: nil
         )
     }
 
