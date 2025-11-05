@@ -41,7 +41,7 @@ final class MobileWalletInitializer: WalletInitializer {
         var mobileWalletInfo = MobileWalletInfo(
             hasMnemonicBackup: mnemonic != nil,
             hasICloudBackup: false,
-            isAccessCodeSet: false,
+            accessCodeStatus: .none,
             keys: []
         )
 

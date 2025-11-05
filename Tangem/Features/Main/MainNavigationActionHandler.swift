@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemVisa
 
 extension MainCoordinator {
     final class MainNavigationActionHandler {
@@ -228,10 +229,15 @@ extension MainCoordinator {
                 return false
             }
 
+            let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
+                .accounts(userWalletModel.accountModelsManager) :
+                .plainUserTokensManager(userWalletModel.userTokensManager)
+
             let input = ReferralInputModel(
                 userWalletId: userWalletModel.userWalletId.value,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
-                userTokensManager: userWalletModel.userTokensManager
+                workMode: workMode,
+                tokenIconInfoBuilder: TokenIconInfoBuilder()
             )
 
             coordinator.openDeepLink(.referral(input: input))
@@ -253,12 +259,8 @@ extension MainCoordinator {
                 return false
             }
 
-            let options = StakingDetailsCoordinator.Options(
-                userWalletModel: userWalletModel,
-                walletModel: walletModel,
-                manager: stakingManager
-            )
-
+            let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+            let options = StakingDetailsCoordinator.Options(sendInput: input, manager: stakingManager)
             coordinator.openDeepLink(.staking(options: options))
             return true
         }
@@ -271,7 +273,7 @@ extension MainCoordinator {
                   let coordinator,
                   let userWalletModel = userWalletRepository.models.first,
                   // If it's not nil - user already received and accepted Tangem Pay offer
-                  TangemPayAccount(userWalletModel: userWalletModel) == nil
+                  TangemPayUtilities.getWalletAddressAndRefreshToken(keysRepository: userWalletModel.keysRepository) == nil
             else {
                 incomingActionManager.discardIncomingAction()
                 return false

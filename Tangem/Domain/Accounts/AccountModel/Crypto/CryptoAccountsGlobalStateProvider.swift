@@ -29,13 +29,10 @@ final class CryptoAccountsGlobalStateProvider {
             .accountModelsPublisher
             .map { accountModels in
                 // Extracting only crypto accounts states
-                return accountModels.compactMap { accountModel -> CryptoAccounts.State? in
+                return accountModels.map { accountModel in
                     switch accountModel {
                     case .standard(let cryptoAccounts):
                         return cryptoAccounts.state
-                    case .smart,
-                         .visa:
-                        return nil
                     }
                 }
             }

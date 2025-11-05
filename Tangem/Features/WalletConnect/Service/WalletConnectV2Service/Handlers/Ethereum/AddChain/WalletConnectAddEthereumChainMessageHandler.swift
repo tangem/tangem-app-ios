@@ -18,6 +18,8 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
     private let connectedDApp: WalletConnectConnectedDApp
     private let walletModelProvider: any WalletConnectWalletModelProvider
     private let blockchainToAdd: BlockchainSdk.Blockchain
+    private let wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider
+    private let accountId: String
 
     let method = WalletConnectMethod.addChain
     let rawTransaction: String?
@@ -26,10 +28,14 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
     init(
         requestParams: AnyCodable,
         connectedDApp: WalletConnectConnectedDApp,
-        walletModelProvider: some WalletConnectWalletModelProvider
+        walletModelProvider: some WalletConnectWalletModelProvider,
+        wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
+        accountId: String
     ) throws(WalletConnectTransactionRequestProcessingError) {
         self.connectedDApp = connectedDApp
         self.walletModelProvider = walletModelProvider
+        self.wcAccountsWalletModelProvider = wcAccountsWalletModelProvider
+        self.accountId = accountId
 
         rawTransaction = requestParams.stringRepresentation
         requestData = try Self.makeRequestData(from: requestParams)
@@ -38,16 +44,31 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
         try validate(blockchain: blockchainToAdd, connectedDApp: connectedDApp)
     }
 
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        .empty
+    }
+
     func handle() async throws -> JSONRPC.RPCResult {
         guard let reownBlockchainToAdd = WalletConnectBlockchainMapper.mapFromDomain(blockchainToAdd) else {
             throw WalletConnectTransactionRequestProcessingError.invalidPayload("Blockchain mapping error. Developer mistake.")
         }
 
-        let reownAccountsToAdd = WalletConnectAccountsMapper.map(
-            from: blockchainToAdd,
-            walletConnectWalletModelProvider: walletModelProvider,
-            preferredCAIPReference: nil
-        )
+        let reownAccountsToAdd: [ReownWalletKit.Account]
+
+        if FeatureProvider.isAvailable(.accounts) {
+            reownAccountsToAdd = WalletConnectAccountsMapper.map(
+                from: blockchainToAdd,
+                wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                preferredCAIPReference: nil,
+                accountId: accountId
+            )
+        } else {
+            reownAccountsToAdd = WalletConnectAccountsMapper.map(
+                from: blockchainToAdd,
+                walletConnectWalletModelProvider: walletModelProvider,
+                preferredCAIPReference: nil
+            )
+        }
 
         var reownNamespacesToUpdate = WalletConnectSessionNamespaceMapper.mapFromDomain(connectedDApp.session.namespaces)
         var reownNamespaceToUpdate = reownNamespacesToUpdate[WalletConnectSupportedNamespace.eip155.rawValue]
@@ -117,18 +138,30 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
             throw WalletConnectTransactionRequestProcessingError.blockchainToAddDuplicate(blockchain)
         }
 
-        guard
-            let userWallet = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == connectedDApp.userWalletID }),
-            !userWallet.isUserWalletLocked
-        else {
+        let userWallet: any UserWalletModel
+
+        if let userWalletID = connectedDApp.userWalletID, let model = userWalletRepository.models.first(where: {
+            $0.userWalletId.stringValue == userWalletID
+        }) {
+            userWallet = model
+        } else if let accountId = connectedDApp.accountId, let model = userWalletRepository.models.first(where: {
+            $0.accountModelsManager.accountModels.contains {
+                $0.firstAvailableStandard().id.walletConnectIdentifierString == accountId
+            }
+        }) {
+            userWallet = model
+        } else {
             throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
         }
 
+        guard !userWallet.isUserWalletLocked else {
+            throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
+        }
+
         guard userWallet
-            .userTokenListManager
-            .userTokensList
-            .entries
-            .contains(where: { $0.blockchainNetwork.blockchain.networkId == blockchain.networkId })
+            .walletModelsManager
+            .walletModels
+            .contains(where: { $0.tokenItem.networkId == blockchain.networkId })
         else {
             throw WalletConnectTransactionRequestProcessingError.blockchainToAddIsMissingFromUserWallet(blockchain)
         }
@@ -158,17 +191,38 @@ private extension WalletConnectConnectedDApp {
         addedBlockchain: BlockchainSdk.Blockchain,
         updatedNamespaces: [String: WalletConnectSessionNamespace]
     ) -> WalletConnectConnectedDApp {
-        WalletConnectConnectedDApp(
-            session: WalletConnectDAppSession(
-                topic: session.topic,
-                namespaces: updatedNamespaces,
-                expiryDate: session.expiryDate
-            ),
-            userWalletID: userWalletID,
-            dAppData: dAppData,
-            verificationStatus: verificationStatus,
-            dAppBlockchains: dAppBlockchains + [WalletConnectDAppBlockchain(blockchain: addedBlockchain, isRequired: false)],
-            connectionDate: connectionDate
-        )
+        switch self {
+        case .v1(let dApp):
+            return .v1(
+                WalletConnectConnectedDAppV1(
+                    session: WalletConnectDAppSession(
+                        topic: dApp.session.topic,
+                        namespaces: updatedNamespaces,
+                        expiryDate: dApp.session.expiryDate
+                    ),
+                    userWalletID: dApp.userWalletID,
+                    dAppData: dApp.dAppData,
+                    verificationStatus: dApp.verificationStatus,
+                    dAppBlockchains: dApp.dAppBlockchains + [WalletConnectDAppBlockchain(blockchain: addedBlockchain, isRequired: false)],
+                    connectionDate: dApp.connectionDate
+                )
+            )
+
+        case .v2(let dApp):
+            return .v2(
+                WalletConnectConnectedDAppV2(
+                    session: WalletConnectDAppSession(
+                        topic: dApp.session.topic,
+                        namespaces: updatedNamespaces,
+                        expiryDate: dApp.session.expiryDate
+                    ),
+                    accountId: dApp.accountId,
+                    dAppData: dApp.dAppData,
+                    verificationStatus: dApp.verificationStatus,
+                    dAppBlockchains: dApp.dAppBlockchains + [WalletConnectDAppBlockchain(blockchain: addedBlockchain, isRequired: false)],
+                    connectionDate: dApp.connectionDate
+                )
+            )
+        }
     }
 }
