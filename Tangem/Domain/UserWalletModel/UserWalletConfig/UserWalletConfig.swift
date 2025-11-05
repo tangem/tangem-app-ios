@@ -43,17 +43,19 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     var supportedBlockchains: Set<Blockchain> { get }
 
     /// Blockchains to be added to the tokens list by default on wallet creation.
-    var defaultBlockchains: [StorageEntry] { get }
+    var defaultBlockchains: [TokenItem] { get }
 
     /// Blockchains to be added to the tokens list on every scan. E.g. demo blockchains.
-    var persistentBlockchains: [StorageEntry]? { get }
+    var persistentBlockchains: [TokenItem] { get }
 
-    /// Blockchain which embedded in the card.
-    var embeddedBlockchain: StorageEntry? { get }
+    /// Blockchain which embedded in the card. For analytics
+    var embeddedBlockchain: TokenItem? { get }
 
     var emailData: [EmailCollectedData] { get }
 
     var userWalletIdSeed: Data? { get }
+
+    var userWalletAccessCodeStatus: UserWalletAccessCodeStatus { get }
 
     var productType: Analytics.ProductType { get }
 
@@ -89,6 +91,10 @@ extension UserWalletConfig {
         getFeatureAvailability(feature).disabledLocalizedReason
     }
 
+    var userWalletAccessCodeStatus: UserWalletAccessCodeStatus {
+        .none
+    }
+
     var emailConfig: EmailConfig? {
         .default
     }
@@ -106,7 +112,7 @@ extension UserWalletConfig {
     }
 
     var hasDefaultToken: Bool {
-        (defaultBlockchains.first?.tokens.count ?? 0) > 0
+        defaultBlockchains.first?.isToken ?? false
     }
 }
 
