@@ -75,7 +75,7 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
     var leadingBadgePublisher: AnyPublisher<TokenItemViewModel.LeadingBadge?, Never> {
         Publishers.CombineLatest3(
             hasPendingTransactions,
-            yieldModuleStatePublisher.filter { $0?.state != .loading },
+            yieldModuleStatePublisher.filter { !($0?.state.isBusy ?? false) },
             walletModel.stakingManagerStatePublisher.filter { $0 != .loading }
         )
         .map { hasPendingTransactions, yieldModuleState, stakingManagerState -> TokenItemViewModel.LeadingBadge? in

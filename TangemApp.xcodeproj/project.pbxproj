@@ -3354,6 +3354,7 @@
 		EA84AA392E8E89CC002EF6CE /* YieldModuleRateInfoChartContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84AA382E8E89CC002EF6CE /* YieldModuleRateInfoChartContainer.swift */; };
 		EA93432E2E24F9BF0082FA71 /* XRPAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */; };
 		EA96F3E02E5734460046786E /* PromocodeActivationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */; };
+		EA97F9112EBCBC6100786A2D /* StakingAnalyticsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA97F9102EBCBC6100786A2D /* StakingAnalyticsState.swift */; };
 		EA9B039F2E94308600F4B40D /* YieldAvailableNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B039E2E94308600F4B40D /* YieldAvailableNotificationView.swift */; };
 		EA9B03A32E9430BC00F4B40D /* YieldAvailableNotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B03A22E9430BC00F4B40D /* YieldAvailableNotificationViewModel.swift */; };
 		EA9B03A52E9431B200F4B40D /* YieldModuleTokenInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B03A42E9431B200F4B40D /* YieldModuleTokenInfo.swift */; };
@@ -7761,6 +7762,7 @@
 		EA84AA382E8E89CC002EF6CE /* YieldModuleRateInfoChartContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleRateInfoChartContainer.swift; sourceTree = "<group>"; };
 		EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAssetIdParser.swift; sourceTree = "<group>"; };
 		EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationError.swift; sourceTree = "<group>"; };
+		EA97F9102EBCBC6100786A2D /* StakingAnalyticsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAnalyticsState.swift; sourceTree = "<group>"; };
 		EA9B039E2E94308600F4B40D /* YieldAvailableNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAvailableNotificationView.swift; sourceTree = "<group>"; };
 		EA9B03A22E9430BC00F4B40D /* YieldAvailableNotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAvailableNotificationViewModel.swift; sourceTree = "<group>"; };
 		EA9B03A42E9431B200F4B40D /* YieldModuleTokenInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleTokenInfo.swift; sourceTree = "<group>"; };
@@ -8938,6 +8940,7 @@
 		0A7FF63B2C888D180072C2E8 /* StakingAnalytics */ = {
 			isa = PBXGroup;
 			children = (
+				EA97F9102EBCBC6100786A2D /* StakingAnalyticsState.swift */,
 				0A7FF63C2C888D380072C2E8 /* StakingAnalyticsLogger.swift */,
 			);
 			path = StakingAnalytics;
@@ -28115,6 +28118,7 @@
 				EF2A54192C452B8500341060 /* ValidatorInfo.swift in Sources */,
 				EFB019452C417143009EE857 /* StakingTransactionInfo.swift in Sources */,
 				DC592B8E2C41A100005AB9A7 /* CommonStakingPendingHashesSender.swift in Sources */,
+				EA97F9112EBCBC6100786A2D /* StakingAnalyticsState.swift in Sources */,
 				EF7C4B3F2C9341EB005F9360 /* StakingPendingActionType.swift in Sources */,
 				DC592B8A2C419F50005AB9A7 /* StakingPendingHashesRepository.swift in Sources */,
 				EF6ECA5C2D48215600415F23 /* StakingLogger.swift in Sources */,
