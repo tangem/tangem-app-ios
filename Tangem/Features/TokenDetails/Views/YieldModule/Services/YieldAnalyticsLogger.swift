@@ -14,6 +14,11 @@ enum YieldAnalyticsAction: String {
     case start = "Start"
 }
 
+enum YieldAnalyticsState: String {
+    case enabled = "Enabled"
+    case disabled = "Disabled"
+}
+
 protocol YieldAnalyticsLogger {
     func logTransactionSent()
     func logStartEarningScreenOpened()
@@ -32,6 +37,7 @@ protocol YieldAnalyticsLogger {
     func logEarningNoticeHighNetworkFeeShown()
     func logEarningErrors(action: YieldAnalyticsAction, error: Error)
     func logEarningNoticeAmountNotDepositedShown()
+    func logEarningApyClicked(state: YieldAnalyticsState)
 }
 
 final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
@@ -119,6 +125,17 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
 
     func logEarningNoticeAmountNotDepositedShown() {
         Analytics.log(event: .earningNoticeAmountNotDeposited, params: tokenBlockchainParams())
+    }
+
+    func logEarningApyClicked(state: YieldAnalyticsState) {
+        let stateParamValue = Analytics.ParameterValue(rawValue: state.rawValue)?.rawValue ?? ""
+        let actionParamValue = Analytics.ParameterValue.yieldModuleSourceInfo.rawValue
+
+        var paramsDict = tokenBlockchainParams()
+        paramsDict[.state] = stateParamValue
+        paramsDict[.action] = actionParamValue
+
+        Analytics.log(event: .apyClicked, params: paramsDict)
     }
 }
 
