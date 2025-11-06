@@ -55,29 +55,14 @@ final class MarketsNetworkSelectorViewModel: FloatingSheetContentViewModel {
     }
 
     private var tokenItems: [TokenItem] {
-        guard let selectedUserWalletModel else {
-            return []
-        }
-
-        let supportedBlockchains = if !selectedAccount.isMainAccount {
-            selectedUserWalletModel.config.supportedBlockchains
-                .filter { AccountDerivationPathHelper(blockchain: $0).areAccountsAvailableForBlockchain() }
-        } else {
-            selectedUserWalletModel.config.supportedBlockchains
-        }
-
-        let tokenItemMapper = TokenItemMapper(supportedBlockchains: supportedBlockchains)
-
-        let tokenItems = networks
-            .compactMap {
-                tokenItemMapper.mapToTokenItem(id: coinId, name: coinName, symbol: coinSymbol, network: $0)
-            }
-            .sorted { lhs, rhs in
-                // Main networks must be up list networks
-                lhs.isBlockchain && lhs.isBlockchain != rhs.isBlockchain
-            }
-
-        return tokenItems
+        MarketsTokenItemsProvider.calculateTokenItems(
+            coinId: coinId,
+            coinName: coinName,
+            coinSymbol: coinSymbol,
+            networks: networks,
+            userWalletModel: selectedUserWalletModel,
+            cryptoAccount: selectedAccount
+        )
     }
 
     private func isAdded(_ tokenItem: TokenItem) -> Bool {
