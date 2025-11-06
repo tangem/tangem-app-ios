@@ -111,6 +111,7 @@ extension Analytics {
         case buttonUnlockWithCardScan = "[Main Screen] Button - Unlock With Card Scan"
         case buttonEditWalletTapped = "[Main Screen] Button - Edit Wallet Tapped"
         case buttonDeleteWalletTapped = "[Main Screen] Button - Delete Wallet Tapped"
+        case apyClicked = "[Main Screen] APY Clicked"
 
         // MARK: - Send
 
