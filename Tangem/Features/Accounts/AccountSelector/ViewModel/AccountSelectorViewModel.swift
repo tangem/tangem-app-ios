@@ -84,8 +84,8 @@ final class AccountSelectorViewModel: ObservableObject {
         case .selectItem(let item):
             switch item {
             case .wallet(let model):
-                if case .active(let walletModel) = model.wallet {
-                    selectedItem = walletModel.mainAccount
+                if case .active = model.wallet {
+                    selectedItem = model.mainAccount
                     onSelect(.wallet(model))
                 }
             case .account(let model):
@@ -98,8 +98,8 @@ final class AccountSelectorViewModel: ObservableObject {
     func isCellSelected(for cell: AccountSelectorCellModel) -> Bool {
         switch cell {
         case .wallet(let model):
-            if case .active(let walletModel) = model.wallet {
-                return selectedItem?.id.toAnyHashable() == walletModel.mainAccount.id.toAnyHashable()
+            if case .active = model.wallet {
+                return selectedItem?.id.toAnyHashable() == model.mainAccount.id.toAnyHashable()
             }
         case .account(let model):
             return selectedItem?.id.toAnyHashable() == model.domainModel.id.toAnyHashable()
@@ -113,12 +113,6 @@ final class AccountSelectorViewModel: ObservableObject {
     private func bind() {
         userWalletModels
             .forEach { userWallet in
-
-                guard !userWallet.isUserWalletLocked else {
-                    lockedWalletItems.append(.init(userWallet: userWallet))
-                    return
-                }
-
                 userWallet.accountModelsManager.accountModelsPublisher
                     .receiveOnMain()
                     .withWeakCaptureOf(self)
@@ -131,7 +125,12 @@ final class AccountSelectorViewModel: ObservableObject {
                             userWallet: userWallet, from: accountModels
                         )
 
-                        viewModel.walletItems.append(contentsOf: wallets)
+                        if userWallet.isUserWalletLocked {
+                            viewModel.lockedWalletItems.append(contentsOf: wallets)
+                        } else {
+                            viewModel.walletItems.append(contentsOf: wallets)
+                        }
+
                         viewModel.accountsSections.append(contentsOf: accountsSections)
                     }
                     .store(in: &bag)
@@ -167,7 +166,12 @@ final class AccountSelectorViewModel: ObservableObject {
         case .standard(.single(let cryptoAccountModel)):
             guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
 
-            return .init(userWallet: userWallet, cryptoAccountModel: cryptoAccountModel)
+            return .init(
+                userWallet: userWallet,
+                cryptoAccountModel: cryptoAccountModel,
+                isLocked: userWallet.isUserWalletLocked
+            )
+
         case .standard(.multiple(let cryptoAccountModels)):
             guard let cryptoAccountModel = cryptoAccountModels.first(where: { $0.isMainAccount }) else {
                 preconditionFailure("Active wallet must have at least one crypto account")
@@ -175,7 +179,11 @@ final class AccountSelectorViewModel: ObservableObject {
 
             guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
 
-            return .init(userWallet: userWallet, cryptoAccountModel: cryptoAccountModel)
+            return .init(
+                userWallet: userWallet,
+                cryptoAccountModel: cryptoAccountModel,
+                isLocked: userWallet.isUserWalletLocked
+            )
         }
     }
 
