@@ -17,6 +17,7 @@ final class AccountModelsManagerMock {
     private let userTokenListManager: UserTokenListManager
     private let accountModelsSubject = CurrentValueSubject<[AccountModel], Never>([])
     private let totalAccountsCountSubject = CurrentValueSubject<Int, Never>(0)
+    private let hasArchivedCryptoAccountsSubject = CurrentValueSubject<Bool, Never>(false)
 
     private var cryptoAccountModels: [CryptoAccountModelMock] = [] {
         didSet {
@@ -75,7 +76,8 @@ extension AccountModelsManagerMock: AccountModelsManager {
     }
 
     var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
-        .just(output: false)
+        hasArchivedCryptoAccountsSubject
+            .eraseToAnyPublisher()
     }
 
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
@@ -95,6 +97,9 @@ extension AccountModelsManagerMock: AccountModelsManager {
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
+        try? await Task.sleep(seconds: 2) // simulate network call
+        try? Task.checkCancellation()
+
         return [
             ArchivedCryptoAccountInfo(
                 accountId: .init(rawValue: UUID().uuidString),
@@ -117,21 +122,31 @@ extension AccountModelsManagerMock: AccountModelsManager {
 
     func archiveCryptoAccount(
         withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
-    ) async throws(AccountModelsManagerError) {
+    ) async throws(AccountArchivationError) {
         do {
+            try await Task.sleep(seconds: 2) // simulate network call
+            try Task.checkCancellation()
             try await removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
+            hasArchivedCryptoAccountsSubject.send(true)
         } catch {
-            throw .cannotArchiveCryptoAccount
+            throw .unknownError(error)
         }
     }
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
-        let persistentConfig = info.toPersistentConfig()
-        let isMainAccount = AccountModelUtils.isMainAccount(persistentConfig.derivationIndex)
-        let unarchivedCryptoAccount = CryptoAccountModelMock(isMainAccount: isMainAccount)
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) {
+        do {
+            let persistentConfig = info.toPersistentConfig()
+            let isMainAccount = AccountModelUtils.isMainAccount(persistentConfig.derivationIndex)
+            let unarchivedCryptoAccount = CryptoAccountModelMock(isMainAccount: isMainAccount)
 
-        unarchivedCryptoAccount.setIcon(info.icon)
-        unarchivedCryptoAccount.setName(info.name)
-        cryptoAccountModels.append(unarchivedCryptoAccount)
+            try await Task.sleep(seconds: 2) // simulate network call
+            try Task.checkCancellation()
+
+            unarchivedCryptoAccount.setIcon(info.icon)
+            unarchivedCryptoAccount.setName(info.name)
+            cryptoAccountModels.append(unarchivedCryptoAccount)
+        } catch {
+            throw .unknownError(error)
+        }
     }
 }
