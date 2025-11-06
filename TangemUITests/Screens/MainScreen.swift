@@ -21,7 +21,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var headerCardImage = image(.headerCardImage)
     private lazy var totalBalance = staticText(.totalBalance)
     private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
-    private lazy var missingDerivationNotification = button(.missingDerivationNotification)
+    private lazy var missingDerivationNotification = otherElement(.missingDerivationNotification)
 
     @discardableResult
     func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
