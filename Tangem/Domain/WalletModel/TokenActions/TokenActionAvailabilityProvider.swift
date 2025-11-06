@@ -200,9 +200,9 @@ extension TokenActionAvailabilityProvider {
     }
 
     var swapAvailability: SwapActionAvailabilityStatus {
-        if walletModel.isCustom {
-            return .customToken
-        }
+//        if walletModel.isCustom {
+//            return .customToken
+//        }
 
         if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
             return .yieldModuleApproveNeeded
