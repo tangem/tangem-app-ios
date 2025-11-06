@@ -913,6 +913,7 @@
 "onramp_statuses_view_footer" = "You can close this screen and check the transaction status on the token details screen.";
 "onramp_timing_minutes" = "%@ мин";
 "onramp_title_available_from" = "Доступно от";
+"onramp_title_available_up_to" = "Available up to";
 "onramp_title_you_get" = "Вы получите";
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "Вы можете закрыть этот экран и проверить статус транзакции на экране информации о токене.";
@@ -1115,6 +1116,7 @@
 "staking_amount_requirement_error" = "Сумма для стейкинга должна быть не менее %@";
 "staking_amount_tron_integer_error_unstaking" = "Сумма для вывода из стейкинга будет округлена до %1$@ TRX ввиду особенностей сети.";
 "staking_amount_tron_integer_error" = "Согласно правилам сети, сумма стейкинга будет округлена до %1$@TRX.";
+"staking_apr_earn_badge" = "APR %1$s%%";
 "staking_claim_unstaked" = "Забрать средства";
 "staking_details_account_fee_info" = "Стейкинг аккаунт — это специальный счет, на котором хранятся застейканные токены SOL. Он создается при делегировании ваших токенов валидатору для участия в подтверждении транзакций и получении наград. За создание стейкинг аккаунта взимается небольшая комиссия, которая возвращается после завершения стейкинга.";
 "staking_details_account_fee" = "Комиссия за стейкинг аккаунт";
@@ -1293,6 +1295,7 @@
 "swapping_to_title" = "Вы получите";
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_not_available" = "не доступен";
+"tangem_pay_card_frozen" = "Card frozen";
 "tangem_pay_deposit" = "Deposit";
 "tangem_pay_dispute" = "Dispute";
 "tangem_pay_explore_transaction" = "Explore transaction";
@@ -1300,13 +1303,19 @@
 "tangem_pay_fee_title" = "Комиссия";
 "tangem_pay_freeze_card_alert_body" = "Keep your money safe if your card is lost or stolen. You can unfreeze anytime.";
 "tangem_pay_freeze_card_alert_title" = "Freeze your card?";
+"tangem_pay_freeze_card_failed" = "Failed to freeze the card. Try again later.";
 "tangem_pay_freeze_card_freeze" = "Freeze";
+"tangem_pay_freeze_card_success" = "Your card is frozen.";
 "tangem_pay_get_help" = "Get Help";
 "tangem_pay_status_completed" = "Completed";
 "tangem_pay_status_declined" = "Declined";
 "tangem_pay_status_pending" = "Pending";
 "tangem_pay_transaction_declined_notification_text" = "The bank rejected this transaction request.";
 "tangem_pay_transaction_fee_notification_text" = "This fee goes to cover the cost of handling your transfer.";
+"tangem_pay_unfreeze_card_alert_body" = "Keep using your money. You can freeze anytime.";
+"tangem_pay_unfreeze_card_alert_title" = "Unfreeze your card?";
+"tangem_pay_unfreeze_card_failed" = "Failed to unfreeze the card. Try again later.";
+"tangem_pay_unfreeze_card_success" = "Your card is unfrozen.";
 "tangem_pay_withdrawal" = "Withdrawal";
 "tangempay_card_details_add_funds_subtitle" = "Top-up options";
 "tangempay_card_details_add_funds" = "Add funds";
@@ -1331,6 +1340,7 @@
 "tangempay_card_details_reveal_text" = "Reveal";
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
 "tangempay_card_details_title" = "Card details";
+"tangempay_card_details_unfreeze_card" = "Unfreeze Card";
 "tangempay_issue_card_notification_title" = "Create account and issue a card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
@@ -1449,7 +1459,7 @@
 "visa_main_limits_alert_description_message" = "Limits are needed to control costs, improve security, manage risk. You can spend %1$@ during the period for card payments in shops and %2$@ for other transactions, e.g. subscriptions or debts.";
 "visa_onboarding_access_code_description" = "The access code will be used manage your payment account and protect it from unauthorized access";
 "visa_onboarding_access_code_navigation_title" = "Access Code";
-"visa_onboarding_account_activation_navigation_title" = "Account activation";
+"visa_onboarding_account_activation_navigation_title" = "Активация аккаунта";
 "visa_onboarding_approve_wallet_selector_notification_message" = "Please choose the wallet you started the registration process with to sign the transaction for creating your account on the Blockchain";
 "visa_onboarding_cancel_activation" = "Cancel Activation";
 "visa_onboarding_close_alert_message" = "Are you sure you want to exit? You can continue later from where you left off.";
@@ -1823,7 +1833,7 @@
 "yield_module_promo_screen_self_custodial_title" = "Децентрализованный и некастодиальный";
 "yield_module_promo_screen_terms_disclaimer" = "Используя сервис, вы соглашаетесь с условиями провайдера %1$@ и %2$@";
 "yield_module_promo_screen_title" = "Подключить Aave";
-"yield_module_promo_screen_variable_rate_info" = "Aave %1$@%%• Плавающая ставка";
+"yield_module_promo_screen_variable_rate_info" = "Aave %1$@%% • Плавающая ставка";
 "yield_module_provider" = "Aave";
 "yield_module_rate_info_sheet_chart_average" = "Сред. %@";
 "yield_module_rate_info_sheet_chart_title" = "Доходность за прошлый год";
@@ -1839,7 +1849,7 @@
 "yield_module_status_paused" = "На паузе";
 "yield_module_stop_earning_sheet_description" = "Выключив эту функцию, вы выведёте средства из Aave, получите их обратно в %@ в своем кошельке и перестанете зарабатывать награды.";
 "yield_module_stop_earning_sheet_fee_note" = "Комиссия сети будет вычтена из суммы вашего вывода.";
-"yield_module_stop_earning_sheet_title" = "Завершение режима доходности";
+"yield_module_stop_earning_sheet_title" = "Завершить режим доходности";
 "yield_module_stop_earning" = "Завершение режима доходности";
 "yield_module_supply_apr" = "Годовая доходность (APY)";
 "yield_module_supply" = "Внесение";
