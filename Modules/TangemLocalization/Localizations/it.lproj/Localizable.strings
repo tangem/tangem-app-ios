@@ -913,6 +913,7 @@
 "onramp_statuses_view_footer" = "You can close this screen and check the transaction status on the token details screen.";
 "onramp_timing_minutes" = "%@ min";
 "onramp_title_available_from" = "Available from";
+"onramp_title_available_up_to" = "Available up to";
 "onramp_title_you_get" = "You get";
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "You can close this screen and check the transaction status on the token details screen.";
@@ -1108,13 +1109,14 @@
 "settings_wallet_name_title" = "Name";
 "stake_token_description" = "Put your token to work";
 "staking_account_initialization_footer" = "A network fee is a small payment required to process and confirm your transaction on the blockchain.";
-"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_account_initialization_message" = "To begin staking, your TON account must be activated with a transaction of 1 TON. The funds stay in your account because this step only activates it for staking.";
 "staking_account_initialization_title" = "Account activation";
 "staking_active_footer" = "To unstake your assets, tap the block above";
 "staking_active" = "Active";
 "staking_amount_requirement_error" = "The amount to stake must be at least %@";
 "staking_amount_tron_integer_error_unstaking" = "Unstaking amount will be rounded to %1$@ TRX due to network rules.";
 "staking_amount_tron_integer_error" = "Staking amount will be rounded to %1$@ TRX due to network rules.";
+"staking_apr_earn_badge" = "APR %1$s%%";
 "staking_claim_unstaked" = "Claim unstaked";
 "staking_details_account_fee_info" = "A staking account is a special account where staked SOL tokens are stored. It is created when you delegate your tokens to a validator to participate in transaction validation and receive rewards. A small fee is charged for creating the staking account, which is returned after the staking is completed.";
 "staking_details_account_fee" = "Stake account fee";
@@ -1179,7 +1181,7 @@
 "staking_notification_restake_rewards_text" = "Reinvests your earned rewards in your staked amount, increasing potential earnings.";
 "staking_notification_restake_text" = "Restake lets you move your funds from one validator to another without the need to unstake";
 "staking_notification_stake_entire_balance_text" = "If you stake your entire balance, you’ll need to pay a network fee when you unstake. We recommend leaving a small amount in your wallet to cover network fees.";
-"staking_notification_ton_account_initialization_message" = "To start staking, you need to activate your TON account first.";
+"staking_notification_ton_account_initialization_message" = "To begin staking, you need to activate your TON account first.";
 "staking_notification_ton_account_initialization_title" = "Account activation";
 "staking_notification_ton_activate_account" = "To start staking in TON, first send a small transaction to your own address — this will activate your wallet.";
 "staking_notification_ton_extra_reserve_info" = "Up to 0.2 TON may be required in addition to the network fee to complete the transaction. Any unused amount will be refunded.";
@@ -1293,6 +1295,7 @@
 "swapping_to_title" = "You receive";
 "swapping_token_list_title" = "Choose token";
 "swapping_token_not_available" = "not available";
+"tangem_pay_card_frozen" = "Card frozen";
 "tangem_pay_deposit" = "Deposit";
 "tangem_pay_dispute" = "Dispute";
 "tangem_pay_explore_transaction" = "Explore transaction";
@@ -1300,13 +1303,19 @@
 "tangem_pay_fee_title" = "Fee";
 "tangem_pay_freeze_card_alert_body" = "Keep your money safe if your card is lost or stolen. You can unfreeze anytime.";
 "tangem_pay_freeze_card_alert_title" = "Freeze your card?";
+"tangem_pay_freeze_card_failed" = "Failed to freeze the card. Try again later.";
 "tangem_pay_freeze_card_freeze" = "Freeze";
+"tangem_pay_freeze_card_success" = "Your card is frozen.";
 "tangem_pay_get_help" = "Get Help";
 "tangem_pay_status_completed" = "Completed";
 "tangem_pay_status_declined" = "Declined";
 "tangem_pay_status_pending" = "Pending";
 "tangem_pay_transaction_declined_notification_text" = "The bank rejected this transaction request.";
 "tangem_pay_transaction_fee_notification_text" = "This fee goes to cover the cost of handling your transfer.";
+"tangem_pay_unfreeze_card_alert_body" = "Keep using your money. You can freeze anytime.";
+"tangem_pay_unfreeze_card_alert_title" = "Unfreeze your card?";
+"tangem_pay_unfreeze_card_failed" = "Failed to unfreeze the card. Try again later.";
+"tangem_pay_unfreeze_card_success" = "Your card is unfrozen.";
 "tangem_pay_withdrawal" = "Withdrawal";
 "tangempay_card_details_add_funds_subtitle" = "Top-up options";
 "tangempay_card_details_add_funds" = "Add funds";
@@ -1331,6 +1340,7 @@
 "tangempay_card_details_reveal_text" = "Reveal";
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
 "tangempay_card_details_title" = "Card details";
+"tangempay_card_details_unfreeze_card" = "Unfreeze Card";
 "tangempay_issue_card_notification_title" = "Create account and issue a card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
@@ -1840,7 +1850,7 @@
 "yield_module_stop_earning_sheet_description" = "Turning this off will withdraw your assets from Aave, convert them back to %@ in your wallet, and stop yield accrual.";
 "yield_module_stop_earning_sheet_fee_note" = "The network fee will be deducted from the amount you withdraw.";
 "yield_module_stop_earning_sheet_title" = "Disable yield mode";
-"yield_module_stop_earning" = "Disable yield mode";
+"yield_module_stop_earning" = "Disabling Yield Mode";
 "yield_module_supply_apr" = "Supply APY";
 "yield_module_supply" = "Supply";
 "yield_module_token_details_earn_notification_apy" = "APY";
