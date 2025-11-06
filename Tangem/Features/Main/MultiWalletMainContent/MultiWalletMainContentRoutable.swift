@@ -20,4 +20,6 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext)
     func openMobileBackupOnboarding(userWalletModel: UserWalletModel)
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount)
+    func openYieldModuleActiveInfo(walletModel: any WalletModel, signer: any TangemSigner)
+    func openYieldModulePromoView(walletModel: any WalletModel, apy: Decimal, signer: any TangemSigner)
 }
