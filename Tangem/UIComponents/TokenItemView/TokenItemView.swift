@@ -113,7 +113,8 @@ struct TokenItemView: View {
             TokenItemEarnBadgeView(
                 rewardType: rewardsInfo.type,
                 rewardValue: rewardsInfo.rewardValue,
-                color: rewardsInfo.isActive ? Colors.Text.accent : Colors.Text.secondary
+                color: rewardsInfo.isActive ? Colors.Text.accent : Colors.Text.secondary,
+                tapAction: viewModel.yieldApyTapAction
             )
         case .none:
             EmptyView()
