@@ -257,10 +257,9 @@ extension WalletConnectDAppConnectionViewModel {
 
                 switch result {
                 case .wallet(let walletModel):
-                    if case .active(let activeWalletModel) = walletModel.wallet {
-                        self.selectedAccount = activeWalletModel.mainAccount
-                        selectedUserWallet = activeWalletModel.domainModel
-                    }
+                    self.selectedAccount = walletModel.mainAccount
+                    selectedUserWallet = walletModel.domainModel
+
                 case .account(let accountModel):
                     self.selectedAccount = accountModel.domainModel
 
