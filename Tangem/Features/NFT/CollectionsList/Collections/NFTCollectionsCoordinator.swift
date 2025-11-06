@@ -113,7 +113,7 @@ class NFTCollectionsCoordinator: CoordinatorObject {
                         self?.closeSheet()
 
                         let navigationContext = options.nftAccountNavigationContextProvider.provide(
-                            for: result.cryptoAccountModel?.id.toAnyHashable()
+                            for: result.cryptoAccountModel.id.toAnyHashable()
                         )
 
                         guard let navigationContext else {
