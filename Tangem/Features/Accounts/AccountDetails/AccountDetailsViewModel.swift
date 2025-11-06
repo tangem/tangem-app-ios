@@ -13,6 +13,7 @@ import TangemUI
 import TangemAccounts
 import TangemFoundation
 import TangemLocalization
+import TangemAssets
 import struct TangemUIUtils.AlertBinder
 
 final class AccountDetailsViewModel: ObservableObject {
@@ -27,6 +28,8 @@ final class AccountDetailsViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var archiveAccountDialogPresented = false
 
+    @Published private(set) var archivingState: ArchivingState?
+
     // MARK: - Dependencies
 
     private let account: any BaseAccountModel
@@ -35,7 +38,7 @@ final class AccountDetailsViewModel: ObservableObject {
 
     // MARK: - Internal state
 
-    private let actions: [AccountDetailsAction]
+    private let actions: [Action]
     private var archiveAccountTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
 
@@ -48,19 +51,20 @@ final class AccountDetailsViewModel: ObservableObject {
         self.accountModelsManager = accountModelsManager
         self.coordinator = coordinator
         actions = AccountDetailsActionsProvider.getAvailableActions(for: account)
+        archivingState = actions.contains(.archive) ? .readyToBeArchived : nil
 
         bind()
         applySnapshot()
+    }
+
+    deinit {
+        archiveAccountTask?.cancel()
     }
 
     // MARK: - View data
 
     var accountIconViewData: AccountIconView.ViewData {
         AccountModelUtils.UI.iconViewData(icon: account.icon, accountName: account.name)
-    }
-
-    var canBeArchived: Bool {
-        actions.contains(.archive)
     }
 
     var canBeEdited: Bool {
@@ -75,13 +79,18 @@ final class AccountDetailsViewModel: ObservableObject {
 
     func archiveAccount() {
         archiveAccountTask?.cancel()
-        archiveAccountTask = runTask(in: self) { viewModel in
-            do {
-                let identifier = viewModel.account.id
-                try await viewModel.accountModelsManager.archiveCryptoAccount(withIdentifier: identifier)
-                await viewModel.handleAccountArchivingSuccess()
+        archivingState = .archivingInProgress
+
+        archiveAccountTask = Task { [weak self] in
+            do throws(AccountArchivationError) {
+                guard let identifier = self?.account.id else {
+                    return
+                }
+
+                try await self?.accountModelsManager.archiveCryptoAccount(withIdentifier: identifier)
+                await self?.handleAccountArchivingSuccess()
             } catch {
-                await viewModel.handleAccountArchivingFailure(error: error)
+                await self?.handleAccountArchivingFailure(error: error)
             }
         }
     }
@@ -98,6 +107,25 @@ final class AccountDetailsViewModel: ObservableObject {
 
     func openManageTokens() {
         coordinator?.manageTokens()
+    }
+
+    func getArchivingButtonTitle(from state: ArchivingState) -> String {
+        switch state {
+        case .archivingInProgress:
+            Localization.accountDetailsArchiving
+        case .readyToBeArchived:
+            Localization.accountDetailsArchive
+        }
+    }
+
+    func getArchivingButtonColor(from state: ArchivingState) -> Color {
+        switch state {
+        case .archivingInProgress:
+            Colors.Text.disabled
+
+        case .readyToBeArchived:
+            Colors.Text.warning
+        }
     }
 
     // MARK: - Private
@@ -124,17 +152,20 @@ final class AccountDetailsViewModel: ObservableObject {
     }
 
     @MainActor
-    private func handleAccountArchivingFailure(error: Error) {
+    private func handleAccountArchivingFailure(error: AccountArchivationError) {
+        archivingState = .readyToBeArchived
+
         let title: String
         let message: String
         let buttonTitle: String
 
         switch error {
-        case let error as ArchivedCryptoAccountConditionsValidator.Error where error == .participatesInReferralProgram:
+        case .participatesInReferralProgram:
             title = Localization.accountCouldNotArchiveReferralProgramTitle
             message = Localization.accountCouldNotArchiveReferralProgramMessage
             buttonTitle = Localization.commonGotIt
-        default:
+
+        case .unknownError:
             title = Localization.commonSomethingWentWrong
             message = Localization.accountCouldNotArchive
             buttonTitle = Localization.commonOk
@@ -150,8 +181,21 @@ final class AccountDetailsViewModel: ObservableObject {
     }
 }
 
-enum AccountDetailsAction {
-    case edit
-    case archive
-    case manageTokens
+// MARK: - Details actions
+
+extension AccountDetailsViewModel {
+    enum Action {
+        case edit
+        case archive
+        case manageTokens
+    }
+}
+
+// MARK: - ArchivingState
+
+extension AccountDetailsViewModel {
+    enum ArchivingState {
+        case readyToBeArchived
+        case archivingInProgress
+    }
 }
