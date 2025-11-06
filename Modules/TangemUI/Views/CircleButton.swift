@@ -16,6 +16,7 @@ public struct CircleButton: View {
     private let action: () -> Void
 
     private var disabled: Bool = false
+    private var isLoading: Bool = false
     private var style: Style = .secondary
     private var size: Size = .small
 
@@ -43,15 +44,29 @@ public struct CircleButton: View {
                 .padding(.vertical, size.contentPaddings(content: content).vertical)
                 .background {
                     RoundedRectangle(cornerRadius: viewSize.height / 2, style: .continuous)
-                        .fill(style.background(isDisabled: disabled))
+                        .fill(style.background(isDisabled: disabled || isLoading))
                 }
                 .readGeometry(\.size, bindTo: $viewSize)
         }
-        .disabled(disabled)
+        .disabled(disabled || isLoading)
+    }
+
+    public var contentView: some View {
+        ZStack {
+            // Keep original content to maintain size
+            originalContent
+                .opacity(isLoading ? 0 : 1)
+
+            if isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: style.iconColor))
+                    .frame(width: size.iconSize, height: size.iconSize)
+            }
+        }
     }
 
     @ViewBuilder
-    public var contentView: some View {
+    private var originalContent: some View {
         switch content {
         case .title(.none, let string):
             title(string: string)
@@ -99,6 +114,10 @@ public struct CircleButton: View {
 extension CircleButton: Setupable {
     public func disabled(_ disabled: Bool) -> Self {
         map { $0.disabled = disabled }
+    }
+
+    public func loading(_ isLoading: Bool) -> Self {
+        map { $0.isLoading = isLoading }
     }
 
     public func style(_ style: Style) -> Self {
