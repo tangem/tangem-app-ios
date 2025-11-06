@@ -53,15 +53,19 @@ struct ArchivedCryptoAccountConditionsValidator {
 // MARK: - CryptoAccountConditionsValidator protocol conformance
 
 extension ArchivedCryptoAccountConditionsValidator: CryptoAccountConditionsValidator {
-    func validate() async throws {
-        guard !accountIdentifier.isMainAccount else {
-            // Main account cannot be archived by definition
-            throw Error.isMainAccount
-        }
+    typealias ValidationError = Error
 
-        guard try await !participatesInReferralProgram else {
-            // Account participates in an active referral program
-            throw Error.participatesInReferralProgram
+    func validate() async throws(ValidationError) {
+        do {
+            guard try await !participatesInReferralProgram else {
+                // Account participates in an active referral program
+                throw ValidationError.participatesInReferralProgram
+            }
+        } catch let error as ValidationError {
+            throw error
+        } catch {
+            // Wrap unexpected errors (e.g., network errors)
+            throw .unknownError(error)
         }
     }
 }
@@ -70,7 +74,7 @@ extension ArchivedCryptoAccountConditionsValidator: CryptoAccountConditionsValid
 
 extension ArchivedCryptoAccountConditionsValidator {
     enum Error: Swift.Error {
-        case isMainAccount
         case participatesInReferralProgram
+        case unknownError(Swift.Error)
     }
 }
