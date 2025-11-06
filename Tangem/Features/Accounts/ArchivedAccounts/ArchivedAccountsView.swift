@@ -59,9 +59,7 @@ struct ArchivedAccountsView: View {
                         }
                     },
                     trailingIcon: {
-                        CircleButton(title: Localization.accountArchivedRecover) {
-                            viewModel.recoverAccount(model)
-                        }
+                        makeRecoverButton(for: model)
                     }
                 )
                 .padding(.vertical, 12)
@@ -70,6 +68,17 @@ struct ArchivedAccountsView: View {
 
             Spacer()
         }
+    }
+
+    private func makeRecoverButton(for model: ArchivedCryptoAccountInfo) -> some View {
+        let isRecovering = viewModel.recoveringAccountId == model.id
+        let isAnyRecovering = viewModel.recoveringAccountId != nil
+
+        return CircleButton(title: Localization.accountArchivedRecover) {
+            viewModel.recoverAccount(model)
+        }
+        .loading(isRecovering)
+        .disabled(isAnyRecovering)
     }
 
     private var loadingView: some View {
