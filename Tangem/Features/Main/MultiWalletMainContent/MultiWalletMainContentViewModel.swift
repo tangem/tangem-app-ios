@@ -396,7 +396,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             from: sectionItem,
             contextActionsProvider: self,
             contextActionsDelegate: self,
-            tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:))
+            tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:)),
+            yieldApyTapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.apyBadgeTapped(_:))
         )
     }
 
@@ -427,6 +428,67 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 viewModel.isLoadingTokenList = false
                 withExtendedLifetime(tokenListSyncSubscription) {}
             }
+    }
+
+    private func apyBadgeTapped(_ walletModelId: WalletModelId.ID) {
+        guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id.id == walletModelId }),
+              TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
+        else {
+            return
+        }
+
+        if let stakingManager = walletModel.stakingManager {
+            handleStakingApyBadgeTapped(walletModel: walletModel, stakingManager: stakingManager)
+        } else if let yieldModuleManager = walletModel.yieldModuleManager {
+            handleYieldApyBadgeTapped(walletModel: walletModel, yieldManager: yieldModuleManager)
+        } else {
+            return
+        }
+    }
+
+    private func handleYieldApyBadgeTapped(walletModel: any WalletModel, yieldManager: YieldModuleManager) {
+        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+
+        switch yieldManager.state?.state {
+        case .active:
+            logger.logEarningApyClicked(state: .enabled)
+            coordinator?.openYieldModuleActiveInfo(walletModel: walletModel, signer: userWalletModel.signer)
+        case .notActive:
+            if let apy = yieldManager.state?.marketInfo?.apy {
+                coordinator?.openYieldModulePromoView(walletModel: walletModel, apy: apy, signer: userWalletModel.signer)
+                logger.logEarningApyClicked(state: .disabled)
+            }
+        case .disabled, .failedToLoad, .loading, .processing, .none:
+            break
+        }
+    }
+
+    private func handleStakingApyBadgeTapped(walletModel: any WalletModel, stakingManager: StakingManager) {
+        let logger = CommonStakingAnalyticsLogger()
+        let analyticsState: StakingAnalyticsState
+
+        switch stakingManager.state {
+        case .availableToStake:
+            analyticsState = .disabled
+        case .staked:
+            analyticsState = .enabled
+        case .loading, .loadingError, .temporaryUnavailable, .notEnabled:
+            return
+        }
+
+        logger.logStakingApyClicked(
+            state: analyticsState,
+            tokenName: SendAnalyticsHelper.makeAnalyticsTokenName(from: walletModel.tokenItem),
+            blockchainName: walletModel.tokenItem.blockchain.displayName
+        )
+
+        coordinator?.openStaking(
+            options: .init(
+                userWalletModel: userWalletModel,
+                walletModel: walletModel,
+                manager: stakingManager
+            )
+        )
     }
 
     private func tokenItemTapped(_ walletModelId: WalletModelId.ID) {
