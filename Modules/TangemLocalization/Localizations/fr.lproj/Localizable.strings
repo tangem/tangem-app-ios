@@ -258,7 +258,7 @@
 "common_free" = "Free";
 "common_from" = "From";
 "common_generate_addresses" = "Synchroniser les adresses";
-"common_get_started" = "Get started";
+"common_get_started" = "Commencer";
 "common_get_token" = "Get token";
 "common_go_to_provider" = "Aller au fournisseur";
 "common_go_to_token" = "Aller au jeton";
@@ -913,6 +913,7 @@
 "onramp_statuses_view_footer" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton.";
 "onramp_timing_minutes" = "%@ min";
 "onramp_title_available_from" = "Available from";
+"onramp_title_available_up_to" = "Available up to";
 "onramp_title_you_get" = "You get";
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton";
@@ -1108,13 +1109,14 @@
 "settings_wallet_name_title" = "Nom";
 "stake_token_description" = "Faites travailler votre jeton pour vous";
 "staking_account_initialization_footer" = "A network fee is a small payment required to process and confirm your transaction on the blockchain.";
-"staking_account_initialization_message" = "To start staking, your TON account must be activated with a self-transaction of 1 TON. The funds stay in your wallet — this step only enables your account for staking.";
+"staking_account_initialization_message" = "Pour commencer à staker, votre compte TON doit être activé avec une transaction de 1 TON. Les fonds restent sur votre compte, car cette étape sert uniquement à l'activer pour le staking.";
 "staking_account_initialization_title" = "Account activation";
 "staking_active_footer" = "Afin d'unstaker vos actifs, appuyez sur le bloc ci-dessus";
 "staking_active" = "Actif";
 "staking_amount_requirement_error" = "Le montant à staker doit être au moins %@";
 "staking_amount_tron_integer_error_unstaking" = "Le montant d'annulation du staking sera arrondi à %1$@ TRX en raison des règles du réseau.";
 "staking_amount_tron_integer_error" = "Le montant du staking sera arrondi à %1$@ TRX en raison des règles du réseau.";
+"staking_apr_earn_badge" = "APR %1$s%%";
 "staking_claim_unstaked" = "Réclamation déstakée";
 "staking_details_account_fee_info" = "Un compte de staking est un compte spécial où sont stockés les jetons SOL stakés. Il est créé lorsque vous déléguez vos jetons à un validateur pour participer à la validation des transactions et gagner des récompenses. Des frais minimes sont facturés pour la création du compte de staking, qui sont restitués une fois le staking terminé.";
 "staking_details_account_fee" = "Frais de staking du compte";
@@ -1293,6 +1295,7 @@
 "swapping_to_title" = "Vous recevez";
 "swapping_token_list_title" = "Choisir le jeton";
 "swapping_token_not_available" = "non disponible";
+"tangem_pay_card_frozen" = "Card frozen";
 "tangem_pay_deposit" = "Deposit";
 "tangem_pay_dispute" = "Dispute";
 "tangem_pay_explore_transaction" = "Explore transaction";
@@ -1300,13 +1303,19 @@
 "tangem_pay_fee_title" = "Fee";
 "tangem_pay_freeze_card_alert_body" = "Keep your money safe if your card is lost or stolen. You can unfreeze anytime.";
 "tangem_pay_freeze_card_alert_title" = "Freeze your card?";
+"tangem_pay_freeze_card_failed" = "Failed to freeze the card. Try again later.";
 "tangem_pay_freeze_card_freeze" = "Freeze";
+"tangem_pay_freeze_card_success" = "Your card is frozen.";
 "tangem_pay_get_help" = "Get Help";
 "tangem_pay_status_completed" = "Completed";
 "tangem_pay_status_declined" = "Declined";
 "tangem_pay_status_pending" = "Pending";
 "tangem_pay_transaction_declined_notification_text" = "The bank rejected this transaction request.";
 "tangem_pay_transaction_fee_notification_text" = "This fee goes to cover the cost of handling your transfer.";
+"tangem_pay_unfreeze_card_alert_body" = "Keep using your money. You can freeze anytime.";
+"tangem_pay_unfreeze_card_alert_title" = "Unfreeze your card?";
+"tangem_pay_unfreeze_card_failed" = "Failed to unfreeze the card. Try again later.";
+"tangem_pay_unfreeze_card_success" = "Your card is unfrozen.";
 "tangem_pay_withdrawal" = "Withdrawal";
 "tangempay_card_details_add_funds_subtitle" = "Top-up options";
 "tangempay_card_details_add_funds" = "Add funds";
@@ -1331,6 +1340,7 @@
 "tangempay_card_details_reveal_text" = "Reveal";
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
 "tangempay_card_details_title" = "Card details";
+"tangempay_card_details_unfreeze_card" = "Unfreeze Card";
 "tangempay_issue_card_notification_title" = "Create account and issue a card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
@@ -1840,7 +1850,7 @@
 "yield_module_stop_earning_sheet_description" = "En désactivant cela, vos fonds seront retirés d'Aave vers %@ dans votre portefeuille et vous ne gagnerez plus de récompenses.";
 "yield_module_stop_earning_sheet_fee_note" = "Les frais de réseau seront déduits du montant que vous retirez.";
 "yield_module_stop_earning_sheet_title" = "Désactiver le mode rendement";
-"yield_module_stop_earning" = "Désactiver le mode rendement";
+"yield_module_stop_earning" = "Désactivation du mode de rendement";
 "yield_module_supply_apr" = "Rendement annuel brut (APY)";
 "yield_module_supply" = "Supply";
 "yield_module_token_details_earn_notification_apy" = "APY";
