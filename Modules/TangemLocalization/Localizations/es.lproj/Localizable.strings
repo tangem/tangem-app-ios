@@ -258,7 +258,7 @@
 "common_free" = "Free";
 "common_from" = "From";
 "common_generate_addresses" = "Sincronizar direcciones";
-"common_get_started" = "Get started";
+"common_get_started" = "Comenzar";
 "common_get_token" = "Get token";
 "common_go_to_provider" = "Ir al proveedor";
 "common_go_to_token" = "Ir al token";
@@ -913,6 +913,7 @@
 "onramp_statuses_view_footer" = "Puede comprobar el estado de la transacción desde la página del token.";
 "onramp_timing_minutes" = "%@ min";
 "onramp_title_available_from" = "Available from";
+"onramp_title_available_up_to" = "Available up to";
 "onramp_title_you_get" = "You get";
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "Puede comprobar el estado de la transacción desde la página detallada del token";
@@ -1115,12 +1116,13 @@
 "staking_amount_requirement_error" = "La cantidad del staking debe ser al menos %@";
 "staking_amount_tron_integer_error_unstaking" = "La cantidad de unstaking se redondeará a %1$@ TRX debido a las reglas de la red.";
 "staking_amount_tron_integer_error" = "La cantidad de staking se redondeará a %1$@ TRX debido a las reglas de la red.";
+"staking_apr_earn_badge" = "APR %1$s%%";
 "staking_claim_unstaked" = "Reclamar lo que no está en staking";
 "staking_details_account_fee_info" = "Una cuenta de staking es una cuenta especial donde se almacenan los tokens SOL de staking. Se crea cuando delegas sus tokens a un validador para participar en la validación de transacciones y ganar recompensas. Se cobra una pequeña tarifa por crear la cuenta de staking, que se devuelve una vez que se completa el staking.";
 "staking_details_account_fee" = "Tarifa de staking de la cuenta ";
 "staking_details_annual_percentage_rate_info" = "El porcentaje de rendimiento anual que podrá ganar como participante en el staking.";
 "staking_details_annual_percentage_rate" = "Porcentaje de rendimiento anual";
-"staking_details_annual_percentage_yield_info" = "APY shows the validator’s annual percentage yield based on its performance";
+"staking_details_annual_percentage_yield_info" = "APY muestra el porcentaje de rendimiento anual del validador en función de su rendimiento";
 "staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
@@ -1293,6 +1295,7 @@
 "swapping_to_title" = "Usted recibe";
 "swapping_token_list_title" = "Elige token";
 "swapping_token_not_available" = "no disponible";
+"tangem_pay_card_frozen" = "Card frozen";
 "tangem_pay_deposit" = "Deposit";
 "tangem_pay_dispute" = "Dispute";
 "tangem_pay_explore_transaction" = "Explore transaction";
@@ -1300,13 +1303,19 @@
 "tangem_pay_fee_title" = "Fee";
 "tangem_pay_freeze_card_alert_body" = "Keep your money safe if your card is lost or stolen. You can unfreeze anytime.";
 "tangem_pay_freeze_card_alert_title" = "Freeze your card?";
+"tangem_pay_freeze_card_failed" = "Failed to freeze the card. Try again later.";
 "tangem_pay_freeze_card_freeze" = "Freeze";
+"tangem_pay_freeze_card_success" = "Your card is frozen.";
 "tangem_pay_get_help" = "Get Help";
 "tangem_pay_status_completed" = "Completed";
 "tangem_pay_status_declined" = "Declined";
 "tangem_pay_status_pending" = "Pending";
 "tangem_pay_transaction_declined_notification_text" = "The bank rejected this transaction request.";
 "tangem_pay_transaction_fee_notification_text" = "This fee goes to cover the cost of handling your transfer.";
+"tangem_pay_unfreeze_card_alert_body" = "Keep using your money. You can freeze anytime.";
+"tangem_pay_unfreeze_card_alert_title" = "Unfreeze your card?";
+"tangem_pay_unfreeze_card_failed" = "Failed to unfreeze the card. Try again later.";
+"tangem_pay_unfreeze_card_success" = "Your card is unfrozen.";
 "tangem_pay_withdrawal" = "Withdrawal";
 "tangempay_card_details_add_funds_subtitle" = "Top-up options";
 "tangempay_card_details_add_funds" = "Add funds";
@@ -1331,6 +1340,7 @@
 "tangempay_card_details_reveal_text" = "Reveal";
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
 "tangempay_card_details_title" = "Card details";
+"tangempay_card_details_unfreeze_card" = "Unfreeze Card";
 "tangempay_issue_card_notification_title" = "Create account and issue a card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
@@ -1360,7 +1370,7 @@
 "token_button_unavailability_reason_pending_transaction_send" = "El envío de fondos estará disponible una vez que se complete(n) la(s) transacción(es) pendiente(s) en la red %@";
 "token_button_unavailability_reason_sell_unavailable" = "Vender %@ no es compatible con los proveedores actuales, pero estamos trabajando para agregar más opciones.";
 "token_button_unavailability_reason_staking_unavailable" = "El staking de %@ no es compatible con los proveedores actuales, pero estamos trabajando para agregar más opciones.";
-"token_button_unavailability_reason_yield_supply_approval" = "Approval has been revoked. Your funds remain in Yield mode. To perform actions, please go to Yield mode and grant permission again.";
+"token_button_unavailability_reason_yield_supply_approval" = "Se ha revocado la aprobación. Sus fondos permanecen en modo de rendimiento. Para realizar acciones, vuelva al modo de rendimiento y otorgue el permiso nuevamente.";
 "token_details_choose_address" = "Elige dirección";
 "token_details_generate_xpub" = "Generar XPUB";
 "token_details_hide_alert_hide" = "Ocultar";
@@ -1840,9 +1850,9 @@
 "yield_module_stop_earning_sheet_description" = "Al desactivar esto, retirará sus fondos de Aave a %@ en su billetera y dejará de ganar recompensas.";
 "yield_module_stop_earning_sheet_fee_note" = "La comisión de red se deducirá del importe que retire.";
 "yield_module_stop_earning_sheet_title" = "Desactivar el modo de rendimiento";
-"yield_module_stop_earning" = "Desactivar el modo de rendimiento";
+"yield_module_stop_earning" = "Desactivación del modo de rendimiento";
 "yield_module_supply_apr" = "Suministro APY";
-"yield_module_supply" = "Supply";
+"yield_module_supply" = "Suministrar";
 "yield_module_token_details_earn_notification_apy" = "APY";
 "yield_module_token_details_earn_notification_description" = "Los intereses se devengan automáticamente";
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Los intereses se devengan automáticamente";
@@ -1853,5 +1863,5 @@
 "yield_module_unable_to_cover_fee_description" = "Deposite algo de %1$@ %2$@ para cubrir la tarifa de red para las transacciones";
 "yield_module_unable_to_cover_fee_title" = "No se puede cubrir la tarifa %@";
 "yield_module_unavailable_subtitle" = "El servicio de intereses no está disponible en este momento. Vuelva a intentarlo más tarde.";
-"yield_module_unavailable_title" = "Ganancias no disponibles";
-"yield_supply_chart_loading_error" = "Unable to load chart...";
+"yield_module_unavailable_title" = "Modo de rendimiento no disponible";
+"yield_supply_chart_loading_error" = "No se puede cargar el gráfico...";
