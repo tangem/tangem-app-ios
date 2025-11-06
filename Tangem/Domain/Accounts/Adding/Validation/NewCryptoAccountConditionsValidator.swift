@@ -16,20 +16,22 @@ struct NewCryptoAccountConditionsValidator {
 // MARK: - CryptoAccountConditionsValidator protocol conformance
 
 extension NewCryptoAccountConditionsValidator: CryptoAccountConditionsValidator {
-    func validate() async throws {
+    typealias ValidationError = Error
+
+    func validate() async throws(ValidationError) {
         guard remoteState.accounts.count < AccountModelUtils.maxNumberOfAccounts else {
             AccountsLogger.warning("The number of accounts exceeded the limit")
-            throw Error.tooManyAccounts
+            throw .tooManyAccounts
         }
 
         guard newAccountName.count <= AccountModelUtils.maxAccountNameLength else {
             AccountsLogger.warning("Account name is too long")
-            throw Error.accountNameTooLong
+            throw .accountNameTooLong
         }
 
         guard !remoteState.contains(accountWithName: newAccountName) else {
             AccountsLogger.warning("Account with the same name already exists")
-            throw Error.duplicateAccountName
+            throw .duplicateAccountName
         }
     }
 }
