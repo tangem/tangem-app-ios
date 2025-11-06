@@ -45,6 +45,7 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator?
     @Published var referralCoordinator: ReferralCoordinator?
     @Published var nftCollectionsCoordinator: NFTCollectionsCoordinator?
+    @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -237,6 +238,44 @@ extension MainCoordinator: MainRoutable {
 // MARK: - MultiWalletMainContentRoutable protocol conformance
 
 extension MainCoordinator: MultiWalletMainContentRoutable {
+    func openYieldModuleActiveInfo(walletModel: any WalletModel, signer: any TangemSigner) {
+        guard
+            let factory = YieldModuleFlowFactory(
+                walletModel: walletModel,
+                signer: signer,
+                feeCurrencyNavigator: self,
+                dismissAction: dismissAction
+            ),
+            let vm = factory.makeYieldInfoViewModel()
+        else {
+            return
+        }
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: vm)
+        }
+    }
+
+    func openYieldModulePromoView(walletModel: any WalletModel, apy: Decimal, signer: any TangemSigner) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.yieldModulePromoCoordinator = nil
+        }
+
+        guard let factory = YieldModuleFlowFactory(
+            walletModel: walletModel,
+            apy: apy,
+            signer: signer,
+            feeCurrencyNavigator: self,
+            dismissAction: dismissAction
+        ) else {
+            return
+        }
+
+        mainBottomSheetUIManager.hide()
+        let coordinator = factory.getYieldPromoCoordinator()
+        yieldModulePromoCoordinator = coordinator
+    }
+
     func openTokenDetails(for model: any WalletModel, userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
