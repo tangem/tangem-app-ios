@@ -48,26 +48,40 @@ final class MarketsTokenAccountNetworkSelectorFlowViewModel: ObservableObject, F
         setupInitialState()
     }
 
-    private var oneAndOnlyAccount: (any CryptoAccountModel)? {
+    private var oneAndOnlyAccount: AccountSelectorCellModel? {
         let availableUserWalletModels = userWalletDataProvider.userWalletModels.filter { !$0.isUserWalletLocked }
 
         guard let userWalletModel = availableUserWalletModels.onlyElement else {
             return nil
         }
 
+        let cryptoAccountModel: (any CryptoAccountModel)?
         switch userWalletModel.accountModelsManager.accountModels.first {
         case .standard(let cryptoAccounts):
             switch cryptoAccounts {
             case .multiple(let cryptoAccountModels):
-                return cryptoAccountModels.onlyElement
+                cryptoAccountModel = cryptoAccountModels.onlyElement
 
-            case .single(let cryptoAccountModel):
-                return cryptoAccountModel
+            case .single(let model):
+                cryptoAccountModel = model
             }
 
         case nil:
+            cryptoAccountModel = nil
+        }
+
+        guard let cryptoAccountModel else {
             return nil
         }
+
+        // Create wallet item since we have exactly one wallet
+        let walletItem = AccountSelectorWalletItem(
+            userWallet: userWalletModel,
+            cryptoAccountModel: cryptoAccountModel,
+            isLocked: false
+        )
+
+        return .wallet(walletItem)
     }
 }
 
@@ -77,7 +91,7 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
     func setupInitialState() {
         if let oneAndOnlyAccount {
             openNetworkSelectionOrAddToken(
-                cryptoAccount: oneAndOnlyAccount,
+                accountSelectorCell: oneAndOnlyAccount,
                 context: .root
             )
         } else {
@@ -85,10 +99,8 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
                 selectedItem: nil,
                 context: .root,
                 onSelectAccount: { [weak self] result in
-                    guard let cryptoAccount = result.cryptoAccountModel else { return }
-
                     self?.openNetworkSelectionOrAddToken(
-                        cryptoAccount: cryptoAccount,
+                        accountSelectorCell: result,
                         context: .fromChooseAccount
                     )
                 }
@@ -122,21 +134,25 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
     }
 
     func openNetworkSelectionOrAddToken(
-        cryptoAccount: any CryptoAccountModel,
+        accountSelectorCell: AccountSelectorCellModel,
         context: NavigationContext
     ) {
-        guard let userWalletModel = findUserWalletModel(for: cryptoAccount) else {
+        guard let userWalletModel = findUserWalletModel(for: accountSelectorCell.cryptoAccountModel) else {
             return
         }
 
         let networkSelectorViewModel = makeNetworkSelectorViewModel(
             userWalletModel: userWalletModel,
-            cryptoAccount: cryptoAccount
+            cryptoAccount: accountSelectorCell.cryptoAccountModel,
+            accountSelectorCell: accountSelectorCell
         )
 
         // Skip network selection if there's only one network available
         if let singleTokenItem = networkSelectorViewModel.tokenItemViewModels.onlyElement?.tokenItem {
-            openAddToken(tokenItem: singleTokenItem, cryptoAccount: cryptoAccount)
+            openAddToken(
+                tokenItem: singleTokenItem,
+                accountSelectorCell: accountSelectorCell
+            )
             return
         }
 
@@ -177,19 +193,19 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
 
     func openAddToken(
         tokenItem: TokenItem,
-        cryptoAccount: any CryptoAccountModel
+        accountSelectorCell: AccountSelectorCellModel
     ) {
         // From addToken screen, user cannot go back to previous screens
         // Clear the navigation stack
         navigationStack.removeAll()
 
         let accountWalletDataProvider = makeAccountWalletDataProvider(
-            cryptoAccount: cryptoAccount,
+            accountSelectorCell: accountSelectorCell,
             tokenItem: tokenItem
         )
 
         let networkDataProvider = makeNetworkDataProvider(
-            cryptoAccount: cryptoAccount,
+            accountSelectorCell: accountSelectorCell,
             tokenItem: tokenItem
         )
 
@@ -217,7 +233,8 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
 private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
     func makeNetworkSelectorViewModel(
         userWalletModel: UserWalletModel,
-        cryptoAccount: any CryptoAccountModel
+        cryptoAccount: any CryptoAccountModel,
+        accountSelectorCell: AccountSelectorCellModel
     ) -> MarketsNetworkSelectorViewModel {
         MarketsNetworkSelectorViewModel(
             data: inputData,
@@ -226,25 +243,30 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
             onSelectNetwork: { [weak self] tokenItem in
                 self?.openAddToken(
                     tokenItem: tokenItem,
-                    cryptoAccount: cryptoAccount
+                    accountSelectorCell: accountSelectorCell
                 )
             }
         )
     }
 
     func makeAccountWalletDataProvider(
-        cryptoAccount: any CryptoAccountModel,
+        accountSelectorCell: AccountSelectorCellModel,
         tokenItem: TokenItem
     ) -> MarketsAddTokenAccountWalletSelectorDataProvider {
         let isSelectionAvailable = oneAndOnlyAccount == nil
 
+        let displayTitle: String = switch accountSelectorCell {
+        case .account: Localization.accountDetailsTitle
+        case .wallet: Localization.wcCommonWallet
+        }
+
         return AccountSelectorDataProvider(
-            account: cryptoAccount,
             isSelectionAvailable: isSelectionAvailable,
-            displayTitle: Localization.accountDetailsTitle,
+            displayTitle: displayTitle,
+            accountSelectorCell: accountSelectorCell,
             handleSelection: { [weak self] in
                 self?.handleAccountWalletSelection(
-                    cryptoAccount: cryptoAccount,
+                    cryptoAccount: accountSelectorCell.cryptoAccountModel,
                     tokenItem: tokenItem
                 )
             }
@@ -252,16 +274,17 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
     }
 
     func makeNetworkDataProvider(
-        cryptoAccount: any CryptoAccountModel,
+        accountSelectorCell: AccountSelectorCellModel,
         tokenItem: TokenItem
     ) -> MarketsAddTokenNetworkSelectorDataProvider {
+        let cryptoAccount = accountSelectorCell.cryptoAccountModel
         let isSelectionAvailable = isNetworkSelectionAvailable(for: cryptoAccount)
 
         return NetworkSelectorDataProvider(
             tokenItem: tokenItem,
             isSelectionAvailable: isSelectionAvailable,
             handleSelection: { [weak self] in
-                self?.handleNetworkSelection(cryptoAccount: cryptoAccount)
+                self?.handleNetworkSelection(accountSelectorCell: accountSelectorCell)
             }
         )
     }
@@ -278,16 +301,17 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
             selectedItem: cryptoAccount,
             context: .fromAddToken,
             onSelectAccount: { [weak self] result in
-                guard let cryptoAccountModel = result.cryptoAccountModel else { return }
-
-                self?.openAddToken(tokenItem: tokenItem, cryptoAccount: cryptoAccountModel)
+                self?.openAddToken(
+                    tokenItem: tokenItem,
+                    accountSelectorCell: result
+                )
             }
         )
     }
 
-    func handleNetworkSelection(cryptoAccount: any CryptoAccountModel) {
+    func handleNetworkSelection(accountSelectorCell: AccountSelectorCellModel) {
         openNetworkSelectionOrAddToken(
-            cryptoAccount: cryptoAccount,
+            accountSelectorCell: accountSelectorCell,
             context: .fromAddToken
         )
     }
@@ -308,12 +332,20 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
             return false
         }
 
-        let networkSelectorViewModel = makeNetworkSelectorViewModel(
+        return countAvailableNetworks(userWalletModel: userWalletModel, cryptoAccount: cryptoAccount) > 1
+    }
+
+    func countAvailableNetworks(userWalletModel: UserWalletModel, cryptoAccount: any CryptoAccountModel) -> Int {
+        let tokenItems = MarketsTokenItemsProvider.calculateTokenItems(
+            coinId: inputData.coinId,
+            coinName: inputData.coinName,
+            coinSymbol: inputData.coinSymbol,
+            networks: inputData.networks,
             userWalletModel: userWalletModel,
             cryptoAccount: cryptoAccount
         )
 
-        return networkSelectorViewModel.tokenItemViewModels.count > 1
+        return tokenItems.count
     }
 }
 
@@ -324,12 +356,30 @@ private struct AccountSelectorDataProvider: MarketsAddTokenAccountWalletSelector
     let isSelectionAvailable: Bool
     let displayTitle: String
     let handleSelection: () -> Void
+    let trailingContent: MarketsAddTokenViewModel.AccountWalletTrailingContent
 
-    var trailingContent: MarketsAddTokenViewModel.AccountWalletTrailingContent {
-        .account(
-            AccountIconViewBuilder.makeAccountIconViewData(accountModel: account),
-            name: account.name
-        )
+    init(
+        isSelectionAvailable: Bool,
+        displayTitle: String,
+        accountSelectorCell: AccountSelectorCellModel,
+        handleSelection: @escaping () -> Void
+    ) {
+        self.isSelectionAvailable = isSelectionAvailable
+        self.displayTitle = displayTitle
+        self.handleSelection = handleSelection
+
+        switch accountSelectorCell {
+        case .account(let accountItem):
+            account = accountItem.domainModel
+            trailingContent = .account(
+                AccountIconViewBuilder.makeAccountIconViewData(accountModel: account),
+                name: account.name
+            )
+
+        case .wallet(let walletItem):
+            account = walletItem.mainAccount
+            trailingContent = .walletName(walletItem.name)
+        }
     }
 }
 
