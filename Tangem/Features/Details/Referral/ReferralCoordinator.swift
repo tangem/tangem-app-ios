@@ -59,7 +59,7 @@ extension ReferralCoordinator: ReferralRoutable {
                     selectedItem: selectedAccount,
                     userWalletModel: userWalletModel,
                     onSelect: { [weak self] result in
-                        result.cryptoAccountModel.flatMap { onSelect($0) }
+                        onSelect(result.cryptoAccountModel)
                         self?.closeSheet()
                     }
                 )
