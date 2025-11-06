@@ -16,14 +16,20 @@ struct OnrampSuggestedOfferViewModelBuilder {
     private let processingTimeFormatter: OnrampProviderProcessingTimeFormatter = .init()
 
     func mapToOnrampOfferViewModelTitle(provider: OnrampProvider) -> OnrampOfferViewModel.Title {
-        let title: OnrampOfferViewModel.Title = switch (provider.globalAttractiveType, provider.processingTimeType) {
-        case (_, .fastest): .fastest
-        // We're always show only `.great` on the suggested offer view
-        case (.great, _), (.best, _): .great
-        default: .text(Localization.onrampTitleYouGet)
+        if case .great = provider.globalAttractiveType {
+            return .great
         }
 
-        return title
+        // We're always show only `.great` on the suggested offer view
+        if provider.globalAttractiveType == .best {
+            return .great
+        }
+
+        if provider.processingTimeType == .fastest {
+            return .fastest
+        }
+
+        return .text(Localization.onrampTitleYouGet)
     }
 
     func mapToOnrampOfferViewModel(provider: OnrampProvider, buyAction: @escaping () -> Void) -> OnrampOfferViewModel {
