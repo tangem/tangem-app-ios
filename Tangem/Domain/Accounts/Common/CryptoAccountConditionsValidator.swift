@@ -9,5 +9,6 @@
 import Foundation
 
 protocol CryptoAccountConditionsValidator {
-    func validate() async throws
+    associatedtype ValidationError: Error
+    func validate() async throws(ValidationError)
 }
