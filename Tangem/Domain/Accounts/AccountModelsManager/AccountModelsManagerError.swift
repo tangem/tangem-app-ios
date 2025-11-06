@@ -12,6 +12,14 @@ enum AccountModelsManagerError: Error {
     case addingCryptoAccountsNotSupported
     case addingCryptoAccountsFailed
     case cannotFetchArchivedCryptoAccounts
-    case cannotArchiveCryptoAccount
-    case cannotUnarchiveCryptoAccount
+}
+
+enum AccountArchivationError: Error {
+    case participatesInReferralProgram
+    case unknownError(Error)
+}
+
+enum AccountRecoveryError: Error {
+    case tooManyActiveAccounts
+    case unknownError(Error)
 }
