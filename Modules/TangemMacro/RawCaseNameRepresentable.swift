@@ -15,3 +15,9 @@ public extension RawCaseNameRepresentable {
         rawCaseValue == another.rawCaseValue
     }
 }
+
+// MARK: - Identifiable+
+
+public extension Identifiable where Self: RawCaseNameRepresentable {
+    var id: String { rawCaseValue }
+}
