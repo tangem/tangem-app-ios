@@ -88,7 +88,11 @@ actor CommonCustomerInfoManagementService {
         if await authorizationTokenHandler.accessTokenExpired {
             do {
                 try await authorizationTokenHandler.forceRefreshToken()
-            } catch {
+
+                // Either:
+                // 1. Maximum allowed refresh token reuse exceeded
+                // 2. Session doesn't have required client
+            } catch where error.universalErrorCode == 104110202 {
                 // Call of `forceRefreshToken` func could fail if same refresh becomes invalid (not expired, but invalid)
                 // That could happen if:
                 // 1. Token refresh called twice on the same device (could happen in there is a race condition somewhere)

@@ -34,7 +34,6 @@ final class TangemPayAccount {
     private let orderIdStorage: TangemPayOrderIdStorage
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
-    private let balanceSubject = CurrentValueSubject<TangemPayBalance?, Never>(nil)
 
     private let didTapIssueOrderSubject = PassthroughSubject<Void, Never>()
     private var customerInfoPollingTask: Task<Void, Never>?
@@ -71,19 +70,14 @@ final class TangemPayAccount {
             .merge(with: didTapIssueOrderSubject.mapToValue(true))
             .eraseToAnyPublisher()
 
-        tangemPayCardDetailsPublisher = Publishers.CombineLatest(
-            customerInfoSubject,
-            balanceSubject
-        )
-        .map { customerInfo, balance in
-            guard let card = customerInfo?.card,
-                  let balance = balance ?? customerInfo?.balance
-            else {
-                return nil
+        tangemPayCardDetailsPublisher = customerInfoSubject
+            .map { customerInfo in
+                guard let card = customerInfo?.card, let balance = customerInfo?.balance else {
+                    return nil
+                }
+                return (card, balance)
             }
-            return (card, balance)
-        }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
 
         tangemPayNotificationManager = TangemPayNotificationManager(tangemPayStatusPublisher: tangemPayStatusPublisher)
 
@@ -134,7 +128,9 @@ final class TangemPayAccount {
         runTask(in: self) { tangemPayAccount in
             do {
                 let balance = try await tangemPayAccount.customerInfoManagementService.getBalance()
-                tangemPayAccount.balanceSubject.send(balance)
+                tangemPayAccount.customerInfoSubject.send(
+                    tangemPayAccount.customerInfoSubject.value?.withBalance(balance)
+                )
             } catch {
                 // [REDACTED_TODO_COMMENT]
             }
@@ -300,7 +296,7 @@ extension TangemPayAccount: MainHeaderSubtitleProvider {
 
 extension TangemPayAccount: MainHeaderBalanceProvider {
     var balance: LoadableTokenBalanceView.State {
-        guard let balance = balanceSubject.value ?? customerInfoSubject.value?.balance else {
+        guard let balance = customerInfoSubject.value?.balance else {
             return .loading(cached: nil)
         }
 
