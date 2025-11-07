@@ -11,19 +11,19 @@ import TangemExpress
 struct SwapDestinationTokenAvailabilitySorter {
     // MARK: - Dependencies
 
+    @Injected(\.expressPairsRepository)
+    private var expressPairsRepository: ExpressPairsRepository
+
     // MARK: - Private property
 
     private let sourceTokenWalletModel: any WalletModel
-    private let expressRepository: ExpressRepository
     private let userWalletModelConfig: UserWalletConfig
 
     init(
         sourceTokenWalletModel: any WalletModel,
-        expressRepository: ExpressRepository,
         userWalletModelConfig: UserWalletConfig
     ) {
         self.sourceTokenWalletModel = sourceTokenWalletModel
-        self.expressRepository = expressRepository
         self.userWalletModelConfig = userWalletModelConfig
     }
 }
@@ -32,7 +32,7 @@ struct SwapDestinationTokenAvailabilitySorter {
 
 extension SwapDestinationTokenAvailabilitySorter: TokenAvailabilitySorter {
     func sortModels(walletModels: [any WalletModel]) async -> (availableModels: [any WalletModel], unavailableModels: [any WalletModel]) {
-        let availablePairs = await expressRepository.getPairs(from: sourceTokenWalletModel.tokenItem.expressCurrency)
+        let availablePairs = await expressPairsRepository.getPairs(from: sourceTokenWalletModel.tokenItem.expressCurrency)
 
         let result = walletModels.filter { $0.id != sourceTokenWalletModel.id }.reduce(
             into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
