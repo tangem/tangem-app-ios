@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemUI
 import TangemStaking
 import struct TangemUIUtils.AlertBinder
 
@@ -218,6 +219,22 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenAccountNetworkSelectorRout
             floatingSheetPresenter.removeActiveSheet()
         }
     }
+
+    func presentSuccessToast(with text: String) {
+        Toast(view: SuccessToast(text: text))
+            .present(
+                layout: .top(padding: ToastConstants.topPadding),
+                type: .temporary()
+            )
+    }
+
+    func presentErrorToast(with text: String) {
+        Toast(view: WarningToast(text: text))
+            .present(
+                layout: .top(padding: ToastConstants.topPadding),
+                type: .temporary()
+            )
+    }
 }
 
 // MARK: - Utilities functions
@@ -238,5 +255,13 @@ extension MarketsTokenDetailsCoordinator {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension MarketsTokenDetailsCoordinator {
+    enum ToastConstants {
+        static let topPadding: CGFloat = 52
     }
 }
