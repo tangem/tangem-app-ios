@@ -19,7 +19,7 @@ class CommonExpressModulesFactory {
     private var expressPairsRepository: ExpressPairsRepository
 
     private let userWalletInfo: UserWalletInfo
-    private let initialSourceWallet: any ExpressInteractorSourceWallet
+    private let initialTokenItem: TokenItem
     private let expressDependenciesFactory: ExpressDependenciesFactory
 
     // MARK: - Internal
@@ -39,7 +39,18 @@ class CommonExpressModulesFactory {
 
     init(input: ExpressDependenciesInput) {
         userWalletInfo = input.userWalletInfo
-        initialSourceWallet = input.source
+        initialTokenItem = input.source.tokenItem
+
+        expressDependenciesFactory = CommonExpressDependenciesFactory(
+            input: input,
+            supportedProviderTypes: .swap,
+            operationType: .swap
+        )
+    }
+
+    init(input: ExpressDependenciesDestinationInput) {
+        userWalletInfo = input.userWalletInfo
+        initialTokenItem = input.destination.tokenItem
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(
             input: input,
@@ -60,7 +71,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
         let model = ExpressViewModel(
             userWalletInfo: userWalletInfo,
-            initialTokenItem: initialSourceWallet.tokenItem,
+            initialTokenItem: initialTokenItem,
             feeFormatter: feeFormatter,
             balanceFormatter: balanceFormatter,
             expressProviderFormatter: expressProviderFormatter,
@@ -108,18 +119,20 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     }
 
     func makeExpressApproveViewModel(
+        source: any ExpressInteractorSourceWallet,
         providerName: String,
         selectedPolicy: BSDKApprovePolicy,
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
-        let tokenItem = expressDependenciesFactory.expressInteractor.getSender().tokenItem
+        let tokenItem = source.tokenItem
+        let feeTokenItem = source.feeTokenItem
 
         return ExpressApproveViewModel(
             settings: .init(
                 subtitle: Localization.givePermissionSwapSubtitle(providerName, tokenItem.currencySymbol),
                 feeFooterText: Localization.swapGivePermissionFeeFooter,
                 tokenItem: tokenItem,
-                feeTokenItem: expressDependenciesFactory.expressInteractor.getSender().feeTokenItem,
+                feeTokenItem: feeTokenItem,
                 selectedPolicy: selectedPolicy
             ),
             feeFormatter: feeFormatter,
@@ -143,7 +156,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     func makeExpressSuccessSentViewModel(data: SentExpressTransactionData, coordinator: ExpressSuccessSentRoutable) -> ExpressSuccessSentViewModel {
         ExpressSuccessSentViewModel(
             data: data,
-            initialTokenItem: initialSourceWallet.tokenItem,
+            initialTokenItem: initialTokenItem,
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             providerFormatter: ExpressProviderFormatter(balanceFormatter: balanceFormatter),
@@ -159,6 +172,6 @@ private extension CommonExpressModulesFactory {
     /// Be careful to use tokenItem in CommonExpressAnalyticsLogger
     /// Becase there will be inly initial tokenItem without updating
     var analyticsLogger: ExpressAnalyticsLogger {
-        CommonExpressAnalyticsLogger(tokenItem: initialSourceWallet.tokenItem)
+        CommonExpressAnalyticsLogger(tokenItem: initialTokenItem)
     }
 }
