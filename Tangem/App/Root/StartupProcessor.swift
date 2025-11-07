@@ -34,6 +34,7 @@ class StartupProcessor {
         }
 
         if let modelToOpen = shouldOpenMainScreen() {
+            SignInAnalyticsLogger().logSignInEvent(signInType: .noSecurity)
             return .main(modelToOpen)
         }
 
@@ -56,10 +57,6 @@ class StartupProcessor {
 
         if let selectedModel = userWalletRepository.selectedModel {
             return selectedModel
-        }
-
-        if let firstModel = userWalletRepository.models.first {
-            return firstModel
         }
 
         return nil
