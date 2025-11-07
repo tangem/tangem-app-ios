@@ -17,5 +17,7 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
     func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext)
     func openMobileBackupOnboarding(userWalletModel: UserWalletModel)
+    func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory)
+    func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory)
     func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount)
 }
