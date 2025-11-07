@@ -38,8 +38,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             return GridItemColor(id: iconColor, color: color)
         }
 
-    let images: [GridItemImage] = AccountModel.Icon.Name
-        .allCases
+    let images: [GridItemImage] = AccountModel.Icon.Name.allCases
+        .sorted()
         .map { iconName in
             let image = AccountModelUtils.UI.iconAsset(from: iconName)
             let kind: GridItemImageKind = iconName == .letter ? .letter(visualImageRepresentation: image) : .image(image)
