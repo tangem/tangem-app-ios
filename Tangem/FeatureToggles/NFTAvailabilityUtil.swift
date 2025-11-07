@@ -15,11 +15,11 @@ import BlockchainSdk
 /// NFT feature availability for a particular blockchain.
 final class NFTAvailabilityUtil {
     private var isTestnet: Bool { AppEnvironment.current.isTestnet }
-    private let isLongHashesSupported: Bool
     private var testableNFTChainsIds: [String] { FeatureStorage.instance.testableNFTChainsIds }
+    private let hardwareLimitationsUtil: HardwareLimitationsUtil
 
     init(userWalletConfig: UserWalletConfig) {
-        isLongHashesSupported = userWalletConfig.hasFeature(.longHashes)
+        hardwareLimitationsUtil = HardwareLimitationsUtil(config: userWalletConfig)
     }
 
     func isNFTAvailable(for tokenItem: TokenItem) -> Bool {
@@ -27,13 +27,7 @@ final class NFTAvailabilityUtil {
             return false
         }
 
-        let appUtils = AppUtils()
-
-        if appUtils.hasLongHashesForContractInteractions(tokenItem), !isLongHashesSupported {
-            return false
-        }
-
-        if !appUtils.canPerformContractInteractions(with: tokenItem) {
+        guard hardwareLimitationsUtil.canPerformContractInteractions(with: tokenItem) else {
             return false
         }
 
