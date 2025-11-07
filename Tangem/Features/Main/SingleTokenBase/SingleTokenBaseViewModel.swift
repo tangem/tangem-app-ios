@@ -446,7 +446,8 @@ extension SingleTokenBaseViewModel {
                 action: { [weak self] in
                     self?.action(for: type)?()
                 },
-                longPressAction: longTapAction(for: type)
+                longPressAction: longTapAction(for: type),
+                accessibilityIdentifier: type.accessibilityIdentifier
             )
         }
 
