@@ -83,6 +83,12 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemPayMainCoordinator) {
                 TangemPayMainCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.yieldModulePromoCoordinator) {
+                YieldModulePromoCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.yieldModuleActiveCoordinator) {
+                YieldModuleActiveCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
