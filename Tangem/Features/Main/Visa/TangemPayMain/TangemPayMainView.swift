@@ -72,5 +72,7 @@ struct TangemPayMainView: View {
                 configuration.backgroundInteractionBehavior = .tapToDismiss
             }
         }
+        .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
     }
 }

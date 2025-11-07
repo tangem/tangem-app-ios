@@ -517,6 +517,7 @@ extension VisaUserWalletModel: UserWalletModel {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { .empty }
+    var tangemPayAccount: TangemPayAccount? { nil }
 
     var signer: TangemSigner { userWalletModel.signer }
 
