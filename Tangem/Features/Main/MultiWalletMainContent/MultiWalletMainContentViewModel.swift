@@ -466,7 +466,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
-        coordinator?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
+        coordinator?.openTangemPayMainView(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            tangemPayAccount: tangemPayAccount
+        )
     }
 }
 
