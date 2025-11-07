@@ -78,6 +78,14 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
         }
     }
 
+    func setVisibility(_ visible: Bool) {
+        if visible, state.isHidden {
+            toggleVisibility()
+        } else if !visible, !state.isHidden {
+            cardDetailsExposureTask?.cancel()
+        }
+    }
+
     private func copyAction(copiedTextKeyPath: KeyPath<TangemPayCardDetailsData, String>, toastMessage: String) {
         guard case .loaded(let cardDetailsData) = state else {
             return

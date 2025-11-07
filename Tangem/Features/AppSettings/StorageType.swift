@@ -50,4 +50,5 @@ enum StorageType: String {
     case useBiometricAuthentication = "use_biometric_authentication"
     case settingsVersion = "settings_version"
     case tangemPayOrderIdForCustomerWalletAddress = "tangem_pay_order_id_for_customer_wallet_address"
+    case tangemPayHasDismissedAddToApplePayGuide = "tangem_pay_has_dismissed_add_to_apple_pay_guide"
 }

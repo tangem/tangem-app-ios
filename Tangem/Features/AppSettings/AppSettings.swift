@@ -131,6 +131,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayOrderIdForCustomerWalletAddress)
     var tangemPayOrderIdForCustomerWalletAddress: [String: String] = [:]
 
+    @AppStorageCompat(StorageType.tangemPayHasDismissedAddToApplePayGuide)
+    var tangemPayHasDismissedAddToApplePayGuide: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}
