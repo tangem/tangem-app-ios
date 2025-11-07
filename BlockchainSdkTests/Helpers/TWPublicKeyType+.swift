@@ -77,7 +77,10 @@ extension PublicKeyType {
              .vanar,
              .zkLinkNova,
              .hyperliquidEVM,
-             .quai:
+             .quai,
+             .scroll,
+             .linea,
+             .arbitrumNova:
             self = PublicKeyType.secp256k1Extended
         case .stellar,
              .ton,
