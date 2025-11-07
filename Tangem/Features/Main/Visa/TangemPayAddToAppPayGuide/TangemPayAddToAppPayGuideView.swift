@@ -12,7 +12,6 @@ import TangemAssets
 
 struct TangemPayAddToAppPayGuideView: View {
     @ObservedObject var viewModel: TangemPayAddToAppPayGuideViewModel
-    @Environment(\.dismiss) var dismissAction
 
     var body: some View {
         NavigationView {
@@ -119,6 +118,5 @@ struct TangemPayAddToAppPayGuideView: View {
 
     func dismiss() {
         viewModel.onDismiss()
-        dismissAction()
     }
 }
