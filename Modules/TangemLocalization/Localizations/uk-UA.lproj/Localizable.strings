@@ -242,7 +242,7 @@
 "common_enable" = "Увімкнути";
 "common_enabled" = "Увімкнено";
 "common_error" = "Помилка";
-"common_estimated_fee" = "Estimated fee";
+"common_estimated_fee" = "Комісія мережі за поповнення";
 "common_exchange" = "Обміняти";
 "common_explore_transaction_history" = "Переглянути історію транзакцій";
 "common_explore" = "Оглядач";
