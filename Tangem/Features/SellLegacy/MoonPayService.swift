@@ -411,6 +411,9 @@ private extension Blockchain {
         case .pepecoin: return nil
         case .hyperliquidEVM: return nil
         case .quai: return nil
+        case .scroll: return nil
+        case .linea: return "linea"
+        case .arbitrumNova: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
@@ -507,6 +510,9 @@ private extension Blockchain {
         case .pepecoin: return nil
         case .hyperliquidEVM: return nil
         case .quai: return nil
+        case .scroll: return nil
+        case .linea: return "linea"
+        case .arbitrumNova: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
