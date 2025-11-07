@@ -345,7 +345,8 @@ extension VisaUserWalletModel {
             .build(
                 cardId: cardId,
                 cardActivationStatus: .activated(authTokens: tokens),
-                refreshTokenSaver: self
+                refreshTokenSaver: self,
+                allowRefresherTask: true
             )
 
         if await authorizationTokensHandler.refreshTokenExpired {
@@ -509,11 +510,14 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var userTokensManager: any UserTokensManager { userWalletModel.userTokensManager }
 
-    var userTokenListManager: any UserTokenListManager { userWalletModel.userTokenListManager }
-
     var nftManager: any NFTManager { NotSupportedNFTManager() }
 
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { .empty }
+    var tangemPayAccount: TangemPayAccount? { nil }
 
     var signer: TangemSigner { userWalletModel.signer }
 
@@ -539,13 +543,15 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var isUserWalletLocked: Bool { false }
 
-    var isTokensListEmpty: Bool { userWalletModel.isTokensListEmpty }
-
     var emailData: [EmailCollectedData] { userWalletModel.emailData }
 
     var emailConfig: EmailConfig? { userWalletModel.emailConfig }
 
     var wcWalletModelProvider: any WalletConnectWalletModelProvider { NotSupportedWalletConnectWalletModelProvider() }
+
+    var wcAccountsWalletModelProvider: any WalletConnectAccountsWalletModelProvider {
+        NotSupportedWalletConnectAccountsWalletModelProvider()
+    }
 
     var refcodeProvider: RefcodeProvider? { userWalletModel.refcodeProvider }
 

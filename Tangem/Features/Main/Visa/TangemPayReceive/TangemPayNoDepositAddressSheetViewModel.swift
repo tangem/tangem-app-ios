@@ -8,30 +8,25 @@
 
 import TangemUI
 
+protocol TangemPayNoDepositAddressSheetRoutable {
+    func closeNoDepositAddressSheet()
+}
+
 // [REDACTED_TODO_COMMENT]
-struct TangemPayNoDepositAddressSheetViewModel {
+struct TangemPayNoDepositAddressSheetViewModel: FloatingSheetContentViewModel {
+    var id: String { String(describing: Self.self) }
+
     let title = "Service temporarily unavailable"
     let subtitle = "We’re fixing a technical issue. Please try again later."
     let buttonTitle = "Got it"
 
-    var primaryButtonSettings: MainButton.Settings {
-        MainButton.Settings(
-            title: buttonTitle,
-            subtitle: nil,
-            icon: nil,
-            style: .secondary,
-            size: .default,
-            isLoading: false,
-            isDisabled: false,
-            action: close
-        )
+    let coordinator: TangemPayNoDepositAddressSheetRoutable
+
+    func close() {
+        coordinator.closeNoDepositAddressSheet()
     }
 
-    let close: () -> Void
-}
-
-extension TangemPayNoDepositAddressSheetViewModel: FloatingSheetContentViewModel {
-    var id: String {
-        String(describing: Self.self)
+    var primaryButtonSettings: MainButton.Settings {
+        MainButton.Settings(title: buttonTitle, style: .secondary, size: .default, action: close)
     }
 }
