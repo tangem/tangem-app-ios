@@ -1818,7 +1818,7 @@
 "yield_module_fee_policy_sheet_max_fee_title" = "Максимальная комиссия";
 "yield_module_fee_policy_sheet_min_amount_note" = "Минимальная сумма рассчитывается исходя из текущей комиссии сети, чтобы она не превышала 4%% от суммы пополнения, что составляет минимум %1$@ (%2$@).";
 "yield_module_fee_policy_sheet_min_amount_title" = "Минимальный депозит";
-"yield_module_fee_policy_sheet_title" = "Политика комиссий";
+"yield_module_fee_policy_sheet_title" = "Политика комиссий за пополнение";
 "yield_module_fee_policy_tangem_service_fee_title" = "Tangem взимает комиссию за обслуживание в размере 15%% от полученного дохода.";
 "yield_module_high_fee_error" = "Ваши средства будут автоматически переведены в Aave, как только комиссия сети снизится или баланс достигнет минимально необходимой суммы.";
 "yield_module_historical_returns" = "Историческая доходность";
