@@ -69,8 +69,6 @@ struct SupportedBlockchains {
     private func testableBlockchains() -> Set<Blockchain> {
         [
             .vanar(testnet: false),
-            .zkLinkNova(testnet: false),
-            .quai(testnet: false),
             .scroll(testnet: false),
             .linea(testnet: false),
             .arbitrumNova,
@@ -165,6 +163,7 @@ struct SupportedBlockchains {
             .alephium(testnet: false),
             .pepecoin(testnet: false),
             .hyperliquidEVM(testnet: false),
+            .quai(testnet: false),
         ]
     }
 
