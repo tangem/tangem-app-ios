@@ -17,6 +17,8 @@ final class CommonCryptoAccountModel {
     let userTokensManager: UserTokensManager
     let accountBalanceProvider: AccountBalanceProvider
 
+    private unowned var _userWalletModel: UserWalletModel!
+
     private(set) var icon: AccountModel.Icon {
         didSet {
             if oldValue != icon {
@@ -51,38 +53,14 @@ final class CommonCryptoAccountModel {
     /// Designated initializer.
     /// - Note: `name` argument can be nil for main accounts, in this case a default localized name will be used.
     init(
-        accountId: AccountId,
         accountName: String?,
         accountIcon: AccountModel.Icon,
         derivationIndex: Int,
-        walletModelsManager: WalletModelsManager,
-        userTokensManager: UserTokensManager,
-        accountBalanceProvider: AccountBalanceProvider,
-    ) {
-        self.accountId = accountId
-        _name = accountName
-        icon = accountIcon
-        self.derivationIndex = derivationIndex
-        self.walletModelsManager = walletModelsManager
-        self.userTokensManager = userTokensManager
-        self.accountBalanceProvider = accountBalanceProvider
-    }
-}
-
-// MARK: - Convenience extensions
-
-extension CommonCryptoAccountModel {
-    /// Convenience init, initializes a `CommonCryptoAccountModel` with a `UserWalletId` and a derivation index.
-    /// - Note: `name` argument can be nil for main accounts, in this case a default localized name will be used.
-    convenience init(
-        userWalletId: UserWalletId,
-        accountName: String?,
-        accountIcon: AccountModel.Icon,
-        derivationIndex: Int,
+        userWalletModel: UserWalletModel,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
     ) {
-        let accountId = AccountId(userWalletId: userWalletId, derivationIndex: derivationIndex)
+        let accountId = AccountId(userWalletId: userWalletModel.userWalletId, derivationIndex: derivationIndex)
         let accountBalanceProvider = CommonAccountBalanceProvider(
             totalBalanceProvider: AccountTotalBalanceProvider(
                 walletModelsManager: walletModelsManager,
@@ -91,15 +69,14 @@ extension CommonCryptoAccountModel {
             )
         )
 
-        self.init(
-            accountId: accountId,
-            accountName: accountName,
-            accountIcon: accountIcon,
-            derivationIndex: derivationIndex,
-            walletModelsManager: walletModelsManager,
-            userTokensManager: userTokensManager,
-            accountBalanceProvider: accountBalanceProvider
-        )
+        self.accountId = accountId
+        _name = accountName
+        _userWalletModel = userWalletModel
+        icon = accountIcon
+        self.derivationIndex = derivationIndex
+        self.walletModelsManager = walletModelsManager
+        self.userTokensManager = userTokensManager
+        self.accountBalanceProvider = accountBalanceProvider
     }
 }
 
@@ -120,6 +97,10 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
 
     var didChangePublisher: AnyPublisher<Void, Never> {
         didChangeSubject.eraseToAnyPublisher()
+    }
+
+    var userWalletModel: any UserWalletModel {
+        _userWalletModel
     }
 
     var descriptionString: String {
