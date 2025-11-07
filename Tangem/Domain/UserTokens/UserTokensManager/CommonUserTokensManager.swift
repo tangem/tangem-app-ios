@@ -72,21 +72,24 @@ final class CommonUserTokensManager {
     }
 
     private func addInternal(_ tokenItems: [TokenItem], shouldUpload: Bool) throws {
-        var tokenItems = tokenItems
-        let tokens = tokenItems.filter { $0.isToken }
-
-        for token in tokens {
-            let network = TokenItem.blockchain(token.blockchainNetwork)
-            if !userTokens.contains(network), !tokenItems.contains(network) {
-                tokenItems.append(network)
-            }
-        }
-
-        try tokenItems.forEach { tokenItem in
+        let tokenItemsToAdd = try tokenItems.flatMap { tokenItem in
             try validateDerivation(for: tokenItem)
+
+            if tokenItem.isBlockchain {
+                return [tokenItem]
+            }
+
+            let networkTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
+            try validateDerivation(for: networkTokenItem)
+
+            if !userTokens.contains(networkTokenItem), !tokenItems.contains(networkTokenItem) {
+                return [networkTokenItem, tokenItem]
+            }
+
+            return [tokenItem]
         }
 
-        userTokenListManager.update(.append(tokenItems), shouldUpload: shouldUpload)
+        userTokenListManager.update(.append(tokenItemsToAdd), shouldUpload: shouldUpload)
     }
 
     private func removeInternal(_ tokenItem: TokenItem, shouldUpload: Bool) {
