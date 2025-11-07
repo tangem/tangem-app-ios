@@ -48,6 +48,38 @@ class WalletConnectV2SendTransactionHandler {
         transactionDispatcher = SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         request = requestParams
     }
+
+    init(
+        requestParams: AnyCodable,
+        blockchainId: String,
+        transactionBuilder: WCEthTransactionBuilder,
+        signer: TangemSigner,
+        wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
+        accountId: String
+    ) throws {
+        do {
+            let params = try requestParams.get([WalletConnectEthTransaction].self)
+
+            guard let wcTransaction = params.first else {
+                throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
+            }
+
+            self.wcTransaction = wcTransaction
+
+            walletModel = try wcAccountsWalletModelProvider.getModel(
+                with: wcTransaction.from,
+                blockchainId: blockchainId,
+                accountId: accountId
+            )
+        } catch {
+            WCLogger.error("Failed to create Send transaction handler", error: error)
+            throw error
+        }
+
+        self.transactionBuilder = transactionBuilder
+        transactionDispatcher = SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        request = requestParams
+    }
 }
 
 extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WCTransactionUpdatable {
@@ -59,6 +91,10 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
 
     var rawTransaction: String? {
         request.stringRepresentation
+    }
+
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        .empty
     }
 
     func handle() async throws -> RPCResult {
