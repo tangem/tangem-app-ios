@@ -242,7 +242,7 @@
 "common_enable" = "有効にする";
 "common_enabled" = "有効";
 "common_error" = "エラー";
-"common_estimated_fee" = "ネットワークサービス手数料";
+"common_estimated_fee" = "ネットワーク手数料";
 "common_exchange" = "スワップ";
 "common_explore_transaction_history" = "取引履歴を調べる";
 "common_explore" = "移動する";
@@ -552,11 +552,13 @@
 "hw_backup_icloud_title" = "iCloudバックアップ";
 "hw_backup_need_action" = "バックアップへ移動";
 "hw_backup_need_description" = "アクセスコードを作成する前にウォレットをバックアップしてください。";
+"hw_backup_need_finish_first" = "Finish Backup First";
 "hw_backup_need_title" = "まずバックアップを完了する";
 "hw_backup_no_backup" = "Incomplete";
 "hw_backup_section_other_title" = "その他の方法";
 "hw_backup_seed_description" = "秘密鍵をオフラインで安全に保存する物理デバイス。";
 "hw_backup_seed_title" = "リカバリーフレーズ";
+"hw_backup_to_secure_description" = "To secure your wallet with a Access Code, complete the backup first.";
 "hw_backup_to_upgrade_description" = "ウォレットをハードウェアにアップグレードするには、まずバックアップしてください。";
 "hw_create_keys_description" = "Your private keys are securely encrypted and stored on your phone";
 "hw_create_keys_title" = "鍵はアプリに保存されます";
