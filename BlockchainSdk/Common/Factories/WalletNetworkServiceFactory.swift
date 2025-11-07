@@ -92,7 +92,10 @@ extension WalletNetworkServiceFactory {
              .vanar,
              .zkLinkNova,
              .hyperliquidEVM,
-             .quai:
+             .quai,
+             .scroll,
+             .linea,
+             .arbitrumNova:
             return makeEthereumNetworkService(for: blockchain)
         case .rsk:
             throw Error.notImplemeneted
