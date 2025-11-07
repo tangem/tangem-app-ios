@@ -49,6 +49,7 @@ final class CommonYieldModuleManager {
     private let chainId: Int
     private let tokenId: String
     private let yieldSupplyService: YieldSupplyService
+    private let userWalletId: String
 
     private let transactionProvider: YieldTransactionProvider
     private let transactionFeeProvider: YieldTransactionFeeProvider
@@ -66,6 +67,7 @@ final class CommonYieldModuleManager {
 
     init?(
         walletAddress: String,
+        userWalletId: String,
         token: Token,
         blockchain: Blockchain,
         yieldSupplyService: YieldSupplyService,
@@ -85,6 +87,7 @@ final class CommonYieldModuleManager {
         }
 
         self.walletAddress = walletAddress
+        self.userWalletId = userWalletId
         self.token = token
         self.blockchain = blockchain
         self.chainId = chainId
@@ -234,7 +237,8 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         try? await yieldModuleNetworkManager.activate(
             tokenContractAddress: token.contractAddress,
             walletAddress: walletAddress,
-            chainId: chainId
+            chainId: chainId,
+            userWalletId: userWalletId
         )
 
         return result
