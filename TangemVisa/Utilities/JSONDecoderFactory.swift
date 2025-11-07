@@ -20,8 +20,28 @@ struct JSONDecoderFactory {
     func makeCIMDecoder() -> JSONDecoder {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        let dateFormatter = DateFormatter(dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-        decoder.dateDecodingStrategy = .formatted(dateFormatter)
+
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+
+            let formatterA = DateFormatter(dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+            if let date = formatterA.date(from: dateString) {
+                return date
+            }
+
+            let formatterB = DateFormatter(dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSS")
+            if let date = formatterB.date(from: dateString) {
+                return date
+            }
+
+            // If neither format works, throw an error
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Date string does not match expected formats"
+            )
+        }
+
         return decoder
     }
 }
