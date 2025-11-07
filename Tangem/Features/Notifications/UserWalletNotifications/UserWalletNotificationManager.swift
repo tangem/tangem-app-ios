@@ -300,16 +300,6 @@ final class UserWalletNotificationManager {
             })
             .store(in: &bag)
 
-        referralNotificationController
-            .showReferralNotificationPublisher
-            .sink(receiveValue: { [weak self] value in
-                guard let self else { return }
-
-                showReferralNotification = value
-                createNotifications()
-            })
-            .store(in: &bag)
-
         userWalletModel
             .totalBalancePublisher
             .map(\.hasPositiveBalance)
