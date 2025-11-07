@@ -114,7 +114,7 @@ extension ActionButtonsBuyViewModel {
             do {
                 try userWalletModel.userTokensManager.addTokenItemPrecondition(tokenItem)
 
-                let isNotAddedToken = !userWalletModel.userTokensManager.containsDerivationInsensitive(tokenItem)
+                let isNotAddedToken = !userWalletModel.userTokensManager.contains(tokenItem, derivationInsensitive: true)
 
                 return isNotAddedToken
             } catch {
@@ -166,7 +166,10 @@ extension ActionButtonsBuyViewModel {
         ActionButtonsAnalyticsService.hotTokenClicked(tokenSymbol: walletModel.tokenItem.currencySymbol)
 
         coordinator?.closeAddToPortfolio()
-        coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self, userWalletModel] in
+            self?.coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
+        }
     }
 }
 
