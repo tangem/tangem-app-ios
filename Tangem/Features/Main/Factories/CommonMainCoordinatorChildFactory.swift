@@ -58,4 +58,12 @@ extension CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
         let coordinator = MarketsTokenDetailsCoordinator()
         return coordinator
     }
+
+    func makeTangemPayCoordinator(
+        dismissAction: @escaping Action<Void>,
+        popToRootAction: @escaping Action<PopToRootOptions>
+    ) -> TangemPayCoordinator {
+        let coordinator = TangemPayCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        return coordinator
+    }
 }
