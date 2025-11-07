@@ -255,10 +255,15 @@ private struct TextInputWithTitle: View {
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
     let coordinator = AddCustomTokenCoordinator()
+    let context = LegacyManageTokensContext(
+        userTokensManager: userWalletModel.userTokensManager,
+        walletModelsManager: userWalletModel.walletModelsManager
+    )
+
     coordinator.start(with: .init(
         userWalletConfig: userWalletModel.config,
-        userTokensManager: userWalletModel.userTokensManager,
-        analyticsSourceRawValue: "preview"
+        analyticsSourceRawValue: "preview",
+        context: context
     ))
 
     return AddCustomTokenCoordinatorView(coordinator: coordinator)
