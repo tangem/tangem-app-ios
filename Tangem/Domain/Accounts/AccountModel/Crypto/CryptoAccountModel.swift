@@ -18,4 +18,6 @@ protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, Any
     var walletModelsManager: WalletModelsManager { get }
 
     var userTokensManager: UserTokensManager { get }
+
+    var userWalletModel: UserWalletModel { get }
 }

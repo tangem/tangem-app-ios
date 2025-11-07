@@ -137,8 +137,8 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func updateExpandedAction() {
-        tokenWithExpandedQuickActions = tokenItemViewModels.count == 1 && tokenItemViewModels.first?.hasZeroBalance == true
-            ? tokenItemViewModels.first
+        tokenWithExpandedQuickActions = tokenItemViewModels.singleElement?.hasZeroBalance == true
+            ? tokenItemViewModels.singleElement
             : nil
     }
 
