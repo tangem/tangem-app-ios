@@ -11,9 +11,12 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 import TangemAccounts
+import TangemFoundation
 
-protocol MarketsTokenAccountNetworkSelectorRoutable: AnyObject {
+protocol MarketsTokenAccountNetworkSelectorRoutable: AnyObject, MarketsPortfolioContainerRoutable {
     func close()
+    func presentSuccessToast(with text: String)
+    func presentErrorToast(with text: String)
 }
 
 @MainActor
@@ -51,7 +54,7 @@ final class MarketsTokenAccountNetworkSelectorFlowViewModel: ObservableObject, F
     private var oneAndOnlyAccount: AccountSelectorCellModel? {
         let availableUserWalletModels = userWalletDataProvider.userWalletModels.filter { !$0.isUserWalletLocked }
 
-        guard let userWalletModel = availableUserWalletModels.onlyElement else {
+        guard let userWalletModel = availableUserWalletModels.singleElement else {
             return nil
         }
 
@@ -60,7 +63,7 @@ final class MarketsTokenAccountNetworkSelectorFlowViewModel: ObservableObject, F
         case .standard(let cryptoAccounts):
             switch cryptoAccounts {
             case .multiple(let cryptoAccountModels):
-                cryptoAccountModel = cryptoAccountModels.onlyElement
+                cryptoAccountModel = cryptoAccountModels.singleElement
 
             case .single(let model):
                 cryptoAccountModel = model
@@ -148,7 +151,7 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         )
 
         // Skip network selection if there's only one network available
-        if let singleTokenItem = networkSelectorViewModel.tokenItemViewModels.onlyElement?.tokenItem {
+        if let singleTokenItem = networkSelectorViewModel.tokenItemViewModels.singleElement?.tokenItem {
             openAddToken(
                 tokenItem: singleTokenItem,
                 accountSelectorCell: accountSelectorCell
@@ -212,20 +215,109 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         viewState = .addToken(
             viewModel: MarketsAddTokenViewModel(
                 tokenItem: tokenItem,
+                account: accountSelectorCell.cryptoAccountModel,
                 tokenItemIconInfoBuilder: TokenIconInfoBuilder(),
                 accountWalletDataProvider: accountWalletDataProvider,
-                networkDataProvider: networkDataProvider
+                networkDataProvider: networkDataProvider,
+                onAddTokenTapped: { [weak self] result in
+                    switch result {
+                    case .success(let tokenItemAndAccount):
+                        self?.coordinator?.presentSuccessToast(with: Localization.marketsTokenAdded)
+                        self?.openGetToken(tokenItem: tokenItemAndAccount.tokenItem, account: tokenItemAndAccount.cryptoAccount)
+                        FeedbackGenerator.success()
+
+                    case .failure(let error):
+                        self?.coordinator?.presentErrorToast(with: error.localizedDescription)
+                        FeedbackGenerator.error()
+                    }
+                }
             )
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
-    /*
-     func openGetToken() {
-         pushCurrentState()
-         viewState = .getToken(viewModel: GetTokenViewModel(...))
-     }
-     */
+    func openGetToken(
+        tokenItem: TokenItem,
+        account: any CryptoAccountModel
+    ) {
+        // From getToken screen, user cannot go back to addToken
+        // Clear the navigation stack
+        navigationStack.removeAll()
+
+        viewState = .getToken(
+            viewModel: MarketsGetTokenViewModel(
+                tokenItem: tokenItem,
+                tokenItemIconInfoBuilder: TokenIconInfoBuilder(),
+                onBuy: { [weak self] in
+                    self?.handleGetTokenAction(action: .buy, tokenItem: tokenItem, account: account)
+                },
+                onExchange: { [weak self] in
+                    self?.handleGetTokenAction(action: .exchange, tokenItem: tokenItem, account: account)
+                },
+                onReceive: { [weak self] in
+                    self?.handleGetTokenAction(action: .receive, tokenItem: tokenItem, account: account)
+                },
+                onLater: { [weak self] in
+                    self?.coordinator?.close()
+                }
+            )
+        )
+    }
+
+    private func handleGetTokenAction(
+        action: TokenActionType,
+        tokenItem: TokenItem,
+        account: any CryptoAccountModel
+    ) {
+        let accountTokenItem = account.userTokensManager.userTokens.first { accountToken in
+            accountToken == tokenItem
+        }
+
+        guard
+            let actualTokenItem = accountTokenItem,
+            let walletModel = findWalletModel(for: actualTokenItem, in: account)
+        else {
+            coordinator?.close()
+            return
+        }
+
+        let analyticsParams: [Analytics.ParameterKey: String] = [
+            .source: Analytics.ParameterValue.market.rawValue,
+            .token: actualTokenItem.currencySymbol.uppercased(),
+            .blockchain: actualTokenItem.blockchain.displayName,
+        ]
+
+        coordinator?.close()
+
+        let userWalletModel = account.userWalletModel
+        switch action {
+        case .buy:
+            Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
+            let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+            coordinator?.openOnramp(input: sendInput)
+
+        case .exchange:
+            Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
+            let expressInput = ExpressDependenciesInput(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                source: walletModel.asExpressInteractorWallet,
+                destination: .loadingAndSet
+            )
+
+            coordinator?.openExchange(input: expressInput)
+
+        case .receive:
+            Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
+            coordinator?.openReceive(walletModel: walletModel)
+
+        default:
+            break
+        }
+    }
+
+    private func findWalletModel(for tokenItem: TokenItem, in account: any CryptoAccountModel) -> (any WalletModel)? {
+        let walletModelId = WalletModelId(tokenItem: tokenItem)
+        return account.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
+    }
 }
 
 // MARK: - Factory Methods
