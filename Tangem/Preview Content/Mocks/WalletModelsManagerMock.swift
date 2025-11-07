@@ -10,11 +10,15 @@ import Foundation
 import Combine
 
 class WalletModelsManagerMock: WalletModelsManager {
-    var isInitialized: Bool { true }
+    private(set) var isInitialized = false
     var walletModels: [any WalletModel] { [CommonWalletModel.mockETH] }
     var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { .just(output: walletModels) }
 
     func updateAll(silent: Bool, completion: @escaping () -> Void) {
         completion()
+    }
+
+    func initialize() {
+        isInitialized = true
     }
 }
