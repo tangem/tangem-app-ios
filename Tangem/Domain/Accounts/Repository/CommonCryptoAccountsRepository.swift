@@ -30,6 +30,7 @@ final class CommonCryptoAccountsRepository {
         .prepend(()) // An initial value to trigger loading from storage
         .receiveOnMain()
         .withWeakCaptureOf(self)
+        .filter { !$0.0.storageController.isMigrationNeeded() } // Wait for migration to complete before emitting any values
         .map { $0.0.persistentStorage.getList() }
         .removeDuplicates()
         .share(replay: 1)
@@ -65,15 +66,24 @@ final class CommonCryptoAccountsRepository {
         storageController.bind(to: storageDidUpdateSubject)
     }
 
-    // [REDACTED_TODO_COMMENT]
+    // MARK: - Migration, not accounts created, no wallets created, etc.
+
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
         let mainAccountPersistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
         let legacyStoredTokens = tokenItemsRepository.getList().entries
         let tokens = LegacyStoredEntryConverter.convert(legacyStoredTokens: legacyStoredTokens)
         let newCryptoAccount = StoredCryptoAccount(config: mainAccountPersistentConfig, tokens: tokens)
 
-        persistentStorage.appendNewOrUpdateExisting(account: newCryptoAccount)
+        persistentStorage.replace(with: [newCryptoAccount])
         auxiliaryDataStorage.totalAccountsCount = 1
+    }
+
+    private func addDefaultAccount(isWalletCreated: Bool) async throws {
+        if !isWalletCreated {
+            // [REDACTED_TODO_COMMENT]
+        }
+        let defaultAccount = defaultAccountFactory.makeDefaultAccount()
+        try await addAccountsInternal([defaultAccount]) // Explicitly creates a new account if none exist on the server yet
     }
 
     // MARK: - Loading accounts and tokens from server
@@ -116,13 +126,17 @@ final class CommonCryptoAccountsRepository {
             try Task.checkCancellation()
 
             var updatedAccounts = remoteCryptoAccountsInfo.accounts
+            if updatedAccounts.isEmpty {
+                throw InternalError.migrationNeeded
+            }
+
             let shouldUpdateTokenList = StoredCryptoAccountsTokensDistributor.distributeTokens(
                 in: &updatedAccounts,
                 additionalTokens: remoteCryptoAccountsInfo.legacyTokens
             )
 
             // Updating the local storage first since it's the primary purpose of this method
-            persistentStorage.appendNewOrUpdateExisting(accounts: updatedAccounts)
+            persistentStorage.replace(with: updatedAccounts)
             auxiliaryDataStorage.archivedAccountsCount = remoteCryptoAccountsInfo.counters.archived
             auxiliaryDataStorage.totalAccountsCount = remoteCryptoAccountsInfo.counters.total
 
@@ -133,11 +147,12 @@ final class CommonCryptoAccountsRepository {
         } catch CryptoAccountsNetworkServiceError.missingRevision, CryptoAccountsNetworkServiceError.inconsistentState {
             // Impossible case, since we don't update remote accounts here
             preconditionFailure("Unexpected state: missing revision or inconsistent state when loading accounts from server")
-        } catch CryptoAccountsNetworkServiceError.noAccountsCreated {
-            let defaultAccount = defaultAccountFactory.makeDefaultAccount()
-            try await addAccountsInternal([defaultAccount]) // Explicitly creates a new account if none exist on the server yet
         } catch CryptoAccountsNetworkServiceError.underlyingError(let error) {
             throw error
+        } catch CryptoAccountsNetworkServiceError.noAccountsCreated {
+            try await addDefaultAccount(isWalletCreated: false)
+        } catch InternalError.migrationNeeded {
+            try await addDefaultAccount(isWalletCreated: true)
         }
     }
 
@@ -253,7 +268,7 @@ final class CommonCryptoAccountsRepository {
         }
 
         // Updating local storage only after successful remote update
-        persistentStorage.appendNewOrUpdateExisting(accounts: updatedAccounts)
+        persistentStorage.replace(with: updatedAccounts)
         auxiliaryDataStorage.archivedAccountsCount = remoteCryptoAccountsInfo.counters.archived
         auxiliaryDataStorage.totalAccountsCount = remoteCryptoAccountsInfo.counters.total
     }
@@ -337,7 +352,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         let (editedItems, isDirty) = merger.merge(oldAccounts: existingCryptoAccounts, newAccounts: [updatedCryptoAccount])
 
         if isDirty {
-            persistentStorage.appendNewOrUpdateExisting(accounts: editedItems)
+            persistentStorage.appendNewOrUpdateExisting(editedItems)
             // No tokens distribution was performed here therefore only accounts need to be updated on the server
             updateAccountsOnServer(cryptoAccounts: editedItems, updateType: .accounts)
         }
@@ -388,11 +403,11 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
             case .append(let tokenItems):
                 let updatedTokens = cryptoAccount.tokens + tokenItems.map { $0.toStoredToken() }
                 let updatedAccount = cryptoAccount.withTokens(updatedTokens)
-                innerRepository.persistentStorage.appendNewOrUpdateExisting(account: updatedAccount)
+                innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
             case .remove(let tokenItem):
                 let updatedTokens = cryptoAccount.tokens.filter { $0 != tokenItem.toStoredToken() }
                 let updatedAccount = cryptoAccount.withTokens(updatedTokens)
-                innerRepository.persistentStorage.appendNewOrUpdateExisting(account: updatedAccount)
+                innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
             case .update:
                 break // [REDACTED_TODO_COMMENT]
             }
@@ -435,6 +450,13 @@ private extension CommonCryptoAccountsRepository {
         static let accounts = Self(rawValue: 1 << 0)
         static let tokens = Self(rawValue: 1 << 1)
         static let all: Self = [.accounts, .tokens]
+    }
+
+    enum InternalError: Error {
+        /// Unlike `CryptoAccountsNetworkServiceError.noAccountsCreated`, this error indicates that the wallet
+        /// has been created using an older version of the app (i.e. w/o accounts support) and exists,
+        /// but no accounts have been created for this wallet yet.
+        case migrationNeeded
     }
 }
 
