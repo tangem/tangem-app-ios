@@ -552,11 +552,13 @@
 "hw_backup_icloud_title" = "iCloud восстановление";
 "hw_backup_need_action" = "Перейти к бэкапу";
 "hw_backup_need_description" = "Пожалуйста, создайте резервную копию вашего кошелька перед установкой кода доступа.";
+"hw_backup_need_finish_first" = "Finish Backup First";
 "hw_backup_need_title" = "Сначала завершите создание резервной копии";
 "hw_backup_no_backup" = "Не завершено";
 "hw_backup_section_other_title" = "Other methods";
 "hw_backup_seed_description" = "Физические устройства, которые надёжно хранят ваш приватный ключ офлайн.";
 "hw_backup_seed_title" = "Фраза восстановления";
+"hw_backup_to_secure_description" = "To secure your wallet with a Access Code, complete the backup first.";
 "hw_backup_to_upgrade_description" = "To upgrade your wallet to hardware, back it up first.";
 "hw_create_keys_description" = "Ваши приватные ключи надёжно зашифрованы и хранятся на вашем телефоне";
 "hw_create_keys_title" = "Ключи хранятся в приложении";
