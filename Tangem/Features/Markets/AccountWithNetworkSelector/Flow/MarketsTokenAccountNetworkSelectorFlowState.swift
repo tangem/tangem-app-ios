@@ -18,8 +18,7 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         case accountSelector(viewModel: AccountSelectorViewModel, context: NavigationContext)
         case networksSelection(viewModel: MarketsNetworkSelectorViewModel, context: NavigationContext)
         case addToken(viewModel: MarketsAddTokenViewModel)
-        // [REDACTED_TODO_COMMENT]
-        // case getToken(viewModel: GetTokenViewModel)
+        case getToken(viewModel: MarketsGetTokenViewModel)
 
         var id: String {
             switch self {
@@ -29,8 +28,8 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
                 "networksSelection"
             case .addToken:
                 "addToken"
-                // case .getToken:
-                //     "getToken"
+            case .getToken:
+                "getToken"
             }
         }
 
@@ -45,8 +44,9 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
 
             case .addToken:
                 return false
-                // case .getToken:
-                //     return true   // Can go back to addToken
+
+            case .getToken:
+                return false
             }
         }
 
@@ -61,8 +61,9 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
 
             case .addToken:
                 return true
-                // case .getToken:
-                //     return true   // Can go back to addToken
+
+            case .getToken:
+                return true
             }
         }
 
@@ -79,8 +80,8 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
                 return true
             case (.addToken, .addToken):
                 return true
-            // case (.getToken, .getToken):
-            //     return true
+            case (.getToken, .getToken):
+                return true
             default:
                 return false
             }
