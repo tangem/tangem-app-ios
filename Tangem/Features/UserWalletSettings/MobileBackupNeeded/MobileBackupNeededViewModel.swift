@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 import protocol TangemUI.FloatingSheetContentViewModel
 
@@ -16,11 +17,11 @@ final class MobileBackupNeededViewModel {
     let actionTitle = Localization.hwBackupNeedAction
 
     private let userWalletModel: UserWalletModel
-    private weak var routable: MobileBackupNeededRoutable?
+    private weak var coordinator: MobileBackupNeededRoutable?
 
-    init(userWalletModel: UserWalletModel, routable: MobileBackupNeededRoutable) {
+    init(userWalletModel: UserWalletModel, coordinator: MobileBackupNeededRoutable) {
         self.userWalletModel = userWalletModel
-        self.routable = routable
+        self.coordinator = coordinator
     }
 }
 
@@ -28,13 +29,29 @@ final class MobileBackupNeededViewModel {
 
 extension MobileBackupNeededViewModel {
     func onCloseTap() {
-        routable?.dismissMobileBackupNeeded()
+        runTask(in: self) { viewModel in
+            await viewModel.close()
+        }
     }
 
     func onBackupTap() {
-        routable?.dismissMobileBackupNeeded()
+        runTask(in: self) { viewModel in
+            await viewModel.openMobileBackup()
+        }
+    }
+}
+
+// MARK: - Internal methods
+
+@MainActor
+private extension MobileBackupNeededViewModel {
+    func openMobileBackup() {
         let input = MobileOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel))
-        routable?.openMobileOnboarding(input: input)
+        coordinator?.openMobileOnboardingFromMobileBackupNeeded(input: input)
+    }
+
+    func close() {
+        coordinator?.dismissMobileBackupNeeded()
     }
 }
 

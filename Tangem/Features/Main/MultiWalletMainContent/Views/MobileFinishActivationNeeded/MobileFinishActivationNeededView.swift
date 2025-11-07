@@ -46,6 +46,8 @@ private extension MobileFinishActivationNeededView {
 
             Text(viewModel.title)
                 .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 24)
 
             Text(viewModel.description)
