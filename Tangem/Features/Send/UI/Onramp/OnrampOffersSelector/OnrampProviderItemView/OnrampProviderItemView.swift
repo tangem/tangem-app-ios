@@ -24,16 +24,19 @@ struct OnrampProviderItemView: View {
                     horizontalPadding: .zero
                 )
         }
-        .buttonStyle(.plain)
+        .disabled(!viewModel.isAvailable)
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodCard)
     }
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 14) {
             topView
 
-            bottomView
-                // Icon size + padding
-                .padding(.leading, 36 + 12)
+            if let providersInfo = viewModel.providersInfo {
+                availableOffers(providers: providersInfo)
+                    // Icon size + padding
+                    .padding(.leading, 36 + 12)
+            }
         }
         .padding(.all, 14)
         .contentShape(Rectangle())
@@ -42,6 +45,7 @@ struct OnrampProviderItemView: View {
     private var topView: some View {
         HStack(spacing: 12) {
             OnrampPaymentMethodIconView(url: viewModel.paymentMethod.iconURL)
+                .opacity(viewModel.isAvailable ? 1 : 0.5)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodIcon(id: viewModel.paymentMethod.id))
 
             titleView
@@ -54,20 +58,36 @@ struct OnrampProviderItemView: View {
     private var titleView: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(viewModel.paymentMethod.name)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: viewModel.isAvailable ? Colors.Text.primary1 : Colors.Text.tertiary)
                 .lineLimit(1)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodName(id: viewModel.paymentMethod.id))
 
-            HStack(spacing: 4) {
-                // AttributedString
-                Text(viewModel.amountFormatted)
+            amountView
+        }
+    }
 
-                OnrampAmountBadge(badge: viewModel.amount.badge)
+    @ViewBuilder
+    private var amountView: some View {
+        switch viewModel.amountType {
+        case .availableFrom(let amount):
+            Text(Localization.onrampProviderMinAmount(amount))
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
+        case .availableUpTo(let amount):
+            Text(Localization.onrampProviderMaxAmount(amount))
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
+        case .available(let amount):
+            HStack(spacing: 4) {
+                Text(amount.attributedFormatted)
+                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
+
+                OnrampAmountBadge(badge: amount.badge)
             }
         }
     }
 
-    private var bottomView: some View {
+    private func availableOffers(providers: OnrampProviderItemViewModel.ProvidersInfo) -> some View {
         HStack(spacing: 8) {
             HStack(spacing: 4) {
                 Assets.stakingMiniIcon.image
@@ -76,7 +96,7 @@ struct OnrampProviderItemView: View {
                     .foregroundStyle(Colors.Icon.informative)
                     .frame(width: 10, height: 10)
 
-                Text(viewModel.providersFormatted)
+                Text(providers.providersFormatted)
                     .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
             }
             .padding(4)
@@ -92,7 +112,7 @@ struct OnrampProviderItemView: View {
                     .foregroundStyle(Colors.Icon.informative)
                     .frame(width: 10, height: 10)
 
-                Text(viewModel.timeFormatted)
+                Text(providers.timeFormatted)
                     .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
             }
             .padding(4)
