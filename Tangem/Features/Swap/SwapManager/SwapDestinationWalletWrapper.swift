@@ -1,5 +1,5 @@
 //
-//  SwapManagerDestinationWallet.swift
+//  SwapDestinationWalletWrapper.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,18 +8,16 @@
 
 import TangemExpress
 
-struct SwapManagerDestinationWallet: ExpressInteractorDestinationWallet {
+struct SwapDestinationWalletWrapper: ExpressInteractorDestinationWallet {
     let id: WalletModelId
-    let isCustom: Bool
-    let currency: TangemExpress.ExpressWalletCurrency
     let tokenItem: TokenItem
+    let isCustom: Bool = false
+
+    var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
     let address: String?
 
     init(tokenItem: TokenItem, address: String?) {
         id = .init(tokenItem: tokenItem)
-        isCustom = false
-        currency = tokenItem.expressCurrency
-
         self.tokenItem = tokenItem
         self.address = address
     }
