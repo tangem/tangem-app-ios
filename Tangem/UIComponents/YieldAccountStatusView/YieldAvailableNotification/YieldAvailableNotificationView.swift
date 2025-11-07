@@ -38,7 +38,7 @@ struct YieldAvailableNotificationView: View {
     @ViewBuilder
     private var button: some View {
         MainButton(
-            title: Localization.commonGetStarted,
+            title: Localization.commonLearnMore,
             style: .secondary,
             size: .notification,
             action: { viewModel.onGetStartedTap() }
