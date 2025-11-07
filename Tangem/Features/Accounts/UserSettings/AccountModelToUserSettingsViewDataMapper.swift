@@ -26,6 +26,7 @@ enum AccountModelToUserSettingsViewDataMapper {
     ) -> [UserSettingsAccountRowViewData] {
         switch cryptoAccounts {
         case .single:
+            // No accounts are displayed until .single case is in action
             return []
 
         case .multiple(let cryptoAccountModel):
