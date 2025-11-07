@@ -23,7 +23,7 @@ protocol YieldModuleAPIService {
         bucketSizeDays: Int?
     ) async throws -> YieldModuleDTO.Response.Chart
 
-    func activate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
+    func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws
     func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
 }
 
