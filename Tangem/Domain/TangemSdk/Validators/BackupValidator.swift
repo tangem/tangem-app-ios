@@ -21,4 +21,17 @@ struct BackupValidator {
 
         return true
     }
+
+    func validate(cardInfo: CardInfo) -> Bool {
+        let pendingBackupManager = PendingBackupManager()
+        if pendingBackupManager.fetchPendingCard(cardInfo.card.cardId) != nil {
+            return false
+        }
+
+        if !validate(backupStatus: cardInfo.card.backupStatus, wallets: cardInfo.card.wallets) {
+            return false
+        }
+
+        return true
+    }
 }
