@@ -61,7 +61,7 @@ struct CommonWalletModelsFactory {
             addresses = Array(Set(convertedAddresses))
         }
 
-        if addresses.count == 1, let address = addresses.first {
+        if let address = addresses.singleElement {
             let factory = TransactionHistoryFactoryProvider().factory
 
             guard let provider = factory.makeProvider(for: tokenItem.blockchain, isToken: tokenItem.isToken) else {
