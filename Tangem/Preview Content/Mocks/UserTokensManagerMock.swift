@@ -36,7 +36,7 @@ struct UserTokensManagerMock: UserTokensManager {
     func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {}
 
     func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
-        return false
+        false
     }
 
     func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
