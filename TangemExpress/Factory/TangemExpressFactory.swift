@@ -114,6 +114,7 @@ public struct ExpressAPICredential {
 public enum ExpressAPIType: String, Hashable, CaseIterable {
     case develop
     case develop2
+    case develop3
     case production
     case stage
     case mock
@@ -124,6 +125,8 @@ public enum ExpressAPIType: String, Hashable, CaseIterable {
             return "dev"
         case .develop2:
             return "dev2"
+        case .develop3:
+            return "dev3"
         case .production:
             return "prod"
         case .stage:

@@ -10,10 +10,13 @@ import Combine
 import TangemLocalization
 import SwiftUI
 import TangemSdk
+import BlockchainSdk
+import TangemUIUtils
 
 final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
     @Published var customDerivationModel: AddCustomTokenDerivationPathSelectorItemViewModel!
     @Published var blockchainDerivationModels: [AddCustomTokenDerivationPathSelectorItemViewModel] = []
+    @Published var alert: AlertBinder?
 
     weak var delegate: AddCustomTokenDerivationPathSelectorDelegate?
 
@@ -31,11 +34,18 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
         return derivationPath != nil
     }
 
+    private let context: ManageTokensContext
+    private let blockchain: Blockchain
+
     init(
         selectedDerivationOption: AddCustomTokenDerivationOption,
         defaultDerivationPath: DerivationPath,
-        blockchainDerivationOptions: [AddCustomTokenDerivationOption]
+        blockchainDerivationOptions: [AddCustomTokenDerivationOption],
+        context: ManageTokensContext,
+        blockchain: Blockchain
     ) {
+        self.context = context
+        self.blockchain = blockchain
         let customDerivationOption: AddCustomTokenDerivationOption
         if case .custom = selectedDerivationOption {
             customDerivationOption = selectedDerivationOption
@@ -77,8 +87,20 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
         ) { [weak self] enteredDerivationPath in
             guard let self else { return }
 
-            customDerivationModel.setCustomDerivationPath(enteredDerivationPath)
-            selectOption(customDerivationModel.option)
+            guard let derivationPath = try? DerivationPath(rawPath: enteredDerivationPath) else {
+                return
+            }
+
+            let tokenItem = TokenItem.blockchain(.init(blockchain, derivationPath: derivationPath))
+            let destination = context.accountDestination(for: tokenItem)
+
+            switch destination {
+            case .currentAccount, .noAccount:
+                setAndSelectDerivation(enteredDerivationPath: enteredDerivationPath)
+
+            case .differentAccount(let accountName):
+                showAccountMismatchAlert(accountName: accountName, enteredDerivationPath: enteredDerivationPath)
+            }
         }
 
         AppPresenter.shared.show(alert)
@@ -90,5 +112,23 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
         }
 
         delegate?.didSelectOption(derivationOption)
+    }
+
+    private func showAccountMismatchAlert(accountName: String, enteredDerivationPath: String) {
+        alert = AlertBuilder.makeAlert(
+            title: Localization.customTokenAnotherAccountDialogTitle,
+            message: Localization.customTokenAnotherAccountDialogDescription(accountName),
+            primaryButton: .default(
+                Text(Localization.commonGotIt),
+                action: { [weak self] in
+                    self?.setAndSelectDerivation(enteredDerivationPath: enteredDerivationPath)
+                }
+            ),
+        )
+    }
+
+    private func setAndSelectDerivation(enteredDerivationPath: String) {
+        customDerivationModel.setCustomDerivationPath(enteredDerivationPath)
+        selectOption(customDerivationModel.option)
     }
 }
