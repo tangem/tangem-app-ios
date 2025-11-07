@@ -32,7 +32,7 @@ struct CommonCryptoAccountDependenciesFactory {
 extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFactory {
     func makeDependencies(
         forAccountWithDerivationIndex derivationIndex: Int,
-        userWalletId: UserWalletId
+        userWalletModel: UserWalletModel
     ) -> CryptoAccountDependencies {
         let derivationInfo = AccountsAwareUserTokensManager.DerivationInfo(
             derivationIndex: derivationIndex,
@@ -42,7 +42,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let userTokensRepository = userTokensRepositoryProvider(derivationIndex)
 
         let userTokensManager = AccountsAwareUserTokensManager(
-            userWalletId: userWalletId,
+            userWalletId: userWalletModel.userWalletId,
             userTokensRepository: userTokensRepository,
             derivationInfo: derivationInfo,
             existingCurves: existingCurves,
@@ -57,11 +57,12 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletManagerFactory: walletManagerFactory
         )
 
-        let walletModelsFactory = walletModelsFactoryProvider(userWalletId)
+        let walletModelsFactory = walletModelsFactoryProvider(userWalletModel.userWalletId)
+        let wrappedWalletModelsFactory = AccountsAwareWalletModelsFactoryWrapper(innerFactory: walletModelsFactory)
 
         let walletModelsManager = CommonWalletModelsManager(
             walletManagersRepository: walletManagersRepository,
-            walletModelsFactory: walletModelsFactory
+            walletModelsFactory: wrappedWalletModelsFactory
         )
 
         let derivationManager = areHDWalletsSupported
@@ -70,10 +71,14 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
 
         userTokensManager.derivationManager = derivationManager
         userTokensManager.walletModelsManager = walletModelsManager
-        // [REDACTED_TODO_COMMENT]
-        /* userTokensManager.keysDerivingProvider = model */
+        userTokensManager.keysDerivingProvider = userWalletModel
         userTokensManager.sync {}
 
-        return CryptoAccountDependencies(userTokensManager: userTokensManager, walletModelsManager: walletModelsManager)
+        return CryptoAccountDependencies(
+            userTokensManager: userTokensManager,
+            walletModelsManager: walletModelsManager,
+            walletModelsFactoryInput: wrappedWalletModelsFactory,
+            derivationManager: derivationManager
+        )
     }
 }
