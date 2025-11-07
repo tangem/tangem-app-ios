@@ -10,6 +10,9 @@ import TangemUI
 import Combine
 import TangemAssets
 import TangemAccounts
+import SwiftUI
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 // MARK: - Selector Data Provider Protocols
 
@@ -35,6 +38,8 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
 
     @Published private(set) var accountWalletSelectorState: AccountWalletSelectorState
     @Published private(set) var networkSelectorState: NetworkSelectorState
+    @Published private(set) var isSaving: Bool = false
+    @Published private(set) var needsCardDerivation: Bool = false
 
     // MARK: - Immutable Properties
 
@@ -43,20 +48,27 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
     // MARK: - Private Properties
 
     private let tokenItem: TokenItem
+    private let account: any CryptoAccountModel
     private let accountWalletDataProvider: MarketsAddTokenAccountWalletSelectorDataProvider
     private let networkDataProvider: MarketsAddTokenNetworkSelectorDataProvider
+    private let onAddTokenTapped: (Result<(tokenItem: TokenItem, cryptoAccount: any CryptoAccountModel), Error>) -> Void
+    private var bag = Set<AnyCancellable>()
 
     // MARK: - Initialization
 
     init(
         tokenItem: TokenItem,
+        account: any CryptoAccountModel,
         tokenItemIconInfoBuilder: TokenIconInfoBuilder,
         accountWalletDataProvider: MarketsAddTokenAccountWalletSelectorDataProvider,
-        networkDataProvider: MarketsAddTokenNetworkSelectorDataProvider
+        networkDataProvider: MarketsAddTokenNetworkSelectorDataProvider,
+        onAddTokenTapped: @escaping (Result<(tokenItem: TokenItem, cryptoAccount: any CryptoAccountModel), Error>) -> Void
     ) {
         self.tokenItem = tokenItem
+        self.account = account
         self.accountWalletDataProvider = accountWalletDataProvider
         self.networkDataProvider = networkDataProvider
+        self.onAddTokenTapped = onAddTokenTapped
 
         // Build token header
         let tokenIconInfo = tokenItemIconInfoBuilder.build(
@@ -95,6 +107,8 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
             trailingContent: networkDataProvider.trailingContent,
             isSelectionAvailable: networkDataProvider.isSelectionAvailable
         )
+
+        bind()
     }
 
     // MARK: - Public Methods
@@ -108,9 +122,112 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
             networkDataProvider.handleSelection()
 
         case .addTokenButtonTapped:
-            // [REDACTED_TODO_COMMENT]
-            break
+            addToken()
         }
+    }
+
+    // MARK: - Private Methods
+
+    private func bind() {
+        account.userTokensManager
+            .userTokensPublisher
+            .map { [weak self] _ in
+                guard let self else { return false }
+
+                return account.userTokensManager.needsCardDerivation(
+                    itemsToRemove: [],
+                    itemsToAdd: [tokenItem]
+                )
+            }
+            .assign(to: &$needsCardDerivation)
+    }
+
+    private func addToken() {
+        guard !isSaving else { return }
+
+        isSaving = true
+
+        Task { [weak self] in
+            await self?.performAddToken()
+        }
+    }
+
+    private func performAddToken() async {
+        let tokenItem = tokenItem
+        let userTokensManager = account.userTokensManager
+
+        do {
+            try await withThrowingTaskGroup(of: Void.self) { [weak self] group in
+                group.addTask {
+                    try await self?.waitForWalletModelCreation()
+                }
+
+                group.addTask {
+                    try await self?.performTokenUpdate(
+                        tokenItem: tokenItem,
+                        userTokensManager: userTokensManager
+                    )
+                }
+
+                // group.waitForAll() is not used to abort all tasks if one fails
+                // otherwise, group will wait for all tasks to complete even if one has already thrown an error
+                while let _ = try await group.next() {}
+            }
+
+            handleAddTokenSuccess()
+        } catch {
+            handleAddTokenFailure(error)
+        }
+    }
+
+    private func performTokenUpdate(
+        tokenItem: TokenItem,
+        userTokensManager: UserTokensManager
+    ) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem]) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    private func waitForWalletModelCreation() async throws {
+        _ = try await account.walletModelsManager.walletModelsPublisher
+            .setFailureType(to: WalletModelCreationError.self)
+            .withWeakCaptureOf(self)
+            .first { viewModel, walletModels in
+                walletModels.contains(where: { $0.tokenItem == viewModel.tokenItem })
+            }
+            .timeout(
+                .seconds(3),
+                scheduler: DispatchQueue.main,
+                customError: { WalletModelCreationError.timeout }
+            )
+            .async()
+    }
+
+    private func handleAddTokenSuccess() {
+        isSaving = false
+        sendAnalytics()
+        onAddTokenTapped(.success((tokenItem, account)))
+    }
+
+    private func handleAddTokenFailure(_ error: Error) {
+        isSaving = false
+        if !error.isCancellationError {
+            onAddTokenTapped(.failure(error))
+        }
+    }
+
+    private func sendAnalytics() {
+        Analytics.log(
+            event: .marketsChartTokenNetworkSelected,
+            params: [
+                .token: tokenItem.currencySymbol.uppercased(),
+                .count: "1",
+                .blockchain: tokenItem.blockchain.displayName.capitalizingFirstLetter(),
+            ]
+        )
     }
 }
 
@@ -146,5 +263,20 @@ extension MarketsAddTokenViewModel {
         let label: String
         let trailingContent: (imageAsset: ImageType, name: String)
         let isSelectionAvailable: Bool
+    }
+}
+
+// MARK: - Errors
+
+extension MarketsAddTokenViewModel {
+    enum WalletModelCreationError: LocalizedError {
+        case timeout
+
+        var errorDescription: String? {
+            switch self {
+            case .timeout:
+                return Localization.commonSomethingWentWrong
+            }
+        }
     }
 }
