@@ -78,9 +78,10 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     }
 
     func makeExpressApproveViewModel(
+        source: any ExpressInteractorSourceWallet,
         providerName: String,
         selectedPolicy: BSDKApprovePolicy,
-        coordinator: ExpressApproveRoutable
+        coordinator: any ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         ExpressApproveViewModel(
             settings: .init(
@@ -199,7 +200,7 @@ private extension ExpressModulesFactoryMock {
 
         let interactor = ExpressInteractor(
             userWalletInfo: userWalletInfo,
-            swappingPair: .init(sender: initialWalletModel.asExpressInteractorWallet, destination: .loading),
+            swappingPair: .init(sender: .success(initialWalletModel.asExpressInteractorWallet), destination: .loading),
             expressManager: expressManager,
             expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
