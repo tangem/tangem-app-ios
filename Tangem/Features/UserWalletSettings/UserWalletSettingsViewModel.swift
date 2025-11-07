@@ -60,10 +60,14 @@ final class UserWalletSettingsViewModel: ObservableObject {
         set { nftAvailabilityProvider.setNFTEnabled(newValue, for: userWalletModel) }
     }
 
+    private var currentWalletModelsManager: WalletModelsManager?
+    private var currentUserTokensManager: UserTokensManager?
+
     // MARK: - Dependencies
 
     private let userWalletModel: UserWalletModel
     private weak var coordinator: UserWalletSettingsRoutable?
+    private let dependencyUpdater: DependencyUpdater
 
     private var bag = Set<AnyCancellable>()
 
@@ -76,6 +80,9 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
+
+        dependencyUpdater = DependencyUpdater(userWalletModel: userWalletModel)
+        dependencyUpdater.setup(owner: self)
 
         bind()
     }
@@ -139,14 +146,19 @@ private extension UserWalletSettingsViewModel {
                         coordinator: viewModel.coordinator
                     )
                 }
-                .assign(to: \.accountsViewModel, on: self, ownership: .weak)
+                .withWeakCaptureOf(self)
+                .sink { viewModel, accountsViewModel in
+                    if accountsViewModel.accountRows.isNotEmpty {
+                        viewModel.manageTokensViewModel = nil
+                    }
+                    viewModel.accountsViewModel = accountsViewModel
+                }
                 .store(in: &bag)
         }
     }
 
     func setupView() {
         resetViewModels()
-        // setupAccountsSection()
         setupViewModels()
         setupMobileViewModels()
     }
@@ -370,9 +382,16 @@ private extension UserWalletSettingsViewModel {
     func openManageTokens() {
         Analytics.log(.settingsButtonManageTokens)
 
+        guard
+            let currentWalletModelsManager,
+            let currentUserTokensManager
+        else {
+            return
+        }
+
         coordinator?.openManageTokens(
-            walletModelsManager: userWalletModel.walletModelsManager,
-            userTokensManager: userWalletModel.userTokensManager,
+            walletModelsManager: currentWalletModelsManager,
+            userTokensManager: currentUserTokensManager,
             userWalletConfig: userWalletModel.config
         )
     }
@@ -433,5 +452,69 @@ private extension UserWalletSettingsViewModel {
         Analytics.log(.walletSettingsButtonBackup)
 
         coordinator?.openMobileBackupTypes(userWalletModel: userWalletModel)
+    }
+}
+
+// MARK: - DependencyUpdater
+
+private extension UserWalletSettingsViewModel {
+    /// Encapsulates logic for updating wallet and tokens managers based on account mode
+    final class DependencyUpdater {
+        private let userWalletModel: UserWalletModel
+        private weak var owner: UserWalletSettingsViewModel?
+        private var bag = Set<AnyCancellable>()
+
+        init(userWalletModel: UserWalletModel) {
+            self.userWalletModel = userWalletModel
+        }
+
+        func setup(owner: UserWalletSettingsViewModel) {
+            self.owner = owner
+            setupDependencies()
+        }
+
+        private func setupDependencies() {
+            if FeatureProvider.isAvailable(.accounts) {
+                userWalletModel.accountModelsManager
+                    .accountModelsPublisher
+                    .receiveOnMain()
+                    .sink { [weak self] accountModels in
+                        self?.updateManagersForAccountMode(accountModels: accountModels)
+                    }
+                    .store(in: &bag)
+            } else {
+                updateManagers(
+                    walletModelsManager: userWalletModel.walletModelsManager,
+                    userTokensManager: userWalletModel.userTokensManager
+                )
+            }
+        }
+
+        private func updateManagersForAccountMode(accountModels: [AccountModel]) {
+            guard let accountModel = accountModels.first else {
+                updateManagers(walletModelsManager: nil, userTokensManager: nil)
+                return
+            }
+
+            switch accountModel {
+            case .standard(.single(let cryptoAccountModel)):
+                updateManagers(
+                    walletModelsManager: cryptoAccountModel.walletModelsManager,
+                    userTokensManager: cryptoAccountModel.userTokensManager
+                )
+
+            case .standard(.multiple):
+                // In multiple accounts case we don't support managing tokens from this screen
+                updateManagers(walletModelsManager: nil, userTokensManager: nil)
+            }
+        }
+
+        private func updateManagers(
+            walletModelsManager: WalletModelsManager?,
+            userTokensManager: UserTokensManager?
+        ) {
+            owner?.currentWalletModelsManager = walletModelsManager
+            owner?.currentUserTokensManager = userTokensManager
+        }
     }
 }
