@@ -95,9 +95,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = MainWindow(windowScene: windowScene)
 
         sheetRegistry.registerWalletConnectFloatingSheets()
-        sheetRegistry.register(MarketsTokenAccountNetworkSelectorFlowViewModel.self) { flowViewModel in
-            MarketsTokenAccountNetworkSelectorFlowView(viewModel: flowViewModel)
-        }
+        sheetRegistry.registerMarketsFloatingSheets()
 
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)
