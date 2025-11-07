@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import TangemAssets
+import TangemMacro
 
 struct TransactionSendAvailabilityProvider {
     private let hardwareLimitationsUtil: HardwareLimitationsUtil
@@ -69,6 +70,7 @@ struct TransactionSendAvailabilityProvider {
 }
 
 extension TransactionSendAvailabilityProvider {
+    @CaseFlagable
     enum SendingRestrictions: Hashable {
         case zeroWalletBalance
         case hasOnlyCachedBalance
