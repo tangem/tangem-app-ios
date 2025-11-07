@@ -7,6 +7,6 @@
 //
 
 public protocol NFTCollectionsListRoutable: AnyObject {
-    func openReceive(navigationContext: NFTNavigationContext)
+    func receiveTapped()
     func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext)
 }
