@@ -270,7 +270,7 @@ private extension YieldTransactionFeeProvider {
     func estimateFees(transactions: [TransactionData]) async throws -> [Fee] {
         let defaultGasLimit = BigUInt(Constants.estimatedGasLimit)
         // we can calculate exact fee when transaction in one
-        if transactions.count == 1, let transaction = transactions.first {
+        if let transaction = transactions.singleElement {
             let fees = try await ethereumNetworkProvider.getFee(
                 destination: transaction.to,
                 value: Constants.zeroCoinAmount,
