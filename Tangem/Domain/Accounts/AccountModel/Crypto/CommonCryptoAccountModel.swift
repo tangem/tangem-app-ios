@@ -50,6 +50,11 @@ final class CommonCryptoAccountModel {
     private let accountId: AccountId
     private let derivationIndex: Int
 
+    /// - Warning: The derivation manager is not used directly in this class, but a strong reference is stored here
+    /// to keep it alive, since there is a circular dependency between `DerivationManager` and `UserTokensManager`,
+    /// therefore `UserTokensManager` has only a weak reference to it.
+    private let derivationManager: DerivationManager?
+
     /// Designated initializer.
     /// - Note: `name` argument can be nil for main accounts, in this case a default localized name will be used.
     init(
@@ -59,15 +64,10 @@ final class CommonCryptoAccountModel {
         userWalletModel: UserWalletModel,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
+        accountBalanceProvider: AccountBalanceProvider,
+        derivationManager: DerivationManager?
     ) {
         let accountId = AccountId(userWalletId: userWalletModel.userWalletId, derivationIndex: derivationIndex)
-        let accountBalanceProvider = CommonAccountBalanceProvider(
-            totalBalanceProvider: AccountTotalBalanceProvider(
-                walletModelsManager: walletModelsManager,
-                analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger(),
-                derivationManager: userTokensManager.derivationManager
-            )
-        )
 
         self.accountId = accountId
         _name = accountName
@@ -77,6 +77,7 @@ final class CommonCryptoAccountModel {
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
         self.accountBalanceProvider = accountBalanceProvider
+        self.derivationManager = derivationManager
     }
 }
 
