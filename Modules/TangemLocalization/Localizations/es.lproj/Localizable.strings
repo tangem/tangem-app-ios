@@ -242,7 +242,7 @@
 "common_enable" = "Activar";
 "common_enabled" = "Activado";
 "common_error" = "Error";
-"common_estimated_fee" = "Network service fee";
+"common_estimated_fee" = "Comisión de red por recarga";
 "common_exchange" = "Intercambiar";
 "common_explore_transaction_history" = "Explore historial de transacciones";
 "common_explore" = "Explore";
@@ -552,11 +552,13 @@
 "hw_backup_icloud_title" = "iCloud backup";
 "hw_backup_need_action" = "Go to backup";
 "hw_backup_need_description" = "Please back up your wallet before creating an access code.";
+"hw_backup_need_finish_first" = "Finish Backup First";
 "hw_backup_need_title" = "Finalize backup first";
 "hw_backup_no_backup" = "Incomplete";
 "hw_backup_section_other_title" = "Other methods";
 "hw_backup_seed_description" = "Physical devices that securely store your private key offline.";
 "hw_backup_seed_title" = "Recovery phrase";
+"hw_backup_to_secure_description" = "To secure your wallet with a Access Code, complete the backup first.";
 "hw_backup_to_upgrade_description" = "To upgrade your wallet to hardware, back it up first.";
 "hw_create_keys_description" = "Your private keys are securely encrypted and stored on your phone";
 "hw_create_keys_title" = "Keys are stored in the app";
