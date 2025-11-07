@@ -242,7 +242,7 @@
 "common_enable" = "有効にする";
 "common_enabled" = "有効";
 "common_error" = "エラー";
-"common_estimated_fee" = "Estimated fee";
+"common_estimated_fee" = "ネットワーク手数料";
 "common_exchange" = "スワップ";
 "common_explore_transaction_history" = "取引履歴を調べる";
 "common_explore" = "移動する";
