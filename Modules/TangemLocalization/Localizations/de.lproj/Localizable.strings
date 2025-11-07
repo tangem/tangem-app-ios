@@ -242,7 +242,7 @@
 "common_enable" = "Aktivieren";
 "common_enabled" = "Aktiviert";
 "common_error" = "Fehler";
-"common_estimated_fee" = "Netzwerkdienstgebühr";
+"common_estimated_fee" = "Estimated fee";
 "common_exchange" = "Umtausch";
 "common_explore_transaction_history" = "Transaktionsverlauf einsehen";
 "common_explore" = "Erkunden";
@@ -552,11 +552,13 @@
 "hw_backup_icloud_title" = "iCloud-Sicherung";
 "hw_backup_need_action" = "Gehe zum Backup";
 "hw_backup_need_description" = "Bitte sicher Deine Wallet, bevor Du einen Zugangscode erstellst.";
+"hw_backup_need_finish_first" = "Finish Backup First";
 "hw_backup_need_title" = "Zuerst die Sicherung abschließen";
 "hw_backup_no_backup" = "Unvollständig";
 "hw_backup_section_other_title" = "Andere Methoden";
 "hw_backup_seed_description" = "Physische Geräte, die Deine privaten Schlüssel sicher offline speichern.";
 "hw_backup_seed_title" = "Wiederherstellungs-Phrase";
+"hw_backup_to_secure_description" = "To secure your wallet with a Access Code, complete the backup first.";
 "hw_backup_to_upgrade_description" = "Um Deine Wallet auf Hardware umzustellen, erstelle vorher ein Backup.";
 "hw_create_keys_description" = "Deine privaten Schlüssel sind sicher verschlüsselt und auf Deinem Telefon gespeichert.";
 "hw_create_keys_title" = "Schlüssel werden in der App gespeichert";
