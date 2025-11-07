@@ -101,7 +101,7 @@ extension CommonSwapManager: SwapManager {
 
     func update(destination: TokenItem?, address: String?) {
         let destinationWallet = destination.map {
-            SwapManagerDestinationWallet(tokenItem: $0, address: address)
+            SwapDestinationWalletWrapper(tokenItem: $0, address: address)
         }
 
         interactor.update(destination: destinationWallet)
