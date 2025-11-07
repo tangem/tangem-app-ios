@@ -46,6 +46,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator?
     @Published var nftCollectionsCoordinator: NFTCollectionsCoordinator?
+    @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator?
+    @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -246,6 +248,26 @@ extension MainCoordinator: MainRoutable {
 // MARK: - MultiWalletMainContentRoutable protocol conformance
 
 extension MainCoordinator: MultiWalletMainContentRoutable {
+    func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.yieldModulePromoCoordinator = nil
+        }
+
+        mainBottomSheetUIManager.hide()
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, feeCurrencyNavigator: self, dismissAction: dismissAction)
+        yieldModulePromoCoordinator = coordinator
+    }
+
+    func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.yieldModuleActiveCoordinator = nil
+        }
+
+        mainBottomSheetUIManager.hide()
+        let coordinator = factory.makeYieldActiveCoordinator(feeCurrencyNavigator: self, dismissAction: dismissAction)
+        yieldModuleActiveCoordinator = coordinator
+    }
+
     func openTokenDetails(for model: any WalletModel, userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
