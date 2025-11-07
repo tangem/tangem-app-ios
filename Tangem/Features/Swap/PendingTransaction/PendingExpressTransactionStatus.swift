@@ -111,6 +111,10 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
         self == .done
     }
 
+    var canBeUsedAsRecent: Bool {
+        [.done, .failed, .refunded].contains(self)
+    }
+
     /// Required for verification the ability to hide the transaction status bottom sheet
     var isCanBeHideAutomatically: Bool {
         switch self {
