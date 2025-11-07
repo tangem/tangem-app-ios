@@ -20,6 +20,7 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private var pendingTransactionRepository: ExpressPendingTransactionRepository
 
     private let userWalletInfo: UserWalletInfo
+    private let initialTokenItem: TokenItem
     private let swappingPair: ExpressInteractor.SwappingPair
 
     private let supportedProviderTypes: [ExpressProviderType]
@@ -38,9 +39,28 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
         operationType: ExpressOperationType
     ) {
         userWalletInfo = input.userWalletInfo
+        initialTokenItem = input.source.tokenItem
+
         swappingPair = .init(
-            sender: input.source,
+            sender: .success(input.source),
             destination: input.destination.asExpressInteractorDestination
+        )
+
+        self.supportedProviderTypes = supportedProviderTypes
+        self.operationType = operationType
+    }
+
+    init(
+        input: ExpressDependenciesDestinationInput,
+        supportedProviderTypes: [ExpressProviderType],
+        operationType: ExpressOperationType
+    ) {
+        userWalletInfo = input.userWalletInfo
+        initialTokenItem = input.destination.tokenItem
+
+        swappingPair = .init(
+            sender: .loading,
+            destination: .success(input.destination)
         )
 
         self.supportedProviderTypes = supportedProviderTypes
@@ -53,7 +73,7 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
 private extension CommonExpressDependenciesFactory {
     func makeExpressInteractor() -> ExpressInteractor {
         let transactionValidator = CommonExpressProviderTransactionValidator(
-            tokenItem: swappingPair.sender.tokenItem,
+            tokenItem: initialTokenItem,
             hardwareLimitationsUtil: HardwareLimitationsUtil(config: userWalletInfo.config)
         )
 
@@ -103,7 +123,7 @@ private extension CommonExpressDependenciesFactory {
     /// Be careful to use tokenItem in CommonExpressAnalyticsLogger
     /// Because there will be inly initial tokenItem without updating
     var analyticsLogger: ExpressAnalyticsLogger {
-        CommonExpressAnalyticsLogger(tokenItem: swappingPair.sender.tokenItem)
+        CommonExpressAnalyticsLogger(tokenItem: initialTokenItem)
     }
 }
 

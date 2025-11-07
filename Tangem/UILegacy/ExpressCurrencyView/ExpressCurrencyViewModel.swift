@@ -48,13 +48,14 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         self.canChangeCurrency = canChangeCurrency
     }
 
-    func update(wallet: ExpressInteractor.Destination?, initialWalletId: WalletModelId) {
+    func update(wallet: LoadingResult<any ExpressGenericWallet, Error>?, initialWalletId: WalletModelId) {
         switch wallet {
         case .loading:
             canChangeCurrency = false
             tokenIconState = .loading
             symbolState = .loading
             balanceState = .loading
+
         case .success(let wallet as ExpressInteractorSourceWallet):
             canChangeCurrency = wallet.id != initialWalletId
             symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
@@ -71,7 +72,19 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
                     self?.balanceState = .formatted(BalanceFormatter.defaultEmptyBalanceString)
                 }
             }
-        case .none, .success, .failure:
+
+        case .success(let wallet as ExpressInteractorDestinationWallet):
+            canChangeCurrency = false
+            symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
+            tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
+            // No balance for abstract wallet
+            balanceState = .idle
+
+        case .success(let wallet):
+            assertionFailure("Don't have implementation for \(wallet)")
+            fallthrough
+
+        case .none, .failure:
             canChangeCurrency = true
             tokenIconState = .notAvailable
             symbolState = .noData
