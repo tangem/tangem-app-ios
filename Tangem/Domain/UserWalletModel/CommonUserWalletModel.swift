@@ -29,20 +29,6 @@ class CommonUserWalletModel {
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProvider
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    lazy var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> = keysRepository.keysPublisher
-        .compactMap { [weak self] _ -> TangemPayAccount? in
-            guard let self else { return nil }
-            // No referency cycle here.
-            // TangemPayAccount holds weak reference to userWalletModel under the hood
-            return TangemPayAccount(userWalletModel: self)
-        }
-        .merge(with: updatePublisher.compactMap(\.tangemPayAccount))
-        .first()
-        .share(replay: 1)
-        .eraseToAnyPublisher()
-
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
@@ -61,6 +47,11 @@ class CommonUserWalletModel {
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    private let tangemPayAccountSubject = CurrentValueSubject<TangemPayAccount?, Never>(nil)
+    private var tangemPayAccountCancellable: Cancellable?
 
     init(
         walletInfo: WalletInfo,
@@ -90,6 +81,21 @@ class CommonUserWalletModel {
         self.accountModelsManager = accountModelsManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
+
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
+        if FeatureProvider.isAvailable(.visa) {
+            tangemPayAccountCancellable = keysRepository.keysPublisher
+                .compactMap { [weak self] _ -> TangemPayAccount? in
+                    guard let self else { return nil }
+                    // No referency cycle here.
+                    // TangemPayAccount holds weak reference to userWalletModel under the hood
+                    return TangemPayAccount(userWalletModel: self)
+                }
+                .merge(with: updatePublisher.compactMap(\.tangemPayAccount))
+                .first()
+                .sink(receiveValue: tangemPayAccountSubject.send)
+        }
     }
 
     deinit {
@@ -185,6 +191,18 @@ extension CommonUserWalletModel: UserWalletModel {
 
     var updatePublisher: AnyPublisher<UpdateResult, Never> {
         _updatePublisher.eraseToAnyPublisher()
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> {
+        tangemPayAccountSubject
+            .compactMap(\.self)
+            .eraseToAnyPublisher()
+    }
+
+    var tangemPayAccount: TangemPayAccount? {
+        tangemPayAccountSubject.value
     }
 
     func update(type: UpdateRequest) {
