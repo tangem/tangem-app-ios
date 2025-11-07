@@ -15,21 +15,14 @@ struct OnrampProviderItemViewModel: Hashable, Identifiable {
     var id: Int { hashValue }
 
     let paymentMethod: PaymentMethod
-    let amount: Amount
-    let providersFormatted: String
-    let timeFormatted: String
+    let amountType: AmountType
+    let providersInfo: ProvidersInfo?
 
-    var amountFormatted: AttributedString {
-        let string = "\(Localization.onrampUpToRate) \(amount.formatted)"
-        var formatted = AttributedString(string)
-        formatted.font = Fonts.Regular.caption1
-        formatted.foregroundColor = Colors.Text.tertiary
-
-        if let range = formatted.range(of: amount.formatted) {
-            formatted[range].foregroundColor = Colors.Text.primary1
+    var isAvailable: Bool {
+        switch amountType {
+        case .available: true
+        case .availableFrom, .availableUpTo: false
         }
-
-        return formatted
     }
 
     @IgnoredEquatable
@@ -37,15 +30,13 @@ struct OnrampProviderItemViewModel: Hashable, Identifiable {
 
     init(
         paymentMethod: PaymentMethod,
-        amount: Amount,
-        providersFormatted: String,
-        timeFormatted: String,
+        amountType: AmountType,
+        providersInfo: ProvidersInfo?,
         action: @escaping () -> Void
     ) {
         self.paymentMethod = paymentMethod
-        self.amount = amount
-        self.providersFormatted = providersFormatted
-        self.timeFormatted = timeFormatted
+        self.amountType = amountType
+        self.providersInfo = providersInfo
         self.action = action
     }
 }
@@ -60,5 +51,29 @@ extension OnrampProviderItemViewModel {
     struct Amount: Hashable {
         let formatted: String
         let badge: OnrampAmountBadge.Badge?
+
+        var attributedFormatted: AttributedString {
+            let string = "\(Localization.onrampUpToRate) \(formatted)"
+            var formatted = AttributedString(string)
+            formatted.font = Fonts.Regular.caption1
+            formatted.foregroundColor = Colors.Text.tertiary
+
+            if let range = formatted.range(of: self.formatted) {
+                formatted[range].foregroundColor = Colors.Text.primary1
+            }
+
+            return formatted
+        }
+    }
+
+    enum AmountType: Hashable {
+        case availableFrom(amount: String)
+        case availableUpTo(amount: String)
+        case available(Amount)
+    }
+
+    struct ProvidersInfo: Hashable {
+        let providersFormatted: String
+        let timeFormatted: String
     }
 }

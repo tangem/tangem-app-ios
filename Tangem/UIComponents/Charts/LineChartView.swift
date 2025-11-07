@@ -41,10 +41,11 @@ struct LineChartView: View {
         }
 
         let dx = size.width / Double(data.count - 1)
+        let range = maxX - minX
         let points = data.enumerated().map { index, x in
             CGPoint(
                 x: dx * Double(index),
-                y: (maxX - x) / (maxX - minX) * size.height
+                y: range == 0 ? size.height / 2 : (maxX - x) / range * size.height
             )
         }
 
@@ -93,11 +94,17 @@ extension LineChartView {
             color: Color.red,
             data: [1, 7, 3, 5, 13].reversed()
         )
-        .frame(width: 100, height: 50, alignment: .center)
+        .frame(width: 120, height: 50, alignment: .center)
 
         LineChartView(
             color: Color.blue,
             data: [2, 4, 3, 5, 6]
+        )
+        .frame(width: 120, height: 50, alignment: .center)
+
+        LineChartView(
+            color: Color.gray,
+            data: Array(repeating: 1.1043842791288314, count: 13)
         )
         .frame(width: 120, height: 50, alignment: .center)
     }
