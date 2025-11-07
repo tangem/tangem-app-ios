@@ -26,7 +26,6 @@ class CommonUserWalletModel {
     let userTokensManager: UserTokensManager
     let nftManager: NFTManager
     let keysRepository: KeysRepository
-    let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProvider
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
@@ -62,7 +61,6 @@ class CommonUserWalletModel {
         userTokensManager: UserTokensManager,
         nftManager: NFTManager,
         keysRepository: KeysRepository,
-        derivationManager: DerivationManager?,
         totalBalanceProvider: TotalBalanceProvider,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
         accountModelsManager: AccountModelsManager
@@ -75,7 +73,6 @@ class CommonUserWalletModel {
         self.userTokensManager = userTokensManager
         self.nftManager = nftManager
         self.keysRepository = keysRepository
-        self.derivationManager = derivationManager
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
