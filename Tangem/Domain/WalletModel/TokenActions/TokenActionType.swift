@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 enum TokenActionType: String {
     case buy
@@ -72,6 +73,23 @@ enum TokenActionType: String {
 
     var analyticsParameterValue: String {
         rawValue.capitalizingFirstLetter()
+    }
+
+    var accessibilityIdentifier: String? {
+        switch self {
+        case .buy:
+            return ActionButtonsAccessibilityIdentifiers.buyButton
+        case .send:
+            return ActionButtonsAccessibilityIdentifiers.sendButton
+        case .receive:
+            return ActionButtonsAccessibilityIdentifiers.receiveButton
+        case .exchange:
+            return ActionButtonsAccessibilityIdentifiers.swapButton
+        case .sell:
+            return ActionButtonsAccessibilityIdentifiers.sellButton
+        case .copyAddress, .hide, .stake, .marketsDetails:
+            return nil
+        }
     }
 }
 
