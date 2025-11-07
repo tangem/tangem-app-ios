@@ -242,7 +242,7 @@
 "common_enable" = "Aktivieren";
 "common_enabled" = "Aktiviert";
 "common_error" = "Fehler";
-"common_estimated_fee" = "Estimated fee";
+"common_estimated_fee" = "Geschätzte Gebühr";
 "common_exchange" = "Umtausch";
 "common_explore_transaction_history" = "Transaktionsverlauf einsehen";
 "common_explore" = "Erkunden";
