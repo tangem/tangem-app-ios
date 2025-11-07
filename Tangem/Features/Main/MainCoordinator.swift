@@ -56,6 +56,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
     @Published var actionButtonsSwapCoordinator: ActionButtonsSwapCoordinator? = nil
     @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator? = nil
+    @Published var tangemPayCoordinator: TangemPayCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -64,7 +65,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
-    @Published var tangemPayMainViewModel: TangemPayMainViewModel?
 
     // MARK: - Helpers
 
@@ -300,7 +300,18 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
         mainBottomSheetUIManager.hide()
-        tangemPayMainViewModel = TangemPayMainViewModel(tangemPayAccount: tangemPayAccount)
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.tangemPayCoordinator = nil
+        }
+
+        let coordinator = coordinatorFactory.makeTangemPayCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: .init(tangemPayAccount: tangemPayAccount))
+        tangemPayCoordinator = coordinator
     }
 }
 
