@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct SendNewFeeCompactView: View {
     @ObservedObject var viewModel: SendNewFeeCompactViewModel
@@ -34,5 +35,6 @@ struct SendNewFeeCompactView: View {
         )
         .shouldShowTrailingIcon(viewModel.canEditFee)
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 11, horizontalPadding: 14)
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
     }
 }
