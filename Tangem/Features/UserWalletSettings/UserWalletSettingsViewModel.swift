@@ -15,6 +15,7 @@ import TangemAccessibilityIdentifiers
 import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
+import TangemAssets
 
 final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - Injected
@@ -26,6 +27,8 @@ final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published private(set) var name: String
+    @Published private(set) var walletImage: Image?
+
     @Published var accountsViewModel: UserSettingsAccountsViewModel?
     @Published var mobileUpgradeNotificationInput: NotificationViewInput?
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
@@ -81,6 +84,19 @@ final class UserWalletSettingsViewModel: ObservableObject {
         Analytics.log(.walletSettingsScreenOpened)
 
         setupView()
+        if FeatureProvider.isAvailable(.accounts) {
+            loadWalletImage()
+        }
+    }
+
+    private func loadWalletImage() {
+        runTask(in: self) { viewModel in
+            let imageValue = await viewModel.userWalletModel.walletImageProvider.loadSmallImage()
+
+            await runOnMain {
+                viewModel.walletImage = imageValue.image
+            }
+        }
     }
 
     func onTapNameField() {
