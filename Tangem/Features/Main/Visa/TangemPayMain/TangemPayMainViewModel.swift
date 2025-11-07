@@ -10,6 +10,7 @@ import Combine
 import TangemUI
 import TangemVisa
 import TangemFoundation
+import PassKit
 
 final class TangemPayMainViewModel: ObservableObject {
     let mainHeaderViewModel: MainHeaderViewModel
@@ -24,14 +25,19 @@ final class TangemPayMainViewModel: ObservableObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Published private(set) var tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel?
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
+    @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
 
     private let tangemPayAccount: TangemPayAccount
     private let transactionHistoryService: TangemPayTransactionHistoryService
+    private var tangemPayCardDetailsViewModelFactory: TangemPayCardDetailsViewModelFactory?
+
+    private weak var coordinator: TangemPayRoutable?
 
     private var bag = Set<AnyCancellable>()
 
-    init(tangemPayAccount: TangemPayAccount) {
+    init(tangemPayAccount: TangemPayAccount, coordinator: TangemPayRoutable) {
         self.tangemPayAccount = tangemPayAccount
+        self.coordinator = coordinator
 
         mainHeaderViewModel = MainHeaderViewModel(
             isUserWalletLocked: false,
@@ -43,31 +49,23 @@ final class TangemPayMainViewModel: ObservableObject {
 
         transactionHistoryService = TangemPayTransactionHistoryService(apiService: tangemPayAccount.customerInfoManagementService)
 
-        tangemPayAccount.tangemPayCardDetailsPublisher
-            .map { cardDetails -> TangemPayCardDetailsViewModel? in
-                guard let (card, _) = cardDetails else {
-                    return nil
-                }
-                return TangemPayCardDetailsViewModel(
-                    lastFourDigits: card.cardNumberEnd,
-                    customerInfoManagementService: tangemPayAccount.customerInfoManagementService
-                )
-            }
-            .receiveOnMain()
-            .assign(to: \.tangemPayCardDetailsViewModel, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        transactionHistoryService
-            .tangemPayTransactionHistoryState
-            .receiveOnMain()
-            .assign(to: \.tangemPayTransactionHistoryState, on: self, ownership: .weak)
-            .store(in: &bag)
-
+        bind()
         reloadHistory()
+        fetchAccountStatus()
     }
 
     func reloadHistory() {
         transactionHistoryService.reloadHistory()
+    }
+
+    func fetchAccountStatus() {
+        Task { @MainActor [tangemPayAccount, weak self] in
+            let status = try? await tangemPayAccount.getTangemPayStatus()
+
+            self?.shouldDisplayAddToApplePayGuide = status == .active
+                && PKPaymentAuthorizationViewController.canMakePayments()
+                && !AppSettings.shared.tangemPayHasDismissedAddToApplePayGuide
+        }
     }
 
     func fetchNextTransactionHistoryPage() -> FetchMore? {
@@ -109,5 +107,47 @@ final class TangemPayMainViewModel: ObservableObject {
 
     func onDisappear() {
         tangemPayAccount.loadCustomerInfo()
+    }
+
+    func openAddToApplePayGuide() {
+        guard let newCardDetailsViewModel = tangemPayCardDetailsViewModelFactory?.makeViewModel() else { return }
+        coordinator?.openAddToApplePayGuide(viewModel: newCardDetailsViewModel)
+    }
+}
+
+private extension TangemPayMainViewModel {
+    func bind() {
+        tangemPayAccount.tangemPayCardDetailsPublisher
+            .map { [weak self] cardDetails -> TangemPayCardDetailsViewModelFactory? in
+                guard let (card, _) = cardDetails, let self else {
+                    return nil
+                }
+                return TangemPayCardDetailsViewModelFactory(
+                    lastFourDigits: card.cardNumberEnd,
+                    customerInfoManagementService: tangemPayAccount.customerInfoManagementService
+                )
+            }
+            .receiveOnMain()
+            .handleEvents(
+                receiveOutput: { [weak self] factory in
+                    self?.tangemPayCardDetailsViewModel = factory?.makeViewModel()
+                }
+            )
+            .assign(to: \.tangemPayCardDetailsViewModelFactory, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        transactionHistoryService
+            .tangemPayTransactionHistoryState
+            .receiveOnMain()
+            .assign(to: \.tangemPayTransactionHistoryState, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        AppSettings.shared
+            .$tangemPayHasDismissedAddToApplePayGuide
+            .filter { $0 }
+            .sink { [weak self] _ in
+                self?.shouldDisplayAddToApplePayGuide = false
+            }
+            .store(in: &bag)
     }
 }
