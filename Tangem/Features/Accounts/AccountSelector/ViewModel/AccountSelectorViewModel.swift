@@ -9,6 +9,9 @@
 import Foundation
 import Combine
 import TangemUI
+import TangemAccounts
+import SwiftUI
+import TangemAssets
 
 @MainActor
 final class AccountSelectorViewModel: ObservableObject {
@@ -106,6 +109,18 @@ final class AccountSelectorViewModel: ObservableObject {
         }
 
         return false
+    }
+
+    func makeAccountRowInput(for account: AccountSelectorAccountItem) -> AccountRowViewModel.Input {
+        AccountRowViewModel.Input(
+            iconData: AccountModelUtils.UI.iconViewData(
+                icon: account.icon,
+                accountName: account.name
+            ),
+            name: account.name,
+            subtitle: account.tokensCount,
+            balancePublisher: account.formattedBalanceTypePublisher
+        )
     }
 
     // MARK: - Private Methods
