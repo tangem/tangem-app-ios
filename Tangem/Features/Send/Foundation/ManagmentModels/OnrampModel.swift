@@ -411,8 +411,8 @@ extension OnrampModel: OnrampAmountInput {
 // MARK: - OnrampAmountOutput
 
 extension OnrampModel: OnrampAmountOutput {
-    func amountDidChanged(fiat: Decimal?) {
-        _amount.send(fiat)
+    func userDidChangedFiat(amount: Decimal?) {
+        _amount.send(amount)
     }
 }
 
@@ -445,38 +445,12 @@ extension OnrampModel: OnrampProvidersOutput {
 extension OnrampModel: RecentOnrampTransactionParametersFinder {
     var recentOnrampTransaction: RecentOnrampTransactionParameters? {
         guard let recentTransaction = onrampPendingTransactionsRepository.recentTransaction,
-              recentTransaction.transactionStatus.isTerminated(branch: .onramp),
+              recentTransaction.transactionStatus.canBeUsedAsRecent,
               let paymentMethodId = recentTransaction.paymentMethod?.id else {
             return nil
         }
 
         return .init(providerId: recentTransaction.provider.id, paymentMethodId: paymentMethodId)
-    }
-}
-
-// MARK: - OnrampPaymentMethodsInput
-
-extension OnrampModel: OnrampPaymentMethodsInput {
-    var selectedPaymentMethod: OnrampPaymentMethod? {
-        _selectedOnrampProvider.value?.value?.paymentMethod
-    }
-
-    var selectedPaymentMethodPublisher: AnyPublisher<OnrampPaymentMethod?, Never> {
-        _selectedOnrampProvider.map { $0?.value?.paymentMethod }.eraseToAnyPublisher()
-    }
-
-    var paymentMethodsPublisher: AnyPublisher<[OnrampPaymentMethod], Never> {
-        _onrampProviders.compactMap {
-            $0?.value?.filter { $0.hasSelectableProviders() }.map(\.paymentMethod)
-        }.eraseToAnyPublisher()
-    }
-}
-
-// MARK: - OnrampPaymentMethodsOutput
-
-extension OnrampModel: OnrampPaymentMethodsOutput {
-    func userDidSelect(paymentMethod: OnrampPaymentMethod) {
-        updatePaymentMethod(method: paymentMethod)
     }
 }
 
@@ -532,19 +506,9 @@ extension OnrampModel: OnrampRedirectingOutput {
     }
 }
 
-// MARK: - OnrampInput
+// MARK: - OnrampSummaryOutput
 
-extension OnrampModel: OnrampInput {
-    var isValidToRedirectPublisher: AnyPublisher<Bool, Never> {
-        _selectedOnrampProvider
-            .map { $0?.value?.isSuccessfullyLoaded ?? false }
-            .eraseToAnyPublisher()
-    }
-}
-
-// MARK: - OnrampOutput
-
-extension OnrampModel: OnrampOutput {
+extension OnrampModel: OnrampSummaryOutput {
     func userDidRequestOnramp(provider: OnrampProvider) {
         _selectedOnrampProvider.send(.success(provider))
         router?.openOnrampRedirecting()
