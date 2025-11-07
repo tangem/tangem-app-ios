@@ -14,17 +14,16 @@ typealias ActionButtonsTokenSelectorViewModel = TokenSelectorViewModel<
 >
 
 final class ActionButtonsSwapCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
+    let dismissAction: Action<ExpressCoordinator.DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Injected
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
-    // MARK: - Published property
+    // MARK: - Published
 
-    @Published private(set) var actionButtonsSwapViewModel: ActionButtonsSwapViewModel?
-    @Published private(set) var expressCoordinator: ExpressCoordinator?
+    @Published private(set) var viewType: ViewType?
 
     // MARK: - Private property
 
@@ -36,7 +35,7 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
     required init(
         expressTokensListAdapter: some ExpressTokensListAdapter,
         userWalletModel: some UserWalletModel,
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<ExpressCoordinator.DismissOptions?>,
         tokenSorter: some TokenAvailabilitySorter,
         yieldModuleNotificationInteractor: YieldModuleNoticeInteractor,
         popToRootAction: @escaping Action<PopToRootOptions> = { _ in }
@@ -50,11 +49,16 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        actionButtonsSwapViewModel = ActionButtonsSwapViewModel(
-            coordinator: self,
-            userWalletModel: userWalletModel,
-            sourceSwapTokeSelectorViewModel: makeTokenSelectorViewModel()
-        )
+        switch options {
+        case .default:
+            viewType = .legacy(ActionButtonsSwapViewModel(
+                coordinator: self,
+                userWalletModel: userWalletModel,
+                sourceSwapTokenSelectorViewModel: makeTokenSelectorViewModel()
+            ))
+        case .new:
+            viewType = .new(NewActionButtonsSwapViewModel(coordinator: self))
+        }
     }
 }
 
@@ -63,33 +67,28 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
 extension ActionButtonsSwapCoordinator {
     enum Options {
         case `default`
+        case new
     }
 }
 
 // MARK: - ActionButtonsSwapRoutable
 
 extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
-    func openExpress(
-        for sourceWalletModel: any WalletModel,
-        and destinationWalletModel: any WalletModel,
-        with userWalletModel: UserWalletModel
-    ) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
-            self?.dismiss()
-        }
-
-        expressCoordinator = makeExpressCoordinator(
-            for: sourceWalletModel,
-            and: destinationWalletModel,
-            with: userWalletModel,
+    func openExpress(input: ExpressDependenciesInput) {
+        let factory = CommonExpressModulesFactory(input: input)
+        let coordinator = ExpressCoordinator(
+            factory: factory,
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
+
+        coordinator.start(with: .default)
+        viewType = .express(coordinator)
     }
 
     func dismiss() {
         ActionButtonsAnalyticsService.trackCloseButtonTap(source: .swap)
-        dismissAction(())
+        dismiss(with: .none)
     }
 
     func showYieldNotificationIfNeeded(for walletModel: any WalletModel, completion: (() -> Void)?) {
@@ -120,28 +119,20 @@ private extension ActionButtonsSwapCoordinator {
             tokenSorter: tokenSorter
         )
     }
+}
 
-    func makeExpressCoordinator(
-        for walletModel: any WalletModel,
-        and destinationWalletModel: any WalletModel,
-        with userWalletModel: UserWalletModel,
-        dismissAction: @escaping Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>,
-        popToRootAction: @escaping Action<PopToRootOptions>
-    ) -> ExpressCoordinator {
-        let input = CommonExpressModulesFactory.InputModel(
-            userWalletModel: userWalletModel,
-            initialWalletModel: walletModel,
-            destinationWalletModel: destinationWalletModel
-        )
-        let factory = CommonExpressModulesFactory(inputModel: input)
-        let coordinator = ExpressCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
+extension ActionButtonsSwapCoordinator {
+    enum ViewType: Identifiable {
+        case legacy(ActionButtonsSwapViewModel)
+        case new(NewActionButtonsSwapViewModel)
+        case express(ExpressCoordinator)
 
-        coordinator.start(with: .default)
-
-        return coordinator
+        var id: String {
+            switch self {
+            case .legacy: "legacy"
+            case .new: "new"
+            case .express: "express"
+            }
+        }
     }
 }
