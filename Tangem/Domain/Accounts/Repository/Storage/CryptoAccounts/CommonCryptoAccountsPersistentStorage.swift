@@ -26,8 +26,13 @@ final class CommonCryptoAccountsPersistentStorage {
     }
 
     /// Unsafe because it must be called from `workingQueue` only.
+    private func unsafeFetchOptional() throws -> [StoredCryptoAccount]? {
+        return try persistentStorage.value(for: key)
+    }
+
+    /// Unsafe because it must be called from `workingQueue` only.
     private func unsafeFetch() -> [StoredCryptoAccount] {
-        return (try? persistentStorage.value(for: key)) ?? []
+        return (try? unsafeFetchOptional()) ?? []
     }
 
     /// Unsafe because it must be called from `workingQueue` only.
@@ -50,7 +55,7 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
         }
     }
 
-    func appendNewOrUpdateExisting(accounts: [StoredCryptoAccount]) {
+    func appendNewOrUpdateExisting(_ accounts: [StoredCryptoAccount]) {
         workingQueue.async(flags: .barrier) {
             let currentItems = self.unsafeFetch()
             let merger = StoredCryptoAccountsMerger(preserveTokens: false)
@@ -58,6 +63,17 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
 
             if isDirty {
                 self.unsafeSave(editedItems)
+            }
+        }
+    }
+
+    func replace(with accounts: [StoredCryptoAccount]) {
+        workingQueue.async(flags: .barrier) {
+            let currentItems = self.unsafeFetch()
+            let isDirty = accounts != currentItems
+
+            if isDirty {
+                self.unsafeSave(accounts)
             }
         }
     }
@@ -90,8 +106,7 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
     func isMigrationNeeded() -> Bool {
         return workingQueue.sync {
             do {
-                let accounts: [StoredCryptoAccount]? = try persistentStorage.value(for: key)
-                return accounts == nil
+                return try unsafeFetchOptional() == nil
             } catch {
                 assertionFailure("CommonCryptoAccountsPersistentStorage unable to query migration status due to error: \(error)")
                 return false

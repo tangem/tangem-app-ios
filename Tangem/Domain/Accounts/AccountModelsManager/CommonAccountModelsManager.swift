@@ -12,8 +12,6 @@ import TangemFoundation
 import TangemNFT
 
 actor CommonAccountModelsManager {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     private typealias AccountId = CommonCryptoAccountModel.AccountId
     private typealias CacheEntry = (model: CommonCryptoAccountModel, didChangeSubscription: AnyCancellable)
     private typealias Cache = [AccountId: CacheEntry]
@@ -21,6 +19,8 @@ actor CommonAccountModelsManager {
     nonisolated var unownedExecutor: UnownedSerialExecutor {
         executor.asUnownedSerialExecutor()
     }
+
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
     private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
@@ -82,7 +82,6 @@ actor CommonAccountModelsManager {
 
                 return accountId
             }
-            .toSet()
 
         let removedAccountIds = currentAccountIds.subtracting(newAccountIds)
         cache.removeAll { removedAccountIds.contains($0.key) } // Also destroys the `didChangeSubscription`s for removed accounts
@@ -107,14 +106,14 @@ actor CommonAccountModelsManager {
             }
 
             guard let userWalletModel = userWalletRepository.models[userWalletId] else {
-                assertionFailure("UserWalletModel cannot be found for: \(userWalletId)")
+                assertionFailure("User wallet model instance cannot be found for userWalletId: \(userWalletId)")
                 return nil
             }
 
             let derivationIndex = storedCryptoAccount.derivationIndex
             let dependencies = dependenciesFactory.makeDependencies(
                 forAccountWithDerivationIndex: derivationIndex,
-                userWalletId: userWalletId
+                userWalletModel: userWalletModel
             )
 
             let cryptoAccount = CommonCryptoAccountModel(
@@ -123,8 +122,13 @@ actor CommonAccountModelsManager {
                 derivationIndex: derivationIndex,
                 userWalletModel: userWalletModel,
                 walletModelsManager: dependencies.walletModelsManager,
-                userTokensManager: dependencies.userTokensManager
+                userTokensManager: dependencies.userTokensManager,
+                accountBalanceProvider: dependencies.accountBalanceProvider,
+                derivationManager: dependencies.derivationManager
             )
+
+            dependencies.walletModelsFactoryInput.setCryptoAccount(cryptoAccount)
+            dependencies.walletModelsManager.initialize()
 
             // Updating `cache` within this `compactMap` loop to reduce the number of iterations
             cache[accountId] = (cryptoAccount, makeDidChangeSubscription(for: cryptoAccount))
