@@ -72,7 +72,7 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
             return result + [TransactionRecord.Source(address: address, amount: amount)]
         }
 
-        if spenders.count == 1, let spender = spenders.first {
+        if let spender = spenders.singleElement {
             return .single(spender)
         }
 
@@ -90,7 +90,7 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
             return result + [TransactionRecord.Destination(address: .user(address), amount: amount)]
         }
 
-        if destinations.count == 1, let destination = destinations.first {
+        if let destination = destinations.singleElement {
             return .single(destination)
         }
 
