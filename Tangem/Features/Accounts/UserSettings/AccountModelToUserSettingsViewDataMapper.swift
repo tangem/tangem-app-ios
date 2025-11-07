@@ -7,6 +7,7 @@
 //
 
 import TangemAccounts
+import TangemLocalization
 
 enum AccountModelToUserSettingsViewDataMapper {
     static func map(
@@ -20,23 +21,17 @@ enum AccountModelToUserSettingsViewDataMapper {
     }
 
     private static func mapStandardCryptoAccounts(
-        _ accounts: CryptoAccounts,
-        onTap: @escaping (any BaseAccountModel) -> Void
+        _ cryptoAccounts: CryptoAccounts,
+        onTap: @escaping (any CryptoAccountModel) -> Void
     ) -> [UserSettingsAccountRowViewData] {
-        switch accounts {
-        case .single(let account):
-            return [
-                mapAccount(
-                    account,
-                    onTap: { model in
-                        onTap(model)
-                    }
-                ),
-            ]
+        switch cryptoAccounts {
+        case .single:
+            // No accounts are displayed until .single case is in action
+            return []
 
         case .multiple(let cryptoAccountModel):
             return cryptoAccountModel.map { accountModel in
-                mapAccount(
+                mapCryptoAccount(
                     accountModel,
                     onTap: { model in
                         onTap(model)
@@ -46,20 +41,20 @@ enum AccountModelToUserSettingsViewDataMapper {
         }
     }
 
-    private static func mapAccount(
-        _ accountModel: any BaseAccountModel,
-        onTap: @escaping (any BaseAccountModel) -> Void
+    private static func mapCryptoAccount(
+        _ cryptoAccountModel: any CryptoAccountModel,
+        onTap: @escaping (any CryptoAccountModel) -> Void
     ) -> UserSettingsAccountRowViewData {
-        let accountIconViewData = AccountIconViewBuilder().makeAccountIconViewData(accountModel: accountModel)
+        let accountIconViewData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: cryptoAccountModel)
 
         return UserSettingsAccountRowViewData(
-            id: "\(accountModel.id)",
-            name: accountModel.name,
+            id: cryptoAccountModel.id.toAnyHashable(),
+            name: cryptoAccountModel.name,
             accountIconViewData: accountIconViewData,
-            // [REDACTED_TODO_COMMENT]
-            description: "",
+            description: Localization.commonTokensCount(cryptoAccountModel.userTokensManager.userTokens.count),
+            balancePublisher: cryptoAccountModel.fiatTotalBalanceProvider.totalFiatBalancePublisher,
             onTap: {
-                onTap(accountModel)
+                onTap(cryptoAccountModel)
             }
         )
     }
