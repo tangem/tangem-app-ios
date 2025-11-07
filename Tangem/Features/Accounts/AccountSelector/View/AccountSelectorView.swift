@@ -11,6 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemLocalization
+import TangemAccounts
 
 struct AccountSelectorView: View {
     @ObservedObject var viewModel: AccountSelectorViewModel
@@ -29,7 +30,6 @@ struct AccountSelectorView: View {
                     .padding(.top, 20)
             }
             .padding(.init(top: 12, leading: 16, bottom: 16, trailing: 16))
-            .animation(.easeInOut(duration: 0.25), value: viewModel.selectedAccount)
         }
     }
 
@@ -102,7 +102,14 @@ private extension AccountSelectorView {
         ZStack {
             Button(
                 action: { viewModel.handleViewAction(.selectItem(.account(account))) },
-                label: { AccountSelectorAccountCellView(accountModel: account) }
+                label: {
+                    AccountRowView(input: viewModel.makeAccountRowInput(for: account))
+                        .lineLimit(1)
+                        .padding(.init(top: 12, leading: 14, bottom: 12, trailing: 14))
+                        .contentShape(.rect)
+                        .background(Colors.Background.action)
+                        .cornerRadius(14, corners: .allCorners)
+                }
             )
             .buttonStyle(.plain)
 

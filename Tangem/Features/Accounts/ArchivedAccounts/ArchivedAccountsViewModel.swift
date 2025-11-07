@@ -20,6 +20,7 @@ final class ArchivedAccountsViewModel: ObservableObject {
     // MARK: - State
 
     @Published var viewState = LoadingState.loading
+    @Published private(set) var recoveringAccountId: ArchivedCryptoAccountInfo.ID?
 
     // MARK: - Dependencies
 
@@ -30,6 +31,10 @@ final class ArchivedAccountsViewModel: ObservableObject {
 
     @Published var alertBinder: AlertBinder?
 
+    // MARK: - Internal state
+
+    private var recoverAccountTask: Task<Void, Never>?
+
     // MARK: - Init
 
     init(accountModelsManager: AccountModelsManager, coordinator: RecoverableAccountRoutable?) {
@@ -37,13 +42,14 @@ final class ArchivedAccountsViewModel: ObservableObject {
         self.coordinator = coordinator
     }
 
+    deinit {
+        recoverAccountTask?.cancel()
+    }
+
     // MARK: - ViewData
 
-    func makeAccountIconViewData(for model: ArchivedCryptoAccountInfo) -> AccountIconView.ViewData {
-        AccountIconView.ViewData(
-            backgroundColor: AccountModelUtils.UI.iconColor(from: model.icon.color),
-            nameMode: AccountModelUtils.UI.nameMode(from: model.icon.name, accountName: model.name)
-        )
+    func makeAccountRowData(for model: ArchivedCryptoAccountInfo) -> AccountRowViewModel.Input {
+        ArchivedAccountInfoToAccountRowDataMapper.map(model)
     }
 
     @MainActor
@@ -58,21 +64,53 @@ final class ArchivedAccountsViewModel: ObservableObject {
     }
 
     func recoverAccount(_ accountInfo: ArchivedCryptoAccountInfo) {
-        do {
-            try accountModelsManager.unarchiveCryptoAccount(info: accountInfo)
+        recoverAccountTask?.cancel()
+        recoveringAccountId = accountInfo.id
 
-            coordinator?.close()
-
-            Toast(view: SuccessToast(text: Localization.accountRecoverSuccessMessage))
-                .present(layout: .top(padding: 24), type: .temporary(interval: 4))
-        } catch {
-            alertBinder = AlertBuilder.makeAlert(
-                title: Localization.accountArchivedRecoverErrorTitle,
-                message: Localization.accountArchivedRecoverErrorMessage,
-                primaryButton: .default(Text(Localization.commonGotIt))
-            )
-
-            AccountsLogger.error("Failed to recover archived account with info \(accountInfo)", error: error)
+        recoverAccountTask = Task { [weak self] in
+            do throws(AccountRecoveryError) {
+                try await self?.accountModelsManager.unarchiveCryptoAccount(info: accountInfo)
+                await self?.handleAccountRecoverySuccess()
+            } catch {
+                await self?.handleAccountRecoveryFailure(accountInfo: accountInfo, error: error)
+            }
         }
+    }
+
+    // MARK: - Private implementation
+
+    @MainActor
+    private func handleAccountRecoverySuccess() {
+        recoveringAccountId = nil
+        coordinator?.close()
+
+        Toast(view: SuccessToast(text: Localization.accountRecoverSuccessMessage))
+            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+    }
+
+    @MainActor
+    private func handleAccountRecoveryFailure(accountInfo: ArchivedCryptoAccountInfo, error: AccountRecoveryError) {
+        recoveringAccountId = nil
+
+        let message: String
+        let buttonTitle: String
+
+        switch error {
+        case .tooManyActiveAccounts:
+            message = Localization.accountArchivedRecoverErrorMessage
+            buttonTitle = Localization.commonGotIt
+
+        case .unknownError:
+            message = Localization.commonSomethingWentWrong
+            buttonTitle = Localization.commonOk
+        }
+
+        alertBinder = AlertBuilder.makeAlert(
+            title: Localization.accountArchivedRecoverErrorTitle,
+            message: message,
+            primaryButton: .default(Text(buttonTitle))
+        )
+
+        AccountsLogger.error("Failed to recover archived account with info \(accountInfo)", error: error)
     }
 }
