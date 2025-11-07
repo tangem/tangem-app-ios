@@ -23,6 +23,7 @@ protocol ExpressModulesFactory {
 
     func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel
     func makeExpressApproveViewModel(
+        source: any ExpressInteractorSourceWallet,
         providerName: String,
         selectedPolicy: BSDKApprovePolicy,
         coordinator: ExpressApproveRoutable
