@@ -48,7 +48,7 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
         rootViewModel = AddCustomTokenViewModel(
             settings: settings,
-            userTokensManager: options.userTokensManager,
+            context: options.context,
             coordinator: self
         )
     }
@@ -59,8 +59,8 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 extension AddCustomTokenCoordinator {
     struct Options {
         let userWalletConfig: UserWalletConfig
-        let userTokensManager: UserTokensManager
         let analyticsSourceRawValue: String
+        let context: ManageTokensContext
     }
 }
 
@@ -85,11 +85,19 @@ extension AddCustomTokenCoordinator: AddCustomTokenRoutable, WalletSelectorRouta
         self.networkSelectorModel = networkSelectorModel
     }
 
-    func openDerivationSelector(selectedDerivationOption: AddCustomTokenDerivationOption, defaultDerivationPath: DerivationPath, blockchainDerivationOptions: [AddCustomTokenDerivationOption]) {
+    func openDerivationSelector(
+        selectedDerivationOption: AddCustomTokenDerivationOption,
+        defaultDerivationPath: DerivationPath,
+        blockchainDerivationOptions: [AddCustomTokenDerivationOption],
+        context: ManageTokensContext,
+        blockchain: Blockchain
+    ) {
         let derivationSelectorModel = AddCustomTokenDerivationPathSelectorViewModel(
             selectedDerivationOption: selectedDerivationOption,
             defaultDerivationPath: defaultDerivationPath,
-            blockchainDerivationOptions: blockchainDerivationOptions
+            blockchainDerivationOptions: blockchainDerivationOptions,
+            context: context,
+            blockchain: blockchain
         )
         derivationSelectorModel.delegate = self
         self.derivationSelectorModel = derivationSelectorModel

@@ -19,6 +19,7 @@ class CommonWalletModelsManager {
     /// Nil state is not the same as an empty state, because user can remove all tokens from main and the array will be empty
     /// Also if we initialize CurrentValueSubject with empty array recipients will evaluate this state as an empty list
     private var _walletModels = CurrentValueSubject<[any WalletModel]?, Never>(nil)
+    private var _initialized = false
     private var bag = Set<AnyCancellable>()
     private var updateAllSubscription: AnyCancellable?
 
@@ -31,7 +32,6 @@ class CommonWalletModelsManager {
     ) {
         self.walletManagersRepository = walletManagersRepository
         self.walletModelsFactory = walletModelsFactory
-        bind()
     }
 
     private func bind() {
@@ -119,7 +119,20 @@ class CommonWalletModelsManager {
     }
 }
 
-// MARK: - WalletListManager
+// MARK: - Initializable protocol conformance
+
+extension CommonWalletModelsManager: Initializable {
+    func initialize() {
+        if _initialized {
+            return
+        }
+
+        bind()
+        _initialized = true
+    }
+}
+
+// MARK: - WalletModelsManager protocol conformance
 
 extension CommonWalletModelsManager: WalletModelsManager {
     var isInitialized: Bool { _walletModels.value != nil }
@@ -155,6 +168,8 @@ extension CommonWalletModelsManager: WalletModelsManager {
             }
     }
 }
+
+// MARK: - Convenience extensions
 
 private extension CommonWalletModelsManager {
     func log(walletModels: [any WalletModel]) {
