@@ -27,9 +27,8 @@ class FakeUserWalletModel: UserWalletModel {
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> {
-        .empty
-    }
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { .empty }
+    var tangemPayAccount: TangemPayAccount? { nil }
 
     private(set) var name: String
     let emailData: [EmailCollectedData] = []
