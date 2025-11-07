@@ -9,12 +9,13 @@
 import TangemAccounts
 import Foundation
 
-/// Data is not final, perhaps we will need smt else ([REDACTED_INFO])
 public struct AccountForNFTData {
     let iconData: AccountIconView.ViewData
     let name: String
+    let id: AnyHashable
 
-    public init(iconData: AccountIconView.ViewData, name: String) {
+    public init(id: AnyHashable, iconData: AccountIconView.ViewData, name: String) {
+        self.id = id
         self.iconData = iconData
         self.name = name
     }
@@ -23,6 +24,11 @@ public struct AccountForNFTData {
 public struct AccountWithCollectionsData {
     let accountData: AccountForNFTData
     let collections: [NFTCollection]
+
+    public init(accountData: AccountForNFTData, collections: [NFTCollection]) {
+        self.accountData = accountData
+        self.collections = collections
+    }
 }
 
 public enum AccountsWithCollectionsState {
