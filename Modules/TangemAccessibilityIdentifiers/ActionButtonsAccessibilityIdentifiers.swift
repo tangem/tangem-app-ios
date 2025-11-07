@@ -16,6 +16,7 @@ public enum ActionButtonsAccessibilityIdentifiers {
     public static let receiveButton = "\(prefix)Receive"
     public static let sendButton = "\(prefix)Send"
     public static let swapButton = "\(prefix)Swap"
+    public static let sellButton = "\(prefix)Sell"
     public static let analyticsButton = "\(prefix)Analytics"
 
     /// Toast notifications
