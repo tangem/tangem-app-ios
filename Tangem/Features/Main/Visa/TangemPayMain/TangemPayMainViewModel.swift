@@ -102,4 +102,12 @@ final class TangemPayMainViewModel: ObservableObject {
             await floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
+
+    func onAppear() {
+        tangemPayAccount.loadBalance()
+    }
+
+    func onDisappear() {
+        tangemPayAccount.loadCustomerInfo()
+    }
 }
