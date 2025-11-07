@@ -242,7 +242,7 @@
 "common_enable" = "Enable";
 "common_enabled" = "Enabled";
 "common_error" = "Errore";
-"common_estimated_fee" = "Network service fee";
+"common_estimated_fee" = "Estimated fee";
 "common_exchange" = "Swap";
 "common_explore_transaction_history" = "Explore transaction history";
 "common_explore" = "Explore";
@@ -552,11 +552,13 @@
 "hw_backup_icloud_title" = "iCloud backup";
 "hw_backup_need_action" = "Go to backup";
 "hw_backup_need_description" = "Please back up your wallet before creating an access code.";
+"hw_backup_need_finish_first" = "Finish Backup First";
 "hw_backup_need_title" = "Finalize backup first";
 "hw_backup_no_backup" = "Incomplete";
 "hw_backup_section_other_title" = "Other methods";
 "hw_backup_seed_description" = "Physical devices that securely store your private key offline.";
 "hw_backup_seed_title" = "Recovery phrase";
+"hw_backup_to_secure_description" = "To secure your wallet with a Access Code, complete the backup first.";
 "hw_backup_to_upgrade_description" = "To upgrade your wallet to hardware, back it up first.";
 "hw_create_keys_description" = "Your private keys are securely encrypted and stored on your phone";
 "hw_create_keys_title" = "Keys are stored in the app";
@@ -1842,7 +1844,7 @@
 "yield_module_rate_info_sheet_title" = "Interest rate is variable";
 "yield_module_receive_sheet_description" = "When you top up, your funds will be automatically sent to Aave to start earning interest. %@ will be deducted to cover the transaction fee.";
 "yield_module_start_earning_sheet_description" = "Your %@ will be supplied to Aave, but will remain manageable.";
-"yield_module_start_earning_sheet_fee_policy" = "See fee policy";
+"yield_module_start_earning_sheet_fee_policy" = "See top-up fee policy";
 "yield_module_start_earning_sheet_next_deposits" = "Your next top-ups will be automatically supplied to Aave.";
 "yield_module_start_earning" = "Supply assets";
 "yield_module_status_active" = "Active";
