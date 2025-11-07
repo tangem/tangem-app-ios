@@ -10,3 +10,15 @@ enum AccountSelectorCellModel: Equatable {
     case wallet(AccountSelectorWalletItem)
     case account(AccountSelectorAccountItem)
 }
+
+extension AccountSelectorCellModel {
+    var cryptoAccountModel: any CryptoAccountModel {
+        switch self {
+        case .wallet(let walletModel):
+            return walletModel.mainAccount
+
+        case .account(let accountModel):
+            return accountModel.domainModel
+        }
+    }
+}

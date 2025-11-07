@@ -12,12 +12,12 @@ import TangemFoundation
 
 final class MultiWalletNotificationManager {
     private let analyticsService: NotificationsAnalyticsService
-    private let totalBalanceProvider: TotalBalanceProviding
+    private let totalBalanceProvider: TotalBalanceProvider
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
 
-    init(userWalletId: UserWalletId, totalBalanceProvider: TotalBalanceProviding) {
+    init(userWalletId: UserWalletId, totalBalanceProvider: TotalBalanceProvider) {
         self.totalBalanceProvider = totalBalanceProvider
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
         bind()
