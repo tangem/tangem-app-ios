@@ -2699,6 +2699,7 @@
 		D8F983D42EBA22630061F55F /* SwapTokenSelectorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F983D32EBA22630061F55F /* SwapTokenSelectorScreen.swift */; };
 		D8F983D92EBA26670061F55F /* BuyTokenSelectorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F983D72EBA26670061F55F /* BuyTokenSelectorScreen.swift */; };
 		D8F983DC2EBA2AB00061F55F /* SellTokenSelectorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F983DA2EBA2AB00061F55F /* SellTokenSelectorScreen.swift */; };
+		D8F983E52EBB51610061F55F /* TokenDetailsActionButtonsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F983E32EBB51610061F55F /* TokenDetailsActionButtonsUITests.swift */; };
 		D8FE50022DF84BF50017A0E3 /* PushPermissionRequestScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FE50012DF84BF50017A0E3 /* PushPermissionRequestScreen.swift */; };
 		DA0364B62E42E6EF00FDBDB7 /* TangemPayAvailabilityResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0364B52E42E6D100FDBDB7 /* TangemPayAvailabilityResponse.swift */; };
 		DA0364B92E42E74C00FDBDB7 /* TangemPayAvailabilityAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0364B82E42E74C00FDBDB7 /* TangemPayAvailabilityAPITarget.swift */; };
@@ -7098,6 +7099,7 @@
 		D8F983D32EBA22630061F55F /* SwapTokenSelectorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenSelectorScreen.swift; sourceTree = "<group>"; };
 		D8F983D72EBA26670061F55F /* BuyTokenSelectorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyTokenSelectorScreen.swift; sourceTree = "<group>"; };
 		D8F983DA2EBA2AB00061F55F /* SellTokenSelectorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SellTokenSelectorScreen.swift; sourceTree = "<group>"; };
+		D8F983E32EBB51610061F55F /* TokenDetailsActionButtonsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenDetailsActionButtonsUITests.swift; sourceTree = "<group>"; };
 		D8FE50012DF84BF50017A0E3 /* PushPermissionRequestScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushPermissionRequestScreen.swift; sourceTree = "<group>"; };
 		DA0364B52E42E6D100FDBDB7 /* TangemPayAvailabilityResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAvailabilityResponse.swift; sourceTree = "<group>"; };
 		DA0364B82E42E74C00FDBDB7 /* TangemPayAvailabilityAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAvailabilityAPITarget.swift; sourceTree = "<group>"; };
@@ -17200,6 +17202,7 @@
 		D8E851FB2EB0E7870085DAC3 /* ActionButtons */ = {
 			isa = PBXGroup;
 			children = (
+				D8F983E42EBB51610061F55F /* TokenDetails */,
 				D86C96C12EB4BFFD00132ED9 /* Main */,
 			);
 			path = ActionButtons;
@@ -17228,6 +17231,14 @@
 				D8F983DA2EBA2AB00061F55F /* SellTokenSelectorScreen.swift */,
 			);
 			path = Sell;
+			sourceTree = "<group>";
+		};
+		D8F983E42EBB51610061F55F /* TokenDetails */ = {
+			isa = PBXGroup;
+			children = (
+				D8F983E32EBB51610061F55F /* TokenDetailsActionButtonsUITests.swift */,
+			);
+			path = TokenDetails;
 			sourceTree = "<group>";
 		};
 		DA0364B72E42E73600FDBDB7 /* TangemPayAvailabilityService */ = {
@@ -26961,6 +26972,7 @@
 				D80903F32E1575DF0031E6CE /* ExpressAPI.swift in Sources */,
 				D826F6C42EAA58D900CA6353 /* SendKusamaNotificationUITests.swift in Sources */,
 				D8E7CEA32E56102400CD9726 /* SwapStoriesScreen.swift in Sources */,
+				D8F983E52EBB51610061F55F /* TokenDetailsActionButtonsUITests.swift in Sources */,
 				D8796D6B2E2847F20034ADAB /* XCTest+Allure.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
