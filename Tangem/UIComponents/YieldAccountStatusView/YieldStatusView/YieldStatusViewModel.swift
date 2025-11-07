@@ -25,7 +25,7 @@ final class YieldStatusViewModel: ObservableObject {
 
     private let manager: YieldModuleManager
 
-    init(state: State, manager: YieldModuleManager, navigationAction: @escaping () -> Void) {
+    init(state: State, manager: YieldModuleManager, navigationAction: @escaping () -> Void = {}) {
         self.state = state
         self.manager = manager
         self.navigationAction = navigationAction

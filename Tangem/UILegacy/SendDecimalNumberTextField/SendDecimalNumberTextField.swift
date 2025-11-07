@@ -31,6 +31,7 @@ struct SendDecimalNumberTextField: View {
     private var prefixSuffixOptions: PrefixSuffixOptions?
     private var minTextScale: CGFloat?
     private var accessibilityIdentifier: String?
+    private var prefixSuffixAccessibilityIdentifier: String?
 
     private var textToMeasure: String {
         var text = ""
@@ -150,6 +151,7 @@ struct SendDecimalNumberTextField: View {
     ) -> some View {
         Text(makePrefixSuffixText(text, hasSpaceBeforeText: hasSpaceBeforeText, hasSpaceAfterText: hasSpaceAfterText))
             .style(appearance.font, color: prefixSuffixColor)
+            .accessibilityIdentifier(prefixSuffixAccessibilityIdentifier)
             .onTapGesture {
                 isInputActive = true
             }
@@ -234,6 +236,10 @@ extension SendDecimalNumberTextField: Setupable {
 
     func accessibilityIdentifier(_ accessibilityIdentifier: String?) -> Self {
         map { $0.accessibilityIdentifier = accessibilityIdentifier }
+    }
+
+    func prefixSuffixAccessibilityIdentifier(_ prefixSuffixAccessibilityIdentifier: String?) -> Self {
+        map { $0.prefixSuffixAccessibilityIdentifier = prefixSuffixAccessibilityIdentifier }
     }
 }
 
