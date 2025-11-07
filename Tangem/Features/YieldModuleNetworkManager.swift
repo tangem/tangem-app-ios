@@ -20,7 +20,7 @@ protocol YieldModuleNetworkManager {
 
     func fetchYieldTokenInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleTokenInfo
     func fetchChartData(tokenContractAddress: String, chainId: Int) async throws -> YieldChartData
-    func activate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
+    func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws
     func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
 }
 
@@ -88,11 +88,12 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
         )
     }
 
-    func activate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws {
+    func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws {
         try await yieldModuleAPIService.activate(
             tokenContractAddress: tokenContractAddress,
             walletAddress: walletAddress,
-            chainId: chainId
+            chainId: chainId,
+            userWalletId: userWalletId
         )
     }
 
