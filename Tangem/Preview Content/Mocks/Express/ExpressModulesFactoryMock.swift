@@ -12,6 +12,9 @@ import TangemExpress
 import BlockchainSdk
 
 class ExpressModulesFactoryMock: ExpressModulesFactory {
+    @Injected(\.expressPairsRepository)
+    private var expressPairsRepository: ExpressPairsRepository
+
     private let initialWalletModel: any WalletModel = CommonWalletModel.mockETH
     private let userWalletModel: UserWalletModel = UserWalletModelMock()
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
@@ -21,11 +24,13 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     private lazy var expressAPIProvider = makeExpressAPIProvider()
     private lazy var expressRepository = makeExpressRepository()
 
+    private var userWalletInfo: UserWalletInfo { userWalletModel.userWalletInfo }
+
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
         let notificationManager = notificationManager
         let model = ExpressViewModel(
-            initialWallet: initialWalletModel,
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
+            initialTokenItem: initialWalletModel.tokenItem,
             feeFormatter: feeFormatter,
             balanceFormatter: balanceFormatter,
             expressProviderFormatter: expressProviderFormatter,
@@ -45,10 +50,22 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         ExpressTokensListViewModel(
             swapDirection: swapDirection,
             expressTokensListAdapter: expressTokensListAdapter,
-            expressRepository: expressRepository,
+            expressPairsRepository: expressPairsRepository,
             expressInteractor: expressInteractor,
             coordinator: coordinator,
             userWalletModelConfig: userWalletModel.config
+        )
+    }
+
+    func makeSwapTokenSelectorViewModel(
+        swapDirection: SwapTokenSelectorViewModel.SwapDirection,
+        coordinator: any SwapTokenSelectorRoutable
+    ) -> SwapTokenSelectorViewModel {
+        SwapTokenSelectorViewModel(
+            swapDirection: swapDirection,
+            expressPairsRepository: expressPairsRepository,
+            expressInteractor: expressInteractor,
+            coordinator: coordinator
         )
     }
 
@@ -61,9 +78,10 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     }
 
     func makeExpressApproveViewModel(
+        source: any ExpressInteractorSourceWallet,
         providerName: String,
         selectedPolicy: BSDKApprovePolicy,
-        coordinator: ExpressApproveRoutable
+        coordinator: any ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         ExpressApproveViewModel(
             settings: .init(
@@ -94,7 +112,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     func makeExpressSuccessSentViewModel(data: SentExpressTransactionData, coordinator: ExpressSuccessSentRoutable) -> ExpressSuccessSentViewModel {
         ExpressSuccessSentViewModel(
             data: data,
-            initialWallet: initialWalletModel,
+            initialTokenItem: initialWalletModel.tokenItem,
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             providerFormatter: providerFormatter,
@@ -151,14 +169,11 @@ private extension ExpressModulesFactoryMock {
     var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
-        CommonExpressTokensListAdapter(userWalletModel: userWalletModel)
+        CommonExpressTokensListAdapter(userWalletId: userWalletInfo.id)
     }
 
     var expressDestinationService: ExpressDestinationService {
-        CommonExpressDestinationService(
-            walletModelsManager: walletModelsManager,
-            expressRepository: expressRepository
-        )
+        CommonExpressDestinationService(userWalletId: userWalletInfo.id)
     }
 
     // MARK: - Methods
@@ -184,25 +199,20 @@ private extension ExpressModulesFactoryMock {
         )
 
         let interactor = ExpressInteractor(
-            userWalletId: userWalletId,
-            initialWallet: initialWalletModel.asExpressInteractorWallet,
-            destinationWallet: .loading,
+            userWalletInfo: userWalletInfo,
+            swappingPair: .init(sender: .success(initialWalletModel.asExpressInteractorWallet), destination: .loading),
             expressManager: expressManager,
-            expressRepository: expressRepository,
+            expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressAnalyticsLogger: analyticsLogger,
             expressAPIProvider: expressAPIProvider,
-            signer: signer
         )
 
         return interactor
     }
 
     func makeExpressRepository() -> ExpressRepository {
-        CommonExpressRepository(
-            walletModelsManager: walletModelsManager,
-            expressAPIProvider: expressAPIProvider
-        )
+        CommonExpressRepository(expressAPIProvider: expressAPIProvider)
     }
 }
