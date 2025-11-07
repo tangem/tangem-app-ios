@@ -73,6 +73,23 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
                 }
             }
 
+        case .success(let wallet as ExpressInteractorTangemPayDestinationWallet):
+            canChangeCurrency = false
+            symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
+            tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
+
+            walletDidChangeSubscription = wallet.balancePublisher.sink { [weak self] state in
+                switch state {
+                case .loading:
+                    self?.balanceState = .loading
+                case .loaded(.string(let formatted)):
+                    self?.balanceState = .formatted(formatted)
+                // No balance cases
+                case .loaded, .empty, .failed:
+                    self?.balanceState = .formatted(BalanceFormatter.defaultEmptyBalanceString)
+                }
+            }
+
         case .success(let wallet as ExpressInteractorDestinationWallet):
             canChangeCurrency = false
             symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
