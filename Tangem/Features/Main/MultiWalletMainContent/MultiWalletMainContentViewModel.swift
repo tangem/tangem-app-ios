@@ -421,7 +421,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             from: sectionItem,
             contextActionsProvider: self,
             contextActionsDelegate: self,
-            tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:))
+            tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:)),
+            yieldApyTapAction: { [weak self] id in
+                let action = self?.makeApyBadgeTapAction(for: id)
+                action?(id)
+            }
         )
     }
 
@@ -454,6 +458,79 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
     }
 
+    func makeApyBadgeTapAction(for walletModelId: WalletModelId.ID) -> ((WalletModelId.ID) -> Void)? {
+        guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id.id == walletModelId }),
+              TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
+        else {
+            return nil
+        }
+
+        if let stakingManager = walletModel.stakingManager {
+            return { [weak self] _ in
+                self?.handleStakingApyBadgeTapped(walletModel: walletModel, stakingManager: stakingManager)
+            }
+        } else if
+            let yieldModuleManager = walletModel.yieldModuleManager,
+            let factory = makeYieldModuleFlowFactory(walletModel: walletModel, manager: yieldModuleManager) {
+            return { [weak self] _ in
+                self?.handleYieldApyBadgeTapped(
+                    tokenItem: walletModel.tokenItem,
+                    yieldManager: yieldModuleManager,
+                    yieldModuleFactory: factory
+                )
+            }
+        } else {
+            return nil
+        }
+    }
+
+    private func handleYieldApyBadgeTapped(
+        tokenItem: TokenItem,
+        yieldManager: YieldModuleManager,
+        yieldModuleFactory: YieldModuleFlowFactory
+    ) {
+        let logger = CommonYieldAnalyticsLogger(tokenItem: tokenItem)
+
+        switch yieldManager.state?.state {
+        case .active:
+            logger.logEarningApyClicked(state: .enabled)
+            coordinator?.openYieldModuleActiveInfo(factory: yieldModuleFactory)
+        case .notActive:
+            if let apy = yieldManager.state?.marketInfo?.apy {
+                logger.logEarningApyClicked(state: .disabled)
+                coordinator?.openYieldModulePromoView(apy: apy, factory: yieldModuleFactory)
+            }
+        case .disabled, .failedToLoad, .loading, .processing, .none:
+            break
+        }
+    }
+
+    private func handleStakingApyBadgeTapped(walletModel: any WalletModel, stakingManager: StakingManager) {
+        let analyticsState: String
+
+        switch stakingManager.state {
+        case .availableToStake:
+            analyticsState = Analytics.ParameterValue.disabled.rawValue
+        case .staked:
+            analyticsState = Analytics.ParameterValue.enabled.rawValue
+        case .loading, .loadingError, .temporaryUnavailable, .notEnabled:
+            return
+        }
+
+        logStakingApyClicked(
+            state: analyticsState,
+            tokenName: SendAnalyticsHelper.makeAnalyticsTokenName(from: walletModel.tokenItem),
+            blockchainName: walletModel.tokenItem.blockchain.displayName
+        )
+
+        coordinator?.openStaking(
+            options: .init(
+                sendInput: SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel),
+                manager: stakingManager
+            )
+        )
+    }
+
     private func tokenItemTapped(_ walletModelId: WalletModelId.ID) {
         guard
             let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id.id == walletModelId }),
@@ -469,6 +546,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         coordinator?.openTangemPayMainView(
             userWalletInfo: userWalletModel.userWalletInfo,
             tangemPayAccount: tangemPayAccount
+        )
+    }
+
+    private func makeYieldModuleFlowFactory(walletModel: any WalletModel, manager: YieldModuleManager) -> YieldModuleFlowFactory? {
+        guard let dispatcher = TransactionDispatcherFactory(
+            walletModel: walletModel, signer: userWalletModel.signer
+        ).makeYieldModuleDispatcher() else {
+            return nil
+        }
+
+        return CommonYieldModuleFlowFactory(
+            walletModel: walletModel,
+            yieldModuleManager: manager,
+            transactionDispatcher: dispatcher
         )
     }
 }
@@ -774,5 +865,23 @@ private extension MultiWalletMainContentViewModel {
         case .userWalletNeedsToDelete:
             throw CancellationError()
         }
+    }
+}
+
+// MARK: - Analytics
+
+private extension MultiWalletMainContentViewModel {
+    func logStakingApyClicked(state: String, tokenName: String, blockchainName: String) {
+        let stateParamValue = Analytics.ParameterValue(rawValue: state)?.rawValue ?? ""
+        let actionParamValue = Analytics.ParameterValue.transactionSourceStaking.rawValue
+
+        let params: [Analytics.ParameterKey: String] = [
+            .token: tokenName,
+            .blockchain: blockchainName,
+            .state: stateParamValue,
+            .action: actionParamValue,
+        ]
+
+        Analytics.log(event: .apyClicked, params: params)
     }
 }
