@@ -19,6 +19,8 @@ protocol WalletConnectDAppConnectionRoutable: AnyObject {
 
     func openWalletSelector()
 
+    func openAccountSelector()
+
     func openNetworksSelector(_ blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult)
 
     func displaySuccessfulDAppConnection(with dAppName: String)
