@@ -39,7 +39,11 @@ class CommonSwapManager {
 
 extension CommonSwapManager: SwapManager {
     var isSwapAvailable: Bool {
-        let canSwap = expressAvailabilityProvider.canSwap(tokenItem: swappingPair.sender.tokenItem)
+        guard let source = swappingPair.sender.value else {
+            return false
+        }
+
+        let canSwap = expressAvailabilityProvider.canSwap(tokenItem: source.tokenItem)
         let isMultiCurrency = userWalletConfig.hasFeature(.multiCurrency)
 
         return canSwap && isMultiCurrency
