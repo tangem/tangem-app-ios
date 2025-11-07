@@ -95,6 +95,10 @@ extension CryptoAccountModelMock: CryptoAccountModel {
         Localization.accountFormAccountIndex(0)
     }
 
+    var userWalletModel: any UserWalletModel {
+        UserWalletModelMock()
+    }
+
     func setName(_ name: String) {
         self.name = name
     }
