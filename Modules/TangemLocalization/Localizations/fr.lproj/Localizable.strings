@@ -242,7 +242,7 @@
 "common_enable" = "Activer";
 "common_enabled" = "Activé";
 "common_error" = "Erreur";
-"common_estimated_fee" = "Network service fee";
+"common_estimated_fee" = "Frais estimés";
 "common_exchange" = "Echanger";
 "common_explore_transaction_history" = "Explorez l'historique des transactions";
 "common_explore" = "Explorez";
@@ -552,11 +552,13 @@
 "hw_backup_icloud_title" = "iCloud backup";
 "hw_backup_need_action" = "Go to backup";
 "hw_backup_need_description" = "Please back up your wallet before creating an access code.";
+"hw_backup_need_finish_first" = "Finish Backup First";
 "hw_backup_need_title" = "Finalize backup first";
 "hw_backup_no_backup" = "Incomplete";
 "hw_backup_section_other_title" = "Other methods";
 "hw_backup_seed_description" = "Physical devices that securely store your private key offline.";
 "hw_backup_seed_title" = "Recovery phrase";
+"hw_backup_to_secure_description" = "To secure your wallet with a Access Code, complete the backup first.";
 "hw_backup_to_upgrade_description" = "To upgrade your wallet to hardware, back it up first.";
 "hw_create_keys_description" = "Your private keys are securely encrypted and stored on your phone";
 "hw_create_keys_title" = "Keys are stored in the app";
@@ -1370,7 +1372,7 @@
 "token_button_unavailability_reason_pending_transaction_send" = "L'envoi de fonds sera disponible une fois la ou les transactions en attente dans le réseau %@ terminées.";
 "token_button_unavailability_reason_sell_unavailable" = "L'achat de %@ n'est pas pris en charge par les fournisseurs actuels mais nous travaillons à ajouter plus d'options.";
 "token_button_unavailability_reason_staking_unavailable" = "Le staking de %@ n'est pas pris en charge par les fournisseurs actuels, mais nous travaillons à ajouter plus d'options.";
-"token_button_unavailability_reason_yield_supply_approval" = "Approval has been revoked. Your funds remain in Yield mode. To perform actions, please go to Yield mode and grant permission again.";
+"token_button_unavailability_reason_yield_supply_approval" = "L’autorisation a été révoquée. Vos fonds restent en mode rendement. Pour effectuer des actions, accédez au mode rendement et accordez à nouveau l’autorisation.";
 "token_details_choose_address" = "Choisissez une adresse";
 "token_details_generate_xpub" = "Générer XPUB";
 "token_details_hide_alert_hide" = "Masquer";
