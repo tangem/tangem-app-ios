@@ -109,10 +109,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         bind()
     }
 
-    func yieldApyTapAction() {
-        yieldApyTapped(id.id)
-    }
-
     func tapAction() {
         tokenTapped(id.id)
     }
