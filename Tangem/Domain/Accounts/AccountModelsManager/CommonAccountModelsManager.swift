@@ -12,6 +12,8 @@ import TangemFoundation
 import TangemNFT
 
 actor CommonAccountModelsManager {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     private typealias AccountId = CommonCryptoAccountModel.AccountId
     private typealias CacheEntry = (model: CommonCryptoAccountModel, didChangeSubscription: AnyCancellable)
     private typealias Cache = [AccountId: CacheEntry]
@@ -104,6 +106,11 @@ actor CommonAccountModelsManager {
                 return nil
             }
 
+            guard let userWalletModel = userWalletRepository.models[userWalletId] else {
+                assertionFailure("UserWalletModel cannot be found for: \(userWalletId)")
+                return nil
+            }
+
             let derivationIndex = storedCryptoAccount.derivationIndex
             let dependencies = dependenciesFactory.makeDependencies(
                 forAccountWithDerivationIndex: derivationIndex,
@@ -111,10 +118,10 @@ actor CommonAccountModelsManager {
             )
 
             let cryptoAccount = CommonCryptoAccountModel(
-                userWalletId: userWalletId,
                 accountName: storedCryptoAccount.name,
                 accountIcon: accountIcon,
                 derivationIndex: derivationIndex,
+                userWalletModel: userWalletModel,
                 walletModelsManager: dependencies.walletModelsManager,
                 userTokensManager: dependencies.userTokensManager
             )

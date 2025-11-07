@@ -18,7 +18,7 @@ public extension Swift.Collection {
     }
 
     /// Returns the single element if collection contains exactly one element, otherwise returns nil
-    var onlyElement: Element? {
+    var singleElement: Element? {
         return count == 1 ? first : nil
     }
 
