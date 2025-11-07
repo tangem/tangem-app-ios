@@ -80,8 +80,8 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.nftCollectionsCoordinator) {
                 NFTCollectionsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.tangemPayMainViewModel) {
-                TangemPayMainView(viewModel: $0)
+            .navigation(item: $coordinator.tangemPayCoordinator) {
+                TangemPayCoordinatorView(coordinator: $0)
             }
     }
 
