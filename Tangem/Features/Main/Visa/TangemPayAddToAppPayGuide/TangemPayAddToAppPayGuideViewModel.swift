@@ -9,11 +9,21 @@
 import SwiftUI
 import Combine
 
+protocol TangemPayAddToAppPayGuideRoutable: AnyObject {
+    func closeAddToAppPayGuide()
+}
+
 final class TangemPayAddToAppPayGuideViewModel: ObservableObject, Identifiable {
     @Published private(set) var tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel
 
-    init(tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel) {
+    private weak var coordinator: TangemPayAddToAppPayGuideRoutable?
+
+    init(
+        tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel,
+        coordinator: TangemPayAddToAppPayGuideRoutable
+    ) {
         self.tangemPayCardDetailsViewModel = tangemPayCardDetailsViewModel
+        self.coordinator = coordinator
     }
 
     func openAppleWalletApp() {
@@ -28,6 +38,7 @@ final class TangemPayAddToAppPayGuideViewModel: ObservableObject, Identifiable {
 
     func onDismiss() {
         AppSettings.shared.tangemPayHasDismissedAddToApplePayGuide = true
+        coordinator?.closeAddToAppPayGuide()
     }
 }
 
