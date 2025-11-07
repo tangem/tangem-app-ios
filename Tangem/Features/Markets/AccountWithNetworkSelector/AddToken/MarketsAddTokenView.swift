@@ -15,6 +15,10 @@ import TangemLocalization
 struct MarketsAddTokenView: View {
     @ObservedObject var viewModel: MarketsAddTokenViewModel
 
+    private var buttonIcon: MainButton.Icon? {
+        viewModel.needsCardDerivation ? .trailing(Assets.tangemIcon) : nil
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             EntitySummaryView(viewState: viewModel.tokenItemViewState, kingfisherImageCache: .default)
@@ -28,16 +32,21 @@ struct MarketsAddTokenView: View {
 
                 networkSelector
             }
-            .defaultRoundedBackground(with: Colors.Background.action)
+            .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0)
             .padding(.bottom, 24)
 
             MainButton(
                 title: Localization.commonAddToken,
-                icon: .leading(Assets.tangemIcon),
+                icon: buttonIcon,
+                isLoading: viewModel.isSaving,
+                isDisabled: viewModel.isSaving,
                 action: { viewModel.handleViewEvent(.addTokenButtonTapped) }
             )
         }
         .padding(.horizontal, 16)
+        .padding(.bottom, 16)
+        .padding(.top, 12)
+        .animation(.default, value: viewModel.isSaving)
     }
 
     // MARK: - Account/Wallet Selector
