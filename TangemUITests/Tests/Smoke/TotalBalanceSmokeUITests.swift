@@ -284,6 +284,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
     }
 
     func testHidePolygonToken_TotalBalanceDecreases() {
+        let token = "Polygon"
         setAllureId(4002)
         launchApp(tangemApiType: .mock)
 
@@ -293,9 +294,9 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
 
         let initialBalance = mainScreen.getTotalBalanceNumericValue()
 
-        let tokenScreen = mainScreen.longPressToken("Polygon")
+        let tokenScreen = mainScreen.longPressToken(token)
         tokenScreen
-            .tapHideFromContextMenu()
+            .tapHideToken(tokenName: token)
             .verifyTotalBalanceDecreased(from: initialBalance)
     }
 

@@ -24,11 +24,11 @@ class CommonUserWalletModel {
 
     let walletModelsManager: WalletModelsManager
     let userTokensManager: UserTokensManager
-    let userTokenListManager: UserTokenListManager
     let nftManager: NFTManager
     let keysRepository: KeysRepository
     let derivationManager: DerivationManager?
-    let totalBalanceProvider: TotalBalanceProviding
+    let totalBalanceProvider: TotalBalanceProvider
+
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
@@ -48,6 +48,11 @@ class CommonUserWalletModel {
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    private let tangemPayAccountSubject = CurrentValueSubject<TangemPayAccount?, Never>(nil)
+    private var tangemPayAccountCancellable: Cancellable?
+
     init(
         walletInfo: WalletInfo,
         name: String,
@@ -55,11 +60,10 @@ class CommonUserWalletModel {
         userWalletId: UserWalletId,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
-        userTokenListManager: UserTokenListManager,
         nftManager: NFTManager,
         keysRepository: KeysRepository,
         derivationManager: DerivationManager?,
-        totalBalanceProvider: TotalBalanceProviding,
+        totalBalanceProvider: TotalBalanceProvider,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
         accountModelsManager: AccountModelsManager
     ) {
@@ -69,7 +73,6 @@ class CommonUserWalletModel {
         self.name = name
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
-        self.userTokenListManager = userTokenListManager
         self.nftManager = nftManager
         self.keysRepository = keysRepository
         self.derivationManager = derivationManager
@@ -78,42 +81,33 @@ class CommonUserWalletModel {
         self.accountModelsManager = accountModelsManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
-        appendPersistentBlockchains()
-        userTokensManager.sync {}
+
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
+        if FeatureProvider.isAvailable(.visa) {
+            tangemPayAccountCancellable = keysRepository.keysPublisher
+                .compactMap { [weak self] _ -> TangemPayAccount? in
+                    guard let self else { return nil }
+                    // No referency cycle here.
+                    // TangemPayAccount holds weak reference to userWalletModel under the hood
+                    return TangemPayAccount(userWalletModel: self)
+                }
+                .merge(with: updatePublisher.compactMap(\.tangemPayAccount))
+                .first()
+                .sink(receiveValue: tangemPayAccountSubject.send)
+        }
     }
 
     deinit {
         AppLogger.debug(self)
     }
 
-    private func validateBackup(_ backupStatus: Card.BackupStatus?, wallets: [CardDTO.Wallet]) -> Bool {
-        switch walletInfo {
-        case .cardWallet(let cardInfo):
-            let backupValidator = BackupValidator()
-            if !backupValidator.validate(backupStatus: cardInfo.card.backupStatus, wallets: wallets) {
-                return false
-            }
-
-            return true
-
-        case .mobileWallet:
-            // nothing to validate here
-            return true
-        }
-    }
-
-    private func appendPersistentBlockchains() {
-        guard let persistentBlockchains = config.persistentBlockchains else {
-            return
-        }
-
-        userTokenListManager.update(.append(persistentBlockchains), shouldUpload: true)
-    }
-
-    private func updateConfiguration(walletInfo: WalletInfo) {
+    private func updateConfiguration(walletInfo: WalletInfo, shouldSave: Bool = true) {
         self.walletInfo = walletInfo
         config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
-        userWalletRepository.save(userWalletModel: self)
+        if shouldSave {
+            userWalletRepository.save(userWalletModel: self)
+        }
         _updatePublisher.send(.configurationChanged(model: self))
     }
 }
@@ -137,6 +131,10 @@ extension CommonUserWalletModel: TangemSdkFactory {
 extension CommonUserWalletModel: UserWalletModel {
     var wcWalletModelProvider: WalletConnectWalletModelProvider {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
+
+    var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
+        CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
 
     var refcodeProvider: RefcodeProvider? {
@@ -195,6 +193,18 @@ extension CommonUserWalletModel: UserWalletModel {
         _updatePublisher.eraseToAnyPublisher()
     }
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> {
+        tangemPayAccountSubject
+            .compactMap(\.self)
+            .eraseToAnyPublisher()
+    }
+
+    var tangemPayAccount: TangemPayAccount? {
+        tangemPayAccountSubject.value
+    }
+
     func update(type: UpdateRequest) {
         switch type {
         case .newName(let name):
@@ -202,32 +212,29 @@ extension CommonUserWalletModel: UserWalletModel {
             userWalletRepository.savePublicData()
             _updatePublisher.send(.nameDidChange(name: name))
 
-        case .backupCompleted:
-            // we have to read an actual status from backup validator
-            _updatePublisher.send(.configurationChanged(model: self))
+        case .backupCompleted(let card, let associatedCardIds):
+            var mutableCardInfo = CardInfo(
+                card: CardDTO(card: card),
+                walletData: .none,
+                associatedCardIds: associatedCardIds
+            )
 
-        case .backupStarted(let card):
             switch walletInfo {
-            case .cardWallet(let cardInfo):
-                var mutableCardInfo = cardInfo
-                for updatedWallet in card.wallets {
-                    mutableCardInfo.card.wallets[updatedWallet.publicKey]?.hasBackup = updatedWallet.hasBackup
-                }
-
-                mutableCardInfo.card.settings = CardDTO.Settings(settings: card.settings)
-                mutableCardInfo.card.isAccessCodeSet = card.isAccessCodeSet
-                mutableCardInfo.card.backupStatus = card.backupStatus
-                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo))
-
-                _cardHeaderImagePublisher.send(config.cardHeaderImage)
-                // prevent save until onboarding completed
-                if userWalletRepository.models[userWalletId] != nil {
-                    userWalletRepository.save(userWalletModel: self)
-                }
-            case .mobileWallet(let info):
-                var mutableCardInfo = CardInfo(card: CardDTO(card: card), walletData: .none, associatedCardIds: [])
+            case .cardWallet(let existingInfo):
                 for wallet in mutableCardInfo.card.wallets {
-                    if let existingDerivedKeys = info.keys[wallet.publicKey]?.derivedKeys {
+                    if let existingDerivedKeys = existingInfo.card.wallets[wallet.publicKey]?.derivedKeys {
+                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                    }
+                }
+
+                // prevent save until onboarding completed
+                let shouldSave = userWalletRepository.models[userWalletId] != nil
+                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo), shouldSave: shouldSave)
+                _cardHeaderImagePublisher.send(config.cardHeaderImage)
+
+            case .mobileWallet(let existingInfo):
+                for wallet in mutableCardInfo.card.wallets {
+                    if let existingDerivedKeys = existingInfo.keys[wallet.publicKey]?.derivedKeys {
                         mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
                     }
                 }
@@ -244,7 +251,17 @@ extension CommonUserWalletModel: UserWalletModel {
                 break
             case .mobileWallet(let info):
                 var mutableInfo = info
-                mutableInfo.isAccessCodeSet = true
+                mutableInfo.accessCodeStatus = .set
+                updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
+            }
+
+        case .accessCodeDidSkip:
+            switch walletInfo {
+            case .cardWallet:
+                break
+            case .mobileWallet(let info):
+                var mutableInfo = info
+                mutableInfo.accessCodeStatus = .skipped
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
 
@@ -290,16 +307,7 @@ extension CommonUserWalletModel: UserWalletModel {
     func validate() -> Bool {
         switch walletInfo {
         case .cardWallet(let cardInfo):
-            let pendingBackupManager = PendingBackupManager()
-            if pendingBackupManager.fetchPendingCard(cardInfo.card.cardId) != nil {
-                return false
-            }
-
-            guard validateBackup(cardInfo.card.backupStatus, wallets: cardInfo.card.wallets) else {
-                return false
-            }
-
-            return true
+            return BackupValidator().validate(cardInfo: cardInfo)
         case .mobileWallet:
             return true
         }
@@ -317,8 +325,6 @@ extension CommonUserWalletModel: MainHeaderSupplementInfoProvider {
 extension CommonUserWalletModel: MainHeaderUserWalletStateInfoProvider {
     var isUserWalletLocked: Bool { false }
 
-    var isTokensListEmpty: Bool { userTokenListManager.userTokensList.entries.isEmpty }
-
     var hasImportedWallets: Bool {
         keysRepository.keys.contains(where: { $0.isImported ?? false })
     }
@@ -335,7 +341,7 @@ extension CommonUserWalletModel: KeysDerivingProvider {
     }
 }
 
-extension CommonUserWalletModel: TotalBalanceProviding {
+extension CommonUserWalletModel: TotalBalanceProvider {
     var totalBalance: TotalBalanceState {
         totalBalanceProvider.totalBalance
     }

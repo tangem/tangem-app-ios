@@ -12,4 +12,5 @@ protocol WCUserWalletInfoProvider: AnyObject {
     var userWalletId: UserWalletId { get }
     var signer: TangemSigner { get }
     var wcWalletModelProvider: WalletConnectWalletModelProvider { get }
+    var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider { get }
 }
