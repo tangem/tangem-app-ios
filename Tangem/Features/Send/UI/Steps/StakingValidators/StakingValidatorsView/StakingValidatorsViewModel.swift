@@ -94,12 +94,6 @@ private extension StakingValidatorsViewModel {
     }
 }
 
-// MARK: - SendStepViewAnimatable
-
-extension StakingValidatorsViewModel: SendStepViewAnimatable {
-    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
-}
-
 extension StakingValidatorsViewModel {
     struct Input {
         let validators: [ValidatorInfo]
