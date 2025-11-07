@@ -160,10 +160,11 @@ final class YieldModuleActiveViewModel: ObservableObject {
         }
 
         do {
-            let estimatedFee = try await yieldManagerInteractor.getCurrentNetworkFee()
+            let feeParameters = try await yieldManagerInteractor.getCurrentFeeParameters()
+            let estimatedFee = try await yieldManagerInteractor.getCurrentNetworkFee(feeParameters: feeParameters)
             let estimatedFeeFormatted = try await feeConverter.makeFormattedMinimalFee(from: estimatedFee)
 
-            let minAmount = try await yieldManagerInteractor.getMinAmount()
+            let minAmount = try await yieldManagerInteractor.getMinAmount(feeParameters: feeParameters)
             let minAmountFormatted = try await feeConverter.makeFormattedMinimalFee(from: minAmount)
 
             let maxFeeInFiat = try await feeConverter.convertToFiat(maxFeeNative)
