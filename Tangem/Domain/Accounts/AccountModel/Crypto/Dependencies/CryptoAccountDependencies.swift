@@ -11,4 +11,16 @@ import Foundation
 struct CryptoAccountDependencies {
     let userTokensManager: UserTokensManager
     let walletModelsManager: WalletModelsManager
+    let walletModelsFactoryInput: AccountsAwareWalletModelsFactoryInput
+    let derivationManager: DerivationManager?
+
+    var accountBalanceProvider: AccountBalanceProvider {
+        let totalBalanceProvider = AccountTotalBalanceProvider(
+            walletModelsManager: walletModelsManager,
+            analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger(),
+            derivationManager: userTokensManager.derivationManager
+        )
+
+        return CommonAccountBalanceProvider(totalBalanceProvider: totalBalanceProvider)
+    }
 }

@@ -19,7 +19,6 @@ final class AccountsAwareUserTokensManager {
 
     weak var walletModelsManager: WalletModelsManager?
     weak var derivationManager: DerivationManager?
-    // [REDACTED_TODO_COMMENT]
     weak var keysDerivingProvider: KeysDerivingProvider?
 
     private let userWalletId: UserWalletId
@@ -60,10 +59,11 @@ final class AccountsAwareUserTokensManager {
     private func withBlockchainNetwork(_ tokenItem: TokenItem) -> TokenItem {
         let blockchain = tokenItem.blockchain
         let derivationPathHelper = AccountDerivationPathHelper(blockchain: blockchain)
+        let derivationPath = tokenItem.blockchainNetwork.derivationPath
 
         // In case when a token item already contains derivation such token item can be added to the main account as is
-        if isMainAccountManager {
-            return makeTokenItem(from: tokenItem, with: tokenItem.blockchainNetwork.derivationPath)
+        if isMainAccountManager, derivationPath != nil {
+            return makeTokenItem(from: tokenItem, with: derivationPath)
         }
 
         guard let derivationStyle = derivationInfo.derivationStyle else {
