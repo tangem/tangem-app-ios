@@ -13,6 +13,7 @@ import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -472,11 +473,14 @@ extension MainViewModel: MainLockedUserWalletDelegate {
 
 extension MainViewModel: MultiWalletMainContentDelegate {
     func displayAddressCopiedToast() {
-        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
-            .present(
-                layout: .top(padding: 12),
-                type: .temporary()
-            )
+        Toast(
+            view: SuccessToast(text: Localization.walletNotificationAddressCopied)
+                .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
+        )
+        .present(
+            layout: .top(padding: 12),
+            type: .temporary()
+        )
     }
 }
 

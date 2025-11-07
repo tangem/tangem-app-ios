@@ -16,6 +16,9 @@ protocol YieldModuleManager {
     var state: YieldModuleManagerStateInfo? { get }
     var statePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never> { get }
 
+    var blockchain: Blockchain { get }
+    var tokenId: String { get }
+
     func enterFee() async throws -> YieldTransactionFee
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
 
@@ -25,8 +28,7 @@ protocol YieldModuleManager {
     func approveFee() async throws -> YieldTransactionFee
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String
 
-    func minimalFee() async throws -> Decimal
-    func currentNetworkFee() async throws -> Decimal
+    func currentNetworkFeeParameters() async throws -> EthereumFeeParameters
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
     func fetchChartData() async throws -> YieldChartData
@@ -43,11 +45,12 @@ final class CommonYieldModuleManager {
     @Injected(\.yieldModuleNetworkManager) private var yieldModuleNetworkManager: YieldModuleNetworkManager
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
+    let blockchain: Blockchain
+    let tokenId: String
+
     private let walletAddress: String
     private let token: Token
-    private let blockchain: Blockchain
     private let chainId: Int
-    private let tokenId: String
     private let yieldSupplyService: YieldSupplyService
 
     private let transactionProvider: YieldTransactionProvider
@@ -136,12 +139,8 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         _walletModelData.send(data)
     }
 
-    func currentNetworkFee() async throws -> Decimal {
-        try await transactionFeeProvider.currentNetworkFee()
-    }
-
-    func minimalFee() async throws -> Decimal {
-        try await transactionFeeProvider.minimalFee(tokenId: tokenId)
+    func currentNetworkFeeParameters() async throws -> EthereumFeeParameters {
+        try await transactionFeeProvider.currentNetworkFeeParameters()
     }
 
     func enterFee() async throws -> YieldTransactionFee {

@@ -12,6 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemAccessibilityIdentifiers
+import TangemAccounts
 
 struct WalletConnectView: View {
     @ObservedObject var viewModel: WalletConnectViewModel
@@ -169,27 +170,115 @@ struct WalletConnectView: View {
     }
 
     private func contentStateView(_ walletsWithConnectedDApps: [WalletConnectViewState.ContentState.WalletWithConnectedDApps]) -> some View {
-        LazyVStack(spacing: 14) {
+        LazyVStack(spacing: viewModel.state.usesAccountBasedLayout ? 22 : 14) {
             ForEach(walletsWithConnectedDApps, content: walletWithDAppsRowView)
         }
         .padding(.vertical, 12)
     }
 
     private func walletWithDAppsRowView(_ wallet: WalletConnectViewState.ContentState.WalletWithConnectedDApps) -> some View {
-        // [REDACTED_USERNAME], LazyVStack here causes dApp domain Text view blurriness bug.
-        // A large amount of socket connections will downgrade performance much more noticeably than a non-lazy VStack.
-        VStack(alignment: .leading, spacing: .zero) {
-            Text(wallet.walletName)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                .padding(.bottom, 8)
-                .padding(.horizontal, 14)
+        VStack(alignment: .leading, spacing: 12) {
+            if viewModel.state.usesAccountBasedLayout {
+                if shouldShowWalletName(for: wallet) {
+                    Text(wallet.walletName)
+                        .style(Fonts.Bold.headline, color: Colors.Text.primary1)
+                        .padding(.horizontal, 14)
+                }
 
-            ForEach(wallet.dApps, content: dAppRowView)
+                if wallet.hasAccountSections {
+                    VStack(spacing: 8) {
+                        ForEach(wallet.accountSections, content: accountSectionView)
+                    }
+                } else if wallet.hasWalletLevelDApps {
+                    VStack(alignment: .leading, spacing: .zero) {
+                        Text(wallet.walletName)
+                            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                            .padding(.bottom, 8)
+                            .padding(.horizontal, 14)
+
+                        ForEach(wallet.walletLevelDApps, content: dAppRowView)
+                    }
+                    .padding(.top, 12)
+                    .background(Colors.Background.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+            } else {
+                if wallet.hasWalletLevelDApps {
+                    VStack(alignment: .leading, spacing: .zero) {
+                        if shouldShowWalletName(for: wallet) {
+                            Text(wallet.walletName)
+                                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                                .padding(.bottom, 8)
+                                .padding(.horizontal, 14)
+                        }
+
+                        ForEach(wallet.walletLevelDApps, content: dAppRowView)
+                    }
+                    .padding(.top, 12)
+                    .background(Colors.Background.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+            }
         }
-        .padding(.top, 12)
-        .background(Colors.Background.primary)
+        .animation(.bouncy(duration: 0.2), value: wallet)
+    }
+
+    private func accountSectionView(_ section: WalletConnectViewState.ContentState.AccountSection) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            accountSectionHeader(section)
+                .padding(.horizontal, 14)
+                .padding(.top, 14)
+                .padding(.bottom, 6)
+
+            ForEach(section.dApps, content: dAppRowView)
+        }
+        .background(Colors.Background.action)
         .clipShape(RoundedRectangle(cornerRadius: 14))
-        .animation(.bouncy(duration: 0.2), value: wallet.dApps)
+    }
+
+    private func walletLevelSection(_ dApps: [WalletConnectViewState.ContentState.ConnectedDApp]) -> some View {
+        VStack(spacing: 0) {
+            ForEach(dApps, content: dAppRowView)
+        }
+        .background(Colors.Background.action)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .padding(.horizontal, 14)
+    }
+
+    private func legacyWalletLevelSection(_ dApps: [WalletConnectViewState.ContentState.ConnectedDApp]) -> some View {
+        ForEach(dApps, content: dAppRowView)
+    }
+
+    private func accountSectionHeader(_ section: WalletConnectViewState.ContentState.AccountSection) -> some View {
+        HStack(spacing: 12) {
+            accountIconView(for: section.accountData.icon, accountName: section.accountData.name)
+
+            Text(section.accountData.name)
+                .style(Fonts.Regular.caption1, color: Colors.Text.primary1)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func accountIconView(for icon: AccountModel.Icon, accountName: String) -> some View {
+        AccountIconView(
+            data: AccountIconView.ViewData(
+                backgroundColor: AccountModelUtils.UI.iconColor(from: icon.color),
+                nameMode: AccountModelUtils.UI.nameMode(
+                    from: icon.name,
+                    accountName: accountName
+                )
+            )
+        )
+        .settings(.smallSized)
+    }
+
+    private func shouldShowWalletName(for wallet: WalletConnectViewState.ContentState.WalletWithConnectedDApps) -> Bool {
+        guard viewModel.state.shouldDisplayWalletNames else {
+            return false
+        }
+
+        return wallet.hasAccountSections || wallet.hasWalletLevelDApps
     }
 
     private func dAppRowView(_ dApp: WalletConnectViewState.ContentState.ConnectedDApp) -> some View {

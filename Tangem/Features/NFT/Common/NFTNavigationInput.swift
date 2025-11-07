@@ -11,5 +11,6 @@ import TangemNFT
 
 struct NFTNavigationInput: NFTNavigationContext {
     let userWalletModel: UserWalletModel
+    let name: String
     let walletModelsManager: WalletModelsManager
 }

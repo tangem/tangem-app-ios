@@ -7,13 +7,13 @@
 //
 
 import Combine
-import SwiftUI
-import TangemLocalization
 import TangemFoundation
-import TangemUIUtils
+import TangemLocalization
 import TangemMobileWalletSdk
 
-class MobileUpgradeCoordinator: CoordinatorObject {
+final class MobileUpgradeCoordinator: CoordinatorObject {
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
+
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -24,10 +24,6 @@ class MobileUpgradeCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var onboardingCoordinator: OnboardingCoordinator?
-
-    // MARK: - Child view models
-
-    @Published var mailViewModel: MailViewModel?
 
     // MARK: - Helpers
 
@@ -53,7 +49,6 @@ extension MobileUpgradeCoordinator {
         )
     }
 
-    /// For non-dismissable presentation
     func onDismissalAttempt() {
         onboardingCoordinator?.onDismissalAttempt()
     }
@@ -68,11 +63,11 @@ extension MobileUpgradeCoordinator: MobileUpgradeRoutable {
 
     func openMail(dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(
-            logsComposer: logsComposer,
-            recipient: recipient,
-            emailType: .failedToScanCard
-        )
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 
     func closeMobileUpgrade() {
@@ -87,7 +82,7 @@ private extension MobileUpgradeCoordinator {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main:
-                self?.finish()
+                self?.upgradeCompleted()
             case .dismiss:
                 self?.onboardingCoordinator = nil
             }
@@ -102,8 +97,8 @@ private extension MobileUpgradeCoordinator {
         dismiss(with: .dismiss)
     }
 
-    func finish() {
-        dismiss(with: .finish)
+    func upgradeCompleted() {
+        dismiss(with: .upgraded)
     }
 }
 
@@ -117,6 +112,6 @@ extension MobileUpgradeCoordinator {
 
     enum OutputOptions {
         case dismiss
-        case finish
+        case upgraded
     }
 }
