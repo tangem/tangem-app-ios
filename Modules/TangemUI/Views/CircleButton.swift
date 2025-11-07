@@ -20,8 +20,6 @@ public struct CircleButton: View {
     private var style: Style = .secondary
     private var size: Size = .small
 
-    @State private var viewSize: CGSize = .zero
-
     public init(title: String, action: @escaping () -> Void) {
         content = .title(title: title)
         self.action = action
@@ -43,10 +41,9 @@ public struct CircleButton: View {
                 .padding(.horizontal, size.contentPaddings(content: content).horizontal)
                 .padding(.vertical, size.contentPaddings(content: content).vertical)
                 .background {
-                    RoundedRectangle(cornerRadius: viewSize.height / 2, style: .continuous)
+                    Capsule()
                         .fill(style.background(isDisabled: disabled || isLoading))
                 }
-                .readGeometry(\.size, bindTo: $viewSize)
         }
         .disabled(disabled || isLoading)
     }
