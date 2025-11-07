@@ -174,11 +174,25 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         isUpdating = true
         refreshActionButtonsData()
 
-        await withCheckedContinuation { [weak self] checkedContinuation in
-            self?.userWalletModel.userTokensManager.sync { [weak self] in
-                self?.isUpdating = false
-                checkedContinuation.resume()
+        await withTaskGroup { group in
+            group.addTask {
+                await withCheckedContinuation { [weak self] checkedContinuation in
+                    self?.userWalletModel.userTokensManager.sync { [weak self] in
+                        self?.isUpdating = false
+                        checkedContinuation.resume()
+                    }
+                }
             }
+
+            // [REDACTED_TODO_COMMENT]
+            // [REDACTED_INFO]
+            if FeatureProvider.isAvailable(.visa), let tangemPayAccount = userWalletModel.tangemPayAccount {
+                group.addTask {
+                    await tangemPayAccount.loadCustomerInfo().value
+                }
+            }
+
+            await group.waitForAll()
         }
     }
 
