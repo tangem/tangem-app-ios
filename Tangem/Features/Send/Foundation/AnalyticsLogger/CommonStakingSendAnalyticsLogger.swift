@@ -37,10 +37,6 @@ extension CommonStakingSendAnalyticsLogger: SendValidatorsAnalyticsLogger {
 // MARK: - StakingAnalyticsLogger
 
 extension CommonStakingSendAnalyticsLogger: StakingAnalyticsLogger {
-    func logStakingApyClicked(state: StakingAnalyticsState, tokenName: String, blockchainName: String) {
-        CommonStakingAnalyticsLogger().logStakingApyClicked(state: state, tokenName: tokenName, blockchainName: blockchainName)
-    }
-
     func logError(_ error: any Error, currencySymbol: String) {
         CommonStakingAnalyticsLogger().logError(error, currencySymbol: currencySymbol)
     }

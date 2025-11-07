@@ -13,13 +13,19 @@ import TangemUI
 import TangemUIUtils
 import TangemFoundation
 
-struct NewTokenSelectorView: View {
+struct NewTokenSelectorView<EmptyContentView: View>: View {
     @ObservedObject var viewModel: NewTokenSelectorViewModel
+    private let emptyContentView: EmptyContentView
 
     private var searchType: SearchType?
 
-    init(viewModel: NewTokenSelectorViewModel) {
+    init(
+        viewModel: NewTokenSelectorViewModel,
+        @ViewBuilder emptyContentView: () -> EmptyContentView
+    ) {
         self.viewModel = viewModel
+
+        self.emptyContentView = emptyContentView()
     }
 
     var body: some View {
@@ -41,13 +47,21 @@ struct NewTokenSelectorView: View {
     }
 
     private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
-        GroupedScrollView(spacing: 8, showsIndicators: false, content: content)
+        GroupedScrollView(contentType: .lazy(spacing: 8), showsIndicators: false, content: content)
     }
 
     @ViewBuilder
     private var scrollContent: some View {
-        ForEach(viewModel.wallets) {
-            NewTokenSelectorWalletItemView(viewModel: $0, shouldShowSeparator: true)
+        switch viewModel.contentVisibility {
+        case .empty:
+            emptyContentView
+        case .visible:
+            if let wallets = viewModel.wallets {
+                ForEach(wallets) {
+                    NewTokenSelectorWalletItemView(viewModel: $0)
+                }
+                .transition(.opacity.animation(.easeInOut))
+            }
         }
 
         FixedSpacer(height: 12)
