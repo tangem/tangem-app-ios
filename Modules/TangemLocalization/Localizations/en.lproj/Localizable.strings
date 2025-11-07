@@ -242,7 +242,7 @@
 "common_enable" = "Enable";
 "common_enabled" = "Enabled";
 "common_error" = "Error";
-"common_estimated_fee" = "Estimated fee";
+"common_estimated_fee" = "Top-up network fee";
 "common_exchange" = "Swap";
 "common_explore_transaction_history" = "Explore transaction history";
 "common_explore" = "Explore";
@@ -258,7 +258,7 @@
 "common_free" = "Free";
 "common_from" = "From";
 "common_generate_addresses" = "Synchronize addresses";
-"common_get_started" = "Get started";
+"common_get_started" = "Learn more";
 "common_get_token" = "Get token";
 "common_go_to_provider" = "Go to provider";
 "common_go_to_token" = "Go to token";
@@ -1818,7 +1818,7 @@
 "yield_module_fee_policy_sheet_max_fee_title" = "Maximum fee";
 "yield_module_fee_policy_sheet_min_amount_note" = "The minimum amount is calculated based on the current network fee so that it does not exceed 4%% of the top-up amount, which makes the minimum %1$@ (%2$@).";
 "yield_module_fee_policy_sheet_min_amount_title" = "Minimum top-up";
-"yield_module_fee_policy_sheet_title" = "Fee policy";
+"yield_module_fee_policy_sheet_title" = "Top-up fee policy";
 "yield_module_fee_policy_tangem_service_fee_title" = "Tangem also takes a 15%% service fee on yield earned.";
 "yield_module_high_fee_error" = "Your funds will be automatically supplied to Aave once network fees are lower or your balance meets the minimum required amount.";
 "yield_module_historical_returns" = "Historical returns";
@@ -1859,7 +1859,7 @@
 "yield_module_token_details_earn_notification_description" = "Interest accrues automatically.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Interest accrues automatically";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Yield mode";
-"yield_module_token_details_earn_notification_processing" = "Processing your deposit";
+"yield_module_token_details_earn_notification_processing" = "Processing your top-up";
 "yield_module_token_details_earn_notification_title" = "Yield Mode";
 "yield_module_transfer_mode_automatic" = "Automatic";
 "yield_module_unable_to_cover_fee_description" = "Deposit some %1$@ %2$@ to cover the network fee for transactions";
