@@ -39,7 +39,7 @@ extension YieldModuleStartView {
                 VStack(spacing: 12) {
                     YieldFeeSection(
                         sectionState: estimatedFeeState,
-                        leadingTitle: Localization.commonNetworkFeeTitle,
+                        leadingTitle: Localization.commonEstimatedFee,
                         needsBackground: false
                     )
 

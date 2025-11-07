@@ -579,6 +579,7 @@ extension CommonWalletModel: WalletModelHelpers {
 
         return CommonYieldModuleManager(
             walletAddress: wallet.defaultAddress.value,
+            userWalletId: userWalletId.stringValue,
             token: token,
             blockchain: wallet.blockchain,
             yieldSupplyService: yieldSupplyService,
