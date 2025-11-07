@@ -44,9 +44,6 @@ struct TokenItemEarnBadgeView: View {
                 .padding(.vertical, 3)
                 .background(background)
         }
-        .onTapGesture {
-            tapAction()
-        }
     }
 
     var rewardTypeString: String {
