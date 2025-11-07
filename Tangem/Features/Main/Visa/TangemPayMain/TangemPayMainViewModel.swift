@@ -22,20 +22,25 @@ final class TangemPayMainViewModel: ObservableObject {
         )
     }
 
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Published private(set) var tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel?
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
 
+    private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
+    private weak var coordinator: TangemPayMainRoutable?
+
     private let transactionHistoryService: TangemPayTransactionHistoryService
     private var tangemPayCardDetailsViewModelFactory: TangemPayCardDetailsViewModelFactory?
 
-    private weak var coordinator: TangemPayRoutable?
-
     private var bag = Set<AnyCancellable>()
 
-    init(tangemPayAccount: TangemPayAccount, coordinator: TangemPayRoutable) {
+    init(
+        userWalletInfo: UserWalletInfo,
+        tangemPayAccount: TangemPayAccount,
+        coordinator: TangemPayMainRoutable
+    ) {
+        self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
 
@@ -47,7 +52,9 @@ final class TangemPayMainViewModel: ObservableObject {
             updatePublisher: .empty
         )
 
-        transactionHistoryService = TangemPayTransactionHistoryService(apiService: tangemPayAccount.customerInfoManagementService)
+        transactionHistoryService = TangemPayTransactionHistoryService(
+            apiService: tangemPayAccount.customerInfoManagementService
+        )
 
         bind()
         reloadHistory()
@@ -73,32 +80,24 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func addFunds() {
-        let viewModel: any FloatingSheetContentViewModel
-        if let depositAddress = tangemPayAccount.depositAddress {
-            let receiveViewModel = ReceiveMainViewModel(
-                options: .init(
-                    tokenItem: TangemPayUtilities.usdcTokenItem,
-                    flow: .crypto,
-                    addressTypesProvider: TangemPayReceiveAddressTypesProvider(address: depositAddress, colorScheme: .whiteBlack),
-                    isYieldModuleActive: false
-                )
-            )
-            receiveViewModel.start()
-
-            viewModel = receiveViewModel
-        } else {
-            viewModel = TangemPayNoDepositAddressSheetViewModel(
-                close: { [floatingSheetPresenter] in
-                    runTask {
-                        await floatingSheetPresenter.removeActiveSheet()
-                    }
-                }
-            )
+        guard let depositAddress = tangemPayAccount.depositAddress else {
+            coordinator?.openTangemPayNoDepositAddressSheet()
+            return
         }
 
-        runTask { [floatingSheetPresenter] in
-            await floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
+        let tangemPayDestinationWalletWrapper = TangemPayDestinationWalletWrapper(
+            tokenItem: TangemPayUtilities.usdcTokenItem,
+            address: depositAddress,
+            balancePublisher: tangemPayAccount.balancePublisher
+        )
+
+        coordinator?.openTangemPayAddFundsSheet(
+            input: .init(
+                userWalletInfo: userWalletInfo,
+                address: depositAddress,
+                tangemPayDestinationWalletWrapper: tangemPayDestinationWalletWrapper
+            )
+        )
     }
 
     func onAppear() {
@@ -110,7 +109,10 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func openAddToApplePayGuide() {
-        guard let newCardDetailsViewModel = tangemPayCardDetailsViewModelFactory?.makeViewModel() else { return }
+        guard let newCardDetailsViewModel = tangemPayCardDetailsViewModel else {
+            return
+        }
+
         coordinator?.openAddToApplePayGuide(viewModel: newCardDetailsViewModel)
     }
 }
@@ -118,36 +120,27 @@ final class TangemPayMainViewModel: ObservableObject {
 private extension TangemPayMainViewModel {
     func bind() {
         tangemPayAccount.tangemPayCardDetailsPublisher
-            .map { [weak self] cardDetails -> TangemPayCardDetailsViewModelFactory? in
-                guard let (card, _) = cardDetails, let self else {
+            .withWeakCaptureOf(self)
+            .map { viewModel, cardDetails in
+                guard let (card, _) = cardDetails else {
                     return nil
                 }
-                return TangemPayCardDetailsViewModelFactory(
+
+                return TangemPayCardDetailsViewModel(
                     lastFourDigits: card.cardNumberEnd,
-                    customerInfoManagementService: tangemPayAccount.customerInfoManagementService
+                    customerInfoManagementService: viewModel.tangemPayAccount.customerInfoManagementService
                 )
             }
             .receiveOnMain()
-            .handleEvents(
-                receiveOutput: { [weak self] factory in
-                    self?.tangemPayCardDetailsViewModel = factory?.makeViewModel()
-                }
-            )
-            .assign(to: \.tangemPayCardDetailsViewModelFactory, on: self, ownership: .weak)
-            .store(in: &bag)
+            .assign(to: &$tangemPayCardDetailsViewModel)
 
         transactionHistoryService
             .tangemPayTransactionHistoryState
             .receiveOnMain()
-            .assign(to: \.tangemPayTransactionHistoryState, on: self, ownership: .weak)
-            .store(in: &bag)
+            .assign(to: &$tangemPayTransactionHistoryState)
 
-        AppSettings.shared
-            .$tangemPayHasDismissedAddToApplePayGuide
-            .filter { $0 }
-            .sink { [weak self] _ in
-                self?.shouldDisplayAddToApplePayGuide = false
-            }
-            .store(in: &bag)
+        AppSettings.shared.$tangemPayHasDismissedAddToApplePayGuide
+            .map { !$0 }
+            .assign(to: &$shouldDisplayAddToApplePayGuide)
     }
 }
