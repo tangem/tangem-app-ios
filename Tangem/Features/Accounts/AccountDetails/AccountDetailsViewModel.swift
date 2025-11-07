@@ -7,11 +7,14 @@
 //
 
 import Foundation
-import TangemAccounts
 import SwiftUI
-import TangemUI
 import Combine
+import TangemUI
+import TangemAccounts
+import TangemFoundation
 import TangemLocalization
+import TangemAssets
+import struct TangemUIUtils.AlertBinder
 
 final class AccountDetailsViewModel: ObservableObject {
     typealias AccountDetailsRoutable =
@@ -22,17 +25,22 @@ final class AccountDetailsViewModel: ObservableObject {
 
     @Published private(set) var accountName: String = ""
     @Published private(set) var accountIcon = AccountModel.Icon(name: .letter, color: .azure)
+    @Published var alert: AlertBinder?
     @Published var archiveAccountDialogPresented = false
+
+    @Published private(set) var archivingState: ArchivingState?
 
     // MARK: - Dependencies
 
     private let account: any BaseAccountModel
     private let accountModelsManager: AccountModelsManager
-    private let actions: [AccountDetailsAction]
-
-    private var bag = Set<AnyCancellable>()
-
     private weak var coordinator: AccountDetailsRoutable?
+
+    // MARK: - Internal state
+
+    private let actions: [Action]
+    private var archiveAccountTask: Task<Void, Never>?
+    private var bag = Set<AnyCancellable>()
 
     init(
         account: any BaseAccountModel,
@@ -43,22 +51,20 @@ final class AccountDetailsViewModel: ObservableObject {
         self.accountModelsManager = accountModelsManager
         self.coordinator = coordinator
         actions = AccountDetailsActionsProvider.getAvailableActions(for: account)
+        archivingState = actions.contains(.archive) ? .readyToBeArchived : nil
 
         bind()
         applySnapshot()
     }
 
+    deinit {
+        archiveAccountTask?.cancel()
+    }
+
     // MARK: - View data
 
     var accountIconViewData: AccountIconView.ViewData {
-        AccountIconView.ViewData(
-            backgroundColor: AccountModelUtils.UI.iconColor(from: account.icon.color),
-            nameMode: AccountModelUtils.UI.nameMode(from: account.icon.name, accountName: account.name)
-        )
-    }
-
-    var canBeArchived: Bool {
-        actions.contains(.archive)
+        AccountModelUtils.UI.iconViewData(icon: account.icon, accountName: account.name)
     }
 
     var canBeEdited: Bool {
@@ -72,16 +78,20 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - Methods
 
     func archiveAccount() {
-        do {
-            try accountModelsManager.archiveCryptoAccount(withIdentifier: account.id)
+        archiveAccountTask?.cancel()
+        archivingState = .archivingInProgress
 
-            coordinator?.close()
+        archiveAccountTask = Task { [weak self] in
+            do throws(AccountArchivationError) {
+                guard let identifier = self?.account.id else {
+                    return
+                }
 
-            Toast(view: SuccessToast(text: Localization.accountArchiveSuccessMessage))
-                .present(layout: .top(padding: 24), type: .temporary(interval: 4))
-        } catch {
-            Toast(view: WarningToast(text: Localization.genericError))
-                .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+                try await self?.accountModelsManager.archiveCryptoAccount(withIdentifier: identifier)
+                await self?.handleAccountArchivingSuccess()
+            } catch {
+                await self?.handleAccountArchivingFailure(error: error)
+            }
         }
     }
 
@@ -99,6 +109,25 @@ final class AccountDetailsViewModel: ObservableObject {
         coordinator?.manageTokens()
     }
 
+    func getArchivingButtonTitle(from state: ArchivingState) -> String {
+        switch state {
+        case .archivingInProgress:
+            Localization.accountDetailsArchiving
+        case .readyToBeArchived:
+            Localization.accountDetailsArchive
+        }
+    }
+
+    func getArchivingButtonColor(from state: ArchivingState) -> Color {
+        switch state {
+        case .archivingInProgress:
+            Colors.Text.disabled
+
+        case .readyToBeArchived:
+            Colors.Text.warning
+        }
+    }
+
     // MARK: - Private
 
     private func bind() {
@@ -113,10 +142,60 @@ final class AccountDetailsViewModel: ObservableObject {
         accountName = account.name
         accountIcon = account.icon
     }
+
+    @MainActor
+    private func handleAccountArchivingSuccess() {
+        coordinator?.close()
+
+        Toast(view: SuccessToast(text: Localization.accountArchiveSuccessMessage))
+            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+    }
+
+    @MainActor
+    private func handleAccountArchivingFailure(error: AccountArchivationError) {
+        archivingState = .readyToBeArchived
+
+        let title: String
+        let message: String
+        let buttonTitle: String
+
+        switch error {
+        case .participatesInReferralProgram:
+            title = Localization.accountCouldNotArchiveReferralProgramTitle
+            message = Localization.accountCouldNotArchiveReferralProgramMessage
+            buttonTitle = Localization.commonGotIt
+
+        case .unknownError:
+            title = Localization.commonSomethingWentWrong
+            message = Localization.accountCouldNotArchive
+            buttonTitle = Localization.commonOk
+        }
+
+        alert = AlertBuilder.makeAlert(
+            title: title,
+            message: message,
+            primaryButton: .default(Text(buttonTitle))
+        )
+
+        AccountsLogger.error("Failed to archive account", error: error)
+    }
 }
 
-enum AccountDetailsAction {
-    case edit
-    case archive
-    case manageTokens
+// MARK: - Details actions
+
+extension AccountDetailsViewModel {
+    enum Action {
+        case edit
+        case archive
+        case manageTokens
+    }
+}
+
+// MARK: - ArchivingState
+
+extension AccountDetailsViewModel {
+    enum ArchivingState {
+        case readyToBeArchived
+        case archivingInProgress
+    }
 }
