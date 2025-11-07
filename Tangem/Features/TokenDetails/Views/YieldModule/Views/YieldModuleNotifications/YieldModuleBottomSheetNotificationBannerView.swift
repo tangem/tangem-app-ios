@@ -108,7 +108,9 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
 
     private var icon: Image {
         switch params {
-        case .approveNeeded, .feeUnreachable, .hasUndepositedAmounts:
+        case .hasUndepositedAmounts:
+            return Assets.blueCircleWarning.image
+        case .approveNeeded, .feeUnreachable:
             return Assets.attention.image
         case .notEnoughFeeCurrency(_, let tokenIcon, _):
             return tokenIcon.image
