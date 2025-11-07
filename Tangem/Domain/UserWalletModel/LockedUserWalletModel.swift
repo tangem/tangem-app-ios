@@ -110,9 +110,8 @@ class LockedUserWalletModel: UserWalletModel {
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> {
-        .empty
-    }
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { .empty }
+    var tangemPayAccount: TangemPayAccount? { nil }
 
     var keysDerivingInteractor: any KeysDeriving {
         fatalError("Should not be called for locked wallets")
