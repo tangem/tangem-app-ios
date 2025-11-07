@@ -33,6 +33,10 @@ struct MarketsTokenAccountNetworkSelectorFlowView: View {
             case .addToken(let addTokenViewModel):
                 MarketsAddTokenView(viewModel: addTokenViewModel)
                     .transition(.content)
+
+            case .getToken(let getTokenViewModel):
+                MarketsGetTokenView(viewModel: getTokenViewModel)
+                    .transition(.content)
             }
         }
         .safeAreaInset(edge: .top, spacing: .zero) {
@@ -42,7 +46,7 @@ struct MarketsTokenAccountNetworkSelectorFlowView: View {
         .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         .floatingSheetConfiguration { configuration in
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-            configuration.backgroundInteractionBehavior = .tapToDismiss
+            configuration.backgroundInteractionBehavior = .consumeTouches
         }
     }
 
@@ -60,6 +64,9 @@ struct MarketsTokenAccountNetworkSelectorFlowView: View {
 
         case .addToken:
             title = Localization.commonAddToken
+
+        case .getToken:
+            title = Localization.commonGetToken
         }
 
         return FloatingSheetNavigationBarView(
