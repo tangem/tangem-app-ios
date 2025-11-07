@@ -16,6 +16,8 @@ protocol ExpressDependenciesFactory {
     var onrampRepository: OnrampRepository { get }
 }
 
+// MARK: - ExpressDependenciesInput
+
 struct ExpressDependenciesInput {
     let userWalletInfo: UserWalletInfo
     let source: any ExpressInteractorSourceWallet
@@ -31,6 +33,29 @@ struct ExpressDependenciesInput {
         userWalletInfo: UserWalletInfo,
         source: any ExpressInteractorSourceWallet,
         destination: PredefinedDestination
+    ) {
+        self.userWalletInfo = userWalletInfo
+        self.source = source
+        self.destination = destination
+    }
+}
+
+// MARK: - ExpressDependenciesDestinationInput
+
+struct ExpressDependenciesDestinationInput {
+    let userWalletInfo: UserWalletInfo
+    let source: PredefinedSource
+    let destination: any ExpressInteractorDestinationWallet
+
+    enum PredefinedSource {
+        case loadingAndSet
+        case chosen(any ExpressInteractorSourceWallet)
+    }
+
+    init(
+        userWalletInfo: UserWalletInfo,
+        source: PredefinedSource,
+        destination: any ExpressInteractorDestinationWallet
     ) {
         self.userWalletInfo = userWalletInfo
         self.source = source
