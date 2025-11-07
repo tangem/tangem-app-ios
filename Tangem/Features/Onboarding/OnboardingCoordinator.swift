@@ -15,6 +15,7 @@ final class OnboardingCoordinator: CoordinatorObject {
 
     // MARK: - Dependencies
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Main view models
@@ -26,7 +27,6 @@ final class OnboardingCoordinator: CoordinatorObject {
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
-    @Published var mailViewModel: MailViewModel? = nil
 
     // MARK: - Child coordinators
 
@@ -113,7 +113,11 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = .init(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 
     func openSupportChat(input: SupportChatInputModel) {

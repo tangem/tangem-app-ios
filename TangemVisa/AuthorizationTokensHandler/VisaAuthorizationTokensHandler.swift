@@ -102,6 +102,7 @@ public protocol VisaAuthorizationTokensHandler {
 final class CommonVisaAuthorizationTokensHandler {
     private let tokenRefreshService: VisaAuthorizationTokenRefreshService
     private weak var refreshTokenSaver: VisaRefreshTokenSaver?
+    private let allowRefresherTask: Bool
 
     private let visaRefreshTokenId: VisaRefreshTokenId
     private let scheduler: AsyncTaskScheduler = .init()
@@ -115,14 +116,18 @@ final class CommonVisaAuthorizationTokensHandler {
         visaRefreshTokenId: VisaRefreshTokenId,
         authorizationTokensHolder: AuthorizationTokensHolder,
         tokenRefreshService: VisaAuthorizationTokenRefreshService,
-        refreshTokenSaver: VisaRefreshTokenSaver?
+        refreshTokenSaver: VisaRefreshTokenSaver?,
+        allowRefresherTask: Bool
     ) {
         self.visaRefreshTokenId = visaRefreshTokenId
         self.authorizationTokensHolder = authorizationTokensHolder
         self.tokenRefreshService = tokenRefreshService
         self.refreshTokenSaver = refreshTokenSaver
+        self.allowRefresherTask = allowRefresherTask
 
-        setupRefresherTask()
+        if allowRefresherTask {
+            setupRefresherTask()
+        }
     }
 
     private func setupRefresherTask() {
@@ -313,8 +318,11 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
     func setupTokens(_ tokens: VisaAuthorizationTokens) async throws {
         VisaLogger.info("Setup new authorization tokens in token handler")
         try await saveTokens(tokens: tokens)
-        // We need to use `setupRefresherTask` to prevent blocking current task
-        setupRefresherTask()
+
+        if allowRefresherTask {
+            // We need to use `setupRefresherTask` to prevent blocking current task
+            setupRefresherTask()
+        }
     }
 
     func forceRefreshToken() async throws {
@@ -324,7 +332,10 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
         }
 
         try await refreshAccessToken(internalTokens: tokens)
-        setupRefresherTask()
+
+        if allowRefresherTask {
+            setupRefresherTask()
+        }
     }
 
     func exchageTokens() async throws {

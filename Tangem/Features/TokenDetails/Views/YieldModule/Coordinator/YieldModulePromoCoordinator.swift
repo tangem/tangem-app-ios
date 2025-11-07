@@ -14,6 +14,9 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
 
+    @Injected(\.safariManager)
+    private var safariManager: any SafariManager
+
     // MARK: - Propeties
 
     let dismissAction: Action<Void>
@@ -22,7 +25,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     @Published
     var rootViewModel: YieldModulePromoViewModel? = nil
 
-    private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
+    private weak var feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
 
     // MARK: - Init
 
@@ -32,6 +35,10 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     }
 
     // MARK: - Public Implementation
+
+    func openUrl(url: URL) {
+        safariManager.openURL(url)
+    }
 
     func start(with options: Options) {
         rootViewModel = options.viewModel
@@ -61,6 +68,6 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 extension YieldModulePromoCoordinator {
     struct Options {
         let viewModel: YieldModulePromoViewModel
-        let feeCurrencyNavigator: (any FeeCurrencyNavigating)?
+        let feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
     }
 }
