@@ -19,7 +19,5 @@ protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, Any
 
     var userTokensManager: UserTokensManager { get }
 
-    // [REDACTED_TODO_COMMENT]
-    @available(iOS, deprecated: 100000.0, message: "Probably will be removed from the public interface, rewritten from scratch and used only internally")
-    var userTokenListManager: UserTokenListManager { get }
+    var userWalletModel: UserWalletModel { get }
 }
