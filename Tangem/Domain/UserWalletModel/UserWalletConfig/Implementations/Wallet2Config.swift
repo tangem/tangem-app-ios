@@ -38,10 +38,18 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var createWalletCurves: [EllipticCurve] {
-        [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
+        if card.settings.maxWalletsCount == 1, let curve = card.supportedCurves.first {
+            return [curve]
+        }
+
+        return [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
     }
 
     var derivationStyle: DerivationStyle? {
+        guard hasFeature(.hdWallets) else {
+            return nil
+        }
+
         return .v3
     }
 
@@ -92,6 +100,8 @@ extension Wallet2Config: UserWalletConfig {
         }
 
         let blockchainIds = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
+            .filter { card.walletCurves.contains($0.curve) }
+            .map { $0.coinId }
 
         let entries: [StorageEntry] = blockchainIds.compactMap { coinId in
             guard let blockchain = supportedBlockchains.first(where: { $0.coinId == coinId }) else {
@@ -134,13 +144,13 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var productType: Analytics.ProductType {
-        return .wallet2
+        isDemo ? .demoWallet : .wallet2
     }
 
     var cardHeaderImage: ImageType? {
-        // Case with broken backup (e.g. CardLinked)
+        // Case with broken backup (e.g. CardLinked) and demo notes as wallets with maxWalletsCount == 1
         if cardsCount == 1 {
-            return nil
+            return card.settings.maxWalletsCount == 1 ? Assets.Cards.wallet2Double : nil
         }
 
         // Wallet 2.0 cards can't be used without backup, so min number of cards = 2
@@ -400,6 +410,10 @@ extension Wallet2Config: UserWalletConfig {
         case .hdWallets:
             return card.settings.isHDWalletAllowed ? .available : .hidden
         case .staking:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .topup:
             return .available
