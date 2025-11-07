@@ -15,15 +15,23 @@ struct DemoUtil {
             return true
         }
 
+        if isDemoNoteAsMultiWallet(cardId: cardId) {
+            return true
+        }
+
         return demoCardIds.contains(cardId)
     }
 
-    func getDemoBlockchains(isTestnet: Bool) -> [String] {
+    func isDemoNoteAsMultiWallet(cardId: String) -> Bool {
+        cardId.uppercased().hasPrefix(DemoUtil.demoNoteAsMultiWalletBatch)
+    }
+
+    func getDemoBlockchains(isTestnet: Bool) -> [Blockchain] {
         [
-            Blockchain.bitcoin(testnet: isTestnet).coinId,
-            Blockchain.ethereum(testnet: isTestnet).coinId,
-            Blockchain.dogecoin.coinId,
-            Blockchain.solana(curve: .ed25519, testnet: isTestnet).coinId,
+            Blockchain.bitcoin(testnet: isTestnet),
+            Blockchain.ethereum(testnet: isTestnet),
+            Blockchain.dogecoin,
+            Blockchain.solana(curve: .ed25519, testnet: isTestnet),
         ]
     }
 
@@ -51,7 +59,14 @@ struct DemoUtil {
     }
 }
 
-extension DemoUtil {
+private extension DemoUtil {
+    /**
+     * @workaround
+     * There were produced 20k Note demo cards that should work like multi wallet
+     * for that reasons we've just added some specific checks for their BatchId
+     */
+    static let demoNoteAsMultiWalletBatch = "DE00"
+
     var demoCardIds: [String] {
         [
             // === Development ===
