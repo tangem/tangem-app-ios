@@ -10,7 +10,7 @@ import TangemSdk
 import Combine
 import BlockchainSdk
 
-class CommonDerivationManager {
+final class CommonDerivationManager {
     private let keysRepository: KeysRepository
     private let userTokensManager: UserTokensManager
 
