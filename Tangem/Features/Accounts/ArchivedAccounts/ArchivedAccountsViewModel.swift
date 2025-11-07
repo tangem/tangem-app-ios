@@ -48,8 +48,8 @@ final class ArchivedAccountsViewModel: ObservableObject {
 
     // MARK: - ViewData
 
-    func makeAccountIconViewData(for model: ArchivedCryptoAccountInfo) -> AccountIconView.ViewData {
-        AccountModelUtils.UI.iconViewData(icon: model.icon, accountName: model.name)
+    func makeAccountRowData(for model: ArchivedCryptoAccountInfo) -> AccountRowViewModel.Input {
+        ArchivedAccountInfoToAccountRowDataMapper.map(model)
     }
 
     @MainActor
