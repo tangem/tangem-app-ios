@@ -26,7 +26,8 @@ struct MultiWalletTokenItemsSectionFactory {
         from sectionItem: TokenSectionsAdapter.SectionItem,
         contextActionsProvider: TokenItemContextActionsProvider,
         contextActionsDelegate: TokenItemContextActionDelegate,
-        tapAction: @escaping (WalletModelId.ID) -> Void
+        tapAction: @escaping (WalletModelId.ID) -> Void,
+        yieldApyTapAction: ((WalletModelId.ID) -> Void)?
     ) -> TokenItemViewModel {
         let (id, provider, tokenItem, tokenIconInfo) = TokenItemInfoProviderItemBuilder()
             .mapTokenItemViewModel(from: sectionItem)
@@ -38,7 +39,8 @@ struct MultiWalletTokenItemsSectionFactory {
             infoProvider: provider,
             contextActionsProvider: contextActionsProvider,
             contextActionsDelegate: contextActionsDelegate,
-            tokenTapped: tapAction
+            tokenTapped: tapAction,
+            yieldApyTapped: yieldApyTapAction
         )
     }
 }
