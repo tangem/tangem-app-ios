@@ -31,7 +31,7 @@ struct TransactionDispatcherResult: Hashable {
 }
 
 extension TransactionDispatcherResult {
-    enum Error {
+    enum Error: CancellableError {
         case informationRelevanceServiceError
         case informationRelevanceServiceFeeWasIncreased
 
@@ -61,6 +61,15 @@ extension TransactionDispatcherResult {
                 return "User cancelled"
             case .actionNotSupported:
                 return "Action not supported"
+            }
+        }
+
+        var isUserCancelled: Bool {
+            switch self {
+            case .userCancelled:
+                return true
+            default:
+                return false
             }
         }
     }
