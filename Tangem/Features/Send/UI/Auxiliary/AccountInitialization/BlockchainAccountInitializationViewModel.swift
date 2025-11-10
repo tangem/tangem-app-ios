@@ -29,6 +29,7 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
 
     // MARK: - Dependencies
 
+    private let tokenItem: TokenItem
     private let fee: Fee
     private let feeTokenItem: TokenItem
 
@@ -41,6 +42,7 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
     init(
         accountInitializationService: BlockchainAccountInitializationService,
         transactionDispatcher: TransactionDispatcher,
+        tokenItem: TokenItem,
         fee: Fee,
         feeTokenItem: TokenItem,
         tokenIconInfo: TokenIconInfo,
@@ -50,6 +52,7 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
         self.accountInitializationService = accountInitializationService
         self.transactionDispatcher = transactionDispatcher
 
+        self.tokenItem = tokenItem
         self.fee = fee
         self.feeTokenItem = feeTokenItem
         self.tokenIconInfo = tokenIconInfo
@@ -62,7 +65,13 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
         updateView(state: .loaded(fee))
     }
 
+    func onAppear() {
+        Analytics.log(event: .stakingUninitializedAddressScreen, params: analyticsParams)
+    }
+
     func initializeAccount() {
+        Analytics.log(event: .stakingButtonActivate, params: analyticsParams)
+
         isLoading = true
         Task { @MainActor in
             do {
@@ -123,6 +132,13 @@ private extension BlockchainAccountInitializationViewModel {
         }
 
         throw StakingModelError.accountIsNotInitialized
+    }
+
+    var analyticsParams: [Analytics.ParameterKey: String] {
+        [
+            .blockchain: tokenItem.blockchain.displayName,
+            .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
+        ]
     }
 }
 
