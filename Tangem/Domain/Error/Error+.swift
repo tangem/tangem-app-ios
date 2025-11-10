@@ -24,6 +24,8 @@ extension Error {
             default:
                 return false
             }
+        case let cancellableError as CancellableError:
+            return cancellableError.isUserCancelled
         case is CancellationError:
             return true
         case let urlError as URLError:
