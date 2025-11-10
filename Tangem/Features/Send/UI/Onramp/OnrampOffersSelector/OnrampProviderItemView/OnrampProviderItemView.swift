@@ -24,7 +24,6 @@ struct OnrampProviderItemView: View {
                     horizontalPadding: .zero
                 )
         }
-        .disabled(!viewModel.isAvailable)
         .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodCard)
     }
 
