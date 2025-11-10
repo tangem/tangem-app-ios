@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemMacro
 import TangemExpress
 import TangemLocalization
 import TangemFoundation
@@ -134,20 +135,12 @@ private extension OnrampSummaryViewModel {
 // MARK: - ViewState
 
 extension OnrampSummaryViewModel {
+    @RawCaseName
     enum ViewState: Hashable, Identifiable {
         case idle
         case presets([FiatPresetService.Preset])
         case loading
         case suggestedOffers(SuggestedOffers)
-
-        var id: String {
-            switch self {
-            case .idle: "idle"
-            case .presets: "presets"
-            case .loading: "loading"
-            case .suggestedOffers: "suggestedOffers"
-            }
-        }
     }
 
     struct SuggestedOffers: Hashable {
