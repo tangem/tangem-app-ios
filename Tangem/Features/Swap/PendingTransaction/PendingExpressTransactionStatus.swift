@@ -18,13 +18,13 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
     case buying
     case exchanging
     case sendingToUser
-    case done
+    case finished
     case failed
     case unknown
     case refunded
     case refunding
     case verificationRequired
-    case canceled
+    case expired
     case paused
     case txFailed
 
@@ -36,12 +36,12 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
         case .exchanging: Localization.expressExchangeStatusExchanging
         case .buying: Localization.expressExchangeStatusBuying
         case .sendingToUser: Localization.expressExchangeStatusSending
-        case .done: Localization.commonDone
+        case .finished: Localization.commonDone
         case .failed, .unknown, .txFailed: Localization.expressExchangeStatusFailed
         case .refunded: Localization.expressExchangeStatusRefunded
         case .refunding: Localization.expressExchangeStatusRefunding
         case .verificationRequired: Localization.expressExchangeStatusVerifying
-        case .canceled: Localization.expressExchangeStatusCanceled
+        case .expired: Localization.expressExchangeStatusCanceled
         case .paused: Localization.expressExchangeStatusPaused
         }
     }
@@ -54,12 +54,12 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
         case .exchanging: Localization.expressExchangeStatusExchangingActive
         case .buying: Localization.expressExchangeStatusBuyingActive
         case .sendingToUser: Localization.expressExchangeStatusSendingActive
-        case .done: Localization.commonDone
+        case .finished: Localization.commonDone
         case .failed, .unknown, .txFailed: Localization.expressExchangeStatusFailed
         case .refunded: Localization.expressExchangeStatusRefunded
         case .refunding: Localization.expressExchangeStatusRefunding
         case .verificationRequired: Localization.expressExchangeStatusVerifying
-        case .canceled: Localization.expressExchangeStatusCanceled
+        case .expired: Localization.expressExchangeStatusCanceled
         case .paused: Localization.expressExchangeStatusPaused
         }
     }
@@ -72,21 +72,21 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
         case .exchanging: Localization.expressExchangeStatusExchanged
         case .buying: Localization.expressExchangeStatusBought
         case .sendingToUser: Localization.expressExchangeStatusSent
-        case .done: Localization.commonDone
+        case .finished: Localization.commonDone
         case .failed, .unknown, .txFailed: Localization.expressExchangeStatusFailed
         case .refunded: Localization.expressExchangeStatusRefunded
         case .refunding: Localization.expressExchangeStatusRefunding
         case .verificationRequired: Localization.expressExchangeStatusVerifying
-        case .canceled: Localization.expressExchangeStatusCanceled
+        case .expired: Localization.expressExchangeStatusCanceled
         case .paused: Localization.expressExchangeStatusPaused
         }
     }
 
     func isTerminated(branch: ExpressBranch) -> Bool {
         switch self {
-        case .done,
+        case .finished,
              .refunded,
-             .canceled,
+             .expired,
              .txFailed where branch == .swap,
              .failed where branch == .onramp:
             return true
@@ -108,17 +108,17 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
     }
 
     var isDone: Bool {
-        self == .done
+        self == .finished
     }
 
     var canBeUsedAsRecent: Bool {
-        [.done, .failed, .refunded].contains(self)
+        [.finished, .failed, .refunded].contains(self)
     }
 
     /// Required for verification the ability to hide the transaction status bottom sheet
     var isCanBeHideAutomatically: Bool {
         switch self {
-        case .done:
+        case .finished:
             true
         case .created,
              .awaitingDeposit,
@@ -133,7 +133,7 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
              .unknown,
              .paused,
              .refunded,
-             .canceled,
+             .expired,
              .refunding:
             false
         }
@@ -148,7 +148,7 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
              .buying,
              .sendingToUser:
             return true
-        case .done,
+        case .finished,
              .failed,
              .txFailed,
              .verificationRequired,
@@ -157,7 +157,7 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
              .paused,
              .refunding,
              .refunded,
-             .canceled:
+             .expired:
             return false
         }
     }
