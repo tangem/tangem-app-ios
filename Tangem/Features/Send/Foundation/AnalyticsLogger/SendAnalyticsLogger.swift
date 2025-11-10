@@ -34,6 +34,7 @@ protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
     SendSummaryAnalyticsLogger,
     SendFinishAnalyticsLogger {
     func setup(stakingValidatorsInput: StakingValidatorsInput)
+    func logNoticeUninitializedAddress()
 }
 
 protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
