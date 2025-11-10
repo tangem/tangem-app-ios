@@ -63,5 +63,8 @@ struct BlockchainAccountInitializationView: View {
         }
         .padding(.horizontal, 16)
         .background(Colors.Background.tertiary)
+        .onAppear {
+            viewModel.onAppear()
+        }
     }
 }
