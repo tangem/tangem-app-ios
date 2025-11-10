@@ -271,6 +271,10 @@ extension Wallet1Config: UserWalletConfig {
     }
 
     func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
+        if isDemo {
+            return DemoWalletModelsFactory(config: self, userWalletId: userWalletId)
+        }
+        
         return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
     }
 
