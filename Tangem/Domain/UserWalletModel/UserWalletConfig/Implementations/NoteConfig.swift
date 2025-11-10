@@ -165,7 +165,7 @@ extension NoteConfig: UserWalletConfig {
         if isDemo {
             return DemoWalletModelsFactory(config: self, userWalletId: userWalletId)
         }
-        
+
         return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
     }
 
