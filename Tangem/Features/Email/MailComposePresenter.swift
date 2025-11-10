@@ -30,8 +30,8 @@ final class MailComposePresenter: NSObject {
             completionInProcess = nil
         }
 
-        let rootViewController = UIApplication.mainWindow?.rootViewController
-        rootViewController?.present(viewController, animated: true)
+        let topViewController = UIApplication.mainWindow?.topViewController
+        topViewController?.present(viewController, animated: true)
     }
 }
 
