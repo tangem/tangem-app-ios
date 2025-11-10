@@ -76,6 +76,15 @@ extension CommonStakingSendAnalyticsLogger: StakingSendAnalyticsLogger {
     func setup(stakingValidatorsInput: any StakingValidatorsInput) {
         self.stakingValidatorsInput = stakingValidatorsInput
     }
+
+    func logNoticeUninitializedAddress() {
+        Analytics.log(
+            event: .stakingNoticeUninitializedAddress, params: [
+                .blockchain: tokenItem.blockchain.displayName,
+                .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
+            ]
+        )
+    }
 }
 
 // MARK: - SendSummaryAnalyticsLogger
