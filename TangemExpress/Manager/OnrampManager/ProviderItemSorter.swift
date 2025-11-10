@@ -42,20 +42,3 @@ public struct ProviderItemSorterByOnrampProviderExpectedAmount: ProviderItemSort
         }
     }
 }
-
-public struct ProviderItemSorterBySuccessfullyLoadedProvidersWithPaymentMethodPriority: ProviderItemSorter {
-    public init() {}
-
-    public func sort(lhs: ProviderItem, rhs: ProviderItem) -> Bool {
-        if lhs.hasSuccessfullyLoadedProviders(), rhs.hasSuccessfullyLoadedProviders() {
-            return lhs.paymentMethod.type.priority > rhs.paymentMethod.type.priority
-        }
-
-        switch (lhs.providers.first, rhs.providers.first) {
-        case (.some(let lhsProvider), .some(let rhsProvider)):
-            return lhsProvider > rhsProvider
-        case (.none, _), (_, .none):
-            return false
-        }
-    }
-}
