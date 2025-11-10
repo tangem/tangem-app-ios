@@ -92,9 +92,27 @@ struct OnrampSummaryView: View {
 
     @ViewBuilder
     private var bottomContainer: some View {
+        HStack(spacing: 4) {
+            presets
+
+            HideKeyboardButton(focused: $keyboardActive)
+                .padding(.vertical, 5)
+                .padding(.horizontal, 12)
+                .background(Colors.Button.secondary)
+                .clipShape(Capsule())
+        }
+        .padding(.horizontal, 12)
+        .padding(.bottom, 8)
+        .animation(.default, value: keyboardActive)
+        .visible(keyboardActive)
+    }
+
+    @ViewBuilder
+    private var presets: some View {
         switch viewModel.viewState {
         case .idle, .loading, .suggestedOffers:
-            EmptyView()
+            // Use the `Spacer()` to keep `HideKeyboardButton` in the trailing position
+            Spacer()
         case .presets(let presets):
             HStack(spacing: 4) {
                 ForEach(presets) { preset in
@@ -108,10 +126,6 @@ struct OnrampSummaryView: View {
                     }
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.bottom, 8)
-            .animation(.default, value: keyboardActive)
-            .visible(keyboardActive)
         }
     }
 }
