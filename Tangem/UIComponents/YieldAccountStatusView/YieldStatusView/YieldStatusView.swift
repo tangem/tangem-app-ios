@@ -97,8 +97,12 @@ struct YieldStatusView: View {
             }
     }
 
-    private var warning: some View {
+    private var yellowWarningSign: some View {
         Assets.attention20.image
+    }
+
+    private var blueWarningSign: some View {
+        Assets.blueCircleWarning.image
     }
 
     private var chevron: some View {
@@ -113,8 +117,10 @@ struct YieldStatusView: View {
         switch viewModel.state {
         case .active(let isApproveNeeded, let hasUndepositedAmounts, _):
             HStack(spacing: 2) {
-                if isApproveNeeded || hasUndepositedAmounts {
-                    warning
+                if isApproveNeeded {
+                    yellowWarningSign
+                } else if hasUndepositedAmounts {
+                    blueWarningSign
                 }
 
                 chevron
