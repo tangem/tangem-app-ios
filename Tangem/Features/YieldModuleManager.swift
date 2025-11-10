@@ -446,15 +446,17 @@ private extension CommonYieldModuleManager {
     }
 
     func maxTokenNetworkFee() async throws -> BigUInt {
-        guard let maxCoinNetworkFeeDecimal = BigUInt(10).power(blockchain.decimalCount).decimal, // for testing purposes only, fix in [REDACTED_INFO]
-              let tokenCurrencyId = token.id else {
+        guard let info = state?.marketInfo,
+              let maxFeeNative = info.maxFeeNative,
+              let tokenCurrencyId = token.id
+        else {
             throw YieldModuleError.maxNetworkFeeNotFound
         }
 
         let coinPrice = try await quotesRepository.quote(for: blockchain.currencyId)
         let tokenPrice = try await quotesRepository.quote(for: tokenCurrencyId)
 
-        let maxNetworkFeeToken = maxCoinNetworkFeeDecimal * coinPrice.price / tokenPrice.price
+        let maxNetworkFeeToken = maxFeeNative * coinPrice.price / tokenPrice.price
 
         return EthereumUtils.mapToBigUInt(maxNetworkFeeToken)
     }
