@@ -274,7 +274,7 @@ extension Wallet1Config: UserWalletConfig {
         if isDemo {
             return DemoWalletModelsFactory(config: self, userWalletId: userWalletId)
         }
-        
+
         return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
     }
 
