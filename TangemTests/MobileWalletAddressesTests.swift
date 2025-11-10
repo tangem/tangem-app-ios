@@ -72,7 +72,18 @@ class MobileWalletAddressesTests {
 
             let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
-            let address = try addressService.makeAddress(for: walletPublicKey, with: .default)
+            let address: Address
+            switch blockchain {
+            case .quai:
+                let derivationUtils = QuaiDerivationUtils()
+
+                let extendedPublicKey = try #require(walletPublicKey.derivationType?.hdKey.extendedPublicKey)
+                let zoneDerivedResult = try derivationUtils.derive(extendedPublicKey: extendedPublicKey, with: .default)
+                let walletPublicKey = Wallet.PublicKey(seedKey: zoneDerivedResult.0.publicKey, derivationType: .none)
+                address = try addressService.makeAddress(for: walletPublicKey, with: .default)
+            default:
+                address = try addressService.makeAddress(for: walletPublicKey, with: .default)
+            }
 
             // Did you add new blockchain and got failure here?
             // generate address for seedphrase "tiny escape drive pupil flavor endless love walk gadget match filter luxury"
