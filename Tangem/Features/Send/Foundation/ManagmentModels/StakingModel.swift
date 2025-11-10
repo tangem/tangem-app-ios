@@ -140,6 +140,8 @@ private extension StakingModel {
 
         if let accountInitializationService,
            try await accountInitializationService.isAccountInitialized() == false {
+            analyticsLogger.logNoticeUninitializedAddress()
+
             let initializationFee = try await accountInitializationService.estimateInitializationFee()
             return .blockchainAccountInitializationRequired(
                 initializationFee: initializationFee,
@@ -528,6 +530,7 @@ extension StakingModel: NotificationTapDelegate {
             let viewModel = BlockchainAccountInitializationViewModel(
                 accountInitializationService: accountInitializationService,
                 transactionDispatcher: transactionDispatcher,
+                tokenItem: tokenItem,
                 fee: initializationFee,
                 feeTokenItem: feeTokenItem,
                 tokenIconInfo: tokenIconInfo,
