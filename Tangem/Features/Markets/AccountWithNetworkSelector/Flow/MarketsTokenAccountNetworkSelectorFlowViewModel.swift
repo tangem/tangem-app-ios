@@ -184,10 +184,13 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
             pushCurrentState()
         }
 
+        let filter = makeCryptoAccountModelsFilter()
+
         viewState = .accountSelector(
             viewModel: AccountSelectorViewModel(
                 selectedItem: selectedItem,
                 userWalletModels: userWalletDataProvider.userWalletModels,
+                cryptoAccountModelsFilter: filter,
                 onSelect: onSelectAccount
             ),
             context: context
@@ -438,6 +441,25 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         )
 
         return tokenItems.count
+    }
+
+    func makeCryptoAccountModelsFilter() -> (any CryptoAccountModel) -> Bool {
+        let networks = inputData.networks
+
+        return { cryptoAccount in
+            let allSupportedBlockchains = cryptoAccount.userWalletModel.config.supportedBlockchains
+
+            let blockchains = networks.compactMap { network in
+                allSupportedBlockchains[network.networkId]
+            }
+
+            let areAccountsUnavailableForAllNetworks = blockchains.allSatisfy { blockchain in
+                let helper = AccountDerivationPathHelper(blockchain: blockchain)
+                return !helper.areAccountsAvailableForBlockchain()
+            }
+
+            return cryptoAccount.isMainAccount || !areAccountsUnavailableForAllNetworks
+        }
     }
 }
 
