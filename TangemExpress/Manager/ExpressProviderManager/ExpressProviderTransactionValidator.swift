@@ -13,5 +13,5 @@ public protocol ExpressProviderTransactionValidator {
     /// This validation is specific to the Li.Fi provider and applies only to the Solana blockchain. (Now)
     ///
     /// - Returns: `true` if the transaction size is supported, otherwise `false`.
-    func validateTransactionSize(data: String?) -> Bool
+    func validateTransactionSize(data: String) -> Bool
 }

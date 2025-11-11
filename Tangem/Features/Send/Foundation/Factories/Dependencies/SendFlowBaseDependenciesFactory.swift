@@ -37,24 +37,11 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSourceToken() -> SendSourceToken {
-        SendSourceToken(
-            wallet: userWalletInfo.name,
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            tokenIconInfo: tokenIconInfo,
-            fiatItem: makeFiatItem(),
-            possibleToConvertToFiat: possibleToConvertToFiat(),
-            availableBalanceProvider: walletModelBalancesProvider.availableBalanceProvider,
-            fiatAvailableBalanceProvider: walletModelBalancesProvider.fiatAvailableBalanceProvider,
-            transactionValidator: walletModelDependenciesProvider.transactionValidator,
-            transactionCreator: walletModelDependenciesProvider.transactionCreator,
-            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher()
-        )
-    }
-
     func makeSwapManager() -> SwapManager {
-        CommonSwapManager(interactor: expressDependenciesFactory.expressInteractor)
+        CommonSwapManager(
+            userWalletConfig: userWalletInfo.config,
+            interactor: expressDependenciesFactory.expressInteractor
+        )
     }
 
     func makeSendAlertBuilder() -> SendAlertBuilder {
