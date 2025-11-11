@@ -16,6 +16,7 @@ import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
 import struct TangemSdk.Mnemonic
+import struct TangemUIUtils.AlertBinder
 
 class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, OnboardingCoordinator>, ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -295,7 +296,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     private let backupService: BackupService
     private var cardInitializer: CardInitializer?
-    private let pendingBackupManager = PendingBackupManager()
+    private var resetCardSetUtil: ResetToFactoryUtil?
+    private let backupValidator = BackupValidator()
 
     // MARK: - Initializer
 
@@ -798,7 +800,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                         switch result {
                         case .success(let updatedCard):
-                            pendingBackupManager.onProceedBackup(updatedCard)
+                            guard backupValidator.onProceedBackup(updatedCard) else {
+                                alert = makeResetCardSetAlert()
+                                return
+                            }
 
                             if backupServiceState == .finished {
                                 // Ring onboarding. Save userWalletId with ring, except interrupted backups
@@ -809,8 +814,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                                 trySaveAccessCodes()
 
-                                pendingBackupManager.onBackupCompleted()
-                                // [REDACTED_TODO_COMMENT]
+                                backupValidator.onBackupCompleted()
                                 userWalletModel?.update(type: .backupCompleted(card: updatedCard, associatedCardIds: cardIds ?? []))
                                 logAnalytics(
                                     event: .backupFinished,
@@ -992,6 +996,61 @@ extension WalletOnboardingViewModel {
                 self?.logAnalytics(.onboardingSeedScreenCapture)
             }
             .store(in: &bag)
+    }
+}
+
+// MARK: - Backup card validation and resetting flow
+
+private extension WalletOnboardingViewModel {
+    func makeResetCardSetAlert() -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: Localization.resetCardsDialogFirstTitle,
+            message: Localization.resetCardsDialogFirstDescription,
+            primaryButton: .destructive(
+                Text(Localization.commonReset),
+                action: { [weak self] in
+                    self?.resetCardSet()
+                }
+            ),
+            secondaryButton: .default(
+                Text(Localization.commonCancel),
+                action: weakify(self, forFunction: WalletOnboardingViewModel.onDidFinishResetCardSet)
+            )
+        )
+    }
+
+    func resetCardSet() {
+        var cardInteractors: [FactorySettingsResetting] = []
+
+        if let primaryCardId = backupService.primaryCard?.cardId {
+            cardInteractors.append(FactorySettingsResettingCardInteractor(with: primaryCardId))
+        }
+
+        backupService.backupCards.forEach {
+            cardInteractors.append(FactorySettingsResettingCardInteractor(with: $0.cardId))
+        }
+
+        let resetUtil = ResetToFactoryUtilBuilder().buildForOnboarding(
+            cardInteractors: cardInteractors
+        )
+
+        resetUtil.alertPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, alert in
+                viewModel.alert = alert
+            }
+            .store(in: &bag)
+
+        resetUtil.resetToFactory(onDidFinish: weakify(self, forFunction: WalletOnboardingViewModel.onDidFinishResetCardSet))
+
+        resetCardSetUtil = resetUtil
+    }
+
+    func onDidFinishResetCardSet() {
+        backupService.discardIncompletedBackup()
+        backupValidator.onBackupCompleted()
+        closeOnboarding()
     }
 }
 
