@@ -19,7 +19,8 @@ extension XCUIElement {
             return false
         }
 
-        guard waitForState(state: .hittable, for: timeout) else {
+        guard waitForState(state: .hittable, for: timeout),
+              waitForState(state: .enabled, for: timeout) else {
             return false
         }
 

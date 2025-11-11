@@ -19,7 +19,7 @@ protocol WalletModel:
     WalletModelHelpers, WalletModelFeeProvider, WalletModelDependenciesProvider,
     WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider,
-    ReceiveAddressTypesProvider {
+    ReceiveAddressTypesProvider, WalletModelResolvable {
     var id: WalletModelId { get }
     var userWalletId: UserWalletId { get }
     var name: String { get }
@@ -54,7 +54,6 @@ protocol WalletModel:
 
     // MARK: - Accounts
 
-    // [REDACTED_TODO_COMMENT]
     /// - Warning: Unowned, has the meaningful value only when accounts feature toggle is enabled.
     var account: any CryptoAccountModel { get }
 

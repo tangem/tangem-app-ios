@@ -84,6 +84,8 @@ extension ReferralViewModel.ReferralError: UniversalError {
             return 100003003
         case .decodingError:
             return 100003004
+        case .accountFetchError:
+            return 100003005
         case .moyaError(let error):
             return error.errorCode
         case .unknown(let error):
