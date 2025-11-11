@@ -36,7 +36,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
     private var accessCode: String?
-    private var cardIds: [String]?
+    private var cardIds: Set<String>?
     private var stepPublisher: AnyCancellable?
 
     private var isPrimaryCardRing: Bool {
@@ -301,6 +301,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         backupService = input.backupService
+        cardIds = input.backupService.allCardIds
         cardInitializer = input.cardInitializer
 
         super.init(input: input, coordinator: coordinator)
@@ -607,7 +608,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             let mnemonic = try Mnemonic(with: mnemonicPhrase)
             let mnemonicPassphrase = try mobileSdk.exportPassphrase(context: context)
 
-            isMainButtonBusy = true
+            isSupplementButtonBusy = true
 
             createWalletOnPrimaryCard(
                 using: mnemonic,
@@ -619,6 +620,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             )
 
         } catch {
+            isSupplementButtonBusy = false
             alert = error.alertBinder
         }
     }
@@ -693,6 +695,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
 
             isMainButtonBusy = false
+            isSupplementButtonBusy = false
         }
     }
 
@@ -796,11 +799,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                         switch result {
                         case .success(let updatedCard):
                             pendingBackupManager.onProceedBackup(updatedCard)
-                            if updatedCard.cardId == backupService.primaryCard?.cardId {
-                                userWalletModel?.update(type: .backupStarted(card: updatedCard))
-                            }
-
-                            userWalletModel?.addAssociatedCard(cardId: updatedCard.cardId)
 
                             if backupServiceState == .finished {
                                 // Ring onboarding. Save userWalletId with ring, except interrupted backups
@@ -812,7 +810,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 trySaveAccessCodes()
 
                                 pendingBackupManager.onBackupCompleted()
-                                userWalletModel?.update(type: .backupCompleted)
+                                // [REDACTED_TODO_COMMENT]
+                                userWalletModel?.update(type: .backupCompleted(card: updatedCard, associatedCardIds: cardIds ?? []))
                                 logAnalytics(
                                     event: .backupFinished,
                                     params: [.cardsCount: String((updatedCard.backupStatus?.backupCardsCount ?? 0) + 1)]
@@ -1086,8 +1085,9 @@ extension NotificationCenter {
 }
 
 private extension BackupService {
-    var allCardIds: [String] {
-        [primaryCard?.cardId].compactMap { $0 } + backupCards.map { $0.cardId }
+    var allCardIds: Set<String> {
+        let ids = [primaryCard?.cardId].compactMap { $0 } + backupCards.map { $0.cardId }
+        return Set(ids)
     }
 
     /// for ring onboarding
