@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemLocalization
 
 struct TangemPayAddToAppPayGuideView: View {
     @ObservedObject var viewModel: TangemPayAddToAppPayGuideViewModel
@@ -39,10 +40,9 @@ struct TangemPayAddToAppPayGuideView: View {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     var steps: some View {
         VStack(spacing: 24) {
-            Text("Add card to Apple Pay")
+            Text(Localization.tangempayCardDetailsOpenWalletTitleApple)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .multilineTextAlignment(.center)
 
@@ -51,11 +51,11 @@ struct TangemPayAddToAppPayGuideView: View {
                     viewModel.openAppleWalletApp()
                 })
 
-                step(number: "2", text: defaultAttributedString("Tap “+” button on the top right"))
-                step(number: "3", text: defaultAttributedString("Tap “Debit or Credit Card”"))
-                step(number: "4", text: defaultAttributedString("Enter card details manually"))
-                step(number: "5", text: defaultAttributedString("Verify card using the OTP sent to your device."))
-                step(number: "6", text: defaultAttributedString("All set! Your card is ready to use."))
+                step(number: "2", text: defaultAttributedString(Localization.TangempayCardDetailsOpenWalletStep1._5Apple))
+                step(number: "3", text: defaultAttributedString(Localization.tangempayCardDetailsOpenWalletStep2Apple))
+                step(number: "4", text: defaultAttributedString(Localization.tangempayCardDetailsOpenWalletStep3))
+                step(number: "5", text: defaultAttributedString(Localization.tangempayCardDetailsOpenWalletStep4))
+                step(number: "6", text: defaultAttributedString(Localization.tangempayCardDetailsOpenWalletStep5))
             }
             .padding(.horizontal, 24)
         }
@@ -97,11 +97,11 @@ struct TangemPayAddToAppPayGuideView: View {
     }
 
     var openAppleWalletAttributedString: AttributedString {
-        var open = AttributedString("Open ")
+        var open = AttributedString(Localization.tangempayCardDetailsOpenWalletStep1AppleOpen + " ")
         open.foregroundColor = Colors.Text.primary1
         open.font = Fonts.Bold.callout
 
-        var appleWallet = AttributedString("Apple Wallet")
+        var appleWallet = AttributedString(Localization.tangempayCardDetailsOpenWalletStep1AppleWallet)
         appleWallet.foregroundColor = Colors.Text.accent
         appleWallet.font = Fonts.Regular.callout
 
