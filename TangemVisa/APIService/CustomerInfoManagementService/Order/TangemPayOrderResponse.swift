@@ -11,9 +11,9 @@ public struct TangemPayOrderResponse: Decodable {
     public let customerId: String
     public let type: String
     public let status: Status
-    public let step: String
-    public let data: Data
-    public let stepChangeCode: Int
+    public let step: String?
+    public let data: Data?
+    public let stepChangeCode: Int?
 }
 
 public extension TangemPayOrderResponse {
@@ -25,9 +25,9 @@ public extension TangemPayOrderResponse {
     }
 
     struct Data: Decodable {
-        public let type: String
-        public let specificationName: String
-        public let customerWalletAddress: String
+        public let type: String?
+        public let specificationName: String?
+        public let customerWalletAddress: String?
         public let embossName: String?
         public let productInstanceId: String?
         public let paymentAccountId: String?
