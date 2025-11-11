@@ -180,6 +180,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         await withTaskGroup { group in
             group.addTask {
                 await withCheckedContinuation { [weak self] checkedContinuation in
+                    // accounts_fixes_needed_main
                     self?.userWalletModel.userTokensManager.sync { [weak self] in
                         self?.isUpdating = false
                         checkedContinuation.resume()
@@ -210,6 +211,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     func deriveEntriesWithoutDerivation() {
         Analytics.log(.mainNoticeScanYourCardTapped)
         isScannerBusy = true
+        // accounts_fixes_needed_main
         userWalletModel.userTokensManager.deriveIfNeeded { [weak self] _ in
             DispatchQueue.main.async {
                 self?.isScannerBusy = false
@@ -246,6 +248,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .walletsWithNFTEnabledPublisher
             .share(replay: 1)
 
+        // accounts_fixes_needed_nft
         let nftEntrypointViewModelPublisher = Publishers.Merge(
             walletsWithNFTEnabledPublisher,
             userWalletModel
@@ -373,6 +376,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
     private func makeNFTEntrypointViewModelIfNeeded(isNFTEnabledForWallet: Bool) throws -> NFTEntrypointViewModel? {
         // NFT Entrypoint is shown only if the feature is enabled for the wallet and there is at least one token in the token list
+        // accounts_fixes_needed_nft
         guard isNFTEnabledForWallet, userWalletModel.walletModelsManager.walletModels.isNotEmpty else {
             return nil
         }
@@ -382,6 +386,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             throw "NFTEntrypointViewModel already created"
         }
 
+        // accounts_fixes_needed_nft
         let navigationContext = NFTNavigationInput(
             userWalletModel: userWalletModel,
             name: userWalletModel.name,
@@ -442,6 +447,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func subscribeToTokenListSync(with sectionsPublisher: some Publisher<[Section], Never>) {
+        // accounts_fixes_needed_main
         let tokenListSyncPublisher = userWalletModel
             .userTokensManager
             .initializedPublisher
@@ -462,6 +468,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func makeApyBadgeTapAction(for walletModelId: WalletModelId.ID) -> ((WalletModelId.ID) -> Void)? {
+        // accounts_fixes_needed_yield
         guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id.id == walletModelId }),
               TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
         else {
@@ -535,6 +542,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func tokenItemTapped(_ walletModelId: WalletModelId.ID) {
+        // accounts_fixes_needed_token_details
         guard
             let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id.id == walletModelId }),
             TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
@@ -575,6 +583,7 @@ private extension MultiWalletMainContentViewModel {
         let tokenItem = tokenItemViewModel.tokenItem
 
         let alertBuilder = HideTokenAlertBuilder()
+        // accounts_fixes_needed_main
         if userWalletModel.userTokensManager.canRemove(tokenItem) {
             error = alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: {
                 [weak self] in
@@ -586,6 +595,7 @@ private extension MultiWalletMainContentViewModel {
     }
 
     func hideToken(tokenItem: TokenItem) {
+        // accounts_fixes_needed_main
         userWalletModel.userTokensManager.remove(tokenItem)
 
         Analytics.log(
@@ -612,6 +622,7 @@ extension MultiWalletMainContentViewModel {
     private func openSupport() {
         Analytics.log(.requestSupport, params: [.source: .main])
 
+        // accounts_fixes_needed_feedback
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
                 .init(
@@ -763,6 +774,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         }
 
         guard
+            // accounts_fixes_needed_main
             let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItemViewModel.id })
         else {
             return

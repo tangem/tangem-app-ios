@@ -28,6 +28,7 @@ struct CommonMainHeaderProviderFactory: MainHeaderProviderFactory {
             )
         }
 
+        // accounts_fixes_needed_main
         return SingleWalletMainHeaderSubtitleProvider(
             isUserWalletLocked: isUserWalletLocked,
             balanceProvider: userWalletModel.walletModelsManager.walletModels.first.map { $0.totalTokenBalanceProvider }
