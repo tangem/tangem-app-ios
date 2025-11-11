@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 
 struct TangemPayCardDetailsView: View {
     @ObservedObject var viewModel: TangemPayCardDetailsViewModel
@@ -41,7 +42,7 @@ struct TangemPayCardDetailsView: View {
 
                 if viewModel.state.showDetailsButtonVisible {
                     Button(action: viewModel.toggleVisibility) {
-                        Text("Show details")
+                        Text(Localization.tangempayCardDetailsShowDetails)
                             .style(
                                 Fonts.Regular.footnote,
                                 color: Colors.Text.constantWhite
@@ -106,7 +107,7 @@ struct TangemPayCardDetailsView: View {
                 Spacer()
 
                 Button(action: viewModel.toggleVisibility) {
-                    Text("Hide details")
+                    Text(Localization.tangempayCardDetailsHideDetails)
                         .style(
                             Fonts.Regular.footnote,
                             color: Colors.Text.constantWhite
@@ -124,20 +125,20 @@ struct TangemPayCardDetailsView: View {
 
             VStack(spacing: 12) {
                 cardDetailField(
-                    label: "Card Number",
+                    label: Localization.tangempayCardDetailsCardNumber,
                     value: cardDetails.number,
                     copyAction: viewModel.copyNumber
                 )
 
                 HStack(spacing: 12) {
                     cardDetailField(
-                        label: "Expiry",
+                        label: Localization.tangempayCardDetailsExpiry,
                         value: cardDetails.expirationDate,
                         copyAction: viewModel.copyExpirationDate
                     )
 
                     cardDetailField(
-                        label: "CVC",
+                        label: Localization.tangempayCardDetailsCvc,
                         value: cardDetails.cvc,
                         copyAction: viewModel.copyCVC
                     )
