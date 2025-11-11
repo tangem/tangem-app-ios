@@ -15,4 +15,8 @@ struct PendingBackup: Codable {
 struct PendingBackupCard: Codable {
     let hasWalletsError: Bool
     let hasBackupError: Bool
+
+    var hasErrors: Bool {
+        hasWalletsError || hasBackupError
+    }
 }
