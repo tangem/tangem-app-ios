@@ -205,6 +205,7 @@ final class YieldModuleTransactionViewModel: ObservableObject {
     }
 
     private func getFeeCurrencyWalletModel(selectedUserWalletModel: any UserWalletModel) -> (any WalletModel)? {
+        // accounts_fixes_needed_yield
         guard let feeCurrencyWalletModel = selectedUserWalletModel.walletModelsManager.walletModels.first(where: {
             $0.tokenItem == walletModel.feeTokenItem
         })
