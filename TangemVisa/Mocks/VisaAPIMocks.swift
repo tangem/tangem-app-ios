@@ -354,6 +354,14 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         )
     }
 
+    func freeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse {
+        .init(orderId: "", status: .processing)
+    }
+
+    func unfreeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse {
+        .init(orderId: "", status: .processing)
+    }
+
     func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse {
         TangemPayTransactionHistoryResponse(transactions: [])
     }

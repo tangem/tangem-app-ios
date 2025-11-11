@@ -17,8 +17,17 @@ struct TangemPayMainView: View {
     var body: some View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
             VStack(spacing: 14) {
-                if let tangemPayCardDetailsViewModel = viewModel.tangemPayCardDetailsViewModel {
-                    TangemPayCardDetailsView(viewModel: tangemPayCardDetailsViewModel)
+                TangemPayCardDetailsView(viewModel: viewModel.tangemPayCardDetailsViewModel)
+
+                if viewModel.freezingState.shouldShowUnfreezeButton {
+                    MainButton(
+                        settings: .init(
+                            title: "Unfreeze Card",
+                            style: .primary,
+                            size: .default,
+                            action: viewModel.unfreeze
+                        )
+                    )
                 }
 
                 if viewModel.shouldDisplayAddToApplePayGuide {
@@ -46,6 +55,27 @@ struct TangemPayMainView: View {
         .background(Colors.Background.secondary)
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(
+                        action: viewModel.freezingState.isFrozen
+                            ? viewModel.unfreeze
+                            : viewModel.showFreezePopup
+                    ) {
+                        Label(
+                            viewModel.freezingState.isFrozen
+                                ? "Unfreeze Card"
+                                : "Freeze Card",
+                            systemImage: "snowflake"
+                        )
+                    }
+                    .disabled(viewModel.freezingState.isFreezingUnfreezingInProgress)
+                } label: {
+                    NavbarDotsImage()
+                }
+            }
+        }
     }
 
     var balance: some View {
@@ -60,7 +90,7 @@ struct TangemPayMainView: View {
                     FixedSizeButtonWithIconInfo(
                         title: Localization.tangempayCardDetailsAddFunds,
                         icon: Assets.plus14,
-                        disabled: false,
+                        disabled: viewModel.freezingState.shouldDisableActionButtons,
                         action: viewModel.addFunds
                     ),
                 ]
