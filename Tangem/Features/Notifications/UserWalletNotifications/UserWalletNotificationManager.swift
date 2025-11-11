@@ -277,6 +277,7 @@ final class UserWalletNotificationManager {
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.createNotifications))
             .store(in: &bag)
 
+        // accounts_fixes_needed_notifications
         userWalletModel.userTokensManager.derivationManager?
             .pendingDerivationsCount
             .receive(on: DispatchQueue.main)
