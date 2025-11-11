@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct ActionButtonsBuyView: View {
     @ObservedObject var viewModel: ActionButtonsBuyViewModel
@@ -64,5 +65,6 @@ struct ActionButtonsBuyView: View {
         }
         .background(Colors.Background.tertiary.ignoresSafeArea(.all))
         .scrollDismissesKeyboardCompat(.immediately)
+        .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.buyTokenSelectorTokensList)
     }
 }

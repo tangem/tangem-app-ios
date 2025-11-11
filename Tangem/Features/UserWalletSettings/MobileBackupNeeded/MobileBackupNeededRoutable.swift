@@ -8,7 +8,8 @@
 
 import Foundation
 
+@MainActor
 protocol MobileBackupNeededRoutable: AnyObject {
+    func openMobileOnboardingFromMobileBackupNeeded(input: MobileOnboardingInput)
     func dismissMobileBackupNeeded()
-    func openMobileOnboarding(input: MobileOnboardingInput)
 }
