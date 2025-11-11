@@ -7,6 +7,7 @@
 //
 
 import TangemUI
+import TangemLocalization
 
 protocol TangemPayFreezeSheetRoutable: AnyObject {
     func closeFreezeSheet()
@@ -15,9 +16,8 @@ protocol TangemPayFreezeSheetRoutable: AnyObject {
 struct TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel {
     var id: String { String(describing: Self.self) }
 
-    let title = "Freeze your card?"
-    let subtitle = "Keep your money safe if your card is lost or stolen. You can unfreeze anytime."
-    let buttonTitle = "Freeze"
+    let title = Localization.tangemPayFreezeCardAlertTitle
+    let subtitle = Localization.tangemPayFreezeCardAlertBody
 
     weak var coordinator: TangemPayFreezeSheetRoutable?
     let freezeAction: () -> Void
@@ -32,6 +32,11 @@ struct TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel {
     }
 
     var primaryButtonSettings: MainButton.Settings {
-        MainButton.Settings(title: buttonTitle, style: .primary, size: .default, action: freeze)
+        MainButton.Settings(
+            title: Localization.tangemPayFreezeCardFreeze,
+            style: .primary,
+            size: .default,
+            action: freeze
+        )
     }
 }
