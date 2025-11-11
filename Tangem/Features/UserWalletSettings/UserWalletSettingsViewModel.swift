@@ -424,6 +424,7 @@ private extension UserWalletSettingsViewModel {
             return
         }
 
+        // accounts_fixes_needed_none
         let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
             .accounts(userWalletModel.accountModelsManager) :
             .plainUserTokensManager(userWalletModel.userTokensManager)
@@ -483,6 +484,7 @@ private extension UserWalletSettingsViewModel {
                     }
                     .store(in: &bag)
             } else {
+                // accounts_fixes_needed_none
                 updateManagers(
                     walletModelsManager: userWalletModel.walletModelsManager,
                     userTokensManager: userWalletModel.userTokensManager
