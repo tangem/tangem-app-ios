@@ -320,7 +320,11 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount) {
+    func openTangemPayMainView(
+        userWalletInfo: UserWalletInfo,
+        tangemPayAccount: TangemPayAccount,
+        cardNumberEnd: String
+    ) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = TangemPayMainCoordinator(
@@ -328,7 +332,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .init(userWalletInfo: userWalletInfo, tangemPayAccount: tangemPayAccount))
+        coordinator.start(
+            with: .init(
+                userWalletInfo: userWalletInfo,
+                tangemPayAccount: tangemPayAccount,
+                cardNumberEnd: cardNumberEnd
+            )
+        )
         tangemPayMainCoordinator = coordinator
     }
 }
