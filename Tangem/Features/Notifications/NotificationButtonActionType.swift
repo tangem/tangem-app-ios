@@ -166,8 +166,7 @@ enum NotificationButtonActionType: Identifiable {
         case .tangemPayCreateAccountAndIssueCard:
             return Localization.commonContinue
         case .tangemPayViewKYCStatus:
-            // [REDACTED_TODO_COMMENT]
-            return "View Status"
+            return Localization.tangempayKycInProgressNotificationButton
         case .allowPushPermissionRequest:
             return Localization.commonEnable
         case .postponePushPermissionRequest:
