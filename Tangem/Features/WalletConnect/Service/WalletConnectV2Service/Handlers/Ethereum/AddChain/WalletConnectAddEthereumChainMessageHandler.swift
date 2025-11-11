@@ -158,6 +158,7 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
             throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
         }
 
+        // accounts_fixes_needed_wc
         guard userWallet
             .walletModelsManager
             .walletModels
