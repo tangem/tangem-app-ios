@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemUIUtils
 
 struct YieldModuleBottomSheetContainerView<
     SubtitleFooter: View,
@@ -92,6 +93,7 @@ struct YieldModuleBottomSheetContainerView<
                 .padding(.top, buttonTopPadding)
                 .padding(.horizontal, 16)
                 .padding(.bottom, 18)
+                .background(ListFooterOverlayShadowView())
         }
         .scrollBounceBehaviorBackport(.basedOnSize)
     }
