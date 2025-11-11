@@ -15,7 +15,7 @@ struct YieldModuleRateInfoChartContainer: View {
     let state: YieldChartContainerState
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 16) {
             switch state {
             case .loading:
                 makeTopContent(isLoading: true)
