@@ -52,7 +52,22 @@ public struct EntitySummaryView: View {
                 makeIcon(from: contentState.imageLocation)
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .if(shouldClipIcon) { view in
+            view.clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+    }
+
+    private var shouldClipIcon: Bool {
+        guard case .content(let contentState) = viewState else {
+            return true
+        }
+
+        // Don't clip custom views - they manage their own clipping
+        if case .customView = contentState.imageLocation {
+            return false
+        }
+
+        return true
     }
 
     @ViewBuilder
@@ -66,6 +81,10 @@ public struct EntitySummaryView: View {
                 .foregroundStyle(Colors.Icon.accent)
                 .frame(width: 56, height: 56)
                 .background(Colors.Icon.accent.opacity(0.1))
+
+        case .customView(let customViewWrapper):
+            customViewWrapper.view
+                .transition(.opacity)
 
         case .remote(let remoteIconConfig) where remoteIconConfig.iconURL == nil:
             fallbackIconAsset
@@ -200,7 +219,22 @@ public extension EntitySummaryView.ViewState {
 public extension EntitySummaryView.ViewState.ContentState {
     enum ImageLocation: Equatable {
         case bundle(ImageType)
+        case customView(CustomViewWrapper)
         case remote(RemoteImageConfig)
+    }
+}
+
+public extension EntitySummaryView.ViewState.ContentState.ImageLocation {
+    struct CustomViewWrapper: Equatable {
+        @IgnoredEquatable var view: AnyView
+
+        public init<Content: View>(@ViewBuilder content: () -> Content) {
+            view = AnyView(content())
+        }
+
+        public static func == (lhs: CustomViewWrapper, rhs: CustomViewWrapper) -> Bool {
+            true
+        }
     }
 }
 
