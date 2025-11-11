@@ -47,7 +47,7 @@ class MobileWalletUnlocker: UserWalletModelUnlocker {
 
 private extension MobileWalletUnlocker {
     func unlockWithFallback() async throws -> UserWalletModelUnlockerResult {
-        let accessCodeManager = await CommonMobileAccessCodeManager(
+        let accessCodeManager = CommonMobileAccessCodeManager(
             userWalletId: userWalletId,
             configuration: .default,
             storageManager: CommonMobileAccessCodeStorageManager()
