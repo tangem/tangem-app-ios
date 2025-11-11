@@ -138,6 +138,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
             return nil
         }
 
+        // accounts_fixes_needed_wc
         return transactionData.userWalletModel.walletModelsManager.walletModels.first { walletModel in
             walletModel.tokenItem.blockchain.networkId == transactionData.blockchain.networkId &&
                 walletModel.defaultAddressString.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
@@ -484,6 +485,7 @@ private extension WCTransactionViewModel {
     }
 
     private func getFeeTokenItem() -> TokenItem? {
+        // accounts_fixes_needed_wc
         if let walletModel = transactionData.userWalletModel.walletModelsManager.walletModels.first(where: {
             $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
         }) {
@@ -494,6 +496,7 @@ private extension WCTransactionViewModel {
     }
 
     private static func makeAddressRowViewModel(from transactionData: WCHandleTransactionData) -> WCTransactionAddressRowViewModel? {
+        // accounts_fixes_needed_wc
         let walletModels = transactionData
             .userWalletModel
             .walletModelsManager
