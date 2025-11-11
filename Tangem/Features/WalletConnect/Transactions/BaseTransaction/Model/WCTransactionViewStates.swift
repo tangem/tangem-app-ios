@@ -27,6 +27,8 @@ extension WCTransactionViewModel {
         case feeSelector(FeeSelectorContentViewModel)
         case customAllowance(WCCustomAllowanceViewModel)
         case securityAlert(WCTransactionSecurityAlertViewModel)
+        case multipleTransactionsAlert(WCMultipleTransactionAlertViewModel)
+        case loading
 
         var stateId: String {
             switch self {
@@ -42,12 +44,19 @@ extension WCTransactionViewModel {
                 return "customAllowance"
             case .securityAlert:
                 return "securityAlert"
+            case .multipleTransactionsAlert:
+                return "multipleTransactionsAlert"
+            case .loading:
+                return "loading"
             }
         }
 
         static func == (lhs: PresentationState, rhs: PresentationState) -> Bool {
             switch (lhs, rhs) {
-            case (.signing, .signing), (.transactionDetails, .transactionDetails):
+            case (.signing, .signing),
+                 (.transactionDetails, .transactionDetails),
+                 (.multipleTransactionsAlert, .multipleTransactionsAlert),
+                 (.loading, .loading):
                 return true
             case (.requestData(let lhsInput), .requestData(let rhsInput)):
                 return lhsInput == rhsInput

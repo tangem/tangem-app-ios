@@ -26,15 +26,24 @@ private final class WalletConnectEnvironment {
 
     private lazy var handlersService = CommonWCHandlersService(wcHandlersFactory: handlersFactory)
 
+    private lazy var savedSessionMigrationService = WalletConnectSavedSessionMigrationService(
+        sessionsStorage: legacySessionsStorage,
+        userWalletRepository: userWalletRepository,
+        dAppVerificationService: dAppVerificationService,
+        dAppIconURLResolver: dAppIconURLResolver,
+        appSettings: AppSettings.shared
+    )
+
+    private lazy var savedSessionToAccountsMigrationService = WalletConnectAccountMigrationService(
+        userWalletRepository: userWalletRepository,
+        connectedDAppRepository: connectedDAppRepository,
+        appSettings: AppSettings.shared
+    )
+
     lazy var dAppSessionsExtender = WalletConnectDAppSessionsExtender(
         connectedDAppRepository: connectedDAppRepository,
-        savedSessionMigrationService: WalletConnectSavedSessionMigrationService(
-            sessionsStorage: legacySessionsStorage,
-            userWalletRepository: userWalletRepository,
-            dAppVerificationService: dAppVerificationService,
-            dAppIconURLResolver: dAppIconURLResolver,
-            appSettings: AppSettings.shared
-        ),
+        savedSessionMigrationService: savedSessionMigrationService,
+        savedSessionToAccountsMigrationService: savedSessionToAccountsMigrationService,
         dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService(walletKitClient: walletKitClient),
         logger: WCLogger
     )
