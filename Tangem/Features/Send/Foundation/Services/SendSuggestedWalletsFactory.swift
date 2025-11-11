@@ -17,6 +17,7 @@ struct SendSuggestedWalletsFactory {
         let targetNetworkId = walletModel.tokenItem.blockchain.networkId
 
         return userWalletRepository.models.reduce(into: []) { partialResult, userWalletModel in
+            // accounts_fixes_needed_send
             let walletModels = userWalletModel.walletModelsManager.walletModels
 
             partialResult += walletModels
