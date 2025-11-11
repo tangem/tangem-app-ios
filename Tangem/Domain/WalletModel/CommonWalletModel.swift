@@ -115,6 +115,10 @@ class CommonWalletModel {
         AppLogger.debug(self)
     }
 
+    func setCryptoAccount(_ cryptoAccount: any CryptoAccountModel) {
+        _account = cryptoAccount
+    }
+
     private func bind() {
         quotesRepository
             .quotesPublisher
@@ -917,6 +921,14 @@ extension CommonWalletModel: ReceiveAddressTypesProvider {
 
     var receiveAddressInfos: [ReceiveAddressInfo] {
         _receiveAddressService.addressInfos
+    }
+}
+
+// MARK: - WalletModelResolvable protocol conformance
+
+extension CommonWalletModel: WalletModelResolvable {
+    func resolve<R>(using resolver: R) -> R.Result where R: WalletModelResolving {
+        resolver.resolve(walletModel: self)
     }
 }
 

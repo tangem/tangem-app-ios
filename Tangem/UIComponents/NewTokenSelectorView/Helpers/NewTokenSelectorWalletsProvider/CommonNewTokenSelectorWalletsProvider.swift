@@ -8,23 +8,29 @@
 
 import Combine
 
-final class CommonNewTokenSelectorWalletsProvider: NewTokenSelectorWalletsProvider {
+class CommonNewTokenSelectorWalletsProvider: NewTokenSelectorWalletsProvider {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
-    var walletsPublisher: AnyPublisher<[NewTokenSelectorWallet], Never> {
-        Just(userWalletRepository.models).map { userWalletModels in
-            userWalletModels.map { userWalletModel in
-                self.mapToNewTokenSelectorWallet(userWalletModel: userWalletModel)
-            }
-        }
-        .eraseToAnyPublisher()
+    private let availabilityProviderFactory: any NewTokenSelectorItemAvailabilityProviderFactory
+
+    init(availabilityProviderFactory: any NewTokenSelectorItemAvailabilityProviderFactory) {
+        self.availabilityProviderFactory = availabilityProviderFactory
     }
-}
 
-// MARK: - Private
+    var walletsPublisher: AnyPublisher<[NewTokenSelectorWallet], Never> {
+        Just(userWalletRepository.models)
+            .withWeakCaptureOf(self)
+            .map { provider, userWalletModels in
+                userWalletModels.map { userWalletModel in
+                    provider.mapToNewTokenSelectorWallet(userWalletModel: userWalletModel)
+                }
+            }
+            .eraseToAnyPublisher()
+    }
 
-private extension CommonNewTokenSelectorWalletsProvider {
+    // MARK: - Mapping
+
     func mapToNewTokenSelectorWallet(userWalletModel: any UserWalletModel) -> NewTokenSelectorWallet {
         let accountsPublisher = userWalletModel.accountModelsManager
             .accountModelsPublisher
@@ -51,18 +57,13 @@ private extension CommonNewTokenSelectorWalletsProvider {
         return NewTokenSelectorWallet(wallet: userWalletModel.userWalletInfo, accountsPublisher: accountsPublisher)
     }
 
-    private func mapToNewTokenSelectorAccount(wallet: any UserWalletModel, cryptoAccount: any CryptoAccountModel) -> NewTokenSelectorAccount {
+    func mapToNewTokenSelectorAccount(wallet: any UserWalletModel, cryptoAccount: any CryptoAccountModel) -> NewTokenSelectorAccount {
         let selectorWallet = NewTokenSelectorItem.Wallet(userWalletInfo: wallet.userWalletInfo)
-        let account = cryptoAccount
-        let iconViewData = AccountIconViewBuilder().makeAccountIconViewData(accountModel: account)
-        let selectorAccount = NewTokenSelectorItem.Account(
-            name: account.name,
-            icon: iconViewData,
-            walletModelsManager: account.walletModelsManager
-        )
+        let iconViewData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: cryptoAccount)
+        let selectorAccount = NewTokenSelectorItem.Account(name: cryptoAccount.name, icon: iconViewData)
 
         let adapter = TokenSectionsAdapter(
-            userTokenListManager: cryptoAccount.userTokenListManager,
+            userTokensManager: cryptoAccount.userTokensManager,
             optionsProviding: OrganizeTokensOptionsManager(userTokensReorderer: cryptoAccount.userTokensManager),
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
@@ -90,11 +91,19 @@ private extension CommonNewTokenSelectorWalletsProvider {
         return NewTokenSelectorAccount(account: selectorAccount, itemsPublisher: itemsPublisher)
     }
 
-    private func mapToNewTokenSelectorItem(
+    func mapToNewTokenSelectorItem(
         selectorWallet: NewTokenSelectorItem.Wallet,
         selectorAccount: NewTokenSelectorItem.Account,
         walletModel: any WalletModel
     ) -> NewTokenSelectorItem {
-        return NewTokenSelectorItem(wallet: selectorWallet, account: selectorAccount, walletModel: walletModel)
+        NewTokenSelectorItem(
+            wallet: selectorWallet,
+            account: selectorAccount,
+            availabilityProvider: availabilityProviderFactory.makeAvailabilityProvider(
+                userWalletInfo: selectorWallet.userWalletInfo,
+                walletModel: walletModel
+            ),
+            walletModel: walletModel
+        )
     }
 }

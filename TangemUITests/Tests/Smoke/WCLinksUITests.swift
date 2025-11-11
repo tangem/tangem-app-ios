@@ -14,23 +14,19 @@ final class WCLinksUITests: BaseTestCase {
     let qaToolsClient = QAToolsClient()
     private var wcURI: String!
 
-    override func setUp() {
-        super.setUp()
-        wcURI = qaToolsClient.getWCURISync()
-
-        XCTContext.runActivity(named: "Log received WC URI: \(wcURI ?? "nil")") { _ in
-            XCTAssert(!wcURI.isEmpty, "WC URI is empty")
-        }
-    }
-
     func testOpenTangemAppFromSafari_ShowsWalletConnectSheet() throws {
         setAllureId(3957)
 
+        getWcURI()
         app.launch()
         StoriesScreen(app)
             .acceptToSIfNeeded()
             .allowPushNotificationsIfNeeded()
             .scanMockWallet(name: .wallet2)
+
+        app.swipeDown()
+
+        MainScreen(app)
             .organizeTokens()
         app.terminate()
 
@@ -59,7 +55,8 @@ final class WCLinksUITests: BaseTestCase {
     func testOpenWalletConnectSheetFromMainScreen_ConnectionEstablished() throws {
         setAllureId(3958)
 
-        launchApp()
+        getWcURI()
+        launchApp(tangemApiType: .mock)
         StoriesScreen(app)
             .scanMockWallet(name: .wallet2)
 
@@ -82,7 +79,8 @@ final class WCLinksUITests: BaseTestCase {
     func testOpenWalletConnectSheetFromDetailsScreen_ConnectionEstablished() throws {
         setAllureId(3959)
 
-        launchApp()
+        getWcURI()
+        launchApp(tangemApiType: .mock)
         StoriesScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
@@ -105,8 +103,9 @@ final class WCLinksUITests: BaseTestCase {
     func testOpenNewConnectionFromDetailsScreen_TapPasteButton() throws {
         setAllureId(887)
 
+        getWcURI()
         UIPasteboard.general.string = wcURI.replacingOccurrences(of: "tangem://wc?uri=", with: "")
-        launchApp()
+        launchApp(tangemApiType: .mock)
 
         StoriesScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -125,6 +124,14 @@ final class WCLinksUITests: BaseTestCase {
             .waitForConnectedAppBottomSheetToBeVisible()
             .tapDisconnectButton()
             .waitForEmptyConnectionsList()
+    }
+
+    private func getWcURI() {
+        wcURI = qaToolsClient.getWCURISync()
+
+        XCTContext.runActivity(named: "Log received WC URI: \(wcURI ?? "nil")") { _ in
+            XCTAssert(!wcURI.isEmpty, "WC URI is empty")
+        }
     }
 
     private func openDeeplinkInSafari(_ deeplink: String) {
