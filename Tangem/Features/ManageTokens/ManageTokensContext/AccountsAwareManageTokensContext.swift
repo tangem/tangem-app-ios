@@ -1,0 +1,88 @@
+//
+//  AccountsAwareManageTokensContext.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import BlockchainSdk
+
+/// Context for accounts architecture where each account has its own UserTokensManager
+final class AccountsAwareManageTokensContext: ManageTokensContext {
+    let userTokensManager: UserTokensManager
+    let walletModelsManager: WalletModelsManager
+
+    var canAddCustomToken: Bool {
+        currentAccount.isMainAccount
+    }
+
+    private let accountModelsManager: AccountModelsManager
+    private let currentAccount: any CryptoAccountModel
+
+    init(
+        accountModelsManager: AccountModelsManager,
+        currentAccount: any CryptoAccountModel
+    ) {
+        self.accountModelsManager = accountModelsManager
+        self.currentAccount = currentAccount
+        userTokensManager = currentAccount.userTokensManager
+        walletModelsManager = currentAccount.walletModelsManager
+    }
+
+    func findUserTokensManager(for tokenItem: TokenItem) -> UserTokensManager? {
+        return findAccountForToken(tokenItem)?.userTokensManager
+    }
+
+    func accountDestination(for tokenItem: TokenItem) -> TokenAccountDestination {
+        guard let targetAccount = findAccountForToken(tokenItem) else {
+            return .noAccount
+        }
+
+        // Check if target account matches current account
+        if targetAccount.id == currentAccount.id {
+            return .currentAccount
+        }
+
+        return .differentAccount(accountName: targetAccount.name)
+    }
+
+    func canManageBlockchain(_ blockchain: Blockchain) -> Bool {
+        if currentAccount.isMainAccount {
+            return true
+        }
+
+        let helper = AccountDerivationPathHelper(blockchain: blockchain)
+        return helper.areAccountsAvailableForBlockchain()
+    }
+
+    // MARK: - Private Helpers
+
+    private func findAccountForToken(_ tokenItem: TokenItem) -> (any CryptoAccountModel)? {
+        let allAccounts = getCryptoAccounts()
+
+        // Try to find a non-main account that can accept this token
+        for account in allAccounts where !account.isMainAccount {
+            do {
+                try account.userTokensManager.addTokenItemPrecondition(tokenItem)
+                return account
+            } catch {
+                continue
+            }
+        }
+
+        // Fallback to main account
+        return allAccounts.first(where: { $0.isMainAccount })
+    }
+
+    private func getCryptoAccounts() -> [any CryptoAccountModel] {
+        return accountModelsManager.accountModels.flatMap { accountModel -> [any CryptoAccountModel] in
+            switch accountModel {
+            case .standard(.single(let cryptoAccountModel)):
+                return [cryptoAccountModel]
+            case .standard(.multiple(let cryptoAccountModels)):
+                return cryptoAccountModels
+            }
+        }
+    }
+}
