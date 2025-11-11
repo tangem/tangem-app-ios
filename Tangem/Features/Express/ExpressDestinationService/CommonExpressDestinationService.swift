@@ -51,6 +51,7 @@ private extension CommonExpressDestinationService {
             return nil
         }
 
+        // accounts_fixes_needed_express
         let walletModelsManager = userWalletModel.walletModelsManager
         let availablePairs = await expressPairsRepository.getPairs(from: base.tokenItem.expressCurrency)
         let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
