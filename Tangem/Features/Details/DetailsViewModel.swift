@@ -37,7 +37,6 @@ final class DetailsViewModel: ObservableObject {
         return viewModels
     }
 
-    @Published var tangemPayRowViewModel: TangemPayRowViewModel?
     @Published var buyWalletViewModel: DefaultRowViewModel?
     @Published var appSettingsViewModel: DefaultRowViewModel?
     @Published var supportSectionModels: [DefaultRowViewModel] = []
