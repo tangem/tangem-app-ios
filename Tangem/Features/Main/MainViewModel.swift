@@ -309,6 +309,7 @@ final class MainViewModel: ObservableObject {
         // In this case we need to recreate this pages after API list loaded and WalletModelsManager publishes list of models
         let indexesToRecreate: [Int] = pages.indexed().compactMap { $1.missingBodyModel ? $0 : nil }
         if indexesToRecreate.isNotEmpty {
+            // accounts_fixes_needed_main
             let walletModelPublishers = indexesToRecreate.map { userWalletRepository.models[$0].walletModelsManager.walletModelsPublisher }
             walletModelPublishers.combineLatest()
                 .combineLatest(apiListProvider.apiListPublisher)
@@ -511,6 +512,7 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 extension MainViewModel {
     func updateMarkets(force: Bool = false) {
         if force || yieldModuleNetworkManager.markets.isEmpty {
+            // accounts_fixes_needed_yield
             let walletModels = userWalletRepository.models.flatMap { $0.walletModelsManager.walletModels }
             let chainIDs = Set(
                 walletModels.compactMap { walletModel -> String? in
