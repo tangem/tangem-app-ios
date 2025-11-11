@@ -44,24 +44,10 @@ struct ArchivedAccountsView: View {
     private func makeAccountsView(from models: [ArchivedCryptoAccountInfo]) -> some View {
         VStack(spacing: 0) {
             GroupedSection(models) { model in
-                // [REDACTED_TODO_COMMENT]
-                RowWithLeadingAndTrailingIcons(
-                    leadingIcon: {
-                        AccountIconView(data: viewModel.makeAccountIconViewData(for: model))
-                    },
-                    content: {
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(model.name)
-                                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-                            Text(Localization.commonTokensCount(model.tokensCount))
-                                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                        }
-                    },
-                    trailingIcon: {
-                        CircleButton(title: Localization.accountArchivedRecover) {
-                            viewModel.recoverAccount(model)
-                        }
+                AccountRowView(
+                    input: viewModel.makeAccountRowData(for: model),
+                    trailing: {
+                        makeRecoverButton(for: model)
                     }
                 )
                 .padding(.vertical, 12)
@@ -70,6 +56,17 @@ struct ArchivedAccountsView: View {
 
             Spacer()
         }
+    }
+
+    private func makeRecoverButton(for model: ArchivedCryptoAccountInfo) -> some View {
+        let isRecovering = viewModel.recoveringAccountId == model.id
+        let isAnyRecovering = viewModel.recoveringAccountId != nil
+
+        return CircleButton(title: Localization.accountArchivedRecover) {
+            viewModel.recoverAccount(model)
+        }
+        .loading(isRecovering)
+        .disabled(isAnyRecovering)
     }
 
     private var loadingView: some View {
