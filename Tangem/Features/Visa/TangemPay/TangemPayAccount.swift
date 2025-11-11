@@ -26,6 +26,10 @@ final class TangemPayAccount {
         customerInfoSubject.value?.depositAddress
     }
 
+    var cardId: String? {
+        customerInfoSubject.value?.productInstance?.cardId
+    }
+
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
@@ -149,6 +153,49 @@ final class TangemPayAccount {
         }
     }
 
+    func freeze(cardId: String) async throws {
+        let response = try await customerInfoManagementService.freeze(cardId: cardId)
+        if response.status != .completed {
+            startOrderStatusPolling(orderId: response.orderId)
+        }
+    }
+
+    func unfreeze(cardId: String) async throws {
+        let response = try await customerInfoManagementService.unfreeze(cardId: cardId)
+        if response.status != .completed {
+            startOrderStatusPolling(orderId: response.orderId)
+        }
+    }
+
+    private func startOrderStatusPolling(orderId: String) {
+        let polling = PollingSequence(
+            interval: 5,
+            request: { [weak self] in
+                try await self?.customerInfoManagementService.getOrder(orderId: orderId)
+            }
+        )
+
+        runTask(in: self) { tangemPayAccount in
+            for await result in polling {
+                switch result {
+                case .success(let order):
+                    guard let order else {
+                        return
+                    }
+
+                    if order.status == .completed {
+                        tangemPayAccount.loadCustomerInfo()
+                        return
+                    }
+
+                case .failure:
+                    // [REDACTED_TODO_COMMENT]
+                    return
+                }
+            }
+        }
+    }
+
     private func startCustomerInfoPolling() {
         customerInfoPollingTask?.cancel()
 
@@ -238,8 +285,13 @@ extension TangemPayAccount: NotificationTapDelegate {
 
 private extension VisaCustomerInfoResponse {
     var tangemPayStatus: TangemPayStatus {
-        if let productInstance, productInstance.status == .active {
-            return .active
+        if let productInstance {
+            switch productInstance.status {
+            case .active:
+                return .active
+            default:
+                return .blocked
+            }
         }
 
         guard case .approved = kyc.status else {

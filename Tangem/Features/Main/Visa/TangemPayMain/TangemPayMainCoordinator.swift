@@ -41,6 +41,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
         rootViewModel = .init(
             userWalletInfo: options.userWalletInfo,
             tangemPayAccount: options.tangemPayAccount,
+            cardNumberEnd: options.cardNumberEnd,
             coordinator: self
         )
     }
@@ -52,6 +53,7 @@ extension TangemPayMainCoordinator {
     struct Options {
         let userWalletInfo: UserWalletInfo
         let tangemPayAccount: TangemPayAccount
+        let cardNumberEnd: String
     }
 }
 
@@ -79,12 +81,33 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
+
+    func openTangemPayFreezeSheet(freezeAction: @escaping () -> Void) {
+        let viewModel = TangemPayFreezeSheetViewModel(
+            coordinator: self,
+            freezeAction: freezeAction
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
 }
 
 // MARK: - TangemPayNoDepositAddressSheetRoutable
 
 extension TangemPayMainCoordinator: TangemPayNoDepositAddressSheetRoutable {
     func closeNoDepositAddressSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayFreezeSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayFreezeSheetRoutable {
+    func closeFreezeSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
