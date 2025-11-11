@@ -79,10 +79,11 @@ extension YieldModuleInfoView {
                         loaderSize: .init(width: 100, height: 28)
                     )
                 }
-                .padding(.bottom, 8)
+                .padding(.bottom, 16)
 
                 Separator(color: Colors.Stroke.primary)
                     .padding(.bottom, 8)
+                    .padding(.horizontal, -16)
 
                 YieldModuleEarnInfoChartContainer(state: chartState)
             }
@@ -153,12 +154,11 @@ extension YieldModuleInfoView {
 
                     YieldFeeSection(
                         sectionState: estimatedFeeState,
-                        leadingTitle: Localization.commonNetworkFeeTitle,
+                        leadingTitle: Localization.commonEstimatedFee,
                         needsBackground: false,
                         leadingTextAccessoryView: {
                             if estimatedFeeState.isHighlighted {
-                                Assets.infoCircle16.image
-                                    .renderingMode(.template)
+                                Assets.redCircleWarning20Outline.image
                             }
                         }
                     )
