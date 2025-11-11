@@ -24,12 +24,16 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
 
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
+        tokenItem: walletModel.tokenItem,
         buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
         balanceProvider: self,
         balanceTypeSelectorProvider: self,
         yieldModuleStatusProvider: self,
         showYieldBalanceInfoAction: { [weak self] in
             self?.openYieldBalanceInfo()
+        },
+        reloadBalance: { @MainActor [weak self] in
+            await self?.onPullToRefresh()
         }
     )
 
@@ -549,6 +553,6 @@ extension TokenDetailsViewModel: YieldModuleStatusProvider {
             .compactMap { $0 }
             .removeDuplicates()
             .eraseToAnyPublisher()
-            ?? Empty(completeImmediately: false).eraseToAnyPublisher()
+            ?? Just(YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)).eraseToAnyPublisher()
     }
 }
