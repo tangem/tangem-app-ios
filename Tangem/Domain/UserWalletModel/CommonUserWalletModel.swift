@@ -304,7 +304,7 @@ extension CommonUserWalletModel: UserWalletModel {
     func validate() -> Bool {
         switch walletInfo {
         case .cardWallet(let cardInfo):
-            return BackupValidator().validate(cardInfo: cardInfo)
+            return BackupValidator().validate(card: cardInfo.card)
         case .mobileWallet:
             return true
         }
