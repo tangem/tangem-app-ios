@@ -46,7 +46,7 @@ final class NewAuthViewModel: ObservableObject {
 
 extension NewAuthViewModel {
     func onFirstAppear() {
-        setup(state: makeInitialState())
+        setupInitialState()
 
         let walletsCount = userWalletRepository.models.count
         Analytics.log(event: .signInScreenOpened, params: [.walletCount: String(walletsCount)])
@@ -68,12 +68,13 @@ private extension NewAuthViewModel {
         self.state = state
     }
 
-    func makeInitialState() -> State {
+    func setupInitialState() {
         if unlockOnAppear, isBiometricsUtilAvailable {
+            setup(state: makeLockedState())
             unlockWithBiometry()
-            return makeLockedState()
         } else {
-            return makeWalletsState()
+            setup(state: makeWalletsState())
+            unlockSingleProtectedMobileWalletIfNeeded()
         }
     }
 
@@ -265,9 +266,7 @@ private extension NewAuthViewModel {
             switch state {
             case .locked:
                 setup(state: makeWalletsState())
-                if let userWalletModel = singleProtectedMobileWallet() {
-                    unlock(userWalletModel: userWalletModel)
-                }
+                unlockSingleProtectedMobileWalletIfNeeded()
             case .wallets:
                 let sdkError = error.toTangemSdkError()
                 if !sdkError.isUserCancelled {
@@ -277,6 +276,13 @@ private extension NewAuthViewModel {
                 break
             }
         }
+    }
+
+    func unlockSingleProtectedMobileWalletIfNeeded() {
+        guard let userWalletModel = singleProtectedMobileWallet() else {
+            return
+        }
+        unlock(userWalletModel: userWalletModel)
     }
 }
 
