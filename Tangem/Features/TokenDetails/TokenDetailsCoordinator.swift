@@ -53,6 +53,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
         let notificationManager = SingleTokenNotificationManager(
             userWalletId: options.userWalletModel.userWalletId,
             walletModel: options.walletModel,
+            // accounts_fixes_needed_token_details
             walletModelsManager: options.userWalletModel.walletModelsManager
         )
 
@@ -64,6 +65,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
             yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         )
 
+        // accounts_fixes_needed_token_details
         let expressFactory = ExpressPendingTransactionsFactory(
             userWalletInfo: options.userWalletModel.userWalletInfo,
             walletModel: options.walletModel,
@@ -165,6 +167,7 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
         pendingExpressTxStatusBottomSheetViewModel = nil
 
         // We don't have info about derivation here, so we have to find first non-custom walletModel.
+        // accounts_fixes_needed_express
         guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
             $0.tokenItem.blockchain == tokenItem.blockchain
                 && $0.tokenItem.token == tokenItem.token
