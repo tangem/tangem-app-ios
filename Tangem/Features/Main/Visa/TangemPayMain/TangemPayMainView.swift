@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemLocalization
 
 struct TangemPayMainView: View {
     @ObservedObject var viewModel: TangemPayMainViewModel
@@ -16,32 +17,17 @@ struct TangemPayMainView: View {
     var body: some View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
             VStack(spacing: 14) {
-                VStack(spacing: .zero) {
-                    MainHeaderView(viewModel: viewModel.mainHeaderViewModel)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    ScrollableButtonsView(
-                        itemsHorizontalOffset: 14,
-                        itemsVerticalOffset: 3,
-                        buttonsInfo: [
-                            // [REDACTED_TODO_COMMENT]
-                            FixedSizeButtonWithIconInfo(
-                                title: "Receive",
-                                icon: Assets.arrowDownMini,
-                                disabled: false,
-                                action: viewModel.addFunds
-                            ),
-                        ]
-                    )
-                    .padding(.horizontal, 14)
-                    .padding(.bottom, 14)
-                }
-                .background(Colors.Background.primary)
-                .cornerRadiusContinuous(14)
-
                 if let tangemPayCardDetailsViewModel = viewModel.tangemPayCardDetailsViewModel {
                     TangemPayCardDetailsView(viewModel: tangemPayCardDetailsViewModel)
                 }
+
+                if viewModel.shouldDisplayAddToApplePayGuide {
+                    Button(action: viewModel.openAddToApplePayGuide) {
+                        TangemPayAddToApplePayBanner()
+                    }
+                }
+
+                balance
 
                 TransactionsListView(
                     state: viewModel.tangemPayTransactionHistoryState,
@@ -58,19 +44,31 @@ struct TangemPayMainView: View {
             .padding(.top, 12)
         }
         .background(Colors.Background.secondary)
-        .floatingSheetContent(for: ReceiveMainViewModel.self) {
-            ReceiveMainView(viewModel: $0)
-        }
-        .floatingSheetContent(for: TangemPayNoDepositAddressSheetViewModel.self) {
-            BottomSheetErrorContentView(
-                title: $0.title,
-                subtitle: $0.subtitle,
-                closeAction: $0.close,
-                primaryButton: $0.primaryButtonSettings
+        .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
+    }
+
+    var balance: some View {
+        VStack(spacing: .zero) {
+            MainHeaderView(viewModel: viewModel.mainHeaderViewModel)
+                .fixedSize(horizontal: false, vertical: true)
+
+            ScrollableButtonsView(
+                itemsHorizontalOffset: 14,
+                itemsVerticalOffset: 3,
+                buttonsInfo: [
+                    FixedSizeButtonWithIconInfo(
+                        title: Localization.tangempayCardDetailsAddFunds,
+                        icon: Assets.plus14,
+                        disabled: false,
+                        action: viewModel.addFunds
+                    ),
+                ]
             )
-            .floatingSheetConfiguration { configuration in
-                configuration.backgroundInteractionBehavior = .tapToDismiss
-            }
+            .padding(.horizontal, 14)
+            .padding(.bottom, 14)
         }
+        .background(Colors.Background.primary)
+        .cornerRadiusContinuous(14)
     }
 }

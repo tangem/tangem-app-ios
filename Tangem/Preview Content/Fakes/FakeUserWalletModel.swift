@@ -25,14 +25,18 @@ class FakeUserWalletModel: UserWalletModel {
         )
     }
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { .empty }
+    var tangemPayAccount: TangemPayAccount? { nil }
+
     private(set) var name: String
     let emailData: [EmailCollectedData] = []
     let backupInput: OnboardingInput? = nil
     let walletModelsManager: WalletModelsManager
-    let userTokenListManager: UserTokenListManager
     var nftManager: NFTManager { NFTManagerStub() }
     let userTokensManager: UserTokensManager
-    let totalBalanceProvider: TotalBalanceProviding
+    let totalBalanceProvider: TotalBalanceProvider
     let walletImageProvider: WalletImageProviding
     let signer: TangemSigner = CardSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
     let config: UserWalletConfig
@@ -41,7 +45,6 @@ class FakeUserWalletModel: UserWalletModel {
     var cardsCount: Int
     var hasBackupCards: Bool { cardsCount > 1 }
     var emailConfig: EmailConfig? { nil }
-    var isTokensListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
     var cardSetLabel: String { config.cardSetLabel }
 
     var tangemApiAuthData: TangemApiAuthorizationData? {
@@ -62,12 +65,17 @@ class FakeUserWalletModel: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
+        CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
+    }
+
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
+            userTokensManager: userTokensManager,
+            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub(),
             derivationManager: nil,
-            userTokenListManager: userTokenListManager
         )
     }
 
@@ -101,7 +109,6 @@ class FakeUserWalletModel: UserWalletModel {
 
         walletModelsManager = FakeWalletModelsManager(walletManagers: walletManagers, isDelayed: isDelayed)
         let fakeUserTokenListManager = FakeUserTokenListManager(walletManagers: walletManagers, isDelayed: isDelayed)
-        userTokenListManager = fakeUserTokenListManager
         userTokensManager = FakeUserTokensManager(
             derivationManager: FakeDerivationManager(pendingDerivationsCount: 5),
             userTokenListManager: fakeUserTokenListManager
