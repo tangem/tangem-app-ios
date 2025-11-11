@@ -1,5 +1,5 @@
 //
-//  PendingBackupManager.swift
+//  BackupValidator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,16 +9,16 @@
 import Foundation
 import TangemSdk
 
-class PendingBackupManager {
+class BackupValidator {
+    private let cardValidator = CardValidator()
     private let pendingBackupRepository = PendingBackupRepository()
 
     /// We have to remember a current backup to handle interrupted backups
     @AppStorageCompat(StorageType.pendingBackupsCurrentID)
     private var currentBackupID: String? = nil
 
-    func onProceedBackup(_ card: Card) {
+    func onProceedBackup(_ card: Card) -> Bool {
         let cardInfo = CardInfo(card: CardDTO(card: card), walletData: .none, associatedCardIds: [])
-        let backupValidator = BackupValidator()
 
         // clean card from existing pending backup
         if let existingBackupEntry = pendingBackupRepository.backups.first(where: { $0.value.cards.keys.contains(card.cardId) }) {
@@ -31,7 +31,7 @@ class PendingBackupManager {
 
         let pendingBackupCard = PendingBackupCard(
             hasWalletsError: false,
-            hasBackupError: !backupValidator.validate(backupStatus: cardInfo.card.backupStatus, wallets: cardInfo.card.wallets)
+            hasBackupError: !cardValidator.validate(backupStatus: cardInfo.card.backupStatus, wallets: cardInfo.card.wallets)
         )
 
         // Add card to the new backup
@@ -46,6 +46,8 @@ class PendingBackupManager {
         }
 
         pendingBackupRepository.save()
+
+        return !pendingBackupCard.hasErrors
     }
 
     func onBackupCompleted() {
@@ -57,7 +59,7 @@ class PendingBackupManager {
         self.currentBackupID = nil
 
         for card in currentBackup.cards.values {
-            if card.hasBackupError || card.hasWalletsError {
+            if card.hasErrors {
                 return
             }
         }
@@ -66,7 +68,19 @@ class PendingBackupManager {
         pendingBackupRepository.save()
     }
 
-    func fetchPendingCard(_ cardId: String) -> PendingBackupCard? {
+    func validate(card: CardDTO) -> Bool {
+        if fetchPendingCard(card.cardId) != nil {
+            return false
+        }
+
+        if !cardValidator.validate(backupStatus: card.backupStatus, wallets: card.wallets) {
+            return false
+        }
+
+        return true
+    }
+
+    private func fetchPendingCard(_ cardId: String) -> PendingBackupCard? {
         for backup in pendingBackupRepository.backups.values {
             if let card = backup.cards[cardId] {
                 return card
