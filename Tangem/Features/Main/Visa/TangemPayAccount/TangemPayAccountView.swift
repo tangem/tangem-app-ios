@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemLocalization
 
 struct TangemPayAccountView: View {
     let viewModel: TangemPayAccountViewModel
@@ -20,8 +21,7 @@ struct TangemPayAccountView: View {
                 .frame(size: .init(bothDimensions: 36))
 
             VStack(alignment: .leading, spacing: 4) {
-                // [REDACTED_TODO_COMMENT]
-                Text("Tangem Pay")
+                Text(Localization.tangempayTitle)
                     .style(
                         Fonts.Bold.subheadline,
                         color: Colors.Text.primary1
