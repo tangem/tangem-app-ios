@@ -453,12 +453,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         case .active:
             logger.logEarningApyClicked(state: .enabled)
             coordinator?.openYieldModuleActiveInfo(walletModel: walletModel, signer: userWalletModel.signer)
+        case .processing:
+            coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
         case .notActive:
             if let apy = yieldManager.state?.marketInfo?.apy {
                 coordinator?.openYieldModulePromoView(walletModel: walletModel, apy: apy, signer: userWalletModel.signer)
                 logger.logEarningApyClicked(state: .disabled)
             }
-        case .disabled, .failedToLoad, .loading, .processing, .none:
+        case .disabled, .failedToLoad, .loading, .none:
             break
         }
     }
