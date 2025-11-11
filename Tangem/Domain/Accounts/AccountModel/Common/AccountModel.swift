@@ -19,18 +19,6 @@ enum AccountModel {
     case visa(any VisaAccountModel)
 }
 
-extension [AccountModel] {
-    func standard() -> AccountModel? {
-        first { account in
-            if case .standard = account {
-                return true
-            }
-
-            return false
-        }
-    }
-}
-
 // MARK: - Inner types
 
 extension AccountModel {
@@ -58,24 +46,57 @@ extension AccountModel.Icon {
     }
 
     enum Name: String, CaseIterable, Hashable {
-        case airplaneMode
-        case beach
-        case bookmark
-        case clock
-        case family
-        case favorite = "favourite" // Ew, UK spelling, but Android uses it
-        case gift
-        case home
         case letter
+        case star
+        case user
+        case family
+        case wallet
         case money
-        case package
+        case home
         case safe
+        case beach
+        case airplaneMode
         case shirt
         case shoppingBasket
-        case star
+        case favorite = "favourite" // Ew, UK spelling, but Android uses it
+        case bookmark
         case startUp
-        case user
-        case wallet
+        case clock
+        case package
+        case gift
+
+        /// Explicit sort order for icon display
+        /// When adding a new case, you MUST add it here with a specific order number
+        var sortOrder: Int {
+            switch self {
+            case .letter: 0
+            case .star: 1
+            case .user: 2
+            case .family: 3
+            case .wallet: 4
+            case .money: 5
+            case .home: 6
+            case .safe: 7
+            case .beach: 8
+            case .airplaneMode: 9
+            case .shirt: 10
+            case .shoppingBasket: 11
+            case .favorite: 12
+            case .bookmark: 13
+            case .startUp: 14
+            case .clock: 15
+            case .package: 16
+            case .gift: 17
+            }
+        }
+    }
+}
+
+// MARK: - Comparable
+
+extension AccountModel.Icon.Name: Comparable {
+    static func < (lhs: AccountModel.Icon.Name, rhs: AccountModel.Icon.Name) -> Bool {
+        lhs.sortOrder < rhs.sortOrder
     }
 }
 
@@ -91,5 +112,43 @@ extension AccountModel.Icon {
         }
 
         self.init(name: name, color: color)
+    }
+}
+
+extension CryptoAccounts {
+    func cryptoAccount(with identifier: some Hashable) -> (any CryptoAccountModel)? {
+        let identifier = identifier.toAnyHashable()
+
+        switch self {
+        case .single(let cryptoAccountModel):
+            return cryptoAccountModel.id.toAnyHashable() == identifier ? cryptoAccountModel : nil
+        case .multiple(let cryptoAccountModels):
+            return cryptoAccountModels.first { $0.id.toAnyHashable() == identifier }
+        }
+    }
+}
+
+extension AccountModel {
+    func cryptoAccount(with identifier: some Hashable) -> (any CryptoAccountModel)? {
+        switch self {
+        case .standard(let cryptoAccounts):
+            return cryptoAccounts.cryptoAccount(with: identifier)
+        }
+    }
+}
+
+extension [AccountModel] {
+    func standard() -> AccountModel? {
+        first { account in
+            if case .standard = account {
+                return true
+            }
+
+            return false
+        }
+    }
+
+    func cryptoAccount(with identifier: some Hashable) -> (any CryptoAccountModel)? {
+        return compactMap { $0.cryptoAccount(with: identifier) }.first
     }
 }
