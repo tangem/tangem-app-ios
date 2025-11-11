@@ -22,6 +22,9 @@ struct FeeCurrencyFinder {
             return nil
         }
 
+        // accounts_fixes_needed_send
+        // also,
+        // accounts_fixes_needed_express
         let walletModels = userWalletModel.walletModelsManager.walletModels
 
         guard let feeWalletModel = walletModels.first(where: { $0.tokenItem == feeTokenItem }) else {
