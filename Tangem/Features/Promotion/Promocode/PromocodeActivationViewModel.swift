@@ -57,7 +57,7 @@ final class PromocodeActivationViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Private Implementatation
+    // MARK: - Private Implementation
 
     private func failWith(_ error: PromocodeActivationError) {
         Analytics.log(event: .bitcoinPromoActivation, params: [.status: error.analyticsEventParameter])
@@ -65,6 +65,7 @@ final class PromocodeActivationViewModel: ObservableObject {
     }
 
     private func getWalletAddress() throws -> String {
+        // accounts_fixes_needed_promocode
         guard let address = userWalletRepository
             .selectedModel?
             .walletModelsManager

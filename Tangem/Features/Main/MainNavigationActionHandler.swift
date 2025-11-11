@@ -229,6 +229,7 @@ extension MainCoordinator {
                 return false
             }
 
+            // accounts_fixes_needed_none
             let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
                 .accounts(userWalletModel.accountModelsManager) :
                 .plainUserTokensManager(userWalletModel.userTokensManager)
@@ -316,6 +317,7 @@ extension MainCoordinator.MainNavigationActionHandler {
         networkId: String,
         derivation: String?
     ) -> (any WalletModel)? {
+        // accounts_fixes_needed_main
         let models = userWalletModel.walletModelsManager.walletModels
         if let derivation, derivation.isNotEmpty {
             return models.first { isMatch($0, tokenId: tokenId, networkId: networkId, derivationPath: derivation) }
