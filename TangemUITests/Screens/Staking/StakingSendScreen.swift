@@ -16,7 +16,7 @@ final class StakingSendScreen: ScreenBase<StakingSendScreenElement> {
     private lazy var balanceLabel = staticText(.balanceLabel)
 
     @discardableResult
-    func validate() -> Self {
+    func waitForDisplay() -> Self {
         XCTContext.runActivity(named: "Validate Send screen is displayed") { _ in
             XCTAssertTrue(titleLabel.waitForExistence(timeout: .robustUIUpdate), "Title should exist")
             XCTAssertTrue(amountTextField.exists, "Amount text field should exist")
@@ -38,7 +38,7 @@ final class StakingSendScreen: ScreenBase<StakingSendScreenElement> {
     }
 
     @discardableResult
-    func gotToSummary() -> SendSummaryScreen {
+    func goToSummary() -> SendSummaryScreen {
         XCTContext.runActivity(named: "Tap Next button") { _ in
             XCTAssertTrue(nextButton.isEnabled, "Next button should be enabled")
             nextButton.waitAndTap()
