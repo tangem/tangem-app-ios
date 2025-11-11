@@ -541,9 +541,11 @@ private extension CommonYieldModuleManager {
             let methodMatch = methods.contains { method in
                 dataHex.hasPrefix(method.methodId.removeHexPrefix().lowercased())
             }
+            
+            let tokenMatch = dataHex.contains(token.contractAddress.removeHexPrefix().lowercased())
+            let yieldModuleMatch = dataHex.contains(yieldContract.removeHexPrefix().lowercased())
 
-            return methodMatch && dataHex.contains(token.contractAddress.removeHexPrefix().lowercased()) ||
-                dataHex.contains(yieldContract.removeHexPrefix().lowercased())
+            return methodMatch && (tokenMatch || yieldModuleMatch)
         }
     }
 }
