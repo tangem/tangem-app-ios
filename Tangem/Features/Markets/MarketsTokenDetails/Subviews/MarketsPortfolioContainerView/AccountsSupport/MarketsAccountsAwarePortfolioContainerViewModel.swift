@@ -108,6 +108,7 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
             }
 
             var networkIds = availableNetworksIds
+            // accounts_fixes_needed_markets
             let userTokenList = userWalletModel.userTokensManager.userTokens
             for entry in userTokenList {
                 guard let entryId = entry.id else {
@@ -407,6 +408,7 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioContextActionsProvider {
     func buildContextActions(tokenItem: TokenItem, walletModelId: WalletModelId, userWalletId: UserWalletId) -> [TokenActionType] {
         guard let userWalletModel = walletDataProvider.userWalletModels[userWalletId],
+              // accounts_fixes_needed_markets
               let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
             return []
         }
@@ -427,6 +429,7 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
 
     func didTapContextAction(_ action: TokenActionType, walletModelId: WalletModelId, userWalletId: UserWalletId) {
         guard let userWalletModel = walletDataProvider.userWalletModels[userWalletId],
+              // accounts_fixes_needed_markets
               let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }),
               let coordinator else {
             return

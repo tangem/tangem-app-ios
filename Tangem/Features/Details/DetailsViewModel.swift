@@ -144,6 +144,7 @@ extension DetailsViewModel {
     }
 
     func openMail(emailConfig: EmailConfig, emailType: EmailType, models: [any UserWalletModel]) {
+        // accounts_fixes_needed_feedback
         let data = models.map {
             DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
@@ -180,6 +181,7 @@ extension DetailsViewModel {
         Analytics.log(.settingsButtonChat)
 
         let data = userWalletRepository.models.map {
+            // accounts_fixes_needed_feedback
             DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
                 walletModels: $0.walletModelsManager.walletModels

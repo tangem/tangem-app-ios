@@ -201,6 +201,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
 extension TokenDetailsViewModel {
     func hideTokenButtonAction() {
+        // accounts_fixes_needed_token_details
         if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem) {
             showHideWarningAlert()
         } else {
@@ -260,6 +261,7 @@ extension TokenDetailsViewModel {
             ]
         )
 
+        // accounts_fixes_needed_token_details
         userWalletModel.userTokensManager.remove(walletModel.tokenItem)
         dismiss()
     }
@@ -444,6 +446,7 @@ private extension TokenDetailsViewModel {
     }
 
     func openFeeCurrency() {
+        // accounts_fixes_needed_token_details
         guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
             $0.tokenItem == walletModel.feeTokenItem
         }) else {
