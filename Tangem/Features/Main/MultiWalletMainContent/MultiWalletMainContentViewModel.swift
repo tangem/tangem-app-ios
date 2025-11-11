@@ -151,7 +151,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                                 card: card,
                                 balance: balance,
                                 tapAction: {
-                                    viewModel.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
+                                    viewModel.openTangemPayMainView(
+                                        tangemPayAccount: tangemPayAccount,
+                                        cardNumberEnd: card.cardNumberEnd
+                                    )
                                 }
                             )
                         }
@@ -542,10 +545,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
 
-    private func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
+    private func openTangemPayMainView(tangemPayAccount: TangemPayAccount, cardNumberEnd: String) {
         coordinator?.openTangemPayMainView(
             userWalletInfo: userWalletModel.userWalletInfo,
-            tangemPayAccount: tangemPayAccount
+            tangemPayAccount: tangemPayAccount,
+            cardNumberEnd: cardNumberEnd
         )
     }
 
