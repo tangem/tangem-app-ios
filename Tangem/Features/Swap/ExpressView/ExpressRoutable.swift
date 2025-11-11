@@ -8,13 +8,15 @@
 
 import Foundation
 import TangemExpress
+import TangemFoundation
 
 protocol ExpressRoutable: AnyObject {
     func presentSwappingTokenList(swapDirection: ExpressTokensListViewModel.SwapDirection)
+    func presentSwapTokenSelector(swapDirection: SwapTokenSelectorViewModel.SwapDirection)
     func presentFeeSelectorView()
-    func presentApproveView(provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy)
+    func presentApproveView(source: any ExpressInteractorSourceWallet, provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy)
     func presentProviderSelectorView()
-    func presentFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel)
+    func presentFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem)
     func presentSuccessView(data: SentExpressTransactionData)
     func closeSwappingView()
 }
