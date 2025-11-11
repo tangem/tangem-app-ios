@@ -12,7 +12,8 @@ import SwiftUI
 import BlockchainSdk
 import TangemFoundation
 
-class MarketsPortfolioContainerViewModel: ObservableObject {
+/// Legacy VM w/o accounts supports, use `MarketsAccountsAwarePortfolioContainerViewModel` instead when accounts are available.
+final class MarketsPortfolioContainerViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published var isAddTokenButtonDisabled: Bool = true
@@ -138,6 +139,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
             }
 
             var networkIds = availableNetworksIds
+            // accounts_fixes_needed_none
             let userTokenList = userWalletModel.userTokensManager.userTokens
             for entry in userTokenList {
                 guard let entryId = entry.id else {
@@ -174,7 +176,9 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
 
         let tokenItemViewModelByUserWalletModels: [MarketsPortfolioTokenItemViewModel] = walletDataProvider.userWalletModels
             .reduce(into: []) { partialResult, userWalletModel in
+                // accounts_fixes_needed_none
                 let walletModels = userWalletModel.walletModelsManager.walletModels
+                // accounts_fixes_needed_none
                 let entries = userWalletModel.userTokensManager.userTokens
 
                 let viewModels: [MarketsPortfolioTokenItemViewModel] = portfolioTokenItemFactory.makeViewModels(
@@ -215,6 +219,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
     }
 
     private func bindToTokensListsUpdates(userWalletModels: [UserWalletModel]) {
+        // accounts_fixes_needed_none
         let publishers = userWalletModels.map { $0.userTokensManager.userTokensPublisher }
         let walletModelsPublishers = userWalletModels.map { $0.walletModelsManager.walletModelsPublisher }
 
@@ -234,6 +239,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
 extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsProvider {
     func buildContextActions(tokenItem: TokenItem, walletModelId: WalletModelId, userWalletId: UserWalletId) -> [TokenActionType] {
         guard let userWalletModel = walletDataProvider.userWalletModels[userWalletId],
+              // accounts_fixes_needed_none
               let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
             return []
         }
@@ -260,6 +266,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
 
     func didTapContextAction(_ action: TokenActionType, walletModelId: WalletModelId, userWalletId: UserWalletId) {
         let userWalletModel = walletDataProvider.userWalletModels[userWalletId]
+        // accounts_fixes_needed_none
         let walletModel = userWalletModel?.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
 
         guard let userWalletModel, let walletModel, let coordinator else {
