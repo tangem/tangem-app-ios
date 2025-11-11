@@ -55,11 +55,14 @@ struct OnboardingAddTokensView: View {
     InjectedValues[\.tangemApiService] = fakeAPIService
     let adapter = ManageTokensAdapter(
         settings: .init(
-            longHashesSupported: fakeModel.config.hasFeature(.longHashes),
             existingCurves: fakeModel.config.existingCurves,
             supportedBlockchains: fakeModel.config.supportedBlockchains,
-            userTokensManager: fakeModel.userTokensManager,
-            analyticsSourceRawValue: "preview"
+            hardwareLimitationUtil: HardwareLimitationsUtil(config: fakeModel.config),
+            analyticsSourceRawValue: "preview",
+            context: LegacyManageTokensContext(
+                userTokensManager: UserTokensManagerMock(),
+                walletModelsManager: WalletModelsManagerMock()
+            )
         )
     )
 

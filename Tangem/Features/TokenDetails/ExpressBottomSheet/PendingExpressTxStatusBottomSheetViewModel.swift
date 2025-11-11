@@ -290,7 +290,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
             inputs.append(input)
 
-        case .canceled:
+        case .expired:
             showGoToProviderHeaderButton = false
 
         default:
@@ -448,7 +448,7 @@ extension PendingExpressTxStatusBottomSheetViewModel {
         case .paused,
              .refunded,
              .unknown,
-             .canceled,
+             .expired,
              .failed where pendingTransaction.type.branch == .onramp,
              .txFailed where pendingTransaction.type.branch == .swap:
             isHideButtonShowed = true
@@ -459,7 +459,7 @@ extension PendingExpressTxStatusBottomSheetViewModel {
              .buying,
              .exchanging,
              .sendingToUser,
-             .done,
+             .finished,
              .verificationRequired,
              .failed,
              .txFailed,

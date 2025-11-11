@@ -98,9 +98,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.userWalletIdsWithNFTEnabled)
     var userWalletIdsWithNFTEnabled: [String] = []
 
-    @AppStorageCompat(StorageType.showReferralProgramOnMain)
-    var showReferralProgramOnMain: Bool = true
-
     @AppStorageCompat(StorageType.marketsTooltipWasShown)
     var marketsTooltipWasShown: Bool = false
 
@@ -119,20 +116,23 @@ final class AppSettings {
     @AppStorageCompat(StorageType.didMigrateWalletConnectSavedSessions)
     var didMigrateWalletConnectSavedSessions: Bool = false
 
+    @AppStorageCompat(StorageType.didMigrateWalletConnectToV2)
+    var didMigrateWalletConnectToAccounts: Bool = false
+
     @AppStorageCompat(StorageType.allowanceUserWalletIdTransactionsPush)
     var allowanceUserWalletIdTransactionsPush: [String] = []
 
     @AppStorageCompat(StorageType.isSendWithSwapOnboardNotificationHidden)
     var isSendWithSwapOnboardNotificationHidden: Bool = false
 
-    @AppStorageCompat(StorageType.userWalletIdsWithSkippedAccessCode)
-    var userWalletIdsWithSkippedAccessCode: [String] = []
-
     @AppStorageCompat(StorageType.settingsVersion)
     var settingsVersion: Int = 0
 
     @AppStorageCompat(StorageType.tangemPayOrderIdForCustomerWalletAddress)
     var tangemPayOrderIdForCustomerWalletAddress: [String: String] = [:]
+
+    @AppStorageCompat(StorageType.tangemPayHasDismissedAddToApplePayGuide)
+    var tangemPayHasDismissedAddToApplePayGuide: Bool = false
 
     static let shared: AppSettings = .init()
 
