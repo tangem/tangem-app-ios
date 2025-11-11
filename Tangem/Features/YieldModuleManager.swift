@@ -502,12 +502,6 @@ private extension CommonYieldModuleManager {
         let dummyReactivateMethod = ReactivateTokenMethod(tokenContractAddress: String(), maxNetworkFee: .zero)
         let dummyApproveMethod = ApproveERC20TokenMethod(spender: String(), amount: .zero)
 
-        if pendingTransactions.count == 1, // single approve transaction should not update state to processing
-           let dataHex = pendingTransactions.first?.ethereumTransactionDataHexString(),
-           dataHex.contains(dummyApproveMethod.methodId.removeHexPrefix().lowercased()) {
-            return false
-        }
-
         return hasTransactions(
             in: pendingTransactions,
             for: [
@@ -541,7 +535,7 @@ private extension CommonYieldModuleManager {
             let methodMatch = methods.contains { method in
                 dataHex.hasPrefix(method.methodId.removeHexPrefix().lowercased())
             }
-            
+
             let tokenMatch = dataHex.contains(token.contractAddress.removeHexPrefix().lowercased())
             let yieldModuleMatch = dataHex.contains(yieldContract.removeHexPrefix().lowercased())
 
