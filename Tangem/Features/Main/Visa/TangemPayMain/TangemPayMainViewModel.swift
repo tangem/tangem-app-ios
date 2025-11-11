@@ -11,6 +11,7 @@ import TangemUI
 import TangemVisa
 import TangemFoundation
 import PassKit
+import TangemLocalization
 
 final class TangemPayMainViewModel: ObservableObject {
     let tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel
@@ -163,8 +164,11 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     private func showFreezeUnfreezeErrorToast(freeze: Bool) {
-        let actionString = freeze ? "freeze" : "unfreeze"
-        Toast(view: WarningToast(text: "Failed to \(actionString) the card. Try again later."))
+        let message = freeze
+            ? Localization.tangemPayFreezeCardFailed
+            : Localization.tangemPayUnfreezeCardFailed
+
+        Toast(view: WarningToast(text: message))
             .present(
                 layout: .top(padding: 20),
                 type: .temporary()
