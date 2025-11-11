@@ -7,8 +7,8 @@
 //
 
 import TangemVisa
+import TangemLocalization
 
-// [REDACTED_TODO_COMMENT]
 struct TangemPayTransactionHistoryMapper {
     private let calendar: Calendar = .current
     private let formatter: DateFormatter = {
@@ -89,13 +89,13 @@ struct TangemPayTransactionHistoryMapper {
                 message: spend.enrichedMerchantCategory
                     ?? spend.merchantCategory
                     ?? spend.merchantCategoryCode
-                    ?? "Other"
+                    ?? Localization.tangemPayOther
             ),
             timeFormatted: spend.authorizedAt.formatted(date: .omitted, time: .shortened),
             amount: "\(sign)$\(abs(spend.amount))",
             isOutgoing: true,
             transactionType: .tangemPay(
-                name: spend.enrichedMerchantName ?? spend.merchantName ?? "Card payment",
+                name: spend.enrichedMerchantName ?? spend.merchantName ?? Localization.tangempayCardDetailsTitle,
                 icon: spend.enrichedMerchantIcon,
                 isDeclined: spend.isDeclined
             ),
@@ -110,11 +110,11 @@ struct TangemPayTransactionHistoryMapper {
         TransactionViewModel(
             hash: "N/A",
             index: index,
-            interactionAddress: .custom(message: "Transfer"),
+            interactionAddress: .custom(message: Localization.commonTransfer),
             timeFormatted: (collateral.postedAt).formatted(date: .omitted, time: .shortened),
             amount: "+$\(abs(collateral.amount))",
             isOutgoing: false,
-            transactionType: .tangemPayTransfer(name: "Deposit"),
+            transactionType: .tangemPayTransfer(name: Localization.tangemPayDeposit),
             status: .confirmed
         )
     }
@@ -126,11 +126,11 @@ struct TangemPayTransactionHistoryMapper {
         TransactionViewModel(
             hash: "N/A",
             index: index,
-            interactionAddress: .custom(message: "Transfer"),
+            interactionAddress: .custom(message: Localization.commonTransfer),
             timeFormatted: payment.postedAt.formatted(date: .omitted, time: .shortened),
             amount: "–$\(abs(payment.amount))",
             isOutgoing: true,
-            transactionType: .tangemPayTransfer(name: "Withdrawal"),
+            transactionType: .tangemPayTransfer(name: Localization.tangemPayWithdrawal),
             status: payment.status.status
         )
     }
@@ -142,11 +142,11 @@ struct TangemPayTransactionHistoryMapper {
         TransactionViewModel(
             hash: "N/A",
             index: index,
-            interactionAddress: .custom(message: fee.description ?? "Service fees"),
+            interactionAddress: .custom(message: fee.description ?? Localization.tangemPayFeeSubtitle),
             timeFormatted: fee.postedAt.formatted(date: .omitted, time: .shortened),
             amount: "–$\(abs(fee.amount))",
             isOutgoing: true,
-            transactionType: .tangemPay(name: "Fee", icon: nil, isDeclined: false),
+            transactionType: .tangemPay(name: Localization.tangemPayFeeTitle, icon: nil, isDeclined: false),
             status: .confirmed
         )
     }
