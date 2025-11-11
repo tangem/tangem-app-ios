@@ -12,6 +12,7 @@ import TangemVisa
 import TangemSdk
 import TangemFoundation
 import TangemAssets
+import TangemLocalization
 
 final class TangemPayAccount {
     let tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never>
@@ -306,8 +307,7 @@ private extension VisaCustomerInfoResponse {
 
 extension TangemPayAccount: MainHeaderSupplementInfoProvider {
     var name: String {
-        // [REDACTED_TODO_COMMENT]
-        "Tangem Pay"
+        Localization.tangempayTitle
     }
 
     var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
@@ -333,7 +333,6 @@ extension TangemPayAccount: MainHeaderSubtitleProvider {
                     return .init(messages: [], formattingOption: .default)
                 }
 
-                // [REDACTED_TODO_COMMENT]
                 return .init(messages: ["\(balance.availableBalance.description) \(balance.currency)"], formattingOption: .default)
             }
             .eraseToAnyPublisher()
@@ -352,7 +351,6 @@ extension TangemPayAccount: MainHeaderBalanceProvider {
             return .loading(cached: nil)
         }
 
-        // [REDACTED_TODO_COMMENT]
         return .loaded(text: .string("$" + balance.availableBalance.description))
     }
 
@@ -363,7 +361,6 @@ extension TangemPayAccount: MainHeaderBalanceProvider {
                     return .loading(cached: nil)
                 }
 
-                // [REDACTED_TODO_COMMENT]
                 return .loaded(text: .string("$" + balance.availableBalance.description))
             }
             .eraseToAnyPublisher()
