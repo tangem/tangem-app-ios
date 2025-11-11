@@ -162,6 +162,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 hardwareLimitationUtil: HardwareLimitationsUtil(config: userWalletModel.config),
                 analyticsSourceRawValue: analyticsSourceRawValue,
                 context: LegacyManageTokensContext(
+                    // accounts_fixes_needed_onboarding
                     userTokensManager: userWalletModel.userTokensManager,
                     walletModelsManager: userWalletModel.walletModelsManager
                 )
@@ -461,6 +462,7 @@ extension OnboardingViewModel {
             data: [
                 .init(
                     userWalletEmailData: input.cardInput.emailData,
+                    // accounts_fixes_needed_feedback
                     walletModels: userWalletModel?.walletModelsManager.walletModels ?? []
                 ),
             ]
@@ -481,6 +483,7 @@ extension OnboardingViewModel {
             data: [
                 .init(
                     userWalletEmailData: input.cardInput.emailData,
+                    // accounts_fixes_needed_feedback
                     walletModels: userWalletModel?.walletModelsManager.walletModels ?? []
                 ),
             ]
