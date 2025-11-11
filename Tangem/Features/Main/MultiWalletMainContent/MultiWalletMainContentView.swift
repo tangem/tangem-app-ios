@@ -163,6 +163,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             initialGroupingOption: .none,
             initialSortingOption: .dragAndDrop
         )
+        // accounts_fixes_needed_main
         let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokensManager: userWalletModel.userTokensManager,
             optionsProviding: optionsManager,
