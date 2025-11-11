@@ -16,17 +16,17 @@ enum TangemPayNotificationEvent: Equatable, Hashable {
     case viewKYCStatus
 }
 
-// [REDACTED_TODO_COMMENT]
 extension TangemPayNotificationEvent: NotificationEvent {
     var title: NotificationView.Title? {
         switch self {
         case .createAccountAndIssueCard:
-            return .string("Create account and issue a card")
+            return .string(Localization.tangempayIssueCardNotificationTitle)
         case .viewKYCStatus:
-            return .string("KYC in progress for Tangem Pay")
+            return .string(Localization.tangempayKycInProgressNotificationTitle)
         }
     }
 
+    // [REDACTED_TODO_COMMENT]
     var description: String? {
         switch self {
         case .createAccountAndIssueCard:
