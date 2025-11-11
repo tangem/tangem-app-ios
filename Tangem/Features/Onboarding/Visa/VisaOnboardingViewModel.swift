@@ -182,6 +182,7 @@ class VisaOnboardingViewModel: ObservableObject {
             data: [
                 .init(
                     userWalletEmailData: input.cardInput.emailData,
+                    // accounts_fixes_needed_feedback
                     walletModels: userWalletModel?.walletModelsManager.walletModels ?? []
                 ),
             ]
