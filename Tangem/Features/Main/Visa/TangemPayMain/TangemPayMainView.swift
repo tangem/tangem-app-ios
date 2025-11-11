@@ -22,7 +22,7 @@ struct TangemPayMainView: View {
                 if viewModel.freezingState.shouldShowUnfreezeButton {
                     MainButton(
                         settings: .init(
-                            title: "Unfreeze Card",
+                            title: Localization.tangempayCardDetailsUnfreezeCard,
                             style: .primary,
                             size: .default,
                             action: viewModel.unfreeze
@@ -65,8 +65,8 @@ struct TangemPayMainView: View {
                     ) {
                         Label(
                             viewModel.freezingState.isFrozen
-                                ? "Unfreeze Card"
-                                : "Freeze Card",
+                                ? Localization.tangempayCardDetailsUnfreezeCard
+                                : Localization.tangempayCardDetailsFreezeCard,
                             systemImage: "snowflake"
                         )
                     }
