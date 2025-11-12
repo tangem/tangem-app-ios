@@ -1,5 +1,5 @@
 //
-//  WCLinksUITests.swift
+//  EthereumWCLinksUITests.swift
 //  TangemUITests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import XCTest
 
-final class WCLinksUITests: BaseTestCase {
+final class EthereumWCLinksUITests: BaseTestCase {
     let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
     let qaToolsClient = QAToolsClient()
     private var wcURI: String!
@@ -104,7 +104,7 @@ final class WCLinksUITests: BaseTestCase {
         setAllureId(887)
 
         getWcURI()
-        UIPasteboard.general.string = wcURI.replacingOccurrences(of: "tangem://wc?uri=", with: "")
+        UIPasteboard.general.string = wcURI.replacingOccurrences(of: WCURIScheme.tangem.rawValue, with: "")
         launchApp(tangemApiType: .mock)
 
         StoriesScreen(app)
@@ -127,7 +127,7 @@ final class WCLinksUITests: BaseTestCase {
     }
 
     private func getWcURI() {
-        wcURI = qaToolsClient.getWCURISync()
+        wcURI = qaToolsClient.getWCURISync(network: .ethereum, uriScheme: .tangem)
 
         XCTContext.runActivity(named: "Log received WC URI: \(wcURI ?? "nil")") { _ in
             XCTAssert(!wcURI.isEmpty, "WC URI is empty")
