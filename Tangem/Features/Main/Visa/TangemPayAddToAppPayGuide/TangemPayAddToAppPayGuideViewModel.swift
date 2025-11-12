@@ -32,12 +32,7 @@ final class TangemPayAddToAppPayGuideViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func onAppear() {
-        tangemPayCardDetailsViewModel.setVisibility(true)
-    }
-
     func onDismiss() {
-        AppSettings.shared.tangemPayHasDismissedAddToApplePayGuide = true
         coordinator?.closeAddToAppPayGuide()
     }
 }

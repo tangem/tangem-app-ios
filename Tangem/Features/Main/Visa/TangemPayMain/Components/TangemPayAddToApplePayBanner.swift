@@ -11,6 +11,8 @@ import TangemAssets
 import TangemLocalization
 
 struct TangemPayAddToApplePayBanner: View {
+    let closeAction: () -> Void
+
     var body: some View {
         HStack(spacing: 16) {
             Circle()
@@ -45,6 +47,18 @@ struct TangemPayAddToApplePayBanner: View {
                 )
                 .background(.ultraThinMaterial)
                 .cornerRadius(16)
+        }
+        .overlay(alignment: .topTrailing) {
+            Button {
+                closeAction()
+            } label: {
+                Assets.cross.image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(Color.white)
+                    .frame(size: .init(bothDimensions: 20))
+            }
+            .padding(8)
         }
     }
 }
