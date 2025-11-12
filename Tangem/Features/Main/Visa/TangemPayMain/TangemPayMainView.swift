@@ -32,7 +32,7 @@ struct TangemPayMainView: View {
 
                 if viewModel.shouldDisplayAddToApplePayGuide {
                     Button(action: viewModel.openAddToApplePayGuide) {
-                        TangemPayAddToApplePayBanner()
+                        TangemPayAddToApplePayBanner(closeAction: viewModel.dismissAddToApplePayGuideBanner)
                     }
                 }
 
