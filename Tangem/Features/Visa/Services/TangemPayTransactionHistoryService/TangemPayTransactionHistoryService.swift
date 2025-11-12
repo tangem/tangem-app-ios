@@ -11,8 +11,10 @@ import Combine
 import TangemVisa
 import TangemFoundation
 
+typealias TangemPayTransactionRecord = TangemPayTransactionHistoryResponse.Transaction
+
 final class TangemPayTransactionHistoryService {
-    private let storage: ThreadSafeContainer<[TangemPayTransactionHistoryResponse.Transaction]> = []
+    private let storage: ThreadSafeContainer<[TangemPayTransactionRecord]> = []
     private let apiService: CustomerInfoManagementService
     private let mapper = TangemPayTransactionHistoryMapper()
 
@@ -20,7 +22,6 @@ final class TangemPayTransactionHistoryService {
     private var reachEndOfHistoryList = false
 
     private let stateSubject = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
-
     private var historyReloadTask: Task<Void, Never>?
 
     init(apiService: CustomerInfoManagementService) {
@@ -78,6 +79,10 @@ extension TangemPayTransactionHistoryService {
         historyReloadTask = task
 
         return task
+    }
+
+    func getTransaction(id: String) -> TangemPayTransactionRecord? {
+        storage.read().first(where: { $0.id == id })
     }
 }
 
