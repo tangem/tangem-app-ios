@@ -48,6 +48,8 @@ protocol UserWalletModel:
     func update(type: UpdateRequest)
     func addAssociatedCard(cardId: String)
 
+    var accountsWalletModelsAggregator: AccountsWalletModelsAggregating { get }
+
     // MARK: - Properties and methods to be deleted after migration to Accounts is complete
 
     @available(iOS, deprecated: 100000.0, message: "Use account-specific 'walletModelsManager' instead and remove this property ([REDACTED_INFO])")
