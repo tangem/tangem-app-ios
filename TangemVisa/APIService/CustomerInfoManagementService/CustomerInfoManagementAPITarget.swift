@@ -32,6 +32,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/freeze"
         case .unfreeze:
             "customer/card/unfreeze"
+        case .setPin:
+            "customer/card/pin"
         case .getTransactionHistory:
             "customer/transactions"
         case .placeOrder:
@@ -55,6 +57,9 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .freeze,
              .unfreeze:
             .post
+
+        case .setPin:
+            .put
         }
     }
 
@@ -68,6 +73,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
         case .freeze(let cardId), .unfreeze(let cardId):
             let requestData = TangemPayFreezeUnfreezeRequest(cardId: cardId)
+            return .requestJSONEncodable(requestData)
+
+        case .setPin(let pin, let sessionId, let iv):
+            let requestData = TangemPaySetPinRequest(pin: pin, sessionId: sessionId, iv: iv)
             return .requestJSONEncodable(requestData)
 
         case .getTransactionHistory(let limit, let cursor):
@@ -110,6 +119,7 @@ extension CustomerInfoManagementAPITarget {
         case getCardDetails(sessionId: String)
         case freeze(cardId: String)
         case unfreeze(cardId: String)
+        case setPin(pin: String, sessionId: String, iv: String)
 
         case getTransactionHistory(limit: Int, cursor: String?)
 
