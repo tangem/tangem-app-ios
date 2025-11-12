@@ -14,8 +14,8 @@ class TangemPayMainCoordinator: CoordinatorObject {
     let dismissAction: ExpressCoordinator.DismissAction
     let popToRootAction: Action<PopToRootOptions>
 
-    @Injected(\.floatingSheetPresenter)
-    private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
     // MARK: - Root view model
 
@@ -97,6 +97,14 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
+
+    func openTangemPayTransactionDetailsSheet(transaction: TangemPayTransactionRecord) {
+        let viewModel = TangemPayTransactionDetailsViewModel(transaction: transaction, coordinator: self)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
 }
 
 // MARK: - TangemPayNoDepositAddressSheetRoutable
@@ -169,6 +177,30 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
     func closeAddFundsSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayTransactionDetailsRoutable
+
+extension TangemPayMainCoordinator: TangemPayTransactionDetailsRoutable {
+    func transactionDetailsDidRequestClose() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func transactionDetailsDidRequestDispute(dataCollector: EmailDataCollector, subject: VisaEmailSubject) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.default.recipient,
+            emailType: .visaFeedback(subject: subject)
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            mailPresenter.present(viewModel: mailViewModel)
         }
     }
 }
