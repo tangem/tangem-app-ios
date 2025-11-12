@@ -124,6 +124,14 @@ private extension LockedWalletMainContentViewModel {
             _ = try await userWalletRepository.unlock(with: method)
         } catch where error.isCancellationError {
             await unlockWithFallback()
+        } catch let repositoryError as UserWalletRepositoryError {
+            if repositoryError == .biometricsChanged {
+                await unlockWithFallback()
+            } else {
+                await runOnMain {
+                    alert = repositoryError.alertBinder
+                }
+            }
         } catch {
             await runOnMain {
                 alert = error.alertBinder
