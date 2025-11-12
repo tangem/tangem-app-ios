@@ -20,6 +20,9 @@ class LockedUserWalletModel: UserWalletModel {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    lazy var accountsWalletModelsAggregator: any AccountsWalletModelsAggregating = CommonAccountsWalletModelsAggregator(
+        accountModelsManager: accountModelsManager
+    )
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
     var userTokensManager: UserTokensManager { _userTokensManager }
     private let _userTokensManager = LockedUserTokensManager()
