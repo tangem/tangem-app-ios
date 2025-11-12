@@ -32,7 +32,23 @@ protocol AccountModelsManager {
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError)
 }
 
+// MARK: - Convenience extensions
+
 extension AccountModelsManager {
+    /// Returns all crypto account models from the `accountModels` property.
+    var cryptoAccounts: [any CryptoAccountModel] {
+        return accountModels
+            .flatMap { accountModel -> [any CryptoAccountModel] in
+                switch accountModel {
+                case .standard(.single(let cryptoAccountModel)):
+                    return [cryptoAccountModel]
+                case .standard(.multiple(let cryptoAccountModels)):
+                    return cryptoAccountModels
+                }
+            }
+    }
+
+    /// Returns all crypto account models from the `accountModelsPublisher` property.
     var cryptoAccountModelsPublisher: AnyPublisher<[any CryptoAccountModel], Never> {
         accountModelsPublisher.map { accountModels in
             accountModels.flatMap { accountModel in
