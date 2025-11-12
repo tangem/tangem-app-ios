@@ -16,6 +16,7 @@ struct CommonUserWalletModelDependencies {
     let keysRepository: KeysRepository
     var walletModelsManager: WalletModelsManager!
     var totalBalanceProvider: TotalBalanceProvider!
+    var accountsWalletModelsAggregator: AccountsWalletModelsAggregating!
     var userTokensManager: (UserTokensManager & UserTokensPushNotificationsRemoteStatusSyncing)!
     var nftManager: NFTManager!
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager!
@@ -85,7 +86,7 @@ struct CommonUserWalletModelDependencies {
         )
 
         nftManager = makeNFTManager(userWalletId: userWalletId, hasAccounts: hasAccounts)
-
+        accountsWalletModelsAggregator = CommonAccountsWalletModelsAggregator(accountModelsManager: accountModelsManager)
         totalBalanceProvider = makeTotalBalanceProvider(userWalletId: userWalletId, hasAccounts: hasAccounts)
 
         dependenciesConfigurator.configure(with: self)
@@ -118,8 +119,6 @@ struct CommonUserWalletModelDependencies {
     }
 
     private func makeNFTManager(userWalletId: UserWalletId, hasAccounts: Bool) -> NFTManager {
-        let accountsWalletModelsAggregator = CommonAccountsWalletModelsAggregator(accountModelsManager: accountModelsManager)
-
         let walletModelsPublisher = hasAccounts
             ? accountsWalletModelsAggregator.walletModelsPublisher
             : walletModelsManager.walletModelsPublisher
