@@ -11,9 +11,10 @@ import TangemLocalization
 import TangemAssets
 
 struct TransactionViewModel: Hashable, Identifiable {
-    var id: ViewModelId { ViewModelId(hash: hash, index: index) }
-
+    let id: ViewModelId
     let hash: String
+    let icon: TransactionViewIconViewData
+    let amount: TransactionViewAmountViewData
 
     var inProgress: Bool {
         status == .inProgress
@@ -21,15 +22,6 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     var subtitleText: String {
         return timeFormatted ?? "-"
-    }
-
-    var formattedAmount: String? {
-        switch transactionType {
-        case .approve, .vote, .withdraw:
-            return nil
-        case .transfer, .swap, .operation, .unknownOperation, .stake, .unstake, .claimRewards, .restake, .tangemPay, .tangemPayTransfer, .yieldSupply:
-            return amount
-        }
     }
 
     var localizeDestination: String? {
@@ -83,82 +75,16 @@ struct TransactionViewModel: Hashable, Identifiable {
         }
     }
 
-    var icon: Image {
-        if status == .failed {
-            return Assets.crossBig.image
-        }
-
-        switch transactionType {
-        case .approve:
-            return Assets.approve.image
-        case .transfer, .swap, .operation, .unknownOperation, .tangemPayTransfer, .yieldSupply:
-            return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
-        case .stake, .vote, .restake:
-            return Assets.TokenItemContextMenu.menuStaking.image
-        case .unstake, .withdraw:
-            return Assets.unstakedIcon.image
-        case .claimRewards:
-            return Assets.dollarMini.image
-        case .tangemPay:
-            return Assets.Visa.otherTransaction.image
-        }
-    }
-
-    var iconURL: URL? {
-        if case .tangemPay(_, icon: let url, _) = transactionType {
-            return url
-        }
-        return nil
-    }
-
-    var iconColor: Color {
-        switch status {
-        case .inProgress:
-            return Colors.Icon.accent
-        case .confirmed:
-            return Colors.Icon.informative
-        case .failed, .undefined:
-            return Colors.Icon.warning
-        }
-    }
-
-    var iconBackgroundColor: Color {
-        switch status {
-        case .inProgress: return Colors.Icon.accent.opacity(0.1)
-        case .confirmed: return Colors.Background.secondary
-        case .failed, .undefined: return Colors.Icon.warning.opacity(0.1)
-        }
-    }
-
-    var amountColor: Color {
-        switch status {
-        case .failed: return Colors.Text.warning
-        default:
-            switch transactionType {
-            case .tangemPay(_, _, let isDeclined) where isDeclined:
-                return Colors.Text.warning
-
-            case .tangemPayTransfer where !isOutgoing:
-                return Colors.Text.accent
-
-            default:
-                return Colors.Text.primary1
-            }
-        }
-    }
-
-    /// Index of an individual transaction within the parent transaction (if applicable).
-    /// For example, a single EVM transaction may consist of multiple token transactions (with indices 0, 1, 2 and so on)
-    private let index: Int
     private let interactionAddress: InteractionAddressType
     private let timeFormatted: String?
-    private let amount: String
     private let isOutgoing: Bool
     private let transactionType: TransactionType
     private let status: Status
 
     init(
         hash: String,
+        // Index of an individual transaction within the parent transaction (if applicable).
+        // For example, a single EVM transaction may consist of multiple token transactions (with indices 0, 1, 2 and so on)
         index: Int,
         interactionAddress: InteractionAddressType,
         timeFormatted: String?,
@@ -167,11 +93,13 @@ struct TransactionViewModel: Hashable, Identifiable {
         transactionType: TransactionViewModel.TransactionType,
         status: TransactionViewModel.Status
     ) {
+        id = ViewModelId(hash: hash, index: index)
         self.hash = hash
-        self.index = index
+        icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
+        self.amount = TransactionViewAmountViewData(amount: amount, type: transactionType, status: status, isOutgoing: isOutgoing)
+
         self.interactionAddress = interactionAddress
         self.timeFormatted = timeFormatted
-        self.amount = amount
         self.isOutgoing = isOutgoing
         self.transactionType = transactionType
         self.status = status
