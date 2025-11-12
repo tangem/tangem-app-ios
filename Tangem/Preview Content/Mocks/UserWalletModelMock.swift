@@ -103,10 +103,6 @@ class UserWalletModelMock: UserWalletModel {
         AccountModelsManagerMock()
     }
 
-    var accountsWalletModelsAggregator: any AccountsWalletModelsAggregating {
-        CommonAccountsWalletModelsAggregator(accountModelsManager: accountModelsManager)
-    }
-
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
