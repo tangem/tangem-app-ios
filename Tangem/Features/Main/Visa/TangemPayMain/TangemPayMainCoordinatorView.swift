@@ -46,8 +46,11 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.expressCoordinator) {
                 ExpressCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.addToApplePayGuideViewModel) { viewModel in
-                TangemPayAddToAppPayGuideView(viewModel: viewModel)
+            .sheet(item: $coordinator.addToApplePayGuideViewModel) {
+                TangemPayAddToAppPayGuideView(viewModel: $0)
+            }
+            .sheet(item: $coordinator.tangemPayPinViewModel) {
+                TangemPayPinView(viewModel: $0)
             }
     }
 }
