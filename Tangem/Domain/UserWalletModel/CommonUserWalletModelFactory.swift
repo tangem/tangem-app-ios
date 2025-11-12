@@ -60,7 +60,6 @@ struct CommonUserWalletModelFactory {
             name: name ?? fallbackName(config: config),
             config: config,
             userWalletId: userWalletId,
-            accountsWalletModelsAggregator: dependencies.accountsWalletModelsAggregator,
             walletModelsManager: dependencies.walletModelsManager,
             userTokensManager: dependencies.userTokensManager,
             nftManager: dependencies.nftManager,
