@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
 import TangemLocalization
 
 struct TangemPayAddFundsSheetView: View {
@@ -29,5 +30,9 @@ struct TangemPayAddFundsSheetView: View {
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 20)
+        .floatingSheetConfiguration { configuration in
+            configuration.sheetBackgroundColor = Colors.Background.primary
+            configuration.backgroundInteractionBehavior = .tapToDismiss
+        }
     }
 }
