@@ -65,21 +65,10 @@ final class TangemPayMainViewModel: ObservableObject {
 
         bind()
         reloadHistory()
-        fetchAccountStatus()
     }
 
     func reloadHistory() {
         transactionHistoryService.reloadHistory()
-    }
-
-    func fetchAccountStatus() {
-        Task { @MainActor [tangemPayAccount, weak self] in
-            let status = try? await tangemPayAccount.getTangemPayStatus()
-
-            self?.shouldDisplayAddToApplePayGuide = status == .active
-                && PKPaymentAuthorizationViewController.canMakePayments()
-                && !AppSettings.shared.tangemPayHasDismissedAddToApplePayGuide
-        }
     }
 
     func fetchNextTransactionHistoryPage() -> FetchMore? {
@@ -117,6 +106,10 @@ final class TangemPayMainViewModel: ObservableObject {
 
     func openAddToApplePayGuide() {
         coordinator?.openAddToApplePayGuide(viewModel: tangemPayCardDetailsViewModel)
+    }
+
+    func dismissAddToApplePayGuideBanner() {
+        AppSettings.shared.tangemPayShowAddToApplePayGuide = false
     }
 
     func showFreezePopup() {
@@ -183,9 +176,17 @@ private extension TangemPayMainViewModel {
             .receiveOnMain()
             .assign(to: &$tangemPayTransactionHistoryState)
 
-        AppSettings.shared.$tangemPayHasDismissedAddToApplePayGuide
-            .map { !$0 }
-            .assign(to: &$shouldDisplayAddToApplePayGuide)
+        Publishers.CombineLatest(
+            AppSettings.shared.$tangemPayShowAddToApplePayGuide,
+            tangemPayAccount.tangemPayStatusPublisher
+        )
+        .map { tangemPayShowAddToApplePayGuide, status in
+            PKPaymentAuthorizationViewController.canMakePayments()
+                && status == .active
+                && tangemPayShowAddToApplePayGuide
+        }
+        .assign(to: \.shouldDisplayAddToApplePayGuide, on: self, ownership: .weak)
+        .store(in: &bag)
 
         tangemPayAccount.tangemPayStatusPublisher
             .map { $0 == .blocked ? .frozen : .normal }
