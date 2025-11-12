@@ -9,7 +9,6 @@
 import Foundation
 
 protocol NewAuthRoutable: AnyObject {
-    func openOnboarding(with input: OnboardingInput)
     func openMain(with userWalletModel: UserWalletModel)
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
     func openAddWallet()
