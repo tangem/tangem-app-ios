@@ -307,10 +307,6 @@ private extension NewAuthViewModel {
         coordinator?.openAddWallet()
     }
 
-    func openOnboarding(with input: OnboardingInput) {
-        coordinator?.openOnboarding(with: input)
-    }
-
     func openTroubleshooting(userWalletModel: UserWalletModel) {
         let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
             self?.unlockWithCardTryAgain(userWalletModel: userWalletModel)
