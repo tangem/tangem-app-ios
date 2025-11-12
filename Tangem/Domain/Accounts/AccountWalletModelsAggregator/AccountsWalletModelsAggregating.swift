@@ -11,5 +11,6 @@ import Foundation
 
 /// Provides flat list of all wallet models from all crypto accounts
 protocol AccountsWalletModelsAggregating {
+    var walletModels: [any WalletModel] { get }
     var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { get }
 }

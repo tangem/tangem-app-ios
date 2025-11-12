@@ -20,6 +20,18 @@ final class CommonAccountsWalletModelsAggregator {
 // MARK: - AccountsWalletModelsAggregator
 
 extension CommonAccountsWalletModelsAggregator: AccountsWalletModelsAggregating {
+    var walletModels: [any WalletModel] {
+        accountModelsManager.accountModels.flatMap { accountModel in
+            switch accountModel {
+            case .standard(.single(let cryptoAccountModel)): [cryptoAccountModel]
+            case .standard(.multiple(let cryptoAccountModels)): cryptoAccountModels
+            }
+        }
+        .flatMap { cryptoAccountModel in
+            cryptoAccountModel.walletModelsManager.walletModels
+        }
+    }
+
     var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> {
         accountModelsManager
             .accountModelsPublisher
