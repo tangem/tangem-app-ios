@@ -322,8 +322,8 @@ private extension CommonYieldModuleManager {
     func bind() {
         let yieldContractPublisher: AnyPublisher<String?, Never> = Future
             .async {
-                let yieldContract = try await self.yieldSupplyService.getYieldContract()
-                if yieldContract.isEmpty {
+                let yieldContract = try? await self.yieldSupplyService.getYieldContract()
+                if yieldContract == nil || yieldContract?.isEmpty == true {
                     return try await self.yieldSupplyService.calculateYieldContract()
                 }
                 return yieldContract
