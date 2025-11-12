@@ -34,9 +34,6 @@ struct TangemPayAddToAppPayGuideView: View {
                 bottomButton
                     .padding(16)
             }
-            .onAppear {
-                viewModel.onAppear()
-            }
         }
     }
 
