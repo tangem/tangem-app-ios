@@ -320,7 +320,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
 private extension CommonYieldModuleManager {
     func bind() {
-        let yieldContractPublisher: AnyPublisher<String, Never> = Future
+        let yieldContractPublisher: AnyPublisher<String?, Never> = Future
             .async {
                 let yieldContract = try await self.yieldSupplyService.getYieldContract()
                 if yieldContract.isEmpty {
@@ -328,8 +328,8 @@ private extension CommonYieldModuleManager {
                 }
                 return yieldContract
             }
+            .retry(Constants.yieldContractRetryCount)
             .replaceError(with: nil)
-            .compactMap { $0 }
             .eraseToAnyPublisher()
 
         let statePublisher = Publishers.CombineLatest4(
@@ -374,7 +374,7 @@ private extension CommonYieldModuleManager {
         walletModelData: WalletModelData,
         marketsInfo: [YieldModuleMarketInfo],
         pendingTransactions: [PendingTransactionRecord],
-        yieldContract: String
+        yieldContract: String?
     ) -> YieldModuleManagerStateInfo {
         guard let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress }) else {
             return YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)
@@ -491,7 +491,7 @@ private extension CommonYieldModuleManager {
 }
 
 private extension CommonYieldModuleManager {
-    func hasEnterTransactions(in pendingTransactions: [PendingTransactionRecord], yieldContract: String) -> Bool {
+    func hasEnterTransactions(in pendingTransactions: [PendingTransactionRecord], yieldContract: String?) -> Bool {
         let dummyDeployMethod = DeployYieldModuleMethod(
             walletAddress: String(),
             tokenContractAddress: String(),
@@ -515,7 +515,7 @@ private extension CommonYieldModuleManager {
         )
     }
 
-    func hasExitTransactions(in pendingTransactions: [PendingTransactionRecord], yieldContract: String) -> Bool {
+    func hasExitTransactions(in pendingTransactions: [PendingTransactionRecord], yieldContract: String?) -> Bool {
         let dummyWithdrawAndDeactivateMethod = WithdrawAndDeactivateMethod(tokenContractAddress: String())
         return hasTransactions(
             in: pendingTransactions,
@@ -527,7 +527,7 @@ private extension CommonYieldModuleManager {
     func hasTransactions(
         in pendingTransactions: [PendingTransactionRecord],
         for methods: [SmartContractMethod],
-        yieldContract: String
+        yieldContract: String?
     ) -> Bool {
         return pendingTransactions.contains { record in
             guard let dataHex = record.ethereumTransactionDataHexString() else { return false }
@@ -537,7 +537,7 @@ private extension CommonYieldModuleManager {
             }
 
             let tokenMatch = dataHex.contains(token.contractAddress.removeHexPrefix().lowercased())
-            let yieldModuleMatch = dataHex.contains(yieldContract.removeHexPrefix().lowercased())
+            let yieldModuleMatch = yieldContract.flatMap { dataHex.contains($0.removeHexPrefix().lowercased()) } ?? false
 
             return methodMatch && (tokenMatch || yieldModuleMatch)
         }
@@ -562,5 +562,11 @@ private extension PendingTransactionRecord {
               let data = params.data else { return nil }
 
         return data.hexString.lowercased()
+    }
+}
+
+private extension CommonYieldModuleManager {
+    enum Constants {
+        static let yieldContractRetryCount = 5
     }
 }
