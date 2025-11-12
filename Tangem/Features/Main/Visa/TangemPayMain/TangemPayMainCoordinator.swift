@@ -28,6 +28,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
+    @Published var tangemPayPinViewModel: TangemPayPinViewModel?
 
     required init(
         dismissAction: @escaping ExpressCoordinator.DismissAction,
@@ -65,6 +66,10 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             tangemPayCardDetailsViewModel: viewModel,
             coordinator: self
         )
+    }
+
+    func openTangemPayPin() {
+        tangemPayPinViewModel = TangemPayPinViewModel()
     }
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input) {
