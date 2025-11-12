@@ -171,6 +171,15 @@ final class TangemPayMainViewModel: ObservableObject {
                 type: .temporary()
             )
     }
+
+    func openTransactionDetails(id: String) {
+        guard let transaction = transactionHistoryService.getTransaction(id: id) else {
+            assertionFailure("Transaction not found")
+            return
+        }
+
+        coordinator?.openTangemPayTransactionDetailsSheet(transaction: transaction)
+    }
 }
 
 private extension TangemPayMainViewModel {
