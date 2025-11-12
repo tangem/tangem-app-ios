@@ -16,19 +16,6 @@ public extension TangemPayTransactionHistoryResponse {
         public let transactionType: TransactionType
         public let record: Record
 
-        public var transactionDate: Date {
-            switch record {
-            case .spend(let spend):
-                spend.authorizedAt
-            case .collateral(let collateral):
-                collateral.postedAt
-            case .payment(let payment):
-                payment.postedAt
-            case .fee(let fee):
-                fee.postedAt
-            }
-        }
-
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -72,11 +59,11 @@ public extension TangemPayTransactionHistoryResponse {
     }
 
     struct Spend: Decodable, Equatable {
-        public let amount: Double
+        public let amount: Decimal
         public let currency: String
-        public let localAmount: Double
+        public let localAmount: Decimal
         public let localCurrency: String
-        public let authorizedAmount: Double
+        public let authorizedAmount: Decimal
         public let memo: String?
         public let receipt: Bool
         public let merchantName: String?
@@ -100,7 +87,7 @@ public extension TangemPayTransactionHistoryResponse {
     }
 
     struct Collateral: Decodable, Equatable {
-        public let amount: Double
+        public let amount: Decimal
         public let currency: String
         public let memo: String?
         public let chainId: Double?
@@ -110,7 +97,7 @@ public extension TangemPayTransactionHistoryResponse {
     }
 
     struct Payment: Decodable, Equatable {
-        public let amount: Double
+        public let amount: Decimal
         public let currency: String
         public let memo: String?
         public let chainId: Double?
@@ -126,7 +113,7 @@ public extension TangemPayTransactionHistoryResponse {
     }
 
     struct Fee: Decodable, Equatable {
-        public let amount: Double
+        public let amount: Decimal
         public let currency: String
         public let description: String?
         public let postedAt: Date
