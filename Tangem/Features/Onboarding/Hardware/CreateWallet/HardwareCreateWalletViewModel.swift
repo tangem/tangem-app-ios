@@ -104,14 +104,27 @@ private extension HardwareCreateWalletViewModel {
                     viewModel.alert = error.alertBinder
                 }
 
-            case .onboarding(let input, _):
+            case .onboarding(let input, let cardInfo):
                 Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue])
-
                 viewModel.incomingActionManager.discardIncomingAction()
 
-                await runOnMain {
-                    viewModel.isScanning = false
-                    viewModel.openOnboarding(input: input)
+                do {
+                    let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+
+                    if let userWalletId = UserWalletId(config: config),
+                       viewModel.userWalletRepository.models.contains(where: { $0.userWalletId == userWalletId }) {
+                        throw UserWalletRepositoryError.duplicateWalletAdded
+                    }
+
+                    await runOnMain {
+                        viewModel.isScanning = false
+                        viewModel.openOnboarding(input: input)
+                    }
+                } catch {
+                    await runOnMain {
+                        viewModel.isScanning = false
+                        viewModel.alert = error.alertBinder
+                    }
                 }
 
             case .scanTroubleshooting:
