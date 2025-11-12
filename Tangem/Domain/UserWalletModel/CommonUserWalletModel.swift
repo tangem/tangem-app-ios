@@ -22,6 +22,7 @@ class CommonUserWalletModel {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
+    let accountsWalletModelsAggregator: AccountsWalletModelsAggregating
     let walletModelsManager: WalletModelsManager
     let userTokensManager: UserTokensManager
     let nftManager: NFTManager
@@ -57,6 +58,7 @@ class CommonUserWalletModel {
         name: String,
         config: UserWalletConfig,
         userWalletId: UserWalletId,
+        accountsWalletModelsAggregator: AccountsWalletModelsAggregating,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
         nftManager: NFTManager,
@@ -69,6 +71,7 @@ class CommonUserWalletModel {
         self.config = config
         self.userWalletId = userWalletId
         self.name = name
+        self.accountsWalletModelsAggregator = accountsWalletModelsAggregator
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
         self.nftManager = nftManager
