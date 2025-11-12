@@ -567,6 +567,10 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.accountModelsManager
     }
 
+    var accountsWalletModelsAggregator: any AccountsWalletModelsAggregating {
+        userWalletModel.accountsWalletModelsAggregator
+    }
+
     func validate() -> Bool { userWalletModel.validate() }
 
     func update(type: UpdateRequest) {
