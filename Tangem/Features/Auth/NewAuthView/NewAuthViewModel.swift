@@ -268,9 +268,8 @@ private extension NewAuthViewModel {
                 setup(state: makeWalletsState())
                 unlockSingleProtectedMobileWalletIfNeeded()
             case .wallets:
-                let sdkError = error.toTangemSdkError()
-                if !sdkError.isUserCancelled {
-                    alert = sdkError.alertBinder
+                if !error.isCancellationError {
+                    alert = error.alertBinder
                 }
             case .none:
                 break
