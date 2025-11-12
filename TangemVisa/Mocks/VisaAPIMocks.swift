@@ -362,6 +362,10 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         .init(orderId: "", status: .processing)
     }
 
+    func setPin(pin: String, sessionId: String, iv: String) async throws -> TangemPaySetPinResponse {
+        .init()
+    }
+
     func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse {
         TangemPayTransactionHistoryResponse(transactions: [])
     }
