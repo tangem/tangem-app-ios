@@ -8,6 +8,7 @@
 
 import BlockchainSdk
 import Combine
+import Foundation
 import TangemVisa
 import TangemSdk
 import TangemFoundation
@@ -41,7 +42,7 @@ final class TangemPayAccount {
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
 
     private let didTapIssueOrderSubject = PassthroughSubject<Void, Never>()
-    private var customerInfoPollingTask: Task<Void, Never>?
+    private var orderStatusPollingTask: Task<Void, Never>?
 
     init(authorizer: TangemPayAuthorizer, walletAddress: String, tokens: VisaAuthorizationTokens) {
         self.authorizer = authorizer
@@ -70,7 +71,7 @@ final class TangemPayAccount {
             .compactMap(\.self?.tangemPayStatus)
             .eraseToAnyPublisher()
 
-        tangemPayCardIssuingInProgressPublisher = orderIdStorage.savedOrderIdPublisher
+        tangemPayCardIssuingInProgressPublisher = orderIdStorage.cardIssuingOrderIdPublisher
             .map { $0 != nil }
             .merge(with: didTapIssueOrderSubject.mapToValue(true))
             .eraseToAnyPublisher()
@@ -90,7 +91,11 @@ final class TangemPayAccount {
         tangemPayNotificationManager.setupManager(with: self)
         authorizationTokensHandler.setupRefreshTokenSaver(self)
 
-        startCustomerInfoPolling()
+        loadCustomerInfo()
+
+        if let cardIssuingOrderId = orderIdStorage.cardIssuingOrderId {
+            startOrderStatusPolling(orderId: cardIssuingOrderId, interval: Constants.cardIssuingOrderPollInterval)
+        }
     }
 
     convenience init?(userWalletModel: UserWalletModel) {
@@ -148,6 +153,10 @@ final class TangemPayAccount {
             do {
                 let customerInfo = try await tangemPayAccount.customerInfoManagementService.loadCustomerInfo()
                 tangemPayAccount.customerInfoSubject.send(customerInfo)
+
+                if customerInfo.tangemPayStatus.isActive {
+                    tangemPayAccount.orderIdStorage.deleteCardIssuingOrderId()
+                }
             } catch {
                 // [REDACTED_TODO_COMMENT]
             }
@@ -157,33 +166,31 @@ final class TangemPayAccount {
     func freeze(cardId: String) async throws {
         let response = try await customerInfoManagementService.freeze(cardId: cardId)
         if response.status != .completed {
-            startOrderStatusPolling(orderId: response.orderId)
+            startOrderStatusPolling(orderId: response.orderId, interval: Constants.freezeUnfreezeOrderPollInterval)
         }
     }
 
     func unfreeze(cardId: String) async throws {
         let response = try await customerInfoManagementService.unfreeze(cardId: cardId)
         if response.status != .completed {
-            startOrderStatusPolling(orderId: response.orderId)
+            startOrderStatusPolling(orderId: response.orderId, interval: Constants.freezeUnfreezeOrderPollInterval)
         }
     }
 
-    private func startOrderStatusPolling(orderId: String) {
+    private func startOrderStatusPolling(orderId: String, interval: TimeInterval) {
+        orderStatusPollingTask?.cancel()
+
         let polling = PollingSequence(
-            interval: 5,
-            request: { [weak self] in
-                try await self?.customerInfoManagementService.getOrder(orderId: orderId)
+            interval: interval,
+            request: { [customerInfoManagementService] in
+                try await customerInfoManagementService.getOrder(orderId: orderId)
             }
         )
 
-        runTask(in: self) { tangemPayAccount in
+        orderStatusPollingTask = runTask(in: self) { tangemPayAccount in
             for await result in polling {
                 switch result {
                 case .success(let order):
-                    guard let order else {
-                        return
-                    }
-
                     if order.status == .completed {
                         tangemPayAccount.loadCustomerInfo()
                         return
@@ -197,50 +204,19 @@ final class TangemPayAccount {
         }
     }
 
-    private func startCustomerInfoPolling() {
-        customerInfoPollingTask?.cancel()
-
-        let polling = PollingSequence(
-            interval: .minute,
-            request: { [weak self] in
-                try await self?.customerInfoManagementService.loadCustomerInfo()
-            }
-        )
-
-        customerInfoPollingTask = runTask(in: self) { tangemPayAccount in
-            for await result in polling {
-                switch result {
-                case .success(let customerInfo):
-                    guard let customerInfo else {
-                        tangemPayAccount.customerInfoPollingTask?.cancel()
-                        return
-                    }
-
-                    tangemPayAccount.customerInfoSubject.send(customerInfo)
-                    if customerInfo.tangemPayStatus.isActive {
-                        tangemPayAccount.orderIdStorage.deleteSavedOrderId()
-                        tangemPayAccount.customerInfoPollingTask?.cancel()
-                    }
-
-                case .failure:
-                    // [REDACTED_TODO_COMMENT]
-                    break
-                }
-            }
-        }
-    }
-
     private func createOrder() async {
         do {
             let order = try await customerInfoManagementService.placeOrder(walletAddress: walletAddress)
-            orderIdStorage.saveOrderId(order.id)
+            orderIdStorage.saveCardIssuingOrderId(order.id)
+
+            startOrderStatusPolling(orderId: order.id, interval: Constants.cardIssuingOrderPollInterval)
         } catch {
             // [REDACTED_TODO_COMMENT]
         }
     }
 
     deinit {
-        customerInfoPollingTask?.cancel()
+        orderStatusPollingTask?.cancel()
     }
 }
 
@@ -290,8 +266,10 @@ private extension VisaCustomerInfoResponse {
             switch productInstance.status {
             case .active:
                 return .active
-            default:
+            case .blocked:
                 return .blocked
+            default:
+                break
             }
         }
 
@@ -364,5 +342,12 @@ extension TangemPayAccount: MainHeaderBalanceProvider {
                 return .loaded(text: .string("$" + balance.availableBalance.description))
             }
             .eraseToAnyPublisher()
+    }
+}
+
+private extension TangemPayAccount {
+    enum Constants {
+        static let cardIssuingOrderPollInterval: TimeInterval = 60
+        static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
     }
 }
