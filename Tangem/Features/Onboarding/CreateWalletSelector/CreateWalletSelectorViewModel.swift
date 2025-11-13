@@ -17,8 +17,6 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 final class CreateWalletSelectorViewModel: ObservableObject {
     @Published var isScanning: Bool = false
 
-    @Published var mailViewModel: MailViewModel?
-
     @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var error: AlertBinder?
 
@@ -33,6 +31,7 @@ final class CreateWalletSelectorViewModel: ObservableObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
 
@@ -132,7 +131,7 @@ private extension CreateWalletSelectorViewModel {
                 Analytics.log(.cantScanTheCard, params: [.source: .introduction])
                 viewModel.incomingActionManager.discardIncomingAction()
 
-                await runOnMain {
+                await MainActor.run {
                     viewModel.isScanning = false
                     viewModel.openTroubleshooting()
                 }
@@ -192,6 +191,7 @@ private extension CreateWalletSelectorViewModel {
         coordinator?.openMain(userWalletModel: userWalletModel)
     }
 
+    @MainActor
     func openTroubleshooting() {
         let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
             self?.scanCardTryAgain()
@@ -226,15 +226,19 @@ private extension CreateWalletSelectorViewModel {
         scanCard()
     }
 
+    @MainActor
     func requestSupport() {
         Analytics.log(.requestSupport, params: [.source: .introduction])
         failedCardScanTracker.resetCounter()
         openMail(with: BaseDataCollector(), recipient: EmailConfig.default.recipient)
     }
 
+    @MainActor
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+
+        mailPresenter.present(viewModel: mailViewModel)
     }
 
     func openScanCardManual() {

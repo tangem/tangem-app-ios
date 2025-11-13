@@ -72,6 +72,7 @@ struct MultiWalletMainContentView: View {
             }
         }
         .padding(.horizontal, 16)
+        .onFirstAppear(perform: viewModel.onFirstAppear)
         .bindAlert($viewModel.error)
     }
 
@@ -162,8 +163,9 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             initialGroupingOption: .none,
             initialSortingOption: .dragAndDrop
         )
+        // accounts_fixes_needed_main
         let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokenListManager: userWalletModel.userTokenListManager,
+            userTokensManager: userWalletModel.userTokensManager,
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )

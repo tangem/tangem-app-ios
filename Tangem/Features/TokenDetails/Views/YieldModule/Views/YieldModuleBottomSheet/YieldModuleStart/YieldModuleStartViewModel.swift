@@ -12,6 +12,7 @@ import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 import TangemSdk
 import TangemLocalization
+import protocol BlockchainSdk.EthereumFeeParameters
 
 final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Injected
@@ -173,17 +174,23 @@ final class YieldModuleStartViewModel: ObservableObject {
     }
 
     private func fetchFees() {
-        Task { await fetchNetworkFee() }
-        Task { await fetchMinimalAmount() }
-        Task { await fetchEstimatedAndMaximumFee() }
+        Task {
+            let feeParameters = try await yieldManagerInteractor.getCurrentFeeParameters()
+
+            async let networkFee: () = fetchNetworkFee()
+            async let minimalAmount: () = fetchMinimalAmount(feeParameters: feeParameters)
+            async let estimatedAndMaximumFee: () = fetchEstimatedAndMaximumFee(feeParameters: feeParameters)
+
+            _ = await (networkFee, minimalAmount, estimatedAndMaximumFee)
+        }
     }
 
     @MainActor
-    private func fetchMinimalAmount() async {
+    private func fetchMinimalAmount(feeParameters: EthereumFeeParameters) async {
         minimalAmountState = minimalAmountState.withFeeState(.loading)
 
         do {
-            let minimalAmountInTokens = try await yieldManagerInteractor.getMinAmount()
+            let minimalAmountInTokens = try await yieldManagerInteractor.getMinAmount(feeParameters: feeParameters)
             let minimalFee = try await feeConverter.makeFormattedMinimalFee(from: minimalAmountInTokens)
 
             minimalAmountState = minimalAmountState
@@ -245,7 +252,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     }
 
     @MainActor
-    private func fetchEstimatedAndMaximumFee() async {
+    private func fetchEstimatedAndMaximumFee(feeParameters: EthereumFeeParameters) async {
         estimatedFeeState = estimatedFeeState.withFeeState(.loading)
         maximumFeeState = maximumFeeState.withFeeState(.loading)
 
@@ -256,7 +263,8 @@ final class YieldModuleStartViewModel: ObservableObject {
         }
 
         do {
-            let estimatedFee = try await yieldManagerInteractor.getCurrentNetworkFee()
+            let estimatedFee = try await yieldManagerInteractor.getCurrentNetworkFee(feeParameters: feeParameters)
+
             let estimatedFeeFormatted = try await feeConverter.makeFormattedMinimalFee(from: estimatedFee)
             let maxFeeFormatted = try await feeConverter.makeFormattedMaximumFee(maxFeeNative: maxFeeNative)
 
@@ -279,6 +287,7 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     private func getFeeCurrencyWalletModel(in userWalletModel: any UserWalletModel) -> (any WalletModel)? {
         guard let selectedUserModel = userWalletRepository.selectedModel,
+              // accounts_fixes_needed_yield
               let feeCurrencyWalletModel = selectedUserModel.walletModelsManager.walletModels.first(where: {
                   $0.tokenItem == walletModel.feeTokenItem
               })
