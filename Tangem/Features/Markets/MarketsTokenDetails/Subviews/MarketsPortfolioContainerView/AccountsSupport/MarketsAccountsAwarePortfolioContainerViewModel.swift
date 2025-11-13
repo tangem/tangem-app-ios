@@ -208,16 +208,13 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
             contextActionsDelegate: self
         )
 
-        let hasMultipleAccountsCase = walletsData.contains { walletData in
-            walletData.accountModels.contains {
-                guard case .standard(let cryptoAccounts) = $0 else { return false }
-                return cryptoAccounts.state == .multiple
-            }
+        let hasMultipleAccounts = walletsData.contains { walletData in
+            walletData.accountModels.cryptoAccounts().hasMultipleAccounts
         }
 
         let shouldAnimate = networks != nil
 
-        if hasMultipleAccountsCase {
+        if hasMultipleAccounts {
             buildAccountsAwareUI(walletsData: walletsData, factory: factory, animated: shouldAnimate)
         } else {
             buildSimpleWalletsUI(walletsData: walletsData, factory: factory, animated: shouldAnimate)
