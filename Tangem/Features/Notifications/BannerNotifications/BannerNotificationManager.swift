@@ -173,6 +173,7 @@ class BannerNotificationManager {
 
     private func sepaEvent(promotion: ActivePromotionInfo, analytics: BannerNotificationEventAnalyticsParamsBuilder) -> AnyPublisher<BannerNotificationEvent?, Never> {
         let preferencePublisher = onrampRepository.preferencePublisher.removeDuplicates()
+        // accounts_fixes_needed_notifications
         let bitcoinWalletModel = userWallet.walletModelsManager.walletModelsPublisher
             // If user add / delete bitcoin
             .map { walletModels in

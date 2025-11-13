@@ -44,6 +44,13 @@ struct TONProvider: HostProvider {
         requestPublisher(for: .init(node: node, targetType: .getInfo(address: address)))
     }
 
+    /// Fetch address information to check if wallet is active
+    /// - Parameter address: UserFriendly TON address
+    /// - Returns: Model with address information including account state
+    func getAddressInformation(address: String) -> AnyPublisher<TONModels.AddressInfo, Error> {
+        requestPublisher(for: .init(node: node, targetType: .getAddressInformation(address: address)))
+    }
+
     /// Fetch jetton wallet address
     /// - Parameters:
     ///   - ownerAddress: UserFriendly TON address

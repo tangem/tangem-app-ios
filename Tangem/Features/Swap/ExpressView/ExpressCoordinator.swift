@@ -9,12 +9,13 @@
 import Foundation
 import Combine
 import TangemExpress
-import UIKit
+import TangemFoundation
+import class UIKit.UIApplication
 
 final class ExpressCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
 
-    let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>
+    let dismissAction: DismissAction
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
@@ -28,6 +29,7 @@ final class ExpressCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var expressTokensListViewModel: ExpressTokensListViewModel?
+    @Published var swapTokenSelectorViewModel: SwapTokenSelectorViewModel?
     @Published var expressFeeSelectorViewModel: ExpressFeeSelectorViewModel?
     @Published var expressProvidersSelectorViewModel: ExpressProvidersSelectorViewModel?
     @Published var expressApproveViewModel: ExpressApproveViewModel?
@@ -38,7 +40,7 @@ final class ExpressCoordinator: CoordinatorObject {
 
     required init(
         factory: ExpressModulesFactory,
-        dismissAction: @escaping Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>,
+        dismissAction: @escaping DismissAction,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.factory = factory
@@ -57,6 +59,12 @@ extension ExpressCoordinator {
     enum Options {
         case `default`
     }
+
+    typealias DismissAction = Action<DismissOptions?>
+
+    enum DismissOptions {
+        case openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem)
+    }
 }
 
 // MARK: - ExpressRoutable
@@ -66,12 +74,17 @@ extension ExpressCoordinator: ExpressRoutable {
         expressTokensListViewModel = factory.makeExpressTokensListViewModel(swapDirection: swapDirection, coordinator: self)
     }
 
+    func presentSwapTokenSelector(swapDirection: SwapTokenSelectorViewModel.SwapDirection) {
+        swapTokenSelectorViewModel = factory.makeSwapTokenSelectorViewModel(swapDirection: swapDirection, coordinator: self)
+    }
+
     func presentFeeSelectorView() {
         expressFeeSelectorViewModel = factory.makeExpressFeeSelectorViewModel(coordinator: self)
     }
 
-    func presentApproveView(provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy) {
+    func presentApproveView(source: any ExpressInteractorSourceWallet, provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy) {
         expressApproveViewModel = factory.makeExpressApproveViewModel(
+            source: source,
             providerName: provider.name,
             selectedPolicy: selectedPolicy,
             coordinator: self
@@ -101,8 +114,8 @@ extension ExpressCoordinator: ExpressRoutable {
         expressProvidersSelectorViewModel = factory.makeExpressProvidersSelectorViewModel(coordinator: self)
     }
 
-    func presentFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
-        dismiss(with: (walletModel, userWalletModel))
+    func presentFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem) {
+        dismiss(with: .openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem))
     }
 
     func closeSwappingView() {
@@ -115,6 +128,14 @@ extension ExpressCoordinator: ExpressRoutable {
 extension ExpressCoordinator: ExpressTokensListRoutable {
     func closeExpressTokensList() {
         expressTokensListViewModel = nil
+    }
+}
+
+// MARK: - SwapTokenSelectorRoutable
+
+extension ExpressCoordinator: SwapTokenSelectorRoutable {
+    func closeSwapTokenSelector() {
+        swapTokenSelectorViewModel = nil
     }
 }
 

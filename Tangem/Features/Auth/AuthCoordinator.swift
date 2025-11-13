@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class AuthCoordinator: CoordinatorObject {
+final class AuthCoordinator: CoordinatorObject {
     typealias OutputOptions = ScanDismissOptions
 
     // MARK: - Dependencies
@@ -17,6 +17,7 @@ class AuthCoordinator: CoordinatorObject {
     let dismissAction: Action<ScanDismissOptions>
     let popToRootAction: Action<PopToRootOptions>
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Root view model
@@ -26,11 +27,7 @@ class AuthCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator?
-
-    // MARK: - Child view models
-
-    @Published var mailViewModel: MailViewModel?
+    @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
 
     required init(
         dismissAction: @escaping Action<ScanDismissOptions>,
@@ -71,7 +68,9 @@ extension AuthCoordinator: AuthRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+
+        mailPresenter.present(viewModel: mailViewModel)
     }
 
     func openScanCardManual() {
@@ -82,21 +81,17 @@ extension AuthCoordinator: AuthRoutable {
 // MARK: - NewAuthRoutable
 
 extension AuthCoordinator: NewAuthRoutable {
-    func openCreateWallet() {
-        let dismissAction: Action<CreateWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
+    func openAddWallet() {
+        let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main(let userWallet):
                 self?.dismiss(with: .main(userWallet))
             }
         }
 
-        let coordinator = CreateWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = CreateWalletSelectorCoordinator.InputOptions()
+        let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
+        let inputOptions = AddWalletSelectorCoordinator.InputOptions()
         coordinator.start(with: inputOptions)
-        createWalletSelectorCoordinator = coordinator
-    }
-
-    func openShop() {
-        safariManager.openURL(AppConstants.getWebShopUrl(isExistingUser: true))
+        addWalletSelectorCoordinator = coordinator
     }
 }
