@@ -14,7 +14,7 @@ import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 
 final class UserWalletSettingsCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
+    let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Injected
@@ -48,14 +48,14 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     required init(
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<OutputOptions>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
-    func start(with userWalletModel: Options) {
+    func start(with userWalletModel: InputOptions) {
         rootViewModel = UserWalletSettingsViewModel(userWalletModel: userWalletModel, coordinator: self)
     }
 }
@@ -63,7 +63,12 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
 // MARK: - Options
 
 extension UserWalletSettingsCoordinator {
-    typealias Options = UserWalletModel
+    typealias InputOptions = UserWalletModel
+
+    enum OutputOptions {
+        case main(userWalletModel: UserWalletModel)
+        case dismiss
+    }
 }
 
 // MARK: - UserWalletSettingsRoutable
@@ -129,6 +134,10 @@ extension UserWalletSettingsCoordinator:
     }
 
     func openScanCardSettings(with input: ScanCardSettingsViewModel.Input) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.dismiss(with: .dismiss)
+        }
+
         let coordinator = ScanCardSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: .init(input: input))
         scanCardSettingsCoordinator = coordinator
@@ -187,8 +196,11 @@ extension UserWalletSettingsCoordinator:
     }
 
     func openMobileBackupTypes(userWalletModel: UserWalletModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.mobileBackupTypesCoordinator = nil
+        let dismissAction: Action<MobileBackupTypesCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main(let userWalletModel):
+                self?.dismiss(with: .main(userWalletModel: userWalletModel))
+            }
         }
 
         let inputOptions = MobileBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
@@ -198,9 +210,11 @@ extension UserWalletSettingsCoordinator:
     }
 
     func openMobileUpgrade(userWalletModel: UserWalletModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.hardwareBackupTypesCoordinator = nil
-            self?.dismiss()
+        let dismissAction: Action<HardwareBackupTypesCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main(let userWalletModel):
+                self?.dismiss(with: .main(userWalletModel: userWalletModel))
+            }
         }
 
         let inputOptions = HardwareBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
@@ -232,7 +246,7 @@ extension UserWalletSettingsCoordinator:
                 self.popToRoot()
             }
         } else {
-            dismissAction(())
+            dismiss(with: .dismiss)
         }
     }
 
