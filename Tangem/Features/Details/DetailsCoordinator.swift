@@ -7,14 +7,15 @@
 //
 
 import Foundation
-import UIKit
+import class UIKit.UIApplication
 
-class DetailsCoordinator: CoordinatorObject {
+final class DetailsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
 
@@ -28,13 +29,12 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var userWalletSettingsCoordinator: UserWalletSettingsCoordinator?
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
-    @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator?
+    @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
 
     // MARK: - Child view models
 
-    @Published var mailViewModel: MailViewModel?
     @Published var supportChatViewModel: SupportChatViewModel?
-    @Published var tosViewModel: TOSViewModel?
+    @Published var tosViewModel: DetailsTOSViewModel?
     @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
     @Published var logsViewModel: LogsViewModel?
 
@@ -48,7 +48,9 @@ class DetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: DetailsCoordinator.Options) {
-        detailsViewModel = DetailsViewModel(coordinator: self)
+        Task { @MainActor in
+            detailsViewModel = DetailsViewModel(coordinator: self)
+        }
     }
 }
 
@@ -101,18 +103,18 @@ extension DetailsCoordinator: DetailsRoutable {
         modalOnboardingCoordinator = coordinator
     }
 
-    func openCreateWallet() {
-        let dismissAction: Action<CreateWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
+    func openAddWallet() {
+        let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main:
                 self?.dismiss()
             }
         }
 
-        let coordinator = CreateWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = CreateWalletSelectorCoordinator.InputOptions()
+        let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
+        let inputOptions = AddWalletSelectorCoordinator.InputOptions()
         coordinator.start(with: inputOptions)
-        createWalletSelectorCoordinator = coordinator
+        addWalletSelectorCoordinator = coordinator
     }
 
     func openAppSettings() {
@@ -123,7 +125,9 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+
+        mailPresenter.present(viewModel: mailViewModel)
     }
 
     func openSupportChat(input: SupportChatInputModel) {
@@ -132,7 +136,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openTOS() {
-        tosViewModel = .init(bottomOverlayHeight: 0)
+        tosViewModel = DetailsTOSViewModel()
     }
 
     func openScanCardManual() {

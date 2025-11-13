@@ -25,8 +25,6 @@ struct DetailsView: View {
 
             userWalletsSection
 
-            tangemPaySection
-
             buyWalletSection
 
             appSettingsSection
@@ -64,12 +62,6 @@ struct DetailsView: View {
                 DefaultRowView(viewModel: viewModel)
                     .appearance(.accentButton)
             }
-        }
-    }
-
-    private var tangemPaySection: some View {
-        GroupedSection(viewModel.tangemPayRowViewModel) {
-            TangemPayRowView(viewModel: $0)
         }
     }
 
