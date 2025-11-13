@@ -95,6 +95,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = MainWindow(windowScene: windowScene)
 
         sheetRegistry.registerWalletConnectFloatingSheets()
+        sheetRegistry.registerMarketsFloatingSheets()
 
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)
