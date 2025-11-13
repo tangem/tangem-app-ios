@@ -40,11 +40,20 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayAddFundsSheetViewModel.self) {
                 TangemPayAddFundsSheetView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayFreezeSheetViewModel.self) {
+                TangemPayFreezeSheetView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
+                TangemPayTransactionDetailsView(viewModel: $0)
+            }
             .sheet(item: $coordinator.expressCoordinator) {
                 ExpressCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.addToApplePayGuideViewModel) { viewModel in
-                TangemPayAddToAppPayGuideView(viewModel: viewModel)
+            .sheet(item: $coordinator.addToApplePayGuideViewModel) {
+                TangemPayAddToAppPayGuideView(viewModel: $0)
+            }
+            .sheet(item: $coordinator.tangemPayPinViewModel) {
+                TangemPayPinView(viewModel: $0)
             }
     }
 }

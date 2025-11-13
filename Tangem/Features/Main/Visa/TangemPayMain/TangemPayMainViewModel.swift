@@ -11,8 +11,10 @@ import TangemUI
 import TangemVisa
 import TangemFoundation
 import PassKit
+import TangemLocalization
 
 final class TangemPayMainViewModel: ObservableObject {
+    let tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel
     let mainHeaderViewModel: MainHeaderViewModel
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
@@ -22,8 +24,8 @@ final class TangemPayMainViewModel: ObservableObject {
         )
     }
 
-    @Published private(set) var tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel?
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
+    @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
 
     private let userWalletInfo: UserWalletInfo
@@ -31,13 +33,13 @@ final class TangemPayMainViewModel: ObservableObject {
     private weak var coordinator: TangemPayMainRoutable?
 
     private let transactionHistoryService: TangemPayTransactionHistoryService
-    private var tangemPayCardDetailsViewModelFactory: TangemPayCardDetailsViewModelFactory?
 
     private var bag = Set<AnyCancellable>()
 
     init(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
+        cardNumberEnd: String,
         coordinator: TangemPayMainRoutable
     ) {
         self.userWalletInfo = userWalletInfo
@@ -56,23 +58,17 @@ final class TangemPayMainViewModel: ObservableObject {
             apiService: tangemPayAccount.customerInfoManagementService
         )
 
+        tangemPayCardDetailsViewModel = TangemPayCardDetailsViewModel(
+            lastFourDigits: cardNumberEnd,
+            customerInfoManagementService: tangemPayAccount.customerInfoManagementService
+        )
+
         bind()
         reloadHistory()
-        fetchAccountStatus()
     }
 
     func reloadHistory() {
         transactionHistoryService.reloadHistory()
-    }
-
-    func fetchAccountStatus() {
-        Task { @MainActor [tangemPayAccount, weak self] in
-            let status = try? await tangemPayAccount.getTangemPayStatus()
-
-            self?.shouldDisplayAddToApplePayGuide = status == .active
-                && PKPaymentAuthorizationViewController.canMakePayments()
-                && !AppSettings.shared.tangemPayHasDismissedAddToApplePayGuide
-        }
     }
 
     func fetchNextTransactionHistoryPage() -> FetchMore? {
@@ -109,38 +105,130 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func openAddToApplePayGuide() {
-        guard let newCardDetailsViewModel = tangemPayCardDetailsViewModel else {
+        coordinator?.openAddToApplePayGuide(viewModel: tangemPayCardDetailsViewModel)
+    }
+
+    func dismissAddToApplePayGuideBanner() {
+        AppSettings.shared.tangemPayShowAddToApplePayGuide = false
+    }
+
+    func showFreezePopup() {
+        coordinator?.openTangemPayFreezeSheet { [weak self] in
+            self?.freeze()
+        }
+    }
+
+    func unfreeze() {
+        guard let cardId = tangemPayAccount.cardId else {
+            showFreezeUnfreezeErrorToast(freeze: false)
             return
         }
 
-        coordinator?.openAddToApplePayGuide(viewModel: newCardDetailsViewModel)
+        freezingState = .unfreezingInProgress
+        tangemPayCardDetailsViewModel.state = .loading(isFrozen: tangemPayCardDetailsViewModel.state.isFrozen)
+
+        Task { @MainActor in
+            do {
+                try await tangemPayAccount.unfreeze(cardId: cardId)
+            } catch {
+                freezingState = .frozen
+                showFreezeUnfreezeErrorToast(freeze: false)
+            }
+        }
+    }
+
+    func setPin() {
+        coordinator?.openTangemPayPin()
+    }
+
+    private func freeze() {
+        guard let cardId = tangemPayAccount.cardId else {
+            showFreezeUnfreezeErrorToast(freeze: true)
+            return
+        }
+
+        freezingState = .freezingInProgress
+        tangemPayCardDetailsViewModel.state = .loading(isFrozen: tangemPayCardDetailsViewModel.state.isFrozen)
+
+        Task { @MainActor in
+            do {
+                try await tangemPayAccount.freeze(cardId: cardId)
+            } catch {
+                freezingState = .normal
+                showFreezeUnfreezeErrorToast(freeze: true)
+            }
+        }
+    }
+
+    private func showFreezeUnfreezeErrorToast(freeze: Bool) {
+        let message = freeze
+            ? Localization.tangemPayFreezeCardFailed
+            : Localization.tangemPayUnfreezeCardFailed
+
+        Toast(view: WarningToast(text: message))
+            .present(
+                layout: .top(padding: 20),
+                type: .temporary()
+            )
+    }
+
+    func openTransactionDetails(id: String) {
+        guard let transaction = transactionHistoryService.getTransaction(id: id) else {
+            assertionFailure("Transaction not found")
+            return
+        }
+
+        coordinator?.openTangemPayTransactionDetailsSheet(transaction: transaction)
     }
 }
 
 private extension TangemPayMainViewModel {
     func bind() {
-        tangemPayAccount.tangemPayCardDetailsPublisher
-            .withWeakCaptureOf(self)
-            .map { viewModel, cardDetails in
-                guard let (card, _) = cardDetails else {
-                    return nil
-                }
-
-                return TangemPayCardDetailsViewModel(
-                    lastFourDigits: card.cardNumberEnd,
-                    customerInfoManagementService: viewModel.tangemPayAccount.customerInfoManagementService
-                )
-            }
-            .receiveOnMain()
-            .assign(to: &$tangemPayCardDetailsViewModel)
-
         transactionHistoryService
             .tangemPayTransactionHistoryState
             .receiveOnMain()
             .assign(to: &$tangemPayTransactionHistoryState)
 
-        AppSettings.shared.$tangemPayHasDismissedAddToApplePayGuide
-            .map { !$0 }
-            .assign(to: &$shouldDisplayAddToApplePayGuide)
+        Publishers.CombineLatest(
+            AppSettings.shared.$tangemPayShowAddToApplePayGuide,
+            tangemPayAccount.tangemPayStatusPublisher
+        )
+        .map { tangemPayShowAddToApplePayGuide, status in
+            PKPaymentAuthorizationViewController.canMakePayments()
+                && status == .active
+                && tangemPayShowAddToApplePayGuide
+        }
+        .receiveOnMain()
+        .assign(to: \.shouldDisplayAddToApplePayGuide, on: self, ownership: .weak)
+        .store(in: &bag)
+
+        tangemPayAccount.tangemPayStatusPublisher
+            .map { $0 == .blocked ? .frozen : .normal }
+            .receiveOnMain()
+            .assign(to: \.freezingState, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        $freezingState
+            .map(\.cardDetailsState)
+            .receiveOnMain()
+            .assign(to: \.state, on: tangemPayCardDetailsViewModel, ownership: .weak)
+            .store(in: &bag)
+    }
+}
+
+// MARK: - TangemPayFreezingState+TangemPayCardDetailsState
+
+private extension TangemPayFreezingState {
+    var cardDetailsState: TangemPayCardDetailsState {
+        switch self {
+        case .normal:
+            .hidden(isFrozen: false)
+        case .freezingInProgress:
+            .loading(isFrozen: false)
+        case .frozen:
+            .hidden(isFrozen: true)
+        case .unfreezingInProgress:
+            .loading(isFrozen: true)
+        }
     }
 }

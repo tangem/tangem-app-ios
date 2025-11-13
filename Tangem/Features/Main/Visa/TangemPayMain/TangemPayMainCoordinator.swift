@@ -14,8 +14,8 @@ class TangemPayMainCoordinator: CoordinatorObject {
     let dismissAction: ExpressCoordinator.DismissAction
     let popToRootAction: Action<PopToRootOptions>
 
-    @Injected(\.floatingSheetPresenter)
-    private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
     // MARK: - Root view model
 
@@ -28,6 +28,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
+    @Published var tangemPayPinViewModel: TangemPayPinViewModel?
 
     required init(
         dismissAction: @escaping ExpressCoordinator.DismissAction,
@@ -41,6 +42,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
         rootViewModel = .init(
             userWalletInfo: options.userWalletInfo,
             tangemPayAccount: options.tangemPayAccount,
+            cardNumberEnd: options.cardNumberEnd,
             coordinator: self
         )
     }
@@ -52,6 +54,7 @@ extension TangemPayMainCoordinator {
     struct Options {
         let userWalletInfo: UserWalletInfo
         let tangemPayAccount: TangemPayAccount
+        let cardNumberEnd: String
     }
 }
 
@@ -63,6 +66,10 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             tangemPayCardDetailsViewModel: viewModel,
             coordinator: self
         )
+    }
+
+    func openTangemPayPin() {
+        tangemPayPinViewModel = TangemPayPinViewModel()
     }
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input) {
@@ -79,12 +86,41 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
+
+    func openTangemPayFreezeSheet(freezeAction: @escaping () -> Void) {
+        let viewModel = TangemPayFreezeSheetViewModel(
+            coordinator: self,
+            freezeAction: freezeAction
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openTangemPayTransactionDetailsSheet(transaction: TangemPayTransactionRecord) {
+        let viewModel = TangemPayTransactionDetailsViewModel(transaction: transaction, coordinator: self)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
 }
 
 // MARK: - TangemPayNoDepositAddressSheetRoutable
 
 extension TangemPayMainCoordinator: TangemPayNoDepositAddressSheetRoutable {
     func closeNoDepositAddressSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayFreezeSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayFreezeSheetRoutable {
+    func closeFreezeSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
@@ -141,6 +177,30 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
     func closeAddFundsSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayTransactionDetailsRoutable
+
+extension TangemPayMainCoordinator: TangemPayTransactionDetailsRoutable {
+    func transactionDetailsDidRequestClose() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func transactionDetailsDidRequestDispute(dataCollector: EmailDataCollector, subject: VisaEmailSubject) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.default.recipient,
+            emailType: .visaFeedback(subject: subject)
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            mailPresenter.present(viewModel: mailViewModel)
         }
     }
 }

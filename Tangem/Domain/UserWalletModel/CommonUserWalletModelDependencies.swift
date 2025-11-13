@@ -118,10 +118,8 @@ struct CommonUserWalletModelDependencies {
     }
 
     private func makeNFTManager(userWalletId: UserWalletId, hasAccounts: Bool) -> NFTManager {
-        let accountsWalletModelsAggregator = CommonAccountsWalletModelsAggregator(accountModelsManager: accountModelsManager)
-
         let walletModelsPublisher = hasAccounts
-            ? accountsWalletModelsAggregator.walletModelsPublisher
+            ? AccountWalletModelsAggregator.walletModelsPublisher(from: accountModelsManager)
             : walletModelsManager.walletModelsPublisher
 
         return CommonNFTManager(

@@ -281,7 +281,9 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
+        // accounts_fixes_needed_main
         let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager)
+        // accounts_fixes_needed_main
         let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokensManager: userWalletModel.userTokensManager,
             optionsProviding: optionsManager,
@@ -320,7 +322,11 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount) {
+    func openTangemPayMainView(
+        userWalletInfo: UserWalletInfo,
+        tangemPayAccount: TangemPayAccount,
+        cardNumberEnd: String
+    ) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = TangemPayMainCoordinator(
@@ -328,7 +334,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .init(userWalletInfo: userWalletInfo, tangemPayAccount: tangemPayAccount))
+        coordinator.start(
+            with: .init(
+                userWalletInfo: userWalletInfo,
+                tangemPayAccount: tangemPayAccount,
+                cardNumberEnd: cardNumberEnd
+            )
+        )
         tangemPayMainCoordinator = coordinator
     }
 }
@@ -595,6 +607,7 @@ extension MainCoordinator: PendingExpressTxStatusRoutable {
         pendingExpressTxStatusBottomSheetViewModel = nil
 
         // We don't have info about derivation here, so we have to find first non-custom walletModel.
+        // accounts_fixes_needed_express
         guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
             $0.tokenItem.blockchain == tokenItem.blockchain
                 && $0.tokenItem.token == tokenItem.token

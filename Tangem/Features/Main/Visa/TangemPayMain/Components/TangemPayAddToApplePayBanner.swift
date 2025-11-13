@@ -8,8 +8,11 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 
 struct TangemPayAddToApplePayBanner: View {
+    let closeAction: () -> Void
+
     var body: some View {
         HStack(spacing: 16) {
             Circle()
@@ -19,11 +22,10 @@ struct TangemPayAddToApplePayBanner: View {
                     Assets.Visa.appleWallet.image
                 }
 
-            // [REDACTED_TODO_COMMENT]
             VStack(alignment: .leading, spacing: 4) {
-                Text("Add your card to Apple Pay")
+                Text(Localization.tangempayCardDetailsOpenWalletTitleApple)
                     .style(Fonts.Bold.footnote, color: Colors.Text.constantWhite)
-                Text("Set up Tangem Pay in a few taps and start paying with Apple Pay.")
+                Text(Localization.tangempayCardDetailsOpenWalletNotificationSubtitle)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
             }
             .multilineTextAlignment(.leading)
@@ -45,6 +47,18 @@ struct TangemPayAddToApplePayBanner: View {
                 )
                 .background(.ultraThinMaterial)
                 .cornerRadius(16)
+        }
+        .overlay(alignment: .topTrailing) {
+            Button {
+                closeAction()
+            } label: {
+                Assets.cross.image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(Color.white)
+                    .frame(size: .init(bothDimensions: 20))
+            }
+            .padding(8)
         }
     }
 }

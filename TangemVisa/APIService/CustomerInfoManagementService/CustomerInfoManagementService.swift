@@ -16,6 +16,10 @@ public protocol CustomerInfoManagementService {
 
     func getBalance() async throws -> TangemPayBalance
     func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse
+    func freeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse
+    func unfreeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse
+    func setPin(pin: String, sessionId: String, iv: String) async throws -> TangemPaySetPinResponse
+
     func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse
 
     func placeOrder(walletAddress: String) async throws -> TangemPayOrderResponse
@@ -127,6 +131,24 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
     func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse {
         try await apiService.request(
             makeRequest(for: .getCardDetails(sessionId: sessionId))
+        )
+    }
+
+    func freeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse {
+        try await apiService.request(
+            makeRequest(for: .freeze(cardId: cardId))
+        )
+    }
+
+    func unfreeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse {
+        try await apiService.request(
+            makeRequest(for: .unfreeze(cardId: cardId))
+        )
+    }
+
+    func setPin(pin: String, sessionId: String, iv: String) async throws -> TangemPaySetPinResponse {
+        try await apiService.request(
+            makeRequest(for: .setPin(pin: pin, sessionId: sessionId, iv: iv))
         )
     }
 
