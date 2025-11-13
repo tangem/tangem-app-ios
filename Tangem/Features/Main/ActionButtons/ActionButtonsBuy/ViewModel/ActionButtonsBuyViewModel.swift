@@ -113,10 +113,10 @@ extension ActionButtonsBuyViewModel {
             guard let tokenItem = hotToken.tokenItem else { return false }
 
             do {
-                // accounts_fixes_needed_action_buttons_buy
+                // accounts_fixes_needed_action_buttons_buy ([REDACTED_INFO])
                 try userWalletModel.userTokensManager.addTokenItemPrecondition(tokenItem)
 
-                // accounts_fixes_needed_action_buttons_buy
+                // accounts_fixes_needed_action_buttons_buy ([REDACTED_INFO])
                 let isNotAddedToken = !userWalletModel.userTokensManager.contains(tokenItem, derivationInsensitive: true)
 
                 return isNotAddedToken
@@ -137,6 +137,7 @@ extension ActionButtonsBuyViewModel {
     func addTokenToPortfolio(_ hotToken: HotCryptoToken) {
         guard let tokenItem = hotToken.tokenItem else { return }
 
+        // depends on ([REDACTED_INFO])
         // accounts_fixes_needed_action_buttons_buy
         userWalletModel.userTokensManager.add(tokenItem) { [weak self] result in
             guard let self, result.error == nil else { return }
@@ -152,6 +153,7 @@ extension ActionButtonsBuyViewModel {
     }
 
     private func handleTokenAdding(tokenItem: TokenItem) {
+        // depends on ([REDACTED_INFO])
         // accounts_fixes_needed_action_buttons_buy
         let walletModels = userWalletModel.walletModelsManager.walletModels
 

@@ -102,10 +102,9 @@ private extension ActionButtonsViewModel {
     }
 
     func bindWalletModels() {
-        // accounts_fixes_needed_action_buttons
-        userWalletModel
-            .walletModelsManager
-            .walletModelsPublisher
+        // accounts_fixes_needed_none
+        AccountsFeatureAwareWalletModelsResolver
+            .walletModelsPublisher(for: userWalletModel)
             .withWeakCaptureOf(self)
             .sink { viewModel, walletModels in
                 runTask(in: viewModel) { @MainActor viewModel in
@@ -182,9 +181,9 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleBuyUpdatedState() {
-        // accounts_fixes_needed_action_buttons
+        // accounts_fixes_needed_none
         buyActionButtonViewModel.updateState(
-            to: userWalletModel.walletModelsManager.walletModels.isEmpty ? .disabled : .idle
+            to: AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel).isEmpty ? .disabled : .idle
         )
     }
 }
@@ -246,8 +245,8 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleUpdatedSwapState() {
-        // accounts_fixes_needed_action_buttons
-        let walletModelsCount = userWalletModel.walletModelsManager.walletModels.count
+        // accounts_fixes_needed_none
+        let walletModelsCount = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel).count
 
         switch walletModelsCount {
         case 0:
@@ -301,9 +300,9 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleSellUpdatedState() {
-        // accounts_fixes_needed_action_buttons
+        // accounts_fixes_needed_none
         sellActionButtonViewModel.updateState(
-            to: userWalletModel.walletModelsManager.walletModels.isEmpty ? .disabled : .idle
+            to: AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel).isEmpty ? .disabled : .idle
         )
     }
 

@@ -20,10 +20,7 @@ final class NewActionButtonsSellViewModel: ObservableObject {
 
     @Published private(set) var notificationInput: NotificationViewInput?
 
-    lazy var tokenSelectorViewModel = NewTokenSelectorViewModel(
-        walletsProvider: walletsProvider,
-        output: self
-    )
+    let tokenSelectorViewModel: NewTokenSelectorViewModel
 
     // MARK: - Private
 
@@ -36,6 +33,9 @@ final class NewActionButtonsSellViewModel: ObservableObject {
 
     init(coordinator: some ActionButtonsSellRoutable) {
         self.coordinator = coordinator
+
+        tokenSelectorViewModel = NewTokenSelectorViewModel(walletsProvider: walletsProvider)
+        tokenSelectorViewModel.setup(with: self)
 
         bind()
     }

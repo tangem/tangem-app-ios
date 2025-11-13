@@ -20,14 +20,14 @@ final class NewTokenSelectorViewModel: ObservableObject {
 
     private var bag: Set<AnyCancellable> = []
 
-    init(
-        walletsProvider: any NewTokenSelectorWalletsProvider,
-        output: any NewTokenSelectorViewModelOutput,
-    ) {
+    init(walletsProvider: any NewTokenSelectorWalletsProvider) {
         self.walletsProvider = walletsProvider
-        self.output = output
 
         bind()
+    }
+
+    func setup(with output: NewTokenSelectorViewModelOutput?) {
+        self.output = output
     }
 
     private func bind() {
@@ -92,6 +92,7 @@ extension NewTokenSelectorViewModel: NewTokenSelectorItemViewModelMapper {
             cryptoBalanceProvider: item.cryptoBalanceProvider,
             fiatBalanceProvider: item.fiatBalanceProvider,
             action: { [weak self] in
+                assert(self?.output != nil, "NewTokenSelectorViewModel output is nil")
                 self?.output?.usedDidSelect(item: item)
             }
         )

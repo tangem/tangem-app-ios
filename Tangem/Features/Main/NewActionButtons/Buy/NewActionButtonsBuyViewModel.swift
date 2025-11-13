@@ -21,10 +21,7 @@ final class NewActionButtonsBuyViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published private(set) var hotCryptoItems: [HotCryptoToken] = []
 
-    lazy var tokenSelectorViewModel = NewTokenSelectorViewModel(
-        walletsProvider: walletsProvider,
-        output: self
-    )
+    let tokenSelectorViewModel: NewTokenSelectorViewModel
 
     // MARK: - Private
 
@@ -36,6 +33,9 @@ final class NewActionButtonsBuyViewModel: ObservableObject {
 
     init(coordinator: some ActionButtonsBuyRoutable) {
         self.coordinator = coordinator
+
+        tokenSelectorViewModel = NewTokenSelectorViewModel(walletsProvider: walletsProvider)
+        tokenSelectorViewModel.setup(with: self)
     }
 
     func onAppear() {

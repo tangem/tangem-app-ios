@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 enum AccountsFeatureAwareWalletModelsResolver {
     static func walletModels(for userWalletModel: any UserWalletModel) -> [any WalletModel] {
@@ -14,6 +15,14 @@ enum AccountsFeatureAwareWalletModelsResolver {
             AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
         } else {
             userWalletModel.walletModelsManager.walletModels
+        }
+    }
+
+    static func walletModelsPublisher(for userWalletModel: any UserWalletModel) -> AnyPublisher<[any WalletModel], Never> {
+        if FeatureProvider.isAvailable(.accounts) {
+            AccountWalletModelsAggregator.walletModelsPublisher(from: userWalletModel.accountModelsManager)
+        } else {
+            userWalletModel.walletModelsManager.walletModelsPublisher
         }
     }
 }
