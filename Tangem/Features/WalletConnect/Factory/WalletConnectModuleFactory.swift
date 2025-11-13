@@ -89,15 +89,9 @@ enum WalletConnectModuleFactory {
     ) -> WalletConnectDAppConnectionViewModel? {
         let filteredUserWallets = Self.userWalletRepository.models.filter { $0.config.isFeatureVisible(.walletConnect) }
 
-        let hasMultipleAccountsWallet = filteredUserWallets.filter {
-            $0.accountModelsManager.accountModels.contains { accountModel in
-                if case .standard(.multiple) = accountModel {
-                    return true
-                }
-
-                return false
-            }
-        }.isNotEmpty
+        let hasMultipleAccountsWallet = filteredUserWallets.contains { userWalletModel in
+            userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+        }
 
         guard filteredUserWallets.isNotEmpty else {
             assertionFailure("UserWalletRepository does not have any UserWalletModel that supports WalletConnect feature. Developer mistake.")

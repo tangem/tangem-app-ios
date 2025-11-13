@@ -90,3 +90,29 @@ struct NotSupportedWalletConnectAccountsWalletModelProvider: WalletConnectAccoun
         nil
     }
 }
+
+// MARK: - Convenience extensions
+
+private extension AccountModelsManager {
+    func findCryptoAccountModel(by accountId: String) -> (any CryptoAccountModel)? {
+        for accountModel in accountModels {
+            switch accountModel {
+            case .standard(let cryptoAccounts):
+                switch cryptoAccounts {
+                case .single(let cryptoAccountModel):
+                    if cryptoAccountModel.id.walletConnectIdentifierString == accountId {
+                        return cryptoAccountModel
+                    }
+                case .multiple(let cryptoAccountModels):
+                    if let cryptoAccountModel = cryptoAccountModels.first(where: {
+                        $0.id.walletConnectIdentifierString == accountId
+                    }) {
+                        return cryptoAccountModel
+                    }
+                }
+            }
+        }
+
+        return nil
+    }
+}
