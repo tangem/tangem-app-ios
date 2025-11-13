@@ -12,11 +12,15 @@ import Combine
 import TangemNetworkUtils
 
 class TezosJsonRpcProvider: HostProvider {
-    let host: String
+    var host: String {
+        nodeInfo.host
+    }
+
+    private let nodeInfo: NodeInfo
     private let provider: TangemProvider<TezosTarget>
 
-    init(host: String, configuration: TangemProviderConfiguration) {
-        self.host = host
+    init(nodeInfo: NodeInfo, configuration: TangemProviderConfiguration) {
+        self.nodeInfo = nodeInfo
         provider = TangemProvider<TezosTarget>(configuration: configuration)
     }
 
@@ -28,7 +32,7 @@ class TezosJsonRpcProvider: HostProvider {
     }
 
     func checkPublicKeyRevealed(address: String) -> AnyPublisher<Bool, Error> {
-        requestPublisher(for: TezosTarget(host: host, endpoint: .managerKey(address: address)))
+        requestPublisher(for: TezosTarget(host: nodeInfo.link, endpoint: .managerKey(address: address)))
             .mapString()
             .cleanString()
             .map { $0 == "null" ? false : true }
