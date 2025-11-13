@@ -83,21 +83,11 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
                 return .pendingTransaction
             }
 
-            print("ДЕБУГ \(self.tokenItem.name) \(self.tokenItem.blockchain.displayName) \n\n Staking \(stakingManagerState) \n\n Yield \(yieldModuleState)")
-
-            if let stakingBadge = LeadingBadgeMapper.mapRewards(stakingManagerState: stakingManagerState) {
-                return stakingBadge
-            } else if let yieldModuleState, let marketInfo = yieldModuleState.marketInfo {
+            if let yieldModuleState, let marketInfo = yieldModuleState.marketInfo {
                 return LeadingBadgeMapper.mapRewards(marketInfo: marketInfo, state: yieldModuleState.state)
+            } else {
+                return LeadingBadgeMapper.mapRewards(stakingManagerState: stakingManagerState)
             }
-
-            return nil
-
-//            if let yieldModuleState, let marketInfo = yieldModuleState.marketInfo {
-//                return LeadingBadgeMapper.mapRewards(marketInfo: marketInfo, state: yieldModuleState.state)
-//            } else {
-//                return LeadingBadgeMapper.mapRewards(stakingManagerState: stakingManagerState)
-//            }
         }
         .eraseToAnyPublisher()
     }
@@ -115,27 +105,23 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 
 private extension DefaultTokenItemInfoProvider {
     var yieldModuleStatePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never> {
-        let basePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never>
-
         if let manager = yieldModuleManager {
-            basePublisher = manager.statePublisher.eraseToAnyPublisher()
-        } else {
-            basePublisher = Just<YieldModuleManagerStateInfo?>(nil).eraseToAnyPublisher()
-        }
-
-        return basePublisher
-            .filter { stateInfo in
-                guard let state = stateInfo?.state else { return false }
-                switch state {
-                case .processing, .loading(nil):
-                    return false
-                case .loading(let cached?):
-                    return true
-                case .active, .notActive, .failedToLoad, .disabled:
-                    return true
+            manager.statePublisher
+                .filter { stateInfo in
+                    guard let state = stateInfo?.state else { return false }
+                    switch state {
+                    case .processing, .loading(.none):
+                        return false
+                    case .loading(.some):
+                        return true
+                    case .active, .notActive, .failedToLoad, .disabled:
+                        return true
+                    }
                 }
-            }
-            .eraseToAnyPublisher()
+                .eraseToAnyPublisher()
+        } else {
+            Just<YieldModuleManagerStateInfo?>(nil).eraseToAnyPublisher()
+        }
     }
 }
 
