@@ -143,11 +143,11 @@ extension DetailsViewModel {
     }
 
     func openMail(emailConfig: EmailConfig, emailType: EmailType, models: [any UserWalletModel]) {
-        // accounts_fixes_needed_feedback
+        // accounts_fixes_needed_none
         let data = models.map {
             DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
-                walletModels: $0.walletModelsManager.walletModels
+                walletModels: AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0)
             )
         }
 
@@ -180,10 +180,10 @@ extension DetailsViewModel {
         Analytics.log(.settingsButtonChat)
 
         let data = userWalletRepository.models.map {
-            // accounts_fixes_needed_feedback
+            // accounts_fixes_needed_none
             DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
-                walletModels: $0.walletModelsManager.walletModels
+                walletModels: AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0)
             )
         }
 
