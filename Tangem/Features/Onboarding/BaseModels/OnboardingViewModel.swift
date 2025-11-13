@@ -157,11 +157,15 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         let manageTokensAdapter = ManageTokensAdapter(
             settings: .init(
-                longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
                 existingCurves: userWalletModel.config.existingCurves,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
-                userTokensManager: userWalletModel.userTokensManager,
-                analyticsSourceRawValue: analyticsSourceRawValue
+                hardwareLimitationUtil: HardwareLimitationsUtil(config: userWalletModel.config),
+                analyticsSourceRawValue: analyticsSourceRawValue,
+                context: LegacyManageTokensContext(
+                    // accounts_fixes_needed_onboarding
+                    userTokensManager: userWalletModel.userTokensManager,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
             )
         )
 
@@ -454,11 +458,14 @@ extension OnboardingViewModel {
     }
 
     func openSupportChat() {
+        let walletModels = userWalletModel.map { AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0) } ?? []
+
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
                 .init(
                     userWalletEmailData: input.cardInput.emailData,
-                    walletModels: userWalletModel?.walletModelsManager.walletModels ?? []
+                    // accounts_fixes_needed_none
+                    walletModels: walletModels
                 ),
             ]
         )
@@ -474,11 +481,14 @@ extension OnboardingViewModel {
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
 
+        let walletModels = userWalletModel.map { AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0) } ?? []
+
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
                 .init(
                     userWalletEmailData: input.cardInput.emailData,
-                    walletModels: userWalletModel?.walletModelsManager.walletModels ?? []
+                    // accounts_fixes_needed_none
+                    walletModels: walletModels
                 ),
             ]
         )
