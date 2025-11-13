@@ -113,7 +113,7 @@ class XRPWalletManager: BaseManager, WalletManager {
             let signature = try await signer.sign(hash: hash, walletPublicKey: wallet.publicKey).async()
 
             let sendResult = try await sendXRPTransaction(xrpTransaction, signature: signature.signature)
-            return TransactionSendResult(hash: sendResult)
+            return TransactionSendResult(hash: sendResult, currentProviderHost: currentHost)
         }
         .mapSendTxError()
         .eraseToAnyPublisher()
@@ -396,7 +396,7 @@ private extension XRPWalletManager {
             )
         }
 
-        return TransactionSendResult(hash: result)
+        return TransactionSendResult(hash: result, currentProviderHost: currentHost)
     }
 
     func performSendTokenTransaction(
