@@ -78,9 +78,14 @@ extension DetailsCoordinator: DetailsRoutable {
         }
     }
 
-    func openWalletSettings(options: UserWalletSettingsCoordinator.Options) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.userWalletSettingsCoordinator = nil
+    func openWalletSettings(options: UserWalletSettingsCoordinator.InputOptions) {
+        let dismissAction: Action<UserWalletSettingsCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main:
+                self?.dismiss()
+            case .dismiss:
+                self?.userWalletSettingsCoordinator = nil
+            }
         }
 
         let coordinator = UserWalletSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
