@@ -95,7 +95,10 @@ public extension TransactionRecord {
         }
 
         static func from(_ sources: [Source]) -> Self {
-            sources.count == 1 ? .single(sources.first!) : .multiple(sources)
+            if let source = sources.singleElement {
+                return .single(source)
+            }
+            return .multiple(sources)
         }
     }
 
@@ -125,7 +128,10 @@ public extension TransactionRecord {
         }
 
         static func from(_ destinations: [Destination]) -> Self {
-            destinations.count == 1 ? .single(destinations.first!) : .multiple(destinations)
+            if let destination = destinations.singleElement {
+                return .single(destination)
+            }
+            return .multiple(destinations)
         }
     }
 
