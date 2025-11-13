@@ -348,6 +348,7 @@
 		2D245E662E97EB56006AD2DC /* MarketsTokenDetailsSecurityScoreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D245E242E97EB56006AD2DC /* MarketsTokenDetailsSecurityScoreViewModel.swift */; };
 		2D245E672E97EB56006AD2DC /* MarketsTokenDetailsStatisticsRecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D245E292E97EB56006AD2DC /* MarketsTokenDetailsStatisticsRecordView.swift */; };
 		2D245E682E97EB56006AD2DC /* MarketsNavigationBarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D245E282E97EB56006AD2DC /* MarketsNavigationBarTitle.swift */; };
+		2D2685602EB09D79000E472A /* ExperimentWalletContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D26855F2EB09D79000E472A /* ExperimentWalletContext.swift */; };
 		2D2B9C282CE5176A00D744C6 /* ChilizExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2B9C272CE5176A00D744C6 /* ChilizExternalLinkProvider.swift */; };
 		2D30234A2DF093B600B4FFE6 /* PushNotificationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3023432DF093B500B4FFE6 /* PushNotificationsService.swift */; };
 		2D30234B2DF093B600B4FFE6 /* ApplicationWalletEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3023392DF093B500B4FFE6 /* ApplicationWalletEntry.swift */; };
@@ -448,6 +449,7 @@
 		2D665C312CDCA3FC00C9BA85 /* CLValueWrapperToJsonString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D665C0D2CDCA3FC00C9BA85 /* CLValueWrapperToJsonString.swift */; };
 		2D665C322CDCA3FC00C9BA85 /* CLValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D665C0B2CDCA3FC00C9BA85 /* CLValue.swift */; };
 		2D665C342CDCA46C00C9BA85 /* CasperNetworkResponse.Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D665C332CDCA46C00C9BA85 /* CasperNetworkResponse.Transaction.swift */; };
+		2D67256B2EB0A6490035A4BC /* Experiment in Frameworks */ = {isa = PBXBuildFile; productRef = 2D67256A2EB0A6490035A4BC /* Experiment */; };
 		2D70C61D2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D70C61B2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift */; };
 		2D7C45DB2DF2F2E300F0C2A7 /* TransactionPushActionURLHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7C45DA2DF2F2E300F0C2A7 /* TransactionPushActionURLHelper.swift */; };
 		2D7D6CAF2E93A5EF009927FE /* BlinkAPIResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7D6CAE2E93A5EF009927FE /* BlinkAPIResolver.swift */; };
@@ -459,6 +461,8 @@
 		2D8F9E752CF9B280007434A4 /* CloreWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8F9E722CF9B280007434A4 /* CloreWalletAssembly.swift */; };
 		2D8F9E762CF9B280007434A4 /* CloreExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8F9E702CF9B280007434A4 /* CloreExternalLinkProvider.swift */; };
 		2D8F9E782CF9B314007434A4 /* CloreBlockBookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8F9E772CF9B314007434A4 /* CloreBlockBookConfig.swift */; };
+		2D9119C82EB00BAD0028F1B0 /* ExperimentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9119C72EB00BAD0028F1B0 /* ExperimentService.swift */; };
+		2D9119CA2EB00C100028F1B0 /* ExperimentFeatureFlagKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9119C92EB00C100028F1B0 /* ExperimentFeatureFlagKey.swift */; };
 		2D92E6542D0C1E9D008FDECF /* SolanaSignerTestUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D92E6532D0C1E9D008FDECF /* SolanaSignerTestUtility.swift */; };
 		2D92E6572D0C2088008FDECF /* SolanaDummyNetworkRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D92E6562D0C2088008FDECF /* SolanaDummyNetworkRouter.swift */; };
 		2D93C4E02D661459002BCCE2 /* SupportSeedNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D93C4DE2D661459002BCCE2 /* SupportSeedNotificationManager.swift */; };
@@ -4829,6 +4833,7 @@
 		2D245E2F2E97EB56006AD2DC /* MarketsTokenDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsView.swift; sourceTree = "<group>"; };
 		2D245E302E97EB56006AD2DC /* MarketsTokenDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsViewModel.swift; sourceTree = "<group>"; };
 		2D245E312E97EB56006AD2DC /* ScrollViewOffsetHandler+MarketsTokenDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollViewOffsetHandler+MarketsTokenDetails.swift"; sourceTree = "<group>"; };
+		2D26855F2EB09D79000E472A /* ExperimentWalletContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentWalletContext.swift; sourceTree = "<group>"; };
 		2D2B9C272CE5176A00D744C6 /* ChilizExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChilizExternalLinkProvider.swift; sourceTree = "<group>"; };
 		2D3023392DF093B500B4FFE6 /* ApplicationWalletEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationWalletEntry.swift; sourceTree = "<group>"; };
 		2D30233A2DF093B500B4FFE6 /* UserWalletPushNotifyStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletPushNotifyStatus.swift; sourceTree = "<group>"; };
@@ -4948,6 +4953,8 @@
 		2D8F9E712CF9B280007434A4 /* CloreMainNetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreMainNetworkParams.swift; sourceTree = "<group>"; };
 		2D8F9E722CF9B280007434A4 /* CloreWalletAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreWalletAssembly.swift; sourceTree = "<group>"; };
 		2D8F9E772CF9B314007434A4 /* CloreBlockBookConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreBlockBookConfig.swift; sourceTree = "<group>"; };
+		2D9119C72EB00BAD0028F1B0 /* ExperimentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentService.swift; sourceTree = "<group>"; };
+		2D9119C92EB00C100028F1B0 /* ExperimentFeatureFlagKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentFeatureFlagKey.swift; sourceTree = "<group>"; };
 		2D92E6532D0C1E9D008FDECF /* SolanaSignerTestUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaSignerTestUtility.swift; sourceTree = "<group>"; };
 		2D92E6562D0C2088008FDECF /* SolanaDummyNetworkRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaDummyNetworkRouter.swift; sourceTree = "<group>"; };
 		2D93C4DE2D661459002BCCE2 /* SupportSeedNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportSeedNotificationManager.swift; sourceTree = "<group>"; };
@@ -8796,6 +8803,7 @@
 				B64404412D3FE77300195004 /* FirebasePerformance in Frameworks */,
 				B6DDDE812CF39C69008DEA94 /* AnalyticsConnector in Frameworks */,
 				B6DDDE752CF39079008DEA94 /* BlockiesSwift in Frameworks */,
+				2D67256B2EB0A6490035A4BC /* Experiment in Frameworks */,
 				B6C144072DFD1BF8008E9478 /* DGCharts in Frameworks */,
 				B62C24892CF48327003377F1 /* FirebaseCrashlytics in Frameworks */,
 				B6E27FA52DFD1CAC00B29813 /* TangemModules in Frameworks */,
@@ -10159,6 +10167,16 @@
 				EF8DBE572D8095890050DBFB /* CloreBlockBookUTXOProvider.swift */,
 			);
 			path = Clore;
+			sourceTree = "<group>";
+		};
+		2D9119C02EB0098E0028F1B0 /* Experiment */ = {
+			isa = PBXGroup;
+			children = (
+				2D26855F2EB09D79000E472A /* ExperimentWalletContext.swift */,
+				2D9119C92EB00C100028F1B0 /* ExperimentFeatureFlagKey.swift */,
+				2D9119C72EB00BAD0028F1B0 /* ExperimentService.swift */,
+			);
+			path = Experiment;
 			sourceTree = "<group>";
 		};
 		2D92E6552D0C207D008FDECF /* Utils */ = {
@@ -20153,6 +20171,7 @@
 		DCBF4D3B2D8B5016002C2B8E /* FeatureToggles */ = {
 			isa = PBXGroup;
 			children = (
+				2D9119C02EB0098E0028F1B0 /* Experiment */,
 				DC77E4782E0C3AD000D862C2 /* Domain */,
 				B6EFF1372D83ACCA00D168AC /* NFTAvailabilityUtil.swift */,
 				EFD39C8D2A6A87F90055D215 /* SupportedBlockchains.swift */,
@@ -23995,6 +24014,7 @@
 				B660E23C2E1431060069A5E8 /* ZIPFoundation */,
 				DA709FF92E167E36006B9774 /* IdensicMobileSDK */,
 				C28E016A2E79A6FA00B47571 /* AppsFlyerLib-Strict */,
+				2D67256A2EB0A6490035A4BC /* Experiment */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -24370,6 +24390,7 @@
 				DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */,
 				0AE2C97E2E58838000D3B9EB /* XCRemoteSwiftPackageReference "swift-collections" */,
 				C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */,
+				2D26855E2EB09D3A000E472A /* XCRemoteSwiftPackageReference "experiment-ios-client" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -25329,6 +25350,7 @@
 				B04CD34029122C6E001EA84A /* ReferralCoordinator.swift in Sources */,
 				2D93C4EB2D7043E8002BCCE2 /* CommonExpressRefcodeProvider.swift in Sources */,
 				EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */,
+				2D9119CA2EB00C100028F1B0 /* ExperimentFeatureFlagKey.swift in Sources */,
 				B079DB722AEB937D00D2D0D5 /* Analytics+DebugEvent.swift in Sources */,
 				EF7672E62E0D500800A8900E /* SendSwapProvidersInputOutput.swift in Sources */,
 				B085154D26D7797400E1A836 /* TwinsOnboardingView.swift in Sources */,
@@ -25797,6 +25819,7 @@
 				EA3999352E76D884008E4932 /* YieldModuleStartViewModel.swift in Sources */,
 				B6CAC21B2E46C66D002DFA82 /* CryptoAccountsRepository.swift in Sources */,
 				EFC597BD2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift in Sources */,
+				2D9119C82EB00BAD0028F1B0 /* ExperimentService.swift in Sources */,
 				0F2786452E2BA95000742D0F /* MobileOnboardingBackupSeedPhraseFlowBuilder.swift in Sources */,
 				DAF59CC62ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift in Sources */,
 				DA8C33952BF38CB2002AE4F9 /* UserWalletFinder.swift in Sources */,
@@ -26426,6 +26449,7 @@
 				0FB93BB72E55B9A900DAB673 /* SessionMobileAccessCodeManager.swift in Sources */,
 				B0F1CC3C2C086B20000DE4A0 /* ManageTokensViewModel.swift in Sources */,
 				B0CFD6CB2A027E2E009DF4D5 /* TokenQuotesRepository.swift in Sources */,
+				2D2685602EB09D79000E472A /* ExperimentWalletContext.swift in Sources */,
 				EFAD40B62A9CB22500364D65 /* SensitiveTextVisibilityViewModel.swift in Sources */,
 				EF4C0C5B2DDB52C100AFD567 /* SendDestinationAdditionalFieldView.swift in Sources */,
 				DAF97FC92BAAF2CC006D9A44 /* Locale+.swift in Sources */,
@@ -34679,6 +34703,14 @@
 				minimumVersion = 1.0.5;
 			};
 		};
+		2D26855E2EB09D3A000E472A /* XCRemoteSwiftPackageReference "experiment-ios-client" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/amplitude/experiment-ios-client";
+			requirement = {
+				kind = exactVersion;
+				version = 1.18.3;
+			};
+		};
 		3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -34952,6 +34984,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0AE2C97E2E58838000D3B9EB /* XCRemoteSwiftPackageReference "swift-collections" */;
 			productName = OrderedCollections;
+		};
+		2D67256A2EB0A6490035A4BC /* Experiment */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2D26855E2EB09D3A000E472A /* XCRemoteSwiftPackageReference "experiment-ios-client" */;
+			productName = Experiment;
 		};
 		300C26332DAFA29600C7E0B0 /* CombineExt */ = {
 			isa = XCSwiftPackageProductDependency;
