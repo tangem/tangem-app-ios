@@ -9,7 +9,7 @@
 import Foundation
 
 class MobileBackupTypesCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
+    let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
@@ -42,9 +42,11 @@ class MobileBackupTypesCoordinator: CoordinatorObject {
 
 extension MobileBackupTypesCoordinator: MobileBackupTypesRoutable {
     func openHardwareBackupTypes(userWalletModel: UserWalletModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.hardwareBackupTypesCoordinator = nil
-            self?.dismiss()
+        let dismissAction: Action<HardwareBackupTypesCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main(let userWalletModel):
+                self?.openMain(userWalletModel: userWalletModel)
+            }
         }
 
         let inputOptions = HardwareBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
@@ -62,16 +64,24 @@ extension MobileBackupTypesCoordinator: MobileBackupTypesRoutable {
 
 private extension MobileBackupTypesCoordinator {
     func openOnboardingModal(with options: OnboardingCoordinator.Options) {
-        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] options in
             self?.modalOnboardingCoordinator = nil
-            if result.isSuccessful {
-                self?.dismiss()
+
+            switch options {
+            case .main(let userWalletModel):
+                self?.dismiss(with: .main(userWalletModel: userWalletModel))
+            case .dismiss:
+                break
             }
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
+    }
+
+    func openMain(userWalletModel: UserWalletModel) {
+        dismiss(with: .main(userWalletModel: userWalletModel))
     }
 }
 
@@ -80,5 +90,9 @@ private extension MobileBackupTypesCoordinator {
 extension MobileBackupTypesCoordinator {
     struct InputOptions {
         let userWalletModel: UserWalletModel
+    }
+
+    enum OutputOptions {
+        case main(userWalletModel: UserWalletModel)
     }
 }
