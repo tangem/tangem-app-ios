@@ -123,7 +123,10 @@ extension BlockBookUTXOProvider: UTXONetworkProvider {
         }
 
         return executeRequest(.sendBlockBook(tx: transactionData), responseType: JSONRPC.DefaultResponse<String>.self)
-            .tryMap { try TransactionSendResult(hash: $0.result.get()) }
+            .withWeakCaptureOf(self)
+            .tryMap { provider, response in
+                try TransactionSendResult(hash: response.result.get(), currentProviderHost: provider.host)
+            }
             .eraseToAnyPublisher()
     }
 }
