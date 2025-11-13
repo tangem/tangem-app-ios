@@ -32,25 +32,24 @@ final class NewActionButtonsSwapViewModel: ObservableObject {
     // MARK: - Private
 
     private let filterTokenItem: CurrentValueSubject<TokenItem?, Never> = .init(nil)
-    private let walletsProvider: SwapNewTokenSelectorWalletsProvider
 
     private weak var coordinator: ActionButtonsSwapRoutable?
 
     init(coordinator: ActionButtonsSwapRoutable) {
         self.coordinator = coordinator
 
-        walletsProvider = SwapNewTokenSelectorWalletsProvider(
-            // `selectedItem` for remove it from list
-            selectedItem: filterTokenItem.eraseToAnyPublisher(),
+        tokenSelectorViewModel = NewTokenSelectorViewModel(
+            walletsProvider: SwapNewTokenSelectorWalletsProvider(
+                // `selectedItem` for remove it from list
+                selectedItem: filterTokenItem.eraseToAnyPublisher(),
 
-            // `directionPublisher` for filter with available pairs from `filterTokenItem`
-            availabilityProviderFactory: NewTokenSelectorItemSwapAvailabilityProviderFactory(
-                // Here only possible pair `from`
-                directionPublisher: filterTokenItem.map { $0.map { .fromSource($0) } }.eraseToAnyPublisher()
+                // `directionPublisher` for filter with available pairs from `filterTokenItem`
+                availabilityProviderFactory: NewTokenSelectorItemSwapAvailabilityProviderFactory(
+                    // Here only possible pair `from`
+                    directionPublisher: filterTokenItem.map { $0.map { .fromSource($0) } }.eraseToAnyPublisher()
+                )
             )
         )
-
-        tokenSelectorViewModel = NewTokenSelectorViewModel(walletsProvider: walletsProvider)
         tokenSelectorViewModel.setup(with: self)
     }
 

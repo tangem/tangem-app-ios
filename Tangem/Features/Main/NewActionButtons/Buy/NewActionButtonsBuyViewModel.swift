@@ -25,16 +25,16 @@ final class NewActionButtonsBuyViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private let walletsProvider = CommonNewTokenSelectorWalletsProvider(
-        availabilityProviderFactory: NewTokenSelectorItemBuyAvailabilityProviderFactory()
-    )
-
     private weak var coordinator: ActionButtonsBuyRoutable?
 
     init(coordinator: some ActionButtonsBuyRoutable) {
         self.coordinator = coordinator
 
-        tokenSelectorViewModel = NewTokenSelectorViewModel(walletsProvider: walletsProvider)
+        tokenSelectorViewModel = NewTokenSelectorViewModel(
+            walletsProvider: CommonNewTokenSelectorWalletsProvider(
+                availabilityProviderFactory: NewTokenSelectorItemBuyAvailabilityProviderFactory()
+            )
+        )
         tokenSelectorViewModel.setup(with: self)
     }
 

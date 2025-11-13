@@ -24,17 +24,17 @@ final class NewActionButtonsSellViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private let walletsProvider = CommonNewTokenSelectorWalletsProvider(
-        availabilityProviderFactory: NewTokenSelectorItemSellAvailabilityProviderFactory()
-    )
-
     private weak var coordinator: ActionButtonsSellRoutable?
     private var bag: Set<AnyCancellable> = []
 
     init(coordinator: some ActionButtonsSellRoutable) {
         self.coordinator = coordinator
 
-        tokenSelectorViewModel = NewTokenSelectorViewModel(walletsProvider: walletsProvider)
+        tokenSelectorViewModel = NewTokenSelectorViewModel(
+            walletsProvider: CommonNewTokenSelectorWalletsProvider(
+                availabilityProviderFactory: NewTokenSelectorItemSellAvailabilityProviderFactory()
+            )
+        )
         tokenSelectorViewModel.setup(with: self)
 
         bind()
