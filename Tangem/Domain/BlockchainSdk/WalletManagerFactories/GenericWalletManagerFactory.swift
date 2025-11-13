@@ -11,15 +11,30 @@ import BlockchainSdk
 import TangemFoundation
 
 struct GenericWalletManagerFactory: AnyWalletManagerFactory {
-    func makeWalletManager(for token: StorageEntry, keys: [KeyInfo], apiList: APIList) throws -> WalletManager {
-        switch token.blockchainNetwork.blockchain {
+    func makeWalletManager(blockchainNetwork: BlockchainNetwork, tokens: [Token], keys: [KeyInfo], apiList: APIList) throws -> WalletManager {
+        switch blockchainNetwork.blockchain {
         case .chia:
-            return try SimpleWalletManagerFactory().makeWalletManager(for: token, keys: keys, apiList: apiList)
+            return try SimpleWalletManagerFactory().makeWalletManager(
+                blockchainNetwork: blockchainNetwork,
+                tokens: tokens,
+                keys: keys,
+                apiList: apiList
+            )
         case .cardano(let extended):
             if extended {
-                return try CardanoWalletManagerFactory().makeWalletManager(for: token, keys: keys, apiList: apiList)
+                return try CardanoWalletManagerFactory().makeWalletManager(
+                    blockchainNetwork: blockchainNetwork,
+                    tokens: tokens,
+                    keys: keys,
+                    apiList: apiList
+                )
             } else {
-                return try HDWalletManagerFactory().makeWalletManager(for: token, keys: keys, apiList: apiList)
+                return try HDWalletManagerFactory().makeWalletManager(
+                    blockchainNetwork: blockchainNetwork,
+                    tokens: tokens,
+                    keys: keys,
+                    apiList: apiList
+                )
             }
         case .quai:
             let dataStorage = UserDefaultsBlockchainDataStorage(
@@ -27,9 +42,19 @@ struct GenericWalletManagerFactory: AnyWalletManagerFactory {
             )
 
             return try QuaiWalletManagerFactory(dataStorage: dataStorage)
-                .makeWalletManager(for: token, keys: keys, apiList: apiList)
+                .makeWalletManager(
+                    blockchainNetwork: blockchainNetwork,
+                    tokens: tokens,
+                    keys: keys,
+                    apiList: apiList
+                )
         default:
-            return try HDWalletManagerFactory().makeWalletManager(for: token, keys: keys, apiList: apiList)
+            return try HDWalletManagerFactory().makeWalletManager(
+                blockchainNetwork: blockchainNetwork,
+                tokens: tokens,
+                keys: keys,
+                apiList: apiList
+            )
         }
     }
 }
