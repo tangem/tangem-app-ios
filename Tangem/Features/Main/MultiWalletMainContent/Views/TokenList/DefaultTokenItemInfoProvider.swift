@@ -120,7 +120,7 @@ private extension DefaultTokenItemInfoProvider {
                 }
                 .eraseToAnyPublisher()
         } else {
-            Just<YieldModuleManagerStateInfo?>(nil).eraseToAnyPublisher()
+            Just(.none).eraseToAnyPublisher()
         }
     }
 }

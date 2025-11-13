@@ -121,8 +121,3 @@ struct CachedYieldSupplyInfo: Codable {
     let isAllowancePermissionRequired: Bool
     let yieldModuleBalanceValue: Decimal
 }
-
-struct CachedYieldModuleManagerStateInfo {
-    let cachedState: CachedYieldModuleState
-    let cachedMarketInfo: CachedYieldModuleMarkets
-}
