@@ -9,16 +9,17 @@
 import Foundation
 import TangemLocalization
 
+// [REDACTED_TODO_COMMENT]
 struct MultiWalletTokenItemsSectionFactory {
     func makeSectionViewModel(
         from sectionType: TokenSectionsAdapter.SectionType, atIndex index: Int
-    ) -> MultiWalletMainContentViewModel.SectionViewModel {
+    ) -> MultiWalletMainContentPlainSectionViewModel {
         switch sectionType {
         case .plain:
-            return MultiWalletMainContentViewModel.SectionViewModel(id: index, title: nil)
+            return MultiWalletMainContentPlainSectionViewModel(id: index, title: nil)
         case .group(let blockchainNetwork):
             let title = Localization.walletNetworkGroupTitle(blockchainNetwork.blockchain.displayName)
-            return MultiWalletMainContentViewModel.SectionViewModel(id: blockchainNetwork, title: title)
+            return MultiWalletMainContentPlainSectionViewModel(id: blockchainNetwork, title: title)
         }
     }
 
@@ -26,8 +27,8 @@ struct MultiWalletTokenItemsSectionFactory {
         from sectionItem: TokenSectionsAdapter.SectionItem,
         contextActionsProvider: TokenItemContextActionsProvider,
         contextActionsDelegate: TokenItemContextActionDelegate,
-        tapAction: @escaping (WalletModelId.ID) -> Void,
-        yieldApyTapAction: ((WalletModelId.ID) -> Void)?
+        tapAction: @escaping (WalletModelId) -> Void,
+        yieldApyTapAction: ((WalletModelId) -> Void)?
     ) -> TokenItemViewModel {
         let (id, provider, tokenItem, tokenIconInfo) = TokenItemInfoProviderItemBuilder()
             .mapTokenItemViewModel(from: sectionItem)
