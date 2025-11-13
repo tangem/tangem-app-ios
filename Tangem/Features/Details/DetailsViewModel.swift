@@ -145,7 +145,7 @@ extension DetailsViewModel {
     func openMail(emailConfig: EmailConfig, emailType: EmailType, models: [any UserWalletModel]) {
         // accounts_fixes_needed_none
         let data = models.map {
-            return DetailsFeedbackData(
+            DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
                 walletModels: AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0)
             )
@@ -181,7 +181,7 @@ extension DetailsViewModel {
 
         let data = userWalletRepository.models.map {
             // accounts_fixes_needed_none
-            return DetailsFeedbackData(
+            DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
                 walletModels: AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0)
             )
