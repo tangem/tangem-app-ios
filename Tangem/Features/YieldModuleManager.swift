@@ -32,6 +32,8 @@ protocol YieldModuleManager {
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
     func fetchChartData() async throws -> YieldChartData
+
+    func sendActivationState()
 }
 
 protocol YieldModuleManagerUpdater {
@@ -243,6 +245,8 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             userWalletId: userWalletId
         )
 
+        await activate()
+
         return result
     }
 
@@ -274,11 +278,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
 
-        try? await yieldModuleNetworkManager.deactivate(
-            tokenContractAddress: token.contractAddress,
-            walletAddress: walletAddress,
-            chainId: chainId
-        )
+        await deactivate()
 
         return result
     }
@@ -318,6 +318,19 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
     func fetchChartData() async throws -> YieldChartData {
         try await yieldModuleNetworkManager.fetchChartData(tokenContractAddress: token.contractAddress, chainId: chainId)
     }
+
+    func sendActivationState() {
+        Task {
+            switch state?.state {
+            case .active:
+                await activate()
+            case .notActive:
+                await deactivate()
+            default:
+                break
+            }
+        }
+    }
 }
 
 private extension CommonYieldModuleManager {
@@ -345,7 +358,8 @@ private extension CommonYieldModuleManager {
     func mapResults(
         walletModelData: WalletModelData,
         marketsInfo: [YieldModuleMarketInfo],
-        pendingTransactions: [PendingTransactionRecord]
+        pendingTransactions: [PendingTransactionRecord],
+        yieldContract: String?
     ) -> YieldModuleManagerStateInfo {
         guard let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress }) else {
             return YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)
@@ -355,11 +369,11 @@ private extension CommonYieldModuleManager {
             return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .disabled)
         }
 
-        if hasEnterTransactions(in: pendingTransactions) {
+        if hasEnterTransactions(in: pendingTransactions, yieldContract: yieldContract) {
             return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .enter))
         }
 
-        if hasExitTransactions(in: pendingTransactions) {
+        if hasExitTransactions(in: pendingTransactions, yieldContract: yieldContract) {
             return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .exit))
         }
 
@@ -449,6 +463,23 @@ private extension CommonYieldModuleManager {
 
         return EthereumUtils.mapToBigUInt(maxNetworkFeeToken)
     }
+
+    func activate() async {
+        try? await yieldModuleNetworkManager.activate(
+            tokenContractAddress: token.contractAddress,
+            walletAddress: walletAddress,
+            chainId: chainId,
+            userWalletId: userWalletId
+        )
+    }
+
+    func deactivate() async {
+        try? await yieldModuleNetworkManager.deactivate(
+            tokenContractAddress: token.contractAddress,
+            walletAddress: walletAddress,
+            chainId: chainId
+        )
+    }
 }
 
 private extension CommonYieldModuleManager {
@@ -456,23 +487,56 @@ private extension CommonYieldModuleManager {
     /// prepends the cached `YieldModuleManagerStateInfo` so the UI can render
     /// an immediate initial state before live updates arrive.
     func makeInitialStatePublisher() -> AnyPublisher<YieldModuleManagerStateInfo, Never> {
-        let statePublisher: AnyPublisher<YieldModuleManagerStateInfo, Never> =
-            Publishers.CombineLatest3(
-                _walletModelData.compactMap { $0 },
-                yieldModuleNetworkManager.marketsPublisher.filter { !$0.isEmpty }.removeDuplicates(),
-                pendingTransactionsPublisher
-            )
-            .withWeakCaptureOf(self)
-            .map { result -> YieldModuleManagerStateInfo in
-                let (moduleManager, (walletModelData, marketsInfo, pendingTransactions)) = result
-                return moduleManager.mapResults(
-                    walletModelData: walletModelData,
-                    marketsInfo: marketsInfo,
-                    pendingTransactions: pendingTransactions
-                )
+        let yieldContractPublisher: AnyPublisher<String?, Never> = Future
+            .async {
+                let yieldContract = try? await self.yieldSupplyService.getYieldContract()
+                if yieldContract == nil || yieldContract?.isEmpty == true {
+                    return try await self.yieldSupplyService.calculateYieldContract()
+                }
+                return yieldContract
             }
-            .removeDuplicates()
+            .retry(Constants.yieldContractRetryCount)
+            .replaceError(with: nil)
             .eraseToAnyPublisher()
+
+        let statePublisher = Publishers.CombineLatest4(
+            _walletModelData.compactMap { $0 },
+            yieldModuleNetworkManager.marketsPublisher.filter { !$0.isEmpty }.removeDuplicates(),
+            pendingTransactionsPublisher,
+            yieldContractPublisher
+        )
+        .withWeakCaptureOf(self)
+        .map { result -> YieldModuleManagerStateInfo in
+            let (moduleManager, (walletModelData, marketsInfo, pendingTransactions, yieldContract)) = result
+            return moduleManager.mapResults(
+                walletModelData: walletModelData,
+                marketsInfo: marketsInfo,
+                pendingTransactions: pendingTransactions,
+                yieldContract: yieldContract
+            )
+        }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
+        
+        
+        
+//        let statePublisher: AnyPublisher<YieldModuleManagerStateInfo, Never> =
+//            Publishers.CombineLatest3(
+//                _walletModelData.compactMap { $0 },
+//                yieldModuleNetworkManager.marketsPublisher.filter { !$0.isEmpty }.removeDuplicates(),
+//                pendingTransactionsPublisher
+//            )
+//            .withWeakCaptureOf(self)
+//            .map { result -> YieldModuleManagerStateInfo in
+//                let (moduleManager, (walletModelData, marketsInfo, pendingTransactions)) = result
+//                return moduleManager.mapResults(
+//                    walletModelData: walletModelData,
+//                    marketsInfo: marketsInfo,
+//                    pendingTransactions: pendingTransactions
+//                )
+//            }
+//            .removeDuplicates()
+//            .eraseToAnyPublisher()
 
         guard let cachedMarket = yieldModuleMarketsRepository.marketInfo(for: token.contractAddress),
               let cachedState = yieldModuleStateRepository.state()
@@ -500,7 +564,7 @@ private extension CommonYieldModuleManager {
 }
 
 private extension CommonYieldModuleManager {
-    func hasEnterTransactions(in pendingTransactions: [PendingTransactionRecord]) -> Bool {
+    func hasEnterTransactions(in pendingTransactions: [PendingTransactionRecord], yieldContract: String?) -> Bool {
         let dummyDeployMethod = DeployYieldModuleMethod(
             walletAddress: String(),
             tokenContractAddress: String(),
@@ -509,6 +573,7 @@ private extension CommonYieldModuleManager {
         let dummyInitMethod = InitYieldTokenMethod(tokenContractAddress: String(), maxNetworkFee: .zero)
         let dummyEnterMethod = EnterProtocolMethod(tokenContractAddress: String())
         let dummyReactivateMethod = ReactivateTokenMethod(tokenContractAddress: String(), maxNetworkFee: .zero)
+        let dummyApproveMethod = ApproveERC20TokenMethod(spender: String(), amount: .zero)
 
         return hasTransactions(
             in: pendingTransactions,
@@ -517,27 +582,37 @@ private extension CommonYieldModuleManager {
                 dummyInitMethod,
                 dummyReactivateMethod,
                 dummyEnterMethod,
-            ]
+                dummyApproveMethod,
+            ],
+            yieldContract: yieldContract
         )
     }
 
-    func hasExitTransactions(in pendingTransactions: [PendingTransactionRecord]) -> Bool {
+    func hasExitTransactions(in pendingTransactions: [PendingTransactionRecord], yieldContract: String?) -> Bool {
         let dummyWithdrawAndDeactivateMethod = WithdrawAndDeactivateMethod(tokenContractAddress: String())
-        return hasTransactions(in: pendingTransactions, for: [dummyWithdrawAndDeactivateMethod])
+        return hasTransactions(
+            in: pendingTransactions,
+            for: [dummyWithdrawAndDeactivateMethod],
+            yieldContract: yieldContract
+        )
     }
 
     func hasTransactions(
         in pendingTransactions: [PendingTransactionRecord],
-        for methods: [SmartContractMethod]
+        for methods: [SmartContractMethod],
+        yieldContract: String?
     ) -> Bool {
         return pendingTransactions.contains { record in
-            guard let params = record.transactionParams as? EthereumTransactionParams,
-                  let data = params.data else { return false }
+            guard let dataHex = record.ethereumTransactionDataHexString() else { return false }
 
-            let dataHex = data.hexString.lowercased()
-            return methods.contains { method in
+            let methodMatch = methods.contains { method in
                 dataHex.hasPrefix(method.methodId.removeHexPrefix().lowercased())
             }
+
+            let tokenMatch = dataHex.contains(token.contractAddress.removeHexPrefix().lowercased())
+            let yieldModuleMatch = yieldContract.flatMap { dataHex.contains($0.removeHexPrefix().lowercased()) } ?? false
+
+            return methodMatch && (tokenMatch || yieldModuleMatch)
         }
     }
 }
@@ -551,5 +626,20 @@ private extension Amount {
     var tokenYieldSupply: TokenYieldSupply? {
         guard case .token(let token) = type else { return nil }
         return token.metadata.yieldSupply
+    }
+}
+
+private extension PendingTransactionRecord {
+    func ethereumTransactionDataHexString() -> String? {
+        guard let params = transactionParams as? EthereumTransactionParams,
+              let data = params.data else { return nil }
+
+        return data.hexString.lowercased()
+    }
+}
+
+private extension CommonYieldModuleManager {
+    enum Constants {
+        static let yieldContractRetryCount = 5
     }
 }
