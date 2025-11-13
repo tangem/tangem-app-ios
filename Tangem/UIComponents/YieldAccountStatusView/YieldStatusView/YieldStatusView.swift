@@ -18,11 +18,6 @@ struct YieldStatusView: View {
     @ObservedObject
     var viewModel: YieldStatusViewModel
 
-    // MARK: - Properties
-
-    @State private var rotation = 0.0
-    private let animation: Animation = .linear(duration: 1).speed(1).repeatForever(autoreverses: false)
-
     // MARK: - View Body
 
     var body: some View {
@@ -84,17 +79,17 @@ struct YieldStatusView: View {
     }
 
     private var loadingIndicator: some View {
-        Circle()
-            .trim(from: 0.0, to: 0.8)
-            .stroke(Colors.Icon.accent, style: StrokeStyle(lineWidth: 2, lineCap: .square))
-            .frame(width: 20, height: 20)
-            .padding(.horizontal, 2)
-            .rotationEffect(.degrees(rotation))
-            .onAppear {
-                withAnimation(animation) {
-                    rotation = 360.0
-                }
-            }
+        TimelineView(.animation) { context in
+            let progress = context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1)
+            let degrees = progress * 360
+
+            Circle()
+                .trim(from: 0.0, to: 0.8)
+                .stroke(Colors.Icon.accent, style: StrokeStyle(lineWidth: 2, lineCap: .square))
+                .frame(width: 20, height: 20)
+                .padding(.horizontal, 2)
+                .rotationEffect(.degrees(degrees))
+        }
     }
 
     private var yellowWarningSign: some View {
