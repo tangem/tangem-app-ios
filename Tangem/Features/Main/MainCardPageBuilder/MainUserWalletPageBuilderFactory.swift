@@ -103,7 +103,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 userTokensReorderer: model.userTokensManager
             )
             // accounts_fixes_needed_main
-            let sectionsAdapter = TokenSectionsAdapter(
+            let tokenSectionsAdapter = TokenSectionsAdapter(
                 userTokensManager: model.userTokensManager,
                 optionsProviding: optionsManager,
                 preservesLastSortedOrderOnSwitchToDragAndDrop: false
@@ -124,16 +124,25 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             }()
 
+            let sectionsProvider: any MultiWalletMainContentViewSectionsProvider = if FeatureProvider.isAvailable(.accounts) {
+                AccountsAwareMultiWalletMainContentViewSectionsProvider(userWalletModel: model)
+            } else {
+                LegacyMultiWalletMainContentViewSectionsProvider(
+                    userWalletModel: model,
+                    optionsEditing: optionsManager,
+                    tokenSectionsAdapter: tokenSectionsAdapter
+                )
+            }
+
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
+                sectionsProvider: sectionsProvider,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
                 rateAppController: rateAppController,
-                tokenSectionsAdapter: sectionsAdapter,
-                tokenRouter: tokenRouter,
-                optionsEditing: optionsManager,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
+                tokenRouter: tokenRouter,
                 coordinator: coordinator
             )
             viewModel.delegate = multiWalletContentDelegate
