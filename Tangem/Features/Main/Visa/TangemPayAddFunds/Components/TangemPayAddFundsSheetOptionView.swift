@@ -22,6 +22,7 @@ struct TangemPayAddFundsSheetOptionView: View {
 
                 titleView
             }
+            .infinityFrame(axis: .horizontal, alignment: .leading)
             .padding(.vertical, 14)
         }
     }
@@ -45,6 +46,7 @@ struct TangemPayAddFundsSheetOptionView: View {
             Text(option.subtitle)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
+        .multilineTextAlignment(.leading)
     }
 }
 
