@@ -21,7 +21,7 @@ struct UserWalletSettingsView: View {
 
     var body: some View {
         GroupedScrollView(alignment: .leading, spacing: 24) {
-            nameSection
+            walletSection
 
             mobileUpgradeSection
 
@@ -49,14 +49,34 @@ struct UserWalletSettingsView: View {
         .onAppear(perform: viewModel.onAppear)
     }
 
-    private var nameSection: some View {
-        DefaultTextFieldRowView(
-            title: Localization.settingsWalletNameTitle,
-            text: .constant(viewModel.name),
-            isReadonly: true
-        )
-        .defaultRoundedBackground()
-        .onTapGesture(perform: viewModel.onTapNameField)
+    @ViewBuilder
+    private var walletSection: some View {
+        if FeatureProvider.isAvailable(.accounts) {
+            InfoRowWithAction(
+                icon: {
+                    if let walletImage = viewModel.walletImage {
+                        walletImage
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 40, height: 40)
+                            .cornerRadius(10)
+                    }
+                },
+                title: Localization.settingsWalletNameTitle,
+                value: viewModel.name,
+                actionTitle: Localization.commonRename,
+                onAction: viewModel.onTapNameField
+            )
+            .defaultRoundedBackground()
+        } else {
+            DefaultTextFieldRowView(
+                title: Localization.settingsWalletNameTitle,
+                text: .constant(viewModel.name),
+                isReadonly: true
+            )
+            .defaultRoundedBackground()
+            .onTapGesture(perform: viewModel.onTapNameField)
+        }
     }
 
     private var mobileUpgradeSection: some View {
