@@ -447,6 +447,9 @@ private extension CommonYieldModuleManager {
 }
 
 private extension CommonYieldModuleManager {
+    /// Builds the main state publisher and, if cached data is available,
+    /// prepends the cached `YieldModuleManagerStateInfo` so the UI can render
+    /// an immediate initial state before live updates arrive.
     func makeInitialStatePublisher() -> AnyPublisher<YieldModuleManagerStateInfo, Never> {
         let statePublisher: AnyPublisher<YieldModuleManagerStateInfo, Never> =
             Publishers.CombineLatest3(
