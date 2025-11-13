@@ -148,8 +148,8 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: response.transactionId)
             manager.wallet.addPendingTransaction(record)
         })
-        .map { _, response in
-            return TransactionSendResult(hash: response.transactionId)
+        .map { manager, response in
+            return TransactionSendResult(hash: response.transactionId, currentProviderHost: manager.currentHost)
         }
         .mapSendTxError()
         .eraseToAnyPublisher()
@@ -238,7 +238,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         .asyncMap { manager, response in
             // Delete Commit
             await manager.removeIncompleteTokenTransaction(for: token)
-            return TransactionSendResult(hash: response.transactionId)
+            return TransactionSendResult(hash: response.transactionId, currentProviderHost: manager.currentHost)
         }
         .mapSendTxError()
         .eraseToAnyPublisher()
@@ -343,7 +343,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             .asyncMap { manager, response in
                 // Delete Commit
                 await manager.removeIncompleteTokenTransaction(for: token)
-                return TransactionSendResult(hash: response.transactionId)
+                return TransactionSendResult(hash: response.transactionId, currentProviderHost: manager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()

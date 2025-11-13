@@ -113,6 +113,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: walletModel.tokenItem),
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .walletForm: result.signerType,
+            .selectedHost: result.currentHost,
         ])
 
         return RPCResult.response(AnyCodable(result.hash.lowercased()))
