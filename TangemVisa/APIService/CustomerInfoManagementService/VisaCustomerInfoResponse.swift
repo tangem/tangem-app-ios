@@ -21,6 +21,22 @@ public struct VisaCustomerInfoResponse: Decodable {
 }
 
 public extension VisaCustomerInfoResponse {
+    func withBalance(_ balance: TangemPayBalance) -> VisaCustomerInfoResponse {
+        VisaCustomerInfoResponse(
+            id: id,
+            state: state,
+            createdAt: createdAt,
+            productInstance: productInstance,
+            paymentAccount: paymentAccount,
+            kyc: kyc,
+            card: card,
+            balance: balance,
+            depositAddress: depositAddress
+        )
+    }
+}
+
+public extension VisaCustomerInfoResponse {
     enum CustomerState: String, Decodable {
         case new
         case inProgress = "in_progress"
