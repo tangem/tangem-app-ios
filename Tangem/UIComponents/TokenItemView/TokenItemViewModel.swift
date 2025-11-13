@@ -64,7 +64,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         guard let action = yieldApyTapped else { return nil }
         return { [weak self] in
             guard let self else { return }
-            action(id.id)
+            action(id)
         }
     }
 
@@ -78,8 +78,8 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private weak var contextActionsProvider: TokenItemContextActionsProvider?
     private weak var contextActionsDelegate: TokenItemContextActionDelegate?
 
-    private let tokenTapped: (WalletModelId.ID) -> Void
-    private let yieldApyTapped: ((WalletModelId.ID) -> Void)?
+    private let tokenTapped: (WalletModelId) -> Void
+    private let yieldApyTapped: ((WalletModelId) -> Void)?
 
     init(
         id: WalletModelId,
@@ -88,8 +88,8 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         infoProvider: TokenItemInfoProvider,
         contextActionsProvider: TokenItemContextActionsProvider,
         contextActionsDelegate: TokenItemContextActionDelegate,
-        tokenTapped: @escaping (WalletModelId.ID) -> Void,
-        yieldApyTapped: ((WalletModelId.ID) -> Void)?
+        tokenTapped: @escaping (WalletModelId) -> Void,
+        yieldApyTapped: ((WalletModelId) -> Void)?
     ) {
         self.id = id
         self.tokenIcon = tokenIcon
@@ -110,7 +110,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     func tapAction() {
-        tokenTapped(id.id)
+        tokenTapped(id)
     }
 
     func didTapContextAction(_ actionType: TokenActionType) {
