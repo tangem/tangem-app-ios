@@ -70,8 +70,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .claimRewards: Localization.commonClaimRewards
         case .restake: Localization.stakingRestake
         case .yieldSupply: Localization.yieldModuleSupply
-        case .tangemPay(name: let name, _, _): name
-        case .tangemPayTransfer(name: let name): name
+        case .tangemPay(let type): type.name
         }
     }
 
@@ -136,8 +135,26 @@ extension TransactionViewModel {
         case unknownOperation
         case operation(name: String)
 
-        case tangemPay(name: String, icon: URL?, isDeclined: Bool)
-        case tangemPayTransfer(name: String)
+        case tangemPay(TangemPayTransactionType)
+    }
+
+    enum TangemPayTransactionType: Hashable {
+        /// Spend fiat value
+        case spend(name: String, icon: URL?, isDeclined: Bool)
+
+        /// Crypto transfers
+        case transfer(name: String)
+
+        /// Service fee
+        case fee(name: String)
+
+        var name: String {
+            switch self {
+            case .spend(let name, _, _): name
+            case .transfer(let name): name
+            case .fee(let name): name
+            }
+        }
     }
 
     enum Status {
