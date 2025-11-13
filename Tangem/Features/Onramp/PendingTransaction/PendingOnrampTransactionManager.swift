@@ -91,6 +91,10 @@ class CommonPendingOnrampTransactionsManager {
             .map { manager, txRecords in
                 manager.filterRelatedTokenTransactions(list: txRecords)
             }
+            .map { txRecords in
+                // Start polling for not terminated transactions
+                txRecords.filter { !$0.transactionStatus.isTerminated(branch: .onramp) }
+            }
             .removeDuplicates()
             .map { transactions in
                 let factory = PendingOnrampTransactionFactory()
@@ -140,11 +144,6 @@ class CommonPendingOnrampTransactionsManager {
             }
 
             guard record.userWalletId == userWalletId else {
-                return false
-            }
-
-            // Don't show onramp's transaction with this statuses for SingleWallet and TokenDetails
-            guard ![.created, .expired, .paused].contains(record.transactionStatus) else {
                 return false
             }
 
