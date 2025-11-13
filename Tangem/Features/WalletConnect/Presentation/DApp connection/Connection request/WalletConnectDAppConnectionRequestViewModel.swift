@@ -118,13 +118,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
 
         self.selectedAccount = selectedAccount
         self.selectedUserWallet = selectedUserWallet
-        hasMultipleAccounts = selectedUserWallet.accountModelsManager.accountModels.contains { accountModel in
-            if case .standard(.multiple) = accountModel {
-                return true
-            }
-
-            return false
-        }
+        hasMultipleAccounts = selectedUserWallet.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
 
         let previousBlockchainsAvailabilityResult = userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString]
         let selectedBlockchains = previousBlockchainsAvailabilityResult?.retrieveSelectedBlockchains().map(\.blockchain)

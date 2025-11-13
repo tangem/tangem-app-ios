@@ -8,26 +8,30 @@
 
 import Foundation
 import TangemAssets
-import SwiftUI
+import TangemAccounts
 
 final class AccountItemViewModel: ObservableObject {
+    // [REDACTED_TODO_COMMENT]
+    let name: String
+
+    // [REDACTED_TODO_COMMENT]
+    let iconData: AccountIconView.ViewData
+
     @Published var balanceFiatState: LoadableTokenBalanceView.State
     @Published var priceChangeState: TokenPriceChangeView.State
 
-    let name: String
+    init(
+        accountModel: any CryptoAccountModel
+    ) {
+        name = accountModel.name
+        iconData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: accountModel)
 
-    init() {
-        // Stubs for testing
+        // [REDACTED_TODO_COMMENT]
         balanceFiatState = .loaded(text: .string("1,23 $"))
-        name = "Main account"
         priceChangeState = .loaded(signType: .positive, text: "1,14 %")
     }
 
     var tokensCount: String {
         "24 tokens"
-    }
-
-    var imageData: (backgroundColor: Color, image: Image) {
-        (.red, Assets.Accounts.airplane.image)
     }
 }
