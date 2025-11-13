@@ -15,14 +15,15 @@ protocol UserTokensSyncService {
     var initializedPublisher: AnyPublisher<Bool, Never> { get }
 }
 
-protocol UserTokensManager: UserTokensReordering {
+protocol UserTokensManager: UserTokensReordering, UserTokensSyncService {
+    var userTokens: [TokenItem] { get }
+    var userTokensPublisher: AnyPublisher<[TokenItem], Never> { get }
+
     var derivationManager: DerivationManager? { get }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void)
 
-    func contains(_ tokenItem: TokenItem) -> Bool
-    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool
-    func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token]
+    func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool
 
     /// Checks if any tokenItem needs derivation by card
     func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool
