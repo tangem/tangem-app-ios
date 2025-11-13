@@ -102,7 +102,6 @@ private extension ActionButtonsViewModel {
     }
 
     func bindWalletModels() {
-        // accounts_fixes_needed_none
         AccountsFeatureAwareWalletModelsResolver
             .walletModelsPublisher(for: userWalletModel)
             .withWeakCaptureOf(self)
@@ -181,7 +180,6 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleBuyUpdatedState() {
-        // accounts_fixes_needed_none
         buyActionButtonViewModel.updateState(
             to: AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel).isEmpty ? .disabled : .idle
         )
@@ -245,7 +243,6 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleUpdatedSwapState() {
-        // accounts_fixes_needed_none
         let walletModelsCount = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel).count
 
         switch walletModelsCount {
@@ -300,7 +297,6 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleSellUpdatedState() {
-        // accounts_fixes_needed_none
         sellActionButtonViewModel.updateState(
             to: AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel).isEmpty ? .disabled : .idle
         )

@@ -92,7 +92,6 @@ extension NewTokenSelectorViewModel: NewTokenSelectorItemViewModelMapper {
             cryptoBalanceProvider: item.cryptoBalanceProvider,
             fiatBalanceProvider: item.fiatBalanceProvider,
             action: { [weak self] in
-                assert(self?.output != nil, "NewTokenSelectorViewModel output is nil")
                 self?.output?.usedDidSelect(item: item)
             }
         )

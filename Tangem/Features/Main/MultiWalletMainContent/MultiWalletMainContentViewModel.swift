@@ -622,7 +622,6 @@ extension MultiWalletMainContentViewModel {
     private func openSupport() {
         Analytics.log(.requestSupport, params: [.source: .main])
 
-        // accounts_fixes_needed_none
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
                 .init(
