@@ -266,7 +266,11 @@ private extension NewAuthViewModel {
             switch state {
             case .locked:
                 setup(state: makeWalletsState())
-                unlockSingleProtectedMobileWalletIfNeeded()
+                if !error.isCancellationError {
+                    alert = error.alertBinder
+                } else {
+                    unlockSingleProtectedMobileWalletIfNeeded()
+                }
             case .wallets:
                 if !error.isCancellationError {
                     alert = error.alertBinder
