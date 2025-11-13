@@ -120,6 +120,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         ]
 
         Analytics.log(event: .detailsScreenOpened, params: params)
+
+        walletModel.yieldModuleManager?.sendActivationState()
     }
 
     override func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
