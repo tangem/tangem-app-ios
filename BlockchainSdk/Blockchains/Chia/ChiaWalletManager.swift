@@ -77,11 +77,12 @@ final class ChiaWalletManager: BaseManager, WalletManager {
                     .mapAndEraseSendTxError(tx: encodedTransactionData?.hex())
                     .eraseToAnyPublisher()
             }
-            .map { [weak self] hash in
+            .withWeakCaptureOf(self)
+            .map { manager, hash in
                 let mapper = PendingTransactionRecordMapper()
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                self?.wallet.addPendingTransaction(record)
-                return TransactionSendResult(hash: hash)
+                manager.wallet.addPendingTransaction(record)
+                return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()

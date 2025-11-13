@@ -150,7 +150,9 @@ final class NEARNetworkService: MultiNetworkProvider {
         return providerPublisher { provider in
             return provider
                 .sendTransactionAsync(transaction.base64EncodedString())
-                .map(TransactionSendResult.init(hash:))
+                .map { hash in
+                    TransactionSendResult(hash: hash, currentProviderHost: provider.host)
+                }
                 .eraseToAnyPublisher()
         }
     }
@@ -186,7 +188,11 @@ final class NEARNetworkService: MultiNetworkProvider {
                         status = .other
                     }
 
-                    return NEARTransactionsInfo.Transaction(hash: transactionHash, status: status)
+                    return NEARTransactionsInfo.Transaction(
+                        hash: transactionHash,
+                        status: status,
+                        currentProviderHost: provider.host
+                    )
                 }
                 .tryCatch { error -> AnyPublisher<NEARTransactionsInfo.Transaction, Error> in
                     guard let apiError = error as? NEARNetworkResult.APIError else {
@@ -195,12 +201,20 @@ final class NEARNetworkService: MultiNetworkProvider {
 
                     // Most likely, the transaction hasn't been recorded on the chain yet
                     if apiError.isUnknownTransaction {
-                        return .justWithError(output: .init(hash: transactionHash, status: .other))
+                        return .justWithError(output: .init(
+                            hash: transactionHash,
+                            status: .other,
+                            currentProviderHost: provider.host
+                        ))
                     }
 
                     // The transaction indeed failed
                     if apiError.isInvalidTransaction {
-                        return .justWithError(output: .init(hash: transactionHash, status: .failure))
+                        return .justWithError(output: .init(
+                            hash: transactionHash,
+                            status: .failure,
+                            currentProviderHost: provider.host
+                        ))
                     }
 
                     throw error
