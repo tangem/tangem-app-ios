@@ -71,12 +71,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             coordinator: coordinator
         )
 
-        let referralNotificationController = CommonReferralNotificationController(userWalletModel: model)
-
         let userWalletNotificationManager = UserWalletNotificationManager(
             userWalletModel: model,
-            rateAppController: rateAppController,
-            referralNotificationController: referralNotificationController
+            rateAppController: rateAppController
         )
 
         if model.isUserWalletLocked {
@@ -101,11 +98,13 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         )
 
         if isMultiWalletPage {
+            // accounts_fixes_needed_main
             let optionsManager = OrganizeTokensOptionsManager(
                 userTokensReorderer: model.userTokensManager
             )
+            // accounts_fixes_needed_main
             let sectionsAdapter = TokenSectionsAdapter(
-                userTokenListManager: model.userTokenListManager,
+                userTokensManager: model.userTokensManager,
                 optionsProviding: optionsManager,
                 preservesLastSortedOrderOnSwitchToDragAndDrop: false
             )
@@ -147,18 +146,23 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
+        // accounts_fixes_needed_main
         guard let walletModel = model.walletModelsManager.walletModels.first else {
             return .singleWallet(id: id, headerModel: headerModel, bodyModel: nil)
         }
 
+        // accounts_fixes_needed_main
         let singleWalletNotificationManager = SingleTokenNotificationManager(
             userWalletId: model.userWalletId,
             walletModel: walletModel,
             walletModelsManager: model.walletModelsManager
         )
 
-        let expressFactory = CommonExpressModulesFactory(
-            inputModel: .init(userWalletModel: model, initialWalletModel: walletModel)
+        // accounts_fixes_needed_express
+        let expressFactory = ExpressPendingTransactionsFactory(
+            userWalletInfo: model.userWalletInfo,
+            walletModel: walletModel,
+            userTokensManager: model.userTokensManager,
         )
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()

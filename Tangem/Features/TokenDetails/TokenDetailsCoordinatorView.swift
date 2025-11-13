@@ -43,6 +43,9 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.yieldModulePromoCoordinator) {
                 YieldModulePromoCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.yieldModuleActiveCoordinator) {
+                YieldModuleActiveCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -53,7 +56,6 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             }
             .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
-                    .expressNavigationView()
             }
 
         NavHolder()
@@ -71,9 +73,6 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
-            }
-            .floatingSheetContent(for: YieldModuleInfoViewModel.self) {
-                YieldModuleInfoView(viewModel: $0)
             }
             .floatingSheetContent(for: YieldModuleBalanceInfoViewModel.self) {
                 YieldModuleBalanceInfoView(viewModel: $0)
