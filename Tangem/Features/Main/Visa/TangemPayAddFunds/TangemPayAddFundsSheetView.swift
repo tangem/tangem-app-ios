@@ -21,17 +21,20 @@ struct TangemPayAddFundsSheetView: View {
             })
 
             GroupedSection(viewModel.options) { option in
-                TangemPayAddFundsSheetOptionView(option: option, action: { viewModel.userDidTapOption(option: option) })
+                TangemPayAddFundsSheetOptionView(option: option, action: {
+                    viewModel.userDidTapOption(option: option)
+                })
             } header: {
                 DefaultHeaderView(Localization.tangempayCardDetailsAddFundsSubtitle)
                     .padding(.top, 12)
                     .padding(.bottom, 8)
             }
+            .backgroundColor(Colors.Background.action)
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 20)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.primary
+            configuration.sheetBackgroundColor = Colors.Background.tertiary
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
