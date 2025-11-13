@@ -9062,6 +9062,12 @@
 				0AB3467F2E83C963004003A0 /* DTO */,
 				0AB3467C2E83C5DA004003A0 /* Domain */,
 				0A85A19D2E71BECC00ED535D /* Transaction */,
+				0A941BE42E6B2A0700770474 /* YieldModuleManager.swift */,
+				0AF62CDE2EA286BF0009737E /* YieldAllowanceUtil.swift */,
+				0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */,
+				0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */,
+				0A6EB33A2EAB5E230006DB1C /* YieldModuleStateRepository.swift */,
+				EA742A9D2E97A02F0074FCD2 /* YieldModuleChartManager.swift */,
 			);
 			path = YieldModule;
 			sourceTree = "<group>";
@@ -19294,12 +19300,6 @@
 			isa = PBXGroup;
 			children = (
 				0A941BE32E6B29D200770474 /* YieldModule */,
-				0A941BE42E6B2A0700770474 /* YieldModuleManager.swift */,
-				0AF62CDE2EA286BF0009737E /* YieldAllowanceUtil.swift */,
-				0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */,
-				0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */,
-				0A6EB33A2EAB5E230006DB1C /* YieldModuleStateRepository.swift */,
-				EA742A9D2E97A02F0074FCD2 /* YieldModuleChartManager.swift */,
 				308631572E40E36C00D58D37 /* Accounts */,
 				B0D1AC302906718600584E6C /* Analytics */,
 				DC5E6FDA2C906331008A98D0 /* AppLock */,
@@ -19340,7 +19340,6 @@
 				EFC597BE2AA0B1BF001F6945 /* TokenQuotes */,
 				DCBF4D362D8B4B30002C2B8E /* TransactionHistory */,
 				DC261CAD292CF68C00875E64 /* UncompletedBackup */,
-				EFB150572BD6B29E0023B128 /* UserWalletSettings */,
 				B0B56AAB2C20756F001FD72A /* Visa */,
 				DC0002F12DC2090600305FB6 /* WalletConnect */,
 				DC66BBE12858DB1900CDF765 /* Welcome */,
@@ -19416,6 +19415,7 @@
 		DC8C22EC2D8A01E0005159FE /* Details */ = {
 			isa = PBXGroup;
 			children = (
+				EFB150572BD6B29E0023B128 /* UserWalletSettings */,
 				DCBF4D0A2D8B4759002C2B8E /* TesterSettings */,
 				EF9CFC1B2890223F00329BE0 /* AppSettings */,
 				B04CD33A29122C25001EA84A /* Referral */,
