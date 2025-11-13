@@ -14,6 +14,7 @@ enum AccountsFeatureAwareWalletModelsResolver {
         if FeatureProvider.isAvailable(.accounts) {
             AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
         } else {
+            // accounts_fixes_needed_none
             userWalletModel.walletModelsManager.walletModels
         }
     }
