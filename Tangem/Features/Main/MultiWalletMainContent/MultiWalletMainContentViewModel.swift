@@ -484,7 +484,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             let factory = makeYieldModuleFlowFactory(walletModel: walletModel, manager: yieldModuleManager) {
             return { [weak self] _ in
                 self?.handleYieldApyBadgeTapped(
-                    tokenItem: walletModel.tokenItem,
+                    walletModel: walletModel,
                     yieldManager: yieldModuleManager,
                     yieldModuleFactory: factory
                 )
@@ -495,22 +495,24 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func handleYieldApyBadgeTapped(
-        tokenItem: TokenItem,
+        walletModel: any WalletModel,
         yieldManager: YieldModuleManager,
         yieldModuleFactory: YieldModuleFlowFactory
     ) {
-        let logger = CommonYieldAnalyticsLogger(tokenItem: tokenItem)
+        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
 
         switch yieldManager.state?.state {
         case .active:
             logger.logEarningApyClicked(state: .enabled)
             coordinator?.openYieldModuleActiveInfo(factory: yieldModuleFactory)
+        case .processing:
+            coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
         case .notActive:
             if let apy = yieldManager.state?.marketInfo?.apy {
                 logger.logEarningApyClicked(state: .disabled)
                 coordinator?.openYieldModulePromoView(apy: apy, factory: yieldModuleFactory)
             }
-        case .disabled, .failedToLoad, .loading, .processing, .none:
+        case .disabled, .failedToLoad, .loading, .none:
             break
         }
     }
