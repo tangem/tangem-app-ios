@@ -15,26 +15,24 @@ struct OnrampSuggestedOfferViewModelBuilder {
     private let formatter: BalanceFormatter = .init()
     private let processingTimeFormatter: OnrampProviderProcessingTimeFormatter = .init()
 
-    func mapToOnrampOfferViewModelTitle(provider: OnrampProvider) -> OnrampOfferViewModel.Title {
-        if case .great = provider.globalAttractiveType {
-            return .great
+    func mapToRecentOnrampOfferViewModelTitle(provider: OnrampProvider) -> OnrampOfferViewModel.Title {
+        switch (provider.globalAttractiveType, provider.processingTimeType) {
+        case (.best, _): return .great
+        case (.great, _): return .great
+        case (_, .fastest): return .fastest
+        default: return .text(Localization.onrampTitleYouGet)
         }
-
-        // We're always show only `.great` on the suggested offer view
-        if provider.globalAttractiveType == .best {
-            return .great
-        }
-
-        if provider.processingTimeType == .fastest {
-            return .fastest
-        }
-
-        return .text(Localization.onrampTitleYouGet)
     }
 
-    func mapToOnrampOfferViewModel(provider: OnrampProvider, buyAction: @escaping () -> Void) -> OnrampOfferViewModel {
-        let title: OnrampOfferViewModel.Title = mapToOnrampOfferViewModelTitle(provider: provider)
+    func mapToRecommendedOnrampOfferViewModelTitle(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem) -> OnrampOfferViewModel.Title {
+        switch suggestedOfferType {
+        case .great: .great
+        case .fastest: .fastest
+        case .recent, .plain: .text(Localization.onrampTitleYouGet)
+        }
+    }
 
+    func mapToOnrampOfferViewModel(title: OnrampOfferViewModel.Title, provider: OnrampProvider, buyAction: @escaping () -> Void) -> OnrampOfferViewModel {
         let amount: OnrampOfferViewModel.Amount = {
             let formattedAmount = formatter.formatCryptoBalance(
                 provider.quote?.expectedAmount,

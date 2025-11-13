@@ -84,12 +84,12 @@ private extension OnrampSummaryViewModel {
             .assign(to: &$viewState)
     }
 
-    func mapToViewState(offers: LoadingResult<OnrampSummaryInteractorSuggestedOffer?, Never>) -> ViewState {
+    func mapToViewState(offers: LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>) -> ViewState {
         switch offers {
         case .loading:
             return .loading
 
-        case .success(.none):
+        case .success(let offers) where offers.isEmpty:
             let isEmptyTextField = onrampAmountViewModel.decimalNumberTextFieldViewModel.value ?? 0 <= 0
             if isEmptyTextField, let presets = fiatPresetService.presets() {
                 return .presets(presets)
@@ -97,16 +97,17 @@ private extension OnrampSummaryViewModel {
 
             return .idle
 
-        case .success(.some(let offers)):
+        case .success(let offers):
             return .suggestedOffers(.init(
                 recent: offers.recent.map { mapToRecentOnrampOfferViewModel(provider: $0) },
-                recommended: offers.recommended.map { mapToRecommendedOnrampOfferViewModel(provider: $0) },
+                recommended: offers.recommended.map { mapToRecommendedOnrampOfferViewModel(suggestedOfferType: $0) },
             ))
         }
     }
 
     func mapToRecentOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
-        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
+        let title = onrampOfferViewModelBuilder.mapToRecentOnrampOfferViewModelTitle(provider: provider)
+        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider) { [weak self] in
             self?.analyticsLogger.logOnrampRecentlyUsedClicked(provider: provider)
             self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
             self?.interactor.userDidRequestOnramp(provider: provider)
@@ -115,9 +116,11 @@ private extension OnrampSummaryViewModel {
         return viewModel
     }
 
-    func mapToRecommendedOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
-        let title = onrampOfferViewModelBuilder.mapToOnrampOfferViewModelTitle(provider: provider)
-        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
+    func mapToRecommendedOnrampOfferViewModel(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem) -> OnrampOfferViewModel {
+        let provider = suggestedOfferType.provider
+
+        let title = onrampOfferViewModelBuilder.mapToRecommendedOnrampOfferViewModelTitle(suggestedOfferType: suggestedOfferType)
+        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider) { [weak self] in
             switch title {
             case .great: self?.analyticsLogger.logOnrampBestRateClicked(provider: provider)
             case .fastest: self?.analyticsLogger.logOnrampFastestMethodClicked(provider: provider)
