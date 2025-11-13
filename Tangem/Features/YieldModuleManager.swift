@@ -517,26 +517,6 @@ private extension CommonYieldModuleManager {
         }
         .removeDuplicates()
         .eraseToAnyPublisher()
-        
-        
-        
-//        let statePublisher: AnyPublisher<YieldModuleManagerStateInfo, Never> =
-//            Publishers.CombineLatest3(
-//                _walletModelData.compactMap { $0 },
-//                yieldModuleNetworkManager.marketsPublisher.filter { !$0.isEmpty }.removeDuplicates(),
-//                pendingTransactionsPublisher
-//            )
-//            .withWeakCaptureOf(self)
-//            .map { result -> YieldModuleManagerStateInfo in
-//                let (moduleManager, (walletModelData, marketsInfo, pendingTransactions)) = result
-//                return moduleManager.mapResults(
-//                    walletModelData: walletModelData,
-//                    marketsInfo: marketsInfo,
-//                    pendingTransactions: pendingTransactions
-//                )
-//            }
-//            .removeDuplicates()
-//            .eraseToAnyPublisher()
 
         guard let cachedMarket = yieldModuleMarketsRepository.marketInfo(for: token.contractAddress),
               let cachedState = yieldModuleStateRepository.state()
