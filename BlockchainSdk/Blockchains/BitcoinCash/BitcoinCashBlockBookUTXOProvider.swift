@@ -68,7 +68,10 @@ extension BitcoinCashBlockBookUTXOProvider: UTXONetworkProvider {
                 params: AnyEncodable([transaction]),
                 resultType: String.self
             )
-            .tryMap { try TransactionSendResult(hash: $0.result.get()) }
+            .withWeakCaptureOf(self)
+            .tryMap { provider, response in
+                try TransactionSendResult(hash: response.result.get(), currentProviderHost: provider.host)
+            }
             .eraseToAnyPublisher()
     }
 }

@@ -21,7 +21,7 @@ struct TezosWalletAssembly: WalletManagerAssembly {
                     return nil
                 }
 
-                return TezosJsonRpcProvider(host: nodeInfo.link, configuration: input.networkInput.tangemProviderConfig)
+                return TezosJsonRpcProvider(nodeInfo: nodeInfo, configuration: input.networkInput.tangemProviderConfig)
             }
 
             $0.networkService = TezosNetworkService(
