@@ -42,16 +42,18 @@ struct TangemPayTransactionRecordMapper {
     }
 
     func type() -> TransactionViewModel.TransactionType {
-        switch transaction.record {
+        let type: TransactionViewModel.TangemPayTransactionType = switch transaction.record {
         case .spend(let spend):
-            return .tangemPay(name: name(), icon: spend.enrichedMerchantIcon, isDeclined: spend.isDeclined)
+            .spend(name: name(), icon: spend.enrichedMerchantIcon, isDeclined: spend.isDeclined)
         case .collateral:
-            return .tangemPayTransfer(name: name())
+            .transfer(name: name())
         case .payment:
-            return .tangemPayTransfer(name: name())
+            .transfer(name: name())
         case .fee:
-            return .tangemPay(name: name(), icon: nil, isDeclined: false)
+            .fee(name: name())
         }
+
+        return .tangemPay(type)
     }
 
     /// `TangemPayTransactionDetailsStateView.TransactionState` will use in `TangemPayTransactionDetailsView`
