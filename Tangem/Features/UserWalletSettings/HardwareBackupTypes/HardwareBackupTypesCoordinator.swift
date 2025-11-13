@@ -10,7 +10,7 @@ import Foundation
 import TangemMobileWalletSdk
 
 class HardwareBackupTypesCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
+    let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Injected
@@ -58,9 +58,8 @@ extension HardwareBackupTypesCoordinator: HardwareBackupTypesRoutable {
     func openCreateHardwareWallet() {
         let dismissAction: Action<HardwareCreateWalletCoordinator.OutputOptions> = { [weak self] options in
             switch options {
-            case .main:
-                self?.hardwareCreateWalletCoordinator = nil
-                self?.dismiss()
+            case .main(let userWalletModel):
+                self?.dismiss(with: .main(userWalletModel: userWalletModel))
             }
         }
 
@@ -78,9 +77,8 @@ extension HardwareBackupTypesCoordinator: HardwareBackupTypesRoutable {
             switch options {
             case .dismiss:
                 self?.mobileUpgradeCoordinator = nil
-            case .upgraded:
-                self?.mobileUpgradeCoordinator = nil
-                self?.dismiss()
+            case .main(let userWalletModel):
+                self?.openMain(userWalletModel: userWalletModel)
             }
         }
 
@@ -93,6 +91,10 @@ extension HardwareBackupTypesCoordinator: HardwareBackupTypesRoutable {
     func openMobileBackupToUpgradeNeeded(onBackupRequested: @escaping () -> Void) {
         let sheet = MobileBackupToUpgradeNeededViewModel(coordinator: self, onBackup: onBackupRequested)
         floatingSheetPresenter.enqueue(sheet: sheet)
+    }
+
+    func openMain(userWalletModel: UserWalletModel) {
+        dismiss(with: .main(userWalletModel: userWalletModel))
     }
 
     func closeOnboarding() {
@@ -112,10 +114,14 @@ extension HardwareBackupTypesCoordinator: MobileBackupToUpgradeNeededRoutable {
 
 private extension HardwareBackupTypesCoordinator {
     func openOnboarding(with options: OnboardingCoordinator.Options) {
-        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] options in
             self?.onboardingCoordinator = nil
-            if result.isSuccessful {
-                self?.dismiss()
+
+            switch options {
+            case .main(let userWalletModel):
+                self?.dismiss(with: .main(userWalletModel: userWalletModel))
+            case .dismiss:
+                break
             }
         }
 
@@ -130,5 +136,9 @@ private extension HardwareBackupTypesCoordinator {
 extension HardwareBackupTypesCoordinator {
     struct InputOptions {
         let userWalletModel: UserWalletModel
+    }
+
+    enum OutputOptions {
+        case main(userWalletModel: UserWalletModel)
     }
 }
