@@ -124,6 +124,14 @@ private extension LockedWalletMainContentViewModel {
             _ = try await userWalletRepository.unlock(with: method)
         } catch where error.isCancellationError {
             await unlockWithFallback()
+        } catch let repositoryError as UserWalletRepositoryError {
+            if repositoryError == .biometricsChanged {
+                await unlockWithFallback()
+            } else {
+                await runOnMain {
+                    alert = repositoryError.alertBinder
+                }
+            }
         } catch {
             await runOnMain {
                 alert = error.alertBinder
@@ -262,7 +270,7 @@ private extension LockedWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
             userWalletModel: userWalletModel
         )
     }
