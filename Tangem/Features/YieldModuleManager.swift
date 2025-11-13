@@ -30,6 +30,8 @@ protocol YieldModuleManager {
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
     func fetchChartData() async throws -> YieldChartData
+
+    func sendActivationState()
 }
 
 protocol YieldModuleManagerUpdater {
@@ -241,6 +243,8 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             userWalletId: userWalletId
         )
 
+        await activate()
+
         return result
     }
 
@@ -272,11 +276,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
 
-        try? await yieldModuleNetworkManager.deactivate(
-            tokenContractAddress: token.contractAddress,
-            walletAddress: walletAddress,
-            chainId: chainId
-        )
+        await deactivate()
 
         return result
     }
@@ -315,6 +315,19 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
     func fetchChartData() async throws -> YieldChartData {
         try await yieldModuleNetworkManager.fetchChartData(tokenContractAddress: token.contractAddress, chainId: chainId)
+    }
+
+    func sendActivationState() {
+        Task {
+            switch state?.state {
+            case .active:
+                await activate()
+            case .notActive:
+                await deactivate()
+            default:
+                break
+            }
+        }
     }
 }
 
@@ -475,6 +488,23 @@ private extension CommonYieldModuleManager {
         let maxNetworkFeeToken = maxFeeNativeWei * coinPrice.price / tokenPrice.price
 
         return EthereumUtils.mapToBigUInt(maxNetworkFeeToken)
+    }
+
+    func activate() async {
+        try? await yieldModuleNetworkManager.activate(
+            tokenContractAddress: token.contractAddress,
+            walletAddress: walletAddress,
+            chainId: chainId,
+            userWalletId: userWalletId
+        )
+    }
+
+    func deactivate() async {
+        try? await yieldModuleNetworkManager.deactivate(
+            tokenContractAddress: token.contractAddress,
+            walletAddress: walletAddress,
+            chainId: chainId
+        )
     }
 }
 
