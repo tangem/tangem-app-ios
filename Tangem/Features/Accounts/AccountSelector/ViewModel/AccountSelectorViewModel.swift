@@ -12,6 +12,7 @@ import TangemUI
 import TangemAccounts
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 
 @MainActor
 final class AccountSelectorViewModel: ObservableObject {
@@ -44,23 +45,17 @@ final class AccountSelectorViewModel: ObservableObject {
         self.cryptoAccountModelsFilter = cryptoAccountModelsFilter
         self.onSelect = onSelect
 
-        let hasMultipleAccounts = userWalletModels.contains { walletModel in
-            walletModel.accountModelsManager.accountModels.contains { accountModel in
-                if case .standard(.multiple) = accountModel {
-                    return true
-                }
-                return false
-            }
+        let hasMultipleAccounts = userWalletModels.contains { userWalletModel in
+            userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
         }
 
         displayMode = hasMultipleAccounts ? .accounts : .wallets
 
         switch displayMode {
         case .accounts:
-            // [REDACTED_TODO_COMMENT]
-            state.navigationBarTitle = "Choose account"
+            state.navigationBarTitle = Localization.commonChooseAccount
         case .wallets:
-            state.navigationBarTitle = "Choose wallet"
+            state.navigationBarTitle = Localization.commonChooseWallet
         }
 
         bind()
