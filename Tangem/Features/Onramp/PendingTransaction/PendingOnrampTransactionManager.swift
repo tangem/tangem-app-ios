@@ -91,6 +91,10 @@ class CommonPendingOnrampTransactionsManager {
             .map { manager, txRecords in
                 manager.filterRelatedTokenTransactions(list: txRecords)
             }
+            .map { txRecords in
+                // Start polling for not terminated transactions
+                txRecords.filter { !$0.transactionStatus.isTerminated(branch: .onramp) }
+            }
             .removeDuplicates()
             .map { transactions in
                 let factory = PendingOnrampTransactionFactory()
@@ -99,40 +103,36 @@ class CommonPendingOnrampTransactionsManager {
             }
             .withPrevious()
 
-        runTask { [weak self] in
+        runTask(in: self) { manager in
             let previousAndCurrentRequestsSequence = await previousAndCurrentRequestsPublisher.values
 
             for await previousAndCurrentRequests in previousAndCurrentRequestsSequence {
-                guard let self else { return }
-
                 let previous = previousAndCurrentRequests.previous
                 let current = previousAndCurrentRequests.current
 
                 let shouldForceReload = previous?.count ?? 0 != current.count
-                await pollingService.startPolling(requests: current, force: shouldForceReload)
+                await manager.pollingService.startPolling(requests: current, force: shouldForceReload)
 
                 // If polling requests is empty, it means that
                 // `manager.filterRelatedTokenTransactions(list: txRecords)`
                 // has filtered out records, so we should send an empty array
                 // Otherwise, filtered out transactions will stay on screen
                 if current.isEmpty {
-                    pendingTransactionsSubject.send([])
+                    manager.pendingTransactionsSubject.send([])
                 }
             }
         }
 
-        runTask { [weak self] in
-            guard let stream = await self?.pollingService.resultStream else { return }
+        runTask(in: self) { manager in
+            let stream = await manager.pollingService.resultStream
             for await responses in stream {
-                guard let self else { return }
-
                 let transactions = responses.map(\.data).sorted(by: \.transactionRecord.date)
                 let transactionsToUpdateInRepository = responses.compactMap { response in
                     response.hasChanges ? response.data.transactionRecord : nil
                 }
 
-                pendingTransactionsSubject.send(transactions)
-                onrampPendingTransactionsRepository.updateItems(transactionsToUpdateInRepository)
+                manager.pendingTransactionsSubject.send(transactions)
+                manager.onrampPendingTransactionsRepository.updateItems(transactionsToUpdateInRepository)
             }
         }
     }
@@ -151,6 +151,8 @@ class CommonPendingOnrampTransactionsManager {
         }
     }
 }
+
+// MARK: - PendingExpressTransactionsManager
 
 extension CommonPendingOnrampTransactionsManager: PendingExpressTransactionsManager {
     var pendingTransactions: [PendingTransaction] {
