@@ -19,6 +19,7 @@ struct UserWalletFinder {
             let userWalletModel = result.userWalletModel
             let tokenItem = result.tokenItem
 
+            // accounts_fixes_needed_send
             try userWalletModel.userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
         } catch {
             AppLogger.error("Failed to add token after transaction to other wallet", error: error)
@@ -27,6 +28,7 @@ struct UserWalletFinder {
 
     private func find(_ token: Token, in blockchain: Blockchain, with address: String) -> SearchResult? {
         for userWalletModel in userWalletRepository.models {
+            // accounts_fixes_needed_send
             let walletModels = userWalletModel.walletModelsManager.walletModels
 
             guard let walletModel = walletModels.first(where: {
