@@ -58,6 +58,7 @@ final class CommonYieldModuleManager {
     private let transactionFeeProvider: YieldTransactionFeeProvider
 
     private let yieldModuleStateRepository: YieldModuleStateRepository
+    private let yieldModuleMarketsRepository: YieldModuleMarketsRepository
 
     private var _state = CurrentValueSubject<YieldModuleManagerStateInfo?, Never>(nil)
     private var _walletModelData = CurrentValueSubject<WalletModelData?, Never>(nil)
@@ -79,6 +80,7 @@ final class CommonYieldModuleManager {
         transactionCreator: TransactionCreator,
         blockaidApiService: BlockaidAPIService,
         yieldModuleStateRepository: YieldModuleStateRepository,
+        yieldModuleMarketsRepository: YieldModuleMarketsRepository,
         pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>,
         scheduleWalletUpdate: @escaping () -> Void
     ) {
@@ -97,6 +99,7 @@ final class CommonYieldModuleManager {
         self.tokenId = tokenId
         self.yieldSupplyService = yieldSupplyService
         self.yieldModuleStateRepository = yieldModuleStateRepository
+        self.yieldModuleMarketsRepository = yieldModuleMarketsRepository
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
         self.scheduleWalletUpdate = scheduleWalletUpdate
 
@@ -319,34 +322,18 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
 private extension CommonYieldModuleManager {
     func bind() {
-        let statePublisher = Publishers.CombineLatest3(
-            _walletModelData.compactMap { $0 },
-            yieldModuleNetworkManager.marketsPublisher.filter { !$0.isEmpty }.removeDuplicates(),
-            pendingTransactionsPublisher
-        )
-        .withWeakCaptureOf(self)
-        .map { result -> YieldModuleManagerStateInfo in
-            let (moduleManager, (walletModelData, marketsInfo, pendingTransactions)) = result
-            return moduleManager.mapResults(
-                walletModelData: walletModelData,
-                marketsInfo: marketsInfo,
-                pendingTransactions: pendingTransactions
-            )
-        }
-        .removeDuplicates()
+        let initialStatePublisher = makeInitialStatePublisher()
 
-        statePublisher
-            .handleEvents(
-                receiveOutput: { [weak self] in
-                    self?.updateStateCacheIfNeeded(state: $0)
-                }
-            )
+        initialStatePublisher
+            .handleEvents(receiveOutput: { [weak self] in
+                self?.updateStateCacheIfNeeded(state: $0)
+            })
             .sink { [_state] result in
                 _state.send(result)
             }
             .store(in: &bag)
 
-        statePublisher
+        initialStatePublisher
             .map(\.state)
             .sink { [weak self] state in
                 guard case .processing = state else { return }
@@ -456,6 +443,39 @@ private extension CommonYieldModuleManager {
         let maxNetworkFeeToken = maxCoinNetworkFeeDecimal * coinPrice.price / tokenPrice.price
 
         return EthereumUtils.mapToBigUInt(maxNetworkFeeToken)
+    }
+}
+
+private extension CommonYieldModuleManager {
+    func makeInitialStatePublisher() -> AnyPublisher<YieldModuleManagerStateInfo, Never> {
+        let statePublisher: AnyPublisher<YieldModuleManagerStateInfo, Never> =
+            Publishers.CombineLatest3(
+                _walletModelData.compactMap { $0 },
+                yieldModuleNetworkManager.marketsPublisher.filter { !$0.isEmpty }.removeDuplicates(),
+                pendingTransactionsPublisher
+            )
+            .withWeakCaptureOf(self)
+            .map { result -> YieldModuleManagerStateInfo in
+                let (moduleManager, (walletModelData, marketsInfo, pendingTransactions)) = result
+                return moduleManager.mapResults(
+                    walletModelData: walletModelData,
+                    marketsInfo: marketsInfo,
+                    pendingTransactions: pendingTransactions
+                )
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+
+        guard let cachedMarket = yieldModuleMarketsRepository.marketInfo(for: token.contractAddress),
+              let cachedState = yieldModuleStateRepository.state()
+        else {
+            return statePublisher
+        }
+
+        let cachedStateInfo = YieldModuleManagerStateInfo(marketInfo: .init(from: cachedMarket), state: cachedState)
+        return statePublisher
+            .prepend(cachedStateInfo)
+            .eraseToAnyPublisher()
     }
 }
 
