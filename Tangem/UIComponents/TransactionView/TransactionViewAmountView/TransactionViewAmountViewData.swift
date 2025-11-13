@@ -28,7 +28,6 @@ struct TransactionViewAmountViewData: Hashable {
              .claimRewards,
              .restake,
              .tangemPay,
-             .tangemPayTransfer,
              .yieldSupply:
             return amount
         }
@@ -39,10 +38,10 @@ struct TransactionViewAmountViewData: Hashable {
         case (.failed, _):
             return Colors.Text.warning
 
-        case (_, .tangemPay(_, _, let isDeclined)) where isDeclined:
+        case (_, .tangemPay(.spend(_, _, let isDeclined))) where isDeclined:
             return Colors.Text.warning
 
-        case (_, .tangemPayTransfer) where !isOutgoing:
+        case (_, .tangemPay(.transfer)) where !isOutgoing:
             return Colors.Text.accent
 
         default:
