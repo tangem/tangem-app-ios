@@ -36,9 +36,12 @@ struct NewTokenSelectorAccount {
 
 // MARK: - Account's items
 
-struct NewTokenSelectorItem: Hashable {
+struct NewTokenSelectorItem: Hashable, Identifiable {
+    var id: String { walletModel.id.id }
+
     let wallet: Wallet
     let account: Account
+    let availabilityProvider: NewTokenSelectorItemAvailabilityProvider
     let walletModel: any WalletModel
 
     var cryptoBalanceProvider: TokenBalanceProvider { walletModel.totalTokenBalanceProvider }
@@ -71,8 +74,6 @@ extension NewTokenSelectorItem {
         let name: String
         let icon: AccountIconView.ViewData
 
-        let walletModelsManager: any WalletModelsManager
-
         static func == (lhs: NewTokenSelectorItem.Account, rhs: NewTokenSelectorItem.Account) -> Bool {
             lhs.hashValue == rhs.hashValue
         }
@@ -81,5 +82,10 @@ extension NewTokenSelectorItem {
             hasher.combine(name)
             hasher.combine(icon)
         }
+    }
+
+    enum AvailabilityType {
+        case available
+        case unavailable(reason: NewTokenSelectorItemViewModel.DisabledReason)
     }
 }

@@ -1,5 +1,5 @@
 {
-  "originHash" : "37e53f1a60de0a8ed8eee281650961c56511223dee8524d6f552119fb07f3fd4",
+  "originHash" : "52dd2f554ca13238bcc7ee12e03d8db5715870d828e3b0334116681682b9499c",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -587,6 +587,15 @@
       }
     },
     {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "state" : {
+        "revision" : "4799286537280063c85a32f09884cfbca301b1a1",
+        "version" : "602.0.0"
+      }
+    },
+    {
       "identity" : "swift-system",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-system.git",
@@ -645,8 +654,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "d8e3895301c7dfa022c0d1334536b0ecc0f09b9c",
-        "version" : "3.23.11"
+        "revision" : "b014173ee28a84c066d154333a72eb1efe5a9273",
+        "version" : "3.24.1"
       }
     },
     {
