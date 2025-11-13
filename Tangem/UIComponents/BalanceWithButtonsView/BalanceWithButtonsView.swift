@@ -27,29 +27,14 @@ struct BalanceWithButtonsView: View {
                     balancePicker
                 }
 
-                LoadableTokenBalanceView(
-                    state: viewModel.fiatBalance,
-                    style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
-                    loader: .init(
-                        size: .init(width: 102, height: 24),
-                        padding: .init(top: 5, leading: 0, bottom: 5, trailing: 0),
-                        cornerRadius: 6
-                    )
-                )
-                .accessibilityIdentifier(balanceAccessibilityIdentifier(for: viewModel.selectedBalanceType))
-
-                LoadableTokenBalanceView(
-                    state: viewModel.cryptoBalance,
-                    style: .init(font: Fonts.Regular.footnote, textColor: Colors.Text.tertiary),
-                    loader: .init(
-                        size: .init(width: 70, height: 12),
-                        padding: .init(top: 2, leading: 0, bottom: 2, trailing: 0)
-                    )
-                )
-                .if(viewModel.shouldShowYieldBalanceInfo) {
-                    $0.yieldIdentificationIfNeeded {
-                        (viewModel.showYieldBalanceInfoAction ?? {})()
+                switch viewModel.state {
+                case .common(let commonViewModel):
+                    BalancesView(viewModel: commonViewModel)
+                case .yield(let yieldViewModel):
+                    BalancesView(viewModel: yieldViewModel) {
+                        yieldViewModel.showYieldBalanceInfoAction()
                     }
+                case .none: EmptyView()
                 }
             }
 
@@ -61,20 +46,16 @@ struct BalanceWithButtonsView: View {
         .cornerRadiusContinuous(14)
     }
 
-    private func balanceAccessibilityIdentifier(for balanceType: BalanceWithButtonsViewModel.BalanceType) -> String {
-        switch balanceType {
-        case .all:
-            return TokenAccessibilityIdentifiers.totalBalance
-        case .available:
-            return TokenAccessibilityIdentifiers.availableBalance
-        }
-    }
-
     @ViewBuilder
     private var balancePicker: some View {
-        if let balanceTypeValues = viewModel.balanceTypeValues {
+        if case .common(let commonViewModel) = viewModel.state,
+           let balanceTypeValues = commonViewModel.balanceTypeValues {
             SegmentedPicker(
-                selectedOption: $viewModel.selectedBalanceType,
+                selectedOption: .init(get: {
+                    commonViewModel.selectedBalanceType
+                }, set: { newValue in
+                    commonViewModel.selectedBalanceType = newValue
+                }),
                 options: balanceTypeValues,
                 shouldStretchToFill: false,
                 isDisabled: false,
