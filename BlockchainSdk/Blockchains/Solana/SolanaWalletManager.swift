@@ -75,16 +75,13 @@ extension SolanaWalletManager: TransactionSender {
         }
 
         return sendPublisher
-            .tryMap { [weak self] hash in
-                guard let self else {
-                    throw BlockchainSdkError.empty
-                }
-
+            .withWeakCaptureOf(self)
+            .tryMap { manager, hash in
                 let mapper = PendingTransactionRecordMapper()
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                wallet.addPendingTransaction(record)
+                manager.wallet.addPendingTransaction(record)
 
-                return TransactionSendResult(hash: hash)
+                return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()
@@ -352,7 +349,7 @@ extension SolanaWalletManager: CompiledTransactionSender, CompiledTransactionFee
             startSendingTimestamp: Date()
         ).async()
 
-        return TransactionSendResult(hash: hash)
+        return TransactionSendResult(hash: hash, currentProviderHost: currentHost)
     }
 }
 
