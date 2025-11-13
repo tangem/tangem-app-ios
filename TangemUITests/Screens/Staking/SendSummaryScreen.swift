@@ -68,7 +68,6 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
         XCTContext.runActivity(named: "Validate fiat amount: \(expectedAmount)") { _ in
             waitAndAssertTrue(amountBlock, "Amount block should exist")
 
-            // Fiat amount is displayed as alternative amount text near the crypto amount
             let predicate = NSPredicate(format: "label CONTAINS %@", expectedAmount)
             let expectation = XCTNSPredicateExpectation(predicate: predicate, object: amountBlock)
             XCTAssertEqual(
