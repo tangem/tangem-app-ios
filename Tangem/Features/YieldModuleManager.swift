@@ -366,8 +366,10 @@ private extension CommonYieldModuleManager {
         let state: YieldModuleManagerState
 
         switch walletModelData.state {
-        case .created, .loading:
-            state = .loading
+        case .created:
+            state = .loading(cachedState: nil)
+        case .loading:
+            state = .loading(cachedState: yieldModuleStateRepository.state())
         case .loaded:
             if let balance = walletModelData.balance,
                case .token(let token) = balance.type,

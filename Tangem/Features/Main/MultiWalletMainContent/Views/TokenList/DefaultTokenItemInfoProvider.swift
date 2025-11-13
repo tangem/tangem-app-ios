@@ -75,7 +75,7 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
     var leadingBadgePublisher: AnyPublisher<TokenItemViewModel.LeadingBadge?, Never> {
         Publishers.CombineLatest3(
             hasPendingTransactions,
-            yieldModuleStatePublisher.filter { !($0?.state.isBusy ?? false) },
+            yieldModuleStatePublisher,
             walletModel.stakingManagerStatePublisher.filter { $0 != .loading }
         )
         .map { hasPendingTransactions, yieldModuleState, stakingManagerState -> TokenItemViewModel.LeadingBadge? in
@@ -83,18 +83,28 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
                 return .pendingTransaction
             }
 
-            if let yieldModuleState, let marketInfo = yieldModuleState.marketInfo {
+            print("ДЕБУГ \(self.tokenItem.name) \(self.tokenItem.blockchain.displayName) \n\n Staking \(stakingManagerState) \n\n Yield \(yieldModuleState)")
+
+            if let stakingBadge = LeadingBadgeMapper.mapRewards(stakingManagerState: stakingManagerState) {
+                return stakingBadge
+            } else if let yieldModuleState, let marketInfo = yieldModuleState.marketInfo {
                 return LeadingBadgeMapper.mapRewards(marketInfo: marketInfo, state: yieldModuleState.state)
-            } else {
-                return LeadingBadgeMapper.mapRewards(stakingManagerState: stakingManagerState)
             }
+
+            return nil
+
+//            if let yieldModuleState, let marketInfo = yieldModuleState.marketInfo {
+//                return LeadingBadgeMapper.mapRewards(marketInfo: marketInfo, state: yieldModuleState.state)
+//            } else {
+//                return LeadingBadgeMapper.mapRewards(stakingManagerState: stakingManagerState)
+//            }
         }
         .eraseToAnyPublisher()
     }
 
     var trailingBadgePublisher: AnyPublisher<TokenItemViewModel.TrailingBadge?, Never> {
         yieldModuleStatePublisher
-            .filter { $0?.state != .loading }
+            .filter { !($0?.state.isLoading ?? false) }
             .map { state -> TokenItemViewModel.TrailingBadge? in
                 guard case .active(let supply) = state?.state else { return nil }
                 return supply.isAllowancePermissionRequired ? .isApproveNeeded : nil
@@ -105,12 +115,27 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 
 private extension DefaultTokenItemInfoProvider {
     var yieldModuleStatePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never> {
+        let basePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never>
+
         if let manager = yieldModuleManager {
-            return manager.statePublisher
-                .eraseToAnyPublisher()
+            basePublisher = manager.statePublisher.eraseToAnyPublisher()
         } else {
-            return Just(.none).eraseToAnyPublisher()
+            basePublisher = Just<YieldModuleManagerStateInfo?>(nil).eraseToAnyPublisher()
         }
+
+        return basePublisher
+            .filter { stateInfo in
+                guard let state = stateInfo?.state else { return false }
+                switch state {
+                case .processing, .loading(nil):
+                    return false
+                case .loading(let cached?):
+                    return true
+                case .active, .notActive, .failedToLoad, .disabled:
+                    return true
+                }
+            }
+            .eraseToAnyPublisher()
     }
 }
 
@@ -140,7 +165,8 @@ private enum LeadingBadgeMapper {
                 RewardsInfo(
                     type: stakingYieldInfo.rewardType,
                     rewardValue: formattedRewardValue,
-                    isActive: false
+                    isActive: false,
+                    isUpdating: false
                 )
             )
         case .staked(let staked):
@@ -161,7 +187,8 @@ private enum LeadingBadgeMapper {
                 RewardsInfo(
                     type: staked.yieldInfo.rewardType,
                     rewardValue: formattedRewardValue,
-                    isActive: true
+                    isActive: true,
+                    isUpdating: false
                 )
             )
         }
@@ -186,17 +213,26 @@ private enum LeadingBadgeMapper {
             RewardsInfo(
                 type: .apy,
                 rewardValue: formattedRewardValue,
-                isActive: true
+                isActive: true,
+                isUpdating: false
             )
 
         case .notActive:
             if marketInfo.isActive {
-                RewardsInfo(type: .apy, rewardValue: formattedRewardValue, isActive: false)
+                RewardsInfo(type: .apy, rewardValue: formattedRewardValue, isActive: false, isUpdating: false)
             } else {
                 nil
             }
 
-        case .disabled, .failedToLoad, .processing, .loading:
+        case .loading(let cached?):
+            RewardsInfo(
+                type: .apy,
+                rewardValue: formattedRewardValue,
+                isActive: cached.isEffectivelyActive,
+                isUpdating: true
+            )
+
+        case .disabled, .failedToLoad, .processing, .loading(cachedState: nil):
             nil
         }
 
