@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccounts
 
 struct AccountItemView: View {
     @ObservedObject var viewModel: AccountItemViewModel
@@ -17,10 +18,7 @@ struct AccountItemView: View {
     var body: some View {
         TwoLineRowWithIcon(
             icon: {
-                viewModel.imageData.1
-                    .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.inactive)
-                    .roundedBackground(with: viewModel.imageData.0, padding: 12)
+                AccountIconView(data: viewModel.iconData)
             },
             primaryLeadingView: {
                 Text(viewModel.name)
@@ -57,7 +55,14 @@ struct AccountItemView: View {
 #Preview {
     ZStack {
         Color.gray
-        AccountItemView(viewModel: AccountItemViewModel())
+
+        AccountItemView(
+            viewModel: AccountItemViewModel(
+                accountModel: CryptoAccountModelMock(
+                    isMainAccount: false
+                )
+            )
+        )
     }
 }
 #endif
