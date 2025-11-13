@@ -480,7 +480,7 @@ private extension CommonYieldModuleManager {
             return statePublisher
         }
 
-        let cachedStateInfo = YieldModuleManagerStateInfo(marketInfo: .init(from: cachedMarket), state: cachedState)
+        let cachedStateInfo = YieldModuleManagerStateInfo(marketInfo: .init(from: cachedMarket), state: .loading(cachedState: cachedState))
         return statePublisher
             .prepend(cachedStateInfo)
             .eraseToAnyPublisher()
