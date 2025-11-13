@@ -753,6 +753,7 @@
 		3087272A2E98F368003ED7FF /* ReferralViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 308727292E98F363003ED7FF /* ReferralViewState.swift */; };
 		3087272D2E98F83F003ED7FF /* ReferralAccountFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3087272C2E98F830003ED7FF /* ReferralAccountFinder.swift */; };
 		3095FFA22E8407C400EC61B7 /* AccountDetailsActionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3095FFA12E8407B900EC61B7 /* AccountDetailsActionsProvider.swift */; };
+		3096BFEB2EC5DC0900D92846 /* AccountsFeatureAwareWalletModelsResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3096BFEA2EC5DC0900D92846 /* AccountsFeatureAwareWalletModelsResolver.swift */; };
 		309938FE2D786A9A00DA3667 /* StellarAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309938FD2D786A9300DA3667 /* StellarAddressTests.swift */; };
 		309939002D786D6200DA3667 /* SuiAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309938FF2D786D5C00DA3667 /* SuiAddressTests.swift */; };
 		309939022D786F3200DA3667 /* TONAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309939012D786F2C00DA3667 /* TONAddressTests.swift */; };
@@ -5230,6 +5231,7 @@
 		308727292E98F363003ED7FF /* ReferralViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralViewState.swift; sourceTree = "<group>"; };
 		3087272C2E98F830003ED7FF /* ReferralAccountFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralAccountFinder.swift; sourceTree = "<group>"; };
 		3095FFA12E8407B900EC61B7 /* AccountDetailsActionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDetailsActionsProvider.swift; sourceTree = "<group>"; };
+		3096BFEA2EC5DC0900D92846 /* AccountsFeatureAwareWalletModelsResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsFeatureAwareWalletModelsResolver.swift; sourceTree = "<group>"; };
 		309938FD2D786A9300DA3667 /* StellarAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarAddressTests.swift; sourceTree = "<group>"; };
 		309938FF2D786D5C00DA3667 /* SuiAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuiAddressTests.swift; sourceTree = "<group>"; };
 		309939012D786F2C00DA3667 /* TONAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONAddressTests.swift; sourceTree = "<group>"; };
@@ -11088,6 +11090,14 @@
 				3027D3452E82EBAE001E15FB /* AccountDetailsCoordinatorView.swift */,
 			);
 			path = Coordination;
+			sourceTree = "<group>";
+		};
+		3096BFE82EC5DB6A00D92846 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				3096BFEA2EC5DC0900D92846 /* AccountsFeatureAwareWalletModelsResolver.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		30A5A43B2E0D41B100ACFD5A /* TransactionsTestCases */ = {
@@ -19456,6 +19466,7 @@
 		DC8C22F02D8A10BF005159FE /* UserWalletModel */ = {
 			isa = PBXGroup;
 			children = (
+				3096BFE82EC5DB6A00D92846 /* Helpers */,
 				DC2293EC2E3BD7CB00743C7B /* UserWalletModelUnlocker */,
 				DC3B49F22893E4F300C207EA /* UserWalletConfig */,
 				DC74BC2E28EF060600B49850 /* UserWalletId.swift */,
@@ -26927,6 +26938,7 @@
 				2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */,
 				EA9B03A52E9431B200F4B40D /* YieldModuleTokenInfo.swift in Sources */,
 				EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */,
+				3096BFEB2EC5DC0900D92846 /* AccountsFeatureAwareWalletModelsResolver.swift in Sources */,
 				B6FB04E92B1FEF4E000BB59E /* StatusBarStyleConfiguratorWeakifyAdapter.swift in Sources */,
 				B0ED3F042C3D6F0300311DE2 /* DecimalRoundingUtility.swift in Sources */,
 				B6016CEB2E6FC3EC0069A8BE /* AccountModelsManagerError.swift in Sources */,
