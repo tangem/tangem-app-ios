@@ -17,9 +17,6 @@ final class MobileWalletSigner {
     let userWalletConfig: UserWalletConfig
     let mobileWalletSdk = CommonMobileWalletSdk()
 
-    @Injected(\.sessionMobileAccessCodeStorageManager)
-    private var accessCodeStorageManager: MobileAccessCodeStorageManager
-
     init(userWalletConfig: UserWalletConfig) {
         self.userWalletConfig = userWalletConfig
     }
