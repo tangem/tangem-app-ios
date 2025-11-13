@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SendSummaryView: View {
     @ObservedObject var viewModel: SendSummaryViewModel
@@ -85,8 +86,12 @@ struct SendSummaryView: View {
         if let feeCompactViewModel = viewModel.sendFeeCompactViewModel {
             if feeCompactViewModel.canEditFee {
                 Button(action: viewModel.userDidTapFee) { SendNewFeeCompactView(viewModel: feeCompactViewModel) }
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
             } else {
                 SendNewFeeCompactView(viewModel: feeCompactViewModel)
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
             }
         }
     }

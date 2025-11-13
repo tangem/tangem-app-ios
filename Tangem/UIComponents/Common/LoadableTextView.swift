@@ -20,6 +20,7 @@ struct LoadableTextView: View {
     var prefix: String? = nil
     var lineLimit: Int = 1
     var isSensitiveText: Bool = false
+    var accessibilityIdentifierValue: String? = nil
 
     var body: some View {
         content
@@ -65,6 +66,7 @@ struct LoadableTextView: View {
         }
         .style(font, color: textColor)
         .lineLimit(lineLimit)
+        .accessibilityIdentifier(accessibilityIdentifierValue)
     }
 }
 

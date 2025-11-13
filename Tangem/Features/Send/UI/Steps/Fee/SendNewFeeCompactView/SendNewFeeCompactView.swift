@@ -29,12 +29,12 @@ struct SendNewFeeCompactView: View {
                     state: viewModel.selectedFeeComponents,
                     font: Fonts.Regular.body,
                     textColor: Colors.Text.tertiary,
-                    loaderSize: CGSize(width: 70, height: 15)
+                    loaderSize: CGSize(width: 70, height: 15),
+                    accessibilityIdentifierValue: SendAccessibilityIdentifiers.networkFeeAmount
                 )
             }
         )
         .shouldShowTrailingIcon(viewModel.canEditFee)
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 11, horizontalPadding: 14)
-        .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
     }
 }
