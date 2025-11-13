@@ -305,7 +305,8 @@ private extension SendModel {
             amount: _amount.value,
             additionalField: _destinationAdditionalField.value,
             fee: _selectedFee.value,
-            signerType: result.signerType
+            signerType: result.signerType,
+            currentProviderHost: result.currentHost
         )
     }
 
