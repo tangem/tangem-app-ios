@@ -78,7 +78,11 @@ final class TangemPayAccount {
 
         tangemPayCardDetailsPublisher = customerInfoSubject
             .map { customerInfo in
-                guard let card = customerInfo?.card, let balance = customerInfo?.balance else {
+                guard let card = customerInfo?.card,
+                      let balance = customerInfo?.balance,
+                      let productInstance = customerInfo?.productInstance,
+                      [.active, .blocked].contains(productInstance.status)
+                else {
                     return nil
                 }
                 return (card, balance)
