@@ -11,7 +11,7 @@ import Foundation
 @MainActor
 protocol DetailsRoutable: AnyObject {
     func openWalletConnect(with disabledLocalizedReason: String?)
-    func openWalletSettings(options: UserWalletSettingsCoordinator.Options)
+    func openWalletSettings(options: UserWalletSettingsCoordinator.InputOptions)
 
     func openOnboardingModal(with input: OnboardingInput)
 
