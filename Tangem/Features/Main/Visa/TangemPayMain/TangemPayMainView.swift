@@ -41,7 +41,7 @@ struct TangemPayMainView: View {
                 TransactionsListView(
                     state: viewModel.tangemPayTransactionHistoryState,
                     exploreAction: nil,
-                    exploreTransactionAction: { _ in },
+                    exploreTransactionAction: viewModel.openTransactionDetails,
                     reloadButtonAction: viewModel.reloadHistory,
                     isReloadButtonBusy: false,
                     fetchMore: viewModel.fetchNextTransactionHistoryPage()
@@ -58,6 +58,14 @@ struct TangemPayMainView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button(action: viewModel.setPin) {
+                        Label(
+                            Localization.tangempayCardDetailsChangePin,
+                            systemImage: "circle.grid.3x3.fill"
+                        )
+                    }
+                    .disabled(viewModel.freezingState.isFreezingUnfreezingInProgress)
+
                     Button(
                         action: viewModel.freezingState.isFrozen
                             ? viewModel.unfreeze

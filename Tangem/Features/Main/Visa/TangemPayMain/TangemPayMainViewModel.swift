@@ -137,6 +137,10 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
+    func setPin() {
+        coordinator?.openTangemPayPin()
+    }
+
     private func freeze() {
         guard let cardId = tangemPayAccount.cardId else {
             showFreezeUnfreezeErrorToast(freeze: true)
@@ -167,6 +171,15 @@ final class TangemPayMainViewModel: ObservableObject {
                 type: .temporary()
             )
     }
+
+    func openTransactionDetails(id: String) {
+        guard let transaction = transactionHistoryService.getTransaction(id: id) else {
+            assertionFailure("Transaction not found")
+            return
+        }
+
+        coordinator?.openTangemPayTransactionDetailsSheet(transaction: transaction)
+    }
 }
 
 private extension TangemPayMainViewModel {
@@ -185,6 +198,7 @@ private extension TangemPayMainViewModel {
                 && status == .active
                 && tangemPayShowAddToApplePayGuide
         }
+        .receiveOnMain()
         .assign(to: \.shouldDisplayAddToApplePayGuide, on: self, ownership: .weak)
         .store(in: &bag)
 

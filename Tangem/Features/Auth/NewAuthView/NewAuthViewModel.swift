@@ -266,7 +266,11 @@ private extension NewAuthViewModel {
             switch state {
             case .locked:
                 setup(state: makeWalletsState())
-                unlockSingleProtectedMobileWalletIfNeeded()
+                if !error.isCancellationError {
+                    alert = error.alertBinder
+                } else {
+                    unlockSingleProtectedMobileWalletIfNeeded()
+                }
             case .wallets:
                 if !error.isCancellationError {
                     alert = error.alertBinder
@@ -305,10 +309,6 @@ private extension NewAuthViewModel {
     func openAddWallet() {
         Analytics.log(.buttonAddWallet, params: [.action: .create])
         coordinator?.openAddWallet()
-    }
-
-    func openOnboarding(with input: OnboardingInput) {
-        coordinator?.openOnboarding(with: input)
     }
 
     func openTroubleshooting(userWalletModel: UserWalletModel) {
