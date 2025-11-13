@@ -94,7 +94,7 @@ struct ExpressTokensListView: View {
 
 struct ExpressTokensListView_Preview: PreviewProvider {
     static let viewModel = ExpressModulesFactoryMock().makeExpressTokensListViewModel(
-        swapDirection: .fromSource(CommonWalletModel.mockETH),
+        swapDirection: .fromSource(CommonWalletModel.mockETH.tokenItem),
         coordinator: ExpressTokensListRoutableMock()
     )
 
