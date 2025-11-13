@@ -81,8 +81,8 @@ private extension MobileUpgradeCoordinator {
     func openOnboarding(inputOptions: OnboardingCoordinator.Options) {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] options in
             switch options {
-            case .main:
-                self?.upgradeCompleted()
+            case .main(let userWalletModel):
+                self?.openMain(userWalletModel: userWalletModel)
             case .dismiss:
                 self?.onboardingCoordinator = nil
             }
@@ -97,8 +97,8 @@ private extension MobileUpgradeCoordinator {
         dismiss(with: .dismiss)
     }
 
-    func upgradeCompleted() {
-        dismiss(with: .upgraded)
+    func openMain(userWalletModel: UserWalletModel) {
+        dismiss(with: .main(userWalletModel: userWalletModel))
     }
 }
 
@@ -111,7 +111,7 @@ extension MobileUpgradeCoordinator {
     }
 
     enum OutputOptions {
+        case main(userWalletModel: UserWalletModel)
         case dismiss
-        case upgraded
     }
 }
