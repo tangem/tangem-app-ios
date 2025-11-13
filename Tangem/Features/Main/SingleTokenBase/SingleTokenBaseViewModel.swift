@@ -368,6 +368,17 @@ extension SingleTokenBaseViewModel {
 
         pendingExpressTransactionsManager
             .pendingTransactionsPublisher
+            .map {
+                $0.filter { transaction in
+                    // Don't show onramp's transaction with this statuses for SingleWallet and TokenDetails
+                    switch transaction.type {
+                    case .onramp:
+                        return ![.created, .expired, .paused].contains(transaction.transactionStatus)
+                    case .swap:
+                        return true
+                    }
+                }
+            }
             .map { [weak self] transactions in
                 PendingExpressTransactionsConverter()
                     .convertToTokenDetailsPendingTxInfo(transactions) { [weak self] id in
