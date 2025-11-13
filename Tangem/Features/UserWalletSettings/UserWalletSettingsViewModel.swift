@@ -15,6 +15,7 @@ import TangemAccessibilityIdentifiers
 import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
+import TangemAssets
 
 final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - Injected
@@ -26,6 +27,8 @@ final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published private(set) var name: String
+    @Published private(set) var walletImage: Image?
+
     @Published var accountsViewModel: UserSettingsAccountsViewModel?
     @Published var mobileUpgradeNotificationInput: NotificationViewInput?
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
@@ -57,10 +60,14 @@ final class UserWalletSettingsViewModel: ObservableObject {
         set { nftAvailabilityProvider.setNFTEnabled(newValue, for: userWalletModel) }
     }
 
+    private var currentWalletModelsManager: WalletModelsManager?
+    private var currentUserTokensManager: UserTokensManager?
+
     // MARK: - Dependencies
 
     private let userWalletModel: UserWalletModel
     private weak var coordinator: UserWalletSettingsRoutable?
+    private let dependencyUpdater: DependencyUpdater
 
     private var bag = Set<AnyCancellable>()
 
@@ -74,6 +81,9 @@ final class UserWalletSettingsViewModel: ObservableObject {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
 
+        dependencyUpdater = DependencyUpdater(userWalletModel: userWalletModel)
+        dependencyUpdater.setup(owner: self)
+
         bind()
     }
 
@@ -81,6 +91,19 @@ final class UserWalletSettingsViewModel: ObservableObject {
         Analytics.log(.walletSettingsScreenOpened)
 
         setupView()
+        if FeatureProvider.isAvailable(.accounts) {
+            loadWalletImage()
+        }
+    }
+
+    private func loadWalletImage() {
+        runTask(in: self) { viewModel in
+            let imageValue = await viewModel.userWalletModel.walletImageProvider.loadSmallImage()
+
+            await runOnMain {
+                viewModel.walletImage = imageValue.image
+            }
+        }
     }
 
     func onTapNameField() {
@@ -113,6 +136,7 @@ private extension UserWalletSettingsViewModel {
         if FeatureProvider.isAvailable(.accounts) {
             userWalletModel.accountModelsManager
                 .accountModelsPublisher
+                .receiveOnMain()
                 .withWeakCaptureOf(self)
                 .map { viewModel, accounts in
                     UserSettingsAccountsViewModel(
@@ -122,14 +146,19 @@ private extension UserWalletSettingsViewModel {
                         coordinator: viewModel.coordinator
                     )
                 }
-                .assign(to: \.accountsViewModel, on: self, ownership: .weak)
+                .withWeakCaptureOf(self)
+                .sink { viewModel, accountsViewModel in
+                    if accountsViewModel.accountRows.isNotEmpty {
+                        viewModel.manageTokensViewModel = nil
+                    }
+                    viewModel.accountsViewModel = accountsViewModel
+                }
                 .store(in: &bag)
         }
     }
 
     func setupView() {
         resetViewModels()
-        // setupAccountsSection()
         setupViewModels()
         setupMobileViewModels()
     }
@@ -198,10 +227,17 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        forgetViewModel = DefaultRowViewModel(
-            title: Localization.settingsForgetWallet,
-            action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
-        )
+        if userWalletModel.config.hasFeature(.userWalletBackup) {
+            forgetViewModel = DefaultRowViewModel(
+                title: Localization.settingsForgetWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapRemoveMobileWallet)
+            )
+        } else {
+            forgetViewModel = DefaultRowViewModel(
+                title: Localization.settingsForgetWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapForgetWallet)
+            )
+        }
     }
 
     func setupMobileViewModels() {
@@ -236,15 +272,15 @@ private extension UserWalletSettingsViewModel {
 
             case .upgrade:
                 mobileUpgradeNotificationInput = mobileSettingsUtil.makeUpgradeNotificationInput(
-                    onContext: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationContext),
+                    onUpgrade: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationUpgrade),
                     onDismiss: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationDismiss)
                 )
             }
         }
     }
 
-    func onMobileUpgradeNotificationContext(context: MobileWalletContext) {
-        coordinator?.openMobileUpgrade(userWalletModel: userWalletModel, context: context)
+    func onMobileUpgradeNotificationUpgrade() {
+        coordinator?.openMobileUpgrade(userWalletModel: userWalletModel)
     }
 
     func onMobileUpgradeNotificationDismiss() {
@@ -252,7 +288,7 @@ private extension UserWalletSettingsViewModel {
     }
 
     func mobileAccessCodeAction() {
-        let hasAccessCode = userWalletModel.config.hasFeature(.userWalletAccessCode)
+        let hasAccessCode = userWalletModel.config.userWalletAccessCodeStatus.hasAccessCode
         Analytics.log(.walletSettingsButtonAccessCode, params: [.action: hasAccessCode ? .changing : .set])
 
         runTask(in: self) { viewModel in
@@ -278,11 +314,11 @@ private extension UserWalletSettingsViewModel {
         }
     }
 
-    func didTapDeleteWallet() {
+    func didTapForgetWallet() {
         Analytics.log(.buttonDeleteWalletTapped)
 
         let deleteButton = ConfirmationDialogViewModel.Button(
-            title: Localization.commonDelete,
+            title: Localization.commonForget,
             role: .destructive,
             action: { [weak self] in
                 self?.didConfirmWalletDeletion()
@@ -296,6 +332,10 @@ private extension UserWalletSettingsViewModel {
                 ConfirmationDialogViewModel.Button.cancel,
             ]
         )
+    }
+
+    func didTapRemoveMobileWallet() {
+        coordinator?.openMobileRemoveWalletNotification(userWalletModel: userWalletModel)
     }
 
     func didConfirmWalletDeletion() {
@@ -342,9 +382,16 @@ private extension UserWalletSettingsViewModel {
     func openManageTokens() {
         Analytics.log(.settingsButtonManageTokens)
 
+        guard
+            let currentWalletModelsManager,
+            let currentUserTokensManager
+        else {
+            return
+        }
+
         coordinator?.openManageTokens(
-            walletModelsManager: userWalletModel.walletModelsManager,
-            userTokensManager: userWalletModel.userTokensManager,
+            walletModelsManager: currentWalletModelsManager,
+            userTokensManager: currentUserTokensManager,
             userWalletConfig: userWalletModel.config
         )
     }
@@ -377,10 +424,16 @@ private extension UserWalletSettingsViewModel {
             return
         }
 
+        // accounts_fixes_needed_none
+        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
+            .accounts(userWalletModel.accountModelsManager) :
+            .plainUserTokensManager(userWalletModel.userTokensManager)
+
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
             supportedBlockchains: userWalletModel.config.supportedBlockchains,
-            userTokensManager: userWalletModel.userTokensManager
+            workMode: workMode,
+            tokenIconInfoBuilder: TokenIconInfoBuilder()
         )
 
         coordinator?.openReferral(input: input)
@@ -400,5 +453,70 @@ private extension UserWalletSettingsViewModel {
         Analytics.log(.walletSettingsButtonBackup)
 
         coordinator?.openMobileBackupTypes(userWalletModel: userWalletModel)
+    }
+}
+
+// MARK: - DependencyUpdater
+
+private extension UserWalletSettingsViewModel {
+    /// Encapsulates logic for updating wallet and tokens managers based on account mode
+    final class DependencyUpdater {
+        private let userWalletModel: UserWalletModel
+        private weak var owner: UserWalletSettingsViewModel?
+        private var bag = Set<AnyCancellable>()
+
+        init(userWalletModel: UserWalletModel) {
+            self.userWalletModel = userWalletModel
+        }
+
+        func setup(owner: UserWalletSettingsViewModel) {
+            self.owner = owner
+            setupDependencies()
+        }
+
+        private func setupDependencies() {
+            if FeatureProvider.isAvailable(.accounts) {
+                userWalletModel.accountModelsManager
+                    .accountModelsPublisher
+                    .receiveOnMain()
+                    .sink { [weak self] accountModels in
+                        self?.updateManagersForAccountMode(accountModels: accountModels)
+                    }
+                    .store(in: &bag)
+            } else {
+                // accounts_fixes_needed_none
+                updateManagers(
+                    walletModelsManager: userWalletModel.walletModelsManager,
+                    userTokensManager: userWalletModel.userTokensManager
+                )
+            }
+        }
+
+        private func updateManagersForAccountMode(accountModels: [AccountModel]) {
+            guard let accountModel = accountModels.first else {
+                updateManagers(walletModelsManager: nil, userTokensManager: nil)
+                return
+            }
+
+            switch accountModel {
+            case .standard(.single(let cryptoAccountModel)):
+                updateManagers(
+                    walletModelsManager: cryptoAccountModel.walletModelsManager,
+                    userTokensManager: cryptoAccountModel.userTokensManager
+                )
+
+            case .standard(.multiple):
+                // In multiple accounts case we don't support managing tokens from this screen
+                updateManagers(walletModelsManager: nil, userTokensManager: nil)
+            }
+        }
+
+        private func updateManagers(
+            walletModelsManager: WalletModelsManager?,
+            userTokensManager: UserTokensManager?
+        ) {
+            owner?.currentWalletModelsManager = walletModelsManager
+            owner?.currentUserTokensManager = userTokensManager
+        }
     }
 }
