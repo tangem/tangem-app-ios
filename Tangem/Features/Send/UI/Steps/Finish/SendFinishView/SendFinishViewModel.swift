@@ -1,9 +1,9 @@
 //
 //  SendFinishViewModel.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
@@ -12,47 +12,57 @@ import Combine
 import struct TangemUIUtils.AlertBinder
 
 class SendFinishViewModel: ObservableObject, Identifiable {
-    @Published var showHeader = false
-    @Published var transactionSentTime: String?
-    @Published var transactionURL: URL?
+    @Published private(set) var showHeader = false
+    @Published private(set) var transactionSentTime: String?
+    @Published private(set) var transactionURL: URL?
 
-    @Published var sendAmountCompactViewModel: SendAmountCompactViewModel?
-    @Published var onrampAmountCompactViewModel: OnrampAmountCompactViewModel?
-    @Published var stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?
-    @Published var sendFeeCompactViewModel: SendFeeCompactViewModel?
-    @Published var onrampStatusCompactViewModel: OnrampStatusCompactViewModel?
+    // Send
 
-    private let tokenItem: TokenItem
-    private let sendFinishAnalyticsLogger: SendFinishAnalyticsLogger
+    @Published private(set) var sendAmountFinishViewModel: SendAmountFinishViewModel?
+    @Published private(set) var nftAssetCompactViewModel: NFTAssetCompactViewModel?
+    @Published private(set) var sendDestinationCompactViewModel: SendDestinationCompactViewModel?
+    @Published private(set) var stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?
+    @Published private(set) var sendFeeFinishViewModel: SendFeeFinishViewModel?
+
+    // Staking
+
+    @Published private(set) var onrampAmountCompactViewModel: OnrampAmountCompactViewModel?
+    @Published private(set) var onrampStatusCompactViewModel: OnrampStatusCompactViewModel?
+
+    private let settings: Settings
+    private let analyticsLogger: SendFinishAnalyticsLogger
+
     private weak var coordinator: SendRoutable?
-
-    private var bag: Set<AnyCancellable> = []
 
     init(
         input: SendFinishInput,
-        tokenItem: TokenItem,
-        sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
-        sendAmountCompactViewModel: SendAmountCompactViewModel?,
-        onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
+        sendAmountFinishViewModel: SendAmountFinishViewModel?,
+        nftAssetCompactViewModel: NFTAssetCompactViewModel?,
+        sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?,
+        sendFeeFinishViewModel: SendFeeFinishViewModel?,
+        onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel?,
+        settings: Settings,
+        analyticsLogger: SendFinishAnalyticsLogger,
         coordinator: SendRoutable
     ) {
-        self.tokenItem = tokenItem
-        self.sendFinishAnalyticsLogger = sendFinishAnalyticsLogger
-        self.sendAmountCompactViewModel = sendAmountCompactViewModel
-        self.onrampAmountCompactViewModel = onrampAmountCompactViewModel
+        self.sendAmountFinishViewModel = sendAmountFinishViewModel
+        self.nftAssetCompactViewModel = nftAssetCompactViewModel
+        self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
         self.stakingValidatorsCompactViewModel = stakingValidatorsCompactViewModel
-        self.sendFeeCompactViewModel = sendFeeCompactViewModel
+        self.sendFeeFinishViewModel = sendFeeFinishViewModel
+        self.onrampAmountCompactViewModel = onrampAmountCompactViewModel
         self.onrampStatusCompactViewModel = onrampStatusCompactViewModel
+        self.settings = settings
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
 
         bind(input: input)
     }
 
     func onAppear() {
-        sendFinishAnalyticsLogger.logFinishStepOpened()
+        analyticsLogger.logFinishStepOpened()
 
         withAnimation(SendTransitions.animation) {
             showHeader = true
@@ -60,32 +70,28 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     }
 
     func share(url: URL) {
-        sendFinishAnalyticsLogger.logShareButton()
+        analyticsLogger.logShareButton()
         coordinator?.openShareSheet(url: url)
     }
 
     func explore(url: URL) {
-        sendFinishAnalyticsLogger.logExploreButton()
+        analyticsLogger.logExploreButton()
         coordinator?.openExplorer(url: url)
     }
 
     private func bind(input: SendFinishInput) {
         input.transactionSentDate
+            .removeDuplicates()
             .map { date in
                 let formatter = DateFormatter()
                 formatter.dateStyle = .long
                 formatter.timeStyle = .short
                 return formatter.string(from: date)
             }
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] time in
-                withAnimation(SendTransitions.animation) {
-                    self?.transactionSentTime = time
-                }
-            })
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$transactionSentTime)
 
-        guard !tokenItem.blockchain.isTransactionAsync else {
+        guard settings.possibleToShowExploreButtons else {
             return
         }
 
@@ -96,8 +102,9 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     }
 }
 
-// MARK: - SendStepViewAnimatable
-
-extension SendFinishViewModel: SendStepViewAnimatable {
-    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
+extension SendFinishViewModel {
+    struct Settings {
+        let title: String
+        let possibleToShowExploreButtons: Bool
+    }
 }

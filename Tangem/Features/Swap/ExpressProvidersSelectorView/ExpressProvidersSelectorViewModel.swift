@@ -122,7 +122,7 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
     }
 
     func mapToProviderRowViewModel(provider: ExpressAvailableProvider) async -> ProviderRowViewModel {
-        let senderCurrencyCode = expressInteractor.getSender().tokenItem.currencySymbol
+        let senderCurrencyCode = expressInteractor.getSource().value?.tokenItem.currencySymbol
         let destinationCurrencyCode = expressInteractor.getDestination()?.tokenItem.currencySymbol
         var subtitles: [ProviderRowViewModel.Subtitle] = []
 
