@@ -29,25 +29,20 @@ class StakingModel {
     private let _isLoading = CurrentValueSubject<Bool, Never>(false)
     private let _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
-    var onAmountUpdate: ((Decimal) -> Void)?
-
     // MARK: - Dependencies
 
     weak var router: SendModelRoutable?
+    var amountExternalUpdater: SendAmountExternalUpdater?
 
     // MARK: - Private injections
 
     private let stakingManager: StakingManager
-    private let transactionCreator: TransactionCreator
-    private let transactionValidator: TransactionValidator
+    private let sendSourceToken: SendSourceToken
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let stakingTransactionDispatcher: TransactionDispatcher
     private let transactionDispatcher: TransactionDispatcher
     private let allowanceService: AllowanceService
     private let analyticsLogger: StakingSendAnalyticsLogger
-    private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
-    private let tokenIconInfo: TokenIconInfo
     private let accountInitializationService: BlockchainAccountInitializationService?
     private let minimalBalanceProvider: MinimalBalanceProvider?
 
@@ -55,10 +50,15 @@ class StakingModel {
     private var estimatedFeeTask: Task<Void, Never>?
     private var accountInitializationFee: Fee?
 
+    private var transactionCreator: TransactionCreator { sendSourceToken.transactionCreator }
+    private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
+    private var tokenItem: TokenItem { sendSourceToken.tokenItem }
+    private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
+    private var tokenIconInfo: TokenIconInfo { sendSourceToken.tokenIconInfo }
+
     init(
         stakingManager: StakingManager,
-        transactionCreator: TransactionCreator,
-        transactionValidator: TransactionValidator,
+        sendSourceToken: SendSourceToken,
         feeIncludedCalculator: FeeIncludedCalculator,
         stakingTransactionDispatcher: TransactionDispatcher,
         transactionDispatcher: TransactionDispatcher,
@@ -66,13 +66,9 @@ class StakingModel {
         analyticsLogger: StakingSendAnalyticsLogger,
         accountInitializationService: BlockchainAccountInitializationService?,
         minimalBalanceProvider: MinimalBalanceProvider?,
-        tokenItem: TokenItem,
-        feeTokenItem: TokenItem,
-        tokenIconInfo: TokenIconInfo
     ) {
         self.stakingManager = stakingManager
-        self.transactionCreator = transactionCreator
-        self.transactionValidator = transactionValidator
+        self.sendSourceToken = sendSourceToken
         self.feeIncludedCalculator = feeIncludedCalculator
         self.stakingTransactionDispatcher = stakingTransactionDispatcher
         self.transactionDispatcher = transactionDispatcher
@@ -80,9 +76,6 @@ class StakingModel {
         self.analyticsLogger = analyticsLogger
         self.accountInitializationService = accountInitializationService
         self.minimalBalanceProvider = minimalBalanceProvider
-        self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
-        self.tokenIconInfo = tokenIconInfo
     }
 }
 
@@ -235,9 +228,9 @@ private extension StakingModel {
             balance.balanceType == .active && balance.validatorType.validator != validator
         }
 
-        let amountToReduceCalculation = { [minimalBalanceProvider] in
-            return fee * Constants.reduceAmountMultiplier + (minimalBalanceProvider?.minimalBalance() ?? .zero)
-        }
+        let increasedFee = fee * Constants.reduceAmountMultiplier
+        let minBalance = minimalBalanceProvider?.minimalBalance() ?? .zero
+        let amountToReduce = increasedFee + minBalance
 
         return .readyToStake(
             .init(
@@ -245,7 +238,7 @@ private extension StakingModel {
                 fee: fee,
                 isFeeIncluded: includeFee,
                 stakeOnDifferentValidator: hasPreviousStakeOnDifferentValidator,
-                amountToReduce: includeFee ? amountToReduceCalculation() : nil
+                amountToReduce: includeFee ? amountToReduce : nil
             )
         )
     }
@@ -325,7 +318,7 @@ private extension StakingModel {
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
-        analyticsLogger.logTransactionSent(amount: _amount.value, fee: selectedFee, signerType: result.signerType)
+        analyticsLogger.logTransactionSent(amount: _amount.value, fee: selectedFee, signerType: result.signerType, currentProviderHost: result.currentHost)
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -365,20 +358,48 @@ extension StakingModel: SendFeeProvider {
     }
 }
 
-// MARK: - SendAmountInput
+// MARK: - SendSourceTokenInput
 
-extension StakingModel: SendAmountInput {
-    var amount: SendAmount? { _amount.value }
+extension StakingModel: SendSourceTokenInput {
+    var sourceToken: SendSourceToken {
+        sendSourceToken
+    }
 
-    var amountPublisher: AnyPublisher<SendAmount?, Never> {
-        _amount.eraseToAnyPublisher()
+    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> {
+        .just(output: sourceToken)
     }
 }
 
-// MARK: - SendAmountOutput
+// MARK: - SendSourceTokenOutput
 
-extension StakingModel: SendAmountOutput {
-    func amountDidChanged(amount: SendAmount?) {
+extension StakingModel: SendSourceTokenOutput {
+    func userDidSelect(sourceToken: SendSourceToken) {}
+}
+
+// MARK: - SendSourceTokenAmountInput
+
+extension StakingModel: SendSourceTokenAmountInput {
+    var sourceAmount: LoadingResult<SendAmount, any Error> {
+        switch _amount.value {
+        case .none: .failure(SendAmountError.noAmount)
+        case .some(let amount): .success(amount)
+        }
+    }
+
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
+        _amount.map { amount in
+            switch amount {
+            case .none: .failure(SendAmountError.noAmount)
+            case .some(let amount): .success(amount)
+            }
+        }.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - SendSourceTokenAmountOutput
+
+extension StakingModel: SendSourceTokenAmountOutput {
+    func sourceAmountDidChanged(amount: SendAmount?) {
         _amount.send(amount)
     }
 }
@@ -524,10 +545,12 @@ extension StakingModel: NotificationTapDelegate {
 
             router?.openAccountInitializationFlow(viewModel: viewModel)
         case .reduceAmountBy(let amountToReduce, _, _):
-            guard let oldAmount = amount?.main else {
+            guard let oldAmount = sourceAmount.value?.main else {
                 return
             }
-            onAmountUpdate?(oldAmount - amountToReduce)
+
+            let newAmount = oldAmount - amountToReduce
+            amountExternalUpdater?.externalUpdate(amount: newAmount)
             updateState()
         default:
             assertionFailure("StakingModel doesn't support notification action \(action)")
