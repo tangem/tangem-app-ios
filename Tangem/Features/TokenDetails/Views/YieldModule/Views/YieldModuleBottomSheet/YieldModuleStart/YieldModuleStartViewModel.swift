@@ -101,7 +101,7 @@ final class YieldModuleStartViewModel: ObservableObject {
         self.logger = logger
 
         networkFeeState = .init(
-            footerText: Localization.yieldModuleStartEarningSheetNextDepositsV2(walletModel.tokenItem.name),
+            footerText: Localization.yieldModuleStartEarningSheetNextDepositsV2(walletModel.tokenItem.currencySymbol),
             isLinkActive: true
         )
 
