@@ -20,6 +20,7 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
     let action: RestakingModel.Action
     var actionType: StakingAction.ActionType { action.displayType }
 
+    let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let walletModelBalancesProvider: WalletModelBalancesProvider
@@ -39,6 +40,7 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
         self.manager = manager
         self.action = action
 
+        tokenHeaderProvider = UnstakingTokenHeaderProvider()
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
@@ -86,25 +88,6 @@ extension UnstakingFlowFactory {
             BalanceConverter().convertToFiat(action.amount, currencyId: $0)
         }
         return .init(type: .typical(crypto: action.amount, fiat: fiat))
-    }
-
-    func maxAmount() -> Decimal {
-        amount.crypto ?? 0
-    }
-
-    func walletHeaderText() -> String {
-        Localization.stakingStakedAmount
-    }
-
-    func formattedBalance() -> String {
-        let formatter = BalanceFormatter()
-        let cryptoFormatted = formatter.formatCryptoBalance(
-            amount.crypto,
-            currencyCode: tokenItem.currencySymbol
-        )
-
-        let fiatFormatted = formatter.formatFiatBalance(amount.fiat)
-        return Localization.commonCryptoFiatFormat(cryptoFormatted, fiatFormatted)
     }
 }
 
