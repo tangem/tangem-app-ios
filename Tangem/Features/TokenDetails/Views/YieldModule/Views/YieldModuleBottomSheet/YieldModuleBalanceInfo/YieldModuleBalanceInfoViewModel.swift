@@ -10,7 +10,6 @@ import Foundation
 import TangemFoundation
 import TangemUI
 
-@MainActor
 final class YieldModuleBalanceInfoViewModel {
     // MARK: - Injected
 
@@ -29,8 +28,8 @@ final class YieldModuleBalanceInfoViewModel {
     // MARK: - Public Implementation
 
     func onCloseTap() {
-        runTask(in: self) { vm in
-            vm.floatingSheetPresenter.removeActiveSheet()
+        Task { @MainActor [weak self] in
+            self?.floatingSheetPresenter.removeActiveSheet()
         }
     }
 }

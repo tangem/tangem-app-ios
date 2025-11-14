@@ -27,7 +27,7 @@ final class CommonUserTokenListManager {
     private let supportedBlockchains: Set<Blockchain>
     private let hasTokenSynchronization: Bool
     private let hdWalletsSupported: Bool // hotfix migration
-    private let defaultBlockchains: [StorageEntry]
+    private let defaultBlockchains: [TokenItem]
 
     private let tokenItemsRepository: TokenItemsRepository
     private let userTokensListSubject: CurrentValueSubject<StoredUserTokenList, Never>
@@ -45,7 +45,7 @@ final class CommonUserTokenListManager {
         supportedBlockchains: Set<Blockchain>,
         hdWalletsSupported: Bool,
         hasTokenSynchronization: Bool,
-        defaultBlockchains: [StorageEntry]
+        defaultBlockchains: [TokenItem]
     ) {
         self.userWalletId = userWalletId
         self.supportedBlockchains = supportedBlockchains
@@ -69,18 +69,6 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
     var initializedPublisher: AnyPublisher<Bool, Never> {
         initializedSubject.eraseToAnyPublisher()
-    }
-
-    var userTokens: [StorageEntry] {
-        let converter = StorageEntryConverter()
-        return converter.convertToStorageEntries(userTokensList.entries)
-    }
-
-    var userTokensPublisher: AnyPublisher<[StorageEntry], Never> {
-        let converter = StorageEntryConverter()
-        return userTokensListSubject
-            .map { converter.convertToStorageEntries($0.entries) }
-            .eraseToAnyPublisher()
     }
 
     var userTokensList: StoredUserTokenList {
@@ -109,18 +97,17 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
         switch type {
         case .append(let entries):
-            let storedUserTokens = converter.convertToStoredUserTokens(entries)
+            let storedUserTokens = converter.convertToStoredUserTokens(tokenItems: entries)
             tokenItemsRepository.append(storedUserTokens)
-        case .removeBlockchain(let blockchainNetwork):
-            tokenItemsRepository.remove(
-                [blockchainNetwork],
-                completion: { [wcService] in
-                    wcService.handleHiddenBlockchainFromCurrentUserWallet(blockchainNetwork.blockchain)
-                }
-            )
-        case .removeToken(let token, let blockchainNetwork):
-            let storedUserToken = converter.convertToStoredUserToken(token, in: blockchainNetwork)
+        case .remove(let entry):
+            let storedUserToken = converter.convertToStoredUserToken(tokenItem: entry)
             tokenItemsRepository.remove([storedUserToken])
+            if entry.isBlockchain {
+                // [REDACTED_TODO_COMMENT]
+                wcService.handleHiddenBlockchainFromCurrentUserWallet(entry.blockchainNetwork.blockchain)
+            }
+        case .update:
+            break // No-op, not supported
         }
 
         notifyAboutTokenListUpdates()
@@ -197,7 +184,7 @@ private extension CommonUserTokenListManager {
                     notifyAboutTokenListUpdates(with: updatedUserTokenList)
                 } else {
                     let converter = StorageEntryConverter()
-                    let entries = converter.convertToStoredUserTokens(defaultBlockchains)
+                    let entries = converter.convertToStoredUserTokens(tokenItems: defaultBlockchains)
                     let newList = StoredUserTokenList(entries: entries, grouping: .none, sorting: .manual)
                     update(with: newList)
                 }
@@ -278,7 +265,8 @@ private extension CommonUserTokenListManager {
                         promise(.success(false))
                         return
                     }
-                    let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
+
+                    let entry = TokenItem.token(token, blockchainNetwork)
                     self?.update(.append([entry]), shouldUpload: true)
                     promise(.success(true))
                 }

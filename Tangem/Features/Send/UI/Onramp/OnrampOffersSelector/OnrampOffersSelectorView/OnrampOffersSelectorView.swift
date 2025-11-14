@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct OnrampOffersSelectorView: View {
     @ObservedObject var viewModel: OnrampOffersSelectorViewModel
@@ -42,8 +43,9 @@ struct OnrampOffersSelectorView: View {
             )
             .subtitleSpacing(0)
             .padding(.horizontal, 16)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providersScreenTitle)
 
-            GroupedScrollView(alignment: .leading, spacing: 8) {
+            GroupedScrollView(contentType: .plain(alignment: .leading, spacing: 8)) {
                 content
             }
             .scrollBounceBehaviorBackport(.basedOnSize)

@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemLocalization
 
 struct TangemPayMainView: View {
     @ObservedObject var viewModel: TangemPayMainViewModel
@@ -16,37 +17,31 @@ struct TangemPayMainView: View {
     var body: some View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
             VStack(spacing: 14) {
-                VStack(spacing: .zero) {
-                    MainHeaderView(viewModel: viewModel.mainHeaderViewModel)
-                        .fixedSize(horizontal: false, vertical: true)
+                TangemPayCardDetailsView(viewModel: viewModel.tangemPayCardDetailsViewModel)
 
-                    ScrollableButtonsView(
-                        itemsHorizontalOffset: 14,
-                        itemsVerticalOffset: 3,
-                        buttonsInfo: [
-                            // [REDACTED_TODO_COMMENT]
-                            FixedSizeButtonWithIconInfo(
-                                title: "Receive",
-                                icon: Assets.arrowDownMini,
-                                disabled: false,
-                                action: viewModel.addFunds
-                            ),
-                        ]
+                if viewModel.freezingState.shouldShowUnfreezeButton {
+                    MainButton(
+                        settings: .init(
+                            title: Localization.tangempayCardDetailsUnfreezeCard,
+                            style: .primary,
+                            size: .default,
+                            action: viewModel.unfreeze
+                        )
                     )
-                    .padding(.horizontal, 14)
-                    .padding(.bottom, 14)
                 }
-                .background(Colors.Background.primary)
-                .cornerRadiusContinuous(14)
 
-                if let tangemPayCardDetailsViewModel = viewModel.tangemPayCardDetailsViewModel {
-                    TangemPayCardDetailsView(viewModel: tangemPayCardDetailsViewModel)
+                if viewModel.shouldDisplayAddToApplePayGuide {
+                    Button(action: viewModel.openAddToApplePayGuide) {
+                        TangemPayAddToApplePayBanner(closeAction: viewModel.dismissAddToApplePayGuideBanner)
+                    }
                 }
+
+                balance
 
                 TransactionsListView(
                     state: viewModel.tangemPayTransactionHistoryState,
                     exploreAction: nil,
-                    exploreTransactionAction: { _ in },
+                    exploreTransactionAction: viewModel.openTransactionDetails,
                     reloadButtonAction: viewModel.reloadHistory,
                     isReloadButtonBusy: false,
                     fetchMore: viewModel.fetchNextTransactionHistoryPage()
@@ -58,19 +53,60 @@ struct TangemPayMainView: View {
             .padding(.top, 12)
         }
         .background(Colors.Background.secondary)
-        .floatingSheetContent(for: ReceiveMainViewModel.self) {
-            ReceiveMainView(viewModel: $0)
-        }
-        .floatingSheetContent(for: TangemPayNoDepositAddressSheetViewModel.self) {
-            BottomSheetErrorContentView(
-                title: $0.title,
-                subtitle: $0.subtitle,
-                closeAction: $0.close,
-                primaryButton: $0.primaryButtonSettings
-            )
-            .floatingSheetConfiguration { configuration in
-                configuration.backgroundInteractionBehavior = .tapToDismiss
+        .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(action: viewModel.setPin) {
+                        Label(
+                            Localization.tangempayCardDetailsChangePin,
+                            systemImage: "circle.grid.3x3.fill"
+                        )
+                    }
+                    .disabled(viewModel.freezingState.isFreezingUnfreezingInProgress)
+
+                    Button(
+                        action: viewModel.freezingState.isFrozen
+                            ? viewModel.unfreeze
+                            : viewModel.showFreezePopup
+                    ) {
+                        Label(
+                            viewModel.freezingState.isFrozen
+                                ? Localization.tangempayCardDetailsUnfreezeCard
+                                : Localization.tangempayCardDetailsFreezeCard,
+                            systemImage: "snowflake"
+                        )
+                    }
+                    .disabled(viewModel.freezingState.isFreezingUnfreezingInProgress)
+                } label: {
+                    NavbarDotsImage()
+                }
             }
         }
+    }
+
+    var balance: some View {
+        VStack(spacing: .zero) {
+            MainHeaderView(viewModel: viewModel.mainHeaderViewModel)
+                .fixedSize(horizontal: false, vertical: true)
+
+            ScrollableButtonsView(
+                itemsHorizontalOffset: 14,
+                itemsVerticalOffset: 3,
+                buttonsInfo: [
+                    FixedSizeButtonWithIconInfo(
+                        title: Localization.tangempayCardDetailsAddFunds,
+                        icon: Assets.plus14,
+                        disabled: viewModel.freezingState.shouldDisableActionButtons,
+                        action: viewModel.addFunds
+                    ),
+                ]
+            )
+            .padding(.horizontal, 14)
+            .padding(.bottom, 14)
+        }
+        .background(Colors.Background.primary)
+        .cornerRadiusContinuous(14)
     }
 }
