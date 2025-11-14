@@ -52,7 +52,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         }
 
         super.init(
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
             walletModel: walletModel,
             notificationManager: tokenNotificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
