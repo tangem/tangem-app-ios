@@ -54,6 +54,8 @@
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
 "account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
 "account_unsaved_dialog_title" = "Unsaved Changes";
+"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$s” to “%2$s” as their derivation belongs to that account.";
+"accounts_migration_alert_title" = "Some custom tokens were moved";
 "action_buttons_buy_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для покупки";
 "action_buttons_buy_navigation_bar_title" = "Купити";
 "action_buttons_sell_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для продажу";
@@ -1123,9 +1125,9 @@
 "staking_claim_unstaked" = "Зняти кошти";
 "staking_details_account_fee_info" = "Стейкінг-акаунт — це спеціальний рахунок, на якому зберігаються застейкані SOL токени. Він створюється, коли ви делегуєте свої токени валідатору для участі у перевірці транзакцій та отримання винагород. За створення стейкінг-акаунту стягується невелика комісія, яка повертається після завершення стейкінгу.";
 "staking_details_account_fee" = "Комісія за стейкінг-акаунт";
-"staking_details_annual_percentage_rate_info" = "Річний відсоток, який ви можете отримати, беручи участь у стейкінгу.";
+"staking_details_annual_percentage_rate_info" = "APR: Показує відсоток, який ви можете заробити за рік без урахування складного відсотка. Нараховані відсотки не додаються до вашого балансу, тому на них не нараховуються додаткові відсотки.";
 "staking_details_annual_percentage_rate" = "Процентна ставка";
-"staking_details_annual_percentage_yield_info" = "APY shows the validator’s annual percentage yield based on its performance";
+"staking_details_annual_percentage_yield_info" = "APY: Показує загальний відсоток, який ви можете заробити за рік з урахуванням складного відсотка. Складний відсоток означає, що нараховані відсотки додаються до вашого балансу, і на них також нараховуються відсотки.";
 "staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
@@ -1219,7 +1221,7 @@
 "staking_reward_schedule_month" = "Місяць";
 "staking_reward_schedule_week" = "Потижнево";
 "staking_rewards" = "Винагороди";
-"staking_solana_details_auto_claiming_rewards_daily_text" = "Rewards on Solana are automatically added to your staking balance and cannot be shown separately.";
+"staking_solana_details_auto_claiming_rewards_daily_text" = "Нагороди на Solana автоматично додаються до вашого стейкінг-балансу і не можуть відображатися окремо.";
 "staking_stake_locked" = "Стейкінг закрито";
 "staking_stake_more_button_unavailability_reason" = "При стейкінгу %1$@, весь ваш %2$@ Баланс застейкний. Будь-які додаткові %2$@ поповнены на Ваш гаманець Tangem буде також автоматично застейкано.";
 "staking_stake_more" = "Застейкати більше";
@@ -1316,6 +1318,7 @@
 "tangem_pay_status_declined" = "Declined";
 "tangem_pay_status_pending" = "Pending";
 "tangem_pay_terms_fees_limits" = "Terms, Fees & Limits";
+"tangem_pay_terms_limits" = "Terms and Limits";
 "tangem_pay_transaction_declined_notification_text" = "The bank rejected this transaction request.";
 "tangem_pay_transaction_fee_notification_text" = "This fee goes to cover the cost of handling your transfer.";
 "tangem_pay_unfreeze_card_alert_body" = "Keep using your money. You can freeze anytime.";
@@ -1369,7 +1372,7 @@
 "tangempay_onboarding_purchases_title" = "Pay exactly what you see";
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
 "tangempay_onboarding_security_title" = "Unrivaled privacy";
-"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
+"tangempay_onboarding_title" = "Get your free Tangem Pay Card in minutes";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
@@ -1816,6 +1819,7 @@
 "yield_module_balance_info_sheet_title" = "Ваш %@ внесений у Aave";
 "yield_module_chart_loading_error" = "Неможливо завантажити графік";
 "yield_module_deposit_error_notification_title" = "Поповнення %1$@ %2$@ на Aave очікує виконання.";
+"yield_module_disable_button" = "Завершити заробіток";
 "yield_module_earn_badge" = "APY %1$@%%";
 "yield_module_earn_sheet_available_title" = "Доступно";
 "yield_module_earn_sheet_current_apy_title" = "Поточний APY";
@@ -1843,12 +1847,13 @@
 "yield_module_main_view_approve_notification_title" = "Потрібний дозвіл для токену";
 "yield_module_network_fee_unreachable_notification_description" = "Перевірте підключення до мережі";
 "yield_module_network_fee_unreachable_notification_title" = "Інформація про комісію недоступна";
+"yield_module_promo_screen_auto_balance_subtitle_v2" = "Всі %1$@ на вашому рахунку будуть автоматично передані в Aave.";
 "yield_module_promo_screen_auto_balance_subtitle" = "Кожен ваш депозит буде автоматично надходити до Aave.";
 "yield_module_promo_screen_auto_balance_title" = "Автопереказ до AAVE";
 "yield_module_promo_screen_cash_out_subtitle" = "Відправляйте, обмінюйте або продавайте свої кошти миттєво, в будь-який час.";
-"yield_module_promo_screen_cash_out_title" = "Миттєвий вивід коштів";
+"yield_module_promo_screen_cash_out_title" = "Вільний доступ";
 "yield_module_promo_screen_how_it_works_button_title" = "Як це працює?";
-"yield_module_promo_screen_self_custodial_subtitle" = "Aave — децентралізований протокол, що керує активами на понад $61 млрд.";
+"yield_module_promo_screen_self_custodial_subtitle" = "Aave — це ончейн-протокол для створення некостодіальних ринків ліквідності, що дозволяє отримувати дохід з змінною ставкою.";
 "yield_module_promo_screen_self_custodial_title" = "Децентралізований та некастодіальний";
 "yield_module_promo_screen_terms_disclaimer" = "Використовуючи сервіс, ви погоджуєтесь з умовами провайдера %1$@ та %2$@";
 "yield_module_promo_screen_title" = "Підключити Aave";
@@ -1862,6 +1867,7 @@
 "yield_module_receive_sheet_description" = "Коли ви поповнюєте рахунок, ваші кошти автоматично надсилатимуться на Aave, щоб почати нараховувати відсотки. Для покриття комісії з вас буде утримана невелика плата у розмірі %@.";
 "yield_module_start_earning_sheet_description" = "Ваш %@ буде передано до Aave, і залишиться завжди доступним.";
 "yield_module_start_earning_sheet_fee_policy" = "Політика комісій";
+"yield_module_start_earning_sheet_next_deposits_v2" = "Всі ваші майбутні надходження %1$@ будуть автоматично спрямовані в Aave.";
 "yield_module_start_earning_sheet_next_deposits" = "Ваші наступні поповнення рахунку автоматично надходитимуть до Aave.";
 "yield_module_start_earning" = "Почати заробляти";
 "yield_module_status_active" = "Активний";
