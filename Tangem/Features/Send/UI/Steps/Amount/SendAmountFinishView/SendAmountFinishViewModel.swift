@@ -15,7 +15,7 @@ import TangemExpress
 class SendAmountFinishViewModel: ObservableObject, Identifiable {
     var viewType: ViewType { getViewType() }
 
-    @Published private var walletName: String
+    @Published private var tokenHeader: SendTokenHeader
     @Published private var tokenIconInfo: TokenIconInfo
     @Published private var amountDecimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published private var amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
@@ -34,7 +34,7 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
         swapProvidersInput: SendSwapProvidersInput? = nil,
     ) {
-        walletName = sourceTokenInput.sourceToken.wallet
+        tokenHeader = sourceTokenInput.sourceToken.header
         tokenIconInfo = sourceTokenInput.sourceToken.tokenIconInfo
         amountDecimalNumberTextFieldViewModel = .init(maximumFractionDigits: sourceTokenInput.sourceToken.tokenItem.decimalCount)
         amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(
@@ -72,7 +72,7 @@ private extension SendAmountFinishViewModel {
 
         return .double(
             source: .init(
-                title: walletName,
+                tokenHeader: tokenHeader,
                 tokenIconInfo: tokenIconInfo,
                 amountDecimalNumberTextFieldViewModel: amountDecimalNumberTextFieldViewModel,
                 amountFieldOptions: amountFieldOptions,
@@ -157,7 +157,7 @@ private extension SendAmountFinishViewModel {
             textField.update(value: receiveAmount.crypto)
 
             receiveSmallAmountViewModel = .init(
-                title: token.wallet,
+                tokenHeader: tokenHeader,
                 tokenIconInfo: token.tokenIconInfo,
                 amountDecimalNumberTextFieldViewModel: textField,
                 amountFieldOptions: prefixSuffixOptionsFactory.makeCryptoOptions(
@@ -168,8 +168,7 @@ private extension SendAmountFinishViewModel {
                     decimalCount: token.tokenItem.decimalCount
                 )
             )
-        case (.swap, .failure),
-             (.swap, .loading):
+        case (.swap, .failure), (.swap, .loading):
             // Do nothing to avoid incorrect view state
             break
         }
