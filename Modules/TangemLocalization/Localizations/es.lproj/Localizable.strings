@@ -1873,7 +1873,7 @@
 "yield_module_status_active" = "Activo";
 "yield_module_status_paused" = "En pausa";
 "yield_module_stop_earning_sheet_description" = "Al desactivar esto, retirará sus fondos de Aave a %@ en su billetera y dejará de ganar recompensas.";
-"yield_module_stop_earning_sheet_fee_note" = "La comisión de red se deducirá del importe que retire.";
+"yield_module_stop_earning_sheet_fee_note" = "Se cobra una comisión de red por la blockchain al salir del modo Yield.";
 "yield_module_stop_earning_sheet_title" = "Desactivar el modo de rendimiento";
 "yield_module_stop_earning" = "Desactivación del modo de rendimiento";
 "yield_module_supply_apr" = "Suministro APY";

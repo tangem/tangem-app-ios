@@ -1873,7 +1873,7 @@
 "yield_module_status_active" = "Aktiv";
 "yield_module_status_paused" = "Pausiert";
 "yield_module_stop_earning_sheet_description" = "Wenn Du diese Option deaktivierst, werden Deine Vermögenswerte von Aave abgezogen, in Deiner Wallet wieder in %@ umgewandelt und die Zinsgutschrift gestoppt.";
-"yield_module_stop_earning_sheet_fee_note" = "Die Netzwerkgebühr wird von dem Betrag, den Du abhebst, abgezogen.";
+"yield_module_stop_earning_sheet_fee_note" = "Eine Netzwerkgebühr wird von der Blockchain erhoben, wenn Sie den Yield-Modus verlassen.";
 "yield_module_stop_earning_sheet_title" = "Deaktiviere den Yield-Modus";
 "yield_module_stop_earning" = "Deaktiviere den Yield-Modus";
 "yield_module_supply_apr" = "Effektiver Jahreszins für Versorgung";
