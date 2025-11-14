@@ -1818,7 +1818,7 @@
 "yield_module_balance_info_sheet_subtitle" = "Ваши средства в данный момент размещены в протоколе Aave, но вы можете воспользоваться ими в любое время.";
 "yield_module_balance_info_sheet_title" = "Ваш %@ внесён в Aave";
 "yield_module_chart_loading_error" = "Невозможно загрузить график";
-"yield_module_deposit_error_notification_title" = "Отправка %1$@ %2$@ на Aave ожидает выполнения.";
+"yield_module_deposit_error_notification_title" = "Отправка %1$@ %2$@ в Aave.";
 "yield_module_disable_button" = "Завершить режим доходности";
 "yield_module_earn_badge" = "APY %1$@%%";
 "yield_module_earn_sheet_available_title" = "Доступно";
@@ -1873,7 +1873,7 @@
 "yield_module_status_active" = "Активен";
 "yield_module_status_paused" = "На паузе";
 "yield_module_stop_earning_sheet_description" = "Выключив эту функцию, вы выведёте средства из Aave, получите их обратно в %@ в своем кошельке и перестанете зарабатывать награды.";
-"yield_module_stop_earning_sheet_fee_note" = "Комиссия сети будет вычтена из суммы вашего вывода.";
+"yield_module_stop_earning_sheet_fee_note" = "Комиссия сети взимается блокчейном при выходе из режима доходности.";
 "yield_module_stop_earning_sheet_title" = "Завершить режим доходности";
 "yield_module_stop_earning" = "Завершение режима доходности";
 "yield_module_supply_apr" = "Годовая доходность (APY)";
