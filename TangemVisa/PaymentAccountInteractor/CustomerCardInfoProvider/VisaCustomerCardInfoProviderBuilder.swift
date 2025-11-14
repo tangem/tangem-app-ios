@@ -28,7 +28,13 @@ public struct VisaCustomerCardInfoProviderBuilder {
         if let authorizationTokensHandler {
             customerInfoManagementService = buildCustomerInfoManagementService(
                 authorizationTokensHandler: authorizationTokensHandler,
-                urlSessionConfiguration: urlSessionConfiguration
+                urlSessionConfiguration: urlSessionConfiguration,
+                authorizeWithCustomerWallet: {
+                    guard let tokens = await authorizationTokensHandler.authorizationTokens else {
+                        throw VisaAuthorizationTokensHandlerError.authorizationTokensNotFound
+                    }
+                    return tokens
+                }
             )
         }
 
@@ -41,7 +47,8 @@ public struct VisaCustomerCardInfoProviderBuilder {
 
     public func buildCustomerInfoManagementService(
         authorizationTokensHandler: VisaAuthorizationTokensHandler,
-        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
+        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration,
+        authorizeWithCustomerWallet: @escaping () async throws -> VisaAuthorizationTokens
     ) -> CustomerInfoManagementService {
         if isMockedAPIEnabled {
             return CustomerInfoManagementServiceMock()
@@ -52,7 +59,8 @@ public struct VisaCustomerCardInfoProviderBuilder {
                 apiService: .init(
                     provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
                     decoder: JSONDecoderFactory().makeCIMDecoder()
-                )
+                ),
+                authorizeWithCustomerWallet: authorizeWithCustomerWallet
             )
         }
     }
