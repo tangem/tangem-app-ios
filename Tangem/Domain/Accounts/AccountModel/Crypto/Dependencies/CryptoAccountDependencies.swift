@@ -15,7 +15,7 @@ struct CryptoAccountDependencies {
     let derivationManager: DerivationManager?
 
     var accountBalanceProvider: AccountBalanceProvider {
-        let totalBalanceProvider = AccountTotalBalanceProvider(
+        let totalBalanceProvider = WalletModelsTotalBalanceProvider(
             walletModelsManager: walletModelsManager,
             analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger(),
             derivationManager: userTokensManager.derivationManager
