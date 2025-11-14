@@ -35,11 +35,14 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         pinValidator.pinCodeLength
     }
 
-    private let pinValidator = VisaPinValidator()
+    private let tangemPayAccount: TangemPayAccount
     private weak var coordinator: TangemPayPinRoutable?
+
+    private let pinValidator = VisaPinValidator()
     private var bag = Set<AnyCancellable>()
 
-    init(coordinator: TangemPayPinRoutable) {
+    init(tangemPayAccount: TangemPayAccount, coordinator: TangemPayPinRoutable) {
+        self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
         bind()
     }
@@ -48,13 +51,38 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         coordinator?.closeTangemPayPin()
     }
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
     func submit() {
         isLoading = true
-        Task { @MainActor in
-            try? await Task.sleep(seconds: 2)
-            state = .created
+
+        runTask(in: self) { [pin] viewModel in
+            do {
+                let publicKey = try await RainCryptoUtilities.getRainRSAPublicKey(for: FeatureStorage.instance.visaAPIType)
+                let (secretKey, sessionId) = try RainCryptoUtilities.generateSecretKeyAndSessionId(publicKey: publicKey)
+                let (encryptedPin, iv) = try RainCryptoUtilities.encryptPin(pin: pin, secretKey: secretKey)
+
+                let response = try await viewModel.tangemPayAccount.customerInfoManagementService.setPin(
+                    pin: encryptedPin,
+                    sessionId: sessionId,
+                    iv: iv
+                )
+
+                await MainActor.run {
+                    viewModel.isLoading = false
+                    switch response.result {
+                    case .success:
+                        viewModel.state = .created
+                    case .pinTooWeak:
+                        viewModel.errorMessage = Localization.visaOnboardingPinValidationErrorMessage
+                    case .decryptionError, .unknownError:
+                        viewModel.errorMessage = Localization.tangempayServiceUnavailableTitle
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    viewModel.errorMessage = Localization.tangempayCardDetailsErrorText
+                    viewModel.isLoading = false
+                }
+            }
         }
     }
 
