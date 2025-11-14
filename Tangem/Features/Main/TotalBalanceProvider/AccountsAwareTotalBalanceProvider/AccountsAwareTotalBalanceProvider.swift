@@ -1,5 +1,5 @@
 //
-//  CombineTotalBalanceProvider.swift
+//  AccountsAwareTotalBalanceProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,9 +10,9 @@ import Foundation
 import Combine
 import CombineExt
 
-class CombineTotalBalanceProvider {
+class AccountsAwareTotalBalanceProvider {
     private let accountModelsManager: AccountModelsManager
-    private let totalBalanceStateBuilder: CombineTotalBalanceStateBuilder
+    private let totalBalanceStateBuilder: AccountsAwareTotalBalanceStateBuilder
     private let analyticsLogger: TotalBalanceProviderAnalyticsLogger
 
     private let totalBalanceSubject: CurrentValueSubject<TotalBalanceState, Never> = .init(.loading(cached: .none))
@@ -20,7 +20,7 @@ class CombineTotalBalanceProvider {
 
     init(
         accountModelsManager: AccountModelsManager,
-        totalBalanceStateBuilder: CombineTotalBalanceStateBuilder = .init(),
+        totalBalanceStateBuilder: AccountsAwareTotalBalanceStateBuilder = .init(),
         analyticsLogger: TotalBalanceProviderAnalyticsLogger
     ) {
         self.accountModelsManager = accountModelsManager
@@ -38,7 +38,7 @@ class CombineTotalBalanceProvider {
 
 // MARK: - Private implementation
 
-private extension CombineTotalBalanceProvider {
+private extension AccountsAwareTotalBalanceProvider {
     func bind() {
         updateSubscription = accountModelsManager.cryptoAccountModelsPublisher
             .flatMapLatest { cryptoAccountModels in
@@ -54,7 +54,7 @@ private extension CombineTotalBalanceProvider {
 
 // MARK: - TotalBalanceProvider
 
-extension CombineTotalBalanceProvider: TotalBalanceProvider {
+extension AccountsAwareTotalBalanceProvider: TotalBalanceProvider {
     var totalBalance: TotalBalanceState {
         totalBalanceSubject.value
     }

@@ -12,7 +12,7 @@ import Combine
 enum AccountWalletModelsAggregator {
     static func walletModels(from accountModelsManager: AccountModelsManager) -> [any WalletModel] {
         return accountModelsManager
-            .cryptoAccounts
+            .cryptoAccountModels
             .flatMap(\.walletModelsManager.walletModels)
     }
 
