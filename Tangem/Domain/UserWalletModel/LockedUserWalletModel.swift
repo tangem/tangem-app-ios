@@ -162,7 +162,8 @@ class LockedUserWalletModel: UserWalletModel {
                 }
 
                 userWallet.walletInfo = .cardWallet(mutableCardInfo)
-                userWalletRepository.save(userWalletModel: self)
+                userWalletRepository.savePublicData()
+                savePrivateDataForUpgrade(cardInfo: mutableCardInfo)
                 cleanMobileWallet()
             }
         case .newName:
@@ -181,6 +182,17 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     func addAssociatedCard(cardId: String) {}
+
+    func savePrivateDataForUpgrade(cardInfo: CardInfo) {
+        if let encryptionKey = UserWalletEncryptionKey(config: config) {
+            let dataStorage = UserWalletDataStorage()
+            dataStorage.savePrivateData(
+                sensitiveInfo: .cardWallet(keys: cardInfo.card.wallets),
+                userWalletId: userWalletId,
+                encryptionKey: encryptionKey
+            )
+        }
+    }
 }
 
 extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
