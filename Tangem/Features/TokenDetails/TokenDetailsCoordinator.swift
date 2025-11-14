@@ -40,7 +40,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private var safariHandle: SafariHandle?
-    private var options: Options?
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -48,54 +47,53 @@ class TokenDetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        self.options = options
-
         let notificationManager = SingleTokenNotificationManager(
-            userWalletId: options.userWalletModel.userWalletId,
+            userWalletId: options.userWalletInfo.id,
             walletModel: options.walletModel,
-            // accounts_fixes_needed_token_details
-            walletModelsManager: options.userWalletModel.walletModelsManager
+            walletModelsManager: options.walletModelsManager
         )
 
         let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
         let tokenRouter = SingleTokenRouter(
-            userWalletModel: options.userWalletModel,
+            userWalletInfo: options.userWalletInfo,
             coordinator: self,
             yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         )
 
         // accounts_fixes_needed_token_details
         let expressFactory = ExpressPendingTransactionsFactory(
-            userWalletInfo: options.userWalletModel.userWalletInfo,
+            userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
-            userTokensManager: options.userWalletModel.userTokensManager,
+            userTokensManager: options.userTokensManager,
         )
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
 
         let bannerNotificationManager: BannerNotificationManager? = {
-            guard options.userWalletModel.config.hasFeature(.multiCurrency) else {
+            guard options.userWalletInfo.config.hasFeature(.multiCurrency) else {
                 return nil
             }
 
             return BannerNotificationManager(
-                userWallet: options.userWalletModel,
-                placement: .tokenDetails(options.walletModel.tokenItem)
+                userWalletInfo: options.userWalletInfo,
+                walletModelsManager: options.walletModelsManager,
+                placement: .tokenDetails(options.walletModel.tokenItem),
             )
         }()
 
-        let factory = XPUBGeneratorFactory(cardInteractor: options.userWalletModel.keysDerivingInteractor)
+        let factory = XPUBGeneratorFactory(cardInteractor: options.keysDerivingInteractor)
         let xpubGenerator = factory.makeXPUBGenerator(
             for: options.walletModel.tokenItem.blockchain,
             publicKey: options.walletModel.publicKey
         )
 
         tokenDetailsViewModel = .init(
-            userWalletModel: options.userWalletModel,
+            userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
             notificationManager: notificationManager,
             bannerNotificationManager: bannerNotificationManager,
+            userTokensManager: options.userTokensManager,
             pendingExpressTransactionsManager: pendingTransactionsManager,
             xpubGenerator: xpubGenerator,
             coordinator: self,
@@ -111,17 +109,41 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
 extension TokenDetailsCoordinator {
     struct Options {
-        let userWalletModel: UserWalletModel
+        let userWalletInfo: UserWalletInfo
+        let keysDerivingInteractor: any KeysDeriving
+        let walletModelsManager: any WalletModelsManager
+        let userTokensManager: any UserTokensManager
         let walletModel: any WalletModel
         /// Initialized when a deeplink is received for an onramp or exchange (swap) status update related to a specific transaction
         let pendingTransactionDetails: PendingTransactionDetails?
 
+        /// Legacy
+        /// Will be removed in [REDACTED_INFO]
         init(
-            userWalletModel: UserWalletModel,
+            userWalletModel: any UserWalletModel,
             walletModel: any WalletModel,
             pendingTransactionDetails: PendingTransactionDetails? = nil
         ) {
-            self.userWalletModel = userWalletModel
+            userWalletInfo = userWalletModel.userWalletInfo
+            keysDerivingInteractor = userWalletModel.keysDerivingInteractor
+            walletModelsManager = userWalletModel.walletModelsManager
+            userTokensManager = userWalletModel.userTokensManager
+            self.walletModel = walletModel
+            self.pendingTransactionDetails = pendingTransactionDetails
+        }
+
+        init(
+            userWalletInfo: UserWalletInfo,
+            keysDerivingInteractor: any KeysDeriving,
+            walletModelsManager: any WalletModelsManager,
+            userTokensManager: any UserTokensManager,
+            walletModel: any WalletModel,
+            pendingTransactionDetails: PendingTransactionDetails?
+        ) {
+            self.userWalletInfo = userWalletInfo
+            self.keysDerivingInteractor = keysDerivingInteractor
+            self.walletModelsManager = walletModelsManager
+            self.userTokensManager = userTokensManager
             self.walletModel = walletModel
             self.pendingTransactionDetails = pendingTransactionDetails
         }
@@ -163,20 +185,17 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
         safariManager.openURL(url)
     }
 
-    func openCurrency(tokenItem: TokenItem, userWalletModel: UserWalletModel) {
-        pendingExpressTxStatusBottomSheetViewModel = nil
-
-        // We don't have info about derivation here, so we have to find first non-custom walletModel.
-        // accounts_fixes_needed_express
-        guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-            $0.tokenItem.blockchain == tokenItem.blockchain
-                && $0.tokenItem.token == tokenItem.token
-                && !$0.isCustom
-        }) else {
-            return
+    func openRefundCurrency(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.tokenDetailsCoordinator = nil
         }
 
-        openTokenDetails(for: walletModel)
+        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
+        coordinator.start(
+            with: .init(userWalletModel: userWalletModel, walletModel: walletModel)
+        )
+
+        tokenDetailsCoordinator = coordinator
     }
 
     func dismissPendingTxSheet() {
@@ -296,46 +315,19 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     func openPendingExpressTransactionDetails(
         pendingTransaction: PendingTransaction,
         tokenItem: TokenItem,
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         pendingTransactionsManager: PendingExpressTransactionsManager
     ) {
         pendingExpressTxStatusBottomSheetViewModel = PendingExpressTxStatusBottomSheetViewModel(
             pendingTransaction: pendingTransaction,
             currentTokenItem: tokenItem,
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletInfo,
             pendingTransactionsManager: pendingTransactionsManager,
             router: self
         )
     }
 }
 
-// MARK: - SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating protocol conformance
+// MARK: - SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating
 
-extension TokenDetailsCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
-    // [REDACTED_TODO_COMMENT]
-    /// - Note: This coordinator uses a custom implementation of the `SendFeeCurrencyNavigating.openFeeCurrency(for:userWalletModel:)` method.
-    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
-        openTokenDetails(for: model)
-    }
-}
-
-// MARK: - Private
-
-private extension TokenDetailsCoordinator {
-    func openTokenDetails(for walletModel: any WalletModel) {
-        guard let options = options, walletModel.tokenItem != options.walletModel.tokenItem else {
-            return
-        }
-
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.tokenDetailsCoordinator = nil
-        }
-
-        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
-        coordinator.start(
-            with: .init(userWalletModel: options.userWalletModel, walletModel: walletModel)
-        )
-
-        tokenDetailsCoordinator = coordinator
-    }
-}
+extension TokenDetailsCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {}
