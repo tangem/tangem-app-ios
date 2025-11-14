@@ -25,6 +25,8 @@ class SolanaWalletManager: BaseManager, WalletManager {
     /// It is taken into account in the calculation of the account rent commission for the sender
     private var mainAccountRentExemption: Decimal = 0
 
+    private let transactionHelper = SolanaTransactionHelper()
+
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
         let tokens = cardTokens
         cancellable = networkService.getInfo(accountId: wallet.address, tokens: tokens)
@@ -73,16 +75,13 @@ extension SolanaWalletManager: TransactionSender {
         }
 
         return sendPublisher
-            .tryMap { [weak self] hash in
-                guard let self else {
-                    throw BlockchainSdkError.empty
-                }
-
+            .withWeakCaptureOf(self)
+            .tryMap { manager, hash in
                 let mapper = PendingTransactionRecordMapper()
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                wallet.addPendingTransaction(record)
+                manager.wallet.addPendingTransaction(record)
 
-                return TransactionSendResult(hash: hash)
+                return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()
@@ -280,13 +279,15 @@ extension SolanaWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionS
     typealias RawTransaction = RawTransactionData
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
-        try SolanaStakeKitTransactionHelper().prepareForSign(transaction.unsignedData)
+        let transactionData = Data(hex: transaction.unsignedData)
+        let prepared = try transactionHelper.removeSignaturesPlaceholders(from: transactionData)
+        return prepared.transaction
     }
 
     func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
-        let signedTransaction = try SolanaStakeKitTransactionHelper().prepareForSend(
-            transaction.unsignedData,
-            signature: signature.signature
+        let signedTransaction = try transactionHelper.addSignature(
+            signature.signature,
+            transaction: Data(hex: transaction.unsignedData)
         )
         return RawTransactionData(
             serializedData: signedTransaction,
@@ -308,7 +309,7 @@ extension SolanaWalletManager: StakeKitTransactionDataBroadcaster {
 
 extension SolanaWalletManager: CompiledTransactionSender, CompiledTransactionFeeProvider {
     func getFee(compiledTransaction data: Data) async throws -> [Fee] {
-        let (buildForSign, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
+        let buildForSign = (try transactionHelper.removeSignaturesPlaceholders(from: data)).transaction
 
         let decimalFeeValue = try await networkService.getFeeForCompiled(message: buildForSign.base64EncodedString()).async()
         let feeAmount = Amount(with: wallet.blockchain, type: .coin, value: decimalFeeValue)
@@ -348,7 +349,7 @@ extension SolanaWalletManager: CompiledTransactionSender, CompiledTransactionFee
             startSendingTimestamp: Date()
         ).async()
 
-        return TransactionSendResult(hash: hash)
+        return TransactionSendResult(hash: hash, currentProviderHost: currentHost)
     }
 }
 
