@@ -88,11 +88,12 @@ extension PolkadotWalletManager: TransactionSender {
                 .mapAndEraseSendTxError(tx: image.hex())
                 .eraseToAnyPublisher()
         }
-        .tryMap { [weak self] hash in
+        .withWeakCaptureOf(self)
+        .tryMap { manager, hash in
             let mapper = PendingTransactionRecordMapper()
             let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-            self?.wallet.addPendingTransaction(record)
-            return TransactionSendResult(hash: hash)
+            manager.wallet.addPendingTransaction(record)
+            return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
         }
         .mapSendTxError()
         .eraseToAnyPublisher()
