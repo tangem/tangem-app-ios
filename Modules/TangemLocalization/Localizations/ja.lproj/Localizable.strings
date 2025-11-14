@@ -1851,7 +1851,7 @@
 "yield_module_promo_screen_auto_balance_subtitle" = "あなたが行うすべての入金は、自動的にAaveへ供給されます。";
 "yield_module_promo_screen_auto_balance_title" = "Aaveへの自動送金";
 "yield_module_promo_screen_cash_out_subtitle" = "いつでも、即座に資金を送信、交換、売却できます。";
-"yield_module_promo_screen_cash_out_title" = "いつでも資金にアクセス可能";
+"yield_module_promo_screen_cash_out_title" = "すぐに利用可能";
 "yield_module_promo_screen_how_it_works_button_title" = "使い方";
 "yield_module_promo_screen_self_custodial_subtitle" = "Aaveは、総額610億ドル以上の資産を管理する分散型プロトコルです。";
 "yield_module_promo_screen_self_custodial_title" = "分散型・自己管理型";
