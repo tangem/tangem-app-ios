@@ -393,10 +393,6 @@ private extension CommonYieldModuleManager {
             return YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)
         }
 
-        guard marketInfo.isActive else {
-            return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .disabled)
-        }
-
         if hasEnterTransactions(in: pendingTransactions, yieldContract: yieldContract) {
             return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .enter))
         }
@@ -425,12 +421,17 @@ private extension CommonYieldModuleManager {
                     )
                 )
             } else {
-                state = .notActive
+                state = marketInfo.isActive ? .notActive : .disabled
             }
         case .noAccount:
             state = .disabled
         case .failed(error: let error):
-            state = .failedToLoad(error: error, cachedState: yieldModuleStateRepository.state())
+            let cachedState = yieldModuleStateRepository.state()
+            if marketInfo.isActive || cachedState?.isEffectivelyActive == true {
+                state = .failedToLoad(error: error, cachedState: cachedState)
+            } else {
+                state = .disabled
+            }
         }
 
         return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: state)
