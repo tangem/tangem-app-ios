@@ -1847,6 +1847,7 @@
 "yield_module_main_view_approve_notification_title" = "トークンの承認が必要です";
 "yield_module_network_fee_unreachable_notification_description" = "ネットワーク接続を確認してください";
 "yield_module_network_fee_unreachable_notification_title" = "ネットワーク手数料についての情報にアクセスできません";
+"yield_module_promo_screen_auto_balance_subtitle_v2" = "アカウントのすべての %s は自動的に Aave に供給されます。";
 "yield_module_promo_screen_auto_balance_subtitle" = "あなたが行うすべての入金は、自動的にAaveへ供給されます。";
 "yield_module_promo_screen_auto_balance_title" = "Aaveへの自動送金";
 "yield_module_promo_screen_cash_out_subtitle" = "いつでも、即座に資金を送信、交換、売却できます。";

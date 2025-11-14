@@ -1847,12 +1847,13 @@
 "yield_module_main_view_approve_notification_title" = "Потрібний дозвіл для токену";
 "yield_module_network_fee_unreachable_notification_description" = "Перевірте підключення до мережі";
 "yield_module_network_fee_unreachable_notification_title" = "Інформація про комісію недоступна";
+"yield_module_promo_screen_auto_balance_subtitle_v2" = "Всі %s на вашому рахунку будуть автоматично передані в Aave.";
 "yield_module_promo_screen_auto_balance_subtitle" = "Кожен ваш депозит буде автоматично надходити до Aave.";
 "yield_module_promo_screen_auto_balance_title" = "Автопереказ до AAVE";
 "yield_module_promo_screen_cash_out_subtitle" = "Відправляйте, обмінюйте або продавайте свої кошти миттєво, в будь-який час.";
 "yield_module_promo_screen_cash_out_title" = "Миттєвий вивід коштів";
 "yield_module_promo_screen_how_it_works_button_title" = "Як це працює?";
-"yield_module_promo_screen_self_custodial_subtitle" = "Aave — децентралізований протокол, що керує активами на понад $61 млрд.";
+"yield_module_promo_screen_self_custodial_subtitle" = "Aave — це ончейн-протокол для створення некостодіальних ринків ліквідності, що дозволяє отримувати дохід з змінною ставкою.";
 "yield_module_promo_screen_self_custodial_title" = "Децентралізований та некастодіальний";
 "yield_module_promo_screen_terms_disclaimer" = "Використовуючи сервіс, ви погоджуєтесь з умовами провайдера %1$@ та %2$@";
 "yield_module_promo_screen_title" = "Підключити Aave";
