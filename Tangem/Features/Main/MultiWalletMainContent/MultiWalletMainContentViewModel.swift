@@ -449,17 +449,34 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private func handleYieldApyBadgeTapped(walletModel: any WalletModel, yieldManager: YieldModuleManager) {
         let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
 
-        switch yieldManager.state?.state {
-        case .active:
+        func openActveYield() {
             logger.logEarningApyClicked(state: .enabled)
             coordinator?.openYieldModuleActiveInfo(walletModel: walletModel, signer: userWalletModel.signer)
-        case .processing:
-            coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
-        case .notActive:
+        }
+
+        func openPromoYield() {
             if let apy = yieldManager.state?.marketInfo?.apy {
                 coordinator?.openYieldModulePromoView(walletModel: walletModel, apy: apy, signer: userWalletModel.signer)
                 logger.logEarningApyClicked(state: .disabled)
             }
+        }
+
+        switch yieldManager.state?.state {
+        case .active:
+            openActveYield()
+        case .failedToLoad(_, let cached?):
+            switch cached {
+            case .active:
+                openActveYield()
+            case .notActive:
+                openPromoYield()
+            default:
+                break
+            }
+        case .processing:
+            coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+        case .notActive:
+            openPromoYield()
         case .disabled, .failedToLoad, .loading, .none:
             break
         }
