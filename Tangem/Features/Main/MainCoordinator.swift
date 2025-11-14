@@ -276,7 +276,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         })
 
         coordinator.start(with: .init(userWalletModel: userWalletModel, walletModel: model))
-
         tokenDetailsCoordinator = coordinator
     }
 
@@ -458,13 +457,13 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
     func openPendingExpressTransactionDetails(
         pendingTransaction: PendingTransaction,
         tokenItem: TokenItem,
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         pendingTransactionsManager: PendingExpressTransactionsManager
     ) {
         pendingExpressTxStatusBottomSheetViewModel = PendingExpressTxStatusBottomSheetViewModel(
             pendingTransaction: pendingTransaction,
             currentTokenItem: tokenItem,
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletInfo,
             pendingTransactionsManager: pendingTransactionsManager,
             router: self
         )
@@ -603,19 +602,8 @@ extension MainCoordinator: PendingExpressTxStatusRoutable {
         safariManager.openURL(url)
     }
 
-    func openCurrency(tokenItem: TokenItem, userWalletModel: UserWalletModel) {
+    func openRefundCurrency(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         pendingExpressTxStatusBottomSheetViewModel = nil
-
-        // We don't have info about derivation here, so we have to find first non-custom walletModel.
-        // accounts_fixes_needed_express
-        guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-            $0.tokenItem.blockchain == tokenItem.blockchain
-                && $0.tokenItem.token == tokenItem.token
-                && !$0.isCustom
-        }) else {
-            return
-        }
-
         openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
 
