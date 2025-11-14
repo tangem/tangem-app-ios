@@ -11,7 +11,6 @@ import Combine
 import TangemUI
 import TangemAccounts
 import SwiftUI
-import TangemAssets
 import TangemLocalization
 
 @MainActor
