@@ -181,7 +181,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
     }
 
     func makeMyFundsSectionText() -> AttributedString {
-        let tokenName = walletModel.tokenItem.name
+        let tokenName = walletModel.tokenItem.currencySymbol
         let symbol = walletModel.tokenItem.currencySymbol
         let fullString = Localization.yieldModuleEarnSheetProviderDescription(tokenName, symbol) + " " + Localization.commonReadMore
 
