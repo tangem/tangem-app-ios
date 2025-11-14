@@ -373,7 +373,7 @@ extension SingleTokenBaseViewModel {
                     // Don't show onramp's transaction with this statuses for SingleWallet and TokenDetails
                     switch transaction.type {
                     case .onramp:
-                        return ![.created, .canceled, .paused].contains(transaction.transactionStatus)
+                        return ![.created, .expired, .paused].contains(transaction.transactionStatus)
                     case .swap:
                         return true
                     }
@@ -446,7 +446,8 @@ extension SingleTokenBaseViewModel {
                 action: { [weak self] in
                     self?.action(for: type)?()
                 },
-                longPressAction: longTapAction(for: type)
+                longPressAction: longTapAction(for: type),
+                accessibilityIdentifier: type.accessibilityIdentifier
             )
         }
 
