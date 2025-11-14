@@ -19,6 +19,7 @@ class RestakingFlowFactory: StakingFlowDependenciesFactory {
     let action: RestakingModel.Action
     var actionType: StakingAction.ActionType { action.displayType }
 
+    let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let walletModelBalancesProvider: WalletModelBalancesProvider
@@ -38,6 +39,11 @@ class RestakingFlowFactory: StakingFlowDependenciesFactory {
         self.manager = manager
         self.action = action
 
+        tokenHeaderProvider = SendTokenHeaderProvider(
+            userWalletInfo: userWalletInfo,
+            account: walletModel.account,
+            flowActionType: action.displayType.sendFlowActionType
+        )
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
@@ -137,7 +143,7 @@ extension RestakingFlowFactory: SendGenericFlowFactory {
             summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider(),
-            actionType: sendFlowActionType()
+            actionType: actionType.sendFlowActionType
         )
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
@@ -174,7 +180,7 @@ extension RestakingFlowFactory: StakingValidatorsStepBuildable {
     }
 
     var stakingValidatorsTypes: StakingValidatorsStepBuilder.Types {
-        StakingValidatorsStepBuilder.Types(actionType: sendFlowActionType(), currentValidator: restakingModel.validator)
+        StakingValidatorsStepBuilder.Types(actionType: actionType.sendFlowActionType, currentValidator: restakingModel.validator)
     }
 
     var stakingValidatorsDependencies: StakingValidatorsStepBuilder.Dependencies {

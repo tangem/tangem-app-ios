@@ -13,6 +13,9 @@ import TangemMobileWalletSdk
 
 // [REDACTED_TODO_COMMENT]
 struct CommonUserWalletModelDependencies {
+    @Injected(\.cryptoAccountsGlobalStateProvider)
+    private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+
     let keysRepository: KeysRepository
     var walletModelsManager: WalletModelsManager!
     var totalBalanceProvider: TotalBalanceProvider!
@@ -256,6 +259,7 @@ struct CommonUserWalletModelDependencies {
         )
         let accountModelsManager = CommonAccountModelsManager(
             userWalletId: userWalletId,
+            cryptoAccountsGlobalStateProvider: cryptoAccountsGlobalStateProvider,
             cryptoAccountsRepository: cryptoAccountsRepository,
             archivedCryptoAccountsProvider: networkService,
             dependenciesFactory: dependenciesFactory,

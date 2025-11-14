@@ -331,7 +331,7 @@ extension VisaWalletModel: WalletModel {
 
     var stakeKitTransactionSender: (any StakeKitTransactionSender)? { nil }
 
-    var account: any CryptoAccountModel {
+    var account: (any CryptoAccountModel)? {
         preconditionFailure("Visa should be implemented as a dedicated account type, not as a wallet model")
     }
 
