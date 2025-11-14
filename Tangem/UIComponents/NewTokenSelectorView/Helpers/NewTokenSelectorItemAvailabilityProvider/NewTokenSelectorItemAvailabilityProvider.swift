@@ -6,6 +6,12 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-protocol NewTokenSelectorItemAvailabilityProvider: AnyObject {
-    func isAvailable(item: NewTokenSelectorItem) -> NewTokenSelectorItemViewModel.DisabledReason?
+import Combine
+
+protocol NewTokenSelectorItemAvailabilityProviderFactory {
+    func makeAvailabilityProvider(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) -> NewTokenSelectorItemAvailabilityProvider
+}
+
+protocol NewTokenSelectorItemAvailabilityProvider {
+    var availabilityTypePublisher: AnyPublisher<NewTokenSelectorItem.AvailabilityType, Never> { get }
 }
