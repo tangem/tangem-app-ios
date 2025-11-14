@@ -2314,6 +2314,7 @@
 		B6796E7B2C65C16E005D7292 /* TouchPassthroughView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6796E7A2C65C16E005D7292 /* TouchPassthroughView.swift */; };
 		B679CAFC2DE488DF00D67364 /* CommonNFTCacheDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B679CAFA2DE488DF00D67364 /* CommonNFTCacheDelegate.swift */; };
 		B679CAFE2DE4996600D67364 /* NFTCache+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B679CAFD2DE4996600D67364 /* NFTCache+.swift */; };
+		B67A22512EC683BB0063CC41 /* CryptoAccountNameUniquenessChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67A22502EC683BB0063CC41 /* CryptoAccountNameUniquenessChecker.swift */; };
 		B67DC1E62B7C45DD008ACB0E /* UserDefaultsBlockchainDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67DC1E52B7C45DD008ACB0E /* UserDefaultsBlockchainDataStorage.swift */; };
 		B67DC1E82B7C4716008ACB0E /* BlockchainAccountCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67DC1E72B7C4716008ACB0E /* BlockchainAccountCreator.swift */; };
 		B67DC1EA2B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67DC1E92B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift */; };
@@ -6807,6 +6808,7 @@
 		B6796E7A2C65C16E005D7292 /* TouchPassthroughView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchPassthroughView.swift; sourceTree = "<group>"; };
 		B679CAFA2DE488DF00D67364 /* CommonNFTCacheDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNFTCacheDelegate.swift; sourceTree = "<group>"; };
 		B679CAFD2DE4996600D67364 /* NFTCache+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NFTCache+.swift"; sourceTree = "<group>"; };
+		B67A22502EC683BB0063CC41 /* CryptoAccountNameUniquenessChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountNameUniquenessChecker.swift; sourceTree = "<group>"; };
 		B67DC1E52B7C45DD008ACB0E /* UserDefaultsBlockchainDataStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsBlockchainDataStorage.swift; sourceTree = "<group>"; };
 		B67DC1E72B7C4716008ACB0E /* BlockchainAccountCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountCreator.swift; sourceTree = "<group>"; };
 		B67DC1E92B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountCreatorStub.swift; sourceTree = "<group>"; };
@@ -16726,11 +16728,12 @@
 			isa = PBXGroup;
 			children = (
 				B6DC54B72E4E8F91005C8EB9 /* AccountDerivationPathHelper.swift */,
-				B6017FC62E993337004F0046 /* StoredCryptoAccountsTokensDistributor.swift */,
-				B6017FC82E99C20C004F0046 /* StoredCryptoAccountsMerger.swift */,
-				B643EBC02E9BF39D00DBBFE3 /* CryptoAccountConditionsValidator.swift */,
-				B6AD20DC2E9D635700363341 /* DefaultAccountFactory.swift */,
 				B62FE4112EC4272E00CCBAC1 /* AccountWalletModelsAggregator.swift */,
+				B643EBC02E9BF39D00DBBFE3 /* CryptoAccountConditionsValidator.swift */,
+				B67A22502EC683BB0063CC41 /* CryptoAccountNameUniquenessChecker.swift */,
+				B6AD20DC2E9D635700363341 /* DefaultAccountFactory.swift */,
+				B6017FC82E99C20C004F0046 /* StoredCryptoAccountsMerger.swift */,
+				B6017FC62E993337004F0046 /* StoredCryptoAccountsTokensDistributor.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -26003,6 +26006,7 @@
 				DC13D03E29DF28140003895C /* OnboardingStepsBuilder.swift in Sources */,
 				DC261CAC292CF56600875E64 /* AuthRoutable.swift in Sources */,
 				D85E20122E8D7A50004174E6 /* StorageCleaner.swift in Sources */,
+				B67A22512EC683BB0063CC41 /* CryptoAccountNameUniquenessChecker.swift in Sources */,
 				B09E518C2981825C0042998A /* DeprecationService.swift in Sources */,
 				EFBBA49A2E8AA3FA004F48ED /* SendInput.swift in Sources */,
 				B6A089442DD7AD3D005CBBA2 /* NFTSendWalletModelProxy.swift in Sources */,
