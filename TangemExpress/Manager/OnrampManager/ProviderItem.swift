@@ -32,7 +32,11 @@ public class ProviderItem: Identifiable {
     }
 
     public func hasSelectableProviders() -> Bool {
-        providers.contains { $0.isShowable && $0.isSelectable }
+        !selectableProviders().isEmpty
+    }
+
+    public func selectableProviders() -> [OnrampProvider] {
+        providers.filter { $0.isShowable && $0.isSelectable }
     }
 
     /// Provider which can be showed and selected
