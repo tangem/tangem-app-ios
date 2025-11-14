@@ -14,6 +14,7 @@ protocol SendGenericFlowBaseDependenciesFactory {
     var tokenIconInfo: TokenIconInfo { get }
     var userWalletInfo: UserWalletInfo { get }
 
+    var tokenHeaderProvider: SendGenericTokenHeaderProvider { get }
     var walletModelBalancesProvider: WalletModelBalancesProvider { get }
     var walletModelDependenciesProvider: WalletModelDependenciesProvider { get }
     var transactionDispatcherFactory: TransactionDispatcherFactory { get }
@@ -25,7 +26,7 @@ protocol SendGenericFlowBaseDependenciesFactory {
 extension SendGenericFlowBaseDependenciesFactory {
     func makeSourceToken() -> SendSourceToken {
         SendSourceToken(
-            wallet: userWalletInfo.name,
+            header: tokenHeaderProvider.makeSendTokenHeader(),
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
             tokenIconInfo: tokenIconInfo,

@@ -22,6 +22,7 @@ actor CommonAccountModelsManager {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    private nonisolated let cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
     private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
     private let dependenciesFactory: CryptoAccountDependenciesFactory
@@ -37,26 +38,28 @@ actor CommonAccountModelsManager {
 
     init(
         userWalletId: UserWalletId,
+        cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider,
         cryptoAccountsRepository: CryptoAccountsRepository,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         dependenciesFactory: CryptoAccountDependenciesFactory,
         areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
+        self.cryptoAccountsGlobalStateProvider = cryptoAccountsGlobalStateProvider
         self.cryptoAccountsRepository = cryptoAccountsRepository
         self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
         self.dependenciesFactory = dependenciesFactory
         self.areHDWalletsSupported = areHDWalletsSupported
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
-        CryptoAccountsGlobalStateProvider.shared.register(self, forIdentifier: userWalletId)
+        cryptoAccountsGlobalStateProvider.register(self, forIdentifier: userWalletId)
 
         initialize()
     }
 
     deinit {
         // [REDACTED_TODO_COMMENT]
-        CryptoAccountsGlobalStateProvider.shared.unregister(self, forIdentifier: userWalletId)
+        cryptoAccountsGlobalStateProvider.unregister(self, forIdentifier: userWalletId)
     }
 
     private nonisolated func initialize() {
@@ -148,7 +151,7 @@ actor CommonAccountModelsManager {
             var cache: Cache = [:]
             let publisher = cryptoAccountsRepository
                 .cryptoAccountsPublisher
-                .combineLatest(CryptoAccountsGlobalStateProvider.shared.statePublisher)
+                .combineLatest(cryptoAccountsGlobalStateProvider.globalCryptoAccountsStatePublisher())
                 .withWeakCaptureOf(self)
                 .asyncMap { manager, input -> [AccountModel] in
                     let (storedCryptoAccounts, globalState) = input

@@ -17,6 +17,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     let walletAddresses: [String]
     let suggestedWallets: [SendDestinationSuggestedWallet]
     let shouldShowFeeSelector: Bool
+    let tokenHeaderProvider: SendGenericTokenHeaderProvider
 
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
     let walletModelFeeProvider: any WalletModelFeeProvider
@@ -40,6 +41,11 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     init(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
         self.userWalletInfo = userWalletInfo
 
+        tokenHeaderProvider = SendTokenHeaderProvider(
+            userWalletInfo: userWalletInfo,
+            account: walletModel.account,
+            flowActionType: .send
+        )
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(

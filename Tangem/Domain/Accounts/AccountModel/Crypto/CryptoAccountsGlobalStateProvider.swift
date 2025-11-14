@@ -10,20 +10,35 @@ import Foundation
 import Combine
 import CombineExt
 
-final class CryptoAccountsGlobalStateProvider {
-    static let shared = CryptoAccountsGlobalStateProvider()
+protocol CryptoAccountsGlobalStateProvider {
+    func register<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable
+    func unregister<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable
 
-    var statePublisher: some Publisher<CryptoAccounts.State, Never> {
-        return cryptoAccountsStatesSubject
-            .map { $0.values.reduceToGlobalState() }
-            .removeDuplicates()
+    func globalCryptoAccountsStatePublisher() -> AnyPublisher<CryptoAccounts.State, Never>
+    func globalCryptoAccountsState() -> CryptoAccounts.State
+}
+
+private struct CryptoAccountsGlobalStateProviderKey: InjectionKey {
+    static var currentValue: CryptoAccountsGlobalStateProvider = CommonCryptoAccountsGlobalStateProvider()
+}
+
+extension InjectedValues {
+    var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider {
+        get { Self[CryptoAccountsGlobalStateProviderKey.self] }
+        set { Self[CryptoAccountsGlobalStateProviderKey.self] = newValue }
     }
+}
 
+final class CommonCryptoAccountsGlobalStateProvider {
     private let cryptoAccountsStatesSubject = CurrentValueSubject<[AnyHashable: CryptoAccounts.State], Never>(Constants.initialValue)
     private var subscriptions: [AnyHashable: AnyCancellable] = [:]
 
-    private init() {}
+    fileprivate init() {}
+}
 
+// MARK: - CryptoAccountsGlobalStateProvider
+
+extension CommonCryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider {
     func register<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable {
         subscriptions[identifier] = manager
             .accountModelsPublisher
@@ -44,6 +59,19 @@ final class CryptoAccountsGlobalStateProvider {
         subscriptions.removeValue(forKey: identifier)
         cryptoAccountsStatesSubject.value.removeValue(forKey: identifier)
     }
+
+    func globalCryptoAccountsState() -> CryptoAccounts.State {
+        cryptoAccountsStatesSubject.value
+            .map { $0.value }
+            .reduceToGlobalState()
+    }
+
+    func globalCryptoAccountsStatePublisher() -> AnyPublisher<CryptoAccounts.State, Never> {
+        cryptoAccountsStatesSubject
+            .map { $0.values.reduceToGlobalState() }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 }
 
 // MARK: - Convenience extensions
@@ -57,7 +85,7 @@ private extension Sequence where Element == CryptoAccounts.State {
 
 // MARK: - Constants
 
-private extension CryptoAccountsGlobalStateProvider {
+private extension CommonCryptoAccountsGlobalStateProvider {
     enum Constants {
         static let initialValue: [AnyHashable: CryptoAccounts.State] = [UUID(): .single]
     }
