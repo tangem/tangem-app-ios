@@ -1882,7 +1882,7 @@
 "yield_module_token_details_earn_notification_description" = "Yield accrues automatically.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Yield accrues automatically";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Yield Mode";
-"yield_module_token_details_earn_notification_processing" = "Processing your top-up";
+"yield_module_token_details_earn_notification_processing" = "Enabling Yield Mode";
 "yield_module_token_details_earn_notification_title" = "Yield Mode";
 "yield_module_transfer_mode_automatic" = "Automatic";
 "yield_module_unable_to_cover_fee_description" = "Add some %1$@ %2$@ to cover the network fee for transactions.";
