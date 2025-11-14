@@ -15,7 +15,7 @@ import struct TangemUI.TokenIconInfo
 class SendAmountViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
-    @Published var walletHeaderText: String = ""
+    @Published var tokenHeader: SendTokenHeader?
     @Published var possibleToConvertToFiat: Bool = true
 
     @Published var cryptoIconURL: URL?
@@ -182,7 +182,7 @@ private extension SendAmountViewModel {
 
 extension SendAmountViewModel {
     func updateSourceToken(sourceToken: SendSourceToken) {
-        walletHeaderText = Localization.sendFromWalletName(sourceToken.wallet)
+        tokenHeader = sourceToken.header
         possibleToConvertToFiat = sourceToken.possibleToConvertToFiat
 
         var balanceFormatted = sourceToken.availableBalanceProvider.formattedBalanceType.value
