@@ -46,10 +46,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     private(set) var networkFeeNotification: YieldModuleNotificationBannerParams? = nil
 
     @Published
-    private(set) var networkFeeState = YieldFeeSectionState(
-        footerText: Localization.yieldModuleStartEarningSheetNextDeposits,
-        isLinkActive: true
-    )
+    private(set) var networkFeeState: YieldFeeSectionState
 
     @Published
     private(set) var isButtonEnabled: Bool = true
@@ -102,6 +99,11 @@ final class YieldModuleStartViewModel: ObservableObject {
         self.coordinator = coordinator
         self.yieldManagerInteractor = yieldManagerInteractor
         self.logger = logger
+
+        networkFeeState = .init(
+            footerText: Localization.yieldModuleStartEarningSheetNextDepositsV2(walletModel.tokenItem.name),
+            isLinkActive: true
+        )
 
         notificationManager = YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
         fetchData(for: viewState)
