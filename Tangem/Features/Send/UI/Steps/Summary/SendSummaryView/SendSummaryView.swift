@@ -1,9 +1,9 @@
 //
 //  SendSummaryView.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
@@ -14,58 +14,91 @@ import TangemUI
 struct SendSummaryView: View {
     @ObservedObject var viewModel: SendSummaryViewModel
 
-    /// We use ZStack for each step to hold the place where
-    /// the compact version of the step will be appeared.
     var body: some View {
-        VStack(alignment: .center, spacing: 14) {
-            GroupedScrollView(spacing: 14) {
-                if let sendAmountViewModel = viewModel.sendAmountCompactViewModel {
-                    SendAmountCompactView(
-                        viewModel: sendAmountViewModel,
-                        type: viewModel.amountCompactViewType
-                    )
-                    .infinityFrame(axis: .horizontal)
-                }
+        GroupedScrollView(spacing: 14) {
+            amountSectionView
 
-                if let stakingValidatorsCompactViewModel = viewModel.stakingValidatorsCompactViewModel {
-                    StakingValidatorsCompactView(
-                        viewModel: stakingValidatorsCompactViewModel,
-                        type: stakingValidatorsCompactViewModel.canEditValidator ? .enabled(action: viewModel.userDidTapValidator) : .disabled
-                    )
-                    .infinityFrame(axis: .horizontal)
-                }
+            nftSectionView
 
-                if let sendFeeCompactViewModel = viewModel.sendFeeCompactViewModel {
-                    SendFeeCompactView(
-                        viewModel: sendFeeCompactViewModel,
-                        type: .enabled(action: viewModel.userDidTapFee)
-                    )
-                    .infinityFrame(axis: .horizontal)
-                }
+            destinationSectionView
 
-                if viewModel.showHint {
-                    HintView(
-                        text: Localization.sendSummaryTapHint,
-                        font: Fonts.Regular.footnote,
-                        textColor: Colors.Text.secondary,
-                        backgroundColor: Colors.Button.secondary
-                    )
-                    .padding(.top, 8)
-                    .transition(
-                        .asymmetric(insertion: .offset(y: 20), removal: .identity).combined(with: .opacity)
-                    )
-                }
+            stakingValidatorsView
 
-                ForEach(viewModel.notificationInputs) { input in
-                    NotificationView(input: input)
-                        .setButtonsLoadingState(to: viewModel.notificationButtonIsLoading)
-                }
-            }
+            feeSectionView
 
+            notificationsView
+        }
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
             descriptionView
         }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
+    }
+
+    // MARK: - Amount
+
+    @ViewBuilder
+    private var amountSectionView: some View {
+        if let sendAmountCompactViewModel = viewModel.sendAmountCompactViewModel {
+            SendAmountCompactView(viewModel: sendAmountCompactViewModel)
+                .tappable(viewModel.amountEditableType.isEditable)
+        }
+    }
+
+    // MARK: - NFT
+
+    @ViewBuilder
+    private var nftSectionView: some View {
+        if let nftAssetCompactViewModel = viewModel.nftAssetCompactViewModel {
+            NFTAssetCompactView(viewModel: nftAssetCompactViewModel)
+        }
+    }
+
+    // MARK: - Destination
+
+    @ViewBuilder
+    private var destinationSectionView: some View {
+        if let destinationCompactViewModel = viewModel.sendDestinationCompactViewModel {
+            Button(action: viewModel.userDidTapDestination) {
+                SendDestinationCompactView(viewModel: destinationCompactViewModel)
+            }
+            .allowsHitTesting(viewModel.destinationEditableType.isEditable)
+        }
+    }
+
+    // MARK: - Validators
+
+    @ViewBuilder
+    private var stakingValidatorsView: some View {
+        if let stakingValidatorsCompactViewModel = viewModel.stakingValidatorsCompactViewModel {
+            Button(action: viewModel.userDidTapValidator) {
+                StakingValidatorsCompactView(viewModel: stakingValidatorsCompactViewModel)
+            }
+            .allowsHitTesting(stakingValidatorsCompactViewModel.canEditValidator)
+        }
+    }
+
+    // MARK: - Fee
+
+    @ViewBuilder
+    private var feeSectionView: some View {
+        if let feeCompactViewModel = viewModel.sendFeeCompactViewModel {
+            if feeCompactViewModel.canEditFee {
+                Button(action: viewModel.userDidTapFee) { SendNewFeeCompactView(viewModel: feeCompactViewModel) }
+            } else {
+                SendNewFeeCompactView(viewModel: feeCompactViewModel)
+            }
+        }
+    }
+
+    // MARK: - Notifications
+
+    @ViewBuilder
+    private var notificationsView: some View {
+        ForEach(viewModel.notificationInputs) { input in
+            NotificationView(input: input)
+                .setButtonsLoadingState(to: viewModel.notificationButtonIsLoading)
+        }
     }
 
     // MARK: - Description
@@ -77,6 +110,8 @@ struct SendSummaryView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
+                .infinityFrame(axis: .horizontal)
+                .background(Colors.Background.tertiary)
                 .visible(viewModel.transactionDescriptionIsVisible)
         }
     }

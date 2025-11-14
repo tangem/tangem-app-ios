@@ -242,6 +242,12 @@ extension VisaWalletModel: ExistentialDepositInfoProvider {
     }
 }
 
+extension VisaWalletModel: WalletModelResolvable {
+    func resolve<R>(using resolver: R) -> R.Result where R: WalletModelResolving {
+        resolver.resolve(walletModel: self)
+    }
+}
+
 extension VisaWalletModel: WalletModel {
     var name: String {
         tokenItem.name
