@@ -112,7 +112,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
-            totalBalanceProvider: userWalletModel
+            totalBalanceProvider: userWalletModel,
+            updatePublisher: userWalletModel.updatePublisher
         )
 
         sectionsProvider.setup(with: self)
