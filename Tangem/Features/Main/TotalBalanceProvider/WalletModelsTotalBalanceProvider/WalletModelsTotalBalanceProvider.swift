@@ -1,5 +1,5 @@
 //
-//  AccountTotalBalanceProvider.swift
+//  WalletModelsTotalBalanceProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,11 +11,12 @@ import Combine
 import CombineExt
 import TangemFoundation
 
-class AccountTotalBalanceProvider {
+/// - Note: Used for both 'Legacy' and 'Accounts' app modes.
+final class WalletModelsTotalBalanceProvider {
     private let walletModelsManager: WalletModelsManager
     private let analyticsLogger: TotalBalanceProviderAnalyticsLogger
     private let derivationManager: DerivationManager?
-    private let totalBalanceStateBuilder: AccountTotalBalanceStateBuilder
+    private let totalBalanceStateBuilder: WalletModelsTotalBalanceStateBuilder
 
     private let totalBalanceSubject: CurrentValueSubject<TotalBalanceState, Never>
     private var updateSubscription: AnyCancellable?
@@ -43,7 +44,7 @@ class AccountTotalBalanceProvider {
 
 // MARK: - TotalBalanceProvider
 
-extension AccountTotalBalanceProvider: TotalBalanceProvider {
+extension WalletModelsTotalBalanceProvider: TotalBalanceProvider {
     var totalBalance: TotalBalanceState {
         totalBalanceSubject.value
     }
@@ -55,7 +56,7 @@ extension AccountTotalBalanceProvider: TotalBalanceProvider {
 
 // MARK: - Private implementation
 
-private extension AccountTotalBalanceProvider {
+private extension WalletModelsTotalBalanceProvider {
     func bind() {
         let hasEntriesWithoutDerivationPublisher = derivationManager?.hasPendingDerivations ?? .just(output: false)
         let balanceStatePublisher = walletModelsManager
@@ -112,7 +113,7 @@ private extension AccountTotalBalanceProvider {
 
 // MARK: - CustomStringConvertible
 
-extension AccountTotalBalanceProvider: CustomStringConvertible {
+extension WalletModelsTotalBalanceProvider: CustomStringConvertible {
     var description: String {
         objectDescription(self)
     }
