@@ -1847,12 +1847,13 @@
 "yield_module_main_view_approve_notification_title" = "Token approval needed";
 "yield_module_network_fee_unreachable_notification_description" = "Check your network connection";
 "yield_module_network_fee_unreachable_notification_title" = "Network fee info unreachable";
+"yield_module_promo_screen_auto_balance_subtitle_v2" = "All %s on your account will be supplied to Aave automatically.";
 "yield_module_promo_screen_auto_balance_subtitle" = "Every top-up will be supplied to Aave automatically.";
 "yield_module_promo_screen_auto_balance_title" = "Auto-supply to Aave";
 "yield_module_promo_screen_cash_out_subtitle" = "Send, swap, or sell your funds instantly, anytime you want.";
 "yield_module_promo_screen_cash_out_title" = "No lock-ups";
 "yield_module_promo_screen_how_it_works_button_title" = "How it works?";
-"yield_module_promo_screen_self_custodial_subtitle" = "Aave is a decentralized protocol managing over $61 billion in total value.";
+"yield_module_promo_screen_self_custodial_subtitle" = "Aave is an on-chain protocol that offers non-custodial liquidity markets, enabling users to accrue yield at variable rates.";
 "yield_module_promo_screen_self_custodial_title" = "Decentralized and self-custodial";
 "yield_module_promo_screen_terms_disclaimer" = "By using this service, you agree with provider\n%1$@ and %2$@";
 "yield_module_promo_screen_title" = "Connect to Aave";
@@ -1866,7 +1867,7 @@
 "yield_module_receive_sheet_description" = "When you top up, your funds will be automatically supplied to Aave to start generating yield. %@ will be deducted to cover the transaction fee.";
 "yield_module_start_earning_sheet_description" = "Your %@ will be supplied to Aave with no lock-ups and will remain fully accessible.";
 "yield_module_start_earning_sheet_fee_policy" = "See top-up fee policy";
-"yield_module_start_earning_sheet_next_deposits" = "All your future incoming USDT deposits will be automatically supplied to Aave.";
+"yield_module_start_earning_sheet_next_deposits" = "All future USDT top-ups will be automatically supplied to Aave.";
 "yield_module_start_earning" = "Supply assets";
 "yield_module_status_active" = "Active";
 "yield_module_status_paused" = "Paused";

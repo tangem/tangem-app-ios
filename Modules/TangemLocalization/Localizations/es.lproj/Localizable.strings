@@ -1847,12 +1847,13 @@
 "yield_module_main_view_approve_notification_title" = "Se necesita la aprobación de Token";
 "yield_module_network_fee_unreachable_notification_description" = "Compruebe su conexión de red";
 "yield_module_network_fee_unreachable_notification_title" = "Información de tarifas de red inaccesible";
+"yield_module_promo_screen_auto_balance_subtitle_v2" = "Todos los %s en tu cuenta se suministrarán automáticamente a Aave.";
 "yield_module_promo_screen_auto_balance_subtitle" = "Cada depósito que realice se suministrará a Aave automáticamente.";
 "yield_module_promo_screen_auto_balance_title" = "Transferencia automática a Aave";
 "yield_module_promo_screen_cash_out_subtitle" = "Envíe, intercambie o venda sus fondos al instante, cuando quiera.";
 "yield_module_promo_screen_cash_out_title" = "Acceda a sus fondos en cualquier momento";
 "yield_module_promo_screen_how_it_works_button_title" = "¿Cómo funciona?";
-"yield_module_promo_screen_self_custodial_subtitle" = "Aave es un protocolo descentralizado que administra más de 61 billones de dólares en valor total.";
+"yield_module_promo_screen_self_custodial_subtitle" = "Aave es un protocolo on-chain para crear mercados de liquidez no custodiales y ganar intereses a tasa variable.";
 "yield_module_promo_screen_self_custodial_title" = "Descentralizado y autocustodiado";
 "yield_module_promo_screen_terms_disclaimer" = "Al utilizar este servicio, usted acepta que el proveedor\n%1$@ y %2$@";
 "yield_module_promo_screen_title" = "Conectar Aave";
