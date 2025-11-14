@@ -34,16 +34,16 @@ final class SingleTokenRouter: SingleTokenRoutable {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
-    private let userWalletModel: UserWalletModel
+    private let userWalletInfo: UserWalletInfo
     private weak var coordinator: SingleTokenBaseRoutable?
     private let yieldModuleNoticeInteractor: YieldModuleNoticeInteractor
 
     init(
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         coordinator: SingleTokenBaseRoutable?,
         yieldModuleNoticeInteractor: YieldModuleNoticeInteractor
     ) {
-        self.userWalletModel = userWalletModel
+        self.userWalletInfo = userWalletInfo
         self.coordinator = coordinator
         self.yieldModuleNoticeInteractor = yieldModuleNoticeInteractor
     }
@@ -73,7 +73,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
 
     func openExchange(walletModel: any WalletModel) {
         let input = ExpressDependenciesInput(
-            userWalletInfo: userWalletModel.userWalletInfo,
+            userWalletInfo: userWalletInfo,
             source: walletModel.asExpressInteractorWallet,
             destination: .loadingAndSet
         )
@@ -153,7 +153,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
         coordinator?.openPendingExpressTransactionDetails(
             pendingTransaction: pendingTransaction,
             tokenItem: tokenItem,
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletInfo,
             pendingTransactionsManager: pendingTransactionsManager
         )
     }
@@ -190,6 +190,6 @@ private extension SingleTokenRouter {
     }
 
     func makeSendInput(for walletModel: any WalletModel) -> SendInput {
-        SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+        SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
     }
 }
