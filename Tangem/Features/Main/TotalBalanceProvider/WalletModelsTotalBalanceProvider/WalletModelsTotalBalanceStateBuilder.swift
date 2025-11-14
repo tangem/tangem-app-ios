@@ -1,5 +1,5 @@
 //
-//  AccountTotalBalanceStateBuilder.swift
+//  WalletModelsTotalBalanceStateBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct AccountTotalBalanceStateBuilder {
+struct WalletModelsTotalBalanceStateBuilder {
     typealias Balance = (item: TokenItem, balance: TokenBalanceType)
 
     private let walletModelsManager: WalletModelsManager
@@ -24,16 +24,16 @@ struct AccountTotalBalanceStateBuilder {
         }
 
         let balances = walletModelsManager.walletModels.map {
-            AccountTotalBalanceStateBuilder.Balance(item: $0.tokenItem, balance: $0.fiatTotalTokenBalanceProvider.balanceType)
+            WalletModelsTotalBalanceStateBuilder.Balance(item: $0.tokenItem, balance: $0.fiatTotalTokenBalanceProvider.balanceType)
         }
 
         return mapToTotalBalance(balances: balances)
     }
 }
 
-// MARK: - AccountTotalBalanceStateBuilder
+// MARK: - WalletModelsTotalBalanceStateBuilder
 
-private extension AccountTotalBalanceStateBuilder {
+private extension WalletModelsTotalBalanceStateBuilder {
     func mapToTotalBalance(balances: [Balance]) -> TotalBalanceState {
         // Some not start loading yet
         let hasEmpty = balances.contains { $0.balance.isEmpty(for: .noData) }
