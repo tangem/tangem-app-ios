@@ -78,7 +78,8 @@ final class LockedWalletMainContentViewModel: ObservableObject {
         self.coordinator = coordinator
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
-            totalBalanceProvider: userWalletModel
+            totalBalanceProvider: userWalletModel,
+            updatePublisher: userWalletModel.updatePublisher
         )
 
         contextData = userWalletModel.analyticsContextData
