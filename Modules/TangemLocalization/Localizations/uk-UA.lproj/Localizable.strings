@@ -1873,7 +1873,7 @@
 "yield_module_status_active" = "Активний";
 "yield_module_status_paused" = "На паузі";
 "yield_module_stop_earning_sheet_description" = "Вимкнення цієї опції виведе ваші активи з Aave, отримаєте їх назад у %@ у вашому гаманці і зупинить накопичення нагород.";
-"yield_module_stop_earning_sheet_fee_note" = "Комісія мережі буде вирахувана з суми, яку ви знімаєте.";
+"yield_module_stop_earning_sheet_fee_note" = "Комісію мережі стягує блокчейн при виході з режиму доходності.";
 "yield_module_stop_earning_sheet_title" = "Завершити заробіток";
 "yield_module_stop_earning" = "Вимкнення режиму прибутковості";
 "yield_module_supply_apr" = "Річна прибутковість (APY)";
