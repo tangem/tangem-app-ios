@@ -10,20 +10,20 @@ import Combine
 import TangemUI
 
 class SendAmountFinishSmallAmountViewModel: ObservableObject {
-    @Published private(set) var title: String
+    @Published private(set) var tokenHeader: SendTokenHeader
     @Published private(set) var tokenIconInfo: TokenIconInfo
     @Published private(set) var amountDecimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published private(set) var amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
     @Published private(set) var alternativeAmount: String?
 
     init(
-        title: String,
+        tokenHeader: SendTokenHeader,
         tokenIconInfo: TokenIconInfo,
         amountDecimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel,
         amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions,
         alternativeAmount: String?
     ) {
-        self.title = title
+        self.tokenHeader = tokenHeader
         self.tokenIconInfo = tokenIconInfo
         self.amountDecimalNumberTextFieldViewModel = amountDecimalNumberTextFieldViewModel
         self.amountFieldOptions = amountFieldOptions
