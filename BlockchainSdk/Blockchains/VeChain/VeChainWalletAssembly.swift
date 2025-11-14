@@ -13,7 +13,7 @@ struct VeChainWalletAssembly: WalletManagerAssembly {
         let blockchain = input.wallet.blockchain
         let providers: [VeChainNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
             .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
-                VeChainNetworkProvider(baseURL: nodeInfo.url, configuration: input.networkInput.tangemProviderConfig)
+                VeChainNetworkProvider(nodeInfo: nodeInfo, configuration: input.networkInput.tangemProviderConfig)
             }
 
         let networkService = VeChainNetworkService(
