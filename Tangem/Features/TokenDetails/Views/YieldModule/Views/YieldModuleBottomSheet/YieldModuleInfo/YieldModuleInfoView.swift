@@ -67,7 +67,7 @@ struct YieldModuleInfoView: View {
         case .approve:
             Localization.yieldModuleApproveSheetSubtitle
         case .stopEarning:
-            Localization.yieldModuleStopEarningSheetDescription(viewModel.walletModel.tokenItem.name)
+            Localization.yieldModuleStopEarningSheetDescription(viewModel.walletModel.tokenItem.currencySymbol)
         }
     }
 
