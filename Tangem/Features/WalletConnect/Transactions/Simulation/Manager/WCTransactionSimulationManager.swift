@@ -33,6 +33,7 @@ final class CommonWCTransactionSimulationManager: WCTransactionSimulationManager
         for transactionData: WCHandleTransactionData,
         userWalletModel: UserWalletModel
     ) async -> TransactionSimulationState {
+        // accounts_fixes_needed_wc
         guard let address = userWalletModel.walletModelsManager.walletModels.first(where: {
             $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
         })?.defaultAddressString else {
