@@ -25,7 +25,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
         Localization.hwMobileWallet
     }
 
-    var defaultName: String { Localization.hwMobileWallet }
+    var defaultName: String { "Wallet" }
 
     var existingCurves: [EllipticCurve] {
         [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
