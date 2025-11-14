@@ -69,7 +69,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openTangemPayPin() {
-        tangemPayPinViewModel = TangemPayPinViewModel()
+        tangemPayPinViewModel = TangemPayPinViewModel(coordinator: self)
     }
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input) {
@@ -132,6 +132,14 @@ extension TangemPayMainCoordinator: TangemPayFreezeSheetRoutable {
 extension TangemPayMainCoordinator: TangemPayAddToAppPayGuideRoutable {
     func closeAddToAppPayGuide() {
         addToApplePayGuideViewModel = nil
+    }
+}
+
+// MARK: - TangemPayPinRoutable
+
+extension TangemPayMainCoordinator: TangemPayPinRoutable {
+    func closeTangemPayPin() {
+        tangemPayPinViewModel = nil
     }
 }
 
