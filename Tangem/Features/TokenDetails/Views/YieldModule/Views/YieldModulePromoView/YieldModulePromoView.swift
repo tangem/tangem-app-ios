@@ -101,7 +101,7 @@ struct YieldModulePromoView: View {
             BenefitRow(
                 icon: Assets.YieldModule.yieldModuleSync.image,
                 title: Localization.yieldModulePromoScreenAutoBalanceTitle,
-                subtitle: Localization.yieldModulePromoScreenAutoBalanceSubtitle
+                subtitle: Localization.yieldModulePromoScreenAutoBalanceSubtitleV2(viewModel.tokenName)
             )
 
             BenefitRow(
