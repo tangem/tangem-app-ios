@@ -15,9 +15,15 @@ struct WalletConnectDAppSessionProposal {
     let optionalBlockchains: Set<Blockchain>
     let initialVerificationContext: VerificationContext?
 
-    let dAppConnectionRequestFactory: (
+    let dAppWalletConnectionRequestFactory: (
         _ selectedBlockchains: [Blockchain],
         _ selectedUserWallet: any UserWalletModel
+    ) throws(WalletConnectDAppProposalApprovalError) -> WalletConnectDAppConnectionRequest
+
+    let dAppAccountConnectionRequestFactory: (
+        _ selectedBlockchains: [Blockchain],
+        _ selectedAccount: any CryptoAccountModel,
+        _ wcAccountsWalletModelProvider: any WalletConnectAccountsWalletModelProvider
     ) throws(WalletConnectDAppProposalApprovalError) -> WalletConnectDAppConnectionRequest
 }
 
