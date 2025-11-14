@@ -20,6 +20,7 @@ struct TangemPayPinView: View {
                 switch viewModel.state {
                 case .enterPin:
                     enterPinView
+                        .screenCaptureProtection()
                 case .created:
                     createdView
                 }
@@ -65,7 +66,6 @@ struct TangemPayPinView: View {
                         isDisabled: viewModel.isLoading,
                         pinText: $viewModel.pin
                     )
-                    .screenCaptureProtection()
 
                     Text(viewModel.errorMessage ?? " ")
                         .lineLimit(2)
