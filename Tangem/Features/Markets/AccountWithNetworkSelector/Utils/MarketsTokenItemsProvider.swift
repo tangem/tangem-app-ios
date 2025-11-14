@@ -22,8 +22,7 @@ enum MarketsTokenItemsProvider {
         }
 
         let supportedBlockchains = if !cryptoAccount.isMainAccount {
-            userWalletModel.config.supportedBlockchains
-                .filter { AccountDerivationPathHelper(blockchain: $0).areAccountsAvailableForBlockchain() }
+            AccountDerivationPathHelper.filterBlockchainsSupportingAccounts(userWalletModel.config.supportedBlockchains)
         } else {
             userWalletModel.config.supportedBlockchains
         }
