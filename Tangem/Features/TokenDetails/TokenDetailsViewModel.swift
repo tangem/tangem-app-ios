@@ -40,14 +40,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
     @Published private(set) var activeStakingViewData: ActiveStakingViewData?
 
-    private weak var coordinator: TokenDetailsRoutable?
-    private let bannerNotificationManager: NotificationManager?
-    private let xpubGenerator: XPUBGenerator?
-    private let balanceConverter = BalanceConverter()
-    private let balanceFormatter = BalanceFormatter()
-    private let pendingTransactionDetails: PendingTransactionDetails?
-    private var bag = Set<AnyCancellable>()
-
     var iconUrl: URL? {
         guard let id = walletModel.tokenItem.id else {
             return nil
@@ -60,17 +52,28 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel.tokenItem.token?.customTokenColor
     }
 
-    var canHideToken: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
+    var canHideToken: Bool { userWalletInfo.config.hasFeature(.multiCurrency) }
 
     var canGenerateXPUB: Bool { xpubGenerator != nil }
 
     var hasDotsMenu: Bool { canHideToken || canGenerateXPUB }
 
+    private weak var coordinator: TokenDetailsRoutable?
+    private let bannerNotificationManager: NotificationManager?
+    private let xpubGenerator: XPUBGenerator?
+    private let pendingTransactionDetails: PendingTransactionDetails?
+    private let userTokensManager: any UserTokensManager
+
+    private let balanceConverter = BalanceConverter()
+    private let balanceFormatter = BalanceFormatter()
+    private var bag = Set<AnyCancellable>()
+
     init(
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
         notificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
+        userTokensManager: any UserTokensManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         xpubGenerator: XPUBGenerator?,
         coordinator: TokenDetailsRoutable,
@@ -81,9 +84,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.bannerNotificationManager = bannerNotificationManager
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
+        self.userTokensManager = userTokensManager
 
         super.init(
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel,
             notificationManager: notificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
@@ -207,8 +211,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
 extension TokenDetailsViewModel {
     func hideTokenButtonAction() {
-        // accounts_fixes_needed_token_details
-        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem) {
+        if userTokensManager.canRemove(walletModel.tokenItem) {
             showHideWarningAlert()
         } else {
             showUnableToHideAlert()
@@ -267,8 +270,7 @@ extension TokenDetailsViewModel {
             ]
         )
 
-        // accounts_fixes_needed_token_details
-        userWalletModel.userTokensManager.remove(walletModel.tokenItem)
+        userTokensManager.remove(walletModel.tokenItem)
         dismiss()
     }
 }
@@ -452,15 +454,20 @@ private extension TokenDetailsViewModel {
     }
 
     func openFeeCurrency() {
-        // accounts_fixes_needed_token_details
-        guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-            $0.tokenItem == walletModel.feeTokenItem
-        }) else {
+        let feeCurrencyFinderResult = WalletModelFinder().findWalletModel(
+            userWalletId: userWalletInfo.id,
+            tokenItem: walletModel.feeTokenItem
+        )
+
+        guard let feeCurrencyFinderResult else {
             assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
             return
         }
 
-        coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
+        coordinator?.openFeeCurrency(
+            for: feeCurrencyFinderResult.walletModel,
+            userWalletModel: feeCurrencyFinderResult.userWalletModel
+        )
     }
 }
 
@@ -521,9 +528,8 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 
 extension TokenDetailsViewModel {
     func makeYieldModuleFlowFactory(manager: YieldModuleManager) -> YieldModuleFlowFactory? {
-        guard let dispatcher = TransactionDispatcherFactory(
-            walletModel: walletModel, signer: userWalletModel.signer
-        ).makeYieldModuleDispatcher() else {
+        let factory = TransactionDispatcherFactory(walletModel: walletModel, signer: userWalletInfo.signer)
+        guard let dispatcher = factory.makeYieldModuleDispatcher() else {
             return nil
         }
 
