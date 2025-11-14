@@ -16,6 +16,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.ConfirmationDialogViewModel
+import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var confirmationDialog: ConfirmationDialogViewModel?
@@ -23,12 +24,16 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
 
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
+        tokenItem: walletModel.tokenItem,
         buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
         balanceProvider: self,
         balanceTypeSelectorProvider: self,
         yieldModuleStatusProvider: self,
         showYieldBalanceInfoAction: { [weak self] in
             self?.openYieldBalanceInfo()
+        },
+        reloadBalance: { @MainActor [weak self] in
+            await self?.onPullToRefresh()
         }
     )
 
@@ -149,7 +154,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .seedSupportYes,
              .seedSupport2No,
              .seedSupport2Yes,
-             .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
@@ -174,11 +178,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             .token: walletModel.tokenItem.currencySymbol,
             .source: Analytics.ParameterValue.token.rawValue,
         ])
-        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
-            .present(
-                layout: .bottom(padding: 80),
-                type: .temporary()
-            )
+        Toast(
+            view: SuccessToast(text: Localization.walletNotificationAddressCopied)
+                .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
+        )
+        .present(
+            layout: .bottom(padding: 80),
+            type: .temporary()
+        )
     }
 
     override func openMarketsTokenDetails() {
@@ -200,6 +207,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
 extension TokenDetailsViewModel {
     func hideTokenButtonAction() {
+        // accounts_fixes_needed_token_details
         if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem) {
             showHideWarningAlert()
         } else {
@@ -259,6 +267,7 @@ extension TokenDetailsViewModel {
             ]
         )
 
+        // accounts_fixes_needed_token_details
         userWalletModel.userTokensManager.remove(walletModel.tokenItem)
         dismiss()
     }
@@ -374,13 +383,17 @@ private extension TokenDetailsViewModel {
         state: YieldModuleManagerState,
         marketInfo: YieldModuleMarketInfo?
     ) -> YieldModuleAvailability {
-        guard FeatureProvider.isAvailable(.yieldModule), let manager = walletModel.yieldModuleManager else {
+        guard FeatureProvider.isAvailable(.yieldModule),
+              let manager = walletModel.yieldModuleManager,
+              let factory = makeYieldModuleFlowFactory(manager: manager)
+        else {
             return .notApplicable
         }
 
         func makeEligibleViewModelIfPossible() -> YieldModuleAvailability {
             if let apy = marketInfo?.apy {
-                let vm = makeYieldNotificationViewModel(apy: apy)
+                let action = { [weak self] apy in self?.coordinator?.openYieldModulePromoView(apy: apy, factory: factory) }
+                let vm = factory.makeYieldAvailableNotificationViewModel(apy: apy, onButtonTap: { apy in action(apy) })
                 return .eligible(vm)
             } else {
                 return .notApplicable
@@ -389,14 +402,15 @@ private extension TokenDetailsViewModel {
 
         switch state {
         case .active(let info):
-            let vm = makeYieldStatusViewModel(
-                yieldManager: manager,
-                state: .active(
-                    isApproveRequired: info.isAllowancePermissionRequired,
-                    hasUndepositedAmounts: !info.nonYieldModuleBalanceValue.isZero,
-                    apy: marketInfo?.apy
-                )
+            let navigationAction = { [weak self] in self?.coordinator?.openYieldModuleActiveInfo(factory: factory) }
+            let state: YieldStatusViewModel.State = .active(
+                isApproveRequired: info.isAllowancePermissionRequired,
+                hasUndepositedAmounts: !info.nonYieldModuleBalanceValue.isZero,
+                apy: marketInfo?.apy
             )
+
+            let vm = factory.makeYieldStatusViewModel(state: state, navigationAction: { navigationAction() })
+
             if info.isAllowancePermissionRequired {
                 Analytics.log(
                     event: .earningNoticeApproveNeeded,
@@ -410,7 +424,8 @@ private extension TokenDetailsViewModel {
             return makeEligibleViewModelIfPossible()
 
         case .processing(let action):
-            let vm = makeYieldStatusViewModel(yieldManager: manager, state: action == .enter ? .loading : .closing)
+            let state: YieldStatusViewModel.State = action == .enter ? .loading : .closing
+            let vm = factory.makeYieldStatusViewModel(state: state, navigationAction: {})
             return (action == .enter) ? .enter(vm) : .exit(vm)
 
         case .disabled:
@@ -437,6 +452,7 @@ private extension TokenDetailsViewModel {
     }
 
     func openFeeCurrency() {
+        // accounts_fixes_needed_token_details
         guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
             $0.tokenItem == walletModel.feeTokenItem
         }) else {
@@ -504,37 +520,31 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 }
 
 extension TokenDetailsViewModel {
-    func makeYieldStatusViewModel(yieldManager: YieldModuleManager, state: YieldStatusViewModel.State) -> YieldStatusViewModel {
-        YieldStatusViewModel(state: state, manager: yieldManager, navigationAction: { [weak self] in
-            self?.openYieldEarnInfo()
-        })
-    }
+    func makeYieldModuleFlowFactory(manager: YieldModuleManager) -> YieldModuleFlowFactory? {
+        guard let dispatcher = TransactionDispatcherFactory(
+            walletModel: walletModel, signer: userWalletModel.signer
+        ).makeYieldModuleDispatcher() else {
+            return nil
+        }
 
-    func makeYieldNotificationViewModel(apy: Decimal) -> YieldAvailableNotificationViewModel {
-        YieldAvailableNotificationViewModel(
-            apy: apy,
-            onButtonTap: { [weak self] apy in
-                guard let self else { return }
-                coordinator?.openYieldModulePromoView(
-                    walletModel: walletModel,
-                    apy: apy,
-                    signer: userWalletModel.signer
-                )
-            }
+        return CommonYieldModuleFlowFactory(
+            walletModel: walletModel,
+            yieldModuleManager: manager,
+            transactionDispatcher: dispatcher
         )
     }
 
-    func openYieldEarnInfo() {
-        coordinator?.openYieldEarnInfo(walletModel: walletModel, signer: userWalletModel.signer)
-    }
-
     func openYieldBalanceInfo() {
+        guard let manager = walletModel.yieldModuleManager, let factory = makeYieldModuleFlowFactory(manager: manager) else {
+            return
+        }
+
         Analytics.log(
             event: .earningEarnedFundsInfo,
             params: [.token: walletModel.tokenItem.currencySymbol, .blockchain: walletModel.tokenItem.blockchain.displayName]
         )
 
-        coordinator?.openYieldBalanceInfo(tokenName: walletModel.tokenItem.name, tokenId: walletModel.tokenItem.id)
+        coordinator?.openYieldBalanceInfo(factory: factory)
     }
 }
 
@@ -545,6 +555,6 @@ extension TokenDetailsViewModel: YieldModuleStatusProvider {
             .compactMap { $0 }
             .removeDuplicates()
             .eraseToAnyPublisher()
-            ?? Empty(completeImmediately: false).eraseToAnyPublisher()
+            ?? Just(YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)).eraseToAnyPublisher()
     }
 }

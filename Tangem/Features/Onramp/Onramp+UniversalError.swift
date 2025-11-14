@@ -17,7 +17,7 @@ import TangemFoundation
 // `005` -
 // `006` -
 
-extension OnrampAmountInteractorBottomInfoError: UniversalError {
+extension OnrampSummaryInteractorBottomInfoError: UniversalError {
     var errorCode: Int {
         switch self {
         case .noAvailableProviders:
