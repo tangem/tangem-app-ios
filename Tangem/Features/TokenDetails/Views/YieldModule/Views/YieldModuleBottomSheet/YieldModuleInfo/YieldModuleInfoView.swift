@@ -75,7 +75,7 @@ struct YieldModuleInfoView: View {
         switch viewModel.viewState {
         case .earnInfo:
             .init(settings: .init(
-                title: Localization.yieldModuleStopEarning,
+                title: Localization.yieldModuleDisableButton,
                 style: .secondary,
                 action: ctaButtonAction
             ))
