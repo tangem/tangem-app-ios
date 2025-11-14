@@ -10,17 +10,23 @@ import TangemExpress
 import TangemFoundation
 
 class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
-    @Injected(\.onrampRepository) private var _onrampRepository: OnrampRepository
+    @Injected(\.onrampRepository)
+    private var _onrampRepository: OnrampRepository
 
-    private let input: Input
-    private let initialWallet: any ExpressInteractorSourceWallet
-    private let destinationWallet: ExpressInteractor.Destination?
+    @Injected(\.expressPairsRepository)
+    private var expressPairsRepository: any ExpressPairsRepository
+
+    @Injected(\.expressPendingTransactionsRepository)
+    private var pendingTransactionRepository: ExpressPendingTransactionRepository
+
+    private let userWalletInfo: UserWalletInfo
+    private let initialTokenItem: TokenItem
+    private let swappingPair: ExpressInteractor.SwappingPair
+
     private let supportedProviderTypes: [ExpressProviderType]
     private let operationType: ExpressOperationType
 
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
-    @Injected(\.expressPendingTransactionsRepository)
-    private var pendingTransactionRepository: ExpressPendingTransactionRepository
 
     private(set) lazy var expressInteractor = makeExpressInteractor()
     private(set) lazy var expressAPIProvider = makeExpressAPIProvider()
@@ -28,15 +34,35 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private(set) lazy var onrampRepository = makeOnrampRepository()
 
     init(
-        input: Input,
-        initialWallet: any ExpressInteractorSourceWallet,
-        destinationWallet: ExpressInteractor.Destination?,
+        input: ExpressDependenciesInput,
         supportedProviderTypes: [ExpressProviderType],
         operationType: ExpressOperationType
     ) {
-        self.input = input
-        self.initialWallet = initialWallet
-        self.destinationWallet = destinationWallet
+        userWalletInfo = input.userWalletInfo
+        initialTokenItem = input.source.tokenItem
+
+        swappingPair = .init(
+            sender: .success(input.source),
+            destination: input.destination.asExpressInteractorDestination
+        )
+
+        self.supportedProviderTypes = supportedProviderTypes
+        self.operationType = operationType
+    }
+
+    init(
+        input: ExpressDependenciesDestinationInput,
+        supportedProviderTypes: [ExpressProviderType],
+        operationType: ExpressOperationType
+    ) {
+        userWalletInfo = input.userWalletInfo
+        initialTokenItem = input.destination.tokenItem
+
+        swappingPair = .init(
+            sender: .loading,
+            destination: .success(input.destination)
+        )
+
         self.supportedProviderTypes = supportedProviderTypes
         self.operationType = operationType
     }
@@ -47,8 +73,8 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
 private extension CommonExpressDependenciesFactory {
     func makeExpressInteractor() -> ExpressInteractor {
         let transactionValidator = CommonExpressProviderTransactionValidator(
-            tokenItem: initialWallet.tokenItem,
-            requiresTransactionSizeValidation: input.requiresTransactionSizeValidation
+            tokenItem: initialTokenItem,
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: userWalletInfo.config)
         )
 
         let expressManager = TangemExpressFactory().makeExpressManager(
@@ -61,30 +87,28 @@ private extension CommonExpressDependenciesFactory {
         )
 
         let interactor = ExpressInteractor(
-            userWalletId: input.userWalletId.stringValue,
-            initialWallet: initialWallet,
-            destinationWallet: destinationWallet,
+            userWalletInfo: userWalletInfo,
+            swappingPair: swappingPair,
             expressManager: expressManager,
-            expressRepository: expressRepository,
+            expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
-            expressDestinationService: expressDestinationService,
+            expressDestinationService: CommonExpressDestinationService(userWalletId: userWalletInfo.id),
             expressAnalyticsLogger: analyticsLogger,
-            expressAPIProvider: expressAPIProvider,
-            signer: input.signer
+            expressAPIProvider: expressAPIProvider
         )
 
         return interactor
     }
 
     func makeExpressRepository() -> ExpressRepository {
-        CommonExpressRepository(
-            walletModelsManager: input.walletModelsManager,
-            expressAPIProvider: expressAPIProvider
-        )
+        CommonExpressRepository(expressAPIProvider: expressAPIProvider)
     }
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
-        expressAPIProviderFactory.makeExpressAPIProvider(userWalletId: input.userWalletId, refcode: input.refcode)
+        expressAPIProviderFactory.makeExpressAPIProvider(
+            userWalletId: userWalletInfo.id,
+            refcode: userWalletInfo.refcode
+        )
     }
 
     func makeOnrampRepository() -> OnrampRepository {
@@ -99,44 +123,18 @@ private extension CommonExpressDependenciesFactory {
     /// Be careful to use tokenItem in CommonExpressAnalyticsLogger
     /// Because there will be inly initial tokenItem without updating
     var analyticsLogger: ExpressAnalyticsLogger {
-        CommonExpressAnalyticsLogger(tokenItem: initialWallet.tokenItem)
-    }
-
-    var expressDestinationService: ExpressDestinationService {
-        CommonExpressDestinationService(
-            walletModelsManager: input.walletModelsManager,
-            expressRepository: expressRepository
-        )
+        CommonExpressAnalyticsLogger(tokenItem: initialTokenItem)
     }
 }
 
-extension CommonExpressDependenciesFactory {
-    struct Input {
-        let userWalletId: UserWalletId
-        let refcode: Refcode?
-        let signer: TangemSigner
-        let walletModelsManager: WalletModelsManager
-        let requiresTransactionSizeValidation: Bool
+// MARK: - ExpressDependenciesInput.PredefinedDestination+
 
-        init(userWalletModel: UserWalletModel) {
-            userWalletId = userWalletModel.userWalletId
-            refcode = userWalletModel.refcodeProvider?.getRefcode()
-            signer = userWalletModel.signer
-            walletModelsManager = userWalletModel.walletModelsManager
-            requiresTransactionSizeValidation = userWalletModel.config.hasFeature(.isHardwareLimited)
-        }
-
-        init(
-            userWalletInfo: UserWalletInfo,
-            refcode: Refcode?,
-            walletModelsManager: any WalletModelsManager
-        ) {
-            userWalletId = userWalletInfo.id
-            signer = userWalletInfo.signer
-            requiresTransactionSizeValidation = userWalletInfo.config.hasFeature(.isHardwareLimited)
-
-            self.refcode = refcode
-            self.walletModelsManager = walletModelsManager
+extension ExpressDependenciesInput.PredefinedDestination {
+    var asExpressInteractorDestination: ExpressInteractor.Destination? {
+        switch self {
+        case .none: .none
+        case .loadingAndSet: .loading
+        case .chosen(let wallet): .success(wallet)
         }
     }
 }
