@@ -13,16 +13,3 @@ struct CryptoAccountsRemoteState {
     let nextDerivationIndex: Int
     let accounts: [StoredCryptoAccount]
 }
-
-// MARK: - Convenience extensions
-
-extension CryptoAccountsRemoteState {
-    func contains(accountWithName accountName: String) -> Bool {
-        return accounts.contains { account in
-            let existingAccountName = account.name?.trimmed()
-            let newAccountName = accountName.trimmed()
-
-            return existingAccountName?.compare(newAccountName) == .orderedSame
-        }
-    }
-}
