@@ -66,6 +66,7 @@ private extension WCApprovalHelpers {
     ) -> TokenInfo? {
         guard let userWalletModel = userWalletModel else { return nil }
 
+        // accounts_fixes_needed_wc
         let allWalletModels = userWalletModel.walletModelsManager.walletModels
 
         for model in allWalletModels {
