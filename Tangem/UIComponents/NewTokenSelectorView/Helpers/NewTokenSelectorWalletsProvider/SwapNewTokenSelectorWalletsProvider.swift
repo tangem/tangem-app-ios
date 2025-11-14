@@ -33,6 +33,6 @@ class SwapNewTokenSelectorWalletsProvider: CommonNewTokenSelectorWalletsProvider
             }
             .eraseToAnyPublisher()
 
-        return NewTokenSelectorAccount(account: account.account, itemsPublisher: itemsPublisher)
+        return NewTokenSelectorAccount(cryptoAccount: account.cryptoAccount, itemsPublisher: itemsPublisher)
     }
 }
