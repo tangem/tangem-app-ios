@@ -106,7 +106,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
                         let mapper = PendingTransactionRecordMapper()
                         let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: transactionHash)
                         walletManager.wallet.addPendingTransaction(record)
-                        return TransactionSendResult(hash: transactionHash)
+                        return TransactionSendResult(hash: transactionHash, currentProviderHost: walletManager.currentHost)
                     }
                     .mapSendTxError()
                     .eraseToAnyPublisher()
