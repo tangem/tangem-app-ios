@@ -138,7 +138,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func setPin() {
-        coordinator?.openTangemPayPin()
+        coordinator?.openTangemPayPin(tangemPayAccount: tangemPayAccount)
     }
 
     private func freeze() {
