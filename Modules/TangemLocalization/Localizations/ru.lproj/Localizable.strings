@@ -1125,9 +1125,9 @@
 "staking_claim_unstaked" = "Забрать средства";
 "staking_details_account_fee_info" = "Стейкинг аккаунт — это специальный счет, на котором хранятся застейканные токены SOL. Он создается при делегировании ваших токенов валидатору для участия в подтверждении транзакций и получении наград. За создание стейкинг аккаунта взимается небольшая комиссия, которая возвращается после завершения стейкинга.";
 "staking_details_account_fee" = "Комиссия за стейкинг аккаунт";
-"staking_details_annual_percentage_rate_info" = "Годовой процентный доход, который вы можете получить от участия в стейкинге.";
+"staking_details_annual_percentage_rate_info" = "APR: Показывает процент, который вы можете заработать за год без учёта сложного процента. Начисленные проценты не добавляются к балансу, поэтому на них не начисляются дополнительные проценты.";
 "staking_details_annual_percentage_rate" = "Процентная ставка";
-"staking_details_annual_percentage_yield_info" = "APY shows the validator’s annual percentage yield based on its performance";
+"staking_details_annual_percentage_yield_info" = "APY: Показывает общий процент, который вы можете заработать за год с учётом сложного процента. Сложный процент означает, что начисленные проценты добавляются к вашему балансу, и на них тоже начисляются проценты.";
 "staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
@@ -1372,7 +1372,7 @@
 "tangempay_onboarding_purchases_title" = "Pay exactly what you see";
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
 "tangempay_onboarding_security_title" = "Unrivaled privacy";
-"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
+"tangempay_onboarding_title" = "Get your free Tangem Pay Card in minutes";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_title" = "Tangem Pay";

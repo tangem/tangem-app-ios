@@ -1125,9 +1125,9 @@
 "staking_claim_unstaked" = "Reclamar lo que no está en staking";
 "staking_details_account_fee_info" = "Una cuenta de staking es una cuenta especial donde se almacenan los tokens SOL de staking. Se crea cuando delegas sus tokens a un validador para participar en la validación de transacciones y ganar recompensas. Se cobra una pequeña tarifa por crear la cuenta de staking, que se devuelve una vez que se completa el staking.";
 "staking_details_account_fee" = "Tarifa de staking de la cuenta ";
-"staking_details_annual_percentage_rate_info" = "El porcentaje de rendimiento anual que podrá ganar como participante en el staking.";
+"staking_details_annual_percentage_rate_info" = "APR: Muestra el interés que podrías ganar en un año sin capitalización. Los intereses ganados no se añaden a tu saldo, por lo que no ganas intereses adicionales sobre ellos.";
 "staking_details_annual_percentage_rate" = "Porcentaje de rendimiento anual";
-"staking_details_annual_percentage_yield_info" = "APY muestra el porcentaje de rendimiento anual del validador en función de su rendimiento";
+"staking_details_annual_percentage_yield_info" = "APY: Muestra el total de intereses que podrías ganar en un año con capitalización. La capitalización significa que los intereses ganados se añaden a tu saldo, por lo que también ganas intereses sobre esos intereses.";
 "staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
@@ -1221,7 +1221,7 @@
 "staking_reward_schedule_month" = "Mensual";
 "staking_reward_schedule_week" = "Semanal";
 "staking_rewards" = "Recompensas";
-"staking_solana_details_auto_claiming_rewards_daily_text" = "Rewards on Solana are automatically added to your staking balance and cannot be shown separately.";
+"staking_solana_details_auto_claiming_rewards_daily_text" = "Las recompensas en Solana se agregan automáticamente a tu saldo de staking y no pueden mostrarse por separado.";
 "staking_stake_locked" = "El stake está bloqueado";
 "staking_stake_more_button_unavailability_reason" = "Al hacer staking de %1$@, se realiza sobre todo su saldo de %2$@. Cualquier %2$@ adicional que deposite en su billetera Tangem también se pondrá en staking automáticamente.";
 "staking_stake_more" = "Hacer más staking";
@@ -1372,7 +1372,7 @@
 "tangempay_onboarding_purchases_title" = "Pay exactly what you see";
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
 "tangempay_onboarding_security_title" = "Unrivaled privacy";
-"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
+"tangempay_onboarding_title" = "Get your free Tangem Pay Card in minutes";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
