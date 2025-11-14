@@ -35,6 +35,7 @@ import SolanaSwift
 // `022` - SubscanAPIResult.Error
 // `023` - SS58.Error
 // `024` - ValidationError
+// `025` - YieldModuleError
 
 extension BlockchainSdkError: UniversalError {
     public var errorCode: Int {
@@ -522,5 +523,21 @@ extension ValidationError: UniversalError {
 extension JSONRPC.APIError: UniversalError {
     var errorCode: Int {
         code ?? -1
+    }
+}
+
+extension YieldModuleError: UniversalError {
+    public var errorCode: Int {
+        switch self {
+        case .unableToParseData: 102025001
+        case .unsupportedBlockchain: 102025002
+        case .noYieldContractFound: 102025003
+        case .feeNotFound: 102025004
+        case .yieldIsAlreadyActive: 102025005
+        case .inconsistentState: 102025006
+        case .yieldIsNotActive: 102025007
+        case .maxNetworkFeeNotFound: 102025008
+        case .minimalTopUpAmountNotFound: 102025009
+        }
     }
 }
