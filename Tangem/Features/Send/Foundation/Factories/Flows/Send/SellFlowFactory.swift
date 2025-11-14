@@ -15,6 +15,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     let userWalletInfo: UserWalletInfo
     let sellParameters: PredefinedSellParameters
 
+    let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let shouldShowFeeSelector: Bool
 
     let walletModelFeeProvider: any WalletModelFeeProvider
@@ -48,6 +49,11 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
         self.userWalletInfo = userWalletInfo
         self.sellParameters = sellParameters
 
+        tokenHeaderProvider = SendTokenHeaderProvider(
+            userWalletInfo: userWalletInfo,
+            account: walletModel.account,
+            flowActionType: .send
+        )
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
