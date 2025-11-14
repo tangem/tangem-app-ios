@@ -233,7 +233,7 @@ private extension YieldTransactionFeeProvider {
 
         return fees.map {
             $0.increasingGasLimit(
-                byPercents: EthereumFeeParametersConstants.defaultGasLimitIncreasePercent,
+                byPercents: EthereumFeeParametersConstants.yieldModuleGasLimitIncreasePercent,
                 blockchain: blockchain,
                 decimalValue: blockchain.decimalValue
             )
