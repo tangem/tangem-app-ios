@@ -104,6 +104,7 @@ class CommonUserWalletModel {
         config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
         if shouldSave {
             userWalletRepository.save(userWalletModel: self)
+            keysRepository.update(keys: walletInfo.keys)
         }
         _updatePublisher.send(.configurationChanged(model: self))
     }
