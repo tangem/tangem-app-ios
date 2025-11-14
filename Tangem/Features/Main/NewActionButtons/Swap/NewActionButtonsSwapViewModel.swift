@@ -90,7 +90,7 @@ extension NewActionButtonsSwapViewModel: NewTokenSelectorViewModelOutput {
 
                 await MainActor.run {
                     coordinator?.openExpress(input: .init(
-                        userWalletInfo: item.wallet.userWalletInfo,
+                        userWalletInfo: item.userWalletInfo,
                         source: source.walletModel.asExpressInteractorWallet,
                         destination: .chosen(item.walletModel.asExpressInteractorWallet)
                     ))
@@ -148,7 +148,7 @@ private extension NewActionButtonsSwapViewModel {
             } operation: {
                 try await self.expressPairsRepository.updatePairs(
                     for: sourceItem.walletModel.tokenItem.expressCurrency,
-                    userWalletInfo: sourceItem.wallet.userWalletInfo
+                    userWalletInfo: sourceItem.userWalletInfo
                 )
             }.value
 
