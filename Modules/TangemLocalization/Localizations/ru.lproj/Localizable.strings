@@ -1851,7 +1851,7 @@
 "yield_module_promo_screen_auto_balance_subtitle" = "Каждое пополнение вашего адреса автоматически будет отправляться в Aave.";
 "yield_module_promo_screen_auto_balance_title" = "Автоперевод в AAVE";
 "yield_module_promo_screen_cash_out_subtitle" = "Отправляйте, обменивайте или продавайте свои средства мгновенно, когда захотите.";
-"yield_module_promo_screen_cash_out_title" = "Мгновенный вывод средств";
+"yield_module_promo_screen_cash_out_title" = "Свободный доступ";
 "yield_module_promo_screen_how_it_works_button_title" = "Как это работает?";
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave — это ончейн-протокол для создания некостодиальных рынков ликвидности, позволяющий получать доход с переменной ставкой.";
 "yield_module_promo_screen_self_custodial_title" = "Децентрализованный и некастодиальный";

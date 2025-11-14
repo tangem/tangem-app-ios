@@ -1851,7 +1851,7 @@
 "yield_module_promo_screen_auto_balance_subtitle" = "Jede Einzahlung, die Du tätigst, wird automatisch an Aave weitergeleitet.";
 "yield_module_promo_screen_auto_balance_title" = "Automatische Übertragung zu Aave";
 "yield_module_promo_screen_cash_out_subtitle" = "Senden, tauschen oder verkaufen Deine Gelder sofort, wann immer Du willst.";
-"yield_module_promo_screen_cash_out_title" = "Jederzeit Zugriff auf Dein Geld";
+"yield_module_promo_screen_cash_out_title" = "Sofort verfügbar";
 "yield_module_promo_screen_how_it_works_button_title" = "Wie funktioniert das?";
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave ist ein On-Chain-Protokoll zur Erstellung von nicht-kustodialen Liquiditätsmärkten, um Zinsen mit variablem Satz zu verdienen.";
 "yield_module_promo_screen_self_custodial_title" = "Dezentral und selbstverwahrend";

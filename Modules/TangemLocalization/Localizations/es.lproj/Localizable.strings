@@ -1851,7 +1851,7 @@
 "yield_module_promo_screen_auto_balance_subtitle" = "Cada depósito que realice se suministrará a Aave automáticamente.";
 "yield_module_promo_screen_auto_balance_title" = "Transferencia automática a Aave";
 "yield_module_promo_screen_cash_out_subtitle" = "Envíe, intercambie o venda sus fondos al instante, cuando quiera.";
-"yield_module_promo_screen_cash_out_title" = "Acceda a sus fondos en cualquier momento";
+"yield_module_promo_screen_cash_out_title" = "Acceso inmediato";
 "yield_module_promo_screen_how_it_works_button_title" = "¿Cómo funciona?";
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave es un protocolo on-chain para crear mercados de liquidez no custodiales y ganar intereses a tasa variable.";
 "yield_module_promo_screen_self_custodial_title" = "Descentralizado y autocustodiado";
