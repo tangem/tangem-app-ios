@@ -60,7 +60,7 @@ struct TangemPayMainView: View {
                 Menu {
                     Button(action: viewModel.setPin) {
                         Label(
-                            Localization.tangempayCardDetailsChangePin,
+                            Localization.visaOnboardingPinCodeNavigationTitle,
                             systemImage: "circle.grid.3x3.fill"
                         )
                     }
