@@ -1376,6 +1376,7 @@
 		B6116E3D2E8E7C0A00D9121A /* AccountBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6116E3C2E8E7C0A00D9121A /* AccountBalanceProvider.swift */; };
 		B6116E3F2E8E7C3100D9121A /* AccountQuote.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6116E3E2E8E7C3100D9121A /* AccountQuote.swift */; };
 		B6116E412E8E7C7B00D9121A /* RateValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6116E402E8E7C7B00D9121A /* RateValue.swift */; };
+		B6116E432E8E7CFF00D9121A /* CommonAccountRateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6116E422E8E7CFF00D9121A /* CommonAccountRateProvider.swift */; };
 		B612AFD42B2884B80058A13A /* RateAppRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B612AFD32B2884B80058A13A /* RateAppRequest.swift */; };
 		B6157AAD2C322733000640B4 /* OnboardingFeatureDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6157AAC2C322733000640B4 /* OnboardingFeatureDescriptionView.swift */; };
 		B6176A7A2A5B743A0062C399 /* CGRect+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6176A792A5B743A0062C399 /* CGRect+.swift */; };
@@ -2304,6 +2305,12 @@
 		B672633E2C7FB0D400F120E6 /* DecimalExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B672633D2C7FB0D400F120E6 /* DecimalExtensionsTests.swift */; };
 		B67263402C7FC49C00F120E6 /* TokenItemPriceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B672633F2C7FC49C00F120E6 /* TokenItemPriceFormatter.swift */; };
 		B67263422C7FC4CA00F120E6 /* MarketsTokenPriceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67263412C7FC4CA00F120E6 /* MarketsTokenPriceFormatter.swift */; };
+		B67263442E8E8A0000F120E6 /* CommonAccountRateProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67263432E8E8A0000F120E6 /* CommonAccountRateProviderTests.swift */; };
+		B67263462E8E9A0000F120E6 /* WalletModelsManagerTestsMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67263452E8E9A0000F120E6 /* WalletModelsManagerTestsMock.swift */; };
+		B67263482E8E9A0000F120E6 /* TotalBalanceProviderTestsMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67263472E8E9A0000F120E6 /* TotalBalanceProviderTestsMock.swift */; };
+		B672634A2E8E9A0000F120E6 /* WalletModelTestsMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67263492E8E9A0000F120E6 /* WalletModelTestsMock.swift */; };
+		B672634C2E8E9A0000F120E6 /* TokenBalanceProviderTestsMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B672634B2E8E9A0000F120E6 /* TokenBalanceProviderTestsMock.swift */; };
+		B67263502E8E9A0000F120E6 /* MutableTokenBalanceProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B672634F2E8E9A0000F120E6 /* MutableTokenBalanceProviderMock.swift */; };
 		B67445F82C9835E700780722 /* SwiftUIGestureConflictResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67445F72C9835E700780722 /* SwiftUIGestureConflictResolver.swift */; };
 		B674D6D72A96A90000172491 /* StoredUserTokenList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B674D6D62A96A90000172491 /* StoredUserTokenList.swift */; };
 		B674D6DD2A97556F00172491 /* StorageEntryConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B674D6DC2A97556F00172491 /* StorageEntryConverter.swift */; };
@@ -5884,6 +5891,7 @@
 		B6116E3C2E8E7C0A00D9121A /* AccountBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountBalanceProvider.swift; sourceTree = "<group>"; };
 		B6116E3E2E8E7C3100D9121A /* AccountQuote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountQuote.swift; sourceTree = "<group>"; };
 		B6116E402E8E7C7B00D9121A /* RateValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateValue.swift; sourceTree = "<group>"; };
+		B6116E422E8E7CFF00D9121A /* CommonAccountRateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAccountRateProvider.swift; sourceTree = "<group>"; };
 		B612AFD32B2884B80058A13A /* RateAppRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppRequest.swift; sourceTree = "<group>"; };
 		B6157AAC2C322733000640B4 /* OnboardingFeatureDescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFeatureDescriptionView.swift; sourceTree = "<group>"; };
 		B6176A792A5B743A0062C399 /* CGRect+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+.swift"; sourceTree = "<group>"; };
@@ -6797,6 +6805,12 @@
 		B672633D2C7FB0D400F120E6 /* DecimalExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecimalExtensionsTests.swift; sourceTree = "<group>"; };
 		B672633F2C7FC49C00F120E6 /* TokenItemPriceFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemPriceFormatter.swift; sourceTree = "<group>"; };
 		B67263412C7FC4CA00F120E6 /* MarketsTokenPriceFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenPriceFormatter.swift; sourceTree = "<group>"; };
+		B67263432E8E8A0000F120E6 /* CommonAccountRateProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAccountRateProviderTests.swift; sourceTree = "<group>"; };
+		B67263452E8E9A0000F120E6 /* WalletModelsManagerTestsMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelsManagerTestsMock.swift; sourceTree = "<group>"; };
+		B67263472E8E9A0000F120E6 /* TotalBalanceProviderTestsMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceProviderTestsMock.swift; sourceTree = "<group>"; };
+		B67263492E8E9A0000F120E6 /* WalletModelTestsMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelTestsMock.swift; sourceTree = "<group>"; };
+		B672634B2E8E9A0000F120E6 /* TokenBalanceProviderTestsMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalanceProviderTestsMock.swift; sourceTree = "<group>"; };
+		B672634F2E8E9A0000F120E6 /* MutableTokenBalanceProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutableTokenBalanceProviderMock.swift; sourceTree = "<group>"; };
 		B67445F72C9835E700780722 /* SwiftUIGestureConflictResolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIGestureConflictResolver.swift; sourceTree = "<group>"; };
 		B674D6D62A96A90000172491 /* StoredUserTokenList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredUserTokenList.swift; sourceTree = "<group>"; };
 		B674D6D82A96AC8800172491 /* Sequence+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sequence+.swift"; sourceTree = "<group>"; };
@@ -11378,7 +11392,9 @@
 				B097A3652C106AC1003CFD38 /* APIURLValidatorTests.swift */,
 				DC19EB312C187192003DD903 /* CommonXPUBGeneratorTests.swift */,
 				0A1992A52B5FBDF800344312 /* CurrencyTests.swift */,
+				B67263432E8E8A0000F120E6 /* CommonAccountRateProviderTests.swift */,
 				B672633D2C7FB0D400F120E6 /* DecimalExtensionsTests.swift */,
+				B672634D2E8E9A2000F120E6 /* Mocks */,
 				EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */,
 				B0751ED82C69E3F5009066C8 /* DefaultAmountNotationFormatterTests.swift */,
 				5D20811427D23DED00D8A970 /* EIP712Data */,
@@ -13691,6 +13707,7 @@
 				B6116E3E2E8E7C3100D9121A /* AccountQuote.swift */,
 				B6116E3A2E8E7BFD00D9121A /* AccountRateProvider.swift */,
 				B6116E3C2E8E7C0A00D9121A /* AccountBalanceProvider.swift */,
+				B6116E422E8E7CFF00D9121A /* CommonAccountRateProvider.swift */,
 			);
 			path = Balance;
 			sourceTree = "<group>";
@@ -16278,6 +16295,18 @@
 				B656FCE52C46F3E8002B5BF2 /* OverlayContentStateObserverViewModifier.swift */,
 			);
 			path = SwiftUI;
+			sourceTree = "<group>";
+		};
+		B672634D2E8E9A2000F120E6 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				B67263452E8E9A0000F120E6 /* WalletModelsManagerTestsMock.swift */,
+				B67263472E8E9A0000F120E6 /* TotalBalanceProviderTestsMock.swift */,
+				B67263492E8E9A0000F120E6 /* WalletModelTestsMock.swift */,
+				B672634B2E8E9A0000F120E6 /* TokenBalanceProviderTestsMock.swift */,
+				B672634F2E8E9A0000F120E6 /* MutableTokenBalanceProviderMock.swift */,
+			);
+			path = Mocks;
 			sourceTree = "<group>";
 		};
 		B67385CE2E3BAC9E00482021 /* Accounts */ = {
@@ -24906,6 +24935,7 @@
 				EFD39C992A6A916C0055D215 /* EnvironmentSetupRoutable.swift in Sources */,
 				DC2158742D0308BA007720F8 /* ActionButtonsAnalyticsService.swift in Sources */,
 				B6116E3D2E8E7C0A00D9121A /* AccountBalanceProvider.swift in Sources */,
+				B6116E432E8E7CFF00D9121A /* CommonAccountRateProvider.swift in Sources */,
 				DA7444252A27889600F926A9 /* PromotionServiceProtocol.swift in Sources */,
 				DC7D39F929E007FF007BCD23 /* Start2CoinOnboardingStepsBuilder.swift in Sources */,
 				B67263422C7FC4CA00F120E6 /* MarketsTokenPriceFormatter.swift in Sources */,
@@ -27297,6 +27327,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				0ABAA2F52E56074100024627 /* MobileWalletAddressesTests.swift in Sources */,
+				B67263442E8E8A0000F120E6 /* CommonAccountRateProviderTests.swift in Sources */,
+				B67263462E8E9A0000F120E6 /* WalletModelsManagerTestsMock.swift in Sources */,
+				B67263482E8E9A0000F120E6 /* TotalBalanceProviderTestsMock.swift in Sources */,
+				B672634A2E8E9A0000F120E6 /* WalletModelTestsMock.swift in Sources */,
+				B672634C2E8E9A0000F120E6 /* TokenBalanceProviderTestsMock.swift in Sources */,
+				B67263502E8E9A0000F120E6 /* MutableTokenBalanceProviderMock.swift in Sources */,
 				B672633E2C7FB0D400F120E6 /* DecimalExtensionsTests.swift in Sources */,
 				5D51037B27C53E6E0025EA55 /* EIP712TypedDataTests.swift in Sources */,
 				EA6C829F2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift in Sources */,
