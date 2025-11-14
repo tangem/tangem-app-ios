@@ -14,7 +14,7 @@ protocol TangemPayMainRoutable: AnyObject {
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input)
     func openTangemPayNoDepositAddressSheet()
     func openTangemPayFreezeSheet(freezeAction: @escaping () -> Void)
-    func openTangemPayPin()
+    func openTangemPayPin(tangemPayAccount: TangemPayAccount)
 
     func openTangemPayTransactionDetailsSheet(transaction: TangemPayTransactionRecord)
 }
