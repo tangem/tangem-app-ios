@@ -19,7 +19,8 @@ class BannerNotificationManager {
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private weak var delegate: NotificationTapDelegate?
 
-    private let userWallet: UserWalletModel
+    private let userWalletInfo: UserWalletInfo
+    private let walletModelsManager: any WalletModelsManager
     private let placement: BannerPromotionPlacement
 
     private let analyticsService: NotificationsAnalyticsService
@@ -30,12 +31,17 @@ class BannerNotificationManager {
     private var analyticsSubscription: AnyCancellable?
     private var activePromotionSubscription: AnyCancellable?
 
-    init(userWallet: UserWalletModel, placement: BannerPromotionPlacement) {
-        self.userWallet = userWallet
+    init(
+        userWalletInfo: UserWalletInfo,
+        walletModelsManager: any WalletModelsManager,
+        placement: BannerPromotionPlacement
+    ) {
+        self.userWalletInfo = userWalletInfo
+        self.walletModelsManager = walletModelsManager
         self.placement = placement
 
-        predefinedOnrampParametersBuilder = .init(userWalletId: userWallet.userWalletId)
-        analyticsService = NotificationsAnalyticsService(userWalletId: userWallet.userWalletId)
+        predefinedOnrampParametersBuilder = .init(userWalletId: userWalletInfo.id)
+        analyticsService = NotificationsAnalyticsService(userWalletId: userWalletInfo.id)
 
         bind()
         load()
@@ -173,8 +179,7 @@ class BannerNotificationManager {
 
     private func sepaEvent(promotion: ActivePromotionInfo, analytics: BannerNotificationEventAnalyticsParamsBuilder) -> AnyPublisher<BannerNotificationEvent?, Never> {
         let preferencePublisher = onrampRepository.preferencePublisher.removeDuplicates()
-        // accounts_fixes_needed_notifications
-        let bitcoinWalletModel = userWallet.walletModelsManager.walletModelsPublisher
+        let bitcoinWalletModel = walletModelsManager.walletModelsPublisher
             // If user add / delete bitcoin
             .map { walletModels in
                 walletModels.first {
