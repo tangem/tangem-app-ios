@@ -54,6 +54,8 @@
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
 "account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
 "account_unsaved_dialog_title" = "Unsaved Changes";
+"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$s” to “%2$s” as their derivation belongs to that account.";
+"accounts_migration_alert_title" = "Some custom tokens were moved";
 "action_buttons_buy_empty_search_message" = "¿No encuentra el token en su billetera? Consulte la sección de Mercados para encontrarlo y añadirlo a la compra";
 "action_buttons_buy_navigation_bar_title" = "Comprar";
 "action_buttons_sell_empty_search_message" = "¿No encuentra el token en su billetera? Consulte los mercados para encontrarlo y añadirlo a la venta";
@@ -1123,9 +1125,9 @@
 "staking_claim_unstaked" = "Reclamar lo que no está en staking";
 "staking_details_account_fee_info" = "Una cuenta de staking es una cuenta especial donde se almacenan los tokens SOL de staking. Se crea cuando delegas sus tokens a un validador para participar en la validación de transacciones y ganar recompensas. Se cobra una pequeña tarifa por crear la cuenta de staking, que se devuelve una vez que se completa el staking.";
 "staking_details_account_fee" = "Tarifa de staking de la cuenta ";
-"staking_details_annual_percentage_rate_info" = "El porcentaje de rendimiento anual que podrá ganar como participante en el staking.";
+"staking_details_annual_percentage_rate_info" = "APR: Muestra el interés que podrías ganar en un año sin capitalización. Los intereses ganados no se añaden a tu saldo, por lo que no ganas intereses adicionales sobre ellos.";
 "staking_details_annual_percentage_rate" = "Porcentaje de rendimiento anual";
-"staking_details_annual_percentage_yield_info" = "APY muestra el porcentaje de rendimiento anual del validador en función de su rendimiento";
+"staking_details_annual_percentage_yield_info" = "APY: Muestra el total de intereses que podrías ganar en un año con capitalización. La capitalización significa que los intereses ganados se añaden a tu saldo, por lo que también ganas intereses sobre esos intereses.";
 "staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
@@ -1219,7 +1221,7 @@
 "staking_reward_schedule_month" = "Mensual";
 "staking_reward_schedule_week" = "Semanal";
 "staking_rewards" = "Recompensas";
-"staking_solana_details_auto_claiming_rewards_daily_text" = "Rewards on Solana are automatically added to your staking balance and cannot be shown separately.";
+"staking_solana_details_auto_claiming_rewards_daily_text" = "Las recompensas en Solana se agregan automáticamente a tu saldo de staking y no pueden mostrarse por separado.";
 "staking_stake_locked" = "El stake está bloqueado";
 "staking_stake_more_button_unavailability_reason" = "Al hacer staking de %1$@, se realiza sobre todo su saldo de %2$@. Cualquier %2$@ adicional que deposite en su billetera Tangem también se pondrá en staking automáticamente.";
 "staking_stake_more" = "Hacer más staking";
@@ -1316,6 +1318,7 @@
 "tangem_pay_status_declined" = "Declined";
 "tangem_pay_status_pending" = "Pending";
 "tangem_pay_terms_fees_limits" = "Terms, Fees & Limits";
+"tangem_pay_terms_limits" = "Terms and Limits";
 "tangem_pay_transaction_declined_notification_text" = "The bank rejected this transaction request.";
 "tangem_pay_transaction_fee_notification_text" = "This fee goes to cover the cost of handling your transfer.";
 "tangem_pay_unfreeze_card_alert_body" = "Keep using your money. You can freeze anytime.";
@@ -1369,7 +1372,7 @@
 "tangempay_onboarding_purchases_title" = "Pay exactly what you see";
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
 "tangempay_onboarding_security_title" = "Unrivaled privacy";
-"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
+"tangempay_onboarding_title" = "Get your free Tangem Pay Card in minutes";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
@@ -1816,6 +1819,7 @@
 "yield_module_balance_info_sheet_title" = "Su %@ está depositado en Aave";
 "yield_module_chart_loading_error" = "No se puede cargar el gráfico...";
 "yield_module_deposit_error_notification_title" = "El suministro de %1$@ %2$@ a Aave está pendiente.";
+"yield_module_disable_button" = "Desactivar el modo de rendimiento";
 "yield_module_earn_badge" = "APY %1$@%%";
 "yield_module_earn_sheet_available_title" = "Disponible";
 "yield_module_earn_sheet_current_apy_title" = "APY actual";
@@ -1843,12 +1847,13 @@
 "yield_module_main_view_approve_notification_title" = "Se necesita la aprobación de Token";
 "yield_module_network_fee_unreachable_notification_description" = "Compruebe su conexión de red";
 "yield_module_network_fee_unreachable_notification_title" = "Información de tarifas de red inaccesible";
+"yield_module_promo_screen_auto_balance_subtitle_v2" = "Todos los %1$@ en tu cuenta se suministrarán automáticamente a Aave.";
 "yield_module_promo_screen_auto_balance_subtitle" = "Cada depósito que realice se suministrará a Aave automáticamente.";
 "yield_module_promo_screen_auto_balance_title" = "Transferencia automática a Aave";
 "yield_module_promo_screen_cash_out_subtitle" = "Envíe, intercambie o venda sus fondos al instante, cuando quiera.";
-"yield_module_promo_screen_cash_out_title" = "Acceda a sus fondos en cualquier momento";
+"yield_module_promo_screen_cash_out_title" = "Acceso inmediato";
 "yield_module_promo_screen_how_it_works_button_title" = "¿Cómo funciona?";
-"yield_module_promo_screen_self_custodial_subtitle" = "Aave es un protocolo descentralizado que administra más de 61 billones de dólares en valor total.";
+"yield_module_promo_screen_self_custodial_subtitle" = "Aave es un protocolo on-chain para crear mercados de liquidez no custodiales y ganar intereses a tasa variable.";
 "yield_module_promo_screen_self_custodial_title" = "Descentralizado y autocustodiado";
 "yield_module_promo_screen_terms_disclaimer" = "Al utilizar este servicio, usted acepta que el proveedor\n%1$@ y %2$@";
 "yield_module_promo_screen_title" = "Conectar Aave";
@@ -1862,6 +1867,7 @@
 "yield_module_receive_sheet_description" = "Cuando recargue, sus fondos se enviarán automáticamente a Aave para comenzar a ganar intereses. %@ se deducirá para cubrir la tarifa de transacción.";
 "yield_module_start_earning_sheet_description" = "Su %@ se suministrará a Aave, pero seguirá siendo gestionable.";
 "yield_module_start_earning_sheet_fee_policy" = "Ver política de tarifas";
+"yield_module_start_earning_sheet_next_deposits_v2" = "Todos tus futuros depósitos %1$@ se suministrarán automáticamente a Aave.";
 "yield_module_start_earning_sheet_next_deposits" = "Sus próximas recargas se suministrarán automáticamente a Aave.";
 "yield_module_start_earning" = "Suministro de activos";
 "yield_module_status_active" = "Activo";
