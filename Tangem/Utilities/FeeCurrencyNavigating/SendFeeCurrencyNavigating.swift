@@ -30,12 +30,15 @@ extension SendFeeCurrencyNavigating {
 
             switch dismissOptions {
             case .openFeeCurrency(let userWalletId, let feeTokenItem):
-                guard let result = FeeCurrencyFinder().findFeeWalletModel(userWalletId: userWalletId, feeTokenItem: feeTokenItem) else {
+                guard let result = WalletModelFinder().findWalletModel(
+                    userWalletId: userWalletId,
+                    tokenItem: feeTokenItem
+                ) else {
                     return
                 }
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + Self.feeCurrencyNavigationDelay) {
-                    self?.openFeeCurrency(for: result.feeWalletModel, userWalletModel: result.userWalletModel)
+                    self?.openFeeCurrency(for: result.walletModel, userWalletModel: result.userWalletModel)
                 }
             case .closeButtonTap, .none:
                 break
