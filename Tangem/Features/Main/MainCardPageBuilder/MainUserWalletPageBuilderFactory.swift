@@ -92,7 +92,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
         let tokenRouter = SingleTokenRouter(
-            userWalletModel: model,
+            userWalletInfo: model.userWalletInfo,
             coordinator: coordinator,
             yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         )
@@ -119,7 +119,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 }
 
                 return BannerNotificationManager(
-                    userWallet: model,
+                    userWalletInfo: model.userWalletInfo,
+                    walletModelsManager: model.walletModelsManager,
                     placement: .main
                 )
             }()
