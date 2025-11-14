@@ -49,7 +49,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     private let pendingTransaction: PendingTransaction
     private let currentTokenItem: TokenItem
-    private let userWalletModel: UserWalletModel
+    private let userWalletInfo: UserWalletInfo
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
@@ -66,13 +66,13 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     init(
         pendingTransaction: PendingTransaction,
         currentTokenItem: TokenItem,
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         pendingTransactionsManager: PendingExpressTransactionsManager,
         router: PendingExpressTxStatusRoutable
     ) {
         self.pendingTransaction = pendingTransaction
         self.currentTokenItem = currentTokenItem
-        self.userWalletModel = userWalletModel
+        self.userWalletInfo = userWalletInfo
         self.pendingTransactionsManager = pendingTransactionsManager
         self.router = router
 
@@ -163,7 +163,19 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     private func openCurrency(tokenItem: TokenItem) {
         Analytics.log(.tokenButtonGoToToken)
-        router?.openCurrency(tokenItem: tokenItem, userWalletModel: userWalletModel)
+        assert(tokenItem.blockchainNetwork.derivationPath != nil)
+
+        let feeCurrencyFinderResult = WalletModelFinder()
+            .findWalletModel(userWalletId: userWalletInfo.id, tokenItem: tokenItem)
+
+        guard let feeCurrencyFinderResult else {
+            return
+        }
+
+        router?.openRefundCurrency(
+            walletModel: feeCurrencyFinderResult.walletModel,
+            userWalletModel: feeCurrencyFinderResult.userWalletModel
+        )
     }
 
     private func loadEmptyFiatRates() {
@@ -308,7 +320,9 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         if let refundedTokenItem {
             let input = notificationFactory.buildNotificationInput(
                 for: ExpressNotificationEvent.refunded(tokenItem: refundedTokenItem),
-                buttonAction: weakify(self, forFunction: PendingExpressTxStatusBottomSheetViewModel.didTapNotification(with:action:))
+                buttonAction: { [weak self] id, action in
+                    self?.didTapNotification(with: id, action: action)
+                }
             )
 
             inputs.append(input)
