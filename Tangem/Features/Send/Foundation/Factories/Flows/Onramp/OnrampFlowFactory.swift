@@ -15,6 +15,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let parameters: PredefinedOnrampParameters
     let source: SendCoordinator.Source
 
+    let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
@@ -63,6 +64,11 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         self.parameters = parameters
         self.source = source
 
+        tokenHeaderProvider = SendTokenHeaderProvider(
+            userWalletInfo: userWalletInfo,
+            account: walletModel.account,
+            flowActionType: .onramp
+        )
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(

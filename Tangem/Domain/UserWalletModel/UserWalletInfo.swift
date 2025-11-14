@@ -38,7 +38,7 @@ extension UserWalletInfo: Hashable {
 
 extension UserWalletModel {
     var userWalletInfo: UserWalletInfo {
-        .init(
+        UserWalletInfo(
             name: name,
             id: userWalletId,
             config: config,
