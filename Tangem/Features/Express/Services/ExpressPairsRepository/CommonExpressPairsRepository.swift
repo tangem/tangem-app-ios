@@ -17,25 +17,8 @@ actor CommonExpressPairsRepository {
     private var pairs: Set<ExpressPair> = []
 
     private var userCurrencies: Set<ExpressWalletCurrency> {
-        let walletModels = if FeatureProvider.isAvailable(.accounts) {
-            userWalletRepository.models.compactMap {
-                $0.accountModelsManager.accountModels.standard()
-            }
-            .flatMap { accountModel in
-                switch accountModel {
-                case .standard(.single(let cryptoAccountModel)): [cryptoAccountModel]
-                case .standard(.multiple(let cryptoAccountModels)): cryptoAccountModels
-                }
-            }
-            .flatMap { cryptoAccountModel in
-                cryptoAccountModel.walletModelsManager.walletModels
-            }
-        } else {
-            // accounts_fixes_needed_none
-            userWalletRepository.models.flatMap { userWalletModel in
-                userWalletModel.walletModelsManager.walletModels
-            }
-        }
+        let walletModels = AccountsFeatureAwareWalletModelsResolver
+            .walletModels(for: userWalletRepository.models)
 
         return walletModels.map { $0.tokenItem.expressCurrency }.toSet()
     }
