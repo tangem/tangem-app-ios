@@ -449,13 +449,8 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         return { cryptoAccount in
             let allSupportedBlockchains = cryptoAccount.userWalletModel.config.supportedBlockchains
 
-            let blockchains = networks.compactMap { network in
-                allSupportedBlockchains[network.networkId]
-            }
-
-            let areAccountsUnavailableForAllNetworks = blockchains.allSatisfy { blockchain in
-                let helper = AccountDerivationPathHelper(blockchain: blockchain)
-                return !helper.areAccountsAvailableForBlockchain()
+            let areAccountsUnavailableForAllNetworks = networks.allSatisfy { network in
+                !AccountDerivationPathHelper.supportsAccounts(networkId: network.networkId, in: allSupportedBlockchains)
             }
 
             return cryptoAccount.isMainAccount || !areAccountsUnavailableForAllNetworks
