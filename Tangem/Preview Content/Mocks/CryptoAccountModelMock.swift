@@ -70,11 +70,7 @@ extension CryptoAccountModelMock {
     private struct AccountRateProviderStub: AccountRateProvider {
         var accountRate: AccountRate {
             return .loaded(
-                quote: AccountQuote(
-                    priceChange24h: Decimal(stringValue: "1.23")!,
-                    priceChange7d: Decimal(stringValue: "0.23")!,
-                    priceChange30d: Decimal(stringValue: "-1.23")!
-                )
+                quote: AccountQuote(priceChange24h: Decimal(stringValue: "1.23")!)
             )
         }
 
