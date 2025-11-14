@@ -16,6 +16,7 @@ final class CommonCryptoAccountModel {
     let walletModelsManager: WalletModelsManager
     let userTokensManager: UserTokensManager
     let accountBalanceProvider: AccountBalanceProvider
+    let accountRateProvider: AccountRateProvider
 
     private unowned var _userWalletModel: UserWalletModel!
 
@@ -65,6 +66,7 @@ final class CommonCryptoAccountModel {
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
         accountBalanceProvider: AccountBalanceProvider,
+        accountRateProvider: AccountRateProvider,
         derivationManager: DerivationManager?
     ) {
         let accountId = AccountId(userWalletId: userWalletModel.userWalletId, derivationIndex: derivationIndex)
@@ -77,6 +79,7 @@ final class CommonCryptoAccountModel {
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
         self.accountBalanceProvider = accountBalanceProvider
+        self.accountRateProvider = accountRateProvider
         self.derivationManager = derivationManager
     }
 }
@@ -125,8 +128,7 @@ extension CommonCryptoAccountModel: BalanceProvidingAccountModel {
     }
 
     var rateProvider: AccountRateProvider {
-        // [REDACTED_TODO_COMMENT]
-        fatalError("\(#function) not implemented yet!")
+        accountRateProvider
     }
 }
 
