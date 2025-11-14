@@ -1882,7 +1882,7 @@
 "yield_module_token_details_earn_notification_description" = "Проценты начисляются автоматически.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Проценты начисляются автоматически.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Режим доходности";
-"yield_module_token_details_earn_notification_processing" = "Отправка ваших средств";
+"yield_module_token_details_earn_notification_processing" = "Включение режима доходности";
 "yield_module_token_details_earn_notification_title" = "Режим доходности";
 "yield_module_transfer_mode_automatic" = "Автоматически";
 "yield_module_unable_to_cover_fee_description" = "Внесите немного %1$@ %2$@, чтобы покрыть комиссию сети за транзакции.";
