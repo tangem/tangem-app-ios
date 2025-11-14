@@ -68,8 +68,11 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
     }
 
-    func openTangemPayPin() {
-        tangemPayPinViewModel = TangemPayPinViewModel(coordinator: self)
+    func openTangemPayPin(tangemPayAccount: TangemPayAccount) {
+        tangemPayPinViewModel = TangemPayPinViewModel(
+            tangemPayAccount: tangemPayAccount,
+            coordinator: self
+        )
     }
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input) {
