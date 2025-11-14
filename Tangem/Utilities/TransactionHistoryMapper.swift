@@ -96,6 +96,7 @@ struct TransactionHistoryMapper {
         let dateFormatted = dateTimeFormatter.string(from: date)
 
         return SendDestinationSuggestedTransactionRecord(
+            id: record.hash,
             address: address,
             additionalField: nil, // [REDACTED_TODO_COMMENT]
             isOutgoing: record.isOutgoing,
