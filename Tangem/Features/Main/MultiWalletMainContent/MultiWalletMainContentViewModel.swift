@@ -580,6 +580,7 @@ extension MultiWalletMainContentViewModel {
     }
 
     private func openMobileFinishActivation() {
+        AppLogger.debug("1234: MultiWalletMainContentViewModel.openMobileFinishActivation")
         Analytics.log(.mainButtonFinishNow)
         coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
     }

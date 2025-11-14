@@ -46,6 +46,7 @@ final class OnboardingCoordinator: CoordinatorObject {
     }
 
     func start(with options: OnboardingCoordinator.Options) {
+        AppLogger.debug("1234: OnboardingCoordinator.openMobileBackupOnboarding")
         self.options = options
         switch options {
         case .input(let onboardingInputput):

@@ -41,11 +41,16 @@ final class UserWalletNotificationManager {
         userWalletModel: UserWalletModel,
         rateAppController: RateAppNotificationController
     ) {
+        AppLogger.debug("1234: UserWalletNotificationManager:: init")
         self.userWalletModel = userWalletModel
         self.rateAppController = rateAppController
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletModel.userWalletId)
 
         bind()
+    }
+
+    deinit {
+        AppLogger.debug("1234: UserWalletNotificationManager:: deinit")
     }
 
     private func createNotifications() {
@@ -204,6 +209,7 @@ final class UserWalletNotificationManager {
         let action: NotificationView.NotificationAction = { _ in }
 
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
+            AppLogger.debug("1234: UserWalletNotificationManager: has self: \(self != nil), has delegate = \(self?.delegate != nil)")
             self?.delegate?.didTapNotification(with: id, action: action)
         }
 
