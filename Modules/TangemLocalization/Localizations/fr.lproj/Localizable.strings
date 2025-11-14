@@ -1125,9 +1125,9 @@
 "staking_claim_unstaked" = "Réclamation déstakée";
 "staking_details_account_fee_info" = "Un compte de staking est un compte spécial où sont stockés les jetons SOL stakés. Il est créé lorsque vous déléguez vos jetons à un validateur pour participer à la validation des transactions et gagner des récompenses. Des frais minimes sont facturés pour la création du compte de staking, qui sont restitués une fois le staking terminé.";
 "staking_details_account_fee" = "Frais de staking du compte";
-"staking_details_annual_percentage_rate_info" = "Le pourcentage de rendement annuel que vous pouvez gagner en participant au staking.";
+"staking_details_annual_percentage_rate_info" = "APR : Montre le taux d’intérêt que vous pourriez gagner en un an sans capitalisation. Les intérêts gagnés ne sont pas ajoutés à votre solde, donc vous ne gagnez pas d’intérêts supplémentaires dessus.";
 "staking_details_annual_percentage_rate" = "Pourcentage de rendement annuel";
-"staking_details_annual_percentage_yield_info" = "APY shows the validator’s annual percentage yield based on its performance";
+"staking_details_annual_percentage_yield_info" = "APY : Montre le total des intérêts que vous pourriez gagner en un an avec capitalisation. La capitalisation signifie que les intérêts gagnés sont ajoutés à votre solde, et vous gagnez également des intérêts sur ces intérêts.";
 "staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
@@ -1221,7 +1221,7 @@
 "staking_reward_schedule_month" = "Mois";
 "staking_reward_schedule_week" = "Semaine";
 "staking_rewards" = "Récompenses";
-"staking_solana_details_auto_claiming_rewards_daily_text" = "Rewards on Solana are automatically added to your staking balance and cannot be shown separately.";
+"staking_solana_details_auto_claiming_rewards_daily_text" = "Les récompenses sur Solana sont automatiquement ajoutées à votre solde de staking et ne peuvent pas être affichées séparément.";
 "staking_stake_locked" = "Stake verrouillé";
 "staking_stake_more_button_unavailability_reason" = "Lorsque vous stakez %1$@, la totalité de votre solde %2$@ est stakeée. Tout dépôt supplémentaire de %2$@ sur votre portefeuille Tangem sera également staké automatiquement.";
 "staking_stake_more" = "Staker plus";
@@ -1372,7 +1372,7 @@
 "tangempay_onboarding_purchases_title" = "Pay exactly what you see";
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
 "tangempay_onboarding_security_title" = "Unrivaled privacy";
-"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
+"tangempay_onboarding_title" = "Get your free Tangem Pay Card in minutes";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_title" = "Tangem Pay";

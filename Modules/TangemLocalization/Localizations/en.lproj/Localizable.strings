@@ -1125,9 +1125,9 @@
 "staking_claim_unstaked" = "Claim unstaked";
 "staking_details_account_fee_info" = "A staking account is a special account where staked SOL tokens are stored. It is created when you delegate your tokens to a validator to participate in transaction validation and receive rewards. A small fee is charged for creating the staking account, which is returned after the staking is completed.";
 "staking_details_account_fee" = "Stake account fee";
-"staking_details_annual_percentage_rate_info" = "The annual percentage return you can earn from participating in staking.";
+"staking_details_annual_percentage_rate_info" = "APR: Shows the interest rate you could earn in a year without compounding. Your earned interest is not added to your balance, so your earnings don’t grow on themselves.";
 "staking_details_annual_percentage_rate" = "Annual percentage rate";
-"staking_details_annual_percentage_yield_info" = "APY shows the validator’s annual percentage yield based on its performance";
+"staking_details_annual_percentage_yield_info" = "APY: Shows the total interest you could earn in a year with compounding. Compounding means your earned interest is added to your balance, so you also earn interest on that interest.";
 "staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
@@ -1372,7 +1372,7 @@
 "tangempay_onboarding_purchases_title" = "Pay exactly what you see";
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
 "tangempay_onboarding_security_title" = "Unrivaled privacy";
-"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
+"tangempay_onboarding_title" = "Get your free Tangem Pay Card in minutes";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_title" = "Tangem Pay";

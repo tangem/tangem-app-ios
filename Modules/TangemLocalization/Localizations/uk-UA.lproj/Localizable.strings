@@ -1125,9 +1125,9 @@
 "staking_claim_unstaked" = "Зняти кошти";
 "staking_details_account_fee_info" = "Стейкінг-акаунт — це спеціальний рахунок, на якому зберігаються застейкані SOL токени. Він створюється, коли ви делегуєте свої токени валідатору для участі у перевірці транзакцій та отримання винагород. За створення стейкінг-акаунту стягується невелика комісія, яка повертається після завершення стейкінгу.";
 "staking_details_account_fee" = "Комісія за стейкінг-акаунт";
-"staking_details_annual_percentage_rate_info" = "Річний відсоток, який ви можете отримати, беручи участь у стейкінгу.";
+"staking_details_annual_percentage_rate_info" = "APR: Показує відсоток, який ви можете заробити за рік без урахування складного відсотка. Нараховані відсотки не додаються до вашого балансу, тому на них не нараховуються додаткові відсотки.";
 "staking_details_annual_percentage_rate" = "Процентна ставка";
-"staking_details_annual_percentage_yield_info" = "APY shows the validator’s annual percentage yield based on its performance";
+"staking_details_annual_percentage_yield_info" = "APY: Показує загальний відсоток, який ви можете заробити за рік з урахуванням складного відсотка. Складний відсоток означає, що нараховані відсотки додаються до вашого балансу, і на них також нараховуються відсотки.";
 "staking_details_annual_percentage_yield" = "Annual percentage yield";
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
@@ -1221,7 +1221,7 @@
 "staking_reward_schedule_month" = "Місяць";
 "staking_reward_schedule_week" = "Потижнево";
 "staking_rewards" = "Винагороди";
-"staking_solana_details_auto_claiming_rewards_daily_text" = "Rewards on Solana are automatically added to your staking balance and cannot be shown separately.";
+"staking_solana_details_auto_claiming_rewards_daily_text" = "Нагороди на Solana автоматично додаються до вашого стейкінг-балансу і не можуть відображатися окремо.";
 "staking_stake_locked" = "Стейкінг закрито";
 "staking_stake_more_button_unavailability_reason" = "При стейкінгу %1$@, весь ваш %2$@ Баланс застейкний. Будь-які додаткові %2$@ поповнены на Ваш гаманець Tangem буде також автоматично застейкано.";
 "staking_stake_more" = "Застейкати більше";
@@ -1372,7 +1372,7 @@
 "tangempay_onboarding_purchases_title" = "Pay exactly what you see";
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
 "tangempay_onboarding_security_title" = "Unrivaled privacy";
-"tangempay_onboarding_title" = "Get your free Crypto Card\nin minutes";
+"tangempay_onboarding_title" = "Get your free Tangem Pay Card in minutes";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
