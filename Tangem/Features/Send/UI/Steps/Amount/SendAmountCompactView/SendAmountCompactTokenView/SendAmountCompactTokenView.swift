@@ -32,8 +32,13 @@ struct SendAmountCompactTokenView: View {
 
     private var headerView: some View {
         HStack(alignment: .center, spacing: .zero) {
-            Text(viewModel.title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            switch viewModel.title {
+            case .text(let text):
+                Text(text)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            case .header(let header):
+                SendTokenHeaderView(header: header)
+            }
 
             Spacer()
 
