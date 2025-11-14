@@ -103,7 +103,10 @@ final class ICPWalletManager: BaseManager, WalletManager {
                     paths: signingOutput.readStateTreePaths
                 )
             }
-            .map { blockIndex in TransactionSendResult(hash: String(blockIndex)) }
+            .withWeakCaptureOf(self)
+            .map { manager, blockIndex in
+                TransactionSendResult(hash: String(blockIndex), currentProviderHost: manager.currentHost)
+            }
             .mapAndEraseSendTxError(tx: signingOutput.callEnvelope.hex())
             .handleEvents(receiveOutput: { [weak self] transactionSendResult in
                 guard let self else { return }
