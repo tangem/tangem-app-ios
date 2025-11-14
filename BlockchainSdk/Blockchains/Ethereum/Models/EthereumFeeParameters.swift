@@ -24,6 +24,7 @@ public protocol EthereumFeeParameters where Self: FeeParameters {
 
 public enum EthereumFeeParametersConstants {
     public static var defaultGasLimitIncreasePercent = BigUInt(12)
+    public static var yieldModuleGasLimitIncreasePercent = BigUInt(20)
 }
 
 public extension EthereumFeeParameters {
