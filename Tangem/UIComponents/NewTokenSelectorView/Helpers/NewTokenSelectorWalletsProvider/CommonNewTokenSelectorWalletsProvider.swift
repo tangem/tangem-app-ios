@@ -58,10 +58,6 @@ class CommonNewTokenSelectorWalletsProvider: NewTokenSelectorWalletsProvider {
     }
 
     func mapToNewTokenSelectorAccount(wallet: any UserWalletModel, cryptoAccount: any CryptoAccountModel) -> NewTokenSelectorAccount {
-        let selectorWallet = NewTokenSelectorItem.Wallet(userWalletInfo: wallet.userWalletInfo)
-        let iconViewData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: cryptoAccount)
-        let selectorAccount = NewTokenSelectorItem.Account(name: cryptoAccount.name, icon: iconViewData)
-
         let adapter = TokenSectionsAdapter(
             userTokensManager: cryptoAccount.userTokensManager,
             optionsProviding: OrganizeTokensOptionsManager(userTokensReorderer: cryptoAccount.userTokensManager),
@@ -82,28 +78,28 @@ class CommonNewTokenSelectorWalletsProvider: NewTokenSelectorWalletsProvider {
 
                 return walletModels.map { walletModel in
                     provider.mapToNewTokenSelectorItem(
-                        selectorWallet: selectorWallet, selectorAccount: selectorAccount, walletModel: walletModel
+                        userWalletInfo: wallet.userWalletInfo, cryptoAccount: cryptoAccount, walletModel: walletModel
                     )
                 }
             }
             .eraseToAnyPublisher()
 
-        return NewTokenSelectorAccount(account: selectorAccount, itemsPublisher: itemsPublisher)
+        return NewTokenSelectorAccount(cryptoAccount: cryptoAccount, itemsPublisher: itemsPublisher)
     }
 
     func mapToNewTokenSelectorItem(
-        selectorWallet: NewTokenSelectorItem.Wallet,
-        selectorAccount: NewTokenSelectorItem.Account,
+        userWalletInfo: UserWalletInfo,
+        cryptoAccount: any CryptoAccountModel,
         walletModel: any WalletModel
     ) -> NewTokenSelectorItem {
         NewTokenSelectorItem(
-            wallet: selectorWallet,
-            account: selectorAccount,
+            userWalletInfo: userWalletInfo,
+            account: cryptoAccount,
+            walletModel: walletModel,
             availabilityProvider: availabilityProviderFactory.makeAvailabilityProvider(
-                userWalletInfo: selectorWallet.userWalletInfo,
+                userWalletInfo: userWalletInfo,
                 walletModel: walletModel
             ),
-            walletModel: walletModel
         )
     }
 }

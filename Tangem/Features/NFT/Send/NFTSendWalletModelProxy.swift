@@ -368,7 +368,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
-    var account: any CryptoAccountModel {
+    var account: (any CryptoAccountModel)? {
         mainTokenWalletModel.account
     }
 
