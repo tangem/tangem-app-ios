@@ -14,7 +14,7 @@ final class AccountModelsManagerMock {
     private let walletModelsManager: WalletModelsManager
     private let totalBalanceProvider: any TotalBalanceProvider
     private let userTokensManager: UserTokensManager
-    private let userTokenListManager: UserTokenListManager
+
     private let accountModelsSubject = CurrentValueSubject<[AccountModel], Never>([])
     private let totalAccountsCountSubject = CurrentValueSubject<Int, Never>(0)
     private let hasArchivedCryptoAccountsSubject = CurrentValueSubject<Bool, Never>(false)
@@ -32,12 +32,10 @@ final class AccountModelsManagerMock {
         walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
         totalBalanceProvider: any TotalBalanceProvider = TotalBalanceProviderMock(),
         userTokensManager: UserTokensManager = UserTokensManagerMock(),
-        userTokenListManager: UserTokenListManager = UserTokenListManagerMock()
     ) {
         self.walletModelsManager = walletModelsManager
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensManager = userTokensManager
-        self.userTokenListManager = userTokenListManager
 
         // `defer` is used to trigger the `didSet` observer
         defer {
