@@ -7,6 +7,7 @@
 //
 
 import CryptoKit
+import TangemSdk
 
 public enum RainCryptoUtilities {
     private static let tagLength: Int = 16
@@ -24,9 +25,7 @@ public enum RainCryptoUtilities {
     }
 
     public static func generateSecretKeyAndSessionId(publicKey: String) throws -> (secretKey: String, sessionId: String) {
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-        let secretKey = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+        let secretKey = try CryptoUtils.generateRandomBytes(count: 32).hexString
         let sessionId = try generateSessionId(publicKey: publicKey, secretKey: secretKey)
         return (secretKey: secretKey, sessionId: sessionId)
     }
