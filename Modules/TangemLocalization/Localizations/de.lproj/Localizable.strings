@@ -54,6 +54,8 @@
 "account_unsaved_dialog_message_create" = "Bist Du sicher, dass Du das neue Konto verwerfen willst?";
 "account_unsaved_dialog_message_edit" = "Bist Du sicher, dass Du die Bearbeitungen verwerfen willst?";
 "account_unsaved_dialog_title" = "Nicht gespeicherte Änderungen";
+"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$s” to “%2$s” as their derivation belongs to that account.";
+"accounts_migration_alert_title" = "Some custom tokens were moved";
 "action_buttons_buy_empty_search_message" = "Du kannst Deinen Token nicht finden? Gehe zum Bereich „Markt“ auf der Hauptseite und fügen diesen zum kaufen im Portfolio hinzu.";
 "action_buttons_buy_navigation_bar_title" = "Kaufen";
 "action_buttons_sell_empty_search_message" = "Du kannst Deinen Token nicht finden? Gehe zum Bereich „Markt“ auf der Hauptseite und fügen diesen zum verkaufen im Portfolio hinzu.";
@@ -1123,9 +1125,9 @@
 "staking_claim_unstaked" = "Nicht gestakte beanspruche";
 "staking_details_account_fee_info" = "Ein Staking-Konto ist ein spezielles Konto, auf dem eingesetzte SOL-Token gespeichert werden. Es wird erstellt, indem Sie Ihre Token an einen Validator delegieren, um an der Transaktionsvalidierung teilzunehmen und Belohnungen zu erhalten. Für die Einrichtung des Staking-Kontos wird eine geringe Gebühr erhoben, die nach Abschluss des Stakings zurückerstattet wird.";
 "staking_details_account_fee" = "Gebühr für das Staking-Konto";
-"staking_details_annual_percentage_rate_info" = "Die jährliche prozentuale Rendite, die du durch die Teilnahme am Staking erzielen kannst.";
+"staking_details_annual_percentage_rate_info" = "APR: Zeigt den Zinssatz, den Sie in einem Jahr ohne Zinseszins verdienen könnten. Die verdienten Zinsen werden nicht zu Ihrem Kontostand hinzugefügt, sodass Sie auf diese Zinsen keine zusätzlichen Zinsen erhalten.";
 "staking_details_annual_percentage_rate" = "Jährliche prozentuale Rendite";
-"staking_details_annual_percentage_yield_info" = "APY zeigt den jährlichen prozentualen Ertrag des Validators basierend auf seiner Leistung";
+"staking_details_annual_percentage_yield_info" = "APY: Zeigt die gesamten Zinsen, die Sie in einem Jahr mit Zinseszins verdienen könnten. Zinseszins bedeutet, dass die verdienten Zinsen Ihrem Kontostand hinzugefügt werden, sodass Sie auch auf diese Zinsen Zinsen erhalten.";
 "staking_details_annual_percentage_yield" = "Jährlicher prozentualer Ertrag";
 "staking_details_apr" = "Effektiver Jahreszins";
 "staking_details_apy" = "APY";
@@ -1316,6 +1318,7 @@
 "tangem_pay_status_declined" = "Abgelehnt";
 "tangem_pay_status_pending" = "Ausstehend";
 "tangem_pay_terms_fees_limits" = "Terms, Fees & Limits";
+"tangem_pay_terms_limits" = "Terms and Limits";
 "tangem_pay_transaction_declined_notification_text" = "Die Bank hat diese Transaktionsanfrage abgelehnt.";
 "tangem_pay_transaction_fee_notification_text" = "Diese Gebühr dient zur Deckung der Kosten für die Abwicklung Deiner Überweisung.";
 "tangem_pay_unfreeze_card_alert_body" = "Nutze Dein Geld weiterhin. Du kannst es jederzeit einfrieren.";
@@ -1816,6 +1819,7 @@
 "yield_module_balance_info_sheet_title" = "Deine%@ ist in Aave hinterlegt";
 "yield_module_chart_loading_error" = "Chart konnte nicht geladen werden...";
 "yield_module_deposit_error_notification_title" = "Das Bereitstellen von %1$@ %2$@ bei Aave steht aus.";
+"yield_module_disable_button" = "Deaktiviere den Yield-Modus";
 "yield_module_earn_badge" = "APY %1$@%%";
 "yield_module_earn_sheet_available_title" = "Verfügbar";
 "yield_module_earn_sheet_current_apy_title" = "Aktueller effektiver Jahreszins";
@@ -1843,12 +1847,13 @@
 "yield_module_main_view_approve_notification_title" = "Token-Genehmigung erforderlich";
 "yield_module_network_fee_unreachable_notification_description" = "Prüfe Deine Netzwerkverbindung";
 "yield_module_network_fee_unreachable_notification_title" = "Informationen zu den Netzwerkgebühren nicht erreichbar";
+"yield_module_promo_screen_auto_balance_subtitle_v2" = "Alle %1$@ auf Ihrem Konto werden automatisch an Aave bereitgestellt.";
 "yield_module_promo_screen_auto_balance_subtitle" = "Jede Einzahlung, die Du tätigst, wird automatisch an Aave weitergeleitet.";
 "yield_module_promo_screen_auto_balance_title" = "Automatische Übertragung zu Aave";
 "yield_module_promo_screen_cash_out_subtitle" = "Senden, tauschen oder verkaufen Deine Gelder sofort, wann immer Du willst.";
-"yield_module_promo_screen_cash_out_title" = "Jederzeit Zugriff auf Dein Geld";
+"yield_module_promo_screen_cash_out_title" = "Sofort verfügbar";
 "yield_module_promo_screen_how_it_works_button_title" = "Wie funktioniert das?";
-"yield_module_promo_screen_self_custodial_subtitle" = "Aave ist ein dezentrales Protokoll, das ein Gesamtvermögen von über 61 Milliarden Dollar verwaltet.";
+"yield_module_promo_screen_self_custodial_subtitle" = "Aave ist ein On-Chain-Protokoll zur Erstellung von nicht-kustodialen Liquiditätsmärkten, um Zinsen mit variablem Satz zu verdienen.";
 "yield_module_promo_screen_self_custodial_title" = "Dezentral und selbstverwahrend";
 "yield_module_promo_screen_terms_disclaimer" = "Durch die Nutzung dieses Dienstes erklärst Du Dich mit provider\n%1$@ und %2$@ einverstanden";
 "yield_module_promo_screen_title" = "Mit Aave verbinden";
@@ -1862,6 +1867,7 @@
 "yield_module_receive_sheet_description" = "Wenn Du dein Guthaben auflädst, wird es automatisch an Aave weitergeleitet, um Zinsen zu verdienen. zur Deckung der Transaktionsgebühr wird ein Betrag von %@ abgezogen.";
 "yield_module_start_earning_sheet_description" = "Dein %@ wird an Aave übermittelt, bleibt aber verwaltbar.";
 "yield_module_start_earning_sheet_fee_policy" = "Siehe Gebührenrichtlinie";
+"yield_module_start_earning_sheet_next_deposits_v2" = "Alle Ihre zukünftigen eingehenden %1$@-Einlagen werden automatisch an Aave bereitgestellt.";
 "yield_module_start_earning_sheet_next_deposits" = "Deine nächste Aufladung wird automatisch an Aave weitergeleitet.";
 "yield_module_start_earning" = "Vermögenswerte liefern";
 "yield_module_status_active" = "Aktiv";
