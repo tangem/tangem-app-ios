@@ -52,7 +52,7 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
             }
         }
 
-        guard !transferTransactions.isEmpty else {
+        guard let firstTransaction = transferTransactions.first else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
@@ -77,7 +77,8 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
             }
         } catch {
             AppLogger.error(error: error)
-            throw error.toUniversalError()
+            // [REDACTED_TODO_COMMENT]
+            throw mapper.mapError(error.toUniversalError(), transaction: .transfer(firstTransaction))
         }
     }
 }
