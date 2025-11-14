@@ -25,7 +25,7 @@ final class YieldModulePromoViewModel {
     // MARK: - Properties
 
     private let apy: Decimal
-    var tokenName: String { walletModel.tokenItem.name }
+    var tokenName: String { walletModel.tokenItem.currencySymbol }
     var apyString: String { PercentFormatter().format(apy, option: .interval) }
     private(set) var tosUrl = URL(string: "https://aave.com/terms-of-service")!
     private(set) var privacyPolicyUrl = URL(string: "https://aave.com/privacy-policy")!
