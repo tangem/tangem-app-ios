@@ -23,7 +23,7 @@ protocol SingleTokenBaseRoutable: AnyObject {
     func openPendingExpressTransactionDetails(
         pendingTransaction: PendingTransaction,
         tokenItem: TokenItem,
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
 }
