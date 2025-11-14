@@ -26,18 +26,7 @@ final class AccountsAwareUserTokenListExternalParametersProvider {
 
     private func bind(to accountModelsManager: AccountModelsManager) -> AnyCancellable {
         return accountModelsManager
-            .accountModelsPublisher
-            .map { accountModels -> [any CryptoAccountModel] in
-                return accountModels
-                    .reduce(into: []) { partialResult, accountModel in
-                        switch accountModel {
-                        case .standard(.single(let cryptoAccountModel)):
-                            partialResult.append(cryptoAccountModel)
-                        case .standard(.multiple(let cryptoAccountModels)):
-                            partialResult += cryptoAccountModels
-                        }
-                    }
-            }
+            .cryptoAccountModelsPublisher
             .flatMap { cryptoAccountModels in
                 return cryptoAccountModels
                     .map(\.walletModelsManager.walletModelsPublisher)
