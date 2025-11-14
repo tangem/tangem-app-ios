@@ -25,7 +25,7 @@ extension UnarchivedCryptoAccountConditionsValidator: CryptoAccountConditionsVal
             throw .tooManyAccounts
         }
 
-        guard !remoteState.contains(accountWithName: newAccountName) else {
+        guard CryptoAccountNameUniquenessChecker(remoteState: remoteState).isNameUnique(newAccountName) else {
             // It's a recoverable error in this flow, therefore no logging needed here
             throw .accountHasDuplicatedName
         }

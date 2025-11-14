@@ -29,7 +29,7 @@ extension NewCryptoAccountConditionsValidator: CryptoAccountConditionsValidator 
             throw .accountNameTooLong
         }
 
-        guard !remoteState.contains(accountWithName: newAccountName) else {
+        guard CryptoAccountNameUniquenessChecker(remoteState: remoteState).isNameUnique(newAccountName) else {
             AccountsLogger.warning("Account with the same name already exists")
             throw .duplicateAccountName
         }
