@@ -50,7 +50,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
-    private var priceChangeFormatter = PriceChangeFormatter()
+    private let priceChangeUtility = PriceChangeUtility()
     private var transactionHistoryBag: AnyCancellable?
     private var updateTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
@@ -64,12 +64,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     var priceChangeState: TokenPriceChangeView.State {
-        guard let change = walletModel.quote?.priceChange24h else {
-            return .noData
-        }
-
-        let result = priceChangeFormatter.formatPercentValue(change, option: .priceChange)
-        return .loaded(signType: result.signType, text: result.formattedText)
+        priceChangeUtility.convertToPriceChangeState(changePercent: walletModel.quote?.priceChange24h)
     }
 
     var blockchain: Blockchain { blockchainNetwork.blockchain }
