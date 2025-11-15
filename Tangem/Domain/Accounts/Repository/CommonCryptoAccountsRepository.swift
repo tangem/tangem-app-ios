@@ -381,8 +381,9 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
     var cryptoAccountPublisher: AnyPublisher<StoredCryptoAccount, Never> {
         innerRepository
             .cryptoAccountsPublisher
-            .map { [index = derivationIndex] cryptoAccounts in
-                return Self.cryptoAccount(forDerivationIndex: index, from: cryptoAccounts)
+            // [REDACTED_TODO_COMMENT]
+            .compactMap { [index = derivationIndex] cryptoAccounts in
+                return Self._cryptoAccount(forDerivationIndex: index, from: cryptoAccounts)
             }
             .eraseToAnyPublisher()
     }
@@ -390,7 +391,8 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
     var cryptoAccount: StoredCryptoAccount {
         let cryptoAccounts = innerRepository.persistentStorage.getList()
 
-        return Self.cryptoAccount(forDerivationIndex: derivationIndex, from: cryptoAccounts)
+        // [REDACTED_TODO_COMMENT]
+        return Self._cryptoAccount(forDerivationIndex: derivationIndex, from: cryptoAccounts) ?? cryptoAccounts[0].withTokens([])
     }
 
     func performBatchUpdates(_ batchUpdates: BatchUpdates) rethrows {
@@ -434,6 +436,14 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
         }
 
         return cryptoAccount
+    }
+
+    @available(*, deprecated, message: "Temporary workaround until [REDACTED_INFO] is resolved")
+    private static func _cryptoAccount(
+        forDerivationIndex derivationIndex: Int,
+        from cryptoAccounts: [StoredCryptoAccount],
+    ) -> StoredCryptoAccount? {
+        return cryptoAccounts.first(where: { $0.derivationIndex == derivationIndex })
     }
 }
 

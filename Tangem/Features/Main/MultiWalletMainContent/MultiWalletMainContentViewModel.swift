@@ -82,9 +82,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
     private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
 
+    private var derivator: TokenEntriesDerivator?
+
     private var canManageTokens: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
 
     private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
+
     private var isUpdating = false
 
     private var bag = Set<AnyCancellable>()
@@ -207,13 +210,18 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     func deriveEntriesWithoutDerivation() {
         Analytics.log(.mainNoticeScanYourCardTapped)
-        isScannerBusy = true
-        // accounts_fixes_needed_main
-        userWalletModel.userTokensManager.deriveIfNeeded { [weak self] _ in
-            DispatchQueue.main.async {
+
+        derivator = TokenEntriesDerivator(
+            userWalletModel: userWalletModel,
+            onStart: { [weak self] in
+                self?.isScannerBusy = true
+            },
+            onFinish: { [weak self] in
                 self?.isScannerBusy = false
-            }
-        }
+                self?.derivator = nil
+            },
+        )
+        derivator?.derive()
     }
 
     func startBackupProcess() {
@@ -262,15 +270,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         let plainSectionsPublisher = sectionsProvider.makePlainSectionsPublisher()
         plainSectionsPublisher
-            .eraseToAnyPublisher()
-            .receiveOnMain()
             .assign(to: \.plainSections, on: self, ownership: .weak)
             .store(in: &bag)
 
         let accountSectionsPublisher = sectionsProvider.makeAccountSectionsPublisher()
         accountSectionsPublisher
-            .eraseToAnyPublisher()
-            .receiveOnMain()
             .assign(to: \.accountSections, on: self, ownership: .weak)
             .store(in: &bag)
 
@@ -550,7 +554,6 @@ extension MultiWalletMainContentViewModel {
     private func openSupport() {
         Analytics.log(.requestSupport, params: [.source: .main])
 
-        // accounts_fixes_needed_none
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
                 .init(
@@ -603,9 +606,9 @@ extension MultiWalletMainContentViewModel {
 extension MultiWalletMainContentViewModel: MultiWalletMainContentItemViewModelFactory {
     func makeTokenItemViewModel(
         from sectionItem: TokenSectionsAdapter.SectionItem,
-        using factory: MultiWalletTokenItemsSectionFactory
+        using sectionItemsFactory: MultiWalletSectionItemsFactory
     ) -> TokenItemViewModel {
-        return factory.makeSectionItemViewModel(
+        return sectionItemsFactory.makeSectionItemViewModel(
             from: sectionItem,
             contextActionsProvider: self,
             contextActionsDelegate: self,
