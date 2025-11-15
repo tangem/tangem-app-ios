@@ -36,7 +36,7 @@ protocol AccountModelsManager {
 
 extension AccountModelsManager {
     /// Returns all crypto account models from the `accountModels` property.
-    var cryptoAccounts: [any CryptoAccountModel] {
+    var cryptoAccountModels: [any CryptoAccountModel] {
         return accountModels
             .flatMap { accountModel -> [any CryptoAccountModel] in
                 switch accountModel {
