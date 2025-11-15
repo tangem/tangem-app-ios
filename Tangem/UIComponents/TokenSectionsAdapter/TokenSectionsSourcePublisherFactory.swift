@@ -30,12 +30,6 @@ struct TokenSectionsSourcePublisherFactory {
         ].merge()
     }
 
-    /// Fix [REDACTED_INFO]
-    func makeSourcePublisher(for userWalletModel: UserWalletModel) -> some Publisher<[any WalletModel], Never> {
-        // accounts_fixes_needed_main
-        return walletModelsPublisher(for: userWalletModel.walletModelsManager)
-    }
-
     func makeSourcePublisher(for cryptoAccountModel: any CryptoAccountModel) -> some Publisher<[any WalletModel], Never> {
         return walletModelsPublisher(for: cryptoAccountModel.walletModelsManager)
     }
