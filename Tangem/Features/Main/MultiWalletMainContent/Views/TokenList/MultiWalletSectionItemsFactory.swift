@@ -1,5 +1,5 @@
 //
-//  MultiWalletTokenItemsSectionFactory.swift
+//  MultiWalletSectionItemsFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,7 @@
 import Foundation
 import TangemLocalization
 
-// [REDACTED_TODO_COMMENT]
-struct MultiWalletTokenItemsSectionFactory {
+struct MultiWalletSectionItemsFactory {
     func makeSectionViewModel(
         from sectionType: TokenSectionsAdapter.SectionType, atIndex index: Int
     ) -> MultiWalletMainContentPlainSectionViewModel {
