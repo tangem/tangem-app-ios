@@ -59,10 +59,10 @@ final class AccountsAwareManageTokensContext: ManageTokensContext {
     // MARK: - Private Helpers
 
     private func findAccountForToken(_ tokenItem: TokenItem) -> (any CryptoAccountModel)? {
-        let allAccounts = getCryptoAccounts()
+        let cryptoAccounts = accountModelsManager.cryptoAccountModels
 
         // Try to find a non-main account that can accept this token
-        for account in allAccounts where !account.isMainAccount {
+        for account in cryptoAccounts where !account.isMainAccount {
             do {
                 try account.userTokensManager.addTokenItemPrecondition(tokenItem)
                 return account
@@ -72,17 +72,6 @@ final class AccountsAwareManageTokensContext: ManageTokensContext {
         }
 
         // Fallback to main account
-        return allAccounts.first(where: { $0.isMainAccount })
-    }
-
-    private func getCryptoAccounts() -> [any CryptoAccountModel] {
-        return accountModelsManager.accountModels.flatMap { accountModel -> [any CryptoAccountModel] in
-            switch accountModel {
-            case .standard(.single(let cryptoAccountModel)):
-                return [cryptoAccountModel]
-            case .standard(.multiple(let cryptoAccountModels)):
-                return cryptoAccountModels
-            }
-        }
+        return cryptoAccounts.first(where: { $0.isMainAccount })
     }
 }
