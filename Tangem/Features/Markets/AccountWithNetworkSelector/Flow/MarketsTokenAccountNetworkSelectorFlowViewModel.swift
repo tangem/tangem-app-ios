@@ -140,12 +140,8 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         accountSelectorCell: AccountSelectorCellModel,
         context: NavigationContext
     ) {
-        guard let userWalletModel = findUserWalletModel(for: accountSelectorCell.cryptoAccountModel) else {
-            return
-        }
-
         let networkSelectorViewModel = makeNetworkSelectorViewModel(
-            userWalletModel: userWalletModel,
+            userWalletModel: accountSelectorCell.cryptoAccountModel.userWalletModel,
             cryptoAccount: accountSelectorCell.cryptoAccountModel,
             accountSelectorCell: accountSelectorCell
         )
@@ -415,19 +411,8 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
 // MARK: - Helpers
 
 private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
-    func findUserWalletModel(for cryptoAccount: any CryptoAccountModel) -> UserWalletModel? {
-        MarketsUserWalletFinder.findUserWalletModel(
-            for: cryptoAccount,
-            in: userWalletDataProvider.userWalletModels
-        )
-    }
-
     func isNetworkSelectionAvailable(for cryptoAccount: any CryptoAccountModel) -> Bool {
-        guard let userWalletModel = findUserWalletModel(for: cryptoAccount) else {
-            return false
-        }
-
-        return countAvailableNetworks(userWalletModel: userWalletModel, cryptoAccount: cryptoAccount) > 1
+        return countAvailableNetworks(userWalletModel: cryptoAccount.userWalletModel, cryptoAccount: cryptoAccount) > 1
     }
 
     func countAvailableNetworks(userWalletModel: UserWalletModel, cryptoAccount: any CryptoAccountModel) -> Int {
