@@ -277,9 +277,7 @@ final class UserWalletNotificationManager {
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.createNotifications))
             .store(in: &bag)
 
-        // accounts_fixes_needed_notifications
-        userWalletModel.userTokensManager.derivationManager?
-            .pendingDerivationsCount
+        makePendingDerivationsCountPublisher()?
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.addMissingDerivationWarningIfNeeded(pendingDerivationsCount:)))
@@ -321,6 +319,28 @@ final class UserWalletNotificationManager {
 
     private func recordDeprecationNotificationDismissal() {
         deprecationService.didDismissSystemDeprecationWarning()
+    }
+
+    private func makePendingDerivationsCountPublisher() -> AnyPublisher<Int, Never>? {
+        guard FeatureProvider.isAvailable(.accounts) else {
+            // accounts_fixes_needed_none
+            return userWalletModel
+                .userTokensManager
+                .derivationManager?
+                .pendingDerivationsCount
+        }
+
+        return userWalletModel
+            .accountModelsManager
+            .cryptoAccountModelsPublisher
+            .map { $0.compactMap(\.userTokensManager.derivationManager) }
+            .flatMapLatest { derivationManagers in
+                return derivationManagers
+                    .compactMap(\.pendingDerivationsCount)
+                    .combineLatest()
+                    .map { $0.reduce(0, +) }
+            }
+            .eraseToAnyPublisher()
     }
 
     private func makeSupportSeedNotificationsManager() -> SupportSeedNotificationManager {
