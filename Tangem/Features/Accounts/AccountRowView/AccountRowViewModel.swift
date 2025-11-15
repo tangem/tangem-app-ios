@@ -40,6 +40,7 @@ final class AccountRowViewModel: ObservableObject {
         guard let balancePublisher = balancePublisher else { return }
 
         balancePublisher
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, balanceState in
                 viewModel.balanceState = balanceState == .empty ? nil : balanceState
