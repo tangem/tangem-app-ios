@@ -464,7 +464,6 @@ extension OnboardingViewModel {
             data: [
                 .init(
                     userWalletEmailData: input.cardInput.emailData,
-                    // accounts_fixes_needed_none
                     walletModels: walletModels
                 ),
             ]
@@ -487,7 +486,6 @@ extension OnboardingViewModel {
             data: [
                 .init(
                     userWalletEmailData: input.cardInput.emailData,
-                    // accounts_fixes_needed_none
                     walletModels: walletModels
                 ),
             ]
