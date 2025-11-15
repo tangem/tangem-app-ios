@@ -18,6 +18,7 @@ struct WalletModelFinder {
             return nil
         }
 
+        // accounts_fixes_needed_none
         let walletModels = if FeatureProvider.isAvailable(.accounts) {
             AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
         } else {
