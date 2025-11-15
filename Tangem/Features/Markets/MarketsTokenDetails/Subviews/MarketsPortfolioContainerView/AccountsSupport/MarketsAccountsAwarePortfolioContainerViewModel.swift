@@ -102,7 +102,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         let multiCurrencyWallets = walletDataProvider.userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
 
         for wallet in multiCurrencyWallets {
-            let accounts = wallet.accountModelsManager.cryptoAccounts
+            let accounts = wallet.accountModelsManager.cryptoAccountModels
 
             for account in accounts {
                 let networksToCheck = networksToCheckForAccount(
@@ -203,12 +203,8 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 
         let walletDataPublishers = userWalletModels.map { userWalletModel in
             userWalletModel.accountModelsManager.accountModelsPublisher
-                .withWeakCaptureOf(self)
-                .flatMap { viewModel, accountModels -> AnyPublisher<WalletData, Never> in
-                    let cryptoAccounts = accountModels.compactMap { accountModel -> [any CryptoAccountModel]? in
-                        guard case .standard(let cryptoAccounts) = accountModel else { return nil }
-                        return viewModel.extractAccounts(from: cryptoAccounts)
-                    }.flatMap { $0 }
+                .flatMap { accountModels -> AnyPublisher<WalletData, Never> in
+                    let cryptoAccounts = Self.extractCryptoAccountModels(from: accountModels)
 
                     let walletModelsPublishers = cryptoAccounts.map(\.walletModelsManager.walletModelsPublisher)
                     let userTokensPublishers = cryptoAccounts.map(\.userTokensManager.userTokensPublisher)
@@ -221,7 +217,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
                         combinedUserTokensPublishers
                     )
                     .map { walletModelsArrays, userTokensArrays in
-                        viewModel.makeWalletData(
+                        Self.makeWalletData(
                             from: userWalletModel,
                             accountModels: accountModels,
                             entries: userTokensArrays.flatMap { $0 },
@@ -275,35 +271,29 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 
         for walletData in walletsData {
             var accountsWithTokenItems: [TypeView.AccountWithTokenItemsData] = []
+            let userWalletInfo = makeUserWalletInfo(from: walletData)
 
-            for accountModel in walletData.accountModels {
-                guard case .standard(let cryptoAccounts) = accountModel else { continue }
+            for account in Self.extractCryptoAccountModels(from: walletData.accountModels) {
+                let viewModels = factory.makeViewModels(
+                    coinId: coinId,
+                    walletModels: account.walletModelsManager.walletModels,
+                    entries: walletData.entries,
+                    userWalletInfo: userWalletInfo,
+                    namingStyle: .tokenItemName
+                )
 
-                let accounts = extractAccounts(from: cryptoAccounts)
-                let userWalletInfo = makeUserWalletInfo(from: walletData)
-
-                for account in accounts {
-                    let viewModels = factory.makeViewModels(
-                        coinId: coinId,
-                        walletModels: account.walletModelsManager.walletModels,
-                        entries: walletData.entries,
-                        userWalletInfo: userWalletInfo,
-                        namingStyle: .tokenItemName
+                if viewModels.isNotEmpty {
+                    let accountData = TypeView.AccountData(
+                        id: account.id.toAnyHashable(),
+                        name: account.name,
+                        iconInfo: AccountIconViewBuilder.makeAccountIconViewData(accountModel: account)
                     )
 
-                    if viewModels.isNotEmpty {
-                        let accountData = TypeView.AccountData(
-                            id: account.id.toAnyHashable(),
-                            name: account.name,
-                            iconInfo: AccountIconViewBuilder.makeAccountIconViewData(accountModel: account)
-                        )
+                    accountsWithTokenItems.append(
+                        .init(accountData: accountData, tokenItems: viewModels)
+                    )
 
-                        accountsWithTokenItems.append(
-                            .init(accountData: accountData, tokenItems: viewModels)
-                        )
-
-                        allTokenItemViewModels.append(contentsOf: viewModels)
-                    }
+                    allTokenItemViewModels.append(contentsOf: viewModels)
                 }
             }
 
@@ -363,18 +353,20 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 
     // MARK: - Helper Methods
 
-    /// Extracts all accounts from CryptoAccounts enum (handles both .single and .multiple cases)
-    private func extractAccounts(from cryptoAccounts: CryptoAccounts) -> [any CryptoAccountModel] {
-        switch cryptoAccounts {
-        case .single(let account):
-            return [account]
-        case .multiple(let accounts):
-            return accounts
-        }
+    private static func extractCryptoAccountModels(from accountModels: [AccountModel]) -> [any CryptoAccountModel] {
+        return accountModels
+            .cryptoAccounts()
+            .reduce(into: []) { result, cryptoAccount in
+                switch cryptoAccount {
+                case .single(let cryptoAccountModel):
+                    result.append(cryptoAccountModel)
+                case .multiple(let cryptoAccountModels):
+                    result.append(contentsOf: cryptoAccountModels)
+                }
+            }
     }
 
-    /// Creates WalletData from UserWalletModel and components
-    private func makeWalletData(
+    private static func makeWalletData(
         from userWalletModel: UserWalletModel,
         accountModels: [AccountModel],
         entries: [TokenItem],
@@ -390,12 +382,10 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         )
     }
 
-    /// Creates UserWalletInfo from WalletData
     private func makeUserWalletInfo(from walletData: WalletData) -> MarketsPortfolioTokenItemFactory.UserWalletInfo {
         .init(userWalletName: walletData.userWalletName, userWalletId: walletData.userWalletId)
     }
 
-    /// Creates analytics parameters for wallet model actions
     private func makeAnalyticsParams(for walletModel: any WalletModel) -> [Analytics.ParameterKey: String] {
         [
             .source: Analytics.ParameterValue.market.rawValue,
@@ -404,7 +394,6 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         ]
     }
 
-    /// Determines target type view state based on tokens and support state
     private func determineTypeViewState(
         hasTokens: Bool,
         listStyle: TypeView.ListStyle,
@@ -424,7 +413,6 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         }
     }
 
-    /// Updates typeView based on current state
     private func updateTypeView(hasTokens: Bool, listStyle: TypeView.ListStyle, animated: Bool) {
         if let networks = networks {
             let supportedState = supportedState(networks: networks)
