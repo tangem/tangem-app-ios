@@ -200,7 +200,6 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleBuyUpdatedState() {
-        // accounts_fixes_needed_action_buttons
         buyActionButtonViewModel.updateState(
             to: latestWalletModelsCount == 0 ? .disabled : .idle
         )
