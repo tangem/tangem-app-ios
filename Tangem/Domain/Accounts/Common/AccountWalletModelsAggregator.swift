@@ -31,9 +31,7 @@ enum AccountWalletModelsAggregator {
                             .walletModelsPublisher
                     }
                     .combineLatest()
-                    .map { walletModels in
-                        walletModels.flatMap { $0 }
-                    }
+                    .map { $0.flattened() }
                     .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()

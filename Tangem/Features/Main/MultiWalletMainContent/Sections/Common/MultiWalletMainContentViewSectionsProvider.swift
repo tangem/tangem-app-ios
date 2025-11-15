@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 
-// [REDACTED_TODO_COMMENT]
 protocol MultiWalletMainContentViewSectionsProvider {
     associatedtype PlainSectionsPublisher: Publisher<[MultiWalletMainContentPlainSection], Never>
     associatedtype AccountsSectionsPublisher: Publisher<[MultiWalletMainContentAccountSection], Never>
