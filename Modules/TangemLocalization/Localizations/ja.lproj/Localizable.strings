@@ -1873,7 +1873,7 @@
 "yield_module_status_active" = "アクティブ";
 "yield_module_status_paused" = "停止中";
 "yield_module_stop_earning_sheet_description" = "これをオフにすると、Aaveから資産が引き出され、ウォレット内の%@に変換され、利回りの発生が停止します。";
-"yield_module_stop_earning_sheet_fee_note" = "出金金額からネットワーク手数料が差し引かれます。";
+"yield_module_stop_earning_sheet_fee_note" = "ネットワーク手数料とは、ブロックチェーン上で取引を処理して承認するためにユーザーが支払う料金のことです。";
 "yield_module_stop_earning_sheet_title" = "利回りモードを無効にする";
 "yield_module_stop_earning" = "利回りモードを解除中";
 "yield_module_supply_apr" = "供給APY";
