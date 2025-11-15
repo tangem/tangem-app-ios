@@ -13,28 +13,35 @@ import TangemAccounts
 
 struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
     @ObservedObject var viewModel: ExpandableAccountItemViewModel
+
     let expandedView: () -> ExpandedView
 
     var body: some View {
         ExpandableItemView(
             collapsedView: {
-                AccountItemView(viewModel: viewModel.accountItemViewModel)
+                CollapsedAccountItemHeaderView(
+                    name: viewModel.name,
+                    iconData: viewModel.iconData,
+                    tokensCount: viewModel.tokensCount,
+                    totalFiatBalance: viewModel.totalFiatBalance,
+                    priceChange: viewModel.priceChange
+                )
             },
-            expandedView: expandedView,
-            expandedViewHeader: {
-                HStack(spacing: 6) {
-                    AccountIconView(data: viewModel.accountItemViewModel.iconData)
-                        .settings(.smallSized)
-
-                    Text(viewModel.accountItemViewModel.name)
-                        .style(Fonts.BoldStatic.caption1, color: Colors.Text.primary1)
-
-                    Spacer()
-
-                    Assets.Accounts.minimize.image
+            expandedView: {
+                if viewModel.isEmptyContent {
+                    EmptyContentAccountItemView()
+                } else {
+                    expandedView()
                 }
+            },
+            expandedViewHeader: {
+                ExpandedAccountItemHeaderView(
+                    name: viewModel.name,
+                    iconData: viewModel.iconData,
+                )
             }
         )
+        .onAppear(perform: viewModel.onViewAppear)
     }
 }
 
@@ -53,11 +60,8 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
             ScrollView {
                 ExpandableAccountItemView(
                     viewModel: ExpandableAccountItemViewModel(
-                        accountItemViewModel:
-                        AccountItemViewModel(
-                            accountModel: CryptoAccountModelMock(
-                                isMainAccount: false
-                            )
+                        accountModel: CryptoAccountModelMock(
+                            isMainAccount: false
                         )
                     ),
                     expandedView: {
