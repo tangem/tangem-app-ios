@@ -8,4 +8,4 @@
 
 import Foundation
 
-typealias MultiWalletMainContentAccountSection = SectionModel<AccountItemViewModel, MultiWalletMainContentPlainSection>
+typealias MultiWalletMainContentAccountSection = SectionModel<ExpandableAccountItemViewModel, MultiWalletMainContentPlainSection>
