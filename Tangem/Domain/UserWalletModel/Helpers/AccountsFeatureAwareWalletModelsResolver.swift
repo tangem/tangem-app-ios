@@ -17,4 +17,8 @@ enum AccountsFeatureAwareWalletModelsResolver {
             userWalletModel.walletModelsManager.walletModels
         }
     }
+
+    static func walletModels(for userWalletModels: [any UserWalletModel]) -> [any WalletModel] {
+        userWalletModels.flatMap(walletModels(for:))
+    }
 }
