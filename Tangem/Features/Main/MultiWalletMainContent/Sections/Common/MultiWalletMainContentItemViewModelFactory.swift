@@ -8,10 +8,9 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
 protocol MultiWalletMainContentItemViewModelFactory: AnyObject {
     func makeTokenItemViewModel(
         from sectionItem: TokenSectionsAdapter.SectionItem,
-        using factory: MultiWalletTokenItemsSectionFactory
+        using sectionItemsFactory: MultiWalletSectionItemsFactory
     ) -> TokenItemViewModel
 }

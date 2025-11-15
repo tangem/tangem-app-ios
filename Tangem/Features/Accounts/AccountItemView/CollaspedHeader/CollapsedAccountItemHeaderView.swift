@@ -1,5 +1,5 @@
 //
-//  AccountItemView.swift
+//  CollapsedAccountItemHeaderView.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,16 +12,20 @@ import TangemUI
 import TangemUIUtils
 import TangemAccounts
 
-struct AccountItemView: View {
-    @ObservedObject var viewModel: AccountItemViewModel
+struct CollapsedAccountItemHeaderView: View {
+    let name: String
+    let iconData: AccountIconView.ViewData
+    let tokensCount: String
+    let totalFiatBalance: LoadableTokenBalanceView.State
+    let priceChange: TokenPriceChangeView.State
 
     var body: some View {
         TwoLineRowWithIcon(
             icon: {
-                AccountIconView(data: viewModel.iconData)
+                AccountIconView(data: iconData)
             },
             primaryLeadingView: {
-                Text(viewModel.name)
+                Text(name)
                     .style(
                         Fonts.Bold.subheadline,
                         color: Colors.Text.primary1
@@ -29,13 +33,13 @@ struct AccountItemView: View {
             },
             primaryTrailingView: {
                 LoadableTokenBalanceView(
-                    state: viewModel.balanceFiatState,
+                    state: totalFiatBalance,
                     style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
                     loader: .init(size: .init(width: 40, height: 12))
                 )
             },
             secondaryLeadingView: {
-                Text(viewModel.tokensCount)
+                Text(tokensCount)
                     .style(
                         Fonts.Bold.caption1,
                         color: Colors.Text.tertiary
@@ -43,11 +47,12 @@ struct AccountItemView: View {
             },
             secondaryTrailingView: {
                 TokenPriceChangeView(
-                    state: viewModel.priceChangeState,
+                    state: priceChange,
                     showSkeletonWhenLoading: true
                 )
             }
         )
+        .padding(14.0)
     }
 }
 
@@ -56,12 +61,12 @@ struct AccountItemView: View {
     ZStack {
         Color.gray
 
-        AccountItemView(
-            viewModel: AccountItemViewModel(
-                accountModel: CryptoAccountModelMock(
-                    isMainAccount: false
-                )
-            )
+        CollapsedAccountItemHeaderView(
+            name: "Test",
+            iconData: .init(backgroundColor: .red, nameMode: .letter("A")),
+            tokensCount: "5 Tokens",
+            totalFiatBalance: .loaded(text: "$1234.56"),
+            priceChange: .loaded(signType: .positive, text: "+5.67%")
         )
     }
 }
