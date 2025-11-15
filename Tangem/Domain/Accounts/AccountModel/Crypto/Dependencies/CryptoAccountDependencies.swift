@@ -14,13 +14,25 @@ struct CryptoAccountDependencies {
     let walletModelsFactoryInput: AccountsAwareWalletModelsFactoryInput
     let derivationManager: DerivationManager?
 
-    var accountBalanceProvider: AccountBalanceProvider {
-        let totalBalanceProvider = AccountTotalBalanceProvider(
+    func makeBalanceProvidingDependencies() -> (
+        balanceProvider: AccountBalanceProvider,
+        ratesProvider: AccountRateProvider
+    ) {
+        let totalBalanceProvider = WalletModelsTotalBalanceProvider(
             walletModelsManager: walletModelsManager,
             analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger(),
             derivationManager: userTokensManager.derivationManager
         )
 
-        return CommonAccountBalanceProvider(totalBalanceProvider: totalBalanceProvider)
+        let commonBalanceProvider = CommonAccountBalanceProvider(
+            totalBalanceProvider: totalBalanceProvider
+        )
+
+        let commonRatesProvider = CommonAccountRateProvider(
+            walletModelsManager: walletModelsManager,
+            totalBalanceProvider: totalBalanceProvider
+        )
+
+        return (commonBalanceProvider, commonRatesProvider)
     }
 }
