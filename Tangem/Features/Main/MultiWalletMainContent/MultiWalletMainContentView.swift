@@ -53,7 +53,7 @@ struct MultiWalletMainContentView: View {
                 TangemPayAccountView(viewModel: viewModel)
             }
 
-            tokensContent
+            listContent
                 .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
@@ -77,44 +77,50 @@ struct MultiWalletMainContentView: View {
     }
 
     @ViewBuilder
-    private var tokensContent: some View {
+    private var listContent: some View {
         if viewModel.isLoadingTokenList {
             TokenListLoadingPlaceholderView()
                 .cornerRadiusContinuous(Constants.cornerRadius)
-        } else if viewModel.plainSections.isEmpty {
+        } else if viewModel.plainSections.isEmpty, viewModel.accountSections.isEmpty {
             emptyList
                 .cornerRadiusContinuous(Constants.cornerRadius)
         } else {
-            // Don't apply `.cornerRadiusContinuous` modifier to this view on iOS 16.0 and above,
-            // this will cause clipping of iOS context menu previews in `TokenItemView` view
-            if #available(iOS 16.0, *) {
-                tokensList
-            } else {
-                tokensList
-                    .cornerRadiusContinuous(Constants.cornerRadius)
+            VStack(spacing: 0.0) {
+                accountsList
+
+                makeTokensList(sections: viewModel.plainSections)
+                    .modifyView { view in
+                        // Don't apply `.cornerRadiusContinuous` modifier to this view on iOS 16.0 and above,
+                        // this will cause clipping of iOS context menu previews in `TokenItemView` view
+                        if #available(iOS 16.0, *) {
+                            view
+                        } else {
+                            view.cornerRadiusContinuous(Constants.cornerRadius)
+                        }
+                    }
+            }
+        }
+    }
+
+    private var accountsList: some View {
+        LazyVStack(spacing: 8.0) {
+            ForEach(viewModel.accountSections) { accountSection in
+                ExpandableAccountItemView(viewModel: accountSection.model) {
+                    makeTokensList(sections: accountSection.items)
+                }
+                .background(Colors.Background.primary.cornerRadiusContinuous(Constants.cornerRadius))
             }
         }
     }
 
     private var emptyList: some View {
-        VStack(spacing: 16) {
-            Assets.emptyTokenList.image
-                .foregroundColor(Colors.Icon.inactive)
-
-            Text(Localization.mainEmptyTokensListMessage)
-                .multilineTextAlignment(.center)
-                .style(
-                    Fonts.Regular.caption1,
-                    color: Colors.Text.tertiary
-                )
-        }
-        .padding(.top, 96)
-        .padding(.horizontal, 48)
+        MultiWalletTokenItemsEmptyView()
+            .padding(.top, 96)
     }
 
-    private var tokensList: some View {
+    private func makeTokensList(sections: [MultiWalletMainContentPlainSection]) -> some View {
         LazyVStack(spacing: 0) {
-            ForEach(indexed: viewModel.plainSections.indexed()) { sectionIndex, section in
+            ForEach(indexed: sections.indexed()) { sectionIndex, section in
                 let cornerRadius = Constants.cornerRadius
                 let hasTitle = section.model.title != nil
 
@@ -130,7 +136,7 @@ struct MultiWalletMainContentView: View {
                 ForEach(indexed: section.items.indexed()) { itemIndex, item in
                     if #available(iOS 16.0, *) {
                         let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
-                        let isLastItem = sectionIndex == viewModel.plainSections.count - 1 && itemIndex == section.items.count - 1
+                        let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
 
                         if isFirstItem {
                             let isSingleItem = section.items.count == 1
