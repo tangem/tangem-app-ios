@@ -110,9 +110,9 @@ final class YieldModuleActiveViewModel: ObservableObject {
     }
 
     func makeMyFundsSectionText() -> AttributedString {
-        let tokenName = walletModel.tokenItem.currencySymbol
         let symbol = walletModel.tokenItem.currencySymbol
-        let fullString = Localization.yieldModuleEarnSheetProviderDescription(tokenName, symbol) + " " + Localization.commonReadMore
+        let prefixedSymbol = "a\(walletModel.tokenItem.currencySymbol)"
+        let fullString = Localization.yieldModuleEarnSheetProviderDescription(symbol, prefixedSymbol) + " " + Localization.commonReadMore
 
         var attr = AttributedString(fullString)
         attr.font = Fonts.Regular.caption1
