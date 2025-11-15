@@ -585,8 +585,8 @@ extension CommonWalletModel: WalletModelHelpers {
             blockaidApiService: BlockaidFactory().makeBlockaidAPIService(),
             yieldModuleStateRepository: yieldModuleStateRepository,
             pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher,
-            scheduleWalletUpdate: { [weak self] in
-                self?.startUpdatingTimer()
+            updateWallet: { [weak self] in
+                self?.generalUpdate(silent: false)
             }
         )
     }
