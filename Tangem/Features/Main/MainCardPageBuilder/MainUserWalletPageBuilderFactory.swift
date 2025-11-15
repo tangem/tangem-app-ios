@@ -98,16 +98,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         )
 
         if isMultiWalletPage {
-            // accounts_fixes_needed_main
-            let optionsManager = OrganizeTokensOptionsManager(
-                userTokensReorderer: model.userTokensManager
-            )
-            // accounts_fixes_needed_main
-            let tokenSectionsAdapter = TokenSectionsAdapter(
-                userTokensManager: model.userTokensManager,
-                optionsProviding: optionsManager,
-                preservesLastSortedOrderOnSwitchToDragAndDrop: false
-            )
             let multiWalletNotificationManager = MultiWalletNotificationManager(
                 userWalletId: model.userWalletId,
                 totalBalanceProvider: model
@@ -118,6 +108,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                     return nil
                 }
 
+                // accounts_fixes_needed_notifications
                 return BannerNotificationManager(
                     userWalletInfo: model.userWalletInfo,
                     walletModelsManager: model.walletModelsManager,
@@ -125,15 +116,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             }()
 
-            let sectionsProvider: any MultiWalletMainContentViewSectionsProvider = if FeatureProvider.isAvailable(.accounts) {
-                AccountsAwareMultiWalletMainContentViewSectionsProvider(userWalletModel: model)
-            } else {
-                LegacyMultiWalletMainContentViewSectionsProvider(
-                    userWalletModel: model,
-                    optionsEditing: optionsManager,
-                    tokenSectionsAdapter: tokenSectionsAdapter
-                )
-            }
+            let sectionsProvider = makeMultiWalletMainContentViewSectionsProvider(userWalletModel: model)
 
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
@@ -149,6 +132,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             viewModel.delegate = multiWalletContentDelegate
             userWalletNotificationManager.setupManager(with: viewModel)
             bannerNotificationManager?.setupManager(with: viewModel)
+
             return .multiWallet(
                 id: id,
                 headerModel: headerModel,
@@ -250,6 +234,32 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             id: visaUserWalletModel.userWalletId,
             headerModel: headerModel,
             bodyModel: viewModel
+        )
+    }
+
+    private func makeMultiWalletMainContentViewSectionsProvider(
+        userWalletModel: UserWalletModel
+    ) -> any MultiWalletMainContentViewSectionsProvider {
+        if FeatureProvider.isAvailable(.accounts) {
+            return AccountsAwareMultiWalletMainContentViewSectionsProvider(userWalletModel: userWalletModel)
+        }
+
+        // accounts_fixes_needed_none
+        let optionsManager = OrganizeTokensOptionsManager(
+            userTokensReorderer: userWalletModel.userTokensManager
+        )
+
+        // accounts_fixes_needed_none
+        let tokenSectionsAdapter = TokenSectionsAdapter(
+            userTokensManager: userWalletModel.userTokensManager,
+            optionsProviding: optionsManager,
+            preservesLastSortedOrderOnSwitchToDragAndDrop: false
+        )
+
+        return LegacyMultiWalletMainContentViewSectionsProvider(
+            userWalletModel: userWalletModel,
+            optionsEditing: optionsManager,
+            tokenSectionsAdapter: tokenSectionsAdapter
         )
     }
 }
