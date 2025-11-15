@@ -8,8 +8,10 @@
 
 import Foundation
 import Combine
+import CombineExt
 
-final class LegacyMultiWalletMainContentViewSectionsProvider: MultiWalletMainContentViewSectionsProvider {
+// [REDACTED_TODO_COMMENT]
+final class LegacyMultiWalletMainContentViewSectionsProvider {
     private let userWalletModel: UserWalletModel
     private let optionsEditing: OrganizeTokensOptionsEditing
     private let tokenSectionsAdapter: TokenSectionsAdapter
@@ -35,41 +37,6 @@ final class LegacyMultiWalletMainContentViewSectionsProvider: MultiWalletMainCon
         self.optionsEditing = optionsEditing
     }
 
-    func makePlainSectionsPublisher() -> some Publisher<[MultiWalletMainContentPlainSection], Never> {
-        // [REDACTED_TODO_COMMENT]
-        let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-
-        // from wms and balance, one per acc
-        let tokenSectionsSourcePublisher = sourcePublisherFactory
-            .makeSourcePublisherForMainScreen(for: userWalletModel)
-
-        // from tokenSectionsSourcePublisher and userTokensManager, one per acc
-        let organizedTokensSectionsPublisher = tokenSectionsAdapter
-            .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
-            .share(replay: 1)
-
-        // sections with cache, one per acc
-        let sectionsPublisher = organizedTokensSectionsPublisher
-            .withWeakCaptureOf(self)
-            .map { viewModel, sections in
-                return viewModel.convertToSections(sections)
-            }
-            .receiveOnMain()
-            .share(replay: 1)
-
-        subscribeToOrganizedTokensSectionsPublisher(with: organizedTokensSectionsPublisher)
-
-        return sectionsPublisher
-    }
-
-    func makeAccountSectionsPublisher() -> some Publisher<[MultiWalletMainContentAccountSection], Never> {
-        return AnyPublisher.empty
-    }
-
-    func setup(with itemViewModelFactory: MultiWalletMainContentItemViewModelFactory) {
-        self.itemViewModelFactory = itemViewModelFactory
-    }
-
     private func convertToSections(
         _ sections: [TokenSectionsAdapter.Section]
     ) -> [MultiWalletMainContentPlainSection] {
@@ -81,7 +48,7 @@ final class LegacyMultiWalletMainContentViewSectionsProvider: MultiWalletMainCon
             return []
         }
 
-        let sectionItemsFactory = MultiWalletTokenItemsSectionFactory()
+        let sectionItemsFactory = MultiWalletSectionItemsFactory()
 
         return sections.enumerated().map { index, section in
             let sectionViewModel = sectionItemsFactory.makeSectionViewModel(from: section.model, atIndex: index)
@@ -114,14 +81,14 @@ final class LegacyMultiWalletMainContentViewSectionsProvider: MultiWalletMainCon
         cachedTokenItemViewModels = cachedTokenItemViewModels.filter { cacheKeys.contains($0.key) }
     }
 
-    private func subscribeToOrganizedTokensSectionsPublisher(with publisher: some Publisher<[TokenSectionsAdapter.Section], Never>) {
+    private func subscribeToOrganizedTokensSectionsPublisher(_ publisher: some Publisher<[TokenSectionsAdapter.Section], Never>) {
         // Clearing previous subscriptions, shouldn't happen but just in case
         bag.removeAll()
 
         publisher
             .withWeakCaptureOf(self)
-            .sink { viewModel, sections in
-                viewModel.removeOldCachedTokenViewModels(sections)
+            .sink { provider, sections in
+                provider.removeOldCachedTokenViewModels(sections)
             }
             .store(in: &bag)
 
@@ -135,6 +102,42 @@ final class LegacyMultiWalletMainContentViewSectionsProvider: MultiWalletMainCon
             }
             .sink()
             .store(in: &bag)
+    }
+}
+
+// MARK: - MultiWalletMainContentViewSectionsProvider protocol conformance
+
+extension LegacyMultiWalletMainContentViewSectionsProvider: MultiWalletMainContentViewSectionsProvider {
+    func makePlainSectionsPublisher() -> some Publisher<[MultiWalletMainContentPlainSection], Never> {
+        let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
+
+        let tokenSectionsSourcePublisher = sourcePublisherFactory
+            .makeSourcePublisherForMainScreen(for: userWalletModel)
+
+        let organizedTokensSectionsPublisher = tokenSectionsAdapter
+            .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
+            .share(replay: 1)
+
+        let sectionsPublisher = organizedTokensSectionsPublisher
+            .withWeakCaptureOf(self)
+            .map { provider, sections in
+                return provider.convertToSections(sections)
+            }
+            .receiveOnMain()
+            .share(replay: 1)
+
+        subscribeToOrganizedTokensSectionsPublisher(organizedTokensSectionsPublisher)
+
+        return sectionsPublisher
+    }
+
+    func makeAccountSectionsPublisher() -> some Publisher<[MultiWalletMainContentAccountSection], Never> {
+        // This section provider doesn't provide account sections
+        return AnyPublisher.empty
+    }
+
+    func setup(with itemViewModelFactory: MultiWalletMainContentItemViewModelFactory) {
+        self.itemViewModelFactory = itemViewModelFactory
     }
 }
 
