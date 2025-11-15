@@ -53,7 +53,7 @@ extension ReceiveNotificationEvent: NotificationEvent {
         case .unsupportedTokenWarning(_, let description, _):
             return description
         case .yieldModuleNotification(let symbol, _):
-            return Localization.yieldModuleEarnSheetProviderDescription(symbol, symbol)
+            return Localization.yieldModuleEarnSheetProviderDescription(symbol, "a\(symbol)")
         }
     }
 
