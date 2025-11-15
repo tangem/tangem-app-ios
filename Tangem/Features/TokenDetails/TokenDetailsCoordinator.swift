@@ -61,7 +61,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
             yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         )
 
-        // accounts_fixes_needed_token_details
+        // accounts_fixes_needed_express
         let expressFactory = ExpressPendingTransactionsFactory(
             userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
@@ -126,8 +126,8 @@ extension TokenDetailsCoordinator {
         ) {
             userWalletInfo = userWalletModel.userWalletInfo
             keysDerivingInteractor = userWalletModel.keysDerivingInteractor
-            walletModelsManager = userWalletModel.walletModelsManager
-            userTokensManager = userWalletModel.userTokensManager
+            walletModelsManager = userWalletModel.walletModelsManager // accounts_fixes_needed_none
+            userTokensManager = userWalletModel.userTokensManager // accounts_fixes_needed_none
             self.walletModel = walletModel
             self.pendingTransactionDetails = pendingTransactionDetails
         }
