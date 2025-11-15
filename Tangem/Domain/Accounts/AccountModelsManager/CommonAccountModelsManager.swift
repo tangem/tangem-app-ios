@@ -119,6 +119,8 @@ actor CommonAccountModelsManager {
                 userWalletModel: userWalletModel
             )
 
+            let balanceProvidingDependencies = dependencies.makeBalanceProvidingDependencies()
+
             let cryptoAccount = CommonCryptoAccountModel(
                 accountName: storedCryptoAccount.name,
                 accountIcon: accountIcon,
@@ -126,7 +128,8 @@ actor CommonAccountModelsManager {
                 userWalletModel: userWalletModel,
                 walletModelsManager: dependencies.walletModelsManager,
                 userTokensManager: dependencies.userTokensManager,
-                accountBalanceProvider: dependencies.accountBalanceProvider,
+                accountBalanceProvider: balanceProvidingDependencies.balanceProvider,
+                accountRateProvider: balanceProvidingDependencies.ratesProvider,
                 derivationManager: dependencies.derivationManager
             )
 
