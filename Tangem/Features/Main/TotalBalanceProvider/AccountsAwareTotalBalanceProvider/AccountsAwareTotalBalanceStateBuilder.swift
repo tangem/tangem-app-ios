@@ -1,5 +1,5 @@
 //
-//  CombineTotalBalanceStateBuilder.swift
+//  AccountsAwareTotalBalanceStateBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct CombineTotalBalanceStateBuilder {
+struct AccountsAwareTotalBalanceStateBuilder {
     func mapToTotalBalanceState(states: [TotalBalanceState]) -> TotalBalanceState {
         if states.isEmpty {
             return .loaded(balance: 0)
@@ -41,7 +41,7 @@ struct CombineTotalBalanceStateBuilder {
 
 // MARK: - Private
 
-private extension CombineTotalBalanceStateBuilder {
+private extension AccountsAwareTotalBalanceStateBuilder {
     func cachedBalance(states: [TotalBalanceState]) -> Decimal? {
         let cachedBalances = states.compactMap { balanceType -> Decimal? in
             switch balanceType {

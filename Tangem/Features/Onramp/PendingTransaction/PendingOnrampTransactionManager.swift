@@ -91,10 +91,6 @@ class CommonPendingOnrampTransactionsManager {
             .map { manager, txRecords in
                 manager.filterRelatedTokenTransactions(list: txRecords)
             }
-            .map { txRecords in
-                // Start polling for not terminated transactions
-                txRecords.filter { !$0.transactionStatus.isTerminated(branch: .onramp) }
-            }
             .removeDuplicates()
             .map { transactions in
                 let factory = PendingOnrampTransactionFactory()
