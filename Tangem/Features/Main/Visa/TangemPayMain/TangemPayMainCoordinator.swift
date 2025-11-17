@@ -11,7 +11,7 @@ import Combine
 import TangemFoundation
 
 class TangemPayMainCoordinator: CoordinatorObject {
-    let dismissAction: ExpressCoordinator.DismissAction
+    let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
@@ -31,7 +31,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
 
     required init(
-        dismissAction: @escaping ExpressCoordinator.DismissAction,
+        dismissAction: @escaping Action<DismissOptions?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
@@ -56,6 +56,8 @@ extension TangemPayMainCoordinator {
         let tangemPayAccount: TangemPayAccount
         let cardNumberEnd: String
     }
+
+    typealias DismissOptions = FeeCurrencyNavigatingDismissOption
 }
 
 // MARK: - TangemPayMainRoutable
@@ -158,13 +160,8 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
 
     func addFundsSheetRequestSwap(input: ExpressDependenciesDestinationInput) {
         let dismissAction: ExpressCoordinator.DismissAction = { [weak self] options in
-            switch options {
-            case .openFeeCurrency(let userWalletId, let feeTokenItem):
-                self?.expressCoordinator = nil
-                self?.dismiss(with: .openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem))
-            case .none:
-                self?.expressCoordinator = nil
-            }
+            self?.expressCoordinator = nil
+            self?.dismiss(with: options)
         }
 
         let factory = CommonExpressModulesFactory(input: input)

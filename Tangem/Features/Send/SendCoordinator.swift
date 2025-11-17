@@ -17,11 +17,6 @@ import TangemUIUtils
 import TangemFoundation
 
 final class SendCoordinator: CoordinatorObject {
-    enum DismissOptions {
-        case openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem)
-        case closeButtonTap
-    }
-
     let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -106,6 +101,11 @@ extension SendCoordinator {
             }
         }
     }
+
+    enum DismissOptions {
+        case openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption)
+        case closeButtonTap
+    }
 }
 
 // MARK: - SendDestinationRoutable
@@ -154,8 +154,8 @@ extension SendCoordinator: SendRoutable {
         AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
     }
 
-    func openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem) {
-        dismiss(with: .openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem))
+    func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {
+        dismiss(with: .openFeeCurrency(feeCurrency: feeCurrency))
     }
 
     func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {
