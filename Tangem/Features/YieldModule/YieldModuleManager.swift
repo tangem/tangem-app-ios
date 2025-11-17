@@ -359,6 +359,17 @@ private extension CommonYieldModuleManager {
 
         let marketsPublisher = yieldModuleNetworkManager.marketsPublisher.filter { !$0.isEmpty }.removeDuplicates()
 
+        let pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never> = pendingTransactionsPublisher
+            .map { transactions in
+                transactions.filter { record -> Bool in
+                    switch record.status {
+                    case .none, .pending: true
+                    default: false
+                    }
+                }
+            }
+            .eraseToAnyPublisher()
+
         let statePublisher = Publishers.CombineLatest4(
             walletModelDataPublisher,
             marketsPublisher,
