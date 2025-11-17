@@ -454,7 +454,7 @@ private extension TokenDetailsViewModel {
     }
 
     func openFeeCurrency() {
-        let feeCurrencyFinderResult = try? WalletModelFinder().findWalletModel(
+        let feeCurrencyFinderResult = try? WalletModelFinder.findWalletModel(
             userWalletId: userWalletInfo.id,
             tokenItem: walletModel.feeTokenItem
         )
