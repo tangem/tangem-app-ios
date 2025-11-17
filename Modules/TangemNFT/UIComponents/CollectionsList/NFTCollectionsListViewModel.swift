@@ -58,7 +58,6 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     private let nftManager: NFTManager
     private let accounForNFTCollectionsProvider: AccountForNFTCollectionProviding
-    private let navigationContext: NFTNavigationContext
     private let dependencies: NFTCollectionsListDependencies
     private let assetSendPublisher: AnyPublisher<NFTAsset, Never>
     private weak var coordinator: NFTCollectionsListRoutable?
@@ -66,7 +65,6 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     public init(
         nftManager: NFTManager,
         accounForNFTCollectionsProvider: AccountForNFTCollectionProviding,
-        navigationContext: NFTNavigationContext,
         dependencies: NFTCollectionsListDependencies,
         assetSendPublisher: AnyPublisher<NFTAsset, Never>,
         coordinator: NFTCollectionsListRoutable?
@@ -76,7 +74,6 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         self.coordinator = coordinator
         self.dependencies = dependencies
         self.assetSendPublisher = assetSendPublisher
-        self.navigationContext = navigationContext
     }
 
     deinit {
@@ -348,7 +345,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     private func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection) {
-        coordinator?.openAssetDetails(for: asset, in: collection, navigationContext: navigationContext)
+        coordinator?.openAssetDetails(for: asset, in: collection)
         dependencies.analytics.logDetailsOpen(
             dependencies.nftChainNameProviding.provide(for: asset.id.chain),
             asset.id.contractType.description
