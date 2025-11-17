@@ -11,13 +11,11 @@ import Foundation
 protocol YieldModuleFlowFactory {
     func makeYieldPromoCoordinator(
         apy: Decimal,
-        feeCurrencyNavigator: any SendFeeCurrencyNavigating,
-        dismissAction: @escaping Action<Void>
+        dismissAction: @escaping Action<YieldModulePromoCoordinator.DismissOptions?>
     ) -> YieldModulePromoCoordinator
 
     func makeYieldActiveCoordinator(
-        feeCurrencyNavigator: any SendFeeCurrencyNavigating,
-        dismissAction: @escaping Action<Void>
+        dismissAction: @escaping Action<YieldModuleActiveCoordinator.DismissOptions?>
     ) -> YieldModuleActiveCoordinator
 
     func makeYieldAvailableNotificationViewModel(
@@ -133,24 +131,22 @@ extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
 
     func makeYieldPromoCoordinator(
         apy: Decimal,
-        feeCurrencyNavigator: any SendFeeCurrencyNavigating,
-        dismissAction: @escaping Action<Void>
+        dismissAction: @escaping Action<YieldModulePromoCoordinator.DismissOptions?>
     ) -> YieldModulePromoCoordinator {
         let coordinator = YieldModulePromoCoordinator(dismissAction: dismissAction)
         let viewModel = makeYieldPromoViewModel(apy: apy, coordinator: coordinator)
-        let options = YieldModulePromoCoordinator.Options(viewModel: viewModel, feeCurrencyNavigator: feeCurrencyNavigator)
+        let options = YieldModulePromoCoordinator.Options(viewModel: viewModel)
 
         coordinator.start(with: options)
         return coordinator
     }
 
     func makeYieldActiveCoordinator(
-        feeCurrencyNavigator: any SendFeeCurrencyNavigating,
-        dismissAction: @escaping Action<Void>
+        dismissAction: @escaping Action<YieldModuleActiveCoordinator.DismissOptions?>
     ) -> YieldModuleActiveCoordinator {
         let coordinator = YieldModuleActiveCoordinator(dismissAction: dismissAction)
         let viewModel = makeYieldModuleActiveViewModel(coordinator: coordinator)
-        let options = YieldModuleActiveCoordinator.Options(viewModel: viewModel, feeCurrencyNavigator: feeCurrencyNavigator)
+        let options = YieldModuleActiveCoordinator.Options(viewModel: viewModel)
 
         coordinator.start(with: options)
         return coordinator
