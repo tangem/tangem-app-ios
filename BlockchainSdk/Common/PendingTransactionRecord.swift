@@ -25,6 +25,8 @@ public struct PendingTransactionRecord {
     public let transactionType: TransactionType
     public let transactionParams: TransactionParams?
 
+    public var status: PendingTransactionStatus?
+
     public var isDummy: Bool {
         hash == .unknown || source == .unknown || destination == .unknown
     }
