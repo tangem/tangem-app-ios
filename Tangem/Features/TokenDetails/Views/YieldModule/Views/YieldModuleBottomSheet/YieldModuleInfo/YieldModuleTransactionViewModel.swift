@@ -192,29 +192,7 @@ final class YieldModuleTransactionViewModel: ObservableObject {
     }
 
     private func showNotEnoughFeeNotification() {
-        guard let selectedUserWalletModel = userWalletRepository.selectedModel,
-              let feeCurrencyModel = getFeeCurrencyWalletModel(selectedUserWalletModel: selectedUserWalletModel)
-        else {
-            return
-        }
-
-        networkFeeNotification = createNotEnoughFeeNotification(
-            selectedUserWalletModel: selectedUserWalletModel,
-            feeWalletModel: feeCurrencyModel
-        )
-    }
-
-    private func getFeeCurrencyWalletModel(selectedUserWalletModel: any UserWalletModel) -> (any WalletModel)? {
-        // accounts_fixes_needed_yield
-        guard let feeCurrencyWalletModel = selectedUserWalletModel.walletModelsManager.walletModels.first(where: {
-            $0.tokenItem == walletModel.feeTokenItem
-        })
-        else {
-            assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
-            return nil
-        }
-
-        return feeCurrencyWalletModel
+        networkFeeNotification = createNotEnoughFeeNotification(walletModel: walletModel)
     }
 }
 
@@ -225,14 +203,9 @@ extension YieldModuleTransactionViewModel: FloatingSheetContentViewModel {}
 // MARK: - Notification Builders
 
 private extension YieldModuleTransactionViewModel {
-    func createNotEnoughFeeNotification(
-        selectedUserWalletModel: any UserWalletModel,
-        feeWalletModel: any WalletModel
-    ) -> YieldModuleNotificationBannerParams {
+    func createNotEnoughFeeNotification(walletModel: any WalletModel) -> YieldModuleNotificationBannerParams {
         notificationManager.createNotEnoughFeeCurrencyNotification { [weak self] in
-            guard let self else { return }
-            coordinator?.dismiss()
-            coordinator?.openFeeCurrency(for: feeWalletModel, userWalletModel: selectedUserWalletModel)
+            self?.coordinator?.openFeeCurrency(walletModel: walletModel)
         }
     }
 
