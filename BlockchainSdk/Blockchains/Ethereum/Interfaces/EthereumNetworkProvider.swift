@@ -19,6 +19,9 @@ public protocol EthereumNetworkProvider {
     func getAllowance(owner: String, spender: String, contractAddress: String) -> AnyPublisher<Decimal, Error>
     func getAllowanceRaw(owner: String, spender: String, contractAddress: String) -> AnyPublisher<String, Error>
     func getBalance(_ address: String) -> AnyPublisher<Decimal, Error>
+
     func getTxCount(_ address: String) -> AnyPublisher<Int, Error>
     func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error>
+
+    func getTransactionStatus(hash: String) -> AnyPublisher<PendingTransactionStatus, Error>
 }
