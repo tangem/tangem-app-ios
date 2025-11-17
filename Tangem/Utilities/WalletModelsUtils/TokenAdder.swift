@@ -10,7 +10,7 @@ import Foundation
 
 enum TokenAdder {
     static func addToken(tokenItem: TokenItem) throws {
-        assert(tokenItem.isToken, "Supports only tokens. Blockchain items may require derivation configuration")
+        assert(tokenItem.isToken, "Supports only tokens. TokenItem.blockchain item may require derivation")
         let blockchainNetwork = tokenItem.blockchainNetwork
         let walletModelResult = try WalletModelFinder.findWalletModel(tokenItem: .blockchain(blockchainNetwork))
         let userTokensManager = try userTokensManager(walletModelResult: walletModelResult)
