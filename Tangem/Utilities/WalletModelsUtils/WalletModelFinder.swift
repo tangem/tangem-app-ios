@@ -44,7 +44,7 @@ enum WalletModelFinder {
         let walletModel = walletModels.first(where: { $0.tokenItem == tokenItem })
 
         guard let walletModel else {
-            AppLogger.error(error: "Network currency WalletModel not found")
+            AppLogger.error(error: "WalletModel not found for the specified token item: \(tokenItem)")
             throw Error.walletModelNotFound
         }
 
