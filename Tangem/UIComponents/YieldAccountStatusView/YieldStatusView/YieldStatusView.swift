@@ -37,7 +37,7 @@ struct YieldStatusView: View {
         HStack(spacing: .zero) {
             aaveLogo
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 title
                 descriptionText
             }
@@ -47,7 +47,7 @@ struct YieldStatusView: View {
 
             trailingView
         }
-        .defaultRoundedBackground()
+        .defaultRoundedBackground(verticalPadding: 14)
     }
 
     private var aaveLogo: some View {
@@ -61,6 +61,7 @@ struct YieldStatusView: View {
     @ViewBuilder
     private var title: some View {
         Text(viewModel.title)
+            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
     }
 
     @ViewBuilder
@@ -98,6 +99,8 @@ struct YieldStatusView: View {
 
     private var blueWarningSign: some View {
         Assets.blueCircleWarning.image
+            .resizable()
+            .frame(size: .init(bothDimensions: 24))
     }
 
     private var chevron: some View {
