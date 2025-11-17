@@ -460,6 +460,9 @@ private extension EthereumWalletManager {
 
         wallet.updatePendingTransaction(pendingTransactions)
 
+        // looks like we need to keep txCount and pendingTxCount in response in order to
+        // be able to add dummy tx if necessary
+
 //        if response.txCount == response.pendingTxCount {
 //            wallet.clearPendingTransaction()
 //        } else if response.pendingTxs.isEmpty {
