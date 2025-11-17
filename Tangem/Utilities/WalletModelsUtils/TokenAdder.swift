@@ -21,21 +21,26 @@ struct TokenAdder {
             contractAddress: contractAddress
         )
 
-        let userTokensManager = try userTokensManager(tokenItem: .blockchain(blockchainNetwork))
+        let walletModelResult = try WalletModelFinder.findWalletModel(tokenItem: .blockchain(blockchainNetwork))
+        let userTokensManager = try userTokensManager(walletModelResult: walletModelResult)
         try userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
         return tokenItem
     }
 
-    func addToken(blockchainNetwork: BlockchainNetwork, token: BSDKToken) throws {
-        let userTokensManager = try userTokensManager(tokenItem: .blockchain(blockchainNetwork))
+    func addToken(defaultAddress: String, token: BSDKToken) throws {
+        let walletModelResult = try WalletModelFinder.findMainWalletModel(defaultAddress: defaultAddress)
+        let userTokensManager = try userTokensManager(walletModelResult: walletModelResult)
 
-        let tokenItem = TokenItem.token(token, blockchainNetwork)
+        let targetBlockchainNetwork = walletModelResult.walletModel.tokenItem.blockchainNetwork
+        let tokenItem = TokenItem.token(token, targetBlockchainNetwork)
         try userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
     }
+}
 
-    private func userTokensManager(tokenItem: TokenItem) throws -> any UserTokensManager {
-        let walletModelResult = try WalletModelFinder().findWalletModel(tokenItem: tokenItem)
+// MARK: - Private
 
+private extension TokenAdder {
+    func userTokensManager(walletModelResult: WalletModelFinder.Result) throws -> any UserTokensManager {
         let userTokensManager: (any UserTokensManager)? = if FeatureProvider.isAvailable(.accounts) {
             walletModelResult.walletModel.account?.userTokensManager
         } else {

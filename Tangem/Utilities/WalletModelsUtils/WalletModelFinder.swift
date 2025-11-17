@@ -9,11 +9,22 @@
 import Foundation
 import TangemFoundation
 
-struct WalletModelFinder {
+enum WalletModelFinder {
     @Injected(\.userWalletRepository)
-    private var userWalletRepository: UserWalletRepository
+    private static var userWalletRepository: UserWalletRepository
 
-    func findWalletModel(tokenItem: TokenItem) throws -> Result {
+    static func findMainWalletModel(defaultAddress: String) throws -> Result {
+        for userWalletModel in userWalletRepository.models {
+            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+            if let walletModel = walletModels.first(where: { $0.isMainToken && $0.defaultAddressString == defaultAddress }) {
+                return Result(userWalletModel: userWalletModel, walletModel: walletModel)
+            }
+        }
+
+        throw Error.walletModelNotFound
+    }
+
+    static func findWalletModel(tokenItem: TokenItem) throws -> Result {
         for userWalletModel in userWalletRepository.models {
             let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
             if let walletModel = walletModels.first(where: { $0.tokenItem == tokenItem }) {
@@ -24,7 +35,7 @@ struct WalletModelFinder {
         throw Error.walletModelNotFound
     }
 
-    func findWalletModel(userWalletId: UserWalletId, tokenItem: TokenItem) throws -> Result {
+    static func findWalletModel(userWalletId: UserWalletId, tokenItem: TokenItem) throws -> Result {
         guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
             throw Error.userWalletModelNotFound
         }
