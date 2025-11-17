@@ -382,7 +382,6 @@ private extension CommonUserWalletModelDependencies {
             // [REDACTED_TODO_COMMENT]
             userTokensManager.derivationManager = dependencies.derivationManager
             userTokensManager.walletModelsManager = dependencies.walletModelsManager
-            userTokensManager.sync {}
             hasConfiguredWithDependencies = true
         }
 
@@ -393,6 +392,7 @@ private extension CommonUserWalletModelDependencies {
 
         func configure(with model: UserWalletModel) {
             userTokensManager.keysDerivingProvider = model
+            userTokensManager.sync {}
             hasConfiguredWithUserWalletModel = true
         }
     }
