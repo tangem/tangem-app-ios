@@ -10,16 +10,10 @@ import BlockchainSdk
 import TangemFoundation
 import TangemSdk
 
-enum CustomerWalletAuthorizationTaskError: Error {
-    case derivedKeyNotFound
-}
-
 public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
-    private let seedKey: Data
     private let authorizationService: VisaAuthorizationService
 
-    public init(seedKey: Data, authorizationService: VisaAuthorizationService) {
-        self.seedKey = seedKey
+    public init(authorizationService: VisaAuthorizationService) {
         self.authorizationService = authorizationService
     }
 
@@ -28,18 +22,22 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
 
         runTask(in: self, isDetached: false, priority: .userInitiated) { handler in
             do {
+                guard let seedKey = session.environment.card?.wallets.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey else {
+                    throw TangemSdkError.walletNotFound
+                }
+
                 let derivationResult = try await DeriveMultipleWalletPublicKeysTask([
-                    handler.seedKey: [derivationPath],
+                    seedKey: [derivationPath],
                 ])
                 .run(in: session)
 
-                guard let extendedPublicKey = derivationResult[handler.seedKey]?[derivationPath] else {
+                guard let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
                     completion(.failure(.underlying(error: CustomerWalletAuthorizationTaskError.derivedKeyNotFound)))
                     return
                 }
 
                 let walletPublicKey = Wallet.PublicKey(
-                    seedKey: handler.seedKey,
+                    seedKey: seedKey,
                     derivationType: .plain(
                         .init(
                             path: derivationPath,
@@ -112,4 +110,8 @@ public extension CustomerWalletAuthorizationTask {
         public let tokens: VisaAuthorizationTokens
         public let derivationResult: [Data: DerivedKeys]
     }
+}
+
+enum CustomerWalletAuthorizationTaskError: Error {
+    case derivedKeyNotFound
 }
