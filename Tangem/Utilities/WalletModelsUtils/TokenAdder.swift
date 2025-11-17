@@ -34,6 +34,7 @@ private extension TokenAdder {
         let userTokensManager: (any UserTokensManager)? = if FeatureProvider.isAvailable(.accounts) {
             walletModelResult.walletModel.account?.userTokensManager
         } else {
+            // accounts_fixes_needed_none
             walletModelResult.userWalletModel.userTokensManager
         }
 
