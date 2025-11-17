@@ -72,17 +72,8 @@ struct CommonUserWalletModelFactory {
         dependencies.update(from: commonModel)
 
         switch walletInfo {
-        case .cardWallet(let cardInfo):
-            switch cardInfo.walletData {
-            case .visa:
-                return VisaUserWalletModel(
-                    userWalletModel: commonModel,
-                    cardInfo: cardInfo
-                )
-            default:
-                return commonModel
-            }
-
+        case .cardWallet(let cardInfo) where cardInfo.walletData.isVisa:
+            return VisaUserWalletModel(userWalletModel: commonModel, cardInfo: cardInfo)
         default:
             return commonModel
         }
