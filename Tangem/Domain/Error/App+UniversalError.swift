@@ -179,10 +179,8 @@ extension CommonTokenEnricher.Error: UniversalError {
         switch self {
         case .notFound:
             100008000
-        case .unknownNetworkId:
-            100008001
         case .unsupportedBlockchain:
-            100008002
+            100008001
         }
     }
 }
