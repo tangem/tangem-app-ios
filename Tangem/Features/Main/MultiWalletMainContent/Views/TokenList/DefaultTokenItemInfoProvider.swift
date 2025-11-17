@@ -108,8 +108,9 @@ private extension DefaultTokenItemInfoProvider {
         if let manager = yieldModuleManager {
             manager.statePublisher
                 .filter { stateInfo in
-                    guard let state = stateInfo?.state else { return false }
-                    switch state {
+                    switch stateInfo?.state {
+                    case .none:
+                        return false
                     case .processing, .loading(.none):
                         return false
                     case .loading(.some):
