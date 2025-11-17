@@ -72,7 +72,6 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         userTokensManager.derivationManager = derivationManager
         userTokensManager.walletModelsManager = walletModelsManager
         userTokensManager.keysDerivingProvider = userWalletModel
-        userTokensManager.sync {}
 
         return CryptoAccountDependencies(
             userTokensManager: userTokensManager,

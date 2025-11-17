@@ -88,59 +88,68 @@ actor CommonAccountModelsManager {
 
         let removedAccountIds = currentAccountIds.subtracting(newAccountIds)
         cache.removeAll { removedAccountIds.contains($0.key) } // Also destroys the `didChangeSubscription`s for removed accounts
+        let cachedAccountsIds = cache.keys.toSet() // Snapshot of currently cached account IDs before adding new ones
 
-        return newAccountIds.compactMap { accountId in
-            // Early exit if the account is already created and cached
-            if let (cachedAccount, _) = cache[accountId] {
-                return cachedAccount
+        let newCryptoAccounts = newAccountIds
+            .compactMap { accountId in
+                // Early exit if the account is already created and cached
+                if let (cachedAccount, _) = cache[accountId] {
+                    return cachedAccount
+                }
+
+                guard let storedCryptoAccount = storedCryptoAccountsKeyedByAccountIds[accountId] else {
+                    assertionFailure("Stored crypto account not found for accountId: \(accountId)")
+                    return nil
+                }
+
+                guard let accountIcon = AccountModel.Icon(
+                    rawName: storedCryptoAccount.icon.iconName,
+                    rawColor: storedCryptoAccount.icon.iconColor
+                ) else {
+                    assertionFailure("Invalid icon for stored crypto account: \(storedCryptoAccount)")
+                    return nil
+                }
+
+                guard let userWalletModel = userWalletRepository.models[userWalletId] else {
+                    assertionFailure("User wallet model instance cannot be found for userWalletId: \(userWalletId)")
+                    return nil
+                }
+
+                let derivationIndex = storedCryptoAccount.derivationIndex
+                let dependencies = dependenciesFactory.makeDependencies(
+                    forAccountWithDerivationIndex: derivationIndex,
+                    userWalletModel: userWalletModel
+                )
+                let balanceProvidingDependencies = dependencies.makeBalanceProvidingDependencies()
+
+                let cryptoAccount = CommonCryptoAccountModel(
+                    accountName: storedCryptoAccount.name,
+                    accountIcon: accountIcon,
+                    derivationIndex: derivationIndex,
+                    userWalletModel: userWalletModel,
+                    walletModelsManager: dependencies.walletModelsManager,
+                    userTokensManager: dependencies.userTokensManager,
+                    accountBalanceProvider: balanceProvidingDependencies.balanceProvider,
+                    accountRateProvider: balanceProvidingDependencies.ratesProvider,
+                    derivationManager: dependencies.derivationManager
+                )
+
+                dependencies.walletModelsFactoryInput.setCryptoAccount(cryptoAccount)
+                // Uses `walletModelsFactory` internally, therefore must be initialized after setting the account in `walletModelsFactoryInput`
+                dependencies.walletModelsManager.initialize()
+                // Updating `cache` within this `compactMap` loop to reduce the number of iterations
+                cache[accountId] = (cryptoAccount, makeDidChangeSubscription(for: cryptoAccount))
+
+                return cryptoAccount
             }
 
-            guard let storedCryptoAccount = storedCryptoAccountsKeyedByAccountIds[accountId] else {
-                assertionFailure("Stored crypto account not found for accountId: \(accountId)")
-                return nil
-            }
-
-            guard let accountIcon = AccountModel.Icon(
-                rawName: storedCryptoAccount.icon.iconName,
-                rawColor: storedCryptoAccount.icon.iconColor
-            ) else {
-                assertionFailure("Invalid icon for stored crypto account: \(storedCryptoAccount)")
-                return nil
-            }
-
-            guard let userWalletModel = userWalletRepository.models[userWalletId] else {
-                assertionFailure("User wallet model instance cannot be found for userWalletId: \(userWalletId)")
-                return nil
-            }
-
-            let derivationIndex = storedCryptoAccount.derivationIndex
-            let dependencies = dependenciesFactory.makeDependencies(
-                forAccountWithDerivationIndex: derivationIndex,
-                userWalletModel: userWalletModel
-            )
-
-            let balanceProvidingDependencies = dependencies.makeBalanceProvidingDependencies()
-
-            let cryptoAccount = CommonCryptoAccountModel(
-                accountName: storedCryptoAccount.name,
-                accountIcon: accountIcon,
-                derivationIndex: derivationIndex,
-                userWalletModel: userWalletModel,
-                walletModelsManager: dependencies.walletModelsManager,
-                userTokensManager: dependencies.userTokensManager,
-                accountBalanceProvider: balanceProvidingDependencies.balanceProvider,
-                accountRateProvider: balanceProvidingDependencies.ratesProvider,
-                derivationManager: dependencies.derivationManager
-            )
-
-            dependencies.walletModelsFactoryInput.setCryptoAccount(cryptoAccount)
-            dependencies.walletModelsManager.initialize()
-
-            // Updating `cache` within this `compactMap` loop to reduce the number of iterations
-            cache[accountId] = (cryptoAccount, makeDidChangeSubscription(for: cryptoAccount))
-
-            return cryptoAccount
+        // Trigger initial synchronization for all newly created accounts. Creating `newCryptoAccounts` is performed
+        // on a serial executor, so it may take some time if many accounts need to be created.
+        for newCryptoAccount in newCryptoAccounts where !cachedAccountsIds.contains(newCryptoAccount.id) {
+            newCryptoAccount.userTokensManager.sync {}
         }
+
+        return newCryptoAccounts
     }
 
     /// - Note: Manual synchronization is used since this publisher must be created in a lazy manner and lazy properties not really
