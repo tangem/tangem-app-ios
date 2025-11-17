@@ -155,17 +155,32 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         logAnalytics(event: .manageTokensScreenOpened, params: analyticsParams)
 
+        let hasAccounts = FeatureProvider.isAvailable(.accounts)
+        let getMainAccount = {
+            userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount })
+        }
+
+        let context: ManageTokensContext = if hasAccounts, let mainAccount = getMainAccount() {
+            // Working with accounts in onboarding is equivalent of working with main account
+            AccountsAwareManageTokensContext(
+                accountModelsManager: userWalletModel.accountModelsManager,
+                currentAccount: mainAccount
+            )
+        } else {
+            LegacyManageTokensContext(
+                // accounts_fixes_needed_none
+                userTokensManager: userWalletModel.userTokensManager,
+                walletModelsManager: userWalletModel.walletModelsManager
+            )
+        }
+
         let manageTokensAdapter = ManageTokensAdapter(
             settings: .init(
                 existingCurves: userWalletModel.config.existingCurves,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
                 hardwareLimitationUtil: HardwareLimitationsUtil(config: userWalletModel.config),
                 analyticsSourceRawValue: analyticsSourceRawValue,
-                context: LegacyManageTokensContext(
-                    // accounts_fixes_needed_onboarding
-                    userTokensManager: userWalletModel.userTokensManager,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
+                context: context
             )
         )
 
