@@ -69,6 +69,7 @@ struct SupportedBlockchains {
     private func testableBlockchains() -> Set<Blockchain> {
         [
             .vanar(testnet: false),
+            .zkLinkNova(testnet: false),
             .scroll(testnet: false),
             .linea(testnet: false),
             .arbitrumNova,
