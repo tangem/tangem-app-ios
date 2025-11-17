@@ -67,6 +67,8 @@ struct CommonUserWalletModelDependencies {
             walletManagerFactory: walletManagerFactory,
             hasAccounts: hasAccounts
         )
+        // Initialized immediately after creation 
+        walletModelsManager.initialize()
 
         derivationManager = areHDWalletsSupported
             ? CommonDerivationManager(keysRepository: keysRepository, userTokensManager: userTokensManager)
