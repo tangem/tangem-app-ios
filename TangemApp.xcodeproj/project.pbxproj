@@ -3730,6 +3730,7 @@
 		EF46D3D92E74379600F546C3 /* OnrampSummaryInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46D3D82E74379600F546C3 /* OnrampSummaryInteractor.swift */; };
 		EF4715C42DBF92F100237395 /* UKGeoDefiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4715C32DBF92F100237395 /* UKGeoDefiner.swift */; };
 		EF4715C72DBF92FF00237395 /* CommonUKGeoDefiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4715C62DBF92FF00237395 /* CommonUKGeoDefiner.swift */; };
+		EF4716BB2ECB228B004FFB11 /* TokenAdder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4716BA2ECB228B004FFB11 /* TokenAdder.swift */; };
 		EF48E6C32B02273800FE0072 /* ExpressTokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6C12B02273800FE0072 /* ExpressTokenItemView.swift */; };
 		EF48E6C42B02273800FE0072 /* ExpressTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6C22B02273800FE0072 /* ExpressTokenItemViewModel.swift */; };
 		EF48E6CB2B02279600FE0072 /* ExpressTokensListRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6CA2B02279600FE0072 /* ExpressTokensListRoutableMock.swift */; };
@@ -8218,6 +8219,7 @@
 		EF46D3D82E74379600F546C3 /* OnrampSummaryInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampSummaryInteractor.swift; sourceTree = "<group>"; };
 		EF4715C32DBF92F100237395 /* UKGeoDefiner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UKGeoDefiner.swift; sourceTree = "<group>"; };
 		EF4715C62DBF92FF00237395 /* CommonUKGeoDefiner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUKGeoDefiner.swift; sourceTree = "<group>"; };
+		EF4716BA2ECB228B004FFB11 /* TokenAdder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenAdder.swift; sourceTree = "<group>"; };
 		EF48E6C12B02273800FE0072 /* ExpressTokenItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressTokenItemView.swift; sourceTree = "<group>"; };
 		EF48E6C22B02273800FE0072 /* ExpressTokenItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressTokenItemViewModel.swift; sourceTree = "<group>"; };
 		EF48E6CA2B02279600FE0072 /* ExpressTokensListRoutableMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressTokensListRoutableMock.swift; sourceTree = "<group>"; };
@@ -12383,6 +12385,7 @@
 				EF808441293F6B43000D91EA /* IconURLBuilder */,
 				EF031A322C09EBB9001535C9 /* PercentFormatter */,
 				B0E20E102C2B018C00213580 /* PriceChange */,
+				EF4716BC2ECB2294004FFB11 /* WalletModelsUtils */,
 				EF6761292E4F69D9009132E3 /* FeeCurrencyNavigating */,
 				B047A0202D411A2E00CA44EA /* AccessCodeSaveUtility.swift */,
 				DCFE143D294B31C00053106B /* AppPresenter.swift */,
@@ -21506,6 +21509,15 @@
 			path = UKGeoDefiner;
 			sourceTree = "<group>";
 		};
+		EF4716BC2ECB2294004FFB11 /* WalletModelsUtils */ = {
+			isa = PBXGroup;
+			children = (
+				EF67612A2E4F69E4009132E3 /* WalletModelFinder.swift */,
+				EF4716BA2ECB228B004FFB11 /* TokenAdder.swift */,
+			);
+			path = WalletModelsUtils;
+			sourceTree = "<group>";
+		};
 		EF48E6C02B02273800FE0072 /* ExpressTokenItem */ = {
 			isa = PBXGroup;
 			children = (
@@ -21958,7 +21970,6 @@
 				B6CC6F5F2DD77301005D78DD /* FeeCurrencyNavigating.swift */,
 				EFACB6FE2EA641D9002EB2E2 /* SendFeeCurrencyNavigating.swift */,
 				EFACB7002EA641EB002EB2E2 /* ExpressFeeCurrencyNavigating.swift */,
-				EF67612A2E4F69E4009132E3 /* WalletModelFinder.swift */,
 			);
 			path = FeeCurrencyNavigating;
 			sourceTree = "<group>";
@@ -26826,6 +26837,7 @@
 				0F84C11F2E142D0100DC7FB1 /* MobileFinishActivationNeededRoutable.swift in Sources */,
 				EFE5AD422C64B0CD00A2C1BB /* ApproveViewModelInput.swift in Sources */,
 				65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */,
+				EF4716BB2ECB228B004FFB11 /* TokenAdder.swift in Sources */,
 				DC7AFA2B2E840856005AA071 /* AccountSelectorViewModel.swift in Sources */,
 				DC7AFA2C2E840856005AA071 /* AccountSelectorView.swift in Sources */,
 				C2DB41942DCA2A640028E6B0 /* WalletConnectErrorViewModel.swift in Sources */,

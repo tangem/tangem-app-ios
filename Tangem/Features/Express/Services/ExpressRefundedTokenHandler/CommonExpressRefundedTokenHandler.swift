@@ -18,8 +18,11 @@ class CommonExpressRefundedTokenHandler: ExpressRefundedTokenHandler {
         self.tokenFinder = tokenFinder
     }
 
-    func handle(expressCurrency: ExpressCurrency) async throws -> TokenItem {
-        let tokenItem = try await tokenFinder.findToken(contractAddress: expressCurrency.contractAddress, networkId: expressCurrency.network)
+    func handle(blockchainNetwork: BlockchainNetwork, expressCurrency: ExpressCurrency) async throws -> TokenItem {
+        let tokenItem = try await tokenFinder.findToken(
+            blockchainNetwork: blockchainNetwork,
+            contractAddress: expressCurrency.contractAddress
+        )
         try userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
         return tokenItem
     }

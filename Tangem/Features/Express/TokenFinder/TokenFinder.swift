@@ -10,5 +10,5 @@ import Foundation
 import BlockchainSdk
 
 protocol TokenFinder {
-    func findToken(contractAddress: String, networkId: String) async throws -> TokenItem
+    func findToken(blockchainNetwork: BlockchainNetwork, contractAddress: String) async throws -> TokenItem
 }

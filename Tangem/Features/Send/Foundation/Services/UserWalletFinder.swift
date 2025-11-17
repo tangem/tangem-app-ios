@@ -12,6 +12,22 @@ import BlockchainSdk
 struct UserWalletFinder {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    func addToken(blockchainNetwork: BlockchainNetwork, contractAddress: String) {
+        userWalletRepository.models.first(where: { userWalletModel in
+            let walletModels = if FeatureProvider.isAvailable(.accounts) {
+                AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+            } else {
+                userWalletModel.walletModelsManager.walletModels
+            }
+
+            let targetWalletModel = walletModels.first(where: {
+                $0.tokenItem.blockchainNetwork == blockchainNetwork
+            })
+
+            return true
+        })
+    }
+
     func addToken(_ token: Token, in blockchain: Blockchain, for address: String) {
         guard let result = find(token, in: blockchain, with: address) else { return }
 

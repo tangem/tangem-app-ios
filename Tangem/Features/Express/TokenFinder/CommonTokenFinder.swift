@@ -20,13 +20,15 @@ class CommonTokenFinder: TokenFinder {
         self.supportedBlockchains = supportedBlockchains
     }
 
-    func findToken(contractAddress: String, networkId: String) async throws -> TokenItem {
-        guard let blockchain = supportedBlockchains.first(where: { $0.networkId == networkId }) else {
-            throw Error.unknownNetworkId
+    func findToken(blockchainNetwork: BlockchainNetwork, contractAddress: String) async throws -> TokenItem {
+        let blockchain = blockchainNetwork.blockchain
+
+        guard supportedBlockchains.contains(blockchain) else {
+            throw Error.unsupportedBlockchain
         }
 
         if contractAddress == ExpressConstants.coinContractAddress {
-            return .blockchain(.init(blockchain, derivationPath: nil))
+            return .blockchain(blockchainNetwork)
         }
 
         let requestModel = CoinsList.Request(
@@ -38,7 +40,10 @@ class CommonTokenFinder: TokenFinder {
             .loadCoins(requestModel: requestModel)
             .async()
 
-        guard let tokenItem = response.first?.items.first(where: { $0.blockchain.networkId == blockchain.networkId })?.tokenItem else {
+        let items = response.flatMap { $0.items }
+        let coinItem = items.first(where: { $0.blockchain.networkId == blockchain.networkId })
+
+        guard let tokenItem = coinItem?.tokenItem else {
             throw Error.notFound
         }
 
@@ -47,7 +52,8 @@ class CommonTokenFinder: TokenFinder {
 }
 
 extension CommonTokenFinder {
-    enum Error: Swift.Error {
+    enum Error: LocalizedError {
+        case unsupportedBlockchain
         case unknownNetworkId
         case notFound
     }

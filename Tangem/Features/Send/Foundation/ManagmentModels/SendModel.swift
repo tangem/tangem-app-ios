@@ -50,6 +50,7 @@ class SendModel {
 
     private let transactionSigner: TransactionSigner
     private let feeIncludedCalculator: FeeIncludedCalculator
+    private let tokenAdder: TokenAdder
     private let analyticsLogger: SendAnalyticsLogger
     private let sendReceiveTokenBuilder: SendReceiveTokenBuilder
     private let sendAlertBuilder: SendAlertBuilder
@@ -65,6 +66,7 @@ class SendModel {
         userToken: SendSourceToken,
         transactionSigner: TransactionSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
+        tokenAdder: TokenAdder,
         analyticsLogger: SendAnalyticsLogger,
         sendReceiveTokenBuilder: SendReceiveTokenBuilder,
         sendAlertBuilder: SendAlertBuilder,
@@ -73,6 +75,7 @@ class SendModel {
     ) {
         self.transactionSigner = transactionSigner
         self.feeIncludedCalculator = feeIncludedCalculator
+        self.tokenAdder = tokenAdder
         self.analyticsLogger = analyticsLogger
         self.sendReceiveTokenBuilder = sendReceiveTokenBuilder
         self.sendAlertBuilder = sendAlertBuilder
@@ -332,6 +335,8 @@ private extension SendModel {
 
         switch token.metadata.kind {
         case .fungible:
+            try? tokenAdder.addToken(blockchainNetwork: sourceToken.tokenItem.blockchainNetwork, token: token)
+
             UserWalletFinder().addToken(
                 token,
                 in: sourceToken.tokenItem.blockchain,

@@ -181,6 +181,8 @@ extension CommonTokenFinder.Error: UniversalError {
             100008000
         case .unknownNetworkId:
             100008001
+        case .unsupportedBlockchain:
+            100008002
         }
     }
 }
