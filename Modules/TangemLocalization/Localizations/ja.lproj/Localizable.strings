@@ -1339,12 +1339,12 @@
 "tangempay_card_details_hide_details" = "詳細を隠す";
 "tangempay_card_details_hide_text" = "非表示";
 "tangempay_card_details_open_wallet_button" = "Googleウォレットを開く";
+"tangempay_card_details_open_wallet_notification_subtitle_apple" = "数回タップするだけでTangem Payの設定完了。Apple Payですぐに支払いを始めましょう。";
 "tangempay_card_details_open_wallet_notification_subtitle" = "数回タップするだけでTangem Payの設定完了。Google Payですぐに支払いを始めましょう。";
 "tangempay_card_details_open_wallet_notification_title_apple" = "Apple Payにカードを追加する";
 "tangempay_card_details_open_wallet_notification_title" = "Google Payにカードを追加する";
-"tangempay_card_details_open_wallet_step_1_apple_open" = "開く";
-"tangempay_card_details_open_wallet_step_1_apple_wallet" = "Apple Wallet";
-"tangempay_card_details_open_wallet_step_1.5_apple" = "右上の「+」ボタンをタップ";
+"tangempay_card_details_open_wallet_step_1_5_apple" = "右上の「+」ボタンをタップ";
+"tangempay_card_details_open_wallet_step_1_apple" = "Appleウォレットを開く";
 "tangempay_card_details_open_wallet_step_1" = "Googleウォレットを開く";
 "tangempay_card_details_open_wallet_step_2_apple" = "「デビットカードまたはクレジットカード」をタップ";
 "tangempay_card_details_open_wallet_step_2" = "「カードを追加」をタップします";
@@ -1873,7 +1873,7 @@
 "yield_module_status_active" = "アクティブ";
 "yield_module_status_paused" = "停止中";
 "yield_module_stop_earning_sheet_description" = "これをオフにすると、Aaveから資産が引き出され、ウォレット内の%@に変換され、利回りの発生が停止します。";
-"yield_module_stop_earning_sheet_fee_note" = "出金金額からネットワーク手数料が差し引かれます。";
+"yield_module_stop_earning_sheet_fee_note" = "ネットワーク手数料とは、ブロックチェーン上で取引を処理して承認するためにユーザーが支払う料金のことです。";
 "yield_module_stop_earning_sheet_title" = "利回りモードを無効にする";
 "yield_module_stop_earning" = "利回りモードを解除中";
 "yield_module_supply_apr" = "供給APY";
