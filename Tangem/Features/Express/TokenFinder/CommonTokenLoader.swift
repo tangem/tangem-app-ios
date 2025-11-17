@@ -20,7 +20,7 @@ class CommonTokenLoader: TokenLoader {
         self.supportedBlockchains = supportedBlockchains
     }
 
-    func findToken(blockchainNetwork: BlockchainNetwork, contractAddress: String) async throws -> TokenItem {
+    func loadToken(blockchainNetwork: BlockchainNetwork, contractAddress: String) async throws -> TokenItem {
         let blockchain = blockchainNetwork.blockchain
 
         guard supportedBlockchains.contains(blockchain) else {

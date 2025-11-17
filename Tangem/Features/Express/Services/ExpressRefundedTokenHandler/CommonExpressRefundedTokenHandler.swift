@@ -17,7 +17,7 @@ class CommonExpressRefundedTokenHandler: ExpressRefundedTokenHandler {
     }
 
     func handle(blockchainNetwork: BlockchainNetwork, expressCurrency: ExpressCurrency) async throws -> TokenItem {
-        let tokenItem = try await tokenLoader.findToken(
+        let tokenItem = try await tokenLoader.loadToken(
             blockchainNetwork: blockchainNetwork,
             contractAddress: expressCurrency.contractAddress
         )
