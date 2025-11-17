@@ -32,7 +32,7 @@ final class TangemPayAddToAppPayGuideViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func onDismiss() {
+    func close() {
         coordinator?.closeAddToAppPayGuide()
     }
 }
