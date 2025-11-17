@@ -47,10 +47,10 @@ public struct EthereumFeeHistory {
 }
 
 public struct EthereumTransaction: Decodable {
-    let blockHash: Data?
-    let blockNumber: BigUInt?
-    let hash: Data
-    let transactionIndex: BigUInt?
+    let blockHash: String?
+    let blockNumber: String?
+    let hash: String
+    let transactionIndex: String?
 }
 
 public struct EthereumTransactionReceipt: Decodable {
