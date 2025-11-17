@@ -154,20 +154,22 @@ extension TokenDetailsCoordinator {
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
-        let dismissAction: Action<Void> = { [weak self] _ in
+        let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModulePromoCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
-        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, feeCurrencyNavigator: self, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
         yieldModulePromoCoordinator = coordinator
     }
 
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
-        let dismissAction: Action<Void> = { [weak self] _ in
+        let dismissAction: Action<YieldModuleActiveCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModuleActiveCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
-        let coordinator = factory.makeYieldActiveCoordinator(feeCurrencyNavigator: self, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
         yieldModuleActiveCoordinator = coordinator
     }
 
