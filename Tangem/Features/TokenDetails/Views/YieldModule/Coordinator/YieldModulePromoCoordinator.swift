@@ -6,7 +6,9 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+import Foundation
+import Combine
+import TangemFoundation
 
 final class YieldModulePromoCoordinator: CoordinatorObject {
     // MARK: - Injected
@@ -19,17 +21,15 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 
     // MARK: - Propeties
 
-    let dismissAction: Action<Void>
+    let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
 
     @Published
     var rootViewModel: YieldModulePromoViewModel? = nil
 
-    private weak var feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
-
     // MARK: - Init
 
-    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
+    required init(dismissAction: @escaping Action<DismissOptions?>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -42,7 +42,6 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         rootViewModel = options.viewModel
-        feeCurrencyNavigator = options.feeCurrencyNavigator
     }
 
     func openBottomSheet(viewModel: YieldModuleStartViewModel) {
@@ -51,14 +50,17 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
         }
     }
 
-    func openFeeCurrency(for feeWalletModel: any WalletModel, userWalletModel: any UserWalletModel) {
-        feeCurrencyNavigator?.openFeeCurrency(for: feeWalletModel, userWalletModel: userWalletModel)
+    func openFeeCurrency(walletModel: any WalletModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            dismiss(with: .init(userWalletId: walletModel.userWalletId, feeTokenItem: walletModel.feeTokenItem))
+        }
     }
 
     func dismiss() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
-            dismissAction(())
+            dismiss(with: nil)
         }
     }
 }
@@ -68,6 +70,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 extension YieldModulePromoCoordinator {
     struct Options {
         let viewModel: YieldModulePromoViewModel
-        let feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
     }
+
+    typealias DismissOptions = FeeCurrencyNavigatingDismissOption
 }
