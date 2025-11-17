@@ -244,20 +244,37 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .walletsWithNFTEnabledPublisher
             .share(replay: 1)
 
-        // accounts_fixes_needed_nft
-        let nftEntrypointViewModelPublisher = Publishers.Merge(
-            walletsWithNFTEnabledPublisher,
-            userWalletModel
-                .walletModelsManager
-                .walletModelsPublisher
-                .withLatestFrom(walletsWithNFTEnabledPublisher)
-        )
+        let nftEntrypointViewModelPublisher: AnyPublisher<Set<UserWalletId>, Never>
+
+        let hasAccounts = FeatureProvider.isAvailable(.accounts)
+
+        if hasAccounts {
+            nftEntrypointViewModelPublisher = Publishers.Merge(
+                walletsWithNFTEnabledPublisher,
+                AccountWalletModelsAggregator
+                    .walletModelsPublisher(from: userWalletModel.accountModelsManager)
+                    .withLatestFrom(walletsWithNFTEnabledPublisher)
+            )
+            .eraseToAnyPublisher()
+        } else {
+            // accounts_fixes_needed_none
+            nftEntrypointViewModelPublisher = Publishers.Merge(
+                walletsWithNFTEnabledPublisher,
+                userWalletModel
+                    .walletModelsManager
+                    .walletModelsPublisher
+                    .withLatestFrom(walletsWithNFTEnabledPublisher)
+            )
+            .eraseToAnyPublisher()
+        }
 
         nftEntrypointViewModelPublisher
             .withWeakCaptureOf(self)
             .flatMap { viewModel, walletsWithNFTEnabled in
                 let isNFTEnabledForWallet = walletsWithNFTEnabled.contains(viewModel.userWalletModel.userWalletId)
-                let result = Result { try viewModel.makeNFTEntrypointViewModelIfNeeded(isNFTEnabledForWallet: isNFTEnabledForWallet) }
+                let result = Result {
+                    try viewModel.makeNFTEntrypointViewModelIfNeeded(isNFTEnabledForWallet: isNFTEnabledForWallet)
+                }
 
                 return result
                     .publisher
@@ -322,9 +339,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
     private func makeNFTEntrypointViewModelIfNeeded(isNFTEnabledForWallet: Bool) throws -> NFTEntrypointViewModel? {
+        let hasWallets = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel).isNotEmpty
+
         // NFT Entrypoint is shown only if the feature is enabled for the wallet and there is at least one token in the token list
-        // accounts_fixes_needed_nft
-        guard isNFTEnabledForWallet, userWalletModel.walletModelsManager.walletModels.isNotEmpty else {
+        guard isNFTEnabledForWallet, hasWallets else {
             return nil
         }
 
@@ -333,24 +351,22 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             throw "NFTEntrypointViewModel already created"
         }
 
-        // accounts_fixes_needed_nft
-        let navigationContext = NFTNavigationInput(
-            userWalletModel: userWalletModel,
-            name: userWalletModel.name,
-            walletModelsManager: userWalletModel.walletModelsManager
-        )
         let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(
             accountModelsManager: userWalletModel.accountModelsManager
         )
-        let nftAccountNavigationContextProvider = NFTAccountNavigationContextProvider(
-            userWalletModel: userWalletModel
+
+        // [REDACTED_TODO_COMMENT]
+        let navigationInput = NFTNavigationInput(
+            userWalletModel: userWalletModel,
+            name: userWalletModel.name,
+            // accouns_fixes_needed_none
+            walletModelsManager: userWalletModel.walletModelsManager
         )
 
         return NFTEntrypointViewModel(
             nftManager: userWalletModel.nftManager,
             accountForCollectionsProvider: accountForNFTCollectionsProvider,
-            nftAccountNavigationContextProvider: nftAccountNavigationContextProvider,
-            navigationContext: navigationContext,
+            navigationContext: navigationInput,
             analytics: NFTAnalytics.Entrypoint(
                 logCollectionsOpen: { state, collectionsCount, nftsCount, dummyCollectionsCount in
                     Analytics.log(
