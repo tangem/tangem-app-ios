@@ -61,7 +61,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
             yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         )
 
-        // accounts_fixes_needed_express
         let expressFactory = ExpressPendingTransactionsFactory(
             userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,

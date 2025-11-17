@@ -46,15 +46,13 @@ extension CommonExpressDestinationService: ExpressDestinationService {
 // MARK: - Private
 
 private extension CommonExpressDestinationService {
-    func getExpressInteractorWallet(base: any ExpressInteractorDestinationWallet, searchType: SearchType) async -> (any ExpressInteractorSourceWallet)? {
-        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
-            return nil
-        }
-
-        // accounts_fixes_needed_express
-        let walletModelsManager = userWalletModel.walletModelsManager
+    func getExpressInteractorWallet(
+        base: any ExpressInteractorDestinationWallet,
+        searchType: SearchType
+    ) async -> (any ExpressInteractorSourceWallet)? {
+        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletRepository.models)
         let availablePairs = await expressPairsRepository.getPairs(from: base.tokenItem.expressCurrency)
-        let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
+        let searchableWalletModels = walletModels.filter { wallet in
             let isNotSource = wallet.id != base.id
             let isAvailable = expressAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
             let isNotCustom = !wallet.isCustom
