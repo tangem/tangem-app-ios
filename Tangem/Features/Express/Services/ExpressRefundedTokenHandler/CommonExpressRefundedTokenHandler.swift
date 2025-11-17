@@ -10,20 +10,19 @@ import Foundation
 import TangemExpress
 
 class CommonExpressRefundedTokenHandler: ExpressRefundedTokenHandler {
-    private let userTokensManager: UserTokensManager
-    private let tokenFinder: TokenFinder
+    private let tokenLoader: TokenLoader
 
-    init(userTokensManager: any UserTokensManager, tokenFinder: any TokenFinder) {
-        self.userTokensManager = userTokensManager
-        self.tokenFinder = tokenFinder
+    init(tokenLoader: any TokenLoader) {
+        self.tokenLoader = tokenLoader
     }
 
     func handle(blockchainNetwork: BlockchainNetwork, expressCurrency: ExpressCurrency) async throws -> TokenItem {
-        let tokenItem = try await tokenFinder.findToken(
+        let tokenItem = try await tokenLoader.findToken(
             blockchainNetwork: blockchainNetwork,
             contractAddress: expressCurrency.contractAddress
         )
-        try userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
+
+        try TokenAdder.addToken(tokenItem: tokenItem)
         return tokenItem
     }
 }

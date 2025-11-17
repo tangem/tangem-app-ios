@@ -1,5 +1,5 @@
 //
-//  CommonTokenFinder.swift
+//  CommonTokenLoader.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemExpress
 
-class CommonTokenFinder: TokenFinder {
+class CommonTokenLoader: TokenLoader {
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
     private let supportedBlockchains: Set<Blockchain>
@@ -51,7 +51,7 @@ class CommonTokenFinder: TokenFinder {
     }
 }
 
-extension CommonTokenFinder {
+extension CommonTokenLoader {
     enum Error: LocalizedError {
         case unsupportedBlockchain
         case unknownNetworkId

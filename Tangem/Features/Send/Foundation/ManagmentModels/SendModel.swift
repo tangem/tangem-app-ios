@@ -50,7 +50,6 @@ class SendModel {
 
     private let transactionSigner: TransactionSigner
     private let feeIncludedCalculator: FeeIncludedCalculator
-    private let tokenAdder: TokenAdder
     private let analyticsLogger: SendAnalyticsLogger
     private let sendReceiveTokenBuilder: SendReceiveTokenBuilder
     private let sendAlertBuilder: SendAlertBuilder
@@ -66,7 +65,6 @@ class SendModel {
         userToken: SendSourceToken,
         transactionSigner: TransactionSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
-        tokenAdder: TokenAdder,
         analyticsLogger: SendAnalyticsLogger,
         sendReceiveTokenBuilder: SendReceiveTokenBuilder,
         sendAlertBuilder: SendAlertBuilder,
@@ -75,7 +73,6 @@ class SendModel {
     ) {
         self.transactionSigner = transactionSigner
         self.feeIncludedCalculator = feeIncludedCalculator
-        self.tokenAdder = tokenAdder
         self.analyticsLogger = analyticsLogger
         self.sendReceiveTokenBuilder = sendReceiveTokenBuilder
         self.sendAlertBuilder = sendAlertBuilder
@@ -331,7 +328,7 @@ private extension SendModel {
     private func addTokenFromTransactionIfNeeded(_ transaction: BSDKTransaction) {
         switch transaction.amount.type.token {
         case .some(let token) where token.metadata.kind == .fungible:
-            try? tokenAdder.addToken(defaultAddress: transaction.destinationAddress, token: token)
+            try? TokenAdder.addToken(defaultAddress: transaction.destinationAddress, token: token)
         default:
             break // NFTs should never be shown in the token list
         }

@@ -65,7 +65,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
         let expressFactory = ExpressPendingTransactionsFactory(
             userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
-            userTokensManager: options.userTokensManager,
         )
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()

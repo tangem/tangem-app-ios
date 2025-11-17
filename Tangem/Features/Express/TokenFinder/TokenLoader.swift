@@ -1,5 +1,5 @@
 //
-//  TokenFinder.swift
+//  TokenLoader.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,6 +9,6 @@
 import Foundation
 import BlockchainSdk
 
-protocol TokenFinder {
+protocol TokenLoader {
     func findToken(blockchainNetwork: BlockchainNetwork, contractAddress: String) async throws -> TokenItem
 }

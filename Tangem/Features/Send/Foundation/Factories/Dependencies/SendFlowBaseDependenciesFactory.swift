@@ -29,7 +29,6 @@ extension SendFlowBaseDependenciesFactory {
             userToken: makeSourceToken(),
             transactionSigner: userWalletInfo.signer,
             feeIncludedCalculator: CommonFeeIncludedCalculator(validator: walletModelDependenciesProvider.transactionValidator),
-            tokenAdder: TokenAdder(tokenFinder: CommonTokenFinder(supportedBlockchains: userWalletInfo.config.supportedBlockchains)),
             analyticsLogger: analyticsLogger,
             sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
             sendAlertBuilder: makeSendAlertBuilder(),

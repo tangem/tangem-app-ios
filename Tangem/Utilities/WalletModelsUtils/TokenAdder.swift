@@ -8,26 +8,16 @@
 
 import Foundation
 
-struct TokenAdder {
-    private let tokenFinder: TokenFinder
-
-    init(tokenFinder: any TokenFinder) {
-        self.tokenFinder = tokenFinder
-    }
-
-    func addToken(blockchainNetwork: BlockchainNetwork, contractAddress: String) async throws -> TokenItem {
-        let tokenItem = try await tokenFinder.findToken(
-            blockchainNetwork: blockchainNetwork,
-            contractAddress: contractAddress
-        )
-
+enum TokenAdder {
+    static func addToken(tokenItem: TokenItem) throws {
+        assert(tokenItem.isToken, "Support only token. Because for blockchain probably need a derivation")
+        let blockchainNetwork = tokenItem.blockchainNetwork
         let walletModelResult = try WalletModelFinder.findWalletModel(tokenItem: .blockchain(blockchainNetwork))
         let userTokensManager = try userTokensManager(walletModelResult: walletModelResult)
         try userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
-        return tokenItem
     }
 
-    func addToken(defaultAddress: String, token: BSDKToken) throws {
+    static func addToken(defaultAddress: String, token: BSDKToken) throws {
         let walletModelResult = try WalletModelFinder.findMainWalletModel(defaultAddress: defaultAddress)
         let userTokensManager = try userTokensManager(walletModelResult: walletModelResult)
 
@@ -40,7 +30,7 @@ struct TokenAdder {
 // MARK: - Private
 
 private extension TokenAdder {
-    func userTokensManager(walletModelResult: WalletModelFinder.Result) throws -> any UserTokensManager {
+    static func userTokensManager(walletModelResult: WalletModelFinder.Result) throws -> any UserTokensManager {
         let userTokensManager: (any UserTokensManager)? = if FeatureProvider.isAvailable(.accounts) {
             walletModelResult.walletModel.account?.userTokensManager
         } else {
