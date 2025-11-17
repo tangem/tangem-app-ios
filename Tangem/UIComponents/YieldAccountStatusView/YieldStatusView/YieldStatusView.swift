@@ -94,7 +94,7 @@ struct YieldStatusView: View {
     }
 
     private var yellowWarningSign: some View {
-        Assets.attention20.image
+        Assets.attention.image
     }
 
     private var blueWarningSign: some View {

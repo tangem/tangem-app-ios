@@ -78,6 +78,9 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
         VStack(spacing: 12) {
             HStack(spacing: 12) {
                 icon
+                    .resizable()
+                    .frame(size: .init(bothDimensions: 20))
+
                 message
                 Spacer()
             }
