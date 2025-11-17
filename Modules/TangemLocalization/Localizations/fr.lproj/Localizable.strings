@@ -1339,12 +1339,12 @@
 "tangempay_card_details_hide_details" = "Hide details";
 "tangempay_card_details_hide_text" = "Hide";
 "tangempay_card_details_open_wallet_button" = "Open Google Wallet";
+"tangempay_card_details_open_wallet_notification_subtitle_apple" = "Set up Tangem Pay in a few taps and start paying with Apple Pay.";
 "tangempay_card_details_open_wallet_notification_subtitle" = "Set up Tangem Pay in a few taps and start paying with Google Pay.";
 "tangempay_card_details_open_wallet_notification_title_apple" = "Add your card to Apple Pay";
 "tangempay_card_details_open_wallet_notification_title" = "Add your card to Google Pay";
-"tangempay_card_details_open_wallet_step_1_apple_open" = "Open";
-"tangempay_card_details_open_wallet_step_1_apple_wallet" = "Apple Wallet";
-"tangempay_card_details_open_wallet_step_1.5_apple" = "Tap “+” button on the top right";
+"tangempay_card_details_open_wallet_step_1_5_apple" = "Tap “+” button on the top right";
+"tangempay_card_details_open_wallet_step_1_apple" = "Open Apple Wallet";
 "tangempay_card_details_open_wallet_step_1" = "Open Google Wallet";
 "tangempay_card_details_open_wallet_step_2_apple" = "Tap “Debit or Credit Card”";
 "tangempay_card_details_open_wallet_step_2" = "Tap “Add a card”";
@@ -1873,7 +1873,7 @@
 "yield_module_status_active" = "Actif";
 "yield_module_status_paused" = "En pause";
 "yield_module_stop_earning_sheet_description" = "En désactivant cela, vos fonds seront retirés d'Aave vers %@ dans votre portefeuille et vous ne gagnerez plus de récompenses.";
-"yield_module_stop_earning_sheet_fee_note" = "Les frais de réseau seront déduits du montant que vous retirez.";
+"yield_module_stop_earning_sheet_fee_note" = "Des frais de réseau sont prélevés par la blockchain lorsque vous quittez le mode Yield.";
 "yield_module_stop_earning_sheet_title" = "Désactiver le mode rendement";
 "yield_module_stop_earning" = "Désactivation du mode de rendement";
 "yield_module_supply_apr" = "Rendement annuel brut (APY)";

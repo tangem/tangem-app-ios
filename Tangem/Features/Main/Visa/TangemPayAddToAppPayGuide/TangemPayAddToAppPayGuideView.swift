@@ -27,12 +27,26 @@ struct TangemPayAddToAppPayGuideView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
-            .withCloseButton(placement: .topBarTrailing, style: .crossImage) {
-                dismiss()
-            }
+            .withCloseButton(
+                placement: .topBarTrailing,
+                style: .crossImage,
+                action: viewModel.close
+            )
             .safeAreaInset(edge: .bottom) {
-                bottomButton
-                    .padding(16)
+                VStack(spacing: 8) {
+                    MainButton(
+                        title: Localization.commonGotIt,
+                        style: .secondary,
+                        action: viewModel.close
+                    )
+
+                    MainButton(
+                        title: Localization.tangempayCardDetailsOpenWalletStep1Apple,
+                        style: .primary,
+                        action: viewModel.openAppleWalletApp
+                    )
+                }
+                .padding(16)
             }
         }
     }
@@ -44,41 +58,18 @@ struct TangemPayAddToAppPayGuideView: View {
                 .multilineTextAlignment(.center)
 
             VStack(alignment: .leading, spacing: 16) {
-                step(number: "1", text: openAppleWalletAttributedString, action: {
-                    viewModel.openAppleWalletApp()
-                })
-
-                step(number: "2", text: defaultAttributedString(Localization.TangempayCardDetailsOpenWalletStep1._5Apple))
-                step(number: "3", text: defaultAttributedString(Localization.tangempayCardDetailsOpenWalletStep2Apple))
-                step(number: "4", text: defaultAttributedString(Localization.tangempayCardDetailsOpenWalletStep3))
-                step(number: "5", text: defaultAttributedString(Localization.tangempayCardDetailsOpenWalletStep4))
-                step(number: "6", text: defaultAttributedString(Localization.tangempayCardDetailsOpenWalletStep5))
+                step(number: "1", text: Localization.tangempayCardDetailsOpenWalletStep1Apple)
+                step(number: "2", text: Localization.tangempayCardDetailsOpenWalletStep15Apple)
+                step(number: "3", text: Localization.tangempayCardDetailsOpenWalletStep2Apple)
+                step(number: "4", text: Localization.tangempayCardDetailsOpenWalletStep3)
+                step(number: "5", text: Localization.tangempayCardDetailsOpenWalletStep4)
+                step(number: "6", text: Localization.tangempayCardDetailsOpenWalletStep5)
             }
             .padding(.horizontal, 24)
         }
     }
 
-    var bottomButton: some View {
-        MainButton(title: "Got it", style: .primary) {
-            dismiss()
-        }
-    }
-
-    @ViewBuilder
-    func step(number: String, text: AttributedString, action: (() -> Void)? = nil) -> some View {
-        if let action {
-            Button(
-                action: action,
-                label: {
-                    stepContent(number: number, text: text)
-                }
-            )
-        } else {
-            stepContent(number: number, text: text)
-        }
-    }
-
-    func stepContent(number: String, text: AttributedString) -> some View {
+    func step(number: String, text: String) -> some View {
         HStack(spacing: 16) {
             Text(number)
                 .style(Fonts.Bold.footnote, color: Colors.Text.constantWhite)
@@ -89,31 +80,8 @@ struct TangemPayAddToAppPayGuideView: View {
                 }
 
             Text(text)
+                .style(Fonts.Bold.callout, color: Colors.Text.primary1)
                 .multilineTextAlignment(.leading)
         }
-    }
-
-    var openAppleWalletAttributedString: AttributedString {
-        var open = AttributedString(Localization.tangempayCardDetailsOpenWalletStep1AppleOpen + " ")
-        open.foregroundColor = Colors.Text.primary1
-        open.font = Fonts.Bold.callout
-
-        var appleWallet = AttributedString(Localization.tangempayCardDetailsOpenWalletStep1AppleWallet)
-        appleWallet.foregroundColor = Colors.Text.accent
-        appleWallet.font = Fonts.Regular.callout
-
-        return open + appleWallet
-    }
-
-    func defaultAttributedString(_ string: String) -> AttributedString {
-        var result = AttributedString(string)
-        result.foregroundColor = Colors.Text.primary1
-        result.font = Fonts.Bold.callout
-
-        return result
-    }
-
-    func dismiss() {
-        viewModel.onDismiss()
     }
 }
