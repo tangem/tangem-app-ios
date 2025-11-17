@@ -16,7 +16,7 @@ protocol ExpressRoutable: AnyObject {
     func presentFeeSelectorView()
     func presentApproveView(source: any ExpressInteractorSourceWallet, provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy)
     func presentProviderSelectorView()
-    func presentFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem)
+    func presentFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption)
     func presentSuccessView(data: SentExpressTransactionData)
     func closeSwappingView()
 }
