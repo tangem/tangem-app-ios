@@ -10,14 +10,14 @@ import Foundation
 import TangemExpress
 
 class CommonExpressRefundedTokenHandler: ExpressRefundedTokenHandler {
-    private let tokenLoader: TokenLoader
+    private let tokenLoader: TokenEnricher
 
-    init(tokenLoader: any TokenLoader) {
+    init(tokenLoader: any TokenEnricher) {
         self.tokenLoader = tokenLoader
     }
 
     func handle(blockchainNetwork: BlockchainNetwork, expressCurrency: ExpressCurrency) async throws -> TokenItem {
-        let tokenItem = try await tokenLoader.loadToken(
+        let tokenItem = try await tokenLoader.enrichToken(
             blockchainNetwork: blockchainNetwork,
             contractAddress: expressCurrency.contractAddress
         )

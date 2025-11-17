@@ -18,7 +18,7 @@ import TangemFoundation
 // `005` - AnyWalletManagerFactoryError
 // `006` - MultipleAddressTransactionHistoryService.ServiceError
 // `007` - CommonUserTokensManager.Error
-// `008` - CommonTokenLoader.Error
+// `008` - CommonTokenEnricher.Error
 // `009` - OrganizeTokensViewModel.Error
 // `010` - WalletModelError
 
@@ -174,7 +174,7 @@ extension AccountsAwareUserTokensManager.Error: UniversalError {
     }
 }
 
-extension CommonTokenLoader.Error: UniversalError {
+extension CommonTokenEnricher.Error: UniversalError {
     var errorCode: Int {
         switch self {
         case .notFound:

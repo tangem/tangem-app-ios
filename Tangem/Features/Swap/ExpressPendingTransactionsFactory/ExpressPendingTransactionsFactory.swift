@@ -13,7 +13,7 @@ struct ExpressPendingTransactionsFactory {
     let walletModel: any WalletModel
 
     func makePendingExpressTransactionsManager() -> any PendingExpressTransactionsManager {
-        let tokenLoader = CommonTokenLoader(
+        let tokenLoader = CommonTokenEnricher(
             supportedBlockchains: userWalletInfo.config.supportedBlockchains
         )
 

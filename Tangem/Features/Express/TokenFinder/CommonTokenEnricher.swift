@@ -1,5 +1,5 @@
 //
-//  CommonTokenLoader.swift
+//  CommonTokenEnricher.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemExpress
 
-class CommonTokenLoader: TokenLoader {
+class CommonTokenEnricher: TokenEnricher {
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
     private let supportedBlockchains: Set<Blockchain>
@@ -20,7 +20,7 @@ class CommonTokenLoader: TokenLoader {
         self.supportedBlockchains = supportedBlockchains
     }
 
-    func loadToken(blockchainNetwork: BlockchainNetwork, contractAddress: String) async throws -> TokenItem {
+    func enrichToken(blockchainNetwork: BlockchainNetwork, contractAddress: String) async throws -> TokenItem {
         let blockchain = blockchainNetwork.blockchain
 
         guard supportedBlockchains.contains(blockchain) else {
@@ -51,7 +51,7 @@ class CommonTokenLoader: TokenLoader {
     }
 }
 
-extension CommonTokenLoader {
+extension CommonTokenEnricher {
     enum Error: LocalizedError {
         case unsupportedBlockchain
         case unknownNetworkId
