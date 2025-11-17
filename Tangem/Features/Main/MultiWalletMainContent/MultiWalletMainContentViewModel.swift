@@ -359,7 +359,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let navigationInput = NFTNavigationInput(
             userWalletModel: userWalletModel,
             name: userWalletModel.name,
-            // accouns_fixes_needed_none
+            // accounts_fixes_needed_none
             walletModelsManager: userWalletModel.walletModelsManager
         )
 
@@ -515,7 +515,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func findWalletModel(with id: WalletModelId) -> (any WalletModel)? {
-        // accounts_fixes_needed_token_none
+        // accounts_fixes_needed_none
         let allWalletModels = FeatureProvider.isAvailable(.accounts)
             ? AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
             : userWalletModel.walletModelsManager.walletModels
