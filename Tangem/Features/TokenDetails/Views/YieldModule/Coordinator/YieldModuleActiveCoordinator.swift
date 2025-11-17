@@ -19,20 +19,16 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 
     // MARK: - Propeties
 
-    let dismissAction: Action<Void>
+    let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
 
     @Published
     var rootViewModel: YieldModuleActiveViewModel? = nil
     private var handle: SafariHandle?
 
-    // MARK: - Dependencies
-
-    private weak var feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
-
     // MARK: - Init
 
-    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
+    required init(dismissAction: @escaping Action<DismissOptions?>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -41,7 +37,6 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         rootViewModel = options.viewModel
-        feeCurrencyNavigator = options.feeCurrencyNavigator
     }
 
     @MainActor
@@ -62,8 +57,11 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
         }
     }
 
-    func openFeeCurrency(for feeWalletModel: any WalletModel, userWalletModel: any UserWalletModel) {
-        feeCurrencyNavigator?.openFeeCurrency(for: feeWalletModel, userWalletModel: userWalletModel)
+    func openFeeCurrency(walletModel: any WalletModel) {
+        Task { @MainActor [weak self] in
+            self?.floatingSheetPresenter.removeActiveSheet()
+            self?.dismiss(with: .init(walletModel: walletModel))
+        }
     }
 
     func closeBottomSheet() {
@@ -75,7 +73,7 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
     func dismiss() {
         Task { @MainActor [weak self] in
             self?.floatingSheetPresenter.removeActiveSheet()
-            self?.dismissAction(())
+            self?.dismiss(with: nil)
         }
     }
 
@@ -97,6 +95,7 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 extension YieldModuleActiveCoordinator {
     struct Options {
         let viewModel: YieldModuleActiveViewModel
-        let feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
     }
+
+    typealias DismissOptions = FeeCurrencyNavigatingDismissOption
 }
