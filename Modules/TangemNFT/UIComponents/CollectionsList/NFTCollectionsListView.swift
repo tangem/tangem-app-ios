@@ -355,7 +355,6 @@ let collections = (0 ... 20).map {
                     )
                 ),
                 accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
-                navigationContext: NFTNavigationContextMock(),
                 dependencies: NFTCollectionsListDependencies(
                     nftChainIconProvider: DummyProvider(),
                     nftChainNameProviding: NFTChainNameProviderMock(),
@@ -380,7 +379,6 @@ let collections = (0 ... 20).map {
                         state: .loaded(.init(value: collections, errors: []))
                     ),
                     accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
-                    navigationContext: NFTNavigationContextMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
                         nftChainNameProviding: NFTChainNameProviderMock(),
@@ -406,7 +404,6 @@ let collections = (0 ... 20).map {
                         state: .loading
                     ),
                     accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
-                    navigationContext: NFTNavigationContextMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
                         nftChainNameProviding: NFTChainNameProviderMock(),
@@ -432,7 +429,6 @@ let collections = (0 ... 20).map {
                         state: .failedToLoad(error: NSError.dummy)
                     ),
                     accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
-                    navigationContext: NFTNavigationContextMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
                         nftChainNameProviding: NFTChainNameProviderMock(),
@@ -456,7 +452,6 @@ let collections = (0 ... 20).map {
                 viewModel: .init(
                     nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
                     accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
-                    navigationContext: NFTNavigationContextMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
                         nftChainNameProviding: NFTChainNameProviderMock(),
