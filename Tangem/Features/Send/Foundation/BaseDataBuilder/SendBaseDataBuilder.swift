@@ -15,7 +15,7 @@ protocol SendBaseDataBuilder: SendGenericBaseDataBuilder {
     func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
     func makeMailData(transactionData: Data, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
     func makeSendReceiveTokensList() -> SendReceiveTokensListBuilder
-    func makeFeeCurrencyData() -> (userWalletId: UserWalletId, feeTokenItem: TokenItem)
+    func makeFeeCurrencyData() -> FeeCurrencyNavigatingDismissOption
 }
 
 protocol StakingBaseDataBuilder: SendGenericBaseDataBuilder {
