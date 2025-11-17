@@ -238,7 +238,7 @@ final class YieldModuleStartViewModel: ObservableObject {
 
             if isFeeHigh {
                 logger.logEarningNoticeNotEnoughFeeShown()
-                networkFeeNotification = createNotEnoughFeeNotification()
+                networkFeeNotification = createNotEnoughFeeNotification(walletModel: walletModel)
             }
 
             isNavigationToFeePolicyEnabled = true
@@ -286,20 +286,6 @@ final class YieldModuleStartViewModel: ObservableObject {
             feePolicyFooter = nil
         }
     }
-
-    private func getFeeCurrencyWalletModel(in userWalletModel: any UserWalletModel) -> (any WalletModel)? {
-        guard let selectedUserModel = userWalletRepository.selectedModel,
-              // accounts_fixes_needed_yield
-              let feeCurrencyWalletModel = selectedUserModel.walletModelsManager.walletModels.first(where: {
-                  $0.tokenItem == walletModel.feeTokenItem
-              })
-        else {
-            assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
-            return nil
-        }
-
-        return feeCurrencyWalletModel
-    }
 }
 
 // MARK: - View State
@@ -332,13 +318,9 @@ extension YieldModuleStartViewModel: FloatingSheetContentViewModel {}
 // MARK: - Notification Builders
 
 private extension YieldModuleStartViewModel {
-    func createNotEnoughFeeNotification() -> YieldModuleNotificationBannerParams {
+    func createNotEnoughFeeNotification(walletModel: any WalletModel) -> YieldModuleNotificationBannerParams {
         notificationManager.createNotEnoughFeeCurrencyNotification { [weak self] in
-            if let selectedUserWalletModel = self?.userWalletRepository.selectedModel,
-               let feeWalletModel = self?.getFeeCurrencyWalletModel(in: selectedUserWalletModel) {
-                self?.onCloseTap()
-                self?.coordinator?.openFeeCurrency(for: feeWalletModel, userWalletModel: selectedUserWalletModel)
-            }
+            self?.coordinator?.openFeeCurrency(walletModel: walletModel)
         }
     }
 
