@@ -31,7 +31,7 @@ struct CreateWalletSelectorView: View {
 
 private extension CreateWalletSelectorView {
     var content: some View {
-        VStack {
+        VStack(spacing: 0) {
             NavigationBar(
                 title: "",
                 leftButtons: {
