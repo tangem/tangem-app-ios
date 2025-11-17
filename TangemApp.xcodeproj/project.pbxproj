@@ -100,6 +100,7 @@
 		0AB8BD3E2DBB7EFD00D88677 /* ReferralConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */; };
 		0ABAA2F52E56074100024627 /* MobileWalletAddressesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABAA2F42E56074100024627 /* MobileWalletAddressesTests.swift */; };
 		0ABBB2A12ECA23110082BC76 /* EthereumPendingTransactionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2A02ECA23110082BC76 /* EthereumPendingTransactionsHandler.swift */; };
+		0ABBB29F2EC852BE0082BC76 /* YieldModuleStateMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB29E2EC852BE0082BC76 /* YieldModuleStateMapper.swift */; };
 		0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */ = {isa = PBXBuildFile; productRef = 0ABC61142C410AFD00065EBA /* TweetNacl */; };
 		0ABCEE672E3B954000662B9F /* WalletInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCEE662E3B954000662B9F /* WalletInitializer.swift */; };
 		0ABCFCEB2DCA35F400C9F901 /* MarketsStakingNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */; };
@@ -4472,6 +4473,7 @@
 		0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralConstants.swift; sourceTree = "<group>"; };
 		0ABAA2F42E56074100024627 /* MobileWalletAddressesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletAddressesTests.swift; sourceTree = "<group>"; };
 		0ABBB2A02ECA23110082BC76 /* EthereumPendingTransactionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumPendingTransactionsHandler.swift; sourceTree = "<group>"; };
+		0ABBB29E2EC852BE0082BC76 /* YieldModuleStateMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleStateMapper.swift; sourceTree = "<group>"; };
 		0ABCEE662E3B954000662B9F /* WalletInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInitializer.swift; sourceTree = "<group>"; };
 		0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsStakingNotificationView.swift; sourceTree = "<group>"; };
 		0ABDAEC32E325816001C7EE4 /* MobileWalletSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletSigner.swift; sourceTree = "<group>"; };
@@ -8980,6 +8982,13 @@
 		0A941BE32E6B29D200770474 /* YieldModule */ = {
 			isa = PBXGroup;
 			children = (
+				0A941BE42E6B2A0700770474 /* YieldModuleManager.swift */,
+				0ABBB29E2EC852BE0082BC76 /* YieldModuleStateMapper.swift */,
+				0AF62CDE2EA286BF0009737E /* YieldAllowanceUtil.swift */,
+				0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */,
+				0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */,
+				0A6EB33A2EAB5E230006DB1C /* YieldModuleStateRepository.swift */,
+				EA742A9D2E97A02F0074FCD2 /* YieldModuleChartManager.swift */,
 				0AAE54642E9583B000F1CCD5 /* APIService */,
 				0AB3467F2E83C963004003A0 /* DTO */,
 				0AB3467C2E83C5DA004003A0 /* Domain */,
@@ -18764,12 +18773,6 @@
 			isa = PBXGroup;
 			children = (
 				0A941BE32E6B29D200770474 /* YieldModule */,
-				0A941BE42E6B2A0700770474 /* YieldModuleManager.swift */,
-				0AF62CDE2EA286BF0009737E /* YieldAllowanceUtil.swift */,
-				0AB346862E8402A2004003A0 /* YieldModuleNetworkManager.swift */,
-				0AB346882E840E44004003A0 /* YieldModuleMarketsRepository.swift */,
-				0A6EB33A2EAB5E230006DB1C /* YieldModuleStateRepository.swift */,
-				EA742A9D2E97A02F0074FCD2 /* YieldModuleChartManager.swift */,
 				308631572E40E36C00D58D37 /* Accounts */,
 				B0D1AC302906718600584E6C /* Analytics */,
 				DC5E6FDA2C906331008A98D0 /* AppLock */,
@@ -24376,6 +24379,7 @@
 				EFC98FFD2CD3A3F80098B7C8 /* OnrampPaymentMethodRowView.swift in Sources */,
 				EFC98FFE2CD3A3F80098B7C8 /* OnrampPaymentMethodsView.swift in Sources */,
 				EFD2E5F92DF277C0008B943E /* SwapManager.swift in Sources */,
+				0ABBB29F2EC852BE0082BC76 /* YieldModuleStateMapper.swift in Sources */,
 				EFC98FFF2CD3A3F80098B7C8 /* OnrampPaymentMethodsViewModel.swift in Sources */,
 				EFC990002CD3A3F80098B7C8 /* OnrampPaymentMethodsRoutable.swift in Sources */,
 				EFC990012CD3A3F80098B7C8 /* OnrampPaymentMethodRowViewData.swift in Sources */,
