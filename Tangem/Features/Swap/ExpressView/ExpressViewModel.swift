@@ -754,10 +754,10 @@ private extension ExpressViewModel {
             return
         }
 
-        coordinator?.presentFeeCurrency(
+        coordinator?.presentFeeCurrency(feeCurrency: .init(
             userWalletId: userWalletInfo.id,
             feeTokenItem: sender.feeTokenItem
-        )
+        ))
     }
 
     func feeValue(from event: ExpressNotificationEvent) -> Decimal? {
