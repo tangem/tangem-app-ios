@@ -47,6 +47,14 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
                         .getInfo(
                             address: convertedAddress,
                             tokens: walletManager.cardTokens,
+                            pendingTransactionsHashes: walletManager.wallet.pendingTransactions
+                                .filter { transaction in
+                                    switch transaction.status {
+                                    case .none, .pending: true
+                                    default: false
+                                    }
+                                }
+                                .map(\.hash)
                         ),
                     walletManager
                         .getYieldBalances(
@@ -295,6 +303,32 @@ extension EthereumWalletManager: EthereumNetworkProvider {
     func getFeeHistory() -> AnyPublisher<EthereumFeeHistory, Error> {
         networkService.getFeeHistory()
     }
+
+    // Transactions status
+
+    func getTransactionStatus(hash: String) -> AnyPublisher<PendingTransactionStatus, Error> {
+        networkService.getTransactionByHash(hash)
+            .flatMap { transaction -> AnyPublisher<PendingTransactionStatus, Error> in
+                switch transaction {
+                case .some(let transaction) where transaction.blockNumber == nil &&
+                    transaction.blockHash == nil &&
+                    transaction.transactionIndex == nil:
+                    return .justWithError(output: .pending)
+                case .some(let transaction) where transaction.blockHash != nil:
+                    return self.networkService.getTransactionReceipt(hash: hash)
+                        .map { receipt -> PendingTransactionStatus in
+                            switch receipt?.status {
+                            case "0x1": .confirmed
+                            case "0x0": .failed
+                            default: .dropped
+                            }
+                        }
+                        .eraseToAnyPublisher()
+                default:
+                    return .justWithError(output: .dropped)
+                }
+            }.eraseToAnyPublisher()
+    }
 }
 
 // MARK: - Private
@@ -415,20 +449,31 @@ private extension EthereumWalletManager {
             }
         }
 
-        if response.txCount == response.pendingTxCount {
-            wallet.clearPendingTransaction()
-        } else if response.pendingTxs.isEmpty {
-            if wallet.pendingTransactions.isEmpty {
-                wallet.addDummyPendingTransaction()
-            }
-        } else {
-            wallet.clearPendingTransaction()
-            response.pendingTxs.forEach {
-                let mapper = PendingTransactionRecordMapper()
-                let transaction = mapper.mapToPendingTransactionRecord($0, blockchain: wallet.blockchain)
-                wallet.addPendingTransaction(transaction)
-            }
+        let pendingTransactions = wallet.pendingTransactions.compactMap { transaction -> PendingTransactionRecord? in
+            let newStatus = response.pendingTransactionsStatuses[transaction.hash]
+            if case .confirmed = newStatus { return nil }
+
+            var transactionToUpdate = transaction
+            transactionToUpdate.status = newStatus
+            return transactionToUpdate
         }
+
+        wallet.updatePendingTransaction(pendingTransactions)
+
+//        if response.txCount == response.pendingTxCount {
+//            wallet.clearPendingTransaction()
+//        } else if response.pendingTxs.isEmpty {
+//            if wallet.pendingTransactions.isEmpty {
+//                wallet.addDummyPendingTransaction()
+//            }
+//        } else {
+//            wallet.clearPendingTransaction()
+//            response.pendingTxs.forEach {
+//                let mapper = PendingTransactionRecordMapper()
+//                let transaction = mapper.mapToPendingTransactionRecord($0, blockchain: wallet.blockchain)
+//                wallet.addPendingTransaction(transaction)
+//            }
+//        }
     }
 }
 
