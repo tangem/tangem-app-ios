@@ -69,7 +69,6 @@ struct CommonUserWalletModelFactory {
             accountModelsManager: dependencies.accountModelsManager
         )
 
-        dependencies.walletModelsManager.initialize()
         dependencies.update(from: commonModel)
 
         switch walletInfo {
