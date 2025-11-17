@@ -637,7 +637,6 @@ extension MainCoordinator: NFTEntrypointRoutable {
     func openCollections(
         nftManager: NFTManager,
         accounForNFTCollectionsProvider: any AccountForNFTCollectionProviding,
-        nftAccountNavigationContextProvider: any NFTAccountNavigationContextProviding,
         navigationContext: NFTNavigationContext
     ) {
         mainBottomSheetUIManager.hide()
@@ -656,11 +655,10 @@ extension MainCoordinator: NFTEntrypointRoutable {
             with: .init(
                 nftManager: nftManager,
                 accounForNFTCollectionsProvider: accounForNFTCollectionsProvider,
-                nftAccountNavigationContextProvider: nftAccountNavigationContextProvider,
+                navigationContext: navigationContext,
                 nftChainIconProvider: NetworkImageProvider(),
                 nftChainNameProvider: NFTChainNameProvider(),
                 priceFormatter: NFTPriceFormatter(),
-                navigationContext: navigationContext,
                 blockchainSelectionAnalytics: NFTAnalytics.BlockchainSelection(
                     logBlockchainChosen: { blockchain in
                         Analytics.log(event: .nftReceiveBlockchainChosen, params: [.blockchain: blockchain])
