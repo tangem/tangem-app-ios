@@ -1339,12 +1339,12 @@
 "tangempay_card_details_hide_details" = "Hide details";
 "tangempay_card_details_hide_text" = "Hide";
 "tangempay_card_details_open_wallet_button" = "Open Google Wallet";
+"tangempay_card_details_open_wallet_notification_subtitle_apple" = "Set up Tangem Pay in a few taps and start paying with Apple Pay.";
 "tangempay_card_details_open_wallet_notification_subtitle" = "Set up Tangem Pay in a few taps and start paying with Google Pay.";
 "tangempay_card_details_open_wallet_notification_title_apple" = "Add your card to Apple Pay";
 "tangempay_card_details_open_wallet_notification_title" = "Add your card to Google Pay";
-"tangempay_card_details_open_wallet_step_1_apple_open" = "Open";
-"tangempay_card_details_open_wallet_step_1_apple_wallet" = "Apple Wallet";
-"tangempay_card_details_open_wallet_step_1.5_apple" = "Tap “+” button on the top right";
+"tangempay_card_details_open_wallet_step_1_5_apple" = "Tap “+” button on the top right";
+"tangempay_card_details_open_wallet_step_1_apple" = "Open Apple Wallet";
 "tangempay_card_details_open_wallet_step_1" = "Open Google Wallet";
 "tangempay_card_details_open_wallet_step_2_apple" = "Tap “Debit or Credit Card”";
 "tangempay_card_details_open_wallet_step_2" = "Tap “Add a card”";
@@ -1826,7 +1826,7 @@
 "yield_module_earn_sheet_fee_description" = "При поповненні для кредитування з балансу буде вирахувано комісію мережі, що не перевищує %1$@.";
 "yield_module_earn_sheet_high_fee_description" = "Наразі мережева комісія є занадто високою, щоб здійснювати кредитування. Кошти будуть надані, як тільки вона знизиться до %1$@ або нижче.";
 "yield_module_earn_sheet_my_funds_title" = "Мої кошти";
-"yield_module_earn_sheet_provider_description" = "Ваші %1$@ тепер розміщено в Aave і приносить дохід. У вас є токен %2$@, який представляє ваш баланс і з часом збільшується. При поповненні кошти автоматично направляються в Aave для отримання процентів з вирахуванням комісії за транзакцію.";
+"yield_module_earn_sheet_provider_description" = "Ваші %1$@ тепер розміщені в Aave і приносять дохід. У вас є токен %2$@, який представляє ваш баланс і з часом збільшується. При поповненні кошти автоматично направляються в Aave для отримання процентів з вирахуванням комісії за транзакцію.";
 "yield_module_earn_sheet_title" = "Режим дохідності";
 "yield_module_earn_sheet_total_earnings_title" = "Підсумковий дохід";
 "yield_module_earn_sheet_transfers_title" = "Перекази в Aave";
@@ -1873,7 +1873,7 @@
 "yield_module_status_active" = "Активний";
 "yield_module_status_paused" = "На паузі";
 "yield_module_stop_earning_sheet_description" = "Вимкнення цієї опції виведе ваші активи з Aave, отримаєте їх назад у %@ у вашому гаманці і зупинить накопичення нагород.";
-"yield_module_stop_earning_sheet_fee_note" = "Комісія мережі буде вирахувана з суми, яку ви знімаєте.";
+"yield_module_stop_earning_sheet_fee_note" = "Комісію мережі стягує блокчейн при виході з режиму доходності.";
 "yield_module_stop_earning_sheet_title" = "Завершити заробіток";
 "yield_module_stop_earning" = "Вимкнення режиму прибутковості";
 "yield_module_supply_apr" = "Річна прибутковість (APY)";

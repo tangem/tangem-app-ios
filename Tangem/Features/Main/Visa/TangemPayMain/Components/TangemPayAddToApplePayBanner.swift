@@ -25,7 +25,7 @@ struct TangemPayAddToApplePayBanner: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(Localization.tangempayCardDetailsOpenWalletTitleApple)
                     .style(Fonts.Bold.footnote, color: Colors.Text.constantWhite)
-                Text(Localization.tangempayCardDetailsOpenWalletNotificationSubtitle)
+                Text(Localization.tangempayCardDetailsOpenWalletNotificationSubtitleApple)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
             }
             .multilineTextAlignment(.leading)
