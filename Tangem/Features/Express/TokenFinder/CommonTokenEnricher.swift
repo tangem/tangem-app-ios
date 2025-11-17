@@ -54,7 +54,6 @@ class CommonTokenEnricher: TokenEnricher {
 extension CommonTokenEnricher {
     enum Error: LocalizedError {
         case unsupportedBlockchain
-        case unknownNetworkId
         case notFound
     }
 }
