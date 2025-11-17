@@ -57,9 +57,9 @@ struct YieldModuleStartView: View {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetDescription
         case .startEarning:
-            Localization.yieldModuleStartEarningSheetDescription(viewModel.walletModel.tokenItem.name)
+            Localization.yieldModuleStartEarningSheetDescription(viewModel.walletModel.tokenItem.currencySymbol)
         case .feePolicy:
-            Localization.yieldModuleFeePolicySheetDescription(viewModel.walletModel.tokenItem.name)
+            Localization.yieldModuleFeePolicySheetDescription(viewModel.walletModel.tokenItem.currencySymbol)
         }
     }
 
