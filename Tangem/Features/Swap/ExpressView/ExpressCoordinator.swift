@@ -61,10 +61,7 @@ extension ExpressCoordinator {
     }
 
     typealias DismissAction = Action<DismissOptions?>
-
-    enum DismissOptions {
-        case openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem)
-    }
+    typealias DismissOptions = FeeCurrencyNavigatingDismissOption
 }
 
 // MARK: - ExpressRoutable
@@ -114,12 +111,12 @@ extension ExpressCoordinator: ExpressRoutable {
         expressProvidersSelectorViewModel = factory.makeExpressProvidersSelectorViewModel(coordinator: self)
     }
 
-    func presentFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem) {
-        dismiss(with: .openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem))
+    func presentFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {
+        dismiss(with: feeCurrency)
     }
 
     func closeSwappingView() {
-        dismiss(with: nil)
+        dismiss(with: .none)
     }
 }
 
