@@ -67,7 +67,7 @@ struct CommonUserWalletModelDependencies {
             walletManagerFactory: walletManagerFactory,
             hasAccounts: hasAccounts
         )
-        // Initialized immediately after creation 
+        // Initialized immediately after creation since there are no dependencies to inject
         walletModelsManager.initialize()
 
         derivationManager = areHDWalletsSupported
@@ -392,6 +392,7 @@ private extension CommonUserWalletModelDependencies {
 
         func configure(with model: UserWalletModel) {
             userTokensManager.keysDerivingProvider = model
+            // `keysDerivingProvider` is the last dependency to inject, so it's safe to trigger initial synchronization here
             userTokensManager.sync {}
             hasConfiguredWithUserWalletModel = true
         }
