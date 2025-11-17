@@ -249,22 +249,24 @@ extension MainCoordinator: MainRoutable {
 
 extension MainCoordinator: MultiWalletMainContentRoutable {
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
-        let dismissAction: Action<Void> = { [weak self] _ in
+        let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModulePromoCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
         mainBottomSheetUIManager.hide()
-        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, feeCurrencyNavigator: self, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
         yieldModulePromoCoordinator = coordinator
     }
 
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
-        let dismissAction: Action<Void> = { [weak self] _ in
+        let dismissAction: Action<YieldModuleActiveCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModuleActiveCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
         mainBottomSheetUIManager.hide()
-        let coordinator = factory.makeYieldActiveCoordinator(feeCurrencyNavigator: self, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
         yieldModuleActiveCoordinator = coordinator
     }
 
@@ -346,7 +348,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
 // MARK: - SingleTokenBaseRoutable
 
-extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+extension MainCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
@@ -467,6 +469,16 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
             pendingTransactionsManager: pendingTransactionsManager,
             router: self
         )
+    }
+}
+
+// MARK: - SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+
+extension MainCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
+        // We add custom implementation because we have to call
+        // `mainBottomSheetUIManager.hide()` from main
+        openTokenDetails(for: model, userWalletModel: userWalletModel)
     }
 }
 
