@@ -13,12 +13,12 @@ struct ExpressPendingTransactionsFactory {
     let walletModel: any WalletModel
 
     func makePendingExpressTransactionsManager() -> any PendingExpressTransactionsManager {
-        let tokenLoader = CommonTokenEnricher(
+        let tokenEnricher = CommonTokenEnricher(
             supportedBlockchains: userWalletInfo.config.supportedBlockchains
         )
 
         let expressRefundedTokenHandler = CommonExpressRefundedTokenHandler(
-            tokenLoader: tokenLoader
+            tokenEnricher: tokenEnricher
         )
 
         let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
