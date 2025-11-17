@@ -28,7 +28,8 @@ struct SendDestinationSuggestedView: View {
         GroupedSection(viewModel.suggestedWallets) { wallet in
             SendDestinationSuggestedWalletView(
                 address: wallet.wallet.address,
-                iconViewModel: wallet.addressIconViewModel
+                iconViewModel: wallet.addressIconViewModel,
+                action: wallet.action
             ) {
                 HStack(spacing: 4) {
                     Text(wallet.wallet.name)
@@ -60,7 +61,8 @@ struct SendDestinationSuggestedView: View {
         GroupedSection(viewModel.suggestedRecentTransaction) { transaction in
             SendDestinationSuggestedWalletView(
                 address: transaction.record.address,
-                iconViewModel: transaction.addressIconViewModel
+                iconViewModel: transaction.addressIconViewModel,
+                action: transaction.action
             ) {
                 HStack(spacing: 6) {
                     directionArrow(isOutgoing: transaction.record.isOutgoing)
@@ -98,23 +100,26 @@ struct SendDestinationSuggestedView: View {
 struct SendDestinationSuggestedWalletView<BottomView: View>: View {
     let address: String
     let iconViewModel: AddressIconViewModel
+    let action: () -> Void
     let bottomView: () -> BottomView
 
     var body: some View {
-        HStack(spacing: 12) {
-            AddressIconView(viewModel: iconViewModel)
-                .frame(size: CGSize(bothDimensions: 36))
+        Button(action: action) {
+            HStack(spacing: 12) {
+                AddressIconView(viewModel: iconViewModel)
+                    .frame(size: CGSize(bothDimensions: 36))
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(address)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-                    .truncationMode(.middle)
-                    .lineLimit(1)
-                    .infinityFrame(axis: .horizontal, alignment: .leading)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(address)
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                        .truncationMode(.middle)
+                        .lineLimit(1)
+                        .infinityFrame(axis: .horizontal, alignment: .leading)
 
-                bottomView()
+                    bottomView()
+                }
             }
+            .padding(.vertical, 16)
         }
-        .padding(.vertical, 16)
     }
 }
