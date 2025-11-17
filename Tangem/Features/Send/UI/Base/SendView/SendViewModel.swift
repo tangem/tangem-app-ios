@@ -316,8 +316,8 @@ extension SendViewModel: SendModelRoutable {
     func openNetworkCurrency() {
         do {
             let builder = try dataBuilder.sendBuilder()
-            let (userWalletId, feeTokenItem) = builder.makeFeeCurrencyData()
-            coordinator?.openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem)
+            let feeCurrency = builder.makeFeeCurrencyData()
+            coordinator?.openFeeCurrency(feeCurrency: feeCurrency)
         } catch {
             showAlert(error.alertBinder)
         }
