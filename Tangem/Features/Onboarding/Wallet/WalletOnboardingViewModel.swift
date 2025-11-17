@@ -815,7 +815,24 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 trySaveAccessCodes()
 
                                 backupValidator.onBackupCompleted()
-                                userWalletModel?.update(type: .backupCompleted(card: updatedCard, associatedCardIds: cardIds ?? []))
+
+                                let backupedUserWalletModel: UserWalletModel?
+                                switch userWalletModel {
+                                case .some(let model):
+                                    backupedUserWalletModel = model
+                                case .none:
+                                    // Used during mobile-to-hardware wallet upgrade when the backup flow
+                                    // was interrupted. In this case we need to locate the corresponding
+                                    // UserWalletModel by deriving its userWalletId from the card's public key.
+                                    let cardInfo = CardInfo(card: CardDTO(card: updatedCard), walletData: .none, associatedCardIds: [])
+                                    if let userWalletId = UserWalletId(cardInfo: cardInfo) {
+                                        backupedUserWalletModel = userWalletRepository.models[userWalletId]
+                                    } else {
+                                        backupedUserWalletModel = nil
+                                    }
+                                }
+
+                                backupedUserWalletModel?.update(type: .backupCompleted(card: updatedCard, associatedCardIds: cardIds ?? []))
                                 logAnalytics(
                                     event: .backupFinished,
                                     params: [.cardsCount: String((updatedCard.backupStatus?.backupCardsCount ?? 0) + 1)]

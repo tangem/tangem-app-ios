@@ -68,8 +68,11 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
     }
 
-    func openTangemPayPin() {
-        tangemPayPinViewModel = TangemPayPinViewModel()
+    func openTangemPayPin(tangemPayAccount: TangemPayAccount) {
+        tangemPayPinViewModel = TangemPayPinViewModel(
+            tangemPayAccount: tangemPayAccount,
+            coordinator: self
+        )
     }
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input) {
@@ -135,6 +138,14 @@ extension TangemPayMainCoordinator: TangemPayAddToAppPayGuideRoutable {
     }
 }
 
+// MARK: - TangemPayPinRoutable
+
+extension TangemPayMainCoordinator: TangemPayPinRoutable {
+    func closeTangemPayPin() {
+        tangemPayPinViewModel = nil
+    }
+}
+
 // MARK: - TangemPayAddFundsSheetRoutable
 
 extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
@@ -194,7 +205,7 @@ extension TangemPayMainCoordinator: TangemPayTransactionDetailsRoutable {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
-            recipient: EmailConfig.default.recipient,
+            recipient: EmailConfig.visaDefault(subject: subject).recipient,
             emailType: .visaFeedback(subject: subject)
         )
 
