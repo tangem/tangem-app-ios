@@ -46,7 +46,7 @@ struct CommonWalletModelsFactory {
 
         let expectedAccountPath = helper.makeDerivationPath(
             from: defaultDerivationPath,
-            forAccountWithIndex: Int(accountNode.index)
+            forAccountWithIndex: Int(accountNode.rawIndex)
         )
 
         return expectedAccountPath != derivationPath
