@@ -43,11 +43,11 @@ class CommonTokenLoader: TokenLoader {
         let items = response.flatMap { $0.items }
         let coinItem = items.first(where: { $0.blockchain.networkId == blockchain.networkId })
 
-        guard let tokenItem = coinItem?.tokenItem else {
+        guard let token = coinItem?.token else {
             throw Error.notFound
         }
 
-        return tokenItem
+        return .token(token, blockchainNetwork)
     }
 }
 
