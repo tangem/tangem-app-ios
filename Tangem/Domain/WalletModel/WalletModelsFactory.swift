@@ -11,5 +11,9 @@ import BlockchainSdk
 
 protocol WalletModelsFactory {
     func makeWalletModels(from walletManager: WalletManager) -> [any WalletModel]
-    func makeWalletModels(for types: [Amount.AmountType], walletManager: WalletManager) -> [any WalletModel]
+    func makeWalletModels(
+        for types: [Amount.AmountType],
+        walletManager: WalletManager,
+        blockchainNetwork: BlockchainNetwork
+    ) -> [any WalletModel]
 }

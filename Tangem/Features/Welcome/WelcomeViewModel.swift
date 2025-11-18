@@ -7,19 +7,18 @@
 //
 
 import Combine
-import SwiftUI
 import TangemSdk
 import TangemFoundation
 import TangemUIUtils
 import TangemLocalization
 
-class WelcomeViewModel: ObservableObject {
+final class WelcomeViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     @Published var error: AlertBinder?
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     let storiesModel: StoriesViewModel
 
@@ -94,15 +93,14 @@ class WelcomeViewModel: ObservableObject {
             case .error(let error):
                 Analytics.logScanError(error, source: .introduction)
                 Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
-                viewModel.incomingActionManager.discardIncomingAction()
-
-                await runOnMain {
-                    viewModel.isScanningCard.send(false)
-                    viewModel.error = error.alertBinder
-                }
+                await viewModel.handleError(error)
 
             case .onboarding(let input, _):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue])
+                Analytics.log(
+                    .cardWasScanned,
+                    params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue],
+                    contextParams: input.cardInput.getContextParams()
+                )
                 viewModel.incomingActionManager.discardIncomingAction(if: { !$0.isPromoDeeplink })
 
                 await runOnMain {
@@ -120,16 +118,20 @@ class WelcomeViewModel: ObservableObject {
                 }
 
             case .success(let cardInfo):
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue])
+                Analytics.log(
+                    .cardWasScanned,
+                    params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue],
+                    contextParams: .custom(cardInfo.analyticsContextData)
+                )
 
                 let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
-                guard let userWalletId = UserWalletId(config: config),
-                      let encryptionKey = UserWalletEncryptionKey(config: config) else {
-                    throw UserWalletRepositoryError.cantUnlockWallet
-                }
-
                 do {
+                    guard let userWalletId = UserWalletId(config: config),
+                          let encryptionKey = UserWalletEncryptionKey(config: config) else {
+                        throw UserWalletRepositoryError.cantUnlockWallet
+                    }
+
                     let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                     let userWalletModel = try await viewModel.userWalletRepository.unlock(with: unlockMethod)
                     viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
@@ -140,28 +142,40 @@ class WelcomeViewModel: ObservableObject {
 
                 } catch UserWalletRepositoryError.notFound {
                     // new card scanned, add it
-                    if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
-                        walletInfo: .cardWallet(cardInfo),
-                        keys: .cardWallet(keys: cardInfo.card.wallets)
-                    ) {
-                        try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
-                        viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
-                        await runOnMain {
-                            viewModel.isScanningCard.send(false)
-                            viewModel.openMain(with: newUserWalletModel)
-                        }
-                    } else {
-                        throw UserWalletRepositoryError.cantUnlockWallet
-                    }
+                    await viewModel.handleNotFound(cardInfo: cardInfo)
                 } catch {
-                    viewModel.incomingActionManager.discardIncomingAction()
-
-                    await runOnMain {
-                        viewModel.isScanningCard.send(false)
-                        viewModel.error = error.alertBinder
-                    }
+                    await viewModel.handleError(error)
                 }
             }
+        }
+    }
+
+    private func handleNotFound(cardInfo: CardInfo) async {
+        do {
+            if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                walletInfo: .cardWallet(cardInfo),
+                keys: .cardWallet(keys: cardInfo.card.wallets)
+            ) {
+                try userWalletRepository.add(userWalletModel: newUserWalletModel)
+                signInAnalyticsLogger.logSignInEvent(signInType: .card)
+                await runOnMain {
+                    isScanningCard.send(false)
+                    openMain(with: newUserWalletModel)
+                }
+            } else {
+                throw UserWalletRepositoryError.cantUnlockWallet
+            }
+        } catch {
+            await handleError(error)
+        }
+    }
+
+    private func handleError(_ error: Error) async {
+        incomingActionManager.discardIncomingAction()
+
+        await runOnMain {
+            isScanningCard.send(false)
+            self.error = error.alertBinder
         }
     }
 }
@@ -170,18 +184,28 @@ class WelcomeViewModel: ObservableObject {
 
 extension WelcomeViewModel {
     func openTroubleshooting() {
-        let sheet = ActionSheet(
-            title: Text(Localization.alertTroubleshootingScanCardTitle),
-            message: Text(Localization.alertTroubleshootingScanCardMessage),
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.tryAgain()
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.openScanCardManual()
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.requestSupport()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
-                .default(Text(Localization.alertButtonTryAgain), action: weakify(self, forFunction: WelcomeViewModel.tryAgain)),
-                .default(Text(Localization.commonReadMore), action: weakify(self, forFunction: WelcomeViewModel.openScanCardManual)),
-                .default(Text(Localization.alertButtonRequestSupport), action: weakify(self, forFunction: WelcomeViewModel.requestSupport)),
-                .cancel(),
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func openOnboarding(with input: OnboardingInput) {
@@ -203,11 +227,6 @@ extension WelcomeViewModel: StoriesDelegate {
     func createWallet() {
         Analytics.log(.introductionProcessButtonCreateNewWallet)
         coordinator?.openCreateWallet()
-    }
-
-    func importWallet() {
-        Analytics.log(.introductionProcessButtonAddExistingWallet)
-        coordinator?.openImportWallet()
     }
 
     func openTokenList() {

@@ -52,8 +52,9 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = SupportedBlockchains(version: .v1).blockchains()
-        return allBlockchains.filter { card.walletCurves.contains($0.curve) }
+        SupportedBlockchains(version: .v1)
+            .blockchains()
+            .filter(supportedBlockchainFilter(for:))
     }
 
     var defaultBlockchains: [StorageEntry] {
@@ -208,6 +209,8 @@ extension GenericDemoConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
+        case .isHardwareLimited:
+            return .available
         }
     }
 
@@ -229,6 +232,16 @@ extension GenericDemoConfig: UserWalletConfig {
 extension GenericDemoConfig: WalletOnboardingStepsBuilderFactory {}
 
 // MARK: - Private extensions
+
+private extension GenericDemoConfig {
+    func supportedBlockchainFilter(for blockchain: Blockchain) -> Bool {
+        if case .quai = blockchain {
+            return false
+        }
+
+        return card.walletCurves.contains(blockchain.curve)
+    }
+}
 
 private extension Card.BackupStatus {
     var backupCardsCount: Int? {

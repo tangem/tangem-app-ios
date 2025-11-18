@@ -39,6 +39,7 @@ final class UserWalletNotificationManager {
     private var shownAppRateNotificationId: NotificationViewId?
 
     private lazy var supportSeedNotificationInteractor: SupportSeedNotificationManager = makeSupportSeedNotificationsManager()
+    private lazy var pushPermissionNotificationInteractor: PushPermissionNotificationManager = makePushPermissionNotificationsManager()
 
     init(
         userWalletModel: UserWalletModel,
@@ -132,7 +133,7 @@ final class UserWalletNotificationManager {
         showAppRateNotificationIfNeeded()
         createIfNeededAndShowSupportSeedNotification()
         showMobileActivationNotificationIfNeeded()
-        showMobileUpgradeNotificationIfNeeded()
+        createAndShowPushPermissionNotificationIfNeeded()
     }
 
     private func createIfNeededAndShowSupportSeedNotification() {
@@ -146,6 +147,14 @@ final class UserWalletNotificationManager {
         }
 
         supportSeedNotificationInteractor.showSupportSeedNotificationIfNeeded()
+    }
+
+    private func createAndShowPushPermissionNotificationIfNeeded() {
+        guard FeatureProvider.isAvailable(.pushPermissionNotificationBanner) else {
+            return
+        }
+
+        pushPermissionNotificationInteractor.showPushPermissionNotificationIfNeeded()
     }
 
     private func hideNotification(with id: NotificationViewId) {
@@ -234,6 +243,7 @@ final class UserWalletNotificationManager {
         addInputIfNeeded(input)
     }
 
+    // [REDACTED_TODO_COMMENT]
     private func showMobileUpgradeNotificationIfNeeded() {
         let isDismissed = dismissedNotifications.has(userWalletId: userWalletModel.userWalletId, notification: .mobileUpgradeFromMain)
 
@@ -276,7 +286,7 @@ final class UserWalletNotificationManager {
                 switch value {
                 case .configurationChanged:
                     return true
-                case .nameDidChange:
+                case .nameDidChange, .tangemPayOfferAccepted:
                     return false
                 }
             }
@@ -336,6 +346,10 @@ final class UserWalletNotificationManager {
             notificationTapDelegate: delegate
         )
     }
+
+    private func makePushPermissionNotificationsManager() -> PushPermissionNotificationManager {
+        CommonPushPermissionNotificationManager(displayDelegate: self, notificationTapDelegate: delegate)
+    }
 }
 
 extension UserWalletNotificationManager: NotificationManager {
@@ -380,8 +394,22 @@ extension UserWalletNotificationManager: NotificationManager {
     }
 }
 
+// MARK: - SupportSeedNotificationDelegate
+
 extension UserWalletNotificationManager: SupportSeedNotificationDelegate {
     func showSupportSeedNotification(input: NotificationViewInput) {
         addInputIfNeeded(input)
+    }
+}
+
+// MARK: - PushPermissionNotificationDelegate
+
+extension UserWalletNotificationManager: PushPermissionNotificationDelegate {
+    func showPushPermissionNotification(input: NotificationViewInput) {
+        addInputIfNeeded(input)
+    }
+
+    func hidePushPermissionNotification(with id: NotificationViewId) {
+        hideNotification(with: id)
     }
 }

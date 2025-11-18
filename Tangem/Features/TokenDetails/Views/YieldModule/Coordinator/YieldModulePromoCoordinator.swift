@@ -11,14 +11,18 @@ import SwiftUI
 final class YieldModulePromoCoordinator: CoordinatorObject {
     // MARK: - Injected
 
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.floatingSheetPresenter)
+    private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - Propeties
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
-    @Published var rootViewModel: YieldModulePromoViewModel? = nil
+    @Published
+    var rootViewModel: YieldModulePromoViewModel? = nil
+
+    private weak var feeCurrencyNavigator: (any FeeCurrencyNavigating)?
 
     // MARK: - Init
 
@@ -30,25 +34,24 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     // MARK: - Public Implementation
 
     func start(with options: Options) {
-        rootViewModel = .init(
-            walletModel: options.walletModel,
-            apy: options.apy,
-            lastYearReturns: options.lastYearReturns,
-            networkFee: options.networkFee,
-            maximumFee: options.maximumFee,
-            coordinator: self
-        )
+        rootViewModel = options.viewModel
+        feeCurrencyNavigator = options.feeCurrencyNavigator
     }
 
-    func openRateInfoSheet(params: YieldModuleBottomSheetParams.RateInfoParams) {
+    func openBottomSheet(viewModel: YieldModuleStartViewModel) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .rateInfo(params: params)))
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
-    func openStartEarningSheet(params: YieldModuleBottomSheetParams.StartEarningParams) {
+    func openFeeCurrency(for feeWalletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        feeCurrencyNavigator?.openFeeCurrency(for: feeWalletModel, userWalletModel: userWalletModel)
+    }
+
+    func dismiss() {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: YieldModuleBottomSheetViewModel(flow: .startEarning(params: params)))
+            floatingSheetPresenter.removeActiveSheet()
+            dismissAction(())
         }
     }
 }
@@ -57,10 +60,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 
 extension YieldModulePromoCoordinator {
     struct Options {
-        let walletModel: any WalletModel
-        let apy: String
-        let networkFee: Decimal
-        let maximumFee: Decimal
-        let lastYearReturns: [String: Double]
+        let viewModel: YieldModulePromoViewModel
+        let feeCurrencyNavigator: (any FeeCurrencyNavigating)?
     }
 }
