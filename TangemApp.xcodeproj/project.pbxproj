@@ -2784,6 +2784,9 @@
 		DA4055292ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055242ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift */; };
 		DA4333322B5A5B880058D467 /* QRScanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4333312B5A5B880058D467 /* QRScanViewModel.swift */; };
 		DA4371A02A7D1937006215CA /* ListDataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4371912A7D1937006215CA /* ListDataLoader.swift */; };
+		DA4AD8702ECC976000B4546A /* TangemPayKYCEventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4AD86F2ECC976000B4546A /* TangemPayKYCEventType.swift */; };
+		DA4AD8722ECC976500B4546A /* TangemPayKYCStatusUpdateType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4AD8712ECC976500B4546A /* TangemPayKYCStatusUpdateType.swift */; };
+		DA4AD8742ECC978000B4546A /* TangemPayKYCViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4AD8732ECC978000B4546A /* TangemPayKYCViewController.swift */; };
 		DA4C84CD27DA2D6D00B76F91 /* AnimatableModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4C84CB27DA2D6D00B76F91 /* AnimatableModifiers.swift */; };
 		DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4C84CC27DA2D6D00B76F91 /* StoriesConstants.swift */; };
 		DA5044E32ABACA6600D1E5CF /* MarketPriceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5044E22ABACA6600D1E5CF /* MarketPriceView.swift */; };
@@ -7257,6 +7260,9 @@
 		DA4055242ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorView.swift; sourceTree = "<group>"; };
 		DA4333312B5A5B880058D467 /* QRScanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanViewModel.swift; sourceTree = "<group>"; };
 		DA4371912A7D1937006215CA /* ListDataLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListDataLoader.swift; sourceTree = "<group>"; };
+		DA4AD86F2ECC976000B4546A /* TangemPayKYCEventType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayKYCEventType.swift; sourceTree = "<group>"; };
+		DA4AD8712ECC976500B4546A /* TangemPayKYCStatusUpdateType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayKYCStatusUpdateType.swift; sourceTree = "<group>"; };
+		DA4AD8732ECC978000B4546A /* TangemPayKYCViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayKYCViewController.swift; sourceTree = "<group>"; };
 		DA4C84CB27DA2D6D00B76F91 /* AnimatableModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatableModifiers.swift; sourceTree = "<group>"; };
 		DA4C84CC27DA2D6D00B76F91 /* StoriesConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesConstants.swift; sourceTree = "<group>"; };
 		DA5044E22ABACA6600D1E5CF /* MarketPriceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketPriceView.swift; sourceTree = "<group>"; };
@@ -11979,6 +11985,7 @@
 		B036625C2B6384670064E073 /* Visa */ = {
 			isa = PBXGroup;
 			children = (
+				DA4AD86E2ECC959000B4546A /* TangemPayKYC */,
 				DADA1CE32EC4A492009329A9 /* TangemPayPin */,
 				EFF9CB792EC3613000A7C44C /* TangemPayTransactionDetails */,
 				0A0DEF4B2EBC885E006007FA /* TangemPayAddToAppPayGuide */,
@@ -17652,6 +17659,16 @@
 				DA4055202ABDD3A300353F8A /* AddCustomTokenNetworksListItemViewModel.swift */,
 			);
 			path = AddCustomTokenNetworkSelector;
+			sourceTree = "<group>";
+		};
+		DA4AD86E2ECC959000B4546A /* TangemPayKYC */ = {
+			isa = PBXGroup;
+			children = (
+				DA4AD86F2ECC976000B4546A /* TangemPayKYCEventType.swift */,
+				DA4AD8712ECC976500B4546A /* TangemPayKYCStatusUpdateType.swift */,
+				DA4AD8732ECC978000B4546A /* TangemPayKYCViewController.swift */,
+			);
+			path = TangemPayKYC;
 			sourceTree = "<group>";
 		};
 		DA5044E12ABACA4700D1E5CF /* MarketPriceView */ = {
@@ -25488,6 +25505,7 @@
 				EFADE79A2E0EE19500CA7916 /* CommonSendAmountValidator.swift in Sources */,
 				EFB4CA5A2E0C3CEC003C1522 /* SendReceiveTokenType.swift in Sources */,
 				B6ACD00C2AD698E0005A6CA3 /* DragAndDropGesturePredicate.swift in Sources */,
+				DA4AD8722ECC976500B4546A /* TangemPayKYCStatusUpdateType.swift in Sources */,
 				EF6EDD7E296C0D40001B21A3 /* CommonIncomingActionManager.swift in Sources */,
 				B08E26AF29D5580E00346C43 /* SeedPhraseSuggestionsView.swift in Sources */,
 				B06C085E2A73FCB700D982BC /* MainUserWalletPageBuilder.swift in Sources */,
@@ -25994,6 +26012,7 @@
 				0F2786452E2BA95000742D0F /* MobileOnboardingBackupSeedPhraseFlowBuilder.swift in Sources */,
 				DAF59CC62ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift in Sources */,
 				DA8C33952BF38CB2002AE4F9 /* UserWalletFinder.swift in Sources */,
+				DA4AD8702ECC976000B4546A /* TangemPayKYCEventType.swift in Sources */,
 				0ABDAEC42E325816001C7EE4 /* MobileWalletSigner.swift in Sources */,
 				B6AA136E2A2A376900B53937 /* CardInfoPageTransactionDefaultCellPreviewViewModel.swift in Sources */,
 				EF175D802E8D36C900B69415 /* NewTokenSelectorItemView.swift in Sources */,
@@ -26709,6 +26728,7 @@
 				DC13D04329DF31A60003895C /* WalletOnboardingStepsBuilder.swift in Sources */,
 				EF89FC1C2D492BFD00DF0B73 /* TangemLoggerConfigurator.swift in Sources */,
 				3087272D2E98F83F003ED7FF /* ReferralAccountFinder.swift in Sources */,
+				DA4AD8742ECC978000B4546A /* TangemPayKYCViewController.swift in Sources */,
 				EF89FC1D2D492BFD00DF0B73 /* AppLogger.swift in Sources */,
 				EFAF8A8F2E869D2F009C3CF9 /* SellFlowFactory.swift in Sources */,
 				EAD5E7F52E7C099C00E30DF3 /* YieldModuleActiveViewModel.swift in Sources */,
