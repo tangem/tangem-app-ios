@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct NewAuthView: View {
     typealias ViewModel = NewAuthViewModel
@@ -19,7 +20,7 @@ struct NewAuthView: View {
         stateView
             .animation(.default, value: viewModel.state)
             .alert(item: $viewModel.alert, content: { $0.alert })
-            .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
+            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .background(Colors.Background.primary.ignoresSafeArea())
             .onFirstAppear(perform: viewModel.onFirstAppear)
             .onAppear(perform: viewModel.onAppear)
