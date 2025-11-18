@@ -60,6 +60,7 @@ class NFTCollectionsCoordinator: CoordinatorObject {
         )
         rootViewModel = NFTCollectionsListViewModel(
             nftManager: options.nftManager,
+            accounForNFTCollectionsProvider: options.accounForNFTCollectionsProvider,
             navigationContext: options.navigationContext,
             dependencies: dependencies,
             assetSendPublisher: assetSendSubject.eraseToAnyPublisher(),
@@ -73,6 +74,7 @@ class NFTCollectionsCoordinator: CoordinatorObject {
 extension NFTCollectionsCoordinator {
     struct Options {
         let nftManager: NFTManager
+        let accounForNFTCollectionsProvider: AccountForNFTCollectionProviding
         let nftChainIconProvider: NFTChainIconProvider
         let nftChainNameProvider: NFTChainNameProviding
         let priceFormatter: NFTPriceFormatting
