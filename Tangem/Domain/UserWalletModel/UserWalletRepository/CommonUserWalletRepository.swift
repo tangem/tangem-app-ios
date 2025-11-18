@@ -117,7 +117,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         select(userWalletId: userWalletModel.userWalletId)
         save(userWalletModel: userWalletModel)
 
-        if models.contains(where: { !$0.isUserWalletLocked }) {
+        if isLocked {
             unlockInternal()
         }
     }
