@@ -1884,6 +1884,9 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "利息モード";
 "yield_module_token_details_earn_notification_processing" = "利息モードの有効化";
 "yield_module_token_details_earn_notification_title" = "利息モード";
+"yield_module_transaction_enter" = "Yield mode on";
+"yield_module_transaction_exit" = "Yield mode off";
+"yield_module_transaction_topup" = "Yield mode top-up";
 "yield_module_transfer_mode_automatic" = "自動";
 "yield_module_unable_to_cover_fee_description" = "取引のネットワーク手数料をカバーするために、 %1$@ %2$@を追加してください。";
 "yield_module_unable_to_cover_fee_title" = "%@手数料を支払えません";
