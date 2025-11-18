@@ -32,7 +32,7 @@ enum NotificationButtonActionType: Identifiable {
     case refreshFee
     case goToProvider
     case leaveAmount(amount: Decimal, amountFormatted: String)
-    case reduceAmountBy(amount: Decimal, amountFormatted: String)
+    case reduceAmountBy(amount: Decimal, amountFormatted: String, needsAttention: Bool = false)
     case reduceAmountTo(amount: Decimal, amountFormatted: String)
     case openLink(promotionLink: URL, buttonTitle: String)
     case swap
@@ -56,10 +56,13 @@ enum NotificationButtonActionType: Identifiable {
     case openReferralProgram
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
-    case openYieldPromo
     case openBuyCrypto(walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
     case tangemPayCreateAccountAndIssueCard
     case tangemPayViewKYCStatus
+    case allowPushPermissionRequest
+    case postponePushPermissionRequest
+    case activate
+    case givePermission
 
     var id: Int {
         switch self {
@@ -71,7 +74,7 @@ enum NotificationButtonActionType: Identifiable {
         case .refreshFee: "refresh_fee".hashValue
         case .goToProvider: "goToProvider".hashValue
         case .leaveAmount(let amount, let amountFormatted): "leaveAmount\(amount)\(amountFormatted)".hashValue
-        case .reduceAmountBy(let amount, let amountFormatted): "reduceAmountBy\(amount)\(amountFormatted)".hashValue
+        case .reduceAmountBy(let amount, let amountFormatted, _): "reduceAmountBy\(amount)\(amountFormatted)".hashValue
         case .reduceAmountTo(let amount, let amountFormatted): "reduceAmountTo\(amount)\(amountFormatted)".hashValue
         case .openLink(let promotionLink, let buttonTitle): "openLink\(promotionLink)\(buttonTitle)".hashValue
         case .swap: "swap".hashValue
@@ -92,10 +95,13 @@ enum NotificationButtonActionType: Identifiable {
         case .openReferralProgram: "openReferralProgram".hashValue
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
-        case .openYieldPromo: "openYieldPromo".hashValue
         case .openBuyCrypto(let walletModel, let parameters): "openBuyCrypto\(walletModel.id)\(parameters.hashValue)".hashValue
         case .tangemPayCreateAccountAndIssueCard: "tangemPayCreateAccountAndIssueCard".hashValue
         case .tangemPayViewKYCStatus: "tangemPayViewKYCStatus".hashValue
+        case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
+        case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
+        case .activate: "activate".hashValue
+        case .givePermission: "givePermission".hashValue
         }
     }
 
@@ -117,7 +123,7 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.warningButtonRefresh
         case .goToProvider:
             return Localization.commonGoToProvider
-        case .reduceAmountBy(_, let amountFormatted):
+        case .reduceAmountBy(_, let amountFormatted, _):
             return Localization.sendNotificationReduceBy(amountFormatted)
         case .reduceAmountTo(_, let amountFormatted), .leaveAmount(_, let amountFormatted):
             return Localization.sendNotificationLeaveButton(amountFormatted)
@@ -159,8 +165,6 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.hwActivationNeedFinish
         case .openMobileUpgrade:
             return .empty
-        case .openYieldPromo:
-            return Localization.commonGetStarted
         case .openBuyCrypto:
             return Localization.commonBuy
         case .tangemPayCreateAccountAndIssueCard:
@@ -168,6 +172,14 @@ enum NotificationButtonActionType: Identifiable {
         case .tangemPayViewKYCStatus:
             // [REDACTED_TODO_COMMENT]
             return "View Status"
+        case .allowPushPermissionRequest:
+            return Localization.commonEnable
+        case .postponePushPermissionRequest:
+            return Localization.commonLater
+        case .activate:
+            return Localization.commonActivate
+        case .givePermission:
+            return Localization.givePermissionTitle
         }
     }
 
@@ -204,10 +216,13 @@ enum NotificationButtonActionType: Identifiable {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus:
+             .tangemPayViewKYCStatus,
+             .allowPushPermissionRequest,
+             .postponePushPermissionRequest,
+             .activate,
+             .givePermission:
             return nil
         }
     }
@@ -219,7 +234,9 @@ enum NotificationButtonActionType: Identifiable {
              .openAppStoreReview,
              .empty,
              .unlock,
-             .openMobileUpgrade:
+             .openMobileUpgrade,
+             .allowPushPermissionRequest,
+             .activate:
             return .primary
         case .backupCard,
              .buyCrypto,
@@ -227,7 +244,6 @@ enum NotificationButtonActionType: Identifiable {
              .refresh,
              .refreshFee,
              .goToProvider,
-             .reduceAmountBy,
              .reduceAmountTo,
              .addHederaTokenAssociation,
              .retryKaspaTokenTransaction,
@@ -243,12 +259,13 @@ enum NotificationButtonActionType: Identifiable {
              .seedSupport2No,
              .openReferralProgram,
              .addTokenTrustline,
-             .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus:
+             .tangemPayViewKYCStatus,
+             .postponePushPermissionRequest,
+             .givePermission:
             return .secondary
-        case .openMobileFinishActivation(let needsAttention):
+        case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):
             return needsAttention ? .primary : .secondary
         }
     }

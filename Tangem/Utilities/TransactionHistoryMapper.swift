@@ -75,7 +75,7 @@ struct TransactionHistoryMapper {
         )
     }
 
-    func mapSuggestedRecord(_ record: TransactionRecord) -> SendSuggestedDestinationTransactionRecord? {
+    func mapSuggestedRecord(_ record: TransactionRecord) -> SendDestinationSuggestedTransactionRecord? {
         // Suggest address which we've already send the transaction
         guard record.isOutgoing else {
             return nil
@@ -95,7 +95,7 @@ struct TransactionHistoryMapper {
         let date = record.date ?? Date()
         let dateFormatted = dateTimeFormatter.string(from: date)
 
-        return SendSuggestedDestinationTransactionRecord(
+        return SendDestinationSuggestedTransactionRecord(
             address: address,
             additionalField: nil, // [REDACTED_TODO_COMMENT]
             isOutgoing: record.isOutgoing,
@@ -235,6 +235,7 @@ private extension TransactionHistoryMapper {
         case "unstakeClaimTokens_new", "unstakeClaimTokens_newPOL", "claim": .withdraw
         case "withdrawRewards", "withdrawRewardsPOL": .claimRewards
         case "redelegate": .restake
+        case "yieldDeploy", "yieldInit", "yieldReactivate", "yieldEnter", "yieldWithdraw": .yieldSupply
         case .none: .unknownOperation
         case .some(let name): .operation(name: name.capitalizingFirstLetter())
         }
