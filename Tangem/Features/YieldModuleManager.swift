@@ -57,6 +57,7 @@ final class CommonYieldModuleManager {
     private let transactionFeeProvider: YieldTransactionFeeProvider
 
     private let yieldModuleStateRepository: YieldModuleStateRepository
+    private let yieldModuleMarketsRepository: YieldModuleMarketsRepository
 
     private var _state = CurrentValueSubject<YieldModuleManagerStateInfo?, Never>(nil)
     private var _walletModelData = CurrentValueSubject<WalletModelData?, Never>(nil)
@@ -78,6 +79,7 @@ final class CommonYieldModuleManager {
         transactionCreator: TransactionCreator,
         blockaidApiService: BlockaidAPIService,
         yieldModuleStateRepository: YieldModuleStateRepository,
+        yieldModuleMarketsRepository: YieldModuleMarketsRepository,
         pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>,
         scheduleWalletUpdate: @escaping () -> Void
     ) {
@@ -96,6 +98,7 @@ final class CommonYieldModuleManager {
         self.tokenId = tokenId
         self.yieldSupplyService = yieldSupplyService
         self.yieldModuleStateRepository = yieldModuleStateRepository
+        self.yieldModuleMarketsRepository = yieldModuleMarketsRepository
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
         self.scheduleWalletUpdate = scheduleWalletUpdate
 
@@ -333,48 +336,18 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
 private extension CommonYieldModuleManager {
     func bind() {
-        let yieldContractPublisher: AnyPublisher<String?, Never> = Future
-            .async {
-                let yieldContract = try? await self.yieldSupplyService.getYieldContract()
-                if yieldContract == nil || yieldContract?.isEmpty == true {
-                    return try await self.yieldSupplyService.calculateYieldContract()
-                }
-                return yieldContract
-            }
-            .retry(Constants.yieldContractRetryCount)
-            .replaceError(with: nil)
-            .eraseToAnyPublisher()
+        let initialStatePublisher = makeInitialStatePublisher()
 
-        let statePublisher = Publishers.CombineLatest4(
-            _walletModelData.compactMap { $0 },
-            yieldModuleNetworkManager.marketsPublisher.filter { !$0.isEmpty }.removeDuplicates(),
-            pendingTransactionsPublisher,
-            yieldContractPublisher
-        )
-        .withWeakCaptureOf(self)
-        .map { result -> YieldModuleManagerStateInfo in
-            let (moduleManager, (walletModelData, marketsInfo, pendingTransactions, yieldContract)) = result
-            return moduleManager.mapResults(
-                walletModelData: walletModelData,
-                marketsInfo: marketsInfo,
-                pendingTransactions: pendingTransactions,
-                yieldContract: yieldContract
-            )
-        }
-        .removeDuplicates()
-
-        statePublisher
-            .handleEvents(
-                receiveOutput: { [weak self] in
-                    self?.updateStateCacheIfNeeded(state: $0)
-                }
-            )
+        initialStatePublisher
+            .handleEvents(receiveOutput: { [weak self] in
+                self?.updateStateCacheIfNeeded(state: $0)
+            })
             .sink { [_state] result in
                 _state.send(result)
             }
             .store(in: &bag)
 
-        statePublisher
+        initialStatePublisher
             .map(\.state)
             .sink { [weak self] state in
                 guard case .processing = state else { return }
@@ -404,8 +377,10 @@ private extension CommonYieldModuleManager {
         let state: YieldModuleManagerState
 
         switch walletModelData.state {
-        case .created, .loading:
-            state = .loading
+        case .created:
+            state = .loading(cachedState: nil)
+        case .loading:
+            state = .loading(cachedState: yieldModuleStateRepository.state())
         case .loaded:
             if let balance = walletModelData.balance,
                case .token(let token) = balance.type,
@@ -506,6 +481,55 @@ private extension CommonYieldModuleManager {
             walletAddress: walletAddress,
             chainId: chainId
         )
+    }
+}
+
+private extension CommonYieldModuleManager {
+    /// Builds the main state publisher and, if cached data is available,
+    /// prepends the cached `YieldModuleManagerStateInfo` so the UI can render
+    /// an immediate initial state before live updates arrive.
+    func makeInitialStatePublisher() -> AnyPublisher<YieldModuleManagerStateInfo, Never> {
+        let yieldContractPublisher: AnyPublisher<String?, Never> = Future
+            .async {
+                let yieldContract = try? await self.yieldSupplyService.getYieldContract()
+                if yieldContract == nil || yieldContract?.isEmpty == true {
+                    return try await self.yieldSupplyService.calculateYieldContract()
+                }
+                return yieldContract
+            }
+            .retry(Constants.yieldContractRetryCount)
+            .replaceError(with: nil)
+            .eraseToAnyPublisher()
+
+        let statePublisher = Publishers.CombineLatest4(
+            _walletModelData.compactMap { $0 },
+            yieldModuleNetworkManager.marketsPublisher.filter { !$0.isEmpty }.removeDuplicates(),
+            pendingTransactionsPublisher,
+            yieldContractPublisher
+        )
+        .withWeakCaptureOf(self)
+        .map { result -> YieldModuleManagerStateInfo in
+            let (moduleManager, (walletModelData, marketsInfo, pendingTransactions, yieldContract)) = result
+            return moduleManager.mapResults(
+                walletModelData: walletModelData,
+                marketsInfo: marketsInfo,
+                pendingTransactions: pendingTransactions,
+                yieldContract: yieldContract
+            )
+        }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
+
+        guard let cachedMarket = yieldModuleMarketsRepository.marketInfo(for: token.contractAddress),
+              let cachedState = yieldModuleStateRepository.state()
+        else {
+            return statePublisher
+        }
+
+        let cachedStateInfo = YieldModuleManagerStateInfo(marketInfo: .init(from: cachedMarket), state: .loading(cachedState: cachedState))
+        return statePublisher
+            .prepend(cachedStateInfo)
+            .eraseToAnyPublisher()
     }
 }
 
