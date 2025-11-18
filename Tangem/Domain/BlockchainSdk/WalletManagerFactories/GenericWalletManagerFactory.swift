@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 struct GenericWalletManagerFactory: AnyWalletManagerFactory {
     func makeWalletManager(for token: StorageEntry, keys: [KeyInfo], apiList: APIList) throws -> WalletManager {
@@ -20,6 +21,13 @@ struct GenericWalletManagerFactory: AnyWalletManagerFactory {
             } else {
                 return try HDWalletManagerFactory().makeWalletManager(for: token, keys: keys, apiList: apiList)
             }
+        case .quai:
+            let dataStorage = UserDefaultsBlockchainDataStorage(
+                suiteName: AppEnvironment.current.blockchainDataStorageSuiteName
+            )
+
+            return try QuaiWalletManagerFactory(dataStorage: dataStorage)
+                .makeWalletManager(for: token, keys: keys, apiList: apiList)
         default:
             return try HDWalletManagerFactory().makeWalletManager(for: token, keys: keys, apiList: apiList)
         }

@@ -27,9 +27,14 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
     @Published var pendingAdd: [TokenItem] = []
 
     @Published var isSaving: Bool = false
+    @Published var needsCardDerivation: Bool = false
 
     let coinName: String
     let coinSymbol: String
+
+    var hasCardDerivationWarning: Bool {
+        pendingAdd.isNotEmpty && needsCardDerivation
+    }
 
     var isSaveDisabled: Bool {
         pendingAdd.isEmpty
@@ -134,6 +139,16 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
                 Analytics.log(.marketsChartWalletSelected)
             }
             .store(in: &bag)
+
+        $pendingAdd
+            .withWeakCaptureOf(self)
+            .map { viewModel, tokenItems in
+                guard let userTokensManager = viewModel.selectedUserWalletModel?.userTokensManager else {
+                    return false
+                }
+                return userTokensManager.needsCardDerivation(itemsToRemove: [], itemsToAdd: tokenItems)
+            }
+            .assign(to: &$needsCardDerivation)
     }
 
     private func makeWalletSelectorViewModel(by userWalletModel: UserWalletModel) {
