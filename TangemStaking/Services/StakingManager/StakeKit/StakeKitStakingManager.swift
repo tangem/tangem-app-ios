@@ -1,5 +1,5 @@
 //
-//  CommonStakingManager.swift
+//  StakeKitStakingManager.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,10 +11,10 @@ import Combine
 import TangemSdk
 import TangemFoundation
 
-class CommonStakingManager {
+final class StakeKitStakingManager {
     private let integrationId: String
     private let wallet: StakingWallet
-    private let provider: StakingAPIProvider
+    private let provider: StakeKitAPIProvider
     private let analyticsLogger: StakingAnalyticsLogger
 
     private(set) var balances: [StakingBalance]?
@@ -23,7 +23,7 @@ class CommonStakingManager {
 
     private let _state = CurrentValueSubject<StakingManagerState, Never>(.loading)
     private var canStakeMore: Bool {
-        switch wallet.item.network {
+        switch StakeKitNetworkType(rawValue: wallet.item.network) {
         case .solana, .cosmos, .tron, .ethereum, .binance, .ton: true
         default: false
         }
@@ -32,7 +32,7 @@ class CommonStakingManager {
     init(
         integrationId: String,
         wallet: StakingWallet,
-        provider: StakingAPIProvider,
+        provider: StakeKitAPIProvider,
         analyticsLogger: StakingAnalyticsLogger
     ) {
         self.integrationId = integrationId
@@ -44,7 +44,7 @@ class CommonStakingManager {
 
 // MARK: - StakingManager
 
-extension CommonStakingManager: StakingManager {
+extension StakeKitStakingManager: StakingManager {
     var state: StakingManagerState {
         _state.value
     }
@@ -55,7 +55,7 @@ extension CommonStakingManager: StakingManager {
 
     var allowanceAddress: String? {
         switch (wallet.item.network, wallet.item.contractAddress) {
-        case (.ethereum, StakingConstants.polygonContractAddress):
+        case (StakeKitNetworkType.ethereum.rawValue, StakingConstants.polygonContractAddress):
             return "0x5e3ef299fddf15eaa0432e6e66473ace8c13d908"
         default:
             return nil
@@ -140,7 +140,7 @@ extension CommonStakingManager: StakingManager {
 
 // MARK: - Private
 
-private extension CommonStakingManager {
+private extension StakeKitStakingManager {
     @MainActor
     func updateState(_ state: StakingManagerState) {
         StakingLogger.info(self, "Update state to \(state)")
@@ -172,7 +172,7 @@ private extension CommonStakingManager {
         }
 
         let pendingActionsHandler = StakingPendingActionsHandlerProvider().makeStakingPendingActionsHandler(
-            network: yield.item.network
+            network: StakeKitNetworkType(rawValue: yield.item.network)
         )
 
         let mergedBalances = pendingActionsHandler.mergeBalancesAndPendingActions(
@@ -337,7 +337,7 @@ private extension CommonStakingManager {
 
 // MARK: - Helping
 
-private extension CommonStakingManager {
+private extension StakeKitStakingManager {
     func mapToActionGenericRequest(action: StakingAction) -> ActionGenericRequest {
         .init(
             amount: action.amount,
@@ -347,28 +347,6 @@ private extension CommonStakingManager {
             validator: action.validatorInfo?.address,
             integrationId: integrationId,
             tronResource: getTronResource()
-        )
-    }
-
-    func mapToStakingBalance(balance: StakingBalanceInfo, yield: StakingYieldInfo) -> StakingBalance {
-        let validatorType: StakingValidatorType = {
-            guard let validatorAddress = balance.validatorAddress else {
-                return .empty
-            }
-
-            let validator = yield.validators.first(where: { $0.address == validatorAddress })
-            return validator.map { .validator($0) } ?? .disabled
-        }()
-
-        return StakingBalance(
-            item: balance.item,
-            amount: balance.amount,
-            accountAddress: balance.accountAddress,
-            balanceType: balance.balanceType,
-            validatorType: validatorType,
-            inProgress: false,
-            actions: balance.actions,
-            actionConstraints: balance.actionConstraints
         )
     }
 
@@ -415,9 +393,9 @@ private extension CommonStakingManager {
 
 // MARK: - Blockchain specific
 
-private extension CommonStakingManager {
+private extension StakeKitStakingManager {
     func getAdditionalAddresses() -> AdditionalAddresses? {
-        switch wallet.item.network {
+        switch StakeKitNetworkType(rawValue: wallet.item.network) {
         case .cosmos, .kava, .near:
             guard let compressedPublicKey = try? Secp256k1Key(with: wallet.publicKey).compress() else {
                 return nil
@@ -430,7 +408,7 @@ private extension CommonStakingManager {
     }
 
     func getTronResource() -> String? {
-        switch wallet.item.network {
+        switch StakeKitNetworkType(rawValue: wallet.item.network) {
         case .tron:
             return StakeKitDTO.Actions.ActionArgs.TronResource.energy.rawValue
         default:
@@ -441,13 +419,13 @@ private extension CommonStakingManager {
 
 // MARK: - Log
 
-extension CommonStakingManager: CustomStringConvertible {
+extension StakeKitStakingManager: CustomStringConvertible {
     var description: String {
         objectDescription(self, userInfo: ["item": wallet.item])
     }
 }
 
-private extension CommonStakingManager {
+private extension StakeKitStakingManager {
     enum Constants {
         static let delay: UInt64 = 1 * NSEC_PER_SEC
     }
