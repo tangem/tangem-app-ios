@@ -36,9 +36,14 @@ public final class Debouncer<T> {
 
     private func unsafeScheduleTimer() {
         unsafeTimer?.invalidate()
-        unsafeTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] timer in
+
+        // This method may be called on a thread without a run loop (e.g., a background thread),
+        // so the timer is scheduled on the main run loop manually (instead of using `Timer.scheduledTimer`)
+        let timer = Timer(timeInterval: interval, repeats: false) { [weak self] timer in
             self?.performWork()
         }
+        RunLoop.main.add(timer, forMode: .common)
+        unsafeTimer = timer
     }
 
     private func performWork() {
