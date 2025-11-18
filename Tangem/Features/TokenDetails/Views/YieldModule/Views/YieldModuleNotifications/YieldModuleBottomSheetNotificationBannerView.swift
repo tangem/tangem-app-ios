@@ -77,27 +77,20 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack(spacing: 12) {
-                iconStack
+                icon
+                    .resizable()
+                    .frame(size: .init(bothDimensions: 20))
+
                 message
                 Spacer()
             }
 
             button
         }
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 14)
     }
 
     // MARK: - Sub Views
-
-    private var iconStack: some View {
-        VStack {
-            icon
-                .resizable()
-                .frame(size: .init(bothDimensions: 16))
-
-            Spacer()
-        }
-    }
 
     private var message: some View {
         VStack(alignment: .leading, spacing: 4) {
