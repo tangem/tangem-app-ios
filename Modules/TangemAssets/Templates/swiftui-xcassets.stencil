@@ -18,10 +18,10 @@ import SwiftUI
     {% if param.allValues %}
 
     {{accessModifier}} static let allColors: [{{colorType}}] = [
-        {% filter indent:2 %}{% call allValuesBlock assets "color" "" %}{% endfilter %}
+        {% filter indent:4 %}{% call allValuesBlock assets "color" "" %}{% endfilter %}
     ]
     {{accessModifier}} static let allImages: [{{imageType}}] = [
-        {% filter indent:2 %}{% call allValuesBlock assets "image" "" %}{% endfilter %}
+        {% filter indent:4 %}{% call allValuesBlock assets "image" "" %}{% endfilter %}
     ]
     {% endif %}
 {% endmacro %}
@@ -41,7 +41,7 @@ import SwiftUI
     {% endif %}
     {% elif asset.items and ( forceNamespaces == "true" or asset.isNamespaced == "true" ) %}
     {{accessModifier}} enum {{asset.name|swiftIdentifier:"pretty"|escapeReservedKeywords}} {
-        {% filter indent:2 %}{% call casesBlock asset.items asset.name %}{% endfilter %}
+        {% filter indent:4 %}{% call casesBlock asset.items asset.name %}{% endfilter %}
     }
     {% elif asset.items %}
     {% call casesBlock asset.items "" %}
@@ -63,7 +63,7 @@ import SwiftUI
 {% if catalogs.count > 1 %}
 {% for catalog in catalogs %}
 {{accessModifier}} enum {{catalog.name|swiftIdentifier:"pretty"|escapeReservedKeywords}} {
-    {% filter indent:2 %}{% call enumBlock catalog.assets %}{% endfilter %}
+    {% filter indent:0 %}{% call enumBlock catalog.assets %}{% endfilter %}
 }
 {% endfor %}
 {% else %}
