@@ -8,12 +8,13 @@
 
 import Combine
 import SwiftUI
+import CombineExt
 import TangemLocalization
 import TangemFoundation
 import TangemAccessibilityIdentifiers
 import TangemMobileWalletSdk
-import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - Injected
@@ -25,7 +26,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published private(set) var name: String
-    @Published var accountsSection: [AccountsSectionType] = []
+    @Published var accountsViewModel: UserSettingsAccountsViewModel?
     @Published var mobileUpgradeNotificationInput: NotificationViewInput?
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
@@ -40,7 +41,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published var forgetViewModel: DefaultRowViewModel?
 
     @Published var alert: AlertBinder?
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     // MARK: - Private
 
@@ -72,6 +73,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
+
         bind()
     }
 
@@ -107,6 +109,22 @@ private extension UserWalletSettingsViewModel {
                 }
             }
             .store(in: &bag)
+
+        if FeatureProvider.isAvailable(.accounts) {
+            userWalletModel.accountModelsManager
+                .accountModelsPublisher
+                .withWeakCaptureOf(self)
+                .map { viewModel, accounts in
+                    UserSettingsAccountsViewModel(
+                        accountModels: accounts,
+                        accountModelsManager: viewModel.userWalletModel.accountModelsManager,
+                        userWalletConfig: viewModel.userWalletModel.config,
+                        coordinator: viewModel.coordinator
+                    )
+                }
+                .assign(to: \.accountsViewModel, on: self, ownership: .weak)
+                .store(in: &bag)
+        }
     }
 
     func setupView() {
@@ -114,11 +132,6 @@ private extension UserWalletSettingsViewModel {
         // setupAccountsSection()
         setupViewModels()
         setupMobileViewModels()
-    }
-
-    func setupAccountsSection() {
-        // [REDACTED_TODO_COMMENT]
-        accountsSection = []
     }
 
     func resetViewModels() {
@@ -177,7 +190,7 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        if FeatureProvider.isAvailable(.pushTransactionNotifications), userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
+        if userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
             pushNotificationsViewModel = TransactionNotificationsRowToggleViewModel(
                 userTokensPushNotificationsManager: userWalletModel.userTokensPushNotificationsManager,
                 coordinator: coordinator,
@@ -268,17 +281,21 @@ private extension UserWalletSettingsViewModel {
     func didTapDeleteWallet() {
         Analytics.log(.buttonDeleteWalletTapped)
 
-        let sheet = ActionSheet(
-            title: Text(Localization.userWalletListDeletePrompt),
+        let deleteButton = ConfirmationDialogViewModel.Button(
+            title: Localization.commonDelete,
+            role: .destructive,
+            action: { [weak self] in
+                self?.didConfirmWalletDeletion()
+            }
+        )
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.userWalletListDeletePrompt,
             buttons: [
-                .destructive(
-                    Text(Localization.commonDelete),
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.didConfirmWalletDeletion)
-                ),
-                .cancel(Text(Localization.commonCancel)),
+                deleteButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func didConfirmWalletDeletion() {
@@ -325,7 +342,11 @@ private extension UserWalletSettingsViewModel {
     func openManageTokens() {
         Analytics.log(.settingsButtonManageTokens)
 
-        coordinator?.openManageTokens(userWalletModel: userWalletModel)
+        coordinator?.openManageTokens(
+            walletModelsManager: userWalletModel.walletModelsManager,
+            userTokensManager: userWalletModel.userTokensManager,
+            userWalletConfig: userWalletModel.config
+        )
     }
 
     func openCardSettings() {
@@ -379,26 +400,5 @@ private extension UserWalletSettingsViewModel {
         Analytics.log(.walletSettingsButtonBackup)
 
         coordinator?.openMobileBackupTypes(userWalletModel: userWalletModel)
-    }
-}
-
-// MARK: - Data
-
-extension UserWalletSettingsViewModel {
-    enum AccountsSectionType: Identifiable {
-        case header
-        case account(DefaultRowViewModel) // [REDACTED_TODO_COMMENT]
-        case addNewAccountButton(DefaultRowViewModel)
-
-        var id: Int {
-            switch self {
-            case .header:
-                return "header".hashValue
-            case .account(let viewModel):
-                return viewModel.id.hashValue
-            case .addNewAccountButton(let viewModel):
-                return viewModel.id.hashValue
-            }
-        }
     }
 }
