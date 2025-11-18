@@ -103,26 +103,11 @@ private extension ActionButtonsViewModel {
     }
 
     func bindWalletModels() {
-        let walletModelsPublisher = if FeatureProvider.isAvailable(.accounts) {
-            userWalletModel
-                .accountModelsManager
-                .cryptoAccountModelsPublisher
-                .map { $0.flatMap { $0.walletModelsManager.walletModels } }
-                .eraseToAnyPublisher()
-        } else {
-            // accounts_fixes_needed_none
-            userWalletModel
-                .walletModelsManager
-                .walletModelsPublisher
-        }
-
-        walletModelsPublisher
-            .map(\.count)
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
+        AccountsFeatureAwareWalletModelsResolver
+            .walletModelsPublisher(for: userWalletModel)
             .withWeakCaptureOf(self)
-            .sink { viewModel, walletModelsCount in
-                viewModel.handleWalletModelsCountUpdate(walletModelsCount)
+            .sink { viewModel, walletModels in
+                viewModel.handleWalletModelsCountUpdate(walletModels.count)
             }
             .store(in: &bag)
     }
