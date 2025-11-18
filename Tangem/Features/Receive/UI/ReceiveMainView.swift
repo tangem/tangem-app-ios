@@ -33,6 +33,8 @@ struct ReceiveMainView: View {
                     .transition(.content)
             case .tokenAlert(let viewModel):
                 TokenAlertReceiveAssetsView(viewModel: viewModel)
+            case .yieldTokenAlert(let viewModel):
+                YieldNoticeReceiveView(viewModel: viewModel)
             case .none:
                 EmptyView()
             }
@@ -57,7 +59,7 @@ struct ReceiveMainView: View {
         var closeButtonAction: (() -> Void)?
 
         switch viewState {
-        case .tokenAlert:
+        case .tokenAlert, .yieldTokenAlert:
             title = nil
             backButtonAction = nil
             closeButtonAction = viewModel.onCloseTapAction

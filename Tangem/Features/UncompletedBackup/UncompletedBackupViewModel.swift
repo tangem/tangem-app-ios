@@ -9,13 +9,13 @@
 import SwiftUI
 import TangemSdk
 import TangemLocalization
-import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class UncompletedBackupViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var discardAlert: ActionSheetBinder?
+    @Published var discardConfirmationDialog: ConfirmationDialogViewModel?
     @Published var error: AlertBinder?
 
     private weak var coordinator: UncompletedBackupRoutable?
@@ -44,16 +44,33 @@ final class UncompletedBackupViewModel: ObservableObject {
     }
 
     private func showExtraDiscardAlert() {
-        let buttonResume: ActionSheet.Button = .cancel(Text(Localization.welcomeInterruptedBackupDiscardResume), action: continueBackup)
-        let buttonDiscard: ActionSheet.Button = .destructive(Text(Localization.welcomeInterruptedBackupDiscardDiscard), action: discardBackup)
-        let sheet = ActionSheet(
-            title: Text(Localization.welcomeInterruptedBackupDiscardTitle),
-            message: Text(Localization.welcomeInterruptedBackupDiscardMessage),
-            buttons: [buttonDiscard, buttonResume]
+        let discardButton = ConfirmationDialogViewModel.Button(
+            title: Localization.welcomeInterruptedBackupDiscardDiscard,
+            role: .destructive,
+            action: { [weak self] in
+                self?.discardBackup()
+            }
+        )
+
+        let resumeButton = ConfirmationDialogViewModel.Button(
+            title: Localization.welcomeInterruptedBackupDiscardResume,
+            role: .cancel,
+            action: { [weak self] in
+                self?.continueBackup()
+            }
+        )
+
+        let viewModel = ConfirmationDialogViewModel(
+            title: Localization.welcomeInterruptedBackupDiscardTitle,
+            subtitle: Localization.welcomeInterruptedBackupDiscardMessage,
+            buttons: [
+                discardButton,
+                resumeButton,
+            ]
         )
 
         DispatchQueue.main.async {
-            self.discardAlert = ActionSheetBinder(sheet: sheet)
+            self.discardConfirmationDialog = viewModel
         }
     }
 
