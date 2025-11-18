@@ -9,25 +9,26 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
+import TangemLocalization
 
 public struct AccountFormHeaderView: View {
     @Binding var accountName: String
     @State private var originalTextFieldHeight: CGFloat = 0
 
+    private let maxCharacters: Int
     private let placeholderText: String
-    private let color: Color
-    private let previewType: AccountFormHeaderType
+    private let accountIconViewData: AccountIconView.ViewData
 
     public init(
         accountName: Binding<String>,
+        maxCharacters: Int,
         placeholderText: String,
-        color: Color,
-        previewType: AccountFormHeaderType
+        accountIconViewData: AccountIconView.ViewData
     ) {
         _accountName = accountName
+        self.maxCharacters = maxCharacters
         self.placeholderText = placeholderText
-        self.color = color
-        self.previewType = previewType
+        self.accountIconViewData = accountIconViewData
     }
 
     public var body: some View {
@@ -35,8 +36,7 @@ public struct AccountFormHeaderView: View {
             colorWithPreview
                 .padding(.bottom, 34)
 
-            // [REDACTED_TODO_COMMENT]
-            Text("Account name")
+            Text(Localization.accountFormName)
                 .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
 
             nameInput
@@ -47,33 +47,9 @@ public struct AccountFormHeaderView: View {
     private var colorWithPreview: some View {
         HStack {
             Spacer()
-            preview
-                .frame(width: 40, height: 40)
-                .padding(24)
-                .background(
-                    RoundedRectangle(cornerRadius: 24)
-                        .fill(color)
-                        .animation(.default, value: color)
-                )
-                .animation(.default, value: previewType)
-
+            AccountIconView(data: accountIconViewData)
+                .settings(.largeSized)
             Spacer()
-        }
-    }
-
-    @ViewBuilder
-    private var preview: some View {
-        switch previewType {
-        case .letter(let letter):
-            Text(letter)
-                .style(Fonts.Bold.largeTitle, color: Colors.Text.constantWhite)
-
-        case .image(let image, let config):
-            image
-                .renderingMode(.template)
-                .resizable()
-                .foregroundStyle(Colors.Text.constantWhite)
-                .opacity(config.opacity)
         }
     }
 
@@ -92,23 +68,11 @@ public struct AccountFormHeaderView: View {
             )
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
             .frame(height: originalTextFieldHeight)
-    }
-}
-
-public enum AccountFormHeaderType: Equatable {
-    case letter(String)
-    case image(Image, config: ImageConfig = .default)
-}
-
-public extension AccountFormHeaderType {
-    struct ImageConfig: Equatable {
-        let opacity: Double
-
-        public init(opacity: Double = 1) {
-            self.opacity = opacity
-        }
-
-        public static let `default`: Self = ImageConfig()
+            // Mikhail Andreev - Needed to be constrained from here coz for some reason it
+            // is not possible to do it from ViewModel
+            .onChange(of: accountName) { newValue in
+                accountName = String(newValue.prefix(maxCharacters))
+            }
     }
 }
 
@@ -122,16 +86,22 @@ public extension AccountFormHeaderType {
         VStack {
             AccountFormHeaderView(
                 accountName: $accountName,
+                maxCharacters: 20,
                 placeholderText: "New account",
-                color: Colors.Accounts.darkGreen,
-                previewType: .letter("N")
+                accountIconViewData: AccountIconView.ViewData(
+                    backgroundColor: Colors.Accounts.vitalGreen,
+                    nameMode: .letter("N")
+                )
             )
 
             AccountFormHeaderView(
                 accountName: $accountName,
+                maxCharacters: 20,
                 placeholderText: "New account",
-                color: Colors.Accounts.darkGreen,
-                previewType: .image(Assets.Accounts.airplane.image)
+                accountIconViewData: AccountIconView.ViewData(
+                    backgroundColor: Colors.Accounts.ufoGreen,
+                    nameMode: .imageType(Assets.Accounts.airplane)
+                )
             )
         }
         .padding(.horizontal, 16)
