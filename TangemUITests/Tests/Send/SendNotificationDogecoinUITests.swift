@@ -13,27 +13,10 @@ final class SendNotificationDogecoinUITests: BaseTestCase {
     private let destinationAddress = "DJQR3bdhBKcFGMHX2BkMCkrMFApNWNzr6V"
     private let coin = "Dogecoin"
 
-    override func setUp() {
-        super.setUp()
-
-        let dogecoinScenario = ScenarioConfig(
-            name: "user_tokens_api",
-            initialState: "Dogecoin"
-        )
-
-        launchApp(
-            tangemApiType: .mock,
-            scenarios: [dogecoinScenario]
-        )
-
-        StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .tapToken(coin)
-            .tapSendButton()
-    }
-
     func testNotificationNotDisplayed_WhenSendingMoreThan001DOGE() {
         setAllureId(4211)
+
+        prepareSendFlow()
 
         SendScreen(app)
             .waitForDisplay()
@@ -47,6 +30,8 @@ final class SendNotificationDogecoinUITests: BaseTestCase {
 
     func testNotificationDisplayed_WhenSendingLessThan001DOGE() {
         setAllureId(4212)
+
+        prepareSendFlow()
 
         SendScreen(app)
             .waitForDisplay()
@@ -63,6 +48,8 @@ final class SendNotificationDogecoinUITests: BaseTestCase {
 
         try skipDueToBug("[REDACTED_INFO]", description: "Send: fee error when sending Dogecoin")
 
+        prepareSendFlow()
+
         SendScreen(app)
             .waitForDisplay()
             .enterAmount("9.995")
@@ -78,6 +65,8 @@ final class SendNotificationDogecoinUITests: BaseTestCase {
 
         try skipDueToBug("[REDACTED_INFO]", description: "Send: fee error when sending Dogecoin")
 
+        prepareSendFlow()
+
         SendScreen(app)
             .waitForDisplay()
             .enterAmount("9")
@@ -86,5 +75,22 @@ final class SendNotificationDogecoinUITests: BaseTestCase {
             .tapNextButton()
             .waitForInvalidAmountBannerNotExists()
             .waitForSendButtonEnabled()
+    }
+
+    private func prepareSendFlow() {
+        let dogecoinScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: "Dogecoin"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            scenarios: [dogecoinScenario]
+        )
+
+        StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(coin)
+            .tapSendButton()
     }
 }
