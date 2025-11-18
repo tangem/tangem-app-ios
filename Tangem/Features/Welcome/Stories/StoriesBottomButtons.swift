@@ -13,18 +13,12 @@ import TangemUI
 import TangemAccessibilityIdentifiers
 
 struct StoriesBottomButtons: View {
-    var isScanning: Bool
-
+    let isScanning: Bool
     let createWallet: () -> Void
-    let importWallet: () -> Void
     let scanCard: () -> Void
     let orderCard: () -> Void
 
     private let isMobileWalletEnabled = FeatureProvider.isAvailable(.mobileWallet)
-
-    private let createColorStyle: MainButton.Style = .primary
-    private let importColorStyle: MainButton.Style = .secondary
-    private let orderColorStyle: MainButton.Style = .secondary
 
     private var scanColorStyle: MainButton.Style {
         isMobileWalletEnabled ? .secondary : .primary
@@ -32,11 +26,7 @@ struct StoriesBottomButtons: View {
 
     var body: some View {
         if isMobileWalletEnabled {
-            VStack(spacing: 8) {
-                createWalletButton
-                importWalletButton
-                scanCardButton
-            }
+            createWalletButton
         } else {
             HStack {
                 scanCardButton
@@ -51,19 +41,10 @@ struct StoriesBottomButtons: View {
 private extension StoriesBottomButtons {
     var createWalletButton: some View {
         MainButton(
-            title: Localization.homeButtonCreateNewWallet,
-            style: createColorStyle,
+            title: Localization.commonGetStarted,
+            style: .primary,
             isDisabled: isScanning,
             action: createWallet
-        )
-    }
-
-    var importWalletButton: some View {
-        MainButton(
-            title: Localization.homeButtonAddExistingWallet,
-            style: importColorStyle,
-            isDisabled: isScanning,
-            action: importWallet
         )
     }
 
@@ -81,7 +62,7 @@ private extension StoriesBottomButtons {
     var orderCardButton: some View {
         MainButton(
             title: Localization.homeButtonOrder,
-            style: orderColorStyle,
+            style: .secondary,
             isDisabled: isScanning,
             action: orderCard
         )
@@ -93,7 +74,6 @@ struct StoriesBottomButtons_Previews: PreviewProvider {
         StoriesBottomButtons(
             isScanning: false,
             createWallet: {},
-            importWallet: {},
             scanCard: {},
             orderCard: {}
         )

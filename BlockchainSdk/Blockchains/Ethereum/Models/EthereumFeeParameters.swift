@@ -22,6 +22,11 @@ public protocol EthereumFeeParameters where Self: FeeParameters {
     func calculateFee(decimalValue: Decimal) -> Decimal
 }
 
+public enum EthereumFeeParametersConstants {
+    public static var defaultGasLimitIncreasePercent = BigUInt(12)
+    public static var yieldModuleGasLimitIncreasePercent = BigUInt(20)
+}
+
 public extension EthereumFeeParameters {
     var gasLimit: BigUInt {
         switch parametersType {

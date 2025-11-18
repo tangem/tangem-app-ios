@@ -15,6 +15,7 @@ actor DEXExpressProviderManager {
     private let provider: ExpressProvider
     private let expressAPIProvider: ExpressAPIProvider
     private let mapper: ExpressManagerMapper
+    private let transactionValidator: ExpressProviderTransactionValidator
 
     // MARK: - State
 
@@ -23,11 +24,13 @@ actor DEXExpressProviderManager {
     init(
         provider: ExpressProvider,
         expressAPIProvider: ExpressAPIProvider,
-        mapper: ExpressManagerMapper
+        mapper: ExpressManagerMapper,
+        transactionValidator: ExpressProviderTransactionValidator
     ) {
         self.provider = provider
         self.expressAPIProvider = expressAPIProvider
         self.mapper = mapper
+        self.transactionValidator = transactionValidator
     }
 }
 
@@ -135,6 +138,10 @@ private extension DEXExpressProviderManager {
         if data.txValue > request.pair.source.balanceProvider.getFeeCurrencyBalance() {
             let estimateFee = try await estimateFee(request: request, data: data)
             return .restriction(estimateFee, quote: quote)
+        }
+
+        guard transactionValidator.validateTransactionSize(data: data.txData) else {
+            throw ExpressProviderError.transactionSizeNotSupported
         }
 
         do {

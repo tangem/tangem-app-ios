@@ -57,7 +57,8 @@ extension CommonKeysManager: KeysManager {
             bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
             tangemAlephiumApiKey: keys.alephiumTangemApiKey,
             blinkApiKey: keys.blinkApiKey,
-            tatumApiKey: keys.tatumApiKey
+            tatumApiKey: keys.tatumApiKey,
+            yieldModuleApiKey: keys.yieldModuleApiKey,
         )
     }
 
@@ -67,6 +68,10 @@ extension CommonKeysManager: KeysManager {
 
     var amplitudeApiKey: String {
         keys.amplitudeApiKey
+    }
+
+    var appsFlyerConfig: AppsFlyerConfig {
+        keys.appsFlyer
     }
 
     var utorgSID: String {
@@ -112,6 +117,14 @@ extension CommonKeysManager: KeysManager {
     var tangemApiKeyStage: String {
         keys.tangemApiKeyStage
     }
+
+    var yieldModuleApiKey: String {
+        keys.yieldModuleApiKey
+    }
+
+    var yieldModuleApiKeyDev: String {
+        keys.yieldModuleApiKeyDev
+    }
 }
 
 extension CommonKeysManager {
@@ -154,5 +167,7 @@ extension CommonKeysManager {
         let tangemApiKeyStage: String
         let blinkApiKey: String
         let tatumApiKey: String
+        let yieldModuleApiKey: String
+        let yieldModuleApiKeyDev: String
     }
 }

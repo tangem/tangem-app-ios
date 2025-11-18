@@ -28,6 +28,15 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
     @Published var yieldModuleNotificationInputs: [NotificationViewInput] = []
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
+    @Published var tangemPayCardIssuingInProgress: Bool = false
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    @Published var tangemPayAccountViewModel: TangemPayAccountViewModel?
+
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
     @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
@@ -60,7 +69,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let userWalletNotificationManager: NotificationManager
     private let tokensNotificationManager: NotificationManager
     private let bannerNotificationManager: NotificationManager?
-    private let yieldModuleNotificationManager: NotificationManager
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
@@ -87,7 +95,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         userWalletNotificationManager: NotificationManager,
         tokensNotificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
-        yieldModuleNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         tokenSectionsAdapter: TokenSectionsAdapter,
         tokenRouter: SingleTokenRoutable,
@@ -99,18 +106,62 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.userWalletNotificationManager = userWalletNotificationManager
         self.tokensNotificationManager = tokensNotificationManager
         self.bannerNotificationManager = bannerNotificationManager
-        self.yieldModuleNotificationManager = yieldModuleNotificationManager
         self.rateAppController = rateAppController
         self.tokenSectionsAdapter = tokenSectionsAdapter
         self.tokenRouter = tokenRouter
         self.optionsEditing = optionsEditing
         self.coordinator = coordinator
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
+
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
             totalBalanceProvider: userWalletModel
         )
         bind()
+
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
+        if FeatureProvider.isAvailable(.visa) {
+            let tangemPayAccountPublisher = userWalletModel.walletModelsManager.walletModelsPublisher
+                .compactMap(\.visaWalletModel)
+                .compactMap(TangemPayAccount.init)
+                .merge(with: userWalletModel.updatePublisher.compactMap(\.tangemPayAccount))
+                .share(replay: 1)
+
+            tangemPayAccountPublisher
+                .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
+                .receiveOnMain()
+                .assign(to: \.tangemPayNotificationInputs, on: self, ownership: .weak)
+                .store(in: &bag)
+
+            tangemPayAccountPublisher
+                .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
+                .receiveOnMain()
+                .assign(to: \.tangemPayCardIssuingInProgress, on: self, ownership: .weak)
+                .store(in: &bag)
+
+            tangemPayAccountPublisher
+                .withWeakCaptureOf(self)
+                .flatMapLatest { viewModel, tangemPayAccount in
+                    tangemPayAccount.tangemPayCardDetailsPublisher
+                        .withWeakCaptureOf(viewModel)
+                        .map { viewModel, cardDetails in
+                            guard let (card, balance) = cardDetails else {
+                                return nil
+                            }
+                            return TangemPayAccountViewModel(
+                                card: card,
+                                balance: balance,
+                                tapAction: {
+                                    viewModel.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
+                                }
+                            )
+                        }
+                }
+                .receiveOnMain()
+                .assign(to: \.tangemPayAccountViewModel, on: self, ownership: .weak)
+                .store(in: &bag)
+        }
     }
 
     deinit {
@@ -246,13 +297,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        yieldModuleNotificationManager
-            .notificationPublisher
-            .receive(on: DispatchQueue.main)
-            .removeDuplicates()
-            .assign(to: \.yieldModuleNotificationInputs, on: self, ownership: .weak)
-            .store(in: &bag)
-
         rateAppController.bind(
             isPageSelectedPublisher: isPageSelectedSubject,
             notificationsPublisher1: $notificationInputs,
@@ -319,9 +363,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             userWalletModel: userWalletModel,
             walletModelsManager: userWalletModel.walletModelsManager
         )
+        let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(
+            accountModelsManager: userWalletModel.accountModelsManager
+        )
 
         return NFTEntrypointViewModel(
             nftManager: userWalletModel.nftManager,
+            accountForCollectionsProvider: accountForNFTCollectionsProvider,
             navigationContext: navigationContext,
             analytics: NFTAnalytics.Entrypoint(
                 logCollectionsOpen: { state, collectionsCount, nftsCount, dummyCollectionsCount in
@@ -348,7 +396,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             from: sectionItem,
             contextActionsProvider: self,
             contextActionsDelegate: self,
-            tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:))
+            tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:)),
+            yieldApyTapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.apyBadgeTapped(_:))
         )
     }
 
@@ -381,6 +430,86 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
     }
 
+    private func apyBadgeTapped(_ walletModelId: WalletModelId.ID) {
+        guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id.id == walletModelId }),
+              TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
+        else {
+            return
+        }
+
+        if let stakingManager = walletModel.stakingManager {
+            handleStakingApyBadgeTapped(walletModel: walletModel, stakingManager: stakingManager)
+        } else if let yieldModuleManager = walletModel.yieldModuleManager {
+            handleYieldApyBadgeTapped(walletModel: walletModel, yieldManager: yieldModuleManager)
+        } else {
+            return
+        }
+    }
+
+    private func handleYieldApyBadgeTapped(walletModel: any WalletModel, yieldManager: YieldModuleManager) {
+        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+
+        func openActveYield() {
+            logger.logEarningApyClicked(state: .enabled)
+            coordinator?.openYieldModuleActiveInfo(walletModel: walletModel, signer: userWalletModel.signer)
+        }
+
+        func openPromoYield() {
+            if let apy = yieldManager.state?.marketInfo?.apy {
+                coordinator?.openYieldModulePromoView(walletModel: walletModel, apy: apy, signer: userWalletModel.signer)
+                logger.logEarningApyClicked(state: .disabled)
+            }
+        }
+
+        switch yieldManager.state?.state {
+        case .active:
+            openActveYield()
+        case .failedToLoad(_, let cached?):
+            switch cached {
+            case .active:
+                openActveYield()
+            case .notActive:
+                openPromoYield()
+            default:
+                break
+            }
+        case .processing:
+            coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+        case .notActive:
+            openPromoYield()
+        case .disabled, .failedToLoad, .loading, .none:
+            break
+        }
+    }
+
+    private func handleStakingApyBadgeTapped(walletModel: any WalletModel, stakingManager: StakingManager) {
+        let logger = CommonStakingAnalyticsLogger()
+        let analyticsState: StakingAnalyticsState
+
+        switch stakingManager.state {
+        case .availableToStake:
+            analyticsState = .disabled
+        case .staked:
+            analyticsState = .enabled
+        case .loading, .loadingError, .temporaryUnavailable, .notEnabled:
+            return
+        }
+
+        logger.logStakingApyClicked(
+            state: analyticsState,
+            tokenName: SendAnalyticsHelper.makeAnalyticsTokenName(from: walletModel.tokenItem),
+            blockchainName: walletModel.tokenItem.blockchain.displayName
+        )
+
+        coordinator?.openStaking(
+            options: .init(
+                userWalletModel: userWalletModel,
+                walletModel: walletModel,
+                manager: stakingManager
+            )
+        )
+    }
+
     private func tokenItemTapped(_ walletModelId: WalletModelId.ID) {
         guard
             let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id.id == walletModelId }),
@@ -390,6 +519,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+    }
+
+    private func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
+        coordinator?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
     }
 }
 
@@ -548,6 +681,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             openMobileUpgrade()
         case .openBuyCrypto(let walletModel, let parameters):
             coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel, parameters: parameters)
+        case .allowPushPermissionRequest, .postponePushPermissionRequest:
+            userWalletNotificationManager.dismissNotification(with: id)
         default:
             break
         }

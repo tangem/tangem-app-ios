@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct UncompletedBackupView: View {
     @ObservedObject private var viewModel: UncompletedBackupViewModel
@@ -19,7 +20,7 @@ struct UncompletedBackupView: View {
     var body: some View {
         Colors.Old.tangemStoryBackground
             .edgesIgnoringSafeArea(.all)
-            .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
+            .confirmationDialog(viewModel: $viewModel.discardConfirmationDialog)
             .alert(item: $viewModel.error, content: { $0.alert })
             .onAppear(perform: viewModel.onAppear)
             .environment(\.colorScheme, .dark)
