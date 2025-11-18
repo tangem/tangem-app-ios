@@ -138,6 +138,15 @@ final class WCFeeInteractor: WCFeeInteractorType {
         }
     }
 
+    private func getFeeForOption(_ option: FeeOption, from fees: [WCFee]) -> WCFee? {
+        switch option {
+        case .custom:
+            return nil
+        default:
+            return fees.first { $0.option == option }
+        }
+    }
+
     private func updateCustomFeeWithNetworkData(fees: [Fee]) {
         guard fees.count >= 3 else { return }
 
