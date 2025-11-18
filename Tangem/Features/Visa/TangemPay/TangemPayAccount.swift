@@ -14,6 +14,8 @@ import TangemSdk
 import TangemFoundation
 import TangemAssets
 import TangemLocalization
+import WebKit
+import UIKit
 
 final class TangemPayAccount {
     let tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never>
@@ -118,14 +120,23 @@ final class TangemPayAccount {
         self.init(authorizer: authorizer, walletAddress: walletAddress, tokens: tokens)
     }
 
-    #if ALPHA || BETA || DEBUG
-    func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
-        try await KYCService.start(
-            getToken: customerInfoManagementService.loadKYCAccessToken,
-            onDidDismiss: onDidDismiss
+    @MainActor
+    func launchKYC(onClose: (() -> Void)? = nil) async throws {
+        let response = try await customerInfoManagementService.loadKYCAccessToken()
+
+        let kycViewController = SumSubKYCViewController(
+            accessToken: response.token,
+            customerInfoManagementService: customerInfoManagementService,
+            onClose: { [weak self] in
+                self?.loadCustomerInfo()
+                onClose?()
+            }
         )
+
+        let navController = UINavigationController(rootViewController: kycViewController)
+        navController.modalPresentationStyle = .overFullScreen
+        UIApplication.modalFromTop(navController, animated: true)
     }
-    #endif // ALPHA || BETA || DEBUG
 
     func getTangemPayStatus() async throws -> TangemPayStatus {
         // Since customerInfo polling starts in the init - there is no need to make another call
@@ -238,17 +249,13 @@ extension TangemPayAccount: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .tangemPayViewKYCStatus:
-            #if ALPHA || BETA || DEBUG
             runTask(in: self) { tangemPayAccount in
                 do {
-                    try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.loadCustomerInfo()
-                    }
+                    try await tangemPayAccount.launchKYC()
                 } catch {
                     // [REDACTED_TODO_COMMENT]
                 }
             }
-            #endif // ALPHA || BETA || DEBUG
 
         case .tangemPayCreateAccountAndIssueCard:
             didTapIssueOrderSubject.send(())
@@ -353,5 +360,295 @@ private extension TangemPayAccount {
     enum Constants {
         static let cardIssuingOrderPollInterval: TimeInterval = 60
         static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
+    }
+}
+
+// MARK: - SumSubEvent
+
+enum SumSubEventType: String {
+    case tokenRefreshRequired
+    case statusUpdate
+}
+
+enum SumSubEvent: String, CaseIterable {
+    case onReady
+    case onInitialized
+    case onStepInitiated
+    case onLivenessCompleted
+    case onStepCompleted
+    case onApplicantLoaded
+    case onApplicantSubmitted
+    case onError
+    case onApplicantStatusChanged
+    case onApplicantResubmitted
+    case onApplicantActionLoaded
+    case onApplicantActionSubmitted
+    case onApplicantActionStatusChanged
+    case onApplicantActionCompleted
+    case moduleResultPresented
+    case onResize
+    case onVideoIdentCallStarted
+    case onVideoIdentModeratorJoined
+    case onVideoIdentCompleted
+    case onUploadError
+    case onUploadWarning
+    case onNavigationUiControlsStateChanged
+    case onApplicantLevelChanged
+}
+
+// MARK: - SumSub KYC ViewController
+
+final class SumSubKYCViewController: UIViewController {
+    private let accessToken: String
+    private let customerInfoManagementService: any CustomerInfoManagementService
+    private let onClose: () -> Void
+
+    private var shouldInitialize = true
+
+    private lazy var webView: WKWebView = {
+        let configuration = WKWebViewConfiguration()
+        configuration.allowsInlineMediaPlayback = true
+        configuration.mediaTypesRequiringUserActionForPlayback = []
+
+        let contentController = WKUserContentController()
+        contentController.add(self, name: SumSubKYCConstants.messageHandlerName)
+        configuration.userContentController = contentController
+
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.navigationDelegate = self
+        webView.uiDelegate = self
+
+        return webView
+    }()
+
+    init(
+        accessToken: String,
+        customerInfoManagementService: any CustomerInfoManagementService,
+        onClose: @escaping () -> Void
+    ) {
+        self.accessToken = accessToken
+        self.customerInfoManagementService = customerInfoManagementService
+        self.onClose = onClose
+        super.init(nibName: nil, bundle: nil)
+
+        setupLayout()
+        loadSumSubSDK()
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupLayout() {
+        webView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(webView)
+
+        NSLayoutConstraint.activate([
+            webView.topAnchor.constraint(equalTo: view.topAnchor),
+            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: closeIcon,
+            style: .plain,
+            target: self,
+            action: #selector(close)
+        )
+    }
+
+    @objc
+    private func close() {
+        navigationController?.dismiss(animated: true, completion: onClose)
+    }
+
+    private func loadSumSubSDK() {
+        let eventsEnumerationString = SumSubEvent.allCases
+            .map { "'\($0.rawValue)'" }
+            .joined(separator: ", ")
+
+        webView.loadHTMLString(
+            SumSubKYCConstants.htmlTemplate(eventsArray: "[\(eventsEnumerationString)]"),
+            baseURL: URL(string: "https://localhost") // Use localhost URL as baseURL to enable getUserMedia in WebView
+        )
+    }
+}
+
+// MARK: - WKNavigationDelegate
+
+extension SumSubKYCViewController: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        guard shouldInitialize else { return }
+
+        shouldInitialize = false
+        webView.evaluateJavaScript(SumSubKYCConstants.initSumSubScript(token: accessToken))
+    }
+}
+
+// MARK: - WKUIDelegate
+
+extension SumSubKYCViewController: WKUIDelegate {
+    func webView(
+        _ webView: WKWebView,
+        requestMediaCapturePermissionFor origin: WKSecurityOrigin,
+        initiatedByFrame frame: WKFrameInfo,
+        type: WKMediaCaptureType,
+        decisionHandler: @escaping @MainActor (WKPermissionDecision) -> Void
+    ) {
+        decisionHandler(.grant)
+    }
+}
+
+// MARK: - WKScriptMessageHandler
+
+extension SumSubKYCViewController: WKScriptMessageHandler {
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard message.name == SumSubKYCConstants.messageHandlerName,
+              let messageBody = message.body as? [String: Any],
+              let eventTypeString = messageBody[SumSubKYCConstants.eventTypeKey] as? String,
+              let eventType = SumSubEventType(rawValue: eventTypeString)
+        else {
+            return
+        }
+
+        switch eventType {
+        case .tokenRefreshRequired:
+            handleTokenRefresh()
+        case .statusUpdate:
+            // [REDACTED_TODO_COMMENT]
+            break
+        }
+    }
+
+    private func handleTokenRefresh() {
+        runTask(in: self) { controller in
+            let scriptForEvaluation: String
+            do {
+                let response = try await controller.customerInfoManagementService.loadKYCAccessToken()
+                scriptForEvaluation = SumSubKYCConstants.resolveTokenScript(token: response.token)
+            } catch {
+                // [REDACTED_TODO_COMMENT]
+                scriptForEvaluation = SumSubKYCConstants.rejectTokenScript(errorMessage: "Failed to fetch new token")
+            }
+
+            _ = try? await controller.webView.evaluateJavaScript(scriptForEvaluation)
+        }
+    }
+}
+
+// MARK: - SumSubKYCConstants
+
+private enum SumSubKYCConstants {
+    static let messageHandlerName = "kycHandler"
+
+    static let eventTypeKey = "eventType"
+    static let eventKey = "event"
+    static let payloadKey = "payload"
+
+    static func initSumSubScript(token: String) -> String {
+        "initSumsub('\(token)');"
+    }
+
+    static func resolveTokenScript(token: String) -> String {
+        "tokenResolver.resolve('\(token)');"
+    }
+
+    static func rejectTokenScript(errorMessage: String) -> String {
+        "tokenResolver.reject(new Error('\(errorMessage)'));"
+    }
+
+    static func htmlTemplate(eventsArray: String) -> String {
+        """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <script src="https://static.sumsub.com/idensic/static/sns-websdk-builder.js"></script>
+            <script>
+                let tokenResolver = null;
+
+                function requestToken() {
+                    return new Promise((resolve, reject) => {
+                        tokenResolver = { resolve, reject };
+                        window.webkit.messageHandlers.\(messageHandlerName).postMessage({
+                            \(eventTypeKey): '\(SumSubEventType.tokenRefreshRequired.rawValue)'
+                        });
+                    });
+                }
+
+                async function initSumsub(accessToken) {
+                    if (!accessToken) {
+                        accessToken = await requestToken();
+                    }
+
+                    let builder = snsWebSdk.init(accessToken, requestToken);
+
+                    \(eventsArray).forEach(eventName => {
+                        builder = builder.on('idCheck.' + eventName, (payload) => {
+                            window.webkit.messageHandlers.\(messageHandlerName).postMessage({
+                                \(eventTypeKey): '\(SumSubEventType.statusUpdate.rawValue)',
+                                \(eventKey): eventName,
+                                \(payloadKey): payload
+                            });
+                        });
+                    });
+
+                    builder.build().launch('#sumsub-websdk-container');
+                }
+            </script>
+        </head>
+        <body>
+            <div id="sumsub-websdk-container"/>
+        </body>
+        </html>
+        """
+    }
+}
+
+import SwiftUI
+import TangemAssets
+import UIKit
+
+var closeIcon: UIImage {
+    Assets.Glyphs.cross20ButtonNew.uiImage
+        .withCircleBackground(
+            circleSize: 36,
+            iconSize: 20,
+            circleColor: UIColor(Colors.Button.secondary),
+            iconColor: UIColor(Colors.Icon.informative)
+        )
+}
+
+private extension UIImage {
+    func withCircleBackground(
+        circleSize: CGFloat,
+        iconSize: CGFloat,
+        circleColor: UIColor,
+        iconColor: UIColor
+    ) -> UIImage {
+        UIGraphicsImageRenderer(size: CGSize(width: circleSize, height: circleSize))
+            .image { context in
+                let rect = CGRect(origin: .zero, size: CGSize(width: circleSize, height: circleSize))
+                circleColor.setFill()
+                context.cgContext.fillEllipse(in: rect)
+
+                let finalIcon = self
+                    .withRenderingMode(.alwaysOriginal)
+                    .withTintColor(iconColor, renderingMode: .alwaysOriginal)
+
+                let iconOffset = (circleSize - iconSize) / 2
+                finalIcon.draw(
+                    in: CGRect(
+                        x: iconOffset,
+                        y: iconOffset,
+                        width: iconSize,
+                        height: iconSize
+                    )
+                )
+            }
+            .withRenderingMode(.alwaysOriginal)
     }
 }
