@@ -19,23 +19,11 @@ extension P2PDTO {
         typealias Response = GenericResponse<PrepareDepositTransactionInfo>
 
         struct PrepareDepositTransactionInfo: Decodable {
-            let amount: Double
+            let amount: Decimal
             let vaultAddress: String
             let delegatorAddress: String
             let unsignedTransaction: UnsignedTransaction
             let createdAt: Date
-        }
-
-        struct UnsignedTransaction: Decodable {
-            let serializeTx: String
-            let to: String
-            let data: String
-            let value: String
-            let nonce: Int
-            let chainId: Int
-            let gasLimit: String
-            let maxFeePerGas: String
-            let maxPriorityFeePerGas: String
         }
     }
 }
