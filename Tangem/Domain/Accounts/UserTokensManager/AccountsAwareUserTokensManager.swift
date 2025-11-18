@@ -230,12 +230,9 @@ final class AccountsAwareUserTokensManager {
 // MARK: - UserTokensManager protocol conformance
 
 extension AccountsAwareUserTokensManager: UserTokensManager {
-    var initialized: Bool {
-        true // [REDACTED_TODO_COMMENT]
-    }
-
     var initializedPublisher: AnyPublisher<Bool, Never> {
-        .just(output: initialized) // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
+        preconditionFailure("Not used with accounts")
     }
 
     var userTokens: [TokenItem] {
