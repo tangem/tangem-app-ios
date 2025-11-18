@@ -24,6 +24,8 @@ final class CommonCryptoAccountsRepository {
     private let storageController: CryptoAccountsPersistentStorageController
     private let storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject
     private let pendingStateHolder: PendingStateHolder
+    /// Implicitly unwrapped to resolve circular dependency
+    fileprivate var debouncer: Debouncer<UserTokensRepository.Result>!
 
     /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
     private lazy var storageDidUpdatePublisher: StorageDidUpdatePublisher = storageDidUpdateSubject
@@ -63,6 +65,9 @@ final class CommonCryptoAccountsRepository {
         self.persistentStorage = persistentStorage
         self.storageController = storageController
         self.hasTokenSynchronization = hasTokenSynchronization
+        debouncer = Debouncer(interval: Constants.loadAccountsDebounceInterval) { [weak self] completion in
+            self?.loadAccountsFromServer(completion)
+        }
         storageController.bind(to: storageDidUpdateSubject)
     }
 
@@ -88,7 +93,7 @@ final class CommonCryptoAccountsRepository {
 
     // MARK: - Loading accounts and tokens from server
 
-    fileprivate func loadAccountsFromServer(_ completion: @escaping UserTokensRepository.Completion) {
+    private func loadAccountsFromServer(_ completion: @escaping UserTokensRepository.Completion) {
         loadAccountsSubscription = runTask(in: self) { repository in
             let hasScheduledPendingUpdate = await repository.pendingStateHolder.performIsolated { holder in
                 guard
@@ -422,7 +427,8 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
     }
 
     func updateLocalRepositoryFromServer(_ completion: @escaping Completion) {
-        innerRepository.loadAccountsFromServer(completion)
+        // Debounced loading to avoid multiple simultaneous requests when multiple accounts request an update in a short time frame
+        innerRepository.debouncer.debounce(withCompletion: completion)
     }
 
     private static func cryptoAccount(
@@ -475,6 +481,7 @@ private extension CommonCryptoAccountsRepository {
 private extension CommonCryptoAccountsRepository {
     enum Constants {
         static let maxRetryCount = 3
+        static let loadAccountsDebounceInterval = 0.3
     }
 }
 
