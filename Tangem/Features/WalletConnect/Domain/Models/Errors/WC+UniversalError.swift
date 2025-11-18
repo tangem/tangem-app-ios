@@ -11,13 +11,14 @@ import TangemFoundation
 // `Subsystems`:
 // `001` - DAppProposalLoading
 // `002` - DAppProposalApproval
-// `003` - WCFeeProviderError
 // `004` - CommonBlockaidAPIService.BlockaidAPIServiceError
+// `005` - DAppPersistenceError
 // `006` - WebSocketError
 // `007` - WalletConnectEstablishDAppConnectionUseCase.FeatureDisabledError
 // `008` - WalletConnectSavedSessionMigrationService.Error
 // `009` - WalletConnectTransactionRequestProcessingError
 // `010` - WalletConnectSignError
+// `011` - WalletConnectURIParsingError
 
 extension WalletConnectDAppProposalLoadingError: UniversalError {
     var errorCode: Int {
@@ -103,7 +104,7 @@ extension WalletConnectEstablishDAppConnectionUseCase.FeatureDisabledError: Univ
 extension WalletConnectSavedSessionMigrationService.Error: UniversalError {
     var errorCode: Int {
         switch self {
-        case .invalidDAppDomain:
+        case .invalidDAppURL:
             107008000
         case .userWalletNotFound:
             107008001
@@ -126,28 +127,14 @@ extension WalletConnectTransactionRequestProcessingError: UniversalError {
             107009005
         case .userWalletNotFound:
             107009006
-        case .missingBlockchains:
-            107009007
         case .unsupportedMethod:
             107009008
-        case .notEnoughDataInRequest:
-            107009009
-        case .dataInWrongFormat:
-            107009010
-        case .missingTransaction:
-            107009011
         case .walletModelNotFound:
             107009012
-        case .wrongCardSelected:
-            107009013
         case .userWalletRepositoryIsLocked:
             107009014
-        case .missingActiveUserWalletModel:
-            107009015
         case .userWalletIsLocked:
             107009016
-        case .unsupportedWCVersion:
-            107009017
         case .missingEthTransactionSigner:
             107009018
         case .missingGasLoader:
@@ -161,6 +148,19 @@ extension WCTransactionSignError: UniversalError {
         switch self {
         case .signFailed:
             107010001
+        }
+    }
+}
+
+extension WalletConnectURIParsingError: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .unsupportedWalletConnectVersion:
+            107011001
+        case .expired:
+            107011002
+        case .invalidFormat:
+            107011003
         }
     }
 }
