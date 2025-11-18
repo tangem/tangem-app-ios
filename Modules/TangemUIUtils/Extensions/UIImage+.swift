@@ -29,3 +29,34 @@ extension UIImage {
         return (averageRed + averageGreen + averageBlue) / 3.0
     }
 }
+
+public extension UIImage {
+    func withCircleBackground(
+        circleSize: CGFloat,
+        iconSize: CGFloat,
+        circleColor: UIColor,
+        iconColor: UIColor
+    ) -> UIImage {
+        UIGraphicsImageRenderer(size: CGSize(width: circleSize, height: circleSize))
+            .image { context in
+                let rect = CGRect(origin: .zero, size: CGSize(width: circleSize, height: circleSize))
+                circleColor.setFill()
+                context.cgContext.fillEllipse(in: rect)
+
+                let finalIcon = self
+                    .withRenderingMode(.alwaysOriginal)
+                    .withTintColor(iconColor, renderingMode: .alwaysOriginal)
+
+                let iconOffset = (circleSize - iconSize) / 2
+                finalIcon.draw(
+                    in: CGRect(
+                        x: iconOffset,
+                        y: iconOffset,
+                        width: iconSize,
+                        height: iconSize
+                    )
+                )
+            }
+            .withRenderingMode(.alwaysOriginal)
+    }
+}
