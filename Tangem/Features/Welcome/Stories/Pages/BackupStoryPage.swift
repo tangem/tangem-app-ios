@@ -14,7 +14,6 @@ struct BackupStoryPage: View {
     var progress: Double
     var isScanning: Bool
     let createWallet: () -> Void
-    let importWallet: () -> Void
     let scanCard: () -> Void
     let orderCard: () -> Void
 
@@ -93,7 +92,6 @@ struct BackupStoryPage: View {
             StoriesBottomButtons(
                 isScanning: isScanning,
                 createWallet: createWallet,
-                importWallet: importWallet,
                 scanCard: scanCard,
                 orderCard: orderCard
             )
@@ -111,7 +109,6 @@ struct BackupStoryPage_Previews: PreviewProvider {
             progress: 1,
             isScanning: false,
             createWallet: {},
-            importWallet: {},
             scanCard: {},
             orderCard: {}
         )
