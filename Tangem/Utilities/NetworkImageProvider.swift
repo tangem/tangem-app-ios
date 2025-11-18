@@ -197,6 +197,9 @@ struct NetworkImageProvider: NFTChainIconProvider {
             filled ? Tokens.lineaFill : Tokens.linea
         case .arbitrumNova:
             filled ? Tokens.arbitrumnovaFill : Tokens.arbitrumnova
+        // [REDACTED_TODO_COMMENT]
+        case .plasma:
+            filled ? Tokens.lineaFill : Tokens.linea
         }
     }
 

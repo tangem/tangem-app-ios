@@ -109,6 +109,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case scroll(testnet: Bool)
     case linea(testnet: Bool)
     case arbitrumNova
+    case plasma(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -165,7 +166,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .hyperliquidEVM(let testnet),
              .quai(let testnet),
              .scroll(let testnet),
-             .linea(let testnet):
+             .linea(let testnet),
+             .plasma(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -348,7 +350,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .quai,
              .scroll,
              .linea,
-             .arbitrumNova:
+             .arbitrumNova,
+             .plasma:
             return 18
         case .cardano,
              .xrp,
@@ -551,6 +554,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "HYPE"
         case .quai:
             return "QUAI"
+        case .plasma:
+            return "XPL"
         }
     }
 
@@ -1191,6 +1196,7 @@ extension Blockchain: Codable {
         case .scroll: return "scroll"
         case .linea: return "linea"
         case .arbitrumNova: return "arbitrum-nova"
+        case .plasma: return "plasma"
         }
     }
 
@@ -1606,6 +1612,11 @@ private extension Blockchain {
             case .network: return "arbitrum-nova"
             case .coin: return "arbitrum-nova-ethereum"
             }
+        case .plasma:
+            switch type {
+            case .network: return "plasma"
+            case .coin: return "plasma"
+            }
         }
     }
 
@@ -1673,7 +1684,8 @@ extension Blockchain {
              .hyperliquidEVM,
              .scroll,
              .linea,
-             .arbitrumNova:
+             .arbitrumNova,
+             .plasma:
             return EthereumWalletAssembly()
         case .optimism,
              .manta,
