@@ -235,7 +235,10 @@ private extension TransactionHistoryMapper {
         case "unstakeClaimTokens_new", "unstakeClaimTokens_newPOL", "claim": .withdraw
         case "withdrawRewards", "withdrawRewardsPOL": .claimRewards
         case "redelegate": .restake
-        case "yieldDeploy", "yieldInit", "yieldReactivate", "yieldEnter", "yieldWithdraw": .yieldSupply
+        case "yieldEnter": .yieldEnter
+        case "yieldWithdraw": .yieldWithdraw
+        case "yieldTopup": .yieldTopup
+        case "yieldDeploy", "yieldInit", "yieldReactivate": .yieldSupply
         case .none: .unknownOperation
         case .some(let name): .operation(name: name.capitalizingFirstLetter())
         }
