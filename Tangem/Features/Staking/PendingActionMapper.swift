@@ -48,7 +48,7 @@ struct PendingActionMapper {
             if let stakeAction = balance.actions.first(where: { $0.type == .stake }),
                validators.filter(\.preferred).count > 1 {
                 // pending STAKE action for cardano must be handled as RESTAKE on UI but sent to stakekit as STAKE
-                if case .cardano = balance.item.network {
+                if case StakeKitNetworkType.cardano.rawValue = balance.item.network {
                     actions.append(stakingAction(
                         type: .pending(.stake(passthrough: stakeAction.passthrough)),
                         displayType: .pending(.restake(passthrough: stakeAction.passthrough))
