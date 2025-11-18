@@ -10,12 +10,14 @@ import Foundation
 import TangemSdk
 import CryptoSwift
 
-struct EVMAddressService {}
+public struct EVMAddressService {
+    public init() {}
+}
 
 // MARK: - AddressProvider
 
 extension EVMAddressService: AddressProvider {
-    func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
+    public func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         let walletPublicKey = try Secp256k1Key(with: publicKey.blockchainKey).decompress()
         // Skip secp256k1 prefix
         let keccak = walletPublicKey[1...].sha3(.keccak256)
@@ -33,7 +35,7 @@ extension EVMAddressService: AddressProvider {
 // MARK: - AddressValidator
 
 extension EVMAddressService: AddressValidator {
-    func validate(_ address: String) -> Bool {
+    public func validate(_ address: String) -> Bool {
         EthereumAddressUtils.isValidAddressHex(value: address)
     }
 }

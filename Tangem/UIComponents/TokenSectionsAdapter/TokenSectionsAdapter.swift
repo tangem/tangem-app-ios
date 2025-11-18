@@ -49,7 +49,7 @@ final class TokenSectionsAdapter {
             .combineLatest(
                 userTokenListManager.userTokensListPublisher,
                 optionsProviding.groupingOption,
-                optionsProviding.sortingOption
+                optionsProviding.sortingOption,
             )
             .receive(on: workingQueue)
             .withWeakCaptureOf(self)

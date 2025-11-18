@@ -48,8 +48,7 @@ class StakingDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             tokenItem: options.walletModel.tokenItem,
             tokenBalanceProvider: options.walletModel.availableBalanceProvider,
             stakingManager: options.manager,
-            coordinator: self,
-            accountInitializedStateProvider: options.walletModel.accountInitializationStateProvider
+            coordinator: self
         )
     }
 }
@@ -70,7 +69,13 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     func openStakingFlow() {
         guard let options else { return }
 
-        openFlow(options: options, sendType: .staking(manager: options.manager))
+        openFlow(
+            options: options,
+            sendType: .staking(
+                manager: options.manager,
+                blockchainParams: .init(blockchain: options.walletModel.tokenItem.blockchain)
+            )
+        )
 
         Analytics.log(
             event: .stakingButtonStake,
@@ -114,11 +119,17 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     func openFlow(options: Options, sendType: SendType) {
         let coordinator = makeSendCoordinator()
 
-        coordinator.start(with: .init(
-            input: .init(userWalletModel: options.userWalletModel, walletModel: options.walletModel),
-            type: sendType,
-            source: .stakingDetails
-        ))
+        coordinator.start(
+            with: .init(
+                input: .init(
+                    userWalletInfo: options.userWalletModel.userWalletInfo,
+                    walletModel: options.walletModel,
+                    expressInput: .init(userWalletModel: options.userWalletModel)
+                ),
+                type: sendType,
+                source: .stakingDetails
+            )
+        )
         sendCoordinator = coordinator
     }
 
