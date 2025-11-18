@@ -13,32 +13,12 @@ final class SendTezosNotificationUITests: BaseTestCase {
     private let coin = "Tezos"
     private let destinationAddress = "tz1eBdC2JkU2bxgZssweLo6D3wCkWN12ioHW"
 
-    override func setUp() {
-        super.setUp()
-
-        let tezosTokenScenario = ScenarioConfig(
-            name: "user_tokens_api",
-            initialState: "Tezos"
-        )
-        let quotesScenario = ScenarioConfig(
-            name: "quotes_api",
-            initialState: "Tezos"
-        )
-
-        launchApp(
-            tangemApiType: .mock,
-            clearStorage: true,
-            scenarios: [tezosTokenScenario, quotesScenario]
-        )
-
-        StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .tapToken(coin)
-            .tapSendButton()
-    }
-
-    func testNotificationDisplayed_WhenSendingMaximumAmount() {
+    func testNotificationDisplayed_WhenSendingMaximumAmount() throws {
         setAllureId(4229)
+
+        try skipDueToBug("[REDACTED_INFO]", description: "Tezos RPC calls fail with “unsupported URL”")
+
+        prepareSendFlow()
 
         let sendScreen = SendScreen(app)
             .waitForDisplay()
@@ -59,8 +39,12 @@ final class SendTezosNotificationUITests: BaseTestCase {
             .validateAmountDecreased(from: amountBeforeReduceFee)
     }
 
-    func testNotificationNotDisplayed_WhenSendingNonMaximumAmount() {
+    func testNotificationNotDisplayed_WhenSendingNonMaximumAmount() throws {
         setAllureId(4230)
+
+        try skipDueToBug("[REDACTED_INFO]", description: "Tezos RPC calls fail with “unsupported URL”")
+
+        prepareSendFlow()
 
         SendScreen(app)
             .waitForDisplay()
@@ -70,5 +54,27 @@ final class SendTezosNotificationUITests: BaseTestCase {
             .tapNextButton()
             .waitForHighFeeNotificationBannerNotExists()
             .waitForSendButtonEnabled()
+    }
+
+    private func prepareSendFlow() {
+        let tezosTokenScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: "Tezos"
+        )
+        let quotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: "Tezos"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true,
+            scenarios: [tezosTokenScenario, quotesScenario]
+        )
+
+        StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(coin)
+            .tapSendButton()
     }
 }
