@@ -14,6 +14,7 @@ import TangemAssets
 struct StringPasteButton: View {
     let style: Style
     let action: (String) -> Void
+    var accessibilityIdentifier: String? = nil
 
     @State private var isDisabled: Bool = false
 
@@ -58,6 +59,9 @@ struct StringPasteButton: View {
         .buttonBorderShape(.capsule)
         .fixedSize()
         .disableAnimations()
+        .ifLet(accessibilityIdentifier) { view, identifier in
+            view.accessibilityIdentifier(identifier)
+        }
     }
 
     @ViewBuilder
@@ -68,6 +72,9 @@ struct StringPasteButton: View {
             }
         }
         .disabled(isDisabled)
+        .ifLet(accessibilityIdentifier) { view, identifier in
+            view.accessibilityIdentifier(identifier)
+        }
     }
 }
 

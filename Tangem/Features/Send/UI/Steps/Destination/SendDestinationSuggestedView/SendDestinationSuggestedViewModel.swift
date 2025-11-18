@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 
 // MARK: - View model
@@ -28,9 +29,13 @@ class SendDestinationSuggestedViewModel {
         if !wallets.isEmpty {
             cellViewModels.append(CellModel(type: .header(title: Localization.sendRecipientWalletsTitle), tapAction: nil))
             cellViewModels.append(
-                contentsOf: wallets.map { [weak self] wallet in
+                contentsOf: wallets.enumerated().map { [weak self] index, wallet in
                     CellModel(
-                        type: .wallet(wallet: wallet, addressIconViewModel: AddressIconViewModel(address: wallet.address)),
+                        type: .wallet(
+                            wallet: wallet,
+                            addressIconViewModel: AddressIconViewModel(address: wallet.address),
+                            identifier: SendAccessibilityIdentifiers.suggestedDestinationWalletCell(index: index)
+                        ),
                         tapAction: {
                             self?.tapAction(SendDestinationSuggested(address: wallet.address, additionalField: nil, type: .otherWallet))
                         }
@@ -42,9 +47,13 @@ class SendDestinationSuggestedViewModel {
         if !recentTransactions.isEmpty {
             cellViewModels.append(CellModel(type: .header(title: Localization.sendRecentTransactions), tapAction: nil))
             cellViewModels.append(
-                contentsOf: recentTransactions.map { [weak self] record in
+                contentsOf: recentTransactions.enumerated().map { [weak self] index, record in
                     CellModel(
-                        type: .recentTransaction(record: record, addressIconViewModel: AddressIconViewModel(address: record.address)),
+                        type: .recentTransaction(
+                            record: record,
+                            addressIconViewModel: AddressIconViewModel(address: record.address),
+                            identifier: SendAccessibilityIdentifiers.suggestedDestinationTransactionCell(index: index)
+                        ),
                         tapAction: {
                             self?.tapAction(SendDestinationSuggested(address: record.address, additionalField: record.additionalField, type: .recentAddress))
                         }
@@ -73,8 +82,8 @@ extension SendDestinationSuggestedViewModel {
 extension SendDestinationSuggestedViewModel.CellModel {
     enum `Type` {
         case header(title: String)
-        case wallet(wallet: SendDestinationSuggestedWallet, addressIconViewModel: AddressIconViewModel)
-        case recentTransaction(record: SendDestinationSuggestedTransactionRecord, addressIconViewModel: AddressIconViewModel)
+        case wallet(wallet: SendDestinationSuggestedWallet, addressIconViewModel: AddressIconViewModel, identifier: String)
+        case recentTransaction(record: SendDestinationSuggestedTransactionRecord, addressIconViewModel: AddressIconViewModel, identifier: String)
     }
 }
 

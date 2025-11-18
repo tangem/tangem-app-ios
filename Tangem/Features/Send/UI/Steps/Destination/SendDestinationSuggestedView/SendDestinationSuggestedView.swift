@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SendDestinationSuggestedView: View {
     let viewModel: SendDestinationSuggestedViewModel
@@ -18,14 +19,12 @@ struct SendDestinationSuggestedView: View {
 
     var body: some View {
         GroupedSection(viewModel.cellViewModels) { cellViewModel in
-            let index = viewModel.cellViewModels.firstIndex(where: { $0.id == cellViewModel.id }) ?? -1
-
             if let tapAction = cellViewModel.tapAction {
-                cellView(for: cellViewModel.type, index: index)
+                cellView(for: cellViewModel.type)
                     .contentShape(Rectangle())
                     .onTapGesture(perform: tapAction)
             } else {
-                cellView(for: cellViewModel.type, index: index)
+                cellView(for: cellViewModel.type)
             }
         }
         .backgroundColor(Colors.Background.action)
@@ -35,14 +34,14 @@ struct SendDestinationSuggestedView: View {
     }
 
     @ViewBuilder
-    private func cellView(for type: SendDestinationSuggestedViewModel.CellModel.`Type`, index: Int) -> some View {
+    private func cellView(for type: SendDestinationSuggestedViewModel.CellModel.`Type`) -> some View {
         switch type {
         case .header(let title):
             headerView(for: title)
-        case .wallet(let wallet, let addressIconViewModel):
-            walletView(for: wallet, addressIconViewModel: addressIconViewModel)
-        case .recentTransaction(let record, let addressIconViewModel):
-            transactionView(for: record, addressIconViewModel: addressIconViewModel)
+        case .wallet(let wallet, let addressIconViewModel, let identifier):
+            walletView(for: wallet, addressIconViewModel: addressIconViewModel, identifier: identifier)
+        case .recentTransaction(let record, let addressIconViewModel, let identifier):
+            transactionView(for: record, addressIconViewModel: addressIconViewModel, identifier: identifier)
         }
     }
 
@@ -51,15 +50,16 @@ struct SendDestinationSuggestedView: View {
         Text(title)
             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
             .padding(.top, 16)
+            .accessibilityIdentifier(SendAccessibilityIdentifiers.suggestedDestinationHeader)
     }
 
     @ViewBuilder
-    private func walletView(for wallet: SendDestinationSuggestedWallet, addressIconViewModel: AddressIconViewModel) -> some View {
+    private func walletView(for wallet: SendDestinationSuggestedWallet, addressIconViewModel: AddressIconViewModel, identifier: String) -> some View {
         HStack(spacing: cellHorizontalSpacing) {
             addressIcon(with: addressIconViewModel)
 
             VStack(alignment: .leading, spacing: cellVerticalSpacing) {
-                addressView(for: wallet.address)
+                addressView(for: wallet.address, identifier: identifier)
 
                 Text(wallet.name)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -70,12 +70,12 @@ struct SendDestinationSuggestedView: View {
     }
 
     @ViewBuilder
-    private func transactionView(for transaction: SendDestinationSuggestedTransactionRecord, addressIconViewModel: AddressIconViewModel) -> some View {
+    private func transactionView(for transaction: SendDestinationSuggestedTransactionRecord, addressIconViewModel: AddressIconViewModel, identifier: String) -> some View {
         HStack(spacing: cellHorizontalSpacing) {
             addressIcon(with: addressIconViewModel)
 
             VStack(alignment: .leading, spacing: cellVerticalSpacing) {
-                addressView(for: transaction.address)
+                addressView(for: transaction.address, identifier: identifier)
 
                 HStack(spacing: 6) {
                     directionArrow(isOutgoing: transaction.isOutgoing)
@@ -107,13 +107,16 @@ struct SendDestinationSuggestedView: View {
             .frame(size: CGSize(bothDimensions: 36))
     }
 
-    private func addressView(for address: String) -> some View {
+    private func addressView(for address: String, identifier: String? = nil) -> some View {
         HStack(spacing: 0) {
             Text(address)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
                 .truncationMode(.middle)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .ifLet(identifier) { view, id in
+                    view.accessibilityIdentifier(id)
+                }
 
             // HACK: SwiftUI cannot truncate the text in the middle and align it to the leading edge without a little push
             Spacer(minLength: 10)

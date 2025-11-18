@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SendDestinationAdditionalFieldView: View {
     @ObservedObject var viewModel: SendDestinationAdditionalFieldViewModel
@@ -39,6 +40,7 @@ struct SendDestinationAdditionalFieldView: View {
             case .some(let string):
                 Text(string)
                     .style(Fonts.Bold.footnote, color: Colors.Text.warning)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.invalidMemoBanner)
             }
         }
         .lineLimit(1)
@@ -49,6 +51,7 @@ struct SendDestinationAdditionalFieldView: View {
             .autocorrectionDisabled()
             .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
             .disabled(viewModel.disabled)
+            .accessibilityIdentifier(SendAccessibilityIdentifiers.additionalFieldTextField)
     }
 
     @ViewBuilder
@@ -61,7 +64,10 @@ struct SendDestinationAdditionalFieldView: View {
     }
 
     private var pasteButton: some View {
-        StringPasteButton(style: .native) { string in
+        StringPasteButton(
+            style: .native,
+            accessibilityIdentifier: SendAccessibilityIdentifiers.additionalFieldPasteButton
+        ) { string in
             viewModel.didTapPasteButton(string: string)
         }
     }
@@ -76,5 +82,6 @@ struct SendDestinationAdditionalFieldView: View {
                 .foregroundStyle(Colors.Icon.informative)
                 .frame(width: 24, height: 24)
         }
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.additionalFieldClearButton)
     }
 }
