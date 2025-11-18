@@ -60,14 +60,15 @@ struct YieldModulePromoView: View {
     }
 
     private var title: some View {
-        Text(Localization.yieldModulePromoScreenTitle(viewModel.apy))
+        Text(Localization.yieldModulePromoScreenTitle)
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
     }
 
     private var pillInfoButton: some View {
         Button(action: { viewModel.onInterestRateInfoTap() }) {
             HStack(spacing: 4) {
-                Text(Localization.yieldModulePromoScreenVariableRateInfo).style(Fonts.Bold.caption1, color: Colors.Text.secondary)
+                Text(Localization.yieldModulePromoScreenVariableRateInfo(viewModel.apyString))
+                    .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
 
                 Assets.infoCircle16.image
                     .renderingMode(.template)
@@ -100,7 +101,7 @@ struct YieldModulePromoView: View {
             BenefitRow(
                 icon: Assets.YieldModule.yieldModuleSync.image,
                 title: Localization.yieldModulePromoScreenAutoBalanceTitle,
-                subtitle: Localization.yieldModulePromoScreenAutoBalanceSubtitle
+                subtitle: Localization.yieldModulePromoScreenAutoBalanceSubtitleV2(viewModel.tokenName)
             )
 
             BenefitRow(

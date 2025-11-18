@@ -12,7 +12,7 @@ import TangemAssets
 
 struct TransactionsListView: View {
     let state: State
-    let exploreAction: () -> Void
+    let exploreAction: (() -> Void)?
     let exploreTransactionAction: (String) -> Void
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
@@ -33,14 +33,16 @@ struct TransactionsListView: View {
 
             Spacer()
 
-            Button(action: exploreAction) {
-                HStack(spacing: 4) {
-                    Assets.compass.image
-                        .renderingMode(.template)
-                        .foregroundColor(Colors.Icon.informative)
+            if let exploreAction {
+                Button(action: exploreAction) {
+                    HStack(spacing: 4) {
+                        Assets.compass.image
+                            .renderingMode(.template)
+                            .foregroundStyle(Colors.Icon.informative)
 
-                    Text(Localization.commonExplorer)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        Text(Localization.commonExplorer)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    }
                 }
             }
         }
@@ -73,8 +75,14 @@ struct TransactionsListView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 36)
 
-            makeExploreTransactionHistoryButton(withTitle: Localization.commonExploreTransactionHistory, hasFixedSize: true)
+            if let exploreAction {
+                makeExploreTransactionHistoryButton(
+                    withTitle: Localization.commonExploreTransactionHistory,
+                    hasFixedSize: true,
+                    exploreAction: exploreAction
+                )
                 .padding(.horizontal, 16)
+            }
         }
         .padding(.vertical, 28)
     }
@@ -104,7 +112,13 @@ struct TransactionsListView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 16)
 
-            makeExploreTransactionHistoryButton(withTitle: Localization.commonExplore, hasFixedSize: true)
+            if let exploreAction {
+                makeExploreTransactionHistoryButton(
+                    withTitle: Localization.commonExplore,
+                    hasFixedSize: true,
+                    exploreAction: exploreAction
+                )
+            }
         }
         .padding(.vertical, 28)
     }
@@ -124,7 +138,13 @@ struct TransactionsListView: View {
             HStack(spacing: 8.0) {
                 makeReloadTransactionHistoryButton()
 
-                makeExploreTransactionHistoryButton(withTitle: Localization.commonExplore, hasFixedSize: false)
+                if let exploreAction {
+                    makeExploreTransactionHistoryButton(
+                        withTitle: Localization.commonExplore,
+                        hasFixedSize: false,
+                        exploreAction: exploreAction
+                    )
+                }
             }
             .padding(.horizontal, 16.0)
         }
@@ -188,7 +208,11 @@ struct TransactionsListView: View {
     }
 
     @ViewBuilder
-    private func makeExploreTransactionHistoryButton(withTitle title: String, hasFixedSize: Bool) -> some View {
+    private func makeExploreTransactionHistoryButton(
+        withTitle title: String,
+        hasFixedSize: Bool,
+        exploreAction: @escaping () -> Void
+    ) -> some View {
         if hasFixedSize {
             FixedSizeButtonWithLeadingIcon(
                 title: title,

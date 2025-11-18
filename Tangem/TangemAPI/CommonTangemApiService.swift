@@ -40,25 +40,37 @@ class CommonTangemApiService {
 
     private func request<D: Decodable>(for type: TangemApiTarget.TargetType, decoder: JSONDecoder = .init()) async throws -> D {
         let target = TangemApiTarget(type: type)
-        let response = try await provider.asyncRequest(target)
 
-        do {
-            return try response.mapAPIResponse(decoder: decoder)
-        } catch let error as MoyaError {
-            log(error: error, exceptionHost: target.requestDescription, code: error.errorCode.description)
-            throw error
-        } catch let error as TangemAPIError {
-            log(error: error, exceptionHost: target.requestDescription, code: error.code.description ?? "")
-            throw error
-        } catch {
-            log(error: error, exceptionHost: target.requestDescription, code: TangemAPIError.ErrorCode.unknown.description ?? "")
-            throw error
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false, decoder: decoder)
         }
     }
 
     private func requestRawData(for type: TangemApiTarget.TargetType) async throws -> Data {
         let target = TangemApiTarget(type: type)
-        return try await provider.asyncRequest(target).data
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+
+            return response.data
+        }
+    }
+
+    private func withErrorLoggingPipeline<T>(target: TangemApiTarget, work: () async throws -> T) async rethrows -> T {
+        do {
+            return try await work()
+        } catch let error as MoyaError {
+            log(error: error, exceptionHost: target.requestDescription, code: error.errorCode.description)
+            throw error
+        } catch let error as TangemAPIError {
+            log(error: error, exceptionHost: target.requestDescription, code: error.code.description ?? .empty)
+            throw error
+        } catch {
+            log(error: error, exceptionHost: target.requestDescription, code: TangemAPIError.ErrorCode.unknown.description ?? .empty)
+            throw error
+        }
     }
 }
 
@@ -192,9 +204,13 @@ extension CommonTangemApiService: TangemApiService {
         let target = TangemApiTarget(
             type: .loadReferralProgramInfo(userWalletId: userWalletId, expectedAwardsLimit: expectedAwardsLimit)
         )
-        let response = try await provider.asyncRequest(target)
-        let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
-        return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
+
+            return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
+        }
     }
 
     func participateInReferralProgram(
@@ -211,9 +227,13 @@ extension CommonTangemApiService: TangemApiService {
         let target = TangemApiTarget(
             type: .participateInReferralProgram(userInfo: userInfo)
         )
-        let response = try await provider.asyncRequest(target)
-        let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
-        return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
+
+            return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
+        }
     }
 
     func expressPromotion(request model: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
@@ -315,18 +335,18 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func setSeedNotifyStatus(userWalletId: String, status: SeedNotifyStatus) async throws {
-        let target = TangemApiTarget(type: .seedNotifySetStatus(userWalletId: userWalletId, status: status))
-        _ = try await provider.asyncRequest(target)
+        let target: TangemApiTarget.TargetType = .seedNotifySetStatus(userWalletId: userWalletId, status: status)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
     func setSeedNotifyStatusConfirmed(userWalletId: String, status: SeedNotifyStatus) async throws {
-        let target = TangemApiTarget(type: .seedNotifySetStatusConfirmed(userWalletId: userWalletId, status: status))
-        _ = try await provider.asyncRequest(target)
+        let target: TangemApiTarget.TargetType = .seedNotifySetStatusConfirmed(userWalletId: userWalletId, status: status)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
     func setWalletInitialized(userWalletId: String) async throws {
-        let target = TangemApiTarget(type: .walletInitialized(userWalletId: userWalletId))
-        _ = try await provider.asyncRequest(target)
+        let target: TangemApiTarget.TargetType = .walletInitialized(userWalletId: userWalletId)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
     // MARK: - Notification
@@ -335,15 +355,16 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .pushNotificationsEligible, decoder: decoder)
     }
 
-    // MARK: - Applicationss
+    // MARK: - Applications
 
     func createUserWalletsApplications(requestModel: ApplicationDTO.Request) async throws -> ApplicationDTO.Create.Response {
-        let requestTarget: TangemApiTarget.TargetType = .createUserWalletsApplication(requestModel)
-        return try await request(for: requestTarget, decoder: decoder)
+        let target: TangemApiTarget.TargetType = .createUserWalletsApplication(requestModel)
+        return try await request(for: target, decoder: decoder)
     }
 
-    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws -> EmptyGenericResponseDTO {
-        try await request(for: .updateUserWalletsApplication(uid: uid, requestModel: requestModel), decoder: decoder)
+    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws {
+        let target: TangemApiTarget.TargetType = .updateUserWalletsApplication(uid: uid, requestModel: requestModel)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
     // MARK: - UserWallets
@@ -356,26 +377,66 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .getUserWallet(userWalletId: userWalletId), decoder: decoder)
     }
 
-    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws -> EmptyGenericResponseDTO {
-        try await request(for: .updateUserWallet(userWalletId: userWalletId, requestModel: requestModel), decoder: decoder)
+    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws {
+        let target: TangemApiTarget.TargetType = .updateUserWallet(userWalletId: userWalletId, requestModel: requestModel)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
-    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO {
-        try await request(for: .createAndConnectUserWallet(applicationUid: applicationUid, items: items), decoder: decoder)
+    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws {
+        let target: TangemApiTarget.TargetType = .createAndConnectUserWallet(applicationUid: applicationUid, items: items)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
-}
 
-// MARK: - Decode
+    // MARK: - Accounts
 
-private extension Response {
-    func mapAPIResponse<D: Decodable>(decoder: JSONDecoder = .init()) throws -> D {
-        let filteredResponse = try filterSuccessfulStatusCodes()
+    func getUserAccounts(
+        userWalletId: String
+    ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
+        let target = TangemApiTarget(type: .getUserAccounts(userWalletId: userWalletId))
 
-        if let baseError = try? filteredResponse.map(TangemBaseAPIError.self) {
-            throw baseError.error
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
+            let accounts: AccountsDTO.Response.Accounts = try response.mapAPIResponseThrowingTangemAPIError(
+                allowRedirectCodes: true,
+                decoder: decoder
+            )
+
+            return (revision: revision, accounts: accounts)
         }
+    }
 
-        return try filteredResponse.map(D.self, using: decoder)
+    func saveUserAccounts(
+        userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts
+    ) async throws -> String? {
+        let target = TangemApiTarget(type: .saveUserAccounts(userWalletId: userWalletId, revision: revision, accounts: accounts))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
+            // An empty response (just zero bytes, not "{}", "[{}]" or similar) can't be mapped
+            // into the `EmptyGenericResponseDTO` DTO, therefore we just check for errors and status codes here
+            let _ = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+
+            return revision
+        }
+    }
+
+    func getArchivedUserAccounts(
+        userWalletId: String
+    ) async throws -> (revision: String?, archivedAccounts: AccountsDTO.Response.ArchivedAccounts) {
+        let target = TangemApiTarget(type: .getArchivedUserAccounts(userWalletId: userWalletId))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
+            let archivedAccounts: AccountsDTO.Response.ArchivedAccounts = try response.mapAPIResponseThrowingTangemAPIError(
+                allowRedirectCodes: true,
+                decoder: decoder
+            )
+
+            return (revision: revision, archivedAccounts: archivedAccounts)
+        }
     }
 }
 
@@ -393,4 +454,13 @@ private extension CommonTangemApiService {
             analyticsSystems: [.firebase, .crashlytics]
         )
     }
+}
+
+// MARK: - Auxiliary types
+
+/// Used when the API returns an empty response with 200 status code.
+/// Using `Never` since Swift 5.9 could be an alternative, but its decoding throws an error unconditionally,
+/// see https://github.com/swiftlang/swift-evolution/blob/main/proposals/0396-never-codable.md for details.
+private extension CommonTangemApiService {
+    struct EmptyGenericResponseDTO: Decodable {}
 }
