@@ -68,8 +68,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         isSceneStarted = true
 
         PerformanceMonitorConfigurator.configureIfAvailable()
-
-        guard AppEnvironment.current.isProduction else { return }
+        AppsFlyerConfigurator.handleApplicationDidBecomeActive()
     }
 
     /// Additional view to fix no-refresh in bg issue for iOS prior to 17.

@@ -115,10 +115,14 @@ extension CommonSwapManager: SwapManager {
 
     func send() async throws -> TransactionDispatcherResult {
         do {
-            let result = try await interactor.send(shouldTrackAnalytics: false).result
-            // Stop timer after send
+            // Stop timer while sending
             stopTimer()
+
+            let result = try await interactor.send(shouldTrackAnalytics: false).result
             return result
+        } catch TransactionDispatcherResult.Error.userCancelled {
+            restartTimer()
+            throw TransactionDispatcherResult.Error.userCancelled
         } catch {
             throw error
         }

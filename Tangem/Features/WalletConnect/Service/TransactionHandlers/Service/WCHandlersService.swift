@@ -10,7 +10,10 @@ import ReownWalletKit
 import BlockchainSdk
 
 protocol WCHandlersService {
-    func validate(request: Request, forConnectedDApp connectedDApp: WalletConnectConnectedDApp) throws -> WCValidatedRequest
+    func validate(
+        request: Request,
+        forConnectedDApp connectedDApp: WalletConnectConnectedDApp
+    ) throws(WalletConnectTransactionRequestProcessingError) -> WCValidatedRequest
 
     func makeHandleTransactionDTO(
         from validatedRequest: WCValidatedRequest,
@@ -54,15 +57,15 @@ final class CommonWCHandlersService {
 // MARK: - WCHandlersService
 
 extension CommonWCHandlersService: WCHandlersService {
-    func validate(request: Request, forConnectedDApp connectedDApp: WalletConnectConnectedDApp) throws -> WCValidatedRequest {
-        // Blockchain validation
+    func validate(
+        request: Request,
+        forConnectedDApp connectedDApp: WalletConnectConnectedDApp
+    ) throws(WalletConnectTransactionRequestProcessingError) -> WCValidatedRequest {
         guard let targetBlockchain = WalletConnectBlockchainMapper.mapToDomain(request.chainId) else {
-            // [REDACTED_TODO_COMMENT]
             WCLogger.warning("Failed to create blockchain for request: \(request.id)")
-            throw WalletConnectTransactionRequestProcessingError.missingBlockchains([request.chainId.absoluteString])
+            throw WalletConnectTransactionRequestProcessingError.unsupportedBlockchain(request.chainId.absoluteString)
         }
 
-        // User wallet validation
         if userWalletRepository.models.isEmpty {
             WCLogger.warning("User wallet repository is locked")
             throw WalletConnectTransactionRequestProcessingError.userWalletRepositoryIsLocked
@@ -72,7 +75,7 @@ extension CommonWCHandlersService: WCHandlersService {
             let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == connectedDApp.userWalletID })
         else {
             WCLogger.warning("Failed to find target user wallet")
-            throw WalletConnectTransactionRequestProcessingError.missingActiveUserWalletModel
+            throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
         }
 
         if userWalletModel.isUserWalletLocked {
@@ -80,7 +83,6 @@ extension CommonWCHandlersService: WCHandlersService {
             throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
         }
 
-        // Return validated request data
         return WCValidatedRequest(
             request: request,
             dAppData: connectedDApp.dAppData,
@@ -105,7 +107,7 @@ extension CommonWCHandlersService: WCHandlersService {
             .map(\.blockchain)
             .first(where: { $0.networkId == validatedRequest.targetBlockchain.networkId })
         else {
-            throw WalletConnectTransactionRequestProcessingError.missingActiveUserWalletModel
+            throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
         }
 
         return WCHandleTransactionDTO(

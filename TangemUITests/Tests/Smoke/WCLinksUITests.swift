@@ -17,6 +17,10 @@ final class WCLinksUITests: BaseTestCase {
     override func setUp() {
         super.setUp()
         wcURI = qaToolsClient.getWCURISync()
+
+        XCTContext.runActivity(named: "Log received WC URI: \(wcURI ?? "nil")") { _ in
+            XCTAssert(!wcURI.isEmpty, "WC URI is empty")
+        }
     }
 
     func testOpenTangemAppFromSafari_ShowsWalletConnectSheet() throws {
@@ -131,7 +135,7 @@ final class WCLinksUITests: BaseTestCase {
         XCTAssertTrue(urlField.waitForExistence(timeout: 5), "Address bar not found")
         urlField.tap()
 
-        if clearButton.waitForExistence(timeout: .conditional) {
+        if clearButton.isHittable {
             clearButton.tap()
         }
 

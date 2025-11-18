@@ -64,7 +64,7 @@ struct MainView: View {
                 detailsNavigationButton
             }
         })
-        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
+        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
     }
 
     var detailsNavigationButton: some View {
@@ -78,7 +78,6 @@ struct MainView: View {
         .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
     }
 
-    @ViewBuilder
     private func editButtonLabel() -> some View {
         HStack {
             Text(Localization.commonRename)
@@ -86,7 +85,6 @@ struct MainView: View {
         }
     }
 
-    @ViewBuilder
     private func deleteButtonLabel() -> some View {
         HStack {
             Text(Localization.commonDelete)

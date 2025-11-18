@@ -8,12 +8,12 @@
 
 import SwiftUI
 import TangemLocalization
-import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
-class ResetToFactoryViewModel: ObservableObject {
+final class ResetToFactoryViewModel: ObservableObject {
     @Published var warnings: [Warning] = []
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     var actionButtonIsEnabled: Bool {
@@ -50,7 +50,7 @@ class ResetToFactoryViewModel: ObservableObject {
     }
 
     func didTapMainButton() {
-        showConfirmationAlert()
+        showConfirmationDialog()
     }
 
     func toggleWarning(warningType: WarningType) {
@@ -71,18 +71,22 @@ private extension ResetToFactoryViewModel {
         }
     }
 
-    func showConfirmationAlert() {
-        let sheet = ActionSheet(
-            title: Text(Localization.cardSettingsActionSheetTitle),
-            buttons: [
-                .destructive(Text(Localization.cardSettingsActionSheetReset)) { [weak self] in
-                    self?.resetCardToFactory()
-                },
-                .cancel(Text(Localization.commonCancel)),
-            ]
+    func showConfirmationDialog() {
+        let resetButton = ConfirmationDialogViewModel.Button(
+            title: Localization.cardSettingsActionSheetReset,
+            role: .destructive,
+            action: { [weak self] in
+                self?.resetCardToFactory()
+            }
         )
 
-        actionSheet = ActionSheetBinder(sheet: sheet)
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.cardSettingsActionSheetTitle,
+            buttons: [
+                resetButton,
+                ConfirmationDialogViewModel.Button.cancel,
+            ]
+        )
     }
 
     func resetCardToFactory() {

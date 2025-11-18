@@ -13,7 +13,7 @@ import TangemUIUtils
 
 public struct IconView<Placeholder: View>: View {
     private let url: URL?
-    private let size: CGSize
+    private let size: Size
     private let cornerRadius: CGFloat
     private let lowContrastBackgroundColor: UIColor
 
@@ -25,7 +25,7 @@ public struct IconView<Placeholder: View>: View {
 
     public init(
         url: URL?,
-        size: CGSize,
+        size: Size,
         cornerRadius: CGFloat = IconViewDefaults.cornerRadius,
         lowContrastBackgroundColor: UIColor = IconViewDefaults.lowContrastBackgroundColor,
         forceKingfisher: Bool = false,
@@ -41,6 +41,24 @@ public struct IconView<Placeholder: View>: View {
 
     public init(
         url: URL?,
+        size: CGSize,
+        cornerRadius: CGFloat = IconViewDefaults.cornerRadius,
+        lowContrastBackgroundColor: UIColor = IconViewDefaults.lowContrastBackgroundColor,
+        forceKingfisher: Bool = false,
+        @ViewBuilder placeholder: () -> Placeholder
+    ) {
+        self.init(
+            url: url,
+            size: .size(size),
+            cornerRadius: cornerRadius,
+            lowContrastBackgroundColor: lowContrastBackgroundColor,
+            forceKingfisher: forceKingfisher,
+            placeholder: placeholder
+        )
+    }
+
+    public init(
+        url: URL?,
         sizeSettings: IconViewSizeSettings,
         cornerRadius: CGFloat = IconViewDefaults.cornerRadius,
         lowContrastBackgroundColor: UIColor = IconViewDefaults.lowContrastBackgroundColor,
@@ -49,7 +67,7 @@ public struct IconView<Placeholder: View>: View {
     ) {
         self.init(
             url: url,
-            size: sizeSettings.iconSize,
+            size: .size(sizeSettings.iconSize),
             cornerRadius: cornerRadius,
             lowContrastBackgroundColor: lowContrastBackgroundColor,
             forceKingfisher: forceKingfisher,
@@ -74,12 +92,12 @@ public struct IconView<Placeholder: View>: View {
                 image
                     .resizable()
                     .scaledToFit()
-                    .frame(size: size)
+                    .frame(width: size.width, height: size.height)
                     .cornerRadiusContinuous(cornerRadius)
             case .failure:
                 Circle()
                     .fill(Color.clear)
-                    .frame(size: size)
+                    .frame(width: size.width, height: size.height)
                     .overlay(
                         Circle()
                             .stroke(Colors.Icon.informative, lineWidth: 1)
@@ -99,14 +117,14 @@ public struct IconView<Placeholder: View>: View {
             .fade(duration: 0.3)
             .cacheOriginalImage()
             .resizable()
-            .frame(size: size)
+            .frame(width: size.width, height: size.height)
             .scaledToFit()
             .cornerRadiusContinuous(cornerRadius)
     }
 
     private var loadingPlaceholder: some View {
         SkeletonView()
-            .frame(size: size)
+            .frame(width: size.width, height: size.height)
             .cornerRadius(size.height / 2)
     }
 }
@@ -147,6 +165,27 @@ public extension IconView where Placeholder == CircleImageTextView {
             forceKingfisher: forceKingfisher
         ) {
             CircleImageTextView(name: "", color: Colors.Button.secondary, size: sizeSettings.iconSize)
+        }
+    }
+}
+
+public extension IconView {
+    enum Size {
+        case height(CGFloat)
+        case size(CGSize)
+
+        var height: CGFloat {
+            switch self {
+            case .height(let height): height
+            case .size(let size): size.height
+            }
+        }
+
+        var width: CGFloat? {
+            switch self {
+            case .height: nil
+            case .size(let size): size.width
+            }
         }
     }
 }

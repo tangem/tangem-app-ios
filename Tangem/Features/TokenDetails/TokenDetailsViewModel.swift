@@ -15,16 +15,21 @@ import TangemStaking
 import TangemFoundation
 import TangemLocalization
 import TangemUI
-import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
+    @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
 
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
         buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
         balanceProvider: self,
-        balanceTypeSelectorProvider: self
+        balanceTypeSelectorProvider: self,
+        yieldModuleStatusProvider: self,
+        showYieldBalanceInfoAction: { [weak self] in
+            self?.openYieldBalanceInfo()
+        }
     )
 
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
@@ -110,6 +115,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         ]
 
         Analytics.log(event: .detailsScreenOpened, params: params)
+
+        walletModel.yieldModuleManager?.sendActivationState()
     }
 
     override func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
@@ -121,8 +128,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             openFeeCurrency()
         case .swap:
             openExchange()
-        case .openYieldPromo:
-            openYieldModulePromo()
         case .generateAddresses,
              .backupCard,
              .buyCrypto,
@@ -150,13 +155,17 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .openMobileUpgrade,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus:
+             .activate,
+             .tangemPayViewKYCStatus,
+             .allowPushPermissionRequest,
+             .postponePushPermissionRequest,
+             .givePermission:
             super.didTapNotification(with: id, action: action)
         }
     }
 
-    override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
-        self.actionSheet = actionSheet
+    override func present(confirmationDialog: ConfirmationDialogViewModel) {
+        self.confirmationDialog = confirmationDialog
     }
 
     override func copyDefaultAddress() {
@@ -264,6 +273,15 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
+        walletModel.yieldModuleManager?.statePublisher
+            .compactMap { $0 }
+            .filter { $0.state != .loading }
+            .receiveOnMain()
+            .sink { [weak self] state in
+                self?.updateYieldAvailability(state: state)
+            }
+            .store(in: &bag)
+
         // If a pending transaction was provided for deeplink-based presentation,
         // wait for the first non-empty list of pending transactions,
         // and if it contains a transaction matching the provided ID, present its status.
@@ -347,6 +365,68 @@ private extension TokenDetailsViewModel {
             fiat: stakedWithPendingFiatBalanceFormatted
         )
     }
+
+    private func updateYieldAvailability(state: YieldModuleManagerStateInfo) {
+        yieldModuleAvailability = makeYieldAvailability(state: state.state, marketInfo: state.marketInfo)
+    }
+
+    private func makeYieldAvailability(
+        state: YieldModuleManagerState,
+        marketInfo: YieldModuleMarketInfo?
+    ) -> YieldModuleAvailability {
+        guard FeatureProvider.isAvailable(.yieldModule), let manager = walletModel.yieldModuleManager else {
+            return .notApplicable
+        }
+
+        func makeEligibleViewModelIfPossible() -> YieldModuleAvailability {
+            if let apy = marketInfo?.apy {
+                let vm = makeYieldNotificationViewModel(apy: apy)
+                return .eligible(vm)
+            } else {
+                return .notApplicable
+            }
+        }
+
+        switch state {
+        case .active(let info):
+            let vm = makeYieldStatusViewModel(
+                yieldManager: manager,
+                state: .active(
+                    isApproveRequired: info.isAllowancePermissionRequired,
+                    hasUndepositedAmounts: !info.nonYieldModuleBalanceValue.isZero,
+                    apy: marketInfo?.apy
+                )
+            )
+            if info.isAllowancePermissionRequired {
+                Analytics.log(
+                    event: .earningNoticeApproveNeeded,
+                    params: [.token: walletModel.tokenItem.currencySymbol, .blockchain: walletModel.tokenItem.blockchain.displayName]
+                )
+            }
+
+            return .active(vm)
+
+        case .notActive:
+            return makeEligibleViewModelIfPossible()
+
+        case .processing(let action):
+            let vm = makeYieldStatusViewModel(yieldManager: manager, state: action == .enter ? .loading : .closing)
+            return (action == .enter) ? .enter(vm) : .exit(vm)
+
+        case .disabled:
+            return .notApplicable
+
+        case .loading:
+            AppLogger.warning("Loading state should not be passed here to avoid blinking on UI")
+            return .notApplicable
+
+        case .failedToLoad(_, .some(let cachedState)):
+            return makeYieldAvailability(state: cachedState, marketInfo: marketInfo)
+
+        case .failedToLoad:
+            return makeEligibleViewModelIfPossible()
+        }
+    }
 }
 
 // MARK: - Navigation functions
@@ -424,10 +504,47 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 }
 
 extension TokenDetailsViewModel {
-    func openYieldModulePromo() {
-        coordinator?.openYieldModulePromoView(
-            walletModel: walletModel,
-            info: .init(apy: "TEST", networkFee: 0.00034, maximumFee: 8.50, lastYearReturns: [:])
+    func makeYieldStatusViewModel(yieldManager: YieldModuleManager, state: YieldStatusViewModel.State) -> YieldStatusViewModel {
+        YieldStatusViewModel(state: state, manager: yieldManager, navigationAction: { [weak self] in
+            self?.openYieldEarnInfo()
+        })
+    }
+
+    func makeYieldNotificationViewModel(apy: Decimal) -> YieldAvailableNotificationViewModel {
+        YieldAvailableNotificationViewModel(
+            apy: apy,
+            onButtonTap: { [weak self] apy in
+                guard let self else { return }
+                coordinator?.openYieldModulePromoView(
+                    walletModel: walletModel,
+                    apy: apy,
+                    signer: userWalletModel.signer
+                )
+            }
         )
+    }
+
+    func openYieldEarnInfo() {
+        coordinator?.openYieldEarnInfo(walletModel: walletModel, signer: userWalletModel.signer)
+    }
+
+    func openYieldBalanceInfo() {
+        Analytics.log(
+            event: .earningEarnedFundsInfo,
+            params: [.token: walletModel.tokenItem.currencySymbol, .blockchain: walletModel.tokenItem.blockchain.displayName]
+        )
+
+        coordinator?.openYieldBalanceInfo(tokenName: walletModel.tokenItem.name, tokenId: walletModel.tokenItem.id)
+    }
+}
+
+extension TokenDetailsViewModel: YieldModuleStatusProvider {
+    var yieldModuleState: AnyPublisher<YieldModuleManagerStateInfo, Never> {
+        walletModel.yieldModuleManager?
+            .statePublisher
+            .compactMap { $0 }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+            ?? Empty(completeImmediately: false).eraseToAnyPublisher()
     }
 }

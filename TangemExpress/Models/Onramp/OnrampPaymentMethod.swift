@@ -49,11 +49,30 @@ public extension OnrampPaymentMethod {
 
         public var priority: Int {
             switch self {
-            case .applePay: return 2
-            case .card: return 1
-            case .sepa, .invoiceRevolutPay, .other: return 0
+            case .applePay: return 4
+            case .card: return 3
+            case .invoiceRevolutPay: return 2
+            case .sepa: return 1
+            case .other: return 0
             case .googlePay: return -1
             }
         }
+
+        public var processingTime: ProcessingTime {
+            switch self {
+            // Same instant. But more instantest :D
+            case .applePay, .googlePay: .instant(priority: 0)
+            case .invoiceRevolutPay: .instant(priority: 1)
+            case .card: .minutes(min: 3, max: 5)
+            case .sepa: .days(3)
+            case .other: .days(5)
+            }
+        }
+    }
+
+    enum ProcessingTime: Hashable, Comparable {
+        case instant(priority: Int)
+        case minutes(min: Int, max: Int)
+        case days(Int)
     }
 }

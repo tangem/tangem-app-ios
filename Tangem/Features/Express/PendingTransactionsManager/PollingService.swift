@@ -6,18 +6,25 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Combine
 import Foundation
 import TangemFoundation
 
-final class PollingService<RequestData: Identifiable, ResponseData: Identifiable> where RequestData.ID == ResponseData.ID {
+actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sendable where RequestData.ID == ResponseData.ID {
     struct Response {
         let data: ResponseData
         let hasChanges: Bool
     }
 
-    var resultPublisher: AnyPublisher<[Response], Never> {
-        resultSubject.dropFirst().eraseToAnyPublisher()
+    var resultStream: AsyncStream<[Response]> {
+        let (resultStream, resultContinuation) = AsyncStream<[Response]>.makeStream()
+        let uuid = UUID()
+        resultContinuations[uuid] = resultContinuation
+        resultContinuation.onTermination = { [weak self] _ in
+            runTask(isDetached: true) {
+                await self?.unsubscribe(uuid: uuid)
+            }
+        }
+        return resultStream
     }
 
     private let request: (RequestData) async -> ResponseData?
@@ -25,7 +32,9 @@ final class PollingService<RequestData: Identifiable, ResponseData: Identifiable
     private let hasChanges: (ResponseData, ResponseData) -> Bool
     private let pollingInterval: TimeInterval
 
-    private let resultSubject = CurrentValueSubject<[Response], Never>([])
+    private var resultContinuations: [UUID: AsyncStream<[Response]>.Continuation] = [:]
+    private var latestResult: [Response] = []
+
     private var updateTask: Task<Void, Never>?
 
     init(
@@ -41,7 +50,13 @@ final class PollingService<RequestData: Identifiable, ResponseData: Identifiable
     }
 
     deinit {
-        cancelTask()
+        // Calling `cancelTask()` produces a warning (error in the Swift 6 language mode)
+        updateTask?.cancel()
+        updateTask = nil
+
+        resultContinuations.forEach { _, continuation in
+            continuation.finish()
+        }
     }
 
     func startPolling(requests: [RequestData], force: Bool) {
@@ -51,9 +66,9 @@ final class PollingService<RequestData: Identifiable, ResponseData: Identifiable
 
         cancelTask()
 
-        updateTask = runTask(in: self) {
-            await $0.poll(for: requests)
-            $0.cancelTask()
+        updateTask = runTask { [weak self] in
+            await self?.poll(for: requests)
+            await self?.cancelTask()
         }
     }
 
@@ -69,11 +84,10 @@ final class PollingService<RequestData: Identifiable, ResponseData: Identifiable
 
         // We have to remove result which is not contains in requests
         // Because we don't need it anymore
-        resultSubject.send(
-            resultSubject.value.filter { result in
-                requests.contains(where: { $0.id == result.data.id })
-            }
-        )
+        latestResult = latestResult.filter { result in
+            requests.contains(where: { $0.id == result.data.id })
+        }
+        sendValue(latestResult)
 
         while !Task.isCancelled {
             let responses = await withTaskGroup(of: Response?.self) { [weak self] taskGroup in
@@ -92,13 +106,14 @@ final class PollingService<RequestData: Identifiable, ResponseData: Identifiable
                 return responses
             }
 
-            resultSubject.value = responses
+            latestResult = responses
+            sendValue(responses)
             try? await Task.sleep(seconds: pollingInterval)
         }
     }
 
     private func getResponse(for requestData: RequestData) async -> Response? {
-        let previousResponse = resultSubject.value
+        let previousResponse = latestResult
             .first { $0.data.id == requestData.id }
 
         if let previousResponse, shouldStopPolling(previousResponse.data) {
@@ -119,5 +134,15 @@ final class PollingService<RequestData: Identifiable, ResponseData: Identifiable
         }
 
         return Response(data: responseData, hasChanges: true)
+    }
+
+    private func sendValue(_ value: [Response]) {
+        resultContinuations.forEach { _, continuation in
+            continuation.yield(value)
+        }
+    }
+
+    private func unsubscribe(uuid: UUID) {
+        resultContinuations.removeValue(forKey: uuid)
     }
 }

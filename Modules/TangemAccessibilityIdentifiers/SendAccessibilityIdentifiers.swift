@@ -29,4 +29,10 @@ public enum SendAccessibilityIdentifiers {
 
     /// AddressTextView
     public static let addressTextView = "sendAddressTextView"
+    public static let addressClearButton = "sendAddressClearButton"
+
+    /// Notification banners
+    public static let invalidAmountBanner = "sendInvalidAmountBanner"
+    public static let insufficientAmountToReserveAtDestinationBanner = "sendInsufficientAmountToReserveAtDestination"
+    public static let amountExceedMaximumUTXOBanner = "sendAmountExceedMaximumUTXO"
 }

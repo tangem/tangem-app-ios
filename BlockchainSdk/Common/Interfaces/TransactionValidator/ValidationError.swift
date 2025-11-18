@@ -18,7 +18,7 @@ public enum ValidationError: Error, Equatable {
 
     case dustAmount(minimumAmount: Amount)
     case dustChange(minimumAmount: Amount)
-    case minimumBalance(minimumBalance: Amount)
+    case minimumBalance(minimumBalance: Amount, canLeaveAmount: Bool)
     case maximumUTXO(blockchainName: String, newAmount: Amount, maxUtxo: Int)
     case reserve(amount: Amount)
 

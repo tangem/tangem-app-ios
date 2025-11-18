@@ -14,8 +14,6 @@ class StoriesDelegateMock: StoriesDelegate {
 
     func createWallet() {}
 
-    func importWallet() {}
-
     func scanCard() {}
 
     func orderCard() {}

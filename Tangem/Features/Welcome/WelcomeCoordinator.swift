@@ -29,7 +29,6 @@ class WelcomeCoordinator: CoordinatorObject {
     @Published var promotionCoordinator: PromotionCoordinator? = nil
     @Published var welcomeOnboardingCoordinator: WelcomeOnboardingCoordinator? = nil
     @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator? = nil
-    @Published var importWalletSelectorCoordinator: ImportWalletSelectorCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -120,20 +119,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
         let inputOptions = CreateWalletSelectorCoordinator.InputOptions()
         coordinator.start(with: inputOptions)
         createWalletSelectorCoordinator = coordinator
-    }
-
-    func openImportWallet() {
-        let dismissAction: Action<ImportWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
-            switch options {
-            case .main(let model):
-                self?.openMain(with: model)
-            }
-        }
-
-        let coordinator = ImportWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = ImportWalletSelectorCoordinator.InputOptions()
-        coordinator.start(with: inputOptions)
-        importWalletSelectorCoordinator = coordinator
     }
 
     func openMain(with userWalletModel: UserWalletModel) {

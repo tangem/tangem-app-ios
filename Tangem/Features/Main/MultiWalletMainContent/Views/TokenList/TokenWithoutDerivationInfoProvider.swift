@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemStaking
 
 class TokenWithoutDerivationInfoProvider: TokenItemInfoProvider {
     var quote: WalletModelRate { .failure(cached: .none) }
@@ -21,6 +22,7 @@ class TokenWithoutDerivationInfoProvider: TokenItemInfoProvider {
     var balanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { .just(output: balanceType) }
     var fiatBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { .just(output: fiatBalanceType) }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { .just(output: ()) }
-    var isStakedPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     var hasPendingTransactions: AnyPublisher<Bool, Never> { .just(output: false) }
+    var leadingBadgePublisher: AnyPublisher<TokenItemViewModel.LeadingBadge?, Never> { .just(output: nil) }
+    var trailingBadgePublisher: AnyPublisher<TokenItemViewModel.TrailingBadge?, Never> { .just(output: nil) }
 }

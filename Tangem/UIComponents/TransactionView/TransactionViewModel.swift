@@ -27,7 +27,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         switch transactionType {
         case .approve, .vote, .withdraw:
             return nil
-        case .transfer, .swap, .operation, .unknownOperation, .stake, .unstake, .claimRewards, .restake:
+        case .transfer, .swap, .operation, .unknownOperation, .stake, .unstake, .claimRewards, .restake, .tangemPay, .tangemPayTransfer, .yieldSupply:
             return amount
         }
     }
@@ -77,6 +77,9 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .withdraw: Localization.stakingWithdraw
         case .claimRewards: Localization.commonClaimRewards
         case .restake: Localization.stakingRestake
+        case .yieldSupply: Localization.yieldModuleSupply
+        case .tangemPay(name: let name, _, _): name
+        case .tangemPayTransfer(name: let name): name
         }
     }
 
@@ -88,7 +91,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         switch transactionType {
         case .approve:
             return Assets.approve.image
-        case .transfer, .swap, .operation, .unknownOperation:
+        case .transfer, .swap, .operation, .unknownOperation, .tangemPayTransfer, .yieldSupply:
             return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
         case .stake, .vote, .restake:
             return Assets.TokenItemContextMenu.menuStaking.image
@@ -96,7 +99,16 @@ struct TransactionViewModel: Hashable, Identifiable {
             return Assets.unstakedIcon.image
         case .claimRewards:
             return Assets.dollarMini.image
+        case .tangemPay:
+            return Assets.Visa.otherTransaction.image
         }
+    }
+
+    var iconURL: URL? {
+        if case .tangemPay(_, icon: let url, _) = transactionType {
+            return url
+        }
+        return nil
     }
 
     var iconColor: Color {
@@ -121,7 +133,17 @@ struct TransactionViewModel: Hashable, Identifiable {
     var amountColor: Color {
         switch status {
         case .failed: return Colors.Text.warning
-        default: return Colors.Text.primary1
+        default:
+            switch transactionType {
+            case .tangemPay(_, _, let isDeclined) where isDeclined:
+                return Colors.Text.warning
+
+            case .tangemPayTransfer where !isOutgoing:
+                return Colors.Text.accent
+
+            default:
+                return Colors.Text.primary1
+            }
         }
     }
 
@@ -182,8 +204,12 @@ extension TransactionViewModel {
         case withdraw
         case claimRewards
         case restake
+        case yieldSupply
         case unknownOperation
         case operation(name: String)
+
+        case tangemPay(name: String, icon: URL?, isDeclined: Bool)
+        case tangemPayTransfer(name: String)
     }
 
     enum Status {
