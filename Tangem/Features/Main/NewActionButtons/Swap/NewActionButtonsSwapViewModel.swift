@@ -27,29 +27,30 @@ final class NewActionButtonsSwapViewModel: ObservableObject {
     @Published private(set) var destination: TokenItemType?
     @Published private(set) var tokenSelectorState: TokenSelectorState = .selector
 
-    lazy var tokenSelectorViewModel = NewTokenSelectorViewModel(
-        walletsProvider: walletsProvider,
-        output: self
-    )
+    let tokenSelectorViewModel: NewTokenSelectorViewModel
 
     // MARK: - Private
 
     private let filterTokenItem: CurrentValueSubject<TokenItem?, Never> = .init(nil)
-    private lazy var walletsProvider = SwapNewTokenSelectorWalletsProvider(
-        // `selectedItem` for remove it from list
-        selectedItem: filterTokenItem.eraseToAnyPublisher(),
-
-        // `directionPublisher` for filter with available pairs from `filterTokenItem`
-        availabilityProviderFactory: NewTokenSelectorItemSwapAvailabilityProviderFactory(
-            // Here only possible pair `from`
-            directionPublisher: filterTokenItem.map { $0.map { .fromSource($0) } }.eraseToAnyPublisher()
-        )
-    )
 
     private weak var coordinator: ActionButtonsSwapRoutable?
 
     init(coordinator: ActionButtonsSwapRoutable) {
         self.coordinator = coordinator
+
+        tokenSelectorViewModel = NewTokenSelectorViewModel(
+            walletsProvider: SwapNewTokenSelectorWalletsProvider(
+                // `selectedItem` for remove it from list
+                selectedItem: filterTokenItem.eraseToAnyPublisher(),
+
+                // `directionPublisher` for filter with available pairs from `filterTokenItem`
+                availabilityProviderFactory: NewTokenSelectorItemSwapAvailabilityProviderFactory(
+                    // Here only possible pair `from`
+                    directionPublisher: filterTokenItem.map { $0.map { .fromSource($0) } }.eraseToAnyPublisher()
+                )
+            )
+        )
+        tokenSelectorViewModel.setup(with: self)
     }
 
     func onAppear() {
