@@ -108,15 +108,18 @@ actor CommonAccountModelsManager {
                 return nil
             }
 
-            guard let userWalletModel = userWalletRepository.models[userWalletId] else {
-                assertionFailure("User wallet model instance cannot be found for userWalletId: \(userWalletId)")
-                return nil
-            }
-
             let derivationIndex = storedCryptoAccount.derivationIndex
+
+            // This provider is needed because on the moment of calling this method, userWalletModel
+            // might not be saved to repostiry yet.
+            let userWalletModelProvider = LazyUserWalletModelProvider(
+                userWalletId: userWalletId,
+                repository: userWalletRepository
+            )
+
             let dependencies = dependenciesFactory.makeDependencies(
                 forAccountWithDerivationIndex: derivationIndex,
-                userWalletModel: userWalletModel
+                userWalletModelProvider: userWalletModelProvider
             )
 
             let balanceProvidingDependencies = dependencies.makeBalanceProvidingDependencies()
@@ -125,7 +128,7 @@ actor CommonAccountModelsManager {
                 accountName: storedCryptoAccount.name,
                 accountIcon: accountIcon,
                 derivationIndex: derivationIndex,
-                userWalletModel: userWalletModel,
+                userWalletModelProvider: userWalletModelProvider,
                 walletModelsManager: dependencies.walletModelsManager,
                 userTokensManager: dependencies.userTokensManager,
                 accountBalanceProvider: balanceProvidingDependencies.balanceProvider,

@@ -19,9 +19,26 @@ final class AccountsAwareUserTokensManager {
 
     weak var walletModelsManager: WalletModelsManager?
     weak var derivationManager: DerivationManager?
-    weak var keysDerivingProvider: KeysDerivingProvider?
+    weak var keysDerivingProvider: KeysDerivingProvider? {
+        get {
+            if _keysDerivingProvider == nil {
+                _keysDerivingProvider = userWalletModelProvider.getModel()
+            }
 
-    private let userWalletId: UserWalletId
+            return _keysDerivingProvider
+        }
+        set {
+            _keysDerivingProvider = newValue
+        }
+    }
+
+    private weak var _keysDerivingProvider: KeysDerivingProvider?
+    private let userWalletModelProvider: LazyUserWalletModelProvider
+
+    private var userWalletId: UserWalletId {
+        userWalletModelProvider.userWalletId
+    }
+
     private let userTokensRepository: UserTokensRepository
     private let derivationInfo: DerivationInfo
     private let existingCurves: [EllipticCurve]
@@ -34,18 +51,18 @@ final class AccountsAwareUserTokensManager {
     }
 
     init(
-        userWalletId: UserWalletId,
         userTokensRepository: UserTokensRepository,
         derivationInfo: DerivationInfo,
         existingCurves: [EllipticCurve],
         persistentBlockchains: [TokenItem],
         shouldLoadExpressAvailability: Bool,
-        hardwareLimitationsUtil: HardwareLimitationsUtil
+        hardwareLimitationsUtil: HardwareLimitationsUtil,
+        userWalletModelProvider: LazyUserWalletModelProvider
     ) {
-        self.userWalletId = userWalletId
         self.userTokensRepository = userTokensRepository
         self.derivationInfo = derivationInfo
         self.existingCurves = existingCurves
+        self.userWalletModelProvider = userWalletModelProvider
         self.shouldLoadExpressAvailability = shouldLoadExpressAvailability
         self.hardwareLimitationsUtil = hardwareLimitationsUtil
 

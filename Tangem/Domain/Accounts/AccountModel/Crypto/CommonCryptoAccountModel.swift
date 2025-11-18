@@ -18,7 +18,16 @@ final class CommonCryptoAccountModel {
     let accountBalanceProvider: AccountBalanceProvider
     let accountRateProvider: AccountRateProvider
 
-    private unowned var _userWalletModel: UserWalletModel!
+    private weak var cachedUserWalletModel: UserWalletModel?
+
+    private var _userWalletModel: UserWalletModel? {
+        if cachedUserWalletModel == nil {
+            cachedUserWalletModel = userWalletModelProvider.getModel()
+        }
+        return cachedUserWalletModel
+    }
+
+    private let userWalletModelProvider: LazyUserWalletModelProvider
 
     private(set) var icon: AccountModel.Icon {
         didSet {
@@ -62,18 +71,18 @@ final class CommonCryptoAccountModel {
         accountName: String?,
         accountIcon: AccountModel.Icon,
         derivationIndex: Int,
-        userWalletModel: UserWalletModel,
+        userWalletModelProvider: LazyUserWalletModelProvider,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
         accountBalanceProvider: AccountBalanceProvider,
         accountRateProvider: AccountRateProvider,
         derivationManager: DerivationManager?
     ) {
-        let accountId = AccountId(userWalletId: userWalletModel.userWalletId, derivationIndex: derivationIndex)
+        let accountId = AccountId(userWalletId: userWalletModelProvider.userWalletId, derivationIndex: derivationIndex)
 
         self.accountId = accountId
         _name = accountName
-        _userWalletModel = userWalletModel
+        self.userWalletModelProvider = userWalletModelProvider
         icon = accountIcon
         self.derivationIndex = derivationIndex
         self.walletModelsManager = walletModelsManager
@@ -104,7 +113,11 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
     }
 
     var userWalletModel: any UserWalletModel {
-        _userWalletModel
+        guard let model = _userWalletModel else {
+            preconditionFailure("UserWalletModel must be available when accessed")
+        }
+
+        return model
     }
 
     var descriptionString: String {

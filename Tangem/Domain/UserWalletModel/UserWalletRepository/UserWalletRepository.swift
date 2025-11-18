@@ -11,7 +11,7 @@ import Combine
 import LocalAuthentication
 import TangemFoundation
 
-protocol UserWalletRepository {
+protocol UserWalletRepository: AnyObject {
     var shouldLockOnBackground: Bool { get }
     var isLocked: Bool { get }
     var models: [UserWalletModel] { get }

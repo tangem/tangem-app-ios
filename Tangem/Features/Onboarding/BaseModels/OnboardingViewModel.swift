@@ -150,17 +150,20 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             return nil
         }
 
+        let hasAccounts = FeatureProvider.isAvailable(.accounts)
+        let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount })
+
+        if hasAccounts && mainAccount == nil {
+            goToNextStep()
+            return nil
+        }
+
         let analyticsSourceRawValue = Analytics.ParameterValue.onboarding.rawValue
         let analyticsParams: [Analytics.ParameterKey: String] = [.source: analyticsSourceRawValue]
 
         logAnalytics(event: .manageTokensScreenOpened, params: analyticsParams)
 
-        let hasAccounts = FeatureProvider.isAvailable(.accounts)
-        let getMainAccount = {
-            userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount })
-        }
-
-        let context: ManageTokensContext = if hasAccounts, let mainAccount = getMainAccount() {
+        let context: ManageTokensContext = if hasAccounts, let mainAccount {
             // Working with accounts in onboarding is equivalent of working with main account
             AccountsAwareManageTokensContext(
                 accountModelsManager: userWalletModel.accountModelsManager,
