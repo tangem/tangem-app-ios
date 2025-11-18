@@ -8,10 +8,10 @@
 
 import Combine
 
-final class NFTManagerMock: NFTManager {
-    var collections: [NFTCollection] = []
+public final class NFTManagerMock: NFTManager {
+    public var collections: [NFTCollection] = []
 
-    var collectionsPublisher: AnyPublisher<NFTPartialResult<[NFTCollection]>, Never> {
+    public var collectionsPublisher: AnyPublisher<NFTPartialResult<[NFTCollection]>, Never> {
         collections = switch state {
         case .failedToLoad, .loading: []
         case .loaded(let collections): collections.value
@@ -22,15 +22,15 @@ final class NFTManagerMock: NFTManager {
     }
 
     private var state: NFTManagerState
-    var statePublisher: AnyPublisher<NFTManagerState, Never> {
+    public var statePublisher: AnyPublisher<NFTManagerState, Never> {
         Just(state)
             .eraseToAnyPublisher()
     }
 
-    init(state: NFTManagerState) {
+    public init(state: NFTManagerState) {
         self.state = state
     }
 
-    func update(cachePolicy: NFTCachePolicy) {}
-    func updateAssets(in collection: NFTCollection) {}
+    public func update(cachePolicy: NFTCachePolicy) {}
+    public func updateAssets(in collection: NFTCollection) {}
 }

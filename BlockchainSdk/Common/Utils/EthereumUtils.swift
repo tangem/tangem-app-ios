@@ -47,7 +47,7 @@ public enum EthereumUtils {
         return balanceEth as Decimal
     }
 
-    static func mapToBigUInt(_ decimal: Decimal) -> BigUInt {
+    public static func mapToBigUInt(_ decimal: Decimal) -> BigUInt {
         if decimal == .zero {
             return .zero
         } else if decimal == .greatestFiniteMagnitude {
@@ -60,7 +60,7 @@ public enum EthereumUtils {
     /// Parse a user-supplied string using the number of decimals.
     /// If input is non-numeric or precision is not sufficient - returns nil.
     /// Allowed decimal separators are ".", ",".
-    static func parseToBigUInt(_ amount: String, decimals: Int = 18) -> BigUInt? {
+    public static func parseToBigUInt(_ amount: String, decimals: Int = 18) -> BigUInt? {
         let separators = CharacterSet(charactersIn: ".,")
         let components = amount.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: separators)
         guard components.count == 1 || components.count == 2 else { return nil }
@@ -75,6 +75,17 @@ public enum EthereumUtils {
             mainPart = mainPart + extraPart
         }
         return mainPart
+    }
+
+    /// Responses from blockaid may contain odd symbols amount in hex string
+    /// like "0x12345" which is not valid hex representation.
+    /// This function tries to parse such strings by adding a leading zero (inside asciiHexToData) if needed.
+    public static func sanitizeAndParseToBigUInt(_ string: String) -> BigUInt? {
+        guard let data = asciiHexToData(string.removeHexPrefix()) else {
+            return nil
+        }
+
+        return BigUInt(data)
     }
 
     /// Formats a BigInt object to String. The supplied number is first divided into integer and decimal part based on "toUnits",
