@@ -44,9 +44,7 @@ class FakeUserTokensManager: UserTokensManager {
     }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {
-        derivationManager?.deriveKeys(interactor: KeysDerivingMock(), completion: { result in
-            completion(result)
-        })
+        derivationManager?.deriveKeys(completion: completion)
     }
 
     func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
