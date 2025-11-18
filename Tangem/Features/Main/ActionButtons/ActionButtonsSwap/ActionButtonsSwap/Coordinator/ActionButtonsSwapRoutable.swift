@@ -13,4 +13,5 @@ protocol ActionButtonsSwapRoutable: AnyObject {
         with userWalletModel: UserWalletModel
     )
     func dismiss()
+    func showYieldNotificationIfNeeded(for walletModel: any WalletModel, completion: (() -> Void)?)
 }

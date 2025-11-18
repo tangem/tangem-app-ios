@@ -73,7 +73,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
     var userTokens: [StorageEntry] {
         let converter = StorageEntryConverter()
-        return converter.convertToStorageEntries(userTokensListSubject.value.entries)
+        return converter.convertToStorageEntries(userTokensList.entries)
     }
 
     var userTokensPublisher: AnyPublisher<[StorageEntry], Never> {

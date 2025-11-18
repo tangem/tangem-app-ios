@@ -12,36 +12,28 @@ enum Feature: String, Hashable, CaseIterable {
     case disableFirmwareVersionLimit
     case learnToEarn
     case visa // [REDACTED_TODO_COMMENT]
-    case nft
     case logs
-    case sendViaSwap
     case mobileWallet
-    case pushTransactionNotifications
-    case deeplink
     case wcSolanaALT
     case accounts
-    case nftNewSendUI
     case receiveENS
-    case sellNewSendUI
+    case yieldModule
     case newOnrampUI
+    case pushPermissionNotificationBanner
 
     var name: String {
         switch self {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .learnToEarn: return "Learn to Earn"
         case .visa: return "Visa"
-        case .nft: return "NFT"
         case .logs: return "Logs"
-        case .sendViaSwap: return "Send via Swap"
         case .mobileWallet: return "Mobile wallet"
-        case .pushTransactionNotifications: return "Push Transaction Notifications"
-        case .deeplink: return "Deeplink"
         case .wcSolanaALT: return "WalletConnect Solana ALT"
         case .accounts: return "Accounts"
-        case .nftNewSendUI: return "NFT New Send UI"
         case .receiveENS: return "Receive (ENS)"
-        case .sellNewSendUI: return "Sell on New Send UI"
+        case .yieldModule: return "Yield Module"
         case .newOnrampUI: return "Onramp on new UI"
+        case .pushPermissionNotificationBanner: return "Push Permission Notification Banner"
         }
     }
 
@@ -50,18 +42,14 @@ enum Feature: String, Hashable, CaseIterable {
         case .disableFirmwareVersionLimit: return .unspecified
         case .learnToEarn: return .unspecified
         case .visa: return .unspecified
-        case .nft: return .version("5.25")
         case .logs: return .version("5.25")
-        case .sendViaSwap: return .version("5.28")
         case .mobileWallet: return .unspecified
-        case .pushTransactionNotifications: return .version("5.26.3")
-        case .deeplink: return .version("5.25")
         case .wcSolanaALT: return .version("5.28")
         case .accounts: return .unspecified
-        case .nftNewSendUI: return .version("5.28")
         case .receiveENS: return .version("5.28")
-        case .sellNewSendUI: return .version("5.29")
+        case .yieldModule: return .version("5.30")
         case .newOnrampUI: return .unspecified
+        case .pushPermissionNotificationBanner: return .version("5.30")
         }
     }
 }

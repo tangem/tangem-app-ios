@@ -53,8 +53,12 @@ struct BlockchainSDKNotificationMapper {
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
             let amountText = "\(minimumAmount.value) \(tokenItemSymbol)"
             return .dustRestriction(minimumAmountFormatted: amountText, minimumChangeFormatted: amountText)
-        case .minimumBalance(let minimumBalance):
-            return .existentialDeposit(amount: minimumBalance.value, amountFormatted: minimumBalance.string())
+        case .minimumBalance(let minimumBalance, let canLeaveAmount):
+            return .existentialDeposit(
+                amount: minimumBalance.value,
+                amountFormatted: minimumBalance.string(),
+                canLeaveAmount: canLeaveAmount
+            )
         case .maximumUTXO(let blockchainName, let newAmount, let maxUtxo):
             return .amountExceedMaximumUTXO(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: blockchainName, maxUTXO: maxUtxo)
         case .reserve(let amount):

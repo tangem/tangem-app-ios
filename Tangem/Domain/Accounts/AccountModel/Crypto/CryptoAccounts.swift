@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// - Warning: Use `CryptoAccountsBuilder` to create instances of this enum, DO NOT create instances directly.
 /// - Warning: DO NOT create a helper/property like `accounts: [CryptoAccountModel]`, as it defeats the purpose of this enum.
 enum CryptoAccounts {
     /// A single (i.e. invisible) crypto account per single wallet, should not be rendered in the UI.
@@ -15,27 +16,23 @@ enum CryptoAccounts {
 
     /// Multiple (i.e. visible) crypto accounts per single wallet, should be rendered in the UI.
     case multiple([any CryptoAccountModel])
-}
 
-// MARK: - ExpressibleByArrayLiteral protocol conformance
-
-extension CryptoAccounts: ExpressibleByArrayLiteral {
-    init(arrayLiteral elements: any CryptoAccountModel...) {
-        self.init(accounts: elements)
+    var state: State {
+        switch self {
+        case .single:
+            return .single
+        case .multiple:
+            return .multiple
+        }
     }
 }
 
-// MARK: - Convenience extensions
+// MARK: - Inner types
 
 extension CryptoAccounts {
-    init(accounts: [any CryptoAccountModel]) {
-        switch accounts.count {
-        case 0:
-            preconditionFailure("CryptoAccounts must be initialized with at least one CryptoAccountModel")
-        case 1:
-            self = .single(accounts[0])
-        default:
-            self = .multiple(accounts)
-        }
+    /// Represents the enum cases without associated values.
+    enum State: Equatable {
+        case single
+        case multiple
     }
 }

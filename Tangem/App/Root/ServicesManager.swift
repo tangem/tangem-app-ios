@@ -33,16 +33,16 @@ protocol ServicesManager {
     func initializeKeychainSensitiveServices() async
 }
 
-class CommonServicesManager {
+final class CommonServicesManager {
     @Injected(\.sellService) private var sellService: SellService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
     @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
+    @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -122,6 +122,10 @@ class CommonServicesManager {
             AppSettings.shared.termsOfServicesAccepted = []
         }
 
+        if let _ = arguments.firstIndex(of: "-uitest-clear-storage") {
+            StorageCleaner.clearCachedFiles()
+        }
+
         UIView.setAnimationsEnabled(false)
     }
 }
@@ -153,11 +157,11 @@ extension CommonServicesManager: ServicesManager {
 
         configureFirebase()
         configureAmplitude()
+        AppsFlyerConfigurator.configure()
 
         configureBlockchainSdkExceptionHandler()
 
         sellService.initialize()
-        accountHealthChecker.initialize()
         apiListProvider.initialize()
         userTokensPushNotificationsService.initialize()
         pushNotificationsInteractor.initialize()
@@ -166,7 +170,7 @@ extension CommonServicesManager: ServicesManager {
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         ukGeoDefiner.initialize()
         wcService.initialize()
-
+        eTagStorage.initialize()
         mobileAccessCodeCleaner.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
     }
@@ -178,6 +182,7 @@ extension CommonServicesManager: ServicesManager {
         }
 
         await userWalletRepository.initialize()
+
         _initialized = true
     }
 }
