@@ -9,13 +9,14 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 public struct CircleButton: View {
     private let content: Content
     private let action: () -> Void
 
     private var disabled: Bool = false
-    private var style: Style = .primary
+    private var style: Style = .secondary
     private var size: Size = .small
 
     @State private var viewSize: CGSize = .zero
@@ -161,22 +162,26 @@ public extension CircleButton {
 
     enum Style {
         case primary
+        case secondary
 
         func textColor(isDisabled: Bool) -> Color {
             switch self {
-            case .primary: isDisabled ? Colors.Text.disabled : Colors.Text.primary1
+            case .primary: Colors.Text.primary2
+            case .secondary: isDisabled ? Colors.Text.disabled : Colors.Text.primary1
             }
         }
 
         var iconColor: Color {
             switch self {
-            case .primary: Colors.Icon.informative
+            case .primary: Colors.Icon.primary2
+            case .secondary: Colors.Icon.informative
             }
         }
 
         var background: Color {
             switch self {
-            case .primary: Colors.Button.secondary
+            case .primary: Colors.Button.primary
+            case .secondary: Colors.Button.secondary
             }
         }
     }
@@ -189,7 +194,8 @@ public extension CircleButton {
         CircleButton(content: .icon(Assets.Glyphs.cross20ButtonNew), action: action)
     }
 
-    static func back(action: @escaping () -> Void) -> CircleButton {
+    static func back(action: @escaping () -> Void) -> some View {
         CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: action)
+            .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.circleButton)
     }
 }

@@ -20,17 +20,34 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var hideTokenButton = button(.hideTokenButton)
     private lazy var actionButtons = otherElement(.tokenActionButtons)
     private lazy var stakeNotificationButton = button(.stakeNotificationButton)
+    private lazy var topUpBanner = staticText(.topUpBanner)
 
     // Staking elements
     private lazy var nativeStakingBlock = button(.nativeStakingBlock)
     private lazy var nativeStakingTitle = staticText(.nativeStakingTitle)
     private lazy var nativeStakingChevron = image(.nativeStakingChevron)
 
+    private lazy var availableSegment = button(.availableSegment)
+
+    // Balance elements
+    private lazy var totalBalance = staticText(.totalBalance)
+    private lazy var availableBalance = staticText(.availableBalance)
+    private lazy var stakingBalance = staticText(.stakingBalance)
+
     func hideToken(name: String) -> MainScreen {
         moreButton.waitAndTap()
         hideTokenButton.waitAndTap()
         app.alerts["Hide \(name)"].buttons["Hide"].waitAndTap()
         return MainScreen(app)
+    }
+
+    @discardableResult
+    func tapHideFromContextMenu() -> MainScreen {
+        XCTContext.runActivity(named: "Tap Hide from context menu") { _ in
+            app.buttons["Hide token"].waitAndTap()
+            app.alerts.firstMatch.buttons["Hide"].waitAndTap()
+            return MainScreen(app)
+        }
     }
 
     @discardableResult
@@ -55,6 +72,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         return SwapStoriesScreen(app)
     }
 
+    @discardableResult
     func tapSendButton() -> SendScreen {
         tapActionButton(.send)
         return SendScreen(app)
@@ -84,6 +102,64 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             return self
         }
     }
+
+    @discardableResult
+    func validateTopUpWalletBannerExists() -> Self {
+        XCTContext.runActivity(named: "Validate 'Top up your wallet' banner exists") { _ in
+            waitAndAssertTrue(topUpBanner, "Top up wallet banner should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func validateTopUpWalletBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Validate 'Top up your wallet' banner not exists") { _ in
+            topUpBanner.waitForState(state: .doesntExist)
+            XCTAssertFalse(topUpBanner.exists, "Top up wallet banner should not be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func goBackToMain() -> MainScreen {
+        XCTContext.runActivity(named: "Go back to main screen") { _ in
+            app.navigationBars.buttons["Back"].waitAndTap()
+            return MainScreen(app)
+        }
+    }
+
+    // MARK: - Segmented Control Methods
+
+    @discardableResult
+    func tapAvailableSegment() -> Self {
+        XCTContext.runActivity(named: "Tap Available segment") { _ in
+            availableSegment.waitAndTap()
+            return self
+        }
+    }
+
+    // MARK: - Balance Methods
+
+    func getTotalBalance() -> String {
+        XCTContext.runActivity(named: "Get total balance") { _ in
+            XCTAssertTrue(totalBalance.waitForExistence(timeout: .robustUIUpdate), "Total balance element should exist")
+            return totalBalance.label
+        }
+    }
+
+    func getAvailableBalance() -> String {
+        XCTContext.runActivity(named: "Get available balance") { _ in
+            XCTAssertTrue(availableBalance.waitForExistence(timeout: .robustUIUpdate), "Available balance element should exist")
+            return availableBalance.label
+        }
+    }
+
+    func getStakingBalance() -> String {
+        XCTContext.runActivity(named: "Get staking balance") { _ in
+            XCTAssertTrue(stakingBalance.waitForExistence(timeout: .robustUIUpdate), "Staking balance element should exist")
+            return stakingBalance.label
+        }
+    }
 }
 
 enum TokenScreenElement: String, UIElement {
@@ -94,6 +170,11 @@ enum TokenScreenElement: String, UIElement {
     case nativeStakingBlock
     case nativeStakingTitle
     case nativeStakingChevron
+    case topUpBanner
+    case availableSegment
+    case totalBalance
+    case availableBalance
+    case stakingBalance
 
     var accessibilityIdentifier: String {
         switch self {
@@ -111,6 +192,16 @@ enum TokenScreenElement: String, UIElement {
             return TokenAccessibilityIdentifiers.nativeStakingTitle
         case .nativeStakingChevron:
             return TokenAccessibilityIdentifiers.nativeStakingChevron
+        case .topUpBanner:
+            return TokenAccessibilityIdentifiers.topUpWalletBanner
+        case .availableSegment:
+            return "Available"
+        case .totalBalance:
+            return TokenAccessibilityIdentifiers.totalBalance
+        case .availableBalance:
+            return TokenAccessibilityIdentifiers.availableBalance
+        case .stakingBalance:
+            return TokenAccessibilityIdentifiers.stakingBalance
         }
     }
 }
