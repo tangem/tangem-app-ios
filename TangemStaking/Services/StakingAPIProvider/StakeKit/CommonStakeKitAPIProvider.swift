@@ -1,5 +1,5 @@
 //
-//  CommonStakingAPIProvider.swift
+//  CommonStakeKitAPIProvider.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,11 +8,11 @@
 
 import Foundation
 
-class CommonStakingAPIProvider: StakingAPIProvider {
-    let service: StakingAPIService
+class CommonStakeKitAPIProvider: StakeKitAPIProvider {
+    let service: StakeKitStakingAPIService
     let mapper: StakeKitMapper
 
-    init(service: StakingAPIService, mapper: StakeKitMapper) {
+    init(service: StakeKitStakingAPIService, mapper: StakeKitMapper) {
         self.service = service
         self.mapper = mapper
     }
@@ -127,7 +127,7 @@ class CommonStakingAPIProvider: StakingAPIProvider {
     }
 }
 
-extension CommonStakingAPIProvider {
+extension CommonStakeKitAPIProvider {
     enum Constants {
         static let pendingActionsResponseLimit = 50 // maximum that supports stakekit API
         static let pendingActionsResponseSort = "createdAtDesc"

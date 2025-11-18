@@ -9,14 +9,14 @@
 import Foundation
 
 public struct StakingTokenItem: Hashable {
-    public let network: StakeKitNetworkType
+    public let network: String
     public let contractAddress: String?
     public let name: String
     public let decimals: Int
     public let symbol: String
 
     public init(
-        network: StakeKitNetworkType,
+        network: String,
         contractAddress: String? = nil,
         name: String,
         decimals: Int,

@@ -71,7 +71,7 @@ struct StakeKitMapper {
 
     func mapToTokenDTO(from tokenItem: StakingTokenItem) -> StakeKitDTO.Token {
         StakeKitDTO.Token(
-            network: tokenItem.network.rawValue,
+            network: tokenItem.network,
             name: tokenItem.name,
             decimals: tokenItem.decimals,
             address: tokenItem.contractAddress,
@@ -412,7 +412,7 @@ struct StakeKitMapper {
         }
 
         return StakingTokenItem(
-            network: network,
+            network: network.rawValue,
             contractAddress: token.address,
             name: token.name,
             decimals: token.decimals,
@@ -430,7 +430,7 @@ struct StakeKitMapper {
     }
 
     func mapToPeriod(from period: StakeKitDTO.Yield.Info.Response.Metadata.Period) -> Period {
-        .days(period.days)
+        .specific(days: period.days)
     }
 
     func mapToRewardClaimingType(from type: StakeKitDTO.Yield.Info.Response.Metadata.RewardClaiming) -> RewardClaimingType {
@@ -444,7 +444,7 @@ struct StakeKitMapper {
         from type: StakeKitDTO.Yield.Info.Response.Metadata.RewardScheduleType,
         item: StakingTokenItem
     ) throws -> RewardScheduleType {
-        switch item.network {
+        switch StakeKitNetworkType(rawValue: item.network) {
         case .solana: .days(min: 2, max: 3)
         case .cosmos: .seconds(min: 5, max: 12)
         case .tron: .daily
