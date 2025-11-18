@@ -26,7 +26,7 @@ extension P2PDTO {
             let isErc20: Bool
             let tokenName: String?
             let tokenSymbol: String?
-            let createdAt: Data
+            let createdAt: Date
         }
 
         struct VaultsInfo: Decodable {
