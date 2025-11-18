@@ -26,7 +26,6 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     func getCard() {
-        #if ALPHA || BETA || DEBUG
         isLoading = true
         runTask(in: self) { viewModel in
             do {
@@ -40,7 +39,6 @@ final class TangemPayOfferViewModel: ObservableObject {
                 switch tangemPayStatus {
                 case .kycRequired:
                     try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.loadCustomerInfo()
                         runTask(in: viewModel) { viewModel in
                             await viewModel.closeOfferScreen()
                         }
@@ -52,7 +50,6 @@ final class TangemPayOfferViewModel: ObservableObject {
                 await viewModel.closeOfferScreen()
             }
         }
-        #endif // ALPHA || BETA || DEBUG
     }
 
     private func makeTangemPayAccount() async throws -> TangemPayAccount {
