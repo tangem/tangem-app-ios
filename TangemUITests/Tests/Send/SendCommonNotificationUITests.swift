@@ -13,20 +13,10 @@ final class SendCommonNotificationUITests: BaseTestCase {
     private let ethTokenName = "Ethereum"
     private let destination = "0x24298f15b837E5851925E18439490859e0c1F1ee"
 
-    override func setUp() {
-        super.setUp()
-
-        launchApp(tangemApiType: .mock)
-
-        StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .tapToken(ethTokenName)
-            .tapSendButton()
-            .waitForDisplay()
-    }
-
     func testNotificationDisplayed_WhenCustomFeeLowerThanSlow() {
         setAllureId(4293)
+
+        prepareSendFlow()
 
         SendScreen(app)
             .enterAmount("0.01")
@@ -44,6 +34,8 @@ final class SendCommonNotificationUITests: BaseTestCase {
     func testNotificationDisplayed_WhenTotalExceedsBalance() {
         setAllureId(4221)
 
+        prepareSendFlow()
+
         SendScreen(app)
             .enterAmount("0.9999")
             .tapNextButton()
@@ -56,6 +48,8 @@ final class SendCommonNotificationUITests: BaseTestCase {
     func testNotificationDisplayed_WhenCustomFeeIsHigh() {
         setAllureId(4294)
 
+        prepareSendFlow()
+
         SendScreen(app)
             .enterAmount("0.01")
             .tapNextButton()
@@ -67,5 +61,15 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .tapFeeSelectorDone()
             .waitForCustomFeeTooHighBanner()
             .waitForSendButtonEnabled()
+    }
+
+    private func prepareSendFlow() {
+        launchApp(tangemApiType: .mock)
+
+        StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(ethTokenName)
+            .tapSendButton()
+            .waitForDisplay()
     }
 }
