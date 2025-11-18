@@ -64,10 +64,18 @@ final class CommonWCCustomAllowanceInputFactory: WCCustomAllowanceInputFactory {
             )
         }
 
+        let walletModels: [any WalletModel]
+
+        if FeatureProvider.isAvailable(.accounts), let account = transactionData.account {
+            walletModels = account.walletModelsManager.walletModels
+        } else {
+            walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: transactionData.userWalletModel)
+        }
+
         return WCApprovalHelpers.determineTokenInfo(
             contractAddress: transaction.to,
             amount: approvalInfo.amount,
-            userWalletModel: transactionData.userWalletModel,
+            walletModels: walletModels,
             simulationResult: simulationResult
         )
     }

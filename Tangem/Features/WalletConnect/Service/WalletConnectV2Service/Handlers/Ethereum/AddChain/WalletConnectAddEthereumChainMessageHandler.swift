@@ -158,12 +158,19 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
             throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
         }
 
-        // accounts_fixes_needed_wc
-        guard userWallet
-            .walletModelsManager
-            .walletModels
-            .contains(where: { $0.tokenItem.networkId == blockchain.networkId })
-        else {
+        let walletModels: [any WalletModel]
+
+        if
+            FeatureProvider.isAvailable(.accounts),
+            let cryptoAccountModel = WCAccountFinder.findCryptoAccountModel(
+                by: accountId, accountModelsManager: userWallet.accountModelsManager
+            ) {
+            walletModels = cryptoAccountModel.walletModelsManager.walletModels
+        } else {
+            walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWallet)
+        }
+
+        guard walletModels.contains(where: { $0.tokenItem.networkId == blockchain.networkId }) else {
             throw WalletConnectTransactionRequestProcessingError.blockchainToAddIsMissingFromUserWallet(blockchain)
         }
     }

@@ -67,7 +67,12 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
     }
 
     private func getMainWalletModel(for accountId: String) -> [any WalletModel] {
-        guard let cryptoAccountModel = accountModelsManager.findCryptoAccountModel(by: accountId) else { return [] }
+        guard
+            let cryptoAccountModel = WCAccountFinder.findCryptoAccountModel(
+                by: accountId,
+                accountModelsManager: accountModelsManager
+            )
+        else { return [] }
 
         return cryptoAccountModel.walletModelsManager.walletModels.filter { $0.isMainToken }
     }
@@ -88,31 +93,5 @@ struct NotSupportedWalletConnectAccountsWalletModelProvider: WalletConnectAccoun
 
     func getModel(with blockchainId: String, accountId: String) -> (any WalletModel)? {
         nil
-    }
-}
-
-// MARK: - Convenience extensions
-
-private extension AccountModelsManager {
-    func findCryptoAccountModel(by accountId: String) -> (any CryptoAccountModel)? {
-        for accountModel in accountModels {
-            switch accountModel {
-            case .standard(let cryptoAccounts):
-                switch cryptoAccounts {
-                case .single(let cryptoAccountModel):
-                    if cryptoAccountModel.id.walletConnectIdentifierString == accountId {
-                        return cryptoAccountModel
-                    }
-                case .multiple(let cryptoAccountModels):
-                    if let cryptoAccountModel = cryptoAccountModels.first(where: {
-                        $0.id.walletConnectIdentifierString == accountId
-                    }) {
-                        return cryptoAccountModel
-                    }
-                }
-            }
-        }
-
-        return nil
     }
 }
