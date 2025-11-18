@@ -20,22 +20,22 @@ final class NewActionButtonsSellViewModel: ObservableObject {
 
     @Published private(set) var notificationInput: NotificationViewInput?
 
-    lazy var tokenSelectorViewModel = NewTokenSelectorViewModel(
-        walletsProvider: walletsProvider,
-        output: self
-    )
+    let tokenSelectorViewModel: NewTokenSelectorViewModel
 
     // MARK: - Private
-
-    private let walletsProvider = CommonNewTokenSelectorWalletsProvider(
-        availabilityProviderFactory: NewTokenSelectorItemSellAvailabilityProviderFactory()
-    )
 
     private weak var coordinator: ActionButtonsSellRoutable?
     private var bag: Set<AnyCancellable> = []
 
     init(coordinator: some ActionButtonsSellRoutable) {
         self.coordinator = coordinator
+
+        tokenSelectorViewModel = NewTokenSelectorViewModel(
+            walletsProvider: CommonNewTokenSelectorWalletsProvider(
+                availabilityProviderFactory: NewTokenSelectorItemSellAvailabilityProviderFactory()
+            )
+        )
+        tokenSelectorViewModel.setup(with: self)
 
         bind()
     }
