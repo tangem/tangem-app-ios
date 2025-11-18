@@ -150,9 +150,9 @@ class LockedUserWalletModel: UserWalletModel {
                         mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
                     }
                 }
-
+                mutableCardInfo.card.wallets = []
                 userWallet.walletInfo = .cardWallet(mutableCardInfo)
-                userWalletRepository.save(userWalletModel: self)
+                userWalletRepository.savePublicData()
 
             case .mobileWallet(let existingInfo):
                 for wallet in mutableCardInfo.card.wallets {
@@ -161,9 +161,10 @@ class LockedUserWalletModel: UserWalletModel {
                     }
                 }
 
+                savePrivateDataForUpgrade(cardInfo: mutableCardInfo)
+                mutableCardInfo.card.wallets = []
                 userWallet.walletInfo = .cardWallet(mutableCardInfo)
                 userWalletRepository.savePublicData()
-                savePrivateDataForUpgrade(cardInfo: mutableCardInfo)
                 cleanMobileWallet()
             }
         case .newName:
