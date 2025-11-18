@@ -170,7 +170,8 @@ final class YieldTransactionFeeProvider {
         let feeBuffered = gasInToken * Constants.minimalTopUpBuffer
         let minAmount = feeBuffered / Constants.minimalTopUpFeeLimit
 
-        return minAmount
+        let minAmountInFiat = try await converter.convertToFiat(minAmount, currencyId: tokenId)
+        return minAmountInFiat
     }
 }
 
