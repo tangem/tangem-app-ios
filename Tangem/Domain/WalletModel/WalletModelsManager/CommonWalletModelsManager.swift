@@ -77,7 +77,11 @@ class CommonWalletModelsManager {
         let walletModelsToAdd: [any WalletModel] = dataToAdd.flatMap {
             if let walletManager = walletManagers[$0.key] {
                 let types = $0.value.map { $0.tokenItem.amountType }
-                return walletModelsFactory.makeWalletModels(for: types, walletManager: walletManager)
+                return walletModelsFactory.makeWalletModels(
+                    for: types,
+                    walletManager: walletManager,
+                    blockchainNetwork: $0.key
+                )
             }
 
             return []

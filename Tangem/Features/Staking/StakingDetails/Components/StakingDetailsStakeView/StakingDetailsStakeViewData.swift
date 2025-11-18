@@ -33,8 +33,8 @@ struct StakingDetailsStakeViewData: Identifiable {
             return string(Localization.stakingTapToUnlock)
         case .warmup(let period):
             return string(Localization.stakingDetailsWarmupPeriod, accent: period)
-        case .active(let apr):
-            return string(Localization.stakingDetailsApr, accent: apr)
+        case .active(let type, let apr):
+            return string(type, accent: apr)
         case .unbondingPeriod(let period):
             return string(Localization.stakingDetailsUnbondingPeriod, accent: period)
         case .unbonding(let untilDate):
@@ -97,7 +97,7 @@ extension StakingDetailsStakeViewData: Hashable {
 extension StakingDetailsStakeViewData {
     enum SubtitleType: Hashable {
         case warmup(period: String)
-        case active(apr: String)
+        case active(type: String, rate: String)
         case unbonding(until: Date)
         case unbondingPeriod(period: String)
         case withdraw

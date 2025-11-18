@@ -29,7 +29,6 @@ class CommonUserWalletModel {
     let keysRepository: KeysRepository
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
-
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
@@ -268,6 +267,9 @@ extension CommonUserWalletModel: UserWalletModel {
                 mutableInfo.hasMnemonicBackup = true
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
+
+        case .tangemPayOfferAccepted(let tangemPayAccount):
+            _updatePublisher.send(.tangemPayOfferAccepted(tangemPayAccount))
         }
     }
 

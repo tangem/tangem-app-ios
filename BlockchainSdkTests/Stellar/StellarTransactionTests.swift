@@ -28,7 +28,7 @@ final class StellarTransactionTests {
         let address = try addressService.makeAddress(from: addressPubKey)
 
         let txBuilder = StellarTransactionBuilder(walletPublicKey: addressPubKey, isTestnet: false)
-        txBuilder.sequence = 247738386557698163
+        let sequence: Int64 = 247738386557698163
         txBuilder.specificTxTime = 1753718404.5987458
 
         let token = Token(
@@ -55,7 +55,7 @@ final class StellarTransactionTests {
         let expectedSignedTx = "AAAAAgAAAAAVYN/HjWg+YmuYYZGFXKqUozuT2V9o4daZZHr79h1oSwAAAGQDcCTAAAAAdAAAAAEAAAAAaIed7gAAAABoh58aAAAAAAAAAAEAAAABAAAAABVg38eNaD5ia5hhkYVcqpSjO5PZX2jh1plkevv2HWhLAAAABgAAAAFCTE5EAAAAANJDzCT2T0vKxUe5oYjLo4glneXapXO+85TT8m0l8yHSf/////////8AAAAAAAAAAfYdaEsAAABA1xLuLo4D5sZBQmvLHvv3QStIsRaF3CwjoL0mSWnebwZrJIh2ezg/7KGahp/Q+GOCD7J8StECHBGss1CtVLyUCA=="
 
         // when
-        let signedTx = try txBuilder.buildChangeTrustOperationForSign(transaction: transaction, limit: .max)
+        let signedTx = try txBuilder.buildChangeTrustOperationForSign(transaction: transaction, limit: .max, sequenceNumber: sequence)
         let (hash, txData) = signedTx
 
         // then
@@ -71,6 +71,8 @@ final class StellarTransactionTests {
     @Test(arguments: [Blockchain.stellar(curve: .ed25519, testnet: false), .stellar(curve: .ed25519_slip0010, testnet: false)])
     func correctCoinTransaction(blockchain: Blockchain) throws {
         let signature = Data(hex: "EA1908DD1B2B0937758E5EFFF18DB583E41DD47199F575C2D83B354E29BF439C850DC728B9D0B166F6F7ACD160041EE3332DAD04DD08904CB0D2292C1A9FB802")
+
+        let sequence: Int64 = 139655650517975046
 
         let sendValue = Decimal(stringValue: "0.1")!
         let feeValue = Decimal(stringValue: "0.00001")!
@@ -94,7 +96,7 @@ final class StellarTransactionTests {
         let expectedSignedTx = "AAAAAgAAAACf5bssx9g8HaEIRa/Yo0sUH9j9clALlbFUfhK5u4qsPQAAAGQB8CgTAAAABwAAAAEAAAAAYECf6gAAAABgQKEWAAAAAQAAAAAAAAABAAAAAQAAAACf5bssx9g8HaEIRa/Yo0sUH9j9clALlbFUfhK5u4qsPQAAAAEAAAAAXsvdZzvE53MOsaXA2lViyLzvvR1h5IjZvs/Du2s+pUIAAAAAAAAAAAAPQkAAAAAAAAAAAbuKrD0AAABA6hkI3RsrCTd1jl7/8Y21g+Qd1HGZ9XXC2Ds1Tim/Q5yFDccoudCxZvb3rNFgBB7jMy2tBN0IkEyw0iksGp+4Ag=="
 
         let targetAccountResponse = StellarTargetAccountResponse(accountCreated: true, trustlineCreated: true)
-        let signedTx = try txBuilder.buildForSign(targetAccountResponse: targetAccountResponse, transaction: tx)
+        let signedTx = try txBuilder.buildForSign(targetAccountResponse: targetAccountResponse, sequenceNumber: sequence, transaction: tx)
         let (hash, txData) = signedTx
         #expect(hash == expectedHashToSign)
         sizeTester.testTxSize(hash)
@@ -115,6 +117,9 @@ final class StellarTransactionTests {
             contractAddress: contractAddress,
             decimalCount: 18
         )
+
+        let sequence: Int64 = 139655650517975046
+
         let amount = Amount(with: token, value: Decimal(stringValue: "0.1")!)
 
         let walletAddress = try addressService.makeAddress(from: walletPubkey)
@@ -135,7 +140,7 @@ final class StellarTransactionTests {
         // when
         // then
 
-        let signedTx = try txBuilder.buildForSign(targetAccountResponse: targetAccountResponse, transaction: transaction)
+        let signedTx = try txBuilder.buildForSign(targetAccountResponse: targetAccountResponse, sequenceNumber: sequence, transaction: transaction)
         let (hash, txData) = signedTx
         #expect(hash.hex(.uppercase) == "D6EF2200869C35741B61C890481F81C7DCCF3AEC3756C074D35EDE7C789BED31")
         let dummySignature = Data(repeating: 0, count: 64)
@@ -148,7 +153,6 @@ final class StellarTransactionTests {
 
     private func makeTxBuilder() -> StellarTransactionBuilder {
         let txBuilder = StellarTransactionBuilder(walletPublicKey: walletPubkey, isTestnet: false)
-        txBuilder.sequence = 139655650517975046
         txBuilder.specificTxTime = 1614848128.2697558
         return txBuilder
     }

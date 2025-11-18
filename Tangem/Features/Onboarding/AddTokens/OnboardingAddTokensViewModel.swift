@@ -22,6 +22,7 @@ class OnboardingAddTokensViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published var isPendingListsEmpty: Bool = false
     @Published var isSavingChanges: Bool = false
+    @Published var needsCardDerivation: Bool = false
 
     var buttonSettings: MainButton.Settings {
         if isPendingListsEmpty {
@@ -36,7 +37,7 @@ class OnboardingAddTokensViewModel: ObservableObject {
 
         return .init(
             title: Localization.commonContinue,
-            icon: .trailing(Assets.tangemIcon),
+            icon: needsCardDerivation ? .trailing(Assets.tangemIcon) : nil,
             style: .primary,
             size: .default,
             isLoading: isSavingChanges,
@@ -98,6 +99,11 @@ class OnboardingAddTokensViewModel: ObservableObject {
                 viewModel.delegate?.showAlert(alert)
             }
             .store(in: &bag)
+
+        adapter
+            .needsCardDerivationPublisher
+            .receiveOnMain()
+            .assign(to: &$needsCardDerivation)
 
         $searchText
             .dropFirst()

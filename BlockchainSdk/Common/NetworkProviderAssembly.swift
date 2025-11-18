@@ -74,7 +74,11 @@ struct NetworkProviderAssembly {
     func makeEthereumJsonRpcProviders(with input: Input) -> [EthereumJsonRpcProvider] {
         return APIResolver(blockchain: input.blockchain, keysConfig: input.keysConfig)
             .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
-                EthereumJsonRpcProvider(node: nodeInfo, configuration: input.tangemProviderConfig)
+                EthereumJsonRpcProvider(
+                    node: nodeInfo,
+                    configuration: input.tangemProviderConfig,
+                    networkPrefix: .init(blockchain: input.blockchain)
+                )
             }
     }
 }
@@ -85,5 +89,16 @@ extension NetworkProviderAssembly {
         let keysConfig: BlockchainSdkKeysConfig
         let apiInfo: [NetworkProviderType]
         let tangemProviderConfig: TangemProviderConfiguration
+    }
+}
+
+private extension EthereumTarget.RPCNetworkPrefix {
+    init(blockchain: Blockchain) {
+        switch blockchain {
+        case .quai:
+            self = .quai
+        default:
+            self = .ethereum
+        }
     }
 }

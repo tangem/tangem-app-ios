@@ -49,4 +49,10 @@ class StellarNetworkService: MultiNetworkProvider {
             provider.checkIsMemoRequired(for: address)
         }
     }
+
+    func getSequenceNumber(for address: String) -> AnyPublisher<Int64, Error> {
+        providerPublisher { provider in
+            provider.getSequenceNumber(with: address)
+        }
+    }
 }

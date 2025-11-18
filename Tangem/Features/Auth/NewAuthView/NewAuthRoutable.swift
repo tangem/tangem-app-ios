@@ -13,7 +13,6 @@ protocol NewAuthRoutable: AnyObject {
     func openMain(with userWalletModel: UserWalletModel)
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
     func openCreateWallet()
-    func openImportWallet()
     func openShop()
     func openScanCardManual()
 }

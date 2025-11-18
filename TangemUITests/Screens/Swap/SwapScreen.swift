@@ -149,6 +149,24 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         }
         return self
     }
+
+    @discardableResult
+    func waitErrorShown(title: String? = nil, message: String? = nil) -> Self {
+        XCTContext.runActivity(named: "Wait for error banner") { _ in
+            if let title = title {
+                let titleLabel = app.staticTexts[CommonUIAccessibilityIdentifiers.notificationTitle]
+                XCTAssertTrue(titleLabel.waitForExistence(timeout: .robustUIUpdate), "Error title should exist")
+                XCTAssertEqual(titleLabel.label, title, "Error title should be '\(title)' but was '\(titleLabel.label)'")
+            }
+
+            if let message = message {
+                let messageLabel = app.staticTexts[CommonUIAccessibilityIdentifiers.notificationMessage]
+                XCTAssertTrue(messageLabel.waitForExistence(timeout: .robustUIUpdate), "Error message should exist")
+                XCTAssertEqual(messageLabel.label, message, "Error message should be '\(message)' but was '\(messageLabel.label)'")
+            }
+        }
+        return self
+    }
 }
 
 enum FeeOptionType: String {
