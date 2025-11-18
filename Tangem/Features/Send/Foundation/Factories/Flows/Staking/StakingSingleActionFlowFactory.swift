@@ -15,10 +15,12 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
     let userWalletInfo: UserWalletInfo
+
     let manager: any StakingManager
     let action: RestakingModel.Action
     var actionType: StakingAction.ActionType { action.displayType }
 
+    let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let walletModelBalancesProvider: WalletModelBalancesProvider
@@ -38,6 +40,11 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
         self.manager = manager
         self.action = action
 
+        tokenHeaderProvider = SendTokenHeaderProvider(
+            userWalletInfo: userWalletInfo,
+            account: walletModel.account,
+            flowActionType: action.displayType.sendFlowActionType
+        )
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(

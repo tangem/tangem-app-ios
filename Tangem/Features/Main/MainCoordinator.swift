@@ -249,22 +249,24 @@ extension MainCoordinator: MainRoutable {
 
 extension MainCoordinator: MultiWalletMainContentRoutable {
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
-        let dismissAction: Action<Void> = { [weak self] _ in
+        let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModulePromoCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
         mainBottomSheetUIManager.hide()
-        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, feeCurrencyNavigator: self, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
         yieldModulePromoCoordinator = coordinator
     }
 
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
-        let dismissAction: Action<Void> = { [weak self] _ in
+        let dismissAction: Action<YieldModuleActiveCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModuleActiveCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
         mainBottomSheetUIManager.hide()
-        let coordinator = factory.makeYieldActiveCoordinator(feeCurrencyNavigator: self, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
         yieldModuleActiveCoordinator = coordinator
     }
 
@@ -276,7 +278,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         })
 
         coordinator.start(with: .init(userWalletModel: userWalletModel, walletModel: model))
-
         tokenDetailsCoordinator = coordinator
     }
 
@@ -310,7 +311,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         Task { @MainActor in
             let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
                 switch options {
-                case .dismiss, .upgraded:
+                case .dismiss, .main:
                     self?.mobileUpgradeCoordinator = nil
                 }
             }
@@ -347,7 +348,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
 // MARK: - SingleTokenBaseRoutable
 
-extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+extension MainCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
@@ -458,16 +459,26 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
     func openPendingExpressTransactionDetails(
         pendingTransaction: PendingTransaction,
         tokenItem: TokenItem,
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         pendingTransactionsManager: PendingExpressTransactionsManager
     ) {
         pendingExpressTxStatusBottomSheetViewModel = PendingExpressTxStatusBottomSheetViewModel(
             pendingTransaction: pendingTransaction,
             currentTokenItem: tokenItem,
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletInfo,
             pendingTransactionsManager: pendingTransactionsManager,
             router: self
         )
+    }
+}
+
+// MARK: - SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+
+extension MainCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
+        // We add custom implementation because we have to call
+        // `mainBottomSheetUIManager.hide()` from main
+        openTokenDetails(for: model, userWalletModel: userWalletModel)
     }
 }
 
@@ -603,19 +614,8 @@ extension MainCoordinator: PendingExpressTxStatusRoutable {
         safariManager.openURL(url)
     }
 
-    func openCurrency(tokenItem: TokenItem, userWalletModel: UserWalletModel) {
+    func openRefundCurrency(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         pendingExpressTxStatusBottomSheetViewModel = nil
-
-        // We don't have info about derivation here, so we have to find first non-custom walletModel.
-        // accounts_fixes_needed_express
-        guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-            $0.tokenItem.blockchain == tokenItem.blockchain
-                && $0.tokenItem.token == tokenItem.token
-                && !$0.isCustom
-        }) else {
-            return
-        }
-
         openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
 
@@ -637,7 +637,6 @@ extension MainCoordinator: NFTEntrypointRoutable {
     func openCollections(
         nftManager: NFTManager,
         accounForNFTCollectionsProvider: any AccountForNFTCollectionProviding,
-        nftAccountNavigationContextProvider: any NFTAccountNavigationContextProviding,
         navigationContext: NFTNavigationContext
     ) {
         mainBottomSheetUIManager.hide()
@@ -656,11 +655,10 @@ extension MainCoordinator: NFTEntrypointRoutable {
             with: .init(
                 nftManager: nftManager,
                 accounForNFTCollectionsProvider: accounForNFTCollectionsProvider,
-                nftAccountNavigationContextProvider: nftAccountNavigationContextProvider,
+                navigationContext: navigationContext,
                 nftChainIconProvider: NetworkImageProvider(),
                 nftChainNameProvider: NFTChainNameProvider(),
                 priceFormatter: NFTPriceFormatter(),
-                navigationContext: navigationContext,
                 blockchainSelectionAnalytics: NFTAnalytics.BlockchainSelection(
                     logBlockchainChosen: { blockchain in
                         Analytics.log(event: .nftReceiveBlockchainChosen, params: [.blockchain: blockchain])

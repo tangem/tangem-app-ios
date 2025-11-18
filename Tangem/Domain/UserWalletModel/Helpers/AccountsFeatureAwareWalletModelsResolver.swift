@@ -19,6 +19,19 @@ enum AccountsFeatureAwareWalletModelsResolver {
         }
     }
 
+    static func walletModels(for userWalletModels: [any UserWalletModel]) -> [any WalletModel] {
+        if FeatureProvider.isAvailable(.accounts) {
+            userWalletModels.flatMap {
+                AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager)
+            }
+        } else {
+            // accounts_fixes_needed_none
+            userWalletModels.flatMap {
+                $0.walletModelsManager.walletModels
+            }
+        }
+    }
+
     static func walletModelsPublisher(for userWalletModel: any UserWalletModel) -> AnyPublisher<[any WalletModel], Never> {
         if FeatureProvider.isAvailable(.accounts) {
             AccountWalletModelsAggregator.walletModelsPublisher(from: userWalletModel.accountModelsManager)

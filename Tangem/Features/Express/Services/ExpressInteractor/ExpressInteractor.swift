@@ -289,7 +289,7 @@ extension ExpressInteractor {
 
         ExpressLogger.info("Sent the approve transaction with result: \(result)")
         sender.allowanceService.didSendApproveTransaction(for: state.data.spender)
-        logApproveTransactionSentAnalyticsEvent(policy: state.policy, signerType: result.signerType)
+        logApproveTransactionSentAnalyticsEvent(policy: state.policy, signerType: result.signerType, currentProviderHost: result.currentHost)
         updateState(.restriction(.hasPendingApproveTransaction, quote: getState().quote))
     }
 }
@@ -709,8 +709,12 @@ private extension ExpressInteractor {
         expressAnalyticsLogger.logApproveTransactionAnalyticsEvent(policy: policy, destination: getDestination()?.tokenItem.currencySymbol)
     }
 
-    func logApproveTransactionSentAnalyticsEvent(policy: BSDKApprovePolicy, signerType: String) {
-        expressAnalyticsLogger.logApproveTransactionSentAnalyticsEvent(policy: policy, signerType: signerType)
+    func logApproveTransactionSentAnalyticsEvent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String) {
+        expressAnalyticsLogger.logApproveTransactionSentAnalyticsEvent(
+            policy: policy,
+            signerType: signerType,
+            currentProviderHost: currentProviderHost
+        )
     }
 
     func logExpressError(_ error: Error) async {
@@ -733,6 +737,7 @@ private extension ExpressInteractor {
             .blockchain: data.source.tokenItem.blockchain.displayName,
             .feeType: analyticsFeeType.rawValue,
             .walletForm: signerType,
+            .selectedHost: data.result.currentHost,
         ])
     }
 }

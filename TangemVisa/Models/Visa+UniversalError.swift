@@ -217,6 +217,8 @@ extension RainCryptoUtilities.RainCryptoUtilitiesError: VisaError {
             104014007
         case .invalidDecryptedData:
             104014008
+        case .invalidSecretToEncrypt:
+            104014009
         }
     }
 }

@@ -14,7 +14,7 @@ import TangemFoundation
 import TangemAccounts
 
 /// Copy-pasted and adapted for accounts `MarketsPortfolioContainerViewModel`
-class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
+final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published var isAddTokenButtonDisabled: Bool = true
@@ -94,47 +94,92 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         return .unavailable
     }
 
-    private func tokenAddedToAllNetworksAndWallets(availableNetworks: [NetworkModel]) -> Bool {
-        if availableNetworks.isEmpty {
+    private func tokenAddedToAllNetworksInAllAccounts(availableNetworks: [NetworkModel]) -> Bool {
+        guard availableNetworks.isNotEmpty else {
             return true
         }
 
-        let availableNetworksIds = availableNetworks.reduce(into: Set<String>()) { $0.insert($1.networkId) }
-        let l2BlockchainsIds = SupportedBlockchains.l2Blockchains.map { $0.coinId }
+        let multiCurrencyWallets = walletDataProvider.userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
 
-        for userWalletModel in walletDataProvider.userWalletModels {
-            guard userWalletModel.config.hasFeature(.multiCurrency) else {
-                continue
-            }
+        for wallet in multiCurrencyWallets {
+            let accounts = wallet.accountModelsManager.cryptoAccountModels
 
-            var networkIds = availableNetworksIds
-            // accounts_fixes_needed_markets
-            let userTokenList = userWalletModel.userTokensManager.userTokens
-            for entry in userTokenList {
-                guard let entryId = entry.id else {
+            for account in accounts {
+                let networksToCheck = networksToCheckForAccount(
+                    account: account,
+                    availableNetworks: availableNetworks,
+                    supportedBlockchains: wallet.config.supportedBlockchains
+                )
+
+                guard networksToCheck.isNotEmpty else {
                     continue
                 }
 
-                // L2 networks
-                if coinId == Blockchain.ethereum(testnet: false).coinId,
-                   l2BlockchainsIds.contains(entryId) {
-                    networkIds.remove(entry.blockchainNetwork.blockchain.networkId)
-                    continue
+                let addedNetworkIds = collectAddedNetworkIds(from: account)
+                let missingNetworkIds = networksToCheck.subtracting(addedNetworkIds)
+
+                if missingNetworkIds.isNotEmpty {
+                    return false
                 }
-
-                guard entryId == coinId else {
-                    continue
-                }
-
-                networkIds.remove(entry.blockchainNetwork.blockchain.networkId)
-            }
-
-            if !networkIds.isEmpty {
-                return false
             }
         }
 
         return true
+    }
+
+    /// Determines which networks should be checked for a given account.
+    /// For main accounts, all networks are checked.
+    /// For non-main accounts, only networks whose blockchains support accounts are checked
+    private func networksToCheckForAccount(
+        account: any CryptoAccountModel,
+        availableNetworks: [NetworkModel],
+        supportedBlockchains: Set<Blockchain>
+    ) -> Set<String> {
+        // Main account can have tokens on all networks
+        guard !account.isMainAccount else {
+            return Set(availableNetworks.map(\.networkId))
+        }
+
+        // Non-main accounts can only have tokens on networks that support accounts
+        return availableNetworks.compactMap { network in
+            AccountDerivationPathHelper.supportsAccounts(networkId: network.networkId, in: supportedBlockchains)
+                ? network.networkId
+                : nil
+        }
+        .toSet()
+    }
+
+    private func collectAddedNetworkIds(from account: any CryptoAccountModel) -> Set<String> {
+        let l2BlockchainIds = Set(SupportedBlockchains.l2Blockchains.map(\.coinId))
+        var addedNetworkIds = Set<String>()
+
+        for token in account.userTokensManager.userTokens {
+            if let networkId = matchingNetworkId(for: token, l2BlockchainIds: l2BlockchainIds) {
+                addedNetworkIds.insert(networkId)
+            }
+        }
+
+        return addedNetworkIds
+    }
+
+    private func matchingNetworkId(for token: TokenItem, l2BlockchainIds: Set<String>) -> String? {
+        guard let tokenId = token.id else {
+            return nil
+        }
+
+        let networkId = token.networkId
+
+        // Check L2 networks for Ethereum
+        if coinId == Blockchain.ethereum(testnet: false).coinId, l2BlockchainIds.contains(tokenId) {
+            return networkId
+        }
+
+        // Check if token matches the current coinId
+        guard tokenId == coinId else {
+            return nil
+        }
+
+        return networkId
     }
 
     private func updateExpandedAction() {
@@ -158,12 +203,8 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 
         let walletDataPublishers = userWalletModels.map { userWalletModel in
             userWalletModel.accountModelsManager.accountModelsPublisher
-                .withWeakCaptureOf(self)
-                .flatMap { viewModel, accountModels -> AnyPublisher<WalletData, Never> in
-                    let cryptoAccounts = accountModels.compactMap { accountModel -> [any CryptoAccountModel]? in
-                        guard case .standard(let cryptoAccounts) = accountModel else { return nil }
-                        return viewModel.extractAccounts(from: cryptoAccounts)
-                    }.flatMap { $0 }
+                .flatMap { accountModels -> AnyPublisher<WalletData, Never> in
+                    let cryptoAccounts = Self.extractCryptoAccountModels(from: accountModels)
 
                     let walletModelsPublishers = cryptoAccounts.map(\.walletModelsManager.walletModelsPublisher)
                     let userTokensPublishers = cryptoAccounts.map(\.userTokensManager.userTokensPublisher)
@@ -176,7 +217,7 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
                         combinedUserTokensPublishers
                     )
                     .map { walletModelsArrays, userTokensArrays in
-                        viewModel.makeWalletData(
+                        Self.makeWalletData(
                             from: userWalletModel,
                             accountModels: accountModels,
                             entries: userTokensArrays.flatMap { $0 },
@@ -208,16 +249,13 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
             contextActionsDelegate: self
         )
 
-        let hasMultipleAccountsCase = walletsData.contains { walletData in
-            walletData.accountModels.contains {
-                guard case .standard(let cryptoAccounts) = $0 else { return false }
-                return cryptoAccounts.state == .multiple
-            }
+        let hasMultipleAccounts = walletsData.contains { walletData in
+            walletData.accountModels.cryptoAccounts().hasMultipleAccounts
         }
 
         let shouldAnimate = networks != nil
 
-        if hasMultipleAccountsCase {
+        if hasMultipleAccounts {
             buildAccountsAwareUI(walletsData: walletsData, factory: factory, animated: shouldAnimate)
         } else {
             buildSimpleWalletsUI(walletsData: walletsData, factory: factory, animated: shouldAnimate)
@@ -233,35 +271,29 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 
         for walletData in walletsData {
             var accountsWithTokenItems: [TypeView.AccountWithTokenItemsData] = []
+            let userWalletInfo = makeUserWalletInfo(from: walletData)
 
-            for accountModel in walletData.accountModels {
-                guard case .standard(let cryptoAccounts) = accountModel else { continue }
+            for account in Self.extractCryptoAccountModels(from: walletData.accountModels) {
+                let viewModels = factory.makeViewModels(
+                    coinId: coinId,
+                    walletModels: account.walletModelsManager.walletModels,
+                    entries: walletData.entries,
+                    userWalletInfo: userWalletInfo,
+                    namingStyle: .tokenItemName
+                )
 
-                let accounts = extractAccounts(from: cryptoAccounts)
-                let userWalletInfo = makeUserWalletInfo(from: walletData)
-
-                for account in accounts {
-                    let viewModels = factory.makeViewModels(
-                        coinId: coinId,
-                        walletModels: account.walletModelsManager.walletModels,
-                        entries: walletData.entries,
-                        userWalletInfo: userWalletInfo,
-                        namingStyle: .tokenItemName
+                if viewModels.isNotEmpty {
+                    let accountData = TypeView.AccountData(
+                        id: account.id.toAnyHashable(),
+                        name: account.name,
+                        iconInfo: AccountIconViewBuilder.makeAccountIconViewData(accountModel: account)
                     )
 
-                    if viewModels.isNotEmpty {
-                        let accountData = TypeView.AccountData(
-                            id: account.id.toAnyHashable(),
-                            name: account.name,
-                            iconInfo: AccountIconViewBuilder.makeAccountIconViewData(accountModel: account)
-                        )
+                    accountsWithTokenItems.append(
+                        .init(accountData: accountData, tokenItems: viewModels)
+                    )
 
-                        accountsWithTokenItems.append(
-                            .init(accountData: accountData, tokenItems: viewModels)
-                        )
-
-                        allTokenItemViewModels.append(contentsOf: viewModels)
-                    }
+                    allTokenItemViewModels.append(contentsOf: viewModels)
                 }
             }
 
@@ -321,18 +353,20 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 
     // MARK: - Helper Methods
 
-    /// Extracts all accounts from CryptoAccounts enum (handles both .single and .multiple cases)
-    private func extractAccounts(from cryptoAccounts: CryptoAccounts) -> [any CryptoAccountModel] {
-        switch cryptoAccounts {
-        case .single(let account):
-            return [account]
-        case .multiple(let accounts):
-            return accounts
-        }
+    private static func extractCryptoAccountModels(from accountModels: [AccountModel]) -> [any CryptoAccountModel] {
+        return accountModels
+            .cryptoAccounts()
+            .reduce(into: []) { result, cryptoAccount in
+                switch cryptoAccount {
+                case .single(let cryptoAccountModel):
+                    result.append(cryptoAccountModel)
+                case .multiple(let cryptoAccountModels):
+                    result.append(contentsOf: cryptoAccountModels)
+                }
+            }
     }
 
-    /// Creates WalletData from UserWalletModel and components
-    private func makeWalletData(
+    private static func makeWalletData(
         from userWalletModel: UserWalletModel,
         accountModels: [AccountModel],
         entries: [TokenItem],
@@ -348,12 +382,10 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         )
     }
 
-    /// Creates UserWalletInfo from WalletData
     private func makeUserWalletInfo(from walletData: WalletData) -> MarketsPortfolioTokenItemFactory.UserWalletInfo {
         .init(userWalletName: walletData.userWalletName, userWalletId: walletData.userWalletId)
     }
 
-    /// Creates analytics parameters for wallet model actions
     private func makeAnalyticsParams(for walletModel: any WalletModel) -> [Analytics.ParameterKey: String] {
         [
             .source: Analytics.ParameterValue.market.rawValue,
@@ -362,7 +394,6 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         ]
     }
 
-    /// Determines target type view state based on tokens and support state
     private func determineTypeViewState(
         hasTokens: Bool,
         listStyle: TypeView.ListStyle,
@@ -382,11 +413,10 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         }
     }
 
-    /// Updates typeView based on current state
     private func updateTypeView(hasTokens: Bool, listStyle: TypeView.ListStyle, animated: Bool) {
         if let networks = networks {
             let supportedState = supportedState(networks: networks)
-            isAddTokenButtonDisabled = tokenAddedToAllNetworksAndWallets(availableNetworks: networks)
+            isAddTokenButtonDisabled = tokenAddedToAllNetworksInAllAccounts(availableNetworks: networks)
 
             let targetState = determineTypeViewState(hasTokens: hasTokens, listStyle: listStyle, supportedState: supportedState)
 
@@ -407,9 +437,13 @@ class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
 
 extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioContextActionsProvider {
     func buildContextActions(tokenItem: TokenItem, walletModelId: WalletModelId, userWalletId: UserWalletId) -> [TokenActionType] {
-        guard let userWalletModel = walletDataProvider.userWalletModels[userWalletId],
-              // accounts_fixes_needed_markets
-              let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
+        guard let userWalletModel = walletDataProvider.userWalletModels[userWalletId] else {
+            return []
+        }
+
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+
+        guard let walletModel = walletModels.first(where: { $0.id == walletModelId }) else {
             return []
         }
 
@@ -428,10 +462,16 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
     }
 
     func didTapContextAction(_ action: TokenActionType, walletModelId: WalletModelId, userWalletId: UserWalletId) {
-        guard let userWalletModel = walletDataProvider.userWalletModels[userWalletId],
-              // accounts_fixes_needed_markets
-              let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }),
-              let coordinator else {
+        guard
+            let userWalletModel = walletDataProvider.userWalletModels[userWalletId],
+            let coordinator
+        else {
+            return
+        }
+
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+
+        guard let walletModel = walletModels.first(where: { $0.id == walletModelId }) else {
             return
         }
 

@@ -110,9 +110,9 @@ final class YieldModuleActiveViewModel: ObservableObject {
     }
 
     func makeMyFundsSectionText() -> AttributedString {
-        let tokenName = walletModel.tokenItem.name
         let symbol = walletModel.tokenItem.currencySymbol
-        let fullString = Localization.yieldModuleEarnSheetProviderDescription(tokenName, symbol) + " " + Localization.commonReadMore
+        let prefixedSymbol = "a\(walletModel.tokenItem.currencySymbol)"
+        let fullString = Localization.yieldModuleEarnSheetProviderDescription(symbol, prefixedSymbol) + " " + Localization.commonReadMore
 
         var attr = AttributedString(fullString)
         attr.font = Fonts.Regular.caption1
@@ -255,20 +255,6 @@ final class YieldModuleActiveViewModel: ObservableObject {
             earnInfoNotifications.append(createHasUndepositedAmountsNotification(undepositedAmount: formatted))
             logger.logEarningNoticeAmountNotDepositedShown()
         }
-    }
-
-    private func getFeeCurrencyWalletModel(in userWalletModel: any UserWalletModel) -> (any WalletModel)? {
-        guard let selectedUserModel = userWalletRepository.selectedModel,
-              // accounts_fixes_needed_yield
-              let feeCurrencyWalletModel = selectedUserModel.walletModelsManager.walletModels.first(where: {
-                  $0.tokenItem == walletModel.feeTokenItem
-              })
-        else {
-            assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
-            return nil
-        }
-
-        return feeCurrencyWalletModel
     }
 }
 

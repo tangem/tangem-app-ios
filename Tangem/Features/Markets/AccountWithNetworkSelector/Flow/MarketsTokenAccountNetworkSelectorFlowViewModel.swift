@@ -140,12 +140,8 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         accountSelectorCell: AccountSelectorCellModel,
         context: NavigationContext
     ) {
-        guard let userWalletModel = findUserWalletModel(for: accountSelectorCell.cryptoAccountModel) else {
-            return
-        }
-
         let networkSelectorViewModel = makeNetworkSelectorViewModel(
-            userWalletModel: userWalletModel,
+            userWalletModel: accountSelectorCell.cryptoAccountModel.userWalletModel,
             cryptoAccount: accountSelectorCell.cryptoAccountModel,
             accountSelectorCell: accountSelectorCell
         )
@@ -415,19 +411,8 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
 // MARK: - Helpers
 
 private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
-    func findUserWalletModel(for cryptoAccount: any CryptoAccountModel) -> UserWalletModel? {
-        MarketsUserWalletFinder.findUserWalletModel(
-            for: cryptoAccount,
-            in: userWalletDataProvider.userWalletModels
-        )
-    }
-
     func isNetworkSelectionAvailable(for cryptoAccount: any CryptoAccountModel) -> Bool {
-        guard let userWalletModel = findUserWalletModel(for: cryptoAccount) else {
-            return false
-        }
-
-        return countAvailableNetworks(userWalletModel: userWalletModel, cryptoAccount: cryptoAccount) > 1
+        return countAvailableNetworks(userWalletModel: cryptoAccount.userWalletModel, cryptoAccount: cryptoAccount) > 1
     }
 
     func countAvailableNetworks(userWalletModel: UserWalletModel, cryptoAccount: any CryptoAccountModel) -> Int {
@@ -449,13 +434,8 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         return { cryptoAccount in
             let allSupportedBlockchains = cryptoAccount.userWalletModel.config.supportedBlockchains
 
-            let blockchains = networks.compactMap { network in
-                allSupportedBlockchains[network.networkId]
-            }
-
-            let areAccountsUnavailableForAllNetworks = blockchains.allSatisfy { blockchain in
-                let helper = AccountDerivationPathHelper(blockchain: blockchain)
-                return !helper.areAccountsAvailableForBlockchain()
+            let areAccountsUnavailableForAllNetworks = networks.allSatisfy { network in
+                !AccountDerivationPathHelper.supportsAccounts(networkId: network.networkId, in: allSupportedBlockchains)
             }
 
             return cryptoAccount.isMainAccount || !areAccountsUnavailableForAllNetworks

@@ -29,14 +29,8 @@ extension SendFeeCurrencyNavigating {
             self?.sendCoordinator = nil
 
             switch dismissOptions {
-            case .openFeeCurrency(let userWalletId, let feeTokenItem):
-                guard let result = FeeCurrencyFinder().findFeeWalletModel(userWalletId: userWalletId, feeTokenItem: feeTokenItem) else {
-                    return
-                }
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + Self.feeCurrencyNavigationDelay) {
-                    self?.openFeeCurrency(for: result.feeWalletModel, userWalletModel: result.userWalletModel)
-                }
+            case .openFeeCurrency(let feeCurrency):
+                self?.proceedFeeCurrencyNavigatingDismissOption(option: feeCurrency)
             case .closeButtonTap, .none:
                 break
             }

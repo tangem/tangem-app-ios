@@ -12,6 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemFoundation
 import TangemAccessibilityIdentifiers
+import struct TangemAccounts.AccountIconView
 
 struct SendAmountView: View {
     @ObservedObject var viewModel: SendAmountViewModel
@@ -32,8 +33,9 @@ struct SendAmountView: View {
     private var content: some View {
         VStack(alignment: .center, spacing: .zero) {
             VStack(alignment: .center, spacing: 12) {
-                Text(viewModel.walletHeaderText)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                if let header = viewModel.tokenHeader {
+                    SendTokenHeaderView(header: header)
+                }
 
                 VStack(alignment: .center, spacing: .zero) {
                     textField
