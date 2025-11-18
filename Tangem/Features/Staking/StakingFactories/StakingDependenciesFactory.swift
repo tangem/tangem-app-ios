@@ -15,12 +15,12 @@ import Moya
 class StakingDependenciesFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    func makeStakingAPIProvider() -> StakingAPIProvider {
+    func makeStakeKitAPIProvider() -> StakeKitAPIProvider {
         let plugins: [PluginType] = [
             TangemNetworkLoggerPlugin(logOptions: .verbose),
         ]
 
-        return TangemStakingFactory().makeStakingAPIProvider(
+        return TangemStakingFactory().makeStakeKitAPIProvider(
             credential: StakingAPICredential(apiKey: keysManager.stakeKitKey),
             configuration: .stakingConfiguration,
             plugins: plugins,
@@ -28,18 +28,40 @@ class StakingDependenciesFactory {
         )
     }
 
-    func makeStakingManager(integrationId: String, wallet: StakingWallet) -> StakingManager {
-        TangemStakingFactory().makeStakingManager(
-            integrationId: integrationId,
-            wallet: wallet,
-            provider: makeStakingAPIProvider(),
-            analyticsLogger: CommonStakingAnalyticsLogger()
+    func makeP2PAPIProvider() -> P2PAPIProvider {
+        let plugins: [PluginType] = [
+            TangemNetworkLoggerPlugin(logOptions: .verbose),
+        ]
+
+        return TangemStakingFactory().makeP2PAPIProvider(
+            credential: StakingAPICredential(apiKey: keysManager.p2pApiKey),
+            configuration: .stakingConfiguration,
+            plugins: plugins
         )
+    }
+
+    func makeStakingManager(integrationId: String, wallet: StakingWallet) -> StakingManager {
+        switch (wallet.item.network, wallet.item.contractAddress) {
+        case (Blockchain.ethereum(testnet: false).coinId, .none):
+            TangemStakingFactory().makeP2PStakingManager(
+                wallet: wallet,
+                provider: makeP2PAPIProvider(),
+                analyticsLogger: CommonStakingAnalyticsLogger()
+            )
+
+        default:
+            TangemStakingFactory().makeStakeKitStakingManager(
+                integrationId: integrationId,
+                wallet: wallet,
+                provider: makeStakeKitAPIProvider(),
+                analyticsLogger: CommonStakingAnalyticsLogger()
+            )
+        }
     }
 
     func makePendingHashesSender() -> StakingPendingHashesSender {
         let repository = CommonStakingPendingHashesRepository()
-        let provider = makeStakingAPIProvider()
+        let provider = makeStakeKitAPIProvider()
 
         return TangemStakingFactory().makePendingHashesSender(
             repository: repository,
