@@ -10,23 +10,37 @@ import SwiftUI
 import TangemAssets
 import TangemAccessibilityIdentifiers
 import TangemLocalization
+import TangemStaking
 
 struct TokenItemEarnBadgeView: View {
-    let apy: String
+    let rewardType: RewardType
+    let rewardValue: String
+    let color: Color
+    let tapAction: () -> Void
 
     private var background: some View {
-        RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Colors.Text.accent.opacity(0.1))
+        RoundedRectangle(cornerRadius: 4, style: .continuous).fill(color.opacity(0.1))
     }
 
     var body: some View {
         HStack(spacing: 6) {
-            Text(Localization.yieldModuleEarnBadge(apy))
-                .style(Fonts.BoldStatic.caption2, color: Colors.Text.accent)
+            Text("\(rewardTypeString) \(rewardValue)")
+                .style(Fonts.BoldStatic.caption2, color: color)
                 .fixedSize(horizontal: true, vertical: false)
                 .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenItemEarnBadge)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
                 .background(background)
+        }
+        .onTapGesture {
+            tapAction()
+        }
+    }
+
+    var rewardTypeString: String {
+        switch rewardType {
+        case .apr: Localization.stakingDetailsApr
+        case .apy: Localization.stakingDetailsApy
         }
     }
 }
