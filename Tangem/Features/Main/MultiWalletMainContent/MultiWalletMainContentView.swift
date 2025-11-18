@@ -23,6 +23,13 @@ struct MultiWalletMainContentView: View {
                 ActionButtonsView(viewModel: actionButtonsViewModel)
             }
 
+            ForEach(viewModel.tangemPayNotificationInputs) { input in
+                NotificationView(input: input)
+                    .if(input.id == TangemPayNotificationEvent.createAccountAndIssueCard.id) {
+                        $0.setButtonsLoadingState(to: viewModel.tangemPayCardIssuingInProgress)
+                    }
+            }
+
             ForEach(viewModel.bannerNotificationInputs) { input in
                 NotificationView(input: input)
             }
@@ -38,6 +45,12 @@ struct MultiWalletMainContentView: View {
 
             ForEach(viewModel.yieldModuleNotificationInputs) { input in
                 NotificationView(input: input)
+            }
+
+            // [REDACTED_TODO_COMMENT]
+            // [REDACTED_INFO]
+            if let viewModel = viewModel.tangemPayAccountViewModel {
+                TangemPayAccountView(viewModel: viewModel)
             }
 
             tokensContent
@@ -161,7 +174,6 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokensNotificationManager: FakeUserWalletNotificationManager(),
             bannerNotificationManager: nil,
-            yieldModuleNotificationManager: FakeWalletYieldNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenSectionsAdapter: tokenSectionsAdapter,
             tokenRouter: SingleTokenRoutableMock(),

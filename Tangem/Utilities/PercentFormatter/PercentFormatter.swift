@@ -38,13 +38,14 @@ struct PercentFormatter {
 
     /// - Warning: The internal implementation of this method is using cache;
     /// therefore don't forget to update the repository if a new parameter is added to this method.
-    func formatInterval(min: Decimal, max: Decimal, option: Option) -> String {
+    func formatInterval(min: Decimal, max: Decimal) -> String {
+        let option = Option.interval
         let formatter: NumberFormatter
 
         if let cachedFormatter = repository.numberFormatter(locale: locale, option: option, uniqueIdentifier: #function) {
             formatter = cachedFormatter
         } else {
-            formatter = makeIntervalFormatter(option: option)
+            formatter = makeFormatter(option: option)
             repository.storeNumberFormatter(formatter, locale: locale, option: option, uniqueIdentifier: #function)
         }
 
@@ -62,48 +63,70 @@ struct PercentFormatter {
 
         formatter.numberStyle = .percent
         formatter.locale = locale
-        formatter.maximumFractionDigits = option.fractionDigits
-        formatter.minimumFractionDigits = option.fractionDigits
+        formatter.maximumFractionDigits = option.fractionDigits.max
+        formatter.minimumFractionDigits = option.fractionDigits.min
 
-        formatter.negativePrefix = "-"
-        formatter.positivePrefix = "+"
+        formatter.negativePrefix = option.prefix.negative
+        formatter.positivePrefix = option.prefix.positive
 
-        formatter.positiveSuffix = " %"
-        formatter.negativeSuffix = " %"
-
-        if option.clearPrefix {
-            formatter.positivePrefix = ""
-            formatter.negativePrefix = ""
-        }
-
-        return formatter
-    }
-
-    /// Makes a formatter instance to be used in `formatInterval(min:max:option:)`.
-    func makeIntervalFormatter(option: Option) -> NumberFormatter {
-        let formatter = NumberFormatter()
-
-        formatter.numberStyle = .percent
-        formatter.locale = locale
-        formatter.maximumFractionDigits = option.fractionDigits
-        formatter.minimumFractionDigits = option.fractionDigits
-
-        formatter.positivePrefix = ""
-        formatter.negativePrefix = ""
-        formatter.positiveSuffix = ""
-        formatter.negativeSuffix = ""
+        formatter.positiveSuffix = option.suffix.value
+        formatter.negativeSuffix = option.suffix.value
 
         return formatter
     }
 }
 
+// MARK: Default options
+
+extension PercentFormatter.Option {
+    static let slippage = PercentFormatter.Option(fractionDigits: .init(min: 0, max: 1), prefix: .empty, suffix: .default)
+    static let priceChange = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .default)
+
+    static let staking = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .default)
+    static let interval = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .empty)
+
+    static let express = PercentFormatter.Option(fractionDigits: .one, prefix: .default, suffix: .default)
+    static let onramp = PercentFormatter.Option(fractionDigits: .two, prefix: .onlyMinus, suffix: .default)
+
+    static let yield = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .yield)
+}
+
+// MARK: Options
+
 extension PercentFormatter {
     struct Option: Hashable {
-        static let priceChange = Option(fractionDigits: 2, clearPrefix: true)
-        static let express = Option(fractionDigits: 1, clearPrefix: false)
-        static let staking = Option(fractionDigits: 2, clearPrefix: true)
+        let fractionDigits: FractionDigits
+        let prefix: Prefix
+        let suffix: Suffix
+    }
 
-        let fractionDigits: Int
-        let clearPrefix: Bool
+    struct FractionDigits: Hashable {
+        static let one = FractionDigits(min: 1, max: 1)
+        static let two = FractionDigits(min: 2, max: 2)
+
+        let min: Int
+        let max: Int
+
+        init(min: Int, max: Int) {
+            self.min = min
+            self.max = max
+        }
+    }
+
+    struct Prefix: Hashable {
+        static let empty = Prefix(positive: "", negative: "")
+        static let `default` = Prefix(positive: "+", negative: "-")
+        static let onlyMinus = Prefix(positive: "", negative: "-")
+
+        let positive: String
+        let negative: String
+    }
+
+    struct Suffix: Hashable {
+        static let empty = Suffix(value: "")
+        static let `default` = Suffix(value: " %")
+        static let yield = Suffix(value: "%")
+
+        let value: String
     }
 }
