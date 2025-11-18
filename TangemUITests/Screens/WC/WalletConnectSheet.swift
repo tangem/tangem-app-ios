@@ -13,8 +13,8 @@ final class WalletConnectSheet: ScreenBase<WalletConnectConnectionScreenElement>
     private lazy var headerTitle = staticText(.headerTitle)
     private lazy var providerName = staticText(.providerName)
     private lazy var connectionRequestLabel = staticText(.connectionRequestLabel)
-    private lazy var walletLabel = staticText(.walletLabel)
-    private lazy var networksLabel = staticText(.networksLabel)
+    private lazy var walletLabel = button(.walletLabel)
+    private lazy var networksLabel = button(.networksLabel)
     private lazy var cancelButton = button(.cancelButton)
     private lazy var connectButton = button(.connectButton)
 
@@ -88,7 +88,7 @@ enum WalletConnectConnectionScreenElement: String, UIElement {
         case .headerTitle:
             WalletConnectAccessibilityIdentifiers.headerTitle
         case .providerName:
-            WalletConnectAccessibilityIdentifiers.providerName
+            CommonUIAccessibilityIdentifiers.entityProviderName
         case .connectionRequestLabel:
             WalletConnectAccessibilityIdentifiers.connectionRequestLabel
         case .walletLabel:

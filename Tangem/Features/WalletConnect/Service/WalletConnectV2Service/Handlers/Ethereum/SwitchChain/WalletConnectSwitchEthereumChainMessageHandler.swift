@@ -17,12 +17,7 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
     let rawTransaction: String? = nil
     let requestData = Data()
 
-    init(requestParams: AnyCodable, connectedDApp: WalletConnectConnectedDApp?) throws(WalletConnectTransactionRequestProcessingError) {
-        guard let connectedDApp else {
-            assertionFailure("Expected to have non-nil WalletConnectConnectedDApp objet. Developer mistake.")
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload
-        }
-
+    init(requestParams: AnyCodable, connectedDApp: WalletConnectConnectedDApp) throws(WalletConnectTransactionRequestProcessingError) {
         let blockchain = try Self.parseBlockchain(from: requestParams)
         try process(blockchain: blockchain, connectedDApp: connectedDApp)
     }
@@ -42,7 +37,7 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
             chainIDToValueArray.count == 1,
             let chainIDToValue = chainIDToValueArray.first
         else {
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
         }
 
         guard
@@ -53,7 +48,7 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
                 reference: String(caipChainReference)
             )
         else {
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload
+            throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
         }
 
         guard let domainBlockchain = WalletConnectBlockchainMapper.mapToDomain(reownBlockchain) else {
