@@ -54,7 +54,6 @@ struct MultiWalletMainContentView: View {
             }
 
             listContent
-                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
                 NFTEntrypointView(viewModel: nftEntrypointViewModel)
@@ -81,9 +80,11 @@ struct MultiWalletMainContentView: View {
         if viewModel.isLoadingTokenList {
             TokenListLoadingPlaceholderView()
                 .cornerRadiusContinuous(Constants.cornerRadius)
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
         } else if viewModel.plainSections.isEmpty, viewModel.accountSections.isEmpty {
             emptyList
                 .cornerRadiusContinuous(Constants.cornerRadius)
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
         } else {
             VStack(spacing: 0.0) {
                 accountsList
@@ -98,6 +99,7 @@ struct MultiWalletMainContentView: View {
                             view.cornerRadiusContinuous(Constants.cornerRadius)
                         }
                     }
+                    .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
             }
         }
     }
