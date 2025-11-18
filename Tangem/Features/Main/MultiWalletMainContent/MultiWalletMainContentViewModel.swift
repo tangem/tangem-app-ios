@@ -88,6 +88,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
+    @MainActor
     private var isUpdating = false
 
     private var bag = Set<AnyCancellable>()
@@ -170,34 +171,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func onPullToRefresh() async {
-        if isUpdating {
+        if await isUpdating {
             return
         }
 
-        isUpdating = true
-        refreshActionButtonsData()
-
-        await withTaskGroup { group in
-            group.addTask {
-                await withCheckedContinuation { [weak self] checkedContinuation in
-                    // accounts_fixes_needed_main
-                    self?.userWalletModel.userTokensManager.sync { [weak self] in
-                        self?.isUpdating = false
-                        checkedContinuation.resume()
-                    }
-                }
-            }
-
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_INFO]
-            if FeatureProvider.isAvailable(.visa), let tangemPayAccount = userWalletModel.tangemPayAccount {
-                group.addTask {
-                    await tangemPayAccount.loadCustomerInfo().value
-                }
-            }
-
-            await group.waitForAll()
-        }
+        await setIsUpdating(true)
+        await refreshActionButtonsData()
+        await MultiWalletMainContentUpdater.scheduleUpdate(with: userWalletModel)
+        await setIsUpdating(false)
     }
 
     func onFirstAppear() {
@@ -235,6 +216,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         openOrganizeTokens()
     }
 
+    @MainActor
+    private func setIsUpdating(_ newValue: Bool) {
+        isUpdating = newValue
+    }
+
+    @MainActor
     private func refreshActionButtonsData() {
         actionButtonsViewModel?.refresh()
     }
