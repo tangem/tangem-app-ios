@@ -16,9 +16,9 @@ import TangemNFT
 import TangemLocalization
 import TangemUI
 import TangemMobileWalletSdk
-import struct TangemUIUtils.AlertBinder
 import TangemVisa
 import BlockchainSdk
+import struct TangemUIUtils.AlertBinder
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
