@@ -6,10 +6,9 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 protocol SingleWalletMainContentDelegate: AnyObject {
-    func present(actionSheet: ActionSheetBinder)
+    func present(confirmationDialog: ConfirmationDialogViewModel)
     func displayAddressCopiedToast()
 }

@@ -10,17 +10,17 @@ import Foundation
 import Combine
 import TangemFoundation
 
-class MarketsItemViewModel: Identifiable, ObservableObject {
+final class MarketsItemViewModel: Identifiable, ObservableObject {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
     // MARK: - Published
 
-    @Published var priceValue: String = ""
-    @Published var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
-    @Published var priceChangeState: TokenPriceChangeView.State = .empty
-    @Published var charts: [Double]? = nil
+    @Published private(set) var priceValue: String = ""
+    @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
+    @Published private(set) var priceChangeState: TokenPriceChangeView.State = .empty
+    @Published private(set) var charts: [Double]? = nil
 
-    var marketRating: String?
+    private(set) var marketRating: String?
 
     // MARK: - Properties
 
@@ -82,7 +82,10 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
             forPrice: tokenModel.currentPrice,
             priceChange: tokenModel.priceChangePercentage[filterProvider.currentFilterValue.interval.rawValue] ?? nil
         ))
-        findAndAssignChartsValue(from: chartsProvider.items, with: filterProvider.currentFilterValue.interval)
+
+        Task { @MainActor in
+            findAndAssignChartsValue(from: chartsProvider.items, with: filterProvider.currentFilterValue.interval)
+        }
 
         bindToIntervalUpdates()
         bindToQuotesUpdates()

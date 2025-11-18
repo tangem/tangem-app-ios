@@ -14,11 +14,11 @@ import BlockchainSdk
 import TangemStaking
 import TangemFoundation
 import TangemExpress
+import TangemSdk
 
 class CommonWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
-    @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
 
     let id: WalletModelId
     let userWalletId: UserWalletId
@@ -51,6 +51,7 @@ class CommonWalletModel {
     private let tokenBalancesRepository: TokenBalancesRepository
     private let walletManager: WalletManager
     private let _stakingManager: StakingManager?
+    private lazy var _yieldModuleManager = makeYieldModuleManager()
     private let _transactionHistoryService: TransactionHistoryService?
     private let _receiveAddressService: ReceiveAddressService
     private let featureManager: WalletModelFeaturesManager
@@ -62,8 +63,6 @@ class CommonWalletModel {
     private var assetRequirementsTaskCancellable: AnyCancellable?
     private let isAssetRequirementsTaskInProgressSubject: CurrentValueSubject<Bool, Never> = .init(false)
 
-    private let amountType: Amount.AmountType
-    private let blockchainNetwork: BlockchainNetwork
     private let _state: CurrentValueSubject<WalletModelState, Never> = .init(.created)
     private lazy var _rate: CurrentValueSubject<WalletModelRate, Never> = .init(.loading(cached: quotesRepository.quote(for: tokenItem)))
 
@@ -72,12 +71,21 @@ class CommonWalletModel {
 
     private var bag = Set<AnyCancellable>()
 
+    private var amountType: Amount.AmountType {
+        tokenItem.amountType
+    }
+
+    private var blockchainNetwork: BlockchainNetwork {
+        tokenItem.blockchainNetwork
+    }
+
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> {
         isAssetRequirementsTaskInProgressSubject.eraseToAnyPublisher()
     }
 
     init(
         userWalletId: UserWalletId,
+        tokenItem: TokenItem,
         walletManager: WalletManager,
         stakingManager: StakingManager?,
         featureManager: WalletModelFeaturesManager,
@@ -85,8 +93,6 @@ class CommonWalletModel {
         receiveAddressService: ReceiveAddressService,
         sendAvailabilityProvider: TransactionSendAvailabilityProvider,
         tokenBalancesRepository: TokenBalancesRepository,
-        amountType: Amount.AmountType,
-        shouldPerformHealthCheck: Bool,
         isCustom: Bool
     ) {
         self.userWalletId = userWalletId
@@ -95,28 +101,14 @@ class CommonWalletModel {
         _stakingManager = stakingManager
         _transactionHistoryService = transactionHistoryService
         _receiveAddressService = receiveAddressService
-        self.amountType = amountType
+        self.tokenItem = tokenItem
         self.isCustom = isCustom
         self.sendAvailabilityProvider = sendAvailabilityProvider
         self.tokenBalancesRepository = tokenBalancesRepository
 
-        blockchainNetwork = BlockchainNetwork(
-            walletManager.wallet.blockchain,
-            derivationPath: walletManager.wallet.publicKey.derivationPath
-        )
-
-        let tokenItem = switch amountType {
-        case .coin, .reserve, .feeResource:
-            TokenItem.blockchain(blockchainNetwork)
-        case .token(let token):
-            TokenItem.token(token, blockchainNetwork)
-        }
-
-        self.tokenItem = tokenItem
         id = WalletModelId(tokenItem: tokenItem)
 
         bind()
-        performHealthCheckIfNeeded(shouldPerform: shouldPerformHealthCheck)
     }
 
     deinit {
@@ -135,14 +127,6 @@ class CommonWalletModel {
                 self?.updateQuote(quote: quote)
             }
             .store(in: &bag)
-    }
-
-    private func performHealthCheckIfNeeded(shouldPerform: Bool) {
-        if shouldPerform {
-            DispatchQueue.main.async {
-                self.accountHealthChecker.performAccountCheckIfNeeded(self.wallet.address)
-            }
-        }
     }
 
     // MARK: - State updates
@@ -166,7 +150,6 @@ class CommonWalletModel {
             if let balance = wallet.amounts[amountType]?.value {
                 return .loaded(balance)
             }
-
             return .failed(error: WalletModelError.balanceNotFound.localizedDescription)
         case .failed(BlockchainSdkError.noAccount(let message, let amountToCreate)):
             return .noAccount(message: message, amountToCreate: amountToCreate)
@@ -181,8 +164,12 @@ class CommonWalletModel {
 
     private func updateState(_ state: WalletModelState) {
         AppLogger.info(self, "Updating state. New state is \(state)")
-        DispatchQueue.main.async { [weak self] in // captured as weak at call stack
-            self?._state.value = state
+        DispatchQueue.main.async { [_state, _yieldModuleManager, wallet, amountType] in
+            _yieldModuleManager?.updateState(
+                walletModelState: state,
+                balance: wallet.amounts[amountType]
+            )
+            _state.value = state
         }
     }
 
@@ -213,7 +200,7 @@ class CommonWalletModel {
         case .none:
             _rate.send(.failure(cached: rate.quote))
         case .some(let quote):
-            _rate.send(.loaded(quote))
+            _rate.send(.loaded(quote: quote))
         }
     }
 
@@ -348,12 +335,20 @@ extension CommonWalletModel: WalletModel {
         _stakingManager
     }
 
+    var yieldModuleManager: (any YieldModuleManager)? {
+        _yieldModuleManager
+    }
+
     var stakeKitTransactionSender: StakeKitTransactionSender? {
         walletManager as? StakeKitTransactionSender
     }
 
-    var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? {
-        walletManager as? StakingAccountInitializationStateProvider
+    var accountInitializationService: (any BlockchainAccountInitializationService)? {
+        walletManager as? BlockchainAccountInitializationService
+    }
+
+    var minimalBalanceProvider: (any MinimalBalanceProvider)? {
+        walletManager as? MinimalBalanceProvider
     }
 }
 
@@ -365,7 +360,6 @@ extension CommonWalletModel: WalletModelUpdater {
     /// and `fetch()` in CommonTransactionHistoryService uses its own `cancellable`.
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
         _transactionHistoryService?.clearHistory()
-        _receiveAddressService.clear()
 
         return Publishers
             .CombineLatest(
@@ -383,13 +377,16 @@ extension CommonWalletModel: WalletModelUpdater {
             return updatePublisher.eraseToAnyPublisher()
         }
 
+        if case .loading = state {
+            return _state
+                .drop(while: { $0 == .loading })
+                .prefix(1)
+                .eraseToAnyPublisher()
+        }
+
         // Keep this before the async call
         let newUpdatePublisher = PassthroughSubject<WalletModelState, Never>()
         updatePublisher = newUpdatePublisher
-
-        if case .loading = state {
-            return newUpdatePublisher.eraseToAnyPublisher()
-        }
 
         if !silent {
             updateState(.loading)
@@ -555,12 +552,55 @@ extension CommonWalletModel: WalletModelHelpers {
 
         return subject.eraseToAnyPublisher()
     }
+
+    func makeYieldModuleManager() -> (YieldModuleManager & YieldModuleManagerUpdater)? {
+        guard case .token(let token, _) = tokenItem,
+              let yieldSupplyService = walletManager.yieldSupplyService,
+              let ethereumNetworkProvider
+        else {
+            return nil
+        }
+
+        let nonFilteredPendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never> =
+            walletManager
+                .walletPublisher
+                .map { $0.pendingTransactions }
+                .eraseToAnyPublisher()
+
+        let yieldModuleStateRepository = CommonYieldModuleStateRepository(
+            walletModelId: WalletModelId(tokenItem: tokenItem),
+            userWalletId: userWalletId,
+            token: token
+        )
+
+        return CommonYieldModuleManager(
+            walletAddress: wallet.defaultAddress.value,
+            userWalletId: userWalletId.stringValue,
+            token: token,
+            blockchain: wallet.blockchain,
+            yieldSupplyService: yieldSupplyService,
+            tokenBalanceProvider: totalTokenBalanceProvider,
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            transactionCreator: transactionCreator,
+            blockaidApiService: BlockaidFactory().makeBlockaidAPIService(),
+            yieldModuleStateRepository: yieldModuleStateRepository,
+            pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher,
+            scheduleWalletUpdate: { [weak self] in
+                self?.startUpdatingTimer()
+            }
+        )
+    }
 }
 
 // MARK: - WalletModelFeeProvider
 
 extension CommonWalletModel: WalletModelFeeProvider {
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
+        if isDemo {
+            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
+            return .justWithError(output: demoFees)
+        }
+
         return walletManager.estimatedFee(amount: amount)
     }
 
@@ -582,7 +622,12 @@ extension CommonWalletModel: WalletModelFeeProvider {
     }
 
     func getFee(compiledTransaction data: Data) async throws -> [Fee] {
-        try await compiledTransactionFeeProvider?.getFee(compiledTransaction: data) ?? []
+        if isDemo {
+            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
+            return demoFees
+        }
+
+        return try await compiledTransactionFeeProvider?.getFee(compiledTransaction: data) ?? []
     }
 }
 
@@ -603,6 +648,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var transactionSender: TransactionSender {
         walletManager
+    }
+
+    var multipleTransactionsSender: (any MultipleTransactionsSender)? {
+        walletManager as? (any MultipleTransactionsSender)
     }
 
     var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? {

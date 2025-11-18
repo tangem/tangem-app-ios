@@ -174,7 +174,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
                 .resizable()
                 .frame(width: 24, height: 24)
 
-            HStack(alignment: .bottom, spacing: 4) {
+            HStack(spacing: 4) {
                 Text(blockchain.name)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
