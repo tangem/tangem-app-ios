@@ -253,6 +253,7 @@
 		0FE588542DEF2AE800E5663E /* MobileOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE588532DEF2AE800E5663E /* MobileOnboardingView.swift */; };
 		0FE5885E2DF08D7200E5663E /* MobileCreateWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE5885D2DF08D7200E5663E /* MobileCreateWalletView.swift */; };
 		0FE588602DF08D9700E5663E /* MobileCreateWalletViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE5885F2DF08D9700E5663E /* MobileCreateWalletViewModel.swift */; };
+		0FE9420C2ECC73710080CA53 /* MobileWalletFeatureProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE9420B2ECC73710080CA53 /* MobileWalletFeatureProvider.swift */; };
 		0FF19C922E3CBCC700008D8E /* NewAuthWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF19C912E3CBCC700008D8E /* NewAuthWalletView.swift */; };
 		0FF19C942E3CBCD800008D8E /* NewAuthWalletViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF19C932E3CBCD800008D8E /* NewAuthWalletViewModel.swift */; };
 		0FF8F9672EA8F5E400251C53 /* DetailsTOSView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF8F9662EA8F5E400251C53 /* DetailsTOSView.swift */; };
@@ -4761,6 +4762,7 @@
 		0FE588532DEF2AE800E5663E /* MobileOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingView.swift; sourceTree = "<group>"; };
 		0FE5885D2DF08D7200E5663E /* MobileCreateWalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileCreateWalletView.swift; sourceTree = "<group>"; };
 		0FE5885F2DF08D9700E5663E /* MobileCreateWalletViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileCreateWalletViewModel.swift; sourceTree = "<group>"; };
+		0FE9420B2ECC73710080CA53 /* MobileWalletFeatureProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletFeatureProvider.swift; sourceTree = "<group>"; };
 		0FF19C912E3CBCC700008D8E /* NewAuthWalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAuthWalletView.swift; sourceTree = "<group>"; };
 		0FF19C932E3CBCD800008D8E /* NewAuthWalletViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAuthWalletViewModel.swift; sourceTree = "<group>"; };
 		0FF8F9662EA8F5E400251C53 /* DetailsTOSView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsTOSView.swift; sourceTree = "<group>"; };
@@ -19404,6 +19406,7 @@
 				B6C6CAD82EA6757000DA38F9 /* HardwareLimitationsUtil.swift */,
 				EF5903A729092BC600C527C9 /* FeatureProvider.swift */,
 				DAAEC38C2BF31A8800184D7C /* SendFeatureProvider.swift */,
+				0FE9420B2ECC73710080CA53 /* MobileWalletFeatureProvider.swift */,
 				EFD32AEC29EE7F540026353E /* FeatureState.swift */,
 				30B4575B2D9434A4002B8BD0 /* FeaturesStorage.swift */,
 				D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */,
@@ -25556,6 +25559,7 @@
 				EFED25A72DD247F100C70863 /* SendAmountTokenView.swift in Sources */,
 				EFFA43742E03F5B1001E0E54 /* CommonExpressDependenciesFactory.swift in Sources */,
 				DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */,
+				0FE9420C2ECC73710080CA53 /* MobileWalletFeatureProvider.swift in Sources */,
 				2D30234A2DF093B600B4FFE6 /* PushNotificationsService.swift in Sources */,
 				2D30234B2DF093B600B4FFE6 /* ApplicationWalletEntry.swift in Sources */,
 				0AF62CDF2EA286BF0009737E /* YieldAllowanceUtil.swift in Sources */,
