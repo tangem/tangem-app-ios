@@ -11,8 +11,6 @@ import Combine
 import BlockchainSdk
 
 class FakeUserTokensManager: UserTokensManager {
-    var initialized: Bool { true }
-
     var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 
     var userTokens: [TokenItem] {
