@@ -11,43 +11,60 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-extension YieldModuleBottomSheetView {
+extension YieldModuleStartView {
     struct YieldModuleFeePolicyView: View {
-        let currentFee: String
-        let maximumFee: String
-        let blockchainName: String
+        let minimalAmountState: YieldFeeSectionState
+        let estimatedFeeState: YieldFeeSectionState
+        let maximumFeeState: YieldFeeSectionState
+        let footerText: String?
 
         var body: some View {
-            VStack(spacing: 26) {
-                currentFeeSection
-                maximumFeeSection
+            VStack(spacing: 20) {
+                minimalAmountSection
+
+                VStack(alignment: .leading, spacing: 14) {
+                    bottomSection
+                    serviceFeeText
+                        .padding(.leading, 14)
+                }
             }
         }
 
-        private var currentFeeSection: some View {
-            GroupedSection(FeeModel(fee: currentFee)) { fee in
-                DefaultRowView(viewModel: .init(title: Localization.yieldModuleFeePolicySheetCurrentFeeTitle, detailsType: .text(fee.fee)))
-            } footer: {
-                DefaultFooterView(Localization.yieldModuleFeePolicySheetCurrentFeeNote(blockchainName))
+        private var minimalAmountSection: some View {
+            YieldFeeSection(sectionState: minimalAmountState, leadingTitle: Localization.yieldModuleFeePolicySheetMinAmountTitle)
+        }
+
+        private var bottomSection: some View {
+            VStack(alignment: .leading, spacing: 10) {
+                VStack(spacing: 12) {
+                    YieldFeeSection(
+                        sectionState: estimatedFeeState,
+                        leadingTitle: Localization.commonEstimatedFee,
+                        needsBackground: false
+                    )
+
+                    Separator(color: Colors.Stroke.primary)
+                        .padding(.horizontal, 4)
+
+                    YieldFeeSection(
+                        sectionState: maximumFeeState,
+                        leadingTitle: Localization.yieldModuleFeePolicySheetMaxFeeTitle,
+                        needsBackground: false
+                    )
+                }
+                .defaultRoundedBackground(with: Colors.Background.action)
+
+                if let footerText {
+                    Text(footerText)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .padding(.horizontal, 14)
+                }
             }
         }
 
-        private var maximumFeeSection: some View {
-            GroupedSection(FeeModel(fee: maximumFee)) { fee in
-                DefaultRowView(viewModel: .init(title: Localization.yieldModuleFeePolicySheetMaxFeeTitle, detailsType: .text(fee.fee)))
-            } footer: {
-                DefaultFooterView(Localization.yieldModuleFeePolicySheetMaxFeeNote)
-            }
+        private var serviceFeeText: some View {
+            Text(Localization.yieldModuleFeePolicyTangemServiceFeeTitle)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
         }
-    }
-}
-
-extension YieldModuleBottomSheetView {
-    struct FeeModel: Identifiable {
-        var id: String {
-            fee
-        }
-
-        let fee: String
     }
 }

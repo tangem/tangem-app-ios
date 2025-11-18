@@ -83,6 +83,12 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.nftCollectionsCoordinator) {
                 NFTCollectionsCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.tangemPayMainViewModel) {
+                TangemPayMainView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.yieldModulePromoCoordinator) {
+                YieldModulePromoCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -136,6 +142,12 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
+            }
+            .floatingSheetContent(for: YieldNoticeViewModel.self) {
+                YieldNoticeView(viewModel: $0)
+            }
+            .floatingSheetContent(for: YieldModuleInfoViewModel.self) {
+                YieldModuleInfoView(viewModel: $0)
             }
 
         NavHolder()

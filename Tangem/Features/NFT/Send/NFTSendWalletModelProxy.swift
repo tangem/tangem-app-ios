@@ -144,13 +144,21 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
+    var yieldModuleManager: YieldModuleManager? {
+        mainTokenWalletModel.yieldModuleManager
+    }
+
     var stakeKitTransactionSender: StakeKitTransactionSender? {
         // No staking for NFT
         nil
     }
 
-    var accountInitializationStateProvider: StakingAccountInitializationStateProvider? {
+    var accountInitializationService: BlockchainAccountInitializationService? {
         // No staking for NFT
+        nil
+    }
+
+    var minimalBalanceProvider: (any MinimalBalanceProvider)? {
         nil
     }
 
@@ -266,6 +274,10 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var transactionSender: TransactionSender {
         mainTokenWalletModel.transactionSender
+    }
+
+    var multipleTransactionsSender: (any MultipleTransactionsSender)? {
+        mainTokenWalletModel.multipleTransactionsSender
     }
 
     var compiledTransactionSender: CompiledTransactionSender? {

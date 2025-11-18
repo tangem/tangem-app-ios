@@ -1,5 +1,5 @@
 {
-  "originHash" : "6ebc7a32dcebc739e8478c1712afb72baa0b538888b94133222d29fe19d7f411",
+  "originHash" : "37e53f1a60de0a8ed8eee281650961c56511223dee8524d6f552119fb07f3fd4",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -71,6 +71,15 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
+      }
+    },
+    {
+      "identity" : "appsflyerframework-strict",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict",
+      "state" : {
+        "revision" : "841ef61f5933ad5382e8b47a3b67abdf5bb501e3",
+        "version" : "6.17.2"
       }
     },
     {
@@ -366,8 +375,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/reown-swift.git",
       "state" : {
-        "revision" : "18a4ecaf530aecbf3d1d1bbf0db4928214ada081",
-        "version" : "1.6.5"
+        "revision" : "33d7f1c37e3e28a7909040a0f8028e20418300db",
+        "version" : "1.6.12"
       }
     },
     {
@@ -636,8 +645,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "a13fd8338bcbaef35c4f5c08dc645add1abdf6ec",
-        "version" : "3.23.10"
+        "revision" : "d8e3895301c7dfa022c0d1334536b0ecc0f09b9c",
+        "version" : "3.23.11"
       }
     },
     {
@@ -699,8 +708,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/yttrium",
       "state" : {
-        "revision" : "b96e0fb5aae557897a35586f30487044b426b1ca",
-        "version" : "0.9.7"
+        "revision" : "08bd868788cfaaac6499bd15c9e655044832a610",
+        "version" : "0.9.35"
       }
     },
     {

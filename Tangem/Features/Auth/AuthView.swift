@@ -9,12 +9,12 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
-import TangemUIUtils
 import TangemUI
+import TangemUIUtils
 
 struct AuthView: View {
     @ObservedObject private var viewModel: AuthViewModel
-    private var namespace: Namespace.ID?
+    private var geometryEffect: GeometryEffectPropertiesModel?
 
     init(viewModel: AuthViewModel) {
         self.viewModel = viewModel
@@ -23,7 +23,7 @@ struct AuthView: View {
     var body: some View {
         unlockView
             .alert(item: $viewModel.error, content: { $0.alert })
-            .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
+            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .onAppear(perform: viewModel.onAppear)
             .onDisappear(perform: viewModel.onDisappear)
             .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
@@ -36,7 +36,7 @@ struct AuthView: View {
             TangemIconView()
                 .foregroundColor(Colors.Text.primary1)
                 .padding(.bottom, 48)
-                .matchedGeometryEffectOptional(id: TangemIconView.namespaceId, in: namespace)
+                .matchedGeometryEffect(geometryEffect)
 
             Text(Localization.welcomeUnlockTitle)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
@@ -71,8 +71,8 @@ struct AuthView: View {
 }
 
 extension AuthView: Setupable {
-    func setNamespace(_ namespace: Namespace.ID?) -> Self {
-        map { $0.namespace = namespace }
+    func setGeometryEffect(_ geometryEffect: GeometryEffectPropertiesModel?) -> Self {
+        map { $0.geometryEffect = geometryEffect }
     }
 }
 

@@ -92,7 +92,13 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
-        let tokenRouter = SingleTokenRouter(userWalletModel: model, coordinator: coordinator)
+        let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
+
+        let tokenRouter = SingleTokenRouter(
+            userWalletModel: model,
+            coordinator: coordinator,
+            yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
+        )
 
         if isMultiWalletPage {
             let optionsManager = OrganizeTokensOptionsManager(
@@ -119,14 +125,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             }()
 
-            let yieldModuleNotificationManager = WalletYieldNotificationManager(userWalletId: model.userWalletId)
-
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
-                yieldModuleNotificationManager: yieldModuleNotificationManager,
                 rateAppController: rateAppController,
                 tokenSectionsAdapter: sectionsAdapter,
                 tokenRouter: tokenRouter,

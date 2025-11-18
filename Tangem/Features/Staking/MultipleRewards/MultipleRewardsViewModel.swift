@@ -10,14 +10,14 @@ import Combine
 import SwiftUI
 import TangemLocalization
 import TangemStaking
-import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 final class MultipleRewardsViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var validators: [ValidatorViewData] = []
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     // MARK: - Dependencies
@@ -26,7 +26,7 @@ final class MultipleRewardsViewModel: ObservableObject, Identifiable {
     private let stakingManager: StakingManager
     private weak var coordinator: MultipleRewardsRoutable?
 
-    private let percentFormatter = PercentFormatter()
+    private let rewardRateFormatter = StakingValidatorRewardRateFormatter()
     private let balanceFormatter = BalanceFormatter()
     private var bag: Set<AnyCancellable> = []
 
@@ -71,7 +71,7 @@ private extension MultipleRewardsViewModel {
             .store(in: &bag)
     }
 
-    func mapToValidatorViewData(balance: StakingBalance, yield: YieldInfo) -> ValidatorViewData? {
+    func mapToValidatorViewData(balance: StakingBalance, yield: StakingYieldInfo) -> ValidatorViewData? {
         guard let validator = balance.validatorType.validator else {
             return nil
         }
@@ -85,9 +85,8 @@ private extension MultipleRewardsViewModel {
         }
         let balanceFiatFormatted = balanceFormatter.formatFiatBalance(balanceFiat)
 
-        let subtitleType: ValidatorViewData.SubtitleType? = validator.apr.map {
-            .active(apr: percentFormatter.format($0, option: .staking))
-        }
+        let percent = rewardRateFormatter.format(validator: validator, type: .short)
+        let subtitleType: ValidatorViewData.SubtitleType = .active(formatted: percent)
 
         return ValidatorViewData(
             address: validator.address,
@@ -107,14 +106,16 @@ private extension MultipleRewardsViewModel {
             case .single(let action):
                 coordinator?.openStakingSingleActionFlow(action: action)
             case .multiple(let actions):
-                var buttons: [Alert.Button] = actions.map { action in
-                    .default(Text(action.type.title)) { [weak self] in
+                let buttons = actions.map { action in
+                    ConfirmationDialogViewModel.Button(title: action.type.title) { [weak self] in
                         self?.coordinator?.openStakingSingleActionFlow(action: action)
                     }
                 }
 
-                buttons.append(.cancel())
-                actionSheet = .init(sheet: .init(title: Text(Localization.commonSelectAction), buttons: buttons))
+                confirmationDialog = ConfirmationDialogViewModel(
+                    title: Localization.commonSelectAction,
+                    buttons: buttons + [ConfirmationDialogViewModel.Button.cancel]
+                )
             }
         } catch {
             alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)

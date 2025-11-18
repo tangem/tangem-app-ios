@@ -31,10 +31,9 @@ final class ActionButtonsViewModel: ObservableObject {
 
     // MARK: Button ViewModels
 
+    let buyActionButtonViewModel: BuyActionButtonViewModel
     let sellActionButtonViewModel: SellActionButtonViewModel
     let swapActionButtonViewModel: SwapActionButtonViewModel
-
-    private(set) var buyActionButtonViewModel: BuyActionButtonViewModel?
 
     @Published private(set) var shouldShowSwapUnreadNotificationBadge = false
 
@@ -70,7 +69,12 @@ final class ActionButtonsViewModel: ObservableObject {
             userWalletModel: userWalletModel
         )
 
-        makeBuyButtonViewModel(coordinator)
+        buyActionButtonViewModel = BuyActionButtonViewModel(
+            model: .buy,
+            coordinator: coordinator,
+            lastButtonTapped: lastButtonTapped,
+            userWalletModel: userWalletModel
+        )
 
         bind()
     }
@@ -83,15 +87,6 @@ final class ActionButtonsViewModel: ObservableObject {
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         // do nothing if already iniitialized
         sellService.initialize()
-    }
-
-    func makeBuyButtonViewModel(_ coordinator: ActionButtonsBuyFlowRoutable) {
-        buyActionButtonViewModel = BuyActionButtonViewModel(
-            model: .buy,
-            coordinator: coordinator,
-            lastButtonTapped: lastButtonTapped,
-            userWalletModel: userWalletModel
-        )
     }
 }
 
@@ -125,7 +120,7 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     private func disabledAllButtons() {
-        buyActionButtonViewModel?.updateState(to: .disabled)
+        buyActionButtonViewModel.updateState(to: .disabled)
         sellActionButtonViewModel.updateState(to: .disabled)
         swapActionButtonViewModel.updateState(to: .disabled)
     }
@@ -167,7 +162,7 @@ private extension ActionButtonsViewModel {
             case (.updated, false):
                 viewModel.handleBuyUpdatedState()
             case (.failed, false):
-                viewModel.buyActionButtonViewModel?.updateState(
+                viewModel.buyActionButtonViewModel.updateState(
                     to: .restricted(reason: Localization.actionButtonsSomethingWrongAlertMessage)
                 )
             }
@@ -176,17 +171,17 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleBuyUpdatingState() {
-        switch buyActionButtonViewModel?.viewState {
+        switch buyActionButtonViewModel.viewState {
         case .idle:
-            buyActionButtonViewModel?.updateState(to: .initial)
-        case .restricted, .loading, .initial, .disabled, .none:
+            buyActionButtonViewModel.updateState(to: .initial)
+        case .restricted, .loading, .initial, .disabled:
             break
         }
     }
 
     @MainActor
     func handleBuyUpdatedState() {
-        buyActionButtonViewModel?.updateState(
+        buyActionButtonViewModel.updateState(
             to: userWalletModel.walletModelsManager.walletModels.isEmpty ? .disabled : .idle
         )
     }

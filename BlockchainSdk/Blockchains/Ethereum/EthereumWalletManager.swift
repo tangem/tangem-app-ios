@@ -16,6 +16,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     let txBuilder: EthereumTransactionBuilder
     let networkService: EthereumNetworkService
     let addressConverter: EthereumAddressConverter
+    let yieldSupplyService: YieldSupplyService?
     let allowsFeeSelection: Bool
 
     var currentHost: String { networkService.host }
@@ -25,11 +26,13 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         addressConverter: EthereumAddressConverter,
         txBuilder: EthereumTransactionBuilder,
         networkService: EthereumNetworkService,
+        yieldSupplyService: YieldSupplyService? = nil,
         allowsFeeSelection: Bool
     ) {
         self.txBuilder = txBuilder
         self.networkService = networkService
         self.addressConverter = addressConverter
+        self.yieldSupplyService = yieldSupplyService
         self.allowsFeeSelection = allowsFeeSelection
 
         super.init(wallet: wallet)
@@ -39,8 +42,18 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         cancellable = addressConverter.convertToETHAddressPublisher(wallet.address)
             .withWeakCaptureOf(self)
             .flatMap { walletManager, convertedAddress in
-                walletManager.networkService
-                    .getInfo(address: convertedAddress, tokens: walletManager.cardTokens)
+                Publishers.Zip(
+                    walletManager.networkService
+                        .getInfo(
+                            address: convertedAddress,
+                            tokens: walletManager.cardTokens,
+                        ),
+                    walletManager
+                        .getYieldBalances(
+                            address: convertedAddress,
+                            tokens: walletManager.cardTokens
+                        )
+                )
             }
             .sink(receiveCompletion: { [weak self] completionSubscription in
                 if case .failure(let error) = completionSubscription {
@@ -48,7 +61,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
                     completion(.failure(error))
                 }
             }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response)
+                self?.updateWallet(with: response.0, yieldTokensBalances: response.1)
                 completion(.success(()))
             })
     }
@@ -77,35 +90,74 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     /// - Parameters:
     /// - Returns: The hex of the raw transaction ready to be sent over the network
     func sign(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<String, Error> {
-        Publishers.Zip(
-            addressConverter.convertToETHAddressesPublisher(in: transaction),
-            networkService.getPendingTxCount(transaction.sourceAddress)
-        )
-        .map { convertedTransaction, pendingNonce in
-            Self.enrichTransactionWithNonce(transaction: convertedTransaction, pendingNonce: pendingNonce)
+        let noncePublisher: AnyPublisher<Int, Error> =
+            (transaction.fee.parameters as? EthereumFeeParameters)?
+                .nonce
+                .map { Just($0).setFailureType(to: Error.self).eraseToAnyPublisher() }
+                ?? networkService.getPendingTxCount(transaction.sourceAddress)
+
+        return Publishers.Zip(addressConverter.convertToETHAddressesPublisher(in: transaction), noncePublisher)
+            .map { convertedTransaction, nonce in
+                convertedTransaction.then { convertedTransaction in
+                    let ethParams = convertedTransaction.params as? EthereumTransactionParams
+                    convertedTransaction.params = ethParams?.with(nonce: nonce) ?? EthereumTransactionParams(nonce: nonce)
+                }
+            }
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, convertedTransaction in
+                Result {
+                    try walletManager.txBuilder.buildForSign(transaction: convertedTransaction)
+                }
+                .publisher
+                .withWeakCaptureOf(walletManager)
+                .flatMap { walletManager, hashToSign in
+                    signer.sign(hash: hashToSign, walletPublicKey: walletManager.wallet.publicKey)
+                }
+                .withWeakCaptureOf(walletManager)
+                .tryMap { walletManager, signatureInfo -> String in
+                    try walletManager.txBuilder
+                        .buildForSend(
+                            transaction: convertedTransaction,
+                            signatureInfo: signatureInfo
+                        )
+                        .hex()
+                        .addHexPrefix()
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func signMultiple(_ transactions: [Transaction], signer: TransactionSigner) -> AnyPublisher<[String], Error> {
+        guard let firstTransaction = transactions.first else {
+            return .justWithError(output: []).eraseToAnyPublisher()
         }
-        .withWeakCaptureOf(self)
-        .flatMap { walletManager, convertedTransaction in
-            Result {
-                try walletManager.txBuilder.buildForSign(transaction: convertedTransaction)
-            }
-            .publisher
-            .withWeakCaptureOf(walletManager)
-            .flatMap { walletManager, hashToSign in
-                signer.sign(hash: hashToSign, walletPublicKey: walletManager.wallet.publicKey)
-            }
-            .withWeakCaptureOf(walletManager)
-            .tryMap { walletManager, signatureInfo -> String in
-                try walletManager.txBuilder
-                    .buildForSend(
+
+        return networkService.getPendingTxCount(firstTransaction.sourceAddress)
+            .asyncMap { [addressConverter, txBuilder, wallet] pendingNonce in
+                let enrichedTransactions = try transactions.enumerated().map { index, transaction in
+                    let convertedTransaction = try addressConverter.convertToETHAddresses(in: transaction)
+                    return Self.enrichTransactionWithNonce(
                         transaction: convertedTransaction,
+                        pendingNonce: pendingNonce + index
+                    )
+                }
+
+                let hashesToSign = try enrichedTransactions.map {
+                    try txBuilder.buildForSign(transaction: $0)
+                }
+
+                let signatures = try await signer.sign(hashes: hashesToSign, walletPublicKey: wallet.publicKey).async()
+
+                return try zip(signatures, enrichedTransactions).map { signatureInfo, transaction in
+                    try txBuilder.buildForSend(
+                        transaction: transaction,
                         signatureInfo: signatureInfo
                     )
                     .hex()
                     .addHexPrefix()
+                }
             }
-        }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     /// It can't be into extension because it will be overridden in the `MantleWalletManager`
@@ -124,6 +176,18 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
             .eraseToAnyPublisher()
     }
 
+    private func getYieldBalances(
+        address: String,
+        tokens: [Token]
+    ) -> AnyPublisher<[Token: Result<Amount, Error>], Error> {
+        Future.async { [yieldSupplyService] in
+            guard let yieldSupplyService else { return [:] }
+
+            return await yieldSupplyService.getBalances(address: address, tokens: tokens)
+        }
+        .eraseToAnyPublisher()
+    }
+
     private static func enrichTransactionWithNonce(transaction: Transaction, pendingNonce: Int) -> Transaction {
         let userNonce = (transaction.fee.parameters as? EthereumFeeParameters)?.nonce
 
@@ -140,12 +204,43 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         mutableTransaction.params = ethParams?.with(nonce: nonce) ?? EthereumTransactionParams(nonce: nonce)
         return mutableTransaction
     }
+
+    /// Amounts that are inside 'wallet.amounts' may contain additional info about yield module status.
+    /// When estimating fee or sending a transaction, we need get this additional info in order to
+    /// use correct smart contract method.
+    private static func sanitizeAmount(_ amount: Amount, wallet: Wallet) -> Amount {
+        if case .token = amount.type, let sanitizedAmount = wallet.amounts[amount.type] {
+            return Amount(
+                with: wallet.blockchain,
+                type: sanitizedAmount.type,
+                value: amount.value
+            )
+        } else {
+            return amount
+        }
+    }
+
+    private static func sanitizeTransaction(_ transaction: Transaction, wallet: Wallet) -> Transaction {
+        transaction.withAmount(sanitizeAmount(transaction.amount, wallet: wallet))
+    }
 }
 
 // MARK: - EthereumNetworkProvider
 
 extension EthereumWalletManager: EthereumNetworkProvider {
     func getAllowance(owner: String, spender: String, contractAddress: String) -> AnyPublisher<Decimal, Error> {
+        getAllowanceRaw(owner: owner, spender: spender, contractAddress: contractAddress)
+            .tryMap { response in
+                if let allowance = EthereumUtils.parseEthereumDecimal(response, decimalsCount: 0) {
+                    return allowance
+                }
+
+                throw ETHError.failedToParseAllowance
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func getAllowanceRaw(owner: String, spender: String, contractAddress: String) -> AnyPublisher<String, Error> {
         let ownerPublisher = addressConverter.convertToETHAddressPublisher(owner)
         let spenderPublisher = addressConverter.convertToETHAddressPublisher(spender)
         let contractAddressPublisher = addressConverter.convertToETHAddressPublisher(contractAddress)
@@ -157,13 +252,6 @@ extension EthereumWalletManager: EthereumNetworkProvider {
                 let (owner, spender, contractAddress) = convertedAddresses
                 return walletManager.networkService.getAllowance(owner: owner, spender: spender, contractAddress: contractAddress)
             }
-            .tryMap { response in
-                if let allowance = EthereumUtils.parseEthereumDecimal(response, decimalsCount: 0) {
-                    return allowance
-                }
-
-                throw ETHError.failedToParseAllowance
-            }
             .eraseToAnyPublisher()
     }
 
@@ -174,15 +262,6 @@ extension EthereumWalletManager: EthereumNetworkProvider {
             .withWeakCaptureOf(self)
             .flatMap { walletManager, convertedAddress in
                 walletManager.networkService.getBalance(convertedAddress)
-            }
-            .eraseToAnyPublisher()
-    }
-
-    func getTokensBalance(_ address: String, tokens: [Token]) -> AnyPublisher<[Token: Result<Decimal, Error>], Error> {
-        addressConverter.convertToETHAddressPublisher(address)
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedAddress in
-                walletManager.networkService.getTokensBalance(convertedAddress, tokens: tokens)
             }
             .eraseToAnyPublisher()
     }
@@ -304,15 +383,35 @@ private extension EthereumWalletManager {
         return fees
     }
 
-    func updateWallet(with response: EthereumInfoResponse) {
+    func getYieldModuleInteractionFee(yieldContractAddress: String, transferData: Data) -> AnyPublisher<[Fee], Error> {
+        getFee(
+            destination: yieldContractAddress,
+            value: nil,
+            data: transferData
+        )
+        .map { [wallet] fees in
+            fees.map {
+                $0.increasingGasLimit(
+                    byPercents: EthereumFeeParametersConstants.defaultGasLimitIncreasePercent,
+                    blockchain: wallet.blockchain,
+                    decimalValue: wallet.blockchain.decimalValue
+                )
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+
+    func updateWallet(with response: EthereumInfoResponse, yieldTokensBalances: [Token: Result<Amount, Error>]) {
         wallet.add(coinValue: response.balance)
 
         for tokenBalance in response.tokenBalances {
-            switch tokenBalance.value {
-            case .success(let value):
-                wallet.add(tokenValue: value, for: tokenBalance.key)
-            case .failure:
+            switch (yieldTokensBalances[tokenBalance.key], tokenBalance.value) {
+            case (.success(let yieldAmount), _):
+                wallet.add(amount: yieldAmount)
+            case (.failure, _), (_, .failure):
                 wallet.clearAmount(for: tokenBalance.key)
+            case (.none, .success(let value)):
+                wallet.add(tokenValue: value, for: tokenBalance.key)
             }
         }
 
@@ -340,17 +439,33 @@ extension EthereumWalletManager: TransactionFeeProvider {
         addressConverter.convertToETHAddressPublisher(destination)
             .withWeakCaptureOf(self)
             .flatMap { walletManager, convertedDestination -> AnyPublisher<[Fee], Error> in
-                switch amount.type {
+                let sanitizedAmount = Self.sanitizeAmount(amount, wallet: walletManager.wallet)
+                switch sanitizedAmount.type {
                 case .coin:
-                    guard let hexAmount = amount.encodedForSend else {
+                    guard let hexAmount = sanitizedAmount.encodedForSend else {
                         return .anyFail(error: BlockchainSdkError.failedToLoadFee)
                     }
 
                     return walletManager.getFee(destination: convertedDestination, value: hexAmount, data: nil)
                 case .token(let token):
                     do {
-                        let transferData = try walletManager.buildForTokenTransfer(destination: convertedDestination, amount: amount)
-                        return walletManager.getFee(destination: token.contractAddress, value: nil, data: transferData)
+                        let transferData = try walletManager.buildForTokenTransfer(
+                            destination: convertedDestination,
+                            amount: sanitizedAmount
+                        )
+
+                        if let yieldContractAddress = token.metadata.yieldSupply.flatMap({ $0.yieldContractAddress }) {
+                            return walletManager.getYieldModuleInteractionFee(
+                                yieldContractAddress: yieldContractAddress,
+                                transferData: transferData
+                            )
+                        } else {
+                            return walletManager.getFee(
+                                destination: token.contractAddress,
+                                value: nil,
+                                data: transferData
+                            )
+                        }
                     } catch {
                         return .anyFail(error: error)
                     }
@@ -366,7 +481,8 @@ extension EthereumWalletManager: TransactionFeeProvider {
 
 extension EthereumWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        return addressConverter.convertToETHAddressesPublisher(in: transaction)
+        let sanitizedTransaction = Self.sanitizeTransaction(transaction, wallet: wallet)
+        return addressConverter.convertToETHAddressesPublisher(in: sanitizedTransaction)
             .withWeakCaptureOf(self)
             .flatMap { walletManager, convertedTransaction in
                 walletManager.sign(convertedTransaction, signer: signer)
@@ -379,10 +495,38 @@ extension EthereumWalletManager: TransactionSender {
             .withWeakCaptureOf(self)
             .tryMap { walletManager, hash in
                 let mapper = PendingTransactionRecordMapper()
-                let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
+                let record = mapper.mapToPendingTransactionRecord(transaction: sanitizedTransaction, hash: hash)
                 walletManager.wallet.addPendingTransaction(record)
 
                 return TransactionSendResult(hash: hash)
+            }
+            .mapSendTxError()
+            .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - MultipleTransactionSender
+
+extension EthereumWalletManager: MultipleTransactionsSender {
+    func send(_ transactions: [Transaction], signer: any TransactionSigner) -> AnyPublisher<[TransactionSendResult], SendTxError> {
+        let sanitizedTransactions = transactions.map { Self.sanitizeTransaction($0, wallet: wallet) }
+        return signMultiple(sanitizedTransactions, signer: signer)
+            .withWeakCaptureOf(self)
+            .asyncMap { walletManager, rawTransactions in
+                var results: [TransactionSendResult] = []
+                for (transaction, rawTransaction) in zip(transactions, rawTransactions) {
+                    let hash = try await walletManager.networkService
+                        .send(transaction: rawTransaction)
+                        .async()
+
+                    let mapper = PendingTransactionRecordMapper()
+                    let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
+                    walletManager.wallet.addPendingTransaction(record)
+
+                    results.append(TransactionSendResult(hash: hash))
+                }
+
+                return results
             }
             .mapSendTxError()
             .eraseToAnyPublisher()
@@ -445,3 +589,7 @@ extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
         try await networkService.send(transaction: rawTransaction).async()
     }
 }
+
+// MARK: - YieldsServiceProvider
+
+extension EthereumWalletManager: YieldSupplyServiceProvider {}

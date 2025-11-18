@@ -21,90 +21,70 @@ struct TokenItemView: View {
 
     private let previewContentShapeCornerRadius: CGFloat
 
-    @State private var textBlockSize: CGSize = .zero
-
     var body: some View {
-        HStack(alignment: .center, spacing: Constants.spacerLength) {
-            TokenItemViewLeadingComponent(from: viewModel)
+        TwoLineRowWithIcon(
+            icon: { TokenItemViewLeadingComponent(from: viewModel) },
+            primaryLeadingView: {
+                HStack(spacing: 6) {
+                    Text(viewModel.name)
+                        .style(
+                            Fonts.Bold.subheadline,
+                            color: viewModel.hasError ? Colors.Text.tertiary : Colors.Text.primary1
+                        )
+                        .lineLimit(1)
+                        .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenTitle)
 
-            VStack(spacing: 4) {
-                HStack(alignment: .firstTextBaseline, spacing: 0) {
-                    HStack(spacing: 6) {
-                        Text(viewModel.name)
-                            .style(
-                                Fonts.Bold.subheadline,
-                                color: viewModel.hasError ? Colors.Text.tertiary : Colors.Text.primary1
-                            )
-                            .lineLimit(1)
-                            .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenTitle)
-
-                        if viewModel.hasPendingTransactions {
-                            ProgressDots(style: .small)
-                        }
-
-                        if viewModel.isYieldAvailable, !viewModel.hasPendingTransactions {
-                            earnBadge.padding(.leading, -2)
-                        }
-                    }
-                    .frame(minWidth: 0.3 * textBlockSize.width, alignment: .leading)
-
-                    Spacer(minLength: 8)
-
-                    if viewModel.hasError, let errorMessage = viewModel.errorMessage {
-                        Text(errorMessage)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    } else {
-                        HStack(spacing: 6) {
-                            if viewModel.isStaked {
-                                Assets.stakingMiniIcon.image
-                                    .renderingMode(.template)
-                                    .resizable()
-                                    .foregroundColor(Colors.Icon.accent)
-                                    .frame(width: 12, height: 12)
-                            }
-
-                            LoadableTokenBalanceView(
-                                state: viewModel.balanceFiat,
-                                style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
-                                loader: .init(size: .init(width: 40, height: 12))
-                            )
-                            .layoutPriority(3)
-                        }
-                    }
+                    leadingBadge
                 }
-
-                if !viewModel.hasError {
-                    HStack(alignment: .center, spacing: 0) {
-                        HStack(spacing: 6, content: {
-                            LoadableTextView(
-                                state: viewModel.tokenPrice,
-                                font: Fonts.Regular.caption1,
-                                textColor: Colors.Text.tertiary,
-                                loaderSize: .init(width: 52, height: 12)
-                            )
-
-                            TokenPriceChangeView(
-                                state: viewModel.priceChangeState,
-                                showSkeletonWhenLoading: false
-                            )
-                            .layoutPriority(1)
-                        })
-                        .frame(minWidth: 0.32 * textBlockSize.width, alignment: .leading)
-                        .layoutPriority(2)
-
-                        Spacer(minLength: Constants.spacerLength)
+            },
+            primaryTrailingView: {
+                if viewModel.hasError, let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                } else {
+                    HStack(spacing: 6) {
+                        trailingBadge
 
                         LoadableTokenBalanceView(
-                            state: viewModel.balanceCrypto,
-                            style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
-                            loader: .init(size: .init(width: 40, height: 12))
+                            state: viewModel.balanceFiat,
+                            style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
+                            loader: .init(size: .init(width: 40, height: 12)),
+                            accessibilityIdentifier: MainAccessibilityIdentifiers.tokenBalance(for: viewModel.name)
                         )
                         .layoutPriority(3)
                     }
                 }
+            },
+            secondaryLeadingView: {
+                if !viewModel.hasError {
+                    HStack(spacing: 6) {
+                        LoadableTextView(
+                            state: viewModel.tokenPrice,
+                            font: Fonts.Regular.caption1,
+                            textColor: Colors.Text.tertiary,
+                            loaderSize: .init(width: 52, height: 12)
+                        )
+
+                        TokenPriceChangeView(
+                            state: viewModel.priceChangeState,
+                            showSkeletonWhenLoading: false
+                        )
+                        .layoutPriority(1)
+                    }
+                    .layoutPriority(2)
+                }
+            },
+            secondaryTrailingView: {
+                if !viewModel.hasError {
+                    LoadableTokenBalanceView(
+                        state: viewModel.balanceCrypto,
+                        style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                        loader: .init(size: .init(width: 40, height: 12))
+                    )
+                    .layoutPriority(3)
+                }
             }
-            .readGeometry(\.size, bindTo: $textBlockSize)
-        }
+        )
         .padding(14)
         .background(background)
         .onTapGesture(perform: viewModel.tapAction)
@@ -124,12 +104,34 @@ struct TokenItemView: View {
         // [REDACTED_INFO]
     }
 
-    private var earnBadge: some View {
-        TokenItemEarnBadgeView(apy: "TEST")
+    @ViewBuilder
+    var leadingBadge: some View {
+        switch viewModel.leadingBadge {
+        case .pendingTransaction:
+            ProgressDots(style: .small)
+        case .rewards(let rewardsInfo):
+            TokenItemEarnBadgeView(
+                rewardType: rewardsInfo.type,
+                rewardValue: rewardsInfo.rewardValue,
+                color: rewardsInfo.isActive ? Colors.Text.accent : Colors.Text.secondary,
+                tapAction: viewModel.yieldApyTapAction
+            )
+        case .none:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    var trailingBadge: some View {
+        if case .isApproveNeeded = viewModel.trailingBadge {
+            yieldWarningIcon
+        } else {
+            EmptyView()
+        }
     }
 
     private var yieldWarningIcon: some View {
-        Assets.WalletConnect.yellowWarningCircle.image
+        Assets.attention20.image
             .resizable()
             .frame(width: 12, height: 12)
     }
