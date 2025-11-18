@@ -28,12 +28,12 @@ protocol UserWalletModel:
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
     var tangemApiAuthData: TangemApiAuthorizationData? { get }
-    var nftManager: NFTManager { get }
     var keysRepository: KeysRepository { get }
     var refcodeProvider: RefcodeProvider? { get }
     var signer: TangemSigner { get }
     var updatePublisher: AnyPublisher<UpdateResult, Never> { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
+    var nftManager: NFTManager { get }
     var walletImageProvider: WalletImageProviding { get }
     var accountModelsManager: AccountModelsManager { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
@@ -62,11 +62,19 @@ enum UpdateRequest {
     case mnemonicBackupCompleted
     case iCloudBackupCompleted
     case accessCodeDidSet
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    case tangemPayOfferAccepted(TangemPayAccount)
 }
 
 enum UpdateResult {
     case configurationChanged(model: UserWalletModel)
     case nameDidChange(name: String)
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    case tangemPayOfferAccepted(TangemPayAccount)
 
     var newName: String? {
         switch self {
@@ -75,5 +83,14 @@ enum UpdateResult {
         default:
             return nil
         }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccount: TangemPayAccount? {
+        if case .tangemPayOfferAccepted(let tangemPayAccount) = self {
+            return tangemPayAccount
+        }
+        return nil
     }
 }

@@ -13,6 +13,7 @@ import Foundation
 enum LogsSanitizer {
     static let apiKeyFields = [
         "api-key",
+        "x-api-key",
         "api_key",
         "apikey",
         "access-token",

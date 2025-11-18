@@ -56,6 +56,8 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     // MARK: Dependencies
 
     private let nftManager: NFTManager
+    // [REDACTED_TODO_COMMENT]
+    private let accounForNFTCollectionsProvider: AccountForNFTCollectionProviding
     private let navigationContext: NFTNavigationContext
     private let dependencies: NFTCollectionsListDependencies
     private let assetSendPublisher: AnyPublisher<NFTAsset, Never>
@@ -63,12 +65,14 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     public init(
         nftManager: NFTManager,
+        accounForNFTCollectionsProvider: AccountForNFTCollectionProviding,
         navigationContext: NFTNavigationContext,
         dependencies: NFTCollectionsListDependencies,
         assetSendPublisher: AnyPublisher<NFTAsset, Never>,
         coordinator: NFTCollectionsListRoutable?
     ) {
         self.nftManager = nftManager
+        self.accounForNFTCollectionsProvider = accounForNFTCollectionsProvider
         self.coordinator = coordinator
         self.dependencies = dependencies
         self.assetSendPublisher = assetSendPublisher

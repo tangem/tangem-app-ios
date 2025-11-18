@@ -11,7 +11,7 @@ import Testing
 @testable import Tangem
 
 struct DefaultIncomingLinkParserTests {
-    private let parser = DefaultIncomingLinkParser(isFeatureAvailable: true)
+    private let parser = DefaultIncomingLinkParser()
 
     // MARK: - Tests for valid type param
 

@@ -7,20 +7,30 @@
 //
 
 import Foundation
+import TangemNFT
 import TangemStaking
+import BlockchainSdk
 
 enum SendType {
-    case send(parameters: SendParameters)
+    case send
     case sell(parameters: PredefinedSellParameters)
-    case staking(manager: StakingManager)
+    case nft(parameters: PredefinedNFTParameters)
+    case staking(manager: StakingManager, blockchainParams: StakingBlockchainParams)
     case unstaking(manager: StakingManager, action: UnstakingModel.Action)
     case restaking(manager: StakingManager, action: RestakingModel.Action)
     case stakingSingleAction(manager: StakingManager, action: StakingSingleActionModel.Action)
     case onramp(parameters: PredefinedOnrampParameters = .none)
 }
 
-// MARK: - Convenience extensions
+// MARK: - Parameters
 
-extension SendType {
-    static var send: Self { .send(parameters: .init()) }
+struct PredefinedSellParameters {
+    let amount: Decimal
+    let destination: String
+    let tag: String?
+}
+
+struct PredefinedNFTParameters {
+    let asset: NFTAsset
+    let collection: NFTCollection
 }

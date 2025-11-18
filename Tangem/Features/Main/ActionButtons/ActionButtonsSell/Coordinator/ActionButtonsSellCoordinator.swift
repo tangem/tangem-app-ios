@@ -24,16 +24,16 @@ final class ActionButtonsSellCoordinator: CoordinatorObject {
 
     required init(
         expressTokensListAdapter: some ExpressTokensListAdapter,
-        tokenSorter: some TokenAvailabilitySorter = CommonSellTokenAvailabilitySorter(),
         dismissAction: @escaping Action<ActionButtonsSendToSellModel?>,
         popToRootAction: @escaping Action<PopToRootOptions> = { _ in },
         userWalletModel: some UserWalletModel
     ) {
         self.expressTokensListAdapter = expressTokensListAdapter
-        self.tokenSorter = tokenSorter
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
         self.userWalletModel = userWalletModel
+
+        tokenSorter = CommonSellTokenAvailabilitySorter(userWalletConfig: userWalletModel.config)
     }
 
     func start(with options: Options) {

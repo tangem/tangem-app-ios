@@ -262,6 +262,11 @@ extension Analytics {
         case set = "Set"
         case changing = "Changing"
 
+        // MARK: - Yield Module
+
+        case yieldModuleApproveNeeded = "Approve Required"
+        case yieldModuleSourceInfo = "Earning"
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
