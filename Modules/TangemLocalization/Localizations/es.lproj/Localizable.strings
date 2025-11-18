@@ -1884,6 +1884,9 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Modo de rendimiento";
 "yield_module_token_details_earn_notification_processing" = "Procesando su depósito";
 "yield_module_token_details_earn_notification_title" = "Modo Rendimiento";
+"yield_module_transaction_enter" = "Yield mode on";
+"yield_module_transaction_exit" = "Yield mode off";
+"yield_module_transaction_topup" = "Yield mode top-up";
 "yield_module_transfer_mode_automatic" = "Automático";
 "yield_module_unable_to_cover_fee_description" = "Deposite algo de %1$@ %2$@ para cubrir la tarifa de red para las transacciones";
 "yield_module_unable_to_cover_fee_title" = "No se puede cubrir la tarifa %@";
