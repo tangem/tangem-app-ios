@@ -15,30 +15,67 @@ struct CustomerInfoManagementAPITarget: TargetType {
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.baseURL.appendingPathComponent("customer/")
+        apiType.baseURL
     }
 
     var path: String {
         switch target {
         case .getCustomerInfo:
-            return "me"
+            "customer/me"
         case .getKYCAccessToken:
-            return "kyc"
+            "customer/kyc"
+        case .getBalance:
+            "customer/balance"
+        case .getCardDetails:
+            "customer/card/details"
+        case .getTransactionHistory:
+            "customer/transactions"
+        case .placeOrder:
+            "order"
+        case .getOrder(let orderId):
+            "order/\(orderId)"
         }
     }
 
     var method: Moya.Method {
         switch target {
         case .getCustomerInfo,
-             .getKYCAccessToken:
-            return .get
+             .getKYCAccessToken,
+             .getOrder,
+             .getBalance,
+             .getTransactionHistory:
+            .get
+
+        case .placeOrder,
+             .getCardDetails:
+            .post
         }
     }
 
     var task: Moya.Task {
         switch target {
-        case .getCustomerInfo, .getKYCAccessToken:
+        case .getCustomerInfo,
+             .getKYCAccessToken,
+             .getOrder,
+             .getBalance:
             return .requestPlain
+
+        case .getTransactionHistory(let limit, let cursor):
+            var requestParams = [
+                "limit": "\(limit)",
+            ]
+            if let cursor {
+                requestParams["cursor"] = cursor
+            }
+            return .requestParameters(parameters: requestParams, encoding: URLEncoding.default)
+
+        case .getCardDetails(let sessionId):
+            let requestData = TangemPayCardDetailsRequest(sessionId: sessionId)
+            return .requestJSONEncodable(requestData)
+
+        case .placeOrder(let walletAddress):
+            let requestData = TangemPayPlaceOrderRequest(walletAddress: walletAddress)
+            return .requestJSONEncodable(requestData)
         }
     }
 
@@ -58,5 +95,12 @@ extension CustomerInfoManagementAPITarget {
 
         /// Retrieves an access token for the SumSub KYC flow
         case getKYCAccessToken
+
+        case getBalance
+        case getCardDetails(sessionId: String)
+        case getTransactionHistory(limit: Int, cursor: String?)
+
+        case placeOrder(walletAddress: String)
+        case getOrder(orderId: String)
     }
 }

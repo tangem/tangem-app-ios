@@ -39,7 +39,7 @@ struct ResetToFactoryView: View {
         .padding(.bottom, max(10, UIApplication.safeAreaInsets.bottom))
         .edgesIgnoringSafeArea(.bottom)
         .navigationBarTitle(Text(Localization.cardSettingsResetCardToFactory), displayMode: .inline)
-        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
+        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .alert(item: $viewModel.alert) { $0.alert }
     }
 
