@@ -51,13 +51,17 @@ protocol WalletModel:
 
     var stakingManager: StakingManager? { get }
     var stakeKitTransactionSender: StakeKitTransactionSender? { get }
-    var accountInitializationStateProvider: StakingAccountInitializationStateProvider? { get }
 
     // MARK: - Accounts
 
     // [REDACTED_TODO_COMMENT]
     /// - Warning: Unowned, has the meaningful value only when accounts feature toggle is enabled.
     var account: any CryptoAccountModel { get }
+
+    // MARK: - Yield
+
+    // [REDACTED_TODO_COMMENT]
+    var yieldModuleManager: YieldModuleManager? { get }
 }
 
 extension WalletModel {
@@ -82,6 +86,7 @@ protocol WalletModelUpdater {
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never>
 
     /// Do not use with flatMap.
+    /// - Note: This publisher may emit a single value and then complete. Similar to ``Publishers.Just``.
     @discardableResult
     func update(silent: Bool) -> AnyPublisher<WalletModelState, Never>
 
@@ -129,6 +134,8 @@ protocol WalletModelDependenciesProvider {
     var transactionValidator: TransactionValidator { get }
     var transactionSender: TransactionSender { get }
 
+    var multipleTransactionsSender: MultipleTransactionsSender? { get }
+
     var compiledTransactionSender: CompiledTransactionSender? { get }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { get }
@@ -136,6 +143,9 @@ protocol WalletModelDependenciesProvider {
     var ethereumTransactionSigner: EthereumTransactionSigner? { get }
 
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? { get }
+
+    var accountInitializationService: BlockchainAccountInitializationService? { get }
+    var minimalBalanceProvider: MinimalBalanceProvider? { get }
 }
 
 // MARK: - Tx history

@@ -29,6 +29,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
     @Published var addButtonDisabled = false
     @Published var isLoading = false
+    @Published var needsCardDerivation: Bool = false
 
     @Published var contractAddressError: Error?
     @Published var decimalsError: Error?
@@ -51,19 +52,19 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private var didLogScreenAnalytics = false
     private var foundStandardToken: CoinModel?
     private var settings: ManageTokensSettings
-    private var userWalletModel: UserWalletModel
+    private let userTokensManager: UserTokensManager
     private var bag: Set<AnyCancellable> = []
 
     private weak var coordinator: AddCustomTokenRoutable?
 
     init(
         settings: ManageTokensSettings,
-        userWalletModel: UserWalletModel,
+        userTokensManager: UserTokensManager,
         coordinator: AddCustomTokenRoutable
     ) {
         self.settings = settings
         self.coordinator = coordinator
-        self.userWalletModel = userWalletModel
+        self.userTokensManager = userTokensManager
 
         networkSelectorViewModel = .init(
             selectedBlockchainNetworkId: nil,
@@ -90,10 +91,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             let tokenItem = try enteredTokenItem()
             try checkLocalStorage()
 
-            let tokensManager = userWalletModel.userTokensManager
-
-            try tokensManager.addTokenItemPrecondition(tokenItem)
-            tokensManager.add(tokenItem) { [weak self] result in
+            try userTokensManager.addTokenItemPrecondition(tokenItem)
+            userTokensManager.add(tokenItem) { [weak self] result in
                 guard let self else { return }
 
                 switch result {
@@ -226,6 +225,25 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             self?.validate()
         }
         .store(in: &bag)
+
+        $addButtonDisabled
+            .withWeakCaptureOf(self)
+            .map { viewModel, isAddButtonDisabled in
+                guard !isAddButtonDisabled else {
+                    return false
+                }
+
+                do {
+                    let tokenItem = try viewModel.enteredTokenItem()
+                    return viewModel.userTokensManager.needsCardDerivation(
+                        itemsToRemove: [],
+                        itemsToAdd: [tokenItem]
+                    )
+                } catch {
+                    return false
+                }
+            }
+            .assign(to: &$needsCardDerivation)
     }
 
     private func enteredTokenItem() throws -> TokenItem {
@@ -325,7 +343,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private func checkLocalStorage() throws {
         guard let tokenItem = try? enteredTokenItem() else { return }
 
-        if userWalletModel.userTokensManager.contains(tokenItem) {
+        if userTokensManager.contains(tokenItem) {
             throw TokenSearchError.alreadyAdded
         }
     }
