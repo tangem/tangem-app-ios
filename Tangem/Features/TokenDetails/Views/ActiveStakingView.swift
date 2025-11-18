@@ -77,6 +77,7 @@ struct ActiveStakingView: View {
             }
             .truncationMode(.middle)
             .lineLimit(1)
+            .accessibilityIdentifier(TokenAccessibilityIdentifiers.stakingBalance)
         }
     }
 

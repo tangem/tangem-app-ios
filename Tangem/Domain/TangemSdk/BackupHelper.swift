@@ -8,11 +8,9 @@
 
 import Foundation
 import TangemSdk
-import TangemFoundation
-import TangemNetworkUtils
 
 class BackupHelper {
-    private let backupService: BackupService = .init(sdk: .init(), networkService: .init(session: TangemTrustEvaluatorUtil.sharedSession, additionalHeaders: DeviceInfo().asHeaders()))
+    private let backupService: BackupService = .init(sdk: .init(), networkService: TangemSdkNetworkServiceFactory().makeService())
 
     var cardId: String? {
         backupService.primaryCard?.cardId

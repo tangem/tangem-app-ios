@@ -58,6 +58,7 @@ struct ConfigUtils {
                 tangemAlephiumApiKey: keys.alephiumTangemApiKey,
                 blinkApiKey: keys.blinkApiKey,
                 tatumApiKey: keys.tatumApiKey,
+                yieldModuleApiKey: keys.yieldModuleApiKey,
             )
         } catch {
             return .init(
@@ -81,6 +82,7 @@ struct ConfigUtils {
                 tangemAlephiumApiKey: "",
                 blinkApiKey: "",
                 tatumApiKey: "",
+                yieldModuleApiKey: "",
             )
         }
     }
@@ -208,6 +210,7 @@ struct Keys: Decodable {
     let alephiumTangemApiKey: String
     let blinkApiKey: String
     let tatumApiKey: String
+    let yieldModuleApiKey: String
 }
 
 struct TonCenterApiKeys: Decodable {
