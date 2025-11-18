@@ -38,11 +38,15 @@ struct NFTSendUtil {
             transactionSendAvailabilityProvider: sendAvailabilityProvider
         )
 
-        let parameters = SendParameters(nonFungibleTokenParameters: (asset, collection))
+        let parameters = PredefinedNFTParameters(asset: asset, collection: collection)
 
         return SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModelProxy),
-            type: .send(parameters: parameters),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModelProxy,
+                expressInput: .init(userWalletModel: userWalletModel)
+            ),
+            type: .nft(parameters: parameters),
             source: .nft
         )
     }
