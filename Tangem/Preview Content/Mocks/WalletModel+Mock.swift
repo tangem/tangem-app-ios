@@ -11,19 +11,26 @@ import BlockchainSdk
 import Combine
 
 extension CommonWalletModel {
-    static let mockETH = CommonWalletModel(
-        userWalletId: .init(with: Data()),
-        walletManager: EthereumWalletManagerMock(),
-        stakingManager: StakingManagerMock(),
-        featureManager: WalletModelFeaturesManagerMock(),
-        transactionHistoryService: nil,
-        receiveAddressService: DummyReceiveAddressService(addressInfos: []),
-        sendAvailabilityProvider: TransactionSendAvailabilityProvider(isSendingSupportedByCard: true),
-        tokenBalancesRepository: TokenBalancesRepositoryMock(),
-        amountType: .coin,
-        shouldPerformHealthCheck: false,
-        isCustom: false
-    )
+    static var mockETH = {
+        let walletManager = EthereumWalletManagerMock()
+        let blockchain = walletManager.wallet.blockchain
+        let derivationPath = walletManager.wallet.publicKey.derivationPath
+        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        let tokenItem = TokenItem.blockchain(blockchainNetwork)
+
+        return CommonWalletModel(
+            userWalletId: .init(with: Data()),
+            tokenItem: tokenItem,
+            walletManager: EthereumWalletManagerMock(),
+            stakingManager: StakingManagerMock(),
+            featureManager: WalletModelFeaturesManagerMock(),
+            transactionHistoryService: nil,
+            receiveAddressService: DummyReceiveAddressService(addressInfos: []),
+            sendAvailabilityProvider: TransactionSendAvailabilityProvider(isSendingSupportedByCard: true),
+            tokenBalancesRepository: TokenBalancesRepositoryMock(),
+            isCustom: false
+        )
+    }()
 }
 
 class EthereumWalletManagerMock: WalletManager {
