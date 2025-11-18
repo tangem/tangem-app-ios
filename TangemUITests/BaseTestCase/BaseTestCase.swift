@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import TangemAccessibilityIdentifiers
 
 class BaseTestCase: XCTestCase {
     let app = XCUIApplication()
@@ -45,6 +46,7 @@ class BaseTestCase: XCTestCase {
         expressApiType: ExpressAPI? = nil,
         stakingApiType: StakingAPI? = nil,
         skipToS: Bool = true,
+        clearStorage: Bool = false,
         scenarios: [ScenarioConfig] = []
     ) {
         var arguments = ["--uitesting", "--alpha"]
@@ -59,6 +61,10 @@ class BaseTestCase: XCTestCase {
             arguments.append("-uitest-skip-tos")
         }
 
+        if clearStorage {
+            arguments.append("-uitest-clear-storage")
+        }
+
         app.launchArguments = arguments
         app.launchEnvironment = ["UITEST": "1"]
 
@@ -70,21 +76,47 @@ class BaseTestCase: XCTestCase {
 
     // MARK: - WireMock Scenario Management
 
-    /// Setup WireMock scenarios before app launch
-    private func setupWireMockScenarios(_ scenarios: [ScenarioConfig]) {
+    func setupWireMockScenarios(_ scenarios: [ScenarioConfig]) {
         guard !scenarios.isEmpty else { return }
 
         XCTContext.runActivity(named: "Setup WireMock scenarios") { _ in
-            // First reset all scenarios
-            wireMockClient.resetAllScenariosSync()
-
             // Set initial states for specified scenarios
             for scenario in scenarios {
+                wireMockClient.setScenarioStateSync(scenario.name, state: scenario.initialState)
+
                 if scenario.initialState != "Started" {
-                    wireMockClient.setScenarioStateSync(scenario.name, state: scenario.initialState)
+                    activeScenarios[scenario.name] = scenario.initialState
                 }
-                activeScenarios[scenario.name] = scenario.initialState
             }
+        }
+    }
+
+    func pullToRefresh() {
+        XCTContext.runActivity(named: "Perform pull to refresh") { _ in
+            // Try to find common scrollable elements in order of preference
+            let startCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+            let finishCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 1))
+
+            startCoordinate.press(forDuration: 0.1, thenDragTo: finishCoordinate)
+
+            // Wait for refresh to complete by waiting for state to change back to idle
+            let refreshStateIdle = app.otherElements[MainAccessibilityIdentifiers.refreshStateIdle]
+            XCTAssertTrue(refreshStateIdle.waitForExistence(timeout: .conditional), "Refresh state should change to idle when refresh is complete")
+        }
+    }
+
+    // MARK: - App Lifecycle Management
+
+    func minimizeApp() {
+        XCTContext.runActivity(named: "Minimize application") { _ in
+            XCUIDevice.shared.press(.home)
+        }
+    }
+
+    func maximizeApp() {
+        XCTContext.runActivity(named: "Maximize application") { _ in
+            app.activate()
+            XCTAssertTrue(app.wait(for: .runningForeground, timeout: 5.0), "App should be running in foreground")
         }
     }
 }

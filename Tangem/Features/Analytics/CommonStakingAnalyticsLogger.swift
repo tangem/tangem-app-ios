@@ -31,4 +31,18 @@ struct CommonStakingAnalyticsLogger: StakingAnalyticsLogger {
             params: parameters
         )
     }
+
+    func logStakingApyClicked(state: StakingAnalyticsState, tokenName: String, blockchainName: String) {
+        let stateParamValue = Analytics.ParameterValue(rawValue: state.rawValue)?.rawValue ?? ""
+        let actionParamValue = Analytics.ParameterValue.transactionSourceStaking.rawValue
+
+        let params: [Analytics.ParameterKey: String] = [
+            .token: tokenName,
+            .blockchain: blockchainName,
+            .state: stateParamValue,
+            .action: actionParamValue,
+        ]
+
+        Analytics.log(event: .apyClicked, params: params)
+    }
 }

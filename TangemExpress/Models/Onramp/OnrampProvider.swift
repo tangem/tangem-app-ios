@@ -12,7 +12,11 @@ public class OnrampProvider {
     public let provider: ExpressProvider
     public let paymentMethod: OnrampPaymentMethod
 
+    @available(iOS, deprecated: 100000.0, message: "Use globalAttractiveType")
     public private(set) var attractiveType: AttractiveType?
+
+    public private(set) var processingTimeType: ProcessingTimeType?
+    public private(set) var globalAttractiveType: AttractiveType?
 
     private let manager: OnrampProviderManager
 
@@ -28,6 +32,14 @@ public class OnrampProvider {
 
     func update(attractiveType: AttractiveType?) {
         self.attractiveType = attractiveType
+    }
+
+    func update(globalAttractiveType: AttractiveType?) {
+        self.globalAttractiveType = globalAttractiveType
+    }
+
+    func update(processingTimeType: ProcessingTimeType?) {
+        self.processingTimeType = processingTimeType
     }
 }
 
@@ -46,11 +58,20 @@ public extension OnrampProvider {
 
     enum AttractiveType: Hashable, CustomStringConvertible {
         case best
+        case great(percent: Decimal?)
         case loss(percent: Decimal)
+
+        public var isGreat: Bool {
+            switch self {
+            case .great: true
+            case .best, .loss: false
+            }
+        }
 
         public var description: String {
             switch self {
             case .best: "Best"
+            case .great(let percent): "Great \(String(describing: percent))"
             case .loss(let percent): "Loss \(percent)"
             }
         }
@@ -69,6 +90,47 @@ extension OnrampProvider: Hashable {
         hasher.combine(paymentMethod)
         hasher.combine(state)
         hasher.combine(attractiveType)
+    }
+}
+
+// MARK: - Comparable
+
+extension OnrampProvider: Comparable {
+    public static func < (lhs: OnrampProvider, rhs: OnrampProvider) -> Bool {
+        !(lhs > rhs)
+    }
+
+    public static func > (lhs: OnrampProvider, rhs: OnrampProvider) -> Bool {
+        switch (lhs.state, rhs.state) {
+        case (.loaded(let lhsQuote), .loaded(let rhsQuote)) where lhsQuote == rhsQuote:
+            return lhs.paymentMethod.type.priority > rhs.paymentMethod.type.priority
+
+        case (.loaded(let lhsQuote), .loaded(let rhsQuote)):
+            return lhsQuote.expectedAmount > rhsQuote.expectedAmount
+
+        // All cases which is not `loaded` have to be ordered after
+        case (_, .loaded):
+            return false
+
+        // All cases which is `loaded` have to be ordered before `rhs`
+        // Exclude case where `rhs == .loaded`. This case processed above
+        case (.loaded, _):
+            return true
+
+        case (.restriction(let lhsRestriction), .restriction(let rhsRestriction)):
+            let lhsDiff = (lhs.amount ?? 0) - lhsRestriction.amount
+            let rhsDiff = (rhs.amount ?? 0) - rhsRestriction.amount
+            return abs(lhsDiff) < abs(rhsDiff)
+
+        case (.restriction, _):
+            return true
+
+        case (_, .restriction):
+            return false
+
+        default:
+            return false
+        }
     }
 }
 

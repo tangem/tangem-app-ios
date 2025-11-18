@@ -11,4 +11,5 @@ import TangemExpress
 class ExpressApproveRoutableMock: ExpressApproveRoutable {
     func didSendApproveTransaction() {}
     func userDidCancel() {}
+    func openLearnMore() {}
 }

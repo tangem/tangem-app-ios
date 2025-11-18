@@ -38,6 +38,7 @@ class MarketsTokenDetailsCoordinator: CoordinatorObject {
     private var safariHandle: SafariHandle?
 
     private let portfolioCoordinatorFactory = MarketsTokenDetailsPortfolioCoordinatorFactory()
+    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Init
 
@@ -135,7 +136,9 @@ extension MarketsTokenDetailsCoordinator {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel
+            addressTypesProvider: walletModel,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -149,26 +152,38 @@ extension MarketsTokenDetailsCoordinator {
     }
 
     func openExchange(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.expressCoordinator = nil
-        }
-
-        let openSwapBlock = { [weak self] in
+        let action = { [weak self] in
             guard let self else { return }
-            expressCoordinator = portfolioCoordinatorFactory.makeExpressCoordinator(
-                for: walletModel,
-                with: userWalletModel,
-                dismissAction: dismissAction,
-                popToRootAction: popToRootAction
-            )
+
+            let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
+                self?.expressCoordinator = nil
+            }
+
+            let openSwapBlock = { [weak self] in
+                guard let self else { return }
+                Task { @MainActor in
+                    self.expressCoordinator = self.portfolioCoordinatorFactory.makeExpressCoordinator(
+                        for: walletModel,
+                        with: userWalletModel,
+                        dismissAction: dismissAction,
+                        popToRootAction: self.popToRootAction
+                    )
+                }
+            }
+
+            Task { @MainActor [tangemStoriesPresenter] in
+                tangemStoriesPresenter.present(
+                    story: .swap(.initialWithoutImages),
+                    analyticsSource: .markets,
+                    presentCompletion: openSwapBlock
+                )
+            }
         }
 
-        Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
-                analyticsSource: .markets,
-                presentCompletion: openSwapBlock
-            )
+        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
+            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: action)
+        } else {
+            action()
         }
     }
 
@@ -179,7 +194,11 @@ extension MarketsTokenDetailsCoordinator {
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(userWalletModel: userWalletModel)
+            ),
             type: .onramp(),
             source: .markets
         )
@@ -198,6 +217,13 @@ extension MarketsTokenDetailsCoordinator {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 walletModel.update(silent: true)
             }
+        }
+    }
+
+    func openViaYieldNotice(tokenItem: TokenItem, action: @escaping () -> Void) {
+        let viewModel = YieldNoticeViewModel(tokenItem: tokenItem, action: action)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 }

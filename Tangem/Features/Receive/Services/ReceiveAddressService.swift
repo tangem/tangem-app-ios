@@ -16,7 +16,6 @@ protocol ReceiveAddressService: AnyObject {
     var addressInfos: [ReceiveAddressInfo] { get }
 
     func update(with addresses: [Address]) async
-    func clear()
 }
 
 // MARK: - CommonReceiveAddressService
@@ -24,20 +23,19 @@ protocol ReceiveAddressService: AnyObject {
 class CommonReceiveAddressService {
     // MARK: - Private Properties
 
-    private var _addressInfos: [ReceiveAddressInfo]
     private var _addressTypes: [ReceiveAddressType] = []
-
-    private let domainAddressResolver: DomainNameAddressResolver?
 
     private var resolveDestinationTask: Task<Void, Error>?
 
+    private let domainAddressResolver: DomainNameAddressResolver?
     private let receiveAddressInfoUtils = ReceiveAddressInfoUtils(colorScheme: .whiteBlack)
 
     // MARK: - Init
 
     init(addresses: [Address], domainAddressResolver: DomainNameAddressResolver?) {
-        _addressInfos = receiveAddressInfoUtils.makeAddressInfos(from: addresses)
         self.domainAddressResolver = domainAddressResolver
+
+        updateReceiveAddressTypes(with: addresses)
     }
 }
 
@@ -49,35 +47,31 @@ extension CommonReceiveAddressService: ReceiveAddressService {
     }
 
     var addressInfos: [ReceiveAddressInfo] {
-        _addressInfos
+        _addressTypes.map { $0.info }
     }
 
     func update(with addresses: [Address]) async {
-        _addressInfos = receiveAddressInfoUtils.makeAddressInfos(from: addresses)
+        updateReceiveAddressTypes(with: addresses)
 
         resolveDestinationTask?.cancel()
 
         resolveDestinationTask = runTask(in: self) { service in
-            await service.resolveReceiveAssetsWithoutDomainResolver()
-
-            if let domainAddressResolver = service.domainAddressResolver {
-                await service.resolveReceiveAssets(with: domainAddressResolver)
-            }
+            await service.resolveDomainAddressTypes()
         }
 
         _ = try? await resolveDestinationTask?.value
     }
 
-    func clear() {
-        _addressTypes = []
-    }
-
     // MARK: - Private Implementation
 
-    private func resolveReceiveAssets(with domainNameAddressResolver: DomainNameAddressResolver) async {
-        for addressInfo in _addressInfos {
+    private func resolveDomainAddressTypes() async {
+        guard let domainAddressResolver else {
+            return
+        }
+
+        for addressInfo in addressInfos {
             do {
-                let resolveDomainName = try await domainNameAddressResolver.resolveDomainName(addressInfo.address)
+                let resolveDomainName = try await domainAddressResolver.resolveDomainName(addressInfo.address)
                 _addressTypes.append(.domain(resolveDomainName, addressInfo))
             } catch is CancellationError {
                 // Do Nothig
@@ -87,14 +81,17 @@ extension CommonReceiveAddressService: ReceiveAddressService {
         }
     }
 
-    private func resolveReceiveAssetsWithoutDomainResolver() async {
-        _addressTypes = _addressInfos.map { ReceiveAddressType.address($0) }
+    private func updateReceiveAddressTypes(with addresses: [Address]) {
+        let addressInfos = receiveAddressInfoUtils.makeAddressInfos(from: addresses)
+        _addressTypes = addressInfos.map { ReceiveAddressType.address($0) }
     }
 }
 
 // MARK: - Dummy
 
 class DummyReceiveAddressService: ReceiveAddressService {
+    private let receiveAddressInfoUtils = ReceiveAddressInfoUtils(colorScheme: .whiteBlack)
+
     var addressTypes: [ReceiveAddressType] {
         _addressInfos.map { .address($0) }
     }
@@ -103,13 +100,13 @@ class DummyReceiveAddressService: ReceiveAddressService {
         _addressInfos
     }
 
-    func update(with addresses: [Address]) async {}
-
-    func clear() {}
+    func update(with addresses: [Address]) async {
+        _addressInfos = receiveAddressInfoUtils.makeAddressInfos(from: addresses)
+    }
 
     // MARK: - Private Properties
 
-    private let _addressInfos: [ReceiveAddressInfo]
+    private var _addressInfos: [ReceiveAddressInfo]
 
     // MARK: - Init
 

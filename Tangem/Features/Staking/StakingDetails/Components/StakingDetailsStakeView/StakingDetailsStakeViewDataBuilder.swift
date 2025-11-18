@@ -14,7 +14,7 @@ import SwiftUI
 
 class StakingDetailsStakeViewDataBuilder {
     private lazy var balanceFormatter = BalanceFormatter()
-    private lazy var percentFormatter = PercentFormatter()
+    private lazy var rewardRateFormatter = StakingValidatorRewardRateFormatter()
     private lazy var dateFormatter = DateComponentsFormatter.staking()
 
     private let tokenItem: TokenItem
@@ -23,7 +23,7 @@ class StakingDetailsStakeViewDataBuilder {
         self.tokenItem = tokenItem
     }
 
-    func mapToStakingDetailsStakeViewData(yield: YieldInfo, balance: StakingBalance, action: @escaping () -> Void) -> StakingDetailsStakeViewData {
+    func mapToStakingDetailsStakeViewData(yield: StakingYieldInfo, balance: StakingBalance, action: @escaping () -> Void) -> StakingDetailsStakeViewData {
         let validator = balance.validatorType.validator
         let inProgress = balance.inProgress
 
@@ -42,7 +42,12 @@ class StakingDetailsStakeViewDataBuilder {
         case .unstaked: .withdraw
         case .warmup: .warmup(period: yield.warmupPeriod.formatted(formatter: dateFormatter))
         case .active, .pending:
-            validator?.apr.map { .active(apr: percentFormatter.format($0, option: .staking)) }
+            validator.map {
+                .active(
+                    type: rewardRateFormatter.title(rewardType: $0.rewardType, type: .short),
+                    rate: rewardRateFormatter.percent(rewardRate: $0.rewardRate)
+                )
+            }
         case .unbonding(let date):
             date.map { .unbonding(until: $0) } ?? .unbondingPeriod(period: yield.unbondingPeriod.formatted(formatter: dateFormatter))
         }

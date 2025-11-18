@@ -18,9 +18,9 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
 
     // MARK: - Published property
 
-    @Published private(set) var actionButtonsBuyViewModel: ActionButtonsBuyViewModel?
-    @Published private(set) var sendCoordinator: SendCoordinator? = nil
-    @Published var addToPortfolioBottomSheetInfo: HotCryptoAddToPortfolioModel?
+    @Published private(set) var viewState: RootViewState?
+
+    @Published var addToPortfolioBottomSheetInfo: HotCryptoAddToPortfolioBottomSheetViewModel?
 
     // MARK: - Private property
 
@@ -37,13 +37,19 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
     func start(with options: Options) {
         switch options {
         case .default(let options):
-            actionButtonsBuyViewModel = ActionButtonsBuyViewModel(
-                tokenSelectorViewModel: makeTokenSelectorViewModel(
-                    expressTokensListAdapter: options.expressTokensListAdapter,
-                    tokenSorter: options.tokenSorter
-                ),
-                coordinator: self,
-                userWalletModel: options.userWalletModel
+            viewState = .tokenList(
+                ActionButtonsBuyViewModel(
+                    tokenSelectorViewModel: makeTokenSelectorViewModel(
+                        expressTokensListAdapter: options.expressTokensListAdapter,
+                        tokenSorter: options.tokenSorter
+                    ),
+                    coordinator: self,
+                    userWalletModel: options.userWalletModel
+                )
+            )
+        case .new:
+            viewState = .newTokenList(
+                NewActionButtonsBuyViewModel(coordinator: self)
             )
         }
     }
@@ -59,23 +65,35 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(userWalletModel: userWalletModel)
+            ),
             type: .onramp(),
             source: .actionButtons
         )
         coordinator.start(with: options)
-        sendCoordinator = coordinator
+        viewState = .onramp(coordinator)
     }
 
-    func openBuyCrypto(at url: URL) {
-        safariHandle = safariManager.openURL(url) { [weak self] _ in
-            self?.safariHandle = nil
+    func openOnramp(input: SendInput) {
+        let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.dismiss()
         }
+
+        let coordinator = SendCoordinator(dismissAction: dismissAction)
+        let options = SendCoordinator.Options(
+            input: input,
+            type: .onramp(),
+            source: .actionButtons
+        )
+        coordinator.start(with: options)
+        viewState = .onramp(coordinator)
     }
 
-    func openAddToPortfolio(_ infoModel: HotCryptoAddToPortfolioModel) {
-        addToPortfolioBottomSheetInfo = infoModel
+    func openAddToPortfolio(viewModel: HotCryptoAddToPortfolioBottomSheetViewModel) {
+        addToPortfolioBottomSheetInfo = viewModel
     }
 
     func closeAddToPortfolio() {
@@ -88,11 +106,27 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
 extension ActionButtonsBuyCoordinator {
     enum Options {
         case `default`(options: DefaultActionButtonBuyCoordinatorOptions)
+        case new
 
         struct DefaultActionButtonBuyCoordinatorOptions {
             let userWalletModel: UserWalletModel
             let expressTokensListAdapter: ExpressTokensListAdapter
             let tokenSorter: TokenAvailabilitySorter
+        }
+    }
+
+    enum RootViewState: Equatable {
+        case tokenList(ActionButtonsBuyViewModel)
+        case newTokenList(NewActionButtonsBuyViewModel)
+        case onramp(SendCoordinator)
+
+        static func == (lhs: RootViewState, rhs: RootViewState) -> Bool {
+            switch (lhs, rhs) {
+            case (.tokenList, .tokenList): true
+            case (.newTokenList, .newTokenList): true
+            case (.onramp, .onramp): true
+            default: false
+            }
         }
     }
 }

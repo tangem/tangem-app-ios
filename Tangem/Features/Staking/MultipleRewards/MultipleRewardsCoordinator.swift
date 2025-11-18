@@ -63,7 +63,11 @@ extension MultipleRewardsCoordinator: MultipleRewardsRoutable {
         })
 
         coordinator.start(with: .init(
-            input: .init(userWalletModel: options.userWalletModel, walletModel: options.walletModel),
+            input: .init(
+                userWalletInfo: options.userWalletModel.userWalletInfo,
+                walletModel: options.walletModel,
+                expressInput: .init(userWalletModel: options.userWalletModel)
+            ),
             type: .stakingSingleAction(manager: options.manager, action: action),
             source: .stakingDetails
         ))

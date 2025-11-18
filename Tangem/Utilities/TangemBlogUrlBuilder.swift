@@ -25,6 +25,8 @@ extension TangemBlogUrlBuilder {
         case refundedDex
         case whatIsStaking
         case seedNotify
+        case mobileVsHardware
+        case giveRevokePermission
     }
 
     enum Root {
@@ -45,6 +47,10 @@ private extension TangemBlogUrlBuilder.Post {
             "how-to-stake-cryptocurrency"
         case .seedNotify:
             "seed-notify"
+        case .mobileVsHardware:
+            "mobile-vs-hardware"
+        case .giveRevokePermission:
+            "give-revoke-permission"
         }
     }
 }

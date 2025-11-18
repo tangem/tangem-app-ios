@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemNFT
 
 actor CommonAccountModelsManager {
     private typealias AccountId = CommonCryptoAccountModel.AccountId
@@ -23,6 +24,7 @@ actor CommonAccountModelsManager {
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
     private let walletModelsManagerFactory: AccountWalletModelsManagerFactory
     private let userTokensManagerFactory: AccountUserTokensManagerFactory
+
     private let userWalletId: UserWalletId
     private let executor: any SerialExecutor
     private let areHDWalletsSupported: Bool
@@ -45,12 +47,18 @@ actor CommonAccountModelsManager {
         self.areHDWalletsSupported = areHDWalletsSupported
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
-        initialize() // [REDACTED_TODO_COMMENT]
+        CryptoAccountsGlobalStateProvider.shared.register(self, forIdentifier: userWalletId)
+        initialize()
+    }
+
+    deinit {
+        // [REDACTED_TODO_COMMENT]
+        CryptoAccountsGlobalStateProvider.shared.unregister(self, forIdentifier: userWalletId)
     }
 
     private nonisolated func initialize() {
         runTask(in: self, isDetached: true) { manager in
-            await manager.cryptoAccountsRepository.initialize()
+            await manager.cryptoAccountsRepository.initialize(forUserWalletWithId: manager.userWalletId)
         }
     }
 
@@ -104,6 +112,7 @@ actor CommonAccountModelsManager {
                 userWalletId: userWalletId,
                 walletModelsManager: walletModelsManager
             )
+
             let cryptoAccount = CommonCryptoAccountModel(
                 userWalletId: userWalletId,
                 accountName: storedCryptoAccount.name,
@@ -131,10 +140,13 @@ actor CommonAccountModelsManager {
             var cache: Cache = [:]
             let publisher = cryptoAccountsRepository
                 .cryptoAccountsPublisher
+                .combineLatest(CryptoAccountsGlobalStateProvider.shared.statePublisher)
                 .withWeakCaptureOf(self)
-                .asyncMap { manager, cryptoAccounts -> [AccountModel] in
-                    let cryptoAccountModels = await manager.makeCryptoAccountModels(from: cryptoAccounts, cache: &cache)
-                    let cryptoAccounts = CryptoAccounts(accounts: cryptoAccountModels)
+                .asyncMap { manager, input -> [AccountModel] in
+                    let (storedCryptoAccounts, globalState) = input
+                    let cryptoAccountModels = await manager.makeCryptoAccountModels(from: storedCryptoAccounts, cache: &cache)
+                    let cryptoAccountsBuilder = CryptoAccountsBuilder(globalState: globalState)
+                    let cryptoAccounts = cryptoAccountsBuilder.build(from: cryptoAccountModels)
 
                     return [
                         .standard(cryptoAccounts),
@@ -180,6 +192,16 @@ extension CommonAccountModelsManager: AccountModelsManager {
         areHDWalletsSupported
     }
 
+    // [REDACTED_TODO_COMMENT]
+    nonisolated var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+        .just(output: true)
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    nonisolated var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: 0)
+    }
+
     nonisolated var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
         makeOrGetAccountModelsPublisher()
     }
@@ -202,12 +224,24 @@ extension CommonAccountModelsManager: AccountModelsManager {
         cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: [])
     }
 
-    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws(AccountModelsManagerError) {
+    func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
+        // [REDACTED_TODO_COMMENT]
+        return []
+    }
+
+    nonisolated func archiveCryptoAccount(
+        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
+    ) throws(AccountModelsManagerError) {
         if identifier.isMainAccount {
             throw .cannotArchiveCryptoAccount
         }
 
         cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
+    }
+
+    nonisolated func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
+        // [REDACTED_TODO_COMMENT]
+        throw .cannotUnarchiveCryptoAccount
     }
 }
 

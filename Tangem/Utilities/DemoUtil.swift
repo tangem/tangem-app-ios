@@ -59,13 +59,13 @@ struct DemoUtil {
     }
 }
 
-private extension DemoUtil {
+extension DemoUtil {
     /**
      * @workaround
      * There were produced 20k Note demo cards that should work like multi wallet
      * for that reasons we've just added some specific checks for their BatchId
      */
-    static let demoNoteAsMultiWalletBatch = "DE00"
+    private static let demoNoteAsMultiWalletBatch = "DE00"
 
     var demoCardIds: [String] {
         [

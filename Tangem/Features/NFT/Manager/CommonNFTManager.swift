@@ -37,8 +37,7 @@ final class CommonNFTManager: NFTManager {
     }
 
     private lazy var networkServicesPublisher: some Publisher<[(any WalletModel, NFTNetworkService)], Never> = {
-        let walletModelsPublisher = walletModelsManager
-            .walletModelsPublisher
+        let walletModelsPublisher = walletModelsPublisher
             .removeDuplicates()
 
         return walletModelsPublisher
@@ -172,7 +171,7 @@ final class CommonNFTManager: NFTManager {
     private var updateAssetsPublisher: some Publisher<NFTCollection, Never> { updateAssetsSubject }
     private let updateAssetsSubject: some Subject<NFTCollection, Never> = PassthroughSubject()
 
-    private let walletModelsManager: WalletModelsManager
+    private let walletModelsPublisher: AnyPublisher<[any WalletModel], Never>
     private let cache: NFTCache
     private let cacheDelegate: NFTCacheDelegate
     private let updater: Updater
@@ -180,11 +179,12 @@ final class CommonNFTManager: NFTManager {
 
     init(
         userWalletId: UserWalletId,
+        walletModelsPublisher: AnyPublisher<[any WalletModel], Never>,
         walletModelsManager: WalletModelsManager,
         analytics: NFTAnalytics.Error
     ) {
-        self.walletModelsManager = walletModelsManager
         self.analytics = analytics
+        self.walletModelsPublisher = walletModelsPublisher
 
         let cache = NFTCache(userWalletId: userWalletId)
         let cacheDelegate = CommonNFTCacheDelegate(walletModelsManager: walletModelsManager)
