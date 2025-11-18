@@ -10,15 +10,14 @@ import Foundation
 import Moya
 
 struct TangemApiAuthorizationPlugin: PluginType {
-    @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    private let apiKeyProvider = TangemAPIKeyProvider()
 
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         var request = request
 
-        let apiKey = getApiKey()
-        if !apiKey.isEmpty {
-            request.headers.add(name: "api-key", value: apiKey)
+        if let apiKeyHeader = apiKeyProvider.getApiKeyHeader() {
+            request.headers.add(name: apiKeyHeader.name, value: apiKeyHeader.value)
         }
 
         if let authDataFromSelectedOrAnyModel = userWalletRepository.selectedModel?.tangemApiAuthData ??
@@ -28,19 +27,6 @@ struct TangemApiAuthorizationPlugin: PluginType {
         }
 
         return request
-    }
-
-    private func getApiKey() -> String {
-        switch FeatureStorage.instance.tangemAPIType {
-        case .prod:
-            keysManager.tangemApiKey
-        case .dev:
-            keysManager.tangemApiKeyDev
-        case .stage:
-            keysManager.tangemApiKeyStage
-        case .mock:
-            ""
-        }
     }
 }
 

@@ -15,6 +15,7 @@ public enum UIFonts {
         public static let subheadline = UIFont.preferredFont(forTextStyle: .subheadline)
         public static let caption1 = UIFont.preferredFont(forTextStyle: .caption1)
         public static let caption2 = UIFont.preferredFont(forTextStyle: .caption2)
+        public static let footnote = UIFont.preferredFont(forTextStyle: .footnote)
     }
 
     public enum Bold {

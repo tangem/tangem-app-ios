@@ -19,6 +19,10 @@ struct AddCustomTokenView: View {
     @FocusState private var isFocusedSymbolField: Bool
     @FocusState private var isFocusedDecimalsField: Bool
 
+    private var addingIcon: MainButton.Icon? {
+        viewModel.needsCardDerivation ? .trailing(Assets.tangemIcon) : nil
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
@@ -78,7 +82,7 @@ struct AddCustomTokenView: View {
 
             MainButton(
                 title: Localization.commonAddToken,
-                icon: viewModel.showDerivationPaths ? .trailing(Assets.tangemIcon) : nil,
+                icon: addingIcon,
                 isLoading: viewModel.isLoading,
                 isDisabled: viewModel.addButtonDisabled,
                 action: viewModel.createToken
@@ -251,7 +255,11 @@ private struct TextInputWithTitle: View {
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
     let coordinator = AddCustomTokenCoordinator()
-    coordinator.start(with: .init(userWalletModel: userWalletModel, analyticsSourceRawValue: "preview"))
+    coordinator.start(with: .init(
+        userWalletConfig: userWalletModel.config,
+        userTokensManager: userWalletModel.userTokensManager,
+        analyticsSourceRawValue: "preview"
+    ))
 
     return AddCustomTokenCoordinatorView(coordinator: coordinator)
 }

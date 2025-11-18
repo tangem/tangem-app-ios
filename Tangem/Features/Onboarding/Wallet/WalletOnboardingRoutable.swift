@@ -9,5 +9,5 @@
 import Foundation
 
 protocol WalletOnboardingRoutable: OnboardingRoutable, OnboardingBrowserRoutable {
-    func openAccessCodeView(callback: @escaping (String) -> Void)
+    func openAccessCodeView(analyticsContextParams: Analytics.ContextParams, callback: @escaping (String) -> Void)
 }

@@ -17,6 +17,7 @@ public protocol WalletManager: WalletProvider,
     TransactionSender,
     TransactionCreator,
     TransactionFeeProvider,
+    YieldSupplyServiceProvider,
     TransactionValidator {}
 
 public enum WalletManagerState {
@@ -99,6 +100,16 @@ public protocol TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError>
 }
 
+// MARK: - MultipleTransactionSender
+
+/// transactions expected to be signed in one tap and sent in initially provided order
+public protocol MultipleTransactionsSender {
+    func send(
+        _ transactions: [Transaction],
+        signer: TransactionSigner
+    ) -> AnyPublisher<[TransactionSendResult], SendTxError>
+}
+
 public protocol CompiledTransactionSender {
     func send(compiledTransaction data: Data, signer: TransactionSigner) async throws -> TransactionSendResult
 }
@@ -156,4 +167,10 @@ extension AssetRequirementsManager {
     func discardRequirements(for asset: Asset) {
         // No-op
     }
+}
+
+// MARK: - MinimalBalanceProvider
+
+public protocol MinimalBalanceProvider {
+    func minimalBalance() -> Decimal
 }

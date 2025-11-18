@@ -57,7 +57,7 @@ struct HighPriceImpactCalculator {
 
     private func makeMessage(provider: ExpressProvider, isHighPriceImpact: Bool) -> String {
         let slippageFormatted: String? = provider.slippage.map { slippage in
-            percentFormatter.format(slippage, option: .init(fractionDigits: 0, clearPrefix: true))
+            percentFormatter.format(slippage, option: .slippage)
         }
 
         let cexDescription: String = if let slippageFormatted {
