@@ -279,7 +279,7 @@ private extension TokenDetailsViewModel {
     private func bind() {
         walletModel.yieldModuleManager?.statePublisher
             .compactMap { $0 }
-            .filter { $0.state != .loading }
+            .filter { !$0.state.isLoading }
             .receiveOnMain()
             .sink { [weak self] state in
                 self?.updateYieldAvailability(state: state)
