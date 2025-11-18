@@ -83,6 +83,19 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
         Analytics.log(.swapButtonPermissionCancel)
         coordinator?.userDidCancel()
     }
+
+    func didTapLearnMore() {
+        if case .token(let token, _) = tokenItem {
+            Analytics.log(
+                event: .swapButtonPermissionLearnMore,
+                params: [
+                    .blockchain: tokenItem.blockchain.displayName,
+                    .token: token.name,
+                ]
+            )
+        }
+        coordinator?.openLearnMore()
+    }
 }
 
 // MARK: - Navigation
@@ -90,15 +103,7 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
 extension ExpressApproveViewModel {
     @MainActor
     func didSendApproveTransaction() {
-        // We have to wait when the iOS close the nfc view that close this permission view
-        didBecomeActiveNotificationCancellable = NotificationCenter
-            .default
-            .publisher(for: UIApplication.didBecomeActiveNotification)
-            .delay(for: 0.3, scheduler: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
-                viewModel.coordinator?.didSendApproveTransaction()
-            }
+        coordinator?.didSendApproveTransaction()
     }
 }
 
@@ -150,6 +155,7 @@ private extension ExpressApproveViewModel {
         runTask(in: self) { viewModel in
             do {
                 try await viewModel.approveViewModelInput.sendApproveTransaction()
+                try await Task.sleep(seconds: 0.3)
                 await viewModel.didSendApproveTransaction()
             } catch TransactionDispatcherResult.Error.userCancelled {
                 // Do nothing
