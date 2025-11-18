@@ -10,8 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 
-public struct FloatingSheetView<HostContent: View>: View {
-    private let hostContent: HostContent
+public struct FloatingSheetView: View {
     private let viewModel: (any FloatingSheetContentViewModel)?
     private let dismissSheetAction: () -> Void
 
@@ -25,8 +24,7 @@ public struct FloatingSheetView<HostContent: View>: View {
 
     @Environment(\.floatingSheetRegistry) private var registry: FloatingSheetRegistry
 
-    public init(hostContent: HostContent, viewModel: (any FloatingSheetContentViewModel)?, dismissSheetAction: @escaping () -> Void) {
-        self.hostContent = hostContent
+    public init(viewModel: (any FloatingSheetContentViewModel)?, dismissSheetAction: @escaping () -> Void) {
         self.viewModel = viewModel
         self.dismissSheetAction = dismissSheetAction
     }
@@ -34,7 +32,6 @@ public struct FloatingSheetView<HostContent: View>: View {
     public var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .bottom) {
-                hostContent
                 backgroundView
                 sheetContent(proxy)
             }
@@ -66,7 +63,7 @@ public struct FloatingSheetView<HostContent: View>: View {
     }
 
     private var backgroundView: some View {
-        Colors.Overlays.overlaySecondary
+        BackgroundViewRepresentable()
             .opacity(viewModel == nil ? .zero : 1)
             .ignoresSafeArea()
             .allowsHitTesting(sheetContentConfiguration.backgroundInteractionBehavior != .passTouchesThrough)
@@ -184,4 +181,30 @@ private extension Animation {
 
 private extension AnyTransition {
     static let slideFromBottom = AnyTransition.move(edge: .bottom)
+}
+
+/// A ``UIView`` wrapper that allows ``TangemUIUtils.PassthroughWindow.hitTest(_:with:)`` method to work properly in iOS 26.0, *.
+private struct BackgroundViewRepresentable: UIViewRepresentable {
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            false
+        }
+    }
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        view.backgroundColor = UIColor(Colors.Overlays.overlaySecondary)
+
+        let anyGestureRecognizer = UITapGestureRecognizer()
+        anyGestureRecognizer.delegate = context.coordinator
+        view.addGestureRecognizer(anyGestureRecognizer)
+
+        return view
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
 }
