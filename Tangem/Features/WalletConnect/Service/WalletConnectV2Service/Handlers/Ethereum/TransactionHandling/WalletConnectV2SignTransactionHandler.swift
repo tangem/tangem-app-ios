@@ -11,7 +11,7 @@ import BlockchainSdk
 import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
 
-class WalletConnectV2SignTransactionHandler {
+final class WalletConnectV2SignTransactionHandler {
     private var wcTransaction: WalletConnectEthTransaction
     private var sendableTransaction: WCSendableTransaction?
     private let walletModel: any WalletModel
@@ -31,9 +31,7 @@ class WalletConnectV2SignTransactionHandler {
         do {
             let params = try requestParams.get([WalletConnectEthTransaction].self)
             guard let ethTransaction = params.first else {
-                throw WalletConnectTransactionRequestProcessingError.notEnoughDataInRequest(
-                    requestParams.description
-                )
+                throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
             }
 
             wcTransaction = ethTransaction

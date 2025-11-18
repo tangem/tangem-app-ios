@@ -26,7 +26,14 @@ struct ExpressApproveView: View {
                 GroupedSection(viewModel.menuRowViewModel) {
                     DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction)
                 } footer: {
-                    DefaultFooterView(Localization.givePermissionPolicyTypeFooter)
+                    Button(action: viewModel.didTapLearnMore) {
+                        Group {
+                            Text("\(Localization.givePermissionPolicyTypeFooter) ")
+                                + Text(Localization.commonLearnMore).foregroundColor(Colors.Text.accent)
+                        }
+                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                        .multilineTextAlignment(.leading)
+                    }
                 }
                 .backgroundColor(Colors.Background.action)
 
@@ -123,6 +130,8 @@ struct ExpressApproveView_Preview: PreviewProvider {
         func userDidCancel() {
             item = nil
         }
+
+        func openLearnMore() {}
     }
 
     static var previews: some View {
