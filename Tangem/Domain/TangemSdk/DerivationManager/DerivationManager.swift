@@ -14,5 +14,6 @@ protocol DerivationManager {
     var hasPendingDerivations: AnyPublisher<Bool, Never> { get }
     var pendingDerivationsCount: AnyPublisher<Int, Never> { get }
 
+    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork], interactor: KeysDeriving) -> Bool
     func deriveKeys(interactor: KeysDeriving, completion: @escaping (Result<Void, Error>) -> Void)
 }
