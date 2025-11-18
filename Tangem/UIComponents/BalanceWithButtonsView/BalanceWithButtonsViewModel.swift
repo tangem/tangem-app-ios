@@ -66,7 +66,7 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
 
         yieldModuleStatusProvider
             .yieldModuleState
-            .filter { $0.state != .loading }
+            .filter { !$0.state.isLoading }
             .receiveOnMain()
             .map { $0.state.isEffectivelyActive && $0.marketInfo != nil }
             .removeDuplicates()
