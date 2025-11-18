@@ -10,6 +10,7 @@
 import SwiftUI
 import IdensicMobileSDK
 import TangemAssets
+import TangemUI
 import UIKit
 
 extension UIViewController {
@@ -125,37 +126,6 @@ private extension UIViewController {
                 circleColor: UIColor(Colors.Button.secondary),
                 iconColor: UIColor(Colors.Icon.informative)
             )
-    }
-}
-
-private extension UIImage {
-    func withCircleBackground(
-        circleSize: CGFloat,
-        iconSize: CGFloat,
-        circleColor: UIColor,
-        iconColor: UIColor
-    ) -> UIImage {
-        UIGraphicsImageRenderer(size: CGSize(width: circleSize, height: circleSize))
-            .image { context in
-                let rect = CGRect(origin: .zero, size: CGSize(width: circleSize, height: circleSize))
-                circleColor.setFill()
-                context.cgContext.fillEllipse(in: rect)
-
-                let finalIcon = self
-                    .withRenderingMode(.alwaysOriginal)
-                    .withTintColor(iconColor, renderingMode: .alwaysOriginal)
-
-                let iconOffset = (circleSize - iconSize) / 2
-                finalIcon.draw(
-                    in: CGRect(
-                        x: iconOffset,
-                        y: iconOffset,
-                        width: iconSize,
-                        height: iconSize
-                    )
-                )
-            }
-            .withRenderingMode(.alwaysOriginal)
     }
 }
 #endif // ALPHA || BETA || DEBUG
