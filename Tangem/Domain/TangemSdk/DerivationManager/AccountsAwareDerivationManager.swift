@@ -52,11 +52,11 @@ extension _AccountsAwareDerivationManager: DerivationManager {
             .eraseToAnyPublisher()
     }
 
-    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork], interactor: any KeysDeriving) -> Bool {
+    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool {
         fatalError()
     }
 
-    func deriveKeys(interactor: any KeysDeriving, completion: @escaping (Result<Void, any Error>) -> Void) {
+    func deriveKeys(completion: @escaping (Result<Void, any Error>) -> Void) {
         fatalError()
     }
 }
@@ -66,6 +66,7 @@ extension _AccountsAwareDerivationManager: DerivationManager {
 final class AccountsAwareDerivationManager {
     private let keysRepository: KeysRepository
     private let accountModelsManager: AccountModelsManager
+    private weak var keysDerivingProvider: KeysDerivingProvider?
     private let pendingDerivations: CurrentValueSubject<[PendingDerivation], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
 
@@ -76,6 +77,11 @@ final class AccountsAwareDerivationManager {
         self.keysRepository = keysRepository
         self.accountModelsManager = accountModelsManager
         bind()
+    }
+
+    func configure(with keysDerivingProvider: KeysDerivingProvider) {
+        assert(self.keysDerivingProvider == nil, "An attempt to override already configured keysDerivingProvider instance")
+        self.keysDerivingProvider = keysDerivingProvider
     }
 
     private func bind() {

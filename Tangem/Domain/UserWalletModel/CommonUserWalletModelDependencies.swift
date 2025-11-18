@@ -122,6 +122,7 @@ struct CommonUserWalletModelDependencies {
     }
 
     func update(from model: UserWalletModel) {
+        derivationManager?.configure(with: model)
         dependenciesConfigurator.configure(with: model)
     }
 }
@@ -278,6 +279,7 @@ private extension CommonUserWalletModelDependencies {
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
         let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
             derivationStyle: config.derivationStyle,
+            derivationManager: nil, // [REDACTED_TODO_COMMENT]
             keysRepository: keysRepository,
             walletManagerFactory: walletManagerFactory,
             existingCurves: config.existingCurves,
@@ -391,8 +393,7 @@ private extension CommonUserWalletModelDependencies {
         }
 
         func configure(with model: UserWalletModel) {
-            userTokensManager.keysDerivingProvider = model
-            // `keysDerivingProvider` is the last dependency to inject, so it's safe to trigger initial synchronization here
+            // The dependency graph is complete at this stage, so it's safe to trigger initial synchronization here
             userTokensManager.sync {}
             hasConfiguredWithUserWalletModel = true
         }
