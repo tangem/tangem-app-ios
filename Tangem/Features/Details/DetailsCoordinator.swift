@@ -29,7 +29,6 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
     @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator?
-    @Published var importWalletSelectorCoordinator: ImportWalletSelectorCoordinator?
 
     // MARK: - Child view models
 
@@ -114,20 +113,6 @@ extension DetailsCoordinator: DetailsRoutable {
         let inputOptions = CreateWalletSelectorCoordinator.InputOptions()
         coordinator.start(with: inputOptions)
         createWalletSelectorCoordinator = coordinator
-    }
-
-    func openImportWallet() {
-        let dismissAction: Action<ImportWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
-            switch options {
-            case .main:
-                self?.dismiss()
-            }
-        }
-
-        let coordinator = ImportWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = ImportWalletSelectorCoordinator.InputOptions()
-        coordinator.start(with: inputOptions)
-        importWalletSelectorCoordinator = coordinator
     }
 
     func openAppSettings() {

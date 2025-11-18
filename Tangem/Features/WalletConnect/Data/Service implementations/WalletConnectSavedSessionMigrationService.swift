@@ -69,7 +69,7 @@ final class WalletConnectSavedSessionMigrationService {
         }
 
         guard let dAppDomain = URL(string: legacySession.sessionInfo.dAppInfo.url) else {
-            throw Error.invalidDAppDomain
+            throw Error.invalidDAppURL(legacySession.sessionInfo.dAppInfo.url)
         }
 
         async let verificationStatus = (try? await dAppVerificationService.verify(dAppDomain: dAppDomain)) ?? .unknownDomain
@@ -106,8 +106,18 @@ final class WalletConnectSavedSessionMigrationService {
 }
 
 extension WalletConnectSavedSessionMigrationService {
-    enum Error: Swift.Error {
+    enum Error: LocalizedError {
         case userWalletNotFound
-        case invalidDAppDomain
+        case invalidDAppURL(String)
+
+        var errorDescription: String? {
+            switch self {
+            case .userWalletNotFound:
+                "DApp session migration failed because user wallet was not found."
+
+            case .invalidDAppURL(let rawDomainString):
+                "DApp migration operation failed because domain string is not a valid URL. Raw value: \(rawDomainString)"
+            }
+        }
     }
 }
