@@ -13,7 +13,7 @@ import BlockchainSdk
 final class CommonDerivationManager {
     private let keysRepository: KeysRepository
     private let userTokensManager: UserTokensManager
-
+    private weak var keysDerivingProvider: KeysDerivingProvider?
     private var bag = Set<AnyCancellable>()
     private let pendingDerivations: CurrentValueSubject<[PendingDerivation], Never> = .init([])
 
@@ -21,6 +21,11 @@ final class CommonDerivationManager {
         self.keysRepository = keysRepository
         self.userTokensManager = userTokensManager
         bind()
+    }
+
+    func configure(with keysDerivingProvider: KeysDerivingProvider) {
+        assert(self.keysDerivingProvider == nil, "An attempt to override already configured keysDerivingProvider instance")
+        self.keysDerivingProvider = keysDerivingProvider
     }
 
     private func bind() {
@@ -57,8 +62,11 @@ extension CommonDerivationManager: DerivationManager {
             .eraseToAnyPublisher()
     }
 
-    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork], interactor: KeysDeriving) -> Bool {
-        guard interactor.requiresCard else {
+    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool {
+        guard
+            let interactor = keysDerivingProvider?.keysDerivingInteractor,
+            interactor.requiresCard
+        else {
             return false
         }
 
@@ -74,8 +82,11 @@ extension CommonDerivationManager: DerivationManager {
         return addingDerivations.isNotEmpty || filteredPendingDerivations.isNotEmpty
     }
 
-    func deriveKeys(interactor: KeysDeriving, completion: @escaping (Result<Void, Error>) -> Void) {
-        guard !pendingDerivations.value.isEmpty else {
+    func deriveKeys(completion: @escaping (Result<Void, Error>) -> Void) {
+        guard
+            pendingDerivations.value.isNotEmpty,
+            let interactor = keysDerivingProvider?.keysDerivingInteractor
+        else {
             completion(.success(()))
             return
         }
