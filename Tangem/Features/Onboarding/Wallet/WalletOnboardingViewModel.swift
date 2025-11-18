@@ -940,6 +940,20 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
         }
     }
+
+    private func ensureWalletIsNotAlreadyAdded(mnemonic: Mnemonic, passphrase: String) throws {
+        let curve = EllipticCurve.secp256k1
+
+        let masterKeyFactory = AnyMasterKeyFactory(mnemonic: mnemonic, passphrase: passphrase)
+        let extendedPrivateKey = try masterKeyFactory.makeMasterKey(for: curve)
+        let extendedPublicKey = try extendedPrivateKey.makePublicKey(for: curve)
+        let publicKeyData = extendedPublicKey.publicKey
+        let userWalletId = UserWalletId(with: publicKeyData)
+
+        guard !userWalletRepository.models.contains(where: { $0.userWalletId == userWalletId }) else {
+            throw UserWalletRepositoryError.duplicateWalletAdded
+        }
+    }
 }
 
 // MARK: - Seed phrase related
@@ -1012,15 +1026,21 @@ extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
 
 extension WalletOnboardingViewModel: SeedPhraseImportDelegate {
     func importSeedPhrase(mnemonic: Mnemonic, passphrase: String) {
-        let isWithPassphrase = !passphrase.isEmpty
-        createWalletOnPrimaryCard(
-            using: mnemonic,
-            mnemonicPassphrase: passphrase,
-            walletCreationType: .seedImport(
-                length: mnemonic.mnemonicComponents.count,
-                isWithPassphrase: isWithPassphrase
+        do {
+            try ensureWalletIsNotAlreadyAdded(mnemonic: mnemonic, passphrase: passphrase)
+
+            let isWithPassphrase = !passphrase.isEmpty
+            createWalletOnPrimaryCard(
+                using: mnemonic,
+                mnemonicPassphrase: passphrase,
+                walletCreationType: .seedImport(
+                    length: mnemonic.mnemonicComponents.count,
+                    isWithPassphrase: isWithPassphrase
+                )
             )
-        )
+        } catch {
+            alert = error.alertBinder
+        }
     }
 }
 
@@ -1053,7 +1073,7 @@ extension WalletOnboardingViewModel {
 
 extension WalletOnboardingViewModel {
     func openAccessCode() {
-        coordinator?.openAccessCodeView(callback: saveAccessCode)
+        coordinator?.openAccessCodeView(analyticsContextParams: getContextParams(), callback: saveAccessCode)
     }
 }
 

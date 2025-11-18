@@ -34,17 +34,41 @@ extension NotificationEvent where Self: Hashable {
 
 extension NotificationEvent {
     var accessibilityIdentifier: String? {
-        guard let generalEvent = self as? GeneralNotificationEvent else {
-            return nil
+        if let generalEvent = self as? GeneralNotificationEvent {
+            switch generalEvent {
+            case .devCard:
+                return MainAccessibilityIdentifiers.developerCardBanner
+            case .seedSupport:
+                return MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner
+            case .missingDerivation:
+                return MainAccessibilityIdentifiers.missingDerivationNotification
+            default:
+                return nil
+            }
+        } else if let sendNotificationEvent = self as? SendNotificationEvent {
+            switch sendNotificationEvent {
+            case .validationErrorEvent(let event):
+                switch event {
+                case .dustRestriction:
+                    return SendAccessibilityIdentifiers.invalidAmountBanner
+                case .insufficientAmountToReserveAtDestination:
+                    return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
+                case .amountExceedMaximumUTXO:
+                    return SendAccessibilityIdentifiers.amountExceedMaximumUTXOBanner
+                default:
+                    return nil
+                }
+            default:
+                return nil
+            }
+        } else if let tokenEvent = self as? TokenNotificationEvent {
+            switch tokenEvent {
+            case .noAccount:
+                return TokenAccessibilityIdentifiers.topUpWalletBanner
+            default:
+                return nil
+            }
         }
-
-        switch generalEvent {
-        case .devCard:
-            return MainAccessibilityIdentifiers.developerCardBanner
-        case .seedSupport:
-            return MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner
-        default:
-            return nil
-        }
+        return nil
     }
 }

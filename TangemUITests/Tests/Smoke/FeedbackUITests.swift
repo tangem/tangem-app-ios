@@ -61,7 +61,7 @@ final class FeedbackUITests: BaseTestCase {
             .tapNextButton()
             .enterDestination(destinationAddress)
             .tapNextButton()
-            .tapNextButton()
+            .tapSendButton()
 
         TroubleShootSheet(app)
             .requestSupport()

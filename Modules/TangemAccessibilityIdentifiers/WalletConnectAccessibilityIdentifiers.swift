@@ -15,9 +15,6 @@ public enum WalletConnectAccessibilityIdentifiers {
     /// Header
     public static let headerTitle = "WalletConnect"
 
-    /// Provider/DApp info
-    public static let providerName = "wc_provider_name"
-
     /// Connection request section
     public static let connectionRequestLabel = "wc_connection_request"
 

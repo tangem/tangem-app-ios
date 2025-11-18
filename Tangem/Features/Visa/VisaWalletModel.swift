@@ -190,11 +190,14 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var transactionCreator: any TransactionCreator { transactionDependency }
     var transactionValidator: any TransactionValidator { transactionDependency }
     var transactionSender: any TransactionSender { transactionDependency }
+    var multipleTransactionsSender: (any MultipleTransactionsSender)? { nil }
     var compiledTransactionSender: (any CompiledTransactionSender)? { transactionDependency }
     var ethereumTransactionDataBuilder: (any EthereumTransactionDataBuilder)? { nil }
     var ethereumNetworkProvider: (any EthereumNetworkProvider)? { nil }
     var ethereumTransactionSigner: (any EthereumTransactionSigner)? { nil }
     var bitcoinTransactionFeeCalculator: (any BitcoinTransactionFeeCalculator)? { nil }
+    var accountInitializationService: (any BlockchainAccountInitializationService)? { nil }
+    var minimalBalanceProvider: (any MinimalBalanceProvider)? { nil }
 }
 
 extension VisaWalletModel: WalletModelTransactionHistoryProvider {
@@ -318,9 +321,9 @@ extension VisaWalletModel: WalletModel {
 
     var stakingManager: (any StakingManager)? { nil }
 
-    var stakeKitTransactionSender: (any StakeKitTransactionSender)? { nil }
+    var yieldModuleManager: (any YieldModuleManager)? { nil }
 
-    var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? { nil }
+    var stakeKitTransactionSender: (any StakeKitTransactionSender)? { nil }
 
     var account: any CryptoAccountModel {
         preconditionFailure("Visa should be implemented as a dedicated account type, not as a wallet model")

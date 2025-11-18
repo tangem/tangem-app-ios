@@ -23,8 +23,20 @@ extension DemoWalletModelsFactory: WalletModelsFactory {
         return factory.makeWalletModels(from: walletManager)
     }
 
-    func makeWalletModels(for types: [Amount.AmountType], walletManager: WalletManager) -> [any WalletModel] {
-        let models = factory.makeWalletModels(for: types, walletManager: walletManager)
+    func makeWalletModels(
+        for types: [Amount.AmountType],
+        walletManager: WalletManager,
+        blockchainNetwork: BlockchainNetwork
+    ) -> [any WalletModel] {
+        let blockchain = walletManager.wallet.blockchain
+        let derivationPath = walletManager.wallet.publicKey.derivationPath
+        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+
+        let models = factory.makeWalletModels(
+            for: types,
+            walletManager: walletManager,
+            blockchainNetwork: blockchainNetwork
+        )
 
         let demoUtil = DemoUtil()
 

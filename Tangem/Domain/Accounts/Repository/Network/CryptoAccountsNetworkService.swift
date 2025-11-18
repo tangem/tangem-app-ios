@@ -8,11 +8,8 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
 protocol CryptoAccountsNetworkService {
-    // [REDACTED_TODO_COMMENT]
-    func getCryptoAccounts(for walletId: String) async throws(CryptoAccountsNetworkServiceError) -> [StoredCryptoAccount]
-
-    // [REDACTED_TODO_COMMENT]
+    func getCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo
+    func getArchivedCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> [ArchivedCryptoAccountInfo]
     func save(cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError)
 }

@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import SwiftUI
 import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
@@ -18,7 +17,7 @@ import class TangemSdk.BiometricsUtil
 final class NewAuthViewModel: ObservableObject {
     @Published var state: State?
     @Published var alert: AlertBinder?
-    @Published var actionSheet: ActionSheetBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var isScanning: Bool = false
 
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
@@ -141,7 +140,11 @@ private extension NewAuthViewModel {
             let unlockResult = await unlocker.unlock()
 
             if case .success = unlockResult, unlocker.analyticsSignInType == .card {
-                Analytics.log(.cardWasScanned, params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue])
+                Analytics.log(
+                    .cardWasScanned,
+                    params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue],
+                    contextParams: .custom(userWalletModel.analyticsContextData)
+                )
             }
 
             await viewModel.handleUnlock(result: unlockResult, userWalletModel: userWalletModel, signInType: unlocker.analyticsSignInType)
@@ -277,36 +280,27 @@ private extension NewAuthViewModel {
     }
 
     func openAddWallet() {
-        let sheet = ActionSheet(
-            title: Text(Localization.authInfoAddWalletTitle),
+        let createNewWalletButton = ConfirmationDialogViewModel.Button(title: Localization.homeButtonCreateNewWallet) { [weak self] in
+            self?.openCreateWallet()
+        }
+
+        let buyTangemWalletButton = ConfirmationDialogViewModel.Button(title: Localization.detailsBuyWallet) { [weak self] in
+            self?.openBuyWallet()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.authInfoAddWalletTitle,
             buttons: [
-                .default(
-                    Text(Localization.homeButtonCreateNewWallet),
-                    action: weakify(self, forFunction: NewAuthViewModel.openCreateWallet)
-                ),
-                .default(
-                    Text(Localization.homeButtonAddExistingWallet),
-                    action: weakify(self, forFunction: NewAuthViewModel.openImportWallet)
-                ),
-                .default(
-                    Text(Localization.detailsBuyWallet),
-                    action: weakify(self, forFunction: NewAuthViewModel.openBuyWallet)
-                ),
-                .cancel(),
+                createNewWalletButton,
+                buyTangemWalletButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func openCreateWallet() {
         Analytics.log(.buttonAddWallet, params: [.action: .create])
         coordinator?.openCreateWallet()
-    }
-
-    func openImportWallet() {
-        Analytics.log(.buttonAddWallet, params: [.action: .import])
-        coordinator?.openImportWallet()
     }
 
     func openBuyWallet() {
@@ -320,29 +314,28 @@ private extension NewAuthViewModel {
     }
 
     func openTroubleshooting(userWalletModel: UserWalletModel) {
-        let sheet = ActionSheet(
-            title: Text(Localization.alertTroubleshootingScanCardTitle),
-            message: Text(Localization.alertTroubleshootingScanCardMessage),
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.unlockWithCardTryAgain(userWalletModel: userWalletModel)
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.openScanCardManual()
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.openSupportRequest()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
-                .default(
-                    Text(Localization.alertButtonTryAgain),
-                    action: { [weak self] in
-                        self?.unlockWithCardTryAgain(userWalletModel: userWalletModel)
-                    }
-                ),
-                .default(
-                    Text(Localization.commonReadMore),
-                    action: weakify(self, forFunction: NewAuthViewModel.openScanCardManual)
-                ),
-                .default(
-                    Text(Localization.alertButtonRequestSupport),
-                    action: weakify(self, forFunction: NewAuthViewModel.openSupportRequest)
-                ),
-                .cancel(),
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func openScanCardManual() {
