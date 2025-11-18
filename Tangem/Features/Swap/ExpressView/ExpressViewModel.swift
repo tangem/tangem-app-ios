@@ -116,20 +116,12 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func didTapMainButton() {
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
-        }
-
         switch mainButtonState {
         case .permitAndSwap:
             Analytics.log(.swapButtonPermitAndSwap)
         // [REDACTED_TODO_COMMENT]
         case .swap:
             sendTransaction()
-        case .givePermission:
-            Analytics.log(.swapButtonGivePermission)
-            openApproveView()
         case .insufficientFunds:
             assertionFailure("Button should be disabled")
         }
@@ -520,8 +512,8 @@ private extension ExpressViewModel {
 
             mainButtonIsEnabled = false
         case .permissionRequired:
-            mainButtonState = .givePermission
-            mainButtonIsEnabled = true
+            mainButtonState = .swap
+            mainButtonIsEnabled = false
         case .readyToSwap, .previewCEX:
             mainButtonState = .swap
             mainButtonIsEnabled = true
@@ -600,38 +592,44 @@ private extension ExpressViewModel {
         runTask(in: self) { root in
             do {
                 let sentTransactionData = try await root.interactor.send()
-
                 try Task.checkCancellation()
 
                 await root.openSuccessView(sentTransactionData: sentTransactionData)
-            } catch TransactionDispatcherResult.Error.userCancelled {
-                root.restartTimer()
-            } catch let error as ExpressAPIError {
-                await runOnMain {
-                    let message = error.localizedMessage
-                    root.alert = AlertBinder(title: Localization.commonError, message: message)
-                }
-            } catch let error as ValidationError {
-                let factory = BlockchainSDKNotificationMapper(
-                    tokenItem: root.interactor.getSender().tokenItem,
-                    feeTokenItem: root.interactor.getSender().feeTokenItem
-                )
-
-                let validationErrorEvent = factory.mapToValidationErrorEvent(error)
-                let message = validationErrorEvent.description ?? error.localizedDescription
-
-                await runOnMain {
-                    root.alert = AlertBinder(title: Localization.commonError, message: message)
-                }
             } catch {
-                await runOnMain {
-                    root.alert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
-                }
+                await root.proceed(error: error)
             }
 
-            await runOnMain {
+            await MainActor.run {
                 root.mainButtonIsLoading = false
             }
+        }
+    }
+
+    @MainActor
+    func proceed(error: Error) {
+        switch error {
+        case let error where error.isCancellationError:
+            restartTimer()
+
+        case TransactionDispatcherResult.Error.demoAlert:
+            alert = AlertBuilder.makeDemoAlert()
+
+        case let error as ExpressAPIError:
+            let message = error.localizedMessage
+            alert = AlertBinder(title: Localization.commonError, message: message)
+
+        case let error as ValidationError:
+            let factory = BlockchainSDKNotificationMapper(
+                tokenItem: interactor.getSender().tokenItem,
+                feeTokenItem: interactor.getSender().feeTokenItem
+            )
+
+            let validationErrorEvent = factory.mapToValidationErrorEvent(error)
+            let message = validationErrorEvent.description ?? error.localizedDescription
+            alert = AlertBinder(title: Localization.commonError, message: message)
+
+        default:
+            alert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
         }
     }
 }
@@ -654,7 +652,7 @@ extension ExpressViewModel: NotificationTapDelegate {
             interactor.refresh(type: .full)
         case .openFeeCurrency:
             openFeeCurrency()
-        case .reduceAmountBy(let amount, _):
+        case .reduceAmountBy(let amount, _, _):
             guard let value = sendCurrencyViewModel?.decimalNumberTextFieldViewModel.value else {
                 ExpressLogger.info("Couldn't find sendDecimalValue")
                 return
@@ -675,6 +673,9 @@ extension ExpressViewModel: NotificationTapDelegate {
             }
 
             updateSendDecimalValue(to: targetValue)
+        case .givePermission:
+            Analytics.log(.swapButtonGivePermission)
+            openApproveView()
         case .generateAddresses,
              .backupCard,
              .buyCrypto,
@@ -698,10 +699,12 @@ extension ExpressViewModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openYieldPromo,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus:
+             .activate,
+             .tangemPayViewKYCStatus,
+             .allowPushPermissionRequest,
+             .postponePushPermissionRequest:
             return
         }
     }
@@ -791,7 +794,6 @@ extension ExpressViewModel {
 
         case swap
         case insufficientFunds
-        case givePermission
         case permitAndSwap
 
         var title: String {
@@ -800,8 +802,6 @@ extension ExpressViewModel {
                 return Localization.swappingSwapAction
             case .insufficientFunds:
                 return Localization.swappingInsufficientFunds
-            case .givePermission:
-                return Localization.givePermissionTitle
             case .permitAndSwap:
                 return Localization.swappingPermitAndSwap
             }
@@ -811,7 +811,7 @@ extension ExpressViewModel {
             switch self {
             case .swap, .permitAndSwap:
                 return .trailing(Assets.tangemIcon)
-            case .givePermission, .insufficientFunds:
+            case .insufficientFunds:
                 return .none
             }
         }

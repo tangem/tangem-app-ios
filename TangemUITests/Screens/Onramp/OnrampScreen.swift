@@ -202,8 +202,7 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     func validateErrorViewExists() -> Self {
         XCTContext.runActivity(named: "Validate error notification view exists") { _ in
             let refreshButton = app.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
-            let exists = refreshButton.waitForExistence(timeout: .robustUIUpdate)
-            XCTAssertTrue(exists, "Error notification view does not exist - refresh button not found after waiting")
+            waitAndAssertTrue(refreshButton, "Error notification view does not exist - refresh button not found after waiting")
         }
         return self
     }

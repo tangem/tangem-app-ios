@@ -33,6 +33,8 @@ extension CommonCryptoAccountModel {
     }
 }
 
+// MARK: - AccountModelPersistentIdentifierConvertible protocol conformance
+
 extension CommonCryptoAccountModel.AccountId: AccountModelPersistentIdentifierConvertible {
     var isMainAccount: Bool {
         AccountModelUtils.isMainAccount(derivationIndex)

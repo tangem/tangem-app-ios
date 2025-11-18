@@ -12,6 +12,7 @@ import SwiftUI
 import BlockchainSdk
 import TangemAssets
 import TangemFoundation
+import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 protocol TokenItemContextActionsProvider: AnyObject {
@@ -29,15 +30,12 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     @Published var balanceFiat: LoadableTokenBalanceView.State
     @Published var priceChangeState: TokenPriceChangeView.State = .loading
     @Published var tokenPrice: LoadableTextView.State = .loading
-    @Published var hasPendingTransactions: Bool = false
     @Published var contextActionSections: [TokenContextActionsSection] = []
-    @Published var isStaked: Bool = false
-
     @Published private var missingDerivation: Bool = false
     @Published private var networkUnreachable: Bool = false
 
-    /// YIELD [REDACTED_TODO_COMMENT]
-    @Published private(set) var isYieldAvailable = false
+    @Published var leadingBadge: LeadingBadge?
+    @Published var trailingBadge: TrailingBadge?
 
     let tokenItem: TokenItem
 
@@ -73,6 +71,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private weak var contextActionsDelegate: TokenItemContextActionDelegate?
 
     private let tokenTapped: (WalletModelId.ID) -> Void
+    private let yieldApyTapped: (WalletModelId.ID) -> Void
 
     init(
         id: WalletModelId,
@@ -81,7 +80,8 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         infoProvider: TokenItemInfoProvider,
         contextActionsProvider: TokenItemContextActionsProvider,
         contextActionsDelegate: TokenItemContextActionDelegate,
-        tokenTapped: @escaping (WalletModelId.ID) -> Void
+        tokenTapped: @escaping (WalletModelId.ID) -> Void,
+        yieldApyTapped: @escaping (WalletModelId.ID) -> Void
     ) {
         self.id = id
         self.tokenIcon = tokenIcon
@@ -90,6 +90,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         self.contextActionsProvider = contextActionsProvider
         self.contextActionsDelegate = contextActionsDelegate
         self.tokenTapped = tokenTapped
+        self.yieldApyTapped = yieldApyTapped
 
         loadableTokenBalanceViewStateBuilder = .init()
         balanceCrypto = loadableTokenBalanceViewStateBuilder.build(type: infoProvider.balanceType)
@@ -98,6 +99,10 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         setupView(infoProvider.balance)
         setupPrice(infoProvider.quote)
         bind()
+    }
+
+    func yieldApyTapAction() {
+        yieldApyTapped(id.id)
     }
 
     func tapAction() {
@@ -150,14 +155,14 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        infoProvider?.isStakedPublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.isStaked, on: self, ownership: .weak)
+        infoProvider?.leadingBadgePublisher
+            .receiveOnMain()
+            .assign(to: \.leadingBadge, on: self, ownership: .weak)
             .store(in: &bag)
 
-        infoProvider?.hasPendingTransactions
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.hasPendingTransactions, on: self, ownership: .weak)
+        infoProvider?.trailingBadgePublisher
+            .receiveOnMain()
+            .assign(to: \.trailingBadge, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -204,5 +209,24 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 extension TokenItemViewModel: CustomStringConvertible {
     var description: String {
         objectDescription(self, userInfo: ["id": id])
+    }
+}
+
+extension TokenItemViewModel {
+    enum LeadingBadge {
+        case pendingTransaction
+        case rewards(TokenItemViewModel.RewardsInfo)
+    }
+
+    enum TrailingBadge {
+        case isApproveNeeded
+    }
+}
+
+extension TokenItemViewModel {
+    struct RewardsInfo {
+        let type: RewardType
+        let rewardValue: String
+        let isActive: Bool
     }
 }

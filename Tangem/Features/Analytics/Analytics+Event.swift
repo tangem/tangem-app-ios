@@ -111,6 +111,7 @@ extension Analytics {
         case buttonUnlockWithCardScan = "[Main Screen] Button - Unlock With Card Scan"
         case buttonEditWalletTapped = "[Main Screen] Button - Edit Wallet Tapped"
         case buttonDeleteWalletTapped = "[Main Screen] Button - Delete Wallet Tapped"
+        case apyClicked = "[Main Screen] APY Clicked"
 
         // MARK: - Send
 
@@ -132,7 +133,6 @@ extension Analytics {
         case sendNonceInserted = "[Token / Send] Nonce Inserted"
         case sendMaxFeeInserted = "[Token / Send] Max Fee Inserted"
         case sendPriorityFeeInserted = "[Token / Send] Priority Fee Inserted"
-        case sendSubstractFromAmount = "[Token / Send] Substract From Amount"
         case sendConfirmScreenOpened = "[Token / Send] Confirm Screen Opened"
         case sendScreenReopened = "[Token / Send] Screen Reopened"
         case sendTransactionSentScreenOpened = "[Token / Send] Transaction Sent Screen Opened"
@@ -240,6 +240,7 @@ extension Analytics {
         case swapButtonPermissionCancel = "[Swap] Button - Permission Cancel"
         case swapButtonPermitAndSwap = "[Swap] Button - Permit and Swap"
         case swapButtonSwipe = "[Swap] Button - Swipe"
+        case swapButtonPermissionLearnMore = "[Swap] Button - Permission Learn More"
         case swapSwapInProgressScreenOpened = "[Swap] Swap in Progress Screen Opened"
 
         case swapProviderClicked = "[Swap] Provider Clicked"
@@ -350,6 +351,9 @@ extension Analytics {
         // MARK: - Promo
 
         case promoChangellyActivity = "[Promo] Changelly Activity"
+        case promoPushBanner = "[Promo] Push Banner"
+        case promoButtonAllowPush = "[Promo] Button - Allow Push"
+        case promoButtonLaterPush = "[Promo] Button - Later Push"
 
         // MARK: - Push notifications
 
@@ -387,6 +391,8 @@ extension Analytics {
         case stakingButtonShare = "[Staking] Button - Share"
         case stakingButtonExplore = "[Staking] Button - Explore"
         case stakingNoticeUninitializedAddress = "[Staking] Notice - Uninitialized Address"
+        case stakingUninitializedAddressScreen = "[Staking] Uninitialized Address Screen"
+        case stakingButtonActivate = "[Staking] Button - Activate"
 
         // MARK: - Markets
 
@@ -467,6 +473,10 @@ extension Analytics {
         case onrampOnrampStatusOpened = "[Onramp] Onramp Status Opened"
         case onrampButtonGoToProvider = "[Onramp] Button - Go To Provider"
         case onrampOnrampStatus = "[Onramp] Onramp Status"
+        case onrampRecentlyUsedClicked = "[Onramp] Recently Used Clicked"
+        case onrampFastestMethodClicked = "[Onramp] Fastest Method Clicked"
+        case onrampBestRateClicked = "[Onramp] Best Rate Clicked"
+        case onrampButtonAllOffers = "[Onramp] Button - All Offers"
 
         // MARK: - Action Buttons
 
@@ -548,5 +558,24 @@ extension Analytics {
 
         case nftErrors = "[NFT] NFT Errors"
         case nftToggleSwitch = "[Settings / Wallet] NFT toggle switch"
+
+        // MARK: - Yield
+
+        case earningScreenInfoOpened = "[Earning] Earning Screen Info Opened"
+        case earningStartScreen = "[Earning] Start Earning Screen"
+        case earningButtonStart = "[Earning] Button - Start Earning"
+        case earningStopScreen = "[Earning] Stop Earning Screen"
+        case earningButtonStop = "[Earning] Button - Stop Earning"
+        case earningButtonFeePolicy = "[Earning] Button - Fee Policy"
+        case earningInProgressScreen = "[Earning] Earn In Progress Screen"
+        case earningFundsEarned = "[Earning] Funds Earned"
+        case earningFundsWithdrawed = "[Earning] Funds Withdrawn"
+        case earningEarnedFundsInfo = "[Earning] Earned Funds Info"
+        case earningNoticeNotEnoughFee = "[Earning] Notice - Not Enough Fee"
+        case earningNoticeApproveNeeded = "[Earning] Notice - Approve Needed"
+        case earningButtonGiveApprove = "[Earning] Button - Give Approve"
+        case earningNoticeHighNetworkFee = "[Earning] Notice - High Network Fee"
+        case earningErrors = "[Earning] Earn Errors"
+        case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
     }
 }

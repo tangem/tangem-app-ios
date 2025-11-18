@@ -19,38 +19,51 @@ enum AccountModel {
     case visa(any VisaAccountModel)
 }
 
+extension [AccountModel] {
+    func standard() -> AccountModel? {
+        first { account in
+            if case .standard = account {
+                return true
+            }
+
+            return false
+        }
+    }
+}
+
 // MARK: - Inner types
 
 extension AccountModel {
-    struct Icon: Equatable {
+    struct Icon: Hashable {
         let name: Name
         let color: Color
     }
 }
 
+/// https://github.com/tangem-developments/tangem-app-android/blob/develop/common/ui/src/main/java/com/tangem/common/ui/account/CryptoPortfolioIconExt.kt
 extension AccountModel.Icon {
-    enum Color: String, CaseIterable {
-        case brightBlue
-        case coralRed
-        case cyan
-        case darkGreen
-        case deepPurple
-        case hotPink
-        case lavender
-        case magenta
-        case mediumGreen
-        case purple
-        case royalBlue
-        case yellow
+    enum Color: String, CaseIterable, Hashable {
+        case azure
+        case caribbeanBlue
+        case dullLavender
+        case candyGrapeFizz
+        case sweetDesire
+        case palatinateBlue
+        case fuchsiaNebula
+        case mexicanPink
+        case pelati
+        case pattypan
+        case ufoGreen
+        case vitalGreen
     }
 
-    enum Name: String, CaseIterable {
-        case airplane
+    enum Name: String, CaseIterable, Hashable {
+        case airplaneMode
         case beach
         case bookmark
         case clock
         case family
-        case favorite
+        case favorite = "favourite" // Ew, UK spelling, but Android uses it
         case gift
         case home
         case letter
@@ -71,8 +84,8 @@ extension AccountModel.Icon {
 extension AccountModel.Icon {
     init?(rawName: String, rawColor: String) {
         guard
-            let name = Name(rawValue: rawName),
-            let color = Color(rawValue: rawColor)
+            let color = Color(rawValue: rawColor),
+            let name = Name(rawValue: rawName)
         else {
             return nil
         }

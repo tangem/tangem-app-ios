@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccounts
 
 struct UserWalletSettingsView: View {
     @ObservedObject private var viewModel: UserWalletSettingsViewModel
@@ -23,6 +24,8 @@ struct UserWalletSettingsView: View {
             nameSection
 
             mobileUpgradeSection
+
+            accountsSection
 
             mobileAccessCodeSection
 
@@ -41,7 +44,7 @@ struct UserWalletSettingsView: View {
         .navigationTitle(Localization.walletSettingsTitle)
         .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
-        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
+        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .scrollDismissesKeyboardCompat(.interactively)
         .onAppear(perform: viewModel.onAppear)
     }
@@ -59,6 +62,13 @@ struct UserWalletSettingsView: View {
     private var mobileUpgradeSection: some View {
         viewModel.mobileUpgradeNotificationInput.map {
             NotificationView(input: $0)
+        }
+    }
+
+    @ViewBuilder
+    private var accountsSection: some View {
+        viewModel.accountsViewModel.map { viewModel in
+            UserSettingsAccountsSectionView(viewModel: viewModel)
         }
     }
 
