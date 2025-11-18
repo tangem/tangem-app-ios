@@ -69,6 +69,10 @@ extension ExpressPendingTransactionRecord {
         }
     }
 
+    struct PaymentMethod: Codable, Equatable {
+        let id: String
+    }
+
     struct Provider: Codable, Equatable {
         let id: String
         let name: String
