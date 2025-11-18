@@ -16,6 +16,7 @@ struct CommonCryptoAccountDependenciesFactory {
     typealias WalletModelsFactoryProvider = (_ userWalletId: UserWalletId) -> WalletModelsFactory
 
     let derivationStyle: DerivationStyle?
+    let derivationManager: DerivationManager?
     let keysRepository: KeysRepository
     let walletManagerFactory: AnyWalletManagerFactory
     let existingCurves: [EllipticCurve]
@@ -65,13 +66,9 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletModelsFactory: wrappedWalletModelsFactory
         )
 
-        let derivationManager = areHDWalletsSupported
-            ? CommonDerivationManager(keysRepository: keysRepository, userTokensManager: userTokensManager)
-            : nil
-
+        // [REDACTED_TODO_COMMENT]
         userTokensManager.derivationManager = derivationManager
         userTokensManager.walletModelsManager = walletModelsManager
-        userTokensManager.keysDerivingProvider = userWalletModel
 
         return CryptoAccountDependencies(
             userTokensManager: userTokensManager,
