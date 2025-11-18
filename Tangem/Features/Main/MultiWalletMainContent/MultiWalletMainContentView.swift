@@ -108,7 +108,6 @@ struct MultiWalletMainContentView: View {
                 ExpandableAccountItemView(viewModel: accountSection.model) {
                     makeTokensList(sections: accountSection.items)
                 }
-                .background(Colors.Background.primary.cornerRadiusContinuous(Constants.cornerRadius))
             }
         }
     }
@@ -152,7 +151,6 @@ struct MultiWalletMainContentView: View {
                 }
             }
         }
-        .background(Colors.Background.primary.cornerRadiusContinuous(Constants.cornerRadius))
     }
 }
 
