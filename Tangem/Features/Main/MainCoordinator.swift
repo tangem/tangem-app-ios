@@ -45,6 +45,7 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator?
     @Published var referralCoordinator: ReferralCoordinator?
     @Published var nftCollectionsCoordinator: NFTCollectionsCoordinator?
+    @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -64,6 +65,7 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
+    @Published var tangemPayMainViewModel: TangemPayMainViewModel?
 
     // MARK: - Helpers
 
@@ -191,7 +193,7 @@ extension MainCoordinator: MainRoutable {
         }
     }
 
-    func openDetails(for userWalletModel: UserWalletModel) {
+    func openDetails() {
         mainBottomSheetUIManager.hide()
 
         let dismissAction: Action<Void> = { [weak self] _ in
@@ -236,6 +238,44 @@ extension MainCoordinator: MainRoutable {
 // MARK: - MultiWalletMainContentRoutable protocol conformance
 
 extension MainCoordinator: MultiWalletMainContentRoutable {
+    func openYieldModuleActiveInfo(walletModel: any WalletModel, signer: any TangemSigner) {
+        guard
+            let factory = YieldModuleFlowFactory(
+                walletModel: walletModel,
+                signer: signer,
+                feeCurrencyNavigator: self,
+                dismissAction: dismissAction
+            ),
+            let vm = factory.makeYieldInfoViewModel()
+        else {
+            return
+        }
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: vm)
+        }
+    }
+
+    func openYieldModulePromoView(walletModel: any WalletModel, apy: Decimal, signer: any TangemSigner) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.yieldModulePromoCoordinator = nil
+        }
+
+        guard let factory = YieldModuleFlowFactory(
+            walletModel: walletModel,
+            apy: apy,
+            signer: signer,
+            feeCurrencyNavigator: self,
+            dismissAction: dismissAction
+        ) else {
+            return
+        }
+
+        mainBottomSheetUIManager.hide()
+        let coordinator = factory.getYieldPromoCoordinator()
+        yieldModulePromoCoordinator = coordinator
+    }
+
     func openTokenDetails(for model: any WalletModel, userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
@@ -300,6 +340,11 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             mobileUpgradeCoordinator = coordinator
         }
     }
+
+    func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
+        mainBottomSheetUIManager.hide()
+        tangemPayMainViewModel = TangemPayMainViewModel(tangemPayAccount: tangemPayAccount)
+    }
 }
 
 // MARK: - SingleTokenBaseRoutable
@@ -309,7 +354,9 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel
+            addressTypesProvider: walletModel,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -347,10 +394,15 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(userWalletModel: userWalletModel)
+            ),
             type: .send,
             source: .main
         )
+
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
@@ -363,7 +415,11 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
 
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(userWalletModel: userWalletModel)
+            ),
             type: .sell(parameters: sellParameters),
             source: .main
         )
@@ -430,7 +486,11 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            input: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel,
+                expressInput: .init(userWalletModel: userWalletModel)
+            ),
             type: .onramp(parameters: parameters),
             source: .main
         )
@@ -479,7 +539,9 @@ extension MainCoordinator: VisaWalletRoutable {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: tokenItem,
-            addressTypesProvider: addressTypesProvider
+            addressTypesProvider: addressTypesProvider,
+            // [REDACTED_TODO_COMMENT]
+            isYieldModuleActive: false
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -521,16 +583,17 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
             }
         )
 
-        coordinator.start(
-            with: .default(
-                options: .init(
-                    userWalletModel: userWalletModel,
-                    expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
-                    tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
-                )
-            )
-        )
+        let options: ActionButtonsBuyCoordinator.Options = if FeatureProvider.isAvailable(.accounts) {
+            .new
+        } else {
+            .default(options: .init(
+                userWalletModel: userWalletModel,
+                expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+                tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
+            ))
+        }
 
+        coordinator.start(with: options)
         actionButtonsBuyCoordinator = coordinator
     }
 }
@@ -619,7 +682,11 @@ extension MainCoordinator {
 // MARK: - NFTEntrypointRoutable
 
 extension MainCoordinator: NFTEntrypointRoutable {
-    func openCollections(nftManager: NFTManager, navigationContext: NFTNavigationContext) {
+    func openCollections(
+        nftManager: NFTManager,
+        accounForNFTCollectionsProvider: any AccountForNFTCollectionProviding,
+        navigationContext: NFTNavigationContext
+    ) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = NFTCollectionsCoordinator(
@@ -632,10 +699,10 @@ extension MainCoordinator: NFTEntrypointRoutable {
             }
         )
 
-        nftCollectionsCoordinator = coordinator
         coordinator.start(
             with: .init(
                 nftManager: nftManager,
+                accounForNFTCollectionsProvider: accounForNFTCollectionsProvider,
                 nftChainIconProvider: NetworkImageProvider(),
                 nftChainNameProvider: NFTChainNameProvider(),
                 priceFormatter: NFTPriceFormatter(),
@@ -647,6 +714,8 @@ extension MainCoordinator: NFTEntrypointRoutable {
                 )
             )
         )
+
+        nftCollectionsCoordinator = coordinator
     }
 }
 
