@@ -19,20 +19,28 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     @Published var balanceTypeValues: [BalanceType]?
     @Published var selectedBalanceType: BalanceType = .all
 
+    @Published var shouldShowYieldBalanceInfo: Bool = false
+
     private let buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never>
     private weak var balanceProvider: BalanceWithButtonsViewModelBalanceProvider?
     private weak var balanceTypeSelectorProvider: BalanceTypeSelectorProvider?
+    private weak var yieldModuleStatusProvider: YieldModuleStatusProvider?
+    private(set) var showYieldBalanceInfoAction: (() -> Void)?
 
     private var bag = Set<AnyCancellable>()
 
     init(
         buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never>,
         balanceProvider: BalanceWithButtonsViewModelBalanceProvider,
-        balanceTypeSelectorProvider: BalanceTypeSelectorProvider
+        balanceTypeSelectorProvider: BalanceTypeSelectorProvider,
+        yieldModuleStatusProvider: YieldModuleStatusProvider,
+        showYieldBalanceInfoAction: (() -> Void)? = nil
     ) {
         self.buttonsPublisher = buttonsPublisher
         self.balanceProvider = balanceProvider
         self.balanceTypeSelectorProvider = balanceTypeSelectorProvider
+        self.showYieldBalanceInfoAction = showYieldBalanceInfoAction
+        self.yieldModuleStatusProvider = yieldModuleStatusProvider
 
         bind()
     }
@@ -41,6 +49,15 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
         guard let balanceProvider else {
             return
         }
+
+        yieldModuleStatusProvider?
+            .yieldModuleState
+            .filter { $0.state != .loading }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] stateInfo in
+                self?.updateYieldModuleInfo(stateInfo)
+            }
+            .store(in: &bag)
 
         Publishers
             .CombineLatest3(
@@ -105,6 +122,10 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
             let builder = LoadableTokenBalanceViewStateBuilder()
             fiatBalance = builder.buildAttributedTotalBalance(type: type == .all ? all : available)
         }
+    }
+
+    private func updateYieldModuleInfo(_ info: YieldModuleManagerStateInfo) {
+        shouldShowYieldBalanceInfo = info.state.isEffectivelyActive && info.marketInfo != nil
     }
 }
 

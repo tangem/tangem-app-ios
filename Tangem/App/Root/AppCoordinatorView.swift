@@ -62,7 +62,7 @@ struct AppCoordinatorView: CoordinatorView {
                     .transition(.opacity.animation(.easeIn))
             case .auth(let authCoordinator):
                 AuthCoordinatorView(coordinator: authCoordinator)
-                    .setNamespace(namespace)
+                    .setGeometryEffect(.init(id: TangemIconView.namespaceId, namespace: namespace))
                     .transition(.opacity.animation(.easeIn))
             case .main(let mainCoordinator):
                 MainCoordinatorView(coordinator: mainCoordinator)
@@ -72,7 +72,7 @@ struct AppCoordinatorView: CoordinatorView {
                     .transition(.opacity.animation(.easeIn))
             case .lock:
                 LockView(usesNamespace: true)
-                    .setNamespace(namespace)
+                    .setGeometryEffect(.init(id: TangemIconView.namespaceId, namespace: namespace))
                     .transition(.asymmetric(insertion: .identity, removal: .opacity.animation(.easeOut(duration: 0.3))))
             case .launch:
                 LaunchScreenView()
