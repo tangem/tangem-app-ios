@@ -14,7 +14,7 @@ extension TokenItem {
     var stakingTokenItem: TangemStaking.StakingTokenItem? {
         StakeKitNetworkType(rawValue: blockchain.stakeKitNetworkID).map { network in
             StakingTokenItem(
-                network: network,
+                network: network.rawValue,
                 contractAddress: contractAddress,
                 name: name,
                 decimals: decimalCount,
