@@ -140,10 +140,6 @@ final class CommonUserTokensManager {
 // MARK: - UserTokensManager protocol conformance
 
 extension CommonUserTokensManager: UserTokensManager {
-    var initialized: Bool {
-        userTokenListManager.initialized
-    }
-
     var initializedPublisher: AnyPublisher<Bool, Never> {
         userTokenListManager.initializedPublisher
     }
