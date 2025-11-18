@@ -282,8 +282,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.accountSections, on: self, ownership: .weak)
             .store(in: &bag)
 
-        // [REDACTED_TODO_COMMENT]
-        subscribeToTokenListSync(with: plainSectionsPublisher)
+        subscribeToTokenListSync(
+            plainSectionsPublisher: plainSectionsPublisher,
+            accountSectionsPublisher: accountSectionsPublisher
+        )
 
         userWalletNotificationManager
             .notificationPublisher
@@ -371,25 +373,45 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    private func subscribeToTokenListSync(with sectionsPublisher: some Publisher<[MultiWalletMainContentPlainSection], Never>) {
-        // accounts_fixes_needed_main
-        let tokenListSyncPublisher = userWalletModel
-            .userTokensManager
-            .initializedPublisher
-            .filter { $0 }
+    private func subscribeToTokenListSync(
+        plainSectionsPublisher: some Publisher<[MultiWalletMainContentPlainSection], Never>,
+        accountSectionsPublisher: some Publisher<[MultiWalletMainContentAccountSection], Never>
+    ) {
+        // [REDACTED_TODO_COMMENT]
+        let didSyncTokenListPublisher: AnyPublisher<Void, Never>
+        let didReceiveSectionsPublisher: AnyPublisher<Void, Never>
 
-        let sectionsPublisher = sectionsPublisher
-            .replaceEmpty(with: [])
+        if FeatureProvider.isAvailable(.accounts) {
+            // The persistent storage for accounts (or, more precisely, the instance of `CryptoAccountsPersistentStorageController`)
+            // will emit the available models both after local initialization/migration and after remote synchronization,
+            // so no separate `initializedPublisher` trigger needed
+            didSyncTokenListPublisher = .just
+            // Either plain or account sections can be a trigger
+            didReceiveSectionsPublisher = plainSectionsPublisher
+                .mapToVoid()
+                .merge(with: accountSectionsPublisher.mapToVoid())
+                .eraseToAnyPublisher()
+        } else {
+            // [REDACTED_TODO_COMMENT]
+            // accounts_fixes_needed_none
+            didSyncTokenListPublisher = userWalletModel
+                .userTokensManager
+                .initializedPublisher
+                .filter { $0 }
+                .mapToVoid()
+                .eraseToAnyPublisher()
+            // When accounts aren't enabled, we rely only on plain sections
+            didReceiveSectionsPublisher = plainSectionsPublisher
+                .mapToVoid()
+                .eraseToAnyPublisher()
+        }
 
-        var tokenListSyncSubscription: AnyCancellable?
-        tokenListSyncSubscription = Publishers.Zip(tokenListSyncPublisher, sectionsPublisher)
+        didSyncTokenListPublisher
+            .zip(didReceiveSectionsPublisher)
             .prefix(1)
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
-                viewModel.isLoadingTokenList = false
-                withExtendedLifetime(tokenListSyncSubscription) {}
-            }
+            .mapToValue(false)
+            .receiveOnMain()
+            .assign(to: &$isLoadingTokenList)
     }
 
     func makeApyBadgeTapAction(for walletModelId: WalletModelId) -> ((WalletModelId) -> Void)? {
