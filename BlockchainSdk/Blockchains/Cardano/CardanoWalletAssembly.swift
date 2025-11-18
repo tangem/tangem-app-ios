@@ -37,6 +37,13 @@ struct CardanoWalletAssembly: WalletManagerAssembly {
                         configuration: input.networkInput.tangemProviderConfig,
                         cardanoResponseMapper: cardanoResponseMapper
                     ).eraseToAnyCardanoNetworkProvider()
+                case .mock:
+                    return RosettaNetworkProvider(
+                        url: nodeInfo.url,
+                        configuration: input.networkInput.tangemProviderConfig,
+                        cardanoResponseMapper: cardanoResponseMapper
+                    )
+                    .eraseToAnyCardanoNetworkProvider()
                 default:
                     return nil
                 }

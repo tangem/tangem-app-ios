@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemExpress
+import TangemFoundation
 
 struct CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
     private let tokenItem: TokenItem
@@ -51,13 +52,24 @@ struct CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
         )
     }
 
-    func logExpressError(_ error: ExpressAPIError, provider: ExpressProvider?) {
+    func logExpressError(_ error: Error, provider: ExpressProvider?) {
         var parameters: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol,
-            .errorCode: error.errorCode.localizedDescription,
         ]
 
-        parameters[.provider] = provider?.name
+        if let provider = provider?.name {
+            parameters[.provider] = provider
+        }
+
+        switch error {
+        case let error as ExpressAPIError:
+            parameters[.errorCode] = error.errorCode.localizedDescription
+        default:
+            let universalError = error.toUniversalError()
+
+            parameters[.errorCode] = "\(universalError.errorCode)"
+            parameters[.errorDescription] = universalError.errorDescription
+        }
 
         Analytics.log(event: .swapNoticeExpressError, params: parameters)
     }

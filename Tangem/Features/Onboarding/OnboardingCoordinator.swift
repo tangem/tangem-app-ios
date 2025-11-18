@@ -54,7 +54,7 @@ final class OnboardingCoordinator: CoordinatorObject {
             handle(input: mobileOnboardingInput)
         }
 
-        Analytics.log(.onboardingStarted)
+        Analytics.log(.onboardingStarted, contextParams: options.contextParams)
     }
 }
 
@@ -64,6 +64,15 @@ extension OnboardingCoordinator {
     enum Options {
         case input(OnboardingInput)
         case mobileInput(MobileOnboardingInput)
+
+        var contextParams: Analytics.ContextParams {
+            switch self {
+            case .input(let onboardingInput):
+                return onboardingInput.cardInput.getContextParams()
+            case .mobileInput:
+                return .custom(AnalyticsContextData.mobileWallet)
+            }
+        }
     }
 
     enum OutputOptions {
@@ -95,8 +104,8 @@ extension OnboardingCoordinator: OnboardingBrowserRoutable {
 // MARK: - WalletOnboardingRoutable
 
 extension OnboardingCoordinator: WalletOnboardingRoutable {
-    func openAccessCodeView(callback: @escaping (String) -> Void) {
-        accessCodeModel = .init(successHandler: { [weak self] code in
+    func openAccessCodeView(analyticsContextParams: Analytics.ContextParams, callback: @escaping (String) -> Void) {
+        accessCodeModel = .init(analyticsContextParams: analyticsContextParams, successHandler: { [weak self] code in
             self?.accessCodeModel = nil
             callback(code)
         })
@@ -108,7 +117,6 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
     }
 
     func openSupportChat(input: SupportChatInputModel) {
-        Analytics.log(.chatScreenOpened)
         supportChatViewModel = SupportChatViewModel(input: input)
     }
 
