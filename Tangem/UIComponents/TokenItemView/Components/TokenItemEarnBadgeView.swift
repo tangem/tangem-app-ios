@@ -16,7 +16,8 @@ struct TokenItemEarnBadgeView: View {
     let rewardType: RewardType
     let rewardValue: String
     let color: Color
-    let tapAction: () -> Void
+    let tapAction: (() -> Void)?
+    let isUpdating: Bool
 
     private var background: some View {
         RoundedRectangle(cornerRadius: 4, style: .continuous).fill(color.opacity(0.1))
@@ -31,10 +32,12 @@ struct TokenItemEarnBadgeView: View {
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
                 .background(background)
+                .shimmer()
         }
         .onTapGesture {
-            tapAction()
+            tapAction?()
         }
+        .environment(\.isShimmerActive, isUpdating)
     }
 
     var rewardTypeString: String {
