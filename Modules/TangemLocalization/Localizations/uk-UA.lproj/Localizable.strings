@@ -1884,6 +1884,9 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Режим дохідності";
 "yield_module_token_details_earn_notification_processing" = "Відправка ваших коштів";
 "yield_module_token_details_earn_notification_title" = "Режим прибутковості";
+"yield_module_transaction_enter" = "Yield mode on";
+"yield_module_transaction_exit" = "Yield mode off";
+"yield_module_transaction_topup" = "Yield mode top-up";
 "yield_module_transfer_mode_automatic" = "Автоматично";
 "yield_module_unable_to_cover_fee_description" = "Внесіть трохи %1$@ %2$@, щоб покрити комісію мережі за транзакції.";
 "yield_module_unable_to_cover_fee_title" = "Неможливо покрити комісію в %@";
