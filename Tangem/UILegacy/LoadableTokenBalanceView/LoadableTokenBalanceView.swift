@@ -67,7 +67,18 @@ struct LoadableTokenBalanceView: View {
             .frame(width: 12, height: 12)
     }
 
+    @ViewBuilder
     private func textView(_ text: Text) -> some View {
+        if #available(iOS 17, *) {
+            commonTextView(text)
+                .contentTransition(.numericText())
+                .animation(.default, value: text)
+        } else {
+            commonTextView(text)
+        }
+    }
+
+    private func commonTextView(_ text: Text) -> some View {
         SensitiveText(text)
             .style(style.font, color: style.textColor)
             .accessibilityIdentifier(accessibilityIdentifier)
