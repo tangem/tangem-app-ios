@@ -14,7 +14,7 @@ struct AuthorizationAPITarget: TargetType {
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.baseURL.appendingPathComponent("auth")
+        apiType.bffBaseURL.appendingPathComponent("auth")
     }
 
     var path: String {
@@ -68,6 +68,7 @@ extension AuthorizationAPITarget {
         let cardPublicKey: String?
         let cardWalletAddress: String?
         let customerWalletAddress: String?
+        let customerWalletId: String?
         let authType: VisaAuthorizationType
     }
 
@@ -100,5 +101,17 @@ extension AuthorizationAPITarget {
         case refreshAuthorizationTokens(request: RefreshAuthoriationTokensRequestDTO)
         /// Change activation process authorization tokens to activated authorization tokens
         case exchangeAuthorizationTokens(request: AuthorizationTokenDTO)
+    }
+}
+
+import TangemNetworkUtils
+
+extension AuthorizationAPITarget: TargetTypeLogConvertible {
+    var shouldLogResponseBody: Bool {
+        true
+    }
+
+    var requestDescription: String {
+        baseURL.appendingPathComponent(path).absoluteString
     }
 }

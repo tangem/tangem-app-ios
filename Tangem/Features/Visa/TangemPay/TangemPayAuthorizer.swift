@@ -26,6 +26,7 @@ final class TangemPayAuthorizer {
 
         let task = CustomerWalletAuthorizationTask(
             seedKey: seedKey,
+            customerWalletId: userWalletModel.userWalletId.stringValue,
             authorizationService: VisaAPIServiceBuilder().buildAuthorizationService()
         )
 
