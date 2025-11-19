@@ -119,7 +119,7 @@ final class SolanaWCLinksUITests: BaseTestCase {
 
         getWcURI()
         // Remove the scheme prefix for paste operation
-        let uriWithoutScheme = wcURI.replacingOccurrences(of: WCURIScheme.appTangem.rawValue, with: "")
+        let uriWithoutScheme = wcURI.replacingOccurrences(of: "\(WCURIScheme.appTangem.rawValue)?uri=", with: "")
         UIPasteboard.general.string = uriWithoutScheme
         let userTokensScenario = ScenarioConfig(
             name: "user_tokens_api",
