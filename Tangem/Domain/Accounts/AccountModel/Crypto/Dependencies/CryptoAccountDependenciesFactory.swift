@@ -12,6 +12,6 @@ import Foundation
 protocol CryptoAccountDependenciesFactory {
     func makeDependencies(
         forAccountWithDerivationIndex derivationIndex: Int,
-        userWalletModel: UserWalletModel
+        userWalletModel: UserWalletModel // [REDACTED_TODO_COMMENT]
     ) -> CryptoAccountDependencies
 }
