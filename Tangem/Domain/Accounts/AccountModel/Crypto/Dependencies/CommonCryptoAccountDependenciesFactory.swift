@@ -66,15 +66,22 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletModelsFactory: wrappedWalletModelsFactory
         )
 
-        // [REDACTED_TODO_COMMENT]
-        userTokensManager.derivationManager = derivationManager
+        let accountSpecificDerivationManager = derivationManager.map { innerDerivationManager in
+            return _AccountsAwareDerivationManager(
+                keysRepository: keysRepository,
+                userTokensManager: userTokensManager,
+                innerDerivationManager: innerDerivationManager
+            )
+        }
+
+        userTokensManager.derivationManager = accountSpecificDerivationManager
         userTokensManager.walletModelsManager = walletModelsManager
 
         return CryptoAccountDependencies(
             userTokensManager: userTokensManager,
             walletModelsManager: walletModelsManager,
             walletModelsFactoryInput: wrappedWalletModelsFactory,
-            derivationManager: derivationManager
+            derivationManager: accountSpecificDerivationManager
         )
     }
 }
