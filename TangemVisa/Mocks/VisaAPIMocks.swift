@@ -259,7 +259,7 @@ struct AuthorizationServiceMock: VisaAuthorizationService, VisaAuthorizationToke
 // MARK: - VisaCardActivationStatusService
 
 struct CardActivationStatusServiceMock: VisaCardActivationStatusService {
-    func getCardActivationStatus(authorizationTokens: VisaAuthorizationTokens, cardId: String, cardPublicKey: String) async throws -> VisaCardActivationStatus {
+    func getCardActivationStatus(cardId: String, cardPublicKey: String) async throws -> VisaCardActivationStatus {
         return .init(
             activationRemoteState: VisaMocksManager.instance.activationRemoteState,
             activationOrder: VisaMocksManager.instance.activationOrder
