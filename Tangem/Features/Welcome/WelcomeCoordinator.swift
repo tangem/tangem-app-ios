@@ -114,6 +114,8 @@ extension WelcomeCoordinator: WelcomeRoutable {
             switch options {
             case .main(let model):
                 self?.openMain(with: model)
+            case .dismiss:
+                self?.createWalletSelectorCoordinator = nil
             }
         }
 
