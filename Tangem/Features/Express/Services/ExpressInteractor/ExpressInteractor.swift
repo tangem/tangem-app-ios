@@ -279,16 +279,15 @@ extension ExpressInteractor {
             throw ExpressInteractorError.transactionDataNotFound
         }
 
-        let fee = try state.fees.selectedFee()
-
         logApproveTransactionAnalyticsEvent(policy: state.policy)
 
-        let sender = try getSourceWallet()
-        let transaction = try await sender.expressTransactionBuilder.makeApproveTransaction(data: state.data, fee: fee)
-        let result = try await sender.transactionDispatcher(signer: userWalletInfo.signer).send(transaction: .express(transaction))
+        guard let allowanceService = try getSourceWallet().allowanceService else {
+            throw ExpressInteractorError.allowanceServiceNotFound
+        }
+
+        let result = try await allowanceService.sendApproveTransaction(data: state.data)
 
         ExpressLogger.info("Sent the approve transaction with result: \(result)")
-        sender.allowanceService.didSendApproveTransaction(for: state.data.spender)
         logApproveTransactionSentAnalyticsEvent(policy: state.policy, signerType: result.signerType, currentProviderHost: result.currentHost)
         updateState(.restriction(.hasPendingApproveTransaction, quote: getState().quote))
     }
@@ -519,8 +518,8 @@ private extension ExpressInteractor {
     func sendDEXTransaction(state: ReadyToSwapState, provider: ExpressProvider) async throws -> TransactionSendResultState {
         let fee = try state.fees.selectedFee()
         let sender = try getSourceWallet()
-        let transaction = try await sender.expressTransactionBuilder.makeTransaction(data: state.data, fee: fee)
-        let result = try await sender.transactionDispatcher(signer: userWalletInfo.signer).send(transaction: .express(transaction))
+        let processor = try sender.dexTransactionProcessor()
+        let result = try await processor.process(data: state.data, fee: fee)
 
         return TransactionSendResultState(dispatcherResult: result, data: state.data, fee: fee, provider: provider)
     }
@@ -529,8 +528,8 @@ private extension ExpressInteractor {
         let fee = try state.fees.selectedFee()
         let sender = try getSourceWallet()
         let data = try await expressManager.requestData()
-        let transaction = try await sender.expressTransactionBuilder.makeTransaction(data: data, fee: fee)
-        let result = try await sender.transactionDispatcher(signer: userWalletInfo.signer).send(transaction: .express(transaction))
+        let processor = try sender.cexTransactionProcessor()
+        let result = try await processor.process(data: data, fee: fee)
 
         return TransactionSendResultState(dispatcherResult: result, data: data, fee: fee, provider: provider)
     }
@@ -755,6 +754,7 @@ extension ExpressInteractor: CustomStringConvertible {
 enum ExpressInteractorError: String, LocalizedError {
     case feeNotFound
     case quoteNotFound
+    case allowanceServiceNotFound
     case transactionDataNotFound
     case sourceNotFound
     case destinationNotFound
