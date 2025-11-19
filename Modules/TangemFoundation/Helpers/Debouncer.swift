@@ -48,7 +48,6 @@ public final class Debouncer<T> {
 
     private func performWork() {
         let completions = criticalSection {
-            unsafeTimer = nil // Just a resource cleanup, timer is already invalidated at this stage
             let completions = self.unsafeCompletionBlocks
             self.unsafeCompletionBlocks.removeAll()
             return completions
