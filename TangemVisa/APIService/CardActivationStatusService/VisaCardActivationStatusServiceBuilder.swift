@@ -25,7 +25,7 @@ public struct VisaCardActivationStatusServiceBuilder {
         return CommonCardActivationStatusService(
             apiType: apiType,
             apiService: .init(
-                provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
+                provider: TangemPayProviderBuilder().buildProvider(configuration: urlSessionConfiguration, authorizationTokensHandler: nil),
                 decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
         )
