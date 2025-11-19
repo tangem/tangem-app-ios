@@ -7,19 +7,13 @@
 //
 
 import Foundation
+import Combine
 
 enum MultiWalletMainContentUpdater {
     static func scheduleUpdate(with userWalletModel: UserWalletModel) async {
-        let userTokensManagers = if FeatureProvider.isAvailable(.accounts) {
-            userWalletModel.accountModelsManager.cryptoAccountModels.map(\.userTokensManager)
-        } else {
-            // accounts_fixes_needed_none
-            [userWalletModel.userTokensManager]
-        }
-
-        await withTaskGroup(of: Void.self) { outerGroup in
+        await withTaskGroup { outerGroup in
             outerGroup.addTask {
-                await scheduleUpdate(userTokensManagers: userTokensManagers)
+                await scheduleUpdateInternal(with: userWalletModel)
             }
 
             // [REDACTED_TODO_COMMENT]
@@ -34,21 +28,36 @@ enum MultiWalletMainContentUpdater {
         }
     }
 
-    private static func scheduleUpdate(userTokensManagers: [UserTokensManager]) async {
+    private static func scheduleUpdateInternal(with userWalletModel: UserWalletModel) async {
         return await withCheckedContinuation { checkedContinuation in
-            guard userTokensManagers.isNotEmpty else {
-                return
-            }
 
-            let group = DispatchGroup()
-            for userTokensManager in userTokensManagers {
-                group.enter()
-                userTokensManager.sync {
-                    group.leave()
+            if FeatureProvider.isAvailable(.accounts) {
+                let group = DispatchGroup()
+                var subscription: AnyCancellable?
+
+                // One-time subscription to get the latest list of crypto accounts
+                subscription = userWalletModel
+                    .accountModelsManager
+                    .cryptoAccountModelsPublisher
+                    .prefix(1)
+                    .sink { cryptoAccounts in
+                        for account in cryptoAccounts {
+                            group.enter()
+                            account.userTokensManager.sync {
+                                group.leave()
+                            }
+                        }
+                        withExtendedLifetime(subscription) {}
+                    }
+
+                group.notify(queue: .global(qos: .userInitiated)) {
+                    checkedContinuation.resume()
                 }
-            }
-            group.notify(queue: .global(qos: .userInitiated)) {
-                checkedContinuation.resume()
+            } else {
+                // accounts_fixes_needed_none
+                userWalletModel.userTokensManager.sync {
+                    checkedContinuation.resume()
+                }
             }
         }
     }
