@@ -19,6 +19,7 @@ public enum TokenAccessibilityIdentifiers {
     public static let nativeStakingChevron = "tokenNativeStakingChevron"
 
     public static let topUpWalletBanner = "tokenTopUpWalletBanner"
+    public static let notEnoughFeeForTransactionBanner = "tokenNotEnoughFeeForTransactionBanner"
 
     /// Balance elements
     public static let totalBalance = "tokenTotalBalance"
