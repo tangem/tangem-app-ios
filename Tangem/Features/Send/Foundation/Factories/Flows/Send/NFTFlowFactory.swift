@@ -85,7 +85,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
 
         let expressDependenciesInput = ExpressDependenciesInput(
             userWalletInfo: userWalletInfo,
-            source: walletModel.asExpressInteractorWallet,
+            source: ExpressInteractorWalletWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
             destination: .none
         )
 
