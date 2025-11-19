@@ -70,7 +70,10 @@ private extension CommonExpressDestinationService {
 
         if let lastSwappedWallet = searchableWalletModels.first(where: { isLastTransactionWith(walletModel: $0.walletModel, searchType: searchType) }) {
             ExpressLogger.info(self, "select lastSwappedWallet: \(lastSwappedWallet.walletModel.tokenItem.expressCurrency)")
-            return lastSwappedWallet.walletModel.asExpressInteractorWallet
+            return ExpressInteractorWalletWrapper(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: lastSwappedWallet.walletModel
+            )
         }
 
         let walletModelsWithPositiveBalance = searchableWalletModels.filter { ($0.fiatBalance ?? 0) > 0 }
@@ -78,7 +81,10 @@ private extension CommonExpressDestinationService {
         // If all wallets without balance
         if walletModelsWithPositiveBalance.isEmpty, let first = searchableWalletModels.first {
             ExpressLogger.info(self, "has a zero wallets with positive balance then selected: \(first.walletModel.tokenItem.expressCurrency)")
-            return first.walletModel.asExpressInteractorWallet
+            return ExpressInteractorWalletWrapper(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: first.walletModel
+            )
         }
 
         // If user has wallets with balance then sort they
@@ -89,7 +95,10 @@ private extension CommonExpressDestinationService {
         // Start searching destination with available providers
         if let maxBalanceWallet = sortedWallets.first {
             ExpressLogger.info(self, "selected maxBalanceWallet: \(maxBalanceWallet.walletModel.tokenItem.expressCurrency)")
-            return maxBalanceWallet.walletModel.asExpressInteractorWallet
+            return ExpressInteractorWalletWrapper(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: maxBalanceWallet.walletModel
+            )
         }
 
         ExpressLogger.info(self, "couldn't find acceptable wallet")
