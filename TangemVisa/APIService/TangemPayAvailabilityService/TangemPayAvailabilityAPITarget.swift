@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 import Moya
 
 struct TangemPayAvailabilityAPITarget: TargetType {
@@ -55,5 +56,15 @@ extension TangemPayAvailabilityAPITarget {
         /// Checks Tangem Pay offer availability for user
         case getEligibility
         case validateDeeplink(deeplinkString: String)
+    }
+}
+
+extension TangemPayAvailabilityAPITarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        path
+    }
+
+    var shouldLogResponseBody: Bool {
+        return false
     }
 }
