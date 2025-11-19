@@ -80,7 +80,6 @@ final class AccountsAwareDerivationManager {
     private var accountModelsManagerSubscription: AnyCancellable?
     private weak var keysDerivingProvider: KeysDerivingProvider?
     private var pendingDerivations: [PendingDerivation] = []
-    private var bag: Set<AnyCancellable> = []
 
     private lazy var debouncer = Debouncer(interval: Constants.deriveKeysDebounceInterval) { [weak self] in
         self?.deriveKeysInternal(completion: $0)
@@ -198,9 +197,10 @@ extension AccountsAwareDerivationManager: DerivationManager {
         return addingDerivations.isNotEmpty || filteredPendingDerivations.isNotEmpty
     }
 
-    /// - Note: Multiple `_AccountsAwareDerivationManager` may call this method simultaneously, so we need to debounce such calls.
     func deriveKeys(completion: @escaping (Result<Void, any Error>) -> Void) {
-        ensureOnMainQueue() // `debouncer` is lazy, so we need to make sure it's created on serial queue
+        // `debouncer` is lazy (and lazy vars are not thread-safe), so we need to make sure it's created on serial queue
+        ensureOnMainQueue()
+        // Multiple `_AccountsAwareDerivationManager` may call this method simultaneously, so we need to debounce such calls.
         debouncer.debounce(withCompletion: completion)
     }
 }
