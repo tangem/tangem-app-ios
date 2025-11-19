@@ -31,10 +31,10 @@ struct SendNewFeeCompactView: View {
                     textColor: Colors.Text.tertiary,
                     loaderSize: CGSize(width: 70, height: 15)
                 )
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeAmount)
             }
         )
         .shouldShowTrailingIcon(viewModel.canEditFee)
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 11, horizontalPadding: 14)
-        .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
     }
 }
