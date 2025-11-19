@@ -349,11 +349,11 @@ extension VisaUserWalletModel {
                 allowRefresherTask: true
             )
 
-        if await authorizationTokensHandler.refreshTokenExpired {
+        if authorizationTokensHandler.refreshTokenExpired {
             throw ModelError.missingValidRefreshToken
         }
 
-        if await authorizationTokensHandler.accessTokenExpired {
+        if authorizationTokensHandler.accessTokenExpired {
             try await authorizationTokensHandler.forceRefreshToken()
         }
 
