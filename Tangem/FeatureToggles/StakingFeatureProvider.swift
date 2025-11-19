@@ -76,6 +76,7 @@ extension StakingFeatureProvider {
     static var testableBlockchainItems: Set<StakingItem> {
         [
             StakingItem(network: StakeKitNetworkType.cardano.rawValue, contractAddress: nil),
+            StakingItem(network: StakeKitNetworkType.ethereum.rawValue, contractAddress: nil),
         ]
     }
 
