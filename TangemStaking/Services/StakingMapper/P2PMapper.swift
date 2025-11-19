@@ -27,7 +27,7 @@ struct P2PMapper {
             enterMinimumRequirement: .zero,
             exitMinimumRequirement: .zero,
             validators: validators,
-            preferredValidators: [],
+            preferredValidators: validators,
             item: item,
             unbondingPeriod: .interval(minDays: 1, maxDays: 4),
             warmupPeriod: .specific(days: 0),
@@ -36,7 +36,7 @@ struct P2PMapper {
         )
     }
 
-    func mapToBalanceInfo(from response: P2PDTO.AccountSummary.AccountSummaryInfo) throws -> StakingBalanceInfo? {
+    func mapToBalanceInfo(from response: P2PDTO.AccountSummary.AccountSummaryInfo) -> StakingBalanceInfo? {
         guard let assets = response.stake.assets, assets > .zero else {
             return nil
         }
@@ -46,6 +46,21 @@ struct P2PMapper {
             balanceType: .active,
             validatorAddress: response.vaultAddress,
             actions: []
+        )
+    }
+    
+    func mapToStakingTransactionInfo(
+        from response: P2PDTO.PrepareDepositTransaction.PrepareDepositTransactionInfo
+    ) throws -> StakingTransactionInfo {
+        try StakingTransactionInfo(
+            id: "",
+            actionId: "",
+            network: "",
+            unsignedTransactionData: response.unsignedTransaction.serializeTx,
+            fee: fee(from: response.unsignedTransaction),
+            type: "",
+            status: "",
+            stepIndex: 0
         )
     }
 
@@ -60,6 +75,15 @@ struct P2PMapper {
             rewardRate: vault.apy ?? .zero,
             status: .active
         )
+    }
+    
+    private func fee(from unsignedTransaction: P2PDTO.UnsignedTransaction) throws -> Decimal {
+        guard let gasLimit = Decimal(stringValue: unsignedTransaction.gasLimit),
+              let maxFeePerGas = Decimal(stringValue: unsignedTransaction.maxFeePerGas) else {
+            throw P2PStakingAPIError.failedToGetFee
+        }
+        let feeWEI = gasLimit * maxFeePerGas
+        return feeWEI / 10e18
     }
 }
 

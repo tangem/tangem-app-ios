@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BigInt
 
 final class CommonP2PAPIProvider: P2PAPIProvider {
     let service: P2PStakingAPIService
@@ -22,17 +23,17 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
         return try mapper.mapToYieldInfo(from: response)
     }
 
-    func balances(wallet: StakingWallet, vaults: [String]) async throws -> [StakingBalanceInfo] {
+    func balances(walletAddress: String, vaults: [String]) async throws -> [StakingBalanceInfo] {
         try await withThrowingTaskGroup(of: StakingBalanceInfo?.self) { [service, mapper] group in
             var results = [StakingBalanceInfo?]()
 
             vaults.forEach { vault in
                 group.addTask {
                     let response = try await service.getAccountSummary(
-                        delegatorAddress: wallet.address,
+                        delegatorAddress: walletAddress,
                         vaultAddress: vault
                     )
-                    return try mapper.mapToBalanceInfo(from: response)
+                    return mapper.mapToBalanceInfo(from: response)
                 }
             }
 
@@ -42,5 +43,17 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
 
             return results.compactMap { $0 }
         }
+    }
+    
+    func stakeTransaction(
+        walletAddress: String,
+        vault: String,
+        amount: Decimal
+    ) async throws -> StakingTransactionInfo {
+        let response = try await service.prepareDepositTransaction(
+            request: .init(delegatorAddress: walletAddress, vaultAddress: vault, amount: amount)
+        )
+        
+        return try mapper.mapToStakingTransactionInfo(from: response)
     }
 }

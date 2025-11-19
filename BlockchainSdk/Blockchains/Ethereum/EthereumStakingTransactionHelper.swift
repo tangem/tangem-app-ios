@@ -1,5 +1,5 @@
 //
-//  EthereumStakeKitTransactionHelper.swift
+//  EthereumStakingTransactionHelper.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,32 +10,34 @@ import Foundation
 import WalletCore
 import BigInt
 
-struct EthereumStakeKitTransactionHelper {
+struct EthereumStakingTransactionHelper {
     private let transactionBuilder: EthereumTransactionBuilder
 
     init(transactionBuilder: EthereumTransactionBuilder) {
         self.transactionBuilder = transactionBuilder
     }
 
-    func prepareForSign(_ stakingTransaction: StakeKitTransaction) throws -> Data {
-        let input = try buildSigningInput(stakingTransaction: stakingTransaction)
+    func prepareForSign(_ unsignedTransactionHex: String, fee: Fee) throws -> Data {
+        let input = try buildSigningInput(unsignedTransactionHex: unsignedTransactionHex, fee: fee)
         let preSigningOutput = try transactionBuilder.buildTxCompilerPreSigningOutput(input: input)
         return preSigningOutput.dataHash
     }
 
     func prepareForSend(
-        stakingTransaction: StakeKitTransaction,
+        _ unsignedTransactionHex: String,
+        fee: Fee,
         signatureInfo: SignatureInfo
     ) throws -> Data {
-        let input = try buildSigningInput(stakingTransaction: stakingTransaction)
+        let input = try buildSigningInput(unsignedTransactionHex: unsignedTransactionHex, fee: fee)
         let output = try transactionBuilder.buildSigningOutput(input: input, signatureInfo: signatureInfo)
         return output.encoded
     }
 
     private func buildSigningInput(
-        stakingTransaction: StakeKitTransaction
+        unsignedTransactionHex: String,
+        fee: Fee
     ) throws -> EthereumSigningInput {
-        guard let compiledTransactionData = stakingTransaction.unsignedData.data(using: .utf8) else {
+        guard let compiledTransactionData = unsignedTransactionHex.data(using: .utf8) else {
             throw EthereumTransactionBuilderError.invalidStakingTransaction
         }
 
@@ -73,7 +75,7 @@ struct EthereumStakeKitTransactionHelper {
             destination: compiledTransaction.to,
             coinAmount: coinAmount,
             fee: Fee(
-                stakingTransaction.fee.amount,
+                fee.amount,
                 parameters: feeParameters
             ),
             nonce: compiledTransaction.nonce,

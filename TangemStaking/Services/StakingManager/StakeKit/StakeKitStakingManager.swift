@@ -323,16 +323,6 @@ private extension StakeKitStakingManager {
             throw error
         }
     }
-
-    private func waitForLoadingCompletion() async throws {
-        // Drop the current `loading` state
-        _ = try await _state.dropFirst().first().async()
-        // Check if after the loading state we have same status
-        // To exclude endless recursion
-        if case .loading = state {
-            throw StakingManagerError.stakingManagerIsLoading
-        }
-    }
 }
 
 // MARK: - Helping
