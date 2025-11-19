@@ -36,10 +36,13 @@ struct P2PMapper {
         )
     }
 
-    func mapToBalanceInfo(from response: P2PDTO.AccountSummary.AccountSummaryInfo) throws -> StakingBalanceInfo {
-        StakingBalanceInfo(
+    func mapToBalanceInfo(from response: P2PDTO.AccountSummary.AccountSummaryInfo) throws -> StakingBalanceInfo? {
+        guard let assets = response.stake.assets, assets > .zero else {
+            return nil
+        }
+        return StakingBalanceInfo(
             item: .ethereum,
-            amount: response.stake.assets,
+            amount: assets,
             balanceType: .active,
             validatorAddress: response.vaultAddress,
             actions: []
@@ -54,7 +57,7 @@ struct P2PMapper {
             partner: false,
             iconURL: nil,
             rewardType: .apy,
-            rewardRate: vault.apy,
+            rewardRate: vault.apy ?? .zero,
             status: .active
         )
     }
