@@ -63,6 +63,33 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .waitForSendButtonEnabled()
     }
 
+    func testInsufficientEthereumFeeBannerNavigatesToEthereumToken() {
+        setAllureId(3645)
+
+        let polTokenName = "POL (ex-MATIC)"
+
+        let ethNetworkScenario = ScenarioConfig(
+            name: "eth_network_balance",
+            initialState: "Empty"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true,
+            scenarios: [ethNetworkScenario]
+        )
+
+        let polTokenScreen = StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(polTokenName)
+            .waitForInsufficientFeeCurrencyBanner()
+
+        polTokenScreen
+            .tapGoToFeeCurrencyButton()
+            .waitForTokenName(ethTokenName)
+            .waitForActionButtons()
+    }
+
     private func prepareSendFlow() {
         launchApp(tangemApiType: .mock)
 
