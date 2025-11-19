@@ -32,7 +32,7 @@ protocol KeysManager {
     var yieldModuleApiKey: String { get }
     var yieldModuleApiKeyDev: String { get }
     var p2pApiKey: String { get }
-    var p2pApiKeyTestnet: String { get }
+    var p2pApiKeyDev: String { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
