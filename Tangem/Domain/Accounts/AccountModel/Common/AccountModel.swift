@@ -29,41 +29,42 @@ extension AccountModel {
 }
 
 /// https://github.com/tangem-developments/tangem-app-android/blob/develop/common/ui/src/main/java/com/tangem/common/ui/account/CryptoPortfolioIconExt.kt
+/// https://github.com/tangem-developments/tangem-app-android/blob/develop/domain/models/src/main/kotlin/com/tangem/domain/models/account/CryptoPortfolioIcon.kt
 extension AccountModel.Icon {
     enum Color: String, CaseIterable, Hashable {
-        case azure
-        case caribbeanBlue
-        case dullLavender
-        case candyGrapeFizz
-        case sweetDesire
-        case palatinateBlue
-        case fuchsiaNebula
-        case mexicanPink
-        case pelati
-        case pattypan
-        case ufoGreen
-        case vitalGreen
+        case azure = "Azure"
+        case caribbeanBlue = "CaribbeanBlue"
+        case dullLavender = "DullLavender"
+        case candyGrapeFizz = "CandyGrapeFizz"
+        case sweetDesire = "SweetDesire"
+        case palatinateBlue = "PalatinateBlue"
+        case fuchsiaNebula = "FuchsiaNebula"
+        case mexicanPink = "MexicanPink"
+        case pelati = "Pelati"
+        case pattypan = "Pattypan"
+        case ufoGreen = "UFOGreen"
+        case vitalGreen = "VitalGreen"
     }
 
     enum Name: String, CaseIterable, Hashable {
-        case letter
-        case star
-        case user
-        case family
-        case wallet
-        case money
-        case home
-        case safe
-        case beach
-        case airplaneMode
-        case shirt
-        case shoppingBasket
-        case favorite = "favourite" // Ew, UK spelling, but Android uses it
-        case bookmark
-        case startUp
-        case clock
-        case package
-        case gift
+        case letter = "Letter"
+        case star = "Star"
+        case user = "User"
+        case family = "Family"
+        case wallet = "Wallet"
+        case money = "Money"
+        case home = "Home"
+        case safe = "Safe"
+        case beach = "Beach"
+        case airplaneMode = "AirplaneMode"
+        case shirt = "Shirt"
+        case shoppingBasket = "ShoppingBasket"
+        case favorite = "Favourite" // Ew, UK spelling, but Android uses it
+        case bookmark = "Bookmark"
+        case startUp = "StartUp"
+        case clock = "Clock"
+        case package = "Package"
+        case gift = "Gift"
 
         /// Explicit sort order for icon display
         /// When adding a new case, you MUST add it here with a specific order number
