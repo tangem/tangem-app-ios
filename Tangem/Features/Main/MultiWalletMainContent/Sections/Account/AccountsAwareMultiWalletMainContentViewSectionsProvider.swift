@@ -223,7 +223,7 @@ extension AccountsAwareMultiWalletMainContentViewSectionsProvider: MultiWalletMa
             .share(replay: 1)
     }
 
-    func setup(with itemViewModelFactory: any MultiWalletMainContentItemViewModelFactory) {
+    func configure(with itemViewModelFactory: any MultiWalletMainContentItemViewModelFactory) {
         self.itemViewModelFactory = itemViewModelFactory
     }
 }

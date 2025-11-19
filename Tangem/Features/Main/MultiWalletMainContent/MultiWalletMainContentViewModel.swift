@@ -120,7 +120,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             updatePublisher: userWalletModel.updatePublisher
         )
 
-        sectionsProvider.setup(with: self)
+        sectionsProvider.configure(with: self)
 
         bind()
 
