@@ -25,34 +25,37 @@ final class BalanceRestrictionFeatureAvailabilityProvider {
 
     init(
         userWalletConfig: UserWalletConfig,
-        totalBalanceProvider: TotalBalanceProvider,
+        walletModelsPublisher: AnyPublisher<[any WalletModel], Never>,
         updatePublisher: AnyPublisher<UpdateResult, Never>
     ) {
         let isBalanceRestrictionActive = userWalletConfig.hasFeature(.isBalanceRestrictionActive)
         isBalanceRestrictionActiveSubject = CurrentValueSubject(isBalanceRestrictionActive)
         isActionButtonsAvailableSubject = CurrentValueSubject(!isBalanceRestrictionActive)
 
-        bind(
-            totalBalancePublisher: totalBalanceProvider.totalBalancePublisher,
-            updatePublisher: updatePublisher
-        )
+        bind(walletModelsPublisher: walletModelsPublisher, updatePublisher: updatePublisher)
     }
 
     private func bind(
-        totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
+        walletModelsPublisher: AnyPublisher<[any WalletModel], Never>,
         updatePublisher: AnyPublisher<UpdateResult, Never>
     ) {
+        let totalBalancesPublisher: AnyPublisher<[TokenBalanceType], Never> = walletModelsPublisher
+            .map { walletModels in
+                guard !walletModels.isEmpty else {
+                    return Just([TokenBalanceType]()).eraseToAnyPublisher()
+                }
+                return walletModels
+                    .map { $0.availableBalanceProvider.balanceTypePublisher }
+                    .combineLatest()
+            }
+            .switchToLatest()
+            .eraseToAnyPublisher()
+
         isBalanceRestrictionActiveSubject
-            .combineLatest(totalBalancePublisher)
-            .map { isBalanceRestrictionActive, totalBalanceState in
+            .combineLatest(totalBalancesPublisher)
+            .map { isBalanceRestrictionActive, totalBalances in
                 if isBalanceRestrictionActive {
-                    let isActionButtonsAvailable = switch totalBalanceState {
-                    case .empty: false
-                    case .loading(let cached): (cached ?? 0) > 0
-                    case .failed(let cached, _): (cached ?? 0) > 0
-                    case .loaded(let balance): balance > 0
-                    }
-                    return isActionButtonsAvailable
+                    return totalBalances.compactMap { $0.value }.contains(where: { $0 > 0 })
                 } else {
                     return true
                 }
