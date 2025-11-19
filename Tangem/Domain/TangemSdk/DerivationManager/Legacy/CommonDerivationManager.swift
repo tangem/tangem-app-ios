@@ -35,7 +35,7 @@ final class CommonDerivationManager {
 
     private func process(_ entries: [TokenItem], _ keys: [KeyInfo]) {
         let derivations = entries.compactMap { entry in
-            PendingDerivation.Helper.pendingDerivation(network: entry.blockchainNetwork, keys: keys)
+            PendingDerivationHelper.pendingDerivation(network: entry.blockchainNetwork, keys: keys)
         }
         pendingDerivations.send(derivations)
     }
@@ -69,7 +69,7 @@ extension CommonDerivationManager: DerivationManager {
         }
 
         let keys = keysRepository.keys
-        let addingDerivations = networksToAdd.compactMap { PendingDerivation.Helper.pendingDerivation(network: $0, keys: keys) }
+        let addingDerivations = networksToAdd.compactMap { PendingDerivationHelper.pendingDerivation(network: $0, keys: keys) }
 
         // Filter pending derivations by removing those that belong to networks scheduled for removal.
         // This ensures we only consider derivations that will still be relevant after the update.
@@ -89,7 +89,7 @@ extension CommonDerivationManager: DerivationManager {
             return
         }
 
-        let pendingDerivationsKeyed = PendingDerivation.Helper.pendingDerivationsKeyedByPublicKeys(pendingDerivations.value)
+        let pendingDerivationsKeyed = PendingDerivationHelper.pendingDerivationsKeyedByPublicKeys(pendingDerivations.value)
 
         interactor.deriveKeys(derivations: pendingDerivationsKeyed) { [weak self] result in
             guard let self else { return }
@@ -111,9 +111,9 @@ extension CommonDerivationManager: DerivationManager {
     }
 }
 
-// MARK: - _DerivationManager protocol conformance
+// MARK: - DerivationDependenciesConfigurable protocol conformance
 
-extension CommonDerivationManager: _DerivationManager {
+extension CommonDerivationManager: DerivationDependenciesConfigurable {
     func configure(with keysDerivingProvider: KeysDerivingProvider) {
         assert(self.keysDerivingProvider == nil, "An attempt to override already configured keysDerivingProvider instance")
         self.keysDerivingProvider = keysDerivingProvider

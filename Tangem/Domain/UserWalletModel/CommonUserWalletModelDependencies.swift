@@ -25,7 +25,7 @@ struct CommonUserWalletModelDependencies {
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
-    private var derivationManager: (DerivationManager & _DerivationManager)?
+    private var derivationManager: (DerivationManager & DerivationDependenciesConfigurable)?
     private let dependenciesConfigurator: DependenciesConfigurator
 
     init?(userWalletId: UserWalletId, config: UserWalletConfig, keys: WalletKeys) {
@@ -284,8 +284,8 @@ private extension CommonUserWalletModelDependencies {
         )
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
         let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
-            derivationStyle: config.derivationStyle,
             derivationManager: derivationManager,
+            derivationStyle: config.derivationStyle,
             keysRepository: keysRepository,
             walletManagerFactory: walletManagerFactory,
             existingCurves: config.existingCurves,
@@ -360,7 +360,7 @@ private extension CommonUserWalletModelDependencies {
         userTokensManager: UserTokensManager,
         areHDWalletsSupported: Bool,
         hasAccounts: Bool
-    ) -> (DerivationManager & _DerivationManager)? {
+    ) -> (DerivationManager & DerivationDependenciesConfigurable)? {
         guard areHDWalletsSupported else {
             return nil
         }
