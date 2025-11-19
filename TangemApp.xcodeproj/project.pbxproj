@@ -105,6 +105,17 @@
 		0AB5A4732C5267CB00491764 /* SegmentedPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */; };
 		0AB8BD3E2DBB7EFD00D88677 /* ReferralConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */; };
 		0ABAA2F52E56074100024627 /* MobileWalletAddressesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABAA2F42E56074100024627 /* MobileWalletAddressesTests.swift */; };
+		0ABBB2A52ECB70C30082BC76 /* P2PStakingAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2A42ECB70C30082BC76 /* P2PStakingAPIService.swift */; };
+		0ABBB2A82ECB71400082BC76 /* P2PDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2A72ECB71400082BC76 /* P2PDTO.swift */; };
+		0ABBB2AA2ECB71700082BC76 /* P2PDTO+Vaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2A92ECB71700082BC76 /* P2PDTO+Vaults.swift */; };
+		0ABBB2AC2ECB733C0082BC76 /* P2PDTO+AccountSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2AB2ECB733C0082BC76 /* P2PDTO+AccountSummary.swift */; };
+		0ABBB2AE2ECB753B0082BC76 /* P2PTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2AD2ECB753B0082BC76 /* P2PTarget.swift */; };
+		0ABBB2B02ECB785C0082BC76 /* P2PDTO+RewardsHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2AF2ECB785C0082BC76 /* P2PDTO+RewardsHistory.swift */; };
+		0ABBB2B22ECB78E10082BC76 /* P2PDTO+PrepareDepositTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2B12ECB78E10082BC76 /* P2PDTO+PrepareDepositTransaction.swift */; };
+		0ABBB2B42ECB79690082BC76 /* P2PDTO+Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2B32ECB79690082BC76 /* P2PDTO+Common.swift */; };
+		0ABBB2B62ECB7AE50082BC76 /* P2PDTO+PrepareUnstakeTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2B52ECB7AE50082BC76 /* P2PDTO+PrepareUnstakeTransaction.swift */; };
+		0ABBB2B82ECB7BF50082BC76 /* P2PDTO+PrepareWithdrawTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2B72ECB7BF50082BC76 /* P2PDTO+PrepareWithdrawTransaction.swift */; };
+		0ABBB2BA2ECC56DA0082BC76 /* P2PDTO+BroadcastTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2B92ECC56DA0082BC76 /* P2PDTO+BroadcastTransaction.swift */; };
 		0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */ = {isa = PBXBuildFile; productRef = 0ABC61142C410AFD00065EBA /* TweetNacl */; };
 		0ABCEE672E3B954000662B9F /* WalletInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCEE662E3B954000662B9F /* WalletInitializer.swift */; };
 		0ABCFCEB2DCA35F400C9F901 /* MarketsStakingNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */; };
@@ -4615,6 +4626,17 @@
 		0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedPicker.swift; sourceTree = "<group>"; };
 		0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralConstants.swift; sourceTree = "<group>"; };
 		0ABAA2F42E56074100024627 /* MobileWalletAddressesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletAddressesTests.swift; sourceTree = "<group>"; };
+		0ABBB2A42ECB70C30082BC76 /* P2PStakingAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PStakingAPIService.swift; sourceTree = "<group>"; };
+		0ABBB2A72ECB71400082BC76 /* P2PDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PDTO.swift; sourceTree = "<group>"; };
+		0ABBB2A92ECB71700082BC76 /* P2PDTO+Vaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "P2PDTO+Vaults.swift"; sourceTree = "<group>"; };
+		0ABBB2AB2ECB733C0082BC76 /* P2PDTO+AccountSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "P2PDTO+AccountSummary.swift"; sourceTree = "<group>"; };
+		0ABBB2AD2ECB753B0082BC76 /* P2PTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PTarget.swift; sourceTree = "<group>"; };
+		0ABBB2AF2ECB785C0082BC76 /* P2PDTO+RewardsHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "P2PDTO+RewardsHistory.swift"; sourceTree = "<group>"; };
+		0ABBB2B12ECB78E10082BC76 /* P2PDTO+PrepareDepositTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "P2PDTO+PrepareDepositTransaction.swift"; sourceTree = "<group>"; };
+		0ABBB2B32ECB79690082BC76 /* P2PDTO+Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "P2PDTO+Common.swift"; sourceTree = "<group>"; };
+		0ABBB2B52ECB7AE50082BC76 /* P2PDTO+PrepareUnstakeTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "P2PDTO+PrepareUnstakeTransaction.swift"; sourceTree = "<group>"; };
+		0ABBB2B72ECB7BF50082BC76 /* P2PDTO+PrepareWithdrawTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "P2PDTO+PrepareWithdrawTransaction.swift"; sourceTree = "<group>"; };
+		0ABBB2B92ECC56DA0082BC76 /* P2PDTO+BroadcastTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "P2PDTO+BroadcastTransaction.swift"; sourceTree = "<group>"; };
 		0ABCEE662E3B954000662B9F /* WalletInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInitializer.swift; sourceTree = "<group>"; };
 		0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsStakingNotificationView.swift; sourceTree = "<group>"; };
 		0ABDAEC32E325816001C7EE4 /* MobileWalletSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletSigner.swift; sourceTree = "<group>"; };
@@ -9176,6 +9198,42 @@
 				0AB346802E83CD8F004003A0 /* YieldModuleDTO.swift */,
 			);
 			path = DTO;
+			sourceTree = "<group>";
+		};
+		0ABBB2A22ECB70930082BC76 /* StakeKit */ = {
+			isa = PBXGroup;
+			children = (
+				EFBC5C762C00A78700B662E0 /* DTOs */,
+				EF407E632C04D6A400366733 /* StakeKitTarget.swift */,
+				EFBC5C782C00A79E00B662E0 /* StakeKitStakingAPIService.swift */,
+			);
+			path = StakeKit;
+			sourceTree = "<group>";
+		};
+		0ABBB2A32ECB70A90082BC76 /* P2P */ = {
+			isa = PBXGroup;
+			children = (
+				0ABBB2A62ECB712F0082BC76 /* DTOs */,
+				0ABBB2AD2ECB753B0082BC76 /* P2PTarget.swift */,
+				0ABBB2A42ECB70C30082BC76 /* P2PStakingAPIService.swift */,
+			);
+			path = P2P;
+			sourceTree = "<group>";
+		};
+		0ABBB2A62ECB712F0082BC76 /* DTOs */ = {
+			isa = PBXGroup;
+			children = (
+				0ABBB2A72ECB71400082BC76 /* P2PDTO.swift */,
+				0ABBB2A92ECB71700082BC76 /* P2PDTO+Vaults.swift */,
+				0ABBB2AB2ECB733C0082BC76 /* P2PDTO+AccountSummary.swift */,
+				0ABBB2AF2ECB785C0082BC76 /* P2PDTO+RewardsHistory.swift */,
+				0ABBB2B12ECB78E10082BC76 /* P2PDTO+PrepareDepositTransaction.swift */,
+				0ABBB2B52ECB7AE50082BC76 /* P2PDTO+PrepareUnstakeTransaction.swift */,
+				0ABBB2B72ECB7BF50082BC76 /* P2PDTO+PrepareWithdrawTransaction.swift */,
+				0ABBB2B92ECC56DA0082BC76 /* P2PDTO+BroadcastTransaction.swift */,
+				0ABBB2B32ECB79690082BC76 /* P2PDTO+Common.swift */,
+			);
+			path = DTOs;
 			sourceTree = "<group>";
 		};
 		0AEB1FCF2DBF75A5009EA212 /* Notifications */ = {
@@ -23447,10 +23505,9 @@
 		EFBC5C712C00A74100B662E0 /* StakingAPIService */ = {
 			isa = PBXGroup;
 			children = (
+				0ABBB2A32ECB70A90082BC76 /* P2P */,
+				0ABBB2A22ECB70930082BC76 /* StakeKit */,
 				EFBC5C702C00A74100B662E0 /* StakingAPIService.swift */,
-				EFBC5C782C00A79E00B662E0 /* StakeKitStakingAPIService.swift */,
-				EF407E632C04D6A400366733 /* StakeKitTarget.swift */,
-				EFBC5C762C00A78700B662E0 /* DTOs */,
 			);
 			path = StakingAPIService;
 			sourceTree = "<group>";
@@ -28957,10 +29014,13 @@
 				DC592B872C41961D005AB9A7 /* StakeKitDTO+SubmitHash.swift in Sources */,
 				EF407E6A2C04D7F400366733 /* RewardScheduleType.swift in Sources */,
 				EFB019472C4172D6009EE857 /* StakeKitDTO+NetworkType.swift in Sources */,
+				0ABBB2B82ECB7BF50082BC76 /* P2PDTO+PrepareWithdrawTransaction.swift in Sources */,
 				EF407E5D2C04D64B00366733 /* StakingAPIProvider.swift in Sources */,
 				0A1396EB2D7AF67500CA6A31 /* ValidatorInfoStatus.swift in Sources */,
+				0ABBB2AC2ECB733C0082BC76 /* P2PDTO+AccountSummary.swift in Sources */,
 				EFBC5C732C00A74100B662E0 /* StakingYieldInfo.swift in Sources */,
 				0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */,
+				0ABBB2B22ECB78E10082BC76 /* P2PDTO+PrepareDepositTransaction.swift in Sources */,
 				0A553D662D70BD8B00D65C6A /* StakingPendingActionConstraint.swift in Sources */,
 				EFBC5C752C00A74100B662E0 /* StakingAPIService.swift in Sources */,
 				0A2D94582DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift in Sources */,
@@ -28971,6 +29031,8 @@
 				DC592B8C2C41A0EB005AB9A7 /* StakingPendingHashesSender.swift in Sources */,
 				EF407E6C2C04D80100366733 /* RewardType.swift in Sources */,
 				EFBC5C8E2C00B8A000B662E0 /* StakeKitDTO.swift in Sources */,
+				0ABBB2A52ECB70C30082BC76 /* P2PStakingAPIService.swift in Sources */,
+				0ABBB2AA2ECB71700082BC76 /* P2PDTO+Vaults.swift in Sources */,
 				EF407E6E2C04D81100366733 /* Period.swift in Sources */,
 				EF2A54192C452B8500341060 /* ValidatorInfo.swift in Sources */,
 				EFB019452C417143009EE857 /* StakingTransactionInfo.swift in Sources */,
@@ -28982,12 +29044,16 @@
 				EF407E662C04D75100366733 /* StakeKitDTO+Actions.swift in Sources */,
 				EF72DC062C467001003DD97F /* StakingTokenItem.swift in Sources */,
 				EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */,
+				0ABBB2B62ECB7AE50082BC76 /* P2PDTO+PrepareUnstakeTransaction.swift in Sources */,
 				EF8DBCDD2C060A03009072CF /* StakingManager.swift in Sources */,
 				EFBC5C792C00A79E00B662E0 /* StakeKitStakingAPIService.swift in Sources */,
 				0A2D94532DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift in Sources */,
+				0ABBB2B02ECB785C0082BC76 /* P2PDTO+RewardsHistory.swift in Sources */,
 				0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */,
 				EF7C4B3B2C93413D005F9360 /* StakingBalanceType.swift in Sources */,
 				EFB019492C4174D1009EE857 /* EnterAction.swift in Sources */,
+				0ABBB2AE2ECB753B0082BC76 /* P2PTarget.swift in Sources */,
+				0ABBB2BA2ECC56DA0082BC76 /* P2PDTO+BroadcastTransaction.swift in Sources */,
 				EF407E5F2C04D65B00366733 /* CommonStakingAPIProvider.swift in Sources */,
 				EFB019432C41710F009EE857 /* StakingBalanceInfo.swift in Sources */,
 				EFA5BC0A2C88D31C004662CA /* StakingTransactionAction.swift in Sources */,
@@ -28997,12 +29063,14 @@
 				EFB0193F2C4160D7009EE857 /* StakeKitDTO+Transaction.swift in Sources */,
 				0A2D94552DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift in Sources */,
 				EFBC5C742C00A74100B662E0 /* StakingWallet.swift in Sources */,
+				0ABBB2B42ECB79690082BC76 /* P2PDTO+Common.swift in Sources */,
 				EF0FBB8B2C53FFCD0095A6BD /* ActionStatus.swift in Sources */,
 				DC592B902C41A4BA005AB9A7 /* StakingPendingHash.swift in Sources */,
 				EF407E642C04D6A400366733 /* StakeKitTarget.swift in Sources */,
 				0A7FF63D2C888D380072C2E8 /* StakingAnalyticsLogger.swift in Sources */,
 				EFB019412C4160EF009EE857 /* StakeKitDTO+Balances.swift in Sources */,
 				0A0DB7582C48FB0000003450 /* RewardRateValues.swift in Sources */,
+				0ABBB2A82ECB71400082BC76 /* P2PDTO.swift in Sources */,
 				EF19FAF62C6D43BB002155F1 /* PendingAction.swift in Sources */,
 				EF7C4B412C936200005F9360 /* StakingValidatorType.swift in Sources */,
 				EF407E622C04D67400366733 /* StakeKitMapper.swift in Sources */,
