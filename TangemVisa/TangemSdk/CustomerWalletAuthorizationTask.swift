@@ -16,10 +16,16 @@ enum CustomerWalletAuthorizationTaskError: Error {
 
 public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
     private let seedKey: Data
+    private let customerWalletId: String
     private let authorizationService: VisaAuthorizationService
 
-    public init(seedKey: Data, authorizationService: VisaAuthorizationService) {
+    public init(
+        seedKey: Data,
+        customerWalletId: String,
+        authorizationService: VisaAuthorizationService
+    ) {
         self.seedKey = seedKey
+        self.customerWalletId = customerWalletId
         self.authorizationService = authorizationService
     }
 
@@ -64,7 +70,8 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
         VisaLogger.info("Requesting challenge for wallet authorization")
 
         let challengeResponse = try await authorizationService.getCustomerWalletAuthorizationChallenge(
-            customerWalletAddress: TangemPayUtilities.makeAddress(using: walletPublicKey)
+            customerWalletAddress: TangemPayUtilities.makeAddress(using: walletPublicKey),
+            customerWalletId: customerWalletId
         )
 
         VisaLogger.info("Received challenge to sign")

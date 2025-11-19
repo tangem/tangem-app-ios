@@ -15,7 +15,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.baseURL
+        apiType.bffBaseURL
     }
 
     var path: String {
@@ -125,5 +125,17 @@ extension CustomerInfoManagementAPITarget {
 
         case placeOrder(walletAddress: String)
         case getOrder(orderId: String)
+    }
+}
+
+import TangemNetworkUtils
+
+extension CustomerInfoManagementAPITarget: TargetTypeLogConvertible {
+    var shouldLogResponseBody: Bool {
+        true
+    }
+
+    var requestDescription: String {
+        baseURL.appendingPathComponent(path).absoluteString
     }
 }
