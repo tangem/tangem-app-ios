@@ -190,6 +190,8 @@ struct NotificationView: View {
             return SendAccessibilityIdentifiers.reduceFeeButton
         case .leaveAmount:
             return SendAccessibilityIdentifiers.leaveAmountButton
+        case .openFeeCurrency:
+            return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
         default:
             return CommonUIAccessibilityIdentifiers.notificationButton
         }
