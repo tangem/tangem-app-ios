@@ -32,9 +32,8 @@ struct CardActivationOrderProviderBuilder {
 
         let productActivationService = CommonProductActivationService(
             apiType: apiType,
-            authorizationTokensHandler: tokensHandler,
             apiService: .init(
-                provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
+                provider: TangemPayProviderBuilder().buildProvider(configuration: urlSessionConfiguration, authorizationTokensHandler: tokensHandler),
                 decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
         )
