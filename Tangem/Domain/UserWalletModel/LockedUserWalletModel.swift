@@ -117,6 +117,10 @@ class LockedUserWalletModel: UserWalletModel {
         fatalError("Should not be called for locked wallets")
     }
 
+    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
+        fatalError("Should not be called for locked wallets")
+    }
+
     var name: String { userWallet.name }
     let backupInput: OnboardingInput? = nil
     var userWallet: StoredUserWallet
