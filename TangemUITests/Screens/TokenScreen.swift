@@ -22,6 +22,8 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var stakeNotificationButton = button(.stakeNotificationButton)
     private lazy var topUpBanner = staticText(.topUpBanner)
     private lazy var notEnoughFeeForTransactionBanner = otherElement(.notEnoughFeeForTransactionBanner)
+    private lazy var goToFeeCurrencyButton = button(.feeCurrencyNavigationButton)
+    private lazy var tokenNameLabel = staticText(.tokenNameLabel)
 
     // Action buttons
     private lazy var receiveButton = button(.receiveButton)
@@ -118,6 +120,31 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             waitAndAssertTrue(topUpBanner, "Top up wallet banner should be displayed")
             return self
         }
+    }
+
+    @discardableResult
+    func waitForInsufficientFeeCurrencyBanner() -> Self {
+        XCTContext.runActivity(named: "Validate insufficient fee currency banner exists") { _ in
+            waitAndAssertTrue(insufficientFeeCurrencyBanner, "Insufficient fee currency banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapGoToFeeCurrencyButton() -> TokenScreen {
+        XCTContext.runActivity(named: "Tap go to fee currency button") { _ in
+            goToFeeCurrencyButton.waitAndTap()
+        }
+        return TokenScreen(app)
+    }
+
+    @discardableResult
+    func waitForTokenName(_ name: String) -> Self {
+        XCTContext.runActivity(named: "Validate token name '\(name)' is displayed") { _ in
+            waitAndAssertTrue(tokenNameLabel, "Token name label should exist")
+            XCTAssertEqual(tokenNameLabel.label, name, "Token details should display '\(name)' token name")
+        }
+        return self
     }
 
     @discardableResult
@@ -234,6 +261,8 @@ enum TokenScreenElement: String, UIElement {
     case nativeStakingTitle
     case nativeStakingChevron
     case topUpBanner
+    case feeCurrencyNavigationButton
+    case tokenNameLabel
     case notEnoughFeeForTransactionBanner
     case availableSegment
     case totalBalance
@@ -263,6 +292,10 @@ enum TokenScreenElement: String, UIElement {
             return TokenAccessibilityIdentifiers.nativeStakingChevron
         case .topUpBanner:
             return TokenAccessibilityIdentifiers.topUpWalletBanner
+        case .feeCurrencyNavigationButton:
+            return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
+        case .tokenNameLabel:
+            return TokenAccessibilityIdentifiers.tokenNameLabel
         case .notEnoughFeeForTransactionBanner:
             return TokenAccessibilityIdentifiers.notEnoughFeeForTransactionBanner
         case .availableSegment:
