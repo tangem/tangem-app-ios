@@ -36,8 +36,13 @@ class StakingDependenciesFactory {
 
         let network: P2PNetwork = AppEnvironment.current.isTestnet ? .hoodi : .mainnet
 
+        let apiKey = switch FeatureStorage.instance.p2pStakingAPIType {
+        case .prod: keysManager.p2pApiKey
+        case .dev: keysManager.p2pApiKeyDev
+        }
+
         return TangemStakingFactory().makeP2PAPIProvider(
-            credential: StakingAPICredential(apiKey: keysManager.p2pApiKey),
+            credential: StakingAPICredential(apiKey: apiKey),
             configuration: .stakingConfiguration,
             plugins: plugins,
             apiType: FeatureStorage.instance.p2pStakingAPIType,
