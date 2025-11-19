@@ -17,6 +17,8 @@ import TangemFoundation
 class FakeUserWalletModel: UserWalletModel {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
+    var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
+
     var keysRepository: KeysRepository {
         CommonKeysRepository(
             userWalletId: userWalletId,
