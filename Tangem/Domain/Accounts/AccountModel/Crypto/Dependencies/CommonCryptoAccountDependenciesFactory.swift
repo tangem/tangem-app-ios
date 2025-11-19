@@ -36,6 +36,8 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         forAccountWithDerivationIndex derivationIndex: Int,
         userWalletModel: UserWalletModel
     ) -> CryptoAccountDependencies {
+        let userWalletId = userWalletModel.userWalletId
+
         let derivationInfo = AccountsAwareUserTokensManager.DerivationInfo(
             derivationIndex: derivationIndex,
             derivationStyle: derivationStyle,
@@ -44,7 +46,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let userTokensRepository = userTokensRepositoryProvider(derivationIndex)
 
         let userTokensManager = AccountsAwareUserTokensManager(
-            userWalletId: userWalletModel.userWalletId,
+            userWalletId: userWalletId,
             userTokensRepository: userTokensRepository,
             derivationInfo: derivationInfo,
             existingCurves: existingCurves,
@@ -59,7 +61,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletManagerFactory: walletManagerFactory
         )
 
-        let walletModelsFactory = walletModelsFactoryProvider(userWalletModel.userWalletId)
+        let walletModelsFactory = walletModelsFactoryProvider(userWalletId)
         let wrappedWalletModelsFactory = AccountsAwareWalletModelsFactoryWrapper(innerFactory: walletModelsFactory)
 
         let walletModelsManager = CommonWalletModelsManager(
