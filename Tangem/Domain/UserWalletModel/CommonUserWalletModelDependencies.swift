@@ -25,7 +25,7 @@ struct CommonUserWalletModelDependencies {
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
-    private var derivationManager: CommonDerivationManager?
+    private var derivationManager: (DerivationManager & _DerivationManager)?
     private let dependenciesConfigurator: DependenciesConfigurator
 
     init?(userWalletId: UserWalletId, config: UserWalletConfig, keys: WalletKeys) {
@@ -70,9 +70,12 @@ struct CommonUserWalletModelDependencies {
         // Initialized immediately after creation since there are no dependencies to inject
         walletModelsManager.initialize()
 
-        derivationManager = areHDWalletsSupported
-            ? CommonDerivationManager(keysRepository: keysRepository, userTokensManager: userTokensManager)
-            : nil
+        derivationManager = Self.makeDerivationManager(
+            keysRepository: keysRepository,
+            userTokensManager: userTokensManager,
+            areHDWalletsSupported: areHDWalletsSupported,
+            hasAccounts: hasAccounts
+        )
 
         // [REDACTED_TODO_COMMENT]
         let userTokensPushNotificationsManager = Self.makeUserTokensPushNotificationsManager(
@@ -97,6 +100,7 @@ struct CommonUserWalletModelDependencies {
             cryptoAccountsGlobalStateProvider: cryptoAccountsGlobalStateProvider,
             keysRepository: keysRepository,
             userTokensPushNotificationsManager: userTokensPushNotificationsManager,
+            derivationManager: derivationManager,
             areHDWalletsSupported: areHDWalletsSupported,
             hasTokenSynchronization: hasTokenSynchronization,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
@@ -123,6 +127,7 @@ struct CommonUserWalletModelDependencies {
 
     func update(from model: UserWalletModel) {
         derivationManager?.configure(with: model)
+        derivationManager?.configure(with: model.accountModelsManager)
         dependenciesConfigurator.configure(with: model)
     }
 }
@@ -135,7 +140,7 @@ private extension CommonUserWalletModelDependencies {
         hasAccounts: Bool,
         accountModelsManager: AccountModelsManager,
         walletModelsManager: WalletModelsManager,
-        derivationManager: CommonDerivationManager?
+        derivationManager: DerivationManager?
     ) -> TotalBalanceProvider {
         if hasAccounts {
             return AccountsAwareTotalBalanceProvider(
@@ -242,6 +247,7 @@ private extension CommonUserWalletModelDependencies {
         cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider,
         keysRepository: KeysRepository,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
+        derivationManager: DerivationManager?,
         areHDWalletsSupported: Bool,
         hasTokenSynchronization: Bool,
         shouldLoadExpressAvailability: Bool,
@@ -279,7 +285,7 @@ private extension CommonUserWalletModelDependencies {
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
         let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
             derivationStyle: config.derivationStyle,
-            derivationManager: nil, // [REDACTED_TODO_COMMENT]
+            derivationManager: derivationManager,
             keysRepository: keysRepository,
             walletManagerFactory: walletManagerFactory,
             existingCurves: config.existingCurves,
@@ -347,6 +353,23 @@ private extension CommonUserWalletModelDependencies {
         )
 
         return (userTokensManager, dependenciesConfigurator)
+    }
+
+    static func makeDerivationManager(
+        keysRepository: KeysRepository,
+        userTokensManager: UserTokensManager,
+        areHDWalletsSupported: Bool,
+        hasAccounts: Bool
+    ) -> (DerivationManager & _DerivationManager)? {
+        guard areHDWalletsSupported else {
+            return nil
+        }
+
+        if hasAccounts {
+            return AccountsAwareDerivationManager(keysRepository: keysRepository)
+        }
+
+        return CommonDerivationManager(keysRepository: keysRepository, userTokensManager: userTokensManager)
     }
 }
 
