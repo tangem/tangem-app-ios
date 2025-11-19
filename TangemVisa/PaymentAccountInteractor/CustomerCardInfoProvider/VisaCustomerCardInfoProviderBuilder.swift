@@ -30,7 +30,7 @@ public struct VisaCustomerCardInfoProviderBuilder {
                 authorizationTokensHandler: authorizationTokensHandler,
                 urlSessionConfiguration: urlSessionConfiguration,
                 authorizeWithCustomerWallet: {
-                    guard let tokens = await authorizationTokensHandler.authorizationTokens else {
+                    guard let tokens = authorizationTokensHandler.authorizationTokens else {
                         throw VisaAuthorizationTokensHandlerError.authorizationTokensNotFound
                     }
                     return tokens
@@ -57,7 +57,10 @@ public struct VisaCustomerCardInfoProviderBuilder {
                 apiType: apiType,
                 authorizationTokenHandler: authorizationTokensHandler,
                 apiService: .init(
-                    provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
+                    provider: TangemPayProviderBuilder().buildProvider(
+                        configuration: urlSessionConfiguration,
+                        authorizationTokensHandler: authorizationTokensHandler
+                    ),
                     decoder: JSONDecoderFactory().makeCIMDecoder()
                 ),
                 authorizeWithCustomerWallet: authorizeWithCustomerWallet
