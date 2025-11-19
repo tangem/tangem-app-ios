@@ -107,7 +107,10 @@ final class TangemPayAccount {
             return nil
         }
 
-        let authorizer = TangemPayAuthorizer(userWalletModel: userWalletModel)
+        let authorizer = TangemPayAuthorizer(
+            interactor: userWalletModel.tangemPayAuthorizingInteractor,
+            keysRepository: userWalletModel.keysRepository
+        )
 
         let tokens = VisaAuthorizationTokens(
             accessToken: nil,
