@@ -121,13 +121,13 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 )
             ),
             DefaultPickerRowViewModel(
-                title: "Staking API type",
-                options: StakingAPIType.allCases.map { $0.rawValue },
+                title: "StakeKit staking API type",
+                options: StakeKitAPIType.allCases.map { $0.rawValue },
                 selection: BindingValue<String>(
                     root: featureStorage,
-                    default: StakingAPIType.prod.rawValue,
+                    default: StakeKitAPIType.prod.rawValue,
                     get: { $0.stakingAPIType.rawValue },
-                    set: { $0.stakingAPIType = StakingAPIType(rawValue: $1) ?? .prod }
+                    set: { $0.stakingAPIType = StakeKitAPIType(rawValue: $1) ?? .prod }
                 )
             ),
             DefaultPickerRowViewModel(
@@ -138,6 +138,16 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: YieldModuleAPIType.prod.rawValue,
                     get: { $0.yieldModuleAPIType.rawValue },
                     set: { $0.yieldModuleAPIType = YieldModuleAPIType(rawValue: $1) ?? .prod }
+                )
+            ),
+            DefaultPickerRowViewModel(
+                title: "P2P staking API type",
+                options: P2PAPIType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: P2PAPIType.prod.rawValue,
+                    get: { $0.p2pStakingAPIType.rawValue },
+                    set: { $0.p2pStakingAPIType = P2PAPIType(rawValue: $1) ?? .prod }
                 )
             ),
         ]

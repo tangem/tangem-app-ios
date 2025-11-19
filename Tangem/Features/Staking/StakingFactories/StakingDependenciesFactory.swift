@@ -11,6 +11,7 @@ import TangemStaking
 import TangemNetworkUtils
 import BlockchainSdk
 import Moya
+import TangemFoundation
 
 class StakingDependenciesFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
@@ -33,10 +34,14 @@ class StakingDependenciesFactory {
             TangemNetworkLoggerPlugin(logOptions: .verbose),
         ]
 
+        let network: P2PNetwork = AppEnvironment.current.isTestnet ? .hoodi : .mainnet
+
         return TangemStakingFactory().makeP2PAPIProvider(
             credential: StakingAPICredential(apiKey: keysManager.p2pApiKey),
             configuration: .stakingConfiguration,
-            plugins: plugins
+            plugins: plugins,
+            apiType: FeatureStorage.instance.p2pStakingAPIType,
+            network: network,
         )
     }
 
