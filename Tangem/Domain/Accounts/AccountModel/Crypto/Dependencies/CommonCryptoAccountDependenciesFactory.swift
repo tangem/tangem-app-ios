@@ -15,8 +15,9 @@ struct CommonCryptoAccountDependenciesFactory {
     typealias UserTokensRepositoryProvider = (_ derivationIndex: Int) -> UserTokensRepository
     typealias WalletModelsFactoryProvider = (_ userWalletId: UserWalletId) -> WalletModelsFactory
 
-    let derivationStyle: DerivationStyle?
+    /// A single instance per user wallet
     let derivationManager: DerivationManager?
+    let derivationStyle: DerivationStyle?
     let keysRepository: KeysRepository
     let walletManagerFactory: AnyWalletManagerFactory
     let existingCurves: [EllipticCurve]
@@ -66,8 +67,9 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletModelsFactory: wrappedWalletModelsFactory
         )
 
+        // A single instance per unique account, account-specific proxy for `derivationManager`
         let accountSpecificDerivationManager = derivationManager.map { innerDerivationManager in
-            return _AccountsAwareDerivationManager(
+            return AccountDerivationManager(
                 keysRepository: keysRepository,
                 userTokensManager: userTokensManager,
                 innerDerivationManager: innerDerivationManager
