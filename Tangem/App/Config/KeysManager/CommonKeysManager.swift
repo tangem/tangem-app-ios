@@ -129,6 +129,10 @@ extension CommonKeysManager: KeysManager {
     var p2pApiKey: String {
         keys.p2pApiKey
     }
+
+    var p2pApiKeyTestnet: String {
+        keys.p2pApiKeyTestnet
+    }
 }
 
 extension CommonKeysManager {
@@ -174,5 +178,6 @@ extension CommonKeysManager {
         let yieldModuleApiKey: String
         let yieldModuleApiKeyDev: String
         let p2pApiKey: String
+        let p2pApiKeyTestnet: String
     }
 }

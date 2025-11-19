@@ -27,7 +27,7 @@ extension P2PStakingManager: StakingManager {
     func updateState(loadActions: Bool) async {
         _state.send(.loading)
 
-        let yield = try? await provider.yield(network: "mainnet")
+        let yield = try? await provider.yield()
 
         guard let yield, !yield.validators.isEmpty else {
             _state.send(.notEnabled)

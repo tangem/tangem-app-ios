@@ -13,7 +13,7 @@ import TangemNetworkUtils
 class CommonStakeKitStakingAPIService: StakeKitStakingAPIService {
     private let provider: TangemProvider<StakeKitTarget>
     private let credential: StakingAPICredential
-    private let apiType: StakingAPIType
+    private let apiType: StakeKitAPIType
 
     private let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -21,7 +21,7 @@ class CommonStakeKitStakingAPIService: StakeKitStakingAPIService {
         return decoder
     }()
 
-    init(provider: TangemProvider<StakeKitTarget>, credential: StakingAPICredential, apiType: StakingAPIType = .prod) {
+    init(provider: TangemProvider<StakeKitTarget>, credential: StakingAPICredential, apiType: StakeKitAPIType = .prod) {
         self.provider = provider
         self.credential = credential
         self.apiType = apiType
