@@ -163,6 +163,7 @@ final class TangemPayAccount {
                 }
             } catch {
                 // [REDACTED_TODO_COMMENT]
+//                assertionFailure(error.localizedDescription)
             }
         }
     }
