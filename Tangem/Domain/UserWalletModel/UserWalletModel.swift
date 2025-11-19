@@ -21,6 +21,7 @@ protocol UserWalletModel:
     EmailDataProvider,
     WCUserWalletInfoProvider,
     KeysDerivingProvider,
+    TangemPayAuthorizingProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
     AnyObject {
