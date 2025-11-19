@@ -49,10 +49,13 @@ class FeatureStorage {
     var tangemAPIType = TangemAPIType.prod
 
     @AppStorageCompat(FeatureStorageKeys.stakingAPIType)
-    var stakingAPIType = StakingAPIType.prod
+    var stakingAPIType = StakeKitAPIType.prod
 
     @AppStorageCompat(FeatureStorageKeys.yieldModuleAPIType)
     var yieldModuleAPIType = YieldModuleAPIType.prod
+
+    @AppStorageCompat(FeatureStorageKeys.p2pStakingAPIType)
+    var p2pStakingAPIType = P2PAPIType.prod
 
     private init() {}
 }
@@ -74,4 +77,5 @@ private enum FeatureStorageKeys: String {
     case tangemAPIType = "tangem_api_type"
     case stakingAPIType = "staking_api_type"
     case yieldModuleAPIType = "yield_module_api_type"
+    case p2pStakingAPIType = "p2p_staking_api_type"
 }
