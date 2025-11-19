@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import TangemSdk
 
 protocol DerivationManager: AnyObject {
     var hasPendingDerivations: AnyPublisher<Bool, Never> { get }
