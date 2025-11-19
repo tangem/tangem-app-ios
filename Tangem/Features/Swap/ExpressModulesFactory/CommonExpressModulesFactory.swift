@@ -94,7 +94,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             expressPairsRepository: expressPairsRepository,
             expressInteractor: expressDependenciesFactory.expressInteractor,
             coordinator: coordinator,
-            userWalletModelConfig: userWalletInfo.config
+            userWalletInfo: userWalletInfo
         )
     }
 

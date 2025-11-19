@@ -41,7 +41,7 @@ class StakingModel {
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let stakingTransactionDispatcher: TransactionDispatcher
     private let transactionDispatcher: TransactionDispatcher
-    private let allowanceService: AllowanceService
+    private let allowanceService: AllowanceService?
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let accountInitializationService: BlockchainAccountInitializationService?
     private let minimalBalanceProvider: MinimalBalanceProvider?
@@ -62,7 +62,7 @@ class StakingModel {
         feeIncludedCalculator: FeeIncludedCalculator,
         stakingTransactionDispatcher: TransactionDispatcher,
         transactionDispatcher: TransactionDispatcher,
-        allowanceService: AllowanceService,
+        allowanceService: AllowanceService?,
         analyticsLogger: StakingSendAnalyticsLogger,
         accountInitializationService: BlockchainAccountInitializationService?,
         minimalBalanceProvider: MinimalBalanceProvider?,
@@ -173,7 +173,7 @@ private extension StakingModel {
     }
 
     func allowanceState(amount: Decimal, approvePolicy: ApprovePolicy) async throws -> AllowanceState? {
-        guard allowanceService.isSupportAllowance, let spender = stakingManager.allowanceAddress else {
+        guard let allowanceService, let spender = stakingManager.allowanceAddress else {
             return nil
         }
 
@@ -584,16 +584,11 @@ extension StakingModel: ApproveViewModelInput {
             throw StakingModelError.approveDataNotFound
         }
 
-        let transaction = try await transactionCreator.buildTransaction(
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            amount: 0,
-            fee: approveData.fee,
-            destination: .contractCall(contract: approveData.toContractAddress, data: approveData.txData)
-        )
+        guard let allowanceService else {
+            throw StakingModelError.allowanceServiceNotFound
+        }
 
-        _ = try await transactionDispatcher.send(transaction: .transfer(transaction))
-        allowanceService.didSendApproveTransaction(for: approveData.spender)
+        _ = try await allowanceService.sendApproveTransaction(data: approveData)
         updateState()
 
         // Setup timer for autoupdate
@@ -653,6 +648,7 @@ extension StakingModel {
 enum StakingModelError: String, Hashable, LocalizedError {
     case readyToStakeNotFound
     case validatorNotFound
+    case allowanceServiceNotFound
     case approveDataNotFound
     case accountIsNotInitialized
 
