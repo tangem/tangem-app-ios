@@ -58,10 +58,8 @@ actor CommonCustomerInfoManagementService {
 
     private func makeRequest(for target: CustomerInfoManagementAPITarget.Target) async throws -> CustomerInfoManagementAPITarget {
         try await prepareTokensHandler()
-        let authorizationToken = try await authorizationTokenHandler.authorizationHeader
 
         return .init(
-            authorizationToken: authorizationToken,
             target: target,
             apiType: apiType
         )
@@ -84,12 +82,12 @@ actor CommonCustomerInfoManagementService {
     }
 
     private func refreshTokenIfNeeded() async throws {
-        if await authorizationTokenHandler.refreshTokenExpired {
+        if authorizationTokenHandler.refreshTokenExpired {
             let tokens = try await authorizeWithCustomerWallet()
             try await authorizationTokenHandler.setupTokens(tokens)
         }
 
-        if await authorizationTokenHandler.accessTokenExpired {
+        if authorizationTokenHandler.accessTokenExpired {
             do {
                 try await authorizationTokenHandler.forceRefreshToken()
 
