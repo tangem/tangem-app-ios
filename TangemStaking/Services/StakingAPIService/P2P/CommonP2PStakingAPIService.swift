@@ -12,7 +12,6 @@ import TangemNetworkUtils
 final class CommonP2PStakingAPIService: P2PStakingAPIService {
     private let provider: TangemProvider<P2PTarget>
     private let credential: StakingAPICredential
-    private let apiType: P2PAPIType
     private let network: P2PNetwork
 
     private let decoder: JSONDecoder = {
@@ -24,12 +23,10 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
     init(
         provider: TangemProvider<P2PTarget> = .init(),
         credential: StakingAPICredential,
-        apiType: P2PAPIType,
         network: P2PNetwork
     ) {
         self.provider = provider
         self.credential = credential
-        self.apiType = apiType
         self.network = network
     }
 
@@ -106,9 +103,8 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
     private func response<T: Decodable>(_ target: P2PTarget.Target) async throws -> T {
         let targetType = P2PTarget(
             apiKey: credential.apiKey,
-            apiType: apiType,
             target: target,
-            network: network.rawValue
+            network: network
         )
         let response = try await provider.requestPublisher(targetType).async()
         let filtered = try response.filterSuccessfulStatusCodes()
