@@ -7,10 +7,10 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 import Moya
 
 struct CustomerInfoManagementAPITarget: TargetType {
-    let authorizationToken: String
     let target: Target
     let apiType: VisaAPIType
 
@@ -99,10 +99,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
     }
 
     var headers: [String: String]? {
-        var defaultHeaders = VisaConstants.defaultHeaderParams
-        defaultHeaders[VisaConstants.authorizationHeaderKey] = authorizationToken
-
-        return defaultHeaders
+        ["Content-Type": "application/json"]
     }
 }
 
@@ -125,5 +122,15 @@ extension CustomerInfoManagementAPITarget {
 
         case placeOrder(walletAddress: String)
         case getOrder(orderId: String)
+    }
+}
+
+extension CustomerInfoManagementAPITarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        path
+    }
+
+    var shouldLogResponseBody: Bool {
+        return false
     }
 }
