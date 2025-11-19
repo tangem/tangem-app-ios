@@ -28,7 +28,7 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     private let expressTokensListAdapter: ExpressTokensListAdapter
     private let expressPairsRepository: ExpressPairsRepository
     private let expressInteractor: ExpressInteractor
-    private let userWalletModelConfig: UserWalletConfig
+    private let userWalletInfo: UserWalletInfo
     private weak var coordinator: ExpressTokensListRoutable?
 
     // MARK: - Internal
@@ -47,14 +47,14 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
         expressPairsRepository: ExpressPairsRepository,
         expressInteractor: ExpressInteractor,
         coordinator: ExpressTokensListRoutable,
-        userWalletModelConfig: UserWalletConfig
+        userWalletInfo: UserWalletInfo
     ) {
         self.swapDirection = swapDirection
         self.expressTokensListAdapter = expressTokensListAdapter
         self.expressPairsRepository = expressPairsRepository
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
-        self.userWalletModelConfig = userWalletModelConfig
+        self.userWalletInfo = userWalletInfo
 
         bind()
     }
@@ -143,7 +143,10 @@ private extension ExpressTokensListViewModel {
         walletModels
             .forEach { walletModel in
                 guard walletModel.id != .init(tokenItem: swapDirection.tokenItem) else { return }
-                let availabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModelConfig, walletModel: walletModel)
+                let availabilityProvider = TokenActionAvailabilityProvider(
+                    userWalletConfig: userWalletInfo.config,
+                    walletModel: walletModel
+                )
                 let isAvailable = availableCurrenciesSet.contains(walletModel.tokenItem.expressCurrency.asCurrency)
                 let isSwapAvailable = availabilityProvider.isSwapAvailable
 
@@ -208,11 +211,13 @@ private extension ExpressTokensListViewModel {
     }
 
     func userDidTap(on walletModel: any WalletModel) {
+        let expressInteractorWallet = ExpressInteractorWalletWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel)
+
         switch swapDirection {
         case .fromSource:
-            expressInteractor.update(destination: walletModel.asExpressInteractorWallet)
+            expressInteractor.update(destination: expressInteractorWallet)
         case .toDestination:
-            expressInteractor.update(sender: walletModel.asExpressInteractorWallet)
+            expressInteractor.update(sender: expressInteractorWallet)
         }
 
         selectedWallet = walletModel
