@@ -102,6 +102,7 @@ struct SendAmountView: View {
         case .crypto:
             SendDecimalNumberTextField(viewModel: viewModel.cryptoTextFieldViewModel)
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.decimalNumberTextField)
+                .prefixSuffixAccessibilityIdentifier(SendAccessibilityIdentifiers.currencySymbol)
                 .prefixSuffixOptions(viewModel.cryptoTextFieldOptions)
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
@@ -112,6 +113,7 @@ struct SendAmountView: View {
         case .fiat:
             SendDecimalNumberTextField(viewModel: viewModel.fiatTextFieldViewModel)
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.decimalNumberTextField)
+                .prefixSuffixAccessibilityIdentifier(SendAccessibilityIdentifiers.currencySymbol)
                 .prefixSuffixOptions(viewModel.fiatTextFieldOptions)
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
@@ -138,6 +140,7 @@ struct SendAmountView: View {
                 }) {
                     alternativeView
                 }
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.currencyToggleButton)
             case .info(let string):
                 Text(string)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.attention)
@@ -156,6 +159,12 @@ struct SendAmountView: View {
         .lineLimit(2)
     }
 
+    private var alternativeAmountAccessibilityIdentifier: String {
+        viewModel.useFiatCalculation
+            ? SendAccessibilityIdentifiers.alternativeCryptoAmount
+            : SendAccessibilityIdentifiers.alternativeFiatAmount
+    }
+
     private var alternativeView: some View {
         HStack(spacing: 8) {
             Assets.Glyphs.exchange.image
@@ -167,6 +176,7 @@ struct SendAmountView: View {
                 Text(viewModel.alternativeAmount)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
                     .lineLimit(1)
+                    .accessibilityIdentifier(alternativeAmountAccessibilityIdentifier)
 
                 IconView(
                     url: viewModel.useFiatCalculation ? viewModel.cryptoIconURL : viewModel.fiatIconURL,
