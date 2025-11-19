@@ -477,7 +477,7 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
 
         let expressInput = ExpressDependenciesInput(
             userWalletInfo: userWalletModel.userWalletInfo,
-            source: walletModel.asExpressInteractorWallet,
+            source: ExpressInteractorWalletWrapper(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel),
             destination: .loadingAndSet
         )
 
