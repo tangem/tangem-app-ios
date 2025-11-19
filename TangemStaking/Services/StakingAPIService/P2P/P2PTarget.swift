@@ -14,9 +14,8 @@ import TangemNetworkUtils
 
 struct P2PTarget {
     let apiKey: String
-    let apiType: P2PAPIType
     let target: Target
-    let network: String
+    let network: P2PNetwork
 
     enum Target {
         /// Get the list of vaults for a network
@@ -38,11 +37,7 @@ struct P2PTarget {
 
 extension P2PTarget: TargetType {
     var baseURL: URL {
-        if #available(iOS 16.0, *) {
-            apiType.apiBaseUrl.appending(path: "/api/v1/staking/pool/\(network)")
-        } else {
-            apiType.apiBaseUrl.appendingPathComponent("/api/v1/staking/pool/\(network)")
-        }
+        network.apiBaseUrl
     }
 
     var path: String {
