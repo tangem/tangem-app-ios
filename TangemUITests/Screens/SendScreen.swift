@@ -30,13 +30,15 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var reduceFeeButton = button(.reduceFeeButton)
     private lazy var leaveAmountButton = button(.leaveAmountButton)
     private lazy var fromWalletButton = button(.fromWalletButton)
+    private lazy var networkFeeUnreachableBanner = otherElement(.networkFeeUnreachableBanner)
+    private lazy var networkFeeAmount = staticText(.networkFeeAmount)
 
     @discardableResult
     func waitForDisplay() -> Self {
         XCTContext.runActivity(named: "Validate Send screen is displayed") { _ in
-            XCTAssertTrue(titleLabel.waitForExistence(timeout: .robustUIUpdate), "Title should exist")
-            XCTAssertTrue(amountTextField.exists, "Amount text field should exist")
-            XCTAssertTrue(nextButton.exists, "Next button should exist")
+            waitAndAssertTrue(titleLabel, "Title should exist")
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
+            waitAndAssertTrue(nextButton, "Next button should exist")
         }
         return self
     }
@@ -54,7 +56,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     @discardableResult
     func clearAmount() -> Self {
         XCTContext.runActivity(named: "Clear amount field") { _ in
-            XCTAssertTrue(amountTextField.waitForExistence(timeout: .robustUIUpdate), "Amount text field should exist")
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
 
             let currentText = amountTextField.getValue()
             let textLength = currentText.count
@@ -91,6 +93,14 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 
     @discardableResult
+    func tapNextButtonToSummary() -> SendSummaryScreen {
+        XCTContext.runActivity(named: "Tap Next button to go to Summary screen") { _ in
+            nextButton.waitAndTap()
+        }
+        return SendSummaryScreen(app)
+    }
+
+    @discardableResult
     func tapMaxButton() -> Self {
         XCTContext.runActivity(named: "Tap Max button") { _ in
             maxButton.waitAndTap()
@@ -111,7 +121,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
             let predicate = NSPredicate(format: NSPredicateFormat.labelBeginsWith.rawValue, "Network fee")
             let networkFeeButton = app.buttons.matching(predicate).firstMatch
-            XCTAssertTrue(networkFeeButton.waitForExistence(timeout: .robustUIUpdate), "Network fee button should exist")
+            waitAndAssertTrue(networkFeeButton, "Network fee button should exist")
             networkFeeButton.tap()
         }
         return SendFeeSelectorScreen(app)
@@ -249,6 +259,40 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         return self
     }
 
+    // MARK: - Network fee unreachable notification
+
+    @discardableResult
+    func waitForNetworkFeeUnreachableBanner() -> Self {
+        XCTContext.runActivity(named: "Validate 'Network fee unreachable' notification is displayed") { _ in
+            waitAndAssertTrue(networkFeeUnreachableBanner, "Network fee unreachable banner should be displayed")
+
+            // Refresh button inside the banner
+            let refreshButton = networkFeeUnreachableBanner.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
+            waitAndAssertTrue(
+                refreshButton,
+                "Refresh button in notification should exist"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapNotificationRefresh() -> Self {
+        XCTContext.runActivity(named: "Tap 'Refresh' on notification") { _ in
+            let refreshButton = networkFeeUnreachableBanner.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
+            refreshButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForNetworkFeeUnreachableBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Validate 'Network fee unreachable' notification is hidden") { _ in
+            XCTAssertTrue(networkFeeUnreachableBanner.waitForNonExistence(timeout: .robustUIUpdate), "Network fee unreachable banner should disappear")
+        }
+        return self
+    }
+
     @discardableResult
     func waitForExistentialDepositWarningBanner() -> Self {
         XCTContext.runActivity(named: "Validate existential deposit warning banner exists") { _ in
@@ -300,11 +344,90 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     func getAmountNumericValue() -> Decimal {
         XCTContext.runActivity(named: "Get amount numeric value") { _ in
-            XCTAssertTrue(amountTextField.waitForExistence(timeout: .robustUIUpdate), "Amount text field should exist")
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
             let amountText = amountTextField.getValue()
             XCTAssertFalse(amountText.isEmpty, "Amount should not be empty")
             return NumericValueHelper.parseNumericValue(from: amountText)
         }
+    }
+
+    func getAmountValue() -> String {
+        XCTContext.runActivity(named: "Get amount value") { _ in
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
+            return amountTextField.getValue()
+        }
+    }
+
+    @discardableResult
+    func validateCurrencySymbol(_ expectedSymbol: String) -> Self {
+        XCTContext.runActivity(named: "Validate currency symbol: \(expectedSymbol)") { _ in
+            let currencySymbolElement = app.staticTexts[SendAccessibilityIdentifiers.currencySymbol]
+            waitAndAssertTrue(currencySymbolElement, "Currency symbol element should exist")
+            XCTAssertTrue(
+                currencySymbolElement.label.contains(expectedSymbol),
+                "Currency symbol should be '\(expectedSymbol)' but was '\(currencySymbolElement.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func toggleCurrency() -> Self {
+        XCTContext.runActivity(named: "Toggle currency between crypto and fiat") { _ in
+            let toggleButton = app.buttons[SendAccessibilityIdentifiers.currencyToggleButton]
+            waitAndAssertTrue(toggleButton, "Currency toggle button should exist")
+            toggleButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForCryptoAmount(_ expectedAmount: String) -> Self {
+        XCTContext.runActivity(named: "Wait for crypto alternative amount: \(expectedAmount)") { _ in
+            let alternativeCryptoAmount = app.staticTexts[SendAccessibilityIdentifiers.alternativeCryptoAmount]
+            waitAndAssertTrue(
+                alternativeCryptoAmount,
+                "Alternative crypto amount element should exist"
+            )
+
+            XCTAssertEqual(
+                alternativeCryptoAmount.label,
+                expectedAmount,
+                "Alternative crypto amount should be '\(expectedAmount)' but was '\(alternativeCryptoAmount.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForFiatAmount(_ expectedAmount: String) -> Self {
+        XCTContext.runActivity(named: "Wait for fiat alternative amount: \(expectedAmount)") { _ in
+            let alternativeFiatAmount = app.staticTexts[SendAccessibilityIdentifiers.alternativeFiatAmount]
+            waitAndAssertTrue(
+                alternativeFiatAmount,
+                "Alternative fiat amount element should exist"
+            )
+
+            XCTAssertEqual(
+                alternativeFiatAmount.label,
+                expectedAmount,
+                "Alternative fiat amount should be '\(expectedAmount)' but was '\(alternativeFiatAmount.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func validateNetworkFee(_ expectedFee: String) -> Self {
+        XCTContext.runActivity(named: "Validate network fee: \(expectedFee)") { _ in
+            waitAndAssertTrue(networkFeeAmount)
+            XCTAssertEqual(
+                networkFeeAmount.label,
+                expectedFee,
+                "Network fee should be '\(expectedFee)' but was '\(networkFeeAmount.label)'"
+            )
+        }
+        return self
     }
 }
 
@@ -329,6 +452,8 @@ enum SendScreenElement: String, UIElement {
     case reduceFeeButton
     case leaveAmountButton
     case fromWalletButton
+    case networkFeeUnreachableBanner
+    case networkFeeAmount
 
     var accessibilityIdentifier: String {
         switch self {
@@ -372,6 +497,10 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.leaveAmountButton
         case .fromWalletButton:
             return SendAccessibilityIdentifiers.fromWalletButton
+        case .networkFeeUnreachableBanner:
+            return SendAccessibilityIdentifiers.networkFeeUnreachableBanner
+        case .networkFeeAmount:
+            return SendAccessibilityIdentifiers.networkFeeAmount
         }
     }
 }
