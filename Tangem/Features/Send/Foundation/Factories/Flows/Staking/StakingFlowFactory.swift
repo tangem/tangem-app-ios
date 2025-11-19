@@ -23,6 +23,7 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let walletModelBalancesProvider: WalletModelBalancesProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
+    let allowanceServiceFactory: AllowanceServiceFactory
 
     var actionType: StakingAction.ActionType { .stake }
 
@@ -60,6 +61,10 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
             walletModel: walletModel,
             signer: userWalletInfo.signer
         )
+        allowanceServiceFactory = AllowanceServiceFactory(
+            walletModel: walletModel,
+            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher(),
+        )
     }
 }
 
@@ -79,16 +84,7 @@ extension StakingFlowFactory {
                 analyticsLogger: analyticsLogger
             ),
             transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher(),
-            allowanceService: CommonAllowanceService(
-                tokenItem: tokenItem,
-                allowanceChecker: .init(
-                    blockchain: tokenItem.blockchain,
-                    amountType: tokenItem.amountType,
-                    walletAddress: defaultAddressString,
-                    ethereumNetworkProvider: walletModelDependenciesProvider.ethereumNetworkProvider,
-                    ethereumTransactionDataBuilder: walletModelDependenciesProvider.ethereumTransactionDataBuilder
-                )
-            ),
+            allowanceService: allowanceServiceFactory.makeAllowanceService(),
             analyticsLogger: analyticsLogger,
             accountInitializationService: walletModelDependenciesProvider.accountInitializationService,
             minimalBalanceProvider: walletModelDependenciesProvider.minimalBalanceProvider,
