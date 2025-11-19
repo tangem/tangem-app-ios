@@ -17,19 +17,18 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
         self.mapper = mapper
     }
 
-    func yield(network: String) async throws -> StakingYieldInfo {
-        let response = try await service.getVaultsList(network: network)
+    func yield() async throws -> StakingYieldInfo {
+        let response = try await service.getVaultsList()
         return try mapper.mapToYieldInfo(from: response)
     }
 
     func balances(wallet: StakingWallet, vaults: [String]) async throws -> [StakingBalanceInfo] {
-        try await withThrowingTaskGroup(of: StakingBalanceInfo.self) { [service, mapper] group in
-            var results = [StakingBalanceInfo]()
+        try await withThrowingTaskGroup(of: StakingBalanceInfo?.self) { [service, mapper] group in
+            var results = [StakingBalanceInfo?]()
 
             vaults.forEach { vault in
                 group.addTask {
                     let response = try await service.getAccountSummary(
-                        network: wallet.item.network,
                         delegatorAddress: wallet.address,
                         vaultAddress: vault
                     )
@@ -41,7 +40,7 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
                 results.append(result)
             }
 
-            return results
+            return results.compactMap { $0 }
         }
     }
 }

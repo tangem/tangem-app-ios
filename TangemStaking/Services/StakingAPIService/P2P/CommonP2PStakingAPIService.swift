@@ -12,103 +12,116 @@ import TangemNetworkUtils
 final class CommonP2PStakingAPIService: P2PStakingAPIService {
     private let provider: TangemProvider<P2PTarget>
     private let credential: StakingAPICredential
-    private let apiType: StakingAPIType
+    private let apiType: P2PAPIType
+    private let network: P2PNetwork
 
     private let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .millisecondsSince1970
         return decoder
     }()
 
-    init(provider: TangemProvider<P2PTarget> = .init(), credential: StakingAPICredential, apiType: StakingAPIType) {
+    init(
+        provider: TangemProvider<P2PTarget> = .init(),
+        credential: StakingAPICredential,
+        apiType: P2PAPIType,
+        network: P2PNetwork
+    ) {
         self.provider = provider
         self.credential = credential
         self.apiType = apiType
+        self.network = network
     }
 
     // MARK: - Vaults
 
-    func getVaultsList(network: String) async throws -> P2PDTO.Vaults.VaultsInfo {
-        try await response(.getVaultsList(network: network))
+    func getVaultsList() async throws -> P2PDTO.Vaults.VaultsInfo {
+        try await response(.getVaultsList)
     }
 
     // MARK: - Account Summary
 
     func getAccountSummary(
-        network: String,
         delegatorAddress: String,
         vaultAddress: String
     ) async throws -> P2PDTO.AccountSummary.AccountSummaryInfo {
         try await response(
-            .getAccountSummary(network: network, delegatorAddress: delegatorAddress, vaultAddress: vaultAddress)
+            .getAccountSummary(delegatorAddress: delegatorAddress, vaultAddress: vaultAddress)
         )
     }
 
     // MARK: - Rewards History
 
     func getRewardsHistory(
-        network: String,
         delegatorAddress: String,
         vaultAddress: String
     ) async throws -> P2PDTO.RewardsHistory.RewardsHistoryInfo {
         try await response(
-            .getRewardsHistory(network: network, delegatorAddress: delegatorAddress, vaultAddress: vaultAddress)
+            .getRewardsHistory(delegatorAddress: delegatorAddress, vaultAddress: vaultAddress)
         )
     }
 
     // MARK: - Prepare Deposit Transaction
 
     func prepareDepositTransaction(
-        network: String,
         request: P2PDTO.PrepareDepositTransaction.Request
     ) async throws -> P2PDTO.PrepareDepositTransaction.PrepareDepositTransactionInfo {
         try await response(
-            .prepareDepositTransaction(network: network, request: request)
+            .prepareDepositTransaction(request: request)
         )
     }
 
     // MARK: - Prepare Unstake Transaction
 
     func prepareUnstakeTransaction(
-        network: String,
         request: P2PDTO.PrepareUnstakeTransaction.Request
     ) async throws -> P2PDTO.PrepareUnstakeTransaction.PrepareUnstakeTransactionInfo {
         try await response(
-            .prepareUnstakeTransaction(network: network, request: request)
+            .prepareUnstakeTransaction(request: request)
         )
     }
 
     // MARK: - Prepare Withdraw Transaction
 
     func prepareWithdrawTransaction(
-        network: String,
         request: P2PDTO.PrepareWithdrawTransaction.Request
     ) async throws -> P2PDTO.PrepareWithdrawTransaction.PrepareWithdrawTransactionInfo {
         try await response(
-            .prepareWithdrawTransaction(network: network, request: request)
+            .prepareWithdrawTransaction(request: request)
         )
     }
 
     // MARK: - Broadcast Transaction
 
     func broadcastTransaction(
-        network: String,
         request: P2PDTO.BroadcastTransaction.Request
     ) async throws -> P2PDTO.BroadcastTransaction.BroadcastTransactionInfo {
         try await response(
-            .broadcastTransaction(network: network, request: request)
+            .broadcastTransaction(request: request)
         )
     }
 
     // MARK: - Private
 
-    private func response<T: Decodable>(_ target: P2PTarget) async throws -> T {
-        let response = try await provider.requestPublisher(target).async()
+    private func response<T: Decodable>(_ target: P2PTarget.Target) async throws -> T {
+        let targetType = P2PTarget(
+            apiKey: credential.apiKey,
+            apiType: apiType,
+            target: target,
+            network: network.rawValue
+        )
+        let response = try await provider.requestPublisher(targetType).async()
         let filtered = try response.filterSuccessfulStatusCodes()
-        let p2pResponse = try decoder.decode(P2PDTO.GenericResponse<T>.self, from: filtered.data)
-        if let error = p2pResponse.error {
-            throw P2PStakingAPIError.apiError(error)
+        do {
+            let p2pResponse = try decoder.decode(P2PDTO.GenericResponse<T>.self, from: filtered.data)
+
+            if let error = p2pResponse.error {
+                throw P2PStakingAPIError.apiError(error)
+            }
+            return p2pResponse.result
+        } catch {
+            StakingLogger.error(error: error)
+            throw error
         }
-        return p2pResponse.result
     }
 }
