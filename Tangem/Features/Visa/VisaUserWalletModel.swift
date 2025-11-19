@@ -559,6 +559,10 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var keysDerivingInteractor: any KeysDeriving { userWalletModel.keysDerivingInteractor }
 
+    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
+        userWalletModel.tangemPayAuthorizingInteractor
+    }
+
     var userTokensPushNotificationsManager: any UserTokensPushNotificationsManager {
         userWalletModel.userTokensPushNotificationsManager
     }
