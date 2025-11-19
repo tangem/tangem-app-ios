@@ -25,7 +25,7 @@ final class CommonCryptoAccountsRepository {
     private let storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject
     private let pendingStateHolder: PendingStateHolder
     /// Implicitly unwrapped to resolve circular dependency
-    fileprivate var debouncer: Debouncer<UserTokensRepository.Result>!
+    fileprivate var debouncer: Debouncer<UserTokensRepository.Result>! // [REDACTED_TODO_COMMENT]
 
     /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
     private lazy var storageDidUpdatePublisher: StorageDidUpdatePublisher = storageDidUpdateSubject
