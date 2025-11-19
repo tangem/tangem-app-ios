@@ -13,7 +13,7 @@ extension P2PDTO {
         struct Request: Encodable {
             let delegatorAddress: String
             let vaultAddress: String
-            let amount: Double
+            let amount: Decimal
         }
 
         typealias Response = GenericResponse<PrepareDepositTransactionInfo>
