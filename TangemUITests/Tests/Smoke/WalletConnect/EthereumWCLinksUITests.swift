@@ -104,7 +104,7 @@ final class EthereumWCLinksUITests: BaseTestCase {
         setAllureId(887)
 
         getWcURI()
-        UIPasteboard.general.string = wcURI.replacingOccurrences(of: WCURIScheme.tangem.rawValue, with: "")
+        UIPasteboard.general.string = wcURI.replacingOccurrences(of: "\(WCURIScheme.tangem.rawValue)?uri=", with: "")
         launchApp(tangemApiType: .mock)
 
         StoriesScreen(app)
