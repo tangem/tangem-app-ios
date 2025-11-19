@@ -47,6 +47,8 @@ extension NotificationEvent {
             }
         } else if let sendNotificationEvent = self as? SendNotificationEvent {
             switch sendNotificationEvent {
+            case .networkFeeUnreachable:
+                return SendAccessibilityIdentifiers.networkFeeUnreachableBanner
             case .customFeeTooLow:
                 return SendAccessibilityIdentifiers.customFeeTooLowBanner
             case .customFeeTooHigh:
@@ -82,6 +84,8 @@ extension NotificationEvent {
                 return TokenAccessibilityIdentifiers.topUpWalletBanner
             case .existentialDepositWarning:
                 return SendAccessibilityIdentifiers.existentialDepositWarningBanner
+            case .notEnoughFeeForTransaction:
+                return TokenAccessibilityIdentifiers.notEnoughFeeForTransactionBanner
             default:
                 return nil
             }
