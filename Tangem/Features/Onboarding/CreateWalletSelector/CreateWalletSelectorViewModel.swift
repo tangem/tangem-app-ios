@@ -20,6 +20,8 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var error: AlertBinder?
 
+    let backButtonHeight: CGFloat = OnboardingLayoutConstants.navbarSize.height
+
     let title = Localization.commonTangemWallet
     let description = Localization.welcomeCreateWalletHardwareDescription
     let scanTitle = Localization.welcomeUnlockCard
@@ -47,6 +49,12 @@ final class CreateWalletSelectorViewModel: ObservableObject {
 extension CreateWalletSelectorViewModel {
     func onAppear() {
         Analytics.log(.onboardingStarted)
+    }
+
+    func onBackTap() {
+        runTask(in: self) { viewModel in
+            await viewModel.close()
+        }
     }
 
     func onScanTap() {
@@ -239,6 +247,11 @@ private extension CreateWalletSelectorViewModel {
         let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
 
         mailPresenter.present(viewModel: mailViewModel)
+    }
+
+    @MainActor
+    func close() {
+        coordinator?.closeCreateWalletSelector()
     }
 
     func openScanCardManual() {
