@@ -10,6 +10,7 @@ import TangemSdk
 import Combine
 import BlockchainSdk
 
+// [REDACTED_TODO_COMMENT]
 final class CommonDerivationManager {
     private let keysRepository: KeysRepository
     private let userTokensManager: UserTokensManager
@@ -23,11 +24,6 @@ final class CommonDerivationManager {
         bind()
     }
 
-    func configure(with keysDerivingProvider: KeysDerivingProvider) {
-        assert(self.keysDerivingProvider == nil, "An attempt to override already configured keysDerivingProvider instance")
-        self.keysDerivingProvider = keysDerivingProvider
-    }
-
     private func bind() {
         userTokensManager.userTokensPublisher
             .combineLatest(keysRepository.keysPublisher)
@@ -39,11 +35,13 @@ final class CommonDerivationManager {
 
     private func process(_ entries: [TokenItem], _ keys: [KeyInfo]) {
         let derivations = entries.compactMap { entry in
-            PendingDerivation.Extractor.pendingDerivation(network: entry.blockchainNetwork, keys: keys)
+            PendingDerivation.Helper.pendingDerivation(network: entry.blockchainNetwork, keys: keys)
         }
         pendingDerivations.send(derivations)
     }
 }
+
+// MARK: - DerivationManager protocol conformance
 
 extension CommonDerivationManager: DerivationManager {
     var hasPendingDerivations: AnyPublisher<Bool, Never> {
@@ -71,7 +69,7 @@ extension CommonDerivationManager: DerivationManager {
         }
 
         let keys = keysRepository.keys
-        let addingDerivations = networksToAdd.compactMap { PendingDerivation.Extractor.pendingDerivation(network: $0, keys: keys) }
+        let addingDerivations = networksToAdd.compactMap { PendingDerivation.Helper.pendingDerivation(network: $0, keys: keys) }
 
         // Filter pending derivations by removing those that belong to networks scheduled for removal.
         // This ensures we only consider derivations that will still be relevant after the update.
@@ -91,7 +89,9 @@ extension CommonDerivationManager: DerivationManager {
             return
         }
 
-        interactor.deriveKeys(derivations: pendingDerivationsData()) { [weak self] result in
+        let pendingDerivationsKeyed = PendingDerivation.Helper.pendingDerivationsKeyedByPublicKeys(pendingDerivations.value)
+
+        interactor.deriveKeys(derivations: pendingDerivationsKeyed) { [weak self] result in
             guard let self else { return }
 
             switch result {
@@ -111,12 +111,15 @@ extension CommonDerivationManager: DerivationManager {
     }
 }
 
-// MARK: - Private methods
+// MARK: - _DerivationManager protocol conformance
 
-private extension CommonDerivationManager {
-    func pendingDerivationsData() -> [Data: [DerivationPath]] {
-        pendingDerivations.value.reduce(into: [:]) { dict, derivation in
-            dict[derivation.masterKey.publicKey, default: []] += derivation.paths
-        }
+extension CommonDerivationManager: _DerivationManager {
+    func configure(with keysDerivingProvider: KeysDerivingProvider) {
+        assert(self.keysDerivingProvider == nil, "An attempt to override already configured keysDerivingProvider instance")
+        self.keysDerivingProvider = keysDerivingProvider
+    }
+
+    func configure(with accountModelsManager: AccountModelsManager) {
+        // No-op, no accounts supported
     }
 }
