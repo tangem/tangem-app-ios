@@ -51,6 +51,10 @@ extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
         coordinator.start(with: MobileCreateWalletCoordinator.InputOptions())
         mobileCreateWalletCoordinator = coordinator
     }
+
+    func closeCreateWalletSelector() {
+        dismiss(with: .dismiss)
+    }
 }
 
 // MARK: - MobileCreateWalletRoutable
@@ -99,5 +103,6 @@ extension CreateWalletSelectorCoordinator {
 
     enum OutputOptions {
         case main(userWalletModel: UserWalletModel)
+        case dismiss
     }
 }
