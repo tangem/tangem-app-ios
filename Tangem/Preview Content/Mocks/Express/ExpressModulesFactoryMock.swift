@@ -53,7 +53,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
             expressPairsRepository: expressPairsRepository,
             expressInteractor: expressInteractor,
             coordinator: coordinator,
-            userWalletModelConfig: userWalletModel.config
+            userWalletInfo: userWalletModel.userWalletInfo
         )
     }
 
@@ -202,7 +202,13 @@ private extension ExpressModulesFactoryMock {
 
         let interactor = ExpressInteractor(
             userWalletInfo: userWalletInfo,
-            swappingPair: .init(sender: .success(initialWalletModel.asExpressInteractorWallet), destination: .loading),
+            swappingPair: .init(
+                sender: .success(ExpressInteractorWalletWrapper(
+                    userWalletInfo: userWalletInfo,
+                    walletModel: initialWalletModel
+                )),
+                destination: .loading
+            ),
             expressManager: expressManager,
             expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
