@@ -14,11 +14,17 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
     private let credential: StakingAPICredential
     private let network: P2PNetwork
 
-    private let decoder: JSONDecoder = {
+    private static var decoder: JSONDecoder {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .millisecondsSince1970
         return decoder
-    }()
+    }
+
+    private static var isoDateDecoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
+        return decoder
+    }
 
     init(
         provider: TangemProvider<P2PTarget> = .init(),
@@ -64,7 +70,8 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
         request: P2PDTO.PrepareDepositTransaction.Request
     ) async throws -> P2PDTO.PrepareDepositTransaction.PrepareDepositTransactionInfo {
         try await response(
-            .prepareDepositTransaction(request: request)
+            .prepareDepositTransaction(request: request),
+            decoder: Self.isoDateDecoder
         )
     }
 
@@ -74,7 +81,8 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
         request: P2PDTO.PrepareUnstakeTransaction.Request
     ) async throws -> P2PDTO.PrepareUnstakeTransaction.PrepareUnstakeTransactionInfo {
         try await response(
-            .prepareUnstakeTransaction(request: request)
+            .prepareUnstakeTransaction(request: request),
+            decoder: Self.isoDateDecoder
         )
     }
 
@@ -84,7 +92,8 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
         request: P2PDTO.PrepareWithdrawTransaction.Request
     ) async throws -> P2PDTO.PrepareWithdrawTransaction.PrepareWithdrawTransactionInfo {
         try await response(
-            .prepareWithdrawTransaction(request: request)
+            .prepareWithdrawTransaction(request: request),
+            decoder: Self.isoDateDecoder
         )
     }
 
@@ -100,7 +109,10 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
 
     // MARK: - Private
 
-    private func response<T: Decodable>(_ target: P2PTarget.Target) async throws -> T {
+    private func response<T: Decodable>(
+        _ target: P2PTarget.Target,
+        decoder: JSONDecoder = CommonP2PStakingAPIService.decoder
+    ) async throws -> T {
         let targetType = P2PTarget(
             apiKey: credential.apiKey,
             target: target,

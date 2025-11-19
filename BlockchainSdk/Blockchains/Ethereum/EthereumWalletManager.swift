@@ -571,12 +571,15 @@ extension EthereumWalletManager: StakeKitTransactionsBuilder, StakeKitTransactio
     typealias RawTransaction = String
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
-        try EthereumStakeKitTransactionHelper(transactionBuilder: txBuilder).prepareForSign(transaction)
+        try EthereumStakingTransactionHelper(transactionBuilder: txBuilder).prepareForSign(
+            transaction.unsignedData,
+            fee: transaction.fee
+        )
     }
 
     func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
-        try EthereumStakeKitTransactionHelper(transactionBuilder: txBuilder)
-            .prepareForSend(stakingTransaction: transaction, signatureInfo: signature)
+        try EthereumStakingTransactionHelper(transactionBuilder: txBuilder)
+            .prepareForSend(transaction.unsignedData, fee: transaction.fee, signatureInfo: signature)
             .hex()
             .addHexPrefix()
     }
