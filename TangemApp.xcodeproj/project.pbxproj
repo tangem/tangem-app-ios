@@ -123,8 +123,8 @@
 		0ABBB2C82ECCABB70082BC76 /* CommonP2PAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2C72ECCABB70082BC76 /* CommonP2PAPIProvider.swift */; };
 		0ABBB2CB2ECCB4880082BC76 /* StakingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2CA2ECCB4880082BC76 /* StakingManager.swift */; };
 		0ABBB2CE2ECCB6E60082BC76 /* P2PStakingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2CD2ECCB6E60082BC76 /* P2PStakingManager.swift */; };
-		0ABBB2D02ECDA7F10082BC76 /* P2PAPIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2CF2ECDA7F10082BC76 /* P2PAPIType.swift */; };
 		0ABBB2D22ECDB1300082BC76 /* P2PNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2D12ECDB1300082BC76 /* P2PNetwork.swift */; };
+		0ABBB2D42ECDE2010082BC76 /* P2PAPIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2D32ECDE2010082BC76 /* P2PAPIKeys.swift */; };
 		0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */ = {isa = PBXBuildFile; productRef = 0ABC61142C410AFD00065EBA /* TweetNacl */; };
 		0ABCEE672E3B954000662B9F /* WalletInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCEE662E3B954000662B9F /* WalletInitializer.swift */; };
 		0ABCFCEB2DCA35F400C9F901 /* MarketsStakingNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */; };
@@ -4652,8 +4652,8 @@
 		0ABBB2C72ECCABB70082BC76 /* CommonP2PAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonP2PAPIProvider.swift; sourceTree = "<group>"; };
 		0ABBB2CA2ECCB4880082BC76 /* StakingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingManager.swift; sourceTree = "<group>"; };
 		0ABBB2CD2ECCB6E60082BC76 /* P2PStakingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PStakingManager.swift; sourceTree = "<group>"; };
-		0ABBB2CF2ECDA7F10082BC76 /* P2PAPIType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PAPIType.swift; sourceTree = "<group>"; };
 		0ABBB2D12ECDB1300082BC76 /* P2PNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PNetwork.swift; sourceTree = "<group>"; };
+		0ABBB2D32ECDE2010082BC76 /* P2PAPIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PAPIKeys.swift; sourceTree = "<group>"; };
 		0ABCEE662E3B954000662B9F /* WalletInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInitializer.swift; sourceTree = "<group>"; };
 		0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsStakingNotificationView.swift; sourceTree = "<group>"; };
 		0ABDAEC32E325816001C7EE4 /* MobileWalletSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletSigner.swift; sourceTree = "<group>"; };
@@ -18692,6 +18692,7 @@
 				EF92E2B929963E7400DD9B06 /* ExpressKeys.swift */,
 				B0CA52F829C04FA10076E2EF /* TonCenterApiKeys.swift */,
 				2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */,
+				0ABBB2D32ECDE2010082BC76 /* P2PAPIKeys.swift */,
 			);
 			path = KeysManager;
 			sourceTree = "<group>";
@@ -23923,7 +23924,6 @@
 			isa = PBXGroup;
 			children = (
 				D8419D082E3C1EBB003C2866 /* StakeKitAPIType.swift */,
-				0ABBB2CF2ECDA7F10082BC76 /* P2PAPIType.swift */,
 				0ABBB2D12ECDB1300082BC76 /* P2PNetwork.swift */,
 				EF6ECA5B2D48215500415F23 /* StakingLogger.swift */,
 				EF536B812CAFD2C500FDC3E7 /* StakingConstants.swift */,
@@ -27064,6 +27064,7 @@
 				EFF8F1DC2E85AF7E00A5EF0C /* SendBaseDataBuilderFactory.swift in Sources */,
 				DC2891752CD4BE1900F57F59 /* ActionButtonsTokenSelectItemView.swift in Sources */,
 				DC7616DE2E3E0C1100B786D7 /* Array+UserWalletModel.swift in Sources */,
+				0ABBB2D42ECDE2010082BC76 /* P2PAPIKeys.swift in Sources */,
 				B63442612AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift in Sources */,
 				EFF763E32C4E38D200E846F4 /* SendStepNavigationTrailingViewType.swift in Sources */,
 				B6157AAD2C322733000640B4 /* OnboardingFeatureDescriptionView.swift in Sources */,
@@ -29058,7 +29059,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EFEE238C2BFF62D50099917E /* TangemStaking.docc in Sources */,
-				0ABBB2D02ECDA7F10082BC76 /* P2PAPIType.swift in Sources */,
 				0ABBB2C32ECC925A0082BC76 /* P2PMapper.swift in Sources */,
 				EF2FE4652C6671190015940A /* StakeKitDTO+EstimateGas.swift in Sources */,
 				DC592B872C41961D005AB9A7 /* StakeKitDTO+SubmitHash.swift in Sources */,

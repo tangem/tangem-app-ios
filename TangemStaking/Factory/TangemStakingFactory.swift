@@ -51,14 +51,12 @@ public struct TangemStakingFactory {
         credential: StakingAPICredential,
         configuration: URLSessionConfiguration,
         plugins: [PluginType],
-        apiType: P2PAPIType = .prod,
         network: P2PNetwork
     ) -> P2PAPIProvider {
         let provider = TangemProvider<P2PTarget>(plugins: plugins, sessionConfiguration: configuration)
         let service = CommonP2PStakingAPIService(
             provider: provider,
             credential: credential,
-            apiType: apiType,
             network: network
         )
         let mapper = P2PMapper()
