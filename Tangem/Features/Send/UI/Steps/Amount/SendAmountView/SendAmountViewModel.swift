@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 import struct TangemUI.TokenIconInfo
 
 class SendAmountViewModel: ObservableObject, Identifiable {
