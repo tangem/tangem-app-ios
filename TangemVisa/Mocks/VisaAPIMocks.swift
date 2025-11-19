@@ -224,7 +224,10 @@ struct AuthorizationServiceMock: VisaAuthorizationService, VisaAuthorizationToke
         )
     }
 
-    func getCustomerWalletAuthorizationChallenge(customerWalletAddress: String) async throws -> VisaAuthChallengeResponse {
+    func getCustomerWalletAuthorizationChallenge(
+        customerWalletAddress: String,
+        customerWalletId: String
+    ) async throws -> VisaAuthChallengeResponse {
         return .init(
             nonce: RandomBytesGenerator().generateBytes(length: 16).hexString,
             sessionId: "098acd0987ba0af0787ff8abc90dcb12=098acd0987ba0af0787ff8abc90dcb12=="

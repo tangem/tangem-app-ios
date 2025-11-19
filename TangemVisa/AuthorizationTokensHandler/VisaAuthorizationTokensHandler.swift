@@ -288,11 +288,19 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
     }
 
     var accessTokenExpired: Bool {
-        get async { await authorizationTokensHolder.tokensInfo?.jwtTokens.accessToken?.expired ?? true }
+        get async {
+            let expired = await authorizationTokensHolder.tokensInfo?.jwtTokens.accessToken?.expired
+            print("[VISA TAG]: accessTokenExpired = ", expired ?? "nil")
+            return expired ?? true
+        }
     }
 
     var refreshTokenExpired: Bool {
-        get async { await authorizationTokensHolder.tokensInfo?.jwtTokens.refreshToken.expired ?? true }
+        get async {
+            let expired = await authorizationTokensHolder.tokensInfo?.jwtTokens.refreshToken.expired
+            print("[VISA TAG]: accessTokenExpired = ", expired ?? "nil")
+            return expired ?? true
+        }
     }
 
     var containsAccessToken: Bool {

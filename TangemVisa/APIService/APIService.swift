@@ -42,8 +42,10 @@ struct APIService<Target: TargetType> {
         }
 
         do {
-            let apiResponse = try decoder.decode(VisaAPIResponse<T>.self, from: response.data)
-            return apiResponse.result
+            if let decoded = try? decoder.decode(T.self, from: response.data) {
+                return decoded
+            }
+            return try decoder.decode(VisaAPIResponse<T>.self, from: response.data).result
         } catch {
             log(target: request, response: response, error: error)
             throw error
