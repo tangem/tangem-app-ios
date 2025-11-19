@@ -14,19 +14,11 @@ import TangemFoundation
 final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - View
 
-    lazy var tokenSelectorViewModel = NewTokenSelectorViewModel(
-        walletsProvider: walletsProvider,
-        output: self
-    )
+    let tokenSelectorViewModel: NewTokenSelectorViewModel
 
     // MARK: - Private
 
-    private lazy var walletsProvider = SwapNewTokenSelectorWalletsProvider(
-        selectedItem: .just(output: swapDirection.tokenItem),
-        availabilityProviderFactory: NewTokenSelectorItemSwapAvailabilityProviderFactory(
-            directionPublisher: .just(output: swapDirection)
-        )
-    )
+    private let walletsProvider: SwapNewTokenSelectorWalletsProvider
 
     // MARK: - Dependencies
 
@@ -47,6 +39,14 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         self.expressPairsRepository = expressPairsRepository
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
+        walletsProvider = SwapNewTokenSelectorWalletsProvider(
+            selectedItem: .just(output: swapDirection.tokenItem),
+            availabilityProviderFactory: NewTokenSelectorItemSwapAvailabilityProviderFactory(
+                directionPublisher: .just(output: swapDirection)
+            )
+        )
+        tokenSelectorViewModel = NewTokenSelectorViewModel(walletsProvider: walletsProvider)
+        tokenSelectorViewModel.setup(with: self)
     }
 
     func close() {
