@@ -75,11 +75,13 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
 extension SwapTokenSelectorViewModel: NewTokenSelectorViewModelOutput {
     func usedDidSelect(item: NewTokenSelectorItem) {
+        let expressInteractorWallet = ExpressInteractorWalletWrapper(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel)
+
         switch swapDirection {
         case .fromSource:
-            expressInteractor.update(destination: item.walletModel.asExpressInteractorWallet)
+            expressInteractor.update(destination: expressInteractorWallet)
         case .toDestination:
-            expressInteractor.update(sender: item.walletModel.asExpressInteractorWallet)
+            expressInteractor.update(sender: expressInteractorWallet)
         }
 
         selectedTokenItem = item.walletModel.tokenItem
