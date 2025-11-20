@@ -196,7 +196,7 @@ private extension CommonUserWalletModelDependencies {
     ) -> (UserTokensPushNotificationsManager & UserTokenListExternalParametersProvider) {
         if hasAccounts {
             // [REDACTED_TODO_COMMENT]
-            return StubUserTokensPushNotificationsManager()
+            return UserTokensPushNotificationsManagerStub()
         }
 
         return CommonUserTokensPushNotificationsManager(
@@ -217,7 +217,7 @@ private extension CommonUserWalletModelDependencies {
         hasAccounts: Bool
     ) -> WalletModelsManager {
         if hasAccounts {
-            return WalletModelsManagerMock()
+            return WalletModelsManagerStub()
         }
 
         let walletManagersRepository = CommonWalletManagersRepository(
@@ -417,28 +417,5 @@ private extension CommonUserWalletModelDependencies {
         func configure(with dependencies: CommonUserWalletModelDependencies) {}
         func configure(with externalParametersProvider: UserTokenListExternalParametersProvider) {}
         func configure(with model: UserWalletModel) {}
-    }
-
-    @available(iOS, deprecated: 100000.0, message: "Temporary stub ([REDACTED_INFO])")
-    final class StubUserTokensPushNotificationsManager: UserTokensPushNotificationsManager, UserTokenListExternalParametersProvider {
-        private let statusSubject = CurrentValueSubject<UserWalletPushNotifyStatus, Never>(
-            .unavailable(reason: .notInitialized, enabledRemote: false)
-        )
-
-        var statusPublisher: AnyPublisher<UserWalletPushNotifyStatus, Never> {
-            statusSubject.eraseToAnyPublisher()
-        }
-
-        var status: UserWalletPushNotifyStatus {
-            statusSubject.value
-        }
-
-        func handleUpdateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {}
-
-        func provideTokenListAddresses() -> [WalletModelId: [String]]? { nil }
-
-        func provideTokenListNotifyStatusValue() -> Bool {
-            false
-        }
     }
 }
