@@ -55,7 +55,10 @@ extension BitcoreNetworkProvider: UTXONetworkProvider {
 
     func send(transaction: String) -> AnyPublisher<TransactionSendResult, any Error> {
         execute(target: .send(txHex: transaction), response: BitcoreDTO.Send.Response.self)
-            .map { TransactionSendResult(hash: $0.txid) }
+            .withWeakCaptureOf(self)
+            .map { provider, result in
+                TransactionSendResult(hash: result.txid, currentProviderHost: provider.host)
+            }
             .eraseToAnyPublisher()
     }
 }

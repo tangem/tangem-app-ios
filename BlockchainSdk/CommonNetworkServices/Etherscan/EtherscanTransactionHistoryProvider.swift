@@ -54,15 +54,6 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
         return EtherscanTransactionHistoryTarget(configuration: targetConfiguration, target: target)
     }
 
-    /// Provides exponential backoff with random jitter using standard formula `base * pow(2, retryAttempt) ± jitter`.
-    private func makeRetryInterval(retryAttempt: Int) -> DispatchQueue.SchedulerTimeType.Stride {
-        let retryJitter: TimeInterval = .random(in: Constants.retryJitterMinValue ... Constants.retryJitterMaxValue)
-        let retryIntervalSeconds = Constants.retryBaseValue * pow(2.0, TimeInterval(retryAttempt)) + retryJitter
-        let retryIntervalNanoseconds = Int(retryIntervalSeconds * TimeInterval(NSEC_PER_SEC))
-
-        return .init(DispatchTimeInterval.nanoseconds(retryIntervalNanoseconds))
-    }
-
     private func loadTransactionHistory(
         request: TransactionHistory.Request,
         requestedPageNumber: Int?,
@@ -141,10 +132,10 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
         switch error {
         case .maxRateLimitReached where retryAttempt < Constants.maxRetryCount:
             let nextRetryAttempt = retryAttempt + 1
-            let retryInterval = makeRetryInterval(retryAttempt: nextRetryAttempt)
+            let retryInterval = ExponentialBackoffInterval(retryAttempt: nextRetryAttempt)
 
             return Just(())
-                .delay(for: retryInterval, scheduler: DispatchQueue.main)
+                .delay(for: .init(.nanoseconds(Int(retryInterval()))), scheduler: DispatchQueue.main)
                 .withWeakCaptureOf(self)
                 .flatMap { historyProvider, _ in
                     return historyProvider.loadTransactionHistory(
@@ -198,8 +189,5 @@ private extension EtherscanTransactionHistoryProvider {
         // - Note: Tx history API has 1-based indexing (not 0-based indexing)
         static var initialPageNumber: Int { 1 }
         static var maxRetryCount: Int { 3 }
-        static var retryBaseValue: TimeInterval { 1.0 }
-        static var retryJitterMinValue: TimeInterval { -0.5 }
-        static var retryJitterMaxValue: TimeInterval { 0.5 }
     }
 }

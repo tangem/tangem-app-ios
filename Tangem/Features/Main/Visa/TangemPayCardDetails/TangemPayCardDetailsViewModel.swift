@@ -14,29 +14,20 @@ import TangemFoundation
 import TangemVisa
 
 final class TangemPayCardDetailsViewModel: ObservableObject {
-    @Published private(set) var state: TangemPayCardDetailsState = .hidden
-    @Published private(set) var cardDetailsData: TangemPayCardDetailsData
+    let lastFourDigits: String
+    @Published var state: TangemPayCardDetailsState = .hidden(isFrozen: false)
 
     private let customerInfoManagementService: any CustomerInfoManagementService
 
     private var bag = Set<AnyCancellable>()
     private var cardDetailsExposureTask: Task<Void, Never>?
 
-    init(lastFourDigits: String, customerInfoManagementService: any CustomerInfoManagementService) {
-        cardDetailsData = .hidden(lastFourDigits: lastFourDigits)
+    init(
+        lastFourDigits: String,
+        customerInfoManagementService: any CustomerInfoManagementService
+    ) {
+        self.lastFourDigits = lastFourDigits
         self.customerInfoManagementService = customerInfoManagementService
-
-        $state
-            .map { state -> TangemPayCardDetailsData in
-                switch state {
-                case .loaded(let cardDetails):
-                    cardDetails
-                case .hidden, .loading:
-                    .hidden(lastFourDigits: lastFourDigits)
-                }
-            }
-            .assign(to: \.cardDetailsData, on: self, ownership: .weak)
-            .store(in: &bag)
 
         NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
             .withWeakCaptureOf(self)
@@ -59,22 +50,31 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     }
 
     func toggleVisibility() {
-        guard state.isHidden else {
+        guard !state.isLoaded else {
             cardDetailsExposureTask?.cancel()
             return
         }
 
-        state = .loading
+        state = .loading(isFrozen: state.isFrozen)
         cardDetailsExposureTask = runTask(in: self) { @MainActor viewModel in
             do {
                 let cardDetailsData = try await viewModel.revealRequest()
                 viewModel.state = .loaded(cardDetailsData)
 
                 try? await Task.sleep(seconds: Constants.cardDetailsVisibilityPeriodInSeconds)
-                viewModel.state = .hidden
+                viewModel.state = .hidden(isFrozen: viewModel.state.isFrozen)
             } catch {
+                viewModel.state = .hidden(isFrozen: viewModel.state.isFrozen)
                 // [REDACTED_TODO_COMMENT]
             }
+        }
+    }
+
+    func setVisibility(_ visible: Bool) {
+        if visible, !state.isLoaded {
+            toggleVisibility()
+        } else if !visible, state.isLoaded {
+            cardDetailsExposureTask?.cancel()
         }
     }
 

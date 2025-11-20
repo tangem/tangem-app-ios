@@ -38,6 +38,9 @@ struct ScrollableButtonsView: View {
                     )
                     .disabled(button.disabled)
                     .unreadNotificationBadge(button.shouldShowBadge, badgeColor: Colors.Icon.accent)
+                    .ifLet(button.accessibilityIdentifier) { view, identifier in
+                        view.accessibilityIdentifier(identifier)
+                    }
                 }
             }
             .accessibilityElement(children: .contain)

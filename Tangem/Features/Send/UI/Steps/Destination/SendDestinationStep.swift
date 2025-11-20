@@ -43,8 +43,6 @@ class SendDestinationStep {
 extension SendDestinationStep: SendStep {
     var type: SendStepType { .destination(viewModel) }
 
-    var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
-
     var shouldShowBottomOverlay: Bool { true }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
