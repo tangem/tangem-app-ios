@@ -332,7 +332,6 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
                 createdAt: Date()
             ),
             card: nil,
-            balance: nil,
             depositAddress: nil
         )
     }
@@ -342,7 +341,27 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
     }
 
     func getBalance() async throws -> TangemPayBalance {
-        .init(currency: "", availableBalance: .zero)
+        .init(
+            fiat: .init(
+                currency: "",
+                availableBalance: .zero,
+                creditLimit: .zero,
+                pendingCharges: .zero,
+                postedCharges: .zero,
+                balanceDue: .zero
+            ),
+            crypto: .init(
+                id: "",
+                chainId: .zero,
+                depositAddress: "",
+                tokenContractAddress: "",
+                balance: .zero
+            ),
+            availableForWithdrawal: .init(
+                amount: .zero,
+                currency: ""
+            )
+        )
     }
 
     func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse {
