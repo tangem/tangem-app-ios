@@ -7,10 +7,10 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 import Moya
 
 struct TransactionHistoryAPITarget: TargetType {
-    let authorizationHeader: String
     let target: Target
     let apiType: VisaAPIType
 
@@ -48,9 +48,7 @@ struct TransactionHistoryAPITarget: TargetType {
     }
 
     var headers: [String: String]? {
-        var headers = VisaConstants.defaultHeaderParams
-        headers[VisaConstants.authorizationHeaderKey] = authorizationHeader
-        return headers
+        ["Content-Type": "application/json"]
     }
 }
 
@@ -65,5 +63,15 @@ extension TransactionHistoryAPITarget {
     enum ParameterKey: String {
         case offset
         case limit
+    }
+}
+
+extension TransactionHistoryAPITarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        path
+    }
+
+    var shouldLogResponseBody: Bool {
+        return false
     }
 }
