@@ -50,7 +50,7 @@ private extension TangemPayTokenBalanceProvider {
         switch balance {
         case .loading: .loading(.none)
         case .failure: .failure(.none)
-        case .success(let balance): .loaded(balance.availableBalance)
+        case .success(let balance): .loaded(balance.fiat.availableBalance)
         }
     }
 
@@ -59,7 +59,7 @@ private extension TangemPayTokenBalanceProvider {
         case .loading: .loading(.empty(BalanceFormatter.defaultEmptyBalanceString))
         case .failure: .failure(.empty(BalanceFormatter.defaultEmptyBalanceString))
         case .success(let balance): .loaded(
-                balanceFormatter.formatFiatBalance(balance.availableBalance, currencyCode: balance.currency)
+                balanceFormatter.formatFiatBalance(balance.fiat.availableBalance, currencyCode: balance.fiat.currency)
             )
         }
     }
