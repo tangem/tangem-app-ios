@@ -45,8 +45,6 @@ final class FeedbackUITests: BaseTestCase {
     func testRequestSupportFromSend_SupportEmailOpened() throws {
         setAllureId(893)
 
-        try skipDueToBug("[REDACTED_INFO]", description: "Request support on send doesn't open mail view controller")
-
         let token = "Polygon"
         let sendAmount = "10"
         let destinationAddress = "0x24298f15b837E5851925E18439490859e0c1F1ee"
