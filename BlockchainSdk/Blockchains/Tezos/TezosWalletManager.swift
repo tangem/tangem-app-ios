@@ -101,7 +101,7 @@ extension TezosWalletManager: TransactionSender {
                         let mapper = PendingTransactionRecordMapper()
                         let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: rawTransaction)
                         wallet.addPendingTransaction(record)
-                        return TransactionSendResult(hash: rawTransaction)
+                        return TransactionSendResult(hash: rawTransaction, currentProviderHost: currentHost)
                     }
                     .mapAndEraseSendTxError(tx: rawTransaction)
                     .eraseToAnyPublisher()

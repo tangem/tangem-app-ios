@@ -26,7 +26,7 @@ final class MobileUpgradeViewModel: ObservableObject {
     lazy var info = makeInfo()
 
     let buyButtonTitle = Localization.detailsBuyWallet
-    let scanButtonTitle = Localization.hwUpgradeScanDevice
+    let upgradeButtonTitle = Localization.hwUpgradeStartAction
 
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.safariManager) private var safariManager: SafariManager
@@ -50,7 +50,7 @@ final class MobileUpgradeViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension MobileUpgradeViewModel {
-    func onScanTap() {
+    func onUpgradeTap() {
         scanCard()
     }
 
@@ -73,10 +73,10 @@ extension MobileUpgradeViewModel {
             subtitle: Localization.hwUpgradeKeyMigrationDescription
         )
 
-        let fundsTrait = TraitItem(
+        let backupTrait = TraitItem(
             icon: Assets.Visa.securityCheck,
-            title: Localization.hwUpgradeFundsAccessTitle,
-            subtitle: Localization.hwUpgradeFundsAccessDescription
+            title: Localization.hwUpgradeBackupTitle,
+            subtitle: Localization.hwUpgradeBackupDescription
         )
 
         let securityTrait = TraitItem(
@@ -88,7 +88,7 @@ extension MobileUpgradeViewModel {
         return InfoItem(
             icon: Assets.tangemIconMedium,
             title: Localization.hwUpgradeTitle,
-            traits: [keyTrait, fundsTrait, securityTrait]
+            traits: [keyTrait, backupTrait, securityTrait]
         )
     }
 
