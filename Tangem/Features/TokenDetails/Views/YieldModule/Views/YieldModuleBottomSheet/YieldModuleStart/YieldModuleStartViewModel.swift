@@ -192,12 +192,12 @@ final class YieldModuleStartViewModel: ObservableObject {
         minimalAmountState = minimalAmountState.withFeeState(.loading)
 
         do {
-            let minimalAmountInTokens = try await yieldManagerInteractor.getMinAmount(feeParameters: feeParameters)
-            let minimalFee = try await feeConverter.makeFormattedMinimalFee(from: minimalAmountInTokens)
+            let minimalAmountInFiat = try await yieldManagerInteractor.getMinAmount(feeParameters: feeParameters)
+            let minimalFeeFormatted = try await feeConverter.makeFormattedMinimalFee(from: minimalAmountInFiat)
 
             minimalAmountState = minimalAmountState
-                .withFeeState(.loaded(text: minimalFee.fiatFee))
-                .withFooterText(Localization.yieldModuleFeePolicySheetMinAmountNote(minimalFee.fiatFee, minimalFee.cryptoFee))
+                .withFeeState(.loaded(text: minimalFeeFormatted.fiatFee))
+                .withFooterText(Localization.yieldModuleFeePolicySheetMinAmountNote(minimalFeeFormatted.fiatFee, minimalFeeFormatted.cryptoFee))
 
         } catch {
             minimalAmountState = minimalAmountState
