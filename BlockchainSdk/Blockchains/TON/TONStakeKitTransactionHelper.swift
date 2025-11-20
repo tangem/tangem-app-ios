@@ -17,7 +17,10 @@ class TONStakeKitTransactionHelper {
     }
 
     func prepareForSign(_ stakingTransaction: StakingTransaction, expireAt: UInt32) throws -> TONPreSignData {
-        guard let data = stakingTransaction.unsignedData.data(using: .utf8) else {
+        guard let unsignedData = stakingTransaction.unsignedData as? String else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+        guard let data = unsignedData.data(using: .utf8) else {
             throw BlockchainSdkError.failedToBuildTx
         }
 

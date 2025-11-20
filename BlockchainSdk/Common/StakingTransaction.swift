@@ -7,20 +7,21 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public struct StakingTransaction {
     public let id: String
     let amount: Amount
     let fee: Fee
-    let unsignedData: String
+    let unsignedData: any UnsignedTransactionData
     public let params: (any TransactionParams)?
 
     public init(
         id: String,
         amount: Amount,
         fee: Fee,
-        unsignedData: String,
-        params: any TransactionParams
+        unsignedData: any UnsignedTransactionData,
+        params: (any TransactionParams)?
     ) {
         self.id = id
         self.amount = amount
@@ -32,7 +33,7 @@ public struct StakingTransaction {
 
 extension StakingTransaction: Equatable {
     public static func == (lhs: StakingTransaction, rhs: StakingTransaction) -> Bool {
-        lhs.unsignedData == rhs.unsignedData
+        lhs.unsignedData.hashValue == rhs.unsignedData.hashValue
     }
 }
 
