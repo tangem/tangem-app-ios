@@ -36,8 +36,6 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         forAccountWithDerivationIndex derivationIndex: Int,
         userWalletId: UserWalletId
     ) -> CryptoAccountDependencies {
-        let userWalletId = userWalletModel.userWalletId
-
         let derivationInfo = AccountsAwareUserTokensManager.DerivationInfo(
             derivationIndex: derivationIndex,
             derivationStyle: derivationStyle,
