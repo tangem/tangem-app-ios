@@ -209,7 +209,9 @@ final class UserWalletNotificationManager {
 
         let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
 
-        let hasPositiveBalance = userWalletModel.totalBalance.hasPositiveBalance
+        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        let totalBalances = walletModels.map(\.availableBalanceProvider.balanceType).compactMap(\.value)
+        let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
 
         Analytics.log(
             .noticeFinishActivation,
