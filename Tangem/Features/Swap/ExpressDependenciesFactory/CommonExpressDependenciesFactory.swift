@@ -92,7 +92,7 @@ private extension CommonExpressDependenciesFactory {
             expressManager: expressManager,
             expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
-            expressDestinationService: CommonExpressDestinationService(userWalletId: userWalletInfo.id),
+            expressDestinationService: CommonExpressDestinationService(),
             expressAnalyticsLogger: analyticsLogger,
             expressAPIProvider: expressAPIProvider
         )

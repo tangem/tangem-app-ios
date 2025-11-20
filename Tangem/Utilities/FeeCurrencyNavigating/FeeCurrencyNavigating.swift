@@ -43,8 +43,10 @@ extension FeeCurrencyNavigating {
             return
         }
 
-        let result = WalletModelFinder()
-            .findWalletModel(userWalletId: feeCurrencyOption.userWalletId, tokenItem: feeCurrencyOption.feeTokenItem)
+        let result = try? WalletModelFinder.findWalletModel(
+            userWalletId: feeCurrencyOption.userWalletId,
+            tokenItem: feeCurrencyOption.feeTokenItem
+        )
 
         guard let result else {
             AppLogger.error(error: "FeeCurrency doesn't found for \(feeCurrencyOption.feeTokenItem.name)")
