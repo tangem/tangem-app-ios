@@ -42,6 +42,25 @@ public enum SendAccessibilityIdentifiers {
     public static let addressTextView = "sendAddressTextView"
     public static let addressClearButton = "sendAddressClearButton"
 
+    /// AdditionalField (Memo/DestinationTag)
+    public static let additionalFieldTextField = "sendAdditionalFieldTextField"
+    public static let additionalFieldClearButton = "sendAdditionalFieldClearButton"
+    public static let additionalFieldPasteButton = "sendAdditionalFieldPasteButton"
+    public static let invalidMemoBanner = "sendInvalidMemoBanner"
+
+    /// Suggested Destination (Wallet History)
+    public static let suggestedDestinationHeader = "sendSuggestedDestinationHeader"
+    public static let suggestedDestinationWalletCell = "sendSuggestedDestinationWalletCell"
+    public static let suggestedDestinationTransactionCell = "sendSuggestedDestinationTransactionCell"
+
+    public static func suggestedDestinationWalletCell(index: Int) -> String {
+        "sendSuggestedDestinationWalletCell_\(index)"
+    }
+
+    public static func suggestedDestinationTransactionCell(index: Int) -> String {
+        "sendSuggestedDestinationTransactionCell_\(index)"
+    }
+
     /// Notification banners
     public static let invalidAmountBanner = "sendInvalidAmountBanner"
     public static let insufficientAmountToReserveAtDestinationBanner = "sendInsufficientAmountToReserveAtDestinationBanner"
