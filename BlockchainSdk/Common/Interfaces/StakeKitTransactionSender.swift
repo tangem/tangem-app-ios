@@ -13,7 +13,7 @@ public protocol StakeKitTransactionSender {
     /// If catch error stream will be stopped
     /// In case when manager already implemented the `StakeKitTransactionSenderProvider` method will be not required
     func sendStakeKit(
-        transactions: [StakeKitTransaction],
+        transactions: [StakingTransaction],
         signer: TransactionSigner,
         transactionStatusProvider: some StakeKitTransactionStatusProvider,
         delay second: UInt64?
@@ -23,12 +23,12 @@ public protocol StakeKitTransactionSender {
 // MARK: - Common implementation for StakeKitTransactionSenderProvider
 
 extension StakeKitTransactionSender where
-    Self: StakeKitTransactionsBuilder,
+    Self: StakingTransactionsBuilder,
     Self: WalletProvider, RawTransaction: CustomStringConvertible,
     Self: StakeKitTransactionDataBroadcaster,
     Self: BlockchainDataProvider {
     func sendStakeKit(
-        transactions: [StakeKitTransaction],
+        transactions: [StakingTransaction],
         signer: TransactionSigner,
         transactionStatusProvider: some StakeKitTransactionStatusProvider,
         delay: UInt64?
@@ -51,7 +51,7 @@ extension StakeKitTransactionSender where
                     )
 
                     _ = try await withThrowingTaskGroup(
-                        of: (TransactionSendResult, StakeKitTransaction).self
+                        of: (TransactionSendResult, StakingTransaction).self
                     ) { group in
                         var results = [TransactionSendResult]()
 
@@ -102,7 +102,7 @@ extension StakeKitTransactionSender where
 
     /// Convenience method with adding the `PendingTransaction` to the wallet  and `SendTxError` mapping
     private func broadcast(
-        transaction: StakeKitTransaction,
+        transaction: StakingTransaction,
         rawTransaction: RawTransaction,
         at index: UInt64,
         delay: UInt64? = nil,
@@ -136,10 +136,10 @@ extension StakeKitTransactionSender where
     }
 
     private func waitForTransactionToComplete(
-        _ transaction: StakeKitTransaction,
+        _ transaction: StakingTransaction,
         transactionStatusProvider: StakeKitTransactionStatusProvider
     ) async throws {
-        var status: StakeKitTransaction.Status?
+        var status: StakeKitTransactionParams.Status?
         let startPollingDate = Date()
         while status != .confirmed,
               Date().timeIntervalSince(startPollingDate) < StakeKitTransactionSenderConstants.pollingTimeout {
@@ -154,9 +154,9 @@ extension StakeKitTransactionSender where
     }
 }
 
-extension StakeKitTransaction {
+extension StakingTransaction {
     var requiresWaitingToComplete: Bool {
-        type == .split
+        return (params as? StakeKitTransactionParams)?.type == .split
     }
 }
 

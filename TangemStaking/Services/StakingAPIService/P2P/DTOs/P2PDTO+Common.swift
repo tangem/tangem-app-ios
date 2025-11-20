@@ -26,7 +26,7 @@ extension P2PDTO {
         let constraints: [String: String]?
     }
 
-    struct UnsignedTransaction: Decodable {
+    public struct UnsignedTransaction: Decodable, Hashable {
         let serializeTx: String
         let to: String
         let data: String
