@@ -36,20 +36,25 @@ actor CommonAccountModelsManager {
 
     init(
         userWalletId: UserWalletId,
-        cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider,
         cryptoAccountsRepository: CryptoAccountsRepository,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         dependenciesFactory: CryptoAccountDependenciesFactory,
         areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
-        self.cryptoAccountsGlobalStateProvider = cryptoAccountsGlobalStateProvider
         self.cryptoAccountsRepository = cryptoAccountsRepository
         self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
         self.dependenciesFactory = dependenciesFactory
         self.areHDWalletsSupported = areHDWalletsSupported
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
+
+        // Synchronization for `cryptoAccountsGlobalStateProvider` is guaranteed by the initialization of Swift static variables,
+        // so it is safe to mark `cryptoAccountsGlobalStateProvider` as `nonisolated`.
+        // Unfortunately, property wrappers cannot be marked as `nonisolated`, so we need to manually inject the dependency.
+        @Injected(\.cryptoAccountsGlobalStateProvider)
+        var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+        self.cryptoAccountsGlobalStateProvider = cryptoAccountsGlobalStateProvider
         cryptoAccountsGlobalStateProvider.register(self, forIdentifier: userWalletId)
 
         initialize()
