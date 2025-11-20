@@ -39,6 +39,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         set { amountType = newValue ? .fiat : .crypto }
     }
 
+    var alternativeAmountAccessibilityIdentifier: String {
+        useFiatCalculation
+            ? SendAccessibilityIdentifiers.alternativeCryptoAmount
+            : SendAccessibilityIdentifiers.alternativeFiatAmount
+    }
+
     // MARK: - Router
 
     weak var router: SendAmountRoutable?
