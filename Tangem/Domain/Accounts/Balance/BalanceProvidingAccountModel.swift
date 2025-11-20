@@ -14,14 +14,3 @@ protocol BalanceProvidingAccountModel {
     var fiatTotalBalanceProvider: AccountBalanceProvider { get }
     var rateProvider: AccountRateProvider { get }
 }
-
-extension BalanceProvidingAccountModel {
-    var formattedBalanceTypePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
-        fiatTotalBalanceProvider.formattedBalanceTypePublisher
-            .receiveOnMain()
-            .map { balanceType in
-                return LoadableTokenBalanceViewStateBuilder().build(type: balanceType)
-            }
-            .eraseToAnyPublisher()
-    }
-}

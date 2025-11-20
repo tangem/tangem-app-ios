@@ -84,6 +84,7 @@ extension ActionButtonsBuyViewModel {
     private func bind() {
         let tokenMapper = TokenItemMapper(supportedBlockchains: userWalletModel.config.supportedBlockchains)
 
+        // accounts_fixes_needed_action_buttons_buy
         userWalletModel
             .walletModelsManager
             .walletModelsPublisher
@@ -112,9 +113,11 @@ extension ActionButtonsBuyViewModel {
             guard let tokenItem = hotToken.tokenItem else { return false }
 
             do {
+                // accounts_fixes_needed_action_buttons_buy ([REDACTED_INFO])
                 try userWalletModel.userTokensManager.addTokenItemPrecondition(tokenItem)
 
-                let isNotAddedToken = !userWalletModel.userTokensManager.containsDerivationInsensitive(tokenItem)
+                // accounts_fixes_needed_action_buttons_buy ([REDACTED_INFO])
+                let isNotAddedToken = !userWalletModel.userTokensManager.contains(tokenItem, derivationInsensitive: true)
 
                 return isNotAddedToken
             } catch {
@@ -134,6 +137,7 @@ extension ActionButtonsBuyViewModel {
     func addTokenToPortfolio(_ hotToken: HotCryptoToken) {
         guard let tokenItem = hotToken.tokenItem else { return }
 
+        // accounts_fixes_needed_action_buttons_buy
         userWalletModel.userTokensManager.add(tokenItem) { [weak self] result in
             guard let self, result.error == nil else { return }
 
@@ -148,6 +152,7 @@ extension ActionButtonsBuyViewModel {
     }
 
     private func handleTokenAdding(tokenItem: TokenItem) {
+        // accounts_fixes_needed_action_buttons_buy
         let walletModels = userWalletModel.walletModelsManager.walletModels
 
         guard
@@ -166,7 +171,10 @@ extension ActionButtonsBuyViewModel {
         ActionButtonsAnalyticsService.hotTokenClicked(tokenSymbol: walletModel.tokenItem.currencySymbol)
 
         coordinator?.closeAddToPortfolio()
-        coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self, userWalletModel] in
+            self?.coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
+        }
     }
 }
 

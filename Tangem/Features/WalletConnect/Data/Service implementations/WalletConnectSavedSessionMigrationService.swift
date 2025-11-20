@@ -94,13 +94,15 @@ final class WalletConnectSavedSessionMigrationService {
         // All other cases should be fine.
         let emptyNamespaces = [String: WalletConnectSessionNamespace]()
 
-        return WalletConnectConnectedDApp(
-            session: WalletConnectDAppSession(topic: legacySession.topic, namespaces: emptyNamespaces, expiryDate: Date()),
-            userWalletID: userWalletModel.userWalletId.stringValue,
-            dAppData: dAppData,
-            verificationStatus: await verificationStatus,
-            dAppBlockchains: dAppBlockchains,
-            connectionDate: Date()
+        return .v1(
+            WalletConnectConnectedDAppV1(
+                session: WalletConnectDAppSession(topic: legacySession.topic, namespaces: emptyNamespaces, expiryDate: Date()),
+                userWalletID: userWalletModel.userWalletId.stringValue,
+                dAppData: dAppData,
+                verificationStatus: await verificationStatus,
+                dAppBlockchains: dAppBlockchains,
+                connectionDate: Date()
+            )
         )
     }
 }
