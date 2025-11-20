@@ -49,8 +49,8 @@ final class TangemPayMainViewModel: ObservableObject {
         mainHeaderViewModel = MainHeaderViewModel(
             isUserWalletLocked: false,
             supplementInfoProvider: tangemPayAccount,
-            subtitleProvider: tangemPayAccount,
-            balanceProvider: tangemPayAccount,
+            subtitleProvider: tangemPayAccount.tangemPayMainHeaderSubtitleProvider,
+            balanceProvider: tangemPayAccount.tangemPayMainHeaderBalanceProvider,
             updatePublisher: .empty
         )
 
@@ -84,7 +84,7 @@ final class TangemPayMainViewModel: ObservableObject {
         let tangemPayDestinationWalletWrapper = TangemPayDestinationWalletWrapper(
             tokenItem: TangemPayUtilities.usdcTokenItem,
             address: depositAddress,
-            balancePublisher: tangemPayAccount.balancePublisher
+            balanceProvider: tangemPayAccount.tangemPayTokenBalanceProvider
         )
 
         coordinator?.openTangemPayAddFundsSheet(
