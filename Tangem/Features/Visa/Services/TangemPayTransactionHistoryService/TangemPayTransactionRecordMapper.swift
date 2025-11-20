@@ -167,8 +167,8 @@ struct TangemPayTransactionRecordMapper {
     func categoryName() -> String {
         switch transaction.record {
         case .spend(let spend):
-            return spend.enrichedMerchantCategory
-                ?? spend.merchantCategory
+            return spend.merchantCategory
+                ?? spend.enrichedMerchantCategory
                 ?? spend.merchantCategoryCode
                 ?? Localization.tangemPayOther
         case .collateral:
