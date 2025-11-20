@@ -121,7 +121,7 @@ class StellarWalletManager: BaseManager, WalletManager {
                     let mapper = PendingTransactionRecordMapper()
                     let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
                     self.wallet.addPendingTransaction(record)
-                    return TransactionSendResult(hash: hash)
+                    return TransactionSendResult(hash: hash, currentProviderHost: self.currentHost)
                 }
                 .mapAndEraseSendTxError(tx: rawTransactionHash)
                 .eraseToAnyPublisher() ?? .emptyFail

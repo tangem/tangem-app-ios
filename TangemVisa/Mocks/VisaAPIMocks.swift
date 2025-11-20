@@ -259,7 +259,7 @@ struct AuthorizationServiceMock: VisaAuthorizationService, VisaAuthorizationToke
 // MARK: - VisaCardActivationStatusService
 
 struct CardActivationStatusServiceMock: VisaCardActivationStatusService {
-    func getCardActivationStatus(authorizationTokens: VisaAuthorizationTokens, cardId: String, cardPublicKey: String) async throws -> VisaCardActivationStatus {
+    func getCardActivationStatus(cardId: String, cardPublicKey: String) async throws -> VisaCardActivationStatus {
         return .init(
             activationRemoteState: VisaMocksManager.instance.activationRemoteState,
             activationOrder: VisaMocksManager.instance.activationOrder
@@ -352,6 +352,18 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
             pan: .init(secret: "", iv: ""),
             cvv: .init(secret: "", iv: "")
         )
+    }
+
+    func freeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse {
+        .init(orderId: "", status: .processing)
+    }
+
+    func unfreeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse {
+        .init(orderId: "", status: .processing)
+    }
+
+    func setPin(pin: String, sessionId: String, iv: String) async throws -> TangemPaySetPinResponse {
+        .init(result: .success)
     }
 
     func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse {

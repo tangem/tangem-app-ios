@@ -11,14 +11,14 @@ import Combine
 import TangemNetworkUtils
 
 struct VeChainNetworkProvider {
-    private let baseURL: URL
+    private let nodeInfo: NodeInfo
     private let provider: TangemProvider<VeChainTarget>
 
     init(
-        baseURL: URL,
+        nodeInfo: NodeInfo,
         configuration: TangemProviderConfiguration
     ) {
-        self.baseURL = baseURL
+        self.nodeInfo = nodeInfo
         provider = TangemProvider<VeChainTarget>(configuration: configuration)
     }
 
@@ -55,7 +55,7 @@ struct VeChainNetworkProvider {
     private func requestPublisher<T: Decodable>(
         for target: VeChainTarget.Target
     ) -> AnyPublisher<T, Swift.Error> {
-        return provider.requestPublisher(VeChainTarget(baseURL: baseURL, target: target))
+        return provider.requestPublisher(VeChainTarget(baseURL: nodeInfo.url, target: target))
             .filterSuccessfulStatusCodes()
             .map(T.self)
             .eraseError()
@@ -67,6 +67,6 @@ struct VeChainNetworkProvider {
 
 extension VeChainNetworkProvider: HostProvider {
     var host: String {
-        baseURL.hostOrUnknown
+        nodeInfo.host
     }
 }

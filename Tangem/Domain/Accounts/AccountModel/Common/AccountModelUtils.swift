@@ -9,13 +9,17 @@
 import Foundation
 import TangemFoundation
 
+// [REDACTED_TODO_COMMENT]
 enum AccountModelUtils {
+    static var maxAccountNameLength: Int { Constants.maxAccountNameLength }
+    static var maxNumberOfAccounts: Int { Constants.maxNumberOfAccounts }
+
     static func mainAccountPersistentConfig(forUserWalletWithId userWalletId: UserWalletId) -> CryptoAccountPersistentConfig {
         let iconColor = deriveMainAccountIconColor(from: userWalletId)
 
         return CryptoAccountPersistentConfig(
             derivationIndex: Constants.mainAccountDerivationIndex,
-            name: nil,
+            name: nil, // Main account uses a localized name
             iconName: Constants.mainAccountIconName.rawValue,
             iconColor: iconColor.rawValue
         )
@@ -54,5 +58,7 @@ private extension AccountModelUtils {
     enum Constants {
         static let mainAccountDerivationIndex = 0
         static let mainAccountIconName: AccountModel.Icon.Name = .star
+        static let maxAccountNameLength = 20
+        static let maxNumberOfAccounts = 20
     }
 }
