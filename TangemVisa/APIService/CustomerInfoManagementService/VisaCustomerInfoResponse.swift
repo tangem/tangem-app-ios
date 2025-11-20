@@ -16,24 +16,7 @@ public struct VisaCustomerInfoResponse: Decodable {
     public let paymentAccount: PaymentAccount?
     public let kyc: KYCInfo
     public let card: Card?
-    public let balance: TangemPayBalance?
     public let depositAddress: String?
-}
-
-public extension VisaCustomerInfoResponse {
-    func withBalance(_ balance: TangemPayBalance) -> VisaCustomerInfoResponse {
-        VisaCustomerInfoResponse(
-            id: id,
-            state: state,
-            createdAt: createdAt,
-            productInstance: productInstance,
-            paymentAccount: paymentAccount,
-            kyc: kyc,
-            card: card,
-            balance: balance,
-            depositAddress: depositAddress
-        )
-    }
 }
 
 public extension VisaCustomerInfoResponse {
