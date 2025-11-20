@@ -8,8 +8,8 @@
 import Foundation
 
 /// High-level protocol for preparing staking transactions data to send into blockchain
-/// default implementation use low-level StakeKitTransactionDataProvider protocol
-protocol StakingTransactionsBuilder {
+/// default implementation use low-level StakingTransactionDataProvider protocol
+public protocol StakingTransactionsBuilder {
     associatedtype RawTransaction
 
     /// Prepare signed transactions ready to be submitted to blockchain
@@ -25,7 +25,7 @@ protocol StakingTransactionsBuilder {
     ) async throws -> [RawTransaction]
 }
 
-extension StakingTransactionsBuilder where Self: StakeKitTransactionDataProvider {
+extension StakingTransactionsBuilder where Self: StakingTransactionDataProvider {
     func buildRawTransactions(
         from transactions: [StakingTransaction],
         publicKey: Wallet.PublicKey,
