@@ -17,6 +17,11 @@ public extension Swift.Collection {
         return isEmpty ? nil : self
     }
 
+    /// Returns the single element if collection contains exactly one element, otherwise returns nil
+    var singleElement: Element? {
+        return count == 1 ? first : nil
+    }
+
     /// Simple extension for checking process in empty collection
     /// Use `allConforms` for check each element to satisfy a condition
     /// `allSatisfy` return `true`, if collection `isEmpty`
@@ -54,6 +59,12 @@ public extension Swift.Collection {
 
     func sum<T: AdditiveArithmetic>(by keyPath: KeyPath<Element, T>) -> T {
         reduce(T.zero) { $0 + $1[keyPath: keyPath] }
+    }
+}
+
+public extension Swift.Collection where Element: Swift.AdditiveArithmetic {
+    func sum() -> Element {
+        reduce(.zero, +)
     }
 }
 
