@@ -204,15 +204,23 @@ final class AccountSelectorViewModel: ObservableObject {
         case .standard(.single(let cryptoAccountModel)):
             guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
 
-            return .init(userWallet: userWallet, accounts: [.init(account: cryptoAccountModel)])
+            return AccountSelectorMultipleAccountsItem(
+                userWallet: userWallet,
+                accounts: [
+                    AccountSelectorAccountItem(
+                        account: cryptoAccountModel,
+                        userWalletModel: userWallet
+                    ),
+                ]
+            )
         case .standard(.multiple(let cryptoAccountModels)):
             let filteredCryptoAccountModels = cryptoAccountModels.filter(cryptoAccountModelsFilter)
 
             guard filteredCryptoAccountModels.isNotEmpty else { return nil }
 
-            return .init(
+            return AccountSelectorMultipleAccountsItem(
                 userWallet: userWallet,
-                accounts: filteredCryptoAccountModels.map { .init(account: $0) }
+                accounts: filteredCryptoAccountModels.map { AccountSelectorAccountItem(account: $0, userWalletModel: userWallet) }
             )
         }
     }

@@ -25,14 +25,14 @@ class TezosJsonRpcProvider: HostProvider {
     }
 
     func getInfo(address: String) -> AnyPublisher<TezosAddressResponse, Error> {
-        requestPublisher(for: TezosTarget(host: host, endpoint: .addressData(address: address)))
+        requestPublisher(for: TezosTarget(node: nodeInfo, endpoint: .addressData(address: address)))
             .map(TezosAddressResponse.self)
             .mapError { $0 }
             .eraseToAnyPublisher()
     }
 
     func checkPublicKeyRevealed(address: String) -> AnyPublisher<Bool, Error> {
-        requestPublisher(for: TezosTarget(host: nodeInfo.link, endpoint: .managerKey(address: address)))
+        requestPublisher(for: TezosTarget(node: nodeInfo, endpoint: .managerKey(address: address)))
             .mapString()
             .cleanString()
             .map { $0 == "null" ? false : true }
@@ -48,7 +48,7 @@ class TezosJsonRpcProvider: HostProvider {
     }
 
     func getHeader() -> AnyPublisher<TezosHeaderResponse, Error> {
-        requestPublisher(for: TezosTarget(host: host, endpoint: .getHeader))
+        requestPublisher(for: TezosTarget(node: nodeInfo, endpoint: .getHeader))
             .map(TezosHeaderResponse.self)
             .mapError { $0 }
             .eraseToAnyPublisher()
@@ -57,7 +57,7 @@ class TezosJsonRpcProvider: HostProvider {
     func forgeContents(headerHash: String, contents: [TezosOperationContent]) -> AnyPublisher<String, Error> {
         let body = TezosForgeBody(branch: headerHash, contents: contents)
 
-        return requestPublisher(for: TezosTarget(host: host, endpoint: .forgeOperations(body: body)))
+        return requestPublisher(for: TezosTarget(node: nodeInfo, endpoint: .forgeOperations(body: body)))
             .mapString()
             .cleanString()
             .mapError { $0 }
@@ -77,13 +77,13 @@ class TezosJsonRpcProvider: HostProvider {
             signature: signature
         )
 
-        return requestPublisher(for: TezosTarget(host: host, endpoint: .preapplyOperations(body: [body])))
+        return requestPublisher(for: TezosTarget(node: nodeInfo, endpoint: .preapplyOperations(body: [body])))
             .mapError { $0 }
             .eraseToAnyPublisher()
     }
 
     func sendTransaction(_ transaction: String) -> AnyPublisher<Response, Error> {
-        requestPublisher(for: TezosTarget(host: host, endpoint: .sendTransaction(tx: transaction)))
+        requestPublisher(for: TezosTarget(node: nodeInfo, endpoint: .sendTransaction(tx: transaction)))
             .mapError { $0 }
             .eraseToAnyPublisher()
     }
