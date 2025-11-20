@@ -10,6 +10,8 @@ import Foundation
 import TangemLocalization
 
 struct LoadableTokenBalanceViewStateBuilder {
+    let formatter = BalanceFormatter()
+
     func build(type: FormattedTokenBalanceType, icon: LoadableTokenBalanceView.State.Icon? = nil) -> LoadableTokenBalanceView.State {
         switch type {
         case .loading(.cache(let cached)):
@@ -41,8 +43,6 @@ struct LoadableTokenBalanceViewStateBuilder {
     }
 
     func buildAttributedTotalBalance(type: FormattedTokenBalanceType) -> LoadableTokenBalanceView.State {
-        let formatter = BalanceFormatter()
-
         switch type {
         case .loading(.cache(let cached)):
             let attributed = formatter.formatAttributedTotalBalance(fiatBalance: cached.balance)
@@ -59,8 +59,6 @@ struct LoadableTokenBalanceViewStateBuilder {
     }
 
     func buildTotalBalance(state: TotalBalanceState) -> LoadableTokenBalanceView.State {
-        let formatter = BalanceFormatter()
-
         switch state {
         case .empty:
             return .empty
