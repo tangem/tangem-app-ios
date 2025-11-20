@@ -2725,6 +2725,7 @@
 		D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89ABED82E31979900855B00 /* SwapScreen.swift */; };
 		D8B80B622EC4B6860002B6A5 /* SendConfirmationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B80B612EC4B6860002B6A5 /* SendConfirmationUITests.swift */; };
 		D8B80B642EC615740002B6A5 /* SendPolygonNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B80B632EC615740002B6A5 /* SendPolygonNotificationUITests.swift */; };
+		D8B80B662EC695110002B6A5 /* SendAddressUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B80B652EC695110002B6A5 /* SendAddressUITests.swift */; };
 		D8BCA6892E5DF4A400DC6876 /* WalletConnectedAppSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BCA6882E5DF4A400DC6876 /* WalletConnectedAppSheet.swift */; };
 		D8C314C22E964A4000B9F552 /* MockBlockBookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C314C12E964A4000B9F552 /* MockBlockBookConfig.swift */; };
 		D8C314C42E968C0700B9F552 /* SendNotificationDogecoinUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C314C32E968C0700B9F552 /* SendNotificationDogecoinUITests.swift */; };
@@ -7224,6 +7225,7 @@
 		D89ABED82E31979900855B00 /* SwapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapScreen.swift; sourceTree = "<group>"; };
 		D8B80B612EC4B6860002B6A5 /* SendConfirmationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendConfirmationUITests.swift; sourceTree = "<group>"; };
 		D8B80B632EC615740002B6A5 /* SendPolygonNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendPolygonNotificationUITests.swift; sourceTree = "<group>"; };
+		D8B80B652EC695110002B6A5 /* SendAddressUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAddressUITests.swift; sourceTree = "<group>"; };
 		D8BCA6882E5DF4A400DC6876 /* WalletConnectedAppSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectedAppSheet.swift; sourceTree = "<group>"; };
 		D8C314C12E964A4000B9F552 /* MockBlockBookConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBlockBookConfig.swift; sourceTree = "<group>"; };
 		D8C314C32E968C0700B9F552 /* SendNotificationDogecoinUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNotificationDogecoinUITests.swift; sourceTree = "<group>"; };
@@ -17553,6 +17555,7 @@
 		D892E6BE2E95114000D29113 /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				D8B80B652EC695110002B6A5 /* SendAddressUITests.swift */,
 				D8B80B612EC4B6860002B6A5 /* SendConfirmationUITests.swift */,
 				D826F6C32EAA58D900CA6353 /* SendKusamaNotificationUITests.swift */,
 				D826F6C12EAA430C00CA6353 /* SendAzeroNotificationUITests.swift */,
@@ -27604,6 +27607,7 @@
 				D8D528032EA7792F000CD5C3 /* SendTezosNotificationUITests.swift in Sources */,
 				D8E15EF02E41156B00E217BB /* StakingSendScreen.swift in Sources */,
 				D852F8432E5CA30C00C71B7F /* WCURIResponse.swift in Sources */,
+				D8B80B662EC695110002B6A5 /* SendAddressUITests.swift in Sources */,
 				D826F6C22EAA430C00CA6353 /* SendAzeroNotificationUITests.swift in Sources */,
 				D863E7A62E68ABF700912D52 /* CreateBackupScreen.swift in Sources */,
 				D8EDA17F2E60802000422CA7 /* SendScreen.swift in Sources */,
