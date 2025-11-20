@@ -177,36 +177,6 @@ final class MainViewModel: ObservableObject {
         }
     }
 
-    func didTapDeleteWallet() {
-        Analytics.log(.buttonDeleteWalletTapped)
-
-        confirmationDialog = ConfirmationDialogViewModel(
-            title: Localization.userWalletListDeletePrompt,
-            buttons: [
-                ConfirmationDialogViewModel.Button(
-                    title: Localization.commonDelete,
-                    role: .destructive,
-                    action: { [weak self] in
-                        self?.didConfirmWalletDeletion()
-                    }
-                ),
-                ConfirmationDialogViewModel.Button.cancel,
-            ]
-        )
-    }
-
-    func didConfirmWalletDeletion() {
-        guard let userWalletModel = userWalletRepository.selectedModel else {
-            return
-        }
-
-        userWalletRepository.delete(userWalletId: userWalletModel.userWalletId)
-
-        if userWalletRepository.models.isEmpty {
-            coordinator?.popToRoot()
-        }
-    }
-
     // MARK: - User wallets pages management
 
     private func addNewPage(for userWalletModel: UserWalletModel) {
