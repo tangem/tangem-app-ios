@@ -45,7 +45,7 @@ class CommonWalletModel {
         }
     }
 
-    private unowned var _account: (any CryptoAccountModel)!
+    private weak var _account: (any CryptoAccountModel)?
 
     private let sendAvailabilityProvider: TransactionSendAvailabilityProvider
     private let tokenBalancesRepository: TokenBalancesRepository
@@ -113,6 +113,10 @@ class CommonWalletModel {
 
     deinit {
         AppLogger.debug(self)
+    }
+
+    func setCryptoAccount(_ cryptoAccount: any CryptoAccountModel) {
+        _account = cryptoAccount
     }
 
     private func bind() {
@@ -236,7 +240,7 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
-    var account: any CryptoAccountModel { _account }
+    var account: (any CryptoAccountModel)? { _account }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
 
@@ -917,6 +921,14 @@ extension CommonWalletModel: ReceiveAddressTypesProvider {
 
     var receiveAddressInfos: [ReceiveAddressInfo] {
         _receiveAddressService.addressInfos
+    }
+}
+
+// MARK: - WalletModelResolvable protocol conformance
+
+extension CommonWalletModel: WalletModelResolvable {
+    func resolve<R>(using resolver: R) -> R.Result where R: WalletModelResolving {
+        resolver.resolve(walletModel: self)
     }
 }
 

@@ -11,7 +11,7 @@ import Combine
 import TangemStaking
 import BlockchainSdk
 
-class StakingDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating {
+class StakingDetailsCoordinator: CoordinatorObject, SendFeeCurrencyNavigating {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -45,8 +45,8 @@ class StakingDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         self.options = options
 
         rootViewModel = StakingDetailsViewModel(
-            tokenItem: options.walletModel.tokenItem,
-            tokenBalanceProvider: options.walletModel.availableBalanceProvider,
+            tokenItem: options.sendInput.walletModel.tokenItem,
+            tokenBalanceProvider: options.sendInput.walletModel.availableBalanceProvider,
             stakingManager: options.manager,
             coordinator: self
         )
@@ -57,8 +57,7 @@ class StakingDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
 extension StakingDetailsCoordinator {
     struct Options {
-        let userWalletModel: UserWalletModel
-        let walletModel: any WalletModel
+        let sendInput: SendInput
         let manager: StakingManager
     }
 }
@@ -73,7 +72,7 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
             options: options,
             sendType: .staking(
                 manager: options.manager,
-                blockchainParams: .init(blockchain: options.walletModel.tokenItem.blockchain)
+                blockchainParams: .init(blockchain: options.sendInput.walletModel.tokenItem.blockchain)
             )
         )
 
@@ -81,7 +80,7 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
             event: .stakingButtonStake,
             params: [
                 .source: Analytics.ParameterValue.stakeSourceStakeInfo.rawValue,
-                .token: options.walletModel.tokenItem.currencySymbol,
+                .token: options.sendInput.walletModel.tokenItem.currencySymbol,
             ]
         )
     }
@@ -94,7 +93,6 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
         })
 
         coordinator.start(with: options)
-
         multipleRewardsCoordinator = coordinator
     }
 
@@ -121,11 +119,7 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
 
         coordinator.start(
             with: .init(
-                input: .init(
-                    userWalletInfo: options.userWalletModel.userWalletInfo,
-                    walletModel: options.walletModel,
-                    expressInput: .init(userWalletModel: options.userWalletModel)
-                ),
+                input: options.sendInput,
                 type: sendType,
                 source: .stakingDetails
             )
@@ -134,7 +128,7 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     }
 
     func openWhatIsStaking() {
-        let tokenSymbol = options?.walletModel.tokenItem.currencySymbol ?? ""
+        let tokenSymbol = options?.sendInput.walletModel.tokenItem.currencySymbol ?? ""
         Analytics.log(event: .stakingLinkWhatIsStaking, params: [.token: tokenSymbol])
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .whatIsStaking))
     }
