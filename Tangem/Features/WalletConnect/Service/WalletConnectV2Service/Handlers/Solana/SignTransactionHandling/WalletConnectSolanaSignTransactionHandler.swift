@@ -72,10 +72,6 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
         case .default:
             return try await defaultHandleTransaction(unsignedHash: unsignedHash)
         case .alt:
-            guard signatureCount == 1 else {
-                throw WalletConnectTransactionRequestProcessingError.invalidPayload("Signature count > 1")
-            }
-
             analyticsProvider.logReceiveHandleSolanaALTTransactionRequest()
 
             let transactionService = try SolanaALTTransactionService(
