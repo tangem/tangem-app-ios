@@ -32,7 +32,7 @@ struct CommonCryptoAccountDependenciesFactory {
 extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFactory {
     func makeDependencies(
         forAccountWithDerivationIndex derivationIndex: Int,
-        userWalletModel: UserWalletModel
+        userWalletId: UserWalletId
     ) -> CryptoAccountDependencies {
         let derivationInfo = AccountsAwareUserTokensManager.DerivationInfo(
             derivationIndex: derivationIndex,
@@ -42,7 +42,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let userTokensRepository = userTokensRepositoryProvider(derivationIndex)
 
         let userTokensManager = AccountsAwareUserTokensManager(
-            userWalletId: userWalletModel.userWalletId,
+            userWalletId: userWalletId,
             userTokensRepository: userTokensRepository,
             derivationInfo: derivationInfo,
             existingCurves: existingCurves,
@@ -57,7 +57,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletManagerFactory: walletManagerFactory
         )
 
-        let walletModelsFactory = walletModelsFactoryProvider(userWalletModel.userWalletId)
+        let walletModelsFactory = walletModelsFactoryProvider(userWalletId)
         let wrappedWalletModelsFactory = AccountsAwareWalletModelsFactoryWrapper(innerFactory: walletModelsFactory)
 
         let walletModelsManager = CommonWalletModelsManager(
@@ -71,7 +71,6 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
 
         userTokensManager.derivationManager = derivationManager
         userTokensManager.walletModelsManager = walletModelsManager
-        userTokensManager.keysDerivingProvider = userWalletModel
         userTokensManager.sync {}
 
         return CryptoAccountDependencies(

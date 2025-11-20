@@ -54,6 +54,7 @@ final class ContextMenuScreen: ScreenBase<ContextMenuScreenElement> {
         }
     }
 
+    @discardableResult
     func tapSend() -> SendScreen {
         XCTContext.runActivity(named: "Tap Send button in context menu") { _ in
             sendButton.waitAndTap()
