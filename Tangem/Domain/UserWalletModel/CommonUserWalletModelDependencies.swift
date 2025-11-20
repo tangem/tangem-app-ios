@@ -14,9 +14,6 @@ import TangemMobileWalletSdk
 import TangemAccounts
 
 struct CommonUserWalletModelDependencies {
-    @Injected(\.cryptoAccountsGlobalStateProvider)
-    private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
-
     let keysRepository: KeysRepository
     let walletModelsManager: WalletModelsManager
     let totalBalanceProvider: TotalBalanceProvider
@@ -89,14 +86,10 @@ struct CommonUserWalletModelDependencies {
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         innerDependencies.configure(with: userTokensPushNotificationsManager)
 
-        // Capture the injected dependency before self is available
-        let cryptoAccountsGlobalStateProvider = InjectedValues[\.cryptoAccountsGlobalStateProvider]
-
         accountModelsManager = Self.makeAccountModelsManager(
             userWalletId: userWalletId,
             config: config,
             walletManagerFactory: walletManagerFactory,
-            cryptoAccountsGlobalStateProvider: cryptoAccountsGlobalStateProvider,
             keysRepository: keysRepository,
             userTokensPushNotificationsManager: userTokensPushNotificationsManager,
             derivationManager: derivationManager,
@@ -243,7 +236,6 @@ private extension CommonUserWalletModelDependencies {
         userWalletId: UserWalletId,
         config: UserWalletConfig,
         walletManagerFactory: AnyWalletManagerFactory,
-        cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider,
         keysRepository: KeysRepository,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
         derivationManager: DerivationManager?,
@@ -299,7 +291,6 @@ private extension CommonUserWalletModelDependencies {
         )
         let accountModelsManager = CommonAccountModelsManager(
             userWalletId: userWalletId,
-            cryptoAccountsGlobalStateProvider: cryptoAccountsGlobalStateProvider,
             cryptoAccountsRepository: cryptoAccountsRepository,
             archivedCryptoAccountsProvider: networkService,
             dependenciesFactory: dependenciesFactory,
