@@ -9,6 +9,8 @@
 import Combine
 import TangemFoundation
 
+/// Will be delete after accounts
+/// [REDACTED_INFO]
 struct CommonExpressTokensListAdapter {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -27,9 +29,9 @@ extension CommonExpressTokensListAdapter: ExpressTokensListAdapter {
             return .empty
         }
 
-        // accounts_fixes_needed_express
+        // accounts_fixes_needed_none
         let tokenSectionsSourcePublisher = userWalletModel.walletModelsManager.walletModelsPublisher
-        // accounts_fixes_needed_express
+        // accounts_fixes_needed_none
         let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokensManager: userWalletModel.userTokensManager,
             optionsProviding: OrganizeTokensOptionsManager(

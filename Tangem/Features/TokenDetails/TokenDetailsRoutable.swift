@@ -9,9 +9,9 @@
 import Foundation
 import BlockchainSdk
 
-protocol TokenDetailsRoutable: AnyObject {
+protocol TokenDetailsRoutable: FeeCurrencyNavigating {
     func dismiss()
-    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel)
+
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory)
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory)
     func openYieldBalanceInfo(factory: YieldModuleFlowFactory)
