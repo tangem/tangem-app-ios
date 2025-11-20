@@ -11,14 +11,14 @@ import TangemStaking
 import BlockchainSdk
 
 final class CommonStakeKitTransactionStatusProvider: StakeKitTransactionStatusProvider {
-    private let stakingManager: StakingManager
+    private let apiProvider: StakeKitAPIProvider
 
-    init(stakingManager: StakingManager) {
-        self.stakingManager = stakingManager
+    init(apiProvider: StakeKitAPIProvider) {
+        self.apiProvider = apiProvider
     }
 
-    func transactionStatus(_ transaction: StakeKitTransaction) async throws -> StakeKitTransaction.Status? {
-        let transactionInfo = try await stakingManager.transactionDetails(id: transaction.id)
-        return StakeKitTransaction.Status(rawValue: transactionInfo.status)
+    func transactionStatus(_ transaction: StakingTransaction) async throws -> StakeKitTransactionParams.Status? {
+        let transactionInfo = try await apiProvider.transaction(id: transaction.id)
+        return StakeKitTransactionParams.Status(rawValue: transactionInfo.status)
     }
 }

@@ -84,7 +84,11 @@ private extension StakingTransactionDispatcher {
             transactions = Array(transactions[offset...])
         }
 
-        let shouldDelayTransactions = transactions.contains { $0.stepIndex != transactions.first?.stepIndex }
+        let shouldDelayTransactions = transactions.contains {
+            guard let params = $0.params as? StakeKitTransactionParams,
+                  let otherParams = transactions.first?.params as? StakeKitTransactionParams else { return false }
+            return params.stepIndex != otherParams.stepIndex
+        }
 
         let delay: UInt64? = switch walletModel.tokenItem.blockchain {
         case .tron: 5 // to stake tron 2 transactions must be executed in specific order
@@ -141,7 +145,7 @@ extension StakingTransactionDispatcher {
         let type: StuckType
 
         enum StuckType: Hashable {
-            case send(transaction: StakeKitTransaction)
+            case send(transaction: StakingTransaction)
         }
     }
 

@@ -567,17 +567,17 @@ extension EthereumWalletManager: EthereumTransactionDataBuilder {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension EthereumWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
+extension EthereumWalletManager: StakingTransactionsBuilder, StakeKitTransactionSender, StakingTransactionDataProvider {
     typealias RawTransaction = String
 
-    func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
+    func prepareDataForSign(transaction: StakingTransaction) throws -> Data {
         try EthereumStakingTransactionHelper(transactionBuilder: txBuilder).prepareForSign(
             transaction.unsignedData,
             fee: transaction.fee
         )
     }
 
-    func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
+    func prepareDataForSend(transaction: StakingTransaction, signature: SignatureInfo) throws -> RawTransaction {
         try EthereumStakingTransactionHelper(transactionBuilder: txBuilder)
             .prepareForSend(transaction.unsignedData, fee: transaction.fee, signatureInfo: signature)
             .hex()
@@ -588,7 +588,7 @@ extension EthereumWalletManager: StakeKitTransactionsBuilder, StakeKitTransactio
 // MARK: - StakeKitTransactionDataBroadcaster
 
 extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(transaction: StakingTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
     }
 }

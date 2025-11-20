@@ -19,23 +19,24 @@ struct StakingTransactionMapper {
         self.feeTokenItem = feeTokenItem
     }
 
-    func mapToStakeKitTransactions(action: StakingTransactionAction) -> [StakeKitTransaction] {
+    func mapToStakeKitTransactions(action: StakingTransactionAction) -> [StakingTransaction] {
         action.transactions.map { transaction in
             let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: action.amount)
             let feeAmount = Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: transaction.fee)
 
-            let stakeKitTransaction = StakeKitTransaction(
+            let params = StakeKitTransactionParams(
+                type: .init(rawValue: transaction.type),
+                status: .init(rawValue: transaction.status),
+                stepIndex: transaction.stepIndex,
+                validator: action.validator,
+                solanaBlockhashDate: Date()
+            )
+            let stakeKitTransaction = StakingTransaction(
                 id: transaction.id,
                 amount: amount,
                 fee: Fee(feeAmount),
                 unsignedData: transaction.unsignedTransactionData,
-                type: .init(rawValue: transaction.type),
-                status: .init(rawValue: transaction.status),
-                stepIndex: transaction.stepIndex,
-                params: StakeKitTransactionParams(
-                    validator: action.validator,
-                    solanaBlockhashDate: Date()
-                )
+                params: params
             )
 
             return stakeKitTransaction
