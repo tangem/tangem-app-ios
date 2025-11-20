@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 enum MarketsTokenItemsProvider {
     static func calculateTokenItems(
@@ -14,20 +15,14 @@ enum MarketsTokenItemsProvider {
         coinName: String,
         coinSymbol: String,
         networks: [NetworkModel],
-        userWalletModel: UserWalletModel?,
+        supportedBlockchains: Set<Blockchain>,
         cryptoAccount: any CryptoAccountModel
     ) -> [TokenItem] {
-        guard let userWalletModel else {
-            return []
-        }
+        let filteredBlockchains = !cryptoAccount.isMainAccount
+            ? AccountDerivationPathHelper.filterBlockchainsSupportingAccounts(supportedBlockchains)
+            : supportedBlockchains
 
-        let supportedBlockchains = if !cryptoAccount.isMainAccount {
-            AccountDerivationPathHelper.filterBlockchainsSupportingAccounts(userWalletModel.config.supportedBlockchains)
-        } else {
-            userWalletModel.config.supportedBlockchains
-        }
-
-        let tokenItemMapper = TokenItemMapper(supportedBlockchains: supportedBlockchains)
+        let tokenItemMapper = TokenItemMapper(supportedBlockchains: filteredBlockchains)
 
         let tokenItems = networks
             .compactMap {
