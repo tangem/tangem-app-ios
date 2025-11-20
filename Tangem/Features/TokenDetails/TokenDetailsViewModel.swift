@@ -58,7 +58,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     var hasDotsMenu: Bool { canHideToken || canGenerateXPUB }
 
-    private weak var coordinator: TokenDetailsRoutable?
+    private weak var coordinator: (any TokenDetailsRoutable)?
     private let bannerNotificationManager: NotificationManager?
     private let xpubGenerator: XPUBGenerator?
     private let pendingTransactionDetails: PendingTransactionDetails?
@@ -76,7 +76,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         userTokensManager: any UserTokensManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         xpubGenerator: XPUBGenerator?,
-        coordinator: TokenDetailsRoutable,
+        coordinator: any TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable,
         pendingTransactionDetails: PendingTransactionDetails?
     ) {
@@ -134,7 +134,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .unlock:
             break
         case .openFeeCurrency:
-            openFeeCurrency()
+            coordinator?.proceedFeeCurrencyNavigatingDismissOption(
+                option: .init(walletModel: walletModel)
+            )
         case .swap:
             openExchange()
         case .generateAddresses,
@@ -271,7 +273,7 @@ extension TokenDetailsViewModel {
         )
 
         userTokensManager.remove(walletModel.tokenItem)
-        dismiss()
+        coordinator?.dismiss()
     }
 }
 
@@ -443,31 +445,6 @@ private extension TokenDetailsViewModel {
         case .failedToLoad:
             return makeEligibleViewModelIfPossible()
         }
-    }
-}
-
-// MARK: - Navigation functions
-
-private extension TokenDetailsViewModel {
-    func dismiss() {
-        coordinator?.dismiss()
-    }
-
-    func openFeeCurrency() {
-        let feeCurrencyFinderResult = WalletModelFinder().findWalletModel(
-            userWalletId: userWalletInfo.id,
-            tokenItem: walletModel.feeTokenItem
-        )
-
-        guard let feeCurrencyFinderResult else {
-            assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
-            return
-        }
-
-        coordinator?.openFeeCurrency(
-            for: feeCurrencyFinderResult.walletModel,
-            userWalletModel: feeCurrencyFinderResult.userWalletModel
-        )
     }
 }
 

@@ -152,11 +152,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             walletModelsManager: model.walletModelsManager
         )
 
-        // accounts_fixes_needed_express
         let expressFactory = ExpressPendingTransactionsFactory(
             userWalletInfo: model.userWalletInfo,
             walletModel: walletModel,
-            userTokensManager: model.userTokensManager,
         )
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
