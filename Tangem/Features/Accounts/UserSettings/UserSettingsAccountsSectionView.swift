@@ -45,20 +45,9 @@ struct UserSettingsAccountsSectionView: View {
 
     private func accountContentView(from model: UserSettingsAccountRowViewData) -> some View {
         Button(action: model.onTap) {
-            RowWithLeadingAndTrailingIcons(
-                leadingIcon: {
-                    AccountIconView(data: model.accountIconViewData)
-                },
-                content: {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(model.name)
-                            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-                        Text(model.description)
-                            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                    }
-                },
-                trailingIcon: {
+            AccountRowView(
+                input: viewModel.makeAccountRowInput(from: model),
+                trailing: {
                     trailingChevron
                 }
             )

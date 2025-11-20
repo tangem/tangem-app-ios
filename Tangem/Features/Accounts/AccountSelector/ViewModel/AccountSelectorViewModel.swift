@@ -8,110 +8,213 @@
 
 import Foundation
 import Combine
+import TangemUI
+import TangemAccounts
+import SwiftUI
+import TangemLocalization
 
 @MainActor
 final class AccountSelectorViewModel: ObservableObject {
-    // MARK: - Dependencies
-
-    @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
-
     // MARK: - Published Properties
 
     @Published private(set) var displayMode: AccountSelectorDisplayMode = .wallets
     @Published private(set) var lockedWalletItems: [AccountSelectorWalletItem] = []
     @Published private(set) var walletItems: [AccountSelectorWalletItem] = []
     @Published private(set) var accountsSections: [AccountSelectorMultipleAccountsItem] = []
-    @Published private(set) var selectedAccount: AccountSelectorCellModel
+    @Published private(set) var selectedItem: (any BaseAccountModel)?
+    @Published private(set) var state: AccountSelectorViewState = .init(navigationBarTitle: "")
 
     // MARK: - Private Properties
 
+    private let userWalletModels: [any UserWalletModel]
+    private let cryptoAccountModelsFilter: (any CryptoAccountModel) -> Bool
     private let onSelect: (AccountSelectorCellModel) -> Void
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Initialization
 
     init(
-        selectedAccount: AccountSelectorCellModel,
+        selectedItem: (any BaseAccountModel)? = nil,
+        userWalletModels: [any UserWalletModel],
+        cryptoAccountModelsFilter: @escaping (any CryptoAccountModel) -> Bool = { _ in true },
         onSelect: @escaping (AccountSelectorCellModel) -> Void
     ) {
+        self.selectedItem = selectedItem
+        self.userWalletModels = userWalletModels
+        self.cryptoAccountModelsFilter = cryptoAccountModelsFilter
         self.onSelect = onSelect
-        self.selectedAccount = selectedAccount
+
+        let hasMultipleAccounts = userWalletModels.contains { userWalletModel in
+            userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+        }
+
+        displayMode = hasMultipleAccounts ? .accounts : .wallets
+
+        switch displayMode {
+        case .accounts:
+            state.navigationBarTitle = Localization.commonChooseAccount
+        case .wallets:
+            state.navigationBarTitle = Localization.commonChooseWallet
+        }
 
         bind()
+    }
+
+    convenience init(
+        selectedItem: (any BaseAccountModel)? = nil,
+        userWalletModel: any UserWalletModel,
+        cryptoAccountModelsFilter: @escaping (any CryptoAccountModel) -> Bool = { _ in true },
+        onSelect: @escaping (AccountSelectorCellModel) -> Void
+    ) {
+        self.init(
+            selectedItem: selectedItem,
+            userWalletModels: [userWalletModel],
+            cryptoAccountModelsFilter: cryptoAccountModelsFilter,
+            onSelect: onSelect
+        )
     }
 
     // MARK: - Public Methods
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .selectItem(let account):
-            selectedAccount = account
-            onSelect(account)
+        case .selectItem(let item):
+            switch item {
+            case .wallet(let model):
+                if case .active = model.wallet {
+                    selectedItem = model.mainAccount
+                    onSelect(.wallet(model))
+                }
+            case .account(let model):
+                selectedItem = model.domainModel
+                onSelect(.account(model))
+            }
         }
     }
 
     func isCellSelected(for cell: AccountSelectorCellModel) -> Bool {
-        selectedAccount == cell
+        switch cell {
+        case .wallet(let model):
+            if case .active = model.wallet {
+                return selectedItem?.id.toAnyHashable() == model.mainAccount.id.toAnyHashable()
+            }
+        case .account(let model):
+            return selectedItem?.id.toAnyHashable() == model.domainModel.id.toAnyHashable()
+        }
+
+        return false
+    }
+
+    func makeAccountRowInput(for account: AccountSelectorAccountItem) -> AccountRowViewModel.Input {
+        AccountRowViewModel.Input(
+            iconData: AccountModelUtils.UI.iconViewData(
+                icon: account.icon,
+                accountName: account.name
+            ),
+            name: account.name,
+            subtitle: account.tokensCount,
+            balancePublisher: account.formattedBalanceTypePublisher
+        )
     }
 
     // MARK: - Private Methods
 
     private func bind() {
-        userWalletRepository.models
+        userWalletModels
             .forEach { userWallet in
-
-                guard !userWallet.isUserWalletLocked else {
-                    lockedWalletItems.append(.init(userWallet: userWallet))
-                    return
-                }
-
                 userWallet.accountModelsManager.accountModelsPublisher
-                    .receive(on: DispatchQueue.main)
+                    .receiveOnMain()
                     .withWeakCaptureOf(self)
-                    .sink { viewModel, cryptoAccounts in
-                        viewModel.setDisplayMode(for: cryptoAccounts)
+                    .sink { viewModel, accountModels in
 
-                        viewModel.walletItems.removeAll(where: { $0.domainModel.userWalletId == userWallet.userWalletId })
+                        viewModel.walletItems.removeAll(where: { $0.id == userWallet.userWalletId.stringValue })
                         viewModel.accountsSections.removeAll(where: { $0.walletId == userWallet.userWalletId.stringValue })
 
-                        let (wallets, accountsSections) = viewModel.makeUpdatedSelectorData(userWallet: userWallet, from: cryptoAccounts)
+                        let (wallets, accountsSections) = viewModel.makeUpdatedSelectorData(
+                            userWallet: userWallet, from: accountModels
+                        )
 
-                        viewModel.walletItems.append(contentsOf: wallets)
+                        if userWallet.isUserWalletLocked {
+                            viewModel.lockedWalletItems.append(contentsOf: wallets)
+                        } else {
+                            viewModel.walletItems.append(contentsOf: wallets)
+                        }
+
                         viewModel.accountsSections.append(contentsOf: accountsSections)
                     }
                     .store(in: &bag)
             }
     }
 
-    private func setDisplayMode(for accounts: [AccountModel]) {
-        let multipleAccounts = accounts.filter { account in
-            if case .standard(.multiple) = account {
-                return true
-            }
-
-            return false
-        }
-
-        displayMode = multipleAccounts.isEmpty ? .wallets : .accounts
-    }
-
     private func makeUpdatedSelectorData(
         userWallet: any UserWalletModel,
-        from cryptoAccounts: [AccountModel]
+        from accountModels: [AccountModel]
     ) -> (wallets: [AccountSelectorWalletItem], accountsSections: [AccountSelectorMultipleAccountsItem]) {
         var wallets = [AccountSelectorWalletItem]()
         var accountSections = [AccountSelectorMultipleAccountsItem]()
 
-        cryptoAccounts.forEach {
+        accountModels.forEach { accountModel in
             switch displayMode {
             case .wallets:
-                wallets.append(.init(userWallet: userWallet, account: $0))
+                guard let walletItem = makeWalletSectionItem(from: accountModel, and: userWallet) else { return }
+                wallets.append(walletItem)
             case .accounts:
-                accountSections.append(.init(userWallet: userWallet, accountModel: $0))
+                guard let accountSectionItem = makeAccountSectionItem(from: accountModel, and: userWallet) else { return }
+                accountSections.append(accountSectionItem)
             }
         }
 
         return (wallets, accountSections)
+    }
+
+    private func makeWalletSectionItem(
+        from accountModel: AccountModel,
+        and userWallet: UserWalletModel
+    ) -> AccountSelectorWalletItem? {
+        switch accountModel {
+        case .standard(.single(let cryptoAccountModel)):
+            guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
+
+            return .init(
+                userWallet: userWallet,
+                cryptoAccountModel: cryptoAccountModel,
+                isLocked: userWallet.isUserWalletLocked
+            )
+
+        case .standard(.multiple(let cryptoAccountModels)):
+            guard let cryptoAccountModel = cryptoAccountModels.first(where: { $0.isMainAccount }) else {
+                preconditionFailure("Active wallet must have at least one crypto account")
+            }
+
+            guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
+
+            return .init(
+                userWallet: userWallet,
+                cryptoAccountModel: cryptoAccountModel,
+                isLocked: userWallet.isUserWalletLocked
+            )
+        }
+    }
+
+    private func makeAccountSectionItem(
+        from accountModel: AccountModel,
+        and userWallet: UserWalletModel
+    ) -> AccountSelectorMultipleAccountsItem? {
+        switch accountModel {
+        case .standard(.single(let cryptoAccountModel)):
+            guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
+
+            return .init(userWallet: userWallet, accounts: [.init(account: cryptoAccountModel)])
+        case .standard(.multiple(let cryptoAccountModels)):
+            let filteredCryptoAccountModels = cryptoAccountModels.filter(cryptoAccountModelsFilter)
+
+            guard filteredCryptoAccountModels.isNotEmpty else { return nil }
+
+            return .init(
+                userWallet: userWallet,
+                accounts: filteredCryptoAccountModels.map { .init(account: $0) }
+            )
+        }
     }
 }
 
@@ -120,3 +223,5 @@ extension AccountSelectorViewModel {
         case selectItem(AccountSelectorCellModel)
     }
 }
+
+extension AccountSelectorViewModel: FloatingSheetContentViewModel {}

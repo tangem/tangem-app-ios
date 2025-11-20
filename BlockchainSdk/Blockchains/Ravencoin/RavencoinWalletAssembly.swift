@@ -28,7 +28,7 @@ struct RavencoinWalletAssembly: WalletManagerAssembly {
                     )
                 default:
                     RavencoinNetworkProvider(
-                        host: nodeInfo.link,
+                        nodeInfo: nodeInfo,
                         provider: .init(configuration: input.networkInput.tangemProviderConfig)
                     )
                 }

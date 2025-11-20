@@ -53,7 +53,6 @@ enum NotificationButtonActionType: Identifiable {
     case seedSupport2Yes
     case seedSupport2No
     case unlock
-    case openReferralProgram
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
     case openBuyCrypto(walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
@@ -92,7 +91,6 @@ enum NotificationButtonActionType: Identifiable {
         case .seedSupport2Yes: "seedSupport2Yes".hashValue
         case .seedSupport2No: "seedSupport2No".hashValue
         case .unlock: "unlock".hashValue
-        case .openReferralProgram: "openReferralProgram".hashValue
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
         case .openBuyCrypto(let walletModel, let parameters): "openBuyCrypto\(walletModel.id)\(parameters.hashValue)".hashValue
@@ -157,8 +155,6 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.seedWarningNo
         case .unlock:
             return Localization.visaUnlockNotificationButton
-        case .openReferralProgram:
-            return Localization.referralButtonParticipate
         case .addTokenTrustline:
             return Localization.warningTokenTrustlineButtonTitle
         case .openMobileFinishActivation:
@@ -170,8 +166,7 @@ enum NotificationButtonActionType: Identifiable {
         case .tangemPayCreateAccountAndIssueCard:
             return Localization.commonContinue
         case .tangemPayViewKYCStatus:
-            // [REDACTED_TODO_COMMENT]
-            return "View Status"
+            return Localization.tangempayKycInProgressNotificationButton
         case .allowPushPermissionRequest:
             return Localization.commonEnable
         case .postponePushPermissionRequest:
@@ -212,7 +207,6 @@ enum NotificationButtonActionType: Identifiable {
              .seedSupportNo,
              .seedSupport2Yes,
              .seedSupport2No,
-             .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
@@ -257,7 +251,6 @@ enum NotificationButtonActionType: Identifiable {
              .seedSupportYes,
              .seedSupport2Yes,
              .seedSupport2No,
-             .openReferralProgram,
              .addTokenTrustline,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,

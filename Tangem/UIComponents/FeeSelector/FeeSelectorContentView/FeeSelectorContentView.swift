@@ -11,6 +11,7 @@ import TangemUI
 import TangemUIUtils
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct FeeSelectorContentView: View {
     @ObservedObject var viewModel: FeeSelectorContentViewModel
@@ -44,6 +45,7 @@ struct FeeSelectorContentView: View {
                 )
                 .padding(.bottom, 16)
                 .padding(.horizontal, 16)
+                .accessibilityIdentifier(FeeAccessibilityIdentifiers.feeSelectorDoneButton)
             }
         }
         .onAppear(perform: viewModel.onAppear)

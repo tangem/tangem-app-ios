@@ -3,6 +3,7 @@
 
 import Foundation
 import PackageDescription
+import CompilerPluginSupport
 
 // MARK: - Package
 
@@ -11,6 +12,10 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [
         .iOS(.v15),
+        // [REDACTED_USERNAME]
+        // We enforce a set the macOS minimum target version
+        // so that the swift-syntax dependency can compile and link for macros
+        .macOS(.v13),
     ],
     products: [
         .library(
@@ -28,7 +33,8 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.19")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "3.23.11")),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "3.24.1")),
+        .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -41,6 +47,17 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemAccessibilityIdentifiers",
             dependencies: []
+        ),
+        .tangemTarget(name: "TangemMacro", dependencies: ["TangemMacroImplementation"]),
+        .macro(
+            name: "TangemMacroImplementation",
+            dependencies: [
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftDiagnostics", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+            ],
+            path: "TangemMacroImplementation",
         ),
         .tangemTarget(
             name: "TangemAssets",
@@ -95,6 +112,7 @@ var serviceModules: [PackageDescription.Target] {
                 "Kingfisher",
                 "TangemAssets",
                 "TangemLocalization",
+                "TangemFoundation",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -109,6 +127,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemUIUtils",
                 "TangemLocalization",
                 "TangemAccessibilityIdentifiers",
+                "TangemLogger",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -121,6 +140,7 @@ var serviceModules: [PackageDescription.Target] {
             dependencies: [
                 .product(name: "TangemSdk", package: "tangem-sdk-ios"),
                 .target(name: "TrezorCrypto"),
+                "TangemFoundation",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -157,6 +177,7 @@ var featureModules: [PackageDescription.Target] {
                 "Kingfisher",
                 "TangemLocalization",
                 "TangemUI",
+                "TangemFoundation",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
