@@ -12,7 +12,6 @@ public enum TokenAccessibilityIdentifiers {
     public static let moreButton = "tokenMoreButton"
     public static let hideTokenButton = "tokenHideButton"
     public static let actionButtonsList = "tokenActionButtonsList"
-    public static let insufficientFeeCurrencyBanner = "tokenInsufficientFeeCurrencyBanner"
     public static let feeCurrencyNavigationButton = "tokenFeeCurrencyNavigationButton"
     public static let tokenNameLabel = "tokenNameLabel"
 
