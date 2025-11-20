@@ -34,7 +34,7 @@ struct CommonCryptoAccountDependenciesFactory {
 extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFactory {
     func makeDependencies(
         forAccountWithDerivationIndex derivationIndex: Int,
-        userWalletModel: UserWalletModel
+        userWalletId: UserWalletId
     ) -> CryptoAccountDependencies {
         let userWalletId = userWalletModel.userWalletId
 
