@@ -60,18 +60,20 @@ struct ManageTokensView: View {
         .scrollDismissesKeyboardCompat(.immediately)
         .keyboardType(.alphabet)
         .bindAlert($viewModel.alert)
-        .toolbar(content: {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(
-                    action: {
-                        viewModel.openAddCustomToken()
-                    }, label: {
-                        Assets.plus24.image
-                            .foregroundStyle(Colors.Icon.primary1)
-                    }
-                )
+        .if(viewModel.canAddCustomToken) {
+            $0.toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(
+                        action: {
+                            viewModel.openAddCustomToken()
+                        }, label: {
+                            Assets.plus24.image
+                                .foregroundStyle(Colors.Icon.primary1)
+                        }
+                    )
+                }
             }
-        })
+        }
     }
 
     private func customTokensList() -> some View {
@@ -92,21 +94,25 @@ struct ManageTokensView: View {
     let fakeModel = FakeUserWalletModel.wallet3Cards
     let fakeAPIService = FakeTangemApiService()
     InjectedValues[\.tangemApiService] = fakeAPIService
+    let context = LegacyManageTokensContext(
+        userTokensManager: fakeModel.userTokensManager,
+        walletModelsManager: fakeModel.walletModelsManager
+    )
+
     let adapter = ManageTokensAdapter(
         settings: .init(
-            longHashesSupported: fakeModel.config.hasFeature(.longHashes),
             existingCurves: fakeModel.config.existingCurves,
             supportedBlockchains: fakeModel.config.supportedBlockchains,
-            userTokensManager: fakeModel.userTokensManager,
-            analyticsSourceRawValue: "preview"
+            hardwareLimitationUtil: HardwareLimitationsUtil(config: fakeModel.config),
+            analyticsSourceRawValue: "preview",
+            context: context
         )
     )
 
     return NavigationView {
         ManageTokensView(viewModel: .init(
             adapter: adapter,
-            userTokensManager: fakeModel.userTokensManager,
-            walletModelsManager: fakeModel.walletModelsManager,
+            context: context,
             coordinator: nil
         ))
     }
