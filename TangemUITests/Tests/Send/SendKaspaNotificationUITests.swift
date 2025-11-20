@@ -16,10 +16,10 @@ final class SendKaspaNotificationUITests: BaseTestCase {
     func testNotificationNotDisplayed_WhenSenderHasLessThan84Inputs() {
         setAllureId(4223)
 
-        openSend(initialState: "less_then_84")
+        openSend(initialState: "less_than_84")
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.3")
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -34,7 +34,7 @@ final class SendKaspaNotificationUITests: BaseTestCase {
         openSend(initialState: "equal_84")
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.3")
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -49,7 +49,7 @@ final class SendKaspaNotificationUITests: BaseTestCase {
         openSend(initialState: "more_than_84")
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.85")
             .tapNextButton()
             .enterDestination(destinationAddress)
