@@ -16,13 +16,13 @@ struct CosmosStakeKitTransactionHelper {
         self.builder = builder
     }
 
-    func prepareForSign(stakingTransaction: StakeKitTransaction) throws -> Data {
+    func prepareForSign(stakingTransaction: StakingTransaction) throws -> Data {
         let txInputData = try makeInput(stakingTransaction: stakingTransaction)
         return try builder.buildForSignRaw(txInputData: txInputData)
     }
 
     func buildForSend(
-        stakingTransaction: StakeKitTransaction,
+        stakingTransaction: StakingTransaction,
         signature: Data
     ) throws -> Data {
         let txInputData = try makeInput(stakingTransaction: stakingTransaction)
@@ -30,7 +30,7 @@ struct CosmosStakeKitTransactionHelper {
     }
 
     private func makeInput(
-        stakingTransaction: StakeKitTransaction
+        stakingTransaction: StakingTransaction
     ) throws -> Data {
         let stakingProtoMessage = try CosmosProtoMessage(serializedData: Data(hex: stakingTransaction.unsignedData))
 

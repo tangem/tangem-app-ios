@@ -286,14 +286,14 @@ extension TronWalletManager: TronTransactionDataBuilder {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension TronWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
+extension TronWalletManager: StakingTransactionsBuilder, StakeKitTransactionSender, StakingTransactionDataProvider {
     typealias RawTransaction = Data
 
-    func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
+    func prepareDataForSign(transaction: StakingTransaction) throws -> Data {
         try TronStakeKitTransactionHelper().prepareForSign(transaction.unsignedData).hash
     }
 
-    func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
+    func prepareDataForSend(transaction: StakingTransaction, signature: SignatureInfo) throws -> RawTransaction {
         let rawData = try TronStakeKitTransactionHelper().prepareForSign(transaction.unsignedData).rawData
         let unmarshalled = unmarshal(signature.signature, hash: signature.hash, publicKey: wallet.publicKey)
         return try txBuilder.buildForSend(rawData: rawData, signature: unmarshalled)
@@ -301,7 +301,7 @@ extension TronWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSen
 }
 
 extension TronWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(transaction: StakingTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.broadcastHex(rawTransaction).async().txid
     }
 }
