@@ -156,51 +156,39 @@ struct MultiWalletMainContentView: View {
     }
 }
 
-// [REDACTED_TODO_COMMENT]
-/*
- struct MultiWalletContentView_Preview: PreviewProvider {
-     static let viewModel: MultiWalletMainContentViewModel = {
-         let repo = FakeUserWalletRepository()
-         let mainCoordinator = MainCoordinator()
-         let userWalletModel = repo.models.first!
+// MARK: - Previews
 
-         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
-         InjectedValues[\.tangemApiService] = FakeTangemApiService()
+#Preview {
+    let viewModel: MultiWalletMainContentViewModel = {
+        let repo = FakeUserWalletRepository()
+        let mainCoordinator = MainCoordinator()
+        let userWalletModel = repo.models.first!
 
-         let optionsManager = FakeOrganizeTokensOptionsManager(
-             initialGroupingOption: .none,
-             initialSortingOption: .dragAndDrop
-         )
-         // accounts_fixes_needed_main
-         let tokenSectionsAdapter = TokenSectionsAdapter(
-             userTokensManager: userWalletModel.userTokensManager,
-             optionsProviding: optionsManager,
-             preservesLastSortedOrderOnSwitchToDragAndDrop: false
-         )
-         let nftFeatureLifecycleHandler = NFTFeatureLifecycleHandler()
+        InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
+        InjectedValues[\.tangemApiService] = FakeTangemApiService()
 
-         return MultiWalletMainContentViewModel(
-             userWalletModel: userWalletModel,
-             userWalletNotificationManager: FakeUserWalletNotificationManager(),
-             tokensNotificationManager: FakeUserWalletNotificationManager(),
-             bannerNotificationManager: nil,
-             rateAppController: RateAppControllerStub(),
-             tokenSectionsAdapter: tokenSectionsAdapter,
-             tokenRouter: SingleTokenRoutableMock(),
-             optionsEditing: optionsManager,
-             nftFeatureLifecycleHandler: nftFeatureLifecycleHandler,
-             coordinator: mainCoordinator
-         )
-     }()
+        let sectionsProvider = AccountsAwareMultiWalletMainContentViewSectionsProvider(
+            userWalletModel: userWalletModel
+        )
 
-     static var previews: some View {
-         ScrollView {
-             MultiWalletMainContentView(viewModel: viewModel)
-         }
-         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-     }
- }
- */
+        return MultiWalletMainContentViewModel(
+            userWalletModel: userWalletModel,
+            userWalletNotificationManager: FakeUserWalletNotificationManager(),
+            sectionsProvider: sectionsProvider,
+            tokensNotificationManager: FakeUserWalletNotificationManager(),
+            bannerNotificationManager: nil,
+            rateAppController: RateAppControllerStub(),
+            nftFeatureLifecycleHandler: NFTFeatureLifecycleHandler(),
+            tokenRouter: SingleTokenRoutableMock(),
+            coordinator: mainCoordinator
+        )
+    }()
+
+    ScrollView {
+        MultiWalletMainContentView(viewModel: viewModel)
+    }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+}
 
 // MARK: - Constants
 
