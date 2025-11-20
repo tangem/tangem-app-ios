@@ -106,6 +106,7 @@ struct CommonUserWalletModelDependencies {
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
             hasAccounts: hasAccounts
         )
+        derivationManager?.configure(with: accountModelsManager)
 
         totalBalanceProvider = Self.makeTotalBalanceProvider(
             userWalletId: userWalletId,
@@ -127,7 +128,6 @@ struct CommonUserWalletModelDependencies {
 
     func update(from model: UserWalletModel) {
         derivationManager?.configure(with: model)
-        derivationManager?.configure(with: model.accountModelsManager)
         dependenciesConfigurator.configure(with: model)
     }
 }
