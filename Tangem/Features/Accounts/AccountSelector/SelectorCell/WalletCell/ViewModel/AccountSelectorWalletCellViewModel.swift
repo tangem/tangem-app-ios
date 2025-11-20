@@ -17,7 +17,11 @@ final class AccountSelectorWalletCellViewModel: ObservableObject {
     let walletModel: AccountSelectorWalletItem
 
     var isLocked: Bool {
-        walletModel.domainModel.isUserWalletLocked
+        if case .locked = walletModel.wallet {
+            return true
+        }
+
+        return false
     }
 
     // MARK: Published Properties

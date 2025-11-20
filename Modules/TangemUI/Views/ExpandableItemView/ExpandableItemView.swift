@@ -46,11 +46,10 @@ public struct ExpandableItemView<
                 content: expandedView,
                 onTap: toggleExpanded
             )
-            .padding(Constants.padding)
-            // Mikhail Andreev - can't extract those to reusable properties because then mathchedGeometryEffect behaves funny
+            // Mikhail Andreev - can't extract those to reusable properties because then matchedGeometryEffect behaves funny
             .background(
                 RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
-                    .fill(Colors.Background.action)
+                    .fill(Colors.Background.primary)
                     .matchedGeometryEffect(id: Constants.backgroundGeometryEffectID, in: namespace)
             )
             .mask(
@@ -60,10 +59,9 @@ public struct ExpandableItemView<
         } else {
             collapsedView
                 .transition(.collapsedViewTransition)
-                .padding(Constants.padding)
                 .background(
                     RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
-                        .fill(Colors.Background.action)
+                        .fill(Colors.Background.primary)
                         .matchedGeometryEffect(id: Constants.backgroundGeometryEffectID, in: namespace)
                 )
                 .mask(
@@ -95,7 +93,6 @@ public struct ExpandableItemView<
 // MARK: - Constants
 
 private enum Constants {
-    static let padding: CGFloat = 14
     static let cornerRadius: CGFloat = 14
     static let backgroundGeometryEffectID = "cardBG"
     static let maskGeometryEffectID = "cardMask"
