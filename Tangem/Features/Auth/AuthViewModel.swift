@@ -47,11 +47,13 @@ final class AuthViewModel: ObservableObject {
         unlockWithCard()
     }
 
+    @MainActor
     func openScanCardManual() {
         Analytics.log(.cantScanTheCardButtonBlog, params: [.source: .signIn])
         coordinator?.openScanCardManual()
     }
 
+    @MainActor
     func requestSupport() {
         Analytics.log(.requestSupport, params: [.source: .signIn])
         failedCardScanTracker.resetCounter()
@@ -85,7 +87,7 @@ final class AuthViewModel: ObservableObject {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
                 viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
-                await runOnMain {
+                await MainActor.run {
                     viewModel.openMain(with: userWalletModel)
                 }
             } catch where error.isCancellationError {
@@ -133,7 +135,7 @@ final class AuthViewModel: ObservableObject {
                 )
                 viewModel.incomingActionManager.discardIncomingAction()
 
-                await runOnMain {
+                await MainActor.run {
                     viewModel.isScanningCard = false
                     viewModel.openOnboarding(with: input)
                 }
@@ -142,7 +144,7 @@ final class AuthViewModel: ObservableObject {
                 Analytics.log(.cantScanTheCard, params: [.source: .signIn])
                 viewModel.incomingActionManager.discardIncomingAction()
 
-                await runOnMain {
+                await MainActor.run {
                     viewModel.isScanningCard = false
                     viewModel.openTroubleshooting()
                 }
@@ -168,7 +170,7 @@ final class AuthViewModel: ObservableObject {
 
                     viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
 
-                    await runOnMain {
+                    await MainActor.run {
                         viewModel.isScanningCard = false
                         viewModel.openMain(with: userWalletModel)
                     }
@@ -191,7 +193,7 @@ final class AuthViewModel: ObservableObject {
             ) {
                 try userWalletRepository.add(userWalletModel: newUserWalletModel)
                 signInAnalyticsLogger.logSignInEvent(signInType: .card)
-                await runOnMain {
+                await MainActor.run {
                     isScanningCard = false
                     openMain(with: newUserWalletModel)
                 }
@@ -215,6 +217,7 @@ final class AuthViewModel: ObservableObject {
 
 // MARK: - Navigation
 
+@MainActor
 extension AuthViewModel {
     func openTroubleshooting() {
         let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in

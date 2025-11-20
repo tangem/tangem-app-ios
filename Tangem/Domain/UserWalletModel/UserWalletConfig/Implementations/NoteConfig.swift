@@ -11,14 +11,17 @@ import TangemSdk
 import BlockchainSdk
 import TangemAssets
 import TangemFoundation
+import TangemLocalization
 
 struct NoteConfig: CardContainer {
     let card: CardDTO
     private let noteData: WalletData
+    private let isDemo: Bool
 
-    init(card: CardDTO, noteData: WalletData) {
+    init(card: CardDTO, noteData: WalletData, isDemo: Bool) {
         self.card = card
         self.noteData = noteData
+        self.isDemo = isDemo
     }
 
     private var defaultBlockchain: Blockchain {
@@ -45,22 +48,28 @@ extension NoteConfig: UserWalletConfig {
         [defaultBlockchain]
     }
 
-    var defaultBlockchains: [StorageEntry] {
+    var defaultBlockchains: [TokenItem] {
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
-        let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+        let entry = TokenItem.blockchain(network)
         return [entry]
     }
 
-    var persistentBlockchains: [StorageEntry]? {
+    var persistentBlockchains: [TokenItem] {
         return defaultBlockchains
     }
 
-    var embeddedBlockchain: StorageEntry? {
+    var embeddedBlockchain: TokenItem? {
         return defaultBlockchains.first
     }
 
     var generalNotificationEvents: [GeneralNotificationEvent] {
-        GeneralNotificationEventsFactory().makeNotifications(for: card)
+        var notifications = GeneralNotificationEventsFactory().makeNotifications(for: card)
+
+        if isDemo, !AppEnvironment.current.isTestnet {
+            notifications.append(.demoCard)
+        }
+
+        return notifications
     }
 
     var emailData: [EmailCollectedData] {
@@ -72,7 +81,7 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var productType: Analytics.ProductType {
-        .note
+        isDemo ? .demoNote : .note
     }
 
     var cardHeaderImage: ImageType? {
@@ -94,40 +103,30 @@ extension NoteConfig: UserWalletConfig {
         case .passcode:
             return .hidden
         case .longTap:
-            return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
-        case .send:
-            return .available
-        case .longHashes:
-            return .hidden
-        case .signedHashesCounter:
-            if card.firmwareVersion.type == .release {
-                return .available
+            if isDemo {
+                return .hidden
             }
 
+            return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
+        case .signing:
+            return .available
+        case .longHashes:
             return .hidden
         case .backup:
             return .hidden
         case .twinning:
             return .hidden
         case .exchange:
-            return .available
+            return isDemo ? .disabled(localizedReason: Localization.alertDemoFeatureDisabled) : .available
         case .walletConnect:
             return .hidden
         case .multiCurrency:
             return .hidden
         case .resetToFactory:
-            return .available
-        case .receive:
-            return .available
-        case .withdrawal:
-            return .available
+            return isDemo ? .disabled(localizedReason: Localization.alertDemoFeatureDisabled) : .available
         case .hdWallets:
             return .hidden
         case .staking:
-            return .hidden
-        case .topup:
-            return .available
-        case .tokenSynchronization:
             return .hidden
         case .referralProgram:
             return .hidden
@@ -138,8 +137,6 @@ extension NoteConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .accessCodeRecoverySettings:
-            return .hidden
-        case .promotion:
             return .hidden
         case .nft:
             return .hidden
@@ -157,12 +154,18 @@ extension NoteConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
-        case .isHardwareLimited:
+        case .nfcInteraction:
+            return .available
+        case .transactionPayloadLimit:
             return .available
         }
     }
 
     func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
+        if isDemo {
+            return DemoWalletModelsFactory(config: self, userWalletId: userWalletId)
+        }
+
         return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
     }
 
