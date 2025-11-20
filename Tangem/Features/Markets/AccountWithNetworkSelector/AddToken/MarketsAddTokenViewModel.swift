@@ -51,7 +51,7 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
     private let account: any CryptoAccountModel
     private let accountWalletDataProvider: MarketsAddTokenAccountWalletSelectorDataProvider
     private let networkDataProvider: MarketsAddTokenNetworkSelectorDataProvider
-    private let onAddTokenTapped: (Result<(tokenItem: TokenItem, cryptoAccount: any CryptoAccountModel), Error>) -> Void
+    private let onAddTokenTapped: (Result<TokenItem, Error>) -> Void
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Initialization
@@ -62,7 +62,7 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
         tokenItemIconInfoBuilder: TokenIconInfoBuilder,
         accountWalletDataProvider: MarketsAddTokenAccountWalletSelectorDataProvider,
         networkDataProvider: MarketsAddTokenNetworkSelectorDataProvider,
-        onAddTokenTapped: @escaping (Result<(tokenItem: TokenItem, cryptoAccount: any CryptoAccountModel), Error>) -> Void
+        onAddTokenTapped: @escaping (Result<TokenItem, Error>) -> Void
     ) {
         self.tokenItem = tokenItem
         self.account = account
@@ -209,7 +209,7 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
     private func handleAddTokenSuccess() {
         isSaving = false
         sendAnalytics()
-        onAddTokenTapped(.success((tokenItem, account)))
+        onAddTokenTapped(.success(tokenItem))
     }
 
     private func handleAddTokenFailure(_ error: Error) {
