@@ -48,6 +48,15 @@ final class UserSettingsAccountsViewModel: ObservableObject {
         bind()
     }
 
+    func makeAccountRowInput(from model: UserSettingsAccountRowViewData) -> AccountRowViewModel.Input {
+        AccountRowViewModel.Input(
+            iconData: model.accountIconViewData,
+            name: model.name,
+            subtitle: model.description,
+            balancePublisher: model.balancePublisher
+        )
+    }
+
     private func bind() {
         Just(accountModelsManager.canAddCryptoAccounts)
             .withWeakCaptureOf(self)

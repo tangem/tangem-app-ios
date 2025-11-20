@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnrampOfferView: View {
     let viewModel: OnrampOfferViewModel
@@ -23,6 +24,7 @@ struct OnrampOfferView: View {
             bottomView
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
+        .opacity(viewModel.isAvailable ? 1 : 0.6)
     }
 
     private var topView: some View {
@@ -38,6 +40,7 @@ struct OnrampOfferView: View {
             CircleButton(title: Localization.commonBuy, action: viewModel.buyButtonAction)
                 .size(.medium)
                 .style(.primary)
+                .disabled(!viewModel.isAvailable)
         }
     }
 
@@ -77,7 +80,11 @@ struct OnrampOfferView: View {
     private var amount: some View {
         HStack(spacing: 4) {
             Text(viewModel.amount.formatted)
-                .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                .style(
+                    Fonts.Bold.callout,
+                    color: viewModel.isAvailable ? Colors.Text.primary1 : Colors.Text.tertiary
+                )
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.provider.name))
 
             OnrampAmountBadge(badge: viewModel.amount.badge)
         }
