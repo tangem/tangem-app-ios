@@ -7,6 +7,7 @@
 //
 
 import TangemUI
+import BlockchainSdk
 
 final class MarketsNetworkSelectorViewModel: FloatingSheetContentViewModel {
     private(set) var tokenItemViewModels: [MarketsNetworkSelectorItemViewModel] = []
@@ -15,13 +16,13 @@ final class MarketsNetworkSelectorViewModel: FloatingSheetContentViewModel {
     private let coinSymbol: String
     private let coinId: String
     private let networks: [NetworkModel]
-    private let selectedUserWalletModel: UserWalletModel?
+    private let supportedBlockchains: Set<Blockchain>
     private let selectedAccount: any CryptoAccountModel
     private let onSelectNetwork: ((TokenItem) -> Void)?
 
     init(
         data: MarketsTokensNetworkSelectorViewModel.InputData,
-        selectedUserWalletModel: UserWalletModel?,
+        selectedUserWalletConfig: UserWalletConfig,
         selectedAccount: any CryptoAccountModel,
         onSelectNetwork: ((TokenItem) -> Void)? = nil
     ) {
@@ -30,7 +31,7 @@ final class MarketsNetworkSelectorViewModel: FloatingSheetContentViewModel {
         coinSymbol = data.coinSymbol
         networks = data.networks
 
-        self.selectedUserWalletModel = selectedUserWalletModel
+        supportedBlockchains = selectedUserWalletConfig.supportedBlockchains
         self.selectedAccount = selectedAccount
         self.onSelectNetwork = onSelectNetwork
 
@@ -60,7 +61,7 @@ final class MarketsNetworkSelectorViewModel: FloatingSheetContentViewModel {
             coinName: coinName,
             coinSymbol: coinSymbol,
             networks: networks,
-            userWalletModel: selectedUserWalletModel,
+            supportedBlockchains: supportedBlockchains,
             cryptoAccount: selectedAccount
         )
     }
