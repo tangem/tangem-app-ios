@@ -44,13 +44,13 @@ struct TangemPayAccountView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 4) {
-                SensitiveText("$ " + viewModel.balance.availableBalance.description)
+                SensitiveText("$ " + viewModel.balance.fiat.availableBalance.description)
                     .style(
                         Fonts.Regular.subheadline,
                         color: Colors.Text.primary1
                     )
 
-                SensitiveText(viewModel.balance.currency)
+                SensitiveText(viewModel.balance.fiat.currency)
                     .style(
                         Fonts.Regular.caption1,
                         color: Colors.Text.tertiary
