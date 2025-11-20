@@ -332,7 +332,6 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
                 createdAt: Date()
             ),
             card: nil,
-            balance: nil,
             depositAddress: nil
         )
     }
