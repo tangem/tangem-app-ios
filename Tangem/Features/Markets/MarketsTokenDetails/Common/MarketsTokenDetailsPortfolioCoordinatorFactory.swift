@@ -24,11 +24,16 @@ struct MarketsTokenDetailsPortfolioCoordinatorFactory {
     func makeExpressCoordinator(
         for walletModel: any WalletModel,
         with userWalletModel: UserWalletModel,
-        dismissAction: @escaping Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>,
+        dismissAction: @escaping ExpressCoordinator.DismissAction,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) -> ExpressCoordinator {
-        let input = CommonExpressModulesFactory.InputModel(userWalletModel: userWalletModel, initialWalletModel: walletModel)
-        let factory = CommonExpressModulesFactory(inputModel: input)
+        let input = ExpressDependenciesInput(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            source: ExpressInteractorWalletWrapper(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel),
+            destination: .loadingAndSet
+        )
+
+        let factory = CommonExpressModulesFactory(input: input)
         let coordinator = ExpressCoordinator(
             factory: factory,
             dismissAction: dismissAction,

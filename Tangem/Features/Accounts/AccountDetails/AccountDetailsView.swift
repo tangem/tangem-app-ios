@@ -29,6 +29,7 @@ struct AccountDetailsView: View {
 
             actionSheets
         }
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     private var accountSection: some View {
@@ -54,7 +55,7 @@ struct AccountDetailsView: View {
                 }
             }
         )
-        .defaultRoundedBackground()
+        .defaultRoundedBackground(with: Colors.Background.action)
     }
 
     @ViewBuilder
@@ -70,27 +71,47 @@ struct AccountDetailsView: View {
                     Assets.chevronRight.image
                         .foregroundColor(Colors.Icon.informative)
                 }
-                .defaultRoundedBackground()
+                .defaultRoundedBackground(with: Colors.Background.action)
             }
         }
     }
 
     @ViewBuilder
     private var archiveAccountSection: some View {
-        if viewModel.canBeArchived {
+        switch viewModel.archivingState {
+        case .none:
+            EmptyView()
+
+        case .some(let state):
             VStack(alignment: .leading, spacing: 8) {
-                Button(action: viewModel.showShouldArchiveDialog) {
-                    Text(Localization.accountDetailsArchive)
-                        .style(Fonts.Regular.callout, color: Colors.Text.warning)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .defaultRoundedBackground()
-                }
+                makeArchivingSectionContent(from: state)
 
                 Text(Localization.accountDetailsArchiveDescription)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .padding(.leading, 14)
             }
         }
+    }
+
+    private func makeArchivingSectionContent(from state: AccountDetailsViewModel.ArchivingState) -> some View {
+        Button(action: viewModel.showShouldArchiveDialog) {
+            HStack(spacing: 0) {
+                Text(viewModel.getArchivingButtonTitle(from: state))
+                    .style(Fonts.Regular.callout, color: viewModel.getArchivingButtonColor(from: state))
+
+                Spacer()
+
+                if state == .archivingInProgress {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color.Tangem.Graphic.Neutral.quaternary))
+                        .fixedSize()
+                }
+            }
+            .frame(minHeight: 20)
+        }
+        .disabled(state == .archivingInProgress)
+        .defaultRoundedBackground(with: Colors.Background.action)
+        .animation(.default, value: viewModel.archivingState)
     }
 
     private var actionSheets: some View {
