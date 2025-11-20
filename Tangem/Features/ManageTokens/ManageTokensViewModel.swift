@@ -26,6 +26,7 @@ class ManageTokensViewModel: ObservableObject {
     private let adapter: ManageTokensAdapter
     private let userTokensManager: UserTokensManager
     private let walletModelsManager: WalletModelsManager
+    private let context: ManageTokensContext
     private weak var coordinator: ManageTokensRoutable?
 
     private let customTokensFullList = CurrentValueSubject<[CustomTokenItemViewInfo], Never>([])
@@ -33,14 +34,14 @@ class ManageTokensViewModel: ObservableObject {
 
     init(
         adapter: ManageTokensAdapter,
-        userTokensManager: UserTokensManager,
-        walletModelsManager: WalletModelsManager,
+        context: ManageTokensContext,
         coordinator: ManageTokensRoutable?
     ) {
         self.adapter = adapter
-        self.userTokensManager = userTokensManager
-        self.walletModelsManager = walletModelsManager
+        userTokensManager = context.userTokensManager
+        walletModelsManager = context.walletModelsManager
         self.coordinator = coordinator
+        self.context = context
 
         manageTokensListViewModel = .init(
             loader: self,
@@ -48,6 +49,10 @@ class ManageTokensViewModel: ObservableObject {
         )
 
         bind()
+    }
+
+    var canAddCustomToken: Bool {
+        context.canAddCustomToken
     }
 
     func saveChanges() {

@@ -15,6 +15,7 @@ import TangemSdk
 import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
+/// Legacy VM w/o accounts supports.
 final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObject {
     // MARK: - Published Properties
 
@@ -100,6 +101,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
     // MARK: - Implementation
 
     func saveChangesOnTapAction() {
+        // accounts_fixes_needed_none
         guard let userTokensManager = selectedUserWalletModel?.userTokensManager else {
             return
         }
@@ -143,6 +145,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
         $pendingAdd
             .withWeakCaptureOf(self)
             .map { viewModel, tokenItems in
+                // accounts_fixes_needed_none
                 guard let userTokensManager = viewModel.selectedUserWalletModel?.userTokensManager else {
                     return false
                 }
@@ -212,6 +215,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
     }
 
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) throws {
+        // accounts_fixes_needed_none
         guard let userTokensManager = selectedUserWalletModel?.userTokensManager else {
             return
         }
@@ -273,8 +277,9 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
 
 private extension MarketsTokensNetworkSelectorViewModel {
     func isAdded(_ tokenItem: TokenItem) -> Bool {
+        // accounts_fixes_needed_none
         if let userTokensManager = selectedUserWalletModel?.userTokensManager {
-            return userTokensManager.contains(tokenItem)
+            return userTokensManager.contains(tokenItem, derivationInsensitive: false)
         }
 
         return false
