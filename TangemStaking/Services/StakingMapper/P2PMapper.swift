@@ -48,7 +48,7 @@ struct P2PMapper {
             actions: []
         )
     }
-    
+
     func mapToStakingTransactionInfo(
         from response: P2PDTO.PrepareDepositTransaction.PrepareDepositTransactionInfo
     ) throws -> StakingTransactionInfo {
@@ -76,7 +76,7 @@ struct P2PMapper {
             status: .active
         )
     }
-    
+
     private func fee(from unsignedTransaction: P2PDTO.UnsignedTransaction) throws -> Decimal {
         guard let gasLimit = Decimal(stringValue: unsignedTransaction.gasLimit),
               let maxFeePerGas = Decimal(stringValue: unsignedTransaction.maxFeePerGas) else {

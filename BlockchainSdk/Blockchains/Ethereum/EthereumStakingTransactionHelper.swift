@@ -37,9 +37,7 @@ struct EthereumStakingTransactionHelper {
         unsignedTransactionHex: String,
         fee: Fee
     ) throws -> EthereumSigningInput {
-        guard let compiledTransactionData = unsignedTransactionHex.data(using: .utf8) else {
-            throw EthereumTransactionBuilderError.invalidStakingTransaction
-        }
+        let compiledTransactionData = Data(hex: unsignedTransactionHex)
 
         let compiledTransaction = try JSONDecoder()
             .decode(EthereumCompiledTransaction.self, from: compiledTransactionData)
@@ -84,7 +82,7 @@ struct EthereumStakingTransactionHelper {
     }
 }
 
-private struct EthereumCompiledTransaction: Decodable {
+public struct EthereumCompiledTransaction: Decodable {
     let from: String
     let gasLimit: String
     let to: String

@@ -16,4 +16,5 @@ public protocol P2PAPIProvider {
         vault: String,
         amount: Decimal
     ) async throws -> StakingTransactionInfo
+    func broadcastTransaction(signedTransaction: String) async throws -> String
 }
