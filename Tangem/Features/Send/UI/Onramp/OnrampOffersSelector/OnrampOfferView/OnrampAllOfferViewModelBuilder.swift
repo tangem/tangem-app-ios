@@ -17,17 +17,25 @@ struct OnrampAllOfferViewModelBuilder {
     private let processingTimeFormatter: OnrampProviderProcessingTimeFormatter = .init()
 
     func mapToOnrampOfferViewModel(provider: OnrampProvider, buyAction: @escaping () -> Void) -> OnrampOfferViewModel {
-        let title: OnrampOfferViewModel.Title = switch (provider.globalAttractiveType, provider.processingTimeType) {
-        case (.best, _): .bestRate
-        case (_, .fastest): .fastest
+        let title: OnrampOfferViewModel.Title = switch provider.state {
+        case .loaded where provider.globalAttractiveType == .best: .bestRate
+        case .loaded where provider.processingTimeType == .fastest: .fastest
+        case .restriction(.tooSmallAmount): .text(Localization.onrampProviderMinAmount(""))
+        case .restriction(.tooBigAmount): .text(Localization.onrampProviderMaxAmount(""))
         default: .text(Localization.onrampTitleYouGet)
         }
 
         let amount: OnrampOfferViewModel.Amount = {
-            let formattedAmount = formatter.formatCryptoBalance(
-                provider.quote?.expectedAmount,
-                currencyCode: tokenItem.currencySymbol
-            )
+            let formattedAmount = switch provider.state {
+            case .loaded(let quote):
+                formatter.formatCryptoBalance(quote.expectedAmount, currencyCode: tokenItem.currencySymbol)
+            case .restriction(.tooSmallAmount(_, let minAmountFormatted)):
+                minAmountFormatted
+            case .restriction(.tooBigAmount(_, let maxAmountFormatted)):
+                maxAmountFormatted
+            default:
+                BalanceFormatter.defaultEmptyBalanceString
+            }
 
             let badge = amountBadgeBuilder.mapToOnrampAmountBadge(provider: provider)
             return .init(formatted: formattedAmount, badge: badge)
@@ -44,6 +52,7 @@ struct OnrampAllOfferViewModelBuilder {
             title: title,
             amount: amount,
             provider: offerProvider,
+            isAvailable: provider.isSuccessfullyLoaded,
             buyButtonAction: buyAction
         )
     }

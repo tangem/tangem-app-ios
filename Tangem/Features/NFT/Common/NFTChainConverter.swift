@@ -149,7 +149,10 @@ enum NFTChainConverter {
              .zkLinkNova,
              .pepecoin,
              .hyperliquidEVM,
-             .quai:
+             .quai,
+             .scroll,
+             .linea,
+             .arbitrumNova:
             return nil
         }
     }

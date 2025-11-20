@@ -19,6 +19,7 @@ struct NewAuthView: View {
     var body: some View {
         stateView
             .animation(.default, value: viewModel.state)
+            .allowsHitTesting(!viewModel.isUnlocking)
             .alert(item: $viewModel.alert, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .background(Colors.Background.primary.ignoresSafeArea())
@@ -58,8 +59,8 @@ private extension NewAuthView {
             .ignoresSafeArea(edges: .bottom)
         }
         .safeAreaInset(edge: .bottom, spacing: 10) {
-            item.unlock.map {
-                unlockButton(item: $0)
+            item.biometricsUnlock.map {
+                biometricsUnlockButton(item: $0)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 6)
             }
@@ -96,6 +97,7 @@ private extension NewAuthView {
             Text(item.title)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
         }
+        .allowsHitTesting(!viewModel.isUnlocking)
     }
 }
 
@@ -117,11 +119,12 @@ private extension NewAuthView {
         VStack(spacing: 8) {
             ForEach(items) {
                 NewAuthWalletView(item: $0)
+                    .environment(\.unlockingUserWalletId, viewModel.unlockingUserWalletId)
             }
         }
     }
 
-    func unlockButton(item: ViewModel.UnlockItem) -> some View {
+    func biometricsUnlockButton(item: ViewModel.BiometricsUnlockItem) -> some View {
         Button(action: item.action) {
             Text(item.title)
                 .style(Fonts.Bold.callout, color: Colors.Text.primary1)
