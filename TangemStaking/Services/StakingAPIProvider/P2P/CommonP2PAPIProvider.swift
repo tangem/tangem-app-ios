@@ -44,7 +44,7 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
             return results.compactMap { $0 }
         }
     }
-    
+
     func stakeTransaction(
         walletAddress: String,
         vault: String,
@@ -53,7 +53,13 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
         let response = try await service.prepareDepositTransaction(
             request: .init(delegatorAddress: walletAddress, vaultAddress: vault, amount: amount)
         )
-        
+
         return try mapper.mapToStakingTransactionInfo(from: response)
+    }
+
+    func broadcastTransaction(signedTransaction: String) async throws -> String {
+        let response = try await service.broadcastTransaction(request: .init(signedTransaction: signedTransaction))
+
+        return response.hash
     }
 }

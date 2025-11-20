@@ -7,5 +7,5 @@
 //
 
 public protocol StakeKitTransactionStatusProvider {
-    func transactionStatus(_ transaction: StakeKitTransaction) async throws -> StakeKitTransaction.Status?
+    func transactionStatus(_ transaction: StakingTransaction) async throws -> StakeKitTransactionParams.Status?
 }
