@@ -9,6 +9,7 @@
 import Foundation
 import WalletCore
 import BigInt
+import TangemFoundation
 
 struct EthereumStakingTransactionHelper {
     private let transactionBuilder: EthereumTransactionBuilder
@@ -17,41 +18,48 @@ struct EthereumStakingTransactionHelper {
         self.transactionBuilder = transactionBuilder
     }
 
-    func prepareForSign(_ unsignedTransactionHex: String, fee: Fee) throws -> Data {
-        let input = try buildSigningInput(unsignedTransactionHex: unsignedTransactionHex, fee: fee)
+    func prepareForSign(_ stakingTransaction: StakingTransaction) throws -> Data {
+        let input = try buildSigningInput(stakingTransaction: stakingTransaction)
         let preSigningOutput = try transactionBuilder.buildTxCompilerPreSigningOutput(input: input)
         return preSigningOutput.dataHash
     }
 
     func prepareForSend(
-        _ unsignedTransactionHex: String,
-        fee: Fee,
+        stakingTransaction: StakingTransaction,
         signatureInfo: SignatureInfo
     ) throws -> Data {
-        let input = try buildSigningInput(unsignedTransactionHex: unsignedTransactionHex, fee: fee)
+        let input = try buildSigningInput(stakingTransaction: stakingTransaction)
         let output = try transactionBuilder.buildSigningOutput(input: input, signatureInfo: signatureInfo)
         return output.encoded
     }
 
     private func buildSigningInput(
-        unsignedTransactionHex: String,
-        fee: Fee
+        stakingTransaction: StakingTransaction
     ) throws -> EthereumSigningInput {
-        let compiledTransactionData = Data(hex: unsignedTransactionHex)
+        let compiledTransaction: EthereumCompiledTransaction
 
-        let compiledTransaction = try JSONDecoder()
-            .decode(EthereumCompiledTransaction.self, from: compiledTransactionData)
+        switch stakingTransaction.unsignedData {
+        case let transaction as EthereumCompiledTransaction:
+            compiledTransaction = transaction
+        case let string as String:
+            guard let compiledTransactionData = string.data(using: .utf8) else {
+                throw EthereumTransactionBuilderError.invalidStakingTransaction
+            }
+            compiledTransaction = try JSONDecoder()
+                .decode(EthereumCompiledTransaction.self, from: compiledTransactionData)
+        default:
+            throw EthereumTransactionBuilderError.invalidStakingTransaction
+        }
 
-        let coinAmount: BigUInt = compiledTransaction.value.flatMap { BigUInt(Data(hex: $0)) } ?? .zero
+        let coinAmount: BigUInt = compiledTransaction.value.flatMap { BigUInt($0) } ?? .zero
 
-        let gasLimit = BigUInt(Data(hex: compiledTransaction.gasLimit))
-        guard gasLimit > 0 else {
+        guard let gasLimit = BigUInt(compiledTransaction.gasLimit), gasLimit > 0 else {
             throw EthereumTransactionBuilderError.feeParametersNotFound
         }
 
         let baseFee = compiledTransaction.maxFeePerGas.flatMap { BigUInt(Data(hex: $0)) } ?? .zero
-        let priorityFee = compiledTransaction.maxPriorityFeePerGas.flatMap { BigUInt(Data(hex: $0)) } ?? .zero
-        let gasPrice = compiledTransaction.gasPrice.flatMap { BigUInt(Data(hex: $0)) } ?? .zero
+        let priorityFee = compiledTransaction.maxPriorityFeePerGas.flatMap { BigUInt($0) } ?? .zero
+        let gasPrice = compiledTransaction.gasPrice.flatMap { BigUInt($0) } ?? .zero
 
         let feeParameters: FeeParameters
 
@@ -73,25 +81,11 @@ struct EthereumStakingTransactionHelper {
             destination: compiledTransaction.to,
             coinAmount: coinAmount,
             fee: Fee(
-                fee.amount,
+                stakingTransaction.fee.amount,
                 parameters: feeParameters
             ),
             nonce: compiledTransaction.nonce,
             data: data
         )
     }
-}
-
-public struct EthereumCompiledTransaction: Decodable {
-    let from: String
-    let gasLimit: String
-    let to: String
-    let data: String
-    let nonce: Int
-    let type: Int
-    let maxFeePerGas: String?
-    let maxPriorityFeePerGas: String?
-    let gasPrice: String?
-    let chainId: Int
-    let value: String?
 }
