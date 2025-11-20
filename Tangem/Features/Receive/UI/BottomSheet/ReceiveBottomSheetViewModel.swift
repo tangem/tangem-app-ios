@@ -12,6 +12,7 @@ import CombineExt
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 final class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     let notificationInputs: [NotificationViewInput]
@@ -80,11 +81,14 @@ final class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
         copyAnalytics()
         UIPasteboard.general.string = addressInfos[currentIndex].address
 
-        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
-            .present(
-                layout: .top(padding: 12),
-                type: .temporary()
-            )
+        Toast(
+            view: SuccessToast(text: Localization.walletNotificationAddressCopied)
+                .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
+        )
+        .present(
+            layout: .top(padding: 12),
+            type: .temporary()
+        )
     }
 
     func share() {
