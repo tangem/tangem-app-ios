@@ -11,6 +11,7 @@ import TangemUI
 import TangemAccounts
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct SendDestinationSuggestedView: View {
     let viewModel: SendDestinationSuggestedViewModel
@@ -26,9 +27,11 @@ struct SendDestinationSuggestedView: View {
 
     var userWalletsSection: some View {
         GroupedSection(viewModel.suggestedWallets) { wallet in
+            let index = viewModel.suggestedWallets.firstIndex(where: { $0.id == wallet.id }) ?? 0
             SendDestinationSuggestedWalletView(
                 address: wallet.wallet.address,
                 iconViewModel: wallet.addressIconViewModel,
+                addressAccessibilityIdentifier: SendAccessibilityIdentifiers.suggestedDestinationWalletCell(index: index),
                 action: wallet.action
             ) {
                 HStack(spacing: 4) {
@@ -50,6 +53,7 @@ struct SendDestinationSuggestedView: View {
             }
         } header: {
             DefaultHeaderView(viewModel.suggestedWalletsHeader)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.suggestedDestinationHeader)
                 .padding(.top, 12)
         }
         .backgroundColor(Colors.Background.action)
@@ -59,9 +63,11 @@ struct SendDestinationSuggestedView: View {
 
     var recentTransactionSection: some View {
         GroupedSection(viewModel.suggestedRecentTransaction) { transaction in
+            let index = viewModel.suggestedRecentTransaction.firstIndex(where: { $0.id == transaction.id }) ?? 0
             SendDestinationSuggestedWalletView(
                 address: transaction.record.address,
                 iconViewModel: transaction.addressIconViewModel,
+                addressAccessibilityIdentifier: SendAccessibilityIdentifiers.suggestedDestinationTransactionCell(index: index),
                 action: transaction.action
             ) {
                 HStack(spacing: 6) {
@@ -78,6 +84,7 @@ struct SendDestinationSuggestedView: View {
             }
         } header: {
             DefaultHeaderView(Localization.sendRecentTransactions)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.suggestedDestinationHeader)
                 .padding(.top, 12)
         }
         .backgroundColor(Colors.Background.action)
@@ -100,6 +107,7 @@ struct SendDestinationSuggestedView: View {
 struct SendDestinationSuggestedWalletView<BottomView: View>: View {
     let address: String
     let iconViewModel: AddressIconViewModel
+    let addressAccessibilityIdentifier: String
     let action: () -> Void
     let bottomView: () -> BottomView
 
@@ -115,6 +123,7 @@ struct SendDestinationSuggestedWalletView<BottomView: View>: View {
                         .truncationMode(.middle)
                         .lineLimit(1)
                         .infinityFrame(axis: .horizontal, alignment: .leading)
+                        .accessibilityIdentifier(addressAccessibilityIdentifier)
 
                     bottomView()
                 }
