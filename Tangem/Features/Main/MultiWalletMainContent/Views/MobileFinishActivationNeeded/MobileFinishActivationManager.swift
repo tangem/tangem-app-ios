@@ -33,22 +33,18 @@ final class MobileFinishActivationManager {
 
         isObservationFinished = true
 
-        let cachedBalance: Decimal = switch userWalletModel.totalBalance {
-        case .loaded(let balance): balance
-        case .loading(let cachedBalance): cachedBalance ?? 0
-        case .failed(let cachedBalance, _): cachedBalance ?? 0
-        case .empty: 0
-        }
-
-        guard cachedBalance > 0 else {
-            return
-        }
-
         let config = userWalletModel.config
         let needBackup = config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
         let needAccessCode = config.hasFeature(.userWalletAccessCode) && config.userWalletAccessCodeStatus == .none
 
         guard needBackup || needAccessCode else {
+            return
+        }
+
+        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        let totalBalances = walletModels.map(\.availableBalanceProvider.balanceType).compactMap(\.value)
+
+        guard totalBalances.contains(where: { $0 > 0 }) else {
             return
         }
 
