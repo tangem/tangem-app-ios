@@ -25,9 +25,11 @@ public struct VisaAPIServiceBuilder {
     ) -> VisaTransactionHistoryAPIService {
         return CommonTransactionHistoryService(
             apiType: apiType,
-            authorizationTokensHandler: authorizationTokensHandler,
             apiService: .init(
-                provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
+                provider: TangemPayProviderBuilder().buildProvider(
+                    configuration: urlSessionConfiguration,
+                    authorizationTokensHandler: authorizationTokensHandler
+                ),
                 decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
         )
@@ -58,7 +60,7 @@ public struct VisaAPIServiceBuilder {
         CommonTangemPayAvailabilityService(
             apiType: apiType,
             apiService: .init(
-                provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
+                provider: TangemPayProviderBuilder().buildProvider(configuration: urlSessionConfiguration, authorizationTokensHandler: nil),
                 decoder: JSONDecoder()
             )
         )
