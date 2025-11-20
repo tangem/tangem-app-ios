@@ -24,8 +24,8 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
     }
 
     func balances(walletAddress: String, vaults: [String]) async throws -> [StakingBalanceInfo] {
-        try await withThrowingTaskGroup(of: StakingBalanceInfo?.self) { [service, mapper] group in
-            var results = [StakingBalanceInfo?]()
+        try await withThrowingTaskGroup(of: [StakingBalanceInfo].self) { [service, mapper] group in
+            var results = [StakingBalanceInfo]()
 
             vaults.forEach { vault in
                 group.addTask {
@@ -33,12 +33,20 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
                         delegatorAddress: walletAddress,
                         vaultAddress: vault
                     )
-                    return mapper.mapToBalanceInfo(from: response)
+                    return mapper.mapToBalancesInfo(from: response)
+                }
+                group.addTask {
+                    let response = try await service.getRewardsHistory(
+                        delegatorAddress: walletAddress,
+                        vaultAddress: vault
+                    )
+
+                    return mapper.mapToBalancesInfo(from: response)
                 }
             }
 
             for try await result in group {
-                results.append(result)
+                results.append(contentsOf: result)
             }
 
             return results.compactMap { $0 }
@@ -54,7 +62,31 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
             request: .init(delegatorAddress: walletAddress, vaultAddress: vault, amount: amount)
         )
 
-        return try mapper.mapToStakingTransactionInfo(from: response)
+        return try mapper.mapToStakingTransactionInfo(from: response, walletAddress: walletAddress)
+    }
+
+    func unstakeTransaction(
+        walletAddress: String,
+        vault: String,
+        amount: Decimal
+    ) async throws -> StakingTransactionInfo {
+        let response = try await service.prepareUnstakeTransaction(
+            request: .init(delegatorAddress: walletAddress, vaultAddress: vault, amount: amount)
+        )
+
+        return try mapper.mapToStakingTransactionInfo(from: response, walletAddress: walletAddress)
+    }
+
+    func withdrawTransaction(
+        walletAddress: String,
+        vault: String,
+        amount: Decimal
+    ) async throws -> StakingTransactionInfo {
+        let response = try await service.prepareWithdrawTransaction(
+            request: .init(delegatorAddress: walletAddress, vaultAddress: vault, amount: amount)
+        )
+
+        return try mapper.mapToStakingTransactionInfo(from: response, walletAddress: walletAddress)
     }
 
     func broadcastTransaction(signedTransaction: String) async throws -> String {

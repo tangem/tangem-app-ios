@@ -67,8 +67,8 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
     // MARK: - Prepare Deposit Transaction
 
     func prepareDepositTransaction(
-        request: P2PDTO.PrepareDepositTransaction.Request
-    ) async throws -> P2PDTO.PrepareDepositTransaction.PrepareDepositTransactionInfo {
+        request: P2PDTO.PrepareTransaction.Request
+    ) async throws -> P2PDTO.PrepareTransaction.PrepareTransactionInfo {
         try await response(
             .prepareDepositTransaction(request: request),
             decoder: Self.isoDateDecoder
@@ -78,8 +78,8 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
     // MARK: - Prepare Unstake Transaction
 
     func prepareUnstakeTransaction(
-        request: P2PDTO.PrepareUnstakeTransaction.Request
-    ) async throws -> P2PDTO.PrepareUnstakeTransaction.PrepareUnstakeTransactionInfo {
+        request: P2PDTO.PrepareTransaction.Request
+    ) async throws -> P2PDTO.PrepareTransaction.PrepareTransactionInfo {
         try await response(
             .prepareUnstakeTransaction(request: request),
             decoder: Self.isoDateDecoder
@@ -89,8 +89,8 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
     // MARK: - Prepare Withdraw Transaction
 
     func prepareWithdrawTransaction(
-        request: P2PDTO.PrepareWithdrawTransaction.Request
-    ) async throws -> P2PDTO.PrepareWithdrawTransaction.PrepareWithdrawTransactionInfo {
+        request: P2PDTO.PrepareTransaction.Request
+    ) async throws -> P2PDTO.PrepareTransaction.PrepareTransactionInfo {
         try await response(
             .prepareWithdrawTransaction(request: request),
             decoder: Self.isoDateDecoder

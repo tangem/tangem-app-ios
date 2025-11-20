@@ -77,9 +77,21 @@ extension P2PStakingManager: StakingManager {
             pendingTransaction = transactionInfo
             return transactionInfo.fee
         case (.staked, .unstake):
-            fatalError()
-        case (.staked, .pending(let type)):
-            fatalError()
+            let transactionInfo = try await provider.unstakeTransaction(
+                walletAddress: wallet.address,
+                vault: validatorAddress,
+                amount: action.amount
+            )
+            pendingTransaction = transactionInfo
+            return transactionInfo.fee
+        case (.staked, .pending):
+            let transactionInfo = try await provider.withdrawTransaction(
+                walletAddress: wallet.address,
+                vault: validatorAddress,
+                amount: action.amount
+            )
+            pendingTransaction = transactionInfo
+            return transactionInfo.fee
         default:
             StakingLogger.info(self, "Invalid staking manager state: \(state), for action: \(action)")
             throw StakingManagerError.stakingManagerStateNotSupportEstimateFeeAction(action: action, state: state)
@@ -97,7 +109,9 @@ extension P2PStakingManager: StakingManager {
         fatalError()
     }
 
-    func transactionDidSent(action: StakingAction) {}
+    func transactionDidSent(action: StakingAction) {
+        pendingTransaction = nil
+    }
 }
 
 extension P2PStakingManager: CustomStringConvertible {
@@ -124,6 +138,6 @@ private extension P2PStakingManager {
             return .availableToStake(yield)
         }
 
-        return .staked(.init(balances: stakingBalances, yieldInfo: yield, canStakeMore: false))
+        return .staked(.init(balances: stakingBalances, yieldInfo: yield, canStakeMore: true))
     }
 }

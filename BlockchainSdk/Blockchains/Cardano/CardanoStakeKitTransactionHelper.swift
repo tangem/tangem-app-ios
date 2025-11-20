@@ -18,12 +18,18 @@ struct CardanoStakeKitTransactionHelper {
     }
 
     func prepareForSign(_ transaction: StakingTransaction) throws -> Data {
-        let transaction = try cardanoTransaction(from: transaction.unsignedData)
+        guard let unsignedData = transaction.unsignedData as? String else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+        let transaction = try cardanoTransaction(from: unsignedData)
         return try transactionBuilder.buildCompiledForSign(transaction: transaction)
     }
 
     func prepareForSend(_ transaction: StakingTransaction, signatures: [SignatureInfo]) throws -> Data {
-        let transaction = try cardanoTransaction(from: transaction.unsignedData)
+        guard let unsignedData = transaction.unsignedData as? String else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+        let transaction = try cardanoTransaction(from: unsignedData)
         return try transactionBuilder.buildCompiledForSend(transaction: transaction, signatures: signatures)
     }
 

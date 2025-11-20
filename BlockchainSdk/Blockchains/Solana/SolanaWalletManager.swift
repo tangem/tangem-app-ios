@@ -279,15 +279,21 @@ extension SolanaWalletManager: StakingTransactionsBuilder, StakeKitTransactionSe
     typealias RawTransaction = RawTransactionData
 
     func prepareDataForSign(transaction: StakingTransaction) throws -> Data {
-        let transactionData = Data(hex: transaction.unsignedData)
+        guard let unsignedData = transaction.unsignedData as? String else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+        let transactionData = Data(hex: unsignedData)
         let prepared = try transactionHelper.removeSignaturesPlaceholders(from: transactionData)
         return prepared.transaction
     }
 
     func prepareDataForSend(transaction: StakingTransaction, signature: SignatureInfo) throws -> RawTransaction {
+        guard let unsignedData = transaction.unsignedData as? String else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
         let signedTransaction = try transactionHelper.addSignature(
             signature.signature,
-            transaction: Data(hex: transaction.unsignedData)
+            transaction: Data(hex: unsignedData)
         )
 
         guard let solanaBlockhashDate = (transaction.params as? StakeKitTransactionParams)?.solanaBlockhashDate else {
