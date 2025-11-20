@@ -53,18 +53,18 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
 
-    // [REDACTED_TODO_COMMENT]
     var isOrganizeTokensVisible: Bool {
-        guard canManageTokens else { return false }
-
-        if plainSections.isEmpty {
-            return false
+        func numberOfTokensInSections<T, U>(_ sections: [SectionModel<T, U>]) -> Int {
+            return sections.reduce(0) { $0 + $1.items.count }
         }
 
-        let numberOfTokens = plainSections.reduce(0) { $0 + $1.items.count }
-        let requiredNumberOfTokens = 2
+        guard canManageTokens else { return false }
 
-        return numberOfTokens >= requiredNumberOfTokens
+        let numberOfTokensInPlainSections = numberOfTokensInSections(plainSections)
+        let maxNumberOfTokensInAccountSections = accountSections.map { numberOfTokensInSections($0.items) }.max() ?? 0
+        let minRequiredNumberOfTokens = 2
+
+        return numberOfTokensInPlainSections >= minRequiredNumberOfTokens || maxNumberOfTokensInAccountSections >= minRequiredNumberOfTokens
     }
 
     // MARK: - Dependencies
