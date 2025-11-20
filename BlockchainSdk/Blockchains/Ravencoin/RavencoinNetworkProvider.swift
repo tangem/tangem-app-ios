@@ -87,7 +87,7 @@ extension RavencoinNetworkProvider: UTXONetworkProvider {
 private extension RavencoinNetworkProvider {
     func execute<T: Decodable>(target: RavencoinTarget.Target, response: T.Type) -> AnyPublisher<T, Error> {
         provider
-            .requestPublisher(RavencoinTarget(host: nodeInfo.link, target: target))
+            .requestPublisher(RavencoinTarget(node: nodeInfo, target: target))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(response.self)
             .mapError { $0 as Error }

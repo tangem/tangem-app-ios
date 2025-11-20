@@ -10,24 +10,22 @@ import Combine
 import TangemExpress
 
 protocol ExpressInteractorTangemPayDestinationWallet: ExpressInteractorDestinationWallet {
-    /// Better update to `var balanceProvider: TokenBalanceProvider { get }`
-    /// When it will be needed
-    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> { get }
+    var balanceProvider: TokenBalanceProvider { get }
 }
 
 struct TangemPayDestinationWalletWrapper: ExpressInteractorTangemPayDestinationWallet {
     let id: WalletModelId
     let tokenItem: TokenItem
     let isCustom: Bool = false
-    let balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>
+    let balanceProvider: TokenBalanceProvider
 
     var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
     let address: String?
 
-    init(tokenItem: TokenItem, address: String, balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>) {
+    init(tokenItem: TokenItem, address: String, balanceProvider: TokenBalanceProvider) {
         id = .init(tokenItem: tokenItem)
         self.tokenItem = tokenItem
         self.address = address
-        self.balancePublisher = balancePublisher
+        self.balanceProvider = balanceProvider
     }
 }

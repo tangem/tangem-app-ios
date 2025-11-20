@@ -145,16 +145,16 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     tangemPayAccount.tangemPayCardDetailsPublisher
                         .withWeakCaptureOf(viewModel)
                         .map { viewModel, cardDetails in
-                            guard let (card, balance) = cardDetails else {
+                            guard let cardDetails = cardDetails else {
                                 return nil
                             }
                             return TangemPayAccountViewModel(
-                                card: card,
-                                balance: balance,
+                                card: cardDetails.card,
+                                balance: cardDetails.balance,
                                 tapAction: {
                                     viewModel.openTangemPayMainView(
                                         tangemPayAccount: tangemPayAccount,
-                                        cardNumberEnd: card.cardNumberEnd
+                                        cardNumberEnd: cardDetails.card.cardNumberEnd
                                     )
                                 }
                             )
