@@ -36,6 +36,7 @@ struct TangemPayOfferView: View {
                         .padding(.horizontal, 44)
                 }
             }
+            .padding(.bottom, 12)
 
             getCardButton
                 .padding(.horizontal, 16)
