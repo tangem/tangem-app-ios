@@ -96,6 +96,7 @@ struct TransactionHistoryMapper {
         let dateFormatted = dateTimeFormatter.string(from: date)
 
         return SendDestinationSuggestedTransactionRecord(
+            id: record.hash,
             address: address,
             additionalField: nil, // [REDACTED_TODO_COMMENT]
             isOutgoing: record.isOutgoing,
@@ -167,7 +168,7 @@ private extension TransactionHistoryMapper {
             return .user(source.address)
         case .multiple(let sources):
             let addresses = sources.map { $0.address }.unique()
-            if addresses.count == 1, let address = addresses.first {
+            if let address = addresses.singleElement {
                 return .user(address)
             }
 
@@ -196,7 +197,7 @@ private extension TransactionHistoryMapper {
                 return address
             }
 
-            if addresses.count == 1, let address = addresses.first {
+            if let address = addresses.singleElement {
                 return .user(address)
             }
 

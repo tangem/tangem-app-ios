@@ -21,18 +21,6 @@ class FakeUserTokenListManager: UserTokenListManager {
 
     private let _initialized: CurrentValueSubject<Bool, Never>
 
-    var userTokens: [StorageEntry] {
-        let converter = StorageEntryConverter()
-        return converter.convertToStorageEntries(userTokensListSubject.value.entries)
-    }
-
-    var userTokensPublisher: AnyPublisher<[StorageEntry], Never> {
-        let converter = StorageEntryConverter()
-        return userTokensListSubject
-            .map { converter.convertToStorageEntries($0.entries) }
-            .eraseToAnyPublisher()
-    }
-
     var userTokensList: StoredUserTokenList { userTokensListSubject.value }
 
     var userTokensListPublisher: AnyPublisher<StoredUserTokenList, Never> {
@@ -90,7 +78,8 @@ class FakeUserTokenListManager: UserTokenListManager {
                 .shibaInuMock,
                 .tetherMock,
             ]
-            let entries = tokens.map { converter.convertToStoredUserToken($0, in: blockchainNetwork) }
+
+            let entries = tokens.map { converter.convertToStoredUserToken(tokenItem: .token($0, blockchainNetwork)) }
 
             self.userTokensListSubject.send(
                 .init(

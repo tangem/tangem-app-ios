@@ -55,25 +55,6 @@ class TONNetworkService: MultiNetworkProvider {
         .eraseToAnyPublisher()
     }
 
-    func getFee(address: String, message: String) -> AnyPublisher<[Fee], Error> {
-        providerPublisher { provider in
-            provider
-                .getFee(address: address, body: message)
-                .tryMap { [weak self] fee in
-                    guard let self = self else {
-                        throw BlockchainSdkError.empty
-                    }
-
-                    // Make rounded digits by correct for max amount Fee
-                    let fee = fee.sourceFees.totalFee / blockchain.decimalValue
-                    let roundedValue = fee.rounded(scale: 2, roundingMode: .up)
-                    let feeAmount = Amount(with: blockchain, value: roundedValue)
-                    return [Fee(feeAmount)]
-                }
-                .eraseToAnyPublisher()
-        }
-    }
-
     func getJettonWalletAddress(for ownerAddress: String, token: Token) -> AnyPublisher<String, Error> {
         providerPublisher { provider in
             provider.getJettonWalletAddress(
@@ -90,13 +71,71 @@ class TONNetworkService: MultiNetworkProvider {
         }
     }
 
-    // MARK: - Private Implementation
+    func isJettonWalletActive(jettonWalletAddress: String) -> AnyPublisher<Bool, Error> {
+        providerPublisher { provider in
+            provider.getAddressInformation(address: jettonWalletAddress)
+                .map { info in
+                    info.state == .active
+                }
+                .eraseToAnyPublisher()
+        }
+    }
+
+    func getFee(
+        source: String,
+        destination: String,
+        amount: Amount,
+        message: String
+    ) -> AnyPublisher<([Fee], String?), Error> {
+        // Get recipient's jetton wallet address if sending tokens
+        let recipientJettonWalletPublisher: AnyPublisher<String?, Error>
+        if case .token(let token) = amount.type {
+            // Recipient's jetton wallet address
+            recipientJettonWalletPublisher = getJettonWalletAddress(
+                for: destination,
+                token: token
+            )
+            .map { $0 }
+            .eraseToAnyPublisher()
+        } else {
+            recipientJettonWalletPublisher = Just(nil)
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
+        }
+
+        return Publishers.Zip(
+            getFee(address: source, message: message),
+            recipientJettonWalletPublisher
+        )
+        .eraseToAnyPublisher()
+    }
 
     func send(message: String) -> AnyPublisher<String, Error> {
         return providerPublisher { provider in
             provider
                 .send(message: message)
                 .map(\.hash)
+                .eraseToAnyPublisher()
+        }
+    }
+
+    // MARK: - Private Implementation
+
+    private func getFee(address: String, message: String) -> AnyPublisher<[Fee], Error> {
+        providerPublisher { provider in
+            provider
+                .getFee(address: address, body: message)
+                .tryMap { [weak self] fee in
+                    guard let self = self else {
+                        throw BlockchainSdkError.empty
+                    }
+
+                    // Make rounded digits by correct for max amount Fee
+                    let fee = fee.sourceFees.totalFee / blockchain.decimalValue
+                    let roundedValue = fee.rounded(scale: 2, roundingMode: .up)
+                    let feeAmount = Amount(with: blockchain, value: roundedValue)
+                    return [Fee(feeAmount)]
+                }
                 .eraseToAnyPublisher()
         }
     }
