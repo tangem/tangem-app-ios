@@ -20,12 +20,18 @@ public struct ExpandableItemView<
     private let collapsedView: CollapsedView
     private let expandedView: ExpandedView
     private let expandedViewHeader: ExpandedViewHeader
+    private let backgroundColor: Color
+    private let cornerRadius: CGFloat
 
     public init(
+        backgroundColor: Color = Colors.Background.primary,
+        cornerRadius: CGFloat = 14,
         @ViewBuilder collapsedView: () -> CollapsedView,
         @ViewBuilder expandedView: () -> ExpandedView,
-        @ViewBuilder expandedViewHeader: () -> ExpandedViewHeader,
+        @ViewBuilder expandedViewHeader: () -> ExpandedViewHeader
     ) {
+        self.backgroundColor = backgroundColor
+        self.cornerRadius = cornerRadius
         self.collapsedView = collapsedView()
         self.expandedView = expandedView()
         self.expandedViewHeader = expandedViewHeader()
@@ -36,6 +42,7 @@ public struct ExpandableItemView<
     @State private var isExpanded = false
     @Namespace private var namespace
     @State private var isAnimating = false
+    @State private var isPressed = false
 
     // MARK: - Body
 
@@ -48,44 +55,53 @@ public struct ExpandableItemView<
             )
             // Mikhail Andreev - can't extract those to reusable properties because then matchedGeometryEffect behaves funny
             .background(
-                RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
-                    .fill(Colors.Background.primary)
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(backgroundColor)
                     .matchedGeometryEffect(id: Constants.backgroundGeometryEffectID, in: namespace)
             )
             .mask(
-                RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .matchedGeometryEffect(id: Constants.maskGeometryEffectID, in: namespace)
             )
         } else {
             collapsedView
                 .transition(.collapsedViewTransition)
                 .background(
-                    RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
-                        .fill(Colors.Background.primary)
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .fill(backgroundColor)
                         .matchedGeometryEffect(id: Constants.backgroundGeometryEffectID, in: namespace)
                 )
                 .mask(
-                    RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                         .matchedGeometryEffect(id: Constants.maskGeometryEffectID, in: namespace)
                 )
                 .transformEffect(.identity)
                 .onTapGesture(perform: toggleExpanded)
+                .scaleEffect(isPressed ? 0.95 : 1.0)
         }
     }
 
     // MARK: - Private functions
 
     private func toggleExpanded() {
+        // [REDACTED_TODO_COMMENT]
         guard !isAnimating else { return }
 
         isAnimating = true
 
-        withAnimation(.easeInOut(duration: 0.5)) {
-            isExpanded.toggle()
+        withAnimation(.easeInOut(duration: 0.1)) {
+            isPressed = true
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            isAnimating = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation(.easeInOut(duration: 0.5)) {
+                isPressed = false
+                isExpanded.toggle()
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isAnimating = false
+            }
         }
     }
 }
