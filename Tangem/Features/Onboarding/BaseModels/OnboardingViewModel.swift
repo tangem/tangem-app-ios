@@ -144,7 +144,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     lazy var addTokensViewModel: OnboardingAddTokensViewModel? = {
         guard
             let userWalletModel,
-            userWalletModel.config.hasFeature(.multiCurrency)
+            userWalletModel.config.hasFeature(.multiCurrency),
+            let context = makeManageTokensContext(for: userWalletModel)
         else {
             goToNextStep()
             return nil
@@ -161,11 +162,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
                 hardwareLimitationUtil: HardwareLimitationsUtil(config: userWalletModel.config),
                 analyticsSourceRawValue: analyticsSourceRawValue,
-                context: LegacyManageTokensContext(
-                    // accounts_fixes_needed_onboarding
-                    userTokensManager: userWalletModel.userTokensManager,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
+                context: context
             )
         )
 
@@ -443,6 +440,34 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 }
             }
             .store(in: &bag)
+    }
+
+    private func makeManageTokensContext(for userWalletModel: UserWalletModel) -> ManageTokensContext? {
+        if FeatureProvider.isAvailable(.accounts) {
+            makeAccountsAwareContext(for: userWalletModel)
+        } else {
+            makeLegacyContext(for: userWalletModel)
+        }
+    }
+
+    private func makeAccountsAwareContext(for userWalletModel: UserWalletModel) -> ManageTokensContext? {
+        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
+            return nil
+        }
+
+        // Working with accounts in onboarding is equivalent of working with main account
+        return AccountsAwareManageTokensContext(
+            accountModelsManager: userWalletModel.accountModelsManager,
+            currentAccount: mainAccount
+        )
+    }
+
+    private func makeLegacyContext(for userWalletModel: UserWalletModel) -> ManageTokensContext {
+        LegacyManageTokensContext(
+            // accounts_fixes_needed_none
+            userTokensManager: userWalletModel.userTokensManager,
+            walletModelsManager: userWalletModel.walletModelsManager
+        )
     }
 }
 
