@@ -26,7 +26,7 @@ struct CommonUserWalletModelDependencies {
     let accountModelsManager: AccountModelsManager
 
     private var derivationManager: (DerivationManager & DerivationDependenciesConfigurable)?
-    private let dependenciesConfigurator: DependenciesConfigurator
+    private let innerDependencies: InnerDependenciesConfigurable
 
     init?(userWalletId: UserWalletId, config: UserWalletConfig, keys: WalletKeys) {
         guard
@@ -47,7 +47,7 @@ struct CommonUserWalletModelDependencies {
             keys: keys
         )
 
-        let userTokensResult = Self.makeUserTokensManager(
+        let (userTokensManager, innerDependencies) = Self.makeUserTokensManager(
             userWalletId: userWalletId,
             config: config,
             areHDWalletsSupported: areHDWalletsSupported,
@@ -55,9 +55,8 @@ struct CommonUserWalletModelDependencies {
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
             hasAccounts: hasAccounts
         )
-
-        userTokensManager = userTokensResult.manager
-        dependenciesConfigurator = userTokensResult.configurator
+        self.userTokensManager = userTokensManager
+        self.innerDependencies = innerDependencies
 
         walletModelsManager = Self.makeWalletModelsManager(
             userWalletId: userWalletId,
@@ -82,13 +81,13 @@ struct CommonUserWalletModelDependencies {
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
             userTokensManager: userTokensManager,
-            remoteStatusSyncing: userTokensResult.manager,
+            remoteStatusSyncing: userTokensManager,
             derivationManager: derivationManager,
             hasAccounts: hasAccounts
         )
 
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
-        dependenciesConfigurator.configure(with: userTokensPushNotificationsManager)
+        innerDependencies.configure(with: userTokensPushNotificationsManager)
 
         // Capture the injected dependency before self is available
         let cryptoAccountsGlobalStateProvider = InjectedValues[\.cryptoAccountsGlobalStateProvider]
@@ -123,12 +122,12 @@ struct CommonUserWalletModelDependencies {
             walletModelsManager: walletModelsManager
         )
 
-        dependenciesConfigurator.configure(with: self)
+        innerDependencies.configure(with: self)
     }
 
     func update(from model: UserWalletModel) {
         derivationManager?.configure(with: model)
-        dependenciesConfigurator.configure(with: model)
+        innerDependencies.configure(with: model)
     }
 }
 
@@ -322,9 +321,9 @@ private extension CommonUserWalletModelDependencies {
         hasTokenSynchronization: Bool,
         shouldLoadExpressAvailability: Bool,
         hasAccounts: Bool
-    ) -> (manager: UserTokensManager & UserTokensPushNotificationsRemoteStatusSyncing, configurator: DependenciesConfigurator) {
+    ) -> (manager: UserTokensManager & UserTokensPushNotificationsRemoteStatusSyncing, innerDependencies: InnerDependenciesConfigurable) {
         if hasAccounts {
-            return (LockedUserTokensManager(), DummyDependenciesConfigurator())
+            return (LockedUserTokensManager(), DummyInnerDependencies())
         }
 
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
@@ -347,12 +346,12 @@ private extension CommonUserWalletModelDependencies {
             hardwareLimitationsUtil: hardwareLimitationsUtil
         )
 
-        let dependenciesConfigurator = CommonDependenciesConfigurator(
+        let innerDependencies = CommonInnerDependencies(
             userTokensManager: userTokensManager,
             userTokenListManager: userTokenListManager
         )
 
-        return (userTokensManager, dependenciesConfigurator)
+        return (userTokensManager, innerDependencies)
     }
 
     static func makeDerivationManager(
@@ -377,14 +376,14 @@ private extension CommonUserWalletModelDependencies {
 
 private extension CommonUserWalletModelDependencies {
     @available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
-    protocol DependenciesConfigurator {
+    protocol InnerDependenciesConfigurable {
         func configure(with dependencies: CommonUserWalletModelDependencies)
         func configure(with externalParametersProvider: UserTokenListExternalParametersProvider)
         func configure(with model: UserWalletModel)
     }
 
     @available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
-    final class CommonDependenciesConfigurator: DependenciesConfigurator {
+    final class CommonInnerDependencies: InnerDependenciesConfigurable {
         init(userTokensManager: CommonUserTokensManager, userTokenListManager: CommonUserTokenListManager) {
             self.userTokensManager = userTokensManager
             self.userTokenListManager = userTokenListManager
@@ -423,7 +422,7 @@ private extension CommonUserWalletModelDependencies {
     }
 
     @available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
-    struct DummyDependenciesConfigurator: DependenciesConfigurator {
+    struct DummyInnerDependencies: InnerDependenciesConfigurable {
         func configure(with dependencies: CommonUserWalletModelDependencies) {}
         func configure(with externalParametersProvider: UserTokenListExternalParametersProvider) {}
         func configure(with model: UserWalletModel) {}
