@@ -21,4 +21,14 @@ extension AccountSelectorCellModel {
             return accountModel.domainModel
         }
     }
+
+    var userWalletModel: any UserWalletModel {
+        switch self {
+        case .wallet(let walletModel):
+            return walletModel.domainModel
+
+        case .account(let accountModel):
+            return accountModel.userWalletModel
+        }
+    }
 }
