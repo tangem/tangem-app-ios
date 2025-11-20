@@ -290,11 +290,17 @@ extension TronWalletManager: StakingTransactionsBuilder, StakeKitTransactionSend
     typealias RawTransaction = Data
 
     func prepareDataForSign(transaction: StakingTransaction) throws -> Data {
-        try TronStakeKitTransactionHelper().prepareForSign(transaction.unsignedData).hash
+        guard let unsignedData = transaction.unsignedData as? String else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+        return try TronStakeKitTransactionHelper().prepareForSign(unsignedData).hash
     }
 
     func prepareDataForSend(transaction: StakingTransaction, signature: SignatureInfo) throws -> RawTransaction {
-        let rawData = try TronStakeKitTransactionHelper().prepareForSign(transaction.unsignedData).rawData
+        guard let unsignedData = transaction.unsignedData as? String else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+        let rawData = try TronStakeKitTransactionHelper().prepareForSign(unsignedData).rawData
         let unmarshalled = unmarshal(signature.signature, hash: signature.hash, publicKey: wallet.publicKey)
         return try txBuilder.buildForSend(rawData: rawData, signature: unmarshalled)
     }

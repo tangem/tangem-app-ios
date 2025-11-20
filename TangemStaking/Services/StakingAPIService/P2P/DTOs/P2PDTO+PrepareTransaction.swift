@@ -1,5 +1,5 @@
 //
-//  P2PDTO+PrepareDepositTransaction.swift
+//  P2PDTO+PrepareTransaction.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,16 +9,16 @@
 import Foundation
 
 extension P2PDTO {
-    enum PrepareDepositTransaction {
+    enum PrepareTransaction {
         struct Request: Encodable {
             let delegatorAddress: String
             let vaultAddress: String
             let amount: Decimal
         }
 
-        typealias Response = GenericResponse<PrepareDepositTransactionInfo>
+        typealias Response = GenericResponse<PrepareTransactionInfo>
 
-        struct PrepareDepositTransactionInfo: Decodable {
+        struct PrepareTransactionInfo: Decodable {
             let amount: Decimal
             let vaultAddress: String
             let delegatorAddress: String
