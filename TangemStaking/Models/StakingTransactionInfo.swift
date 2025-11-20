@@ -7,12 +7,13 @@
 //
 
 import Foundation
+import TangemFoundation
 
-public struct StakingTransactionInfo: Hashable {
+public struct StakingTransactionInfo {
     public let id: String
     public let actionId: String
     public let network: String
-    public let unsignedTransactionData: String
+    public let unsignedTransactionData: any UnsignedTransactionData
     public let fee: Decimal
     public let type: String
     public let status: String
@@ -22,7 +23,7 @@ public struct StakingTransactionInfo: Hashable {
         id: String,
         actionId: String,
         network: String,
-        unsignedTransactionData: String,
+        unsignedTransactionData: any UnsignedTransactionData,
         fee: Decimal,
         type: String,
         status: String,
@@ -36,5 +37,16 @@ public struct StakingTransactionInfo: Hashable {
         self.type = type
         self.status = status
         self.stepIndex = stepIndex
+    }
+}
+
+extension StakingTransactionInfo: Hashable {
+    public static func == (lhs: StakingTransactionInfo, rhs: StakingTransactionInfo) -> Bool {
+        lhs.unsignedTransactionData.hashValue == rhs.unsignedTransactionData.hashValue && lhs.fee == rhs.fee
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(unsignedTransactionData.hashValue)
+        hasher.combine(fee)
     }
 }

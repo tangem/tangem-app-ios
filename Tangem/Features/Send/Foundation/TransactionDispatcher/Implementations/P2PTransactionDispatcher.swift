@@ -39,7 +39,7 @@ extension P2PTransactionDispatcher: TransactionDispatcher {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        let transactions = mapper.mapToStakeKitTransactions(action: action)
+        let transactions = mapper.mapToP2PTransactions(action: action)
 
         let signResults = try await stakingTransactionsBuilder.buildRawTransactions(
             from: transactions,
@@ -53,6 +53,8 @@ extension P2PTransactionDispatcher: TransactionDispatcher {
 
         let hash = try await apiProvider.broadcastTransaction(signedTransaction: signedTransaction)
         let result = TransactionDispatcherResult(hash: hash, url: nil, signerType: "", currentHost: "")
+
+        walletModel.updateAfterSendingTransaction()
 
         return result
     }
