@@ -50,6 +50,11 @@ final class TangemPayAccount {
         tangemPayStatusPublisher: tangemPayStatusPublisher
     )
 
+    lazy var tangemPayIssuingManager: TangemPayIssuingManager = .init(
+        tangemPayStatusPublisher: tangemPayStatusPublisher,
+        tangemPayCardIssuingPublisher: tangemPayCardIssuingInProgressPublisher
+    )
+
     // MARK: - Balances
 
     lazy var tangemPayTokenBalanceProvider: TokenBalanceProvider = TangemPayTokenBalanceProvider(
@@ -110,9 +115,10 @@ final class TangemPayAccount {
             appSettings: .shared
         )
 
-        // No reference cycle here, self is stored as weak in both entities
+        // No reference cycle here, self is stored as weak in all three entities
         tangemPayNotificationManager.setupManager(with: self)
         authorizationTokensHandler.setupRefreshTokenSaver(self)
+        tangemPayIssuingManager.setupDelegate(self)
 
         loadCustomerInfo()
 
@@ -282,6 +288,17 @@ extension TangemPayAccount: NotificationTapDelegate {
 
         default:
             break
+        }
+    }
+}
+
+// MARK: - TangemPayIssuingManagerDelegated
+
+extension TangemPayAccount: TangemPayIssuingManagerDelegate {
+    func createAccountAndIssueCard() {
+        didTapIssueOrderSubject.send(())
+        runTask(in: self) { tangemPayAccount in
+            await tangemPayAccount.createOrder()
         }
     }
 }
