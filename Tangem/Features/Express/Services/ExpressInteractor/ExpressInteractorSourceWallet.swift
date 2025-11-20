@@ -21,12 +21,13 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? { get }
     var amountToCreateAccount: Decimal { get }
 
-    var allowanceService: AllowanceService { get }
+    var allowanceService: (any AllowanceService)? { get }
     var availableBalanceProvider: TokenBalanceProvider { get }
     var transactionValidator: any TransactionValidator { get }
-    var expressTransactionBuilder: ExpressTransactionBuilder { get }
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { get }
 
-    func transactionDispatcher(signer: TangemSigner) -> TransactionDispatcher
+    func dexTransactionProcessor() throws -> ExpressDEXTransactionProcessor
+    func cexTransactionProcessor() throws -> ExpressCEXTransactionProcessor
+
     func exploreTransactionURL(for hash: String) -> URL?
 }
