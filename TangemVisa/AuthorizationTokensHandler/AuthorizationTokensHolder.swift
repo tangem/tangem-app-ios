@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct InternalAuthorizationTokens {
     let bffTokens: VisaAuthorizationTokens
@@ -19,13 +20,11 @@ struct InternalAuthorizationTokens {
     }
 }
 
-actor AuthorizationTokensHolder {
-    private var authTokensInfo: InternalAuthorizationTokens?
+class AuthorizationTokensHolder {
+    private var authTokensInfo: ThreadSafeContainer<InternalAuthorizationTokens?>
 
     var tokensInfo: InternalAuthorizationTokens? {
-        get async {
-            authTokensInfo
-        }
+        authTokensInfo.read()
     }
 
     init(authorizationTokens: VisaAuthorizationTokens? = nil) {
@@ -33,13 +32,16 @@ actor AuthorizationTokensHolder {
             let authorizationTokens,
             let tokensInfo = try? InternalAuthorizationTokens(bffTokens: authorizationTokens)
         else {
+            authTokensInfo = .init(nil)
             return
         }
 
-        authTokensInfo = tokensInfo
+        authTokensInfo = .init(tokensInfo)
     }
 
     func setTokens(authorizationTokens: InternalAuthorizationTokens) async throws {
-        authTokensInfo = authorizationTokens
+        authTokensInfo.mutate { value in
+            value = authorizationTokens
+        }
     }
 }
