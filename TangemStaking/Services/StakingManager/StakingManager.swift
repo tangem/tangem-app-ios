@@ -19,7 +19,6 @@ public protocol StakingManager {
     func updateState(loadActions: Bool) async
     func estimateFee(action: StakingAction) async throws -> Decimal
     func transaction(action: StakingAction) async throws -> StakingTransactionAction
-    func transactionDetails(id: String) async throws -> StakingTransactionInfo
 
     func transactionDidSent(action: StakingAction)
 }

@@ -347,6 +347,10 @@ extension CommonWalletModel: WalletModel {
         walletManager as? StakeKitTransactionSender
     }
 
+    var stakingTransactionsBuilder: (any StakingTransactionsBuilder)? {
+        walletManager as? (any StakingTransactionsBuilder)
+    }
+
     var accountInitializationService: (any BlockchainAccountInitializationService)? {
         walletManager as? BlockchainAccountInitializationService
     }
