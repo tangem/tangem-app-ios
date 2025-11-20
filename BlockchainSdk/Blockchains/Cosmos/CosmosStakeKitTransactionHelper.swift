@@ -32,7 +32,10 @@ struct CosmosStakeKitTransactionHelper {
     private func makeInput(
         stakingTransaction: StakingTransaction
     ) throws -> Data {
-        let stakingProtoMessage = try CosmosProtoMessage(serializedData: Data(hex: stakingTransaction.unsignedData))
+        guard let unsignedData = stakingTransaction.unsignedData as? String else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+        let stakingProtoMessage = try CosmosProtoMessage(serializedData: Data(hex: unsignedData))
 
         let feeMessage = stakingProtoMessage.feeAndKeyContainer.feeContainer
         let feeValue = feeMessage.feeAmount

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct P2PMapper {
     func mapToYieldInfo(from response: P2PDTO.Vaults.VaultsInfo) throws -> StakingYieldInfo {
@@ -36,27 +37,71 @@ struct P2PMapper {
         )
     }
 
-    func mapToBalanceInfo(from response: P2PDTO.AccountSummary.AccountSummaryInfo) -> StakingBalanceInfo? {
-        guard let assets = response.stake.assets, assets > .zero else {
-            return nil
+    func mapToBalancesInfo(from response: P2PDTO.AccountSummary.AccountSummaryInfo) -> [StakingBalanceInfo] {
+        var balances = [StakingBalanceInfo]()
+        if let assets = response.stake.assets, assets > .zero {
+            balances.append(
+                StakingBalanceInfo(
+                    item: .ethereum,
+                    amount: assets,
+                    balanceType: .active,
+                    validatorAddress: response.vaultAddress,
+                    actions: []
+                ),
+            )
         }
-        return StakingBalanceInfo(
-            item: .ethereum,
-            amount: assets,
-            balanceType: .active,
-            validatorAddress: response.vaultAddress,
-            actions: []
-        )
+
+        let unstakingBalances = response.exitQueue.requests.compactMap { exitRequest -> StakingBalanceInfo? in
+            guard let amount = exitRequest.totalAssets else { return nil }
+            return StakingBalanceInfo(
+                item: .ethereum,
+                amount: amount,
+                balanceType: exitRequest.isClaimable ? .unstaked : .unbonding(date: nil),
+                validatorAddress: response.vaultAddress,
+                actions: []
+            )
+        }
+
+        balances.append(contentsOf: unstakingBalances)
+        return balances
+    }
+
+    func mapToBalancesInfo(from response: P2PDTO.RewardsHistory.RewardsHistoryInfo) -> [StakingBalanceInfo] {
+        guard let lastRewards = response.rewards.last else { return [] }
+
+        return [
+            StakingBalanceInfo(
+                item: .ethereum,
+                amount: lastRewards.balance,
+                balanceType: .rewards,
+                validatorAddress: response.vaultAddress,
+                actions: []
+            ),
+        ]
     }
 
     func mapToStakingTransactionInfo(
-        from response: P2PDTO.PrepareDepositTransaction.PrepareDepositTransactionInfo
+        from response: P2PDTO.PrepareTransaction.PrepareTransactionInfo,
+        walletAddress: String
     ) throws -> StakingTransactionInfo {
-        try StakingTransactionInfo(
+        let ethereumCompiledTransaction = EthereumCompiledTransaction(
+            from: walletAddress,
+            gasLimit: response.unsignedTransaction.gasLimit,
+            to: response.unsignedTransaction.to,
+            data: response.unsignedTransaction.data,
+            nonce: response.unsignedTransaction.nonce,
+            type: 0,
+            maxFeePerGas: response.unsignedTransaction.maxFeePerGas,
+            maxPriorityFeePerGas: response.unsignedTransaction.maxPriorityFeePerGas,
+            gasPrice: nil,
+            chainId: response.unsignedTransaction.chainId,
+            value: response.unsignedTransaction.value
+        )
+        return try StakingTransactionInfo(
             id: "",
             actionId: "",
             network: "",
-            unsignedTransactionData: response.unsignedTransaction.serializeTx,
+            unsignedTransactionData: ethereumCompiledTransaction,
             fee: fee(from: response.unsignedTransaction),
             type: "",
             status: "",
@@ -68,7 +113,7 @@ struct P2PMapper {
         ValidatorInfo(
             address: vault.vaultAddress,
             name: vault.displayName,
-            preferred: false,
+            preferred: true,
             partner: false,
             iconURL: nil,
             rewardType: .apy,
