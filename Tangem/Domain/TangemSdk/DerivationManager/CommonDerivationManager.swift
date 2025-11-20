@@ -10,21 +10,21 @@ import TangemSdk
 import Combine
 import BlockchainSdk
 
-class CommonDerivationManager {
+final class CommonDerivationManager {
     private let keysRepository: KeysRepository
-    private let userTokenListManager: UserTokenListManager
+    private let userTokensManager: UserTokensManager
 
     private var bag = Set<AnyCancellable>()
     private let pendingDerivations: CurrentValueSubject<[PendingDerivation], Never> = .init([])
 
-    init(keysRepository: KeysRepository, userTokenListManager: UserTokenListManager) {
+    init(keysRepository: KeysRepository, userTokensManager: UserTokensManager) {
         self.keysRepository = keysRepository
-        self.userTokenListManager = userTokenListManager
+        self.userTokensManager = userTokensManager
         bind()
     }
 
     private func bind() {
-        userTokenListManager.userTokensPublisher
+        userTokensManager.userTokensPublisher
             .combineLatest(keysRepository.keysPublisher)
             .sink { [weak self] entries, keys in
                 self?.process(entries, keys)
@@ -32,7 +32,7 @@ class CommonDerivationManager {
             .store(in: &bag)
     }
 
-    private func process(_ entries: [StorageEntry], _ keys: [KeyInfo]) {
+    private func process(_ entries: [TokenItem], _ keys: [KeyInfo]) {
         let derivations = entries.compactMap { entry in
             pendingDerivation(network: entry.blockchainNetwork, keys: keys)
         }

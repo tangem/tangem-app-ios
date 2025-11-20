@@ -7,10 +7,10 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 import Moya
 
 struct CustomerInfoManagementAPITarget: TargetType {
-    let authorizationToken: String
     let target: Target
     let apiType: VisaAPIType
 
@@ -28,6 +28,12 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/balance"
         case .getCardDetails:
             "customer/card/details"
+        case .freeze:
+            "customer/card/freeze"
+        case .unfreeze:
+            "customer/card/unfreeze"
+        case .setPin:
+            "customer/card/pin"
         case .getTransactionHistory:
             "customer/transactions"
         case .placeOrder:
@@ -47,8 +53,13 @@ struct CustomerInfoManagementAPITarget: TargetType {
             .get
 
         case .placeOrder,
-             .getCardDetails:
+             .getCardDetails,
+             .freeze,
+             .unfreeze:
             .post
+
+        case .setPin:
+            .put
         }
     }
 
@@ -59,6 +70,14 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getOrder,
              .getBalance:
             return .requestPlain
+
+        case .freeze(let cardId), .unfreeze(let cardId):
+            let requestData = TangemPayFreezeUnfreezeRequest(cardId: cardId)
+            return .requestJSONEncodable(requestData)
+
+        case .setPin(let pin, let sessionId, let iv):
+            let requestData = TangemPaySetPinRequest(pin: pin, sessionId: sessionId, iv: iv)
+            return .requestJSONEncodable(requestData)
 
         case .getTransactionHistory(let limit, let cursor):
             var requestParams = [
@@ -80,10 +99,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
     }
 
     var headers: [String: String]? {
-        var defaultHeaders = VisaConstants.defaultHeaderParams
-        defaultHeaders[VisaConstants.authorizationHeaderKey] = authorizationToken
-
-        return defaultHeaders
+        ["Content-Type": "application/json"]
     }
 }
 
@@ -98,9 +114,23 @@ extension CustomerInfoManagementAPITarget {
 
         case getBalance
         case getCardDetails(sessionId: String)
+        case freeze(cardId: String)
+        case unfreeze(cardId: String)
+        case setPin(pin: String, sessionId: String, iv: String)
+
         case getTransactionHistory(limit: Int, cursor: String?)
 
         case placeOrder(walletAddress: String)
         case getOrder(orderId: String)
+    }
+}
+
+extension CustomerInfoManagementAPITarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        path
+    }
+
+    var shouldLogResponseBody: Bool {
+        return false
     }
 }

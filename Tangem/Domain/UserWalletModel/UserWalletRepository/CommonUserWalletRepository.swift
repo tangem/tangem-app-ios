@@ -74,6 +74,11 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         await unlockUnprotectedMobileWalletsIfNeeded()
 
+        let allUnlocked = self.models.allConforms { !$0.isUserWalletLocked }
+        if allUnlocked {
+            unlockInternal()
+        }
+
         AppLogger.info(self)
     }
 
@@ -112,7 +117,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         select(userWalletId: userWalletModel.userWalletId)
         save(userWalletModel: userWalletModel)
 
-        if models.contains(where: { !$0.isUserWalletLocked }) {
+        if isLocked {
             unlockInternal()
         }
     }
