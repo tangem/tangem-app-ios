@@ -31,8 +31,6 @@ struct MainView: View {
                                     label: editButtonLabel
                                 )
                             }
-
-                            Button(role: .destructive, action: weakify(viewModel, forFunction: MainViewModel.didTapDeleteWallet), label: deleteButtonLabel)
                         }
                     }
             },
