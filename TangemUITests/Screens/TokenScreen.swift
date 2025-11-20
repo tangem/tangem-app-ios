@@ -123,14 +123,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     @discardableResult
-    func waitForInsufficientFeeCurrencyBanner() -> Self {
-        XCTContext.runActivity(named: "Validate insufficient fee currency banner exists") { _ in
-            waitAndAssertTrue(insufficientFeeCurrencyBanner, "Insufficient fee currency banner should be displayed")
-        }
-        return self
-    }
-
-    @discardableResult
     func tapGoToFeeCurrencyButton() -> TokenScreen {
         XCTContext.runActivity(named: "Tap go to fee currency button") { _ in
             goToFeeCurrencyButton.waitAndTap()
