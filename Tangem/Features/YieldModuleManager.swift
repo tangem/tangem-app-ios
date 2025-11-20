@@ -32,6 +32,7 @@ protocol YieldModuleManager {
     func fetchChartData() async throws -> YieldChartData
 
     func sendActivationState()
+    func sendTransactionSendEvent(transactionHash: String)
 }
 
 protocol YieldModuleManagerUpdater {
@@ -239,14 +240,11 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
             .map(\.hash)
 
-        try? await yieldModuleNetworkManager.activate(
-            tokenContractAddress: token.contractAddress,
-            walletAddress: walletAddress,
-            chainId: chainId,
-            userWalletId: userWalletId
-        )
-
         await activate()
+
+        if hasEnterTransaction(in: transactions), let enterHash = result.last {
+            await yieldModuleNetworkManager.sendTransactionEvent(txHash: enterHash, operation: .enter)
+        }
 
         return result
     }
@@ -280,6 +278,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             .map(\.hash)
 
         await deactivate()
+
+        if let exitHash = result.first {
+            await yieldModuleNetworkManager.sendTransactionEvent(txHash: exitHash, operation: .exit)
+        }
 
         return result
     }
@@ -330,6 +332,12 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             default:
                 break
             }
+        }
+    }
+
+    func sendTransactionSendEvent(transactionHash: String) {
+        Task { [weak self] in
+            await self?.yieldModuleNetworkManager.sendTransactionEvent(txHash: transactionHash, operation: .send)
         }
     }
 }
@@ -546,6 +554,11 @@ private extension CommonYieldModuleManager {
 }
 
 private extension CommonYieldModuleManager {
+    func hasEnterTransaction(in transactions: [Transaction]) -> Bool {
+        let dummyEnterMethod = EnterProtocolMethod(tokenContractAddress: .empty)
+        return hasTransaction(in: transactions, for: dummyEnterMethod)
+    }
+
     func hasEnterTransactions(in pendingTransactions: [PendingTransactionRecord], yieldContract: String?) -> Bool {
         let dummyDeployMethod = DeployYieldModuleMethod(
             walletAddress: String(),
@@ -579,6 +592,16 @@ private extension CommonYieldModuleManager {
         )
     }
 
+    func hasTransaction(in transactions: [Transaction], for method: SmartContractMethod) -> Bool {
+        return transactions.contains { transaction in
+            guard let dataHex = transaction.ethereumTransactionDataHexString() else {
+                return false
+            }
+
+            return dataHex.hasPrefix(method.methodId.removeHexPrefix().lowercased())
+        }
+    }
+
     func hasTransactions(
         in pendingTransactions: [PendingTransactionRecord],
         for methods: [SmartContractMethod],
@@ -608,6 +631,15 @@ private extension Amount {
     var tokenYieldSupply: TokenYieldSupply? {
         guard case .token(let token) = type else { return nil }
         return token.metadata.yieldSupply
+    }
+}
+
+private extension Transaction {
+    func ethereumTransactionDataHexString() -> String? {
+        guard let params = params as? EthereumTransactionParams,
+              let data = params.data else { return nil }
+
+        return data.hexString.lowercased()
     }
 }
 
