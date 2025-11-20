@@ -271,7 +271,7 @@
 "common_in_progress" = "В процесі";
 "common_later" = "Пізніше";
 "common_learn_and_earn" = "Навчайся та заробляй";
-"common_learn_more" = "Learn more";
+"common_learn_more" = "Дізнатися більше";
 "common_left" = "Залишилося %1$@";
 "common_legacy_bitcoin_address" = "Legacy Bitcoin";
 "common_locked_wallets" = "Locked Wallets";
@@ -1458,7 +1458,7 @@
 "user_push_notification_banner_subtitle" = "Enable push notifications to receive alerts when funds arrive in your wallet.";
 "user_push_notification_banner_title" = "Don't Miss a Transaction";
 "user_wallet_list_add_button" = "Додати новий гаманець";
-"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds";
+"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds.";
 "user_wallet_list_delete_prompt" = "Ви впевнені, що хочете видалити цей гаманець?";
 "user_wallet_list_error_wallet_already_saved" = "Цей гаманець вже збережено, ви можете додати інший";
 "user_wallet_list_rename_popup_placeholder" = "Назва гаманця";
