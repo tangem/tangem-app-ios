@@ -18,7 +18,7 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
     }
 
     private var isAccessCodeNeeded: Bool {
-        userWalletModel.config.hasFeature(.userWalletAccessCode) && !MobileAccessCodeSkipHelper.has(userWalletId: userWalletModel.userWalletId)
+        userWalletModel.config.userWalletAccessCodeStatus == .none
     }
 
     private let userWalletModel: UserWalletModel
