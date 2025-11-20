@@ -271,7 +271,7 @@
 "common_in_progress" = "En cours";
 "common_later" = "Plus tard";
 "common_learn_and_earn" = "Apprendre et Gagner";
-"common_learn_more" = "Learn more";
+"common_learn_more" = "En savoir plus";
 "common_left" = "Il reste %1$@";
 "common_legacy_bitcoin_address" = "Legacy Bitcoin";
 "common_locked_wallets" = "Locked Wallets";
@@ -1458,7 +1458,7 @@
 "user_push_notification_banner_subtitle" = "Activez les notifications pour recevoir des alertes lorsque des fonds arrivent dans votre portefeuille.";
 "user_push_notification_banner_title" = "Ne manquez aucune transaction";
 "user_wallet_list_add_button" = "Ajouter un nouveau portefeuille";
-"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds";
+"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds.";
 "user_wallet_list_delete_prompt" = "Êtes-vous sûr de vouloir supprimer ce portefeuille ?";
 "user_wallet_list_error_wallet_already_saved" = "Ce portefeuille a déjà été enregistré, vous pouvez en ajouter un autre";
 "user_wallet_list_rename_popup_placeholder" = "Nom du portefeuille";
@@ -1791,7 +1791,7 @@
 "welcome_create_wallet_mobile_title" = "Start with Mobile Wallet";
 "welcome_create_wallet_other_method" = "Other method";
 "welcome_create_wallet_use_hardware_description" = "Use Tangem Hardware Wallet";
-"welcome_create_wallet_use_hardware_title" = "Learn more & buy";
+"welcome_create_wallet_use_hardware_title" = "En savoir plus";
 "welcome_interrupted_backup_alert_discard" = "Ignorer";
 "welcome_interrupted_backup_alert_message" = "Vous avez une sauvegarde interrompue. Voulez-vous la reprendre ?";
 "welcome_interrupted_backup_alert_resume" = "Oui, reprendre";
