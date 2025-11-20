@@ -17,15 +17,26 @@ public enum SendAccessibilityIdentifiers {
     public static let sendViewTitle = "sendViewTitle"
     public static let sendViewNextButton = "sendViewNextButton"
     public static let balanceLabel = "sendBalanceLabel"
+    public static let maxAmountButton = "sendMaxAmountButton"
 
     /// SendAmountCompactView
     public static let sendAmountViewValue = "stakingAmountValue"
+
+    /// SendDecimalNumberTextField currency symbol (prefix/suffix)
+    public static let currencySymbol = "sendCurrencySymbol"
+
+    /// Alternative amount displays (crypto/fiat conversion)
+    public static let alternativeCryptoAmount = "sendAlternativeCryptoAmount"
+    public static let alternativeFiatAmount = "sendAlternativeFiatAmount"
+    public static let currencyToggleButton = "sendCurrencyToggleButton"
 
     /// ValidatorCompactView
     public static let validatorBlock = "sendValidatorBlock"
 
     /// SendFeeCompactView
     public static let networkFeeBlock = "sendNetworkFeeBlock"
+    public static let networkFeeAmount = "sendNetworkFeeAmount"
+    public static let networkFeeUnreachableBanner = "sendNetworkFeeUnreachableBanner"
 
     /// AddressTextView
     public static let addressTextView = "sendAddressTextView"
@@ -33,6 +44,15 @@ public enum SendAccessibilityIdentifiers {
 
     /// Notification banners
     public static let invalidAmountBanner = "sendInvalidAmountBanner"
-    public static let insufficientAmountToReserveAtDestinationBanner = "sendInsufficientAmountToReserveAtDestination"
-    public static let amountExceedMaximumUTXOBanner = "sendAmountExceedMaximumUTXO"
+    public static let insufficientAmountToReserveAtDestinationBanner = "sendInsufficientAmountToReserveAtDestinationBanner"
+    public static let amountExceedMaximumUTXOBanner = "sendAmountExceedMaximumUTXOBanner"
+    public static let customFeeTooLowBanner = "sendCustomFeeTooLowBanner"
+    public static let feeWillBeSubtractFromSendingAmountBanner = "sendfeeWillBeSubtractFromSendingAmountBanner"
+    public static let customFeeTooHighBanner = "sendCustomFeeTooHighBanner"
+    public static let highFeeNotificationBanner = "sendHighFeeNotificationBanner"
+    public static let existentialDepositWarningBanner = "sendExistentialDepositWarningBanner"
+    public static let remainingAmountIsLessThanRentExemptionBanner = "sendRemainingAmountIsLessThanRentExemptionBanner"
+    public static let reduceFeeButton = "sendReduceFeeButton"
+    public static let leaveAmountButton = "sendLeaveAmountButton"
+    public static let fromWalletButton = "sendFromWalletButton"
 }
