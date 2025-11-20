@@ -271,7 +271,7 @@
 "common_in_progress" = "En progreso";
 "common_later" = "Más tarde";
 "common_learn_and_earn" = "Aprende y gane";
-"common_learn_more" = "Learn more";
+"common_learn_more" = "Más información";
 "common_left" = "%1$@ quedan";
 "common_legacy_bitcoin_address" = "Legacy Bitcoin";
 "common_locked_wallets" = "Locked Wallets";
@@ -1458,7 +1458,7 @@
 "user_push_notification_banner_subtitle" = "Active las notificaciones push y le avisaremos al instante cuando le lleguen fondos.";
 "user_push_notification_banner_title" = "No se pierda ninguna transacción";
 "user_wallet_list_add_button" = "Agregar una nueva billetera";
-"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds";
+"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds.";
 "user_wallet_list_delete_prompt" = "¿Estás seguro de que deseas olvidar esta billetera?";
 "user_wallet_list_error_wallet_already_saved" = "Esta billetera ya se ha guardado, puede agregar otro";
 "user_wallet_list_rename_popup_placeholder" = "Nombre de la billetera";
