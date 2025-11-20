@@ -27,17 +27,13 @@ struct APIService<Target: TargetType> {
         do {
             response = try await provider.asyncRequest(request)
         } catch {
-            log(target: request, response: nil, error: error)
             throw error
         }
 
         do {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
-            log(target: request, response: response, error: nil)
         } catch {
             let errorResponse = try decoder.decode(VisaAPIErrorResponse.self, from: response.data)
-
-            log(target: request, response: response, error: errorResponse.error)
             throw errorResponse.error
         }
 
@@ -45,14 +41,7 @@ struct APIService<Target: TargetType> {
             let apiResponse = try decoder.decode(VisaAPIResponse<T>.self, from: response.data)
             return apiResponse.result
         } catch {
-            log(target: request, response: response, error: error)
             throw error
         }
-    }
-
-    func log(target: Target, response: Response?, error: Error?) {
-        VisaLogger.info(
-            "Request target: \(target.path), Task: \(target.task), Response: \(response?.data.count ?? -1) Error: \(String(describing: error))"
-        )
     }
 }
