@@ -13,7 +13,6 @@ import TangemNFT
 
 actor CommonAccountModelsManager {
     private typealias AccountId = CommonCryptoAccountModel.AccountId
-    private typealias AccountMetadata = (derivationIndex: Int, name: String, icon: AccountModel.Icon)
     private typealias CacheEntry = (model: CommonCryptoAccountModel, didChangeSubscription: AnyCancellable)
     private typealias Cache = [AccountId: CacheEntry]
 
@@ -21,39 +20,46 @@ actor CommonAccountModelsManager {
         executor.asUnownedSerialExecutor()
     }
 
-    private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
-    private let walletModelsManagerFactory: AccountWalletModelsManagerFactory
-    private let userTokensManagerFactory: AccountUserTokensManagerFactory
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private let userWalletId: UserWalletId
+    private nonisolated let cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+    private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
+    private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
+    private let dependenciesFactory: CryptoAccountDependenciesFactory
+
     private let executor: any SerialExecutor
+    private let userWalletId: UserWalletId
     private let areHDWalletsSupported: Bool
 
     /// - Note: Manual synchronization is used for reads/writes, hence it is safe to mark this as `nonisolated(unsafe)`.
     private nonisolated(unsafe) var unsafeAccountModelsPublisher: AnyPublisher<[AccountModel], Never>?
+    private nonisolated(unsafe) var unsafeAccountModels: [AccountModel] = []
     private nonisolated let criticalSection: Lock
 
     init(
         userWalletId: UserWalletId,
+        cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider,
         cryptoAccountsRepository: CryptoAccountsRepository,
-        walletModelsManagerFactory: AccountWalletModelsManagerFactory,
-        userTokensManagerFactory: AccountUserTokensManagerFactory,
+        archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
+        dependenciesFactory: CryptoAccountDependenciesFactory,
         areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
+        self.cryptoAccountsGlobalStateProvider = cryptoAccountsGlobalStateProvider
         self.cryptoAccountsRepository = cryptoAccountsRepository
-        self.walletModelsManagerFactory = walletModelsManagerFactory
-        self.userTokensManagerFactory = userTokensManagerFactory
+        self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
+        self.dependenciesFactory = dependenciesFactory
         self.areHDWalletsSupported = areHDWalletsSupported
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
-        CryptoAccountsGlobalStateProvider.shared.register(self, forIdentifier: userWalletId)
+        cryptoAccountsGlobalStateProvider.register(self, forIdentifier: userWalletId)
+
         initialize()
     }
 
     deinit {
         // [REDACTED_TODO_COMMENT]
-        CryptoAccountsGlobalStateProvider.shared.unregister(self, forIdentifier: userWalletId)
+        cryptoAccountsGlobalStateProvider.unregister(self, forIdentifier: userWalletId)
     }
 
     private nonisolated func initialize() {
@@ -79,7 +85,6 @@ actor CommonAccountModelsManager {
 
                 return accountId
             }
-            .toSet()
 
         let removedAccountIds = currentAccountIds.subtracting(newAccountIds)
         cache.removeAll { removedAccountIds.contains($0.key) } // Also destroys the `didChangeSubscription`s for removed accounts
@@ -103,24 +108,33 @@ actor CommonAccountModelsManager {
                 return nil
             }
 
+            guard let userWalletModel = userWalletRepository.models[userWalletId] else {
+                assertionFailure("User wallet model instance cannot be found for userWalletId: \(userWalletId)")
+                return nil
+            }
+
             let derivationIndex = storedCryptoAccount.derivationIndex
-            let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
-                forAccountWithDerivationIndex: derivationIndex
-            )
-            let userTokensManager = userTokensManagerFactory.makeUserTokensManager(
+            let dependencies = dependenciesFactory.makeDependencies(
                 forAccountWithDerivationIndex: derivationIndex,
-                userWalletId: userWalletId,
-                walletModelsManager: walletModelsManager
+                userWalletModel: userWalletModel
             )
 
+            let balanceProvidingDependencies = dependencies.makeBalanceProvidingDependencies()
+
             let cryptoAccount = CommonCryptoAccountModel(
-                userWalletId: userWalletId,
                 accountName: storedCryptoAccount.name,
                 accountIcon: accountIcon,
                 derivationIndex: derivationIndex,
-                walletModelsManager: walletModelsManager,
-                userTokensManager: userTokensManager
+                userWalletModel: userWalletModel,
+                walletModelsManager: dependencies.walletModelsManager,
+                userTokensManager: dependencies.userTokensManager,
+                accountBalanceProvider: balanceProvidingDependencies.balanceProvider,
+                accountRateProvider: balanceProvidingDependencies.ratesProvider,
+                derivationManager: dependencies.derivationManager
             )
+
+            dependencies.walletModelsFactoryInput.setCryptoAccount(cryptoAccount)
+            dependencies.walletModelsManager.initialize()
 
             // Updating `cache` within this `compactMap` loop to reduce the number of iterations
             cache[accountId] = (cryptoAccount, makeDidChangeSubscription(for: cryptoAccount))
@@ -140,7 +154,7 @@ actor CommonAccountModelsManager {
             var cache: Cache = [:]
             let publisher = cryptoAccountsRepository
                 .cryptoAccountsPublisher
-                .combineLatest(CryptoAccountsGlobalStateProvider.shared.statePublisher)
+                .combineLatest(cryptoAccountsGlobalStateProvider.globalCryptoAccountsStatePublisher())
                 .withWeakCaptureOf(self)
                 .asyncMap { manager, input -> [AccountModel] in
                     let (storedCryptoAccounts, globalState) = input
@@ -152,6 +166,11 @@ actor CommonAccountModelsManager {
                         .standard(cryptoAccounts),
                     ]
                 }
+                .handleEvents(receiveOutput: { [weak self] accountModels in
+                    self?.criticalSection {
+                        self?.unsafeAccountModels = accountModels
+                    }
+                })
                 .eraseToAnyPublisher()
 
             unsafeAccountModelsPublisher = publisher
@@ -171,17 +190,42 @@ actor CommonAccountModelsManager {
             }
     }
 
+    private func makeConditionsValidator(for flow: ValidationFlow) -> any CryptoAccountConditionsValidator {
+        switch flow {
+        case .new(let newAccountName, let remoteState):
+            return NewCryptoAccountConditionsValidator(newAccountName: newAccountName, remoteState: remoteState)
+        case .archive(let identifier):
+            let accountModelPublisher = accountModelsPublisher
+                .compactMap { $0.cryptoAccount(with: identifier) }
+                .eraseToAnyPublisher()
+
+            return ArchivedCryptoAccountConditionsValidator(
+                userWalletId: userWalletId,
+                accountIdentifier: identifier,
+                accountModelPublisher: accountModelPublisher
+            )
+        case .unarchive(let info, let remoteState):
+            return UnarchivedCryptoAccountConditionsValidator(
+                newAccountName: info.name,
+                identifier: info.id,
+                remoteState: remoteState
+            )
+        }
+    }
+
     /// - Note: `cryptoAccountsRepository` has internal synchronization mechanism, therefore this is a `nonisolated` method.
     private nonisolated func saveCryptoAccount(_ cryptoAccount: CommonCryptoAccountModel) {
-        let persistentConfig = CryptoAccountPersistentConfig(
-            derivationIndex: cryptoAccount.id.toPersistentIdentifier(),
-            name: cryptoAccount.name,
-            iconName: cryptoAccount.icon.name.rawValue,
-            iconColor: cryptoAccount.icon.color.rawValue,
-        )
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_TODO_COMMENT]
-        cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: [])
+        let persistentConfig = cryptoAccount.toPersistentConfig()
+        cryptoAccountsRepository.updateExistingCryptoAccount(withConfig: persistentConfig)
+    }
+
+    private func mapArchiveValidationError(_ error: ArchivedCryptoAccountConditionsValidator.ValidationError) -> AccountArchivationError {
+        switch error {
+        case .participatesInReferralProgram:
+            return .participatesInReferralProgram
+        case .unknownError(let underlyingError):
+            return .unknownError(underlyingError)
+        }
     }
 }
 
@@ -192,14 +236,24 @@ extension CommonAccountModelsManager: AccountModelsManager {
         areHDWalletsSupported
     }
 
-    // [REDACTED_TODO_COMMENT]
     nonisolated var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
-        .just(output: true)
+        cryptoAccountsRepository
+            .auxiliaryDataPublisher
+            .map { $0.archivedAccountsCount > 0 }
+            .eraseToAnyPublisher()
     }
 
-    // [REDACTED_TODO_COMMENT]
     nonisolated var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
-        .just(output: 0)
+        cryptoAccountsRepository
+            .auxiliaryDataPublisher
+            .map(\.totalAccountsCount)
+            .eraseToAnyPublisher()
+    }
+
+    nonisolated var accountModels: [AccountModel] {
+        criticalSection {
+            unsafeAccountModels
+        }
     }
 
     nonisolated var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
@@ -211,37 +265,109 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .addingCryptoAccountsNotSupported
         }
 
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_TODO_COMMENT]
-        let newDerivationIndex = cryptoAccountsRepository.totalCryptoAccountsCount + 1
-        let persistentConfig = CryptoAccountPersistentConfig(
-            derivationIndex: newDerivationIndex,
+        let remoteState: CryptoAccountsRemoteState
+
+        do {
+            remoteState = try await cryptoAccountsRepository.getRemoteState()
+        } catch {
+            AccountsLogger.error("Failed to fetch remote state for user wallet \(userWalletId)", error: error)
+            throw .addingCryptoAccountsFailed
+        }
+
+        let validator = makeConditionsValidator(for: .new(newAccountName: name, remoteState: remoteState))
+
+        do {
+            try await validator.validate()
+        } catch {
+            AccountsLogger.error("A new account for user wallet \(userWalletId) failed to fulfill the conditions", error: error)
+            throw .addingCryptoAccountsFailed
+        }
+
+        let newAccountConfig = CryptoAccountPersistentConfig(
+            derivationIndex: remoteState.nextDerivationIndex,
             name: name,
-            iconName: icon.name.rawValue,
-            iconColor: icon.color.rawValue
+            icon: icon
         )
-        // [REDACTED_TODO_COMMENT]
-        cryptoAccountsRepository.addCryptoAccount(withConfig: persistentConfig, tokens: [])
+
+        do {
+            try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: newAccountConfig, remoteState: remoteState)
+        } catch {
+            AccountsLogger.error("Failed to add new crypto account for user wallet \(userWalletId)", error: error)
+            throw .addingCryptoAccountsFailed
+        }
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
-        // [REDACTED_TODO_COMMENT]
-        return []
+        do {
+            return try await archivedCryptoAccountsProvider.getArchivedCryptoAccounts()
+        } catch {
+            AccountsLogger.error("Failed to fetch archived crypto accounts for user wallet \(userWalletId)", error: error)
+            throw .cannotFetchArchivedCryptoAccounts
+        }
     }
 
-    nonisolated func archiveCryptoAccount(
-        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
-    ) throws(AccountModelsManagerError) {
-        if identifier.isMainAccount {
-            throw .cannotArchiveCryptoAccount
+    func archiveCryptoAccount(withIdentifier identifier: any AccountModelPersistentIdentifierConvertible) async throws(AccountArchivationError) {
+        let validator = makeConditionsValidator(for: .archive(identifier: identifier))
+
+        do {
+            try await validator.validate()
+        } catch let error as ArchivedCryptoAccountConditionsValidator.ValidationError {
+            AccountsLogger.error("A attempt to archive account for user wallet \(userWalletId) failed to fulfill the conditions", error: error)
+
+            let archivationError = mapArchiveValidationError(error)
+            throw archivationError
+        } catch {
+            throw .unknownError(error)
         }
 
-        cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
+        do {
+            try await cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
+        } catch {
+            AccountsLogger.error("Failed to archive existing crypto account with id \(identifier) for user wallet \(userWalletId)", error: error)
+            throw .unknownError(error)
+        }
     }
 
-    nonisolated func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
-        // [REDACTED_TODO_COMMENT]
-        throw .cannotUnarchiveCryptoAccount
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) {
+        var info = info
+        let remoteState: CryptoAccountsRemoteState
+
+        do {
+            remoteState = try await cryptoAccountsRepository.getRemoteState()
+        } catch {
+            AccountsLogger.error("Failed to fetch remote state for user wallet \(userWalletId)", error: error)
+            throw .unknownError(error)
+        }
+
+        // Validation is performed in a loop to handle the case when the account name remains duplicated
+        // even after appending a suffix after first N iterations.
+        // Consider the scenario when there are two existing accounts named 'my account' and 'my account(1)'
+        // and an archived account named 'my account'.
+        while true {
+            let validator = makeConditionsValidator(for: .unarchive(info: info, remoteState: remoteState))
+            do {
+                try await validator.validate()
+                break
+            } catch UnarchivedCryptoAccountConditionsValidator.Error.accountHasDuplicatedName {
+                let newName = UnarchivedCryptoAccountNameIndexer.makeAccountName(from: info.name)
+                info = info.withName(newName)
+            } catch UnarchivedCryptoAccountConditionsValidator.Error.tooManyAccounts {
+                AccountsLogger.error("A attempt to unarchive account for user wallet \(userWalletId) failed to fulfill the conditions", error: AccountRecoveryError.tooManyActiveAccounts)
+                throw .tooManyActiveAccounts
+            } catch {
+                AccountsLogger.error("A attempt to unarchive account for user wallet \(userWalletId) failed to fulfill the conditions", error: error)
+                throw .unknownError(error)
+            }
+        }
+
+        let persistentConfig = info.toPersistentConfig()
+
+        do {
+            try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: persistentConfig, remoteState: remoteState)
+        } catch {
+            AccountsLogger.error("Failed to unarchive existing crypto account with id \(info.id) for user wallet \(userWalletId)", error: error)
+            throw .unknownError(error)
+        }
     }
 }
 
@@ -268,5 +394,11 @@ private extension CommonAccountModelsManager {
         func asUnownedSerialExecutor() -> UnownedSerialExecutor {
             UnownedSerialExecutor(ordinary: self)
         }
+    }
+
+    private enum ValidationFlow {
+        case new(newAccountName: String, remoteState: CryptoAccountsRemoteState)
+        case archive(identifier: any AccountModelPersistentIdentifierConvertible)
+        case unarchive(info: ArchivedCryptoAccountInfo, remoteState: CryptoAccountsRemoteState)
     }
 }
