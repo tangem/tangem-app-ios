@@ -47,7 +47,7 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
         accountId: String
     ) throws -> any WalletModel {
         guard
-            let model = getMainWalletModel(for: accountId).first(where: {
+            let model = getMainWalletModels(for: accountId).first(where: {
                 $0.tokenItem.blockchain.networkId == blockchainId
                     && $0.defaultAddressString.caseInsensitiveCompare(address) == .orderedSame
             })
@@ -59,15 +59,20 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
     }
 
     func getModels(with blockchainId: String, accountId: String) -> [any WalletModel] {
-        getMainWalletModel(for: accountId).filter { $0.tokenItem.blockchain.networkId == blockchainId }
+        getMainWalletModels(for: accountId).filter { $0.tokenItem.blockchain.networkId == blockchainId }
     }
 
     func getModel(with blockchainId: String, accountId: String) -> (any WalletModel)? {
-        getMainWalletModel(for: accountId).first { $0.tokenItem.blockchain.networkId == blockchainId }
+        getMainWalletModels(for: accountId).first { $0.tokenItem.blockchain.networkId == blockchainId }
     }
 
-    private func getMainWalletModel(for accountId: String) -> [any WalletModel] {
-        guard let cryptoAccountModel = accountModelsManager.findCryptoAccountModel(by: accountId) else { return [] }
+    private func getMainWalletModels(for accountId: String) -> [any WalletModel] {
+        guard
+            let cryptoAccountModel = WCAccountFinder.findCryptoAccountModel(
+                by: accountId,
+                accountModelsManager: accountModelsManager
+            )
+        else { return [] }
 
         return cryptoAccountModel.walletModelsManager.walletModels.filter { $0.isMainToken }
     }
@@ -88,31 +93,5 @@ struct NotSupportedWalletConnectAccountsWalletModelProvider: WalletConnectAccoun
 
     func getModel(with blockchainId: String, accountId: String) -> (any WalletModel)? {
         nil
-    }
-}
-
-// MARK: - Convenience extensions
-
-private extension AccountModelsManager {
-    func findCryptoAccountModel(by accountId: String) -> (any CryptoAccountModel)? {
-        for accountModel in accountModels {
-            switch accountModel {
-            case .standard(let cryptoAccounts):
-                switch cryptoAccounts {
-                case .single(let cryptoAccountModel):
-                    if cryptoAccountModel.id.walletConnectIdentifierString == accountId {
-                        return cryptoAccountModel
-                    }
-                case .multiple(let cryptoAccountModels):
-                    if let cryptoAccountModel = cryptoAccountModels.first(where: {
-                        $0.id.walletConnectIdentifierString == accountId
-                    }) {
-                        return cryptoAccountModel
-                    }
-                }
-            }
-        }
-
-        return nil
     }
 }
