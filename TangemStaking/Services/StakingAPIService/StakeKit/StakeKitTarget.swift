@@ -12,7 +12,7 @@ import TangemNetworkUtils
 
 struct StakeKitTarget: Moya.TargetType {
     let apiKey: String
-    let apiType: StakingAPIType
+    let apiType: StakeKitAPIType
     let target: Target
 
     enum Target {

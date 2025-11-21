@@ -121,13 +121,13 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 )
             ),
             DefaultPickerRowViewModel(
-                title: "Staking API type",
-                options: StakingAPIType.allCases.map { $0.rawValue },
+                title: "StakeKit staking API type",
+                options: StakeKitAPIType.allCases.map { $0.rawValue },
                 selection: BindingValue<String>(
                     root: featureStorage,
-                    default: StakingAPIType.prod.rawValue,
-                    get: { $0.stakingAPIType.rawValue },
-                    set: { $0.stakingAPIType = StakingAPIType(rawValue: $1) ?? .prod }
+                    default: StakeKitAPIType.prod.rawValue,
+                    get: { $0.stakeKitAPIType.rawValue },
+                    set: { $0.stakeKitAPIType = StakeKitAPIType(rawValue: $1) ?? .prod }
                 )
             ),
             DefaultPickerRowViewModel(
