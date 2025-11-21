@@ -54,7 +54,7 @@ class StakingDependenciesFactory {
 
     func makeStakingManager(integrationId: String, wallet: StakingWallet) -> StakingManager {
         switch (wallet.item.network, wallet.item.contractAddress) {
-        case (StakingTokenItem.ethereum.network, .none):
+        case (.ethereum, .none):
             TangemStakingFactory().makeP2PStakingManager(
                 wallet: wallet,
                 provider: makeP2PAPIProvider(),

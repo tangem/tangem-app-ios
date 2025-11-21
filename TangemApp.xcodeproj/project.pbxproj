@@ -126,6 +126,7 @@
 		0ABBB2D22ECDB1300082BC76 /* P2PNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2D12ECDB1300082BC76 /* P2PNetwork.swift */; };
 		0ABBB2D42ECDE2010082BC76 /* P2PAPIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2D32ECDE2010082BC76 /* P2PAPIKeys.swift */; };
 		0ABBCB732ED05C9A0008B1C7 /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
+		0ABBCB752ED07F980008B1C7 /* StakingNetworkType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBCB742ED07F980008B1C7 /* StakingNetworkType.swift */; };
 		0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */ = {isa = PBXBuildFile; productRef = 0ABC61142C410AFD00065EBA /* TweetNacl */; };
 		0ABCEE672E3B954000662B9F /* WalletInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCEE662E3B954000662B9F /* WalletInitializer.swift */; };
 		0ABCFCEB2DCA35F400C9F901 /* MarketsStakingNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */; };
@@ -4672,6 +4673,7 @@
 		0ABBB2CD2ECCB6E60082BC76 /* P2PStakingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PStakingManager.swift; sourceTree = "<group>"; };
 		0ABBB2D12ECDB1300082BC76 /* P2PNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PNetwork.swift; sourceTree = "<group>"; };
 		0ABBB2D32ECDE2010082BC76 /* P2PAPIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PAPIKeys.swift; sourceTree = "<group>"; };
+		0ABBCB742ED07F980008B1C7 /* StakingNetworkType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingNetworkType.swift; sourceTree = "<group>"; };
 		0ABCEE662E3B954000662B9F /* WalletInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInitializer.swift; sourceTree = "<group>"; };
 		0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsStakingNotificationView.swift; sourceTree = "<group>"; };
 		0ABDAEC32E325816001C7EE4 /* MobileWalletSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletSigner.swift; sourceTree = "<group>"; };
@@ -23629,6 +23631,7 @@
 				0A1396EA2D7AF67500CA6A31 /* ValidatorInfoStatus.swift */,
 				EFB019422C41710F009EE857 /* StakingBalanceInfo.swift */,
 				EFB019442C417143009EE857 /* StakingTransactionInfo.swift */,
+				0ABBCB742ED07F980008B1C7 /* StakingNetworkType.swift */,
 				EFB019482C4174D1009EE857 /* EnterAction.swift */,
 				EF0FBB862C53FFAE0095A6BD /* ExitAction.swift */,
 				EF19FAF52C6D43BB002155F1 /* PendingAction.swift */,
@@ -29228,6 +29231,7 @@
 				0ABBB2AE2ECB753B0082BC76 /* P2PTarget.swift in Sources */,
 				0ABBB2BA2ECC56DA0082BC76 /* P2PDTO+BroadcastTransaction.swift in Sources */,
 				EF407E5F2C04D65B00366733 /* CommonStakeKitAPIProvider.swift in Sources */,
+				0ABBCB752ED07F980008B1C7 /* StakingNetworkType.swift in Sources */,
 				EFB019432C41710F009EE857 /* StakingBalanceInfo.swift in Sources */,
 				EFA5BC0A2C88D31C004662CA /* StakingTransactionAction.swift in Sources */,
 				EF19FAF82C6D575B002155F1 /* ActionGenericRequest.swift in Sources */,

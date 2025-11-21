@@ -43,7 +43,7 @@ class CommonStakeKitAPIProvider: StakeKitAPIProvider {
     func actions(wallet: StakingWallet) async throws -> [PendingAction] {
         let request = StakeKitDTO.Actions.List.Request(
             walletAddress: wallet.address,
-            network: wallet.item.network,
+            network: wallet.item.network.asStakeKitNetworkType.rawValue,
             status: .processing,
             limit: Constants.pendingActionsResponseLimit,
             sort: Constants.pendingActionsResponseSort
