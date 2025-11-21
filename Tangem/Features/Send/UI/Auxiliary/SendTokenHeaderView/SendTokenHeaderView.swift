@@ -20,7 +20,7 @@ struct SendTokenHeaderView: View {
             Text(.init(name))
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
         case .wallet(let name):
-            Text(.init(Localization.sendFromWallet(name)))
+            Text(.init(Localization.commonFromWalletName(name)))
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
         case .account(let name, let icon):
             HStack(spacing: 6) {
