@@ -95,7 +95,8 @@ extension WalletNetworkServiceFactory {
              .quai,
              .scroll,
              .linea,
-             .arbitrumNova:
+             .arbitrumNova,
+             .plasma:
             return makeEthereumNetworkService(for: blockchain)
         case .rsk:
             throw Error.notImplemeneted

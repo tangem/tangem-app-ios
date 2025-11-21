@@ -23,11 +23,16 @@ final class NewTokenSelectorViewModel: ObservableObject {
     init(walletsProvider: any NewTokenSelectorWalletsProvider) {
         self.walletsProvider = walletsProvider
 
+        initialSetup(walletsProvider: walletsProvider)
         bind()
     }
 
     func setup(with output: NewTokenSelectorViewModelOutput?) {
         self.output = output
+    }
+
+    private func initialSetup(walletsProvider: any NewTokenSelectorWalletsProvider) {
+        wallets = mapToNewTokenSelectorWalletItemViewModels(wallets: walletsProvider.wallets)
     }
 
     private func bind() {
