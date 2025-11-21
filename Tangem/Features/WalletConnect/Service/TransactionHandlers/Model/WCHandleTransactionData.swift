@@ -14,6 +14,7 @@ struct WCHandleTransactionData {
     let topic: String
     let method: WalletConnectMethod
     let userWalletModel: UserWalletModel
+    let account: (any CryptoAccountModel)?
     let blockchain: BlockchainSdk.Blockchain
     let rawTransaction: String?
     let requestData: Data
@@ -38,6 +39,7 @@ extension WCHandleTransactionData {
     ) {
         topic = validatedRequest.request.topic
         userWalletModel = validatedRequest.userWalletModel
+        account = validatedRequest.account
         method = dto.method
         rawTransaction = dto.rawTransaction
         blockchain = dto.blockchain

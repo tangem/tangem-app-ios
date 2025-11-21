@@ -167,9 +167,7 @@ private extension WalletConnectWalletSelectorViewState {
                     domainModel: userWallet,
                     imageState: .loading,
                     description: .init(
-                        // accounts_fixes_needed_wc
-                        // Additional investigation needed here: Are `WalletConnectWalletSelectorViewState` and `WalletConnectWalletSelectorViewModel` used when accounts are enabled?
-                        // If not, it becomes `accounts_fixes_needed_none`
+                        // accounts_fixes_needed_none
                         tokensCount: Localization.commonTokensCount(userWallet.walletModelsManager.walletModels.filter { $0.isMainToken }.count),
                         balanceState: .loading(cached: nil)
                     ),
