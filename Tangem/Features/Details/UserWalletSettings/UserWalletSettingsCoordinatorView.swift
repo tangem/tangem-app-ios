@@ -46,9 +46,6 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.mobileRemoveWalletViewModel) {
                 MobileRemoveWalletView(viewModel: $0)
             }
-            .navigation(item: $coordinator.hardwareBackupTypesCoordinator) {
-                HardwareBackupTypesCoordinatorView(coordinator: $0)
-            }
     }
 
     private var sheets: some View {
@@ -60,6 +57,10 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
+            .sheet(item: $coordinator.mobileUpgradeCoordinator) {
+                MobileUpgradeCoordinatorView(coordinator: $0)
+                    .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
+            }
             .floatingSheetContent(for: TransactionNotificationsModalViewModel.self) {
                 TransactionNotificationsModalView(viewModel: $0)
             }
@@ -68,6 +69,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: MobileRemoveWalletNotificationViewModel.self) {
                 MobileRemoveWalletNotificationView(viewModel: $0)
+            }
+            .floatingSheetContent(for: MobileBackupToUpgradeNeededViewModel.self) {
+                MobileBackupToUpgradeNeededView(viewModel: $0)
             }
             .sheet(item: $coordinator.accountFormViewModel) { viewModel in
                 NavigationView {
