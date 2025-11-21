@@ -16,11 +16,11 @@ struct DummyCommonAccountModelsManager {}
 
 extension DummyCommonAccountModelsManager: AccountModelsManager {
     var canAddCryptoAccounts: Bool {
-        return false
+        false
     }
 
     var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
-        return .just(output: false)
+        .just(output: false)
     }
 
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
@@ -32,7 +32,7 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
     }
 
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
-        return AnyPublisher.just(output: [])
+        AnyPublisher.just(output: [])
     }
 
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
@@ -40,7 +40,7 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
-        return []
+        []
     }
 
     func archiveCryptoAccount(
