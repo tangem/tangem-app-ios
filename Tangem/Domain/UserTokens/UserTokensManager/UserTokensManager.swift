@@ -10,8 +10,8 @@ import Foundation
 import Combine
 import BlockchainSdk
 
+// [REDACTED_TODO_COMMENT]
 protocol UserTokensSyncService {
-    var initialized: Bool { get }
     var initializedPublisher: AnyPublisher<Bool, Never> { get }
 }
 
