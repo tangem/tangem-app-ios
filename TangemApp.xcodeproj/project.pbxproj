@@ -903,6 +903,7 @@
 		7985089F2DE99FE900388668 /* ToSScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7985089E2DE99FE800388668 /* ToSScreen.swift */; };
 		798508AE2DF1AF9100388668 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = 798508AD2DF1AF9100388668 /* TangemModules */; };
 		99AAEEC4800C458A897C37DD /* FloatingSheetNavigationBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E69B531B7D974A48A77CBE89 /* FloatingSheetNavigationBarView.swift */; };
+		A7CD56912ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */; };
 		B00142BD2D79954A00923B6D /* WalletModelId.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00142BC2D79954A00923B6D /* WalletModelId.swift */; };
 		B0017EA52D3E76480057F164 /* VisaOnboardingSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */; };
 		B002416F2C2441EF00416397 /* HideTokenAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B002416E2C2441EF00416397 /* HideTokenAlertBuilder.swift */; };
@@ -5451,6 +5452,7 @@
 		7982B01B2DE70E1900C41EA5 /* StoriesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesScreen.swift; sourceTree = "<group>"; };
 		7982B02D2DE7259500C41EA5 /* MainScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainScreen.swift; sourceTree = "<group>"; };
 		7985089E2DE99FE800388668 /* ToSScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToSScreen.swift; sourceTree = "<group>"; };
+		A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlasmaExternalLinkProvider.swift; sourceTree = "<group>"; };
 		B00142BC2D79954A00923B6D /* WalletModelId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelId.swift; sourceTree = "<group>"; };
 		B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingSuccessView.swift; sourceTree = "<group>"; };
 		B002416E2C2441EF00416397 /* HideTokenAlertBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideTokenAlertBuilder.swift; sourceTree = "<group>"; };
@@ -14627,6 +14629,7 @@
 				305F5AEF2D63796900AB90EC /* ZKLinkNovaExternalLinkProvider.swift */,
 				B62D3CFD2CBC79D900C2460E /* ZkSyncExternalLinkProvider.swift */,
 				2DDB4C382E9F92EC00759EAA /* LineaExternalLinkProvider.swift */,
+				A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */,
 			);
 			path = OtherChains;
 			sourceTree = "<group>";
@@ -28588,6 +28591,7 @@
 				B62D412E2CBC79DA00C2460E /* NEARAccountInfo.swift in Sources */,
 				B62D426A2CBC79DB00C2460E /* DustRestrictable.swift in Sources */,
 				B62D41112CBC79DA00C2460E /* KoinosTransactionParams.swift in Sources */,
+				A7CD56912ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift in Sources */,
 				B62D3FB72CBC79DA00C2460E /* AptosWalletAssembly.swift in Sources */,
 				B62D40A92CBC79DA00C2460E /* CyberExternalLinkProvider.swift in Sources */,
 				B62D40F32CBC79DA00C2460E /* HederaTransactionBuilder.swift in Sources */,
