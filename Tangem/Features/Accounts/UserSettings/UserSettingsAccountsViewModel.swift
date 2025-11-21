@@ -53,7 +53,8 @@ final class UserSettingsAccountsViewModel: ObservableObject {
             iconData: model.accountIconViewData,
             name: model.name,
             subtitle: model.description,
-            balancePublisher: model.balancePublisher
+            balancePublisher: model.balancePublisher,
+            availability: .available
         )
     }
 
