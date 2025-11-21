@@ -10,10 +10,7 @@ import Foundation
 import TangemLocalization
 
 struct ResetToFactoryUtilBuilder {
-    func buildForSettings(
-        backupCardsCount: Int,
-        cardInteractor: FactorySettingsResetting
-    ) -> ResetToFactoryUtil {
+    func build(backupCardsCount: Int, cardInteractor: FactorySettingsResetting) -> ResetToFactoryUtil {
         let continueAlertInfo = ResetToFactoryUtil.AlertInfo(
             title: Localization.cardSettingsContinueResetAlertTitle,
             message: Localization.cardSettingsContinueResetAlertMessage,
@@ -46,7 +43,7 @@ struct ResetToFactoryUtilBuilder {
         return ResetToFactoryUtil(input: input)
     }
 
-    func buildForOnboarding(cardInteractors: [FactorySettingsResetting]) -> ResetToFactoryUtil {
+    func build(cardInteractors: [FactorySettingsResetting]) -> ResetToFactoryUtil {
         let continueAlertInfo = ResetToFactoryUtil.AlertInfo(
             title: Localization.cardResetAlertContinueTitle,
             message: Localization.cardResetAlertContinueMessage,
