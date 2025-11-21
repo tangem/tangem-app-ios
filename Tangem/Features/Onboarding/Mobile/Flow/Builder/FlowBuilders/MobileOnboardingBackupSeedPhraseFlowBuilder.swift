@@ -62,7 +62,7 @@ private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
         let step = MobileOnboardingSuccessStep(
             type: .seedPhaseBackupFinish,
             onAppear: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.openConfetti),
-            onComplete: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.closeOnboarding)
+            onComplete: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.completeOnboarding)
         )
         step.configureNavBar(title: Localization.commonBackup)
         return step
@@ -78,6 +78,10 @@ private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
 
     func openConfetti() {
         coordinator?.openConfetti()
+    }
+
+    func completeOnboarding() {
+        coordinator?.completeOnboarding()
     }
 
     func closeOnboarding() {
