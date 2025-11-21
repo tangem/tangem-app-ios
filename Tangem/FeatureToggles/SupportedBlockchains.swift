@@ -73,6 +73,7 @@ struct SupportedBlockchains {
             .scroll(testnet: false),
             .linea(testnet: false),
             .arbitrumNova,
+            .plasma(testnet: false),
         ]
     }
 
@@ -232,6 +233,7 @@ struct SupportedBlockchains {
             .quai(testnet: true),
             .scroll(testnet: true),
             .linea(testnet: true),
+            .plasma(testnet: true),
         ]
     }
 
