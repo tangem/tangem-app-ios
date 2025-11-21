@@ -19,6 +19,7 @@ final class AccountRowViewModel: ObservableObject {
     let iconData: AccountIconView.ViewData
     let name: String
     let subtitle: String
+    let availability: AccountAvailability
     @Published private(set) var balanceState: LoadableTokenBalanceView.State?
 
     // MARK: Private Properties
@@ -29,6 +30,7 @@ final class AccountRowViewModel: ObservableObject {
         iconData = input.iconData
         name = input.name
         subtitle = input.subtitle
+        availability = input.availability
         balanceState = nil
 
         bind(balancePublisher: input.balancePublisher)
@@ -37,7 +39,7 @@ final class AccountRowViewModel: ObservableObject {
     // MARK: Private Methods
 
     private func bind(balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>?) {
-        guard let balancePublisher = balancePublisher else { return }
+        guard let balancePublisher, availability.isBalanceVisible else { return }
 
         balancePublisher
             .receiveOnMain()
@@ -57,17 +59,20 @@ extension AccountRowViewModel {
         let name: String
         let subtitle: String
         let balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>?
+        let availability: AccountAvailability
 
         init(
             iconData: AccountIconView.ViewData,
             name: String,
             subtitle: String,
-            balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>? = nil
+            balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>? = nil,
+            availability: AccountAvailability
         ) {
             self.iconData = iconData
             self.name = name
             self.subtitle = subtitle
             self.balancePublisher = balancePublisher
+            self.availability = availability
         }
     }
 }
