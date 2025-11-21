@@ -10,6 +10,7 @@ import Combine
 import TangemAccounts
 
 protocol NewTokenSelectorWalletsProvider {
+    var wallets: [NewTokenSelectorWallet] { get }
     var walletsPublisher: AnyPublisher<[NewTokenSelectorWallet], Never> { get }
 }
 
