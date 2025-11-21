@@ -154,7 +154,11 @@ extension OnboardingCoordinator: VisaOnboardingRoutable {}
 
 // MARK: - MobileOnboardingRoutable
 
-extension OnboardingCoordinator: MobileOnboardingRoutable {}
+extension OnboardingCoordinator: MobileOnboardingRoutable {
+    func mobileOnboardingDidComplete() {
+        dismiss(with: .dismiss(isSuccessful: true))
+    }
+}
 
 // MARK: - Input handlers
 

@@ -17,10 +17,16 @@ final class MobileBackupNeededViewModel {
     let actionTitle = Localization.hwBackupNeedAction
 
     private let userWalletModel: UserWalletModel
+    private let onBackupFinished: () -> Void
     private weak var coordinator: MobileBackupNeededRoutable?
 
-    init(userWalletModel: UserWalletModel, coordinator: MobileBackupNeededRoutable) {
+    init(
+        userWalletModel: UserWalletModel,
+        onBackupFinished: @escaping () -> Void,
+        coordinator: MobileBackupNeededRoutable
+    ) {
         self.userWalletModel = userWalletModel
+        self.onBackupFinished = onBackupFinished
         self.coordinator = coordinator
     }
 }
@@ -47,7 +53,7 @@ extension MobileBackupNeededViewModel {
 private extension MobileBackupNeededViewModel {
     func openMobileBackup() {
         let input = MobileOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel))
-        coordinator?.openMobileOnboardingFromMobileBackupNeeded(input: input)
+        coordinator?.openMobileOnboardingFromMobileBackupNeeded(input: input, onBackupFinished: onBackupFinished)
     }
 
     func close() {
