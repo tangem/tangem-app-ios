@@ -109,6 +109,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case scroll(testnet: Bool)
     case linea(testnet: Bool)
     case arbitrumNova
+    case plasma(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -165,7 +166,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .hyperliquidEVM(let testnet),
              .quai(let testnet),
              .scroll(let testnet),
-             .linea(let testnet):
+             .linea(let testnet),
+             .plasma(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -348,7 +350,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .quai,
              .scroll,
              .linea,
-             .arbitrumNova:
+             .arbitrumNova,
+             .plasma:
             return 18
         case .cardano,
              .xrp,
@@ -551,6 +554,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "HYPE"
         case .quai:
             return "QUAI"
+        case .plasma:
+            return "XPL"
         }
     }
 
@@ -948,6 +953,7 @@ public extension Blockchain {
         case .scroll: return isTestnet ? 534351 : 534352
         case .linea: return isTestnet ? 59141 : 59144
         case .arbitrumNova: return 42170
+        case .plasma: return isTestnet ? 9746 : 9745
         default:
             return nil
         }
@@ -1035,6 +1041,7 @@ public extension Blockchain {
         case .scroll: return true
         case .linea: return true
         case .arbitrumNova: return true
+        case .plasma: return true
         default:
             assertionFailure("Don't forget about evm here")
             return false
@@ -1191,6 +1198,7 @@ extension Blockchain: Codable {
         case .scroll: return "scroll"
         case .linea: return "linea"
         case .arbitrumNova: return "arbitrum-nova"
+        case .plasma: return "plasma"
         }
     }
 
@@ -1306,6 +1314,7 @@ extension Blockchain: Codable {
         case "scroll": self = .scroll(testnet: isTestnet)
         case "linea": self = .linea(testnet: isTestnet)
         case "arbitrum-nova": self = .arbitrumNova
+        case "plasma": self = .plasma(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1606,6 +1615,8 @@ private extension Blockchain {
             case .network: return "arbitrum-nova"
             case .coin: return "arbitrum-nova-ethereum"
             }
+        case .plasma:
+            return "plasma"
         }
     }
 
@@ -1673,7 +1684,8 @@ extension Blockchain {
              .hyperliquidEVM,
              .scroll,
              .linea,
-             .arbitrumNova:
+             .arbitrumNova,
+             .plasma:
             return EthereumWalletAssembly()
         case .optimism,
              .manta,
