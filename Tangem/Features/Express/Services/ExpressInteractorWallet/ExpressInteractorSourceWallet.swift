@@ -14,6 +14,7 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var isCustom: Bool { get }
     var isMainToken: Bool { get }
 
+    var tokenHeader: ExpressInteractorTokenHeader? { get }
     var tokenItem: TokenItem { get }
     var feeTokenItem: TokenItem { get }
 
@@ -30,4 +31,12 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     func cexTransactionProcessor() throws -> ExpressCEXTransactionProcessor
 
     func exploreTransactionURL(for hash: String) -> URL?
+}
+
+// MARK: ExpressSourceWallet + ExpressInteractorSourceWallet
+
+extension ExpressSourceWallet where Self: ExpressInteractorSourceWallet {
+    var address: String? { defaultAddressString }
+    var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
+    var feeCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }
 }
