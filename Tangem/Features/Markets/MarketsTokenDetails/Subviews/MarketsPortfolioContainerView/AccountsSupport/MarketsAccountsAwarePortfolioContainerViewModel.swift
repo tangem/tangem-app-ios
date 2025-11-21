@@ -220,7 +220,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
                         Self.makeWalletData(
                             from: userWalletModel,
                             accountModels: accountModels,
-                            entries: userTokensArrays.flatMap { $0 },
+                            flattenedTokenItems: userTokensArrays.flatMap { $0 },
                             walletModels: walletModelsArrays.flatMap { $0 }
                         )
                     }
@@ -277,7 +277,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
                 let viewModels = factory.makeViewModels(
                     coinId: coinId,
                     walletModels: account.walletModelsManager.walletModels,
-                    entries: walletData.entries,
+                    entries: account.userTokensManager.userTokens,
                     userWalletInfo: userWalletInfo,
                     namingStyle: .tokenItemName
                 )
@@ -325,7 +325,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
             let viewModels = factory.makeViewModels(
                 coinId: coinId,
                 walletModels: walletData.walletModels,
-                entries: walletData.entries,
+                entries: walletData.flattenedTokenItems,
                 userWalletInfo: makeUserWalletInfo(from: walletData),
                 namingStyle: .tokenItemName
             )
@@ -369,14 +369,14 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     private static func makeWalletData(
         from userWalletModel: UserWalletModel,
         accountModels: [AccountModel],
-        entries: [TokenItem],
+        flattenedTokenItems: [TokenItem],
         walletModels: [any WalletModel]
     ) -> WalletData {
         WalletData(
             userWalletId: userWalletModel.userWalletId,
             userWalletName: userWalletModel.name,
             accountModels: accountModels,
-            entries: entries,
+            flattenedTokenItems: flattenedTokenItems,
             walletModels: walletModels,
             config: userWalletModel.config
         )
@@ -521,7 +521,7 @@ extension MarketsAccountsAwarePortfolioContainerViewModel {
         let userWalletId: UserWalletId
         let userWalletName: String
         let accountModels: [AccountModel]
-        let entries: [TokenItem]
+        let flattenedTokenItems: [TokenItem]
         let walletModels: [any WalletModel]
         let config: UserWalletConfig
     }
