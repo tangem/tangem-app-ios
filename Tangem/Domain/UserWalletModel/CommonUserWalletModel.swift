@@ -386,10 +386,13 @@ extension CommonUserWalletModel: UserWalletSerializable {
 
             return newStoredUserWallet
         case .mobileWallet(let mobileWalletInfo):
+            var mutableMobileWalletInfo = mobileWalletInfo
+            mutableMobileWalletInfo.keys = []
+
             let newStoredUserWallet = StoredUserWallet(
                 userWalletId: userWalletId.value,
                 name: name,
-                walletInfo: .mobileWallet(mobileWalletInfo),
+                walletInfo: .mobileWallet(mutableMobileWalletInfo),
             )
 
             return newStoredUserWallet
