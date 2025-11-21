@@ -113,10 +113,10 @@ extension ActionButtonsBuyViewModel {
             guard let tokenItem = hotToken.tokenItem else { return false }
 
             do {
-                // accounts_fixes_needed_action_buttons_buy ([REDACTED_INFO])
+                // accounts_fixes_needed_action_buttons_buy
                 try userWalletModel.userTokensManager.addTokenItemPrecondition(tokenItem)
 
-                // accounts_fixes_needed_action_buttons_buy ([REDACTED_INFO])
+                // accounts_fixes_needed_action_buttons_buy
                 let isNotAddedToken = !userWalletModel.userTokensManager.contains(tokenItem, derivationInsensitive: true)
 
                 return isNotAddedToken
