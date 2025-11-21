@@ -105,6 +105,7 @@ public extension Blockchain {
         case .scroll: break
         case .linea: break
         case .arbitrumNova: break
+        case .plasma: break
             // READ BELOW:
             //
             // Did you get a compilation error here? If so, add your new blockchain to the array below
@@ -202,6 +203,7 @@ public extension Blockchain {
             .scroll(testnet: false),
             .linea(testnet: false),
             .arbitrumNova,
+            .plasma(testnet: false),
         ]
     }
 }
