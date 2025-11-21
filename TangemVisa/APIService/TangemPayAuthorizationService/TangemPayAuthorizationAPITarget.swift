@@ -14,7 +14,7 @@ struct TangemPayAuthorizationAPITarget: TargetType {
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.baseURL.appendingPathComponent("auth")
+        apiType.bffBaseURL.appendingPathComponent("auth")
     }
 
     var path: String {
