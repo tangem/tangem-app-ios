@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 import struct TangemUI.TokenIconInfo
 
 class SendAmountViewModel: ObservableObject, Identifiable {
@@ -36,6 +37,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     var useFiatCalculation: Bool {
         get { amountType == .fiat }
         set { amountType = newValue ? .fiat : .crypto }
+    }
+
+    var alternativeAmountAccessibilityIdentifier: String {
+        useFiatCalculation
+            ? SendAccessibilityIdentifiers.alternativeCryptoAmount
+            : SendAccessibilityIdentifiers.alternativeFiatAmount
     }
 
     // MARK: - Router

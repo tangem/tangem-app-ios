@@ -10,16 +10,14 @@ import Foundation
 import BlockchainSdk
 import TangemExpress
 
-public protocol AllowanceService: ExpressAllowanceProvider {
-    var isSupportAllowance: Bool { get }
-
+protocol AllowanceService: ExpressAllowanceProvider {
     func allowanceState(amount: Decimal, spender: String, approvePolicy: ApprovePolicy) async throws -> AllowanceState
-    func didSendApproveTransaction(for spender: String)
+    func sendApproveTransaction(data: ApproveTransactionData) async throws -> TransactionDispatcherResult
 }
 
 // MARK: - ExpressAllowanceProvider
 
-public extension AllowanceService {
+extension AllowanceService {
     func allowanceState(request: ExpressManagerSwappingPairRequest, spender: String) async throws -> AllowanceState {
         let contractAddress = request.pair.source.currency.contractAddress
         if contractAddress == ExpressConstants.coinContractAddress {

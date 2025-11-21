@@ -18,7 +18,7 @@ final class UserWalletsActionButtonsAvailabilityProvider {
 
         let balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
-            totalBalanceProvider: userWalletModel,
+            walletModelsPublisher: AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel),
             updatePublisher: userWalletModel.updatePublisher
         )
 

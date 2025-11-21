@@ -18,8 +18,6 @@ final class CommonCryptoAccountModel {
     let accountBalanceProvider: AccountBalanceProvider
     let accountRateProvider: AccountRateProvider
 
-    private unowned var _userWalletModel: UserWalletModel!
-
     private(set) var icon: AccountModel.Icon {
         didSet {
             if oldValue != icon {
@@ -59,21 +57,20 @@ final class CommonCryptoAccountModel {
     /// Designated initializer.
     /// - Note: `name` argument can be nil for main accounts, in this case a default localized name will be used.
     init(
+        userWalletId: UserWalletId,
         accountName: String?,
         accountIcon: AccountModel.Icon,
         derivationIndex: Int,
-        userWalletModel: UserWalletModel,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
         accountBalanceProvider: AccountBalanceProvider,
         accountRateProvider: AccountRateProvider,
         derivationManager: DerivationManager?
     ) {
-        let accountId = AccountId(userWalletId: userWalletModel.userWalletId, derivationIndex: derivationIndex)
+        let accountId = AccountId(userWalletId: userWalletId, derivationIndex: derivationIndex)
 
         self.accountId = accountId
         _name = accountName
-        _userWalletModel = userWalletModel
         icon = accountIcon
         self.derivationIndex = derivationIndex
         self.walletModelsManager = walletModelsManager
@@ -101,10 +98,6 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
 
     var didChangePublisher: AnyPublisher<Void, Never> {
         didChangeSubject.eraseToAnyPublisher()
-    }
-
-    var userWalletModel: any UserWalletModel {
-        _userWalletModel
     }
 
     var descriptionString: String {
