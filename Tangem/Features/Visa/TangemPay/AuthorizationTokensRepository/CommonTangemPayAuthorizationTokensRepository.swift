@@ -91,10 +91,6 @@ final class CommonTangemPayAuthorizationTokensRepository: TangemPayAuthorization
         }
     }
 
-    func lock() {
-        tokens.removeAll()
-    }
-
     func getToken(forCustomerWalletId customerWalletId: String) -> TangemPayAuthorizationTokens? {
         tokens[customerWalletId]
     }
@@ -105,7 +101,7 @@ final class CommonTangemPayAuthorizationTokensRepository: TangemPayAuthorization
 
     private func loadStoredCustomerWalletIds() -> Set<String> {
         do {
-            guard let data = try secureStorage.get(StorageKey.customerWaletIds.rawValue) else {
+            guard let data = try secureStorage.get(StorageKey.customerWalletIds.rawValue) else {
                 return []
             }
 
@@ -115,10 +111,10 @@ final class CommonTangemPayAuthorizationTokensRepository: TangemPayAuthorization
         }
     }
 
-    private func storeCustomerWalletIds(_ customorWalletIds: Set<String>) {
+    private func storeCustomerWalletIds(_ customerWalletIds: Set<String>) {
         do {
-            let data = try JSONEncoder().encode(customorWalletIds)
-            try secureStorage.store(data, forKey: StorageKey.customerWaletIds.rawValue)
+            let data = try JSONEncoder().encode(customerWalletIds)
+            try secureStorage.store(data, forKey: StorageKey.customerWalletIds.rawValue)
         } catch {
             // [REDACTED_TODO_COMMENT]
         }
@@ -127,7 +123,7 @@ final class CommonTangemPayAuthorizationTokensRepository: TangemPayAuthorization
 
 extension CommonTangemPayAuthorizationTokensRepository {
     enum StorageKey: String {
-        case customerWaletIds
+        case customerWalletIds
         case authorizationTokens
     }
 }
