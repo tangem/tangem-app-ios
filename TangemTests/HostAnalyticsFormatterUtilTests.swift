@@ -597,6 +597,9 @@ final class HostAnalyticsFormatterUtilTests: XCTestCase {
             // linea
             "https://rpc.linea.build/",
             "https://linea-rpc.publicnode.com/",
+            // plasma
+            "https://rpc.plasma.to/",
+            "https://plasma.drpc.org/",
         ]
 
         // When/Then

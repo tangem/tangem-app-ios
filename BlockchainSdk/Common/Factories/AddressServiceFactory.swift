@@ -73,7 +73,8 @@ public struct AddressServiceFactory {
              .quai,
              .scroll,
              .linea,
-             .arbitrumNova:
+             .arbitrumNova,
+             .plasma:
             return EVMAddressService()
         case .rsk:
             return RskAddressService()
