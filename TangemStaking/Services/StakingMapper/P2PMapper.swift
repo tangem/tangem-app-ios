@@ -25,14 +25,14 @@ struct P2PMapper {
             isAvailable: true,
             rewardType: rewardType,
             rewardRateValues: rewardRateValues,
-            enterMinimumRequirement: .zero,
+            enterMinimumRequirement: StakingConstants.p2pEnterMinimumRequirements,
             exitMinimumRequirement: .zero,
             validators: validators,
             preferredValidators: validators,
             item: item,
-            unbondingPeriod: .interval(minDays: 1, maxDays: 4),
-            warmupPeriod: .specific(days: 0),
-            rewardClaimingType: .manual,
+            unbondingPeriod: .variable(minDays: 1, maxDays: 4),
+            warmupPeriod: .constant(days: 0),
+            rewardClaimingType: .auto,
             rewardScheduleType: .daily
         )
     }
@@ -53,12 +53,16 @@ struct P2PMapper {
 
         let unstakingBalances = response.exitQueue.requests.compactMap { exitRequest -> StakingBalanceInfo? in
             guard let amount = exitRequest.totalAssets else { return nil }
+
+            let actions: [StakingPendingActionInfo] = exitRequest.isClaimable
+                ? [StakingPendingActionInfo(type: .withdraw, passthrough: .empty)]
+                : []
             return StakingBalanceInfo(
                 item: .ethereum,
                 amount: amount,
                 balanceType: exitRequest.isClaimable ? .unstaked : .unbonding(date: nil),
                 validatorAddress: response.vaultAddress,
-                actions: []
+                actions: actions
             )
         }
 
@@ -72,7 +76,7 @@ struct P2PMapper {
         return [
             StakingBalanceInfo(
                 item: .ethereum,
-                amount: lastRewards.balance,
+                amount: lastRewards.rewards,
                 balanceType: .rewards,
                 validatorAddress: response.vaultAddress,
                 actions: []

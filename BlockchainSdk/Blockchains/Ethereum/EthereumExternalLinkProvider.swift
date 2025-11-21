@@ -13,7 +13,7 @@ struct EthereumExternalLinkProvider {
     private let baseURL: String
 
     init(isTestnet: Bool) {
-        baseURL = isTestnet ? "https://goerli.etherscan.io/" : "https://etherscan.io/"
+        baseURL = isTestnet ? "https://hoodi.etherscan.io/" : "https://etherscan.io/"
         self.isTestnet = isTestnet
     }
 }
@@ -25,7 +25,7 @@ extension EthereumExternalLinkProvider: ExternalLinkProvider {
 
     func url(transaction hash: String) -> URL? {
         if isTestnet {
-            return URL(string: "https://goerli.etherscan.io/tx/\(hash)")
+            return URL(string: "https://hoodi.etherscan.io/tx/\(hash)")
         }
 
         return URL(string: "https://etherscan.io/tx/\(hash)")
