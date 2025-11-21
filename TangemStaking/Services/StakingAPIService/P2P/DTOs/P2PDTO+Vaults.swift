@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 extension P2PDTO {
     enum Vaults {
@@ -15,11 +16,11 @@ extension P2PDTO {
         struct Vault: Decodable {
             let vaultAddress: String
             let displayName: String
-            let apy: Decimal
-            let baseApy: Decimal
-            let capacity: Decimal
-            let totalAssets: Decimal
-            let feePercent: Decimal
+            @FlexibleDecimal var apy: Decimal?
+            @FlexibleDecimal var baseApy: Decimal?
+            @FlexibleDecimal var capacity: Decimal?
+            @FlexibleDecimal var totalAssets: Decimal?
+            @FlexibleDecimal var feePercent: Decimal?
             let isPrivate: Bool
             let isGenesis: Bool
             let isSmoothingPool: Bool
