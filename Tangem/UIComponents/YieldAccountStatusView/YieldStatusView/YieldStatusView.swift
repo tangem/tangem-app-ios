@@ -111,16 +111,23 @@ struct YieldStatusView: View {
     }
 
     @ViewBuilder
+    private var trailingWarningSignView: some View {
+        switch viewModel.warning {
+        case .none:
+            EmptyView()
+        case .approveNeeded:
+            yellowWarningSign
+        case .hasUndepositedAmounts:
+            blueWarningSign
+        }
+    }
+
+    @ViewBuilder
     private var trailingView: some View {
         switch viewModel.state {
-        case .active(let isApproveNeeded, let hasUndepositedAmounts, _):
+        case .active:
             HStack(spacing: 2) {
-                if isApproveNeeded {
-                    yellowWarningSign
-                } else if hasUndepositedAmounts {
-                    blueWarningSign
-                }
-
+                trailingWarningSignView
                 chevron
             }
         case .loading, .closing:
