@@ -8,7 +8,10 @@
 import TangemVisa
 
 class TangemPayAuthorizingMock: TangemPayAuthorizing {
-    func authorize(authorizationService: VisaAuthorizationService) async throws -> TangemPayAuthorizingResponse {
+    func authorize(
+        customerWalletId: String,
+        authorizationService: VisaAuthorizationService
+    ) async throws -> TangemPayAuthorizingResponse {
         return TangemPayAuthorizingResponse(
             tokens: VisaAuthorizationTokens(
                 accessToken: nil,
