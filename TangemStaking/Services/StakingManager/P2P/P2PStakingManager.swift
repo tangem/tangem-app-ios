@@ -25,6 +25,8 @@ final class P2PStakingManager {
     }
 }
 
+// MARK: - StakingManager
+
 extension P2PStakingManager: StakingManager {
     func updateState(loadActions: Bool) async {
         _state.send(.loading)

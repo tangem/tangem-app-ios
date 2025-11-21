@@ -209,7 +209,9 @@ final class UserWalletNotificationManager {
 
         let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
 
-        let hasPositiveBalance = userWalletModel.totalBalance.hasPositiveBalance
+        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        let totalBalances = walletModels.map(\.availableBalanceProvider.balanceType).compactMap(\.value)
+        let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
 
         Analytics.log(
             .noticeFinishActivation,
@@ -292,11 +294,14 @@ final class UserWalletNotificationManager {
             })
             .store(in: &bag)
 
-        userWalletModel
-            .totalBalancePublisher
-            .map(\.hasPositiveBalance)
+        AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
+            .map { walletModels in
+                let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
+                let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
+                return hasPositiveBalance
+            }
             .removeDuplicates()
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink(receiveValue: { manager, _ in
                 manager.createNotifications()

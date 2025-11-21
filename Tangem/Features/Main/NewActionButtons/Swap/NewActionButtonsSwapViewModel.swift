@@ -90,11 +90,21 @@ extension NewActionButtonsSwapViewModel: NewTokenSelectorViewModelOutput {
                 try? await Task.sleep(seconds: 0.2)
 
                 await MainActor.run {
-                    coordinator?.openExpress(input: .init(
-                        userWalletInfo: item.userWalletInfo,
-                        source: source.walletModel.asExpressInteractorWallet,
-                        destination: .chosen(item.walletModel.asExpressInteractorWallet)
-                    ))
+                    coordinator?.openExpress(
+                        input: .init(
+                            userWalletInfo: item.userWalletInfo,
+                            source: ExpressInteractorWalletWrapper(
+                                userWalletInfo: source.userWalletInfo,
+                                walletModel: source.walletModel
+                            ),
+                            destination: .chosen(
+                                ExpressInteractorWalletWrapper(
+                                    userWalletInfo: item.userWalletInfo,
+                                    walletModel: item.walletModel
+                                )
+                            )
+                        )
+                    )
                 }
             }
         }

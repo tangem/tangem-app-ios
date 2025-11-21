@@ -16,9 +16,9 @@ import TangemNFT
 import TangemLocalization
 import TangemUI
 import TangemMobileWalletSdk
-import struct TangemUIUtils.AlertBinder
 import TangemVisa
 import BlockchainSdk
+import struct TangemUIUtils.AlertBinder
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
@@ -88,6 +88,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
+    @MainActor
     private var isUpdating = false
 
     private var bag = Set<AnyCancellable>()
@@ -115,11 +116,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
-            totalBalanceProvider: userWalletModel,
+            walletModelsPublisher: AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel),
             updatePublisher: userWalletModel.updatePublisher
         )
 
-        sectionsProvider.setup(with: self)
+        sectionsProvider.configure(with: self)
 
         bind()
 
@@ -144,16 +145,16 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     tangemPayAccount.tangemPayCardDetailsPublisher
                         .withWeakCaptureOf(viewModel)
                         .map { viewModel, cardDetails in
-                            guard let (card, balance) = cardDetails else {
+                            guard let cardDetails = cardDetails else {
                                 return nil
                             }
                             return TangemPayAccountViewModel(
-                                card: card,
-                                balance: balance,
+                                card: cardDetails.card,
+                                balance: cardDetails.balance,
                                 tapAction: {
                                     viewModel.openTangemPayMainView(
                                         tangemPayAccount: tangemPayAccount,
-                                        cardNumberEnd: card.cardNumberEnd
+                                        cardNumberEnd: cardDetails.card.cardNumberEnd
                                     )
                                 }
                             )
@@ -170,34 +171,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func onPullToRefresh() async {
-        if isUpdating {
+        if await isUpdating {
             return
         }
 
-        isUpdating = true
-        refreshActionButtonsData()
-
-        await withTaskGroup { group in
-            group.addTask {
-                await withCheckedContinuation { [weak self] checkedContinuation in
-                    // accounts_fixes_needed_main
-                    self?.userWalletModel.userTokensManager.sync { [weak self] in
-                        self?.isUpdating = false
-                        checkedContinuation.resume()
-                    }
-                }
-            }
-
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_INFO]
-            if FeatureProvider.isAvailable(.visa), let tangemPayAccount = userWalletModel.tangemPayAccount {
-                group.addTask {
-                    await tangemPayAccount.loadCustomerInfo().value
-                }
-            }
-
-            await group.waitForAll()
-        }
+        await setIsUpdating(true)
+        await refreshActionButtonsData()
+        await MultiWalletMainContentUpdater.scheduleUpdate(with: userWalletModel)
+        await setIsUpdating(false)
     }
 
     func onFirstAppear() {
@@ -235,6 +216,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         openOrganizeTokens()
     }
 
+    @MainActor
+    private func setIsUpdating(_ newValue: Bool) {
+        isUpdating = newValue
+    }
+
+    @MainActor
     private func refreshActionButtonsData() {
         actionButtonsViewModel?.refresh()
     }
@@ -295,8 +282,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.accountSections, on: self, ownership: .weak)
             .store(in: &bag)
 
-        // [REDACTED_TODO_COMMENT]
-        subscribeToTokenListSync(with: plainSectionsPublisher)
+        subscribeToTokenListSync(
+            plainSectionsPublisher: plainSectionsPublisher,
+            accountSectionsPublisher: accountSectionsPublisher
+        )
 
         userWalletNotificationManager
             .notificationPublisher
@@ -359,7 +348,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let navigationInput = NFTNavigationInput(
             userWalletModel: userWalletModel,
             name: userWalletModel.name,
-            // accouns_fixes_needed_none
+            // accounts_fixes_needed_none
             walletModelsManager: userWalletModel.walletModelsManager
         )
 
@@ -384,25 +373,45 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    private func subscribeToTokenListSync(with sectionsPublisher: some Publisher<[MultiWalletMainContentPlainSection], Never>) {
-        // accounts_fixes_needed_main
-        let tokenListSyncPublisher = userWalletModel
-            .userTokensManager
-            .initializedPublisher
-            .filter { $0 }
+    private func subscribeToTokenListSync(
+        plainSectionsPublisher: some Publisher<[MultiWalletMainContentPlainSection], Never>,
+        accountSectionsPublisher: some Publisher<[MultiWalletMainContentAccountSection], Never>
+    ) {
+        // [REDACTED_TODO_COMMENT]
+        let didSyncTokenListPublisher: AnyPublisher<Void, Never>
+        let didReceiveSectionsPublisher: AnyPublisher<Void, Never>
 
-        let sectionsPublisher = sectionsPublisher
-            .replaceEmpty(with: [])
+        if FeatureProvider.isAvailable(.accounts) {
+            // The persistent storage for accounts (or, more precisely, the instance of `CryptoAccountsPersistentStorageController`)
+            // will emit the available models both after local initialization/migration and after remote synchronization,
+            // so no separate `initializedPublisher` trigger needed
+            didSyncTokenListPublisher = .just
+            // Either plain or account sections can be a trigger
+            didReceiveSectionsPublisher = plainSectionsPublisher
+                .mapToVoid()
+                .merge(with: accountSectionsPublisher.mapToVoid())
+                .eraseToAnyPublisher()
+        } else {
+            // [REDACTED_TODO_COMMENT]
+            // accounts_fixes_needed_none
+            didSyncTokenListPublisher = userWalletModel
+                .userTokensManager
+                .initializedPublisher
+                .filter { $0 }
+                .mapToVoid()
+                .eraseToAnyPublisher()
+            // When accounts aren't enabled, we rely only on plain sections
+            didReceiveSectionsPublisher = plainSectionsPublisher
+                .mapToVoid()
+                .eraseToAnyPublisher()
+        }
 
-        var tokenListSyncSubscription: AnyCancellable?
-        tokenListSyncSubscription = Publishers.Zip(tokenListSyncPublisher, sectionsPublisher)
+        didSyncTokenListPublisher
+            .zip(didReceiveSectionsPublisher)
             .prefix(1)
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
-                viewModel.isLoadingTokenList = false
-                withExtendedLifetime(tokenListSyncSubscription) {}
-            }
+            .mapToValue(false)
+            .receiveOnMain()
+            .assign(to: &$isLoadingTokenList)
     }
 
     func makeApyBadgeTapAction(for walletModelId: WalletModelId) -> ((WalletModelId) -> Void)? {
@@ -515,7 +524,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func findWalletModel(with id: WalletModelId) -> (any WalletModel)? {
-        // accounts_fixes_needed_token_none
+        // accounts_fixes_needed_none
         let allWalletModels = FeatureProvider.isAvailable(.accounts)
             ? AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
             : userWalletModel.walletModelsManager.walletModels

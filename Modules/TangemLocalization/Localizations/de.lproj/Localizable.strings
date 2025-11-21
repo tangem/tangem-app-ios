@@ -258,6 +258,7 @@
 "common_finish" = "Beenden";
 "common_forget" = "Entfernen";
 "common_free" = "Kostenlos";
+"common_from_wallet_name" = "Von %@";
 "common_from" = "Vom";
 "common_generate_addresses" = "Adressen synchronisieren";
 "common_get_started" = "Erste Schritte";
@@ -281,6 +282,7 @@
 "common_network_fee_title" = "Netzgebühr";
 "common_network_fee_warning_content" = "Der überwiesene Betrag wird um %1$@ (%2$@) gekürzt, um die gewählte Gebührenhöhe zu decken.";
 "common_new_address" = "Neue Adresse";
+"common_news" = "News";
 "common_next" = "Weiter";
 "common_nft" = "NFT";
 "common_no_address" = "Keine Adresse";
@@ -338,6 +340,7 @@
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "Allgemeine Geschäftsbedingungen";
 "common_terms_of_use" = "Nutzungsbedingungen";
+"common_to_wallet_name" = "To %@";
 "common_to" = "An";
 "common_today" = "Heute";
 "common_transaction_failed" = "Transaktion fehlgeschlagen";
@@ -498,6 +501,9 @@
 "express_token_list_empty_search" = "Keine Token gefunden. Bitte versuche eine andere Anfrage";
 "express_transaction_id_copied" = "Transaktions-ID kopiert";
 "express_transaction_id" = "ID: %@";
+"feed_market_and_news" = "Market & News";
+"feed_tangem_ai" = "Tangem AI";
+"feed_trending_now" = "Trending Now";
 "feedback_preface_rate_negative" = "Teile uns mit, welche Funktionen du vermisst, und wir werden versuchen, dir zu helfen.";
 "feedback_preface_scan_failed" = "Bitte sag uns, welche Karte oder Ring du hast";
 "feedback_preface_support" = "Hallo Support-Team,";
@@ -739,6 +745,8 @@
 "markets_token_details_volume" = "Volumen";
 "markets_tooltip_message" = "Rufe dies auf oder tippe auf die Suchleiste, um Token direkt vom Markt hinzuzufügen";
 "markets_tooltip_title" = "Token hinzufügen";
+"news_all_news" = "All news";
+"news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "Über NFT";
 "nft_asset" = "NFT-Vermögenswert";
 "nft_collections_empty_description" = "NFTs, die an Deine Wallet-Adresse gesendet werden, werden hier angezeigt.";
@@ -1884,6 +1892,9 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Ertragsmodus";
 "yield_module_token_details_earn_notification_processing" = "Bearbeitung Deiner Einzahlung";
 "yield_module_token_details_earn_notification_title" = "Ertragsmodus";
+"yield_module_transaction_enter" = "Ertragsmodus ein";
+"yield_module_transaction_exit" = "Ertragsmodus aus";
+"yield_module_transaction_topup" = "Aufstockung des Ertragsmodus";
 "yield_module_transfer_mode_automatic" = "Automatisch";
 "yield_module_unable_to_cover_fee_description" = "Einzahlung von %1$@ %2$@ zur Deckung der Netzwerkgebühr für Transaktionen";
 "yield_module_unable_to_cover_fee_title" = "Die Gebühr %@ kann nicht gedeckt werden";
