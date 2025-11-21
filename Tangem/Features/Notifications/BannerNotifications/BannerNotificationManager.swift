@@ -20,7 +20,6 @@ class BannerNotificationManager {
     private weak var delegate: NotificationTapDelegate?
 
     private let userWalletInfo: UserWalletInfo
-    private let walletModelsManager: any WalletModelsManager
     private let placement: BannerPromotionPlacement
 
     private let analyticsService: NotificationsAnalyticsService
@@ -33,17 +32,16 @@ class BannerNotificationManager {
 
     init(
         userWalletInfo: UserWalletInfo,
-        walletModelsManager: any WalletModelsManager,
+        walletModelsPublisher: some Publisher<[any WalletModel], Never>,
         placement: BannerPromotionPlacement
     ) {
         self.userWalletInfo = userWalletInfo
-        self.walletModelsManager = walletModelsManager
         self.placement = placement
 
         predefinedOnrampParametersBuilder = .init(userWalletId: userWalletInfo.id)
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletInfo.id)
 
-        bind()
+        bind(walletModelsPublisher: walletModelsPublisher)
         load()
     }
 
@@ -56,7 +54,7 @@ class BannerNotificationManager {
         }
     }
 
-    private func bind() {
+    private func bind(walletModelsPublisher: some Publisher<[any WalletModel], Never>) {
         analyticsSubscription = notificationPublisher
             .debounce(for: 0.1, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
@@ -73,7 +71,7 @@ class BannerNotificationManager {
                 }
 
                 let eventPublishers = activePromotions.map { promotion in
-                    manager.makeEvent(promotion: promotion)
+                    manager.makeEvent(promotion: promotion, walletModelsPublisher: walletModelsPublisher)
                         .first()
                         .withWeakCaptureOf(manager)
                         .map { manager, event -> NotificationViewInput? in
@@ -166,21 +164,28 @@ class BannerNotificationManager {
         return input
     }
 
-    private func makeEvent(promotion: ActivePromotionInfo) -> AnyPublisher<BannerNotificationEvent?, Never> {
+    private func makeEvent(
+        promotion: ActivePromotionInfo,
+        walletModelsPublisher: some Publisher<[any WalletModel], Never>
+    ) -> AnyPublisher<BannerNotificationEvent?, Never> {
         let analytics = BannerNotificationEventAnalyticsParamsBuilder(programName: promotion.bannerPromotion, placement: placement)
 
         switch promotion.bannerPromotion {
         case .sepa:
-            return sepaEvent(promotion: promotion, analytics: analytics)
+            return sepaEvent(promotion: promotion, analytics: analytics, walletModelsPublisher: walletModelsPublisher)
         case .visaWaitlist:
             return visaWaitlistEvent(promotion: promotion, analytics: analytics)
         }
     }
 
-    private func sepaEvent(promotion: ActivePromotionInfo, analytics: BannerNotificationEventAnalyticsParamsBuilder) -> AnyPublisher<BannerNotificationEvent?, Never> {
+    private func sepaEvent(
+        promotion: ActivePromotionInfo,
+        analytics: BannerNotificationEventAnalyticsParamsBuilder,
+        walletModelsPublisher: some Publisher<[any WalletModel], Never>
+    ) -> AnyPublisher<BannerNotificationEvent?, Never> {
         let preferencePublisher = onrampRepository.preferencePublisher.removeDuplicates()
-        let bitcoinWalletModel = walletModelsManager.walletModelsPublisher
-            // If user add / delete bitcoin
+        let bitcoinWalletModel = walletModelsPublisher
+            // If user adds / deletes bitcoin in any account, we need to update the banner accordingly
             .map { walletModels in
                 walletModels.first {
                     $0.isMainToken && $0.tokenItem.blockchain == .bitcoin(testnet: false)
