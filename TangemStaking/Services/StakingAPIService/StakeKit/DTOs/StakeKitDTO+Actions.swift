@@ -165,7 +165,7 @@ extension StakeKitDTO {
         enum List {
             struct Request: Encodable {
                 let walletAddress: String
-                let network: StakeKitNetworkType
+                let network: String
                 let status: ActionStatus
                 let limit: Int
                 let sort: String
