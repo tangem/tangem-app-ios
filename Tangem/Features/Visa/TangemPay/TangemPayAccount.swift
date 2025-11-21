@@ -133,6 +133,7 @@ final class TangemPayAccount {
         }
 
         let authorizer = TangemPayAuthorizer(
+            customerWalletId: userWalletModel.userWalletId.stringValue,
             interactor: userWalletModel.tangemPayAuthorizingInteractor,
             keysRepository: userWalletModel.keysRepository
         )
