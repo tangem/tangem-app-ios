@@ -294,11 +294,14 @@ final class UserWalletNotificationManager {
             })
             .store(in: &bag)
 
-        userWalletModel
-            .totalBalancePublisher
-            .map(\.hasPositiveBalance)
+        AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
+            .map { walletModels in
+                let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
+                let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
+                return hasPositiveBalance
+            }
             .removeDuplicates()
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink(receiveValue: { manager, _ in
                 manager.createNotifications()
