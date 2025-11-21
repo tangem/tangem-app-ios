@@ -165,7 +165,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         Analytics.log(.tokenButtonGoToToken)
         assert(tokenItem.blockchainNetwork.derivationPath != nil)
 
-        let feeCurrencyFinderResult = WalletModelFinder()
+        let feeCurrencyFinderResult = try? WalletModelFinder
             .findWalletModel(userWalletId: userWalletInfo.id, tokenItem: tokenItem)
 
         guard let feeCurrencyFinderResult else {
