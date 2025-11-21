@@ -136,7 +136,7 @@ extension LegacyMultiWalletMainContentViewSectionsProvider: MultiWalletMainConte
         return AnyPublisher.empty
     }
 
-    func setup(with itemViewModelFactory: MultiWalletMainContentItemViewModelFactory) {
+    func configure(with itemViewModelFactory: MultiWalletMainContentItemViewModelFactory) {
         self.itemViewModelFactory = itemViewModelFactory
     }
 }
