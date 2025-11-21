@@ -18,6 +18,12 @@ class CommonNewTokenSelectorWalletsProvider: NewTokenSelectorWalletsProvider {
         self.availabilityProviderFactory = availabilityProviderFactory
     }
 
+    var wallets: [NewTokenSelectorWallet] {
+        userWalletRepository.models.map { userWalletModel in
+            mapToNewTokenSelectorWallet(userWalletModel: userWalletModel)
+        }
+    }
+
     var walletsPublisher: AnyPublisher<[NewTokenSelectorWallet], Never> {
         Just(userWalletRepository.models)
             .withWeakCaptureOf(self)
