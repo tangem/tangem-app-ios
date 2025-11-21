@@ -98,6 +98,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     private(set) var activityState: ActivityState = .active
     private(set) var readMoreURL = URL(string: "https://tangem.com/en/blog/post/yield-mode")!
+    private var minimalTopupAmountInFiat: Decimal?
 
     // MARK: - Init
 
@@ -210,8 +211,10 @@ final class YieldModuleInfoViewModel: ObservableObject {
 
     private func earnInfoStart() {
         Task { await getAvailableFunds() }
-        Task { await checkWarnings() }
-        Task { await getEarnInfoFees() }
+        Task {
+            await getEarnInfoFees()
+            await checkWarnings()
+        }
         Task { await getApy() }
         Task { await fetchChartData() }
     }
@@ -269,6 +272,7 @@ final class YieldModuleInfoViewModel: ObservableObject {
         minimalAmountState = minimalAmountState.withFeeState(.loading)
         estimatedFeeState = estimatedFeeState.withFeeState(.loading)
         maxFee = nil
+        minimalTopupAmountInFiat = nil
 
         guard let maxFeeNative = await yieldManagerInteractor.getMaxFeeNative() else {
             estimatedFeeState = estimatedFeeState.withFeeState(.noData)
@@ -283,7 +287,9 @@ final class YieldModuleInfoViewModel: ObservableObject {
             let minAmount = try await yieldManagerInteractor.getMinAmount()
             let minAmountFormatted = try await feeConverter.makeFormattedMinimalFee(from: minAmount)
 
-            let maxFeeInFiat = try await feeConverter.convertToFiat(maxFeeNative)
+            minimalTopupAmountInFiat = minAmount
+
+            let maxFeeInFiat = try await feeConverter.convertToFiat(maxFeeNative, currency: .fee)
             let maxFeeFormatted = try await feeConverter.makeFormattedMaximumFee(maxFeeNative: maxFeeNative)
 
             let isHighFee = estimatedFee > maxFeeInFiat
@@ -367,8 +373,14 @@ final class YieldModuleInfoViewModel: ObservableObject {
         }
 
         if let undepositedAmount {
-            let formatted = feeConverter.formatDecimal(undepositedAmount)
-            earnInfoNotifications.append(createHasUndepositedAmountsNotification(undepositedAmount: formatted))
+            guard let minimalTopupAmountInFiat,
+                  let undepositedAmountInFiat = try? await feeConverter.convertToFiat(undepositedAmount, currency: .token),
+                  undepositedAmountInFiat < minimalTopupAmountInFiat
+            else {
+                let formatted = feeConverter.formatDecimal(undepositedAmount)
+                earnInfoNotifications.append(createHasUndepositedAmountsNotification(undepositedAmount: formatted))
+                return
+            }
         }
     }
 
