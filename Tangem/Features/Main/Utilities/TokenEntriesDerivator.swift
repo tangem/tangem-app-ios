@@ -31,6 +31,7 @@ final class TokenEntriesDerivator {
             let group = DispatchGroup()
             var subscription: AnyCancellable?
 
+            // One-time subscription to get the latest list of crypto accounts
             subscription = userWalletModel
                 .accountModelsManager
                 .cryptoAccountModelsPublisher
