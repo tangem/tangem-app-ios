@@ -57,6 +57,7 @@ final class TangemPayOfferViewModel: ObservableObject {
 
     private func makeTangemPayAccount() async throws -> TangemPayAccount {
         let tangemPayAuthorizer = TangemPayAuthorizer(
+            customerWalletId: userWalletModel.userWalletId.stringValue,
             interactor: userWalletModel.tangemPayAuthorizingInteractor,
             keysRepository: userWalletModel.keysRepository
         )
