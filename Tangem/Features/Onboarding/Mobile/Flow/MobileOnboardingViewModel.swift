@@ -176,6 +176,10 @@ extension MobileOnboardingViewModel: MobileOnboardingFlowRoutable {
         shouldFireConfetti = true
     }
 
+    func completeOnboarding() {
+        coordinator?.mobileOnboardingDidComplete()
+    }
+
     func closeOnboarding() {
         coordinator?.closeOnboarding()
     }
