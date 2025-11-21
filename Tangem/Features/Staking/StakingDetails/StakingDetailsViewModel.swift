@@ -276,8 +276,7 @@ private extension StakingDetailsViewModel {
     }
 
     func setupRewardView(yield: StakingYieldInfo, balances: [StakingBalance]) {
-        guard !balances.isEmpty,
-              let network = StakeKitNetworkType(rawValue: yield.item.network) else {
+        guard !balances.isEmpty else {
             rewardViewData = nil
             return
         }
@@ -285,9 +284,9 @@ private extension StakingDetailsViewModel {
         let rewards = balances.rewards()
         switch rewards.sum() {
         case .zero where yield.rewardClaimingType == .auto:
-            rewardViewData = RewardViewData(state: .automaticRewards, networkType: network)
+            rewardViewData = RewardViewData(state: .automaticRewards, networkType: yield.item.network)
         case .zero:
-            rewardViewData = RewardViewData(state: .noRewards, networkType: network)
+            rewardViewData = RewardViewData(state: .noRewards, networkType: yield.item.network)
         case let rewardsValue:
             let rewardsCryptoFormatted = balanceFormatter.formatCryptoBalance(
                 rewardsValue,
@@ -314,7 +313,7 @@ private extension StakingDetailsViewModel {
                         )
                     }
                 },
-                networkType: network
+                networkType: yield.item.network
             )
         }
     }
@@ -372,7 +371,7 @@ private extension StakingDetailsViewModel {
     }
 
     private func openRewardsFlow(rewardsBalances: [StakingBalance], yield: StakingYieldInfo) {
-        if rewardsBalances.count == 1, let rewardsBalance = rewardsBalances.first {
+        if let rewardsBalance = rewardsBalances.singleElement {
             openFlow(balance: rewardsBalance, validators: yield.validators)
 
             let name = rewardsBalance.validatorType.validator?.name
@@ -400,7 +399,7 @@ private extension StakingDetailsViewModel {
 
         let minAmount: Decimal? = switch constraint?.amount.minimum {
         // StakeKit didn't implement constraints for polygon yet, this code will be removed once done
-        case .none where yield.item.network == StakeKitNetworkType.ethereum.rawValue
+        case .none where yield.item.network == .ethereum
             && yield.item.contractAddress == StakingConstants.polygonContractAddress: 1
         case .none: .none
         case .some(let amount): amount

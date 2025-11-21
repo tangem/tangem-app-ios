@@ -22,15 +22,44 @@ public enum SendAccessibilityIdentifiers {
     /// SendAmountCompactView
     public static let sendAmountViewValue = "stakingAmountValue"
 
+    /// SendDecimalNumberTextField currency symbol (prefix/suffix)
+    public static let currencySymbol = "sendCurrencySymbol"
+
+    /// Alternative amount displays (crypto/fiat conversion)
+    public static let alternativeCryptoAmount = "sendAlternativeCryptoAmount"
+    public static let alternativeFiatAmount = "sendAlternativeFiatAmount"
+    public static let currencyToggleButton = "sendCurrencyToggleButton"
+
     /// ValidatorCompactView
     public static let validatorBlock = "sendValidatorBlock"
 
     /// SendFeeCompactView
     public static let networkFeeBlock = "sendNetworkFeeBlock"
+    public static let networkFeeAmount = "sendNetworkFeeAmount"
+    public static let networkFeeUnreachableBanner = "sendNetworkFeeUnreachableBanner"
 
     /// AddressTextView
     public static let addressTextView = "sendAddressTextView"
     public static let addressClearButton = "sendAddressClearButton"
+
+    /// AdditionalField (Memo/DestinationTag)
+    public static let additionalFieldTextField = "sendAdditionalFieldTextField"
+    public static let additionalFieldClearButton = "sendAdditionalFieldClearButton"
+    public static let additionalFieldPasteButton = "sendAdditionalFieldPasteButton"
+    public static let invalidMemoBanner = "sendInvalidMemoBanner"
+
+    /// Suggested Destination (Wallet History)
+    public static let suggestedDestinationHeader = "sendSuggestedDestinationHeader"
+    public static let suggestedDestinationWalletCell = "sendSuggestedDestinationWalletCell"
+    public static let suggestedDestinationTransactionCell = "sendSuggestedDestinationTransactionCell"
+
+    public static func suggestedDestinationWalletCell(index: Int) -> String {
+        "sendSuggestedDestinationWalletCell_\(index)"
+    }
+
+    public static func suggestedDestinationTransactionCell(index: Int) -> String {
+        "sendSuggestedDestinationTransactionCell_\(index)"
+    }
 
     /// Notification banners
     public static let invalidAmountBanner = "sendInvalidAmountBanner"

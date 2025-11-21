@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import TangemFoundation
 
 /// Produces required dependencies for a specific account identified by its derivation index.
 protocol CryptoAccountDependenciesFactory {
     func makeDependencies(
         forAccountWithDerivationIndex derivationIndex: Int,
-        userWalletModel: UserWalletModel
+        userWalletId: UserWalletId
     ) -> CryptoAccountDependencies
 }

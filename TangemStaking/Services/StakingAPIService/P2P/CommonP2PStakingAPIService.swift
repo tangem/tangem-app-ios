@@ -116,7 +116,6 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
             network: network
         )
         let response = try await provider.requestPublisher(targetType).async()
-        let filtered = try response.filterSuccessfulStatusCodes()
         do {
             let decoder = decoder ?? self.decoder
             let p2pResponse = try decoder.decode(P2PDTO.GenericResponse<T>.self, from: filtered.data)
