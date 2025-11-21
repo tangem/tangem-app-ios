@@ -160,7 +160,8 @@ struct AccountDerivationPathHelper {
              .quai,
              .scroll,
              .linea,
-             .arbitrumNova:
+             .arbitrumNova,
+             .plasma:
             return true
         case .chia:
             return false
