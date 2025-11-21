@@ -9,8 +9,9 @@
 import Foundation
 import Combine
 
-protocol UserTokensRepository {
-    typealias Completion = (Result<Void, Swift.Error>) -> Void
+protocol UserTokensRepository: AnyObject {
+    typealias Result = Swift.Result<Void, Swift.Error>
+    typealias Completion = (_ result: Result) -> Void
     typealias BatchUpdates = (UserTokensRepositoryBatchUpdater) throws -> Void
 
     var cryptoAccountPublisher: AnyPublisher<StoredCryptoAccount, Never> { get }

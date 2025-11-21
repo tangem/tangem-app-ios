@@ -11,7 +11,6 @@ import BlockchainSdk
 
 // [REDACTED_TODO_COMMENT]
 protocol UserTokenListManager {
-    var initialized: Bool { get }
     var initializedPublisher: AnyPublisher<Bool, Never> { get }
 
     var userTokensList: StoredUserTokenList { get }
