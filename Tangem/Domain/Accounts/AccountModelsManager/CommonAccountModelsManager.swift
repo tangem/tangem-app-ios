@@ -20,8 +20,6 @@ actor CommonAccountModelsManager {
         executor.asUnownedSerialExecutor()
     }
 
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     private nonisolated let cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
     private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
@@ -38,20 +36,25 @@ actor CommonAccountModelsManager {
 
     init(
         userWalletId: UserWalletId,
-        cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider,
         cryptoAccountsRepository: CryptoAccountsRepository,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         dependenciesFactory: CryptoAccountDependenciesFactory,
         areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
-        self.cryptoAccountsGlobalStateProvider = cryptoAccountsGlobalStateProvider
         self.cryptoAccountsRepository = cryptoAccountsRepository
         self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
         self.dependenciesFactory = dependenciesFactory
         self.areHDWalletsSupported = areHDWalletsSupported
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
+
+        // Synchronization for `cryptoAccountsGlobalStateProvider` is guaranteed by the initialization of Swift static variables,
+        // so it is safe to mark `cryptoAccountsGlobalStateProvider` as `nonisolated`.
+        // Unfortunately, property wrappers cannot be marked as `nonisolated`, so we need to manually inject the dependency.
+        @Injected(\.cryptoAccountsGlobalStateProvider)
+        var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+        self.cryptoAccountsGlobalStateProvider = cryptoAccountsGlobalStateProvider
         cryptoAccountsGlobalStateProvider.register(self, forIdentifier: userWalletId)
 
         initialize()
@@ -88,54 +91,63 @@ actor CommonAccountModelsManager {
 
         let removedAccountIds = currentAccountIds.subtracting(newAccountIds)
         cache.removeAll { removedAccountIds.contains($0.key) } // Also destroys the `didChangeSubscription`s for removed accounts
+        let cachedAccountsIds = cache.keys.toSet() // Snapshot of currently cached account IDs before adding new ones
 
-        return newAccountIds.compactMap { accountId in
-            // Early exit if the account is already created and cached
-            if let (cachedAccount, _) = cache[accountId] {
-                return cachedAccount
+        let newCryptoAccounts = newAccountIds
+            .compactMap { accountId in
+                // Early exit if the account is already created and cached
+                if let (cachedAccount, _) = cache[accountId] {
+                    return cachedAccount
+                }
+
+                guard let storedCryptoAccount = storedCryptoAccountsKeyedByAccountIds[accountId] else {
+                    assertionFailure("Stored crypto account not found for accountId: \(accountId)")
+                    return nil
+                }
+
+                guard let accountIcon = AccountModel.Icon(
+                    rawName: storedCryptoAccount.icon.iconName,
+                    rawColor: storedCryptoAccount.icon.iconColor
+                ) else {
+                    assertionFailure("Invalid icon for stored crypto account: \(storedCryptoAccount)")
+                    return nil
+                }
+
+                let derivationIndex = storedCryptoAccount.derivationIndex
+                let dependencies = dependenciesFactory.makeDependencies(
+                    forAccountWithDerivationIndex: derivationIndex,
+                    userWalletId: userWalletId
+                )
+                let balanceProvidingDependencies = dependencies.makeBalanceProvidingDependencies()
+
+                let cryptoAccount = CommonCryptoAccountModel(
+                    userWalletId: userWalletId,
+                    accountName: storedCryptoAccount.name,
+                    accountIcon: accountIcon,
+                    derivationIndex: derivationIndex,
+                    walletModelsManager: dependencies.walletModelsManager,
+                    userTokensManager: dependencies.userTokensManager,
+                    accountBalanceProvider: balanceProvidingDependencies.balanceProvider,
+                    accountRateProvider: balanceProvidingDependencies.ratesProvider,
+                    derivationManager: dependencies.derivationManager
+                )
+
+                dependencies.walletModelsFactoryInput.setCryptoAccount(cryptoAccount)
+                // Uses `walletModelsFactory` internally, therefore must be initialized after setting the account in `walletModelsFactoryInput`
+                dependencies.walletModelsManager.initialize()
+                // Updating `cache` within this `compactMap` loop to reduce the number of iterations
+                cache[accountId] = (cryptoAccount, makeDidChangeSubscription(for: cryptoAccount))
+
+                return cryptoAccount
             }
 
-            guard let storedCryptoAccount = storedCryptoAccountsKeyedByAccountIds[accountId] else {
-                assertionFailure("Stored crypto account not found for accountId: \(accountId)")
-                return nil
-            }
-
-            guard let accountIcon = AccountModel.Icon(
-                rawName: storedCryptoAccount.icon.iconName,
-                rawColor: storedCryptoAccount.icon.iconColor
-            ) else {
-                assertionFailure("Invalid icon for stored crypto account: \(storedCryptoAccount)")
-                return nil
-            }
-
-            let derivationIndex = storedCryptoAccount.derivationIndex
-            let dependencies = dependenciesFactory.makeDependencies(
-                forAccountWithDerivationIndex: derivationIndex,
-                userWalletId: userWalletId
-            )
-
-            let balanceProvidingDependencies = dependencies.makeBalanceProvidingDependencies()
-
-            let cryptoAccount = CommonCryptoAccountModel(
-                userWalletId: userWalletId,
-                accountName: storedCryptoAccount.name,
-                accountIcon: accountIcon,
-                derivationIndex: derivationIndex,
-                walletModelsManager: dependencies.walletModelsManager,
-                userTokensManager: dependencies.userTokensManager,
-                accountBalanceProvider: balanceProvidingDependencies.balanceProvider,
-                accountRateProvider: balanceProvidingDependencies.ratesProvider,
-                derivationManager: dependencies.derivationManager
-            )
-
-            dependencies.walletModelsFactoryInput.setCryptoAccount(cryptoAccount)
-            dependencies.walletModelsManager.initialize()
-
-            // Updating `cache` within this `compactMap` loop to reduce the number of iterations
-            cache[accountId] = (cryptoAccount, makeDidChangeSubscription(for: cryptoAccount))
-
-            return cryptoAccount
+        // Trigger initial synchronization for all newly created accounts. Creating `newCryptoAccounts` is performed
+        // on a serial executor, so it may take some time if many accounts need to be created.
+        for newCryptoAccount in newCryptoAccounts where !cachedAccountsIds.contains(newCryptoAccount.id) {
+            newCryptoAccount.userTokensManager.sync {}
         }
+
+        return newCryptoAccounts
     }
 
     /// - Note: Manual synchronization is used since this publisher must be created in a lazy manner and lazy properties not really

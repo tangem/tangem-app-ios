@@ -75,20 +75,12 @@ extension CommonWCHandlersService: WCHandlersService {
             throw WalletConnectTransactionRequestProcessingError.userWalletRepositoryIsLocked
         }
 
-        let userWalletModel: any UserWalletModel
-
-        if let userWalletID = connectedDApp.userWalletID, let model = userWalletRepository.models.first(where: {
-            $0.userWalletId.stringValue == userWalletID
-        }) {
-            userWalletModel = model
-        } else if let accountId = connectedDApp.accountId, let model = userWalletRepository.models.first(where: {
-            $0.accountModelsManager.accountModels.contains {
-                $0.firstAvailableStandard().id.walletConnectIdentifierString == accountId
-            }
-        }) {
-            userWalletModel = model
-        } else {
-            WCLogger.warning("Failed to find target user wallet")
+        guard
+            let userWalletID = connectedDApp.userWalletID,
+            let userWalletModel = userWalletRepository.models.first(where: {
+                $0.userWalletId.stringValue == userWalletID
+            })
+        else {
             throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
         }
 
@@ -97,11 +89,23 @@ extension CommonWCHandlersService: WCHandlersService {
             throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
         }
 
+        let account: (any CryptoAccountModel)?
+
+        if FeatureProvider.isAvailable(.accounts), let accountId = connectedDApp.accountId {
+            account = WCAccountFinder.findCryptoAccountModel(
+                by: accountId,
+                accountModelsManager: userWalletModel.accountModelsManager
+            )
+        } else {
+            account = nil
+        }
+
         return WCValidatedRequest(
             request: request,
             dAppData: connectedDApp.dAppData,
             targetBlockchain: targetBlockchain,
-            userWalletModel: userWalletModel
+            userWalletModel: userWalletModel,
+            account: account
         )
     }
 
