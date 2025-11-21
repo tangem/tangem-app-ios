@@ -125,6 +125,7 @@
 		0ABBB2CE2ECCB6E60082BC76 /* P2PStakingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2CD2ECCB6E60082BC76 /* P2PStakingManager.swift */; };
 		0ABBB2D22ECDB1300082BC76 /* P2PNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2D12ECDB1300082BC76 /* P2PNetwork.swift */; };
 		0ABBB2D42ECDE2010082BC76 /* P2PAPIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBB2D32ECDE2010082BC76 /* P2PAPIKeys.swift */; };
+		0ABBCB732ED05C9A0008B1C7 /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
 		0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */ = {isa = PBXBuildFile; productRef = 0ABC61142C410AFD00065EBA /* TweetNacl */; };
 		0ABCEE672E3B954000662B9F /* WalletInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCEE662E3B954000662B9F /* WalletInitializer.swift */; };
 		0ABCFCEB2DCA35F400C9F901 /* MarketsStakingNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */; };
@@ -9055,6 +9056,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0ABBCB732ED05C9A0008B1C7 /* BlockchainSdk.framework in Frameworks */,
 				F92DB9CB2CD4C36100C16530 /* TangemModules in Frameworks */,
 				B62C167B2CBE0A1E00522683 /* Alamofire in Frameworks */,
 				B67E38BF2CC717A300D660EB /* TangemSdk in Frameworks */,

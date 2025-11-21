@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 struct P2PMapper {
     func mapToYieldInfo(from response: P2PDTO.Vaults.VaultsInfo) throws -> StakingYieldInfo {
@@ -20,7 +21,7 @@ struct P2PMapper {
         )
 
         return StakingYieldInfo(
-            id: "ethereum",
+            id: item.network,
             isAvailable: true,
             rewardType: rewardType,
             rewardRateValues: rewardRateValues,
@@ -63,13 +64,14 @@ struct P2PMapper {
     }
 }
 
-extension StakingTokenItem {
+public extension StakingTokenItem {
     static var ethereum: StakingTokenItem {
+        let blockchain: Blockchain = .ethereum(testnet: false)
         return StakingTokenItem(
-            network: "ethereum",
-            name: "Ethereum",
-            decimals: 18,
-            symbol: "ETH"
+            network: blockchain.networkId,
+            name: blockchain.displayName,
+            decimals: blockchain.decimalCount,
+            symbol: blockchain.currencySymbol
         )
     }
 }
