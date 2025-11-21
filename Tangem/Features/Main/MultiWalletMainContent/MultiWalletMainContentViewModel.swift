@@ -538,30 +538,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 private extension MultiWalletMainContentViewModel {
     func hideTokenAction(for tokenItemViewModel: TokenItemViewModel) {
         let tokenItem = tokenItemViewModel.tokenItem
-
         let alertBuilder = HideTokenAlertBuilder()
-        // accounts_fixes_needed_main
-        if userWalletModel.userTokensManager.canRemove(tokenItem) {
-            error = alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: {
-                [weak self] in
-                self?.hideToken(tokenItem: tokenItem)
-            })
-        } else {
-            error = alertBuilder.unableToHideTokenAlert(tokenItem: tokenItem)
+        let actionFactory = HideTokenActionFactory(userWalletModel: userWalletModel)
+        let walletModel = findWalletModel(with: tokenItemViewModel.id)
+
+        do {
+            let hideAction = try actionFactory.makeAction(tokenItem: tokenItem, walletModel: walletModel)
+            error = alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: hideAction)
+        } catch {
+            AppLogger.error("Can't hide token due to error:", error: error)
+            self.error = alertBuilder.unableToHideTokenAlert(tokenItem: tokenItem)
         }
-    }
-
-    func hideToken(tokenItem: TokenItem) {
-        // accounts_fixes_needed_main
-        userWalletModel.userTokensManager.remove(tokenItem)
-
-        Analytics.log(
-            event: .buttonRemoveToken,
-            params: [
-                Analytics.ParameterKey.token: tokenItem.currencySymbol,
-                Analytics.ParameterKey.source: Analytics.ParameterValue.main.rawValue,
-            ]
-        )
     }
 }
 
