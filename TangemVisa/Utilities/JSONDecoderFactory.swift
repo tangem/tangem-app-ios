@@ -44,4 +44,11 @@ struct JSONDecoderFactory {
 
         return decoder
     }
+
+    func makeTangemPayAuthorizationServiceDecoder() -> JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .secondsSince1970 // To parse access tokens expiration date
+        return decoder
+    }
 }
