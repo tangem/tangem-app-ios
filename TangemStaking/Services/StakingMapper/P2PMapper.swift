@@ -10,9 +10,10 @@ import Foundation
 import BlockchainSdk
 
 struct P2PMapper {
+    let item: StakingTokenItem = .ethereum
+    let rewardType: RewardType = .apy
+
     func mapToYieldInfo(from response: P2PDTO.Vaults.VaultsInfo) throws -> StakingYieldInfo {
-        let item: StakingTokenItem = .ethereum
-        let rewardType: RewardType = .apy
         let validators = response.vaults.map { mapToValidatorInfo(from: $0) }
 
         let rewardRateValues = RewardRateValues(
@@ -21,7 +22,7 @@ struct P2PMapper {
         )
 
         return StakingYieldInfo(
-            id: item.network,
+            id: item.network.rawValue,
             isAvailable: true,
             rewardType: rewardType,
             rewardRateValues: rewardRateValues,
@@ -42,7 +43,7 @@ struct P2PMapper {
             return nil
         }
         return StakingBalanceInfo(
-            item: .ethereum,
+            item: item,
             amount: assets,
             balanceType: .active,
             validatorAddress: response.vaultAddress,
@@ -68,7 +69,7 @@ public extension StakingTokenItem {
     static var ethereum: StakingTokenItem {
         let blockchain: Blockchain = .ethereum(testnet: false)
         return StakingTokenItem(
-            network: blockchain.networkId,
+            network: .ethereum,
             name: blockchain.displayName,
             decimals: blockchain.decimalCount,
             symbol: blockchain.currencySymbol
