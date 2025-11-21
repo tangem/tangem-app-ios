@@ -71,7 +71,7 @@ struct StakeKitMapper {
 
     func mapToTokenDTO(from tokenItem: StakingTokenItem) -> StakeKitDTO.Token {
         StakeKitDTO.Token(
-            network: tokenItem.network,
+            network: tokenItem.network.asStakeKitNetworkType.rawValue,
             name: tokenItem.name,
             decimals: tokenItem.decimals,
             address: tokenItem.contractAddress,
@@ -407,12 +407,13 @@ struct StakeKitMapper {
     }
 
     func mapToStakingTokenItem(from token: StakeKitDTO.Token) throws -> StakingTokenItem {
-        guard let network = StakeKitNetworkType(rawValue: token.network) else {
-            throw StakeKitMapperError.noData("StakeKitNetworkType not found")
+        guard let stakeKitNetwork = StakeKitNetworkType(rawValue: token.network),
+              let stakingNetwork = StakingNetworkType(stakeKitNetworkType: stakeKitNetwork) else {
+            throw StakeKitMapperError.noData("StakingNetworkType not found")
         }
 
         return StakingTokenItem(
-            network: network.rawValue,
+            network: stakingNetwork,
             contractAddress: token.address,
             name: token.name,
             decimals: token.decimals,
@@ -444,7 +445,7 @@ struct StakeKitMapper {
         from type: StakeKitDTO.Yield.Info.Response.Metadata.RewardScheduleType,
         item: StakingTokenItem
     ) throws -> RewardScheduleType {
-        switch StakeKitNetworkType(rawValue: item.network) {
+        switch item.network.asStakeKitNetworkType {
         case .solana: .days(min: 2, max: 3)
         case .cosmos: .seconds(min: 5, max: 12)
         case .tron: .daily

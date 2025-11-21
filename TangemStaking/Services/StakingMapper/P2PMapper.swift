@@ -7,12 +7,13 @@
 //
 
 import Foundation
-import TangemFoundation
+import BlockchainSdk
 
 struct P2PMapper {
+    let item: StakingTokenItem = .ethereum
+    let rewardType: RewardType = .apy
+
     func mapToYieldInfo(from response: P2PDTO.Vaults.VaultsInfo) throws -> StakingYieldInfo {
-        let item: StakingTokenItem = .ethereum
-        let rewardType: RewardType = .apy
         let validators = response.vaults.map { mapToValidatorInfo(from: $0) }
 
         let rewardRateValues = RewardRateValues(
@@ -21,7 +22,7 @@ struct P2PMapper {
         )
 
         return StakingYieldInfo(
-            id: "ethereum",
+            id: item.network.rawValue,
             isAvailable: true,
             rewardType: rewardType,
             rewardRateValues: rewardRateValues,
@@ -136,13 +137,14 @@ struct P2PMapper {
     }
 }
 
-extension StakingTokenItem {
+public extension StakingTokenItem {
     static var ethereum: StakingTokenItem {
+        let blockchain: Blockchain = .ethereum(testnet: false)
         return StakingTokenItem(
-            network: "ethereum",
-            name: "Ethereum",
-            decimals: 18,
-            symbol: "ETH"
+            network: .ethereum,
+            name: blockchain.displayName,
+            decimals: blockchain.decimalCount,
+            symbol: blockchain.currencySymbol
         )
     }
 }

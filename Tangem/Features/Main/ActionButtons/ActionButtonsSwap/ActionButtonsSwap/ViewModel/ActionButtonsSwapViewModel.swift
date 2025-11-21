@@ -179,11 +179,21 @@ final class ActionButtonsSwapViewModel: ObservableObject {
 
         let openExpressAction = { [weak coordinator, userWalletModel] in
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                coordinator?.openExpress(input: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    source: sourceToken.walletModel.asExpressInteractorWallet,
-                    destination: .chosen(destinationToken.walletModel.asExpressInteractorWallet)
-                ))
+                coordinator?.openExpress(
+                    input: .init(
+                        userWalletInfo: userWalletModel.userWalletInfo,
+                        source: ExpressInteractorWalletWrapper(
+                            userWalletInfo: userWalletModel.userWalletInfo,
+                            walletModel: sourceToken.walletModel
+                        ),
+                        destination: .chosen(
+                            ExpressInteractorWalletWrapper(
+                                userWalletInfo: userWalletModel.userWalletInfo,
+                                walletModel: destinationToken.walletModel
+                            )
+                        )
+                    )
+                )
             }
         }
 

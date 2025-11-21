@@ -69,13 +69,11 @@ extension CommonExpressAvailabilityProvider.Error: UniversalError {
     }
 }
 
-extension ExpressTransactionBuilderError: UniversalError {
+extension ExpressDEXTransactionProcessorError: UniversalError {
     var errorCode: Int {
         switch self {
-        case .approveImpossibleInNotEvmBlockchain:
-            103005000
         case .transactionDataForSwapOperationNotFound:
-            103005001
+            103005000
         }
     }
 }
@@ -87,6 +85,8 @@ extension ExpressProviderError: @retroactive UniversalError {
             103006000
         case .transactionSizeNotSupported:
             103006001
+        case .allowanceProviderNotFound:
+            103006002
         }
     }
 }

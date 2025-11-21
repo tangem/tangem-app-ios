@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import TangemFoundation
 
 final class MobileFinishActivationManager {
@@ -15,6 +16,7 @@ final class MobileFinishActivationManager {
     private var userWalletId: UserWalletId?
     private var onActivation: Activation?
     private var isObservationFinished: Bool = false
+    private var walletModelsSubscription: AnyCancellable?
 
     func observe(userWalletId: UserWalletId, onActivation: @escaping Activation) {
         self.userWalletId = userWalletId
@@ -33,17 +35,6 @@ final class MobileFinishActivationManager {
 
         isObservationFinished = true
 
-        let cachedBalance: Decimal = switch userWalletModel.totalBalance {
-        case .loaded(let balance): balance
-        case .loading(let cachedBalance): cachedBalance ?? 0
-        case .failed(let cachedBalance, _): cachedBalance ?? 0
-        case .empty: 0
-        }
-
-        guard cachedBalance > 0 else {
-            return
-        }
-
         let config = userWalletModel.config
         let needBackup = config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
         let needAccessCode = config.hasFeature(.userWalletAccessCode) && config.userWalletAccessCodeStatus == .none
@@ -52,7 +43,16 @@ final class MobileFinishActivationManager {
             return
         }
 
-        onActivation(userWalletModel)
+        walletModelsSubscription = AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
+            .first()
+            .sink { walletModels in
+                let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
+                let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
+
+                if hasPositiveBalance {
+                    onActivation(userWalletModel)
+                }
+            }
     }
 }
 

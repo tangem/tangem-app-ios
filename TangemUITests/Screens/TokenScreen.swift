@@ -21,6 +21,9 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var actionButtons = otherElement(.tokenActionButtons)
     private lazy var stakeNotificationButton = button(.stakeNotificationButton)
     private lazy var topUpBanner = staticText(.topUpBanner)
+    private lazy var notEnoughFeeForTransactionBanner = otherElement(.notEnoughFeeForTransactionBanner)
+    private lazy var goToFeeCurrencyButton = button(.feeCurrencyNavigationButton)
+    private lazy var tokenNameLabel = staticText(.tokenNameLabel)
 
     // Action buttons
     private lazy var receiveButton = button(.receiveButton)
@@ -120,6 +123,31 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     @discardableResult
+    func waitForInsufficientFeeCurrencyBanner() -> Self {
+        XCTContext.runActivity(named: "Validate insufficient fee currency banner exists") { _ in
+            waitAndAssertTrue(insufficientFeeCurrencyBanner, "Insufficient fee currency banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapGoToFeeCurrencyButton() -> TokenScreen {
+        XCTContext.runActivity(named: "Tap go to fee currency button") { _ in
+            goToFeeCurrencyButton.waitAndTap()
+        }
+        return TokenScreen(app)
+    }
+
+    @discardableResult
+    func waitForTokenName(_ name: String) -> Self {
+        XCTContext.runActivity(named: "Validate token name '\(name)' is displayed") { _ in
+            waitAndAssertTrue(tokenNameLabel, "Token name label should exist")
+            XCTAssertEqual(tokenNameLabel.label, name, "Token details should display '\(name)' token name")
+        }
+        return self
+    }
+
+    @discardableResult
     func validateTopUpWalletBannerNotExists() -> Self {
         XCTContext.runActivity(named: "Validate 'Top up your wallet' banner not exists") { _ in
             topUpBanner.waitForState(state: .doesntExist)
@@ -187,6 +215,41 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         }
         return self
     }
+
+    // MARK: - Notification Validation Methods
+
+    @discardableResult
+    func waitForNotEnoughFeeForTransactionBanner() -> Self {
+        XCTContext.runActivity(named: "Validate 'Not enough fee for transaction' notification banner exists") { _ in
+            waitAndAssertTrue(notEnoughFeeForTransactionBanner, "'Not enough fee for transaction' notification banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForNotEnoughFeeNotificationContent(
+        expectedTitle: String,
+        expectedButtonText: String
+    ) -> Self {
+        XCTContext.runActivity(named: "Validate 'Not enough fee for transaction' notification content") { _ in
+            waitAndAssertTrue(notEnoughFeeForTransactionBanner, "Notification banner should exist")
+
+            let notificationIcon = notEnoughFeeForTransactionBanner.images[CommonUIAccessibilityIdentifiers.notificationIcon]
+            waitAndAssertTrue(notificationIcon, "Notification icon should be displayed")
+
+            let notificationTitle = notEnoughFeeForTransactionBanner.staticTexts[CommonUIAccessibilityIdentifiers.notificationTitle]
+            waitAndAssertTrue(notificationTitle, "Notification title should be displayed")
+            XCTAssertEqual(notificationTitle.label, expectedTitle, "Notification title should be '\(expectedTitle)'")
+
+            let notificationMessage = notEnoughFeeForTransactionBanner.staticTexts[CommonUIAccessibilityIdentifiers.notificationMessage]
+            waitAndAssertTrue(notificationMessage, "Notification message should be displayed")
+
+            let notificationButton = notEnoughFeeForTransactionBanner.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
+            waitAndAssertTrue(notificationButton, "Notification button should be displayed")
+            XCTAssertEqual(notificationButton.label, expectedButtonText, "Button label should be '\(expectedButtonText)'")
+        }
+        return self
+    }
 }
 
 enum TokenScreenElement: String, UIElement {
@@ -198,6 +261,9 @@ enum TokenScreenElement: String, UIElement {
     case nativeStakingTitle
     case nativeStakingChevron
     case topUpBanner
+    case feeCurrencyNavigationButton
+    case tokenNameLabel
+    case notEnoughFeeForTransactionBanner
     case availableSegment
     case totalBalance
     case availableBalance
@@ -226,6 +292,12 @@ enum TokenScreenElement: String, UIElement {
             return TokenAccessibilityIdentifiers.nativeStakingChevron
         case .topUpBanner:
             return TokenAccessibilityIdentifiers.topUpWalletBanner
+        case .feeCurrencyNavigationButton:
+            return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
+        case .tokenNameLabel:
+            return TokenAccessibilityIdentifiers.tokenNameLabel
+        case .notEnoughFeeForTransactionBanner:
+            return TokenAccessibilityIdentifiers.notEnoughFeeForTransactionBanner
         case .availableSegment:
             return "Available"
         case .totalBalance:
