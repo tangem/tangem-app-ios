@@ -397,7 +397,7 @@ private extension TokenDetailsViewModel {
                 yieldManager: manager,
                 state: .active(
                     isApproveRequired: info.isAllowancePermissionRequired,
-                    hasUndepositedAmounts: !info.nonYieldModuleBalanceValue.isZero,
+                    undepositedAmount: info.nonYieldModuleBalanceValue,
                     apy: marketInfo?.apy
                 )
             )
@@ -509,9 +509,15 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 
 extension TokenDetailsViewModel {
     func makeYieldStatusViewModel(yieldManager: YieldModuleManager, state: YieldStatusViewModel.State) -> YieldStatusViewModel {
-        YieldStatusViewModel(state: state, manager: yieldManager, navigationAction: { [weak self] in
-            self?.openYieldEarnInfo()
-        })
+        YieldStatusViewModel(
+            state: state,
+            manager: yieldManager,
+            feeTokenItem: walletModel.feeTokenItem,
+            token: walletModel.tokenItem,
+            navigationAction: { [weak self] in
+                self?.openYieldEarnInfo()
+            }
+        )
     }
 
     func makeYieldNotificationViewModel(apy: Decimal) -> YieldAvailableNotificationViewModel {
