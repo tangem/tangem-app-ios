@@ -79,9 +79,10 @@ final class TangemPayAccount {
         customerInfoSubject.value?.productInstance?.cardId
     }
 
-    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
+    @Injected(\.tangemPayAuthorizationTokensRepository)
+    private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
-    private let authorizationTokensHandler: VisaAuthorizationTokensHandler
+    private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     private let authorizer: TangemPayAuthorizer
     private let walletAddress: String
     private let orderIdStorage: TangemPayOrderIdStorage
@@ -92,19 +93,18 @@ final class TangemPayAccount {
     private let didTapIssueOrderSubject = PassthroughSubject<Void, Never>()
     private var orderStatusPollingTask: Task<Void, Never>?
 
-    init(authorizer: TangemPayAuthorizer, walletAddress: String, tokens: VisaAuthorizationTokens) {
+    init(authorizer: TangemPayAuthorizer, walletAddress: String, tokens: TangemPayAuthorizationTokens) {
         self.authorizer = authorizer
         self.walletAddress = walletAddress
 
-        authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder()
-            .build(
-                customerWalletAddress: walletAddress,
-                authorizationTokens: tokens,
-                refreshTokenSaver: nil,
-                allowRefresherTask: false
+        authorizationTokensHandler = TangemPayAuthorizationTokensHandlerBuilder()
+            .buildTangemPayAuthorizationTokensHandler(
+                customerWalletId: authorizer.customerWalletId,
+                tokens: tokens,
+                authorizationService: authorizer.authorizationService
             )
 
-        customerInfoManagementService = VisaCustomerCardInfoProviderBuilder()
+        customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
             .buildCustomerInfoManagementService(
                 authorizationTokensHandler: authorizationTokensHandler,
                 authorizeWithCustomerWallet: authorizer.authorizeWithCustomerWallet
@@ -117,7 +117,7 @@ final class TangemPayAccount {
 
         // No reference cycle here, self is stored as weak in all three entities
         tangemPayNotificationManager.setupManager(with: self)
-        authorizationTokensHandler.setupRefreshTokenSaver(self)
+        authorizationTokensHandler.authorizationTokensSaver = self
         tangemPayIssuingManager.setupDelegate(self)
 
         loadCustomerInfo()
@@ -128,7 +128,10 @@ final class TangemPayAccount {
     }
 
     convenience init?(userWalletModel: UserWalletModel) {
-        guard let (walletAddress, refreshToken) = TangemPayUtilities.getWalletAddressAndRefreshToken(keysRepository: userWalletModel.keysRepository) else {
+        guard let (walletAddress, tokens) = TangemPayUtilities.getWalletAddressAndAuthorizationTokens(
+            customerWalletId: userWalletModel.userWalletId.stringValue,
+            keysRepository: userWalletModel.keysRepository
+        ) else {
             return nil
         }
 
@@ -136,12 +139,6 @@ final class TangemPayAccount {
             customerWalletId: userWalletModel.userWalletId.stringValue,
             interactor: userWalletModel.tangemPayAuthorizingInteractor,
             keysRepository: userWalletModel.keysRepository
-        )
-
-        let tokens = VisaAuthorizationTokens(
-            accessToken: nil,
-            refreshToken: refreshToken,
-            authorizationType: .customerWallet
         )
 
         self.init(authorizer: authorizer, walletAddress: walletAddress, tokens: tokens)
@@ -257,9 +254,9 @@ final class TangemPayAccount {
 
 // MARK: - VisaRefreshTokenSaver
 
-extension TangemPayAccount: VisaRefreshTokenSaver {
-    func saveRefreshTokenToStorage(refreshToken: String, visaRefreshTokenId: VisaRefreshTokenId) throws {
-        try visaRefreshTokenRepository.save(refreshToken: refreshToken, visaRefreshTokenId: visaRefreshTokenId)
+extension TangemPayAccount: TangemPayAuthorizationTokensSaver {
+    func saveAuthorizationTokensToStorage(tokens: TangemPayAuthorizationTokens, customerWalletId: String) throws {
+        try tangemPayAuthorizationTokensRepository.save(tokens: tokens, customerWalletId: customerWalletId)
     }
 }
 
