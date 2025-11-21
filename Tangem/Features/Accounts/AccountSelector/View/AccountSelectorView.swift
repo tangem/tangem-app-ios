@@ -112,6 +112,7 @@ private extension AccountSelectorView {
                 }
             )
             .buttonStyle(.plain)
+            .disabled(account.availability != .available)
 
             cellSelectionBorder(for: .account(account))
         }
