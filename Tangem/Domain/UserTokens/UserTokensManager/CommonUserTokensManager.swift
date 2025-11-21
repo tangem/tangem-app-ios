@@ -19,7 +19,6 @@ final class CommonUserTokensManager {
 
     weak var walletModelsManager: WalletModelsManager?
     weak var derivationManager: DerivationManager?
-    weak var keysDerivingProvider: KeysDerivingProvider?
 
     private let userWalletId: UserWalletId
     private let shouldLoadExpressAvailability: Bool
@@ -28,6 +27,7 @@ final class CommonUserTokensManager {
     private let existingCurves: [EllipticCurve]
     private let hardwareLimitationsUtil: HardwareLimitationsUtil
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
+
     init(
         userWalletId: UserWalletId,
         shouldLoadExpressAvailability: Bool,
@@ -140,10 +140,6 @@ final class CommonUserTokensManager {
 // MARK: - UserTokensManager protocol conformance
 
 extension CommonUserTokensManager: UserTokensManager {
-    var initialized: Bool {
-        userTokenListManager.initialized
-    }
-
     var initializedPublisher: AnyPublisher<Bool, Never> {
         userTokenListManager.initializedPublisher
     }
@@ -161,17 +157,14 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, Swift.Error>) -> Void) {
-        guard
-            let derivationManager,
-            let interactor = keysDerivingProvider?.keysDerivingInteractor
-        else {
+        guard let derivationManager else {
             completion(.success(()))
             return
         }
 
         // Delay to update derivations in derivationManager
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            derivationManager.deriveKeys(interactor: interactor, completion: completion)
+            derivationManager.deriveKeys(completion: completion)
         }
     }
 
@@ -186,7 +179,7 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
-        guard let derivationManager, let keysDerivingProvider else {
+        guard let derivationManager else {
             return false
         }
 
@@ -202,8 +195,7 @@ extension CommonUserTokensManager: UserTokensManager {
 
         return derivationManager.shouldDeriveKeys(
             networksToRemove: networksToRemove,
-            networksToAdd: networksToAdd,
-            interactor: keysDerivingProvider.keysDerivingInteractor
+            networksToAdd: networksToAdd
         )
     }
 
