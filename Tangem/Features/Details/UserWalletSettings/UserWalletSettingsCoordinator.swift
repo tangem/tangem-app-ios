@@ -35,7 +35,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var accountDetailsCoordinator: AccountDetailsCoordinator?
     @Published var archivedAccountsCoordinator: ArchivedAccountsCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
-    @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
+    @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator?
 
     // MARK: - Child view models
 
@@ -121,16 +121,7 @@ extension UserWalletSettingsCoordinator:
     }
 
     func openOnboardingModal(with options: OnboardingCoordinator.Options) {
-        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
-            self?.modalOnboardingCoordinator = nil
-            if result.isSuccessful {
-                self?.dismiss()
-            }
-        }
-
-        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: options)
-        modalOnboardingCoordinator = coordinator
+        openOnboardingModal(options: options)
     }
 
     func openScanCardSettings(with input: ScanCardSettingsViewModel.Input) {
@@ -185,10 +176,14 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    func openMobileBackupNeeded(userWalletModel: UserWalletModel) {
+    func openMobileBackupNeeded(userWalletModel: UserWalletModel, onBackupFinished: @escaping () -> Void) {
         Analytics.log(.walletSettingsNoticeBackupFirst)
 
-        let viewModel = MobileBackupNeededViewModel(userWalletModel: userWalletModel, coordinator: self)
+        let viewModel = MobileBackupNeededViewModel(
+            userWalletModel: userWalletModel,
+            onBackupFinished: onBackupFinished,
+            coordinator: self
+        )
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -209,22 +204,31 @@ extension UserWalletSettingsCoordinator:
         mobileBackupTypesCoordinator = coordinator
     }
 
-    func openMobileUpgrade(userWalletModel: UserWalletModel) {
-        let dismissAction: Action<HardwareBackupTypesCoordinator.OutputOptions> = { [weak self] options in
+    @MainActor
+    func openMobileUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext) {
+        let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
             switch options {
+            case .dismiss:
+                self?.mobileUpgradeCoordinator = nil
             case .main(let userWalletModel):
-                self?.dismiss(with: .main(userWalletModel: userWalletModel))
+                self?.openMain(userWalletModel: userWalletModel)
             }
         }
 
-        let inputOptions = HardwareBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
-        let coordinator = HardwareBackupTypesCoordinator(dismissAction: dismissAction)
+        let coordinator = MobileUpgradeCoordinator(dismissAction: dismissAction)
+        let inputOptions = MobileUpgradeCoordinator.InputOptions(userWalletModel: userWalletModel, context: context)
         coordinator.start(with: inputOptions)
-        hardwareBackupTypesCoordinator = coordinator
+        mobileUpgradeCoordinator = coordinator
+    }
+
+    @MainActor
+    func openMobileBackupToUpgradeNeeded(onBackupRequested: @escaping () -> Void) {
+        let sheet = MobileBackupToUpgradeNeededViewModel(coordinator: self, onBackup: onBackupRequested)
+        floatingSheetPresenter.enqueue(sheet: sheet)
     }
 
     func openMobileOnboarding(input: MobileOnboardingInput) {
-        openOnboardingModal(with: .mobileInput(input))
+        openOnboardingModal(options: .mobileInput(input))
     }
 
     func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel) {
@@ -237,6 +241,15 @@ extension UserWalletSettingsCoordinator:
 
     func openAppSettings() {
         UIApplication.openSystemSettings()
+    }
+
+    func openMain(userWalletModel: UserWalletModel) {
+        dismiss(with: .main(userWalletModel: userWalletModel))
+    }
+
+    @MainActor
+    func closeOnboarding() {
+        modalOnboardingCoordinator = nil
     }
 
     func dismiss() {
@@ -262,9 +275,9 @@ extension UserWalletSettingsCoordinator:
 // MARK: - MobileBackupNeededRoutable
 
 extension UserWalletSettingsCoordinator: MobileBackupNeededRoutable {
-    func openMobileOnboardingFromMobileBackupNeeded(input: MobileOnboardingInput) {
+    func openMobileOnboardingFromMobileBackupNeeded(input: MobileOnboardingInput, onBackupFinished: @escaping () -> Void) {
         dismissMobileBackupNeeded()
-        openOnboardingModal(with: .mobileInput(input))
+        openOnboardingModal(options: .mobileInput(input), onSuccess: onBackupFinished)
     }
 
     func dismissMobileBackupNeeded() {
@@ -282,10 +295,18 @@ extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable 
 
     func openMobileOnboardingFromRemoveWalletNotification(input: MobileOnboardingInput) {
         dismissMobileRemoveWalletNotification()
-        openOnboardingModal(with: .mobileInput(input))
+        openOnboardingModal(options: .mobileInput(input))
     }
 
     func dismissMobileRemoveWalletNotification() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - MobileBackupToUpgradeNeededRoutable
+
+extension UserWalletSettingsCoordinator: MobileBackupToUpgradeNeededRoutable {
+    func dismissMobileBackupToUpgradeNeeded() {
         floatingSheetPresenter.removeActiveSheet()
     }
 }
@@ -295,5 +316,22 @@ extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable 
 extension UserWalletSettingsCoordinator: MobileRemoveWalletDelegate {
     func didRemoveMobileWallet() {
         dismiss()
+    }
+}
+
+// MARK: - Navigation
+
+private extension UserWalletSettingsCoordinator {
+    func openOnboardingModal(options: OnboardingCoordinator.Options, onSuccess: (() -> Void)? = nil) {
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
+            self?.modalOnboardingCoordinator = nil
+            if result.isSuccessful {
+                onSuccess?()
+            }
+        }
+
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: options)
+        modalOnboardingCoordinator = coordinator
     }
 }
