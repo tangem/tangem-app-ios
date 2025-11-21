@@ -126,8 +126,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 selection: BindingValue<String>(
                     root: featureStorage,
                     default: StakeKitAPIType.prod.rawValue,
-                    get: { $0.stakingAPIType.rawValue },
-                    set: { $0.stakingAPIType = StakeKitAPIType(rawValue: $1) ?? .prod }
+                    get: { $0.stakeKitAPIType.rawValue },
+                    set: { $0.stakeKitAPIType = StakeKitAPIType(rawValue: $1) ?? .prod }
                 )
             ),
             DefaultPickerRowViewModel(
