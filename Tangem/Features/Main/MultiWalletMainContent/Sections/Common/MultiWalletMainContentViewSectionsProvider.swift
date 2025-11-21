@@ -19,5 +19,5 @@ protocol MultiWalletMainContentViewSectionsProvider {
     /// - Note: Always returns shared publisher.
     func makeAccountSectionsPublisher() -> AccountsSectionsPublisher
 
-    func setup(with itemViewModelFactory: MultiWalletMainContentItemViewModelFactory)
+    func configure(with itemViewModelFactory: MultiWalletMainContentItemViewModelFactory)
 }

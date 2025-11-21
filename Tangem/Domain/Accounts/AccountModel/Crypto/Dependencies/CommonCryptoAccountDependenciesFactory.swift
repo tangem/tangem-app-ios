@@ -15,6 +15,8 @@ struct CommonCryptoAccountDependenciesFactory {
     typealias UserTokensRepositoryProvider = (_ derivationIndex: Int) -> UserTokensRepository
     typealias WalletModelsFactoryProvider = (_ userWalletId: UserWalletId) -> WalletModelsFactory
 
+    /// A single instance per user wallet
+    let derivationManager: DerivationManager?
     let derivationStyle: DerivationStyle?
     let keysRepository: KeysRepository
     let walletManagerFactory: AnyWalletManagerFactory
@@ -32,7 +34,7 @@ struct CommonCryptoAccountDependenciesFactory {
 extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFactory {
     func makeDependencies(
         forAccountWithDerivationIndex derivationIndex: Int,
-        userWalletModel: UserWalletModel
+        userWalletId: UserWalletId
     ) -> CryptoAccountDependencies {
         let derivationInfo = AccountsAwareUserTokensManager.DerivationInfo(
             derivationIndex: derivationIndex,
@@ -42,7 +44,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let userTokensRepository = userTokensRepositoryProvider(derivationIndex)
 
         let userTokensManager = AccountsAwareUserTokensManager(
-            userWalletId: userWalletModel.userWalletId,
+            userWalletId: userWalletId,
             userTokensRepository: userTokensRepository,
             derivationInfo: derivationInfo,
             existingCurves: existingCurves,
@@ -57,7 +59,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletManagerFactory: walletManagerFactory
         )
 
-        let walletModelsFactory = walletModelsFactoryProvider(userWalletModel.userWalletId)
+        let walletModelsFactory = walletModelsFactoryProvider(userWalletId)
         let wrappedWalletModelsFactory = AccountsAwareWalletModelsFactoryWrapper(innerFactory: walletModelsFactory)
 
         let walletModelsManager = CommonWalletModelsManager(
@@ -65,20 +67,23 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletModelsFactory: wrappedWalletModelsFactory
         )
 
-        let derivationManager = areHDWalletsSupported
-            ? CommonDerivationManager(keysRepository: keysRepository, userTokensManager: userTokensManager)
-            : nil
+        // A single instance per unique account, account-specific proxy for `derivationManager`
+        let accountSpecificDerivationManager = derivationManager.map { innerDerivationManager in
+            return AccountDerivationManager(
+                keysRepository: keysRepository,
+                userTokensManager: userTokensManager,
+                innerDerivationManager: innerDerivationManager
+            )
+        }
 
-        userTokensManager.derivationManager = derivationManager
+        userTokensManager.derivationManager = accountSpecificDerivationManager
         userTokensManager.walletModelsManager = walletModelsManager
-        userTokensManager.keysDerivingProvider = userWalletModel
-        userTokensManager.sync {}
 
         return CryptoAccountDependencies(
             userTokensManager: userTokensManager,
             walletModelsManager: walletModelsManager,
             walletModelsFactoryInput: wrappedWalletModelsFactory,
-            derivationManager: derivationManager
+            derivationManager: accountSpecificDerivationManager
         )
     }
 }

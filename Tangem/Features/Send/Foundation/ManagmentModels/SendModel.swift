@@ -326,18 +326,10 @@ private extension SendModel {
     }
 
     private func addTokenFromTransactionIfNeeded(_ transaction: BSDKTransaction) {
-        guard let token = transaction.amount.type.token else {
-            return
-        }
-
-        switch token.metadata.kind {
-        case .fungible:
-            UserWalletFinder().addToken(
-                token,
-                in: sourceToken.tokenItem.blockchain,
-                for: transaction.destinationAddress
-            )
-        case .nonFungible:
+        switch transaction.amount.type.token {
+        case .some(let token) where token.metadata.kind == .fungible:
+            try? TokenAdder.addToken(defaultAddress: transaction.destinationAddress, token: token)
+        default:
             break // NFTs should never be shown in the token list
         }
     }

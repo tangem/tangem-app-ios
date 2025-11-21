@@ -13,7 +13,8 @@ enum ArchivedAccountInfoToAccountRowDataMapper {
         AccountRowViewModel.Input(
             iconData: AccountModelUtils.UI.iconViewData(icon: info.icon, accountName: info.name),
             name: info.name,
-            subtitle: Localization.commonTokensCount(info.tokensCount)
+            subtitle: Localization.commonTokensCount(info.tokensCount),
+            availability: .available
         )
     }
 }

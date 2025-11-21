@@ -25,7 +25,7 @@ class StakingDependenciesFactory {
             credential: StakingAPICredential(apiKey: keysManager.stakeKitKey),
             configuration: .stakingConfiguration,
             plugins: plugins,
-            apiType: FeatureStorage.instance.stakingAPIType
+            apiType: FeatureStorage.instance.stakeKitAPIType
         )
     }
 
@@ -54,13 +54,12 @@ class StakingDependenciesFactory {
 
     func makeStakingManager(integrationId: String, wallet: StakingWallet) -> StakingManager {
         switch (wallet.item.network, wallet.item.contractAddress) {
-        case (Blockchain.ethereum(testnet: false).coinId, .none):
+        case (.ethereum, .none):
             TangemStakingFactory().makeP2PStakingManager(
                 wallet: wallet,
                 provider: makeP2PAPIProvider(),
                 analyticsLogger: CommonStakingAnalyticsLogger()
             )
-
         default:
             TangemStakingFactory().makeStakeKitStakingManager(
                 integrationId: integrationId,

@@ -61,27 +61,27 @@ class StakingFeatureProvider {
 extension StakingFeatureProvider {
     static var supportedBlockchainItems: Set<StakingItem> {
         [
-            StakingItem(network: StakeKitNetworkType.solana.rawValue, contractAddress: nil),
-            StakingItem(network: StakeKitNetworkType.cosmos.rawValue, contractAddress: nil),
-            StakingItem(network: StakeKitNetworkType.tron.rawValue, contractAddress: nil),
+            StakingItem(network: .solana, contractAddress: nil),
+            StakingItem(network: .cosmos, contractAddress: nil),
+            StakingItem(network: .tron, contractAddress: nil),
             StakingItem(
-                network: StakeKitNetworkType.ethereum.rawValue,
+                network: .ethereum,
                 contractAddress: StakingConstants.polygonContractAddress
             ),
-            StakingItem(network: StakeKitNetworkType.binance.rawValue, contractAddress: nil),
-            StakingItem(network: StakeKitNetworkType.ton.rawValue, contractAddress: nil),
+            StakingItem(network: .bsc, contractAddress: nil),
+            StakingItem(network: .ton, contractAddress: nil),
         ]
     }
 
     static var testableBlockchainItems: Set<StakingItem> {
         [
-            StakingItem(network: StakeKitNetworkType.cardano.rawValue, contractAddress: nil),
-            StakingItem(network: StakeKitNetworkType.ethereum.rawValue, contractAddress: nil),
+            StakingItem(network: .cardano, contractAddress: nil),
+            StakingItem(network: .ethereum, contractAddress: nil),
         ]
     }
 
     func yieldIds(item: StakingItem) -> String? {
-        switch (StakeKitNetworkType(rawValue: item.network), item.contractAddress) {
+        switch (item.network, item.contractAddress) {
         case (.solana, .none):
             return "solana-sol-native-multivalidator-staking"
         case (.cosmos, .none):
@@ -90,14 +90,14 @@ extension StakingFeatureProvider {
             return "ethereum-matic-native-staking"
         case (.tron, .none):
             return "tron-trx-native-staking"
-        case (.binance, .none):
+        case (.bsc, .none):
             return "bsc-bnb-native-staking"
         case (.ton, .none):
             return "ton-ton-chorus-one-pools-staking"
         case (.cardano, .none):
             return "cardano-ada-native-staking"
         case (.ethereum, .none):
-            return "p2p-staking" // dummy id for consistency
+            return "ethereum-p2p-staking" // dummy id for consistency
         default:
             return nil
         }
@@ -106,11 +106,11 @@ extension StakingFeatureProvider {
 
 extension StakingFeatureProvider {
     struct StakingItem: Hashable {
-        let network: String
+        let network: StakingNetworkType
         let contractAddress: String?
 
         var id: String {
-            var id = network
+            var id = network.rawValue
             if let contractAddress {
                 id += "_\(contractAddress)"
             }
@@ -118,7 +118,7 @@ extension StakingFeatureProvider {
         }
 
         var name: String {
-            "\(network.capitalizingFirstLetter())\(contractAddress.map { "\nToken: (\($0))" } ?? "")"
+            "\(network.rawValue.capitalizingFirstLetter())\(contractAddress.map { "\nToken: (\($0))" } ?? "")"
         }
     }
 }

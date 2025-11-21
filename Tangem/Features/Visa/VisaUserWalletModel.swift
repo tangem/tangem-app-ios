@@ -349,11 +349,11 @@ extension VisaUserWalletModel {
                 allowRefresherTask: true
             )
 
-        if await authorizationTokensHandler.refreshTokenExpired {
+        if authorizationTokensHandler.refreshTokenExpired {
             throw ModelError.missingValidRefreshToken
         }
 
-        if await authorizationTokensHandler.accessTokenExpired {
+        if authorizationTokensHandler.accessTokenExpired {
             try await authorizationTokensHandler.forceRefreshToken()
         }
 
@@ -558,6 +558,10 @@ extension VisaUserWalletModel: UserWalletModel {
     var refcodeProvider: RefcodeProvider? { userWalletModel.refcodeProvider }
 
     var keysDerivingInteractor: any KeysDeriving { userWalletModel.keysDerivingInteractor }
+
+    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
+        userWalletModel.tangemPayAuthorizingInteractor
+    }
 
     var userTokensPushNotificationsManager: any UserTokensPushNotificationsManager {
         userWalletModel.userTokensPushNotificationsManager

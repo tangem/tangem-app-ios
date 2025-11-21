@@ -53,7 +53,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
             expressPairsRepository: expressPairsRepository,
             expressInteractor: expressInteractor,
             coordinator: coordinator,
-            userWalletModelConfig: userWalletModel.config
+            userWalletInfo: userWalletModel.userWalletInfo
         )
     }
 
@@ -163,19 +163,15 @@ private extension ExpressModulesFactoryMock {
     var balanceConverter: BalanceConverter { .init() }
     var balanceFormatter: BalanceFormatter { .init() }
     var providerFormatter: ExpressProviderFormatter { .init(balanceFormatter: balanceFormatter) }
-    // accounts_fixes_needed_express
-    var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
     var signer: TangemSigner { CardSigner(filter: .cardId(""), sdk: TangemSdkDefaultFactory().makeTangemSdk(), twinKey: nil) }
-    /// accounts_fixes_needed_express
-    var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
         CommonExpressTokensListAdapter(userWalletId: userWalletInfo.id)
     }
 
     var expressDestinationService: ExpressDestinationService {
-        CommonExpressDestinationService(userWalletId: userWalletInfo.id)
+        CommonExpressDestinationService()
     }
 
     // MARK: - Methods
@@ -202,7 +198,13 @@ private extension ExpressModulesFactoryMock {
 
         let interactor = ExpressInteractor(
             userWalletInfo: userWalletInfo,
-            swappingPair: .init(sender: .success(initialWalletModel.asExpressInteractorWallet), destination: .loading),
+            swappingPair: .init(
+                sender: .success(ExpressInteractorWalletWrapper(
+                    userWalletInfo: userWalletInfo,
+                    walletModel: initialWalletModel
+                )),
+                destination: .loading
+            ),
             expressManager: expressManager,
             expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,

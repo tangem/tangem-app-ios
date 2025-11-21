@@ -11,14 +11,14 @@ import TangemExpress
 struct ExpressPendingTransactionsFactory {
     let userWalletInfo: UserWalletInfo
     let walletModel: any WalletModel
-    let userTokensManager: any UserTokensManager
 
     func makePendingExpressTransactionsManager() -> any PendingExpressTransactionsManager {
-        let tokenFinder = CommonTokenFinder(supportedBlockchains: userWalletInfo.config.supportedBlockchains)
+        let tokenEnricher = CommonTokenEnricher(
+            supportedBlockchains: userWalletInfo.config.supportedBlockchains
+        )
 
         let expressRefundedTokenHandler = CommonExpressRefundedTokenHandler(
-            userTokensManager: userTokensManager,
-            tokenFinder: tokenFinder
+            tokenEnricher: tokenEnricher
         )
 
         let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
