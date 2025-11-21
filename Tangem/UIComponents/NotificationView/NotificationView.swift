@@ -116,10 +116,12 @@ struct NotificationView: View {
                 case .string(let string):
                     Text(string)
                         .style(Fonts.Bold.footnote, color: settings.event.colorScheme.titleColor)
+                        .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
                 case .attributed(let attributedString):
                     Text(attributedString)
+                        .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
                 case .none:
