@@ -9,108 +9,26 @@
 import Foundation
 import TangemNetworkUtils
 
-final class P2PStakingAPIService {
-    private let provider: TangemProvider<P2PTarget>
-    private let credential: StakingAPICredential
-
-    private let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return decoder
-    }()
-
-    init(provider: TangemProvider<P2PTarget> = .init(), credential: StakingAPICredential) {
-        self.provider = provider
-        self.credential = credential
-    }
-
-    // MARK: - Vaults
-
-    func getVaultsList(network: String) async throws -> P2PDTO.Vaults.VaultsInfo {
-        try await response(.getVaultsList(network: network))
-    }
-
-    // MARK: - Account Summary
-
+protocol P2PStakingAPIService {
+    func getVaultsList() async throws -> P2PDTO.Vaults.VaultsInfo
     func getAccountSummary(
-        network: String,
         delegatorAddress: String,
         vaultAddress: String
-    ) async throws -> P2PDTO.AccountSummary.AccountSummaryInfo {
-        try await response(
-            .getAccountSummary(network: network, delegatorAddress: delegatorAddress, vaultAddress: vaultAddress)
-        )
-    }
-
-    // MARK: - Rewards History
-
+    ) async throws -> P2PDTO.AccountSummary.AccountSummaryInfo
     func getRewardsHistory(
-        network: String,
         delegatorAddress: String,
         vaultAddress: String
-    ) async throws -> P2PDTO.RewardsHistory.RewardsHistoryInfo {
-        try await response(
-            .getRewardsHistory(network: network, delegatorAddress: delegatorAddress, vaultAddress: vaultAddress)
-        )
-    }
-
-    // MARK: - Prepare Deposit Transaction
-
+    ) async throws -> P2PDTO.RewardsHistory.RewardsHistoryInfo
     func prepareDepositTransaction(
-        network: String,
         request: P2PDTO.PrepareDepositTransaction.Request
-    ) async throws -> P2PDTO.PrepareDepositTransaction.PrepareDepositTransactionInfo {
-        try await response(
-            .prepareDepositTransaction(network: network, request: request)
-        )
-    }
-
-    // MARK: - Prepare Unstake Transaction
-
+    ) async throws -> P2PDTO.PrepareDepositTransaction.PrepareDepositTransactionInfo
     func prepareUnstakeTransaction(
-        network: String,
         request: P2PDTO.PrepareUnstakeTransaction.Request
-    ) async throws -> P2PDTO.PrepareUnstakeTransaction.PrepareUnstakeTransactionInfo {
-        try await response(
-            .prepareUnstakeTransaction(network: network, request: request)
-        )
-    }
-
-    // MARK: - Prepare Withdraw Transaction
-
+    ) async throws -> P2PDTO.PrepareUnstakeTransaction.PrepareUnstakeTransactionInfo
     func prepareWithdrawTransaction(
-        network: String,
         request: P2PDTO.PrepareWithdrawTransaction.Request
-    ) async throws -> P2PDTO.PrepareWithdrawTransaction.PrepareWithdrawTransactionInfo {
-        try await response(
-            .prepareWithdrawTransaction(network: network, request: request)
-        )
-    }
-
-    // MARK: - Broadcast Transaction
-
+    ) async throws -> P2PDTO.PrepareWithdrawTransaction.PrepareWithdrawTransactionInfo
     func broadcastTransaction(
-        network: String,
         request: P2PDTO.BroadcastTransaction.Request
-    ) async throws -> P2PDTO.BroadcastTransaction.BroadcastTransactionInfo {
-        try await response(
-            .broadcastTransaction(network: network, request: request)
-        )
-    }
-
-    // MARK: - Private
-
-    private func response<T: Decodable>(_ target: P2PTarget) async throws -> T {
-        let response = try await provider.requestPublisher(target).async()
-        let filtered = try response.filterSuccessfulStatusCodes()
-        let p2pResponse = try decoder.decode(P2PDTO.GenericResponse<T>.self, from: filtered.data)
-        if let error = p2pResponse.error {
-            throw P2PStakingAPIError.apiError(error)
-        }
-        return p2pResponse.result
-    }
-}
-
-enum P2PStakingAPIError: Error {
-    case apiError(P2PDTO.APIError)
+    ) async throws -> P2PDTO.BroadcastTransaction.BroadcastTransactionInfo
 }
