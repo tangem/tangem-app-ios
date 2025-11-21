@@ -372,7 +372,7 @@ private extension StakingDetailsViewModel {
     }
 
     private func openRewardsFlow(rewardsBalances: [StakingBalance], yield: StakingYieldInfo) {
-        if rewardsBalances.count == 1, let rewardsBalance = rewardsBalances.first {
+        if let rewardsBalance = rewardsBalances.singleElement {
             openFlow(balance: rewardsBalance, validators: yield.validators)
 
             let name = rewardsBalance.validatorType.validator?.name
