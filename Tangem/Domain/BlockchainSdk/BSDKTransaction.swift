@@ -12,6 +12,8 @@ import BlockchainSdk
 typealias BSDKTransaction = BlockchainSdk.Transaction
 typealias StakingTransaction = BlockchainSdk.StakingTransaction
 
+typealias BSDKBlockchain = BlockchainSdk.Blockchain
+typealias BSDKToken = BlockchainSdk.Token
 typealias BSDKAmount = BlockchainSdk.Amount
 typealias BSDKFee = BlockchainSdk.Fee
 

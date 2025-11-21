@@ -12,7 +12,9 @@ import BlockchainSdk
 import TangemVisa
 import SwiftUI
 import TangemFoundation
+import TangemMacro
 
+@CaseFlagable
 enum DefaultWalletData: Codable {
     case file(WalletData)
     case legacy(WalletData)
