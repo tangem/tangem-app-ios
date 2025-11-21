@@ -12,11 +12,11 @@ import TangemVisa
 protocol TangemPayAuthorizing: AnyObject {
     func authorize(
         customerWalletId: String,
-        authorizationService: VisaAuthorizationService
+        authorizationService: TangemPayAuthorizationService
     ) async throws -> TangemPayAuthorizingResponse
 }
 
 struct TangemPayAuthorizingResponse {
-    public let tokens: VisaAuthorizationTokens
+    public let tokens: TangemPayAuthorizationTokens
     public let derivationResult: [Data: DerivedKeys]
 }

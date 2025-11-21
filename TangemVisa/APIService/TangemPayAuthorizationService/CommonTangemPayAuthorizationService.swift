@@ -19,7 +19,7 @@ struct CommonTangemPayAuthorizationService {
 }
 
 extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
-    func getChallenge(
+    public func getChallenge(
         customerWalletAddress: String,
         customerWalletId: String
     ) async throws -> TangemPayGetChallengeResponse {
@@ -32,7 +32,7 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
         ))
     }
 
-    func getTokens(
+    public func getTokens(
         sessionId: String,
         signedChallenge: String,
         messageFormat: String
@@ -47,7 +47,7 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
         ))
     }
 
-    func refreshTokens(refreshToken: String) async throws -> TangemPayAuthorizationTokens {
+    public func refreshTokens(refreshToken: String) async throws -> TangemPayAuthorizationTokens {
         try await apiService.request(.init(
             target: .refreshTokens(.init(refreshToken: refreshToken)),
             apiType: apiType
