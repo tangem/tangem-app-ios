@@ -108,10 +108,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                     return nil
                 }
 
-                // accounts_fixes_needed_notifications
                 return BannerNotificationManager(
                     userWalletInfo: model.userWalletInfo,
-                    walletModelsManager: model.walletModelsManager,
+                    walletModelsPublisher: AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: model),
                     placement: .main
                 )
             }()
