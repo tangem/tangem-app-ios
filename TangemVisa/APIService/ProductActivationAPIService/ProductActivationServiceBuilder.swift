@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 struct ProductActivationServiceBuilder {
     private let isMockedAPIEnabled: Bool
@@ -17,7 +18,10 @@ struct ProductActivationServiceBuilder {
         self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
-    func build(urlSessionConfiguration: URLSessionConfiguration, authorizationTokensHandler: VisaAuthorizationTokensHandler) -> ProductActivationService {
+    func build(
+        urlSessionConfiguration: URLSessionConfiguration,
+        authorizationTokensHandler: VisaAuthorizationTokensHandler
+    ) -> ProductActivationService {
         if isMockedAPIEnabled {
             return ProductActivationServiceMock()
         }
@@ -25,10 +29,7 @@ struct ProductActivationServiceBuilder {
         return CommonProductActivationService(
             apiType: apiType,
             apiService: .init(
-                provider: TangemPayProviderBuilder().buildProvider(
-                    configuration: urlSessionConfiguration,
-                    authorizationTokensHandler: authorizationTokensHandler
-                ),
+                provider: TangemProvider(plugins: [], sessionConfiguration: urlSessionConfiguration),
                 decoder: JSONDecoder()
             )
         )

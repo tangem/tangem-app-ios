@@ -7,7 +7,3 @@
 //
 
 import TangemVisa
-
-protocol TangemPayAuthorizationTokensSaver: AnyObject {
-    func saveAuthorizationTokensToStorage(tokens: TangemPayAuthorizationTokens, customerWalletId: String) throws
-}
