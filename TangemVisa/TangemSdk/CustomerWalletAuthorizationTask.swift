@@ -11,9 +11,14 @@ import TangemFoundation
 import TangemSdk
 
 public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
+    private let customerWalletId: String
     private let authorizationService: VisaAuthorizationService
 
-    public init(authorizationService: VisaAuthorizationService) {
+    public init(
+        customerWalletId: String,
+        authorizationService: VisaAuthorizationService
+    ) {
+        self.customerWalletId = customerWalletId
         self.authorizationService = authorizationService
     }
 
@@ -58,11 +63,15 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
         }
     }
 
-    private func handleCustomerWalletAuthorization(session: CardSession, walletPublicKey: Wallet.PublicKey) async throws -> VisaAuthorizationTokens {
+    private func handleCustomerWalletAuthorization(
+        session: CardSession,
+        walletPublicKey: Wallet.PublicKey
+    ) async throws -> VisaAuthorizationTokens {
         VisaLogger.info("Requesting challenge for wallet authorization")
 
         let challengeResponse = try await authorizationService.getCustomerWalletAuthorizationChallenge(
-            customerWalletAddress: TangemPayUtilities.makeAddress(using: walletPublicKey)
+            customerWalletAddress: TangemPayUtilities.makeAddress(using: walletPublicKey),
+            customerWalletId: customerWalletId
         )
 
         VisaLogger.info("Received challenge to sign")

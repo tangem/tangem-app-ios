@@ -10,7 +10,10 @@ import TangemSdk
 import TangemVisa
 
 protocol TangemPayAuthorizing: AnyObject {
-    func authorize(authorizationService: VisaAuthorizationService) async throws -> TangemPayAuthorizingResponse
+    func authorize(
+        customerWalletId: String,
+        authorizationService: VisaAuthorizationService
+    ) async throws -> TangemPayAuthorizingResponse
 }
 
 struct TangemPayAuthorizingResponse {
