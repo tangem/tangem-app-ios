@@ -38,8 +38,9 @@ extension CommonSendDestinationValidator: SendDestinationValidator {
             throw SendAddressServiceError.emptyAddress
         }
 
-        // [REDACTED_TODO_COMMENT]
-        if !supportsCompound, walletAddresses.contains(address) {
+        // e.g. XRP xAddress
+        let resolvedAddress = addressService.resolveAddress(address)
+        if !supportsCompound, walletAddresses.contains(resolvedAddress) {
             throw SendAddressServiceError.sameAsWalletAddress
         }
 
