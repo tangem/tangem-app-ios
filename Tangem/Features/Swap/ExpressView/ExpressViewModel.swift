@@ -205,7 +205,8 @@ private extension ExpressViewModel {
         let sender = interactor.getSource().value
         sendCurrencyViewModel = SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
-                titleState: .text(Localization.swappingFromTitle),
+                viewType: .send,
+                headerType: .action(name: Localization.swappingFromTitle),
                 canChangeCurrency: sender?.id != .init(tokenItem: initialTokenItem)
             ),
             decimalNumberTextFieldViewModel: .init(maximumFractionDigits: sender?.tokenItem.decimalCount ?? 0)
@@ -213,7 +214,8 @@ private extension ExpressViewModel {
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             expressCurrencyViewModel: .init(
-                titleState: .text(Localization.swappingToTitle),
+                viewType: .receive,
+                headerType: .action(name: Localization.swappingToTitle),
                 canChangeCurrency: interactor.getDestination()?.id != .init(tokenItem: initialTokenItem)
             )
         )
@@ -355,15 +357,15 @@ private extension ExpressViewModel {
     func updateSendCurrencyHeaderState(state: ExpressInteractor.State) {
         switch state {
         case .restriction(.notEnoughBalanceForSwapping, _):
-            sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .insufficientFunds)
+            sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .insufficientFunds)
         case .restriction(.notEnoughAmountForTxValue, _),
              .restriction(.notEnoughAmountForFee, _) where interactor.getSource().value?.isFeeCurrency == true:
-            sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .insufficientFunds)
+            sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .insufficientFunds)
         case .restriction(.validationError(.minimumRestrictAmount(let minimumAmount), _), _):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())
-            sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .error(errorText))
+            sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .error(errorText))
         default:
-            sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .text(Localization.swappingFromTitle))
+            sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .none)
         }
     }
 
