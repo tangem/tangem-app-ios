@@ -1,5 +1,5 @@
 //
-//  StakingAPIType.swift
+//  StakeKitAPIType.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum StakingAPIType: String, CaseIterable, Codable {
+public enum StakeKitAPIType: String, CaseIterable, Codable {
     case prod
     case mock
 

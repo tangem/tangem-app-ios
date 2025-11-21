@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol StakingAPIProvider {
+public protocol StakeKitAPIProvider {
     func enabledYields() async throws -> [StakingYieldInfo]
     func yield(integrationId: String) async throws -> StakingYieldInfo
     func balances(wallet: StakingWallet, integrationId: String) async throws -> [StakingBalanceInfo]
