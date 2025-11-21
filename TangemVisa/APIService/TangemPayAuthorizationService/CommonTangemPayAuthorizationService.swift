@@ -24,7 +24,10 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
         customerWalletId: String
     ) async throws -> TangemPayGetChallengeResponse {
         try await apiService.request(.init(
-            target: .getChallenge(.init(customerWalletAddress: customerWalletAddress)),
+            target: .getChallenge(.init(
+                customerWalletAddress: customerWalletAddress,
+                customerWalletId: customerWalletId
+            )),
             apiType: apiType
         ))
     }
