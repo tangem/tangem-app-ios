@@ -75,7 +75,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
             return BannerNotificationManager(
                 userWalletInfo: options.userWalletInfo,
-                walletModelsManager: options.walletModelsManager,
+                walletModelsPublisher: options.walletModelsManager.walletModelsPublisher,
                 placement: .tokenDetails(options.walletModel.tokenItem),
             )
         }()
