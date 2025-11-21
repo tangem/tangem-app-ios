@@ -36,19 +36,19 @@ public extension CustomerInfoManagementService {
 
 actor CommonCustomerInfoManagementService {
     typealias CIMAPIService = APIService<CustomerInfoManagementAPITarget>
-    private let authorizationTokenHandler: VisaAuthorizationTokensHandler
+    private let authorizationTokenHandler: TangemPayAuthorizationTokensHandler
     private let apiService: CIMAPIService
 
     private let apiType: VisaAPIType
-    private let authorizeWithCustomerWallet: () async throws -> VisaAuthorizationTokens
+    private let authorizeWithCustomerWallet: () async throws -> TangemPayAuthorizationTokens
 
     private var tokenPreparingTask: _Concurrency.Task<Void, Error>?
 
     init(
         apiType: VisaAPIType,
-        authorizationTokenHandler: VisaAuthorizationTokensHandler,
+        authorizationTokenHandler: TangemPayAuthorizationTokensHandler,
         apiService: CIMAPIService,
-        authorizeWithCustomerWallet: @escaping () async throws -> VisaAuthorizationTokens
+        authorizeWithCustomerWallet: @escaping () async throws -> TangemPayAuthorizationTokens
     ) {
         self.apiType = apiType
         self.authorizationTokenHandler = authorizationTokenHandler

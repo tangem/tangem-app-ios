@@ -77,3 +77,25 @@ public struct VisaAuthorizationTokensHandlerBuilder {
         )
     }
 }
+
+public struct TangemPayAuthorizationTokensHandlerBuilder {
+    private let apiServiceBuilder: TangemPayAPIServiceBuilder
+
+    public init(apiType: VisaAPIType) {
+        apiServiceBuilder = TangemPayAPIServiceBuilder(apiType: apiType)
+    }
+}
+
+public extension TangemPayAuthorizationTokensHandlerBuilder {
+    func buildTangemPayAuthorizationTokensHandler(
+        customerWalletId: String,
+        tokens: TangemPayAuthorizationTokens,
+        authorizationService: TangemPayAuthorizationService
+    ) -> TangemPayAuthorizationTokensHandler {
+        CommonTangemPayAuthorizationTokensHandler(
+            customerWalletId: customerWalletId,
+            tokens: tokens,
+            authorizationService: apiServiceBuilder.buildTangemPayAuthorizationService()
+        )
+    }
+}
