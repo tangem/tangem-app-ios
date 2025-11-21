@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import TangemFoundation
 
 final class MobileFinishActivationManager {
@@ -15,6 +16,7 @@ final class MobileFinishActivationManager {
     private var userWalletId: UserWalletId?
     private var onActivation: Activation?
     private var isObservationFinished: Bool = false
+    private var walletModelsSubscription: AnyCancellable?
 
     func observe(userWalletId: UserWalletId, onActivation: @escaping Activation) {
         self.userWalletId = userWalletId
@@ -41,14 +43,16 @@ final class MobileFinishActivationManager {
             return
         }
 
-        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
-        let totalBalances = walletModels.map(\.availableBalanceProvider.balanceType).compactMap(\.value)
+        walletModelsSubscription = AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
+            .first()
+            .sink { walletModels in
+                let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
+                let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
 
-        guard totalBalances.contains(where: { $0 > 0 }) else {
-            return
-        }
-
-        onActivation(userWalletModel)
+                if hasPositiveBalance {
+                    onActivation(userWalletModel)
+                }
+            }
     }
 }
 
