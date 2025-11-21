@@ -77,6 +77,14 @@ extension XRPAddressService: AddressValidator {
             return false
         }
     }
+
+    func resolveAddress(_ address: String) -> String {
+        if let address = try? XRPAddress.decodeXAddress(xAddress: address) {
+            return address.rAddress
+        }
+
+        return address
+    }
 }
 
 @available(iOS 13.0, *)
