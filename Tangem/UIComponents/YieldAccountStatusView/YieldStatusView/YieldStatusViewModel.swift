@@ -19,23 +19,68 @@ final class YieldStatusViewModel: ObservableObject {
     @Published
     private(set) var state: State
 
+    @Published
+    private(set) var warning: WarningType = .none
+
     private let navigationAction: () -> Void
 
     // MARK: - Dependencies
 
     private let manager: YieldModuleManager
+    private let feeConverter: YieldModuleFeeFormatter
 
-    init(state: State, manager: YieldModuleManager, navigationAction: @escaping () -> Void) {
+    init(
+        state: State,
+        manager: YieldModuleManager,
+        feeTokenItem: TokenItem,
+        token: TokenItem,
+        navigationAction: @escaping () -> Void
+    ) {
         self.state = state
         self.manager = manager
         self.navigationAction = navigationAction
+        feeConverter = YieldModuleFeeFormatter(feeCurrency: feeTokenItem, token: token)
+
+        Task { [weak self] in
+            await self?.checkWarnings()
+        }
     }
 
-    @MainActor
-    func fetchApy() async {}
+    // MARK: - Public Implementation
 
     func onTapAction() {
         navigationAction()
+    }
+
+    // MARK: - Private Implementation
+
+    @MainActor
+    private func checkWarnings() async {
+        guard case .active(let isApproveRequired, let undepositedAmount, _) = state else {
+            setWarningSign(to: .none)
+            return
+        }
+
+        if isApproveRequired {
+            setWarningSign(to: .approveNeeded)
+            return
+        }
+
+        if undepositedAmount > 0 {
+            guard let minimalTopupAmountInFiat = try? await manager.minimalFee(),
+                  let undepositedAmountInFiat = try? await feeConverter.convertToFiat(undepositedAmount, currency: .token),
+                  undepositedAmountInFiat < minimalTopupAmountInFiat
+            else {
+                setWarningSign(to: .hasUndepositedAmounts)
+                return
+            }
+
+            setWarningSign(to: .none)
+        }
+    }
+
+    private func setWarningSign(to warningType: WarningType) {
+        warning = warningType
     }
 
     private func makeTitle() -> AttributedString {
@@ -67,7 +112,15 @@ final class YieldStatusViewModel: ObservableObject {
 extension YieldStatusViewModel {
     enum State: Equatable {
         case loading
-        case active(isApproveRequired: Bool, hasUndepositedAmounts: Bool, apy: Decimal?)
+        case active(isApproveRequired: Bool, undepositedAmount: Decimal, apy: Decimal?)
         case closing
+    }
+}
+
+extension YieldStatusViewModel {
+    enum WarningType {
+        case none
+        case approveNeeded
+        case hasUndepositedAmounts
     }
 }
