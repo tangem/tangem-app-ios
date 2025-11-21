@@ -280,7 +280,35 @@ private extension UserWalletSettingsViewModel {
     }
 
     func onMobileUpgradeNotificationUpgrade() {
-        coordinator?.openMobileUpgrade(userWalletModel: userWalletModel)
+        let isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+
+        runTask(in: self) { viewModel in
+            if isBackupNeeded {
+                await viewModel.openMobileBackupToUpgradeNeeded()
+            } else {
+                await viewModel.upgradeMobileWallet()
+            }
+        }
+    }
+
+    func upgradeMobileWallet() async {
+        let unlockResult = await mobileUnlock()
+
+        switch unlockResult {
+        case .successful(let context):
+            await openMobileUpgradeToHardwareWallet(context: context)
+        case .canceled:
+            break
+        case .failed(let error):
+            alert = error.alertBinder
+        }
+    }
+
+    func onMobileBackupToUpgradeComplete() {
+        runTask(in: self) { viewModel in
+            await viewModel.closeOnboarding()
+            await viewModel.upgradeMobileWallet()
+        }
     }
 
     func onMobileUpgradeNotificationDismiss() {
@@ -440,7 +468,10 @@ private extension UserWalletSettingsViewModel {
     }
 
     func openMobileBackupNeeded() {
-        coordinator?.openMobileBackupNeeded(userWalletModel: userWalletModel)
+        coordinator?.openMobileBackupNeeded(
+            userWalletModel: userWalletModel,
+            onBackupFinished: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
+        )
     }
 
     func openMobileAccessCodeOnboarding(context: MobileWalletContext) {
@@ -453,6 +484,68 @@ private extension UserWalletSettingsViewModel {
         Analytics.log(.walletSettingsButtonBackup)
 
         coordinator?.openMobileBackupTypes(userWalletModel: userWalletModel)
+    }
+
+    @MainActor
+    func openMobileUpgradeToHardwareWallet(context: MobileWalletContext) {
+        coordinator?.openMobileUpgradeToHardwareWallet(userWalletModel: userWalletModel, context: context)
+    }
+
+    @MainActor
+    func openMobileBackupToUpgradeNeeded() {
+        coordinator?.openMobileBackupToUpgradeNeeded(
+            onBackupRequested: weakify(self, forFunction: UserWalletSettingsViewModel.openBackupMobileWallet)
+        )
+    }
+
+    @MainActor
+    func openBackupMobileWallet() {
+        let input = MobileOnboardingInput(flow: .seedPhraseBackupToUpgrade(
+            userWalletModel: userWalletModel,
+            onContinue: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileBackupToUpgradeComplete)
+        ))
+        coordinator?.openOnboardingModal(with: .mobileInput(input))
+    }
+
+    @MainActor
+    func closeOnboarding() {
+        coordinator?.closeOnboarding()
+    }
+}
+
+// MARK: - Mobile wallet unlocking
+
+private extension UserWalletSettingsViewModel {
+    func mobileUnlock() async -> MobileUnlockResult {
+        do {
+            let authUtil = MobileAuthUtil(
+                userWalletId: userWalletModel.userWalletId,
+                config: userWalletModel.config,
+                biometricsProvider: CommonUserWalletBiometricsProvider()
+            )
+            let result = try await authUtil.unlock()
+
+            switch result {
+            case .successful(let context):
+                return .successful(context: context)
+
+            case .canceled:
+                return .canceled
+
+            case .userWalletNeedsToDelete:
+                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
+                return .canceled
+            }
+
+        } catch {
+            return .failed(error: error)
+        }
+    }
+
+    enum MobileUnlockResult {
+        case successful(context: MobileWalletContext)
+        case canceled
+        case failed(error: Error)
     }
 }
 
