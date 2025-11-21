@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-public struct TangemPayAuthorizationTokens: Codable {
+public struct TangemPayAuthorizationTokens: Codable, Equatable {
     public let accessToken: String
     public let refreshToken: String
 
