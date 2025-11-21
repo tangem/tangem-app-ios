@@ -26,7 +26,7 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
         try await withThrowingTaskGroup(of: StakingBalanceInfo?.self) { [service, mapper] group in
             var results = [StakingBalanceInfo?]()
 
-            vaults.forEach { vault in
+            for vault in vaults {
                 group.addTask {
                     let response = try await service.getAccountSummary(
                         delegatorAddress: wallet.address,
