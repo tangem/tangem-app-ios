@@ -62,7 +62,7 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
     }
 
     func handle() async throws -> RPCResult {
-        let (unsignedHash, signatureCount) = try prepareTransactionToSign(transaction)
+        let (unsignedHash, _) = try prepareTransactionToSign(transaction)
 
         guard FeatureProvider.isAvailable(.wcSolanaALT) else {
             return try await defaultHandleTransaction(unsignedHash: unsignedHash)
