@@ -16,11 +16,8 @@ struct CreateWalletSelectorView: View {
 
     @ObservedObject var viewModel: ViewModel
 
-    @State private var introspectResponderChainID = UUID()
-
     var body: some View {
         content
-            .padding(.horizontal, 16)
             .allowsHitTesting(!viewModel.isScanning)
             .background(Colors.Background.plain.ignoresSafeArea())
             .onAppear(perform: viewModel.onAppear)
@@ -34,33 +31,28 @@ struct CreateWalletSelectorView: View {
 
 private extension CreateWalletSelectorView {
     var content: some View {
-        CustomScrollView {
-            VStack(spacing: 12) {
-                info.padding(.horizontal, 20)
-                tangemIcon
-                actions
+        VStack(spacing: 0) {
+            NavigationBar(
+                title: "",
+                leftButtons: {
+                    BackButton(
+                        height: viewModel.backButtonHeight,
+                        isVisible: true,
+                        isEnabled: true,
+                        action: viewModel.onBackTap
+                    )
+                }
+            )
+
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 12) {
+                    info.padding(.horizontal, 20)
+                    tangemIcon
+                    actions
+                }
+                .padding(.top, 12)
             }
-            .padding(.top, 12)
-        }
-        .introspectResponderChain(
-            introspectedType: UINavigationBar.self,
-            includeSubviews: true,
-            updateOnChangeOf: introspectResponderChainID,
-            action: { navigationBar in
-                navigationBar.tintColor = UIColor(Colors.Text.constantWhite)
-            }
-        )
-        .onWillAppear {
-            DispatchQueue.main.async {
-                introspectResponderChainID = UUID()
-            }
-        }
-        // Is used to update UINavigationBar appearance
-        // when the user starts an interactive back swipe gesture.
-        .onWillDisappear {
-            DispatchQueue.main.async {
-                introspectResponderChainID = UUID()
-            }
+            .padding(.horizontal, 16)
         }
     }
 }
@@ -189,39 +181,6 @@ private extension CreateWalletSelectorView {
                 .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
         }
     }
-}
-
-// MARK: - CustomScrollView
-
-private struct CustomScrollView<Content: View>: UIViewRepresentable {
-    private let content: Content
-
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
-
-    func makeUIView(context: Context) -> UIScrollView {
-        let scrollView = UIScrollView()
-        scrollView.alwaysBounceVertical = false
-        scrollView.showsVerticalScrollIndicator = false
-
-        let host = UIHostingController(rootView: content)
-        host.view.translatesAutoresizingMaskIntoConstraints = false
-
-        scrollView.addSubview(host.view)
-
-        NSLayoutConstraint.activate([
-            host.view.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
-            host.view.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
-            host.view.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
-            host.view.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
-            host.view.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
-        ])
-
-        return scrollView
-    }
-
-    func updateUIView(_ uiView: UIScrollView, context: Context) {}
 }
 
 // MARK: - HorizontalDots

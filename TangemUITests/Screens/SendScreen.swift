@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import UIKit
 import TangemAccessibilityIdentifiers
 
 final class SendScreen: ScreenBase<SendScreenElement> {
@@ -30,13 +31,19 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var reduceFeeButton = button(.reduceFeeButton)
     private lazy var leaveAmountButton = button(.leaveAmountButton)
     private lazy var fromWalletButton = button(.fromWalletButton)
+    private lazy var networkFeeUnreachableBanner = otherElement(.networkFeeUnreachableBanner)
+    private lazy var networkFeeAmount = staticText(.networkFeeAmount)
+    private lazy var additionalFieldTextField = textField(.additionalFieldTextField)
+    private lazy var additionalFieldClearButton = button(.additionalFieldClearButton)
+    private lazy var additionalFieldPasteButton = button(.additionalFieldPasteButton)
+    private lazy var invalidMemoBanner = staticText(.invalidMemoBanner)
 
     @discardableResult
     func waitForDisplay() -> Self {
         XCTContext.runActivity(named: "Validate Send screen is displayed") { _ in
-            XCTAssertTrue(titleLabel.waitForExistence(timeout: .robustUIUpdate), "Title should exist")
-            XCTAssertTrue(amountTextField.exists, "Amount text field should exist")
-            XCTAssertTrue(nextButton.exists, "Next button should exist")
+            waitAndAssertTrue(titleLabel, "Title should exist")
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
+            waitAndAssertTrue(nextButton, "Next button should exist")
         }
         return self
     }
@@ -54,7 +61,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     @discardableResult
     func clearAmount() -> Self {
         XCTContext.runActivity(named: "Clear amount field") { _ in
-            XCTAssertTrue(amountTextField.waitForExistence(timeout: .robustUIUpdate), "Amount text field should exist")
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
 
             let currentText = amountTextField.getValue()
             let textLength = currentText.count
@@ -91,6 +98,14 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 
     @discardableResult
+    func tapNextButtonToSummary() -> SendSummaryScreen {
+        XCTContext.runActivity(named: "Tap Next button to go to Summary screen") { _ in
+            nextButton.waitAndTap()
+        }
+        return SendSummaryScreen(app)
+    }
+
+    @discardableResult
     func tapMaxButton() -> Self {
         XCTContext.runActivity(named: "Tap Max button") { _ in
             maxButton.waitAndTap()
@@ -111,7 +126,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
             let predicate = NSPredicate(format: NSPredicateFormat.labelBeginsWith.rawValue, "Network fee")
             let networkFeeButton = app.buttons.matching(predicate).firstMatch
-            XCTAssertTrue(networkFeeButton.waitForExistence(timeout: .robustUIUpdate), "Network fee button should exist")
+            waitAndAssertTrue(networkFeeButton, "Network fee button should exist")
             networkFeeButton.tap()
         }
         return SendFeeSelectorScreen(app)
@@ -234,6 +249,24 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 
     @discardableResult
+    func waitForNextButtonDisabled() -> Self {
+        XCTContext.runActivity(named: "Validate Next button is disabled") { _ in
+            waitAndAssertTrue(nextButton, "Next button should exist")
+            XCTAssertTrue(nextButton.waitForState(state: .disabled), "Next button should be disabled")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForNextButtonEnabled() -> Self {
+        XCTContext.runActivity(named: "Validate Next button is enabled") { _ in
+            waitAndAssertTrue(nextButton, "Next button should exist")
+            XCTAssertTrue(nextButton.waitForState(state: .enabled), "Next button should be enabled")
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForHighFeeNotificationBanner() -> Self {
         XCTContext.runActivity(named: "Validate high fee notification banner exists") { _ in
             waitAndAssertTrue(highFeeNotificationBanner, "High fee notification banner should be displayed")
@@ -245,6 +278,40 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func waitForHighFeeNotificationBannerNotExists() -> Self {
         XCTContext.runActivity(named: "Validate high fee notification banner does not exist") { _ in
             XCTAssertTrue(highFeeNotificationBanner.waitForNonExistence(timeout: .robustUIUpdate), "High fee notification banner should not be displayed")
+        }
+        return self
+    }
+
+    // MARK: - Network fee unreachable notification
+
+    @discardableResult
+    func waitForNetworkFeeUnreachableBanner() -> Self {
+        XCTContext.runActivity(named: "Validate 'Network fee unreachable' notification is displayed") { _ in
+            waitAndAssertTrue(networkFeeUnreachableBanner, "Network fee unreachable banner should be displayed")
+
+            // Refresh button inside the banner
+            let refreshButton = networkFeeUnreachableBanner.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
+            waitAndAssertTrue(
+                refreshButton,
+                "Refresh button in notification should exist"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapNotificationRefresh() -> Self {
+        XCTContext.runActivity(named: "Tap 'Refresh' on notification") { _ in
+            let refreshButton = networkFeeUnreachableBanner.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
+            refreshButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForNetworkFeeUnreachableBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Validate 'Network fee unreachable' notification is hidden") { _ in
+            XCTAssertTrue(networkFeeUnreachableBanner.waitForNonExistence(timeout: .robustUIUpdate), "Network fee unreachable banner should disappear")
         }
         return self
     }
@@ -300,11 +367,449 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     func getAmountNumericValue() -> Decimal {
         XCTContext.runActivity(named: "Get amount numeric value") { _ in
-            XCTAssertTrue(amountTextField.waitForExistence(timeout: .robustUIUpdate), "Amount text field should exist")
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
             let amountText = amountTextField.getValue()
             XCTAssertFalse(amountText.isEmpty, "Amount should not be empty")
             return NumericValueHelper.parseNumericValue(from: amountText)
         }
+    }
+
+    func getAmountValue() -> String {
+        XCTContext.runActivity(named: "Get amount value") { _ in
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
+            return amountTextField.getValue()
+        }
+    }
+
+    @discardableResult
+    func validateCurrencySymbol(_ expectedSymbol: String) -> Self {
+        XCTContext.runActivity(named: "Validate currency symbol: \(expectedSymbol)") { _ in
+            let currencySymbolElement = app.staticTexts[SendAccessibilityIdentifiers.currencySymbol]
+            waitAndAssertTrue(currencySymbolElement, "Currency symbol element should exist")
+            XCTAssertTrue(
+                currencySymbolElement.label.contains(expectedSymbol),
+                "Currency symbol should be '\(expectedSymbol)' but was '\(currencySymbolElement.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func toggleCurrency() -> Self {
+        XCTContext.runActivity(named: "Toggle currency between crypto and fiat") { _ in
+            let toggleButton = app.buttons[SendAccessibilityIdentifiers.currencyToggleButton]
+            waitAndAssertTrue(toggleButton, "Currency toggle button should exist")
+            toggleButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForCryptoAmount(_ expectedAmount: String) -> Self {
+        XCTContext.runActivity(named: "Wait for crypto alternative amount: \(expectedAmount)") { _ in
+            let alternativeCryptoAmount = app.staticTexts[SendAccessibilityIdentifiers.alternativeCryptoAmount]
+            waitAndAssertTrue(
+                alternativeCryptoAmount,
+                "Alternative crypto amount element should exist"
+            )
+
+            XCTAssertEqual(
+                alternativeCryptoAmount.label,
+                expectedAmount,
+                "Alternative crypto amount should be '\(expectedAmount)' but was '\(alternativeCryptoAmount.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForFiatAmount(_ expectedAmount: String) -> Self {
+        XCTContext.runActivity(named: "Wait for fiat alternative amount: \(expectedAmount)") { _ in
+            let alternativeFiatAmount = app.staticTexts[SendAccessibilityIdentifiers.alternativeFiatAmount]
+            waitAndAssertTrue(
+                alternativeFiatAmount,
+                "Alternative fiat amount element should exist"
+            )
+
+            XCTAssertEqual(
+                alternativeFiatAmount.label,
+                expectedAmount,
+                "Alternative fiat amount should be '\(expectedAmount)' but was '\(alternativeFiatAmount.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func validateNetworkFee(_ expectedFee: String) -> Self {
+        XCTContext.runActivity(named: "Validate network fee: \(expectedFee)") { _ in
+            waitAndAssertTrue(networkFeeAmount)
+            XCTAssertEqual(
+                networkFeeAmount.label,
+                expectedFee,
+                "Network fee should be '\(expectedFee)' but was '\(networkFeeAmount.label)'"
+            )
+        }
+        return self
+    }
+
+    // MARK: - Additional Field (Memo/DestinationTag) Methods
+
+    @discardableResult
+    func enterAdditionalField(_ value: String) -> Self {
+        XCTContext.runActivity(named: "Enter additional field value '\(value)'") { _ in
+            waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
+            additionalFieldTextField.waitAndTap()
+            additionalFieldTextField.typeText(value)
+        }
+        return self
+    }
+
+    @discardableResult
+    func pasteAdditionalField(_ value: String) -> Self {
+        XCTContext.runActivity(named: "Paste additional field value '\(value)'") { _ in
+            waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
+            UIPasteboard.general.string = value
+            additionalFieldPasteButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func clearAdditionalField() -> Self {
+        XCTContext.runActivity(named: "Clear additional field") { _ in
+            additionalFieldClearButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForInvalidMemoBanner() -> Self {
+        XCTContext.runActivity(named: "Validate invalid memo banner exists") { _ in
+            waitAndAssertTrue(invalidMemoBanner, "Invalid memo banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForInvalidMemoBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Validate invalid memo banner does not exist") { _ in
+            XCTAssertTrue(invalidMemoBanner.waitForNonExistence(timeout: .robustUIUpdate), "Invalid memo banner should not be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForAdditionalFieldValue(_ expectedValue: String) -> Self {
+        XCTContext.runActivity(named: "Validate additional field value: \(expectedValue)") { _ in
+            waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
+            let actualValue = additionalFieldTextField.getValue()
+            XCTAssertEqual(
+                actualValue,
+                expectedValue,
+                "Additional field value should be '\(expectedValue)' but was '\(actualValue)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForAdditionalFieldIsEmpty() -> Self {
+        XCTContext.runActivity(named: "Validate additional field is empty") { _ in
+            waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
+            let actualValue = additionalFieldTextField.getValue()
+            XCTAssertTrue(
+                actualValue.isEmpty,
+                "Additional field should be empty but was '\(actualValue)'"
+            )
+        }
+        return self
+    }
+
+    // MARK: - Destination Field Methods
+
+    func getDestinationValue() -> String {
+        XCTContext.runActivity(named: "Get destination address value") { _ in
+            waitAndAssertTrue(destinationTextView, "Destination text view should exist")
+            return destinationTextView.getValue()
+        }
+    }
+
+    @discardableResult
+    func waitForDestinationValue(_ expectedValue: String) -> Self {
+        XCTContext.runActivity(named: "Validate destination value: \(expectedValue)") { _ in
+            waitAndAssertTrue(destinationTextView, "Destination text view should exist")
+            let actualValue = destinationTextView.getValue()
+            XCTAssertEqual(
+                actualValue,
+                expectedValue,
+                "Destination value should be '\(expectedValue)' but was '\(actualValue)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func validateDestinationIsEmpty() -> Self {
+        XCTContext.runActivity(named: "Validate destination field is empty") { _ in
+            waitAndAssertTrue(destinationTextView, "Destination text view should exist")
+            let actualValue = destinationTextView.getValue()
+            XCTAssertTrue(
+                actualValue.isEmpty,
+                "Destination field should be empty but was '\(actualValue)'"
+            )
+        }
+        return self
+    }
+
+    // MARK: - Wallet History Methods
+
+    func getWalletHistoryCell(at index: Int) -> XCUIElement {
+        XCTContext.runActivity(named: "Get wallet history cell at index \(index)") { _ in
+            let identifier = SendAccessibilityIdentifiers.suggestedDestinationWalletCell(index: index)
+            let cell = app.staticTexts[identifier].firstMatch
+
+            guard cell.waitForExistence(timeout: .robustUIUpdate) else {
+                XCTFail("Wallet cell at index \(index) does not exist")
+                return app.staticTexts.firstMatch
+            }
+
+            return cell
+        }
+    }
+
+    func getTransactionHistoryCell(at index: Int) -> XCUIElement {
+        XCTContext.runActivity(named: "Get transaction history cell at index \(index)") { _ in
+            let identifier = SendAccessibilityIdentifiers.suggestedDestinationTransactionCell(index: index)
+            let cell = app.staticTexts[identifier].firstMatch
+
+            guard cell.waitForExistence(timeout: .robustUIUpdate) else {
+                XCTFail("Transaction cell at index \(index) does not exist")
+                return app.staticTexts.firstMatch
+            }
+
+            return cell
+        }
+    }
+
+    func getAddressFromWalletCell(at index: Int) -> String {
+        XCTContext.runActivity(named: "Get address from wallet cell at index \(index)") { _ in
+            let cell = getWalletHistoryCell(at: index)
+            waitAndAssertTrue(cell, "Wallet cell at index \(index) should exist")
+
+            let address = cell.label
+            guard !address.isEmpty else {
+                XCTFail("Could not extract address from wallet cell at index \(index)")
+                return ""
+            }
+
+            return address
+        }
+    }
+
+    func getAddressFromTransactionCell(at index: Int) -> String {
+        XCTContext.runActivity(named: "Get address from transaction cell at index \(index)") { _ in
+            let cell = getTransactionHistoryCell(at: index)
+            waitAndAssertTrue(cell, "Transaction cell at index \(index) should exist")
+
+            let address = cell.label
+            guard !address.isEmpty else {
+                XCTFail("Could not extract address from transaction cell at index \(index)")
+                return ""
+            }
+
+            return address
+        }
+    }
+
+    @discardableResult
+    func selectWalletCell(at index: Int) -> Self {
+        XCTContext.runActivity(named: "Select wallet cell at index \(index)") { _ in
+            let cell = getWalletHistoryCell(at: index)
+            cell.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func selectTransactionCell(at index: Int) -> Self {
+        XCTContext.runActivity(named: "Select transaction cell at index \(index)") { _ in
+            let cell = getTransactionHistoryCell(at: index)
+            cell.waitAndTap()
+        }
+        return self
+    }
+
+    func selectFirstAvailableHistoryCell() -> String {
+        XCTContext.runActivity(named: "Select first available history cell") { _ in
+            // Try wallet cells first
+            let firstWalletIdentifier = SendAccessibilityIdentifiers.suggestedDestinationWalletCell(index: 0)
+            let firstWalletCell = app.staticTexts[firstWalletIdentifier].firstMatch
+
+            if firstWalletCell.waitForExistence(timeout: .robustUIUpdate) {
+                let address = getAddressFromWalletCell(at: 0)
+                selectWalletCell(at: 0)
+                return address
+            }
+
+            // Try transaction cells
+            let firstTransactionIdentifier = SendAccessibilityIdentifiers.suggestedDestinationTransactionCell(index: 0)
+            let firstTransactionCell = app.staticTexts[firstTransactionIdentifier].firstMatch
+
+            if firstTransactionCell.waitForExistence(timeout: .robustUIUpdate) {
+                let address = getAddressFromTransactionCell(at: 0)
+                selectTransactionCell(at: 0)
+                return address
+            }
+
+            XCTFail("No history cells available")
+            return ""
+        }
+    }
+
+    @discardableResult
+    func selectAddressFromHistory(_ address: String) -> Self {
+        XCTContext.runActivity(named: "Select address '\(address)' from wallet history") { _ in
+            // Search by address text in wallet cells
+            let walletCellPredicate = NSPredicate(format: "identifier BEGINSWITH %@ AND label == %@", "sendSuggestedDestinationWalletCell_", address)
+            let walletCell = app.staticTexts.matching(walletCellPredicate).firstMatch
+
+            if walletCell.waitForExistence(timeout: .robustUIUpdate) {
+                walletCell.waitAndTap()
+                return
+            }
+
+            // Search by address text in transaction cells
+            let transactionCellPredicate = NSPredicate(format: "identifier BEGINSWITH %@ AND label == %@", "sendSuggestedDestinationTransactionCell_", address)
+            let transactionCell = app.staticTexts.matching(transactionCellPredicate).firstMatch
+
+            if transactionCell.waitForExistence(timeout: .robustUIUpdate) {
+                transactionCell.waitAndTap()
+                return
+            }
+
+            // Last resort: search by address text (partial match)
+            let addressPredicate = NSPredicate(format: "label CONTAINS[cd] %@", address)
+            let addressElement = app.staticTexts.matching(addressPredicate).firstMatch
+            waitAndAssertTrue(addressElement, "Address '\(address)' should exist in history")
+            addressElement.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForWalletHistoryDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate wallet history is displayed") { _ in
+            // Check for header using accessibility identifier
+            let header = app.staticTexts[SendAccessibilityIdentifiers.suggestedDestinationHeader].firstMatch
+
+            // Also check for any wallet or transaction cell (identifier is on the address text)
+            let walletCellPredicate = NSPredicate(format: "identifier BEGINSWITH %@", "sendSuggestedDestinationWalletCell_")
+            let transactionCellPredicate = NSPredicate(format: "identifier BEGINSWITH %@", "sendSuggestedDestinationTransactionCell_")
+            let walletCell = app.staticTexts.matching(walletCellPredicate).firstMatch
+            let transactionCell = app.staticTexts.matching(transactionCellPredicate).firstMatch
+
+            XCTAssertTrue(
+                header.waitForExistence(timeout: .robustUIUpdate) ||
+                    walletCell.waitForExistence(timeout: .robustUIUpdate) ||
+                    transactionCell.waitForExistence(timeout: .robustUIUpdate),
+                "Wallet history should be displayed"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForWalletHistoryNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate wallet history is not displayed") { _ in
+            let header = app.staticTexts[SendAccessibilityIdentifiers.suggestedDestinationHeader].firstMatch
+
+            XCTAssertTrue(
+                header.waitForNonExistence(timeout: .robustUIUpdate),
+                "Wallet history should not be displayed"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForTransactionHistoryNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate transaction history (Recent) block is not displayed") { _ in
+            // Check that transaction cells do not exist
+            let transactionCellPredicate = NSPredicate(format: "identifier BEGINSWITH %@", "sendSuggestedDestinationTransactionCell_")
+            let transactionCells = app.staticTexts.matching(transactionCellPredicate)
+
+            // Wait for transaction cells to not exist
+            let firstTransactionCell = transactionCells.firstMatch
+            XCTAssertTrue(
+                firstTransactionCell.waitForNonExistence(timeout: .robustUIUpdate),
+                "Transaction history (Recent) block should not be displayed"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForRecentHeaderDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate 'Recent' header is displayed") { _ in
+            let headerPredicate = NSPredicate(format: "identifier == %@", SendAccessibilityIdentifiers.suggestedDestinationHeader)
+            let headers = app.staticTexts.matching(headerPredicate)
+            let recentHeader = headers.matching(NSPredicate(format: "label CONTAINS[cd] %@", "Recent")).firstMatch
+
+            XCTAssertTrue(
+                recentHeader.waitForExistence(timeout: .robustUIUpdate),
+                "'Recent' header should be displayed"
+            )
+        }
+        return self
+    }
+
+    func getTransactionHistoryCount() -> Int {
+        XCTContext.runActivity(named: "Get transaction history count") { _ in
+            let transactionCellPredicate = NSPredicate(format: "identifier BEGINSWITH %@", "sendSuggestedDestinationTransactionCell_")
+            let transactionCells = app.staticTexts.matching(transactionCellPredicate)
+
+            // Wait a bit for cells to load
+            let firstCell = transactionCells.firstMatch
+            if firstCell.waitForExistence(timeout: .robustUIUpdate) {
+                return transactionCells.count
+            }
+
+            return 0
+        }
+    }
+
+    @discardableResult
+    func validateTransactionHistoryCount(maxCount: Int = 10) -> Self {
+        XCTContext.runActivity(named: "Validate transaction history count is at most \(maxCount)") { _ in
+            let count = getTransactionHistoryCount()
+            XCTAssertTrue(
+                count <= maxCount,
+                "Transaction history should display at most \(maxCount) transactions, but found \(count)"
+            )
+            XCTAssertTrue(
+                count > 0,
+                "Transaction history should display at least 1 transaction"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForTransactionCellHasElements(at index: Int) -> Self {
+        XCTContext.runActivity(named: "Validate transaction cell at index \(index) has required elements") { _ in
+            let cell = getTransactionHistoryCell(at: index)
+            waitAndAssertTrue(cell, "Transaction cell at index \(index) should exist")
+
+            let address = cell.label
+
+            // Validate address is not empty
+            XCTAssertFalse(
+                address.isEmpty,
+                "Transaction cell at index \(index) should have an address"
+            )
+        }
+        return self
     }
 }
 
@@ -329,6 +834,12 @@ enum SendScreenElement: String, UIElement {
     case reduceFeeButton
     case leaveAmountButton
     case fromWalletButton
+    case networkFeeUnreachableBanner
+    case networkFeeAmount
+    case additionalFieldTextField
+    case additionalFieldClearButton
+    case additionalFieldPasteButton
+    case invalidMemoBanner
 
     var accessibilityIdentifier: String {
         switch self {
@@ -372,6 +883,18 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.leaveAmountButton
         case .fromWalletButton:
             return SendAccessibilityIdentifiers.fromWalletButton
+        case .networkFeeUnreachableBanner:
+            return SendAccessibilityIdentifiers.networkFeeUnreachableBanner
+        case .networkFeeAmount:
+            return SendAccessibilityIdentifiers.networkFeeAmount
+        case .additionalFieldTextField:
+            return SendAccessibilityIdentifiers.additionalFieldTextField
+        case .additionalFieldClearButton:
+            return SendAccessibilityIdentifiers.additionalFieldClearButton
+        case .additionalFieldPasteButton:
+            return SendAccessibilityIdentifiers.additionalFieldPasteButton
+        case .invalidMemoBanner:
+            return SendAccessibilityIdentifiers.invalidMemoBanner
         }
     }
 }
