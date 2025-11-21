@@ -23,8 +23,8 @@ final class StakeKitStakingManager {
 
     private let _state = CurrentValueSubject<StakingManagerState, Never>(.loading)
     private var canStakeMore: Bool {
-        switch StakeKitNetworkType(rawValue: wallet.item.network) {
-        case .solana, .cosmos, .tron, .ethereum, .binance, .ton: true
+        switch wallet.item.network {
+        case .solana, .cosmos, .tron, .ethereum, .bsc, .ton: true
         default: false
         }
     }
@@ -55,7 +55,7 @@ extension StakeKitStakingManager: StakingManager {
 
     var allowanceAddress: String? {
         switch (wallet.item.network, wallet.item.contractAddress) {
-        case (StakeKitNetworkType.ethereum.rawValue, StakingConstants.polygonContractAddress):
+        case (.ethereum, StakingConstants.polygonContractAddress):
             return "0x5e3ef299fddf15eaa0432e6e66473ace8c13d908"
         default:
             return nil
@@ -172,7 +172,7 @@ private extension StakeKitStakingManager {
         }
 
         let pendingActionsHandler = StakingPendingActionsHandlerProvider().makeStakingPendingActionsHandler(
-            network: StakeKitNetworkType(rawValue: yield.item.network)
+            network: yield.item.network
         )
 
         let mergedBalances = pendingActionsHandler.mergeBalancesAndPendingActions(
@@ -395,7 +395,7 @@ private extension StakeKitStakingManager {
 
 private extension StakeKitStakingManager {
     func getAdditionalAddresses() -> AdditionalAddresses? {
-        switch StakeKitNetworkType(rawValue: wallet.item.network) {
+        switch wallet.item.network {
         case .cosmos, .kava, .near:
             guard let compressedPublicKey = try? Secp256k1Key(with: wallet.publicKey).compress() else {
                 return nil
@@ -408,7 +408,7 @@ private extension StakeKitStakingManager {
     }
 
     func getTronResource() -> String? {
-        switch StakeKitNetworkType(rawValue: wallet.item.network) {
+        switch wallet.item.network {
         case .tron:
             return StakeKitDTO.Actions.ActionArgs.TronResource.energy.rawValue
         default:
