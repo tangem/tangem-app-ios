@@ -21,7 +21,7 @@ struct CryptoAccountDependencies {
         let totalBalanceProvider = WalletModelsTotalBalanceProvider(
             walletModelsManager: walletModelsManager,
             analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger(),
-            derivationManager: userTokensManager.derivationManager
+            derivationManager: derivationManager
         )
 
         let commonBalanceProvider = CommonAccountBalanceProvider(
