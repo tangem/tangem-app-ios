@@ -10,8 +10,6 @@ import Foundation
 import Combine
 
 struct UserTokenListManagerMock: UserTokenListManager {
-    var initialized: Bool { true }
-
     var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 
     var userTokensList: StoredUserTokenList { .empty }
