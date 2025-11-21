@@ -389,7 +389,8 @@ enum WalletConnectModuleFactory {
              .userWalletIsLocked,
              .missingEthTransactionSigner,
              .missingGasLoader,
-             .eraseMultipleTransactions:
+             .eraseMultipleTransactions,
+             .accountNotFound:
             // [REDACTED_TODO_COMMENT]
             return nil
         }
