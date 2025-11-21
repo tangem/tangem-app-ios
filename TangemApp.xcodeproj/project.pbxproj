@@ -3987,6 +3987,8 @@
 		EF8E53122E71A60400C03184 /* OnrampSummaryStepBuildable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E53112E71A60400C03184 /* OnrampSummaryStepBuildable.swift */; };
 		EF8E53182E71AD3A00C03184 /* OnrampAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E53132E71AD3A00C03184 /* OnrampAmountView.swift */; };
 		EF8E53192E71AD3A00C03184 /* OnrampAmountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E53142E71AD3A00C03184 /* OnrampAmountViewModel.swift */; };
+		EF8E9AAD2ECE79A500FFA134 /* ExpressInteractorTokenHeaderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E9AAC2ECE79A500FFA134 /* ExpressInteractorTokenHeaderProvider.swift */; };
+		EF8E9AAF2ECE7BD700FFA134 /* ExpressInteractorTokenHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E9AAE2ECE7BD700FFA134 /* ExpressInteractorTokenHeader.swift */; };
 		EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */; };
 		EF8F7FCE2E0E988B00DFC994 /* SendSwapProviderFinishViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8F7FCD2E0E988B00DFC994 /* SendSwapProviderFinishViewModel.swift */; };
 		EF8F7FD02E0E989500DFC994 /* SendSwapProviderFinishView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8F7FCF2E0E989500DFC994 /* SendSwapProviderFinishView.swift */; };
@@ -8512,6 +8514,8 @@
 		EF8E53112E71A60400C03184 /* OnrampSummaryStepBuildable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampSummaryStepBuildable.swift; sourceTree = "<group>"; };
 		EF8E53132E71AD3A00C03184 /* OnrampAmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountView.swift; sourceTree = "<group>"; };
 		EF8E53142E71AD3A00C03184 /* OnrampAmountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountViewModel.swift; sourceTree = "<group>"; };
+		EF8E9AAC2ECE79A500FFA134 /* ExpressInteractorTokenHeaderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressInteractorTokenHeaderProvider.swift; sourceTree = "<group>"; };
+		EF8E9AAE2ECE7BD700FFA134 /* ExpressInteractorTokenHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressInteractorTokenHeader.swift; sourceTree = "<group>"; };
 		EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApproveRoutableMock.swift; sourceTree = "<group>"; };
 		EF8F7FCD2E0E988B00DFC994 /* SendSwapProviderFinishViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSwapProviderFinishViewModel.swift; sourceTree = "<group>"; };
 		EF8F7FCF2E0E989500DFC994 /* SendSwapProviderFinishView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSwapProviderFinishView.swift; sourceTree = "<group>"; };
@@ -13110,6 +13114,7 @@
 				EF5D83E02B0BC4DB00516B5F /* ExpressProviderFormatter */,
 				EF5D83E22B0CADE600516B5F /* ExpressTransactionBuilder */,
 				B0BB97282B18653B00053954 /* ExpressInteractor */,
+				EF7731522ECF4965000869BC /* ExpressInteractorWallet */,
 				B0BB972B2B18654300053954 /* ExpressPendingTransactionRepository */,
 				B00EBF842B20EE0C00071EB0 /* AnalyticsTracker */,
 			);
@@ -13225,9 +13230,6 @@
 		B0BB97282B18653B00053954 /* ExpressInteractor */ = {
 			isa = PBXGroup;
 			children = (
-				EFCCF49D2E01C30700472381 /* ExpressInteractorDestinationWallet.swift */,
-				EFCCF49B2E01C30200472381 /* ExpressInteractorSourceWallet.swift */,
-				EFE661A22E01B030009EECDD /* ExpressInteractorWalletWrapper.swift */,
 				B0BB97292B18653B00053954 /* ExpressInteractor.swift */,
 			);
 			path = ExpressInteractor;
@@ -22338,6 +22340,34 @@
 			path = SendSwapProvidersSelectorProviderView;
 			sourceTree = "<group>";
 		};
+		EF7731522ECF4965000869BC /* ExpressInteractorWallet */ = {
+			isa = PBXGroup;
+			children = (
+				EFCCF49B2E01C30200472381 /* ExpressInteractorSourceWallet.swift */,
+				EFCCF49D2E01C30700472381 /* ExpressInteractorDestinationWallet.swift */,
+				EF7731532ECF497F000869BC /* Wrappers */,
+				EF7731542ECF4990000869BC /* Types */,
+			);
+			path = ExpressInteractorWallet;
+			sourceTree = "<group>";
+		};
+		EF7731532ECF497F000869BC /* Wrappers */ = {
+			isa = PBXGroup;
+			children = (
+				EFE661A22E01B030009EECDD /* ExpressInteractorWalletWrapper.swift */,
+			);
+			path = Wrappers;
+			sourceTree = "<group>";
+		};
+		EF7731542ECF4990000869BC /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				EF8E9AAC2ECE79A500FFA134 /* ExpressInteractorTokenHeaderProvider.swift */,
+				EF8E9AAE2ECE7BD700FFA134 /* ExpressInteractorTokenHeader.swift */,
+			);
+			path = Types;
+			sourceTree = "<group>";
+		};
 		EF798FDD2D6F8D0900B9B4A1 /* UTXONetworkProvider */ = {
 			isa = PBXGroup;
 			children = (
@@ -25216,6 +25246,7 @@
 				0F2786312E2B754400742D0F /* MobileOnboardingAccessCodeStep.swift in Sources */,
 				B69F0EDB2DD3992400997631 /* StakingAmountModifier.swift in Sources */,
 				5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */,
+				EF8E9AAF2ECE7BD700FFA134 /* ExpressInteractorTokenHeader.swift in Sources */,
 				2D8619BB2E7B06A500F196A2 /* ExpressTransactionDispatcher.swift in Sources */,
 				EFF8F1BE2E844CEA00A5EF0C /* StakingFlowFactory.swift in Sources */,
 				EFA4E3792C3EEB33008815AD /* StakingValidatorsStep.swift in Sources */,
@@ -25608,6 +25639,7 @@
 				C2321F442E301A61006428A8 /* WalletConnectConnectedDAppDetailsAnalyticsLogger.swift in Sources */,
 				B65CB3FE2A98A93F00C31199 /* UserTokensReorderingAction.swift in Sources */,
 				DCA70E492DE8AD2B004EEC0A /* WCEthSignTypedDataDetailsModel.swift in Sources */,
+				EF8E9AAD2ECE79A500FFA134 /* ExpressInteractorTokenHeaderProvider.swift in Sources */,
 				C27672D32DE714B50037F1FC /* WalletConnectDAppDomainVerificationViewState.swift in Sources */,
 				B67DC1EA2B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift in Sources */,
 				B6BFDB6E2E43C4C600021D8D /* CryptoAccountModelMock.swift in Sources */,
