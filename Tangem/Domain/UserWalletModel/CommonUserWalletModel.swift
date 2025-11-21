@@ -85,7 +85,7 @@ class CommonUserWalletModel {
             tangemPayAccountCancellable = keysRepository.keysPublisher
                 .compactMap { [weak self] _ -> TangemPayAccount? in
                     guard let self else { return nil }
-                    // No referency cycle here.
+                    // No reference cycle here.
                     // TangemPayAccount holds weak reference to userWalletModel under the hood
                     return TangemPayAccount(userWalletModel: self)
                 }
