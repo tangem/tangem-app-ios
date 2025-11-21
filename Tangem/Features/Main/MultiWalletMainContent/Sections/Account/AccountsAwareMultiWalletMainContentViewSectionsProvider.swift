@@ -171,6 +171,7 @@ extension AccountsAwareMultiWalletMainContentViewSectionsProvider: MultiWalletMa
                 return sections.flatMap(provider.convertToSections(_:))
             }
             .receiveOnMain()
+            .share(replay: 1)
     }
 
     func makeAccountSectionsPublisher() -> some Publisher<[MultiWalletMainContentAccountSection], Never> {
@@ -219,9 +220,10 @@ extension AccountsAwareMultiWalletMainContentViewSectionsProvider: MultiWalletMa
                 }
             }
             .receiveOnMain()
+            .share(replay: 1)
     }
 
-    func setup(with itemViewModelFactory: any MultiWalletMainContentItemViewModelFactory) {
+    func configure(with itemViewModelFactory: any MultiWalletMainContentItemViewModelFactory) {
         self.itemViewModelFactory = itemViewModelFactory
     }
 }

@@ -63,10 +63,6 @@ final class CommonUserTokenListManager {
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
-    var initialized: Bool {
-        initializedSubject.value
-    }
-
     var initializedPublisher: AnyPublisher<Bool, Never> {
         initializedSubject.eraseToAnyPublisher()
     }
@@ -138,7 +134,7 @@ private extension CommonUserTokenListManager {
         let updatedUserTokenList = userTokenList ?? tokenItemsRepository.getList()
         userTokensListSubject.send(updatedUserTokenList)
 
-        if !initialized, tokenItemsRepository.containsFile {
+        if !initializedSubject.value, tokenItemsRepository.containsFile {
             initializedSubject.send(true)
         }
     }
