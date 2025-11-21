@@ -10,10 +10,11 @@ import TangemSdk
 import Combine
 import BlockchainSdk
 
+// [REDACTED_TODO_COMMENT]
 final class CommonDerivationManager {
     private let keysRepository: KeysRepository
     private let userTokensManager: UserTokensManager
-
+    private weak var keysDerivingProvider: KeysDerivingProvider?
     private var bag = Set<AnyCancellable>()
     private let pendingDerivations: CurrentValueSubject<[PendingDerivation], Never> = .init([])
 
@@ -34,11 +35,13 @@ final class CommonDerivationManager {
 
     private func process(_ entries: [TokenItem], _ keys: [KeyInfo]) {
         let derivations = entries.compactMap { entry in
-            pendingDerivation(network: entry.blockchainNetwork, keys: keys)
+            PendingDerivationHelper.pendingDerivation(network: entry.blockchainNetwork, keys: keys)
         }
         pendingDerivations.send(derivations)
     }
 }
+
+// MARK: - DerivationManager protocol conformance
 
 extension CommonDerivationManager: DerivationManager {
     var hasPendingDerivations: AnyPublisher<Bool, Never> {
@@ -57,13 +60,16 @@ extension CommonDerivationManager: DerivationManager {
             .eraseToAnyPublisher()
     }
 
-    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork], interactor: KeysDeriving) -> Bool {
-        guard interactor.requiresCard else {
+    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool {
+        guard
+            let interactor = keysDerivingProvider?.keysDerivingInteractor,
+            interactor.requiresCard
+        else {
             return false
         }
 
         let keys = keysRepository.keys
-        let addingDerivations = networksToAdd.compactMap { pendingDerivation(network: $0, keys: keys) }
+        let addingDerivations = networksToAdd.compactMap { PendingDerivationHelper.pendingDerivation(network: $0, keys: keys) }
 
         // Filter pending derivations by removing those that belong to networks scheduled for removal.
         // This ensures we only consider derivations that will still be relevant after the update.
@@ -74,20 +80,25 @@ extension CommonDerivationManager: DerivationManager {
         return addingDerivations.isNotEmpty || filteredPendingDerivations.isNotEmpty
     }
 
-    func deriveKeys(interactor: KeysDeriving, completion: @escaping (Result<Void, Error>) -> Void) {
-        guard !pendingDerivations.value.isEmpty else {
+    func deriveKeys(completion: @escaping (Result<Void, Error>) -> Void) {
+        guard
+            pendingDerivations.value.isNotEmpty,
+            let interactor = keysDerivingProvider?.keysDerivingInteractor
+        else {
             completion(.success(()))
             return
         }
 
-        interactor.deriveKeys(derivations: pendingDerivationsData()) { [weak self] result in
+        let pendingDerivationsKeyed = PendingDerivationHelper.pendingDerivationsKeyedByPublicKeys(pendingDerivations.value)
+
+        interactor.deriveKeys(derivations: pendingDerivationsKeyed) { [weak self] result in
             guard let self else { return }
 
             switch result {
             case .success(let response):
                 keysRepository.update(derivations: response)
 
-                // delay to get more time to update ui and hide generate addresses sheet under thе hood
+                // delay to get more time to update ui and hide generate addresses sheet under the hood
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     completion(.success(()))
                 }
@@ -100,44 +111,15 @@ extension CommonDerivationManager: DerivationManager {
     }
 }
 
-// MARK: - Private methods
+// MARK: - DerivationDependenciesConfigurable protocol conformance
 
-private extension CommonDerivationManager {
-    func pendingDerivation(network: BlockchainNetwork, keys: [KeyInfo]) -> PendingDerivation? {
-        let curve = network.blockchain.curve
-
-        let derivationPaths = network.derivationPaths()
-        guard let masterKey = keys.first(where: { $0.curve == curve }) else {
-            return nil
-        }
-
-        let pendingDerivationPaths = derivationPaths.filter { derivationPath in
-            !masterKey.derivedKeys.keys.contains { $0 == derivationPath }
-        }
-        guard pendingDerivationPaths.isNotEmpty else {
-            return nil
-        }
-
-        return PendingDerivation(
-            network: network,
-            masterKey: masterKey,
-            paths: pendingDerivationPaths
-        )
+extension CommonDerivationManager: DerivationDependenciesConfigurable {
+    func configure(with keysDerivingProvider: KeysDerivingProvider) {
+        assert(self.keysDerivingProvider == nil, "An attempt to override already configured keysDerivingProvider instance")
+        self.keysDerivingProvider = keysDerivingProvider
     }
 
-    func pendingDerivationsData() -> [Data: [DerivationPath]] {
-        pendingDerivations.value.reduce(into: [:]) { dict, derivation in
-            dict[derivation.masterKey.publicKey, default: []] += derivation.paths
-        }
-    }
-}
-
-// MARK: - Types
-
-private extension CommonDerivationManager {
-    struct PendingDerivation {
-        let network: BlockchainNetwork
-        let masterKey: KeyInfo
-        let paths: [DerivationPath]
+    func configure(with accountModelsManager: AccountModelsManager) {
+        // No-op, no accounts supported
     }
 }
