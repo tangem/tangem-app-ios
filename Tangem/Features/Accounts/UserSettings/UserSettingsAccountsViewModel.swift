@@ -62,13 +62,12 @@ final class UserSettingsAccountsViewModel: ObservableObject {
         Just(accountModelsManager.canAddCryptoAccounts)
             .withWeakCaptureOf(self)
             .map { viewModel, enabled in
-                AddListItemButton.ViewData(
+                return AddListItemButton.ViewData(
                     text: Localization.accountFormCreateButton,
-                    isEnabled: enabled,
-                    action: { [weak self] in
-                        self?.onTapNewAccount()
-                    }
-                )
+                    isEnabled: enabled
+                ) { [weak viewModel] in
+                    viewModel?.onTapNewAccount()
+                }
             }
             .assign(to: \.addNewAccountButton, on: self, ownership: .weak)
             .store(in: &bag)
@@ -76,9 +75,13 @@ final class UserSettingsAccountsViewModel: ObservableObject {
         accountModelsManager.hasArchivedCryptoAccounts
             .withWeakCaptureOf(self)
             .map { viewModel, hasArchivedAccounts in
-                hasArchivedAccounts
-                    ? ArchivedAccountsButtonViewData(text: Localization.accountArchivedAccounts, action: viewModel.onTapArchivedAccounts)
-                    : nil
+                guard hasArchivedAccounts else {
+                    return nil
+                }
+
+                return ArchivedAccountsButtonViewData(text: Localization.accountArchivedAccounts) { [weak viewModel] in
+                    viewModel?.onTapArchivedAccounts()
+                }
             }
             .assign(to: \.archivedAccountButton, on: self, ownership: .weak)
             .store(in: &bag)
