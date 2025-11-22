@@ -140,11 +140,3 @@ extension LegacyMultiWalletMainContentViewSectionsProvider: MultiWalletMainConte
         self.itemViewModelFactory = itemViewModelFactory
     }
 }
-
-// MARK: - Convenience extensions
-
-private extension TokenSectionsAdapter.Section {
-    var walletModels: [any WalletModel] {
-        return items.compactMap(\.walletModel)
-    }
-}
