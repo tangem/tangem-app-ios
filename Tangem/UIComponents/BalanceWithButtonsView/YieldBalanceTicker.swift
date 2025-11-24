@@ -33,7 +33,7 @@ final class YieldBalanceTicker {
                 guard let currentBalance else { return nil }
                 return ticker.balanceFormatter.formatFiatBalance(
                     currentBalance,
-                    currencyCode: ticker.tokenItem.currencySymbol,
+                    currencyCode: AppSettings.shared.selectedCurrencyCode,
                     formattingOptions: ticker.balanceFormattingOptions
                 )
             }
