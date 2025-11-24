@@ -12,6 +12,7 @@ import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 import TangemSdk
 import TangemLocalization
+import protocol BlockchainSdk.EthereumFeeParameters
 
 final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Injected
@@ -175,17 +176,23 @@ final class YieldModuleStartViewModel: ObservableObject {
     }
 
     private func fetchFees() {
-        Task { await fetchNetworkFee() }
-        Task { await fetchMinimalAmount() }
-        Task { await fetchEstimatedAndMaximumFee() }
+        Task {
+            let feeParameters = try await yieldManagerInteractor.getCurrentFeeParameters()
+
+            async let networkFee: () = fetchNetworkFee()
+            async let minimalAmount: () = fetchMinimalAmount(feeParameters: feeParameters)
+            async let estimatedAndMaximumFee: () = fetchEstimatedAndMaximumFee(feeParameters: feeParameters)
+
+            _ = await (networkFee, minimalAmount, estimatedAndMaximumFee)
+        }
     }
 
     @MainActor
-    private func fetchMinimalAmount() async {
+    private func fetchMinimalAmount(feeParameters: EthereumFeeParameters) async {
         minimalAmountState = minimalAmountState.withFeeState(.loading)
 
         do {
-            let minimalAmountInFiat = try await yieldManagerInteractor.getMinAmount()
+            let minimalAmountInFiat = try await yieldManagerInteractor.getMinAmount(feeParameters: feeParameters)
             let minimalFeeFormatted = try await feeConverter.makeFormattedMinimalFee(from: minimalAmountInFiat)
 
             minimalAmountState = minimalAmountState
@@ -231,7 +238,7 @@ final class YieldModuleStartViewModel: ObservableObject {
 
             if isFeeHigh {
                 logger.logEarningNoticeNotEnoughFeeShown()
-                networkFeeNotification = createNotEnoughFeeNotification()
+                networkFeeNotification = createNotEnoughFeeNotification(walletModel: walletModel)
             }
 
             isNavigationToFeePolicyEnabled = true
@@ -247,7 +254,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     }
 
     @MainActor
-    private func fetchEstimatedAndMaximumFee() async {
+    private func fetchEstimatedAndMaximumFee(feeParameters: EthereumFeeParameters) async {
         estimatedFeeState = estimatedFeeState.withFeeState(.loading)
         maximumFeeState = maximumFeeState.withFeeState(.loading)
 
@@ -258,7 +265,8 @@ final class YieldModuleStartViewModel: ObservableObject {
         }
 
         do {
-            let estimatedFee = try await yieldManagerInteractor.getCurrentNetworkFee()
+            let estimatedFee = try await yieldManagerInteractor.getCurrentNetworkFee(feeParameters: feeParameters)
+
             let estimatedFeeFormatted = try await feeConverter.makeFormattedMinimalFee(from: estimatedFee)
             let maxFeeFormatted = try await feeConverter.makeFormattedMaximumFee(maxFeeNative: maxFeeNative)
 
@@ -277,19 +285,6 @@ final class YieldModuleStartViewModel: ObservableObject {
             maximumFeeState = maximumFeeState.withFeeState(.noData)
             feePolicyFooter = nil
         }
-    }
-
-    private func getFeeCurrencyWalletModel(in userWalletModel: any UserWalletModel) -> (any WalletModel)? {
-        guard let selectedUserModel = userWalletRepository.selectedModel,
-              let feeCurrencyWalletModel = selectedUserModel.walletModelsManager.walletModels.first(where: {
-                  $0.tokenItem == walletModel.feeTokenItem
-              })
-        else {
-            assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
-            return nil
-        }
-
-        return feeCurrencyWalletModel
     }
 }
 
@@ -323,13 +318,9 @@ extension YieldModuleStartViewModel: FloatingSheetContentViewModel {}
 // MARK: - Notification Builders
 
 private extension YieldModuleStartViewModel {
-    func createNotEnoughFeeNotification() -> YieldModuleNotificationBannerParams {
+    func createNotEnoughFeeNotification(walletModel: any WalletModel) -> YieldModuleNotificationBannerParams {
         notificationManager.createNotEnoughFeeCurrencyNotification { [weak self] in
-            if let selectedUserWalletModel = self?.userWalletRepository.selectedModel,
-               let feeWalletModel = self?.getFeeCurrencyWalletModel(in: selectedUserWalletModel) {
-                self?.onCloseTap()
-                self?.coordinator?.openFeeCurrency(for: feeWalletModel, userWalletModel: selectedUserWalletModel)
-            }
+            self?.coordinator?.openFeeCurrency(walletModel: walletModel)
         }
     }
 

@@ -16,17 +16,13 @@ struct CreateWalletSelectorView: View {
 
     @ObservedObject var viewModel: ViewModel
 
-    @State private var introspectResponderChainID = UUID()
-
     var body: some View {
         content
-            .padding(.top, 12)
-            .padding(.horizontal, 16)
+            .allowsHitTesting(!viewModel.isScanning)
             .background(Colors.Background.plain.ignoresSafeArea())
             .onAppear(perform: viewModel.onAppear)
             .alert(item: $viewModel.error, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
-            .sheet(item: $viewModel.mailViewModel) { MailView(viewModel: $0) }
             .environment(\.colorScheme, .dark)
     }
 }
@@ -35,33 +31,28 @@ struct CreateWalletSelectorView: View {
 
 private extension CreateWalletSelectorView {
     var content: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 12) {
-                info.padding(.horizontal, 20)
-                tangemIcon
-                actions
+        VStack(spacing: 0) {
+            NavigationBar(
+                title: "",
+                leftButtons: {
+                    BackButton(
+                        height: viewModel.backButtonHeight,
+                        isVisible: true,
+                        isEnabled: true,
+                        action: viewModel.onBackTap
+                    )
+                }
+            )
+
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 12) {
+                    info.padding(.horizontal, 20)
+                    tangemIcon
+                    actions
+                }
+                .padding(.top, 12)
             }
-        }
-        .introspectResponderChain(
-            introspectedType: UIScrollView.self,
-            includeSubviews: true,
-            updateOnChangeOf: introspectResponderChainID,
-            action: { scrollView in
-                scrollView.alwaysBounceVertical = false
-            }
-        )
-        .introspectResponderChain(
-            introspectedType: UINavigationBar.self,
-            includeSubviews: true,
-            updateOnChangeOf: introspectResponderChainID,
-            action: { navigationBar in
-                navigationBar.tintColor = UIColor(Colors.Text.constantWhite)
-            }
-        )
-        .onWillAppear {
-            DispatchQueue.main.async {
-                introspectResponderChainID = UUID()
-            }
+            .padding(.horizontal, 16)
         }
     }
 }
@@ -113,6 +104,7 @@ private extension CreateWalletSelectorView {
                 title: viewModel.scanTitle,
                 icon: .trailing(Assets.tangemIcon),
                 style: .secondary,
+                isLoading: viewModel.isScanning,
                 action: viewModel.onScanTap
             )
 
