@@ -138,8 +138,18 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
             return nil
         }
 
-        // accounts_fixes_needed_wc
-        return transactionData.userWalletModel.walletModelsManager.walletModels.first { walletModel in
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+            return nil
+        }
+
+        return walletModels.first { walletModel in
             walletModel.tokenItem.blockchain.networkId == transactionData.blockchain.networkId &&
                 walletModel.defaultAddressString.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
         }
@@ -148,9 +158,28 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
     func startTransactionSimulation() async {
         simulationState = .loading
 
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+
+            simulationState = .simulationFailed(error: error.localizedDescription)
+
+            analyticsLogger.logSignatureRequestReceived(
+                transactionData: transactionData,
+                simulationState: simulationState
+            )
+
+            return
+        }
+
         simulationState = await simulationManager.startSimulation(
             for: transactionData,
-            userWalletModel: transactionData.userWalletModel
+            walletModels: walletModels
         )
 
         analyticsLogger.logSignatureRequestReceived(
@@ -485,22 +514,39 @@ private extension WCTransactionViewModel {
     }
 
     private func getFeeTokenItem() -> TokenItem? {
-        // accounts_fixes_needed_wc
-        if let walletModel = transactionData.userWalletModel.walletModelsManager.walletModels.first(where: {
-            $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
-        }) {
-            return walletModel.feeTokenItem
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+            return nil
         }
 
-        return nil
+        guard let walletModel = walletModels.first(where: {
+            $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
+        }) else {
+            return nil
+        }
+
+        return walletModel.feeTokenItem
     }
 
     private static func makeAddressRowViewModel(from transactionData: WCHandleTransactionData) -> WCTransactionAddressRowViewModel? {
-        // accounts_fixes_needed_wc
-        let walletModels = transactionData
-            .userWalletModel
-            .walletModelsManager
-            .walletModels
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+            return nil
+        }
+
+        let filteredWalletModels = walletModels
             .filter { walletModel in
                 let isCoin = walletModel.tokenItem.blockchain.networkId == transactionData.blockchain.networkId && walletModel.isMainToken
                 let isTokenInOtherBlockchain = walletModel.tokenItem.token?.id == transactionData.blockchain.networkId
@@ -509,8 +555,8 @@ private extension WCTransactionViewModel {
             }
 
         guard
-            walletModels.count > 1,
-            let mainAddress = walletModels.first(where: { $0.isMainToken })?.defaultAddressString
+            filteredWalletModels.count > 1,
+            let mainAddress = filteredWalletModels.first(where: { $0.isMainToken })?.defaultAddressString
         else {
             return nil
         }
