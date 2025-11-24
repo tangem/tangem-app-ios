@@ -94,6 +94,7 @@
 "alert_negative_app_rate_sent_title" = "Deine Vorschläge wurden übermittelt";
 "alert_troubleshooting_scan_card_message" = "Bitte versuche, die Karte oder Ring genau wie in der Animation gezeigt anzutippen, oder lese unsere einfache Anleitung, oder forder Support an. Wenn das Problem weiterhin besteht, wende dich bitte an den Support.";
 "alert_troubleshooting_scan_card_title" = "Hast du Probleme beim Scannen deiner Karte oder Ring?";
+"app_settings_access_code_warning" = "Set an access code first to enable biometrics";
 "app_settings_biometrics_footer" = "Verwende die %1$@ um Deine Wallet zu entsperren und sensible Aktionen wie das Signieren von Transaktionen zu bestätigen. Bei Hardware-Wallets ist zum Signieren weiterhin eine Karte oder ein Ring erforderlich.";
 "app_settings_default_fee_footer" = "Aktiviere die Option Standardgebühr, um die Transaktionsgebühren automatisch festzulegen und die Gebührenseite beim Senden von Geldern zu überspringen. Du kannst bei Bedarf jederzeit zu dieser Seite zurückkehren.";
 "app_settings_default_fee" = "Standardgebühr";
@@ -502,7 +503,7 @@
 "express_transaction_id_copied" = "Transaktions-ID kopiert";
 "express_transaction_id" = "ID: %@";
 "feed_market_and_news" = "Market & News";
-"feed_tangem_ai" = "Tangem AI";
+"feed_tangem_ai" = "Tangem AI";
 "feed_trending_now" = "Trending Now";
 "feedback_preface_rate_negative" = "Teile uns mit, welche Funktionen du vermisst, und wir werden versuchen, dir zu helfen.";
 "feedback_preface_scan_failed" = "Bitte sag uns, welche Karte oder Ring du hast";
@@ -1369,7 +1370,8 @@
 "tangempay_card_details_swap_description" = "Tausche beliebige Vermögenswerte in Deinem Portfolio gegen eine Karte.";
 "tangempay_card_details_title" = "Kartendetails";
 "tangempay_card_details_unfreeze_card" = "Karte entsperren";
-"tangempay_issue_card_notification_title" = "Konto erstellen und Karte ausstellen";
+"tangempay_issue_card_notification_description" = "It usually takes up to 15 minutes";
+"tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "Status anzeigen";
 "tangempay_kyc_in_progress_notification_title" = "KYC für Tangem Pay in Arbeit";

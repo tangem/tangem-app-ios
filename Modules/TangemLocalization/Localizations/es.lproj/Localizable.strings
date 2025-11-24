@@ -94,6 +94,7 @@
 "alert_negative_app_rate_sent_title" = "Sus sugerencias fueron enviadas";
 "alert_troubleshooting_scan_card_message" = "Por favor, intente colocar la tarjeta o el anillo exactamente como se muestra en la animación o lea nuestra sencilla guía, o solicite soporte. Si el problema persiste, por favor solicite soporte.";
 "alert_troubleshooting_scan_card_title" = "¿Tiene dificultades para escanear su tarjeta/anillo?";
+"app_settings_access_code_warning" = "Set an access code first to enable biometrics";
 "app_settings_biometrics_footer" = "Utilice %1$@ para desbloquear de forma rápida y segura su billetera y autorizar todas las acciones importantes, como la firma de transacciones. Al ser una billetera de hardware, seguirá necesitando una tarjeta para firmar.";
 "app_settings_default_fee_footer" = "Habilite las Tarifas predeterminadas para establecer automáticamente las tarifas de transacción y omitir la página de Tarifas al enviar fondos. Siempre puede volver a esta página si es necesario.";
 "app_settings_default_fee" = "Tarifa por defecto";
@@ -502,7 +503,7 @@
 "express_transaction_id_copied" = "ID de transacción copiado";
 "express_transaction_id" = "ID : %@";
 "feed_market_and_news" = "Market & News";
-"feed_tangem_ai" = "Tangem AI";
+"feed_tangem_ai" = "Tangem AI";
 "feed_trending_now" = "Trending Now";
 "feedback_preface_rate_negative" = "Cuéntenos qué funciones echa de menos y trataremos de ayudarle.";
 "feedback_preface_scan_failed" = "Por favor, díganos qué tarjeta o anillo tiene";
@@ -1369,13 +1370,14 @@
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
 "tangempay_card_details_title" = "Card details";
 "tangempay_card_details_unfreeze_card" = "Unfreeze Card";
-"tangempay_issue_card_notification_title" = "Create account and issue a card";
+"tangempay_issue_card_notification_description" = "It usually takes up to 15 minutes";
+"tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
 "tangempay_kyc_in_progress_notification_title" = "KYC in progress for Tangem Pay";
 "tangempay_onboarding_get_card_button_text" = "Get card";
-"tangempay_onboarding_pay_description" = "Spend your crypto anywhere";
-"tangempay_onboarding_pay_title" = "With digital card that works with Apple Pay and Google Pay";
+"tangempay_onboarding_pay_description" = "With digital card that works with Apple Pay and Google Pay";
+"tangempay_onboarding_pay_title" = "Spend your assets anywhere";
 "tangempay_onboarding_purchases_description" = "There are no additional fees for purchases";
 "tangempay_onboarding_purchases_title" = "Pay exactly what you see";
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
@@ -1892,9 +1894,9 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Modo de rendimiento";
 "yield_module_token_details_earn_notification_processing" = "Procesando su depósito";
 "yield_module_token_details_earn_notification_title" = "Modo Rendimiento";
-"yield_module_transaction_enter" = "Yield Mode on";
-"yield_module_transaction_exit" = "Yield Mode off";
-"yield_module_transaction_topup" = "Yield Mode top-up";
+"yield_module_transaction_enter" = "Modo Rendimiento activado";
+"yield_module_transaction_exit" = "Modo Rendimiento desactivado";
+"yield_module_transaction_topup" = "Recarga del modo Rendimiento";
 "yield_module_transfer_mode_automatic" = "Automático";
 "yield_module_unable_to_cover_fee_description" = "Deposite algo de %1$@ %2$@ para cubrir la tarifa de red para las transacciones";
 "yield_module_unable_to_cover_fee_title" = "No se puede cubrir la tarifa %@";
