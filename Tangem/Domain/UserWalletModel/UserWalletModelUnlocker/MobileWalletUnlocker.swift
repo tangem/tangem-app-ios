@@ -23,9 +23,9 @@ class MobileWalletUnlocker: UserWalletModelUnlocker {
     init(userWalletId: UserWalletId, config: UserWalletConfig, info: MobileWalletInfo) {
         self.userWalletId = userWalletId
         self.config = config
-        canUnlockAutomatically = !info.isAccessCodeSet
-        canShowUnlockUIAutomatically = info.isAccessCodeSet
-        analyticsSignInType = info.isAccessCodeSet ? .accessCode : .noSecurity
+        canUnlockAutomatically = !info.accessCodeStatus.hasAccessCode
+        canShowUnlockUIAutomatically = info.accessCodeStatus.hasAccessCode
+        analyticsSignInType = info.accessCodeStatus.hasAccessCode ? .accessCode : .noSecurity
     }
 
     func unlock() async -> UserWalletModelUnlockerResult {
@@ -47,7 +47,7 @@ class MobileWalletUnlocker: UserWalletModelUnlocker {
 
 private extension MobileWalletUnlocker {
     func unlockWithFallback() async throws -> UserWalletModelUnlockerResult {
-        let accessCodeManager = await CommonMobileAccessCodeManager(
+        let accessCodeManager = CommonMobileAccessCodeManager(
             userWalletId: userWalletId,
             configuration: .default,
             storageManager: CommonMobileAccessCodeStorageManager()
