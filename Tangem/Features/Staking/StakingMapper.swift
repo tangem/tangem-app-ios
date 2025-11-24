@@ -20,53 +20,47 @@ struct StakingTransactionMapper {
         self.feeTokenItem = feeTokenItem
     }
 
-    func mapToStakeKitTransactions(action: StakingTransactionAction) -> [StakingTransaction] {
-        action.transactions.compactMap { transaction in
+    func mapToStakeKitTransactions(
+        action: StakingTransactionAction
+    ) -> [StakeKitTransaction] {
+        action.transactions.compactMap { transaction -> StakeKitTransaction? in
+            guard case .raw(let unsignedTransactionData) = transaction.unsignedTransactionData else {
+                return nil
+            }
+
             let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: action.amount)
             let feeAmount = Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: transaction.fee)
 
-            let params = StakeKitTransactionParams(
+            return StakeKitTransaction(
+                id: transaction.id,
+                amount: amount,
+                fee: Fee(feeAmount),
+                unsignedData: unsignedTransactionData,
                 type: .init(rawValue: transaction.type),
                 status: .init(rawValue: transaction.status),
                 stepIndex: transaction.stepIndex,
                 validator: action.validator,
                 solanaBlockhashDate: Date()
             )
-
-            guard let unsignedTransactionData = transaction.unsignedTransactionData as? String else {
-                return nil
-            }
-
-            let stakeKitTransaction = StakingTransaction(
-                id: transaction.id,
-                amount: amount,
-                fee: Fee(feeAmount),
-                unsignedData: unsignedTransactionData,
-                params: params
-            )
-
-            return stakeKitTransaction
         }
     }
 
-    func mapToP2PTransactions(action: StakingTransactionAction) -> [StakingTransaction] {
-        action.transactions.compactMap { transaction -> StakingTransaction? in
-            let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: action.amount)
-            let feeAmount = Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: transaction.fee)
-
-            guard let unsignedTransactionData = transaction.unsignedTransactionData as? EthereumCompiledTransaction else {
+    func mapToP2PTransactions(
+        action: StakingTransactionAction
+    ) -> [P2PTransaction] {
+        action.transactions.compactMap { transaction -> P2PTransaction? in
+            guard case .compiledEthereum(let unsignedTransactionData) = transaction.unsignedTransactionData else {
                 return nil
             }
 
-            let stakingTransaction = StakingTransaction(
-                id: transaction.id,
+            let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: action.amount)
+            let feeAmount = Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: transaction.fee)
+
+            return P2PTransaction(
                 amount: amount,
                 fee: Fee(feeAmount),
                 unsignedData: unsignedTransactionData,
-                params: nil
             )
-
-            return stakingTransaction
         }
     }
 }

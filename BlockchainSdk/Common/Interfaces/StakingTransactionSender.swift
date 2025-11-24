@@ -1,5 +1,5 @@
 //
-//  StakeKitTransactionSender.swift
+//  StakingTransactionSender.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,27 +8,33 @@
 import Foundation
 
 /// High-level protocol for preparing, signing and sending staking transactions
-public protocol StakeKitTransactionSender {
+public protocol StakingTransactionSender {
     /// Return stream with tx which was sent one by one
     /// If catch error stream will be stopped
     /// In case when manager already implemented the `StakeKitTransactionSenderProvider` method will be not required
     func sendStakeKit(
-        transactions: [StakingTransaction],
+        transactions: [StakeKitTransaction],
         signer: TransactionSigner,
         transactionStatusProvider: some StakeKitTransactionStatusProvider,
         delay second: UInt64?
     ) -> AsyncThrowingStream<StakeKitTransactionSendResult, Error>
+
+    func sendP2P(
+        transaction: P2PTransaction,
+        signer: TransactionSigner,
+        executeSend: @escaping (String) async throws -> String
+    ) async throws -> TransactionSendResult
 }
 
 // MARK: - Common implementation for StakeKitTransactionSenderProvider
 
-extension StakeKitTransactionSender where
+extension StakingTransactionSender where
     Self: StakingTransactionsBuilder,
     Self: WalletProvider, RawTransaction: CustomStringConvertible,
     Self: StakeKitTransactionDataBroadcaster,
     Self: BlockchainDataProvider {
     func sendStakeKit(
-        transactions: [StakingTransaction],
+        transactions: [StakeKitTransaction],
         signer: TransactionSigner,
         transactionStatusProvider: some StakeKitTransactionStatusProvider,
         delay: UInt64?
@@ -51,7 +57,7 @@ extension StakeKitTransactionSender where
                     )
 
                     _ = try await withThrowingTaskGroup(
-                        of: (TransactionSendResult, StakingTransaction).self
+                        of: (TransactionSendResult, StakeKitTransaction).self
                     ) { group in
                         var results = [TransactionSendResult]()
 
@@ -102,7 +108,7 @@ extension StakeKitTransactionSender where
 
     /// Convenience method with adding the `PendingTransaction` to the wallet  and `SendTxError` mapping
     private func broadcast(
-        transaction: StakingTransaction,
+        transaction: StakeKitTransaction,
         rawTransaction: RawTransaction,
         at index: UInt64,
         delay: UInt64? = nil,
@@ -136,7 +142,7 @@ extension StakeKitTransactionSender where
     }
 
     private func waitForTransactionToComplete(
-        _ transaction: StakingTransaction,
+        _ transaction: StakeKitTransaction,
         transactionStatusProvider: StakeKitTransactionStatusProvider
     ) async throws {
         var status: StakeKitTransactionParams.Status?
@@ -154,9 +160,40 @@ extension StakeKitTransactionSender where
     }
 }
 
-extension StakingTransaction {
+extension StakingTransactionSender where Self: WalletProvider, Self: P2PTransactionDataProvider {
+    func sendP2P(
+        transaction: P2PTransaction,
+        signer: TransactionSigner,
+        executeSend: @escaping (RawTransaction) async throws -> String
+    ) async throws -> TransactionSendResult {
+        let hashToSign = try prepareDataForSign(transaction: transaction)
+
+        let signature = try await signer.sign(
+            hash: hashToSign,
+            walletPublicKey: wallet.publicKey
+        ).async()
+
+        let rawTransaction = try prepareDataForSend(transaction: transaction, signature: signature)
+        let hash = try await executeSend(rawTransaction)
+
+        return TransactionSendResult(hash: hash, currentProviderHost: .empty)
+    }
+}
+
+extension StakingTransactionSender where Self: WalletProvider {
+    func sendP2P(
+        transaction: P2PTransaction,
+        signer: TransactionSigner,
+        executeSend: @escaping (String) async throws -> String
+    ) async throws -> TransactionSendResult {
+        BSDKLogger.error(error: "Attempt to send P2P transaction on unsupported chain")
+        throw BlockchainSdkError.failedToSendTx
+    }
+}
+
+extension StakeKitTransaction {
     var requiresWaitingToComplete: Bool {
-        return (params as? StakeKitTransactionParams)?.type == .split
+        type == .split
     }
 }
 

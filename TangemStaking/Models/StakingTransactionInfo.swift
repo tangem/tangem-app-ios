@@ -7,13 +7,13 @@
 //
 
 import Foundation
-import TangemFoundation
+import BlockchainSdk
 
 public struct StakingTransactionInfo {
     public let id: String
     public let actionId: String
     public let network: String
-    public let unsignedTransactionData: any UnsignedTransactionData
+    public let unsignedTransactionData: UnsignedTransactionData
     public let fee: Decimal
     public let type: String
     public let status: String
@@ -23,7 +23,7 @@ public struct StakingTransactionInfo {
         id: String,
         actionId: String,
         network: String,
-        unsignedTransactionData: any UnsignedTransactionData,
+        unsignedTransactionData: UnsignedTransactionData,
         fee: Decimal,
         type: String,
         status: String,

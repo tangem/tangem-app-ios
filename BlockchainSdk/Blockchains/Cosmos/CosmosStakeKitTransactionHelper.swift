@@ -16,13 +16,13 @@ struct CosmosStakeKitTransactionHelper {
         self.builder = builder
     }
 
-    func prepareForSign(stakingTransaction: StakingTransaction) throws -> Data {
+    func prepareForSign(stakingTransaction: StakeKitTransaction) throws -> Data {
         let txInputData = try makeInput(stakingTransaction: stakingTransaction)
         return try builder.buildForSignRaw(txInputData: txInputData)
     }
 
     func buildForSend(
-        stakingTransaction: StakingTransaction,
+        stakingTransaction: StakeKitTransaction,
         signature: Data
     ) throws -> Data {
         let txInputData = try makeInput(stakingTransaction: stakingTransaction)
@@ -30,12 +30,9 @@ struct CosmosStakeKitTransactionHelper {
     }
 
     private func makeInput(
-        stakingTransaction: StakingTransaction
+        stakingTransaction: StakeKitTransaction
     ) throws -> Data {
-        guard let unsignedData = stakingTransaction.unsignedData as? String else {
-            throw BlockchainSdkError.failedToBuildTx
-        }
-        let stakingProtoMessage = try CosmosProtoMessage(serializedData: Data(hex: unsignedData))
+        let stakingProtoMessage = try CosmosProtoMessage(serializedData: Data(hex: stakingTransaction.unsignedData))
 
         let feeMessage = stakingProtoMessage.feeAndKeyContainer.feeContainer
         let feeValue = feeMessage.feeAmount

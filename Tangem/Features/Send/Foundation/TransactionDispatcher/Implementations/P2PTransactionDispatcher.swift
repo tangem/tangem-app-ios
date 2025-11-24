@@ -31,7 +31,7 @@ final class P2PTransactionDispatcher {
 
 extension P2PTransactionDispatcher: TransactionDispatcher {
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
-        guard let stakingTransactionsBuilder = walletModel.stakingTransactionsBuilder else {
+        guard let stakingTransactionsSender = walletModel.stakingTransactionSender else {
             throw TransactionDispatcherResult.Error.actionNotSupported
         }
 
@@ -41,18 +41,23 @@ extension P2PTransactionDispatcher: TransactionDispatcher {
 
         let transactions = mapper.mapToP2PTransactions(action: action)
 
-        let signResults = try await stakingTransactionsBuilder.buildRawTransactions(
-            from: transactions,
-            publicKey: walletModel.publicKey,
-            signer: transactionSigner
-        )
-
-        guard let signedTransaction = signResults.first as? String else {
-            throw BlockchainSdkError.failedToSendTx
+        guard let transaction = transactions.singleElement else {
+            throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        let hash = try await apiProvider.broadcastTransaction(signedTransaction: signedTransaction)
-        let result = TransactionDispatcherResult(hash: hash, url: nil, signerType: "", currentHost: "")
+        let sendResult = try await stakingTransactionsSender.sendP2P(
+            transaction: transaction,
+            signer: transactionSigner,
+            executeSend: { [apiProvider] signedTransaction in
+                try await apiProvider.broadcastTransaction(signedTransaction: signedTransaction)
+            }
+        )
+
+        let result = TransactionDispatcherResultMapper().mapResult(
+            sendResult,
+            blockchain: walletModel.tokenItem.blockchain,
+            signer: transactionSigner.latestSignerType
+        )
 
         walletModel.updateAfterSendingTransaction()
 
