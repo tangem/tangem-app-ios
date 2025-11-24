@@ -38,6 +38,10 @@ extension SendTransactionDispatcher: TransactionDispatcher {
             let hash = try await walletModel.transactionSender.send(transferTransaction, signer: transactionSigner).async()
             walletModel.updateAfterSendingTransaction()
 
+            if walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true {
+                walletModel.yieldModuleManager?.sendTransactionSendEvent(transactionHash: hash.hash)
+            }
+
             return mapper.mapResult(
                 hash,
                 blockchain: walletModel.tokenItem.blockchain,
