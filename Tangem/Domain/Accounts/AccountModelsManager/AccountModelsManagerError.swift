@@ -10,6 +10,16 @@ import Foundation
 
 enum AccountModelsManagerError: Error {
     case addingCryptoAccountsNotSupported
-    case cannotArchiveCryptoAccount
-    case cannotUnarchiveCryptoAccount
+    case addingCryptoAccountsFailed
+    case cannotFetchArchivedCryptoAccounts
+}
+
+enum AccountArchivationError: Error {
+    case participatesInReferralProgram
+    case unknownError(Error)
+}
+
+enum AccountRecoveryError: Error {
+    case tooManyActiveAccounts
+    case unknownError(Error)
 }

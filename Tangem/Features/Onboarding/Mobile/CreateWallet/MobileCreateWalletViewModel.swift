@@ -19,6 +19,8 @@ final class MobileCreateWalletViewModel: ObservableObject {
     let createButtonTitle = Localization.onboardingCreateWalletButtonCreateWallet
     let importButtonTitle = Localization.hwImportExistingWallet
 
+    let navBarHeight: CGFloat = OnboardingLayoutConstants.navbarSize.height
+
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     lazy var infoItems: [InfoItem] = makeInfoItems()
@@ -37,6 +39,12 @@ final class MobileCreateWalletViewModel: ObservableObject {
 extension MobileCreateWalletViewModel {
     func onAppear() {
         Analytics.log(.createWalletScreenOpened, contextParams: .custom(.mobileWallet))
+    }
+
+    func onBackTap() {
+        runTask(in: self) { viewModel in
+            await viewModel.close()
+        }
     }
 
     func onCreateTap() {
@@ -91,6 +99,10 @@ private extension MobileCreateWalletViewModel {
         let input = MobileOnboardingInput(flow: .walletImport)
         let options = OnboardingCoordinator.Options.mobileInput(input)
         coordinator?.openOnboarding(options: options)
+    }
+
+    func close() {
+        coordinator?.closeMobileCreateWallet()
     }
 }
 
