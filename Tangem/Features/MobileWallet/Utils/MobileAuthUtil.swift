@@ -25,7 +25,7 @@ final class MobileAuthUtil {
     )
 
     private var isAccessCodeSet: Bool {
-        !config.hasFeature(.userWalletAccessCode)
+        config.userWalletAccessCodeStatus.hasAccessCode
     }
 
     private var isAccessCodeRequired: Bool {
@@ -122,6 +122,14 @@ private extension MobileAuthUtil {
         else {
             throw MobileWalletError.encryptionKeyMismatched
         }
+
+        if BiometricsUtil.isAvailable,
+           AppSettings.shared.useBiometricAuthentication,
+           !AppSettings.shared.requireAccessCodes,
+           !mobileWalletSdk.isBiometricsEnabled(for: userWalletId) {
+            try? mobileWalletSdk.refreshBiometrics(context: context)
+        }
+
         return .successful(context)
     }
 }
