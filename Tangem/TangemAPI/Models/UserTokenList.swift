@@ -10,7 +10,7 @@ import Foundation
 import struct TangemSdk.DerivationPath
 
 /// The API model for the`user-tokens/:key/` routing
-@available(iOS, deprecated: 100000.0, message: "Superseded by 'AccountsDTO.Response.Accounts', will be removed in the future")
+@available(iOS, deprecated: 100000.0, message: "Superseded by 'AccountsDTO.Response.Accounts', will be removed in the future ([REDACTED_INFO])")
 struct UserTokenList: Codable {
     var tokens: [Token]
     var group: GroupType
@@ -35,26 +35,7 @@ struct UserTokenList: Codable {
 }
 
 extension UserTokenList {
-    static var initialVersion: Int { 0 }
-
-    init(
-        tokens: [Token],
-        group: GroupType,
-        sort: SortType,
-        notifyStatus: Bool? = nil
-    ) {
-        self.init(
-            tokens: tokens,
-            group: group,
-            sort: sort,
-            notifyStatus: notifyStatus,
-            version: Self.initialVersion
-        )
-    }
-}
-
-extension UserTokenList {
-    @available(iOS, deprecated: 100000.0, message: "Superseded by 'AccountsDTO.Response.Accounts.Token', will be removed in the future")
+    @available(iOS, deprecated: 100000.0, message: "Superseded by 'AccountsDTO.Response.Accounts.Token', will be removed in the future ([REDACTED_INFO])")
     struct Token: Codable, Hashable {
         let id: String?
         let networkId: String
@@ -66,13 +47,23 @@ extension UserTokenList {
         let addresses: [String]?
     }
 
+    @available(iOS, deprecated: 100000.0, message: "Superseded by 'AccountsDTO.Response.Accounts.Token', will be removed in the future ([REDACTED_INFO])")
     enum GroupType: String, Codable {
         case none
         case network
     }
 
+    @available(iOS, deprecated: 100000.0, message: "Superseded by 'AccountsDTO.Response.Accounts.Token', will be removed in the future ([REDACTED_INFO])")
     enum SortType: String, Codable {
         case manual
         case balance
+    }
+}
+
+// MARK: - Constants
+
+private extension UserTokenList {
+    enum Constants {
+        private static var apiVersion: Int { 0 }
     }
 }

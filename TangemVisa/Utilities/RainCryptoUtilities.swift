@@ -7,6 +7,7 @@
 //
 
 import CryptoKit
+import TangemSdk
 
 public enum RainCryptoUtilities {
     private static let tagLength: Int = 16
@@ -24,9 +25,7 @@ public enum RainCryptoUtilities {
     }
 
     public static func generateSecretKeyAndSessionId(publicKey: String) throws -> (secretKey: String, sessionId: String) {
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-        let secretKey = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+        let secretKey = try CryptoUtils.generateRandomBytes(count: 32).hexString
         let sessionId = try generateSessionId(publicKey: publicKey, secretKey: secretKey)
         return (secretKey: secretKey, sessionId: sessionId)
     }
@@ -49,6 +48,28 @@ public enum RainCryptoUtilities {
         }
 
         return (encryptedData as Data).base64EncodedString()
+    }
+
+    public static func encryptPin(pin: String, secretKey: String) throws -> (base64Secret: String, base64Iv: String) {
+        // Format PIN into ISO 9564 Format 2 PIN block: 2[length][PIN][padding with F]
+        // Example: "246784FFFFFFFFFF" for PIN "6784"
+        let pinBlock = "2\(pin.count)\(pin)\(String(repeating: "F", count: 14 - pin.count))"
+
+        guard let pinBlockData = pinBlock.data(using: .utf8) else {
+            throw RainCryptoUtilitiesError.invalidSecretToEncrypt(pin)
+        }
+
+        let ivData = try CryptoUtils.generateRandomBytes(count: 16)
+        let encryptedData: Data
+        do {
+            let nonce = try AES.GCM.Nonce(data: ivData)
+            let sealedBox = try AES.GCM.seal(pinBlockData, using: SymmetricKey(data: Data(hexString: secretKey)), nonce: nonce)
+            encryptedData = sealedBox.ciphertext + sealedBox.tag
+        } catch {
+            throw RainCryptoUtilitiesError.aesGCM(error)
+        }
+
+        return (base64Secret: encryptedData.base64EncodedString(), base64Iv: ivData.base64EncodedString())
     }
 
     public static func decryptSecret(base64Secret: String, base64Iv: String, secretKey: String) throws(RainCryptoUtilitiesError) -> String {
@@ -88,5 +109,6 @@ public extension RainCryptoUtilities {
         case invalidBase64EncodedIv(String)
         case aesGCM(Error)
         case invalidDecryptedData(Data)
+        case invalidSecretToEncrypt(String)
     }
 }

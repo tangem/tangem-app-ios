@@ -6,37 +6,31 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import TangemVisa
 
 final class TangemPayAuthorizer {
-    let walletModel: any WalletModel
+    private let customerWalletId: String
+    private let interactor: TangemPayAuthorizing
+    private let keysRepository: KeysRepository
 
-    init(walletModel: any WalletModel) {
-        self.walletModel = walletModel
+    init(
+        customerWalletId: String,
+        interactor: TangemPayAuthorizing,
+        keysRepository: KeysRepository
+    ) {
+        self.customerWalletId = customerWalletId
+        self.interactor = interactor
+        self.keysRepository = keysRepository
     }
 
     func authorizeWithCustomerWallet() async throws -> VisaAuthorizationTokens {
-        let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
-
-        let task = CustomerWalletAuthorizationTask(
-            walletPublicKey: walletModel.publicKey,
-            walletAddress: walletModel.defaultAddressString,
-            authorizationService: VisaAPIServiceBuilder().buildAuthorizationService()
+        let authorizationService = VisaAPIServiceBuilder().buildAuthorizationService()
+        let response = try await interactor.authorize(
+            customerWalletId: customerWalletId,
+            authorizationService: authorizationService
         )
-
-        let tokens = try await withCheckedThrowingContinuation { continuation in
-            tangemSdk.startSession(with: task) { result in
-                switch result {
-                case .success(let hashResponse):
-                    continuation.resume(returning: hashResponse)
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-
-                withExtendedLifetime(task) {}
-            }
-        }
-
-        return tokens
+        keysRepository.update(derivations: response.derivationResult)
+        return response.tokens
     }
 }

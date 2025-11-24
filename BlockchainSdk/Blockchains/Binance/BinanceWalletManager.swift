@@ -69,18 +69,20 @@ extension BinanceWalletManager: TransactionSender {
                 }
                 return tx
             }
-            .flatMap { [weak self] tx -> AnyPublisher<TransactionSendResult, Error> in
-                self?.networkService.send(transaction: tx).tryMap { [weak self] response in
-                    guard let self = self else { throw BlockchainSdkError.empty }
-                    let hash = response.broadcast.first?.hash ?? response.tx.txHash
-                    let mapper = PendingTransactionRecordMapper()
-                    let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                    wallet.addPendingTransaction(record)
-                    latestTxDate = Date()
-                    return TransactionSendResult(hash: hash)
-                }
-                .mapAndEraseSendTxError(tx: tx.encodeForSignature().hex())
-                .eraseToAnyPublisher() ?? .emptyFail
+            .withWeakCaptureOf(self)
+            .flatMap { manager, tx -> AnyPublisher<TransactionSendResult, Error> in
+                manager.networkService.send(transaction: tx)
+                    .withWeakCaptureOf(self)
+                    .tryMap { manager, response in
+                        let hash = response.broadcast.first?.hash ?? response.tx.txHash
+                        let mapper = PendingTransactionRecordMapper()
+                        let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
+                        manager.wallet.addPendingTransaction(record)
+                        manager.latestTxDate = Date()
+                        return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
+                    }
+                    .mapAndEraseSendTxError(tx: tx.encodeForSignature().hex())
+                    .eraseToAnyPublisher()
             }
             .mapSendTxError()
             .eraseToAnyPublisher()
