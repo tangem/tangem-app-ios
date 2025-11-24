@@ -27,7 +27,10 @@ class TangemPayAuthorizingMobileWalletInteractor {
 // MARK: - TangemPayAuthorizing
 
 extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
-    func authorize(authorizationService: VisaAuthorizationService) async throws -> TangemPayAuthorizingResponse {
+    func authorize(
+        customerWalletId: String,
+        authorizationService: VisaAuthorizationService
+    ) async throws -> TangemPayAuthorizingResponse {
         let context = try await unlock()
         let mobileWallet = try mobileWalletSdk.deriveMasterKeys(context: context)
 
@@ -58,6 +61,7 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
         let tokens = try await handleCustomerWalletAuthorization(
             context: context,
             walletPublicKey: walletPublicKey,
+            customerWalletId: customerWalletId,
             authorizationService: authorizationService
         )
 
@@ -70,12 +74,14 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
     private func handleCustomerWalletAuthorization(
         context: MobileWalletContext,
         walletPublicKey: Wallet.PublicKey,
+        customerWalletId: String,
         authorizationService: VisaAuthorizationService
     ) async throws -> VisaAuthorizationTokens {
         VisaLogger.info("Requesting challenge for wallet authorization")
 
         let challengeResponse = try await authorizationService.getCustomerWalletAuthorizationChallenge(
-            customerWalletAddress: TangemPayUtilities.makeAddress(using: walletPublicKey)
+            customerWalletAddress: TangemPayUtilities.makeAddress(using: walletPublicKey),
+            customerWalletId: customerWalletId
         )
 
         VisaLogger.info("Received challenge to sign")

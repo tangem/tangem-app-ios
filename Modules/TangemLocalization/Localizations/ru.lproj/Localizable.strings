@@ -94,6 +94,7 @@
 "alert_negative_app_rate_sent_title" = "Ваши предложения отправлены";
 "alert_troubleshooting_scan_card_message" = "Пожалуйста, попробуйте приложить карту или кольцо в точности, как показано на анимации, либо прочтите руководство по сканированию. Если проблема осталась, то запросите поддержку.";
 "alert_troubleshooting_scan_card_title" = "У вас возникли трудности со сканированием карты или кольца?";
+"app_settings_access_code_warning" = "Set an access code first to enable biometrics";
 "app_settings_biometrics_footer" = "Используйте %1$@, чтобы быстро и безопасно разблокировать кошелёк и выполнять чувствительные действия, например, подписывать транзакции. Для аппаратных кошельков всё ещё требуется карта или кольцо для подписи.";
 "app_settings_default_fee_footer" = "Подключите функцию комиссии по умолчанию и при формировании транзакции на отправку средств комиссия будет выставлена автоматически, а экран комиссии пропущен. Вы всегда сможете на него вернуться.";
 "app_settings_default_fee" = "Комиссия по-умолчанию";
@@ -502,7 +503,7 @@
 "express_transaction_id_copied" = "ID транзакции скопирован";
 "express_transaction_id" = "ID: %@";
 "feed_market_and_news" = "Market & News";
-"feed_tangem_ai" = "Tangem AI";
+"feed_tangem_ai" = "Tangem AI";
 "feed_trending_now" = "Trending Now";
 "feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта или кольцо?";
@@ -1369,13 +1370,14 @@
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
 "tangempay_card_details_title" = "Card details";
 "tangempay_card_details_unfreeze_card" = "Unfreeze Card";
-"tangempay_issue_card_notification_title" = "Create account and issue a card";
+"tangempay_issue_card_notification_description" = "It usually takes up to 15 minutes";
+"tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
 "tangempay_kyc_in_progress_notification_title" = "KYC in progress for Tangem Pay";
 "tangempay_onboarding_get_card_button_text" = "Получить карту";
-"tangempay_onboarding_pay_description" = "Spend your crypto anywhere";
-"tangempay_onboarding_pay_title" = "With digital card that works with Apple Pay and Google Pay";
+"tangempay_onboarding_pay_description" = "With digital card that works with Apple Pay and Google Pay";
+"tangempay_onboarding_pay_title" = "Spend your assets anywhere";
 "tangempay_onboarding_purchases_description" = "There are no additional fees for purchases";
 "tangempay_onboarding_purchases_title" = "Pay exactly what you see";
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
