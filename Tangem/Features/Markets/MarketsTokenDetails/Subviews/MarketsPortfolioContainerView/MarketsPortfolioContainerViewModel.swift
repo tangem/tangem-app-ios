@@ -275,7 +275,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
 
         let expressInput = ExpressDependenciesInput(
             userWalletInfo: userWalletModel.userWalletInfo,
-            source: ExpressInteractorWalletWrapper(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel),
+            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel),
             destination: .loadingAndSet
         )
 
