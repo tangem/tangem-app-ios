@@ -10,6 +10,8 @@ import Foundation
 import TangemLocalization
 
 struct LoadableTokenBalanceViewStateBuilder {
+    let formatter = BalanceFormatter()
+
     func build(type: FormattedTokenBalanceType, icon: LoadableTokenBalanceView.State.Icon? = nil) -> LoadableTokenBalanceView.State {
         switch type {
         case .loading(.cache(let cached)):
@@ -41,8 +43,6 @@ struct LoadableTokenBalanceViewStateBuilder {
     }
 
     func buildAttributedTotalBalance(type: FormattedTokenBalanceType) -> LoadableTokenBalanceView.State {
-        let formatter = BalanceFormatter()
-
         switch type {
         case .loading(.cache(let cached)):
             let attributed = formatter.formatAttributedTotalBalance(fiatBalance: cached.balance)
@@ -58,24 +58,25 @@ struct LoadableTokenBalanceViewStateBuilder {
         }
     }
 
-    func buildTotalBalance(state: TotalBalanceState) -> LoadableTokenBalanceView.State {
-        let formatter = BalanceFormatter()
-
+    func buildTotalBalance(
+        state: TotalBalanceState,
+        currencyCode: String = AppSettings.shared.selectedCurrencyCode
+    ) -> LoadableTokenBalanceView.State {
         switch state {
         case .empty:
             return .empty
         case .loading(.none):
             return .loading(cached: .none)
         case .loading(.some(let cached)):
-            let formatted = formatter.formatFiatBalance(cached)
+            let formatted = formatter.formatFiatBalance(cached, currencyCode: currencyCode)
             return .loading(cached: .string(formatted))
         case .failed(.none, _):
             return .failed(cached: .string(Localization.commonUnreachable))
         case .failed(.some(let cached), _):
-            let formatted = formatter.formatFiatBalance(cached)
+            let formatted = formatter.formatFiatBalance(cached, currencyCode: currencyCode)
             return .failed(cached: .string(formatted), icon: .trailing)
         case .loaded(let balance):
-            let formatted = formatter.formatFiatBalance(balance)
+            let formatted = formatter.formatFiatBalance(balance, currencyCode: currencyCode)
             return .loaded(text: .string(formatted))
         }
     }

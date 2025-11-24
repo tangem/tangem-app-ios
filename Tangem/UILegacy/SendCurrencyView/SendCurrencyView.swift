@@ -31,8 +31,8 @@ struct SendCurrencyView: View {
                 .simultaneousGesture(TapGesture().onEnded {
                     viewModel.textFieldDidTapped()
                 })
-                .onChange(of: viewModel.expressCurrencyViewModel.titleState) { titleState in
-                    guard case .insufficientFunds = titleState else {
+                .onChange(of: viewModel.expressCurrencyViewModel.errorState) { errorState in
+                    guard case .insufficientFunds = errorState else {
                         return
                     }
 
@@ -60,7 +60,8 @@ struct SendCurrencyView_Preview: PreviewProvider {
     static let viewModels = [
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
-                titleState: .text(Localization.swappingFromTitle),
+                viewType: .send,
+                headerType: .action(name: Localization.swappingFromTitle),
                 balanceState: .loading,
                 fiatAmountState: .loading,
                 tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), isCustom: false)),
@@ -71,7 +72,8 @@ struct SendCurrencyView_Preview: PreviewProvider {
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
-                titleState: .text(Localization.swappingFromTitle),
+                viewType: .send,
+                headerType: .action(name: Localization.swappingFromTitle),
                 balanceState: .formatted("0.0058"),
                 fiatAmountState: .loading,
                 tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), isCustom: false)),
@@ -82,7 +84,8 @@ struct SendCurrencyView_Preview: PreviewProvider {
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
-                titleState: .text(Localization.swappingFromTitle),
+                viewType: .send,
+                headerType: .action(name: Localization.swappingFromTitle),
                 balanceState: .formatted("0.0058"),
                 fiatAmountState: .loading,
                 tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), isCustom: false)),
@@ -93,7 +96,8 @@ struct SendCurrencyView_Preview: PreviewProvider {
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
-                titleState: .text(Localization.swappingFromTitle),
+                viewType: .send,
+                headerType: .action(name: Localization.swappingFromTitle),
                 balanceState: .formatted("0.0058"),
                 fiatAmountState: .loaded(text: "1100.46"),
                 tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), isCustom: false)),
@@ -104,7 +108,8 @@ struct SendCurrencyView_Preview: PreviewProvider {
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
-                titleState: .text(Localization.swappingFromTitle),
+                viewType: .send,
+                headerType: .action(name: Localization.swappingFromTitle),
                 balanceState: .formatted("0.0058"),
                 fiatAmountState: .loaded(text: "2100.46 $"),
                 tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
@@ -115,7 +120,8 @@ struct SendCurrencyView_Preview: PreviewProvider {
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
-                titleState: .text(Localization.swappingFromTitle),
+                viewType: .send,
+                headerType: .action(name: Localization.swappingFromTitle),
                 balanceState: .formatted("0.0058"),
                 fiatAmountState: .loaded(text: "2100.46 $"),
                 priceChangeState: .percent("-24.3 %", message: "Bla bla bla"),
