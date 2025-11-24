@@ -132,7 +132,13 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
     private func subscribeToPlainSectionsPublisher(_ publisher: some Publisher<[[TokenSectionsAdapter.Section]], Never>) {
         // Clearing previous subscriptions, shouldn't happen but just in case
         plainSectionsBag.removeAll()
-        // [REDACTED_TODO_COMMENT]
+
+        publisher
+            .withWeakCaptureOf(self)
+            .sink { provider, sections in
+                provider.purgeCache(using: sections)
+            }
+            .store(in: &plainSectionsBag)
     }
 
     /// This subscription is needed for purging the cache.
@@ -148,6 +154,49 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
             .store(in: &accountSectionsBag)
     }
 
+    private func purgeCache(using sections: [[TokenSectionsAdapter.Section]]) {
+        let cache = plainSectionsСache
+
+        let actualTokenItemViewModelsCacheKeys = sections
+            .flattened()
+            .flatMap(\.walletModels)
+            .map(ObjectIdentifier.init)
+            .toSet()
+
+        let tokenItemViewModelsCacheKeysToDelete = cache
+            .tokenItemViewModels
+            .keys
+            .filter { !actualTokenItemViewModelsCacheKeys.contains($0) }
+
+        // Plain sections don't cache sections adapters because they aren't re-created for single account
+        let tokenSectionsAdaptersCacheKeysToDelete = cache
+            .tokenSectionsAdapters
+            .keys
+            .toSet()
+
+        // Plain sections don't use and therefore don't cache account item view models
+        let accountItemViewModelsCacheKeysToDelete = cache
+            .accountItemViewModels
+            .keys
+            .toSet()
+
+        guard tokenItemViewModelsCacheKeysToDelete.isNotEmpty
+            || tokenSectionsAdaptersCacheKeysToDelete.isNotEmpty
+            || accountItemViewModelsCacheKeysToDelete.isNotEmpty
+        else {
+            return
+        }
+
+        cache.mutate { cache in
+            for key in tokenItemViewModelsCacheKeysToDelete {
+                cache.tokenItemViewModels.removeValue(forKey: key)
+            }
+            for key in tokenSectionsAdaptersCacheKeysToDelete {
+                cache.tokenSectionsAdapters.removeValue(forKey: key)
+            }
+            for key in accountItemViewModelsCacheKeysToDelete {
+                cache.accountItemViewModels.removeValue(forKey: key)
+            }
     private func purgeCache(using sections: [AccountSection]) {
         let cache = accountSectionsСache
 
