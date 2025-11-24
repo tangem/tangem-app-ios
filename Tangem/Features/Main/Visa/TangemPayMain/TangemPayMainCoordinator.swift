@@ -60,6 +60,26 @@ extension TangemPayMainCoordinator {
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
 }
 
+// MARK: - Private
+
+extension TangemPayMainCoordinator {
+    func openExpress(factory: ExpressModulesFactory) {
+        let dismissAction: ExpressCoordinator.DismissAction = { [weak self] options in
+            self?.expressCoordinator = nil
+            self?.dismiss(with: options)
+        }
+
+        let coordinator = ExpressCoordinator(
+            factory: factory,
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: .default)
+        expressCoordinator = coordinator
+    }
+}
+
 // MARK: - TangemPayMainRoutable
 
 extension TangemPayMainCoordinator: TangemPayMainRoutable {
@@ -82,6 +102,11 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+
+    func openTangemPayWithdraw(input: ExpressDependenciesInput) {
+        let factory = CommonExpressModulesFactory(input: input)
+        openExpress(factory: factory)
     }
 
     func openTangemPayNoDepositAddressSheet() {
@@ -159,26 +184,13 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
     }
 
     func addFundsSheetRequestSwap(input: ExpressDependenciesDestinationInput) {
-        let dismissAction: ExpressCoordinator.DismissAction = { [weak self] options in
-            self?.expressCoordinator = nil
-            self?.dismiss(with: options)
-        }
-
-        let factory = CommonExpressModulesFactory(input: input)
-        let coordinator = ExpressCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
-
-        coordinator.start(with: .default)
-
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
 
             // Give some time to hide sheet with animation
             try? await Task.sleep(seconds: 0.2)
-            expressCoordinator = coordinator
+            let factory = CommonExpressModulesFactory(input: input)
+            openExpress(factory: factory)
         }
     }
 
