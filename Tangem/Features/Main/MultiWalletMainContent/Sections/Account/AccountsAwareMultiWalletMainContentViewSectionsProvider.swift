@@ -146,14 +146,27 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
             .flatMap(\.walletModels)
             .map(ObjectIdentifier.init)
             .toSet()
-        let tokenItemViewModelsCacheKeysToDelete = cache.tokenItemViewModels.keys.filter { !actualTokenItemViewModelsCacheKeys.contains($0) }
 
+        let tokenItemViewModelsCacheKeysToDelete = cache
+            .tokenItemViewModels
+            .keys
+            .filter { !actualTokenItemViewModelsCacheKeys.contains($0) }
+
+        // Section adapters and account item view models are cached per account
         let actualSectionItemViewModelsCacheKeys = sections
             .map(\.0)
             .map(ObjectIdentifier.init)
             .toSet()
-        let tokenSectionsAdaptersCacheKeysToDelete = cache.tokenSectionsAdapters.keys.filter { !actualSectionItemViewModelsCacheKeys.contains($0) }
-        let accountItemViewModelsCacheKeysToDelete = cache.accountItemViewModels.keys.filter { !actualSectionItemViewModelsCacheKeys.contains($0) }
+
+        let tokenSectionsAdaptersCacheKeysToDelete = cache
+            .tokenSectionsAdapters
+            .keys
+            .filter { !actualSectionItemViewModelsCacheKeys.contains($0) }
+
+        let accountItemViewModelsCacheKeysToDelete = cache
+            .accountItemViewModels
+            .keys
+            .filter { !actualSectionItemViewModelsCacheKeys.contains($0) }
 
         guard tokenItemViewModelsCacheKeysToDelete.isNotEmpty
             || tokenSectionsAdaptersCacheKeysToDelete.isNotEmpty
