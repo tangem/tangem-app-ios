@@ -14,7 +14,7 @@ struct TangemPayAuthorizationAPITarget: TargetType {
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.bffBaseURL.appendingPathComponent("auth")
+        apiType.baseURL.appendingPathComponent("auth")
     }
 
     var path: String {
@@ -67,10 +67,10 @@ extension TangemPayAuthorizationAPITarget {
 
 extension TangemPayAuthorizationAPITarget: TargetTypeLogConvertible {
     var requestDescription: String {
-        path
+        baseURL.appendingPathComponent(path).absoluteString
     }
 
     var shouldLogResponseBody: Bool {
-        false
+        true
     }
 }
