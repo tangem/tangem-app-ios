@@ -9,7 +9,7 @@
 import Foundation
 
 public struct StakingPendingActionsHandlerProvider {
-    public func makeStakingPendingActionsHandler(network: StakeKitNetworkType) -> StakingPendingActionsHandler {
+    public func makeStakingPendingActionsHandler(network: StakingNetworkType) -> StakingPendingActionsHandler {
         switch network {
         case .ton: TonStakingPendingActionsHandler()
         default: CommonStakingPendingActionsHandler()
