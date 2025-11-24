@@ -70,6 +70,9 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .claimRewards: Localization.commonClaimRewards
         case .restake: Localization.stakingRestake
         case .yieldSupply: Localization.yieldModuleSupply
+        case .yieldEnter: Localization.yieldModuleTransactionEnter
+        case .yieldWithdraw: Localization.yieldModuleTransactionExit
+        case .yieldTopup: Localization.yieldModuleTransactionTopup
         case .tangemPay(let type): type.name
         }
     }
@@ -132,6 +135,9 @@ extension TransactionViewModel {
         case claimRewards
         case restake
         case yieldSupply
+        case yieldEnter
+        case yieldWithdraw
+        case yieldTopup
         case unknownOperation
         case operation(name: String)
 
