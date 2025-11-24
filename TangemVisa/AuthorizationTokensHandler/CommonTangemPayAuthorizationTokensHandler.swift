@@ -20,24 +20,22 @@ public protocol TangemPayAuthorizationTokensHandler: AnyObject {
 
     var authorizationTokensSaver: TangemPayAuthorizationTokensSaver? { get set }
 
-    func setupTokens(_ tokens: TangemPayAuthorizationTokens) async throws
+    func setupTokens(_ tokens: TangemPayAuthorizationTokens) throws
     func forceRefreshToken() async throws
 }
 
 final class CommonTangemPayAuthorizationTokensHandler {
-    private let customerWalletId: String
-    private let authorizationTokensHolder: ThreadSafeContainer<TangemPayAuthorizationTokens?>
-    private let authorizationService: TangemPayAuthorizationService
-
     weak var authorizationTokensSaver: TangemPayAuthorizationTokensSaver?
+
+    private let customerWalletId: String
+    private let authorizationService: TangemPayAuthorizationService
+    private let authorizationTokensHolder = ThreadSafeContainer<TangemPayAuthorizationTokens?>(nil)
 
     init(
         customerWalletId: String,
-        tokens: TangemPayAuthorizationTokens?,
         authorizationService: TangemPayAuthorizationService
     ) {
         self.customerWalletId = customerWalletId
-        authorizationTokensHolder = .init(tokens)
         self.authorizationService = authorizationService
     }
 
@@ -58,10 +56,10 @@ final class CommonTangemPayAuthorizationTokensHandler {
             throw VisaAuthorizationTokensHandlerError.failedToUpdateAccessToken
         }
 
-        try await saveTokens(tokens: newTokens)
+        try saveTokens(tokens: newTokens)
     }
 
-    private func saveTokens(tokens: TangemPayAuthorizationTokens) async throws {
+    private func saveTokens(tokens: TangemPayAuthorizationTokens) throws {
         authorizationTokensHolder.mutate {
             $0 = tokens
         }
@@ -93,8 +91,8 @@ extension CommonTangemPayAuthorizationTokensHandler: TangemPayAuthorizationToken
         authorizationTokensHolder.read()
     }
 
-    func setupTokens(_ tokens: TangemPayAuthorizationTokens) async throws {
-        try await saveTokens(tokens: tokens)
+    func setupTokens(_ tokens: TangemPayAuthorizationTokens) throws {
+        try saveTokens(tokens: tokens)
     }
 
     func forceRefreshToken() async throws {
