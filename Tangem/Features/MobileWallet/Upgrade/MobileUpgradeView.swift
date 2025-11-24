@@ -33,6 +33,7 @@ private extension MobileUpgradeView {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             info(item: viewModel.info)
+                .allowsHitTesting(!viewModel.isScanning)
         }
     }
 
@@ -111,10 +112,11 @@ private extension MobileUpgradeView {
             )
 
             MainButton(
-                title: viewModel.scanButtonTitle,
+                title: viewModel.upgradeButtonTitle,
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
-                action: viewModel.onScanTap
+                isLoading: viewModel.isScanning,
+                action: viewModel.onUpgradeTap
             )
         }
     }
