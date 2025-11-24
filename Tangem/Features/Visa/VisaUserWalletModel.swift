@@ -345,14 +345,15 @@ extension VisaUserWalletModel {
             .build(
                 cardId: cardId,
                 cardActivationStatus: .activated(authTokens: tokens),
-                refreshTokenSaver: self
+                refreshTokenSaver: self,
+                allowRefresherTask: true
             )
 
-        if await authorizationTokensHandler.refreshTokenExpired {
+        if authorizationTokensHandler.refreshTokenExpired {
             throw ModelError.missingValidRefreshToken
         }
 
-        if await authorizationTokensHandler.accessTokenExpired {
+        if authorizationTokensHandler.accessTokenExpired {
             try await authorizationTokensHandler.forceRefreshToken()
         }
 
@@ -505,15 +506,20 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var tangemApiAuthData: TangemApiAuthorizationData? { userWalletModel.tangemApiAuthData }
 
+    // [REDACTED_TODO_COMMENT]
     var walletModelsManager: any WalletModelsManager { userWalletModel.walletModelsManager }
 
+    // [REDACTED_TODO_COMMENT]
     var userTokensManager: any UserTokensManager { userWalletModel.userTokensManager }
-
-    var userTokenListManager: any UserTokenListManager { userWalletModel.userTokenListManager }
 
     var nftManager: any NFTManager { NotSupportedNFTManager() }
 
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { .empty }
+    var tangemPayAccount: TangemPayAccount? { nil }
 
     var signer: TangemSigner { userWalletModel.signer }
 
@@ -539,17 +545,23 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var isUserWalletLocked: Bool { false }
 
-    var isTokensListEmpty: Bool { userWalletModel.isTokensListEmpty }
-
     var emailData: [EmailCollectedData] { userWalletModel.emailData }
 
     var emailConfig: EmailConfig? { userWalletModel.emailConfig }
 
     var wcWalletModelProvider: any WalletConnectWalletModelProvider { NotSupportedWalletConnectWalletModelProvider() }
 
+    var wcAccountsWalletModelProvider: any WalletConnectAccountsWalletModelProvider {
+        NotSupportedWalletConnectAccountsWalletModelProvider()
+    }
+
     var refcodeProvider: RefcodeProvider? { userWalletModel.refcodeProvider }
 
     var keysDerivingInteractor: any KeysDeriving { userWalletModel.keysDerivingInteractor }
+
+    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
+        userWalletModel.tangemPayAuthorizingInteractor
+    }
 
     var userTokensPushNotificationsManager: any UserTokensPushNotificationsManager {
         userWalletModel.userTokensPushNotificationsManager
