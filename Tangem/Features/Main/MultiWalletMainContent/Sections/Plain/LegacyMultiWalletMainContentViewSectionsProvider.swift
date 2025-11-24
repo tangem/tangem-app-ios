@@ -112,7 +112,7 @@ extension LegacyMultiWalletMainContentViewSectionsProvider: MultiWalletMainConte
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
 
         let tokenSectionsSourcePublisher = sourcePublisherFactory
-            .makeSourcePublisherForMainScreen(for: userWalletModel)
+            .makeSourcePublisher(for: userWalletModel)
 
         let organizedTokensSectionsPublisher = tokenSectionsAdapter
             .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
