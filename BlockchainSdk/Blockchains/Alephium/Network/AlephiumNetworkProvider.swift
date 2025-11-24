@@ -13,7 +13,7 @@ import TangemNetworkUtils
 struct AlephiumNetworkProvider: HostProvider {
     /// Blockchain API host
     var host: String {
-        node.url.hostOrUnknown
+        node.host
     }
 
     /// Configuration connection node for provider
