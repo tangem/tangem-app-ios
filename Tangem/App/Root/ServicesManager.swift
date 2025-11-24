@@ -43,6 +43,7 @@ final class CommonServicesManager {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
+    @Injected(\.experimentService) private var experimentService: ExperimentService
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -81,6 +82,7 @@ final class CommonServicesManager {
         }
 
         AmplitudeWrapper.shared.configure()
+        experimentService.configure()
     }
 
     private func configureBlockchainSdkExceptionHandler() {
