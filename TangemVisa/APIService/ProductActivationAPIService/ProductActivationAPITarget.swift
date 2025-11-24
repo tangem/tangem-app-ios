@@ -15,7 +15,7 @@ struct ProductActivationAPITarget: TargetType {
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.baseURL.appendingPathComponent("activation")
+        apiType.bffBaseURL.appendingPathComponent("activation")
     }
 
     var path: String {
