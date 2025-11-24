@@ -305,7 +305,8 @@ private extension SendModel {
             amount: _amount.value,
             additionalField: _destinationAdditionalField.value,
             fee: _selectedFee.value,
-            signerType: result.signerType
+            signerType: result.signerType,
+            currentProviderHost: result.currentHost
         )
     }
 
@@ -325,18 +326,10 @@ private extension SendModel {
     }
 
     private func addTokenFromTransactionIfNeeded(_ transaction: BSDKTransaction) {
-        guard let token = transaction.amount.type.token else {
-            return
-        }
-
-        switch token.metadata.kind {
-        case .fungible:
-            UserWalletFinder().addToken(
-                token,
-                in: sourceToken.tokenItem.blockchain,
-                for: transaction.destinationAddress
-            )
-        case .nonFungible:
+        switch transaction.amount.type.token {
+        case .some(let token) where token.metadata.kind == .fungible:
+            try? TokenAdder.addToken(defaultAddress: transaction.destinationAddress, token: token)
+        default:
             break // NFTs should never be shown in the token list
         }
     }
@@ -473,7 +466,7 @@ extension SendModel: SendReceiveTokenAmountInput {
 
     var highPriceImpact: HighPriceImpactCalculator.Result? {
         get async {
-            try? await mapToSendNewAmountCompactTokenViewModel(
+            try? await mapToHighPriceImpactCalculatorResult(
                 sourceTokenAmount: sourceAmount.value,
                 receiveTokenAmount: receiveAmount.value,
                 provider: swapManager.selectedProvider?.provider
@@ -490,7 +483,7 @@ extension SendModel: SendReceiveTokenAmountInput {
         .withWeakCaptureOf(self)
         .setFailureType(to: Error.self)
         .asyncTryMap {
-            try await $0.mapToSendNewAmountCompactTokenViewModel(
+            try await $0.mapToHighPriceImpactCalculatorResult(
                 sourceTokenAmount: $1.0,
                 receiveTokenAmount: $1.1,
                 provider: $1.2
@@ -516,7 +509,7 @@ extension SendModel: SendReceiveTokenAmountInput {
         }
     }
 
-    private func mapToSendNewAmountCompactTokenViewModel(
+    private func mapToHighPriceImpactCalculatorResult(
         sourceTokenAmount: SendAmount?,
         receiveTokenAmount: SendAmount?,
         provider: ExpressProvider?
@@ -824,7 +817,6 @@ extension SendModel: NotificationTapDelegate {
              .seedSupportNo,
              .seedSupport2Yes,
              .seedSupport2No,
-             .openReferralProgram,
              .unlock,
              .addTokenTrustline,
              .openMobileFinishActivation,
@@ -854,6 +846,7 @@ extension SendModel: NotificationTapDelegate {
 
     private func reduceAmountBy(_ amount: Decimal, source: Decimal) {
         var newAmount = source - amount
+
         if _isFeeIncluded.value, let feeValue = selectedFee.value.value?.amount.value {
             newAmount = newAmount - feeValue
         }
