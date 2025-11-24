@@ -93,12 +93,12 @@ extension NewActionButtonsSwapViewModel: NewTokenSelectorViewModelOutput {
                     coordinator?.openExpress(
                         input: .init(
                             userWalletInfo: item.userWalletInfo,
-                            source: ExpressInteractorWalletWrapper(
+                            source: ExpressInteractorWalletModelWrapper(
                                 userWalletInfo: source.userWalletInfo,
                                 walletModel: source.walletModel
                             ),
                             destination: .chosen(
-                                ExpressInteractorWalletWrapper(
+                                ExpressInteractorWalletModelWrapper(
                                     userWalletInfo: item.userWalletInfo,
                                     walletModel: item.walletModel
                                 )
