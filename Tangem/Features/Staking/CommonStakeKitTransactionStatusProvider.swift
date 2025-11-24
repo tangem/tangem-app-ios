@@ -17,8 +17,9 @@ final class CommonStakeKitTransactionStatusProvider: StakeKitTransactionStatusPr
         self.apiProvider = apiProvider
     }
 
-    func transactionStatus(_ transaction: StakingTransaction) async throws -> StakeKitTransactionParams.Status? {
+    func transactionStatus(_ transaction: StakeKitTransaction) async throws -> StakeKitTransaction.Status? {
         let transactionInfo = try await apiProvider.transaction(id: transaction.id)
-        return StakeKitTransactionParams.Status(rawValue: transactionInfo.status)
+        return (transactionInfo.metadata as? StakeKitTransactionMetadata)
+            .flatMap { StakeKitTransaction.Status(rawValue: $0.status) }
     }
 }

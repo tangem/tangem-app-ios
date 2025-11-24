@@ -24,7 +24,8 @@ struct StakingTransactionMapper {
         action: StakingTransactionAction
     ) -> [StakeKitTransaction] {
         action.transactions.compactMap { transaction -> StakeKitTransaction? in
-            guard case .raw(let unsignedTransactionData) = transaction.unsignedTransactionData else {
+            guard case .raw(let unsignedTransactionData) = transaction.unsignedTransactionData,
+                  let metadata = transaction.metadata as? StakeKitTransactionMetadata else {
                 return nil
             }
 
@@ -32,14 +33,14 @@ struct StakingTransactionMapper {
             let feeAmount = Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: transaction.fee)
 
             return StakeKitTransaction(
-                id: transaction.id,
+                id: metadata.id,
                 amount: amount,
                 fee: Fee(feeAmount),
                 unsignedData: unsignedTransactionData,
-                type: .init(rawValue: transaction.type),
-                status: .init(rawValue: transaction.status),
-                stepIndex: transaction.stepIndex,
-                validator: action.validator,
+                type: .init(rawValue: metadata.type),
+                status: .init(rawValue: metadata.status),
+                stepIndex: metadata.stepIndex,
+                destination: action.validator,
                 solanaBlockhashDate: Date()
             )
         }
@@ -60,6 +61,7 @@ struct StakingTransactionMapper {
                 amount: amount,
                 fee: Fee(feeAmount),
                 unsignedData: unsignedTransactionData,
+                destination: action.validator
             )
         }
     }
