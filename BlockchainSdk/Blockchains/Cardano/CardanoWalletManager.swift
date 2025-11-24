@@ -232,15 +232,15 @@ extension CardanoWalletManager: CardanoTransferRestrictable {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension CardanoWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder, StakeKitTransactionDataBroadcaster {
+extension CardanoWalletManager: StakingTransactionSender, StakingTransactionsBuilder, StakeKitTransactionDataBroadcaster {
     typealias RawTransaction = Data
 
-    func broadcast(transaction: StakingTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
     }
 
     func buildRawTransactions(
-        from transactions: [StakingTransaction],
+        from transactions: [StakeKitTransaction],
         publicKey: Wallet.PublicKey,
         signer: TransactionSigner
     ) async throws -> [Data] {
@@ -260,7 +260,7 @@ extension CardanoWalletManager: StakeKitTransactionSender, StakingTransactionsBu
         default: throw BlockchainSdkError.failedToBuildTx
         }
 
-        var transactionHashes = [StakingTransaction: Data]()
+        var transactionHashes = [StakeKitTransaction: Data]()
 
         let stakeKitTransactionHelper = CardanoStakeKitTransactionHelper(
             transactionBuilder: transactionBuilder

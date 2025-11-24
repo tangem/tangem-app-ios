@@ -567,14 +567,27 @@ extension EthereumWalletManager: EthereumTransactionDataBuilder {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension EthereumWalletManager: StakingTransactionsBuilder, StakeKitTransactionSender, StakingTransactionDataProvider {
+extension EthereumWalletManager: StakingTransactionsBuilder, StakingTransactionSender, StakeKitTransactionDataProvider {
     typealias RawTransaction = String
 
-    func prepareDataForSign(transaction: StakingTransaction) throws -> Data {
+    func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
         try EthereumStakingTransactionHelper(transactionBuilder: txBuilder).prepareForSign(transaction)
     }
 
-    func prepareDataForSend(transaction: StakingTransaction, signature: SignatureInfo) throws -> RawTransaction {
+    func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
+        try EthereumStakingTransactionHelper(transactionBuilder: txBuilder)
+            .prepareForSend(stakingTransaction: transaction, signatureInfo: signature)
+            .hex()
+            .addHexPrefix()
+    }
+}
+
+extension EthereumWalletManager: P2PTransactionDataProvider {
+    func prepareDataForSign(transaction: P2PTransaction) throws -> Data {
+        try EthereumStakingTransactionHelper(transactionBuilder: txBuilder).prepareForSign(transaction)
+    }
+
+    func prepareDataForSend(transaction: P2PTransaction, signature: SignatureInfo) throws -> RawTransaction {
         try EthereumStakingTransactionHelper(transactionBuilder: txBuilder)
             .prepareForSend(stakingTransaction: transaction, signatureInfo: signature)
             .hex()
@@ -585,7 +598,7 @@ extension EthereumWalletManager: StakingTransactionsBuilder, StakeKitTransaction
 // MARK: - StakeKitTransactionDataBroadcaster
 
 extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakingTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
     }
 }
