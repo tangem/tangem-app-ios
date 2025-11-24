@@ -59,6 +59,7 @@ struct SendDestinationSuggestedView: View {
         .backgroundColor(Colors.Background.action)
         .interItemSpacing(0)
         .separatorStyle(.none)
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.suggestedDestinationMyWalletsBlock)
     }
 
     var recentTransactionSection: some View {
