@@ -41,6 +41,7 @@ public enum SendAccessibilityIdentifiers {
     /// AddressTextView
     public static let addressTextView = "sendAddressTextView"
     public static let addressClearButton = "sendAddressClearButton"
+    public static let addressFieldTitle = "sendAddressFieldTitle"
 
     /// AdditionalField (Memo/DestinationTag)
     public static let additionalFieldTextField = "sendAdditionalFieldTextField"
@@ -50,6 +51,7 @@ public enum SendAccessibilityIdentifiers {
 
     /// Suggested Destination (Wallet History)
     public static let suggestedDestinationHeader = "sendSuggestedDestinationHeader"
+    public static let suggestedDestinationMyWalletsBlock = "sendSuggestedDestinationMyWalletsBlock"
     public static let suggestedDestinationWalletCell = "sendSuggestedDestinationWalletCell"
     public static let suggestedDestinationTransactionCell = "sendSuggestedDestinationTransactionCell"
 
