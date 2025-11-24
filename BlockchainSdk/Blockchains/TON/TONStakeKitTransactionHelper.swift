@@ -30,7 +30,6 @@ class TONStakeKitTransactionHelper {
     }
 
     func prepareForSend(
-        stakingTransaction: StakeKitTransaction,
         preSignData: TONPreSignData,
         signatureInfo: SignatureInfo
     ) throws -> String {
