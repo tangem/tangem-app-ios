@@ -101,7 +101,7 @@ extension P2PTarget: TargetTypeLogConvertible {
         case .getVaultsList, .getAccountSummary, .getRewardsHistory:
             return true
         default:
-            return true
+            return true // [REDACTED_TODO_COMMENT]
         }
     }
 }
