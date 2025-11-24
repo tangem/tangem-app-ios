@@ -94,6 +94,7 @@
 "alert_negative_app_rate_sent_title" = "Deine Vorschläge wurden übermittelt";
 "alert_troubleshooting_scan_card_message" = "Bitte versuche, die Karte oder Ring genau wie in der Animation gezeigt anzutippen, oder lese unsere einfache Anleitung, oder forder Support an. Wenn das Problem weiterhin besteht, wende dich bitte an den Support.";
 "alert_troubleshooting_scan_card_title" = "Hast du Probleme beim Scannen deiner Karte oder Ring?";
+"app_settings_access_code_warning" = "Set an access code first to enable biometrics";
 "app_settings_biometrics_footer" = "Verwende die %1$@ um Deine Wallet zu entsperren und sensible Aktionen wie das Signieren von Transaktionen zu bestätigen. Bei Hardware-Wallets ist zum Signieren weiterhin eine Karte oder ein Ring erforderlich.";
 "app_settings_default_fee_footer" = "Aktiviere die Option Standardgebühr, um die Transaktionsgebühren automatisch festzulegen und die Gebührenseite beim Senden von Geldern zu überspringen. Du kannst bei Bedarf jederzeit zu dieser Seite zurückkehren.";
 "app_settings_default_fee" = "Standardgebühr";
@@ -258,6 +259,7 @@
 "common_finish" = "Beenden";
 "common_forget" = "Entfernen";
 "common_free" = "Kostenlos";
+"common_from_wallet_name" = "Von %@";
 "common_from" = "Vom";
 "common_generate_addresses" = "Adressen synchronisieren";
 "common_get_started" = "Erste Schritte";
@@ -281,6 +283,7 @@
 "common_network_fee_title" = "Netzgebühr";
 "common_network_fee_warning_content" = "Der überwiesene Betrag wird um %1$@ (%2$@) gekürzt, um die gewählte Gebührenhöhe zu decken.";
 "common_new_address" = "Neue Adresse";
+"common_news" = "News";
 "common_next" = "Weiter";
 "common_nft" = "NFT";
 "common_no_address" = "Keine Adresse";
@@ -338,6 +341,7 @@
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "Allgemeine Geschäftsbedingungen";
 "common_terms_of_use" = "Nutzungsbedingungen";
+"common_to_wallet_name" = "To %@";
 "common_to" = "An";
 "common_today" = "Heute";
 "common_transaction_failed" = "Transaktion fehlgeschlagen";
@@ -498,6 +502,9 @@
 "express_token_list_empty_search" = "Keine Token gefunden. Bitte versuche eine andere Anfrage";
 "express_transaction_id_copied" = "Transaktions-ID kopiert";
 "express_transaction_id" = "ID: %@";
+"feed_market_and_news" = "Market & News";
+"feed_tangem_ai" = "Tangem AI";
+"feed_trending_now" = "Trending Now";
 "feedback_preface_rate_negative" = "Teile uns mit, welche Funktionen du vermisst, und wir werden versuchen, dir zu helfen.";
 "feedback_preface_scan_failed" = "Bitte sag uns, welche Karte oder Ring du hast";
 "feedback_preface_support" = "Hallo Support-Team,";
@@ -739,6 +746,8 @@
 "markets_token_details_volume" = "Volumen";
 "markets_tooltip_message" = "Rufe dies auf oder tippe auf die Suchleiste, um Token direkt vom Markt hinzuzufügen";
 "markets_tooltip_title" = "Token hinzufügen";
+"news_all_news" = "All news";
+"news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "Über NFT";
 "nft_asset" = "NFT-Vermögenswert";
 "nft_collections_empty_description" = "NFTs, die an Deine Wallet-Adresse gesendet werden, werden hier angezeigt.";
@@ -1361,7 +1370,8 @@
 "tangempay_card_details_swap_description" = "Tausche beliebige Vermögenswerte in Deinem Portfolio gegen eine Karte.";
 "tangempay_card_details_title" = "Kartendetails";
 "tangempay_card_details_unfreeze_card" = "Karte entsperren";
-"tangempay_issue_card_notification_title" = "Konto erstellen und Karte ausstellen";
+"tangempay_issue_card_notification_description" = "It usually takes up to 15 minutes";
+"tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "Status anzeigen";
 "tangempay_kyc_in_progress_notification_title" = "KYC für Tangem Pay in Arbeit";
@@ -1884,9 +1894,9 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Ertragsmodus";
 "yield_module_token_details_earn_notification_processing" = "Bearbeitung Deiner Einzahlung";
 "yield_module_token_details_earn_notification_title" = "Ertragsmodus";
-"yield_module_transaction_enter" = "Yield mode on";
-"yield_module_transaction_exit" = "Yield mode off";
-"yield_module_transaction_topup" = "Yield mode top-up";
+"yield_module_transaction_enter" = "Ertragsmodus ein";
+"yield_module_transaction_exit" = "Ertragsmodus aus";
+"yield_module_transaction_topup" = "Aufstockung des Ertragsmodus";
 "yield_module_transfer_mode_automatic" = "Automatisch";
 "yield_module_unable_to_cover_fee_description" = "Einzahlung von %1$@ %2$@ zur Deckung der Netzwerkgebühr für Transaktionen";
 "yield_module_unable_to_cover_fee_title" = "Die Gebühr %@ kann nicht gedeckt werden";
