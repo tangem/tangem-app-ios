@@ -28,7 +28,10 @@ struct TransactionViewAmountViewData: Hashable {
              .claimRewards,
              .restake,
              .tangemPay,
-             .yieldSupply:
+             .yieldSupply,
+             .yieldEnter,
+             .yieldWithdraw,
+             .yieldTopup:
             return amount
         }
     }
