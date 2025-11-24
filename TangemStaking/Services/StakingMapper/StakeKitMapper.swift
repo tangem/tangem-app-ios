@@ -435,7 +435,7 @@ struct StakeKitMapper {
     }
 
     func mapToPeriod(from period: StakeKitDTO.Yield.Info.Response.Metadata.Period) -> Period {
-        .specific(days: period.days)
+        .constant(days: period.days)
     }
 
     func mapToRewardClaimingType(from type: StakeKitDTO.Yield.Info.Response.Metadata.RewardClaiming) -> RewardClaimingType {
