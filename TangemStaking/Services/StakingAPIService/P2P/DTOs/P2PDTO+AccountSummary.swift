@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 extension P2PDTO {
     enum AccountSummary {
@@ -16,24 +17,24 @@ extension P2PDTO {
             let delegatorAddress: String
             let vaultAddress: String
             let stake: StakeInfo
-            let availableToUnstake: Decimal
-            let availableToWithdraw: Decimal
+            @FlexibleDecimal var availableToUnstake: Decimal?
+            @FlexibleDecimal var availableToWithdraw: Decimal?
             let exitQueue: ExitQueue
         }
 
         struct StakeInfo: Decodable {
-            let assets: Decimal
-            let totalEarnedAssets: Decimal
+            @FlexibleDecimal var assets: Decimal?
+            @FlexibleDecimal var totalEarnedAssets: Decimal?
         }
 
         struct ExitQueue: Decodable {
-            let total: Decimal
+            @FlexibleDecimal var total: Decimal?
             let requests: [ExitRequest]
         }
 
         struct ExitRequest: Decodable {
             let ticket: String
-            let totalAssets: Decimal
+            @FlexibleDecimal var totalAssets: Decimal?
             let timestamp: Double
             let withdrawalTimestamp: Double
             let isClaimable: Bool
