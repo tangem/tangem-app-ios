@@ -47,19 +47,21 @@ public struct TransactionHistoryProviderFactory {
              .dogecoin,
              .dash:
             return UTXOTransactionHistoryProvider(
-                blockBookProviders: [
-                    networkAssembly.makeBlockBookUTXOProvider(with: input, for: .getBlock),
-                    networkAssembly.makeBlockBookUTXOProvider(with: input, for: .nowNodes),
-                ],
+                blockBookProviders: makeUTXOBlockBookProviders(
+                    for: blockchain,
+                    input: input,
+                    networkAssembly: networkAssembly
+                ),
                 mapper: UTXOTransactionHistoryMapper(blockchain: blockchain),
                 blockchainName: blockchain.displayName
             )
         case .bitcoinCash:
             return UTXOTransactionHistoryProvider(
-                blockBookProviders: [
-                    networkAssembly.makeBlockBookUTXOProvider(with: input, for: .getBlock),
-                    networkAssembly.makeBlockBookUTXOProvider(with: input, for: .nowNodes),
-                ],
+                blockBookProviders: makeUTXOBlockBookProviders(
+                    for: blockchain,
+                    input: input,
+                    networkAssembly: networkAssembly
+                ),
                 mapper: UTXOTransactionHistoryMapper(blockchain: blockchain),
                 blockchainName: blockchain.displayName
             )
@@ -128,5 +130,36 @@ public struct TransactionHistoryProviderFactory {
         default:
             return nil
         }
+    }
+
+    // MARK: - Helpers
+
+    private func makeUTXOBlockBookProviders(
+        for blockchain: Blockchain,
+        input: NetworkProviderAssembly.Input,
+        networkAssembly: NetworkProviderAssembly
+    ) -> [BlockBookUTXOProvider] {
+        var providers: [BlockBookUTXOProvider] = []
+
+        if input.apiInfo.contains(where: { if case .mock = $0 { return true } else { return false } }),
+           let mockNode = APINodeInfoResolver(
+               blockchain: blockchain,
+               keysConfig: keysConfig
+           ).resolve(for: .mock) {
+            providers.append(
+                BlockBookUTXOProvider(
+                    blockchain: blockchain,
+                    blockBookConfig: MockBlockBookConfig(urlNode: mockNode.url),
+                    networkConfiguration: tangemProviderConfig
+                )
+            )
+        }
+
+        providers.append(contentsOf: [
+            networkAssembly.makeBlockBookUTXOProvider(with: input, for: .getBlock),
+            networkAssembly.makeBlockBookUTXOProvider(with: input, for: .nowNodes),
+        ])
+
+        return providers
     }
 }
