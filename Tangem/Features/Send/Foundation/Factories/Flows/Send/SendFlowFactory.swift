@@ -17,6 +17,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     let walletAddresses: [String]
     let suggestedWallets: [SendDestinationSuggestedWallet]
     let shouldShowFeeSelector: Bool
+    let tokenHeaderProvider: SendGenericTokenHeaderProvider
 
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
     let walletModelFeeProvider: any WalletModelFeeProvider
@@ -37,13 +38,14 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
         swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
     )
 
-    init(
-        userWalletInfo: UserWalletInfo,
-        walletModel: any WalletModel,
-        expressInput: CommonExpressDependenciesFactory.Input,
-    ) {
+    init(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
         self.userWalletInfo = userWalletInfo
 
+        tokenHeaderProvider = SendTokenHeaderProvider(
+            userWalletInfo: userWalletInfo,
+            account: walletModel.account,
+            flowActionType: .send
+        )
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
@@ -67,10 +69,15 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
             walletModel: walletModel,
             userWalletInfo: userWalletInfo
         )
+
+        let expressDependenciesInput = ExpressDependenciesInput(
+            userWalletInfo: userWalletInfo,
+            source: ExpressInteractorWalletWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
+            destination: .none
+        )
+
         expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressInput,
-            initialWallet: walletModel.asExpressInteractorWallet,
-            destinationWallet: .none,
+            input: expressDependenciesInput,
             // We support only `CEX` in `Send With Swap` flow
             supportedProviderTypes: [.cex],
             operationType: .swapAndSend
@@ -87,7 +94,7 @@ extension SendFlowFactory: SendGenericFlowFactory {
         let fee = makeSendFeeStep()
         let providers = makeSwapProviders()
 
-        let summary = makeSendNewSummaryStep(
+        let summary = makeSendSummaryStep(
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
             sendFeeCompactViewModel: fee.compact
@@ -161,9 +168,9 @@ extension SendFlowFactory: SendBaseBuildable {
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
                 input: sendModel,
                 sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
+                    userWalletInfo: userWalletInfo,
                     sourceTokenInput: sendModel,
                     receiveTokenOutput: sendModel,
-                    expressRepository: expressDependenciesFactory.expressRepository,
                     receiveTokenBuilder: makeSendReceiveTokenBuilder(),
                     analyticsLogger: analyticsLogger
                 )
@@ -174,11 +181,11 @@ extension SendFlowFactory: SendBaseBuildable {
     }
 }
 
-// MARK: - SendNewAmountStepBuildable
+// MARK: - SendAmountStepBuildable
 
-extension SendFlowFactory: SendNewAmountStepBuildable {
-    var newAmountIO: SendNewAmountStepBuilder.IO {
-        SendNewAmountStepBuilder.IO(
+extension SendFlowFactory: SendAmountStepBuildable {
+    var amountIO: SendAmountStepBuilder.IO {
+        SendAmountStepBuilder.IO(
             sourceIO: (input: sendModel, output: sendModel),
             sourceAmountIO: (input: sendModel, output: sendModel),
             receiveIO: (input: sendModel, output: sendModel),
@@ -187,8 +194,8 @@ extension SendFlowFactory: SendNewAmountStepBuildable {
         )
     }
 
-    var newAmountDependencies: SendNewAmountStepBuilder.Dependencies {
-        SendNewAmountStepBuilder.Dependencies(
+    var amountDependencies: SendAmountStepBuilder.Dependencies {
+        SendAmountStepBuilder.Dependencies(
             sendAmountValidator: CommonSendAmountValidator(input: sendModel),
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
@@ -281,41 +288,42 @@ extension SendFlowFactory: SendSwapProvidersBuildable {
     }
 }
 
-// MARK: - SendNewSummaryStepBuildable
+// MARK: - SendSummaryStepBuildable
 
-extension SendFlowFactory: SendNewSummaryStepBuildable {
-    var newSummaryIO: SendNewSummaryStepBuilder.IO {
-        SendNewSummaryStepBuilder.IO(input: sendModel, output: sendModel, receiveTokenAmountInput: sendModel)
+extension SendFlowFactory: SendSummaryStepBuildable {
+    var summaryIO: SendSummaryStepBuilder.IO {
+        SendSummaryStepBuilder.IO(input: sendModel, output: sendModel, receiveTokenAmountInput: sendModel)
     }
 
-    var newSummaryTypes: SendNewSummaryStepBuilder.Types {
+    var summaryTypes: SendSummaryStepBuilder.Types {
         .init(settings: .init(destinationEditableType: .editable, amountEditableType: .editable))
     }
 
-    var newSummaryDependencies: SendNewSummaryStepBuilder.Dependencies {
-        SendNewSummaryStepBuilder.Dependencies(
+    var summaryDependencies: SendSummaryStepBuilder.Dependencies {
+        SendSummaryStepBuilder.Dependencies(
             sendFeeProvider: sendFeeProvider,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder()
+            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
+            stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder(),
         )
     }
 }
 
-// MARK: - SendNewFinishStepBuildable
+// MARK: - SendFinishStepBuildable
 
-extension SendFlowFactory: SendNewFinishStepBuildable {
-    var newFinishIO: SendNewFinishStepBuilder.IO {
-        SendNewFinishStepBuilder.IO(input: sendModel)
+extension SendFlowFactory: SendFinishStepBuildable {
+    var finishIO: SendFinishStepBuilder.IO {
+        SendFinishStepBuilder.IO(input: sendModel)
     }
 
-    var newFinishTypes: SendNewFinishStepBuilder.Types {
-        SendNewFinishStepBuilder.Types(tokenItem: tokenItem)
+    var finishTypes: SendFinishStepBuilder.Types {
+        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
-    var newFinishDependencies: SendNewFinishStepBuilder.Dependencies {
-        SendNewFinishStepBuilder.Dependencies(
+    var finishDependencies: SendFinishStepBuilder.Dependencies {
+        SendFinishStepBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
         )
     }
