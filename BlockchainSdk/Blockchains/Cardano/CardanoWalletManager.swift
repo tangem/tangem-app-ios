@@ -232,7 +232,7 @@ extension CardanoWalletManager: CardanoTransferRestrictable {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension CardanoWalletManager: StakingTransactionSender, StakingTransactionsBuilder, StakeKitTransactionDataBroadcaster {
+extension CardanoWalletManager: StakingTransactionSender, StakeKitTransactionsBuilder, StakeKitTransactionDataBroadcaster {
     typealias RawTransaction = Data
 
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
