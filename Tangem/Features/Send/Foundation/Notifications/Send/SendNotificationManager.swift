@@ -78,7 +78,7 @@ private extension CommonSendNotificationManager {
 
         input.selectedFeePublisher
             .compactMap { $0.value.value?.amount.value }
-            .combineLatest(input.isFeeIncludedPublisher)
+            .combineLatest(input.isFeeIncludedPublisher.removeDuplicates())
             .sink { [weak self] feeValue, isFeeIncluded in
                 self?.updateFeeInclusionEvent(isFeeIncluded: isFeeIncluded, feeCryptoValue: feeValue)
             }
@@ -116,13 +116,7 @@ private extension CommonSendNotificationManager {
     func updateNetworkFeeUnreachable(error: Error?) {
         switch error {
         case .none:
-            hideAllNotification { event in
-                if case .networkFeeUnreachable = event {
-                    return true
-                }
-
-                return false
-            }
+            hideAllNotification { $0.isNetworkFeeUnreachable }
         case .some(SuiError.oneSuiCoinIsRequiredForTokenTransaction):
             updateNotification(error: error)
         case .some(BlockchainSdkError.accountNotActivated):
@@ -161,13 +155,7 @@ private extension CommonSendNotificationManager {
         if let lowestFee, customFee.amount.value < lowestFee.amount.value {
             show(notification: .customFeeTooLow)
         } else {
-            hideAllNotification { event in
-                if case .customFeeTooLow = event {
-                    return true
-                }
-
-                return false
-            }
+            hideAllNotification { $0.isCustomFeeTooLow }
         }
     }
 
@@ -180,13 +168,7 @@ private extension CommonSendNotificationManager {
 
             show(notification: .customFeeTooHigh(orderOfMagnitude: highFeeOrderOfMagnitude))
         } else {
-            hideAllNotification { event in
-                if case .customFeeTooHigh = event {
-                    return true
-                }
-
-                return false
-            }
+            hideAllNotification { $0.isCustomFeeTooHigh }
         }
     }
 
@@ -209,13 +191,7 @@ private extension CommonSendNotificationManager {
     }
 
     private func hideFeeWillBeSubtractedNotification() {
-        hideAllNotification { event in
-            if case .feeWillBeSubtractFromSendingAmount = event {
-                return true
-            }
-
-            return false
-        }
+        hideAllNotification { $0.isFeeWillBeSubtractFromSendingAmount }
     }
 }
 
@@ -239,13 +215,7 @@ private extension CommonSendNotificationManager {
     func updateWithdrawalNotification(notification: WithdrawalNotification?) {
         switch notification {
         case .none:
-            hideAllNotification { event in
-                if case .withdrawalNotificationEvent = event {
-                    return true
-                }
-
-                return false
-            }
+            hideAllNotification { $0.isWithdrawalNotificationEvent }
         case .some(let suggestion):
             let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
             let withdrawalNotification = factory.mapToWithdrawalNotificationEvent(suggestion)
@@ -313,7 +283,11 @@ private extension CommonSendNotificationManager {
 
         let dismissAction: NotificationView.NotificationAction = { [weak self] id in
             self?.notificationInputsSubject.value.removeAll {
-                $0.settings.id == id
+                if let sendNotificationEvent = $0.settings.event as? SendNotificationEvent {
+                    return sendNotificationEvent.isEqualByRawCaseIdentifier(to: event)
+                }
+
+                return false
             }
         }
 
@@ -323,7 +297,15 @@ private extension CommonSendNotificationManager {
             dismissAction: dismissAction
         )
 
-        if let index = notificationInputsSubject.value.firstIndex(where: { $0.id == input.id }) {
+        let index = notificationInputsSubject.value.firstIndex(where: {
+            if let sendNotificationEvent = $0.settings.event as? SendNotificationEvent {
+                return sendNotificationEvent.isEqualByRawCaseIdentifier(to: event)
+            }
+
+            return false
+        })
+
+        if let index {
             notificationInputsSubject.value[index] = input
         } else {
             notificationInputsSubject.value.append(input)
@@ -331,13 +313,7 @@ private extension CommonSendNotificationManager {
     }
 
     func hideAllValidationErrorEvent() {
-        hideAllNotification { event in
-            if case .validationErrorEvent = event {
-                return true
-            }
-
-            return false
-        }
+        hideAllNotification { $0.isValidationErrorEvent }
     }
 
     func hideAllNotification(where shouldBeRemoved: (SendNotificationEvent) -> Bool) {
