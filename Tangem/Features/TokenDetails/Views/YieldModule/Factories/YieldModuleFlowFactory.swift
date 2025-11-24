@@ -122,7 +122,13 @@ extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
     }
 
     func makeYieldStatusViewModel(state: YieldStatusViewModel.State, navigationAction: @escaping () -> Void) -> YieldStatusViewModel {
-        YieldStatusViewModel(state: state, manager: yieldModuleManager, navigationAction: navigationAction)
+        YieldStatusViewModel(
+            state: state,
+            yieldInteractor: makeInteractor(),
+            feeTokenItem: walletModel.feeTokenItem,
+            token: walletModel.tokenItem,
+            navigationAction: navigationAction
+        )
     }
 
     func makeYieldAvailableNotificationViewModel(apy: Decimal, onButtonTap: @escaping (Decimal) -> Void) -> YieldAvailableNotificationViewModel {
