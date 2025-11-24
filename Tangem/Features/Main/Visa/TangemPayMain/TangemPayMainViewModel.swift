@@ -76,24 +76,34 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func addFunds() {
-        guard let depositAddress = tangemPayAccount.depositAddress else {
+        guard let depositAddress = tangemPayAccount.depositAddress,
+              let tangemPayWalletWrapper = makeExpressInteractorTangemPayWalletWrapper() else {
             coordinator?.openTangemPayNoDepositAddressSheet()
             return
         }
-
-        let tangemPayDestinationWalletWrapper = TangemPayDestinationWalletWrapper(
-            tokenItem: TangemPayUtilities.usdcTokenItem,
-            address: depositAddress,
-            balanceProvider: tangemPayAccount.tangemPayTokenBalanceProvider
-        )
 
         coordinator?.openTangemPayAddFundsSheet(
             input: .init(
                 userWalletInfo: userWalletInfo,
                 address: depositAddress,
-                tangemPayDestinationWalletWrapper: tangemPayDestinationWalletWrapper
+                tangemPayWalletWrapper: tangemPayWalletWrapper
             )
         )
+    }
+
+    func withdraw() {
+        guard let tangemPayWalletWrapper = makeExpressInteractorTangemPayWalletWrapper() else {
+            coordinator?.openTangemPayNoDepositAddressSheet()
+            return
+        }
+
+        let input = ExpressDependenciesInput(
+            userWalletInfo: userWalletInfo,
+            source: tangemPayWalletWrapper,
+            destination: .loadingAndSet
+        )
+
+        coordinator?.openTangemPayWithdraw(input: input)
     }
 
     func onAppear() {
@@ -182,6 +192,8 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 }
 
+// MARK: - Private
+
 private extension TangemPayMainViewModel {
     func bind() {
         transactionHistoryService
@@ -213,6 +225,21 @@ private extension TangemPayMainViewModel {
             .receiveOnMain()
             .assign(to: \.state, on: tangemPayCardDetailsViewModel, ownership: .weak)
             .store(in: &bag)
+    }
+
+    func makeExpressInteractorTangemPayWalletWrapper() -> ExpressInteractorTangemPayWalletWrapper? {
+        guard let depositAddress = tangemPayAccount.depositAddress else {
+            return nil
+        }
+
+        let tangemPayWalletWrapper = ExpressInteractorTangemPayWalletWrapper(
+            tokenItem: TangemPayUtilities.usdcTokenItem,
+            feeTokenItem: TangemPayUtilities.usdcTokenItem,
+            defaultAddressString: depositAddress,
+            availableBalanceProvider: tangemPayAccount.tangemPayTokenBalanceProvider
+        )
+
+        return tangemPayWalletWrapper
     }
 }
 
