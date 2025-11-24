@@ -15,28 +15,7 @@ struct TransactionView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            if let iconURL = viewModel.iconURL {
-                KFImage(iconURL)
-                    .resizable()
-                    .placeholder {
-                        viewModel.icon
-                            .renderingMode(.template)
-                            .foregroundColor(viewModel.iconColor)
-                            .padding(10)
-                            .background(viewModel.iconBackgroundColor)
-                            .cornerRadiusContinuous(20)
-                    }
-                    .aspectRatio(contentMode: .fit)
-                    .frame(size: .init(bothDimensions: 40))
-                    .cornerRadiusContinuous(20)
-            } else {
-                viewModel.icon
-                    .renderingMode(.template)
-                    .foregroundColor(viewModel.iconColor)
-                    .padding(10)
-                    .background(viewModel.iconBackgroundColor)
-                    .cornerRadiusContinuous(20)
-            }
+            TransactionViewIconView(data: viewModel.icon, size: .medium)
 
             textContent
                 .lineLimit(1)
@@ -49,7 +28,7 @@ struct TransactionView: View {
     private var textContent: some View {
         // we can use 2 row layout only when all the data is present
         // otherwise left or right part needs to be vertically centered
-        if viewModel.localizeDestination != nil, viewModel.formattedAmount != nil {
+        if viewModel.localizeDestination != nil, viewModel.amount.formattedAmount != nil {
             twoRowsTextContent
         } else {
             twoColumnsTextContent
@@ -115,11 +94,8 @@ struct TransactionView: View {
 
     @ViewBuilder
     private var amount: some View {
-        if let amount = viewModel.formattedAmount {
-            SensitiveText(amount)
-                .style(Fonts.Regular.subheadline, color: viewModel.amountColor)
-                .layoutPriority(2)
-        }
+        TransactionViewAmountView(data: viewModel.amount, size: .medium)
+            .layoutPriority(2)
     }
 
     private var subtitle: some View {
