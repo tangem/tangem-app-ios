@@ -14,7 +14,7 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     private lazy var stakeButton = button(.stakeButton)
     private lazy var amountValue = staticText(.amountValue)
     private lazy var validatorBlock = staticText(.validatorBlock)
-    private lazy var networkFeeBlock = staticText(.networkFeeBlock)
+    private lazy var networkFeeBlock = otherElement(.networkFeeBlock)
     private lazy var amountBlock = button(.amountBlock)
 
     @discardableResult

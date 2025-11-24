@@ -38,6 +38,7 @@ struct SendDestinationAddressView: View {
             }
         }
         .lineLimit(1)
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.addressFieldTitle)
     }
 
     private var content: some View {
