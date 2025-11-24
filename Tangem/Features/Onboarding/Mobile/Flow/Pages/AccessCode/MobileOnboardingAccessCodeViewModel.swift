@@ -214,6 +214,7 @@ private extension MobileOnboardingAccessCodeViewModel {
 
         await MainActor.run {
             AppSettings.shared.useBiometricAuthentication = true
+            AppSettings.shared.requireAccessCodes = false
         }
 
         userWalletRepository.onBiometricsChanged(enabled: true)
@@ -297,9 +298,7 @@ private extension MobileOnboardingAccessCodeViewModel {
 
         Analytics.log(.backupAccessCodeSkipped, contextParams: .custom(.mobileWallet))
 
-        MobileAccessCodeSkipHelper.append(userWalletId: userWalletModel.userWalletId)
-        // Workaround to manually trigger update event for userWalletModel publisher
-        userWalletModel.update(type: .backupCompleted)
+        userWalletModel.update(type: .accessCodeDidSkip)
         runTask(in: self) { viewModel in
             await viewModel.onAccessCodeComplete()
         }

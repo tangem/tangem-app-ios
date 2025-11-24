@@ -371,7 +371,7 @@ private extension StakingDetailsViewModel {
     }
 
     private func openRewardsFlow(rewardsBalances: [StakingBalance], yield: StakingYieldInfo) {
-        if rewardsBalances.count == 1, let rewardsBalance = rewardsBalances.first {
+        if let rewardsBalance = rewardsBalances.singleElement {
             openFlow(balance: rewardsBalance, validators: yield.validators)
 
             let name = rewardsBalance.validatorType.validator?.name
@@ -529,8 +529,12 @@ extension StakingDetailsViewModel {
 extension Period {
     func formatted(formatter: DateComponentsFormatter) -> String {
         switch self {
-        case .days(let days):
+        case .specific(let days):
             return formatter.string(from: DateComponents(day: days)) ?? days.formatted()
+        case .interval(let min, let max):
+            let minString = formatter.string(from: DateComponents(day: min)) ?? min.formatted()
+            let maxString = formatter.string(from: DateComponents(day: max)) ?? max.formatted()
+            return "\(minString) - \(maxString)"
         }
     }
 }
