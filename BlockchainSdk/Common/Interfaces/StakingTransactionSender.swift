@@ -145,7 +145,7 @@ extension StakingTransactionSender where
         _ transaction: StakeKitTransaction,
         transactionStatusProvider: StakeKitTransactionStatusProvider
     ) async throws {
-        var status: StakeKitTransactionParams.Status?
+        var status: StakeKitTransaction.Status?
         let startPollingDate = Date()
         while status != .confirmed,
               Date().timeIntervalSince(startPollingDate) < StakeKitTransactionSenderConstants.pollingTimeout {

@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import BigInt
 
 struct P2PMapper {
     let item: StakingTokenItem = .ethereum
@@ -89,28 +90,25 @@ struct P2PMapper {
         from response: P2PDTO.PrepareTransaction.PrepareTransactionInfo,
         walletAddress: String
     ) throws -> StakingTransactionInfo {
+        let unsignedTx = response.unsignedTransaction
+
         let ethereumCompiledTransaction = EthereumCompiledTransaction(
             from: walletAddress,
-            gasLimit: response.unsignedTransaction.gasLimit,
-            to: response.unsignedTransaction.to,
-            data: response.unsignedTransaction.data,
-            nonce: response.unsignedTransaction.nonce,
+            gasLimit: BigUInt(unsignedTx.gasLimit) ?? .zero,
+            to: unsignedTx.to,
+            data: unsignedTx.data,
+            nonce: unsignedTx.nonce,
             type: 0,
-            maxFeePerGas: response.unsignedTransaction.maxFeePerGas,
-            maxPriorityFeePerGas: response.unsignedTransaction.maxPriorityFeePerGas,
+            maxFeePerGas: BigUInt(unsignedTx.maxFeePerGas) ?? .zero,
+            maxPriorityFeePerGas: BigUInt(unsignedTx.maxPriorityFeePerGas) ?? .zero,
             gasPrice: nil,
             chainId: response.unsignedTransaction.chainId,
-            value: response.unsignedTransaction.value
+            value: BigUInt(unsignedTx.value) ?? .zero,
         )
         return try StakingTransactionInfo(
-            id: "",
-            actionId: "",
-            network: "",
+            network: item.name,
             unsignedTransactionData: .compiledEthereum(ethereumCompiledTransaction),
             fee: fee(from: response.unsignedTransaction),
-            type: "",
-            status: "",
-            stepIndex: 0
         )
     }
 
@@ -121,7 +119,7 @@ struct P2PMapper {
             preferred: true,
             partner: false,
             iconURL: nil,
-            rewardType: .apy,
+            rewardType: rewardType,
             rewardRate: vault.apy ?? .zero,
             status: .active
         )

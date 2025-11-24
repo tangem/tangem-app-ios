@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 
 typealias BSDKTransaction = BlockchainSdk.Transaction
-typealias StakingTransaction = BlockchainSdk.StakeKitTransaction
+typealias StakeKitTransaction = BlockchainSdk.StakeKitTransaction
 
 typealias BSDKBlockchain = BlockchainSdk.Blockchain
 typealias BSDKToken = BlockchainSdk.Token

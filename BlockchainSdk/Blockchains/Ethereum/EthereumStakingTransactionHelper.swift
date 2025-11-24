@@ -64,22 +64,26 @@ struct EthereumStakingTransactionHelper {
         compiledTransaction: EthereumCompiledTransaction,
         fee: Fee
     ) throws -> EthereumSigningInput {
-        let coinAmount: BigUInt = compiledTransaction.value.flatMap { BigUInt($0) } ?? .zero
+        let coinAmount = compiledTransaction.value ?? .zero
 
-        guard let gasLimit = BigUInt(compiledTransaction.gasLimit), gasLimit > 0 else {
+        guard compiledTransaction.gasLimit > 0 else {
             throw EthereumTransactionBuilderError.feeParametersNotFound
         }
 
-        let baseFee = compiledTransaction.maxFeePerGas.flatMap { BigUInt(Data(hex: $0)) } ?? .zero
-        let priorityFee = compiledTransaction.maxPriorityFeePerGas.flatMap { BigUInt($0) } ?? .zero
-        let gasPrice = compiledTransaction.gasPrice.flatMap { BigUInt($0) } ?? .zero
+        let baseFee = compiledTransaction.maxFeePerGas ?? .zero
+        let priorityFee = compiledTransaction.maxPriorityFeePerGas ?? .zero
+        let gasPrice = compiledTransaction.gasPrice ?? .zero
 
         let feeParameters: FeeParameters
 
         if baseFee > 0, priorityFee > 0 {
-            feeParameters = EthereumEIP1559FeeParameters(gasLimit: gasLimit, baseFee: baseFee, priorityFee: priorityFee)
+            feeParameters = EthereumEIP1559FeeParameters(
+                gasLimit: compiledTransaction.gasLimit,
+                baseFee: baseFee,
+                priorityFee: priorityFee
+            )
         } else if gasPrice > 0 {
-            feeParameters = EthereumLegacyFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice)
+            feeParameters = EthereumLegacyFeeParameters(gasLimit: compiledTransaction.gasLimit, gasPrice: gasPrice)
         } else {
             throw EthereumTransactionBuilderError.feeParametersNotFound
         }
