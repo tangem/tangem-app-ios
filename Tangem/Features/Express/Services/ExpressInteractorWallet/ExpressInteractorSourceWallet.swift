@@ -39,4 +39,5 @@ extension ExpressSourceWallet where Self: ExpressInteractorSourceWallet {
     var address: String? { defaultAddressString }
     var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
     var feeCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }
+    var allowanceProvider: (any ExpressAllowanceProvider)? { allowanceService }
 }
