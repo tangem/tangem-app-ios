@@ -172,34 +172,24 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
         let tokenSectionsAdaptersCacheKeysToDelete = cache
             .tokenSectionsAdapters
             .keys
-            .toSet()
 
         // Plain sections don't use and therefore don't cache account item view models
         let accountItemViewModelsCacheKeysToDelete = cache
             .accountItemViewModels
             .keys
-            .toSet()
 
-        guard tokenItemViewModelsCacheKeysToDelete.isNotEmpty
-            || tokenSectionsAdaptersCacheKeysToDelete.isNotEmpty
-            || accountItemViewModelsCacheKeysToDelete.isNotEmpty
-        else {
-            return
-        }
+        purgeCacheIfNeeded(
+            cache: cache,
+            tokenItemViewModelsCacheKeysToDelete: tokenItemViewModelsCacheKeysToDelete,
+            tokenSectionsAdaptersCacheKeysToDelete: Array(tokenSectionsAdaptersCacheKeysToDelete),
+            accountItemViewModelsCacheKeysToDelete: Array(accountItemViewModelsCacheKeysToDelete)
+        )
+    }
 
-        cache.mutate { cache in
-            for key in tokenItemViewModelsCacheKeysToDelete {
-                cache.tokenItemViewModels.removeValue(forKey: key)
-            }
-            for key in tokenSectionsAdaptersCacheKeysToDelete {
-                cache.tokenSectionsAdapters.removeValue(forKey: key)
-            }
-            for key in accountItemViewModelsCacheKeysToDelete {
-                cache.accountItemViewModels.removeValue(forKey: key)
-            }
     private func purgeCache(using sections: [AccountSection]) {
         let cache = accountSectionsСache
 
+        // Token item view models are cached per wallet model
         let actualTokenItemViewModelsCacheKeys = sections
             .flatMap(\.1)
             .flatMap(\.walletModels)
@@ -227,6 +217,20 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
             .keys
             .filter { !actualSectionItemViewModelsCacheKeys.contains($0) }
 
+        purgeCacheIfNeeded(
+            cache: cache,
+            tokenItemViewModelsCacheKeysToDelete: tokenItemViewModelsCacheKeysToDelete,
+            tokenSectionsAdaptersCacheKeysToDelete: tokenSectionsAdaptersCacheKeysToDelete,
+            accountItemViewModelsCacheKeysToDelete: accountItemViewModelsCacheKeysToDelete
+        )
+    }
+
+    private func purgeCacheIfNeeded(
+        cache: ThreadSafeContainer<Cache>,
+        tokenItemViewModelsCacheKeysToDelete: [ObjectIdentifier],
+        tokenSectionsAdaptersCacheKeysToDelete: [ObjectIdentifier],
+        accountItemViewModelsCacheKeysToDelete: [ObjectIdentifier]
+    ) {
         guard tokenItemViewModelsCacheKeysToDelete.isNotEmpty
             || tokenSectionsAdaptersCacheKeysToDelete.isNotEmpty
             || accountItemViewModelsCacheKeysToDelete.isNotEmpty
