@@ -19,19 +19,21 @@ public protocol StakingTransactionsBuilder {
     ///   - signer: transaction signer
     /// - Returns: array of signed transactions
     func buildRawTransactions(
-        from transactions: [StakingTransaction],
+        from transactions: [StakeKitTransaction],
         publicKey: Wallet.PublicKey,
         signer: TransactionSigner
     ) async throws -> [RawTransaction]
 }
 
-extension StakingTransactionsBuilder where Self: StakingTransactionDataProvider {
+extension StakingTransactionsBuilder where Self: StakeKitTransactionDataProvider {
     func buildRawTransactions(
-        from transactions: [StakingTransaction],
+        from transactions: [StakeKitTransaction],
         publicKey: Wallet.PublicKey,
         signer: TransactionSigner
     ) async throws -> [RawTransaction] {
-        let preparedHashes = try transactions.map { try self.prepareDataForSign(transaction: $0) }
+        let preparedHashes = try transactions.map {
+            try self.prepareDataForSign(transaction: $0)
+        }
 
         let signatures: [SignatureInfo] = try await signer.sign(
             hashes: preparedHashes,

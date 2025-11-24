@@ -68,8 +68,8 @@ extension StakingTransactionDispatcher: TransactionDispatcher {
 // MARK: - Private
 
 private extension StakingTransactionDispatcher {
-    func stakeKitTransactionSender() throws -> StakeKitTransactionSender {
-        guard let stakeKitTransactionSender = walletModel.stakeKitTransactionSender else {
+    func stakingTransactionSender() throws -> StakingTransactionSender {
+        guard let stakeKitTransactionSender = walletModel.stakingTransactionSender else {
             throw Error.stakingUnsupported
         }
 
@@ -77,18 +77,14 @@ private extension StakingTransactionDispatcher {
     }
 
     func sendStakeKit(action: StakingTransactionAction, offset: Int? = .none) async throws -> TransactionDispatcherResult {
-        let sender = try stakeKitTransactionSender()
+        let sender = try stakingTransactionSender()
         var transactions = stakingTransactionMapper.mapToStakeKitTransactions(action: action)
 
         if let offset {
             transactions = Array(transactions[offset...])
         }
 
-        let shouldDelayTransactions = transactions.contains {
-            guard let params = $0.params as? StakeKitTransactionParams,
-                  let otherParams = transactions.first?.params as? StakeKitTransactionParams else { return false }
-            return params.stepIndex != otherParams.stepIndex
-        }
+        let shouldDelayTransactions = transactions.contains { $0.stepIndex != transactions.first?.stepIndex }
 
         let delay: UInt64? = switch walletModel.tokenItem.blockchain {
         case .tron: 5 // to stake tron 2 transactions must be executed in specific order
@@ -145,7 +141,7 @@ extension StakingTransactionDispatcher {
         let type: StuckType
 
         enum StuckType: Hashable {
-            case send(transaction: StakingTransaction)
+            case send(transaction: StakeKitTransaction)
         }
     }
 

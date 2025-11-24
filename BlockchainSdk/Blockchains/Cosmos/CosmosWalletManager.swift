@@ -203,15 +203,15 @@ extension CosmosWalletManager: ThenProcessable {}
 
 // MARK: - StakeKitTransactionBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider
 
-extension CosmosWalletManager: StakingTransactionsBuilder, StakeKitTransactionSender, StakingTransactionDataProvider {
+extension CosmosWalletManager: StakingTransactionsBuilder, StakingTransactionSender, StakeKitTransactionDataProvider {
     typealias RawTransaction = Data
 
-    func prepareDataForSign(transaction: StakingTransaction) throws -> Data {
+    func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
         try CosmosStakeKitTransactionHelper(builder: txBuilder)
             .prepareForSign(stakingTransaction: transaction)
     }
 
-    func prepareDataForSend(transaction: StakingTransaction, signature: SignatureInfo) throws -> RawTransaction {
+    func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
         let unmarshal = try signature.unmarshal()
 
         return try CosmosStakeKitTransactionHelper(builder: txBuilder)
@@ -220,7 +220,7 @@ extension CosmosWalletManager: StakingTransactionsBuilder, StakeKitTransactionSe
 }
 
 extension CosmosWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakingTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
     }
 }

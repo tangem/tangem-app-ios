@@ -18,39 +18,52 @@ struct EthereumStakingTransactionHelper {
         self.transactionBuilder = transactionBuilder
     }
 
-    func prepareForSign(_ stakingTransaction: StakingTransaction) throws -> Data {
-        let input = try buildSigningInput(stakingTransaction: stakingTransaction)
+    func prepareForSign(_ stakingTransaction: StakeKitTransaction) throws -> Data {
+        let compiledTransaction = try compiledTransaction(from: stakingTransaction)
+        let input = try buildSigningInput(compiledTransaction: compiledTransaction, fee: stakingTransaction.fee)
         let preSigningOutput = try transactionBuilder.buildTxCompilerPreSigningOutput(input: input)
         return preSigningOutput.dataHash
     }
 
     func prepareForSend(
-        stakingTransaction: StakingTransaction,
+        stakingTransaction: StakeKitTransaction,
         signatureInfo: SignatureInfo
     ) throws -> Data {
-        let input = try buildSigningInput(stakingTransaction: stakingTransaction)
+        let compiledTransaction = try compiledTransaction(from: stakingTransaction)
+        let input = try buildSigningInput(compiledTransaction: compiledTransaction, fee: stakingTransaction.fee)
         let output = try transactionBuilder.buildSigningOutput(input: input, signatureInfo: signatureInfo)
         return output.encoded
     }
 
-    private func buildSigningInput(
-        stakingTransaction: StakingTransaction
-    ) throws -> EthereumSigningInput {
-        let compiledTransaction: EthereumCompiledTransaction
+    func prepareForSign(_ stakingTransaction: P2PTransaction) throws -> Data {
+        let input = try buildSigningInput(compiledTransaction: stakingTransaction.unsignedData, fee: stakingTransaction.fee)
+        let preSigningOutput = try transactionBuilder.buildTxCompilerPreSigningOutput(input: input)
+        return preSigningOutput.dataHash
+    }
 
-        switch stakingTransaction.unsignedData {
-        case let transaction as EthereumCompiledTransaction:
-            compiledTransaction = transaction
-        case let string as String:
-            guard let compiledTransactionData = string.data(using: .utf8) else {
-                throw EthereumTransactionBuilderError.invalidStakingTransaction
-            }
-            compiledTransaction = try JSONDecoder()
-                .decode(EthereumCompiledTransaction.self, from: compiledTransactionData)
-        default:
+    func prepareForSend(
+        stakingTransaction: P2PTransaction,
+        signatureInfo: SignatureInfo
+    ) throws -> Data {
+        let input = try buildSigningInput(compiledTransaction: stakingTransaction.unsignedData, fee: stakingTransaction.fee)
+        let output = try transactionBuilder.buildSigningOutput(input: input, signatureInfo: signatureInfo)
+        return output.encoded
+    }
+
+    private func compiledTransaction(
+        from stakeKitTransaction: StakeKitTransaction
+    ) throws -> EthereumCompiledTransaction {
+        guard let compiledTransactionData = stakeKitTransaction.unsignedData.data(using: .utf8) else {
             throw EthereumTransactionBuilderError.invalidStakingTransaction
         }
+        return try JSONDecoder()
+            .decode(EthereumCompiledTransaction.self, from: compiledTransactionData)
+    }
 
+    private func buildSigningInput(
+        compiledTransaction: EthereumCompiledTransaction,
+        fee: Fee
+    ) throws -> EthereumSigningInput {
         let coinAmount: BigUInt = compiledTransaction.value.flatMap { BigUInt($0) } ?? .zero
 
         guard let gasLimit = BigUInt(compiledTransaction.gasLimit), gasLimit > 0 else {
@@ -81,7 +94,7 @@ struct EthereumStakingTransactionHelper {
             destination: compiledTransaction.to,
             coinAmount: coinAmount,
             fee: Fee(
-                stakingTransaction.fee.amount,
+                fee.amount,
                 parameters: feeParameters
             ),
             nonce: compiledTransaction.nonce,
