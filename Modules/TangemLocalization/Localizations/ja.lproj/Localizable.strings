@@ -94,6 +94,7 @@
 "alert_negative_app_rate_sent_title" = "あなたの提案が送信されました";
 "alert_troubleshooting_scan_card_message" = "アニメーションに表示されているとおりにカードまたはリングをタップするか、簡単なガイドをお読みください。それでも問題が解決しない場合は、サポートをご依頼ください。";
 "alert_troubleshooting_scan_card_title" = "カードまたはリングのスキャンに問題がありますか？";
+"app_settings_access_code_warning" = "Set an access code first to enable biometrics";
 "app_settings_biometrics_footer" = "%1$@を使用してウォレットのロックを解除し、取引の署名などの機密性の高い操作を承認してください。ハードウェアウォレットの場合は、署名にカードまたはリングが必要です。";
 "app_settings_default_fee_footer" = "デフォルト手数料を有効にすると、取引手数料が自動的に設定され、送金時に手数料ページを表示する必要がなくなります。必要に応じて、いつでもこのページに戻ることができます。";
 "app_settings_default_fee" = "デフォルト手数料";
@@ -1369,13 +1370,14 @@
 "tangempay_card_details_swap_description" = "ポートフォリオ内のあらゆる資産をカードと交換";
 "tangempay_card_details_title" = "カードの詳細";
 "tangempay_card_details_unfreeze_card" = "カードの一時停止を解除";
-"tangempay_issue_card_notification_title" = "アカウントを作成してカードを発行";
+"tangempay_issue_card_notification_description" = "通常は最大で15分ほどかかります";
+"tangempay_issue_card_notification_title" = "Tangemカードのセットアップ";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "ステータスを表示";
 "tangempay_kyc_in_progress_notification_title" = "Tangem PayのKYC手続き進行中";
 "tangempay_onboarding_get_card_button_text" = "カードをGET";
-"tangempay_onboarding_pay_description" = "どこでも暗号資産を使える";
-"tangempay_onboarding_pay_title" = "Apple PayとGoogle Payに対応したデジタルカード付き";
+"tangempay_onboarding_pay_description" = "Apple PayとGoogle Payに対応したデジタルカード付き";
+"tangempay_onboarding_pay_title" = "どこでも暗号資産を使える";
 "tangempay_onboarding_purchases_description" = "購入時に追加手数料はかかりません。";
 "tangempay_onboarding_purchases_title" = "余計な費用なしで、表示金額のみを支払う";
 "tangempay_onboarding_security_description" = "あなたの住所や資産を開示することなく、個別の支払い用アカウントが作成されます。";
