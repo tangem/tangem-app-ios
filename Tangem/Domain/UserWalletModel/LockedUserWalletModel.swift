@@ -25,7 +25,7 @@ class LockedUserWalletModel: UserWalletModel {
     private let _userTokensManager = LockedUserTokensManager()
     let nftManager: NFTManager = NotSupportedNFTManager()
     let walletImageProvider: WalletImageProviding
-    let config: UserWalletConfig
+    var config: UserWalletConfig
 
     var isUserWalletLocked: Bool { true }
 
@@ -141,35 +141,18 @@ class LockedUserWalletModel: UserWalletModel {
     func update(type: UpdateRequest) {
         switch type {
         case .backupCompleted(let card, let associatedCardIds):
-            var mutableCardInfo = CardInfo(
+            let cardInfo = CardInfo(
                 card: CardDTO(card: card),
                 walletData: .none,
                 associatedCardIds: associatedCardIds
             )
 
-            switch userWallet.walletInfo {
-            case .cardWallet(let existingInfo):
-                for wallet in mutableCardInfo.card.wallets {
-                    if let existingDerivedKeys = existingInfo.card.wallets[wallet.publicKey]?.derivedKeys {
-                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
-                    }
-                }
-
-                userWallet.walletInfo = .cardWallet(mutableCardInfo)
-                userWalletRepository.save(userWalletModel: self)
-
-            case .mobileWallet(let existingInfo):
-                for wallet in mutableCardInfo.card.wallets {
-                    if let existingDerivedKeys = existingInfo.keys[wallet.publicKey]?.derivedKeys {
-                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
-                    }
-                }
-
-                userWallet.walletInfo = .cardWallet(mutableCardInfo)
-                userWalletRepository.savePublicData()
-                savePrivateDataForUpgrade(cardInfo: mutableCardInfo)
-                cleanMobileWallet()
-            }
+            var mutableCardInfo = cardInfo
+            mutableCardInfo.card.wallets = []
+            userWallet.walletInfo = .cardWallet(mutableCardInfo)
+            config = UserWalletConfigFactory().makeConfig(walletInfo: userWallet.walletInfo)
+            userWalletRepository.savePublicData()
+            updatePrivateDataAfterIncompletedBackup(cardInfo: cardInfo)
         case .newName:
             break
         case .accessCodeDidSet:
@@ -187,15 +170,42 @@ class LockedUserWalletModel: UserWalletModel {
 
     func addAssociatedCard(cardId: String) {}
 
-    func savePrivateDataForUpgrade(cardInfo: CardInfo) {
-        if let encryptionKey = UserWalletEncryptionKey(config: config) {
-            let dataStorage = UserWalletDataStorage()
-            dataStorage.savePrivateData(
-                sensitiveInfo: .cardWallet(keys: cardInfo.card.wallets),
-                userWalletId: userWalletId,
-                encryptionKey: encryptionKey
-            )
+    func updatePrivateDataAfterIncompletedBackup(cardInfo: CardInfo) {
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+        guard let encryptionKey = UserWalletEncryptionKey(config: config) else {
+            return
         }
+
+        let dataStorage = UserWalletDataStorage()
+
+        guard let existingInfo = dataStorage.fetchPrivateData(encryptionKeys: [userWalletId: encryptionKey])[userWalletId] else {
+            return
+        }
+
+        var mutableCardInfo = cardInfo
+
+        switch existingInfo {
+        case .cardWallet(let keys):
+            for wallet in mutableCardInfo.card.wallets {
+                if let existingDerivedKeys = keys[wallet.publicKey]?.derivedKeys {
+                    mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                }
+            }
+        case .mobileWallet(let keys):
+            for wallet in mutableCardInfo.card.wallets {
+                if let existingDerivedKeys = keys[wallet.publicKey]?.derivedKeys {
+                    mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                }
+            }
+        }
+
+        dataStorage.savePrivateData(
+            sensitiveInfo: .cardWallet(keys: mutableCardInfo.card.wallets),
+            userWalletId: userWalletId,
+            encryptionKey: encryptionKey
+        )
+
+        cleanMobileWallet()
     }
 }
 
