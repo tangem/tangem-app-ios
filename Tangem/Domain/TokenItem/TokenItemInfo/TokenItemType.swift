@@ -11,7 +11,7 @@ import Foundation
 enum TokenItemType: Equatable {
     /// `Default` means `coin/token with derivation`,  unlike `withoutDerivation` case.
     case `default`(any WalletModel)
-    case withoutDerivation(StoredUserTokenList.Entry)
+    case withoutDerivation(TokenItem)
 }
 
 extension TokenItemType {

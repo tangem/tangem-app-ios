@@ -64,8 +64,11 @@ final class ExpressFeeSelectorViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func makeFeeRowViewModel(option: FeeOption, fee: Fee) -> FeeRowViewModel {
-        let tokenItem = expressInteractor.getSender().feeTokenItem
+    private func makeFeeRowViewModel(option: FeeOption, fee: Fee) -> FeeRowViewModel? {
+        guard let tokenItem = expressInteractor.getSource().value?.feeTokenItem else {
+            return nil
+        }
+
         let formattedFeeComponents = feeFormatter.formattedFeeComponents(fee: fee.amount.value, tokenItem: tokenItem)
 
         return FeeRowViewModel(

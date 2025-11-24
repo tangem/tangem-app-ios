@@ -33,13 +33,13 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     private lazy var onrampOfferViewModelBuilder = OnrampAllOfferViewModelBuilder(tokenItem: tokenItem)
     private lazy var onrampProvidersItemViewModelBuilder = OnrampProviderItemViewModelBuilder(tokenItem: tokenItem)
     private weak var input: OnrampProvidersInput?
-    private weak var output: OnrampOutput?
+    private weak var output: OnrampSummaryOutput?
 
     init(
         tokenItem: TokenItem,
         analyticsLogger: SendOnrampOffersAnalyticsLogger,
         input: OnrampProvidersInput,
-        output: OnrampOutput,
+        output: OnrampSummaryOutput,
     ) {
         self.tokenItem = tokenItem
         self.analyticsLogger = analyticsLogger
@@ -81,8 +81,8 @@ private extension OnrampOffersSelectorViewModel {
             .compactMap { $0?.value }
             .map { providers in
                 providers
-                    .sorted { $0.paymentMethod.type.priority > $1.paymentMethod.type.priority }
-                    .filter { $0.hasSuccessfullyLoadedProviders() }
+                    .sorted(sorter: ProviderItemSorterByPaymentMethodPriority())
+                    .filter { $0.hasSelectableProviders() }
             }
             .receiveOnMain()
             .assign(to: &$providersList)
@@ -101,7 +101,7 @@ private extension OnrampOffersSelectorViewModel {
     }
 
     func mapToOnrampOfferViewModels(item: ProviderItem) -> [OnrampOfferViewModel] {
-        let offers = item.successfullyLoadedProviders().map { provider in
+        let offers = item.selectableProviders().map { provider in
             onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider) { [weak self] in
                 self?.close()
                 self?.analyticsLogger.logOnrampProviderChosen(provider: provider.provider)
