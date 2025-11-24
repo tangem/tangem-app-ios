@@ -193,15 +193,19 @@ struct StakeKitMapper {
             throw StakeKitMapperError.noData("Transaction.stakeId not found")
         }
 
-        return try StakingTransactionInfo(
+        let metadata = StakeKitTransactionMetadata(
             id: response.id,
             actionId: stakeId,
-            network: response.network.rawValue,
-            unsignedTransactionData: .raw(mapToTransactionUnsignedData(from: unsignedTransaction, network: response.network)),
-            fee: fee,
             type: response.type.rawValue,
             status: response.status.rawValue,
             stepIndex: response.stepIndex
+        )
+
+        return try StakingTransactionInfo(
+            network: response.network.rawValue,
+            unsignedTransactionData: .raw(mapToTransactionUnsignedData(from: unsignedTransaction, network: response.network)),
+            fee: fee,
+            metadata: metadata
         )
     }
 
