@@ -35,6 +35,7 @@ struct NewTokenSelectorItemView: View {
             .padding(.vertical, 14)
         }
         .disabled(viewModel.disabledReason != nil)
+        .background(Colors.Background.action)
     }
 
     @ViewBuilder
@@ -76,6 +77,8 @@ struct NewTokenSelectorItemView: View {
                 Text(Localization.tokensListUnavailableToPurchaseHeader)
             case .unavailableForSwap:
                 Text(Localization.tokensListUnavailableToSwapSourceHeader)
+            case .unavailableForSell:
+                Text(Localization.tokensListUnavailableToSellHeader)
             }
         }
         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
