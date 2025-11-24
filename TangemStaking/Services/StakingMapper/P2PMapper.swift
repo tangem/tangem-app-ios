@@ -106,7 +106,7 @@ struct P2PMapper {
             id: "",
             actionId: "",
             network: "",
-            unsignedTransactionData: ethereumCompiledTransaction,
+            unsignedTransactionData: .compiledEthereum(ethereumCompiledTransaction),
             fee: fee(from: response.unsignedTransaction),
             type: "",
             status: "",

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct EthereumCompiledTransaction: Decodable {
+public struct EthereumCompiledTransaction: Decodable, Hashable {
     public let from: String
     public let gasLimit: String
     public let to: String
@@ -35,5 +35,3 @@ public struct EthereumCompiledTransaction: Decodable {
         self.value = value
     }
 }
-
-extension EthereumCompiledTransaction: UnsignedTransactionData {}

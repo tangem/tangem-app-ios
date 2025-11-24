@@ -262,12 +262,12 @@ private extension TONWalletManager {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension TONWalletManager: StakingTransactionsBuilder, StakeKitTransactionSender {
+extension TONWalletManager: StakingTransactionsBuilder, StakingTransactionSender {
     typealias RawTransaction = String
 
     /// we need to pass the same signing input into prepareForSend method
     func buildRawTransactions(
-        from transactions: [StakingTransaction],
+        from transactions: [StakeKitTransaction],
         publicKey: Wallet.PublicKey,
         signer: any TransactionSigner
     ) async throws -> [String] {
@@ -297,7 +297,7 @@ extension TONWalletManager: StakingTransactionsBuilder, StakeKitTransactionSende
 }
 
 extension TONWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakingTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(message: rawTransaction).async()
     }
 }
