@@ -130,10 +130,6 @@ private extension WalletConnectSolanaSignTransactionHandler {
     }
 
     func handleLongTransaction(unsignedHash: Data, signatureCount: Int) async throws -> RPCResult {
-        guard signatureCount == 1 else {
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload("Signature count > 1")
-        }
-
         analyticsProvider.logReceiveHandleSolanaALTTransactionRequest()
 
         let transactionService = try SolanaALTTransactionService(
