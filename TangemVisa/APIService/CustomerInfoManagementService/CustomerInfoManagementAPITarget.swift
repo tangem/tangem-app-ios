@@ -15,7 +15,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.baseURL
+        apiType.bffBaseURL
     }
 
     var path: String {
