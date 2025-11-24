@@ -182,12 +182,12 @@ final class ActionButtonsSwapViewModel: ObservableObject {
                 coordinator?.openExpress(
                     input: .init(
                         userWalletInfo: userWalletModel.userWalletInfo,
-                        source: ExpressInteractorWalletWrapper(
+                        source: ExpressInteractorWalletModelWrapper(
                             userWalletInfo: userWalletModel.userWalletInfo,
                             walletModel: sourceToken.walletModel
                         ),
                         destination: .chosen(
-                            ExpressInteractorWalletWrapper(
+                            ExpressInteractorWalletModelWrapper(
                                 userWalletInfo: userWalletModel.userWalletInfo,
                                 walletModel: destinationToken.walletModel
                             )
