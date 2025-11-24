@@ -22,6 +22,7 @@ protocol YieldModuleNetworkManager {
     func fetchChartData(tokenContractAddress: String, chainId: Int) async throws -> YieldChartData
     func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws
     func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
+    func sendTransactionEvent(txHash: String, operation: YieldModuleOperation) async
 }
 
 final class CommonYieldModuleNetworkManager {
@@ -104,6 +105,10 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
             chainId: chainId
         )
     }
+
+    func sendTransactionEvent(txHash: String, operation: YieldModuleOperation) async {
+        try? await yieldModuleAPIService.sendTransactionEvent(txHash: txHash, operation: operation.rawValue)
+    }
 }
 
 private extension CommonYieldModuleNetworkManager {
@@ -170,6 +175,10 @@ private struct YieldModuleNetworkManagerKey: InjectionKey {
             ? .prod
             : FeatureStorage.instance.yieldModuleAPIType
 
+        let tangemApiType: TangemAPIType = AppEnvironment.current.isProduction
+            ? .prod
+            : FeatureStorage.instance.tangemAPIType
+
         let manager = CommonYieldModuleNetworkManager(
             yieldModuleAPIService: CommonYieldModuleAPIService(
                 provider: .init(
@@ -178,7 +187,8 @@ private struct YieldModuleNetworkManagerKey: InjectionKey {
                         YieldModuleAuthorizationPlugin(),
                     ]
                 ),
-                yieldModuleAPIType: apiType
+                yieldModuleAPIType: apiType,
+                tangemAPIType: tangemApiType
             ),
             yieldMarketsRepository: CommonYieldModuleMarketsRepository(),
             yieldModuleChartManager: CommonYieldModuleChartManager()
@@ -192,4 +202,10 @@ extension InjectedValues {
         get { Self[YieldModuleNetworkManagerKey.self] }
         set { Self[YieldModuleNetworkManagerKey.self] = newValue }
     }
+}
+
+enum YieldModuleOperation: String {
+    case enter = "YIELD_DEPOSIT"
+    case exit = "YIELD_WITHDRAW"
+    case send = "YIELD_SEND"
 }
