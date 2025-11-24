@@ -100,7 +100,6 @@ final class TangemPayAccount {
         authorizationTokensHandler = TangemPayAuthorizationTokensHandlerBuilder()
             .buildTangemPayAuthorizationTokensHandler(
                 customerWalletId: authorizer.customerWalletId,
-                tokens: tokens,
                 authorizationService: authorizer.authorizationService
             )
 
@@ -119,6 +118,8 @@ final class TangemPayAccount {
         tangemPayNotificationManager.setupManager(with: self)
         authorizationTokensHandler.authorizationTokensSaver = self
         tangemPayIssuingManager.setupDelegate(self)
+
+        try? authorizationTokensHandler.setupTokens(tokens)
 
         loadCustomerInfo()
 

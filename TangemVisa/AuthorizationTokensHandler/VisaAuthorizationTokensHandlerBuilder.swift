@@ -89,12 +89,10 @@ public struct TangemPayAuthorizationTokensHandlerBuilder {
 public extension TangemPayAuthorizationTokensHandlerBuilder {
     func buildTangemPayAuthorizationTokensHandler(
         customerWalletId: String,
-        tokens: TangemPayAuthorizationTokens,
         authorizationService: TangemPayAuthorizationService
     ) -> TangemPayAuthorizationTokensHandler {
         CommonTangemPayAuthorizationTokensHandler(
             customerWalletId: customerWalletId,
-            tokens: tokens,
             authorizationService: apiServiceBuilder.buildTangemPayAuthorizationService()
         )
     }
