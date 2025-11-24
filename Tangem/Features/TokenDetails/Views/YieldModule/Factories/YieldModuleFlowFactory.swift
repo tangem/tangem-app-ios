@@ -124,7 +124,7 @@ extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
     func makeYieldStatusViewModel(state: YieldStatusViewModel.State, navigationAction: @escaping () -> Void) -> YieldStatusViewModel {
         YieldStatusViewModel(
             state: state,
-            manager: yieldModuleManager,
+            yieldInteractor: makeInteractor(),
             feeTokenItem: walletModel.feeTokenItem,
             token: walletModel.tokenItem,
             navigationAction: navigationAction
