@@ -13,7 +13,7 @@ struct RewardViewData: Hashable, Identifiable {
     var id: Int { hashValue }
 
     let state: State
-    let networkType: StakeKitNetworkType
+    let networkType: StakingNetworkType
 }
 
 extension RewardViewData {
