@@ -97,7 +97,7 @@ struct OrganizeTokensListFactory {
         let blockchain = userToken.blockchainNetwork.blockchain
         let isTestnet = blockchain.isTestnet
         let identifier = OrganizeTokensListItemViewModel.Identifier(
-            walletModelId: userToken.walletModelId.id,
+            walletModelId: WalletModelId(tokenItem: userToken).id,
             inGroupedSection: inGroupedSection
         )
 
@@ -122,7 +122,7 @@ struct OrganizeTokensListFactory {
         let tokenIcon = tokenIconInfoBuilder.build(
             for: .coin,
             in: blockchain,
-            isCustom: userToken.isCustom
+            isCustom: false
         )
 
         return OrganizeTokensListItemViewModel(
@@ -143,7 +143,7 @@ struct OrganizeTokensListFactory {
 
         return BlockchainSdk.Token(
             name: userToken.name,
-            symbol: userToken.symbol,
+            symbol: userToken.currencySymbol,
             contractAddress: contractAddress,
             decimalCount: userToken.decimalCount,
             id: userToken.id

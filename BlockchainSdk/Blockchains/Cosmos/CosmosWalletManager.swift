@@ -73,7 +73,10 @@ class CosmosWalletManager: BaseManager, WalletManager {
             let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
             self?.wallet.addPendingTransaction(record)
         })
-        .map { TransactionSendResult(hash: $0) }
+        .withWeakCaptureOf(self)
+        .map { manager, hash in
+            TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
+        }
         .mapSendTxError()
         .eraseToAnyPublisher()
     }
