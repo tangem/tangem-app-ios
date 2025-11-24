@@ -18,6 +18,8 @@ import TangemMobileWalletSdk
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
+    @Injected(\.tangemPayAuthorizationTokensRepository)
+    private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
     var shouldLockOnBackground: Bool {
         if isLocked {
@@ -150,6 +152,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             let allUserWalletIds = models.map { $0.userWalletId }
             userWalletEncryptionKeyStorage.clear(userWalletIds: allUserWalletIds)
             visaRefreshTokenRepository.clearPersistent()
+            tangemPayAuthorizationTokensRepository.clearPersistent()
             mobileWalletSdk.clearBiometrics(walletIDs: allUserWalletIds)
         }
     }
@@ -170,6 +173,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             accessCodeRepository.clear()
             visaRefreshTokenRepository.clearPersistent()
+            tangemPayAuthorizationTokensRepository.clearPersistent()
             let userWalletIds = models.map { $0.userWalletId }
             userWalletDataStorage.clear()
             encryptionKeyStorage.clear(userWalletIds: userWalletIds)
@@ -225,6 +229,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         associatedCardIds.forEach {
             try? visaRefreshTokenRepository.deleteToken(visaRefreshTokenId: .cardId($0))
         }
+        try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
 
         models.removeAll { $0.userWalletId == userWalletId }
         userWalletDataStorage.delete(userWalletId: userWalletId, updatedWallets: models.compactMap { $0.serializePublic() })
