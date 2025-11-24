@@ -19,6 +19,7 @@ public protocol StakingTransactionSender {
         delay second: UInt64?
     ) -> AsyncThrowingStream<StakeKitTransactionSendResult, Error>
 
+    
     func sendP2P(
         transaction: P2PTransaction,
         signer: TransactionSigner,
@@ -29,7 +30,7 @@ public protocol StakingTransactionSender {
 // MARK: - Common implementation for StakeKitTransactionSenderProvider
 
 extension StakingTransactionSender where
-    Self: StakingTransactionsBuilder,
+    Self: StakeKitTransactionsBuilder,
     Self: WalletProvider, RawTransaction: CustomStringConvertible,
     Self: StakeKitTransactionDataBroadcaster,
     Self: BlockchainDataProvider {
