@@ -18,7 +18,7 @@ import TangemFoundation
 // `005` - AnyWalletManagerFactoryError
 // `006` - MultipleAddressTransactionHistoryService.ServiceError
 // `007` - CommonUserTokensManager.Error
-// `008` - CommonTokenFinder.Error
+// `008` - CommonTokenEnricher.Error
 // `009` - OrganizeTokensViewModel.Error
 // `010` - WalletModelError
 
@@ -84,6 +84,8 @@ extension ReferralViewModel.ReferralError: UniversalError {
             return 100003003
         case .decodingError:
             return 100003004
+        case .accountFetchError:
+            return 100003005
         case .moyaError(let error):
             return error.errorCode
         case .unknown(let error):
@@ -172,12 +174,12 @@ extension AccountsAwareUserTokensManager.Error: UniversalError {
     }
 }
 
-extension CommonTokenFinder.Error: UniversalError {
+extension CommonTokenEnricher.Error: UniversalError {
     var errorCode: Int {
         switch self {
         case .notFound:
             100008000
-        case .unknownNetworkId:
+        case .unsupportedBlockchain:
             100008001
         }
     }
