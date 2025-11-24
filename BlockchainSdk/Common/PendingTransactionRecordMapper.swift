@@ -43,7 +43,7 @@ struct PendingTransactionRecordMapper {
     }
 
     func mapToPendingTransactionRecord(
-        stakeKitTransaction: StakingTransaction,
+        stakeKitTransaction: StakeKitTransaction,
         source: String,
         destination: String = .unknown,
         hash: String,
@@ -58,8 +58,8 @@ struct PendingTransactionRecordMapper {
             fee: stakeKitTransaction.fee,
             date: date,
             isIncoming: isIncoming,
-            transactionType: .stake(validator: (stakeKitTransaction.params as? StakeKitTransactionParams)?.validator),
-            transactionParams: stakeKitTransaction.params
+            transactionType: .stake(validator: stakeKitTransaction.validator),
+            transactionParams: nil
         )
     }
 
