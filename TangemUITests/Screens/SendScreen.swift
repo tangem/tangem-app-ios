@@ -37,6 +37,8 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var additionalFieldClearButton = button(.additionalFieldClearButton)
     private lazy var additionalFieldPasteButton = button(.additionalFieldPasteButton)
     private lazy var invalidMemoBanner = staticText(.invalidMemoBanner)
+    private lazy var addressFieldTitle = staticText(.addressFieldTitle)
+    private lazy var myWalletsBlock = otherElement(.myWalletsBlock)
 
     @discardableResult
     func waitForDisplay() -> Self {
@@ -69,6 +71,14 @@ final class SendScreen: ScreenBase<SendScreenElement> {
             for _ in 0 ..< textLength {
                 amountTextField.typeText(XCUIKeyboardKey.delete.rawValue)
             }
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapDestinationField() -> Self {
+        XCTContext.runActivity(named: "Tap destination field") { _ in
+            destinationTextView.waitAndTap()
         }
         return self
     }
@@ -526,6 +536,54 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         return self
     }
 
+    @discardableResult
+    func waitForAdditionalFieldEnabled() -> Self {
+        XCTContext.runActivity(named: "Validate additional field (destination tag) is enabled") { _ in
+            waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
+            XCTAssertTrue(
+                additionalFieldTextField.isEnabled,
+                "Additional field (destination tag) should be enabled"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForAdditionalFieldDisabled() -> Self {
+        XCTContext.runActivity(named: "Validate additional field (destination tag) is disabled") { _ in
+            waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
+            XCTAssertFalse(
+                additionalFieldTextField.isEnabled,
+                "Additional field (destination tag) should be disabled"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForAlreadyIncludedText() -> Self {
+        XCTContext.runActivity(named: "Validate 'Already included in the entered address' text is displayed") { _ in
+            waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
+            let alreadyIncludedText = "Already included in the entered address"
+            let placeholderValue = additionalFieldTextField.placeholderValue
+
+            XCTAssertEqual(
+                placeholderValue,
+                alreadyIncludedText,
+                "Text 'Already included in the entered address' should be displayed in additional field"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForAddressSameAsWalletText() -> Self {
+        XCTContext.runActivity(named: "Validate 'Address is the same as wallet address' text is displayed") { _ in
+            waitAndAssertTrue(addressFieldTitle, "Address same as wallet error text should be displayed")
+        }
+        return self
+    }
+
     // MARK: - Destination Field Methods
 
     func getDestinationValue() -> String {
@@ -811,6 +869,17 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         }
         return self
     }
+
+    @discardableResult
+    func waitForMyWalletsBlockNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate 'My Wallets' block is not displayed") { _ in
+            XCTAssertTrue(
+                myWalletsBlock.waitForNonExistence(timeout: .robustUIUpdate),
+                "'My Wallets' block should not be displayed"
+            )
+        }
+        return self
+    }
 }
 
 enum SendScreenElement: String, UIElement {
@@ -840,6 +909,8 @@ enum SendScreenElement: String, UIElement {
     case additionalFieldClearButton
     case additionalFieldPasteButton
     case invalidMemoBanner
+    case addressFieldTitle
+    case myWalletsBlock
 
     var accessibilityIdentifier: String {
         switch self {
@@ -895,6 +966,10 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.additionalFieldPasteButton
         case .invalidMemoBanner:
             return SendAccessibilityIdentifiers.invalidMemoBanner
+        case .addressFieldTitle:
+            return SendAccessibilityIdentifiers.addressFieldTitle
+        case .myWalletsBlock:
+            return SendAccessibilityIdentifiers.suggestedDestinationMyWalletsBlock
         }
     }
 }
