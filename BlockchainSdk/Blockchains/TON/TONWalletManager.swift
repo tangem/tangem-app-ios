@@ -262,7 +262,7 @@ private extension TONWalletManager {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension TONWalletManager: StakingTransactionsBuilder, StakingTransactionSender {
+extension TONWalletManager: StakeKitTransactionsBuilder, StakingTransactionSender {
     typealias RawTransaction = String
 
     /// we need to pass the same signing input into prepareForSend method
@@ -288,7 +288,6 @@ extension TONWalletManager: StakingTransactionsBuilder, StakingTransactionSender
             guard let transaction = transactions[safe: index],
                   let preSignData = preSignData[safe: index] else { return nil }
             return try helper.prepareForSend(
-                stakingTransaction: transaction,
                 preSignData: preSignData,
                 signatureInfo: signature
             )
