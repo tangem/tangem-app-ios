@@ -94,7 +94,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
 
         let expressDependenciesInput = ExpressDependenciesInput(
             userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
+            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
             destination: .none
         )
 
