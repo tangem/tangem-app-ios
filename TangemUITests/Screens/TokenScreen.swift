@@ -123,14 +123,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     @discardableResult
-    func waitForInsufficientFeeCurrencyBanner() -> Self {
-        XCTContext.runActivity(named: "Validate insufficient fee currency banner exists") { _ in
-            waitAndAssertTrue(insufficientFeeCurrencyBanner, "Insufficient fee currency banner should be displayed")
-        }
-        return self
-    }
-
-    @discardableResult
     func tapGoToFeeCurrencyButton() -> TokenScreen {
         XCTContext.runActivity(named: "Tap go to fee currency button") { _ in
             goToFeeCurrencyButton.waitAndTap()
@@ -222,31 +214,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     func waitForNotEnoughFeeForTransactionBanner() -> Self {
         XCTContext.runActivity(named: "Validate 'Not enough fee for transaction' notification banner exists") { _ in
             waitAndAssertTrue(notEnoughFeeForTransactionBanner, "'Not enough fee for transaction' notification banner should be displayed")
-        }
-        return self
-    }
-
-    @discardableResult
-    func waitForNotEnoughFeeNotificationContent(
-        expectedTitle: String,
-        expectedButtonText: String
-    ) -> Self {
-        XCTContext.runActivity(named: "Validate 'Not enough fee for transaction' notification content") { _ in
-            waitAndAssertTrue(notEnoughFeeForTransactionBanner, "Notification banner should exist")
-
-            let notificationIcon = notEnoughFeeForTransactionBanner.images[CommonUIAccessibilityIdentifiers.notificationIcon]
-            waitAndAssertTrue(notificationIcon, "Notification icon should be displayed")
-
-            let notificationTitle = notEnoughFeeForTransactionBanner.staticTexts[CommonUIAccessibilityIdentifiers.notificationTitle]
-            waitAndAssertTrue(notificationTitle, "Notification title should be displayed")
-            XCTAssertEqual(notificationTitle.label, expectedTitle, "Notification title should be '\(expectedTitle)'")
-
-            let notificationMessage = notEnoughFeeForTransactionBanner.staticTexts[CommonUIAccessibilityIdentifiers.notificationMessage]
-            waitAndAssertTrue(notificationMessage, "Notification message should be displayed")
-
-            let notificationButton = notEnoughFeeForTransactionBanner.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
-            waitAndAssertTrue(notificationButton, "Notification button should be displayed")
-            XCTAssertEqual(notificationButton.label, expectedButtonText, "Button label should be '\(expectedButtonText)'")
         }
         return self
     }
