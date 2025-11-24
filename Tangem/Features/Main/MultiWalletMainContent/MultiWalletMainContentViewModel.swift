@@ -414,31 +414,32 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: &$isLoadingTokenList)
     }
 
-    func makeApyBadgeTapAction(for walletModelId: WalletModelId) -> ((WalletModelId) -> Void)? {
-        // accounts_fixes_needed_yield
-        guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id.id == walletModelId.id }),
-              TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
+    func makeApyBadgeTapAction(tokenItem: TokenItem) -> ((TokenItem) -> Void)? {
+        guard let result = try? WalletModelFinder.findWalletModel(userWalletId: userWalletModel.userWalletId, tokenItem: tokenItem),
+              TokenActionAvailabilityProvider(
+                  userWalletConfig: result.userWalletModel.config,
+                  walletModel: result.walletModel
+              ).isTokenInteractionAvailable()
         else {
             return nil
         }
+
+        let walletModel = result.walletModel
 
         if let stakingManager = walletModel.stakingManager {
             return { [weak self] _ in
                 self?.handleStakingApyBadgeTapped(walletModel: walletModel, stakingManager: stakingManager)
             }
-        } else if
-            let yieldModuleManager = walletModel.yieldModuleManager,
-            let factory = makeYieldModuleFlowFactory(walletModel: walletModel, manager: yieldModuleManager) {
-            return { [weak self] _ in
-                self?.handleYieldApyBadgeTapped(
-                    walletModel: walletModel,
-                    yieldManager: yieldModuleManager,
-                    yieldModuleFactory: factory
-                )
-            }
-        } else {
-            return nil
         }
+
+        if let yieldManager = walletModel.yieldModuleManager,
+           let factory = makeYieldModuleFlowFactory(walletModel: walletModel, manager: yieldManager) {
+            return { [weak self] _ in
+                self?.handleYieldApyBadgeTapped(walletModel: walletModel, yieldManager: yieldManager, yieldModuleFactory: factory)
+            }
+        }
+
+        return nil
     }
 
     private func handleYieldApyBadgeTapped(
@@ -625,9 +626,9 @@ extension MultiWalletMainContentViewModel: MultiWalletMainContentItemViewModelFa
             contextActionsProvider: self,
             contextActionsDelegate: self,
             tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:)),
-            yieldApyTapAction: { [weak self] id in
-                let action = self?.makeApyBadgeTapAction(for: id)
-                action?(id)
+            yieldApyTapAction: { [weak self] token in
+                let action = self?.makeApyBadgeTapAction(tokenItem: token)
+                action?(token)
             }
         )
     }
