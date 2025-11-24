@@ -63,3 +63,27 @@ extension VisaPaymentAccountInteractorBuilder {
         )
     }
 }
+
+extension TangemPayAPIServiceBuilder {
+    init() {
+        self = TangemPayAPIServiceBuilder(
+            apiType: FeatureStorage.instance.visaAPIType
+        )
+    }
+}
+
+extension TangemPayAuthorizationTokensHandlerBuilder {
+    init() {
+        self = TangemPayAuthorizationTokensHandlerBuilder(
+            apiType: FeatureStorage.instance.visaAPIType
+        )
+    }
+}
+
+extension TangemPayCustomerInfoManagementServiceBuilder {
+    init() {
+        self = TangemPayCustomerInfoManagementServiceBuilder(
+            apiType: FeatureStorage.instance.visaAPIType
+        )
+    }
+}
