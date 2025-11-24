@@ -230,7 +230,13 @@ private extension StakeKitStakingManager {
             actionID: action.id,
             amount: action.amount,
             validator: request.validator,
-            transactions: transactions.sorted(by: \.stepIndex)
+            transactions: transactions.sorted {
+                guard let firstMetadata = $0.metadata as? StakeKitTransactionMetadata,
+                      let secondMetadata = $1.metadata as? StakeKitTransactionMetadata else {
+                    return false
+                }
+                return firstMetadata.stepIndex > secondMetadata.stepIndex
+            }
         )
     }
 
