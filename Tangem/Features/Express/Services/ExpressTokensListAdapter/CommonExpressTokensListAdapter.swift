@@ -6,32 +6,46 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Combine
+import TangemFoundation
 
+/// Will be delete after accounts
+/// [REDACTED_INFO]
 struct CommonExpressTokensListAdapter {
-    private let userWalletModel: UserWalletModel
-    private let adapter: TokenSectionsAdapter
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    init(userWalletModel: UserWalletModel) {
-        self.userWalletModel = userWalletModel
-        adapter = TokenSectionsAdapter(
-            userTokenListManager: userWalletModel.userTokenListManager,
-            optionsProviding: OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager),
-            preservesLastSortedOrderOnSwitchToDragAndDrop: false
-        )
+    private let userWalletId: UserWalletId
+
+    init(userWalletId: UserWalletId) {
+        self.userWalletId = userWalletId
     }
 }
 
+// MARK: - ExpressTokensListAdapter
+
 extension CommonExpressTokensListAdapter: ExpressTokensListAdapter {
     func walletModels() -> AnyPublisher<[any WalletModel], Never> {
-        let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
+        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
+            return .empty
+        }
 
-        return adapter
+        // accounts_fixes_needed_none
+        let tokenSectionsSourcePublisher = userWalletModel.walletModelsManager.walletModelsPublisher
+        // accounts_fixes_needed_none
+        let tokenSectionsAdapter = TokenSectionsAdapter(
+            userTokensManager: userWalletModel.userTokensManager,
+            optionsProviding: OrganizeTokensOptionsManager(
+                userTokensReorderer: userWalletModel.userTokensManager
+            ),
+            preservesLastSortedOrderOnSwitchToDragAndDrop: false
+        )
+
+        return tokenSectionsAdapter
             .organizedSections(from: tokenSectionsSourcePublisher, on: .global())
             .map { section -> [any WalletModel] in
-                section.flatMap { $0.items.compactMap { $0.walletModel } }
+                withExtendedLifetime(tokenSectionsAdapter) {}
+
+                return section.flatMap { $0.items.compactMap { $0.walletModel } }
             }
             .eraseToAnyPublisher()
     }
