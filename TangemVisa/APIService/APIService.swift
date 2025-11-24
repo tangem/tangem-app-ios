@@ -38,6 +38,10 @@ struct APIService<Target: TargetType> {
         }
 
         do {
+            if let response = try? decoder.decode(T.self, from: response.data) {
+                return response
+            }
+
             let apiResponse = try decoder.decode(VisaAPIResponse<T>.self, from: response.data)
             return apiResponse.result
         } catch {
