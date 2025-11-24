@@ -286,28 +286,22 @@ extension TronWalletManager: TronTransactionDataBuilder {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension TronWalletManager: StakingTransactionsBuilder, StakeKitTransactionSender, StakingTransactionDataProvider {
+extension TronWalletManager: StakingTransactionsBuilder, StakingTransactionSender, StakeKitTransactionDataProvider {
     typealias RawTransaction = Data
 
-    func prepareDataForSign(transaction: StakingTransaction) throws -> Data {
-        guard let unsignedData = transaction.unsignedData as? String else {
-            throw BlockchainSdkError.failedToBuildTx
-        }
-        return try TronStakeKitTransactionHelper().prepareForSign(unsignedData).hash
+    func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
+        try TronStakeKitTransactionHelper().prepareForSign(transaction.unsignedData).hash
     }
 
-    func prepareDataForSend(transaction: StakingTransaction, signature: SignatureInfo) throws -> RawTransaction {
-        guard let unsignedData = transaction.unsignedData as? String else {
-            throw BlockchainSdkError.failedToBuildTx
-        }
-        let rawData = try TronStakeKitTransactionHelper().prepareForSign(unsignedData).rawData
+    func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
+        let rawData = try TronStakeKitTransactionHelper().prepareForSign(transaction.unsignedData).rawData
         let unmarshalled = unmarshal(signature.signature, hash: signature.hash, publicKey: wallet.publicKey)
         return try txBuilder.buildForSend(rawData: rawData, signature: unmarshalled)
     }
 }
 
 extension TronWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakingTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.broadcastHex(rawTransaction).async().txid
     }
 }
