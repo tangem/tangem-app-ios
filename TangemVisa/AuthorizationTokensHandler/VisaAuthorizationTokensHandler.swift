@@ -15,10 +15,16 @@ import JWTDecode
 public enum VisaRefreshTokenId: RawRepresentable, Hashable {
     private enum Key: String {
         case cardId
+
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
         case customerWalletAddress
     }
 
     case cardId(String)
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
     case customerWalletAddress(String)
 
     public init?(rawValue: String) {
