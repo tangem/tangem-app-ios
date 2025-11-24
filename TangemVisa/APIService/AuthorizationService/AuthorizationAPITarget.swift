@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 import Moya
 
 struct AuthorizationAPITarget: TargetType {
@@ -58,7 +59,7 @@ struct AuthorizationAPITarget: TargetType {
     }
 
     var headers: [String: String]? {
-        VisaConstants.defaultHeaderParams
+        ["Content-Type": "application/json"]
     }
 }
 
@@ -100,5 +101,15 @@ extension AuthorizationAPITarget {
         case refreshAuthorizationTokens(request: RefreshAuthoriationTokensRequestDTO)
         /// Change activation process authorization tokens to activated authorization tokens
         case exchangeAuthorizationTokens(request: AuthorizationTokenDTO)
+    }
+}
+
+extension AuthorizationAPITarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        path
+    }
+
+    var shouldLogResponseBody: Bool {
+        return false
     }
 }
