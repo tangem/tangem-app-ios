@@ -323,4 +323,26 @@ final class SendAddressUITests: BaseTestCase {
             .selectTransactionCell(at: 0)
             .waitForDestinationValue(selectedAddress)
     }
+
+    func testAddressScreen_MyWalletsBlockNotDisplayedWhenBiometricsDisabled() {
+        setAllureId(4599)
+
+        let tokenName = "Ethereum"
+        let sendAmount = "1"
+
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true
+        )
+
+        StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .longPressToken(tokenName)
+            .waitForActionButtons()
+            .tapSend()
+            .waitForDisplay()
+            .enterAmount(sendAmount)
+            .tapNextButton()
+            .waitForMyWalletsBlockNotDisplayed()
+    }
 }
