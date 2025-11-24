@@ -118,7 +118,7 @@ struct ExpressApproveView_Preview: PreviewProvider {
         func toggleItem() {
             if item == nil {
                 item = ExpressModulesFactoryMock().makeExpressApproveViewModel(
-                    source: ExpressInteractorWalletWrapper(
+                    source: ExpressInteractorWalletModelWrapper(
                         userWalletInfo: UserWalletModelMock().userWalletInfo,
                         walletModel: CommonWalletModel.mockETH,
                     ),

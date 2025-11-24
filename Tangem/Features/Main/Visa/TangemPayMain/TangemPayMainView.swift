@@ -101,6 +101,12 @@ struct TangemPayMainView: View {
                         disabled: viewModel.freezingState.shouldDisableActionButtons,
                         action: viewModel.addFunds
                     ),
+                    FixedSizeButtonWithIconInfo(
+                        title: Localization.tangemPayWithdrawal,
+                        icon: Assets.arrowUpMini,
+                        disabled: viewModel.freezingState.shouldDisableActionButtons,
+                        action: viewModel.withdraw
+                    ),
                 ]
             )
             .padding(.horizontal, 14)
