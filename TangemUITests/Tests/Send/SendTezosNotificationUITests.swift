@@ -16,8 +16,6 @@ final class SendTezosNotificationUITests: BaseTestCase {
     func testNotificationDisplayed_WhenSendingMaximumAmount() throws {
         setAllureId(4229)
 
-        try skipDueToBug("[REDACTED_INFO]", description: "Tezos RPC calls fail with “unsupported URL”")
-
         prepareSendFlow()
 
         let sendScreen = SendScreen(app)
@@ -41,8 +39,6 @@ final class SendTezosNotificationUITests: BaseTestCase {
 
     func testNotificationNotDisplayed_WhenSendingNonMaximumAmount() throws {
         setAllureId(4230)
-
-        try skipDueToBug("[REDACTED_INFO]", description: "Tezos RPC calls fail with “unsupported URL”")
 
         prepareSendFlow()
 
