@@ -94,6 +94,7 @@
 "alert_negative_app_rate_sent_title" = "你的建議已送出";
 "alert_troubleshooting_scan_card_message" = "請嘗試完全按照動畫中顯示的方式點擊卡片或請求支持";
 "alert_troubleshooting_scan_card_title" = "有困難在掃描卡上嗎？";
+"app_settings_access_code_warning" = "Set an access code first to enable biometrics";
 "app_settings_biometrics_footer" = "Use %1$@ to unlock your wallet and approve sensitive actions, like signing transactions. For hardware wallets, a card or ring is still required to sign.";
 "app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
 "app_settings_default_fee" = "Default Fee";
@@ -158,7 +159,7 @@
 "card_reset_alert_finish_message" = "All Tangem devices have been reset. You can now continue upgrading your wallet.";
 "card_reset_alert_finish_ok_button" = "Upgrade again";
 "card_reset_alert_finish_title" = "Reset complete";
-"card_reset_alert_incomplete_message" = "You haven’t reset all your Tangem devices";
+"card_reset_alert_incomplete_message" = "We recommend completing the reset process for all Tangem devices in this wallet.";
 "card_reset_alert_incomplete_title" = "You haven’t reset all your Tangem devices";
 "card_settings_access_code_recovery_disabled_description" = "如果您不希望使用此卡重置此錢包中其他卡上的訪問密碼，請禁用此選項。請注意，這也會阻止您重置此卡上的訪問密碼。";
 "card_settings_access_code_recovery_enabled_description" = "允許您使用此卡重置此錢包中其他卡上的訪問密碼";
@@ -258,6 +259,7 @@
 "common_finish" = "Finish";
 "common_forget" = "Forget";
 "common_free" = "Free";
+"common_from_wallet_name" = "From %@";
 "common_from" = "From";
 "common_generate_addresses" = "Synchronize addresses";
 "common_get_started" = "Get started";
@@ -281,12 +283,13 @@
 "common_network_fee_title" = "網路費";
 "common_network_fee_warning_content" = "Amount sent will be reduced by %1$@ (%2$@) to cover the selected fee level";
 "common_new_address" = "New address";
+"common_news" = "News";
 "common_next" = "Next";
 "common_nft" = "NFT";
 "common_no_address" = "No address";
 "common_no" = "否";
 "common_not_added" = "Not Added";
-"common_not_now" = "Not Now";
+"common_not_now" = "Not now";
 "common_now" = "Now";
 "common_ok" = "OK";
 "common_open_in_browser" = "Open in Browser";
@@ -338,6 +341,7 @@
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "條款和條件";
 "common_terms_of_use" = "Terms of Use";
+"common_to_wallet_name" = "From %@";
 "common_to" = "To";
 "common_today" = "Today";
 "common_transaction_failed" = "Transaction failed";
@@ -498,6 +502,9 @@
 "express_token_list_empty_search" = "No tokens found. Please try another request";
 "express_transaction_id_copied" = "Transaction ID copied";
 "express_transaction_id" = "ID: %@";
+"feed_market_and_news" = "Market & News";
+"feed_tangem_ai" = "Tangem AI";
+"feed_trending_now" = "Trending Now";
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
 "feedback_preface_support" = "嗨! 幫助團隊，";
@@ -584,7 +591,7 @@
 "hw_remove_wallet_notification_title" = "Forget this wallet?";
 "hw_remove_wallet_warning_access" = "I understand that if I haven't backed up my wallet before removing it, I may lose access to it.";
 "hw_remove_wallet_warning_device" = "I understand that removing my wallet does not delete it—but simply removes it from my device.";
-"hw_upgrade_backup_description" = "No seed phrase is needed anymore — your Tangem card or ring becomes your secure backup.";
+"hw_upgrade_backup_description" = "No seed phrase is needed anymore. Your Tangem card or ring becomes your secure backup.";
 "hw_upgrade_backup_title" = "Backup with Tangem";
 "hw_upgrade_error_card_already_has_wallet" = "Can’t upgrade. A wallet already exists on this device.";
 "hw_upgrade_error_card_key_import" = "Pick another device. This one can’t be used for the upgrade.";
@@ -739,6 +746,8 @@
 "markets_token_details_volume" = "Volume";
 "markets_tooltip_message" = "Pull this up or tap the search bar to add tokens directly from the market";
 "markets_tooltip_title" = "Add tokens";
+"news_all_news" = "All news";
+"news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "About NFT";
 "nft_asset" = "NFT asset";
 "nft_collections_empty_description" = "NFTs sent to your wallet address will show up here.";
@@ -1008,7 +1017,7 @@
 "send_alert_fee_too_low_text" = "You specified a commission below the recommended amount, which could cause a delay in your transaction. Continue?";
 "send_alert_transaction_failed_text" = "Reason: %1$@\nCode: %2$@";
 "send_alert_transaction_failed_title" = "The transaction is not completed";
-"send_amount_convert_to_another_token" = "Convert to another token";
+"send_amount_convert_to_another_token" = "Swap to another token or network";
 "send_amount_receive_token_subtitle" = "Will be sent to recipient";
 "send_bitcoin_custom_fee_footer" = "You can set your transaction fee by adjusting the value in the Satoshi per vByte field.";
 "send_custom_amount_fee_footer" = "The fee that will be charged for your transaction. You can set your own value.";
@@ -1361,13 +1370,14 @@
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
 "tangempay_card_details_title" = "Card details";
 "tangempay_card_details_unfreeze_card" = "Unfreeze Card";
-"tangempay_issue_card_notification_title" = "Create account and issue a card";
+"tangempay_issue_card_notification_description" = "It usually takes up to 15 minutes";
+"tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
 "tangempay_kyc_in_progress_notification_title" = "KYC in progress for Tangem Pay";
 "tangempay_onboarding_get_card_button_text" = "Get card";
-"tangempay_onboarding_pay_description" = "Spend your crypto anywhere";
-"tangempay_onboarding_pay_title" = "With digital card that works with Apple Pay and Google Pay";
+"tangempay_onboarding_pay_description" = "With digital card that works with Apple Pay and Google Pay";
+"tangempay_onboarding_pay_title" = "Spend your assets anywhere";
 "tangempay_onboarding_purchases_description" = "There are no additional fees for purchases";
 "tangempay_onboarding_purchases_title" = "Pay exactly what you see";
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
@@ -1557,7 +1567,7 @@
 "wallet_create_scan_question" = "Using a Tangem Wallet already?";
 "wallet_create_scan_title" = "Scan now";
 "wallet_create_title" = "Pick a wallet setup method";
-"wallet_import_buy_question" = "Ready to get a Tangem Wallet?";
+"wallet_import_buy_question" = "Want to purchase Tangem Wallet?";
 "wallet_import_buy_title" = "Buy now";
 "wallet_import_icloud_description" = "Recover existing wallet via iCloud backup";
 "wallet_import_icloud_title" = "Import from iCloud";
@@ -1578,7 +1588,7 @@
 "wallet_promo_banner_button_title" = "Get now with 10%% off";
 "wallet_promo_banner_description" = "Access 13,000+ cryptocurrencies. Buy, sell, swap, and stake with a single tap.\nLink up to three cards for a backup.";
 "wallet_promo_banner_title" = "Discover Tangem Wallet";
-"wallet_settings_access_code_description" = "This secret code protects your wallet and is used to log in and sign transactions.";
+"wallet_settings_access_code_description" = "This access code protects your wallet and is used to log in and sign transactions.";
 "wallet_settings_access_code_title" = "Set/Change access code";
 "wallet_settings_change_access_code_title" = "Change access code";
 "wallet_settings_push_notifications_description" = "Stay notified on wallet incoming transactions and Tangem updates.";
@@ -1778,7 +1788,7 @@
 "wc_wallet_connect" = "WalletConnect";
 "wc_warning_transaction" = "Suspicious transaction";
 "wc_warning_tx_alert_default_description" = "This transaction appears unusual or risky. Please review it carefully before signing.";
-"welcome_create_wallet_already_have" = "Already have Tangem?";
+"welcome_create_wallet_already_have" = "Already have Tangem Wallet?";
 "welcome_create_wallet_feature_assets" = "Thousands of assets";
 "welcome_create_wallet_feature_class" = "Best in class hardware wallet";
 "welcome_create_wallet_feature_delivery" = "Fast delivery";
@@ -1786,7 +1796,7 @@
 "welcome_create_wallet_feature_seamless" = "Seamless and secure";
 "welcome_create_wallet_feature_use" = "Simple to use";
 "welcome_create_wallet_hardware_description" = "Create a hardware wallet with Tangem. Slim as a bank card, secure as a bank vault.";
-"welcome_create_wallet_mobile_description_full" = "Create or import a software wallet on your phone ";
+"welcome_create_wallet_mobile_description_full" = "Create or import a software wallet on your phone.";
 "welcome_create_wallet_mobile_description" = "Create or import a software wallet";
 "welcome_create_wallet_mobile_title" = "Start with Mobile Wallet";
 "welcome_create_wallet_other_method" = "Other method";
@@ -1808,7 +1818,7 @@
 "xtz_withdrawal_message_warning" = "為避免下次給錢包充值時支付增加的佣金，請將金額減少 %@ XTZ";
 "yield_module_alert_description" = "When Yield Mode is active, all future top-ups to this address will be supplied to Aave. You can still manage your funds freely.";
 "yield_module_alert_title" = "Your %@ is supplied to Aave";
-"yield_module_amount_not_transfered_to_aave_title" = "Supplying %1$@ %2$@ to Aave is pending";
+"yield_module_amount_not_transfered_to_aave_title" = "Supplying %1$@ %2$@ to Aave";
 "yield_module_approve_needed_notification_cta" = "Approve";
 "yield_module_approve_needed_notification_description" = "Your token's approval has been revoked. Grant it again to resume the service's functionality.";
 "yield_module_approve_needed_notification_title" = "Approve needed";
@@ -1884,9 +1894,9 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Yield Mode";
 "yield_module_token_details_earn_notification_processing" = "Enabling Yield Mode";
 "yield_module_token_details_earn_notification_title" = "Yield Mode";
-"yield_module_transaction_enter" = "Yield mode on";
-"yield_module_transaction_exit" = "Yield mode off";
-"yield_module_transaction_topup" = "Yield mode top-up";
+"yield_module_transaction_enter" = "Yield Mode on";
+"yield_module_transaction_exit" = "Yield Mode off";
+"yield_module_transaction_topup" = "Yield Mode top-up";
 "yield_module_transfer_mode_automatic" = "Automatic";
 "yield_module_unable_to_cover_fee_description" = "Add some %1$@ %2$@ to cover the network fee for transactions.";
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
