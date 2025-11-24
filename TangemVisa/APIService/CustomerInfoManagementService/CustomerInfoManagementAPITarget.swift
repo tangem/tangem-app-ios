@@ -127,10 +127,10 @@ extension CustomerInfoManagementAPITarget {
 
 extension CustomerInfoManagementAPITarget: TargetTypeLogConvertible {
     var requestDescription: String {
-        path
+        baseURL.appendingPathComponent(path).absoluteString
     }
 
     var shouldLogResponseBody: Bool {
-        return false
+        true
     }
 }
