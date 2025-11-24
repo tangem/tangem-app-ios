@@ -411,7 +411,7 @@ private extension TokenDetailsViewModel {
                 undepositedAmount: info.nonYieldModuleBalanceValue,
                 apy: marketInfo?.apy
             )
-            
+
             let navigationAction = { [weak self] in self?.coordinator?.openYieldModuleActiveInfo(factory: factory) }
             let vm = factory.makeYieldStatusViewModel(state: state, navigationAction: { navigationAction() })
 
@@ -504,25 +504,12 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 }
 
 extension TokenDetailsViewModel {
-    func makeYieldStatusViewModel(
-        yieldManager: YieldModuleManager,
-        state: YieldStatusViewModel.State,
-        navigationAction: @escaping () -> Void
-    ) -> YieldStatusViewModel {
-        YieldStatusViewModel(
-            state: state,
-            manager: yieldManager,
-            feeTokenItem: walletModel.feeTokenItem,
-            token: walletModel.tokenItem,
-            navigationAction: { navigationAction() }
-        )
-    }
     func makeYieldModuleFlowFactory(manager: YieldModuleManager) -> YieldModuleFlowFactory? {
         let factory = TransactionDispatcherFactory(walletModel: walletModel, signer: userWalletInfo.signer)
         guard let dispatcher = factory.makeYieldModuleDispatcher() else {
             return nil
         }
-        
+
         return CommonYieldModuleFlowFactory(
             walletModel: walletModel,
             yieldModuleManager: manager,
