@@ -16,10 +16,6 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
     let tokenSelectorViewModel: NewTokenSelectorViewModel
 
-    // MARK: - Private
-
-    private let walletsProvider: SwapNewTokenSelectorWalletsProvider
-
     // MARK: - Dependencies
 
     private let swapDirection: SwapDirection
@@ -39,7 +35,8 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         self.expressPairsRepository = expressPairsRepository
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
-        walletsProvider = SwapNewTokenSelectorWalletsProvider(
+
+        let walletsProvider = SwapNewTokenSelectorWalletsProvider(
             selectedItem: .just(output: swapDirection.tokenItem),
             availabilityProviderFactory: NewTokenSelectorItemSwapAvailabilityProviderFactory(
                 directionPublisher: .just(output: swapDirection)
@@ -75,7 +72,10 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
 extension SwapTokenSelectorViewModel: NewTokenSelectorViewModelOutput {
     func usedDidSelect(item: NewTokenSelectorItem) {
-        let expressInteractorWallet = ExpressInteractorWalletWrapper(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel)
+        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: item.userWalletInfo,
+            walletModel: item.walletModel
+        )
 
         switch swapDirection {
         case .fromSource:

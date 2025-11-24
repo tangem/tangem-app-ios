@@ -82,7 +82,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
         let polTokenScreen = StoriesScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(polTokenName)
-            .waitForInsufficientFeeCurrencyBanner()
+            .waitForNotEnoughFeeForTransactionBanner()
 
         polTokenScreen
             .tapGoToFeeCurrencyButton()
