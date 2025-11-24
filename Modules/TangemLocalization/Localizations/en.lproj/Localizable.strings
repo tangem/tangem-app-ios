@@ -94,6 +94,7 @@
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
 "alert_troubleshooting_scan_card_message" = "Please try to tap the card or ring exactly as shown in the animation or read our simple guide, or request support. If the problem persists, please request support.";
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card or ring?";
+"app_settings_access_code_warning" = "Set an access code first to enable biometrics";
 "app_settings_biometrics_footer" = "Use %1$@ to unlock your wallet and approve sensitive actions, like signing transactions. For hardware wallets, a card or ring is still required to sign.";
 "app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
 "app_settings_default_fee" = "Default Fee";
@@ -502,7 +503,7 @@
 "express_transaction_id_copied" = "Transaction ID copied";
 "express_transaction_id" = "ID: %@";
 "feed_market_and_news" = "Market & News";
-"feed_tangem_ai" = "Tangem AI";
+"feed_tangem_ai" = "Tangem AI";
 "feed_trending_now" = "Trending Now";
 "feedback_preface_rate_negative" = "Tell us what functions you are missing, and we will try to help you.";
 "feedback_preface_scan_failed" = "Please tell us what card or ring do you have";
@@ -1369,13 +1370,14 @@
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
 "tangempay_card_details_title" = "Card details";
 "tangempay_card_details_unfreeze_card" = "Unfreeze Card";
-"tangempay_issue_card_notification_title" = "Create account and issue a card";
+"tangempay_issue_card_notification_description" = "It usually takes up to 15 minutes";
+"tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
 "tangempay_kyc_in_progress_notification_title" = "KYC in progress for Tangem Pay";
 "tangempay_onboarding_get_card_button_text" = "Get card";
-"tangempay_onboarding_pay_description" = "Spend your crypto anywhere";
-"tangempay_onboarding_pay_title" = "With digital card that works with Apple Pay and Google Pay";
+"tangempay_onboarding_pay_description" = "With digital card that works with Apple Pay and Google Pay";
+"tangempay_onboarding_pay_title" = "Spend your assets anywhere";
 "tangempay_onboarding_purchases_description" = "There are no additional fees for purchases";
 "tangempay_onboarding_purchases_title" = "Pay exactly what you see";
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
