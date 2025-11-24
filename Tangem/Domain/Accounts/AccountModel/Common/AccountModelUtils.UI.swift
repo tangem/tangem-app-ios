@@ -11,6 +11,7 @@ import SwiftUI
 import TangemAssets
 import TangemAccounts
 
+// [REDACTED_TODO_COMMENT]
 extension AccountModelUtils {
     enum UI {
         static func iconColor(from color: AccountModel.Icon.Color) -> Color {
@@ -102,6 +103,16 @@ extension AccountModelUtils.UI {
 
     static func iconImage(from name: AccountModel.Icon.Name) -> Image {
         return iconAsset(from: name).image
+    }
+
+    static func iconViewData(
+        icon: AccountModel.Icon,
+        accountName: String
+    ) -> AccountIconView.ViewData {
+        AccountIconView.ViewData(
+            backgroundColor: iconColor(from: icon.color),
+            nameMode: nameMode(from: icon.name, accountName: accountName)
+        )
     }
 
     static func nameMode(from name: AccountModel.Icon.Name, accountName: String) -> AccountIconView.NameMode {

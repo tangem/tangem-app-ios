@@ -77,32 +77,28 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.marketsTokenDetailsCoordinator) {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.referralCoordinator) {
-                ReferralCoordinatorView(coordinator: $0)
-            }
             .navigation(item: $coordinator.nftCollectionsCoordinator) {
                 NFTCollectionsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.tangemPayMainViewModel) {
-                TangemPayMainView(viewModel: $0)
+            .navigation(item: $coordinator.tangemPayMainCoordinator) {
+                TangemPayMainCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.yieldModulePromoCoordinator) {
                 YieldModulePromoCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.yieldModuleActiveCoordinator) {
+                YieldModuleActiveCoordinatorView(coordinator: $0)
             }
     }
 
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
-            }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
             .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
-                    .expressNavigationView()
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
@@ -145,9 +141,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: YieldNoticeViewModel.self) {
                 YieldNoticeView(viewModel: $0)
-            }
-            .floatingSheetContent(for: YieldModuleInfoViewModel.self) {
-                YieldModuleInfoView(viewModel: $0)
             }
 
         NavHolder()

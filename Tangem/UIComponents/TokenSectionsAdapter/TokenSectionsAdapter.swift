@@ -14,7 +14,7 @@ import TangemUI
 /// Placed in a separate module because it is used by both 'Main' and 'Organize Tokens' modules
 final class TokenSectionsAdapter {
     typealias Section = SectionModel<SectionType, SectionItem>
-    typealias UserToken = StoredUserTokenList.Entry
+    typealias UserToken = TokenItem
     typealias GroupingOption = UserTokensReorderingOptions.Grouping
     typealias SortingOption = UserTokensReorderingOptions.Sorting
     typealias SectionItem = TokenItemType
@@ -24,7 +24,7 @@ final class TokenSectionsAdapter {
         case group(by: BlockchainNetwork)
     }
 
-    private let userTokenListManager: UserTokenListManager
+    private let userTokensManager: UserTokensManager
     private let optionsProviding: OrganizeTokensOptionsProviding
 
     private let preservesLastSortedOrderOnSwitchToDragAndDrop: Bool
@@ -32,11 +32,11 @@ final class TokenSectionsAdapter {
     private var cachedOrderedWalletModelIdsForGroupedSections: [WalletModelId.ID] = []
 
     init(
-        userTokenListManager: UserTokenListManager,
+        userTokensManager: UserTokensManager,
         optionsProviding: OrganizeTokensOptionsProviding,
         preservesLastSortedOrderOnSwitchToDragAndDrop: Bool
     ) {
-        self.userTokenListManager = userTokenListManager
+        self.userTokensManager = userTokensManager
         self.optionsProviding = optionsProviding
         self.preservesLastSortedOrderOnSwitchToDragAndDrop = preservesLastSortedOrderOnSwitchToDragAndDrop
     }
@@ -47,17 +47,17 @@ final class TokenSectionsAdapter {
     ) -> some Publisher<[Section], Never> {
         return walletModels
             .combineLatest(
-                userTokenListManager.userTokensListPublisher,
+                userTokensManager.userTokensPublisher,
                 optionsProviding.groupingOption,
                 optionsProviding.sortingOption,
             )
             .receive(on: workingQueue)
             .withWeakCaptureOf(self)
             .map { input in
-                let (adapter, (walletModels, userTokensList, groupingOption, sortingOption)) = input
+                let (adapter, (walletModels, userTokens, groupingOption, sortingOption)) = input
                 return adapter.makeSections(
                     walletModels: walletModels,
-                    userTokens: userTokensList.entries,
+                    userTokens: userTokens,
                     groupingOption: groupingOption,
                     sortingOption: sortingOption
                 )
@@ -132,7 +132,7 @@ final class TokenSectionsAdapter {
         let sectionItems: [SectionItem] = userTokens.compactMap { userToken in
             if blockchainNetworksFromWalletModels.contains(userToken.blockchainNetwork) {
                 // Most likely we have wallet model (and derivation too) for this entry
-                return walletModelsKeyedByIds[userToken.walletModelId].map { .default($0) }
+                return walletModelsKeyedByIds[WalletModelId(tokenItem: userToken)].map { .default($0) }
             } else {
                 // Section item for entry without derivation (yet)
                 return .withoutDerivation(userToken)
@@ -288,8 +288,8 @@ extension TokenSectionsAdapter.SectionItem {
         switch self {
         case .default(let walletModel):
             return walletModel.id.id
-        case .withoutDerivation(let userToken):
-            return userToken.walletModelId.id
+        case .withoutDerivation(let tokenItem):
+            return WalletModelId(tokenItem: tokenItem).id
         }
     }
 }
