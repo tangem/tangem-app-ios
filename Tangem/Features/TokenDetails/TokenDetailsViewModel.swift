@@ -288,7 +288,7 @@ private extension TokenDetailsViewModel {
     private func bind() {
         walletModel.yieldModuleManager?.statePublisher
             .compactMap { $0 }
-            .filter { $0.state != .loading }
+            .filter { !$0.state.isLoading }
             .receiveOnMain()
             .sink { [weak self] state in
                 self?.updateYieldAvailability(state: state)
@@ -406,13 +406,13 @@ private extension TokenDetailsViewModel {
 
         switch state {
         case .active(let info):
-            let navigationAction = { [weak self] in self?.coordinator?.openYieldModuleActiveInfo(factory: factory) }
             let state: YieldStatusViewModel.State = .active(
                 isApproveRequired: info.isAllowancePermissionRequired,
-                hasUndepositedAmounts: !info.nonYieldModuleBalanceValue.isZero,
+                undepositedAmount: info.nonYieldModuleBalanceValue,
                 apy: marketInfo?.apy
             )
 
+            let navigationAction = { [weak self] in self?.coordinator?.openYieldModuleActiveInfo(factory: factory) }
             let vm = factory.makeYieldStatusViewModel(state: state, navigationAction: { navigationAction() })
 
             if info.isAllowancePermissionRequired {

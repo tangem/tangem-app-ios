@@ -63,6 +63,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
     private(set) var activityState: ActivityState = .active
     private(set) var readMoreURL = URL(string: "https://tangem.com/en/blog/post/yield-mode")!
+    private var minimalTopupAmountInFiat: Decimal?
 
     // MARK: - Init
 
@@ -130,8 +131,10 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
     private func start() {
         Task { await getAvailableFunds() }
-        Task { await checkWarnings() }
-        Task { await getEarnInfoFees() }
+        Task {
+            await getEarnInfoFees()
+            await checkWarnings()
+        }
         Task { await getApy() }
         Task { await fetchChartData() }
     }
@@ -152,6 +155,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         minimalAmountState = minimalAmountState.withFeeState(.loading)
         estimatedFeeState = estimatedFeeState.withFeeState(.loading)
         maxFee = nil
+        minimalTopupAmountInFiat = nil
 
         guard let maxFeeNative = await yieldManagerInteractor.getMaxFeeNative() else {
             estimatedFeeState = estimatedFeeState.withFeeState(.noData)
@@ -167,7 +171,9 @@ final class YieldModuleActiveViewModel: ObservableObject {
             let minAmount = try await yieldManagerInteractor.getMinAmount(feeParameters: feeParameters)
             let minAmountFormatted = try await feeConverter.makeFormattedMinimalFee(from: minAmount)
 
-            let maxFeeInFiat = try await feeConverter.convertToFiat(maxFeeNative)
+            minimalTopupAmountInFiat = minAmount
+
+            let maxFeeInFiat = try await feeConverter.convertToFiat(maxFeeNative, currency: .fee)
             let maxFeeFormatted = try await feeConverter.makeFormattedMaximumFee(maxFeeNative: maxFeeNative)
 
             let isHighFee = estimatedFee > maxFeeInFiat
@@ -251,9 +257,49 @@ final class YieldModuleActiveViewModel: ObservableObject {
         }
 
         if let undepositedAmount {
-            let formatted = feeConverter.formatDecimal(undepositedAmount)
-            earnInfoNotifications.append(createHasUndepositedAmountsNotification(undepositedAmount: formatted))
-            logger.logEarningNoticeAmountNotDepositedShown()
+            guard let minimalTopupAmountInFiat,
+                  let undepositedAmountInFiat = try? await feeConverter.convertToFiat(undepositedAmount, currency: .token),
+                  undepositedAmountInFiat < minimalTopupAmountInFiat
+            else {
+                let formatted = feeConverter.formatDecimal(undepositedAmount)
+                earnInfoNotifications.append(createHasUndepositedAmountsNotification(undepositedAmount: formatted))
+                logger.logEarningNoticeAmountNotDepositedShown()
+                return
+            }
+        }
+    }
+
+    private func getFeeCurrencyWalletModel(in userWalletModel: any UserWalletModel) -> (any WalletModel)? {
+        guard let selectedUserModel = userWalletRepository.selectedModel,
+              let feeCurrencyWalletModel = selectedUserModel.walletModelsManager.walletModels.first(where: {
+                  $0.tokenItem == walletModel.feeTokenItem
+              })
+        else {
+            assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
+            return nil
+        }
+
+        return feeCurrencyWalletModel
+    }
+}
+
+// MARK: - View State
+
+extension YieldModuleActiveViewModel {
+    enum ViewState: Identifiable, Equatable {
+        case earnInfo
+        case stopEarning
+        case approve
+
+        var id: String {
+            switch self {
+            case .earnInfo:
+                "earnInfo"
+            case .stopEarning:
+                "stopEarning"
+            case .approve:
+                "approve"
+            }
         }
     }
 }
