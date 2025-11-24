@@ -15,7 +15,7 @@ struct TransactionHistoryAPITarget: TargetType {
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.baseURL.appendingPathComponent("customer/")
+        apiType.bffBaseURL.appendingPathComponent("customer/")
     }
 
     var path: String {
