@@ -11,7 +11,7 @@ import TangemLocalization
 import UIKit
 import TangemAssets
 
-extension YieldModuleInfoViewModel {
+extension YieldModuleActiveViewModel {
     struct YieldInfoFooterBuilder {
         // MARK: - Public Implementation
 
