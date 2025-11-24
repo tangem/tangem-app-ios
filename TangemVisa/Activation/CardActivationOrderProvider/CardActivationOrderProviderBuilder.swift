@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 struct CardActivationOrderProviderBuilder {
     private let isMockedAPIEnabled: Bool
@@ -33,7 +34,7 @@ struct CardActivationOrderProviderBuilder {
         let productActivationService = CommonProductActivationService(
             apiType: apiType,
             apiService: .init(
-                provider: TangemPayProviderBuilder().buildProvider(configuration: urlSessionConfiguration, authorizationTokensHandler: tokensHandler),
+                provider: TangemProvider(plugins: [], sessionConfiguration: urlSessionConfiguration),
                 decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
         )
