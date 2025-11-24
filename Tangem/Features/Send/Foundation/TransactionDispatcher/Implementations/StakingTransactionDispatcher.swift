@@ -54,7 +54,7 @@ extension StakingTransactionDispatcher: TransactionDispatcher {
                 return try await sendStakeKit(action: action)
 
             case .send(let transaction):
-                let index = action.transactions.firstIndex(where: { $0.id == transaction.id })
+                let index = action.transactions.firstIndex(where: { $0.metadata?.id == transaction.id })
                 let transactionDispatcherResult = try await sendStakeKit(action: action, offset: index)
                 stuck = .none
                 return transactionDispatcherResult
