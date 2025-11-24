@@ -15,4 +15,7 @@ public enum FeeAccessibilityIdentifiers {
     public static let marketFeeOption = "feeOptionMarket"
     public static let fastFeeOption = "feeOptionFast"
     public static let customFeeOption = "feeOptionCustom"
+
+    /// Fee selector actions
+    public static let feeSelectorDoneButton = "feeSelectorDoneButton"
 }

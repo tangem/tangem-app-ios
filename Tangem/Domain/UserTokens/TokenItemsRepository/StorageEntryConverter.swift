@@ -9,24 +9,9 @@
 import Foundation
 import struct BlockchainSdk.Token
 
+@available(iOS, deprecated: 100000.0, message: "Deprecated entry, isn't used in Accounts, will be removed in the future ([REDACTED_INFO])")
 struct StorageEntryConverter {
-    // MARK: - StoredUserTokenList.Entry to StorageEntry
-
-    func convertToStorageEntries(_ userTokens: [StoredUserTokenList.Entry]) -> [StorageEntry] {
-        let userTokensGroupedByBlockchainNetworks = userTokens
-            .grouped(by: \.blockchainNetwork)
-
-        let blockchainNetworks = userTokens
-            .filter { !$0.isToken }
-            .uniqueProperties(\.blockchainNetwork)
-
-        return blockchainNetworks.reduce(into: []) { partialResult, blockchainNetwork in
-            let userTokens = userTokensGroupedByBlockchainNetworks[blockchainNetwork] ?? []
-            let tokens = userTokens.compactMap(convertToToken(_:))
-            let storageEntry = StorageEntry(blockchainNetwork: blockchainNetwork, tokens: tokens)
-            partialResult.append(storageEntry)
-        }
-    }
+    // MARK: - StoredUserTokenList.Entry to Token
 
     func convertToToken(_ userToken: StoredUserTokenList.Entry) -> Token? {
         guard let contractAddress = userToken.contractAddress else { return nil }
@@ -40,45 +25,26 @@ struct StorageEntryConverter {
         )
     }
 
-    // MARK: - StorageEntry to StoredUserTokenList.Entry
+    // MARK: - TokenItem <-> StoredUserTokenList.Entry
 
-    func convertToStoredUserTokens(_ entries: [StorageEntry]) -> [StoredUserTokenList.Entry] {
-        return entries.reduce(into: []) { partialResult, entry in
-            let blockchainNetwork = entry.blockchainNetwork
-            let blockchain = blockchainNetwork.blockchain
-
-            partialResult.append(
-                StoredUserTokenList.Entry(
-                    id: blockchain.coinId,
-                    name: blockchain.displayName,
-                    symbol: blockchain.currencySymbol,
-                    decimalCount: blockchain.decimalCount,
-                    blockchainNetwork: blockchainNetwork,
-                    contractAddress: nil
-                )
-            )
-
-            partialResult += entry.tokens.map { convertToStoredUserToken($0, in: blockchainNetwork) }
-        }.unique()
+    func convertToStoredUserTokens(tokenItems: [TokenItem]) -> [StoredUserTokenList.Entry] {
+        return tokenItems
+            .map { convertToStoredUserToken(tokenItem: $0) }
+            .unique()
     }
 
-    func convertToStoredUserToken(
-        _ token: Token,
-        in blockchainNetwork: BlockchainNetwork
-    ) -> StoredUserTokenList.Entry {
+    func convertToStoredUserToken(tokenItem: TokenItem) -> StoredUserTokenList.Entry {
         return StoredUserTokenList.Entry(
-            id: token.id,
-            name: token.name,
-            symbol: token.symbol,
-            decimalCount: token.decimalCount,
-            blockchainNetwork: blockchainNetwork,
-            contractAddress: token.contractAddress
+            id: tokenItem.id,
+            name: tokenItem.token?.name ?? tokenItem.networkName,
+            symbol: tokenItem.currencySymbol,
+            decimalCount: tokenItem.decimalCount,
+            blockchainNetwork: tokenItem.blockchainNetwork,
+            contractAddress: tokenItem.token?.contractAddress
         )
     }
 
-    // MARK: - StorageEntry to TokenItem
-
-    func convertToTokenItem(_ entries: [StoredUserTokenList.Entry]) -> [TokenItem] {
+    func convertToTokenItems(_ entries: [StoredUserTokenList.Entry]) -> [TokenItem] {
         entries.map {
             guard let contractAddress = $0.contractAddress else {
                 return .blockchain($0.blockchainNetwork)
@@ -92,17 +58,6 @@ struct StorageEntryConverter {
                 id: $0.id
             )
             return .token(token, $0.blockchainNetwork)
-        }
-    }
-
-    func convertToTokenItems(_ entries: [StorageEntry]) -> [TokenItem] {
-        entries.flatMap { entry in
-            let blockchainToken = TokenItem.blockchain(entry.blockchainNetwork)
-            let tokens = entry.tokens.map {
-                TokenItem.token($0, entry.blockchainNetwork)
-            }
-
-            return [blockchainToken] + tokens
         }
     }
 }

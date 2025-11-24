@@ -163,7 +163,9 @@ final class VeChainNetworkService: MultiNetworkProvider {
         return providerPublisher { provider in
             return provider
                 .sendTransaction(rawTransaction)
-                .map { TransactionSendResult(hash: $0.id) }
+                .map { result in
+                    TransactionSendResult(hash: result.id, currentProviderHost: provider.host)
+                }
                 .eraseToAnyPublisher()
         }
     }
