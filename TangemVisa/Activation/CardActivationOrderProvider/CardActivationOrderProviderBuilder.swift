@@ -33,7 +33,10 @@ struct CardActivationOrderProviderBuilder {
         let productActivationService = CommonProductActivationService(
             apiType: apiType,
             apiService: .init(
-                provider: TangemPayProviderBuilder().buildProvider(configuration: urlSessionConfiguration, authorizationTokensHandler: tokensHandler),
+                provider: TangemPayProviderBuilder().buildProvider(
+                    configuration: urlSessionConfiguration,
+                    authorizationTokensHandler: tokensHandler
+                ),
                 decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
         )
