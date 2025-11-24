@@ -491,8 +491,7 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 extension MainViewModel {
     func updateMarkets(force: Bool = false) {
         if force || yieldModuleNetworkManager.markets.isEmpty {
-            // accounts_fixes_needed_yield
-            let walletModels = userWalletRepository.models.flatMap { $0.walletModelsManager.walletModels }
+            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletRepository.models)
             let chainIDs = Set(
                 walletModels.compactMap { walletModel -> String? in
                     guard walletModel.tokenItem.isToken, walletModel.yieldModuleManager != nil else { return nil }
