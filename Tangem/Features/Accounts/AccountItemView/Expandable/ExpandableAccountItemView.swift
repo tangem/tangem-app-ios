@@ -9,54 +9,39 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccounts
 
-struct ExpandableAccountItemView: View {
+struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
     @ObservedObject var viewModel: ExpandableAccountItemViewModel
+
+    let expandedView: () -> ExpandedView
 
     var body: some View {
         ExpandableItemView(
             collapsedView: {
-                AccountItemView(viewModel: viewModel.accountItemViewModel)
+                CollapsedAccountItemHeaderView(
+                    name: viewModel.name,
+                    iconData: viewModel.iconData,
+                    tokensCount: viewModel.tokensCount,
+                    totalFiatBalance: viewModel.totalFiatBalance,
+                    priceChange: viewModel.priceChange
+                )
             },
             expandedView: {
-                LazyVStack(alignment: .leading, spacing: 12) {
-                    ForEach(viewModel.groupedTokens, id: \.0) { section in
-                        makeNetworkSection(name: section.name, tokens: section.tokens)
-                    }
+                if viewModel.isEmptyContent {
+                    EmptyContentAccountItemView()
+                } else {
+                    expandedView()
                 }
             },
             expandedViewHeader: {
-                HStack(spacing: 6) {
-                    accountImageData.image
-                        .resizable()
-                        .frame(size: .init(bothDimensions: 14))
-                        .roundedBackground(with: accountImageData.backgroundColor, padding: 3, radius: 4)
-
-                    Text(viewModel.accountItemViewModel.name)
-                        .style(Fonts.BoldStatic.caption1, color: Colors.Text.primary1)
-
-                    Spacer()
-
-                    Assets.Accounts.minimize.image
-                }
+                ExpandedAccountItemHeaderView(
+                    name: viewModel.name,
+                    iconData: viewModel.iconData,
+                )
             }
         )
-    }
-
-    private func makeNetworkSection(name: String, tokens: [TokenItemViewModel]) -> some View {
-        LazyVStack(alignment: .leading, spacing: .zero) {
-            Text(name)
-                .style(Fonts.BoldStatic.footnote, color: Colors.Text.tertiary)
-                .padding(.bottom, 8)
-
-            ForEach(tokens) { token in
-                TokenItemView(viewModel: token, cornerRadius: 0)
-            }
-        }
-    }
-
-    private var accountImageData: (backgroundColor: Color, image: Image) {
-        viewModel.accountItemViewModel.imageData
+        .onAppear(perform: viewModel.onViewAppear)
     }
 }
 
@@ -68,17 +53,26 @@ struct ExpandableAccountItemView: View {
         return FakeTokenItemInfoProvider(walletManagers: walletManagers)
     }()
 
-    return ZStack {
+    ZStack {
         Color.gray
+
         VStack {
             ScrollView {
                 ExpandableAccountItemView(
                     viewModel: ExpandableAccountItemViewModel(
-                        accountItemViewModel: AccountItemViewModel(),
-                        tokens: infoProvider.viewModels
-                    )
+                        accountModel: CryptoAccountModelMock(
+                            isMainAccount: false
+                        )
+                    ),
+                    expandedView: {
+                        ForEach(infoProvider.viewModels, id: \.tokenItem.id) { tokenViewModel in
+                            Text(tokenViewModel.name)
+                                .padding(.bottom, 8)
+                        }
+                    }
                 )
                 .padding(16)
+
                 Spacer()
             }
         }

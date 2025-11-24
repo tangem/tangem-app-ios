@@ -113,7 +113,12 @@ struct YieldModulePromoView: View {
     }
 
     private var tosAndPrivacy: some View {
-        Text(viewModel.makeTosAndPrivacyString()).multilineTextAlignment(.center)
+        Text(viewModel.makeTosAndPrivacyString())
+            .multilineTextAlignment(.center)
+            .environment(\.openURL, OpenURLAction { url in
+                viewModel.openUrl(url)
+                return .handled
+            })
     }
 
     private var continueButton: some View {

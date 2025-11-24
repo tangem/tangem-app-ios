@@ -11,10 +11,29 @@ import TangemAssets
 import enum TangemLocalization.Localization
 
 struct WalletConnectViewState: Equatable {
+    let contentMode: ContentMode
     let navigationBar = NavigationBar()
     var contentState: ContentState
     var dialog: ModalDialog?
     var newConnectionButton: NewConnectionButton
+
+    var usesAccountBasedLayout: Bool {
+        contentMode == .repository
+    }
+
+    var shouldDisplayWalletNames: Bool {
+        switch contentMode {
+        case .repository:
+            switch contentState {
+            case .content(let items):
+                return items.count > 1
+            case .empty, .loading:
+                return false
+            }
+        case .legacy:
+            return true
+        }
+    }
 
     static let loading = WalletConnectViewState(
         contentState: .loading,
@@ -27,6 +46,13 @@ struct WalletConnectViewState: Equatable {
         dialog: nil,
         newConnectionButton: NewConnectionButton(isLoading: false)
     )
+
+    init(contentState: ContentState, dialog: ModalDialog? = nil, newConnectionButton: NewConnectionButton) {
+        contentMode = FeatureProvider.isAvailable(.accounts) ? .repository : .legacy
+        self.contentState = contentState
+        self.dialog = dialog
+        self.newConnectionButton = newConnectionButton
+    }
 }
 
 extension WalletConnectViewState {
@@ -122,9 +148,23 @@ extension WalletConnectViewState.ContentState {
     struct WalletWithConnectedDApps: Identifiable, Equatable {
         let walletId: String
         let walletName: String
-        let dApps: [ConnectedDApp]
+        let accountSections: [AccountSection]
+        let walletLevelDApps: [ConnectedDApp]
 
         var id: String { walletId }
+
+        var hasAccountSections: Bool { !accountSections.isEmpty }
+        var hasWalletLevelDApps: Bool { !walletLevelDApps.isEmpty }
+    }
+
+    struct AccountSection: Identifiable, Equatable {
+        let id: String
+        let accountData: any CryptoAccountModel
+        let dApps: [ConnectedDApp]
+
+        static func == (lhs: WalletConnectViewState.ContentState.AccountSection, rhs: WalletConnectViewState.ContentState.AccountSection) -> Bool {
+            lhs.id == rhs.id && lhs.dApps == rhs.dApps
+        }
     }
 
     struct ConnectedDApp: Identifiable, Equatable {
@@ -214,5 +254,12 @@ extension WalletConnectViewState.ModalDialog {
     enum DialogButtonRole: Hashable {
         case cancel
         case destructive
+    }
+}
+
+extension WalletConnectViewState {
+    enum ContentMode {
+        case legacy
+        case repository
     }
 }
