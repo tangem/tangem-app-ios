@@ -232,5 +232,6 @@ extension TokenItemViewModel {
         let type: RewardType
         let rewardValue: String
         let isActive: Bool
+        let isUpdating: Bool
     }
 }

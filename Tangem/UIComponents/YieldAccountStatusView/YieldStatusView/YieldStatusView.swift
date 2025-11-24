@@ -37,7 +37,7 @@ struct YieldStatusView: View {
         HStack(spacing: .zero) {
             aaveLogo
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 title
                 descriptionText
             }
@@ -47,7 +47,7 @@ struct YieldStatusView: View {
 
             trailingView
         }
-        .defaultRoundedBackground()
+        .defaultRoundedBackground(verticalPadding: 14)
     }
 
     private var aaveLogo: some View {
@@ -61,6 +61,7 @@ struct YieldStatusView: View {
     @ViewBuilder
     private var title: some View {
         Text(viewModel.title)
+            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
     }
 
     @ViewBuilder
@@ -93,11 +94,13 @@ struct YieldStatusView: View {
     }
 
     private var yellowWarningSign: some View {
-        Assets.attention20.image
+        Assets.attention.image
     }
 
     private var blueWarningSign: some View {
         Assets.blueCircleWarning.image
+            .resizable()
+            .frame(size: .init(bothDimensions: 24))
     }
 
     private var chevron: some View {
@@ -108,16 +111,23 @@ struct YieldStatusView: View {
     }
 
     @ViewBuilder
+    private var trailingWarningSignView: some View {
+        switch viewModel.warning {
+        case .none:
+            EmptyView()
+        case .approveNeeded:
+            yellowWarningSign
+        case .hasUndepositedAmounts:
+            blueWarningSign
+        }
+    }
+
+    @ViewBuilder
     private var trailingView: some View {
         switch viewModel.state {
-        case .active(let isApproveNeeded, let hasUndepositedAmounts, _):
+        case .active:
             HStack(spacing: 2) {
-                if isApproveNeeded {
-                    yellowWarningSign
-                } else if hasUndepositedAmounts {
-                    blueWarningSign
-                }
-
+                trailingWarningSignView
                 chevron
             }
         case .loading, .closing:

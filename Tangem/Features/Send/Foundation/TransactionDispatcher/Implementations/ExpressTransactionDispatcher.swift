@@ -41,6 +41,10 @@ extension ExpressTransactionDispatcher: TransactionDispatcher {
         case .compiled(let unsignedData):
             let transactionSendResult = try await send(unsignedData: unsignedData)
 
+            if walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true {
+                walletModel.yieldModuleManager?.sendTransactionSendEvent(transactionHash: transactionSendResult.hash)
+            }
+
             return mapper.mapResult(
                 transactionSendResult,
                 blockchain: walletModel.tokenItem.blockchain,
