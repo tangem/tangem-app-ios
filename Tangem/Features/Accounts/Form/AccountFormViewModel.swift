@@ -28,7 +28,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     // MARK: - Static state
 
-    let maxNameLength = 20
+    var maxNameLength: Int { AccountModelUtils.maxAccountNameLength }
+
     let colors: [GridItemColor] = AccountModel.Icon.Color
         .allCases
         .map { iconColor in
@@ -37,8 +38,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             return GridItemColor(id: iconColor, color: color)
         }
 
-    let images: [GridItemImage] = AccountModel.Icon.Name
-        .allCases
+    let images: [GridItemImage] = AccountModel.Icon.Name.allCases
+        .sorted()
         .map { iconName in
             let image = AccountModelUtils.UI.iconAsset(from: iconName)
             let kind: GridItemImageKind = iconName == .letter ? .letter(visualImageRepresentation: image) : .image(image)
@@ -116,8 +117,10 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     // MARK: - ViewData
 
     var iconViewData: AccountIconView.ViewData {
+        // Can't use `AccountModelUtils.UI.iconColor` here because of slightly different logic of `nameMode` creation
+        // see nameMode
         AccountIconView.ViewData(
-            backgroundColor: selectedColor.color,
+            backgroundColor: AccountModelUtils.UI.iconColor(from: selectedColor.id),
             nameMode: nameMode
         )
     }
@@ -194,7 +197,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         close()
     }
 
-    // MARK: - Private methods
+    // MARK: - Private
 
     private func close() {
         closeAction()
