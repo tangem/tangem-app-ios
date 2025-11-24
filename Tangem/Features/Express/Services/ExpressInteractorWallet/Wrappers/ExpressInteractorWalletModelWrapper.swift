@@ -1,5 +1,5 @@
 //
-//  ExpressInteractorWalletWrapper.swift
+//  ExpressInteractorWalletModelWrapper.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import TangemExpress
 import BlockchainSdk
 
-struct ExpressInteractorWalletWrapper {
+struct ExpressInteractorWalletModelWrapper {
     let id: WalletModelId
     let isCustom: Bool
     let isMainToken: Bool
@@ -83,7 +83,7 @@ struct ExpressInteractorWalletWrapper {
 
 // MARK: - ExpressInteractorSourceWallet
 
-extension ExpressInteractorWalletWrapper: ExpressInteractorSourceWallet {
+extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
     var supportedProviders: [ExpressProviderType] {
         switch walletModel.yieldModuleManager?.state?.state {
         case .active: .yieldActive
@@ -120,8 +120,7 @@ extension ExpressInteractorWalletWrapper: ExpressInteractorSourceWallet {
 
 // MARK: - ExpressSourceWallet
 
-extension ExpressInteractorWalletWrapper {
+extension ExpressInteractorWalletModelWrapper {
     var feeProvider: any ExpressFeeProvider { _feeProvider }
-    var allowanceProvider: (any ExpressAllowanceProvider)? { allowanceService }
     var balanceProvider: any ExpressBalanceProvider { _balanceProvider }
 }
