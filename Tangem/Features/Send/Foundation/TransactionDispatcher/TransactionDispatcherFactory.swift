@@ -56,7 +56,7 @@ struct TransactionDispatcherFactory {
                 apiProvider: StakingDependenciesFactory().makeP2PAPIProvider()
             )
         default:
-            return StakingTransactionDispatcher(
+            return StakeKitTransactionDispatcher(
                 walletModel: walletModel,
                 transactionSigner: signer,
                 pendingHashesSender: StakingDependenciesFactory().makePendingHashesSender(),
