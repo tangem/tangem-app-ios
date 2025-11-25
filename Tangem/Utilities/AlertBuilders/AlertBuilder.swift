@@ -35,6 +35,19 @@ enum AlertBuilder {
         return alert
     }
 
+    static func makeAlertWithDefaultPrimaryButton(
+        title: String,
+        message: String,
+        buttonText: String,
+        buttonAction: @escaping (() -> Void) = {}
+    ) -> AlertBinder {
+        .init(alert: Alert(
+            title: Text(title),
+            message: Text(message),
+            dismissButton: .default(Text(buttonText), action: buttonAction)
+        ))
+    }
+
     static func makeOkGotItAlert(message: String, okAction: @escaping (() -> Void) = {}) -> AlertBinder {
         .init(alert: Alert(
             title: Text(warningTitle),
