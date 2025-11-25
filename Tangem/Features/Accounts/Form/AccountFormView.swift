@@ -11,9 +11,14 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemAccounts
+import TangemLocalization
 
 struct AccountFormView: View {
+    // MARK: ViewModel
+
     @ObservedObject var viewModel: AccountFormViewModel
+
+    // MARK: State
 
     @State private var contentHeight: CGFloat = 0
     @State private var containerHeight: CGFloat = 0
@@ -22,6 +27,9 @@ struct AccountFormView: View {
     @State private var buttonMinY: CGFloat = 0
 
     @State private var shouldShowShadow = false
+    @FocusState private var isNameFocused: Bool
+
+    // MARK: Constants
 
     private let coordinateSpaceName = UUID()
 
@@ -40,6 +48,19 @@ struct AccountFormView: View {
         }
         .ignoresSafeArea(.keyboard)
         .alert(item: $viewModel.alert, content: { $0.alert })
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(Localization.commonDone) { isNameFocused = false }
+            }
+        }
+        .submitLabel(.done)
+        .onSubmit {
+            isNameFocused = false
+        }
+        .onAppear {
+            isNameFocused = true
+        }
     }
 
     private var scrollableContent: some View {
@@ -72,6 +93,7 @@ struct AccountFormView: View {
     private var overlayButtonView: some View {
         MainButton(
             title: viewModel.buttonTitle,
+            isLoading: viewModel.isLoading,
             isDisabled: viewModel.mainButtonDisabled,
             action: viewModel.onMainButtonTap
         )
@@ -92,7 +114,8 @@ struct AccountFormView: View {
                 accountName: $viewModel.accountName,
                 maxCharacters: viewModel.maxNameLength,
                 placeholderText: viewModel.placeholder,
-                accountIconViewData: viewModel.iconViewData
+                accountIconViewData: viewModel.iconViewData,
+                isFocused: $isNameFocused
             )
 
             AccountFormGridView(
