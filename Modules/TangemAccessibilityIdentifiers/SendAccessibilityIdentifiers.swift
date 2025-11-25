@@ -18,6 +18,7 @@ public enum SendAccessibilityIdentifiers {
     public static let sendViewNextButton = "sendViewNextButton"
     public static let balanceLabel = "sendBalanceLabel"
     public static let maxAmountButton = "sendMaxAmountButton"
+    public static let scanQRButton = "sendScanQRButton"
 
     /// SendAmountCompactView
     public static let sendAmountViewValue = "stakingAmountValue"
@@ -42,6 +43,8 @@ public enum SendAccessibilityIdentifiers {
     public static let addressTextView = "sendAddressTextView"
     public static let addressClearButton = "sendAddressClearButton"
     public static let addressFieldTitle = "sendAddressFieldTitle"
+    public static let addressPasteButton = "sendAddressPasteButton"
+    public static let addressNetworkWarning = "sendAddressNetworkWarning"
 
     /// AdditionalField (Memo/DestinationTag)
     public static let additionalFieldTextField = "sendAdditionalFieldTextField"
