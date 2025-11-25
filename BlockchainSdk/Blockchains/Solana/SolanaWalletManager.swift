@@ -302,7 +302,7 @@ extension SolanaWalletManager: StakeKitTransactionsBuilder, StakingTransactionSe
 }
 
 extension SolanaWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.sendRaw(
             base64serializedTransaction: rawTransaction.serializedData,
             startSendingTimestamp: rawTransaction.blockhashDate
