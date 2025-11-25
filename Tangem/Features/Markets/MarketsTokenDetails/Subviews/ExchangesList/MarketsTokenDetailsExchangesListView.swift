@@ -146,6 +146,7 @@ struct MarketsTokenDetailsExchangesListView: View {
             .readContentOffset(inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName)) { contentOffset in
                 isListContentObscured = contentOffset.y > scrollViewContentTopInset
             }
+            .id(viewModel.exchangesList.value)
         }
         .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
     }

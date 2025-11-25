@@ -25,7 +25,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
         Localization.hwMobileWallet
     }
 
-    var defaultName: String { Localization.hwMobileWallet }
+    var defaultName: String { "Wallet" }
 
     var existingCurves: [EllipticCurve] {
         [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
@@ -55,30 +55,30 @@ extension MobileUserWalletConfig: UserWalletConfig {
         return blockchains
     }
 
-    var defaultBlockchains: [StorageEntry] {
+    var defaultBlockchains: [TokenItem] {
         let isTestnet = AppEnvironment.current.isTestnet
         let blockchains: [Blockchain] = [
             .bitcoin(testnet: isTestnet),
             .ethereum(testnet: isTestnet),
         ]
 
-        let entries: [StorageEntry] = blockchains.map {
+        let entries: [TokenItem] = blockchains.map {
             if let derivationStyle = derivationStyle {
                 let derivationPath = $0.derivationPath(for: derivationStyle)
                 let network = BlockchainNetwork($0, derivationPath: derivationPath)
-                return .init(blockchainNetwork: network, tokens: [])
+                return TokenItem.blockchain(network)
             }
 
             let network = BlockchainNetwork($0, derivationPath: nil)
-            return .init(blockchainNetwork: network, tokens: [])
+            return TokenItem.blockchain(network)
         }
 
         return entries
     }
 
-    var persistentBlockchains: [StorageEntry]? { nil }
+    var persistentBlockchains: [TokenItem] { [] }
 
-    var embeddedBlockchain: StorageEntry? { nil }
+    var embeddedBlockchain: TokenItem? { nil }
 
     var emailData: [EmailCollectedData] {
         EmailDataFactory().makeEmailData(for: mobileWalletInfo)
@@ -86,6 +86,10 @@ extension MobileUserWalletConfig: UserWalletConfig {
 
     var userWalletIdSeed: Data? {
         mobileWalletInfo.keys.first?.publicKey
+    }
+
+    var userWalletAccessCodeStatus: UserWalletAccessCodeStatus {
+        mobileWalletInfo.accessCodeStatus
     }
 
     var productType: Analytics.ProductType {
@@ -103,27 +107,21 @@ extension MobileUserWalletConfig: UserWalletConfig {
         case .accessCode: return .hidden
         case .passcode: return .hidden
         case .longTap: return .hidden
-        case .send: return .available
+        case .signing: return .available
         case .longHashes: return .available
-        case .signedHashesCounter: return .hidden
         case .backup: return .hidden
         case .twinning: return .hidden
         case .exchange: return .available
         case .walletConnect: return .available
         case .multiCurrency: return .available
         case .resetToFactory: return .hidden
-        case .receive: return .available
-        case .withdrawal: return .available
         case .hdWallets: return .available
         case .staking: return .available
-        case .topup: return .available
-        case .tokenSynchronization: return .available
-        case .referralProgram: return .hidden
+        case .referralProgram: return .available
         case .swapping: return .available
         case .displayHashesCount: return .available
         case .transactionHistory: return .hidden
         case .accessCodeRecoverySettings: return .hidden
-        case .promotion: return .available
         case .nft: return .available
         case .iCloudBackup:
             if mobileWalletInfo.hasICloudBackup {
@@ -138,10 +136,6 @@ extension MobileUserWalletConfig: UserWalletConfig {
 
             return .available
         case .userWalletAccessCode:
-            if mobileWalletInfo.isAccessCodeSet {
-                return .disabled()
-            }
-
             return .available
         case .userWalletBackup:
             return .available
@@ -151,7 +145,9 @@ extension MobileUserWalletConfig: UserWalletConfig {
             return .available
         case .cardSettings:
             return .hidden
-        case .isHardwareLimited:
+        case .nfcInteraction:
+            return .hidden
+        case .transactionPayloadLimit:
             return .hidden
         }
     }
