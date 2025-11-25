@@ -26,9 +26,9 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
 
     private let swapDirection: SwapDirection
     private let expressTokensListAdapter: ExpressTokensListAdapter
-    private let expressRepository: ExpressRepository
+    private let expressPairsRepository: ExpressPairsRepository
     private let expressInteractor: ExpressInteractor
-    private let userWalletModelConfig: UserWalletConfig
+    private let userWalletInfo: UserWalletInfo
     private weak var coordinator: ExpressTokensListRoutable?
 
     // MARK: - Internal
@@ -44,17 +44,17 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     init(
         swapDirection: SwapDirection,
         expressTokensListAdapter: ExpressTokensListAdapter,
-        expressRepository: ExpressRepository,
+        expressPairsRepository: ExpressPairsRepository,
         expressInteractor: ExpressInteractor,
         coordinator: ExpressTokensListRoutable,
-        userWalletModelConfig: UserWalletConfig
+        userWalletInfo: UserWalletInfo
     ) {
         self.swapDirection = swapDirection
         self.expressTokensListAdapter = expressTokensListAdapter
-        self.expressRepository = expressRepository
+        self.expressPairsRepository = expressPairsRepository
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
-        self.userWalletModelConfig = userWalletModelConfig
+        self.userWalletInfo = userWalletInfo
 
         bind()
     }
@@ -124,11 +124,11 @@ private extension ExpressTokensListViewModel {
 
     func loadAvailablePairs() async -> [ExpressCurrency] {
         switch swapDirection {
-        case .fromSource(let wallet):
-            let pairs = await expressRepository.getPairs(from: wallet.tokenItem.expressCurrency)
+        case .fromSource(let tokenItem):
+            let pairs = await expressPairsRepository.getPairs(from: tokenItem.expressCurrency)
             return pairs.map { $0.destination }
-        case .toDestination(let wallet):
-            let pairs = await expressRepository.getPairs(to: wallet.tokenItem.expressCurrency)
+        case .toDestination(let tokenItem):
+            let pairs = await expressPairsRepository.getPairs(to: tokenItem.expressCurrency)
             return pairs.map { $0.source }
         }
     }
@@ -142,8 +142,11 @@ private extension ExpressTokensListViewModel {
 
         walletModels
             .forEach { walletModel in
-                guard walletModel.id != swapDirection.wallet.id else { return }
-                let availabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModelConfig, walletModel: walletModel)
+                guard walletModel.id != .init(tokenItem: swapDirection.tokenItem) else { return }
+                let availabilityProvider = TokenActionAvailabilityProvider(
+                    userWalletConfig: userWalletInfo.config,
+                    walletModel: walletModel
+                )
                 let isAvailable = availableCurrenciesSet.contains(walletModel.tokenItem.expressCurrency.asCurrency)
                 let isSwapAvailable = availabilityProvider.isSwapAvailable
 
@@ -208,11 +211,13 @@ private extension ExpressTokensListViewModel {
     }
 
     func userDidTap(on walletModel: any WalletModel) {
+        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel)
+
         switch swapDirection {
         case .fromSource:
-            expressInteractor.update(destination: walletModel.asExpressInteractorWallet)
+            expressInteractor.update(destination: expressInteractorWallet)
         case .toDestination:
-            expressInteractor.update(sender: walletModel.asExpressInteractorWallet)
+            expressInteractor.update(sender: expressInteractorWallet)
         }
 
         selectedWallet = walletModel
@@ -229,8 +234,8 @@ extension ExpressTokensListViewModel {
     }
 
     enum SwapDirection {
-        case fromSource(any WalletModel)
-        case toDestination(any WalletModel)
+        case fromSource(TokenItem)
+        case toDestination(TokenItem)
 
         var name: String {
             switch self {
@@ -241,12 +246,12 @@ extension ExpressTokensListViewModel {
             }
         }
 
-        var wallet: any WalletModel {
+        var tokenItem: TokenItem {
             switch self {
-            case .fromSource(let walletModel):
-                return walletModel
-            case .toDestination(let walletModel):
-                return walletModel
+            case .fromSource(let tokenItem):
+                return tokenItem
+            case .toDestination(let tokenItem):
+                return tokenItem
             }
         }
     }

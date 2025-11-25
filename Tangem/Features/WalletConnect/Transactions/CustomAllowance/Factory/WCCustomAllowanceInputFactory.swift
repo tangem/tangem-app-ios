@@ -64,10 +64,21 @@ final class CommonWCCustomAllowanceInputFactory: WCCustomAllowanceInputFactory {
             )
         }
 
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(self, error: error)
+            return nil
+        }
+
         return WCApprovalHelpers.determineTokenInfo(
             contractAddress: transaction.to,
             amount: approvalInfo.amount,
-            userWalletModel: transactionData.userWalletModel,
+            walletModels: walletModels,
             simulationResult: simulationResult
         )
     }
