@@ -73,7 +73,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
         true
     }
 
-    var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+    var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> {
         hasArchivedCryptoAccountsSubject
             .eraseToAnyPublisher()
     }
