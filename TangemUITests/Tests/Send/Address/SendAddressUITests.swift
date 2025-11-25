@@ -324,15 +324,25 @@ final class SendAddressUITests: BaseTestCase {
             .waitForDestinationValue(selectedAddress)
     }
 
-    func testAddressScreen_MyWalletsBlockNotDisplayedWhenBiometricsDisabled() {
-        setAllureId(4599)
+    func testAddressScreen_AddressUIElementsDisplayed() {
+        setAllureId(4567)
 
-        let tokenName = "Ethereum"
+        let tokenName = "Dogecoin"
         let sendAmount = "1"
+
+        let dogecoinScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: tokenName
+        )
+
+        let dogecoinQuotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: tokenName
+        )
 
         launchApp(
             tangemApiType: .mock,
-            clearStorage: true
+            scenarios: [dogecoinScenario, dogecoinQuotesScenario]
         )
 
         StoriesScreen(app)
@@ -343,6 +353,6 @@ final class SendAddressUITests: BaseTestCase {
             .waitForDisplay()
             .enterAmount(sendAmount)
             .tapNextButton()
-            .waitForMyWalletsBlockNotDisplayed()
+            .waitForAddressScreenElements()
     }
 }
