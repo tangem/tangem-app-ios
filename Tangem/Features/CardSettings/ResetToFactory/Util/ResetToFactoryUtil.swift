@@ -146,15 +146,13 @@ private extension ResetToFactoryUtil {
 
     func makeResetDidFinishAlert(onDidFinish: @escaping () -> Void) -> AlertBinder {
         let info = input.didFinishAlertInfo
-        return AlertBuilder.makeAlert(
+        return AlertBuilder.makeAlertWithDefaultPrimaryButton(
             title: info.title,
             message: info.message,
-            primaryButton: .default(
-                Text(info.primaryButtonTitle),
-                action: { [weak self] in
-                    self?.resetDidFinish(handler: onDidFinish)
-                }
-            )
+            buttonText: info.primaryButtonTitle,
+            buttonAction: { [weak self] in
+                self?.resetDidFinish(handler: onDidFinish)
+            }
         )
     }
 

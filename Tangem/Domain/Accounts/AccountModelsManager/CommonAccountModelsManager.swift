@@ -243,7 +243,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         areHDWalletsSupported
     }
 
-    nonisolated var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+    nonisolated var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> {
         cryptoAccountsRepository
             .auxiliaryDataPublisher
             .map { $0.archivedAccountsCount > 0 }
