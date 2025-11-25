@@ -29,7 +29,7 @@ struct MarketsPortfolioTokenItemView: View {
     private var tokenView: some View {
         HStack(spacing: 12) {
             TokenItemViewLeadingComponent(
-                name: viewModel.name,
+                name: viewModel.tokenIconName,
                 imageURL: viewModel.imageURL,
                 customTokenColor: viewModel.customTokenColor,
                 blockchainIconAsset: viewModel.blockchainIconAsset,
@@ -41,7 +41,7 @@ struct MarketsPortfolioTokenItemView: View {
             VStack(spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
                     HStack(spacing: 6) {
-                        Text(viewModel.walletName)
+                        Text(viewModel.name)
                             .style(
                                 Fonts.Bold.subheadline,
                                 color: viewModel.hasError ? Colors.Text.tertiary : Colors.Text.primary1
@@ -73,7 +73,7 @@ struct MarketsPortfolioTokenItemView: View {
 
                 HStack(alignment: .center, spacing: 0) {
                     HStack(spacing: 6, content: {
-                        Text(viewModel.tokenItem.name)
+                        Text(viewModel.description)
                             .lineLimit(1)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                             .layoutPriority(1)
@@ -140,33 +140,13 @@ struct MarketsPortfolioTokenItemView: View {
     }
 
     private func makeQuickActionItem(for actionType: TokenActionType, at index: Int) -> some View {
-        HStack(spacing: 16) {
-            if let image = portfolioTokenActionTypeAsset(for: actionType) {
-                image
-                    .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.primary1)
-                    .padding(10)
-                    .background(
-                        Circle()
-                            .fill(Colors.Background.tertiary)
-                    )
-                    .padding(.leading, 2)
-                    .unreadNotificationBadge(viewModel.shouldShowUnreadNotificationBadge(for: actionType), badgeColor: Colors.Icon.accent)
-            }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(actionType.title)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-                if let description = actionType.description {
-                    Text(description)
-                        .multilineTextAlignment(.leading)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                }
-            }
-
-            Spacer()
-        }
+        MarketsActionRowView(
+            icon: portfolioTokenActionTypeImageType(for: actionType),
+            title: actionType.title,
+            subtitle: actionType.description,
+            showNotificationBadge: viewModel.shouldShowUnreadNotificationBadge(for: actionType),
+            style: .solid
+        )
     }
 
     private func makeLineRowActionItem() -> some View {
@@ -183,18 +163,19 @@ struct MarketsPortfolioTokenItemView: View {
         .frame(maxWidth: .infinity)
     }
 
-    private func portfolioTokenActionTypeAsset(for type: TokenActionType) -> Image? {
+    private func portfolioTokenActionTypeImageType(for type: TokenActionType) -> ImageType {
         switch type {
         case .buy:
-            return Assets.Portfolio.buy12.image
+            return Assets.Portfolio.buy12
         case .exchange:
-            return Assets.Portfolio.exchange12.image
+            return Assets.Portfolio.exchange12
         case .receive:
-            return Assets.Portfolio.receive12.image
+            return Assets.Portfolio.receive12
         case .stake:
-            return Assets.Portfolio.stake12.image
+            return Assets.Portfolio.stake12
         default:
-            return nil
+            assertionFailure("Unhandled TokenActionType: \(type)")
+            return Assets.Portfolio.buy12
         }
     }
 }

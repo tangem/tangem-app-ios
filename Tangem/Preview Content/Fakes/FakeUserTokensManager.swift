@@ -11,6 +11,20 @@ import Combine
 import BlockchainSdk
 
 class FakeUserTokensManager: UserTokensManager {
+    var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
+
+    var userTokens: [TokenItem] {
+        let converter = StorageEntryConverter()
+        return converter.convertToTokenItems(userTokenListManager.userTokensList.entries)
+    }
+
+    var userTokensPublisher: AnyPublisher<[TokenItem], Never> {
+        let converter = StorageEntryConverter()
+        return userTokenListManager.userTokensListPublisher
+            .map { converter.convertToTokenItems($0.entries) }
+            .eraseToAnyPublisher()
+    }
+
     var derivationManager: DerivationManager?
     var userTokenListManager: UserTokenListManager
 
@@ -30,21 +44,15 @@ class FakeUserTokensManager: UserTokensManager {
     }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {
-        derivationManager?.deriveKeys(interactor: KeysDerivingMock(), completion: { result in
-            completion(result)
-        })
+        derivationManager?.deriveKeys(completion: completion)
     }
 
-    func contains(_ tokenItem: TokenItem) -> Bool {
-        userTokenListManager.userTokens.contains(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork })
-    }
-
-    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
-        userTokenListManager.userTokens.contains { $0.blockchainNetwork.blockchain == tokenItem.blockchain }
-    }
-
-    func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [BlockchainSdk.Token] {
-        userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork })?.tokens ?? []
+    func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
+        return userTokens.contains { userToken in
+            return derivationInsensitive
+                ? userToken.blockchainNetwork.blockchain == tokenItem.blockchain
+                : userToken.blockchainNetwork == tokenItem.blockchainNetwork
+        }
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {

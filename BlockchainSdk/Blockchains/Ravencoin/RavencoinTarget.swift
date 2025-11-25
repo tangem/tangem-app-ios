@@ -10,7 +10,7 @@ import Foundation
 import Moya
 
 struct RavencoinTarget {
-    let host: String
+    let node: NodeInfo
     let target: Target
 }
 
@@ -25,7 +25,7 @@ extension RavencoinTarget: TargetType {
     }
 
     var baseURL: URL {
-        URL(string: host)!
+        node.url
     }
 
     var path: String {

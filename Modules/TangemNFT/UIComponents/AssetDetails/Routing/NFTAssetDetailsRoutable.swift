@@ -9,7 +9,7 @@
 import TangemUI
 
 public protocol NFTAssetDetailsRoutable: AnyObject {
-    func openSend(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext)
+    func openSend(for asset: NFTAsset, in collection: NFTCollection)
     func openInfo(with viewData: NFTAssetExtendedInfoViewData)
     func openTraits(with data: KeyValuePanelViewData)
     func openExplorer(for asset: NFTAsset)
