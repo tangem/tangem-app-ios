@@ -1,5 +1,5 @@
 //
-//  StakingTransactionSender.swift
+//  StakeKitTransactionSender.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 import Foundation
 
 /// High-level protocol for preparing, signing and sending staking transactions
-public protocol StakingTransactionSender {
+public protocol StakeKitTransactionSender {
     /// Return stream with tx which was sent one by one
     /// If catch error stream will be stopped
     /// In case when manager already implemented the `StakeKitTransactionSenderProvider` method will be not required
@@ -26,7 +26,7 @@ public protocol StakingTransactionSender {
     ) async throws -> TransactionSendResult
 }
 
-extension StakingTransactionSender {
+extension StakeKitTransactionSender where Self: WalletProvider {
     func sendP2P(
         transaction: P2PTransaction,
         signer: TransactionSigner,

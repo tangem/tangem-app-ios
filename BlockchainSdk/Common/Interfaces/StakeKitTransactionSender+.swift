@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension StakingTransactionSender where
+extension StakeKitTransactionSender where
     Self: StakeKitTransactionsBuilder,
     Self: WalletProvider, RawTransaction: CustomStringConvertible,
     Self: StakeKitTransactionDataBroadcaster,
