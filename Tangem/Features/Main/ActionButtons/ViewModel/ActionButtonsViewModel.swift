@@ -46,6 +46,7 @@ final class ActionButtonsViewModel: ObservableObject {
 
     private let expressTokensListAdapter: ExpressTokensListAdapter
     private let userWalletModel: UserWalletModel
+    private var latestWalletModelsCount = 0
 
     init(
         coordinator: some ActionButtonsRoutable,
@@ -102,31 +103,34 @@ private extension ActionButtonsViewModel {
     }
 
     func bindWalletModels() {
-        userWalletModel
-            .walletModelsManager
-            .walletModelsPublisher
+        AccountsFeatureAwareWalletModelsResolver
+            .walletModelsPublisher(for: userWalletModel)
             .withWeakCaptureOf(self)
             .sink { viewModel, walletModels in
-                runTask(in: viewModel) { @MainActor viewModel in
-                    if walletModels.isEmpty {
-                        viewModel.disabledAllButtons()
-                    } else {
-                        viewModel.restoreButtonsState()
-                    }
-                }
+                viewModel.handleWalletModelsCountUpdate(walletModels.count)
             }
             .store(in: &bag)
     }
 
-    @MainActor
-    private func disabledAllButtons() {
-        buyActionButtonViewModel.updateState(to: .disabled)
-        sellActionButtonViewModel.updateState(to: .disabled)
-        swapActionButtonViewModel.updateState(to: .disabled)
+    func handleWalletModelsCountUpdate(_ walletModelsCount: Int) {
+        latestWalletModelsCount = walletModelsCount
+
+        if walletModelsCount == 0 {
+            disabledAllButtons()
+        } else {
+            restoreButtonsState()
+        }
     }
 
-    @MainActor
-    private func restoreButtonsState() {
+    func disabledAllButtons() {
+        runTask(in: self) { @MainActor viewModel in
+            viewModel.buyActionButtonViewModel.updateState(to: .disabled)
+            viewModel.sellActionButtonViewModel.updateState(to: .disabled)
+            viewModel.swapActionButtonViewModel.updateState(to: .disabled)
+        }
+    }
+
+    func restoreButtonsState() {
         let lastExpressUpdatingState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
         updateSwapButtonState(lastExpressUpdatingState)
         updateBuyButtonStateWithExpress(lastExpressUpdatingState)
@@ -182,7 +186,7 @@ private extension ActionButtonsViewModel {
     @MainActor
     func handleBuyUpdatedState() {
         buyActionButtonViewModel.updateState(
-            to: userWalletModel.walletModelsManager.walletModels.isEmpty ? .disabled : .idle
+            to: latestWalletModelsCount == 0 ? .disabled : .idle
         )
     }
 }
@@ -244,9 +248,7 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleUpdatedSwapState() {
-        let walletModelsCount = userWalletModel.walletModelsManager.walletModels.count
-
-        switch walletModelsCount {
+        switch latestWalletModelsCount {
         case 0:
             swapActionButtonViewModel.updateState(to: .disabled)
         case 1:
@@ -299,7 +301,7 @@ private extension ActionButtonsViewModel {
     @MainActor
     func handleSellUpdatedState() {
         sellActionButtonViewModel.updateState(
-            to: userWalletModel.walletModelsManager.walletModels.isEmpty ? .disabled : .idle
+            to: latestWalletModelsCount == 0 ? .disabled : .idle
         )
     }
 

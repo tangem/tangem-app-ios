@@ -110,7 +110,7 @@ class XRPTransactionBuilder {
             fee: feeDrops,
             sequence: sequence,
             destinationTag: destinationTag,
-            flags: partialPaymentAllowed ? [.tfPartialPayment] : nil
+            flags: partialPaymentAllowed ? [XRPTransaction.PaymentFlags.tfPartialPayment.rawValue] : nil
         )
 
         return XRPTransaction(params: params)
@@ -126,14 +126,14 @@ class XRPTransactionBuilder {
 
         let (currency, issuer) = try XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress)
         let limitAmount = XRPTransaction.TrustSetParams.LimitAmount(currency: currency, issuer: issuer, value: Constants.trustlineMaxLimit)
-        let feeInXrp = transaction.fee.amount.value.rounded()
+        let feeInXrp = utils.convertToDrops(amount: transaction.fee.amount.value).rounded()
 
         let params = XRPTransaction.TrustSetParams(
             account: account,
             fee: feeInXrp,
             sequence: sequence,
             limitAmount: limitAmount,
-            flags: [XRPTransaction.Flag.tfClearNoRipple]
+            flags: [XRPTransaction.TrustsetFlag.tfSetNoRipple.rawValue]
         )
 
         return XRPTransaction(params: params)

@@ -10,7 +10,7 @@ import Foundation
 import TangemExpress
 
 struct ExpressProviderTransactionValidatorMock: ExpressProviderTransactionValidator {
-    func validateTransactionSize(data: String?) -> Bool {
+    func validateTransactionSize(data: String) -> Bool {
         return true
     }
 }

@@ -6,12 +6,15 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import SwiftUI
 import Foundation
 import TangemLocalization
-import SwiftUI
 import TangemAssets
+import TangemMacro
 
-enum SendNotificationEvent {
+@RawCaseName
+@CaseFlagable
+enum SendNotificationEvent: Hashable {
     // The send flow specific notifications
     case networkFeeUnreachable
     case feeWillBeSubtractFromSendingAmount(
@@ -32,19 +35,6 @@ enum SendNotificationEvent {
 }
 
 extension SendNotificationEvent: NotificationEvent {
-    var id: NotificationViewId {
-        switch self {
-        case .networkFeeUnreachable: "networkFeeUnreachable".hashValue
-        case .feeWillBeSubtractFromSendingAmount: "feeWillBeSubtractFromSendingAmount".hashValue
-        case .customFeeTooHigh: "customFeeTooHigh".hashValue
-        case .customFeeTooLow: "customFeeTooLow".hashValue
-        case .withdrawalNotificationEvent(let withdrawalNotificationEvent): withdrawalNotificationEvent.id
-        case .validationErrorEvent(let validationErrorEvent): validationErrorEvent.id
-        case .accountNotActivated: "accountNotActivated".hashValue
-        case .oneSuiCoinIsRequiredForTokenTransaction: "oneSuiCoinIsRequiredForTokenTransaction".hashValue
-        }
-    }
-
     var title: NotificationView.Title? {
         switch self {
         case .networkFeeUnreachable:
