@@ -289,8 +289,8 @@ private extension DetailsViewModel {
         userWalletsViewModels = userWalletRepository.models.map { userWallet in
             SettingsUserWalletRowViewModel(userWallet: userWallet) { [weak self] in
                 if userWallet.isUserWalletLocked {
-                    self?.unlock(userWalletModel: userWallet, onDidUnlock: {
-                        self?.openWalletSettings(userWalletModel: userWallet)
+                    self?.unlock(userWalletModel: userWallet, onDidUnlock: { userWalletModel in
+                        self?.openWalletSettings(userWalletModel: userWalletModel)
                     })
                 } else {
                     self?.openWalletSettings(userWalletModel: userWallet)
@@ -444,7 +444,7 @@ private extension DetailsViewModel {
 // MARK: - Unlocking
 
 private extension DetailsViewModel {
-    func unlock(userWalletModel: UserWalletModel, onDidUnlock: @escaping () -> Void) {
+    func unlock(userWalletModel: UserWalletModel, onDidUnlock: @escaping (UserWalletModel) -> Void) {
         runTask(in: self) { viewModel in
             if viewModel.canUnlockWithBiometry() {
                 await viewModel.unlockWithBiometry(userWalletModel: userWalletModel, onDidUnlock: onDidUnlock)
@@ -465,14 +465,14 @@ private extension DetailsViewModel {
         }
     }
 
-    func unlockWithBiometry(userWalletModel: UserWalletModel, onDidUnlock: @escaping () -> Void) async {
+    func unlockWithBiometry(userWalletModel: UserWalletModel, onDidUnlock: @escaping (UserWalletModel) -> Void) async {
         Analytics.log(.mainButtonUnlockAllWithBiometrics)
 
         do {
             let context = try await UserWalletBiometricsUnlocker().unlock()
             let method = UserWalletRepositoryUnlockMethod.biometricsUserWallet(userWalletId: userWalletModel.userWalletId, context: context)
-            _ = try await userWalletRepository.unlock(with: method)
-            onDidUnlock()
+            let userWalletModel = try await userWalletRepository.unlock(with: method)
+            onDidUnlock(userWalletModel)
         } catch where error.isCancellationError {
             await unlockWithFallback(userWalletModel: userWalletModel, onDidUnlock: onDidUnlock)
         } catch let repositoryError as UserWalletRepositoryError {
@@ -486,13 +486,13 @@ private extension DetailsViewModel {
         }
     }
 
-    func unlockWithFallback(userWalletModel: UserWalletModel, onDidUnlock: @escaping () -> Void) async {
+    func unlockWithFallback(userWalletModel: UserWalletModel, onDidUnlock: @escaping (UserWalletModel) -> Void) async {
         let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
         let unlockResult = await unlocker.unlock()
         await handleUnlock(userWalletModel: userWalletModel, result: unlockResult, onDidUnlock: onDidUnlock)
     }
 
-    func handleUnlock(userWalletModel: UserWalletModel, result: UserWalletModelUnlockerResult, onDidUnlock: @escaping () -> Void) async {
+    func handleUnlock(userWalletModel: UserWalletModel, result: UserWalletModelUnlockerResult, onDidUnlock: @escaping (UserWalletModel) -> Void) async {
         switch result {
         case .error(let error):
             if error.isCancellationError {
@@ -513,8 +513,8 @@ private extension DetailsViewModel {
         case .biometrics(let context):
             do {
                 let method = UserWalletRepositoryUnlockMethod.biometrics(context)
-                _ = try await userWalletRepository.unlock(with: method)
-                onDidUnlock()
+                let userWalletModel = try await userWalletRepository.unlock(with: method)
+                onDidUnlock(userWalletModel)
             } catch {
                 alert = error.alertBinder
             }
@@ -528,8 +528,8 @@ private extension DetailsViewModel {
 
             do {
                 let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
-                _ = try await userWalletRepository.unlock(with: method)
-                onDidUnlock()
+                let userWalletModel = try await userWalletRepository.unlock(with: method)
+                onDidUnlock(userWalletModel)
             } catch {
                 alert = error.alertBinder
             }
