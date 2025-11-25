@@ -133,8 +133,9 @@ private extension UserWalletSettingsViewModel {
             }
             .store(in: &bag)
 
-        if FeatureProvider.isAvailable(.accounts) {
-            userWalletModel.accountModelsManager
+        let accountModelsManager = userWalletModel.accountModelsManager
+        if FeatureProvider.isAvailable(.accounts), accountModelsManager.canAddCryptoAccounts {
+            accountModelsManager
                 .accountModelsPublisher
                 .receiveOnMain()
                 .withWeakCaptureOf(self)
