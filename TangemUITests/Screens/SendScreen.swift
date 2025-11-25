@@ -15,6 +15,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var amountTextField = textField(.amountTextField)
     private lazy var destinationTextView = textView(.destinationTextView)
     private lazy var addressClearButton = button(.addressClearButton)
+    private lazy var scanQRButton = button(.scanQRButton)
     private lazy var nextButton = button(.nextButton)
     private lazy var backButton = button(.backButton)
     private lazy var maxButton = button(.maxButton)
@@ -38,7 +39,9 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var additionalFieldPasteButton = button(.additionalFieldPasteButton)
     private lazy var invalidMemoBanner = staticText(.invalidMemoBanner)
     private lazy var addressFieldTitle = staticText(.addressFieldTitle)
-    private lazy var myWalletsBlock = otherElement(.myWalletsBlock)
+    private lazy var myWalletsBlock = staticText(.myWalletsBlock)
+    private lazy var pasteButton = button(.addressPasteButton)
+    private lazy var networkWarningLabel = staticText(.addressNetworkWarning)
 
     @discardableResult
     func waitForDisplay() -> Self {
@@ -81,6 +84,14 @@ final class SendScreen: ScreenBase<SendScreenElement> {
             destinationTextView.waitAndTap()
         }
         return self
+    }
+
+    @discardableResult
+    func tapScanQRButton() -> SendQRScannerScreen {
+        XCTContext.runActivity(named: "Tap Scan QR button") { _ in
+            scanQRButton.waitAndTap()
+        }
+        return SendQRScannerScreen(app)
     }
 
     @discardableResult
@@ -620,6 +631,19 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         return self
     }
 
+    @discardableResult
+    func waitForAddressScreenElements() -> Self {
+        XCTContext.runActivity(named: "Validate address screen UI elements") { _ in
+            waitAndAssertTrue(titleLabel, "Address screen title should exist")
+            waitAndAssertTrue(addressFieldTitle, "Recipient field title should exist")
+            waitAndAssertTrue(destinationTextView, "Destination field should exist")
+            waitAndAssertTrue(scanQRButton, "Scan QR button should exist")
+            waitAndAssertTrue(pasteButton, "Paste button should exist")
+            waitAndAssertTrue(networkWarningLabel, "Network warning text should exist")
+        }
+        return self
+    }
+
     // MARK: - Wallet History Methods
 
     func getWalletHistoryCell(at index: Int) -> XCUIElement {
@@ -778,6 +802,14 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 
     @discardableResult
+    func waitForMyWalletsBlockDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate 'My Wallets' block is displayed") { _ in
+            waitAndAssertTrue(myWalletsBlock, "'My Wallets' block should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForWalletHistoryNotDisplayed() -> Self {
         XCTContext.runActivity(named: "Validate wallet history is not displayed") { _ in
             let header = app.staticTexts[SendAccessibilityIdentifiers.suggestedDestinationHeader].firstMatch
@@ -880,6 +912,21 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         }
         return self
     }
+
+    @discardableResult
+    func waitForWalletAddress(_ expectedAddress: String, at index: Int = 0) -> Self {
+        XCTContext.runActivity(named: "Validate wallet cell \(index) displays address '\(expectedAddress)'") { _ in
+            let walletCell = getWalletHistoryCell(at: index)
+            waitAndAssertTrue(walletCell, "Wallet cell at index \(index) should exist")
+
+            XCTAssertEqual(
+                walletCell.label,
+                expectedAddress,
+                "Wallet cell at index \(index) should display the expected address"
+            )
+        }
+        return self
+    }
 }
 
 enum SendScreenElement: String, UIElement {
@@ -887,6 +934,7 @@ enum SendScreenElement: String, UIElement {
     case amountTextField
     case destinationTextView
     case addressClearButton
+    case scanQRButton
     case nextButton
     case backButton
     case maxButton
@@ -911,6 +959,8 @@ enum SendScreenElement: String, UIElement {
     case invalidMemoBanner
     case addressFieldTitle
     case myWalletsBlock
+    case addressPasteButton
+    case addressNetworkWarning
 
     var accessibilityIdentifier: String {
         switch self {
@@ -922,6 +972,8 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.addressTextView
         case .addressClearButton:
             return SendAccessibilityIdentifiers.addressClearButton
+        case .scanQRButton:
+            return SendAccessibilityIdentifiers.scanQRButton
         case .nextButton:
             return SendAccessibilityIdentifiers.sendViewNextButton
         case .backButton:
@@ -970,6 +1022,10 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.addressFieldTitle
         case .myWalletsBlock:
             return SendAccessibilityIdentifiers.suggestedDestinationMyWalletsBlock
+        case .addressPasteButton:
+            return SendAccessibilityIdentifiers.addressPasteButton
+        case .addressNetworkWarning:
+            return SendAccessibilityIdentifiers.addressNetworkWarning
         }
     }
 }
