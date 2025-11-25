@@ -103,7 +103,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
 }
 
 extension FakeCardHeaderPreviewProvider {
-    final class CardInfoProvider: TotalBalanceProviding {
+    final class CardInfoProvider: TotalBalanceProvider {
         @Published var balance: TotalBalanceState = .loading(cached: .none)
 
         let walletModel: FakeUserWalletModel

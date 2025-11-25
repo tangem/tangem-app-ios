@@ -18,6 +18,7 @@ struct FixedSizeButtonWithIconInfo {
     let action: ButtonAction
     let longPressAction: ButtonAction?
     let disabled: Bool
+    let accessibilityIdentifier: String?
 
     init(
         title: String,
@@ -26,7 +27,8 @@ struct FixedSizeButtonWithIconInfo {
         style: FixedSizeButtonWithLeadingIcon.Style = .default,
         shouldShowBadge: Bool = false,
         action: @escaping ButtonAction,
-        longPressAction: ButtonAction? = nil
+        longPressAction: ButtonAction? = nil,
+        accessibilityIdentifier: String? = nil
     ) {
         self.title = title
         self.icon = icon
@@ -35,11 +37,12 @@ struct FixedSizeButtonWithIconInfo {
         self.disabled = disabled
         self.action = action
         self.longPressAction = longPressAction
+        self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     /// Initializer with enabled button
-    init(title: String, icon: ImageType, style: FixedSizeButtonWithLeadingIcon.Style = .default, action: @escaping ButtonAction, longPressAction: ButtonAction? = nil) {
-        self.init(title: title, icon: icon, disabled: false, style: style, action: action, longPressAction: longPressAction)
+    init(title: String, icon: ImageType, style: FixedSizeButtonWithLeadingIcon.Style = .default, action: @escaping ButtonAction, longPressAction: ButtonAction? = nil, accessibilityIdentifier: String? = nil) {
+        self.init(title: title, icon: icon, disabled: false, style: style, action: action, longPressAction: longPressAction, accessibilityIdentifier: accessibilityIdentifier)
     }
 }
 

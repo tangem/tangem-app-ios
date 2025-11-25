@@ -47,14 +47,31 @@ extension NotificationEvent {
             }
         } else if let sendNotificationEvent = self as? SendNotificationEvent {
             switch sendNotificationEvent {
+            case .networkFeeUnreachable:
+                return SendAccessibilityIdentifiers.networkFeeUnreachableBanner
+            case .customFeeTooLow:
+                return SendAccessibilityIdentifiers.customFeeTooLowBanner
+            case .customFeeTooHigh:
+                return SendAccessibilityIdentifiers.customFeeTooHighBanner
+            case .feeWillBeSubtractFromSendingAmount:
+                return SendAccessibilityIdentifiers.feeWillBeSubtractFromSendingAmountBanner
             case .validationErrorEvent(let event):
                 switch event {
                 case .dustRestriction:
                     return SendAccessibilityIdentifiers.invalidAmountBanner
+                case .remainingAmountIsLessThanRentExemption:
+                    return SendAccessibilityIdentifiers.remainingAmountIsLessThanRentExemptionBanner
                 case .insufficientAmountToReserveAtDestination:
                     return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
                 case .amountExceedMaximumUTXO:
                     return SendAccessibilityIdentifiers.amountExceedMaximumUTXOBanner
+                default:
+                    return nil
+                }
+            case .withdrawalNotificationEvent(let withdrawalEvent):
+                switch withdrawalEvent {
+                case .reduceAmountBecauseFeeIsTooHigh:
+                    return SendAccessibilityIdentifiers.highFeeNotificationBanner
                 default:
                     return nil
                 }
@@ -65,6 +82,10 @@ extension NotificationEvent {
             switch tokenEvent {
             case .noAccount:
                 return TokenAccessibilityIdentifiers.topUpWalletBanner
+            case .existentialDepositWarning:
+                return SendAccessibilityIdentifiers.existentialDepositWarningBanner
+            case .notEnoughFeeForTransaction:
+                return TokenAccessibilityIdentifiers.notEnoughFeeForTransactionBanner
             default:
                 return nil
             }

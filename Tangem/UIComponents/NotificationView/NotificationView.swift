@@ -40,6 +40,7 @@ struct NotificationView: View {
         .padding(.horizontal, 14)
         .background(settings.event.colorScheme.background)
         .cornerRadiusContinuous(14)
+        .accessibilityElement(children: .combine)
         .accessibilityIdentifier(settings.event.accessibilityIdentifier)
     }
 
@@ -98,7 +99,8 @@ struct NotificationView: View {
                             }
                         )
                         .setIsLoading(to: buttonInfo.isWithLoader && isLoading)
-                        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationButton)
+                        .accessibilityIdentifier(buttonAccessibilityIdentifier(for: buttonInfo.actionType))
+                        .accessibilityElement(children: .ignore)
                     }
                 }
             }
@@ -114,10 +116,12 @@ struct NotificationView: View {
                 case .string(let string):
                     Text(string)
                         .style(Fonts.Bold.footnote, color: settings.event.colorScheme.titleColor)
+                        .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
                 case .attributed(let attributedString):
                     Text(attributedString)
+                        .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
                 case .none:
@@ -180,6 +184,19 @@ struct NotificationView: View {
                     ),
                 alignment: .bottomTrailing
             )
+    }
+
+    private func buttonAccessibilityIdentifier(for actionType: NotificationButtonActionType) -> String {
+        switch actionType {
+        case .reduceAmountBy:
+            return SendAccessibilityIdentifiers.reduceFeeButton
+        case .leaveAmount:
+            return SendAccessibilityIdentifiers.leaveAmountButton
+        case .openFeeCurrency:
+            return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
+        default:
+            return CommonUIAccessibilityIdentifiers.notificationButton
+        }
     }
 }
 
