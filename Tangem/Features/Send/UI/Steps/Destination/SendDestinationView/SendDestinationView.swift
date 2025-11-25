@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -28,6 +29,7 @@ struct SendDestinationView: View {
                 }
             } footer: {
                 DefaultFooterView(Localization.sendRecipientAddressFooter(viewModel.networkName))
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.addressNetworkWarning)
             }
             .interItemSpacing(12)
             .innerContentPadding(12)
