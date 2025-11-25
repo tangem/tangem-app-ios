@@ -39,7 +39,7 @@ public struct AddListItemButton: View {
             .roundedBackground(
                 with: iconBackgroundColor,
                 padding: 8,
-                radius: 8
+                radius: 10
             )
     }
 
