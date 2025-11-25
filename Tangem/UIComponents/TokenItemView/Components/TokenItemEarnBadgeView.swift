@@ -24,6 +24,18 @@ struct TokenItemEarnBadgeView: View {
     }
 
     var body: some View {
+        if let tapAction {
+            Button(action: tapAction) {
+                mainContent
+            }
+        } else {
+            mainContent
+        }
+    }
+
+    // MARK: - Sub Views
+
+    private var mainContent: some View {
         HStack(spacing: 6) {
             Text("\(rewardTypeString) \(rewardValue)")
                 .style(Fonts.BoldStatic.caption2, color: color)

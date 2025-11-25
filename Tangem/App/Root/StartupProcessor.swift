@@ -14,7 +14,7 @@ class StartupProcessor {
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
 
     var shouldOpenAuthScreen: Bool {
-        if FeatureProvider.isAvailable(.mobileWallet) {
+        if MobileWalletFeatureProvider.isAvailable {
             AppSettings.shared.saveUserWallets
                 && userWalletRepository.models.isNotEmpty
         } else {
@@ -34,6 +34,7 @@ class StartupProcessor {
         }
 
         if let modelToOpen = shouldOpenMainScreen() {
+            SignInAnalyticsLogger().logSignInEvent(signInType: .noSecurity)
             return .main(modelToOpen)
         }
 
@@ -45,7 +46,7 @@ class StartupProcessor {
     }
 
     private func shouldOpenMainScreen() -> UserWalletModel? {
-        guard FeatureProvider.isAvailable(.mobileWallet) else {
+        guard MobileWalletFeatureProvider.isAvailable else {
             return nil
         }
 
@@ -56,10 +57,6 @@ class StartupProcessor {
 
         if let selectedModel = userWalletRepository.selectedModel {
             return selectedModel
-        }
-
-        if let firstModel = userWalletRepository.models.first {
-            return firstModel
         }
 
         return nil
