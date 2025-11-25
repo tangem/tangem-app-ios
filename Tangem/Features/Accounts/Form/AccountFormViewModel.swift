@@ -25,6 +25,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     @Published var selectedIcon: GridItemImage<AccountModel.Icon.Name>
     @Published var alert: AlertBinder?
     @Published var description: String?
+    @Published var isLoading: Bool = false
 
     // MARK: - Static state
 
@@ -161,6 +162,9 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     @MainActor
     func onMainButtonTap() {
         Task {
+            isLoading = true
+            defer { isLoading = false }
+
             let accountIcon = AccountModel.Icon(name: selectedIcon.id, color: selectedColor.id)
 
             switch flowType {
