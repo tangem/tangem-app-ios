@@ -117,6 +117,14 @@ final class UserWalletSettingsViewModel: ObservableObject {
             AppPresenter.shared.show(alert)
         }
     }
+
+    func handleAccountsLimitReached() {
+        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
+            title: Localization.accountAddLimitDialogTitle,
+            message: Localization.accountAddLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts),
+            buttonText: Localization.commonGotIt
+        )
+    }
 }
 
 // MARK: - Private
