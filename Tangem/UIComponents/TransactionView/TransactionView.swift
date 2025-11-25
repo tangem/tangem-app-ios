@@ -57,7 +57,7 @@ struct TransactionView: View {
                 name
                 description
             }
-            .layoutPriority(1)
+            .layoutPriority(viewModel.transactionDescriptionLayoutPriority)
 
             Spacer(minLength: 4)
 
@@ -83,12 +83,12 @@ struct TransactionView: View {
 
     @ViewBuilder
     private var description: some View {
-        if let localizeDestination = viewModel.localizeDestination {
+        if let localizeDestination = viewModel.getTransactionDescription() {
             Text(localizeDestination)
                 .multilineTextAlignment(.leading)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
-                .truncationMode(.middle)
+                .truncationMode(viewModel.transactionDescriptionTruncationMode)
         }
     }
 
