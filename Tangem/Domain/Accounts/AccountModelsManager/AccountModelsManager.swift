@@ -13,7 +13,7 @@ protocol AccountModelsManager {
     /// Indicates whether the user can add more additional (not `Main`) crypto accounts to the wallet.
     var canAddCryptoAccounts: Bool { get }
 
-    var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> { get }
+    var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> { get }
 
     var accountModels: [AccountModel] { get }
 
