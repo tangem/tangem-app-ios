@@ -94,7 +94,7 @@
 "alert_negative_app_rate_sent_title" = "あなたの提案が送信されました";
 "alert_troubleshooting_scan_card_message" = "アニメーションに表示されているとおりにカードまたはリングをタップするか、簡単なガイドをお読みください。それでも問題が解決しない場合は、サポートをご依頼ください。";
 "alert_troubleshooting_scan_card_title" = "カードまたはリングのスキャンに問題がありますか？";
-"app_settings_access_code_warning" = "Set an access code first to enable biometrics";
+"app_settings_access_code_warning" = "まずアクセスコードを設定してから、生体認証を有効にしてください";
 "app_settings_biometrics_footer" = "%1$@を使用してウォレットのロックを解除し、取引の署名などの機密性の高い操作を承認してください。ハードウェアウォレットの場合は、署名にカードまたはリングが必要です。";
 "app_settings_default_fee_footer" = "デフォルト手数料を有効にすると、取引手数料が自動的に設定され、送金時に手数料ページを表示する必要がなくなります。必要に応じて、いつでもこのページに戻ることができます。";
 "app_settings_default_fee" = "デフォルト手数料";
@@ -1894,8 +1894,11 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "利息モード";
 "yield_module_token_details_earn_notification_processing" = "利息モードの有効化";
 "yield_module_token_details_earn_notification_title" = "利息モード";
+"yield_module_transaction_enter_subtitle" = "%1$@ supplied to Aave";
 "yield_module_transaction_enter" = "利息モード オン";
+"yield_module_transaction_exit_subtitle" = "%1$@ withdrawn from Aave";
 "yield_module_transaction_exit" = "利息モード オフ";
+"yield_module_transaction_topup_subtitle" = "%1$@ supplied to Aave";
 "yield_module_transaction_topup" = "利息モードへの追加入金";
 "yield_module_transfer_mode_automatic" = "自動";
 "yield_module_unable_to_cover_fee_description" = "取引のネットワーク手数料をカバーするために、 %1$@ %2$@を追加してください。";
