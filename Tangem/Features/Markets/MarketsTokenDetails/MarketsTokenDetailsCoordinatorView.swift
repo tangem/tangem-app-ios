@@ -29,12 +29,8 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
     @ViewBuilder
     var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
-            }
             .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
-                    .expressNavigationView()
             }
             .iOS16UIKitSheet(item: $coordinator.stakingDetailsCoordinator) { coordinator in
                 StakingDetailsCoordinatorView(coordinator: coordinator)
@@ -63,7 +59,6 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.exchangesListViewModel) { viewModel in
