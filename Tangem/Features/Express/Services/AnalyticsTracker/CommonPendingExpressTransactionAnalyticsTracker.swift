@@ -76,7 +76,7 @@ extension CommonPendingExpressTransactionAnalyticsTracker {
             switch pendingTxStatus {
             case .created, .awaitingDeposit, .confirming, .buying, .exchanging, .sendingToUser, .refunding:
                 return .inProgress
-            case .done:
+            case .finished:
                 return .done
             case .failed, .awaitingHash, .unknown, .paused, .txFailed:
                 return .fail
@@ -84,7 +84,7 @@ extension CommonPendingExpressTransactionAnalyticsTracker {
                 return .refunded
             case .verificationRequired:
                 return .kyc
-            case .canceled:
+            case .expired:
                 return .canceled
             }
         }
