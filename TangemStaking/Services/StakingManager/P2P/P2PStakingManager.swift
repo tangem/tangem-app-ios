@@ -63,40 +63,13 @@ extension P2PStakingManager: StakingManager {
     }
 
     func estimateFee(action: StakingAction) async throws -> Decimal {
-        guard let validatorAddress = action.validatorInfo?.address else {
-            throw P2PStakingAPIError.invalidVault
-        }
-        switch (state, action.type) {
-        case (.loading, _):
-            try await waitForLoadingCompletion()
-            return try await estimateFee(action: action)
-        case (.availableToStake, .stake), (.staked, .stake):
-            let transactionInfo = try await provider.stakeTransaction(
-                walletAddress: wallet.address,
-                vault: validatorAddress,
-                amount: action.amount
-            )
-            pendingTransaction = transactionInfo
-            return transactionInfo.fee
-        case (.staked, .unstake):
-            let transactionInfo = try await provider.unstakeTransaction(
-                walletAddress: wallet.address,
-                vault: validatorAddress,
-                amount: action.amount
-            )
-            pendingTransaction = transactionInfo
-            return transactionInfo.fee
-        case (.staked, .pending):
-            let transactionInfo = try await provider.withdrawTransaction(
-                walletAddress: wallet.address,
-                vault: validatorAddress,
-                amount: action.amount
-            )
-            pendingTransaction = transactionInfo
-            return transactionInfo.fee
-        default:
-            StakingLogger.info(self, "Invalid staking manager state: \(state), for action: \(action)")
-            throw StakingManagerError.stakingManagerStateNotSupportEstimateFeeAction(action: action, state: state)
+        do {
+            let info = try await transactionInfo(action: action)
+            pendingTransaction = info
+            return info.fee
+        } catch {
+            pendingTransaction = nil
+            throw error
         }
     }
 
@@ -105,10 +78,6 @@ extension P2PStakingManager: StakingManager {
             throw P2PStakingAPIError.transactionNotFound
         }
         return StakingTransactionAction(amount: action.amount, transactions: [pendingTransaction])
-    }
-
-    func transactionDetails(id: String) async throws -> StakingTransactionInfo {
-        fatalError()
     }
 
     func transactionDidSent(action: StakingAction) {
@@ -141,5 +110,42 @@ private extension P2PStakingManager {
         }
 
         return .staked(.init(balances: stakingBalances, yieldInfo: yield, canStakeMore: true))
+    }
+
+    func transactionInfo(action: StakingAction) async throws -> StakingTransactionInfo {
+        guard let validatorAddress = action.validatorInfo?.address else {
+            throw P2PStakingAPIError.invalidVault
+        }
+
+        let result: StakingTransactionInfo
+
+        switch (state, action.type) {
+        case (.loading, _):
+            try await waitForLoadingCompletion()
+            result = try await transactionInfo(action: action)
+        case (.availableToStake, .stake), (.staked, .stake):
+            result = try await provider.stakeTransaction(
+                walletAddress: wallet.address,
+                vault: validatorAddress,
+                amount: action.amount
+            )
+        case (.staked, .unstake):
+            result = try await provider.unstakeTransaction(
+                walletAddress: wallet.address,
+                vault: validatorAddress,
+                amount: action.amount
+            )
+        case (.staked, .pending):
+            result = try await provider.withdrawTransaction(
+                walletAddress: wallet.address,
+                vault: validatorAddress,
+                amount: action.amount
+            )
+        default:
+            StakingLogger.info(self, "Invalid staking manager state: \(state), for action: \(action)")
+            throw StakingManagerError.stakingManagerStateNotSupportEstimateFeeAction(action: action, state: state)
+        }
+
+        return result
     }
 }
