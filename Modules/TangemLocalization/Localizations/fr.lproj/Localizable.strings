@@ -1894,12 +1894,12 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Mode Rendement";
 "yield_module_token_details_earn_notification_processing" = "Traitement de votre dépôt";
 "yield_module_token_details_earn_notification_title" = "Mode Rendement";
-"yield_module_transaction_enter_subtitle" = "%1$@ supplied to Aave";
+"yield_module_transaction_enter_subtitle" = "%1$@ fourni à Aave";
 "yield_module_transaction_enter" = "Mode rendement activé";
-"yield_module_transaction_exit_subtitle" = "%1$@ withdrawn from Aave";
+"yield_module_transaction_exit_subtitle" = "%1$@ retiré d'Aave";
 "yield_module_transaction_exit" = "Mode rendement désactivé";
-"yield_module_transaction_topup_subtitle" = "%1$@ supplied to Aave";
-"yield_module_transaction_topup" = "Recharger le mode Rendement";
+"yield_module_transaction_topup_subtitle" = "%1$@ fourni à Aave";
+"yield_module_transaction_topup" = "Approvisionnement à Aave";
 "yield_module_transfer_mode_automatic" = "Automatique";
 "yield_module_unable_to_cover_fee_description" = "Déposez %1$@ %2$@ pour couvrir les frais de réseau liés aux transactions.";
 "yield_module_unable_to_cover_fee_title" = "Impossible de couvrir les frais %@";
