@@ -7,33 +7,33 @@
 //
 
 enum TangemPayCardDetailsState {
-    case hidden
-    case loading
+    case hidden(isFrozen: Bool)
+    case loading(isFrozen: Bool)
     case loaded(TangemPayCardDetailsData)
-
-    var isHidden: Bool {
-        switch self {
-        case .hidden:
-            true
-        case .loading, .loaded:
-            false
-        }
-    }
-
-    var isLoading: Bool {
-        switch self {
-        case .loading:
-            true
-        case .hidden, .loaded:
-            false
-        }
-    }
 
     var isLoaded: Bool {
         switch self {
         case .loaded:
             true
         case .hidden, .loading:
+            false
+        }
+    }
+
+    var isFrozen: Bool {
+        switch self {
+        case .loaded:
+            false
+        case .hidden(let isFrozen), .loading(let isFrozen):
+            isFrozen
+        }
+    }
+
+    var showDetailsButtonVisible: Bool {
+        switch self {
+        case .hidden(isFrozen: false):
+            true
+        default:
             false
         }
     }

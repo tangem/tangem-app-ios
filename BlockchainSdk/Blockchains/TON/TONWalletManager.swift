@@ -101,12 +101,13 @@ final class TONWalletManager: BaseManager, WalletManager {
                     .mapAndEraseSendTxError(tx: message)
                     .eraseToAnyPublisher()
             }
-            .map { [weak self] base64String in
+            .withWeakCaptureOf(self)
+            .map { manager, base64String in
                 let mapper = PendingTransactionRecordMapper()
                 let hex = Data(base64Encoded: base64String)?.hex() ?? ""
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hex)
-                self?.wallet.addPendingTransaction(record)
-                return TransactionSendResult(hash: hex)
+                manager.wallet.addPendingTransaction(record)
+                return TransactionSendResult(hash: hex, currentProviderHost: manager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()
@@ -140,17 +141,18 @@ extension TONWalletManager: TransactionFeeProvider {
 
                 return buildForSend
             }
-            .flatMap { [weak self] message -> AnyPublisher<[Fee], Error> in
-                guard let self else {
-                    return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
-                }
-
-                return networkService.getFee(address: wallet.address, message: message)
-                    .withWeakCaptureOf(self)
-                    .map { walletManager, fees in
-                        walletManager.appendJettonTransferProcessingFeeIfNeeded(fees, amountType: amount.type)
-                    }
-                    .eraseToAnyPublisher()
+            .withWeakCaptureOf(self)
+            .flatMap { manager, message -> AnyPublisher<([Fee], String?), Error> in
+                manager.networkService.getFee(
+                    source: manager.wallet.address,
+                    destination: destination,
+                    amount: amount,
+                    message: message
+                )
+            }
+            .withWeakCaptureOf(self)
+            .flatMap { manager, feesAndAddress -> AnyPublisher<[Fee], Error> in
+                manager.transformFeeIfNeeded(with: feesAndAddress, amount: amount)
             }
             .eraseToAnyPublisher()
     }
@@ -200,13 +202,49 @@ private extension TONWalletManager {
         }
     }
 
-    private func appendJettonTransferProcessingFeeIfNeeded(_ fees: [Fee], amountType: Amount.AmountType) -> [Fee] {
+    private func transformFeeIfNeeded(with feesAndAddress: ([Fee], String?), amount: Amount) -> AnyPublisher<[Fee], Error> {
+        let (fees, recipientJettonWalletAddress) = feesAndAddress
+
+        // Check if recipient's jetton wallet is active
+        if let recipientJettonWalletAddress {
+            return networkService.isJettonWalletActive(jettonWalletAddress: recipientJettonWalletAddress)
+                .withWeakCaptureOf(self)
+                .map { manager, isActive in
+                    manager.appendJettonTransferProcessingFeeIfNeeded(
+                        fees,
+                        amountType: amount.type,
+                        isRecipientJettonWalletActive: isActive
+                    )
+                }
+                .eraseToAnyPublisher()
+        } else {
+            let updatedFees = appendJettonTransferProcessingFeeIfNeeded(
+                fees,
+                amountType: amount.type,
+                isRecipientJettonWalletActive: false
+            )
+            return Just(updatedFees)
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
+        }
+    }
+
+    private func appendJettonTransferProcessingFeeIfNeeded(
+        _ fees: [Fee],
+        amountType: Amount.AmountType,
+        isRecipientJettonWalletActive: Bool
+    ) -> [Fee] {
         guard case .token = amountType else {
             return fees
         }
+
+        let processingFee = isRecipientJettonWalletActive
+            ? TONTransactionBuilder.Constants.jettonTransferProcessingFeeForActiveWallet
+            : TONTransactionBuilder.Constants.jettonTransferProcessingFee
+
         return fees.map { fee in
             var amount = fee.amount
-            amount.value += TONTransactionBuilder.Constants.jettonTransferProcessingFee
+            amount.value += processingFee
             return Fee(amount, parameters: fee.parameters)
         }
     }

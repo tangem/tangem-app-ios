@@ -9,9 +9,9 @@
 import Foundation
 import TangemLocalization
 
-final class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
+class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
     private let userWalletModel: UserWalletModel
-    private weak var coordinator: MobileOnboardingFlowRoutable?
+    private(set) weak var coordinator: MobileOnboardingFlowRoutable?
 
     init(userWalletModel: UserWalletModel, coordinator: MobileOnboardingFlowRoutable) {
         self.userWalletModel = userWalletModel
@@ -47,13 +47,25 @@ final class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBui
         )
         append(step: seedPhraseValidationStep)
 
-        let doneStep = MobileOnboardingSuccessStep(
+        append(step: completeStep())
+    }
+
+    func completeStep() -> Step {
+        makeDoneStep()
+    }
+}
+
+// MARK: - Private methods
+
+private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
+    func makeDoneStep() -> Step {
+        let step = MobileOnboardingSuccessStep(
             type: .seedPhaseBackupFinish,
             onAppear: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.openConfetti),
-            onComplete: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.closeOnboarding)
+            onComplete: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.completeOnboarding)
         )
-        doneStep.configureNavBar(title: Localization.commonBackup)
-        append(step: doneStep)
+        step.configureNavBar(title: Localization.commonBackup)
+        return step
     }
 }
 
@@ -66,6 +78,10 @@ private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
 
     func openConfetti() {
         coordinator?.openConfetti()
+    }
+
+    func completeOnboarding() {
+        coordinator?.completeOnboarding()
     }
 
     func closeOnboarding() {
