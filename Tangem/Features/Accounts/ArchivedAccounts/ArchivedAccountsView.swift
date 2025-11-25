@@ -19,7 +19,6 @@ struct ArchivedAccountsView: View {
         content
             .task { await viewModel.fetchArchivedAccounts() }
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, 16)
             .background(Colors.Background.secondary.ignoresSafeArea())
             .alert(item: $viewModel.alertBinder, content: { $0.alert })
     }
@@ -29,9 +28,11 @@ struct ArchivedAccountsView: View {
             switch viewModel.viewState {
             case .loading:
                 loadingView
+                    .padding(.horizontal, Constants.horizontalPadding)
 
             case .failedToLoad:
                 errorView
+                    .padding(.horizontal, Constants.horizontalPadding)
 
             case .loaded(let accountInfos):
                 makeAccountsView(from: accountInfos)
@@ -42,7 +43,7 @@ struct ArchivedAccountsView: View {
     }
 
     private func makeAccountsView(from models: [ArchivedCryptoAccountInfo]) -> some View {
-        VStack(spacing: 0) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 0), showsIndicators: false) {
             GroupedSection(models) { model in
                 AccountRowView(
                     input: viewModel.makeAccountRowData(for: model),
@@ -53,8 +54,6 @@ struct ArchivedAccountsView: View {
                 .padding(.vertical, 12)
             }
             .separatorStyle(.none)
-
-            Spacer()
         }
     }
 
@@ -91,5 +90,13 @@ struct ArchivedAccountsView: View {
 
             Spacer()
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension ArchivedAccountsView {
+    enum Constants {
+        static let horizontalPadding: CGFloat = 16
     }
 }
