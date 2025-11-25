@@ -93,6 +93,7 @@ struct AccountFormView: View {
     private var overlayButtonView: some View {
         MainButton(
             title: viewModel.buttonTitle,
+            isLoading: viewModel.isLoading,
             isDisabled: viewModel.mainButtonDisabled,
             action: viewModel.onMainButtonTap
         )
