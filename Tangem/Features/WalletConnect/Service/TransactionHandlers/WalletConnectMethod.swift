@@ -31,6 +31,13 @@ enum WalletConnectMethod: String {
     case solanaSignMessage = "solana_signMessage"
     case solanaSignAllTransactions = "solana_signAllTransactions"
 
+    // MARK: - BTC
+
+    case sendTransfer = "sendTransfer"
+    case getAccountAddresses = "getAccountAddresses"
+    case signPsbt = "signPsbt"
+    case signMessage = "signMessage"
+
     var trimmedPrefixValue: String {
         switch self {
         case .personalSign:
@@ -57,6 +64,8 @@ enum WalletConnectMethod: String {
             "signMessage"
         case .solanaSignAllTransactions:
             "signAllTransactions"
+        case .sendTransfer, .getAccountAddresses, .signPsbt, .signMessage:
+            rawValue
         }
     }
 }
