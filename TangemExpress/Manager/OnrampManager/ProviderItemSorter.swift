@@ -8,19 +8,17 @@
 
 import Foundation
 
-public struct ProviderItemSorter {
-    private let sortType: SortType
+public protocol ProviderItemSorter {
+    func sort(lhs: ProviderItem, rhs: ProviderItem) -> Bool
+}
 
-    public init(sortType: SortType) {
-        self.sortType = sortType
-    }
+public struct ProviderItemSorterByPaymentMethodPriority: ProviderItemSorter {
+    public init() {}
 
     public func sort(lhs: ProviderItem, rhs: ProviderItem) -> Bool {
-        if sortType == .byPaymentMethodPriority {
-            // If paymentMethod has same priority (e.g. SEPA and Revolut Pay)
-            guard lhs.paymentMethod.type.priority == rhs.paymentMethod.type.priority else {
-                return lhs.paymentMethod.type.priority > rhs.paymentMethod.type.priority
-            }
+        // If paymentMethod has same priority (e.g. SEPA and Revolut Pay)
+        guard lhs.paymentMethod.type.priority == rhs.paymentMethod.type.priority else {
+            return lhs.paymentMethod.type.priority > rhs.paymentMethod.type.priority
         }
 
         switch (lhs.providers.first, rhs.providers.first) {
@@ -32,9 +30,15 @@ public struct ProviderItemSorter {
     }
 }
 
-public extension ProviderItemSorter {
-    enum SortType: Hashable {
-        case byPaymentMethodPriority
-        case byOnrampProviderExpectedAmount
+public struct ProviderItemSorterByOnrampProviderExpectedAmount: ProviderItemSorter {
+    public init() {}
+
+    public func sort(lhs: ProviderItem, rhs: ProviderItem) -> Bool {
+        switch (lhs.providers.first, rhs.providers.first) {
+        case (.some(let lhsProvider), .some(let rhsProvider)):
+            return lhsProvider > rhsProvider
+        case (.none, _), (_, .none):
+            return false
+        }
     }
 }
