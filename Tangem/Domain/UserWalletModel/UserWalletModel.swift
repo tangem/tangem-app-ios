@@ -14,13 +14,14 @@ import TangemFoundation
 
 protocol UserWalletModel:
     MainHeaderSupplementInfoProvider,
-    TotalBalanceProviding,
+    TotalBalanceProvider,
     MultiWalletMainHeaderSubtitleDataSource,
     AnalyticsContextDataProvider,
     MainHeaderUserWalletStateInfoProvider,
     EmailDataProvider,
     WCUserWalletInfoProvider,
     KeysDerivingProvider,
+    TangemPayAuthorizingProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
     AnyObject {
@@ -39,29 +40,31 @@ protocol UserWalletModel:
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
     var name: String { get }
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { get }
+    var tangemPayAccount: TangemPayAccount? { get }
+
     func validate() -> Bool
     func update(type: UpdateRequest)
     func addAssociatedCard(cardId: String)
 
     // MARK: - Properties and methods to be deleted after migration to Accounts is complete
 
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'walletModelsManager' instead")
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'walletModelsManager' instead and remove this property ([REDACTED_INFO])")
     var walletModelsManager: WalletModelsManager { get }
 
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokensManager' instead")
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokensManager' instead and remove this property ([REDACTED_INFO])")
     var userTokensManager: UserTokensManager { get }
-
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokenListManager' instead")
-    var userTokenListManager: UserTokenListManager { get }
 }
 
 enum UpdateRequest {
-    case backupStarted(card: Card)
-    case backupCompleted
+    case backupCompleted(card: Card, associatedCardIds: Set<String>)
     case newName(_ name: String)
     case mnemonicBackupCompleted
     case iCloudBackupCompleted
     case accessCodeDidSet
+    case accessCodeDidSkip
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]

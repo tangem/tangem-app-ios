@@ -24,7 +24,7 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
     }
 
     func update(wallet: ExpressInteractor.Destination?, initialWalletId: WalletModelId) {
-        expressCurrencyViewModel.update(wallet: wallet, initialWalletId: initialWalletId)
+        expressCurrencyViewModel.update(wallet: wallet?.mapValue { $0 as ExpressGenericWallet }, initialWalletId: initialWalletId)
     }
 
     func updateFiatValue(expectAmount: Decimal?, tokenItem: TokenItem?) {
