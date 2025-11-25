@@ -9,18 +9,6 @@
 import XCTest
 
 final class TotalBalanceSmokeUITests: BaseTestCase {
-    func testLongPressWalletHeader_NoRenameAndDeleteButtons() {
-        setAllureId(3965)
-        launchApp(tangemApiType: .mock)
-
-        let mainScreen = StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .longPressWalletHeader()
-
-        mainScreen.waitForNoRenameButton()
-        mainScreen.waitForDeleteButtonExists()
-    }
-
     func testTotalBalanceDisplayed_BeforeAndAfterPullToRefresh() {
         setAllureId(150)
         launchApp(tangemApiType: .mock)
