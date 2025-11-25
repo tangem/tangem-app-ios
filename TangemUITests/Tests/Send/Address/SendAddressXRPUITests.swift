@@ -110,8 +110,6 @@ final class SendAddressXRPUITests: BaseTestCase {
     func testAddressScreen_XRPAddressEntrySameAsWallet() throws {
         setAllureId(4594)
 
-        try skipDueToBug("[REDACTED_INFO]", description: "XRP: `Address is the same as wallet address` warning doesn't appear when entering an xAddress")
-
         let tokenName = "XRP Ledger"
         let sendAmount = "1"
         let destinationAddress = "X7xHWWKb12hgE5MpY13RYbPCNn2Cnq8rnBmytsDjNz5ZQdQ"
