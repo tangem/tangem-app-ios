@@ -16,48 +16,57 @@ struct MobileCreateWalletView: View {
     @ObservedObject var viewModel: ViewModel
 
     var body: some View {
-        VStack(spacing: 0) {
-            Assets.MobileWallet.mobileWallet.image
-
-            Text(viewModel.title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                .padding(.horizontal, 24)
-                .padding(.top, 20)
-
-            VStack(spacing: 28) {
-                ForEach(viewModel.infoItems) {
-                    infoItem($0)
-                }
-            }
-            .padding(.top, 32)
-
-            Spacer()
-
-            VStack(spacing: 8) {
-                MainButton(
-                    title: viewModel.createButtonTitle,
-                    style: .secondary,
-                    action: viewModel.onCreateTap
-                )
-
-                MainButton(
-                    title: viewModel.importButtonTitle,
-                    style: .primary,
-                    action: viewModel.onImportTap
-                )
-            }
-        }
-        .padding(.top, 64)
-        .padding(.horizontal, 16)
-        .padding(.bottom, 6)
-        .overlay(creatingOverlay)
-        .onAppear(perform: viewModel.onAppear)
+        content
+            .padding(.horizontal, 16)
+            .safeAreaInset(edge: .top) { navigationBar }
+            .allowsHitTesting(!viewModel.isCreating)
+            .onAppear(perform: viewModel.onAppear)
     }
 }
 
 // MARK: - Subviews
 
 private extension MobileCreateWalletView {
+    var navigationBar: some View {
+        NavigationBar(
+            title: .empty,
+            settings: .init(backgroundColor: .clear),
+            leftButtons: {
+                BackButton(
+                    height: viewModel.navBarHeight,
+                    isVisible: true,
+                    isEnabled: true,
+                    action: viewModel.onBackTap
+                )
+            }
+        )
+    }
+
+    var content: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 0) {
+                Assets.MobileWallet.mobileWalletWithoutFrame.image
+
+                Text(viewModel.title)
+                    .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 20)
+
+                VStack(spacing: 28) {
+                    ForEach(viewModel.infoItems) {
+                        infoItem($0)
+                    }
+                }
+                .padding(.top, 32)
+            }
+            .padding(.top, 64)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 16) {
+            actionButtons
+        }
+    }
+
     func infoItem(_ item: ViewModel.InfoItem) -> some View {
         HStack(spacing: 16) {
             ZStack {
@@ -81,14 +90,20 @@ private extension MobileCreateWalletView {
         .padding(.leading, 32)
     }
 
-    @ViewBuilder
-    var creatingOverlay: some View {
-        if viewModel.isCreating {
-            ZStack {
-                Colors.Overlays.overlayPrimary
-                    .ignoresSafeArea()
-                ActivityIndicatorView()
-            }
+    var actionButtons: some View {
+        VStack(spacing: 8) {
+            MainButton(
+                title: viewModel.importButtonTitle,
+                style: .secondary,
+                action: viewModel.onImportTap
+            )
+
+            MainButton(
+                title: viewModel.createButtonTitle,
+                style: .primary,
+                isLoading: viewModel.isCreating,
+                action: viewModel.onCreateTap
+            )
         }
     }
 }

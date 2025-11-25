@@ -23,7 +23,14 @@ struct TransactionDispatcherResultMapper {
         let explorerUrl = provider.url(transaction: result.hash)
 
         let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
-        return TransactionDispatcherResult(hash: result.hash, url: explorerUrl, signerType: signerType.rawValue)
+        let currentHost = HostAnalyticsFormatterUtil().formattedHost(from: result.currentProviderHost)
+
+        return TransactionDispatcherResult(
+            hash: result.hash,
+            url: explorerUrl,
+            signerType: signerType.rawValue,
+            currentHost: currentHost
+        )
     }
 
     func mapError(_ error: UniversalError, transaction: TransactionDispatcherTransactionType) -> TransactionDispatcherResult.Error {

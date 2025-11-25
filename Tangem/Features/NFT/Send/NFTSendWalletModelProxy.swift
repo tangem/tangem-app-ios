@@ -368,7 +368,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
-    var account: any CryptoAccountModel {
+    var account: (any CryptoAccountModel)? {
         mainTokenWalletModel.account
     }
 
@@ -382,5 +382,9 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var receiveAddressTypes: [ReceiveAddressType] {
         mainTokenWalletModel.receiveAddressTypes
+    }
+
+    func resolve<R>(using resolver: R) -> R.Result where R: WalletModelResolving {
+        resolver.resolve(walletModel: self)
     }
 }
