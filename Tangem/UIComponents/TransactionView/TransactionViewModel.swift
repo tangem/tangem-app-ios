@@ -25,10 +25,44 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     var formattedAmount: String? {
         switch transactionType {
-        case .approve, .vote, .withdraw:
+        case .approve, .vote, .withdraw, .yieldEnter, .yieldWithdraw, .yieldTopup:
             return nil
-        case .transfer, .swap, .operation, .unknownOperation, .stake, .unstake, .claimRewards, .restake, .tangemPay, .tangemPayTransfer, .yieldSupply, .yieldEnter, .yieldWithdraw, .yieldTopup:
+        case .transfer, .swap, .operation, .unknownOperation, .stake, .unstake, .claimRewards, .restake, .tangemPay, .tangemPayTransfer, .yieldSupply:
             return amount
+        }
+    }
+
+    var transactionDescriptionLayoutPriority: Double {
+        switch transactionType {
+        case .yieldEnter, .yieldTopup, .yieldWithdraw:
+            0
+        default:
+            1
+        }
+    }
+
+    var transactionDescriptionTruncationMode: Text.TruncationMode {
+        switch transactionType {
+        case .yieldEnter, .yieldTopup, .yieldWithdraw:
+            .tail
+        default:
+            .middle
+        }
+    }
+
+    func getTransactionDescription() -> String? {
+        switch transactionType {
+        case .yieldEnter:
+            return Localization.yieldModuleTransactionEnterSubtitle(amount)
+
+        case .yieldTopup:
+            return Localization.yieldModuleTransactionTopupSubtitle(amount)
+
+        case .yieldWithdraw:
+            return Localization.yieldModuleTransactionExitSubtitle(amount)
+
+        default:
+            return localizeDestination
         }
     }
 
