@@ -71,4 +71,19 @@ struct XRPAddressTests {
             #expect(addressValidator.validate(addressHex))
         }
     }
+
+    /// https://xrpaddress.info
+    @Test(arguments: [
+        "XVfvixWZQKkcenFRYApCjpTUyJ4BePTe3jJv7beatUZvQYh",
+        "rU893viamSnsfP3zjzM2KPxjqZjXSXK6VF"
+    ])
+    func xrpAddressCompoundCheck(address: String) {
+        let selfAddress = "rU893viamSnsfP3zjzM2KPxjqZjXSXK6VF"
+
+        [EllipticCurve.ed25519, .ed25519_slip0010].forEach {
+            let addressValidator = AddressServiceFactory(blockchain: .xrp(curve: $0)).makeAddressService()
+            let resolved = addressValidator.resolveAddress(address)
+            #expect(resolved == selfAddress)
+        }
+    }
 }
