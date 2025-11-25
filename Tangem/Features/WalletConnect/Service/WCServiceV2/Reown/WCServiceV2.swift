@@ -191,7 +191,7 @@ extension WCServiceV2 {
         runTask { [weak self, walletKitClient] in
             guard let self else { return }
 
-            let deletedDApps = (try? await connectedDAppRepository.deleteDApps(forUserWalletID: userWalletId)) ?? []
+            let deletedDApps = (try? await connectedDAppRepository.deleteDApps(forUserWalletId: userWalletId)) ?? []
 
             await withTaskGroup(of: Void.self) { taskGroup in
                 for dApp in deletedDApps {
@@ -222,7 +222,7 @@ extension WCServiceV2 {
         guard let selectedUserWallet = userWalletRepository.selectedModel else { return }
 
         Task { [connectedDAppRepository] in
-            let connectedDApps = (try? await connectedDAppRepository.getDApps(for: selectedUserWallet.userWalletId.stringValue)) ?? []
+            let connectedDApps = (try? await connectedDAppRepository.getDApps(forUserWalletId: selectedUserWallet.userWalletId.stringValue)) ?? []
 
             let dAppsToDisconnect = connectedDApps.filter { dApp in
                 let hasOnlyOneHiddenBlockchain = dApp.dAppBlockchains.count == 1
