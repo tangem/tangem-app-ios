@@ -35,7 +35,8 @@ struct UserSettingsAccountsSectionView: View {
             },
             footer: {
                 // We dont have reordering on iOS below 16.0
-                if #available(iOS 16.0, *) {
+                // And there is no need to show "reorder" text if there are less than 2 accounts
+                if #available(iOS 16.0, *), viewModel.moreThatOneActiveAccount {
                     Text(Localization.accountReorderDescription)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 }
