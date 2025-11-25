@@ -7,75 +7,104 @@
 //
 
 import Foundation
+import TangemExpress
 
 protocol SendAmountStepBuildable {
     var amountIO: SendAmountStepBuilder.IO { get }
-    var amountTypes: SendAmountStepBuilder.Types { get }
     var amountDependencies: SendAmountStepBuilder.Dependencies { get }
 }
 
 extension SendAmountStepBuildable {
     func makeSendAmountStep() -> SendAmountStepBuilder.ReturnValue {
-        SendAmountStepBuilder.make(io: amountIO, types: amountTypes, dependencies: amountDependencies)
+        SendAmountStepBuilder.make(io: amountIO, dependencies: amountDependencies)
     }
 }
 
 enum SendAmountStepBuilder {
     struct IO {
-        let input: SendAmountInput
-        let output: SendAmountOutput
-    }
+        let sourceIO: (input: SendSourceTokenInput, output: SendSourceTokenOutput)
+        let sourceAmountIO: (input: SendSourceTokenAmountInput, output: SendSourceTokenAmountOutput)
+        let receiveIO: (input: SendReceiveTokenInput, output: SendReceiveTokenOutput)?
+        let receiveAmountIO: (input: SendReceiveTokenAmountInput, output: SendReceiveTokenAmountOutput)?
+        let swapProvidersInput: SendSwapProvidersInput?
 
-    struct Types {
-        let tokenItem: TokenItem
-        let feeTokenItem: TokenItem
-        let maxAmount: Decimal
-        let settings: SendAmountViewModel.Settings
+        init(
+            sourceIO: (input: SendSourceTokenInput, output: SendSourceTokenOutput),
+            sourceAmountIO: (input: SendSourceTokenAmountInput, output: SendSourceTokenAmountOutput),
+            receiveIO: (input: SendReceiveTokenInput, output: SendReceiveTokenOutput)? = nil,
+            receiveAmountIO: (input: SendReceiveTokenAmountInput, output: SendReceiveTokenAmountOutput)? = nil,
+            swapProvidersInput: SendSwapProvidersInput? = nil
+        ) {
+            self.sourceIO = sourceIO
+            self.sourceAmountIO = sourceAmountIO
+            self.receiveIO = receiveIO
+            self.receiveAmountIO = receiveAmountIO
+            self.swapProvidersInput = swapProvidersInput
+        }
     }
 
     struct Dependencies {
-        let sendFeeProvider: any SendFeeProvider
-        let sendQRCodeService: (any SendQRCodeService)?
         let sendAmountValidator: any SendAmountValidator
         let amountModifier: (any SendAmountModifier)?
+        let notificationService: (any SendAmountNotificationService)?
         let analyticsLogger: any SendAmountAnalyticsLogger
     }
 
-    typealias ReturnValue = (step: SendAmountStep, interactor: SendAmountInteractor, compact: SendAmountCompactViewModel)
+    typealias ReturnValue = (step: SendAmountStep, amountUpdater: SendAmountExternalUpdater, compact: SendAmountCompactViewModel, finish: SendAmountFinishViewModel)
 
-    static func make(io: IO, types: Types, dependencies: Dependencies,) -> ReturnValue {
+    static func make(io: IO, dependencies: Dependencies) -> ReturnValue {
+        let interactorSaver = CommonSendAmountInteractorSaver(
+            sourceTokenAmountInput: io.sourceAmountIO.input,
+            sourceTokenAmountOutput: io.sourceAmountIO.output,
+            receiveTokenInput: io.receiveIO?.input,
+            receiveTokenOutput: io.receiveIO?.output
+        )
+
         let interactor = CommonSendAmountInteractor(
-            input: io.input,
-            output: io.output,
-            tokenItem: types.tokenItem,
-            feeTokenItem: types.feeTokenItem,
-            maxAmount: types.maxAmount,
+            sourceTokenInput: io.sourceIO.input,
+            sourceTokenAmountInput: io.sourceAmountIO.input,
+            receiveTokenInput: io.receiveIO?.input,
+            receiveTokenOutput: io.receiveIO?.output,
+            receiveTokenAmountInput: io.receiveAmountIO?.input,
             validator: dependencies.sendAmountValidator,
             amountModifier: dependencies.amountModifier,
+            notificationService: dependencies.notificationService,
+            saver: interactorSaver,
             type: .crypto
         )
 
         let viewModel = SendAmountViewModel(
-            initial: types.settings,
+            sourceToken: io.sourceIO.input.sourceToken,
             interactor: interactor,
-            analyticsLogger: dependencies.analyticsLogger,
-            sendQRCodeService: dependencies.sendQRCodeService
+            analyticsLogger: dependencies.analyticsLogger
         )
 
         let step = SendAmountStep(
             viewModel: viewModel,
             interactor: interactor,
-            sendFeeProvider: dependencies.sendFeeProvider,
+            interactorSaver: interactorSaver,
             analyticsLogger: dependencies.analyticsLogger
         )
 
         let compact = SendAmountCompactViewModel(
-            conventViewModel: SendAmountCompactContentViewModel(
-                input: io.input,
-                tokenIconInfo: types.settings.tokenIconInfo,
-                tokenItem: types.tokenItem
-            )
+            sourceTokenInput: io.sourceIO.input,
+            sourceTokenAmountInput: io.sourceAmountIO.input,
+            receiveTokenInput: io.receiveIO?.input,
+            receiveTokenAmountInput: io.receiveAmountIO?.input,
+            swapProvidersInput: io.swapProvidersInput
         )
-        return (step: step, interactor: interactor, compact: compact)
+
+        let amountUpdater = SendAmountExternalUpdater(viewModel: viewModel, interactor: interactor)
+        let finish = SendAmountFinishViewModel(
+            sourceTokenInput: io.sourceIO.input,
+            sourceTokenAmountInput: io.sourceAmountIO.input,
+            receiveTokenInput: io.receiveIO?.input,
+            receiveTokenAmountInput: io.receiveAmountIO?.input,
+            swapProvidersInput: io.swapProvidersInput,
+        )
+
+        interactorSaver.updater = amountUpdater
+
+        return (step: step, amountUpdater: amountUpdater, compact: compact, finish: finish)
     }
 }

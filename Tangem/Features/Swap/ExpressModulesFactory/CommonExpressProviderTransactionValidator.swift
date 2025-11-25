@@ -14,51 +14,35 @@ struct CommonExpressProviderTransactionValidator: ExpressProviderTransactionVali
     // MARK: - Private Properties
 
     private let tokenItem: TokenItem
-    private let requiresTransactionSizeValidation: Bool
-
-    private let solanaTransactionHelper = SolanaTransactionHelper()
+    private let hardwareLimitationsUtil: HardwareLimitationsUtil
 
     // MARK: - Init
 
-    init(tokenItem: TokenItem, requiresTransactionSizeValidation: Bool) {
+    init(tokenItem: TokenItem, hardwareLimitationsUtil: HardwareLimitationsUtil) {
         self.tokenItem = tokenItem
-        self.requiresTransactionSizeValidation = requiresTransactionSizeValidation
+        self.hardwareLimitationsUtil = hardwareLimitationsUtil
     }
 
     // MARK: - ExpressProviderTransactionValidator
 
-    func validateTransactionSize(data: String?) -> Bool {
-        guard requiresTransactionSizeValidation else {
-            return true
-        }
-
-        // This logic applies only to the Solana blockchain.
-        // For Solana, transaction data is expected to be Base64-encoded,
-        // so the string is decoded into Data using base64Decoded().
-        // For other blockchains, the method’s behavior must be carefully extended,
-        // since the transaction data format and encoding may differ.
-        if case .solana = tokenItem.blockchain, let data, let decodedData = try? Data(data.base64Decoded()) {
-            return processSolanaTransaction(of: decodedData)
-        }
-
-        return true
-    }
-
-    // MARK: - Private Implementation
-
-    private func processSolanaTransaction(of transactionData: Data) -> Bool {
+    func validateTransactionSize(data: String) -> Bool {
         do {
-            let transactionWithoutPlaceholders = try solanaTransactionHelper
-                .removeSignaturesPlaceholders(from: transactionData)
+            switch tokenItem.blockchain {
+            // This logic applies only to the Solana blockchain.
+            // For Solana, transaction data is expected to be Base64-encoded,
+            // so the string is decoded into Data using base64Decoded().
+            // For other blockchains, the method’s behavior must be carefully extended,
+            // since the transaction data format and encoding may differ.
+            case .solana:
+                let transactionData = try Data(data.base64Decoded())
+                return try hardwareLimitationsUtil.canHandleTransaction(tokenItem, transaction: transactionData)
 
-            switch SolanaTransactionSizeUtils.size(for: transactionWithoutPlaceholders.transaction) {
-            case .default:
+            default:
                 return true
-            case .long:
-                return false
             }
+
         } catch {
-            return false
+            return true
         }
     }
 }

@@ -11,11 +11,12 @@ import Combine
 import TangemFoundation
 
 protocol CryptoAccountsRepository {
-    /// Includes all crypto accounts, including archived ones.
-    var totalCryptoAccountsCount: Int { get }
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> { get }
+    var auxiliaryDataPublisher: AnyPublisher<CryptoAccountsAuxiliaryData, Never> { get }
 
     func initialize(forUserWalletWithId userWalletId: UserWalletId)
-    func addCryptoAccount(withConfig config: CryptoAccountPersistentConfig, tokens: [TokenItem])
-    func removeCryptoAccount<T: Hashable>(withIdentifier identifier: T)
+    func getRemoteState() async throws -> CryptoAccountsRemoteState
+    func addNewCryptoAccount(withConfig config: CryptoAccountPersistentConfig, remoteState: CryptoAccountsRemoteState) async throws
+    func updateExistingCryptoAccount(withConfig config: CryptoAccountPersistentConfig)
+    func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws
 }

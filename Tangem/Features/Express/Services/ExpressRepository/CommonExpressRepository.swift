@@ -8,72 +8,35 @@
 
 import Foundation
 import TangemExpress
+import TangemFoundation
 
 actor CommonExpressRepository {
-    private let walletModelsManager: WalletModelsManager
+    @Injected(\.expressPairsRepository)
+    private var expressPairsRepository: ExpressPairsRepository
+
     private let expressAPIProvider: ExpressAPIProvider
+    private var expressProviders: [ExpressProvider] = []
 
-    private var providers: [ExpressProvider] = []
-    private var pairs: Set<ExpressPair> = []
-    private var userCurrencies: [ExpressWalletCurrency] {
-        walletModelsManager.walletModels.filter { !$0.isCustom }.map { $0.tokenItem.expressCurrency }
-    }
-
-    init(
-        walletModelsManager: WalletModelsManager,
-        expressAPIProvider: ExpressAPIProvider,
-    ) {
-        self.walletModelsManager = walletModelsManager
+    init(expressAPIProvider: ExpressAPIProvider) {
         self.expressAPIProvider = expressAPIProvider
     }
 }
 
+// MARK: - ExpressRepository
+
 extension CommonExpressRepository: ExpressRepository {
     func providers() async throws -> [TangemExpress.ExpressProvider] {
-        if !providers.isEmpty {
-            return providers
+        if !expressProviders.isEmpty {
+            return expressProviders
         }
 
         let providers = try await expressAPIProvider.providers(branch: .swap)
-        self.providers = providers
+        expressProviders = providers
         return providers
     }
 
-    func updatePairs(from wallet: ExpressWalletCurrency, to currencies: [ExpressWalletCurrency]) async throws {
-        guard !currencies.isEmpty else { return }
-
-        let pairsTo = try await expressAPIProvider.pairs(from: [wallet], to: currencies)
-        pairs.formUnion(pairsTo.toSet())
-    }
-
-    func updatePairs(for wallet: TangemExpress.ExpressWalletCurrency) async throws {
-        let currencies = userCurrencies.filter { $0 != wallet }
-
-        guard !currencies.isEmpty else { return }
-
-        async let pairsTo = expressAPIProvider.pairs(from: [wallet], to: currencies)
-        async let pairsFrom = expressAPIProvider.pairs(from: currencies, to: [wallet])
-
-        try await pairs.formUnion(pairsTo.toSet())
-        try await pairs.formUnion(pairsFrom.toSet())
-    }
-
     func getAvailableProviders(for pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider.Id] {
-        if let availablePair = pairs.first(where: {
-            $0.source == pair.source.currency.asCurrency && $0.destination == pair.destination.currency.asCurrency
-        }) {
-            return availablePair.providers
-        }
-
-        throw ExpressRepositoryError.availableProvidersDoesNotFound
-    }
-
-    func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.destination == wallet.asCurrency }.asArray
-    }
-
-    func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.source == wallet.asCurrency }.asArray
+        try await expressPairsRepository.getAvailableProviders(for: pair)
     }
 }
 
