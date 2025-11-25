@@ -285,8 +285,7 @@ extension TONWalletManager: StakeKitTransactionsBuilder, StakingTransactionSende
         ).async()
 
         return try signatures.enumerated().compactMap { index, signature -> RawTransaction? in
-            guard let transaction = transactions[safe: index],
-                  let preSignData = preSignData[safe: index] else { return nil }
+            guard let preSignData = preSignData[safe: index] else { return nil }
             return try helper.prepareForSend(
                 preSignData: preSignData,
                 signatureInfo: signature
@@ -296,7 +295,7 @@ extension TONWalletManager: StakeKitTransactionsBuilder, StakingTransactionSende
 }
 
 extension TONWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(message: rawTransaction).async()
     }
 }
