@@ -36,6 +36,13 @@ final class UserSettingsAccountsViewModel: ObservableObject {
         self.userWalletConfig = userWalletConfig
         self.coordinator = coordinator
 
+        addNewAccountButton = AddListItemButton.ViewData(
+            text: Localization.accountFormCreateButton,
+            action: { [weak self] in
+                self?.onTapNewAccount()
+            }
+        )
+
         accountRows = accountModels.flatMap {
             AccountModelToUserSettingsViewDataMapper.map(
                 from: $0,
@@ -59,20 +66,6 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func bind() {
-        Just(accountModelsManager.canAddCryptoAccounts)
-            .withWeakCaptureOf(self)
-            .map { viewModel, enabled in
-                AddListItemButton.ViewData(
-                    text: Localization.accountFormCreateButton,
-                    isEnabled: enabled,
-                    action: { [weak self] in
-                        self?.onTapNewAccount()
-                    }
-                )
-            }
-            .assign(to: \.addNewAccountButton, on: self, ownership: .weak)
-            .store(in: &bag)
-
         accountModelsManager.hasArchivedCryptoAccounts
             .withWeakCaptureOf(self)
             .map { viewModel, hasArchivedAccounts in
