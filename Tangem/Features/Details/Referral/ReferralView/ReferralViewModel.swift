@@ -93,9 +93,12 @@ final class ReferralViewModel: ObservableObject {
             return
         }
 
+        let filter = makeCryptoAccountModelsFilter()
+
         coordinator?.showAccountSelector(
             selectedAccount: selectedCryptoAccount,
             userWalletModel: selectedUserWallet,
+            cryptoAccountModelsFilter: filter,
             onSelect: { [weak self] cryptoAccountModel in
                 guard let self else { return }
 
@@ -111,6 +114,16 @@ final class ReferralViewModel: ObservableObject {
                 viewState = viewState.updateAccountData(with: accountData)
             }
         )
+    }
+
+    private func makeCryptoAccountModelsFilter() -> (any CryptoAccountModel) -> Bool {
+        guard let networkId = awardToken?.networkId else {
+            return { _ in true }
+        }
+
+        return { [supportedBlockchains] account in
+            AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
+        }
     }
 
     func participateInReferralProgram() {
@@ -415,6 +428,14 @@ final class ReferralViewModel: ObservableObject {
         findAccount(by: selectedForReferralAccount?.id)
     }
 
+    private var award: ReferralProgramInfo.Award? {
+        referralProgramInfo?.conditions.awards.first
+    }
+
+    private var awardToken: AwardToken? {
+        award?.token
+    }
+
     private func findAccount(by id: some Hashable) -> (any CryptoAccountModel)? {
         switch workMode {
         case .plainUserTokensManager:
@@ -462,8 +483,7 @@ extension ReferralViewModel {
         var addressContent = ""
         var tokenName = ""
 
-        if let info = referralProgramInfo,
-           let award = info.conditions.awards.first {
+        if let award {
             formattedAward = "\(award.amount) \(award.token.symbol)"
         }
 
@@ -472,8 +492,7 @@ extension ReferralViewModel {
             addressContent = addressFormatter.truncated()
         }
 
-        if let token = referralProgramInfo?.conditions.awards.first?.token,
-           let blockchain = supportedBlockchains[token.networkId] {
+        if let awardToken, let blockchain = supportedBlockchains[awardToken.networkId] {
             tokenName = blockchain.displayName
         }
 
