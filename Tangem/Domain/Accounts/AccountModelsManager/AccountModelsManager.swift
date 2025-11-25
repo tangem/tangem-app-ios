@@ -9,12 +9,13 @@
 import Foundation
 import Combine
 
-// [REDACTED_TODO_COMMENT]
 protocol AccountModelsManager {
     /// Indicates whether the user can add more additional (not `Main`) crypto accounts to the wallet.
     var canAddCryptoAccounts: Bool { get }
 
     var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> { get }
+
+    var accountModels: [AccountModel] { get }
 
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { get }
 
@@ -26,9 +27,37 @@ protocol AccountModelsManager {
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo]
 
-    func archiveCryptoAccount(
-        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
-    ) throws(AccountModelsManagerError)
+    func archiveCryptoAccount(withIdentifier identifier: any AccountModelPersistentIdentifierConvertible) async throws(AccountArchivationError)
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError)
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError)
+}
+
+// MARK: - Convenience extensions
+
+extension AccountModelsManager {
+    /// Returns all crypto account models from the `accountModels` property.
+    var cryptoAccountModels: [any CryptoAccountModel] {
+        return accountModels
+            .flatMap { accountModel -> [any CryptoAccountModel] in
+                switch accountModel {
+                case .standard(.single(let cryptoAccountModel)):
+                    return [cryptoAccountModel]
+                case .standard(.multiple(let cryptoAccountModels)):
+                    return cryptoAccountModels
+                }
+            }
+    }
+
+    /// Returns all crypto account models from the `accountModelsPublisher` property.
+    var cryptoAccountModelsPublisher: AnyPublisher<[any CryptoAccountModel], Never> {
+        accountModelsPublisher.map { accountModels in
+            accountModels.flatMap { accountModel in
+                switch accountModel {
+                case .standard(.single(let cryptoAccountModel)): [cryptoAccountModel]
+                case .standard(.multiple(let cryptoAccountModels)): cryptoAccountModels
+                }
+            }
+        }
+        .eraseToAnyPublisher()
+    }
 }
