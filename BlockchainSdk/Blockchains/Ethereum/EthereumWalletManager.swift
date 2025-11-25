@@ -598,7 +598,7 @@ extension EthereumWalletManager: P2PTransactionDataProvider {
 // MARK: - StakeKitTransactionDataBroadcaster
 
 extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
     }
 }
