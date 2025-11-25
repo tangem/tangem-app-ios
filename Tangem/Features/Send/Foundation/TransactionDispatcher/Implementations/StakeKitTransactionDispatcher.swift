@@ -1,5 +1,5 @@
 //
-//  StakingTransactionDispatcher.swift
+//  StakeKitTransactionDispatcher.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import BlockchainSdk
 import TangemStaking
 import TangemFoundation
 
-class StakingTransactionDispatcher {
+class StakeKitTransactionDispatcher {
     private let walletModel: any WalletModel
     private let transactionSigner: TangemSigner
     private let pendingHashesSender: StakingPendingHashesSender
@@ -41,7 +41,7 @@ class StakingTransactionDispatcher {
 
 // MARK: - TransactionDispatcher
 
-extension StakingTransactionDispatcher: TransactionDispatcher {
+extension StakeKitTransactionDispatcher: TransactionDispatcher {
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         guard case .staking(let action) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound
@@ -67,7 +67,7 @@ extension StakingTransactionDispatcher: TransactionDispatcher {
 
 // MARK: - Private
 
-private extension StakingTransactionDispatcher {
+private extension StakeKitTransactionDispatcher {
     func stakingTransactionSender() throws -> StakingTransactionSender {
         guard let stakeKitTransactionSender = walletModel.stakingTransactionSender else {
             throw Error.stakingUnsupported
@@ -90,7 +90,7 @@ private extension StakingTransactionDispatcher {
         case .tron: 5 // to stake tron 2 transactions must be executed in specific order
         default: shouldDelayTransactions ? 1 : nil
         }
-        let stream = sender.sendStakeKit(
+        let stream = try await sender.sendStakeKit(
             transactions: transactions,
             signer: transactionSigner,
             transactionStatusProvider: transactionStatusProvider,
@@ -135,7 +135,7 @@ private extension StakingTransactionDispatcher {
     }
 }
 
-extension StakingTransactionDispatcher {
+extension StakeKitTransactionDispatcher {
     struct DispatchProgressStuck: Hashable {
         let action: StakingTransactionAction
         let type: StuckType
