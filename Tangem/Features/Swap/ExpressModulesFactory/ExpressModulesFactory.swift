@@ -29,7 +29,7 @@ protocol ExpressModulesFactory {
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel
 
-    func makeExpressProvidersSelectorViewModel(coordinator: ExpressProvidersSelectorRoutable) -> ExpressProvidersSelectorViewModel
+    func getExpressProvidersSelectorViewModel(coordinator: ExpressProvidersSelectorRoutable) -> ExpressProvidersSelectorViewModel
 
     func makeExpressSuccessSentViewModel(
         data: SentExpressTransactionData,
