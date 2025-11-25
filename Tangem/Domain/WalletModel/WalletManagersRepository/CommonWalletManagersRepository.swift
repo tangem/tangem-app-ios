@@ -16,7 +16,7 @@ class CommonWalletManagersRepository {
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
 
     private let keysProvider: KeysProvider
-    private let userTokenListManager: UserTokenListManager
+    private let userTokensManager: UserTokensManager
     private let walletManagerFactory: AnyWalletManagerFactory
 
     /// We need to keep optional dictionary to track state when wallet managers dictionary wasn't able to initialize
@@ -27,18 +27,18 @@ class CommonWalletManagersRepository {
 
     init(
         keysProvider: KeysProvider,
-        userTokenListManager: UserTokenListManager,
+        userTokensManager: UserTokensManager,
         walletManagerFactory: AnyWalletManagerFactory
     ) {
         self.keysProvider = keysProvider
-        self.userTokenListManager = userTokenListManager
+        self.userTokensManager = userTokensManager
         self.walletManagerFactory = walletManagerFactory
         bind()
     }
 
     private func bind() {
         Publishers.CombineLatest3(
-            userTokenListManager.userTokensPublisher,
+            userTokensManager.userTokensPublisher,
             keysProvider.keysPublisher,
             apiListProvider.apiListPublisher
         )
@@ -48,19 +48,23 @@ class CommonWalletManagersRepository {
         .store(in: &bag)
     }
 
-    private func update(with entries: [StorageEntry], _ keys: [KeyInfo], apiList: APIList) {
+    private func update(with entries: [TokenItem], _ keys: [KeyInfo], apiList: APIList) {
         var managers = walletManagers.value ?? [:]
         var hasUpdates = false
 
-        for entry in entries {
-            if let existingWalletManager = walletManagers.value?[entry.blockchainNetwork] {
-                let tokensToRemove = Set(existingWalletManager.cardTokens).subtracting(entry.tokens)
+        let gropedByNetwork = Dictionary(grouping: entries, by: { $0.blockchainNetwork })
+
+        for (blockchainNetwork, items) in gropedByNetwork {
+            let entryTokens = items.compactMap(\.token)
+
+            if let existingWalletManager = walletManagers.value?[blockchainNetwork] {
+                let tokensToRemove = Set(existingWalletManager.cardTokens).subtracting(entryTokens)
                 for tokenToRemove in tokensToRemove {
                     existingWalletManager.removeToken(tokenToRemove)
                     hasUpdates = true
                 }
 
-                let tokensToAdd = Set(entry.tokens).subtracting(existingWalletManager.cardTokens)
+                let tokensToAdd = Set(entryTokens).subtracting(existingWalletManager.cardTokens)
                 if !tokensToAdd.isEmpty {
                     existingWalletManager.addTokens(Array(tokensToAdd))
                     // We need to reset lastUpdateTime to be able to load token info, if tokens added one by one sequentially.
@@ -69,8 +73,13 @@ class CommonWalletManagersRepository {
                     hasUpdates = true
                 }
 
-            } else if let newWalletManager = makeWalletManager(for: entry, keys, apiList: apiList) {
-                managers[entry.blockchainNetwork] = newWalletManager
+            } else if let newWalletManager = makeWalletManager(
+                blockchainNetwork: blockchainNetwork,
+                tokens: entryTokens,
+                keys: keys,
+                apiList: apiList
+            ) {
+                managers[blockchainNetwork] = newWalletManager
                 hasUpdates = true
             }
         }
@@ -96,13 +105,13 @@ class CommonWalletManagersRepository {
         }
     }
 
-    private func makeWalletManager(for entry: StorageEntry, _ keys: [KeyInfo], apiList: APIList) -> WalletManager? {
+    private func makeWalletManager(blockchainNetwork: BlockchainNetwork, tokens: [Token], keys: [KeyInfo], apiList: APIList) -> WalletManager? {
         do {
-            return try walletManagerFactory.makeWalletManager(for: entry, keys: keys, apiList: apiList)
+            return try walletManagerFactory.makeWalletManager(blockchainNetwork: blockchainNetwork, tokens: tokens, keys: keys, apiList: apiList)
         } catch AnyWalletManagerFactoryError.noDerivation {
-            AppLogger.warning("‼️ No derivation for \(entry.blockchainNetwork.blockchain.displayName)")
+            AppLogger.warning("‼️ No derivation for \(blockchainNetwork.blockchain.displayName)")
         } catch {
-            AppLogger.error("‼️ Failed to create \(entry.blockchainNetwork.blockchain.displayName)", error: error)
+            AppLogger.error("‼️ Failed to create \(blockchainNetwork.blockchain.displayName)", error: error)
         }
 
         return nil
