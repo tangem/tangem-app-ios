@@ -11,9 +11,9 @@ import TangemAccessibilityIdentifiers
 import Foundation
 
 final class MainScreen: ScreenBase<MainScreenElement> {
-    private lazy var buyTitle = staticText(.buyTitle)
-    private lazy var exchangeTitle = staticText(.exchangeTitle)
-    private lazy var sellTitle = staticText(.sellTitle)
+    private lazy var buyActionButton = staticText(.buyTitle)
+    private lazy var swapActionButton = staticText(.exchangeTitle)
+    private lazy var sellActionButton = staticText(.sellTitle)
     private lazy var tokensList = otherElement(.tokensList)
     private lazy var organizeTokensButton = button(.organizeTokensButton)
     private lazy var detailsButton = button(.detailsButton)
@@ -21,9 +21,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var headerCardImage = image(.headerCardImage)
     private lazy var totalBalance = staticText(.totalBalance)
     private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
-    private lazy var missingDerivationNotification = button(.missingDerivationNotification)
+    private lazy var missingDerivationNotification = otherElement(.missingDerivationNotification)
 
-    func validate(cardType: CardMockAccessibilityIdentifiers) {
+    @discardableResult
+    func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
         XCTContext.runActivity(named: "Validate MainPage for card type: \(cardType.rawValue)") { _ in
             validateHeaderCardImage(for: cardType)
 
@@ -36,12 +37,42 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 XCTAssertTrue(buttonTexts.contains("Receive"), "Receive button should exist")
             case .wallet, .wallet2, .walletDemo, .wallet2Demo, .shiba, .four12, .v3seckp, .ring:
                 XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
-                XCTAssertTrue(buyTitle.waitForExistence(timeout: .robustUIUpdate), "Buy button should exist for wallet cards")
-                XCTAssertTrue(exchangeTitle.exists, "Exchange button should exist for wallet cards")
-                XCTAssertTrue(sellTitle.exists, "Sell button should exist for wallet cards")
+                XCTAssertTrue(buyActionButton.waitForExistence(timeout: .robustUIUpdate), "Buy button should exist for wallet cards")
+                XCTAssertTrue(swapActionButton.exists, "Exchange button should exist for wallet cards")
+                XCTAssertTrue(sellActionButton.exists, "Sell button should exist for wallet cards")
             default:
                 XCTFail("Provide card verification methods for card type: \(String(describing: cardType))")
             }
+        }
+        return self
+    }
+
+    // MARK: - Main action buttons
+
+    @discardableResult
+    func tapMainBuy() -> BuyTokenSelectorScreen {
+        XCTContext.runActivity(named: "Tap Buy action on main screen") { _ in
+            waitAndAssertTrue(buyActionButton, "Buy title should exist on main screen")
+            buyActionButton.waitAndTap()
+            return BuyTokenSelectorScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapMainSwap() -> SwapTokenSelectorScreen {
+        XCTContext.runActivity(named: "Tap Exchange action on main screen") { _ in
+            waitAndAssertTrue(swapActionButton, "Exchange title should exist on main screen")
+            swapActionButton.waitAndTap()
+            return SwapTokenSelectorScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapMainSell() -> SellTokenSelectorScreen {
+        XCTContext.runActivity(named: "Tap Sell action on main screen") { _ in
+            waitAndAssertTrue(sellActionButton, "Sell title should exist on main screen")
+            sellActionButton.waitAndTap()
+            return SellTokenSelectorScreen(app)
         }
     }
 
@@ -110,7 +141,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func validateMandatorySecurityUpdateBannerExists() -> Self {
         XCTContext.runActivity(named: "Validate mandatory security update banner exists") { _ in
-            let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner]
+            let bannerElement = app.otherElements[MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner]
             waitAndAssertTrue(bannerElement, "Mandatory security update banner should be displayed")
         }
         return self
@@ -205,14 +236,13 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         return self
     }
 
-    @discardableResult
-    func longPressToken(_ tokenName: String) -> TokenScreen {
+    func longPressToken(_ tokenName: String) -> ContextMenuScreen {
         XCTContext.runActivity(named: "Long press token: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let tokenElement = tokensList.staticTextByLabel(label: tokenName)
             waitAndAssertTrue(tokenElement, "Token '\(tokenName)' should exist")
             tokenElement.press(forDuration: 1.0)
-            return TokenScreen(app)
+            return ContextMenuScreen(app)
         }
     }
 
@@ -239,8 +269,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait for total balance displayed as dash") { _ in
             waitAndAssertTrue(totalBalance, "Total balance element should exist")
             XCTAssertTrue(totalBalance.label.contains("–"), "Total balance should be displayed as dash")
-            return self
         }
+        return self
     }
 
     @discardableResult
@@ -261,7 +291,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getTotalBalanceNumericValue() -> Decimal {
         XCTContext.runActivity(named: "Get total balance numeric value") { _ in
             let balanceText = getTotalBalanceValue()
-            return parseNumericValue(from: balanceText)
+            return NumericValueHelper.parseNumericValue(from: balanceText)
         }
     }
 
@@ -325,7 +355,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getAllTokenBalancesNumeric(tokenName: String) -> [Decimal] {
         XCTContext.runActivity(named: "Get all balances (numeric) for token: \(tokenName)") { _ in
             let labels = getAllTokenBalances(tokenName: tokenName)
-            return labels.map { parseNumericValue(from: $0) }
+            return labels.map { NumericValueHelper.parseNumericValue(from: $0) }
         }
     }
 
@@ -364,7 +394,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getTokenBalanceNumeric(tokenName: String, tokenIndex: Int = 0) -> Decimal {
         XCTContext.runActivity(named: "Get balance (numeric) for token: \(tokenName) at index: \(tokenIndex)") { _ in
             let label = getTokenBalance(tokenName: tokenName, tokenIndex: tokenIndex)
-            return parseNumericValue(from: label)
+            return NumericValueHelper.parseNumericValue(from: label)
         }
     }
 
@@ -411,8 +441,36 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func waitForSynchronizeAddressesButtonExists() -> Self {
         XCTContext.runActivity(named: "Wait for synchronize addresses button exists") { _ in
             waitAndAssertTrue(missingDerivationNotification, "Missing derivation notification should exist")
-            return self
         }
+        return self
+    }
+
+    @discardableResult
+    func waitActionButtonsEnabled() -> Self {
+        XCTContext.runActivity(named: "Validate action buttons are enabled") { _ in
+            waitAndAssertTrue(buyActionButton, "Buy button should exist")
+            waitAndAssertTrue(swapActionButton, "Exchange button should exist")
+            waitAndAssertTrue(sellActionButton, "Sell button should exist")
+
+            XCTAssertTrue(buyActionButton.isEnabled, "Buy button should be enabled")
+            XCTAssertTrue(swapActionButton.isEnabled, "Exchange button should be enabled")
+            XCTAssertTrue(sellActionButton.isEnabled, "Sell button should be enabled")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitActionButtonsDisabled() -> Self {
+        XCTContext.runActivity(named: "Validate action buttons are disabled") { _ in
+            waitAndAssertTrue(buyActionButton, "Buy button should exist")
+            waitAndAssertTrue(swapActionButton, "Exchange button should exist")
+            waitAndAssertTrue(sellActionButton, "Sell button should exist")
+
+            XCTAssertFalse(buyActionButton.isEnabled, "Buy button should be disabled")
+            XCTAssertFalse(swapActionButton.isEnabled, "Exchange button should be disabled")
+            XCTAssertFalse(sellActionButton.isEnabled, "Sell button should be disabled")
+        }
+        return self
     }
 
     private func isGrouped() -> Bool {
@@ -424,33 +482,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             }
 
         return !networkHeaders.isEmpty
-    }
-
-    private func parseNumericValue(from balanceText: String) -> Decimal {
-        if balanceText.contains("–") {
-            XCTFail("Balance should have numeric value instead of dash")
-        }
-
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.locale = Locale.current
-
-        // Parsing with original text first
-        if let number = formatter.number(from: balanceText) {
-            return number.decimalValue
-        }
-
-        // If that fails, try removing common currency symbols and parsing again
-        let cleanedText = balanceText
-            .replacingOccurrences(of: "[$₽€£¥]", with: "", options: .regularExpression)
-            .trimmingCharacters(in: .whitespaces)
-
-        if let number = formatter.number(from: cleanedText) {
-            return number.decimalValue
-        }
-
-        XCTFail("Failed to parse balance text '\(balanceText)' as Decimal")
-        return Decimal(0)
     }
 }
 

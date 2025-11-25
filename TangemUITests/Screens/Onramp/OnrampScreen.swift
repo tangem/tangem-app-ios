@@ -13,42 +13,28 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     private lazy var titleLabel = staticText(.title)
     private lazy var closeButton = button(.closeButton)
     private lazy var settingsButton = button(.settingsButton)
-    private lazy var providerToSLink = staticText(.providerToSLink)
-    private lazy var cryptoAmountLabel = staticText(.cryptoAmountLabel)
-    private lazy var payWithBlock = button(.payWithBlock)
+    private lazy var allOffersButton = button(.allOffersButton)
     private lazy var currencySelectorButton = button(.currencySelectorButton)
-
-    private var amountInputField: XCUIElement {
-        app.textFields
-            .matching(identifier: OnrampAccessibilityIdentifiers.amountInputField)
-            .element(boundBy: 0)
-    }
-
-    private var amountDisplayField: XCUIElement {
-        let textFields = app.textFields.matching(identifier: OnrampAccessibilityIdentifiers.amountInputField)
-        if textFields.count > 1 {
-            return textFields.element(boundBy: 1)
-        }
-
-        // Fallback to StaticText if only one TextField exists
-        return app.staticTexts
-            .matching(identifier: OnrampAccessibilityIdentifiers.amountInputField)
-            .firstMatch
-    }
+    private lazy var currencySymbolPrefix = staticText(.currencySymbolPrefix)
+    private lazy var amountInputField = textField(.amountInputField)
 
     @discardableResult
-    func validate(amount: String, currency: String, title: String) -> Self {
-        XCTContext.runActivity(named: "Validate OnRamp screen elements") { _ in
+    func waitForAmountFieldDisplay(amount: String, currency: String, title: String) throws -> Self {
+        try XCTContext.runActivity(named: "Validate OnRamp screen elements") { _ in
             _ = amountInputField.waitForExistence(timeout: .robustUIUpdate)
-            let actualValue = amountDisplayField.getValue()
-            XCTAssertTrue(actualValue.contains(amount), "TextField value should contain '\(amount)' but was '\(actualValue)'")
-            XCTAssertTrue(actualValue.contains(currency), "TextField value should contain '\(currency)' but was '\(actualValue)'")
+            let actualValue = try XCTUnwrap(amountInputField.value as? String)
+            XCTAssertEqual(actualValue, amount, "TextField placeholder should contain '\(amount)' but was '\(actualValue)'")
 
-            XCTAssertTrue(titleLabel.waitForExistence(timeout: .robustUIUpdate), "Title should exist")
+            // Validate currency symbol from the separate currency symbol prefix element
+            waitAndAssertTrue(currencySymbolPrefix, "Currency symbol prefix should exist")
+            let currencySymbol = currencySymbolPrefix.label
+            XCTAssertEqual(currencySymbol, currency, "Currency symbol should contain '\(currency)' but was '\(currencySymbol)'")
+
+            waitAndAssertTrue(titleLabel, "Title should exist")
             let actualTitle = titleLabel.label
             XCTAssertEqual(actualTitle, title, "Title should be '\(title)' but was '\(actualTitle)'")
 
-            XCTAssertTrue(closeButton.waitForExistence(timeout: .robustUIUpdate), "Close button should exist")
+            waitAndAssertTrue(closeButton, "Close button should exist")
         }
         return self
     }
@@ -61,25 +47,45 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     }
 
     @discardableResult
-    func validateProviderToSLinkExists() -> Self {
-        XCTContext.runActivity(named: "Validate Provider ToS link exists") { _ in
-            XCTAssertTrue(providerToSLink.waitForExistence(timeout: .robustUIUpdate), "Provider ToS link should exist")
-        }
-        return self
-    }
+    func waitForCryptoAmountRounding() -> Self {
+        XCTContext.runActivity(named: "Validate crypto amount is rounded to 8 decimal places for each provider") { _ in
+            // Find all provider amount elements using predicate
+            let predicate = NSPredicate(format: "identifier BEGINSWITH %@", "onrampProviderAmount_")
+            let providerAmountsQuery = app.staticTexts.matching(predicate)
 
-    @discardableResult
-    func validateCryptoAmountRounding() -> Self {
-        XCTContext.runActivity(named: "Validate crypto amount is rounded to 8 decimal places") { _ in
-            XCTAssertTrue(cryptoAmountLabel.waitForExistence(timeout: .robustUIUpdate), "Crypto amount label should exist")
-            let cryptoAmount = cryptoAmountLabel.label
+            // Wait for at least one provider amount to appear
+            let firstProviderAmountExists = providerAmountsQuery.element.waitForExistence(timeout: .robustUIUpdate)
+            XCTAssertTrue(
+                firstProviderAmountExists,
+                "At least one provider amount should exist on the screen"
+            )
 
-            if cryptoAmount.contains(".") {
-                let components = cryptoAmount.components(separatedBy: ".")
-                if components.count == 2 {
-                    let decimalPart = components[1]
-                    let cleanDecimalPart = decimalPart.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
-                    XCTAssertTrue(cleanDecimalPart.count <= 8, "Crypto amount should have at most 8 decimal places, but has \(cleanDecimalPart.count): '\(cryptoAmount)'")
+            // Get all matching provider amounts
+            let providerAmounts = providerAmountsQuery.allElementsBoundByIndex
+
+            XCTAssertFalse(
+                providerAmounts.isEmpty,
+                "At least one provider amount should be found"
+            )
+
+            // Validate each provider amount
+            for (index, providerAmount) in providerAmounts.enumerated() {
+                let cryptoAmount = providerAmount.label
+
+                if cryptoAmount.contains(".") {
+                    let components = cryptoAmount.components(separatedBy: ".")
+                    if components.count == 2 {
+                        let decimalPart = components[1]
+                        let cleanDecimalPart = decimalPart.replacingOccurrences(
+                            of: "[^0-9]",
+                            with: "",
+                            options: .regularExpression
+                        )
+                        XCTAssertTrue(
+                            cleanDecimalPart.count <= 8,
+                            "Provider amount #\(index + 1) should have at most 8 decimal places, but has \(cleanDecimalPart.count): '\(cryptoAmount)'"
+                        )
+                    }
                 }
             }
         }
@@ -89,21 +95,15 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     @discardableResult
     func enterAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Enter amount '\(amount)' in amount input field") { _ in
-            XCTAssertTrue(amountInputField.waitForExistence(timeout: .robustUIUpdate), "Amount input field should exist")
+            waitAndAssertTrue(amountInputField, "Amount input field should exist")
             amountInputField.tap()
             amountInputField.typeText(amount)
 
-            let expectation = XCTNSPredicateExpectation(
-                predicate: NSPredicate(format: "exists == true"),
-                object: amountDisplayField
-            )
-            _ = XCTWaiter.wait(for: [expectation], timeout: 3.0)
-
             // Wait for providers to start loading after amount entry
-            // Check if payWithBlock appears or loading state changes
+            // Check if All offers button appears or loading state changes
             let providersExpectation = XCTNSPredicateExpectation(
                 predicate: NSPredicate(format: "exists == true"),
-                object: payWithBlock
+                object: allOffersButton
             )
 
             // Wait up to 5 seconds for providers to become available
@@ -112,60 +112,10 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
         return self
     }
 
-    @discardableResult
-    func validateCryptoAmount() -> Self {
-        XCTContext.runActivity(named: "Validate crypto amount is updated and properly formatted") { _ in
-            XCTAssertTrue(cryptoAmountLabel.waitForExistence(timeout: .robustUIUpdate), "Crypto amount label should exist")
-            let cryptoAmount = cryptoAmountLabel.label
-
-            XCTAssertFalse(cryptoAmount.isEmpty, "Crypto amount should not be empty")
-            XCTAssertFalse(cryptoAmount.contains("0.00000000"), "Crypto amount should be recalculated and not be zero")
-
-            let hasDigits = cryptoAmount.rangeOfCharacter(from: CharacterSet.decimalDigits) != nil
-            XCTAssertTrue(hasDigits, "Crypto amount should contain digits: '\(cryptoAmount)'")
-
-            if cryptoAmount.contains(".") {
-                let components = cryptoAmount.components(separatedBy: ".")
-                if components.count == 2 {
-                    let decimalPart = components[1]
-                    let cleanDecimalPart = decimalPart.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
-                    XCTAssertTrue(cleanDecimalPart.count <= 8, "Crypto amount should have at most 8 decimal places, but has \(cleanDecimalPart.count): '\(cryptoAmount)'")
-                } else {
-                    XCTFail("Crypto amount format is unexpected: '\(cryptoAmount)'")
-                }
-            }
-        }
-        return self
-    }
-
-    func tapPayWithBlock() -> OnrampProvidersScreen {
-        XCTContext.runActivity(named: "Tap Pay with block") { _ in
-            // First wait for the element to appear
-            let elementExists = payWithBlock.waitForExistence(timeout: .robustUIUpdate)
-
-            if !elementExists {
-                // If element doesn't exist, try scrolling to find it
-                scrollToElement(payWithBlock, attempts: .lazy)
-
-                // Wait again after scrolling
-                XCTAssertTrue(
-                    payWithBlock.waitForExistence(timeout: .robustUIUpdate),
-                    "Pay with block should exist after scrolling and extended wait"
-                )
-            }
-
-            // Wait for element to become hittable and enabled
-            XCTAssertTrue(
-                payWithBlock.waitForState(state: .hittable, for: .robustUIUpdate),
-                "Pay with block should be hittable"
-            )
-
-            // Ensure element is visible and ready for interaction
-            XCTAssertTrue(payWithBlock.exists, "Pay with block should exist")
-            XCTAssertTrue(payWithBlock.isEnabled, "Pay with block should be enabled")
-
-            payWithBlock.waitAndTap()
-            return OnrampProvidersScreen(app)
+    func tapAllOffersButton() -> OnrampPaymentMethodsScreen {
+        XCTContext.runActivity(named: "Tap All offers button") { _ in
+            allOffersButton.waitAndTap()
+            return OnrampPaymentMethodsScreen(app)
         }
     }
 
@@ -180,18 +130,17 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     @discardableResult
     func validateCurrencyChanged(expectedCurrency: String) -> Self {
         XCTContext.runActivity(named: "Validate currency changed to '\(expectedCurrency)'") { _ in
-            let expectation = XCTNSPredicateExpectation(
-                predicate: NSPredicate(format: "value CONTAINS %@", expectedCurrency),
-                object: amountDisplayField
+            // Wait for currency symbol prefix to appear and reflect expected currency
+            XCTAssertTrue(
+                currencySymbolPrefix.waitForExistence(timeout: .robustUIUpdate),
+                "Currency symbol prefix should exist"
             )
-            let result = XCTWaiter.wait(for: [expectation], timeout: .robustUIUpdate)
 
-            if result == .timedOut {
-                XCTFail("Timeout waiting for currency to change to '\(expectedCurrency)'")
-            }
-
-            let actualValue = amountDisplayField.getValue()
-            XCTAssertTrue(actualValue.contains(expectedCurrency), "Amount field should contain '\(expectedCurrency)' currency but was '\(actualValue)'")
+            let actualLabel = currencySymbolPrefix.label
+            XCTAssertTrue(
+                actualLabel.contains(expectedCurrency),
+                "Currency symbol should contain '\(expectedCurrency)' but was '\(actualLabel)'"
+            )
         }
         return self
     }
@@ -199,7 +148,7 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     // MARK: - Error View Methods
 
     @discardableResult
-    func validateErrorViewExists() -> Self {
+    func waitForErrorView() -> Self {
         XCTContext.runActivity(named: "Validate error notification view exists") { _ in
             let refreshButton = app.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
             waitAndAssertTrue(refreshButton, "Error notification view does not exist - refresh button not found after waiting")
@@ -225,24 +174,29 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
         return self
     }
 
-    func hideKeyboard() -> Self {
-        app.hideKeyboard()
-        return self
-    }
-
     /// Wait for providers to load after amount changes
     @discardableResult
     func waitForProvidersToLoad() -> Self {
         XCTContext.runActivity(named: "Wait for providers to load") { _ in
-            XCTAssertTrue(
-                payWithBlock.waitForExistence(timeout: .robustUIUpdate),
-                "Pay with block should appear after providers load"
+            waitAndAssertTrue(
+                allOffersButton,
+                "All offers button should appear after providers load"
             )
 
             XCTAssertTrue(
-                payWithBlock.waitForState(state: .hittable, for: .robustUIUpdate),
-                "Pay with block should be ready for interaction"
+                allOffersButton.waitForState(state: .hittable, for: .robustUIUpdate),
+                "All offers button should be ready for interaction"
             )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForTitle(_ expectedTitle: String) -> Self {
+        XCTContext.runActivity(named: "Validate Onramp screen title") { _ in
+            waitAndAssertTrue(titleLabel, "Title should exist on Onramp screen")
+            let actualTitle = titleLabel.label
+            XCTAssertEqual(actualTitle, expectedTitle, "Title should be '\(expectedTitle)' but was '\(actualTitle)'")
         }
         return self
     }
@@ -252,27 +206,27 @@ enum OnrampScreenElement: String, UIElement {
     case title
     case closeButton
     case settingsButton
-    case providerToSLink
-    case cryptoAmountLabel
-    case payWithBlock
+    case allOffersButton
     case currencySelectorButton
+    case currencySymbolPrefix
+    case amountInputField
 
     var accessibilityIdentifier: String {
         switch self {
         case .title:
             return SendAccessibilityIdentifiers.sendViewTitle
         case .closeButton:
-            return CommonUIAccessibilityIdentifiers.closeButton
+            return "Close"
         case .settingsButton:
             return OnrampAccessibilityIdentifiers.settingsButton
-        case .providerToSLink:
-            return OnrampAccessibilityIdentifiers.providerToSLink
-        case .cryptoAmountLabel:
-            return OnrampAccessibilityIdentifiers.cryptoAmountLabel
-        case .payWithBlock:
-            return OnrampAccessibilityIdentifiers.payWithBlock
+        case .allOffersButton:
+            return OnrampAccessibilityIdentifiers.allOffersButton
         case .currencySelectorButton:
             return OnrampAccessibilityIdentifiers.currencySelectorButton
+        case .currencySymbolPrefix:
+            return OnrampAccessibilityIdentifiers.currencySymbolPrefix
+        case .amountInputField:
+            return OnrampAccessibilityIdentifiers.amountInputField
         }
     }
 }
