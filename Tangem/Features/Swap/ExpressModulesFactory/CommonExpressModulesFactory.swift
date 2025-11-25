@@ -37,6 +37,13 @@ class CommonExpressModulesFactory {
         balanceFormatter: balanceFormatter
     )
 
+    private lazy var providerSelectorViewModel: ExpressProvidersSelectorViewModel = .init(
+        priceChangeFormatter: priceChangeFormatter,
+        expressProviderFormatter: expressProviderFormatter,
+        expressRepository: expressDependenciesFactory.expressRepository,
+        expressInteractor: expressDependenciesFactory.expressInteractor
+    )
+
     init(input: ExpressDependenciesInput) {
         userWalletInfo = input.userWalletInfo
         initialTokenItem = input.source.tokenItem
@@ -46,6 +53,8 @@ class CommonExpressModulesFactory {
             supportedProviderTypes: .swap,
             operationType: .swap
         )
+
+        _ = providerSelectorViewModel
     }
 
     init(input: ExpressDependenciesDestinationInput) {
@@ -57,6 +66,8 @@ class CommonExpressModulesFactory {
             supportedProviderTypes: .swap,
             operationType: .swap
         )
+
+        _ = providerSelectorViewModel
     }
 }
 
@@ -141,16 +152,11 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         )
     }
 
-    func makeExpressProvidersSelectorViewModel(
+    func getExpressProvidersSelectorViewModel(
         coordinator: ExpressProvidersSelectorRoutable
     ) -> ExpressProvidersSelectorViewModel {
-        ExpressProvidersSelectorViewModel(
-            priceChangeFormatter: priceChangeFormatter,
-            expressProviderFormatter: expressProviderFormatter,
-            expressRepository: expressDependenciesFactory.expressRepository,
-            expressInteractor: expressDependenciesFactory.expressInteractor,
-            coordinator: coordinator
-        )
+        providerSelectorViewModel.coordinator = coordinator
+        return providerSelectorViewModel
     }
 
     func makeExpressSuccessSentViewModel(data: SentExpressTransactionData, coordinator: ExpressSuccessSentRoutable) -> ExpressSuccessSentViewModel {

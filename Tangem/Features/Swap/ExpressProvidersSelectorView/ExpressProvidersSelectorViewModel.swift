@@ -29,7 +29,7 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
     private let expressProviderFormatter: ExpressProviderFormatter
     private let expressRepository: ExpressRepository
     private let expressInteractor: ExpressInteractor
-    private weak var coordinator: ExpressProvidersSelectorRoutable?
+    weak var coordinator: ExpressProvidersSelectorRoutable?
 
     private var stateSubscription: AnyCancellable?
 
@@ -37,43 +37,30 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
         priceChangeFormatter: PriceChangeFormatter,
         expressProviderFormatter: ExpressProviderFormatter,
         expressRepository: ExpressRepository,
-        expressInteractor: ExpressInteractor,
-        coordinator: ExpressProvidersSelectorRoutable
+        expressInteractor: ExpressInteractor
     ) {
         self.priceChangeFormatter = priceChangeFormatter
         self.expressProviderFormatter = expressProviderFormatter
         self.expressRepository = expressRepository
         self.expressInteractor = expressInteractor
-        self.coordinator = coordinator
 
         bind()
-        initialSetup()
+        showFCAWarningIfNeeded()
     }
 
     func bind() {
         stateSubscription = expressInteractor.state
             .dropFirst()
-            .compactMap { $0.quote }
-            .removeDuplicates()
-            .sink { [weak self] state in
+            .handleEvents(receiveOutput: { [weak self] _ in
                 self?.updateView()
-            }
-    }
-
-    func initialSetup() {
-        runTask(in: self) { viewModel in
-            try await viewModel.updateFields()
-            await viewModel.setupProviderRowViewModels()
-
-            await runOnMain { [weak self] in
-                self?.showFCAWarningIfNeeded()
-            }
-        }
+            })
+            .sink()
     }
 
     func updateView() {
-        runTask(in: self) { viewModel in
-            await viewModel.setupProviderRowViewModels()
+        Task { [weak self] in
+            try? await self?.updateFields()
+            await self?.setupProviderRowViewModels()
         }
     }
 
