@@ -9,7 +9,6 @@
 import Foundation
 import TangemFoundation
 import TangemAccounts
-import SwiftUI
 import TangemUI
 import TangemLocalization
 import TangemUIUtils
@@ -97,7 +96,7 @@ final class ArchivedAccountsViewModel: ObservableObject {
 
         switch error {
         case .tooManyActiveAccounts:
-            message = Localization.accountArchivedRecoverErrorMessage
+            message = Localization.accountRecoverLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts)
             buttonTitle = Localization.commonGotIt
 
         case .unknownError:
@@ -105,10 +104,10 @@ final class ArchivedAccountsViewModel: ObservableObject {
             buttonTitle = Localization.commonOk
         }
 
-        alertBinder = AlertBuilder.makeAlert(
+        alertBinder = AlertBuilder.makeAlertWithDefaultPrimaryButton(
             title: Localization.accountArchivedRecoverErrorTitle,
             message: message,
-            primaryButton: .default(Text(buttonTitle))
+            buttonText: buttonTitle
         )
 
         AccountsLogger.error("Failed to recover archived account with info \(accountInfo)", error: error)
