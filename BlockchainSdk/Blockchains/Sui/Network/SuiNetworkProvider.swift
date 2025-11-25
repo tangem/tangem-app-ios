@@ -11,15 +11,16 @@ import Combine
 import TangemNetworkUtils
 
 final class SuiNetworkProvider: HostProvider {
+    var host: String {
+        node.host
+    }
+
     private let node: NodeInfo
     private let provider: TangemProvider<SuiTarget>
-
-    let host: String
 
     init(node: NodeInfo, networkConfiguration: TangemProviderConfiguration) {
         self.node = node
         provider = TangemProvider<SuiTarget>(configuration: networkConfiguration)
-        host = node.url.hostOrUnknown
     }
 
     func getBalance(address: String, coin: String, cursor: String?) -> AnyPublisher<SuiGetCoins, Error> {
