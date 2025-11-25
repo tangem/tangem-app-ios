@@ -108,7 +108,7 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentProviderSelectorView() {
-        expressProvidersSelectorViewModel = factory.makeExpressProvidersSelectorViewModel(coordinator: self)
+        expressProvidersSelectorViewModel = factory.getExpressProvidersSelectorViewModel(coordinator: self)
     }
 
     func presentFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {

@@ -97,15 +97,14 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         )
     }
 
-    func makeExpressProvidersSelectorViewModel(
+    func getExpressProvidersSelectorViewModel(
         coordinator: ExpressProvidersSelectorRoutable
     ) -> ExpressProvidersSelectorViewModel {
         ExpressProvidersSelectorViewModel(
             priceChangeFormatter: priceChangeFormatter,
             expressProviderFormatter: expressProviderFormatter,
             expressRepository: expressRepository,
-            expressInteractor: expressInteractor,
-            coordinator: coordinator
+            expressInteractor: expressInteractor
         )
     }
 

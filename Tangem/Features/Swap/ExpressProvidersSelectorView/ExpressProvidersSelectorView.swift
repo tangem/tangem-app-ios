@@ -73,7 +73,7 @@ struct ExpressProvidersSelectorView_Preview: PreviewProvider {
 
         func toggleItem() {
             if item == nil {
-                item = ExpressModulesFactoryMock().makeExpressProvidersSelectorViewModel(coordinator: self)
+                item = ExpressModulesFactoryMock().getExpressProvidersSelectorViewModel(coordinator: self)
             } else {
                 item = nil
             }
