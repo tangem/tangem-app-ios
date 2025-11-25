@@ -220,7 +220,7 @@ extension CosmosWalletManager: StakeKitTransactionsBuilder, StakingTransactionSe
 }
 
 extension CosmosWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
     }
 }
