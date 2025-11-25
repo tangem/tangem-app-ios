@@ -76,49 +76,7 @@ extension UserWalletSettingsCoordinator {
 extension UserWalletSettingsCoordinator:
     UserWalletSettingsRoutable,
     TransactionNotificationsModalRoutable {
-    func addNewAccount(accountModelsManager: any AccountModelsManager) {
-        accountFormViewModel = AccountFormViewModel(
-            accountModelsManager: accountModelsManager,
-            // Mikhail Andreev - in future we will support multiple types of accounts and their creation process
-            // will vary
-            flowType: .create(.crypto),
-            closeAction: { [weak self] in
-                self?.accountFormViewModel = nil
-            }
-        )
-    }
-
-    func openAccountDetails(account: any BaseAccountModel, accountModelsManager: AccountModelsManager, userWalletConfig: UserWalletConfig) {
-        let coordinator = AccountDetailsCoordinator(
-            dismissAction: { [weak self] in
-                self?.accountDetailsCoordinator = nil
-            },
-            popToRootAction: popToRootAction
-        )
-
-        coordinator.start(
-            with: AccountDetailsCoordinator.Options(
-                account: account,
-                userWalletConfig: userWalletConfig,
-                accountModelsManager: accountModelsManager
-            )
-        )
-
-        accountDetailsCoordinator = coordinator
-    }
-
-    func openArchivedAccounts(accountModelsManager: any AccountModelsManager) {
-        let coordinator = ArchivedAccountsCoordinator(
-            dismissAction: { [weak self] in
-                self?.archivedAccountsCoordinator = nil
-            },
-            popToRootAction: popToRootAction
-        )
-
-        coordinator.start(with: ArchivedAccountsCoordinator.Options(accountModelsManager: accountModelsManager))
-
-        archivedAccountsCoordinator = coordinator
-    }
+    // MARK: UserWalletSettingsRoutable
 
     func openOnboardingModal(with options: OnboardingCoordinator.Options) {
         openOnboardingModal(options: options)
@@ -263,12 +221,62 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    // MARK: - TransactionNotificationsModalRoutable
+    // MARK: TransactionNotificationsModalRoutable
 
     func dismissTransactionNotifications() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
+    }
+
+    // MARK: UserSettingsAccountsRoutable
+
+    func addNewAccount(accountModelsManager: any AccountModelsManager) {
+        accountFormViewModel = AccountFormViewModel(
+            accountModelsManager: accountModelsManager,
+            // Mikhail Andreev - in future we will support multiple types of accounts and their creation process
+            // will vary
+            flowType: .create(.crypto),
+            closeAction: { [weak self] in
+                self?.accountFormViewModel = nil
+            }
+        )
+    }
+
+    func openAccountDetails(account: any BaseAccountModel, accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
+        let coordinator = AccountDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.accountDetailsCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(
+            with: AccountDetailsCoordinator.Options(
+                account: account,
+                userWalletConfig: userWalletConfig,
+                accountModelsManager: accountModelsManager
+            )
+        )
+
+        accountDetailsCoordinator = coordinator
+    }
+
+    func openArchivedAccounts(accountModelsManager: any AccountModelsManager) {
+        let coordinator = ArchivedAccountsCoordinator(
+            dismissAction: { [weak self] in
+                self?.archivedAccountsCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: ArchivedAccountsCoordinator.Options(accountModelsManager: accountModelsManager))
+
+        archivedAccountsCoordinator = coordinator
+    }
+
+    func handleAccountsLimitReached() {
+        rootViewModel?.handleAccountsLimitReached()
     }
 }
 
