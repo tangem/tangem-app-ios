@@ -1,18 +1,8 @@
-//
-//  StakingTransactionSender+P2P.swift
-//  TangemApp
-//
-//  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
-//
-
-import Foundation
-
-extension StakingTransactionSender where Self: WalletProvider, Self: P2PTransactionDataProvider {
+extension P2PTransactionSender where Self: WalletProvider, Self: P2PTransactionDataProvider {
     func sendP2P(
         transaction: P2PTransaction,
         signer: TransactionSigner,
-        executeSend: @escaping (RawTransaction) async throws -> String
+        executeSend: @escaping (String) async throws -> String
     ) async throws -> TransactionSendResult {
         let hashToSign = try prepareDataForSign(transaction: transaction)
 
