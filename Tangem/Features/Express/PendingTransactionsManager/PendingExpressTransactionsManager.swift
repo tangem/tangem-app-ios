@@ -209,7 +209,11 @@ class CommonPendingExpressTransactionsManager {
         do {
             ExpressLogger.info("Requesting exchange status for transaction with id: \(transactionRecord.expressTransactionId)")
             let expressTransaction = try await expressAPIProvider.exchangeStatus(transactionId: transactionRecord.expressTransactionId)
-            let refundedTokenItem = await handleRefundedTokenIfNeeded(for: expressTransaction, providerType: transactionRecord.provider.type)
+            let refundedTokenItem = await handleRefundedTokenIfNeeded(
+                blockchainNetwork: transactionRecord.sourceTokenTxInfo.tokenItem.blockchainNetwork,
+                providerType: transactionRecord.provider.type,
+                refundedCurrency: expressTransaction.refundedCurrency
+            )
 
             let pendingTransaction = pendingTransactionFactory.buildPendingExpressTransaction(
                 expressTransaction: expressTransaction,
@@ -234,15 +238,18 @@ class CommonPendingExpressTransactionsManager {
     }
 
     private func handleRefundedTokenIfNeeded(
-        for transaction: ExpressTransaction,
-        providerType: ExpressPendingTransactionRecord.ProviderType
+        blockchainNetwork: BlockchainNetwork,
+        providerType: ExpressPendingTransactionRecord.ProviderType,
+        refundedCurrency: ExpressCurrency?,
     ) async -> TokenItem? {
-        guard providerType == .dexBridge,
-              let refundedCurrency = transaction.refundedCurrency else {
+        guard providerType == .dexBridge, let refundedCurrency else {
             return nil
         }
 
-        return try? await expressRefundedTokenHandler.handle(expressCurrency: refundedCurrency)
+        return try? await expressRefundedTokenHandler.handle(
+            blockchainNetwork: blockchainNetwork,
+            expressCurrency: refundedCurrency
+        )
     }
 }
 

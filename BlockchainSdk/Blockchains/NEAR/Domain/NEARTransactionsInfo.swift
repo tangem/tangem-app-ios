@@ -26,9 +26,9 @@ struct NEARTransactionsInfo {
 // MARK: - Convenience extensions
 
 extension NEARTransactionsInfo.Transaction {
-    init(hash: String, status: NEARTransactionsInfo.Status) {
+    init(hash: String, status: NEARTransactionsInfo.Status, currentProviderHost: String) {
         self.init(
-            result: .init(hash: hash),
+            result: .init(hash: hash, currentProviderHost: currentProviderHost),
             status: status
         )
     }

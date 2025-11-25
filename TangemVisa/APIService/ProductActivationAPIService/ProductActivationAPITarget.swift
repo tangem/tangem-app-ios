@@ -7,15 +7,15 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 import Moya
 
 struct ProductActivationAPITarget: TargetType {
     let target: Target
-    let authorizationToken: String
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.baseURL.appendingPathComponent("activation")
+        apiType.bffBaseURL.appendingPathComponent("activation")
     }
 
     var path: String {
@@ -53,9 +53,7 @@ struct ProductActivationAPITarget: TargetType {
     }
 
     var headers: [String: String]? {
-        var params = VisaConstants.defaultHeaderParams
-        params[VisaConstants.authorizationHeaderKey] = authorizationToken
-        return params
+        ["Content-Type": "application/json"]
     }
 }
 
@@ -75,5 +73,15 @@ extension ProductActivationAPITarget {
         case approveDeployByCustomerWallet(request: CustomerWalletDeployAcceptanceRequest)
         /// Send selected PIN to external service for validation and setup. This is the final step of Visa card activation process
         case setupPIN(request: SetupPINRequest)
+    }
+}
+
+extension ProductActivationAPITarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        path
+    }
+
+    var shouldLogResponseBody: Bool {
+        return false
     }
 }
