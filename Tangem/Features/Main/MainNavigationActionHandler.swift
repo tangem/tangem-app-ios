@@ -174,6 +174,9 @@ extension MainCoordinator {
                 return false
             }
 
+            // Trigger the update without retaining the subscription — it's internally managed by WalletModel and TransactionHistoryService
+            walletModel.generalUpdate(silent: false)
+
             if case .some(let type) = params.type, type == .onrampStatusUpdate || type == .swapStatusUpdate, let txId = params.transactionId {
                 return routeExpressTransactionStatusAction(
                     coordinator: coordinator,
@@ -183,8 +186,6 @@ extension MainCoordinator {
                     userWalletModel: userWalletModel
                 )
             } else {
-                // Trigger the update without retaining the subscription — it's internally managed by WalletModel and TransactionHistoryService
-                walletModel.generalUpdate(silent: false)
                 coordinator.openDeepLink(.tokenDetails(walletModel: walletModel, userWalletModel: userWalletModel))
                 return true
             }
