@@ -14,6 +14,7 @@ protocol SendGenericFlowBaseDependenciesFactory {
     var tokenIconInfo: TokenIconInfo { get }
     var userWalletInfo: UserWalletInfo { get }
 
+    var tokenHeaderProvider: SendGenericTokenHeaderProvider { get }
     var walletModelBalancesProvider: WalletModelBalancesProvider { get }
     var walletModelDependenciesProvider: WalletModelDependenciesProvider { get }
     var transactionDispatcherFactory: TransactionDispatcherFactory { get }
@@ -23,6 +24,22 @@ protocol SendGenericFlowBaseDependenciesFactory {
 // MARK: - Common dependencies
 
 extension SendGenericFlowBaseDependenciesFactory {
+    func makeSourceToken() -> SendSourceToken {
+        SendSourceToken(
+            header: tokenHeaderProvider.makeSendTokenHeader(),
+            tokenItem: tokenItem,
+            feeTokenItem: feeTokenItem,
+            tokenIconInfo: tokenIconInfo,
+            fiatItem: makeFiatItem(),
+            possibleToConvertToFiat: possibleToConvertToFiat(),
+            availableBalanceProvider: walletModelBalancesProvider.availableBalanceProvider,
+            fiatAvailableBalanceProvider: walletModelBalancesProvider.fiatAvailableBalanceProvider,
+            transactionValidator: walletModelDependenciesProvider.transactionValidator,
+            transactionCreator: walletModelDependenciesProvider.transactionCreator,
+            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher()
+        )
+    }
+
     func isFeeApproximate() -> Bool {
         tokenItem.blockchain.isFeeApproximate(for: tokenItem.amountType)
     }
