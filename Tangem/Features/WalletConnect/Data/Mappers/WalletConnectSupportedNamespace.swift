@@ -9,4 +9,5 @@
 enum WalletConnectSupportedNamespace: String {
     case eip155
     case solana
+    case bip122
 }
