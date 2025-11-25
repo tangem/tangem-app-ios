@@ -130,7 +130,7 @@ private extension TransactionHistoryMapper {
             }()
 
             let amount = sent - change
-            return formatted(amount: amount, isOutgoing: record.isOutgoing)
+            return getFormattedAmount(amount: amount, record: record)
 
         } else {
             let received: Decimal = {
@@ -142,7 +142,7 @@ private extension TransactionHistoryMapper {
                 }
             }()
 
-            return formatted(amount: received, isOutgoing: record.isOutgoing)
+            return getFormattedAmount(amount: received, record: record)
         }
     }
 
@@ -272,6 +272,17 @@ extension TransactionHistoryMapper {
     enum Constants {
         static let maximumFractionDigits = 8
         static let roundingMode: NSDecimalNumber.RoundingMode = .down
+    }
+}
+
+private extension TransactionHistoryMapper {
+    func getFormattedAmount(amount: Decimal, record: TransactionRecord) -> String {
+        switch transactionType(from: record) {
+        case .yieldEnter, .yieldTopup, .yieldWithdraw:
+            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+        default:
+            return formatted(amount: amount, isOutgoing: record.isOutgoing)
+        }
     }
 }
 
