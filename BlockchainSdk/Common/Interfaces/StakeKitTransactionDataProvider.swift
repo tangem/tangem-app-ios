@@ -8,9 +8,13 @@
 
 import Foundation
 
+public protocol TransactionDataConvertible {
+    // This protocol can be empty for now, just used as a constraint
+}
+
 protocol StakeKitTransactionDataProvider {
     associatedtype RawTransaction
 
-    func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data
-    func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction
+    func prepareDataForSign<T: TransactionDataConvertible>(transaction: T) throws -> Data
+    func prepareDataForSend<T: TransactionDataConvertible>(transaction: T, signature: SignatureInfo) throws -> RawTransaction
 }
