@@ -1339,12 +1339,12 @@
 "tangempay_card_details_hide_details" = "Hide details";
 "tangempay_card_details_hide_text" = "Verstecken";
 "tangempay_card_details_open_wallet_button" = "Google Wallet öffnen";
+"tangempay_card_details_open_wallet_notification_subtitle_apple" = "Richte Tangem Pay mit wenigen Klicks ein und bezahlen mit Apple Pay.";
 "tangempay_card_details_open_wallet_notification_subtitle" = "Richte Tangem Pay mit wenigen Klicks ein und bezahlen mit Google Pay.";
 "tangempay_card_details_open_wallet_notification_title_apple" = "Karte zu Apple Pay hinzufügen";
 "tangempay_card_details_open_wallet_notification_title" = "Karte zu Google Pay hinzufügen";
-"tangempay_card_details_open_wallet_step_1_apple_open" = "Open";
-"tangempay_card_details_open_wallet_step_1_apple_wallet" = "Apple Wallet";
-"tangempay_card_details_open_wallet_step_1.5_apple" = "Tap “+” button on the top right";
+"tangempay_card_details_open_wallet_step_1_5_apple" = "Tap “+” button on the top right";
+"tangempay_card_details_open_wallet_step_1_apple" = "Apple Wallet öffnen";
 "tangempay_card_details_open_wallet_step_1" = "Google Wallet öffnen";
 "tangempay_card_details_open_wallet_step_2_apple" = "Tap “Debit or Credit Card”";
 "tangempay_card_details_open_wallet_step_2" = "Tippe auf „Karte hinzufügen“.";
