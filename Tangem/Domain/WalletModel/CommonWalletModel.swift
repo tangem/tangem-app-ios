@@ -343,8 +343,12 @@ extension CommonWalletModel: WalletModel {
         _yieldModuleManager
     }
 
-    var stakingTransactionSender: StakingTransactionSender? {
-        walletManager as? StakingTransactionSender
+    var stakeKitTransactionSender: StakeKitTransactionSender? {
+        walletManager as? StakeKitTransactionSender
+    }
+
+    var p2pTransactionSender: P2PTransactionSender? {
+        walletManager as? P2PTransactionSender
     }
 
     var accountInitializationService: (any BlockchainAccountInitializationService)? {

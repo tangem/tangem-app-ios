@@ -1,5 +1,5 @@
 //
-//  StakeKitTransactionBuilder.swift
+//  StakingTransactionsBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@ import Foundation
 
 /// High-level protocol for preparing staking transactions data to send into blockchain
 /// default implementation use low-level StakingTransactionDataProvider protocol
-public protocol StakeKitTransactionsBuilder {
+public protocol StakingTransactionsBuilder {
     associatedtype RawTransaction
 
     /// Prepare signed transactions ready to be submitted to blockchain
@@ -18,43 +18,16 @@ public protocol StakeKitTransactionsBuilder {
     ///   - publicKey: public key to sign
     ///   - signer: transaction signer
     /// - Returns: array of signed transactions
-    func buildRawTransactions<T: TransactionDataConvertible>(
+    func buildRawTransactions<T: StakingTransaction>(
         from transactions: [T],
         publicKey: Wallet.PublicKey,
         signer: TransactionSigner
     ) async throws -> [RawTransaction]
-    
-//    func buildRawTransactions(
-//        from transactions: [P2PTransaction],
-//        publicKey: Wallet.PublicKey,
-//        signer: TransactionSigner
-//    ) async throws -> [RawTransaction]
 }
 
-extension StakeKitTransactionsBuilder where Self: StakeKitTransactionDataProvider {
-    func buildRawTransactions<T: TransactionDataConvertible>(
+extension StakingTransactionsBuilder where Self: StakingTransactionDataProvider {
+    func buildRawTransactions<T: StakingTransaction>(
         from transactions: [T],
-        publicKey: Wallet.PublicKey,
-        signer: TransactionSigner
-    ) async throws -> [RawTransaction] {
-        let preparedHashes = try transactions.map {
-            try self.prepareDataForSign(transaction: $0)
-        }
-
-        let signatures: [SignatureInfo] = try await signer.sign(
-            hashes: preparedHashes,
-            walletPublicKey: publicKey
-        ).async()
-
-        return try zip(transactions, signatures).map { transaction, signature in
-            try prepareDataForSend(transaction: transaction, signature: signature)
-        }
-    }
-}
-
-extension StakeKitTransactionsBuilder where Self: P2PTransactionDataProvider {
-    func buildRawTransactions(
-        from transactions: [P2PTransaction],
         publicKey: Wallet.PublicKey,
         signer: TransactionSigner
     ) async throws -> [RawTransaction] {
