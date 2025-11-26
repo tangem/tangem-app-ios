@@ -24,47 +24,10 @@ public struct VisaCustomerCardInfoProviderBuilder {
         evmSmartContractInteractor: EVMSmartContractInteractor,
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> VisaCustomerCardInfoProvider {
-        var customerInfoManagementService: CustomerInfoManagementService?
-        if let authorizationTokensHandler {
-            customerInfoManagementService = buildCustomerInfoManagementService(
-                authorizationTokensHandler: authorizationTokensHandler,
-                urlSessionConfiguration: urlSessionConfiguration,
-                authorizeWithCustomerWallet: {
-                    guard let tokens = authorizationTokensHandler.authorizationTokens else {
-                        throw VisaAuthorizationTokensHandlerError.authorizationTokensNotFound
-                    }
-                    return tokens
-                }
-            )
-        }
-
-        return CommonCustomerCardInfoProvider(
+        CommonCustomerCardInfoProvider(
             isTestnet: apiType.isTestnet,
-            customerInfoManagementService: customerInfoManagementService,
+            customerInfoManagementService: nil,
             evmSmartContractInteractor: evmSmartContractInteractor
         )
-    }
-
-    public func buildCustomerInfoManagementService(
-        authorizationTokensHandler: VisaAuthorizationTokensHandler,
-        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration,
-        authorizeWithCustomerWallet: @escaping () async throws -> VisaAuthorizationTokens
-    ) -> CustomerInfoManagementService {
-        if isMockedAPIEnabled {
-            return CustomerInfoManagementServiceMock()
-        } else {
-            return CommonCustomerInfoManagementService(
-                apiType: apiType,
-                authorizationTokenHandler: authorizationTokensHandler,
-                apiService: .init(
-                    provider: TangemPayProviderBuilder().buildProvider(
-                        configuration: urlSessionConfiguration,
-                        authorizationTokensHandler: authorizationTokensHandler
-                    ),
-                    decoder: JSONDecoderFactory().makeCIMDecoder()
-                ),
-                authorizeWithCustomerWallet: authorizeWithCustomerWallet
-            )
-        }
     }
 }

@@ -167,9 +167,9 @@ struct TangemPayTransactionRecordMapper {
     func categoryName() -> String {
         switch transaction.record {
         case .spend(let spend):
-            return spend.merchantCategory
-                ?? spend.enrichedMerchantCategory
-                ?? spend.merchantCategoryCode
+            return spend.merchantCategory?.orNilIfEmpty
+                ?? spend.enrichedMerchantCategory?.orNilIfEmpty
+                ?? spend.merchantCategoryCode?.orNilIfEmpty
                 ?? Localization.tangemPayOther
         case .collateral:
             return Localization.commonTransfer
@@ -197,5 +197,11 @@ extension TangemPayTransactionRecord {
         case .payment(let payment): payment.postedAt
         case .fee(let fee): fee.postedAt
         }
+    }
+}
+
+private extension String {
+    var orNilIfEmpty: Self? {
+        isEmpty ? nil : self
     }
 }

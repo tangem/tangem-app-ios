@@ -82,12 +82,14 @@ struct SendDestinationAddressView: View {
             viewModel.didTapScanQRButton()
         }
         .size(.medium)
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.scanQRButton)
     }
 
     private var pasteButton: some View {
         StringPasteButton(style: .native) { string in
             viewModel.didTapPasteButton(string: string)
         }
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.addressPasteButton)
     }
 
     private var clearButton: some View {
