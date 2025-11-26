@@ -120,10 +120,15 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
             let decoder = decoder ?? self.decoder
             let p2pResponse = try decoder.decode(P2PDTO.GenericResponse<T>.self, from: response.data)
 
+            if let result = p2pResponse.result {
+                return result
+            }
+
             if let error = p2pResponse.error {
                 throw P2PStakingAPIError.apiError(error)
             }
-            return p2pResponse.result
+
+            throw P2PStakingAPIError.httpError(statusCode: response.statusCode)
         } catch {
             StakingLogger.error(error: error)
             throw error

@@ -1,5 +1,5 @@
 //
-//  StakingTransactionSender+StakeKit.swift
+//  StakeKitTransactionSender+.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension StakeKitTransactionSender where
+extension StakingTransactionSender where
     Self: StakeKitTransactionsBuilder,
     Self: WalletProvider, RawTransaction: CustomStringConvertible,
     Self: StakeKitTransactionDataBroadcaster,
@@ -50,9 +50,7 @@ extension StakeKitTransactionSender where
         transactionStatusProvider: StakeKitTransactionStatusProvider,
         onResult: @escaping (StakeKitTransactionSendResult) -> Void
     ) async throws {
-        try await withThrowingTaskGroup(
-            of: (TransactionSendResult, StakeKitTransaction).self
-        ) { group in
+        try await withThrowingTaskGroup(of: (TransactionSendResult, StakeKitTransaction).self) { group in
             var results = [TransactionSendResult]()
 
             for (index, (transaction, rawTransaction)) in zip(transactions, rawTransactions).enumerated() {

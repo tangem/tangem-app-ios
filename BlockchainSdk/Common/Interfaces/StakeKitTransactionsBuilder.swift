@@ -18,16 +18,43 @@ public protocol StakeKitTransactionsBuilder {
     ///   - publicKey: public key to sign
     ///   - signer: transaction signer
     /// - Returns: array of signed transactions
-    func buildRawTransactions(
-        from transactions: [StakeKitTransaction],
+    func buildRawTransactions<T: TransactionDataConvertible>(
+        from transactions: [T],
         publicKey: Wallet.PublicKey,
         signer: TransactionSigner
     ) async throws -> [RawTransaction]
+    
+//    func buildRawTransactions(
+//        from transactions: [P2PTransaction],
+//        publicKey: Wallet.PublicKey,
+//        signer: TransactionSigner
+//    ) async throws -> [RawTransaction]
 }
 
 extension StakeKitTransactionsBuilder where Self: StakeKitTransactionDataProvider {
+    func buildRawTransactions<T: TransactionDataConvertible>(
+        from transactions: [T],
+        publicKey: Wallet.PublicKey,
+        signer: TransactionSigner
+    ) async throws -> [RawTransaction] {
+        let preparedHashes = try transactions.map {
+            try self.prepareDataForSign(transaction: $0)
+        }
+
+        let signatures: [SignatureInfo] = try await signer.sign(
+            hashes: preparedHashes,
+            walletPublicKey: publicKey
+        ).async()
+
+        return try zip(transactions, signatures).map { transaction, signature in
+            try prepareDataForSend(transaction: transaction, signature: signature)
+        }
+    }
+}
+
+extension StakeKitTransactionsBuilder where Self: P2PTransactionDataProvider {
     func buildRawTransactions(
-        from transactions: [StakeKitTransaction],
+        from transactions: [P2PTransaction],
         publicKey: Wallet.PublicKey,
         signer: TransactionSigner
     ) async throws -> [RawTransaction] {
