@@ -77,6 +77,11 @@ final class CommonCryptoAccountModel {
         self.accountBalanceProvider = accountBalanceProvider
         self.accountRateProvider = accountRateProvider
         self.derivationManager = derivationManager
+        print("❇️ init \(objectDescription(self, userInfo: ["name": _name, "derivationIndex": derivationIndex])) ❇️")
+    }
+
+    deinit {
+        print("🔴 deinit \(objectDescription(self, userInfo: ["name": _name, "derivationIndex": derivationIndex])) 🔴")
     }
 }
 

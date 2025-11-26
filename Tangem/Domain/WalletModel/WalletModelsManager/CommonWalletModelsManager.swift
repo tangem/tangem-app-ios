@@ -9,6 +9,7 @@
 import Combine
 import CombineExt
 import BlockchainSdk
+import TangemFoundation
 
 class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
@@ -32,6 +33,10 @@ class CommonWalletModelsManager {
     ) {
         self.walletManagersRepository = walletManagersRepository
         self.walletModelsFactory = walletModelsFactory
+    }
+
+    deinit {
+        print("🔴 deinit \(objectDescription(self)) 🔴")
     }
 
     private func bind() {
