@@ -17,5 +17,22 @@ public struct TangemPayCustomerInfoManagementServiceBuilder {
 }
 
 public extension TangemPayCustomerInfoManagementServiceBuilder {
-    // [REDACTED_TODO_COMMENT]
+    func buildCustomerInfoManagementService(
+        authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
+        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration,
+        authorizeWithCustomerWallet: @escaping () async throws -> TangemPayAuthorizationTokens
+    ) -> CustomerInfoManagementService {
+        CommonCustomerInfoManagementService(
+            apiType: apiType,
+            authorizationTokenHandler: authorizationTokensHandler,
+            apiService: .init(
+                provider: TangemPayProviderBuilder().buildProvider(
+                    configuration: urlSessionConfiguration,
+                    authorizationTokensHandler: authorizationTokensHandler
+                ),
+                decoder: JSONDecoderFactory().makeCIMDecoder()
+            ),
+            authorizeWithCustomerWallet: authorizeWithCustomerWallet
+        )
+    }
 }

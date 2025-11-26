@@ -7,7 +7,7 @@
 //
 
 struct CommonTangemPayAuthorizationService {
-    typealias AuthorizationAPIService = APIService<TangemPayAuthorizationAPITarget>
+    typealias AuthorizationAPIService = TangemPayAPIService<TangemPayAuthorizationAPITarget>
     private let apiService: AuthorizationAPIService
 
     private let apiType: VisaAPIType
