@@ -66,6 +66,15 @@ struct TangemPayMainView: View {
                     }
                     .disabled(viewModel.freezingState.isFreezingUnfreezingInProgress)
 
+                    Button(action: viewModel.termsAndLimits) {
+                        Label(
+                            Localization.tangemPayTermsLimits,
+                            systemImage: "text.page.fill"
+                        )
+                    }
+
+                    Divider()
+
                     Button(
                         action: viewModel.freezingState.isFrozen
                             ? viewModel.unfreeze
