@@ -794,7 +794,7 @@
 "no_account_polkadot" = "送信先アカウントが有効ではありません。%@ 以上を送信してアカウントを有効にしてください。";
 "no_account_send_to_create" = "アカウントを作成するには、このアドレスに資金を送金してください";
 "no_trustline_xlm_asset" = "送信先アカウントには、送金されるアセットのトラストラインがありません。";
-"notification_black_friday_text" = "Plus Rewards in BTC per Set.\nHurry up!";
+"notification_black_friday_text" = "Plus rewards in BTC per set.\nHurry up!";
 "notification_black_friday_title" = "Black Friday: up to 25%% OFF";
 "notification_referral_promo_button" = "今すぐ参加";
 "notification_referral_promo_text" = "コードを共有すると、販売ごとに5 USDTを獲得できます。お友達は10%%割引になります。";
