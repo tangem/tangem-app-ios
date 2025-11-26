@@ -29,7 +29,7 @@ class TangemPayAuthorizingMobileWalletInteractor {
 extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
     func authorize(
         customerWalletId: String,
-        authorizationService: VisaAuthorizationService
+        authorizationService: TangemPayAuthorizationService
     ) async throws -> TangemPayAuthorizingResponse {
         let context = try await unlock()
         let mobileWallet = try mobileWalletSdk.deriveMasterKeys(context: context)
@@ -75,11 +75,11 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
         context: MobileWalletContext,
         walletPublicKey: Wallet.PublicKey,
         customerWalletId: String,
-        authorizationService: VisaAuthorizationService
-    ) async throws -> VisaAuthorizationTokens {
+        authorizationService: TangemPayAuthorizationService
+    ) async throws -> TangemPayAuthorizationTokens {
         VisaLogger.info("Requesting challenge for wallet authorization")
 
-        let challengeResponse = try await authorizationService.getCustomerWalletAuthorizationChallenge(
+        let challengeResponse = try await authorizationService.getChallenge(
             customerWalletAddress: TangemPayUtilities.makeAddress(using: walletPublicKey),
             customerWalletId: customerWalletId
         )
@@ -111,7 +111,7 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
             hash: signRequest.hash
         )
 
-        let authorizationTokensResponse = try await authorizationService.getAccessTokensForCustomerWalletAuth(
+        let authorizationTokensResponse = try await authorizationService.getTokens(
             sessionId: challengeResponse.sessionId,
             signedChallenge: unmarshalledSignature.data.hexString,
             messageFormat: signRequest.message
