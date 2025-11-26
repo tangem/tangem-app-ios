@@ -149,8 +149,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                                 return nil
                             }
                             return TangemPayAccountViewModel(
-                                card: cardDetails.card,
-                                balance: cardDetails.balance,
+                                state: .normal(
+                                    card: cardDetails.card,
+                                    balance: cardDetails.balance
+                                ),
                                 tapAction: {
                                     viewModel.openTangemPayMainView(
                                         tangemPayAccount: tangemPayAccount,
