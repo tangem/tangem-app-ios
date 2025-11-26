@@ -19,7 +19,7 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         false
     }
 
-    var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
+    var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> {
         .just(output: false)
     }
 

@@ -65,7 +65,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
                 viewModel.state = .hidden(isFrozen: viewModel.state.isFrozen)
             } catch {
                 viewModel.state = .hidden(isFrozen: viewModel.state.isFrozen)
-                AppLogger.error("Failed to load card details", error: error)
+                VisaLogger.error("Failed to load card details", error: error)
             }
         }
     }

@@ -10,7 +10,8 @@ import BlockchainSdk
 import TangemVisa
 
 extension TangemPayUtilities {
-    @Injected(\.visaRefreshTokenRepository) private static var visaRefreshTokenRepository: VisaRefreshTokenRepository
+    @Injected(\.tangemPayAuthorizationTokensRepository)
+    private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
     /// Hardcoded USDC token on visa blockchain network (currently - Polygon)
     static var usdcTokenItem: TokenItem {
@@ -51,15 +52,18 @@ extension TangemPayUtilities {
             }
     }
 
-    static func getWalletAddressAndRefreshToken(keysRepository: KeysRepository) -> (walletAddress: String, refreshToken: String)? {
+    static func getWalletAddressAndAuthorizationTokens(
+        customerWalletId: String,
+        keysRepository: KeysRepository
+    ) -> (walletAddress: String, tokens: TangemPayAuthorizationTokens)? {
         guard let walletPublicKey = TangemPayUtilities.getKey(from: keysRepository),
               let walletAddress = try? TangemPayUtilities.makeAddress(using: walletPublicKey),
               // If there was no refreshToken saved - means user never got tangem pay offer
-              let refreshToken = visaRefreshTokenRepository.getToken(forVisaRefreshTokenId: .customerWalletAddress(walletAddress))
+              let tokens = tangemPayAuthorizationTokensRepository.getToken(forCustomerWalletId: customerWalletId)
         else {
             return nil
         }
 
-        return (walletAddress, refreshToken)
+        return (walletAddress, tokens)
     }
 }
