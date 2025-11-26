@@ -12,6 +12,7 @@ import TangemFoundation
 protocol YieldModuleMarketsRepository {
     func store(markets: CachedYieldModuleMarkets)
     func markets() -> CachedYieldModuleMarkets?
+    func marketInfo(for contractAddress: String) -> CachedYieldModuleMarket?
 }
 
 final class CommonYieldModuleMarketsRepository {
@@ -27,6 +28,10 @@ extension CommonYieldModuleMarketsRepository: YieldModuleMarketsRepository {
 
     func markets() -> CachedYieldModuleMarkets? {
         try? storage.value()
+    }
+
+    func marketInfo(for contractAddress: String) -> CachedYieldModuleMarket? {
+        markets()?.markets.first { $0.tokenContractAddress == contractAddress }
     }
 }
 
