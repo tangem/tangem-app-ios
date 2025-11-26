@@ -34,6 +34,9 @@ struct WCRequestDetailsBuilder: Equatable {
             WCEthTransactionDetailsModel(for: method, source: source, blockchain: blockchain).data
         case .bnbSign, .bnbTxConfirmation, .switchChain:
             []
+        case .sendTransfer, .getAccountAddresses, .signPsbt, .signMessage:
+            // [REDACTED_TODO_COMMENT]
+            []
         }
     }
 }
