@@ -262,15 +262,18 @@ private extension TONWalletManager {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension TONWalletManager: StakeKitTransactionsBuilder, StakingTransactionSender {
+extension TONWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder {
     typealias RawTransaction = String
 
     /// we need to pass the same signing input into prepareForSend method
-    func buildRawTransactions(
-        from transactions: [StakeKitTransaction],
+    func buildRawTransactions<T: StakingTransaction>(
+        from transactions: [T],
         publicKey: Wallet.PublicKey,
         signer: any TransactionSigner
     ) async throws -> [String] {
+        guard let transactions = transactions as? [StakeKitTransaction] else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
         let expireAt = createExpirationTimestampSecs()
 
         let helper = TONStakeKitTransactionHelper(transactionBuilder: transactionBuilder)
