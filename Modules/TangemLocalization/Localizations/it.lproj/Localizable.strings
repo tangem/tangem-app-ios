@@ -794,6 +794,8 @@
 "no_account_polkadot" = "Destination account is not active. Send %@ or more to activate the account.";
 "no_account_send_to_create" = "Per creare un account, invia fondi a questo indirizzo";
 "no_trustline_xlm_asset" = "The destination account does not have a trustline for the asset being sent.";
+"notification_black_friday_text" = "Plus Rewards in BTC per Set.\nHurry up!";
+"notification_black_friday_title" = "Black Friday: up to 25%% OFF";
 "notification_referral_promo_button" = "Join Now";
 "notification_referral_promo_text" = "Share your code - earn 5 USDT per sale. Your friend gets 10%% OFF.";
 "notification_referral_promo_title" = "Get REWARDS for every friend!";
