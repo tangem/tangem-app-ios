@@ -57,7 +57,7 @@ struct TangemPayAccountView: View {
                     )
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 14, horizontalPadding: 14)
+        .defaultRoundedBackground(with: Colors.Background.primary, verticalPadding: 14, horizontalPadding: 14)
         .onTapGesture(perform: viewModel.tapAction)
     }
 }
