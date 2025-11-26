@@ -12,18 +12,14 @@ import CombineExt
 import TangemFoundation
 
 final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
-    private typealias AccountSection = (any CryptoAccountModel, [TokenSectionsAdapter.Section])
-
     private let userWalletModel: UserWalletModel
-    private let accountSectionsСache: ThreadSafeContainer<Cache>
+    private let cache: ThreadSafeContainer<Cache>
     private let mappingQueue: DispatchQueue
 
     /// Shared source of truth for both plain and account sections publishers.
-    private lazy var commonSectionsPublisher: some Publisher<([AccountSection], Bool), Never> = makeCommonSectionsPublisher()
-
-    private var accountSectionsBag: Set<AnyCancellable> = []
-
+    private lazy var commonSectionsPublisher: some Publisher<CommonSectionInput, Never> = makeCommonSectionsPublisher()
     private weak var itemViewModelFactory: MultiWalletMainContentItemViewModelFactory?
+    private var purgeCacheSubscription: AnyCancellable?
 
     init(
         userWalletModel: UserWalletModel
@@ -35,24 +31,25 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
             target: .global(qos: .userInitiated)
         )
 
-        accountSectionsСache = .init(.init())
+        cache = .init(.init())
     }
 
-    private func makeCommonSectionsPublisher() -> some Publisher<([AccountSection], Bool), Never> {
+    private func makeCommonSectionsPublisher() -> some Publisher<CommonSectionInput, Never> {
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-        let cache = accountSectionsСache
-
+        let cache = self.cache
         let publisher = userWalletModel
             .accountModelsManager
             .accountModelsPublisher
             .map { $0.cryptoAccounts() }
             .withWeakCaptureOf(self)
-            .flatMapLatest { provider, cryptoAccounts -> AnyPublisher<([AccountSection], Bool), Never> in
+            .flatMapLatest { provider, cryptoAccounts -> AnyPublisher<CommonSectionInput, Never> in
                 let cryptoAccountModels = Self.extractCryptoAccountModels(from: cryptoAccounts)
                 let hasMultipleAccounts = cryptoAccounts.hasMultipleAccounts
 
                 guard cryptoAccountModels.isNotEmpty else {
-                    return .just(output: ([], hasMultipleAccounts))
+                    let input = CommonSectionInput(hasMultipleAccounts: hasMultipleAccounts, accountSections: [])
+
+                    return .just(output: input)
                 }
 
                 return cryptoAccountModels
@@ -67,15 +64,15 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
                             .organizedSections(from: tokenSectionsSourcePublisher, on: provider.mappingQueue)
 
                         return organizedTokensSectionsPublisher
-                            .map { (cryptoAccountModel, $0) }
+                            .map { AccountSectionInput(cryptoAccountModel: cryptoAccountModel, sections: $0) }
                     }
                     .combineLatest()
-                    .map { ($0, hasMultipleAccounts) }
+                    .map { CommonSectionInput(hasMultipleAccounts: hasMultipleAccounts, accountSections: $0) }
                     .eraseToAnyPublisher()
             }
             .share(replay: 1)
 
-        subscribeToAccountSectionsPublisher(publisher)
+        subscribeToCachePurgePublisher(publisher)
 
         return publisher
     }
@@ -107,12 +104,12 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
     private func makeOrGetCachedAccountItemViewModel(for cryptoAccountModel: any CryptoAccountModel) -> ExpandableAccountItemViewModel {
         let cacheKey = ObjectIdentifier(cryptoAccountModel)
 
-        if let cachedItemViewModel: ExpandableAccountItemViewModel = accountSectionsСache.accountItemViewModels[cacheKey] {
+        if let cachedItemViewModel: ExpandableAccountItemViewModel = cache.accountItemViewModels[cacheKey] {
             return cachedItemViewModel
         }
 
         let itemViewModel = ExpandableAccountItemViewModel(accountModel: cryptoAccountModel)
-        accountSectionsСache.mutate { $0.accountItemViewModels[cacheKey] = itemViewModel }
+        cache.mutate { $0.accountItemViewModels[cacheKey] = itemViewModel }
 
         return itemViewModel
     }
@@ -165,24 +162,21 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
     }
 
     /// This subscription is needed for purging the cache.
-    private func subscribeToAccountSectionsPublisher(_ publisher: some Publisher<([AccountSection], Bool), Never>) {
+    private func subscribeToCachePurgePublisher(_ publisher: some Publisher<CommonSectionInput, Never>) {
         // Clearing previous subscriptions, shouldn't happen but just in case
-        accountSectionsBag.removeAll()
+        purgeCacheSubscription?.cancel()
 
-        publisher
+        purgeCacheSubscription = publisher
             .withWeakCaptureOf(self)
             .sink { provider, input in
-                provider.purgeCache(using: input.0)
+                provider.purgeCache(using: input.accountSections)
             }
-            .store(in: &accountSectionsBag)
     }
 
-    private func purgeCache(using sections: [AccountSection]) {
-        let cache = accountSectionsСache
-
+    private func purgeCache(using sections: [AccountSectionInput]) {
         // Token item view models are cached per wallet model
         let actualTokenItemViewModelsCacheKeys = sections
-            .flatMap(\.1)
+            .flatMap(\.sections)
             .flatMap(\.walletModels)
             .map(ObjectIdentifier.init)
             .toSet()
@@ -194,7 +188,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
 
         // Section adapters and account item view models are cached per account
         let actualSectionItemViewModelsCacheKeys = sections
-            .map(\.0)
+            .map(\.cryptoAccountModel)
             .map(ObjectIdentifier.init)
             .toSet()
 
@@ -247,20 +241,21 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
 
 extension AccountsAwareMultiWalletMainContentViewSectionsProvider: MultiWalletMainContentViewSectionsProvider {
     func makePlainSectionsPublisher() -> some Publisher<[MultiWalletMainContentPlainSection], Never> {
-        let cache = accountSectionsСache
+        let cache = self.cache
+
         return commonSectionsPublisher
-            .map { input, hasMultipleAccounts -> [AccountSection] in
+            .map { input -> [AccountSectionInput] in
                 // When there are multiple accounts, we don't need to show plain sections
                 // Instead, account sections from `makeAccountSectionsPublisher()` will be used to render multiple accounts
-                if hasMultipleAccounts {
+                guard !input.hasMultipleAccounts else {
                     return []
                 }
 
-                return input
+                return input.accountSections
             }
             .withWeakCaptureOf(self)
             .map { provider, input in
-                return input.flatMap { provider.convertToSections($0.1, using: cache) }
+                return input.flatMap { provider.convertToSections($0.sections, using: cache) }
             }
             .receiveOnMain()
             .share(replay: 1)
@@ -268,23 +263,23 @@ extension AccountsAwareMultiWalletMainContentViewSectionsProvider: MultiWalletMa
     }
 
     func makeAccountSectionsPublisher() -> some Publisher<[MultiWalletMainContentAccountSection], Never> {
-        let cache = accountSectionsСache
+        let cache = self.cache
 
         return commonSectionsPublisher
-            .map { input, hasMultipleAccounts -> [AccountSection] in
+            .map { input -> [AccountSectionInput] in
                 // When there are no multiple accounts, we don't need to show sections with accounts
                 // Instead, plain sections from `makePlainSectionsPublisher()` will be used to render tokens of a single account
-                guard hasMultipleAccounts else {
+                guard input.hasMultipleAccounts else {
                     return []
                 }
 
-                return input
+                return input.accountSections
             }
             .withWeakCaptureOf(self)
             .map { provider, input in
-                return input.map { cryptoAccountModel, sections in
-                    let model = provider.makeOrGetCachedAccountItemViewModel(for: cryptoAccountModel)
-                    let items = provider.convertToSections(sections, using: cache)
+                return input.map { input in
+                    let model = provider.makeOrGetCachedAccountItemViewModel(for: input.cryptoAccountModel)
+                    let items = provider.convertToSections(input.sections, using: cache)
 
                     return MultiWalletMainContentAccountSection(model: model, items: items)
                 }
@@ -306,5 +301,17 @@ private extension AccountsAwareMultiWalletMainContentViewSectionsProvider {
         var accountItemViewModels: [ObjectIdentifier: ExpandableAccountItemViewModel] = [:]
         var tokenItemViewModels: [ObjectIdentifier: TokenItemViewModel] = [:]
         var tokenSectionsAdapters: [ObjectIdentifier: TokenSectionsAdapter] = [:]
+    }
+
+    /// Temporary internal-only type representing account section input.
+    struct AccountSectionInput {
+        let cryptoAccountModel: any CryptoAccountModel
+        let sections: [TokenSectionsAdapter.Section]
+    }
+
+    /// Temporary internal-only type representing common section input.
+    struct CommonSectionInput {
+        let hasMultipleAccounts: Bool
+        let accountSections: [AccountSectionInput]
     }
 }
