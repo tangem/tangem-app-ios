@@ -45,15 +45,24 @@ extension P2PTransactionDispatcher: TransactionDispatcher {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
+        let mapper = TransactionDispatcherResultMapper()
+
         let sendResult = try await stakingTransactionsSender.sendP2P(
             transaction: transaction,
             signer: transactionSigner,
             executeSend: { [apiProvider] signedTransaction in
-                try await apiProvider.broadcastTransaction(signedTransaction: signedTransaction)
+                do {
+                    return try await apiProvider.broadcastTransaction(signedTransaction: signedTransaction)
+                } catch {
+                    throw mapper.mapError(
+                        error.toUniversalError(),
+                        transaction: .staking(action)
+                    )
+                }
             }
         )
 
-        let result = TransactionDispatcherResultMapper().mapResult(
+        let result = mapper.mapResult(
             sendResult,
             blockchain: walletModel.tokenItem.blockchain,
             signer: transactionSigner.latestSignerType

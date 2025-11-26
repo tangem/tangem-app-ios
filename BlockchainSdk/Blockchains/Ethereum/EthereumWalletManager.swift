@@ -569,6 +569,29 @@ extension EthereumWalletManager: EthereumTransactionDataBuilder {
 
 extension EthereumWalletManager: StakeKitTransactionsBuilder, StakingTransactionSender, StakeKitTransactionDataProvider {
     typealias RawTransaction = String
+    
+    func prepareDataForSign<T>(transaction: T) throws -> Data where T : TransactionDataConvertible {
+        switch transaction {
+        case let stakeKitTransaction as StakeKitTransaction:
+            return try prepareDataForSign(transaction: stakeKitTransaction)
+        case let p2pTransaction as P2PTransaction:
+            return try prepareDataForSign(transaction: p2pTransaction)
+        default:
+            throw BlockchainSdkError.failedToBuildTx
+        }
+    }
+    
+    func prepareDataForSend<T>(transaction: T, signature: SignatureInfo) throws -> String where T : TransactionDataConvertible {
+        switch transaction {
+        case let stakeKitTransaction as StakeKitTransaction:
+            return try prepareDataForSend(transaction: stakeKitTransaction, signature: signature)
+        case let p2pTransaction as P2PTransaction:
+            return try prepareDataForSend(transaction: p2pTransaction, signature: signature)
+        default:
+            throw BlockchainSdkError.failedToBuildTx
+        }
+    }
+    
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
         try EthereumStakingTransactionHelper(transactionBuilder: txBuilder).prepareForSign(transaction)
