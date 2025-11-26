@@ -58,6 +58,7 @@ enum NotificationButtonActionType: Identifiable {
     case openBuyCrypto(walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
     case tangemPayCreateAccountAndIssueCard
     case tangemPayViewKYCStatus
+    case tangemPaySync
     case allowPushPermissionRequest
     case postponePushPermissionRequest
     case activate
@@ -96,6 +97,7 @@ enum NotificationButtonActionType: Identifiable {
         case .openBuyCrypto(let walletModel, let parameters): "openBuyCrypto\(walletModel.id)\(parameters.hashValue)".hashValue
         case .tangemPayCreateAccountAndIssueCard: "tangemPayCreateAccountAndIssueCard".hashValue
         case .tangemPayViewKYCStatus: "tangemPayViewKYCStatus".hashValue
+        case .tangemPaySync: "tangemPaySync".hashValue
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
         case .activate: "activate".hashValue
@@ -167,6 +169,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonContinue
         case .tangemPayViewKYCStatus:
             return Localization.tangempayKycInProgressNotificationButton
+        case .tangemPaySync:
+            return Localization.homeButtonScan
         case .allowPushPermissionRequest:
             return Localization.commonEnable
         case .postponePushPermissionRequest:
@@ -182,7 +186,8 @@ enum NotificationButtonActionType: Identifiable {
         switch self {
         case .generateAddresses,
              .retryKaspaTokenTransaction,
-             .unlock:
+             .unlock,
+             .tangemPaySync:
             return .trailing(Assets.tangemIcon)
         case .swap:
             return .leading(Assets.exchangeMini)
@@ -230,7 +235,8 @@ enum NotificationButtonActionType: Identifiable {
              .unlock,
              .openMobileUpgrade,
              .allowPushPermissionRequest,
-             .activate:
+             .activate,
+             .tangemPaySync:
             return .primary
         case .backupCard,
              .buyCrypto,
