@@ -176,14 +176,24 @@ final class YieldModuleStartViewModel: ObservableObject {
     }
 
     private func fetchFees() {
-        Task {
-            let feeParameters = try await yieldManagerInteractor.getCurrentFeeParameters()
+        Task { @MainActor in
+            setAllFeesState(.loading)
 
-            async let networkFee: () = fetchNetworkFee()
-            async let minimalAmount: () = fetchMinimalAmount(feeParameters: feeParameters)
-            async let estimatedAndMaximumFee: () = fetchEstimatedAndMaximumFee(feeParameters: feeParameters)
+            do {
+                let feeParameters = try await yieldManagerInteractor.getCurrentFeeParameters()
 
-            _ = await (networkFee, minimalAmount, estimatedAndMaximumFee)
+                async let networkFee: () = fetchNetworkFee()
+                async let minimalAmount: () = fetchMinimalAmount(feeParameters: feeParameters)
+                async let estimatedAndMaximumFee: () = fetchEstimatedAndMaximumFee(feeParameters: feeParameters)
+
+                _ = await (networkFee, minimalAmount, estimatedAndMaximumFee)
+            } catch {
+                isButtonEnabled = false
+                setAllFeesState(.noData)
+                networkFeeNotification = createFeeErrorNotification { [weak self] in
+                    await self?.reloadAction()
+                }
+            }
         }
     }
 
@@ -221,8 +231,6 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     @MainActor
     private func fetchNetworkFee() async {
-        networkFeeState = networkFeeState.withFeeState(.loading)
-
         networkFeeNotification = nil
         isButtonEnabled = false
         isNavigationToFeePolicyEnabled = false
@@ -244,20 +252,17 @@ final class YieldModuleStartViewModel: ObservableObject {
             isNavigationToFeePolicyEnabled = true
             isButtonEnabled = !isFeeHigh
         } catch {
-            networkFeeNotification = createFeeErrorNotification()
+            networkFeeNotification = createFeeErrorNotification { [weak self] in
+                await self?.reloadAction()
+            }
 
             networkFeeState = networkFeeState.withFeeState(.noData)
-
             isButtonEnabled = false
-            isNavigationToFeePolicyEnabled = false
         }
     }
 
     @MainActor
     private func fetchEstimatedAndMaximumFee(feeParameters: EthereumFeeParameters) async {
-        estimatedFeeState = estimatedFeeState.withFeeState(.loading)
-        maximumFeeState = maximumFeeState.withFeeState(.loading)
-
         guard let maxFeeNative = await yieldManagerInteractor.getMaxFeeNative() else {
             estimatedFeeState = estimatedFeeState.withFeeState(.noData)
             maximumFeeState = maximumFeeState.withFeeState(.noData)
@@ -285,6 +290,22 @@ final class YieldModuleStartViewModel: ObservableObject {
             maximumFeeState = maximumFeeState.withFeeState(.noData)
             feePolicyFooter = nil
         }
+    }
+
+    @MainActor
+    private func reloadAction() async {
+        networkFeeNotification = nil
+        setAllFeesState(.loading)
+        _ = try? await walletModel.update(silent: true).async()
+        fetchFees()
+    }
+
+    @MainActor
+    private func setAllFeesState(_ state: LoadableTextView.State) {
+        networkFeeState = networkFeeState.withFeeState(state)
+        estimatedFeeState = estimatedFeeState.withFeeState(state)
+        maximumFeeState = maximumFeeState.withFeeState(state)
+        minimalAmountState = minimalAmountState.withFeeState(state)
     }
 }
 
@@ -324,11 +345,10 @@ private extension YieldModuleStartViewModel {
         }
     }
 
-    func createFeeErrorNotification() -> YieldModuleNotificationBannerParams {
-        notificationManager.createFeeUnreachableNotification { [weak self] in
-            Task { [weak self] in
-                try await Task.sleep(seconds: 0.5)
-                await self?.fetchNetworkFee()
+    func createFeeErrorNotification(reloadAction: @MainActor @escaping () async -> Void) -> YieldModuleNotificationBannerParams {
+        notificationManager.createFeeUnreachableNotification {
+            Task {
+                await reloadAction()
             }
         }
     }
