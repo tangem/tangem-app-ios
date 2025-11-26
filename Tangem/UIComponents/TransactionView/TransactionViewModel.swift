@@ -25,10 +25,44 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     var formattedAmount: String? {
         switch transactionType {
-        case .approve, .vote, .withdraw:
+        case .approve, .vote, .withdraw, .yieldEnter, .yieldWithdraw, .yieldTopup:
             return nil
         case .transfer, .swap, .operation, .unknownOperation, .stake, .unstake, .claimRewards, .restake, .tangemPay, .tangemPayTransfer, .yieldSupply:
             return amount
+        }
+    }
+
+    var transactionDescriptionLayoutPriority: Double {
+        switch transactionType {
+        case .yieldEnter, .yieldTopup, .yieldWithdraw:
+            0
+        default:
+            1
+        }
+    }
+
+    var transactionDescriptionTruncationMode: Text.TruncationMode {
+        switch transactionType {
+        case .yieldEnter, .yieldTopup, .yieldWithdraw:
+            .tail
+        default:
+            .middle
+        }
+    }
+
+    func getTransactionDescription() -> String? {
+        switch transactionType {
+        case .yieldEnter:
+            return Localization.yieldModuleTransactionEnterSubtitle(amount)
+
+        case .yieldTopup:
+            return Localization.yieldModuleTransactionTopupSubtitle(amount)
+
+        case .yieldWithdraw:
+            return Localization.yieldModuleTransactionExitSubtitle(amount)
+
+        default:
+            return localizeDestination
         }
     }
 
@@ -78,6 +112,9 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .claimRewards: Localization.commonClaimRewards
         case .restake: Localization.stakingRestake
         case .yieldSupply: Localization.yieldModuleSupply
+        case .yieldEnter: Localization.yieldModuleTransactionEnter
+        case .yieldWithdraw: Localization.yieldModuleTransactionExit
+        case .yieldTopup: Localization.yieldModuleTransactionTopup
         case .tangemPay(name: let name, _, _): name
         case .tangemPayTransfer(name: let name): name
         }
@@ -91,7 +128,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         switch transactionType {
         case .approve:
             return Assets.approve.image
-        case .transfer, .swap, .operation, .unknownOperation, .tangemPayTransfer, .yieldSupply:
+        case .transfer, .swap, .operation, .unknownOperation, .tangemPayTransfer, .yieldSupply, .yieldEnter, .yieldWithdraw, .yieldTopup:
             return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
         case .stake, .vote, .restake:
             return Assets.TokenItemContextMenu.menuStaking.image
@@ -204,7 +241,10 @@ extension TransactionViewModel {
         case withdraw
         case claimRewards
         case restake
+        case yieldEnter
         case yieldSupply
+        case yieldTopup
+        case yieldWithdraw
         case unknownOperation
         case operation(name: String)
 
