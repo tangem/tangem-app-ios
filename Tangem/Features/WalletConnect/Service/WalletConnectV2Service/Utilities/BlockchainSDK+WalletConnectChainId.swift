@@ -19,8 +19,10 @@ extension BlockchainSdk.Blockchain {
 
             return isTestnet ? testnetIds : mainnetIds
         case .bitcoin:
-            /// Bitcoin chain id according to Reown docs from link above.
-            return ["000000000019d6689c085ae165831e93"]
+            // Bitcoin chain id according to Reown docs from link above.
+            let mainnetIds = ["000000000019d6689c085ae165831e93"]
+            let testnetIds = ["000000000933ea01ad0ee984209779ba"]
+            return isTestnet ? testnetIds : mainnetIds
         default:
             guard let chainId, isEvm else { return nil }
 
