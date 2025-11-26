@@ -40,7 +40,6 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        logger.logTransactionSent()
         return result
     }
 

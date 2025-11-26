@@ -35,12 +35,9 @@ struct YieldModuleFeeFormatter {
 
     // MARK: - Public Implementation
 
-    func convertToFiat(_ value: Decimal) async throws -> Decimal {
-        guard let feeCurrencyId = feeCurrency.currencyId else {
-            throw YieldModuleFormatterFee.cannotFormatFee
-        }
-
-        return try await balanceConverter.convertToFiat(value, currencyId: feeCurrencyId)
+    func convertToFiat(_ value: Decimal, currency: CurrencyType) async throws -> Decimal {
+        let currencyId = try currencyId(for: currency)
+        return try await balanceConverter.convertToFiat(value, currencyId: currencyId)
     }
 
     func formatDecimal(_ value: Decimal) -> String {
@@ -99,5 +96,30 @@ struct YieldModuleFeeFormatter {
         let converted = try await balanceConverter.convertToFiat(networkFee, currencyId: id)
         let formattedFiatFee = balanceFormatter.formatFiatBalance(converted, currencyCode: selectedCurrencyCode)
         return formattedFiatFee
+    }
+
+    // MARK: - Private Implementation
+
+    private func currencyId(for currency: CurrencyType) throws -> String {
+        switch currency {
+        case .fee:
+            guard let id = feeCurrency.currencyId else {
+                throw YieldModuleFormatterFee.cannotFormatFee
+            }
+            return id
+
+        case .token:
+            guard let id = token.id else {
+                throw YieldModuleFormatterFee.cannotFormatFee
+            }
+            return id
+        }
+    }
+}
+
+extension YieldModuleFeeFormatter {
+    enum CurrencyType {
+        case fee
+        case token
     }
 }
