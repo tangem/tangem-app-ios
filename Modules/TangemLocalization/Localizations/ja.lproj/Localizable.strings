@@ -794,6 +794,8 @@
 "no_account_polkadot" = "送信先アカウントが有効ではありません。%@ 以上を送信してアカウントを有効にしてください。";
 "no_account_send_to_create" = "アカウントを作成するには、このアドレスに資金を送金してください";
 "no_trustline_xlm_asset" = "送信先アカウントには、送金されるアセットのトラストラインがありません。";
+"notification_black_friday_text" = "Plus Rewards in BTC per Set.\nHurry up!";
+"notification_black_friday_title" = "Black Friday: up to 25%% OFF";
 "notification_referral_promo_button" = "今すぐ参加";
 "notification_referral_promo_text" = "コードを共有すると、販売ごとに5 USDTを獲得できます。お友達は10%%割引になります。";
 "notification_referral_promo_title" = "友達への紹介で報酬を獲得しよう！";
@@ -1383,9 +1385,14 @@
 "tangempay_onboarding_security_description" = "あなたの住所や資産を開示することなく、個別の支払い用アカウントが作成されます。";
 "tangempay_onboarding_security_title" = "他に類を見ないプライバシー";
 "tangempay_onboarding_title" = "無料のTangem Payカードを数分でゲットしましょう";
+"tangempay_payment_account_sync_needed" = "支払いアカウントの同期が必要です";
+"tangempay_payment_account" = "支払いアカウント";
 "tangempay_service_unavailable_description" = "技術的な問題を修正しています。後でもう一度お試しください。";
 "tangempay_service_unavailable_title" = "サービスは一時的に利用できません";
+"tangempay_service_unreachable_try_later" = "現在サービスに接続できません。後ほどもう一度お試しください。";
+"tangempay_temporarily_unavailable" = "Tangem Payは一時的に利用できません";
 "tangempay_title" = "Tangem Pay";
+"tangempay_use_tangem_device_to_restore_payment_account" = "カードまたはリングを使用して、支払いアカウントへのアクセスを復元してください。";
 "this_is_my_wallet_title" = "これは私のウォレットです";
 "toast_balances_hidden" = "残高非表示";
 "toast_balances_shown" = "残高表示";
