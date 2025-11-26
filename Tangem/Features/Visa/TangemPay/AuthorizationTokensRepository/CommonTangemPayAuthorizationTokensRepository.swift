@@ -68,7 +68,7 @@ final class CommonTangemPayAuthorizationTokensRepository: TangemPayAuthorization
                 try biometricsStorage.delete(storageKey)
             }
         } catch {
-            AppLogger.error("Failed to clear persistence", error: error)
+            VisaLogger.error("Failed to clear persistence", error: error)
         }
     }
 
@@ -87,7 +87,7 @@ final class CommonTangemPayAuthorizationTokensRepository: TangemPayAuthorization
             tokens = loadedTokens
             storeCustomerWalletIds(Set(loadedTokens.keys))
         } catch {
-            AppLogger.error("Failed to load from persistence", error: error)
+            VisaLogger.error("Failed to load from persistence", error: error)
         }
     }
 
@@ -116,7 +116,7 @@ final class CommonTangemPayAuthorizationTokensRepository: TangemPayAuthorization
             let data = try JSONEncoder().encode(customerWalletIds)
             try secureStorage.store(data, forKey: StorageKey.customerWalletIds.rawValue)
         } catch {
-            AppLogger.error("Failed to save to persistance", error: error)
+            VisaLogger.error("Failed to save to persistance", error: error)
         }
     }
 }
