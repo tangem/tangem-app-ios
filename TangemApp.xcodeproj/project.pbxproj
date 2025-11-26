@@ -3513,6 +3513,8 @@
 		DCFEFE532CF08A1B002DFE58 /* ActionButtonsSwapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE522CF08A1A002DFE58 /* ActionButtonsSwapViewModel.swift */; };
 		DCFEFE5A2CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */; };
 		DF42B0242ECEEF4300019970 /* TangemPayIssuingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF42B0232ECEEF4300019970 /* TangemPayIssuingManager.swift */; };
+		DF9FFAB12ED56C3900A992F7 /* FlipAnimationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9FFAB02ED56C3900A992F7 /* FlipAnimationModifier.swift */; };
+		DFFB480E2ECD8813007FD732 /* TangemPayCardDetailsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFB480D2ECD8813007FD732 /* TangemPayCardDetailsRepository.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
 		EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */; };
 		EA0DB86C2E24074D008BFBB2 /* StellarAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0DB86B2E24074D008BFBB2 /* StellarAssetIdParser.swift */; };
@@ -8062,6 +8064,8 @@
 		DCFEFE522CF08A1A002DFE58 /* ActionButtonsSwapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsSwapViewModel.swift; sourceTree = "<group>"; };
 		DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsChooseTokenViewModel.swift; sourceTree = "<group>"; };
 		DF42B0232ECEEF4300019970 /* TangemPayIssuingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayIssuingManager.swift; sourceTree = "<group>"; };
+		DF9FFAB02ED56C3900A992F7 /* FlipAnimationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlipAnimationModifier.swift; sourceTree = "<group>"; };
+		DFFB480D2ECD8813007FD732 /* TangemPayCardDetailsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayCardDetailsRepository.swift; sourceTree = "<group>"; };
 		E69B531B7D974A48A77CBE89 /* FloatingSheetNavigationBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingSheetNavigationBarView.swift; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
 		EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionDetails.swift; sourceTree = "<group>"; };
@@ -18283,6 +18287,8 @@
 				DAD212BD2E822F7800097D16 /* TangemPayCardDetailsState.swift */,
 				DAD212BB2E822F6B00097D16 /* TangemPayCardDetailsViewModel.swift */,
 				DAD212B62E822F3D00097D16 /* TangemPayCardDetailsView.swift */,
+				DFFB480D2ECD8813007FD732 /* TangemPayCardDetailsRepository.swift */,
+				DF9FFAB02ED56C3900A992F7 /* FlipAnimationModifier.swift */,
 			);
 			path = TangemPayCardDetails;
 			sourceTree = "<group>";
@@ -25300,6 +25306,7 @@
 				DC2911BA2C625B4500DF53CC /* TransactionDispatcherFactory.swift in Sources */,
 				C265B2152E55EE960011C01D /* WalletConnectSupportedNamespace.swift in Sources */,
 				30AD19A12E85596600EAE0A0 /* ArchivedAccountsViewModel.swift in Sources */,
+				DFFB480E2ECD8813007FD732 /* TangemPayCardDetailsRepository.swift in Sources */,
 				B64959832C414E8900B71164 /* RootViewControllerFactory.swift in Sources */,
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
 				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
@@ -26807,6 +26814,7 @@
 				2DCB23A22E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift in Sources */,
 				2DCB23A32E5700E50076C294 /* ReceiveAnalyticsLogger.swift in Sources */,
 				EF313CA32EC36D7C00145849 /* TransactionViewIconViewData.swift in Sources */,
+				DF9FFAB12ED56C3900A992F7 /* FlipAnimationModifier.swift in Sources */,
 				DAC53CF927BE63830027147D /* StoriesViewModel.swift in Sources */,
 				B6FB04E52B1FEEF6000BB59E /* RootHostingController.swift in Sources */,
 				B0C4F76B26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift in Sources */,
