@@ -1,4 +1,14 @@
-extension P2PTransactionSender where Self: WalletProvider, Self: P2PTransactionDataProvider {
+//
+//  StakingTransactionSender+P2P.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+public extension StakingTransactionSender where Self: WalletProvider, Self: P2PTransactionDataProvider {
     func sendP2P(
         transaction: P2PTransaction,
         signer: TransactionSigner,
@@ -11,7 +21,13 @@ extension P2PTransactionSender where Self: WalletProvider, Self: P2PTransactionD
             walletPublicKey: wallet.publicKey
         ).async()
 
-        let rawTransaction = try prepareDataForSend(transaction: transaction, signature: signature)
+        guard let rawTransaction = try prepareDataForSend(
+            transaction: transaction,
+            signature: signature
+        ) as? String else {
+            throw BlockchainSdkError.failedToSendTx
+        }
+
         let hash = try await executeSend(rawTransaction)
 
         return TransactionSendResult(hash: hash, currentProviderHost: .empty)
