@@ -44,3 +44,9 @@ extension CommonCryptoAccountModel.AccountId: AccountModelPersistentIdentifierCo
         return derivationIndex
     }
 }
+
+extension CommonCryptoAccountModel.AccountId: CustomStringConvertible {
+    var description: String {
+        "idx=\(derivationIndex)"
+    }
+}
