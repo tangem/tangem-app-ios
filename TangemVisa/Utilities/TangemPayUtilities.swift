@@ -31,7 +31,7 @@ public extension TangemPayUtilities {
             .value
     }
 
-    static func prepareForSign(challengeResponse: VisaAuthChallengeResponse) throws -> SignRequestData {
+    static func prepareForSign(challengeResponse: TangemPayGetChallengeResponse) throws -> SignRequestData {
         let signingRequestMessage = Self.makeCustomerWalletSigningRequestMessage(nonce: challengeResponse.nonce)
         let eip191Message = Self.makeEIP191Message(content: signingRequestMessage)
 

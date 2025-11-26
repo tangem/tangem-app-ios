@@ -10,22 +10,24 @@ import BlockchainSdk
 import TangemVisa
 
 final class TangemPayAuthorizer {
-    private let customerWalletId: String
+    let customerWalletId: String
+    let authorizationService: TangemPayAuthorizationService
     private let interactor: TangemPayAuthorizing
     private let keysRepository: KeysRepository
 
     init(
         customerWalletId: String,
         interactor: TangemPayAuthorizing,
-        keysRepository: KeysRepository
+        keysRepository: KeysRepository,
+        authorizationService: TangemPayAuthorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService()
     ) {
         self.customerWalletId = customerWalletId
+        self.authorizationService = authorizationService
         self.interactor = interactor
         self.keysRepository = keysRepository
     }
 
-    func authorizeWithCustomerWallet() async throws -> VisaAuthorizationTokens {
-        let authorizationService = VisaAPIServiceBuilder().buildAuthorizationService()
+    func authorizeWithCustomerWallet() async throws -> TangemPayAuthorizationTokens {
         let response = try await interactor.authorize(
             customerWalletId: customerWalletId,
             authorizationService: authorizationService
