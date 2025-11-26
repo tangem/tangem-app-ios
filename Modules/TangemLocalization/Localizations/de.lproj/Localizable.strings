@@ -794,7 +794,7 @@
 "no_account_polkadot" = "Das Zielkonto ist nicht aktiv. Sende %@ oder mehr, um das Konto zu aktivieren.";
 "no_account_send_to_create" = "Senden Sie Geld an diese Andresse um ein Konto zu erstellen";
 "no_trustline_xlm_asset" = "Das Zielkonto verfügt nicht über eine Vertrauensstellung für das gesendete Asset.";
-"notification_black_friday_text" = "Plus Rewards in BTC per Set.\nHurry up!";
+"notification_black_friday_text" = "Plus rewards in BTC per set.\nHurry up!";
 "notification_black_friday_title" = "Black Friday: up to 25%% OFF";
 "notification_referral_promo_button" = "Jetzt beitreten";
 "notification_referral_promo_text" = "Teile Deinen Code – verdiene 5 USDT pro Verkauf. Deine Freunde erhalten 10 %% Rabatt.";
@@ -1385,9 +1385,14 @@
 "tangempay_onboarding_security_description" = "Deine Kartendaten sind geschützt – volle Kontrolle in der App.";
 "tangempay_onboarding_security_title" = "Integrierte Sicherheit";
 "tangempay_onboarding_title" = "Hol Dir Deine kostenlose Crypto Card \n in wenigen Minuten";
+"tangempay_payment_account_sync_needed" = "Payment account sync needed";
+"tangempay_payment_account" = "Payment account";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
+"tangempay_service_unreachable_try_later" = "The service is currently unreachable. Please try again later.";
+"tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
+"tangempay_use_tangem_device_to_restore_payment_account" = "Use your card or ring to restore access to your payment account";
 "this_is_my_wallet_title" = "Das ist meine Wallet";
 "toast_balances_hidden" = "Guthaben versteckt";
 "toast_balances_shown" = "Angezeigte Salden";
