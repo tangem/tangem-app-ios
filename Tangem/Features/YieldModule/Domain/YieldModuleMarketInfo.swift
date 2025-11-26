@@ -17,3 +17,16 @@ struct YieldModuleMarketInfo: Codable, Equatable {
     let maxFeeNative: Decimal?
     let maxFeeUSD: Decimal?
 }
+
+extension YieldModuleMarketInfo {
+    init(from cached: CachedYieldModuleMarket) {
+        self.init(
+            tokenContractAddress: cached.tokenContractAddress,
+            apy: cached.apy / 100,
+            isActive: cached.isActive,
+            chainId: cached.chainId,
+            maxFeeNative: cached.maxFeeNative,
+            maxFeeUSD: cached.maxFeeUSD
+        )
+    }
+}

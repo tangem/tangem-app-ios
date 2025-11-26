@@ -114,7 +114,8 @@ struct TokenItemView: View {
                 rewardType: rewardsInfo.type,
                 rewardValue: rewardsInfo.rewardValue,
                 color: rewardsInfo.isActive ? Colors.Text.accent : Colors.Text.secondary,
-                tapAction: viewModel.yieldApyTapAction
+                tapAction: viewModel.yieldApyTapAction,
+                isUpdating: rewardsInfo.isUpdating
             )
         case .none:
             EmptyView()
