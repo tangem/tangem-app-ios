@@ -794,7 +794,7 @@
 "no_account_polkadot" = "Le compte de destination est inactif. Envoyez %@ ou plus pour activer le compte.";
 "no_account_send_to_create" = "Pour créer un compte, envoyez des fonds à cette adresse";
 "no_trustline_xlm_asset" = "Le compte destinataire n'a pas de Trustline pour l'actif envoyé qu'il tente d'envoyer.";
-"notification_black_friday_text" = "Plus Rewards in BTC per Set.\nHurry up!";
+"notification_black_friday_text" = "Plus rewards in BTC per set.\nHurry up!";
 "notification_black_friday_title" = "Black Friday: up to 25%% OFF";
 "notification_referral_promo_button" = "Rejoignez maintenant";
 "notification_referral_promo_text" = "Partagez votre code et gagnez 5 USDT par vente. Votre ami bénéficie de 10 %% de réduction.";
@@ -1385,9 +1385,14 @@
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
 "tangempay_onboarding_security_title" = "Unrivaled privacy";
 "tangempay_onboarding_title" = "Get your free Tangem Pay Card in minutes";
+"tangempay_payment_account_sync_needed" = "Payment account sync needed";
+"tangempay_payment_account" = "Payment account";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
+"tangempay_service_unreachable_try_later" = "The service is currently unreachable. Please try again later.";
+"tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
+"tangempay_use_tangem_device_to_restore_payment_account" = "Use your card or ring to restore access to your payment account";
 "this_is_my_wallet_title" = "C'est mon portefeuille";
 "toast_balances_hidden" = "Soldes masqués";
 "toast_balances_shown" = "Soldes affichés";
