@@ -152,6 +152,10 @@ final class TangemPayMainViewModel: ObservableObject {
         coordinator?.openTangemPayPin(tangemPayAccount: tangemPayAccount)
     }
 
+    func termsAndLimits() {
+        coordinator?.openTermsAndLimits()
+    }
+
     private func freeze() {
         guard let cardId = tangemPayAccount.cardId else {
             showFreezeUnfreezeErrorToast(freeze: true)
