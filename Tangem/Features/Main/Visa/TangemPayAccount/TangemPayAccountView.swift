@@ -10,53 +10,50 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemLocalization
+import TangemVisa
 
 struct TangemPayAccountView: View {
     let viewModel: TangemPayAccountViewModel
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            Assets.Visa.usa.image
+            Assets.Visa.accountAvatar.image
                 .resizable()
                 .frame(size: .init(bothDimensions: 36))
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(Localization.tangempayTitle)
+                Text(Localization.tangempayPaymentAccount)
                     .style(
                         Fonts.Bold.subheadline,
                         color: Colors.Text.primary1
                     )
 
-                HStack(alignment: .center, spacing: 6) {
-                    Assets.Visa.badge.image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 16)
+                Text(viewModel.state.subtitle)
+                    .style(
+                        Fonts.Regular.caption1,
+                        color: Colors.Text.tertiary
+                    )
+            }
 
-                    Text("*" + viewModel.card.cardNumberEnd)
+            Spacer()
+
+            if let balanceText = viewModel.state.balanceText {
+                VStack(alignment: .trailing, spacing: 4) {
+                    SensitiveText(balanceText)
+                        .style(
+                            Fonts.Regular.subheadline,
+                            color: Colors.Text.primary1
+                        )
+
+                    SensitiveText(TangemPayUtilities.usdcTokenItem.currencySymbol)
                         .style(
                             Fonts.Regular.caption1,
                             color: Colors.Text.tertiary
                         )
                 }
             }
-
-            Spacer()
-
-            VStack(alignment: .trailing, spacing: 4) {
-                SensitiveText("$ " + viewModel.balance.fiat.availableBalance.description)
-                    .style(
-                        Fonts.Regular.subheadline,
-                        color: Colors.Text.primary1
-                    )
-
-                SensitiveText(viewModel.balance.fiat.currency)
-                    .style(
-                        Fonts.Regular.caption1,
-                        color: Colors.Text.tertiary
-                    )
-            }
         }
+        .opacity(viewModel.state.isNormal ? 1 : 0.6)
         .defaultRoundedBackground(with: Colors.Background.primary, verticalPadding: 14, horizontalPadding: 14)
         .onTapGesture(perform: viewModel.tapAction)
     }
