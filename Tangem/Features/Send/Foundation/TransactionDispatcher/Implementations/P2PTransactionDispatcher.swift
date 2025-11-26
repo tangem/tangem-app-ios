@@ -31,7 +31,7 @@ final class P2PTransactionDispatcher {
 
 extension P2PTransactionDispatcher: TransactionDispatcher {
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
-        guard let stakingTransactionsSender = walletModel.stakingTransactionSender else {
+        guard let stakingTransactionsSender = walletModel.p2pTransactionSender else {
             throw TransactionDispatcherResult.Error.actionNotSupported
         }
 
@@ -40,36 +40,52 @@ extension P2PTransactionDispatcher: TransactionDispatcher {
         }
 
         let transactions = mapper.mapToP2PTransactions(action: action)
-
-        guard let transaction = transactions.singleElement else {
-            throw TransactionDispatcherResult.Error.transactionNotFound
-        }
-
         let mapper = TransactionDispatcherResultMapper()
 
-        let sendResult = try await stakingTransactionsSender.sendP2P(
-            transaction: transaction,
-            signer: transactionSigner,
-            executeSend: { [apiProvider] signedTransaction in
-                do {
-                    return try await apiProvider.broadcastTransaction(signedTransaction: signedTransaction)
-                } catch {
-                    throw mapper.mapError(
-                        error.toUniversalError(),
-                        transaction: .staking(action)
-                    )
+        do {
+            let sendResults = try await stakingTransactionsSender.sendP2P(
+                transactions: transactions,
+                signer: transactionSigner,
+                executeSend: { [apiProvider] signedTransactions in
+                    try await withThrowingTaskGroup(of: String.self) { group in
+                        var hashes = [String]()
+                        for signedTransaction in signedTransactions {
+                            group.addTask {
+                                return try await apiProvider.broadcastTransaction(
+                                    signedTransaction: signedTransaction
+                                )
+                            }
+                        }
+
+                        for try await hash in group {
+                            hashes.append(hash)
+                        }
+
+                        return hashes
+                    }
                 }
+            )
+
+            let results = sendResults.map {
+                mapper.mapResult(
+                    $0,
+                    blockchain: walletModel.tokenItem.blockchain,
+                    signer: transactionSigner.latestSignerType
+                )
             }
-        )
 
-        let result = mapper.mapResult(
-            sendResult,
-            blockchain: walletModel.tokenItem.blockchain,
-            signer: transactionSigner.latestSignerType
-        )
+            guard let result = results.last else {
+                throw TransactionDispatcherResult.Error.transactionNotFound
+            }
 
-        walletModel.updateAfterSendingTransaction()
+            walletModel.updateAfterSendingTransaction()
 
-        return result
+            return result
+        } catch {
+            throw mapper.mapError(
+                error.toUniversalError(),
+                transaction: .staking(action)
+            )
+        }
     }
 }
