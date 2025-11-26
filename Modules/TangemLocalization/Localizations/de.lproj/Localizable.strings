@@ -794,6 +794,8 @@
 "no_account_polkadot" = "Das Zielkonto ist nicht aktiv. Sende %@ oder mehr, um das Konto zu aktivieren.";
 "no_account_send_to_create" = "Senden Sie Geld an diese Andresse um ein Konto zu erstellen";
 "no_trustline_xlm_asset" = "Das Zielkonto verfügt nicht über eine Vertrauensstellung für das gesendete Asset.";
+"notification_black_friday_text" = "Plus Rewards in BTC per Set.\nHurry up!";
+"notification_black_friday_title" = "Black Friday: up to 25%% OFF";
 "notification_referral_promo_button" = "Jetzt beitreten";
 "notification_referral_promo_text" = "Teile Deinen Code – verdiene 5 USDT pro Verkauf. Deine Freunde erhalten 10 %% Rabatt.";
 "notification_referral_promo_title" = "Erhalte BELOHNUNGEN für jeden Freund!";
