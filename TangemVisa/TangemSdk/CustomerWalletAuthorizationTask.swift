@@ -12,11 +12,11 @@ import TangemSdk
 
 public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
     private let customerWalletId: String
-    private let authorizationService: VisaAuthorizationService
+    private let authorizationService: TangemPayAuthorizationService
 
     public init(
         customerWalletId: String,
-        authorizationService: VisaAuthorizationService
+        authorizationService: TangemPayAuthorizationService
     ) {
         self.customerWalletId = customerWalletId
         self.authorizationService = authorizationService
@@ -66,10 +66,10 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
     private func handleCustomerWalletAuthorization(
         session: CardSession,
         walletPublicKey: Wallet.PublicKey
-    ) async throws -> VisaAuthorizationTokens {
+    ) async throws -> TangemPayAuthorizationTokens {
         VisaLogger.info("Requesting challenge for wallet authorization")
 
-        let challengeResponse = try await authorizationService.getCustomerWalletAuthorizationChallenge(
+        let challengeResponse = try await authorizationService.getChallenge(
             customerWalletAddress: TangemPayUtilities.makeAddress(using: walletPublicKey),
             customerWalletId: customerWalletId
         )
@@ -92,7 +92,7 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
             hash: signRequest.hash
         )
 
-        let authorizationTokensResponse = try await authorizationService.getAccessTokensForCustomerWalletAuth(
+        let authorizationTokensResponse = try await authorizationService.getTokens(
             sessionId: challengeResponse.sessionId,
             signedChallenge: unmarshalledSignature.data.hexString,
             messageFormat: signRequest.message
@@ -106,7 +106,7 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
 
 public extension CustomerWalletAuthorizationTask {
     struct Response {
-        public let tokens: VisaAuthorizationTokens
+        public let tokens: TangemPayAuthorizationTokens
         public let derivationResult: [Data: DerivedKeys]
     }
 }
