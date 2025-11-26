@@ -36,6 +36,7 @@ enum AppConstants {
 
     static let sessionId = UUID().uuidString
     static let tosURL = URL(string: "https://tangem.com/tangem_tos.html")!
+    static let tangemPayTermsAndLimitsURL = URL(string: "https://tangem.com/docs/en/tangem-visa-tariffs.pdf")!
 
     static func getWebShopUrl(isExistingUser: Bool) -> URL {
         var urlComponents = URLComponents(string: "https://buy.tangem.com")!
