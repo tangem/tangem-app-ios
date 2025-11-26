@@ -794,6 +794,8 @@
 "no_account_polkadot" = "Обліковий запис одержувача не активовано. Надішліть %@ або більше, щоб активувати обліковий запис.";
 "no_account_send_to_create" = "Для створення акаунту надішліть кошти на цю адресу";
 "no_trustline_xlm_asset" = "Акаунт одержувача не містить трастлайну для активу, що надсилається.";
+"notification_black_friday_text" = "Plus Rewards in BTC per Set.\nHurry up!";
+"notification_black_friday_title" = "Black Friday: up to 25%% OFF";
 "notification_referral_promo_button" = "Приєднатися";
 "notification_referral_promo_text" = "Поділіться промокодом — заробіть 5 USDT з кожної покупки. Ваші друзі отримають знижку 10%% на картку Tangem!";
 "notification_referral_promo_title" = "Отримуй бонуси за кожного друга!";
