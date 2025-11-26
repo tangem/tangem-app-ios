@@ -8,7 +8,6 @@
 
 import Combine
 import TangemLocalization
-import SwiftUI
 import TangemSdk
 import BlockchainSdk
 import TangemUIUtils
@@ -115,15 +114,13 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
     }
 
     private func showAccountMismatchAlert(accountName: String, enteredDerivationPath: String) {
-        alert = AlertBuilder.makeAlert(
+        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
             title: Localization.customTokenAnotherAccountDialogTitle,
             message: Localization.customTokenAnotherAccountDialogDescription(accountName),
-            primaryButton: .default(
-                Text(Localization.commonGotIt),
-                action: { [weak self] in
-                    self?.setAndSelectDerivation(enteredDerivationPath: enteredDerivationPath)
-                }
-            ),
+            buttonText: Localization.commonGotIt,
+            buttonAction: { [weak self] in
+                self?.setAndSelectDerivation(enteredDerivationPath: enteredDerivationPath)
+            }
         )
     }
 
