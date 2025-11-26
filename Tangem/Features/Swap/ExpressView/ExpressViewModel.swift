@@ -739,8 +739,9 @@ extension ExpressViewModel: NotificationTapDelegate {
              .openMobileUpgrade,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
-             .activate,
              .tangemPayViewKYCStatus,
+             .tangemPaySync,
+             .activate,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest:
             return
