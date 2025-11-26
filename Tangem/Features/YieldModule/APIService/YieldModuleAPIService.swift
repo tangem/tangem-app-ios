@@ -25,6 +25,7 @@ protocol YieldModuleAPIService {
 
     func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws
     func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
+    func sendTransactionEvent(txHash: String, operation: String) async throws
 }
 
 extension YieldModuleAPIService {
