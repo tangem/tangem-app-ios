@@ -197,10 +197,10 @@ class CommonPendingExpressTransactionsManager {
                 return false
             }
 
-            let isRelatedToken = walletModel.addresses.contains(where: {
-                $0.value == record.sourceTokenTxInfo.address || $0.value == record.destinationTokenTxInfo.address
-            })
+            let isSourceToken = walletModel.tokenItem == record.sourceTokenTxInfo.tokenItem
+            let isDestinationToken = walletModel.tokenItem == record.destinationTokenTxInfo.tokenItem
 
+            let isRelatedToken = isSourceToken || isDestinationToken
             return isRelatedToken
         }
     }
