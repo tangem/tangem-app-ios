@@ -210,11 +210,17 @@ extension SendCoordinator: SendRoutable {
 // MARK: - OnrampRoutable
 
 extension SendCoordinator: OnrampRoutable {
-    func openOnrampCountryDetection(country: OnrampCountry, repository: OnrampRepository, dataRepository: OnrampDataRepository) {
+    func openOnrampCountryDetection(
+        country: OnrampCountry,
+        repository: OnrampRepository,
+        dataRepository: OnrampDataRepository,
+        onCountrySelected: @escaping () -> Void
+    ) {
         let coordinator = OnrampCountryDetectionCoordinator(dismissAction: { [weak self] option in
             switch option {
             case .none:
                 self?.onrampCountryDetectionCoordinator = nil
+                onCountrySelected()
             case .closeOnramp:
                 if #available(iOS 16, *) {
                     self?.dismiss(with: nil)
