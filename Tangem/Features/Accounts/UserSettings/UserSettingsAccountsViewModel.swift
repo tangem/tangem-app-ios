@@ -50,6 +50,11 @@ final class UserSettingsAccountsViewModel: ObservableObject {
         }
 
         bind()
+        print("❇️ init \(objectDescription(self)) ❇️")
+    }
+
+    deinit {
+        print("🔴 deinit \(objectDescription(self)) 🔴")
     }
 
     // MARK: - Public

@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemStaking
+import TangemFoundation
 
 class DefaultTokenItemInfoProvider {
     private let walletModel: any WalletModel
@@ -23,6 +24,11 @@ class DefaultTokenItemInfoProvider {
         balanceProvider = walletModel.totalTokenBalanceProvider
         fiatBalanceProvider = walletModel.fiatTotalTokenBalanceProvider
         yieldModuleManager = walletModel.yieldModuleManager
+        print("❇️ init \(objectDescription(self, userInfo: ["name": walletModel.name])) ❇️")
+    }
+
+    deinit {
+        print("🔴 deinit \(objectDescription(self, userInfo: ["name": walletModel.name])) 🔴")
     }
 }
 
