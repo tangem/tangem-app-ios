@@ -24,11 +24,11 @@ final class ContextMenuScreen: ScreenBase<ContextMenuScreenElement> {
     func waitForActionButtons() -> Self {
         XCTContext.runActivity(named: "Wait for context menu action buttons to exist") { _ in
             waitAndAssertTrue(buyButton, "Buy button should exist")
-            waitAndAssertTrue(copyAddressButton, "Copy address button should exist")
-            waitAndAssertTrue(receiveButton, "Receive button should exist")
-            waitAndAssertTrue(sendButton, "Send button should exist")
-            waitAndAssertTrue(swapButton, "Swap button should exist")
-            waitAndAssertTrue(analyticsButton, "Analytics button should exist")
+            XCTAssertTrue(copyAddressButton.exists, "Copy address button should exist")
+            XCTAssertTrue(receiveButton.exists, "Receive button should exist")
+            XCTAssertTrue(sendButton.exists, "Send button should exist")
+            XCTAssertTrue(swapButton.exists, "Swap button should exist")
+            XCTAssertTrue(analyticsButton.exists, "Analytics button should exist")
         }
         return self
     }

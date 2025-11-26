@@ -245,10 +245,10 @@ extension TokenDetailsViewModel {
             blockchain.displayName
         )
 
-        alert = AlertBuilder.makeAlert(
+        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
             title: Localization.tokenDetailsUnableHideAlertTitle(tokenName),
             message: message,
-            primaryButton: .default(Text(Localization.commonOk))
+            buttonText: Localization.commonOk
         )
     }
 

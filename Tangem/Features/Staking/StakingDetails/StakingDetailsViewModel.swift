@@ -7,7 +7,6 @@
 //
 
 import Combine
-import SwiftUI
 import BlockchainSdk
 import TangemAssets
 import TangemStaking
@@ -412,10 +411,10 @@ private extension StakingDetailsViewModel {
             currencyCode: tokenItem.currencySymbol
         )
 
-        alert = AlertBuilder.makeAlert(
+        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
             title: "",
             message: Localization.stakingDetailsMinRewardsNotification(yield.item.name, minAmountString),
-            primaryButton: .default(Text(Localization.warningButtonOk), action: {})
+            buttonText: Localization.warningButtonOk
         )
     }
 

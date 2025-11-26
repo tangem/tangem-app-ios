@@ -13,7 +13,7 @@ import TangemNetworkUtils
 struct TangemPayProviderBuilder {
     func buildProvider<T: TargetType>(
         configuration: URLSessionConfiguration,
-        authorizationTokensHandler: VisaAuthorizationTokensHandler?
+        authorizationTokensHandler: TangemPayAuthorizationTokensHandler?
     ) -> TangemProvider<T> {
         var plugins: [PluginType] = [
             DeviceInfoPlugin(),
@@ -29,7 +29,7 @@ struct TangemPayProviderBuilder {
 }
 
 struct TangemPayAuthorizationPlugin: PluginType {
-    let authorizationTokensHandler: VisaAuthorizationTokensHandler
+    let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
 
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         var request = request

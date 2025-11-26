@@ -117,6 +117,14 @@ final class UserWalletSettingsViewModel: ObservableObject {
             AppPresenter.shared.show(alert)
         }
     }
+
+    func handleAccountsLimitReached() {
+        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
+            title: Localization.accountAddLimitDialogTitle,
+            message: Localization.accountAddLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts),
+            buttonText: Localization.commonGotIt
+        )
+    }
 }
 
 // MARK: - Private
@@ -133,8 +141,9 @@ private extension UserWalletSettingsViewModel {
             }
             .store(in: &bag)
 
-        if FeatureProvider.isAvailable(.accounts) {
-            userWalletModel.accountModelsManager
+        let accountModelsManager = userWalletModel.accountModelsManager
+        if FeatureProvider.isAvailable(.accounts), accountModelsManager.canAddCryptoAccounts {
+            accountModelsManager
                 .accountModelsPublisher
                 .receiveOnMain()
                 .withWeakCaptureOf(self)
