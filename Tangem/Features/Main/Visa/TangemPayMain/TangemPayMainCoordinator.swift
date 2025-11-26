@@ -29,6 +29,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
 
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
+    @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -134,6 +135,14 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+
+    func openTermsAndLimits() {
+        termsAndLimitsViewModel = .init(
+            url: AppConstants.tangemPayTermsAndLimitsURL,
+            title: "",
+            withCloseButton: true
+        )
     }
 }
 
