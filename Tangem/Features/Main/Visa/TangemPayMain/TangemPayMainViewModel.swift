@@ -34,6 +34,7 @@ final class TangemPayMainViewModel: ObservableObject {
     private weak var coordinator: TangemPayMainRoutable?
 
     private let transactionHistoryService: TangemPayTransactionHistoryService
+    private let cardDetailsRepository: TangemPayCardDetailsRepository
 
     private var bag = Set<AnyCancellable>()
 
@@ -46,6 +47,10 @@ final class TangemPayMainViewModel: ObservableObject {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
+        cardDetailsRepository = .init(
+            lastFourDigits: cardNumberEnd,
+            customerService: tangemPayAccount.customerInfoManagementService
+        )
 
         mainHeaderViewModel = MainHeaderViewModel(
             isUserWalletLocked: false,
@@ -60,8 +65,8 @@ final class TangemPayMainViewModel: ObservableObject {
         )
 
         tangemPayCardDetailsViewModel = TangemPayCardDetailsViewModel(
-            lastFourDigits: cardNumberEnd,
-            customerInfoManagementService: tangemPayAccount.customerInfoManagementService
+            mode: .interactive,
+            repository: cardDetailsRepository
         )
 
         bind()
@@ -116,7 +121,9 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func openAddToApplePayGuide() {
-        coordinator?.openAddToApplePayGuide(viewModel: tangemPayCardDetailsViewModel)
+        coordinator?.openAddToApplePayGuide(
+            viewModel: .init(mode: .detailedOnly, repository: cardDetailsRepository)
+        )
     }
 
     func dismissAddToApplePayGuideBanner() {
