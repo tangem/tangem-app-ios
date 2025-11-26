@@ -185,7 +185,7 @@ final class TangemPayAccount {
                     tangemPayAccount.orderIdStorage.deleteCardIssuingOrderId()
                 }
             } catch {
-                AppLogger.error("Failed to load customer info", error: error)
+                VisaLogger.error("Failed to load customer info", error: error)
             }
         }
     }
@@ -224,7 +224,7 @@ final class TangemPayAccount {
                     }
 
                 case .failure(let error):
-                    AppLogger.error("Failed to poll order status", error: error)
+                    VisaLogger.error("Failed to poll order status", error: error)
                     return
                 }
             }
@@ -238,7 +238,7 @@ final class TangemPayAccount {
 
             startOrderStatusPolling(orderId: order.id, interval: Constants.cardIssuingOrderPollInterval)
         } catch {
-            AppLogger.error("Failed to create order", error: error)
+            VisaLogger.error("Failed to create order", error: error)
         }
     }
 
@@ -278,7 +278,7 @@ extension TangemPayAccount: NotificationTapDelegate {
                         tangemPayAccount.loadCustomerInfo()
                     }
                 } catch {
-                    AppLogger.error("Failed to launch KYC", error: error)
+                    VisaLogger.error("Failed to launch KYC", error: error)
                 }
             }
             #endif // ALPHA || BETA || DEBUG
