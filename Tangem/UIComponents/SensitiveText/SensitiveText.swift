@@ -35,6 +35,7 @@ struct SensitiveText: View {
             Text(sensitiveTextVisibilityViewModel.isHidden ? Constants.maskedBalanceString : string)
         case .attributed(let string):
             Text(sensitiveTextVisibilityViewModel.isHidden ? AttributedString(Constants.maskedBalanceString) : string)
+                .monospacedDigit()
         case .builder(let builder, let sensitive):
             Text(builder(sensitiveTextVisibilityViewModel.isHidden ? Constants.maskedBalanceString : sensitive))
         }
