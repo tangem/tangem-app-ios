@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemAccounts
 import TangemLocalization
+import TangemFoundation
 
 final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     // MARK: - View State
@@ -26,7 +27,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
 
     @Published private var rawTokensCount: Int
 
-    private let accountModel: any CryptoAccountModel
+    private weak var accountModel: (any CryptoAccountModel)?
     private let priceChangeUtility: PriceChangeUtility
 
     private var bag: Set<AnyCancellable> = []
@@ -47,6 +48,11 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
         priceChange = priceChangeUtility.convertToPriceChangeState(
             changePercent: accountModel.rateProvider.accountRate.quote?.priceChange24h
         )
+        print("❇️ init \(objectDescription(self, userInfo: ["name": accountModel.name])) ❇️")
+    }
+
+    deinit {
+        print("🔴 deinit \(objectDescription(self)) 🔴")
     }
 
     func onViewAppear() {
@@ -60,7 +66,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
 
         didBind = true
 
-        accountModel
+        accountModel?
             .didChangePublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
@@ -68,19 +74,19 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
             }
             .store(in: &bag)
 
-        accountModel
+        accountModel?
             .userTokensManager
             .userTokensPublisher
             .map(\.count)
             .assign(to: &$rawTokensCount)
 
-        accountModel
+        accountModel?
             .fiatTotalBalanceProvider
             .totalFiatBalancePublisher
             .receiveOnMain()
             .assign(to: &$totalFiatBalance)
 
-        accountModel
+        accountModel?
             .rateProvider
             .accountRatePublisher
             .receiveOnMain()
@@ -92,7 +98,16 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     }
 
     private func onAccountModelDidChange() {
+        guard let accountModel else { return }
         name = accountModel.name
         iconData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: accountModel)
+    }
+}
+
+extension ExpandableAccountItemViewModel: CustomStringConvertible {
+    var description: String {
+        objectDescription(self, userInfo: [
+            "name": name,
+        ])
     }
 }

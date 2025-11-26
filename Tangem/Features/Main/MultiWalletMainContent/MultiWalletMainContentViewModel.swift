@@ -324,6 +324,31 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .store(in: &bag)
 
         nftFeatureLifecycleHandler.startObserving()
+        // [REDACTED_TODO_COMMENT]
+        userWalletModel
+            .accountModelsManager
+            .accountModelsPublisher
+            .sink { accountModels in
+                print("Account models updated: \(accountModels)")
+                accountModels.forEach { accountModel in
+                    switch accountModel {
+                    case .standard(.single(let cryptoAccountModel)):
+                        cryptoAccountModel.walletModelsManager.walletModels.forEach { print("account for WM '\($0.name)' is '\($0.account?.name ?? "none")'") }
+                    case .standard(.multiple(let cryptoAccountModels)):
+                        cryptoAccountModels.flatMap(\.walletModelsManager.walletModels).forEach { print("account for WM '\($0.name)' is '\($0.account?.name ?? "none")'") }
+                    }
+                }
+            }
+            .store(in: &bag)
+        // [REDACTED_TODO_COMMENT]
+        userWalletModel
+            .walletModelsManager
+            .walletModelsPublisher
+            .sink { wms in
+                print("Non-account wallet models: \(wms.count)s")
+                wms.forEach { print("account for WM '\($0.name) is none") }
+            }
+            .store(in: &bag)
     }
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
