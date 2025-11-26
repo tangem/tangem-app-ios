@@ -212,6 +212,21 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             // Need to find documentation and find place where it can be tested on 2.0
             // This page https://www.bnbchain.org/en/staking has WalletConnect in status 'Coming Soon'
             throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
+
+        // MARK: - Bitcoin
+
+        // [REDACTED_TODO_COMMENT]
+        case .sendTransfer:
+            throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
+
+        case .getAccountAddresses:
+            throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
+
+        case .signPsbt:
+            throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
+
+        case .signMessage:
+            throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
         }
     }
 

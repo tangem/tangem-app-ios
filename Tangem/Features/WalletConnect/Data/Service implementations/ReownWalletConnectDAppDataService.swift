@@ -49,6 +49,7 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
         }
 
         let specificSolanaCAIPReference = Self.parseSpecificSolanaCAIPReference(from: reownSessionProposal)
+        let specificBitcionCAIPReference = Self.parseSpecificBitcoinCAIPReference(from: reownSessionProposal)
 
         let dAppDomain = try WalletConnectDAppSessionProposalMapper.mapDomainURL(
             from: reownSessionProposal,
@@ -71,9 +72,14 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
                 throws(WalletConnectDAppProposalApprovalError) in
 
                 func caipReference(for domainBlockchain: BlockchainSdk.Blockchain) -> String? {
-                    domainBlockchain.networkId == Self.solanaDomainNetworkID
-                        ? specificSolanaCAIPReference
-                        : nil
+                    switch domainBlockchain.networkId {
+                    case Self.solanaDomainNetworkID:
+                        specificSolanaCAIPReference
+                    case Self.bitcoinDomainNetworkID:
+                        specificBitcionCAIPReference
+                    default:
+                        nil
+                    }
                 }
 
                 let reownSessionNamespaces: [String: SessionNamespace]
@@ -107,9 +113,14 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
                 throws(WalletConnectDAppProposalApprovalError) in
 
                 func caipReference(for domainBlockchain: BlockchainSdk.Blockchain) -> String? {
-                    domainBlockchain.networkId == Self.solanaDomainNetworkID
-                        ? specificSolanaCAIPReference
-                        : nil
+                    switch domainBlockchain.networkId {
+                    case Self.solanaDomainNetworkID:
+                        specificSolanaCAIPReference
+                    case Self.bitcoinDomainNetworkID:
+                        specificBitcionCAIPReference
+                    default:
+                        nil
+                    }
                 }
 
                 let reownSessionNamespaces: [String: SessionNamespace]
@@ -224,26 +235,55 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
     /// - Parameter reownSessionProposal: DApp session proposal that may have Solana blockchains.
     /// - Returns: Solana CAIP-2 reference if it was one and only one occurrence. For all other cases returns `nil`.
     private static func parseSpecificSolanaCAIPReference(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> String? {
-        let required = Self.extractSolanaBlockchains(from: reownSessionProposal.requiredNamespaces)
-        let optional = Self.extractSolanaBlockchains(from: reownSessionProposal.optionalNamespaces)
-        let solanaBlockchains = Set(required + optional)
+        parseSpecificBlockchainCAIPReference(
+            blockchainCAIPNamespace: solanaCAIPNamespace,
+            from: reownSessionProposal
+        )
+    }
 
-        let hasSpecificSolanaCAIPReference = solanaBlockchains.count == 1
+    /// Parses specific Bitcoin blockchain CAIP-2 reference (if any).
+    /// - Parameter reownSessionProposal: DApp session proposal that may have Bitcoin blockchains.
+    /// - Returns: Bitcoin CAIP-2 reference if it was one and only one occurrence. For all other cases returns `nil`.
+    private static func parseSpecificBitcoinCAIPReference(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> String? {
+        parseSpecificBlockchainCAIPReference(
+            blockchainCAIPNamespace: solanaCAIPNamespace,
+            from: reownSessionProposal
+        )
+    }
 
-        guard hasSpecificSolanaCAIPReference else {
+    private static func parseSpecificBlockchainCAIPReference(
+        blockchainCAIPNamespace: String,
+        from reownSessionProposal: ReownWalletKit.Session.Proposal
+    ) -> String? {
+        let required = Self.extractSpecificBlockchains(
+            blockchainCAIPNamesapce: blockchainCAIPNamespace,
+            from: reownSessionProposal.requiredNamespaces
+        )
+        let optional = Self.extractSpecificBlockchains(
+            blockchainCAIPNamesapce: blockchainCAIPNamespace,
+            from: reownSessionProposal.optionalNamespaces
+        )
+        let blockchains = Set(required + optional)
+
+        let hasSpecificCAIPReference = blockchains.count == 1
+
+        guard hasSpecificCAIPReference else {
             return nil
         }
 
-        return solanaBlockchains.first?.reference
+        return blockchains.first?.reference
     }
 
-    private static func extractSolanaBlockchains(from reownNamespaces: [String: ReownWalletKit.ProposalNamespace]?) -> [ReownWalletKit.Blockchain] {
+    private static func extractSpecificBlockchains(
+        blockchainCAIPNamesapce: String,
+        from reownNamespaces: [String: ReownWalletKit.ProposalNamespace]?
+    ) -> [ReownWalletKit.Blockchain] {
         guard let reownNamespaces else { return [] }
 
         return reownNamespaces.values
             .compactMap(\.chains)
             .flatMap { $0 }
-            .filter { $0.namespace == Self.solanaCAIPNamespace }
+            .filter { $0.namespace == blockchainCAIPNamesapce }
     }
 }
 
@@ -251,7 +291,9 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
 
 extension ReownWalletConnectDAppDataService {
     private static let solanaDomainNetworkID = BlockchainSdk.Blockchain.solana(curve: .ed25519, testnet: false).networkId
+    private static let bitcoinDomainNetworkID = BlockchainSdk.Blockchain.bitcoin(testnet: false).networkId
     private static let solanaCAIPNamespace = "solana"
+    private static let bitcoinCAIPNamespace = WalletConnectSupportedNamespace.bip122.rawValue
 
     private static let unsupportedDAppHosts = [
         "dydx.trade",

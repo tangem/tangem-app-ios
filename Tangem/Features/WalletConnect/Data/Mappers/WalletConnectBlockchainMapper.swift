@@ -41,6 +41,13 @@ enum WalletConnectBlockchainMapper {
             )
         }
 
+        if case .bitcoin = domainBlockchain, let bitcoinReownReferences = domainBlockchain.wcChainID, !bitcoinReownReferences.isEmpty {
+            return ReownWalletKit.Blockchain(
+                namespace: WalletConnectSupportedNamespace.bip122.rawValue,
+                reference: preferredCAIPReference ?? bitcoinReownReferences[0]
+            )
+        }
+
         return nil
     }
 }

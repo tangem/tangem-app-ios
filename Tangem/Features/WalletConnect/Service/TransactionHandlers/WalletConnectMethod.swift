@@ -33,10 +33,10 @@ enum WalletConnectMethod: String {
 
     // MARK: - BTC
 
-    case sendTransfer = "sendTransfer"
-    case getAccountAddresses = "getAccountAddresses"
-    case signPsbt = "signPsbt"
-    case signMessage = "signMessage"
+    case sendTransfer
+    case getAccountAddresses
+    case signPsbt
+    case signMessage
 
     var trimmedPrefixValue: String {
         switch self {
