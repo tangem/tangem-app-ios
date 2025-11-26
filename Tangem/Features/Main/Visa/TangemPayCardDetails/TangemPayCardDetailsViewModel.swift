@@ -7,27 +7,47 @@
 //
 
 import Combine
+import SwiftUI
 import Foundation
 import UIKit
 import TangemUI
 import TangemFoundation
 import TangemVisa
 
+enum TangemPayCardDetailsViewMode {
+    case detailedOnly
+    case interactive
+}
+
 final class TangemPayCardDetailsViewModel: ObservableObject {
     let lastFourDigits: String
-    @Published var state: TangemPayCardDetailsState = .hidden(isFrozen: false)
 
-    private let customerInfoManagementService: any CustomerInfoManagementService
+    @Published var state: TangemPayCardDetailsState = .hidden(isFrozen: false)
+    @Published var isFlipped: Bool = false
+
+    private var expectedState: TangemPayCardDetailsState? = nil
 
     private var bag = Set<AnyCancellable>()
     private var cardDetailsExposureTask: Task<Void, Never>?
+    private let repository: TangemPayCardDetailsRepository
+    private let mode: TangemPayCardDetailsViewMode
 
     init(
-        lastFourDigits: String,
-        customerInfoManagementService: any CustomerInfoManagementService
+        mode: TangemPayCardDetailsViewMode,
+        repository: TangemPayCardDetailsRepository
     ) {
-        self.lastFourDigits = lastFourDigits
-        self.customerInfoManagementService = customerInfoManagementService
+        self.mode = mode
+        self.repository = repository
+        lastFourDigits = repository.lastFourDigits
+        switch mode {
+        case .detailedOnly:
+            state = .loaded(
+                .unrevealed(details: .hidden(lastFourDigits: lastFourDigits), isLoading: false)
+            )
+
+        case .interactive:
+            break
+        }
 
         NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
             .withWeakCaptureOf(self)
@@ -55,34 +75,27 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             return
         }
 
-        state = .loading(isFrozen: state.isFrozen)
-        cardDetailsExposureTask = runTask(in: self) { @MainActor viewModel in
-            do {
-                let cardDetailsData = try await viewModel.revealRequest()
-                viewModel.state = .loaded(cardDetailsData)
-
-                try? await Task.sleep(seconds: Constants.cardDetailsVisibilityPeriodInSeconds)
-                viewModel.state = .hidden(isFrozen: viewModel.state.isFrozen)
-            } catch {
-                viewModel.state = .hidden(isFrozen: viewModel.state.isFrozen)
-                VisaLogger.error("Failed to load card details", error: error)
-            }
+        switch mode {
+        case .detailedOnly:
+            toggleDetailedOnly()
+        case .interactive:
+            toggleInteractive()
         }
     }
 
-    func setVisibility(_ visible: Bool) {
-        if visible, !state.isLoaded {
-            toggleVisibility()
-        } else if !visible, state.isLoaded {
-            cardDetailsExposureTask?.cancel()
-        }
+    func changeStateIfNeeded() {
+        guard let expectedState else { return }
+        state = expectedState
+        self.expectedState = nil
+    }
+
+    private func flip(to state: TangemPayCardDetailsState) {
+        expectedState = state
+        isFlipped = state.isFlipped
     }
 
     private func copyAction(copiedTextKeyPath: KeyPath<TangemPayCardDetailsData, String>, toastMessage: String) {
-        guard case .loaded(let cardDetailsData) = state else {
-            return
-        }
-
+        guard let cardDetailsData = state.details else { return }
         UIPasteboard.general.string = cardDetailsData[keyPath: copiedTextKeyPath]
             .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "/", with: "")
@@ -94,58 +107,45 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             )
     }
 
-    private func revealRequest() async throws -> TangemPayCardDetailsData {
-        let publicKey = try await RainCryptoUtilities.getRainRSAPublicKey(for: FeatureStorage.instance.visaAPIType)
-        let (secretKey, sessionId) = try RainCryptoUtilities.generateSecretKeyAndSessionId(publicKey: publicKey)
+    private func toggleDetailedOnly() {
+        state = .loaded(.unrevealed(details: .hidden(lastFourDigits: lastFourDigits), isLoading: true))
+        cardDetailsExposureTask = runTask(in: self) { @MainActor viewModel in
+            do {
+                let cardDetailsData = try await viewModel.repository.revealRequest()
+                viewModel.state = .loaded(.revealed(cardDetailsData))
 
-        let cardDetails = try await customerInfoManagementService.getCardDetails(sessionId: sessionId)
+                try? await Task.sleep(seconds: Constants.cardDetailsVisibilityPeriodInSeconds)
+                viewModel.state = .loaded(
+                    .unrevealed(details: .hidden(lastFourDigits: viewModel.lastFourDigits), isLoading: false)
+                )
+            } catch {
+                viewModel.state = .loaded(
+                    .unrevealed(details: .hidden(lastFourDigits: viewModel.lastFourDigits), isLoading: false)
+                )
+                AppLogger.error("Failed to load card details", error: error)
+            }
+        }
+    }
 
-        let decryptedPan = try RainCryptoUtilities.decryptSecret(
-            base64Secret: cardDetails.pan.secret,
-            base64Iv: cardDetails.pan.iv,
-            secretKey: secretKey
-        )
+    private func toggleInteractive() {
+        state = .loading(isFrozen: state.isFrozen)
+        cardDetailsExposureTask = runTask(in: self) { @MainActor viewModel in
+            do {
+                let cardDetailsData = try await viewModel.repository.revealRequest()
+                viewModel.flip(to: .loaded(.revealed(cardDetailsData)))
 
-        let decryptedCVV = try RainCryptoUtilities.decryptSecret(
-            base64Secret: cardDetails.cvv.secret,
-            base64Iv: cardDetails.cvv.iv,
-            secretKey: secretKey
-        )
-
-        let formattedPan = formatPan(decryptedPan)
-        let formattedExpiryDate = formatExpiryDate(month: cardDetails.expirationMonth, year: cardDetails.expirationYear)
-
-        return TangemPayCardDetailsData(
-            number: formattedPan,
-            expirationDate: formattedExpiryDate,
-            cvc: decryptedCVV
-        )
+                try? await Task.sleep(seconds: Constants.cardDetailsVisibilityPeriodInSeconds)
+                viewModel.flip(to: .hidden(isFrozen: viewModel.state.isFrozen))
+            } catch {
+                viewModel.state = .hidden(isFrozen: viewModel.state.isFrozen)
+                AppLogger.error("Failed to load card details", error: error)
+            }
+        }
     }
 }
 
 private extension TangemPayCardDetailsViewModel {
     enum Constants {
         static let cardDetailsVisibilityPeriodInSeconds: TimeInterval = 30
-    }
-
-    func formatPan(_ pan: String) -> String {
-        let cleanPan = pan.replacingOccurrences(of: " ", with: "")
-        var formattedPan = ""
-
-        for (index, character) in cleanPan.enumerated() {
-            if index > 0, index % 4 == 0 {
-                formattedPan += " "
-            }
-            formattedPan += String(character)
-        }
-
-        return formattedPan
-    }
-
-    func formatExpiryDate(month: String, year: String) -> String {
-        let monthInt = Int(month) ?? 0
-        let formattedMonth = String(format: "%02d", monthInt)
-        let formattedYear = String(year).suffix(2)
-        return "\(formattedMonth)/\(formattedYear)"
     }
 }
