@@ -33,21 +33,9 @@ struct TangemPayAddToApplePayBanner: View {
         }
         .padding()
         .background {
-            Rectangle()
-                .fill(
-                    // this is approximation of the background from the design
-                    // the exact gradient parameters are not supported in SwiftUI
-                    // [REDACTED_TODO_COMMENT]
-                    RadialGradient(
-                        gradient: Gradient(colors: [Color(hex: "#252934")!, Color(hex: "#12141E")!]),
-                        center: UnitPoint(x: 0.1093, y: 0.7115),
-                        startRadius: 0,
-                        endRadius: 300
-                    )
-                )
-                .background(.ultraThinMaterial)
-                .cornerRadius(16)
+            Assets.Visa.bgAddToWallet.image
         }
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(alignment: .topTrailing) {
             Button {
                 closeAction()
