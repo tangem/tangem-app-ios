@@ -271,7 +271,7 @@
 "common_in_progress" = "In progress";
 "common_later" = "Later";
 "common_learn_and_earn" = "Learn & Earn";
-"common_learn_more" = "Learn more";
+"common_learn_more" = "Learn more";
 "common_left" = "%1$@ left";
 "common_legacy_bitcoin_address" = "Legacy Bitcoin";
 "common_locked_wallets" = "Locked Wallets";
@@ -1339,12 +1339,12 @@
 "tangempay_card_details_hide_details" = "Hide details";
 "tangempay_card_details_hide_text" = "Hide";
 "tangempay_card_details_open_wallet_button" = "Open Google Wallet";
+"tangempay_card_details_open_wallet_notification_subtitle_apple" = "Set up Tangem Pay in a few taps and start paying with Apple Pay.";
 "tangempay_card_details_open_wallet_notification_subtitle" = "Set up Tangem Pay in a few taps and start paying with Google Pay.";
 "tangempay_card_details_open_wallet_notification_title_apple" = "Add your card to Apple Pay";
 "tangempay_card_details_open_wallet_notification_title" = "Add your card to Google Pay";
-"tangempay_card_details_open_wallet_step_1_apple_open" = "Open";
-"tangempay_card_details_open_wallet_step_1_apple_wallet" = "Apple Wallet";
-"tangempay_card_details_open_wallet_step_1.5_apple" = "Tap “+” button on the top right";
+"tangempay_card_details_open_wallet_step_1_5_apple" = "Tap “+” button on the top right";
+"tangempay_card_details_open_wallet_step_1_apple" = "Open Apple Wallet";
 "tangempay_card_details_open_wallet_step_1" = "Open Google Wallet";
 "tangempay_card_details_open_wallet_step_2_apple" = "Tap “Debit or Credit Card”";
 "tangempay_card_details_open_wallet_step_2" = "Tap “Add a card”";
@@ -1458,7 +1458,7 @@
 "user_push_notification_banner_subtitle" = "Enable push notifications to receive alerts when funds arrive in your wallet.";
 "user_push_notification_banner_title" = "Don't Miss a Transaction";
 "user_wallet_list_add_button" = "Add new wallet";
-"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds";
+"user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds.";
 "user_wallet_list_delete_prompt" = "Are you sure you want to forget this wallet?";
 "user_wallet_list_error_wallet_already_saved" = "This wallet has already been saved, you can add another one";
 "user_wallet_list_rename_popup_placeholder" = "Wallet name";
