@@ -35,9 +35,9 @@ final class CommonYieldModuleFlowFactory {
     // MARK: - Dependencies
 
     private let walletModel: any WalletModel
-    private let yieldModuleManager: any YieldModuleManager
     private let transactionDispatcher: any TransactionDispatcher
     private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
+    private let yieldModuleManager: any YieldModuleManager
 
     // MARK: - Init
 
