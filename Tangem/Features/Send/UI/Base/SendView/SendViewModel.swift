@@ -354,12 +354,18 @@ extension SendViewModel: SendAmountRoutable {
 // MARK: - OnrampModelRoutable
 
 extension SendViewModel: OnrampModelRoutable {
+    // [REDACTED_TODO_COMMENT]
     func openOnrampCountryBottomSheet(country: OnrampCountry) {
         do {
             isKeyboardActive = false
             let builder = try dataBuilder.onrampBuilder()
             let (repository, dataRepository) = builder.makeDataForOnrampCountryBottomSheet()
-            coordinator?.openOnrampCountryDetection(country: country, repository: repository, dataRepository: dataRepository)
+            coordinator?.openOnrampCountryDetection(
+                country: country,
+                repository: repository,
+                dataRepository: dataRepository,
+                onCountrySelected: {}
+            )
         } catch {
             showAlert(error.alertBinder)
         }
@@ -403,6 +409,10 @@ extension SendViewModel: SendViewAlertPresenter {
 // MARK: - SendStepsManagerOutput
 
 extension SendViewModel: SendStepsManagerOutput {
+    func setKeyboardActive(_ isActive: Bool) {
+        isKeyboardActive = isActive
+    }
+
     func update(step newStep: any SendStep) {
         step.willDisappear(next: newStep)
         newStep.willAppear(previous: step)
