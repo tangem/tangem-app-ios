@@ -85,6 +85,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
         dependencyUpdater.setup(owner: self)
 
         bind()
+        print("❇️ init \(objectDescription(self)) ❇️")
+    }
+
+    deinit {
+        print("🔴 deinit \(objectDescription(self)) 🔴")
     }
 
     func onAppear() {
