@@ -14,6 +14,8 @@ import TangemAssets
 enum TangemPayNotificationEvent: Equatable, Hashable {
     case createAccountAndIssueCard
     case viewKYCStatus
+    case syncNeeded
+    case unavailable
 }
 
 extension TangemPayNotificationEvent: NotificationEvent {
@@ -23,6 +25,10 @@ extension TangemPayNotificationEvent: NotificationEvent {
             return .string(Localization.tangempayIssueCardNotificationTitle)
         case .viewKYCStatus:
             return .string(Localization.tangempayKycInProgressNotificationTitle)
+        case .syncNeeded:
+            return .string(Localization.tangempayPaymentAccountSyncNeeded)
+        case .unavailable:
+            return .string(Localization.tangempayTemporarilyUnavailable)
         }
     }
 
@@ -33,14 +39,21 @@ extension TangemPayNotificationEvent: NotificationEvent {
             return "Write description here. In one, two or three lines will be awesome"
         case .viewKYCStatus:
             return "Write description here. In one, two or three lines will be awesome"
+        case .syncNeeded:
+            return Localization.tangempayUseTangemDeviceToRestorePaymentAccount
+        case .unavailable:
+            return Localization.tangempayServiceUnreachableTryLater
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
         case .createAccountAndIssueCard,
-             .viewKYCStatus:
+             .viewKYCStatus,
+             .syncNeeded:
             return .primary
+        case .unavailable:
+            return .secondary
         }
     }
 
@@ -50,6 +63,8 @@ extension TangemPayNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.Visa.promo.image), size: Constants.defaultIconSize)
         case .viewKYCStatus:
             return .init(iconType: .image(Assets.Visa.kyc.image), size: Constants.defaultIconSize)
+        case .syncNeeded, .unavailable:
+            return .init(iconType: .image(Assets.warningIcon.image))
         }
     }
 
@@ -76,6 +91,16 @@ extension TangemPayNotificationEvent: NotificationEvent {
                 withLoader: false,
                 isDisabled: false
             )
+
+        case .syncNeeded:
+            NotificationButtonAction(
+                .tangemPaySync,
+                withLoader: true,
+                isDisabled: false
+            )
+
+        case .unavailable:
+            nil
         }
     }
 }
