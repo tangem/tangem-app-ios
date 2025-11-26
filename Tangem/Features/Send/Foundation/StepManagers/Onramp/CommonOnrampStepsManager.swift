@@ -102,7 +102,14 @@ extension CommonOnrampStepsManager: SendStepsManager {
 extension CommonOnrampStepsManager: OnrampModelRoutable {
     func openOnrampCountryBottomSheet(country: OnrampCountry) {
         let (repository, dataRepository) = onrampBaseDataBuilder.makeDataForOnrampCountryBottomSheet()
-        router?.openOnrampCountryDetection(country: country, repository: repository, dataRepository: dataRepository)
+        router?.openOnrampCountryDetection(
+            country: country,
+            repository: repository,
+            dataRepository: dataRepository,
+            onCountrySelected: { [weak output] in
+                output?.setKeyboardActive(true)
+            }
+        )
     }
 
     func openOnrampCountrySelectorView() {
