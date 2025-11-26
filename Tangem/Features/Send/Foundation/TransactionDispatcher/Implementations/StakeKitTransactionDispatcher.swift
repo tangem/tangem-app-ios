@@ -68,8 +68,8 @@ extension StakeKitTransactionDispatcher: TransactionDispatcher {
 // MARK: - Private
 
 private extension StakeKitTransactionDispatcher {
-    func stakingTransactionSender() throws -> StakingTransactionSender {
-        guard let stakeKitTransactionSender = walletModel.stakingTransactionSender else {
+    func stakeKitTransactionSender() throws -> StakeKitTransactionSender {
+        guard let stakeKitTransactionSender = walletModel.stakeKitTransactionSender else {
             throw Error.stakingUnsupported
         }
 
@@ -77,7 +77,7 @@ private extension StakeKitTransactionDispatcher {
     }
 
     func sendStakeKit(action: StakingTransactionAction, offset: Int? = .none) async throws -> TransactionDispatcherResult {
-        let sender = try stakingTransactionSender()
+        let sender = try stakeKitTransactionSender()
         var transactions = stakingTransactionMapper.mapToStakeKitTransactions(action: action)
 
         if let offset {
