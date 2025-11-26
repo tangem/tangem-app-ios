@@ -171,10 +171,10 @@ final class AccountDetailsViewModel: ObservableObject {
             buttonTitle = Localization.commonOk
         }
 
-        alert = AlertBuilder.makeAlert(
+        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
             title: title,
             message: message,
-            primaryButton: .default(Text(buttonTitle))
+            buttonText: buttonTitle
         )
 
         AccountsLogger.error("Failed to archive account", error: error)
