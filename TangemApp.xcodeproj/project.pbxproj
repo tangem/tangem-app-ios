@@ -2691,6 +2691,8 @@
 		D80A115D2ED0A4F200DCD516 /* SendAddressXRPUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80A115C2ED0A4F200DCD516 /* SendAddressXRPUITests.swift */; };
 		D81E0ED92E9E31060066E171 /* SendKaspaNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81E0ED82E9E31060066E171 /* SendKaspaNotificationUITests.swift */; };
 		D8216C762E1FA192002CCA15 /* OrganizeTokensScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8216C752E1FA192002CCA15 /* OrganizeTokensScreen.swift */; };
+		D82234432ED483790053A574 /* SendAddressQRCodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82234422ED483790053A574 /* SendAddressQRCodeUITests.swift */; };
+		D82234452ED483A60053A574 /* SendQRScannerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82234442ED483A60053A574 /* SendQRScannerScreen.swift */; };
 		D826F6C22EAA430C00CA6353 /* SendAzeroNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826F6C12EAA430C00CA6353 /* SendAzeroNotificationUITests.swift */; };
 		D826F6C42EAA58D900CA6353 /* SendKusamaNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826F6C32EAA58D900CA6353 /* SendKusamaNotificationUITests.swift */; };
 		D82DA8DE2E7AFB7000DFF7AF /* wallet2Imported.json in Resources */ = {isa = PBXBuildFile; fileRef = D82DA8DD2E7AFB7000DFF7AF /* wallet2Imported.json */; };
@@ -2755,6 +2757,7 @@
 		D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89ABED82E31979900855B00 /* SwapScreen.swift */; };
 		D8B80B622EC4B6860002B6A5 /* SendConfirmationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B80B612EC4B6860002B6A5 /* SendConfirmationUITests.swift */; };
 		D8B80B662EC695110002B6A5 /* SendAddressUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B80B652EC695110002B6A5 /* SendAddressUITests.swift */; };
+		D8FE55AA2F0A1F3E00A12345 /* SendAddressMyWalletsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FE55A92F0A1F3E00A12345 /* SendAddressMyWalletsUITests.swift */; };
 		D8BCA6892E5DF4A400DC6876 /* WalletConnectedAppSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BCA6882E5DF4A400DC6876 /* WalletConnectedAppSheet.swift */; };
 		D8C314C22E964A4000B9F552 /* MockBlockBookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C314C12E964A4000B9F552 /* MockBlockBookConfig.swift */; };
 		D8C314C42E968C0700B9F552 /* SendNotificationDogecoinUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C314C32E968C0700B9F552 /* SendNotificationDogecoinUITests.swift */; };
@@ -7241,6 +7244,8 @@
 		D80A115C2ED0A4F200DCD516 /* SendAddressXRPUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAddressXRPUITests.swift; sourceTree = "<group>"; };
 		D81E0ED82E9E31060066E171 /* SendKaspaNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendKaspaNotificationUITests.swift; sourceTree = "<group>"; };
 		D8216C752E1FA192002CCA15 /* OrganizeTokensScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensScreen.swift; sourceTree = "<group>"; };
+		D82234422ED483790053A574 /* SendAddressQRCodeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAddressQRCodeUITests.swift; sourceTree = "<group>"; };
+		D82234442ED483A60053A574 /* SendQRScannerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendQRScannerScreen.swift; sourceTree = "<group>"; };
 		D826F6C12EAA430C00CA6353 /* SendAzeroNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAzeroNotificationUITests.swift; sourceTree = "<group>"; };
 		D826F6C32EAA58D900CA6353 /* SendKusamaNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendKusamaNotificationUITests.swift; sourceTree = "<group>"; };
 		D82DA8DD2E7AFB7000DFF7AF /* wallet2Imported.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = wallet2Imported.json; sourceTree = "<group>"; };
@@ -7305,6 +7310,7 @@
 		D89ABED82E31979900855B00 /* SwapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapScreen.swift; sourceTree = "<group>"; };
 		D8B80B612EC4B6860002B6A5 /* SendConfirmationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendConfirmationUITests.swift; sourceTree = "<group>"; };
 		D8B80B652EC695110002B6A5 /* SendAddressUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAddressUITests.swift; sourceTree = "<group>"; };
+		D8FE55A92F0A1F3E00A12345 /* SendAddressMyWalletsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAddressMyWalletsUITests.swift; sourceTree = "<group>"; };
 		D8BCA6882E5DF4A400DC6876 /* WalletConnectedAppSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectedAppSheet.swift; sourceTree = "<group>"; };
 		D8C314C12E964A4000B9F552 /* MockBlockBookConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBlockBookConfig.swift; sourceTree = "<group>"; };
 		D8C314C32E968C0700B9F552 /* SendNotificationDogecoinUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNotificationDogecoinUITests.swift; sourceTree = "<group>"; };
@@ -11899,6 +11905,7 @@
 		7982B01C2DE70E1900C41EA5 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D82234442ED483A60053A574 /* SendQRScannerScreen.swift */,
 				D8F983DB2EBA2AB00061F55F /* Sell */,
 				D8F983D82EBA26670061F55F /* Buy */,
 				D87669972EB116C100E53613 /* MoonPayPage.swift */,
@@ -17665,7 +17672,9 @@
 		D80A115B2ED0A4E000DCD516 /* Address */ = {
 			isa = PBXGroup;
 			children = (
+				D82234422ED483790053A574 /* SendAddressQRCodeUITests.swift */,
 				D8B80B652EC695110002B6A5 /* SendAddressUITests.swift */,
+				D8FE55A92F0A1F3E00A12345 /* SendAddressMyWalletsUITests.swift */,
 				D80A115C2ED0A4F200DCD516 /* SendAddressXRPUITests.swift */,
 			);
 			path = Address;
@@ -27884,8 +27893,10 @@
 				D8F983D92EBA26670061F55F /* BuyTokenSelectorScreen.swift in Sources */,
 				D863E7A82E68B22B00912D52 /* OnboardingUITests.swift in Sources */,
 				D80A115D2ED0A4F200DCD516 /* SendAddressXRPUITests.swift in Sources */,
+				D82234432ED483790053A574 /* SendAddressQRCodeUITests.swift in Sources */,
 				D8C314C82E98F69200B9F552 /* SendXLMNotificaitonUITests.swift in Sources */,
 				D85E20082E84935D004174E6 /* TotalBalanceSmokeUITests.swift in Sources */,
+				D82234452ED483A60053A574 /* SendQRScannerScreen.swift in Sources */,
 				D852F82D2E5C86B400C71B7F /* OnrampProvidersScreen.swift in Sources */,
 				D852F82E2E5C86B400C71B7F /* OnrampResidenceScreen.swift in Sources */,
 				D852F82F2E5C86B400C71B7F /* OnrampScreen.swift in Sources */,
@@ -27908,6 +27919,7 @@
 				D8E15EF02E41156B00E217BB /* StakingSendScreen.swift in Sources */,
 				D852F8432E5CA30C00C71B7F /* WCURIResponse.swift in Sources */,
 				D8B80B662EC695110002B6A5 /* SendAddressUITests.swift in Sources */,
+				D8FE55AA2F0A1F3E00A12345 /* SendAddressMyWalletsUITests.swift in Sources */,
 				D826F6C22EAA430C00CA6353 /* SendAzeroNotificationUITests.swift in Sources */,
 				D863E7A62E68ABF700912D52 /* CreateBackupScreen.swift in Sources */,
 				D8EDA17F2E60802000422CA7 /* SendScreen.swift in Sources */,

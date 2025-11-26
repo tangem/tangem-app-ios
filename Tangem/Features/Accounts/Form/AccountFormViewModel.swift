@@ -14,7 +14,6 @@ import TangemAccounts
 import TangemFoundation
 import CombineExt
 import Combine
-import SwiftUI
 
 final class AccountFormViewModel: ObservableObject, Identifiable {
     // MARK: - Dynamic State
@@ -25,6 +24,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     @Published var selectedIcon: GridItemImage<AccountModel.Icon.Name>
     @Published var alert: AlertBinder?
     @Published var description: String?
+    @Published var isLoading: Bool = false
 
     // MARK: - Static state
 
@@ -161,6 +161,9 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     @MainActor
     func onMainButtonTap() {
         Task {
+            isLoading = true
+            defer { isLoading = false }
+
             let accountIcon = AccountModel.Icon(name: selectedIcon.id, color: selectedColor.id)
 
             switch flowType {
@@ -247,10 +250,10 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     }
 
     private func makeUnableToCreateAccountAlert() -> AlertBinder {
-        AlertBuilder.makeAlert(
+        AlertBuilder.makeAlertWithDefaultPrimaryButton(
             title: Localization.commonSomethingWentWrong,
             message: Localization.accountCouldNotCreate,
-            primaryButton: .default(Text(Localization.commonOk))
+            buttonText: Localization.commonOk
         )
     }
 }
