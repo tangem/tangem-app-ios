@@ -18,10 +18,11 @@ final class TangemPayMainViewModel: ObservableObject {
     let mainHeaderViewModel: MainHeaderViewModel
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
-        _ = await (
-            tangemPayAccount.loadBalance().value,
-            transactionHistoryService.reloadHistory().value
-        )
+
+        async let balanceUpdate: Void = tangemPayAccount.loadBalance().value
+        async let transactionsUpdate: Void = transactionHistoryService.reloadHistory().value
+
+        _ = await (balanceUpdate, transactionsUpdate)
     }
 
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
@@ -149,6 +150,10 @@ final class TangemPayMainViewModel: ObservableObject {
 
     func setPin() {
         coordinator?.openTangemPayPin(tangemPayAccount: tangemPayAccount)
+    }
+
+    func termsAndLimits() {
+        coordinator?.openTermsAndLimits()
     }
 
     private func freeze() {
