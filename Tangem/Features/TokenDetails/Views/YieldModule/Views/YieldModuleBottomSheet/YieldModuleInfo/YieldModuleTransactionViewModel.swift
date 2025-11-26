@@ -120,6 +120,7 @@ final class YieldModuleTransactionViewModel: ObservableObject {
     private func start() {
         configureFeeSectionFooter()
         log()
+        networkFeeState = networkFeeState.withFeeState(.loading)
 
         Task {
             await fetchNetworkFee(for: action)
@@ -156,8 +157,6 @@ final class YieldModuleTransactionViewModel: ObservableObject {
 
     @MainActor
     private func fetchNetworkFee(for action: YieldModuleAction) async {
-        networkFeeState = networkFeeState.withFeeState(.loading)
-        networkFeeNotification = nil
         isActionButtonAvailable = false
 
         do {
@@ -194,6 +193,11 @@ final class YieldModuleTransactionViewModel: ObservableObject {
     private func showNotEnoughFeeNotification() {
         networkFeeNotification = createNotEnoughFeeNotification(walletModel: walletModel)
     }
+
+    private func setNetworkFeeStateLoading() {
+        networkFeeNotification = nil
+        networkFeeState = networkFeeState.withFeeState(.loading)
+    }
 }
 
 // MARK: - FloatingSheetContentViewModel
@@ -210,8 +214,10 @@ private extension YieldModuleTransactionViewModel {
     }
 
     func createFeeErrorNotification(yieldAction: YieldModuleAction) -> YieldModuleNotificationBannerParams {
-        notificationManager.createFeeUnreachableNotification { [weak self] in
+        notificationManager.createFeeUnreachableNotification {
             Task { @MainActor [weak self] in
+                self?.setNetworkFeeStateLoading()
+                _ = try? await self?.walletModel.update(silent: true).async()
                 await self?.fetchNetworkFee(for: yieldAction)
             }
         }
