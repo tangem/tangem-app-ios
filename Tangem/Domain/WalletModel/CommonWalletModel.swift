@@ -109,9 +109,11 @@ class CommonWalletModel {
         id = WalletModelId(tokenItem: tokenItem)
 
         bind()
+        print("❇️ init \(objectDescription(self, userInfo: ["name": tokenItem.name, "acc": account])) ❇️")
     }
 
     deinit {
+        print("🔴 deinit \(objectDescription(self)) 🔴")
         AppLogger.debug(self)
     }
 

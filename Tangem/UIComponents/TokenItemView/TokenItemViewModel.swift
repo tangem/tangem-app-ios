@@ -74,7 +74,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private let priceFormatter = TokenItemPriceFormatter()
     private var bag = Set<AnyCancellable>()
 
-    private weak var infoProvider: TokenItemInfoProvider?
+    private weak var infoProvider: TokenItemInfoProvider? // why weak lol?
     private weak var contextActionsProvider: TokenItemContextActionsProvider?
     private weak var contextActionsDelegate: TokenItemContextActionDelegate?
 
@@ -107,6 +107,11 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         setupView(infoProvider.balance)
         setupPrice(infoProvider.quote)
         bind()
+        print("❇️ init \(objectDescription(self, userInfo: ["name": name])) ❇️")
+    }
+
+    deinit {
+        print("🔴 deinit \(objectDescription(self, userInfo: ["name": name])) 🔴")
     }
 
     func tapAction() {
