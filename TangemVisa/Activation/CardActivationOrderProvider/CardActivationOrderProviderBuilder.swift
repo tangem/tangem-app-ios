@@ -35,7 +35,7 @@ struct CardActivationOrderProviderBuilder {
             apiService: .init(
                 provider: TangemPayProviderBuilder().buildProvider(
                     configuration: urlSessionConfiguration,
-                    authorizationTokensHandler: tokensHandler
+                    authorizationTokensHandler: nil
                 ),
                 decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
