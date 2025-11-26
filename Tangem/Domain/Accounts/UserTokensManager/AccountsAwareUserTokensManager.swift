@@ -55,6 +55,10 @@ final class AccountsAwareUserTokensManager {
         }
     }
 
+    deinit {
+        print("🔴 deinit \(objectDescription(self)) 🔴")
+    }
+
     private func withBlockchainNetwork(_ tokenItem: TokenItem) -> TokenItem {
         let blockchain = tokenItem.blockchain
         let derivationPathHelper = AccountDerivationPathHelper(blockchain: blockchain)
