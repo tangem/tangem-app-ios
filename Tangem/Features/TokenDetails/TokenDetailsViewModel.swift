@@ -23,12 +23,16 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
 
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
+        tokenItem: walletModel.tokenItem,
         buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
         balanceProvider: self,
         balanceTypeSelectorProvider: self,
         yieldModuleStatusProvider: self,
         showYieldBalanceInfoAction: { [weak self] in
             self?.openYieldBalanceInfo()
+        },
+        reloadBalance: { @MainActor [weak self] in
+            await self?.onPullToRefresh()
         }
     )
 
@@ -275,7 +279,7 @@ private extension TokenDetailsViewModel {
     private func bind() {
         walletModel.yieldModuleManager?.statePublisher
             .compactMap { $0 }
-            .filter { $0.state != .loading }
+            .filter { !$0.state.isLoading }
             .receiveOnMain()
             .sink { [weak self] state in
                 self?.updateYieldAvailability(state: state)
@@ -393,7 +397,7 @@ private extension TokenDetailsViewModel {
                 yieldManager: manager,
                 state: .active(
                     isApproveRequired: info.isAllowancePermissionRequired,
-                    hasUndepositedAmounts: !info.nonYieldModuleBalanceValue.isZero,
+                    undepositedAmount: info.nonYieldModuleBalanceValue,
                     apy: marketInfo?.apy
                 )
             )
@@ -505,9 +509,15 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 
 extension TokenDetailsViewModel {
     func makeYieldStatusViewModel(yieldManager: YieldModuleManager, state: YieldStatusViewModel.State) -> YieldStatusViewModel {
-        YieldStatusViewModel(state: state, manager: yieldManager, navigationAction: { [weak self] in
-            self?.openYieldEarnInfo()
-        })
+        YieldStatusViewModel(
+            state: state,
+            manager: yieldManager,
+            feeTokenItem: walletModel.feeTokenItem,
+            token: walletModel.tokenItem,
+            navigationAction: { [weak self] in
+                self?.openYieldEarnInfo()
+            }
+        )
     }
 
     func makeYieldNotificationViewModel(apy: Decimal) -> YieldAvailableNotificationViewModel {
@@ -545,6 +555,6 @@ extension TokenDetailsViewModel: YieldModuleStatusProvider {
             .compactMap { $0 }
             .removeDuplicates()
             .eraseToAnyPublisher()
-            ?? Empty(completeImmediately: false).eraseToAnyPublisher()
+            ?? Just(YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)).eraseToAnyPublisher()
     }
 }
