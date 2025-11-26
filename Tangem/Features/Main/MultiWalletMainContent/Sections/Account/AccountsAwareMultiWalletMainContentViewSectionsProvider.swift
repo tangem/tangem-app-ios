@@ -36,7 +36,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
 
     private func makeCommonSectionsPublisher() -> some Publisher<CommonSectionInput, Never> {
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-        let cache = self.cache
+        let cache = cache
         let publisher = userWalletModel
             .accountModelsManager
             .accountModelsPublisher
@@ -239,7 +239,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
 
 extension AccountsAwareMultiWalletMainContentViewSectionsProvider: MultiWalletMainContentViewSectionsProvider {
     func makePlainSectionsPublisher() -> some Publisher<[MultiWalletMainContentPlainSection], Never> {
-        let cache = self.cache
+        let cache = cache
 
         return commonSectionsPublisher
             .map { input -> [AccountSectionInput] in
@@ -257,11 +257,10 @@ extension AccountsAwareMultiWalletMainContentViewSectionsProvider: MultiWalletMa
             }
             .receiveOnMain()
             .share(replay: 1)
-
     }
 
     func makeAccountSectionsPublisher() -> some Publisher<[MultiWalletMainContentAccountSection], Never> {
-        let cache = self.cache
+        let cache = cache
 
         return commonSectionsPublisher
             .map { input -> [AccountSectionInput] in
