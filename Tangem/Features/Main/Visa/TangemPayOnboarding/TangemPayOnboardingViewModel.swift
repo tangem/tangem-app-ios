@@ -25,7 +25,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
         self.userWalletModel = userWalletModel
         self.closeOfferScreen = closeOfferScreen
 
-        availabilityService = VisaAPIServiceBuilder().buildTangemPayAvailabilityService()
+        availabilityService = TangemPayAPIServiceBuilder().buildTangemPayAvailabilityService()
     }
 
     func onAppear() {
