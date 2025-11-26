@@ -203,7 +203,6 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
             .filter { !actualSectionItemViewModelsCacheKeys.contains($0) }
 
         purgeCacheIfNeeded(
-            cache: cache,
             tokenItemViewModelsCacheKeysToDelete: tokenItemViewModelsCacheKeysToDelete,
             tokenSectionsAdaptersCacheKeysToDelete: tokenSectionsAdaptersCacheKeysToDelete,
             accountItemViewModelsCacheKeysToDelete: accountItemViewModelsCacheKeysToDelete
@@ -211,7 +210,6 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
     }
 
     private func purgeCacheIfNeeded(
-        cache: ThreadSafeContainer<Cache>,
         tokenItemViewModelsCacheKeysToDelete: [ObjectIdentifier],
         tokenSectionsAdaptersCacheKeysToDelete: [ObjectIdentifier],
         accountItemViewModelsCacheKeysToDelete: [ObjectIdentifier]
@@ -298,9 +296,12 @@ extension AccountsAwareMultiWalletMainContentViewSectionsProvider: MultiWalletMa
 private extension AccountsAwareMultiWalletMainContentViewSectionsProvider {
     /// A cache for various inner types used in `AccountsAwareMultiWalletMainContentViewSectionsProvider`.
     final class Cache {
+        /// Keyed by `ObjectIdentifier` of `CryptoAccountModel`.
         var accountItemViewModels: [ObjectIdentifier: ExpandableAccountItemViewModel] = [:]
-        var tokenItemViewModels: [ObjectIdentifier: TokenItemViewModel] = [:]
+        /// Keyed by `ObjectIdentifier` of `CryptoAccountModel`.
         var tokenSectionsAdapters: [ObjectIdentifier: TokenSectionsAdapter] = [:]
+        /// Keyed by `ObjectIdentifier` of `WalletModel`.
+        var tokenItemViewModels: [ObjectIdentifier: TokenItemViewModel] = [:]
     }
 
     /// Temporary internal-only type representing account section input.
