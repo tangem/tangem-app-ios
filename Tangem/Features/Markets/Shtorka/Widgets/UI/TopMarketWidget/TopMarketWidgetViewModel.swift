@@ -114,23 +114,24 @@ private extension TopMarketWidgetViewModel {
 
         dataProviderEventPipeline
             .filter { $0.isAppendedItems }
-            .handleEvents(receiveOutput: { [weak self] event in
-                guard
-                    let self,
-                    case .appendedItems(let items, _) = event
-                else {
+            .withWeakCaptureOf(self)
+            .handleEvents(receiveOutput: { viewModel, event in
+                guard case .appendedItems(let items, _) = event else {
                     return
                 }
 
                 let idsToFetchMiniCharts = items.map { $0.id }
-                chartsHistoryProvider.fetch(
+
+                viewModel.chartsHistoryProvider.fetch(
                     for: idsToFetchMiniCharts,
-                    with: filterProvider.currentFilterValue.interval
+                    with: viewModel.filterProvider.currentFilterValue.interval
                 )
 
-                quotesRepositoryUpdateHelper.updateQuotes(marketsTokens: items, for: AppSettings.shared.selectedCurrencyCode)
+                viewModel.quotesRepositoryUpdateHelper.updateQuotes(
+                    marketsTokens: items,
+                    for: AppSettings.shared.selectedCurrencyCode
+                )
             })
-            .withWeakCaptureOf(self)
             .compactMap { viewModel, event in
                 guard case .appendedItems(let items, _) = event else {
                     return nil
@@ -141,25 +142,15 @@ private extension TopMarketWidgetViewModel {
             }
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .sink { (viewModel: TopMarketWidgetViewModel, items: [TopMarketTokenViewModel]) in
+            .sink { (viewModel: PulseMarketWidgetViewModel, items: [MarketTokenItemViewModel]) in
                 viewModel.tokenViewModels.append(contentsOf: items)
-
-                if viewModel.dataProvider.items.count < Constants.itemsOnListWidget {
-                    viewModel.tokenListLoadingState = .loading
-                    return
-                }
-
-                viewModel.tokenListLoadingState = .idle
+                viewModel.tokenListLoadingState = .loaded
             }
             .store(in: &bag)
     }
 
     func mapToItemViewModel(_ list: [MarketsTokenModel], offset: Int) -> [TopMarketTokenViewModel] {
-        guard list.count >= Constants.itemsOnListWidget else {
-            return []
-        }
-
-        return list.prefix(Constants.itemsOnListWidget).enumerated().map { mapToTokenViewModel(index: $0 + offset, tokenItemModel: $1) }
+        list.prefix(Constants.itemsOnListWidget).enumerated().map { mapToTokenViewModel(index: $0 + offset, tokenItemModel: $1) }
     }
 
     func mapToTokenViewModel(index: Int, tokenItemModel: MarketsTokenModel) -> TopMarketTokenViewModel {
