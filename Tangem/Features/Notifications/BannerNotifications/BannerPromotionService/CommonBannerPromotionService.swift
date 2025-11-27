@@ -30,7 +30,6 @@ extension CommonBannerPromotionService: BannerPromotionService {
                 let link: URL? = switch promotion {
                 case .visaWaitlist: Constants.visaWaitlinkLink
                 case .blackFriday: Constants.blackFridayLink
-                default: nil
                 }
 
                 return .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline, link: link)
