@@ -54,7 +54,7 @@
 "account_unsaved_dialog_message_create" = "Bist Du sicher, dass Du das neue Konto verwerfen willst?";
 "account_unsaved_dialog_message_edit" = "Bist Du sicher, dass Du die Bearbeitungen verwerfen willst?";
 "account_unsaved_dialog_title" = "Nicht gespeicherte Änderungen";
-"accounts_migration_alert_message" = "Einige benutzerdefinierte Token wurden von „%1$s\" Zu \"%2$sda ihre Herleitung zu diesem Konto gehört.";
+"accounts_migration_alert_message" = "Einige benutzerdefinierte Token wurden von “%1$@” Zu “%2$@” da ihre Herleitung zu diesem Konto gehört.";
 "accounts_migration_alert_title" = "Einige benutzerdefinierte Token wurden verschoben.";
 "action_buttons_buy_empty_search_message" = "Du kannst Deinen Token nicht finden? Gehe zum Bereich „Markt“ auf der Hauptseite und fügen diesen zum kaufen im Portfolio hinzu.";
 "action_buttons_buy_navigation_bar_title" = "Kaufen";
@@ -98,7 +98,7 @@
 "app_settings_biometrics_footer" = "Verwende die %1$@ um Deine Wallet zu entsperren und sensible Aktionen wie das Signieren von Transaktionen zu bestätigen. Bei Hardware-Wallets ist zum Signieren weiterhin eine Karte oder ein Ring erforderlich.";
 "app_settings_default_fee_footer" = "Aktiviere die Option Standardgebühr, um die Transaktionsgebühren automatisch festzulegen und die Gebührenseite beim Senden von Geldern zu überspringen. Du kannst bei Bedarf jederzeit zu dieser Seite zurückkehren.";
 "app_settings_default_fee" = "Standardgebühr";
-"app_settings_off_biometrics_alert_message" = "Wenn Du %1$s deaktivierst, musst Du Deinen Passcode eingeben, um die App zu entsperren und um mit Deiner Wallet zu interagieren.";
+"app_settings_off_biometrics_alert_message" = "Wenn Du %1$@ deaktivierst, musst Du Deinen Passcode eingeben, um die App zu entsperren und um mit Deiner Wallet zu interagieren.";
 "app_settings_off_require_access_code_alert_message" = "Du wirst später nach dem Zugangscode Deiner Wallet gefragt, damit wir sie für die zukünftige Verwendung sicher aufbewahren können";
 "app_settings_off_saved_access_code_alert_message" = "Dadurch werden alle gespeicherten Zugangscodes für die Wallet gelöscht. Jede weitere Operation mit der Wallet erfordert die Übermittlung des Zugangscodes.";
 "app_settings_off_saved_wallet_alert_message" = "Durch das Entfernen der gespeicherten Geräte werden alle gespeicherten Wallets und deren Zugangscodes aus der App gelöscht.";
@@ -363,7 +363,7 @@
 "currency_subtitle_expanded" = "Verfügbare Netzwerke";
 "custom_token_another_account_dialog_description" = "Die Ableitung Deines Tokens entspricht der Ableitung von %1$@. Dein Token wird diesem Konto gutgeschrieben.";
 "custom_token_another_account_dialog_title" = "Die Herleitung stammt aus einem anderen Bericht.";
-"custom_token_another_account_snackbar_text" = "Token added to %1$s account";
+"custom_token_another_account_snackbar_text" = "Token added to %1$@ account";
 "custom_token_contract_address_input_title" = "Vertragsadresse";
 "custom_token_creation_error_empty_fields" = "Bitte fülle alle Felder aus";
 "custom_token_creation_error_invalid_contract_address" = "Vertragsadresse ist ungültig";
@@ -794,6 +794,8 @@
 "no_account_polkadot" = "Das Zielkonto ist nicht aktiv. Sende %@ oder mehr, um das Konto zu aktivieren.";
 "no_account_send_to_create" = "Senden Sie Geld an diese Andresse um ein Konto zu erstellen";
 "no_trustline_xlm_asset" = "Das Zielkonto verfügt nicht über eine Vertrauensstellung für das gesendete Asset.";
+"notification_black_friday_text" = "Get $10 in BTC with every wallet\nHurry!";
+"notification_black_friday_title" = "Black Friday: up to 30%% OFF";
 "notification_referral_promo_button" = "Jetzt beitreten";
 "notification_referral_promo_text" = "Teile Deinen Code – verdiene 5 USDT pro Verkauf. Deine Freunde erhalten 10 %% Rabatt.";
 "notification_referral_promo_title" = "Erhalte BELOHNUNGEN für jeden Freund!";
@@ -938,7 +940,7 @@
 "organize_tokens_sort_by_balance" = "Nach Guthaben";
 "organize_tokens_title" = "Token organisieren";
 "organize_tokens_ungroup" = "Gruppe löschen";
-"provider_name_support" = "%s Unterstützung";
+"provider_name_support" = "%@ Unterstützung";
 "push_notifications_more_info" = "Mehr Infos";
 "push_notifications_permission_alert_description" = "Du kannst Benachrichtigungen für Tangem in den Einstellungen aktivieren.";
 "push_notifications_permission_alert_negative_button" = "Später aktivieren";
@@ -1130,7 +1132,7 @@
 "staking_amount_requirement_error" = "Die Anzahl der zu stakenden Krypros muss mindesten %@ betragen";
 "staking_amount_tron_integer_error_unstaking" = "Der Betrag der unstaked wird, wird aufgrund der Netzwerkregeln auf %1$@ TRX gerundet.";
 "staking_amount_tron_integer_error" = "Der Stakingbetrag wird aufgrund der Netzwerkregeln auf %1$@ TRX aufgerundet.";
-"staking_apr_earn_badge" = "Effektiver Jahreszins %1$s%%";
+"staking_apr_earn_badge" = "Effektiver Jahreszins %1$@%%";
 "staking_claim_unstaked" = "Nicht gestakte beanspruche";
 "staking_details_account_fee_info" = "Ein Staking-Konto ist ein spezielles Konto, auf dem eingesetzte SOL-Token gespeichert werden. Es wird erstellt, indem Sie Ihre Token an einen Validator delegieren, um an der Transaktionsvalidierung teilzunehmen und Belohnungen zu erhalten. Für die Einrichtung des Staking-Kontos wird eine geringe Gebühr erhoben, die nach Abschluss des Stakings zurückerstattet wird.";
 "staking_details_account_fee" = "Gebühr für das Staking-Konto";
@@ -1713,7 +1715,7 @@
 "wc_alert_unknown_error_description_no_error_code" = "Wenn das Problem weiterhin besteht, wende Dich bitte an unseren Support.";
 "wc_alert_unknown_error_description" = "Fehlercode: %@. Wenn das Problem weiterhin besteht, wende Dich bitte an unseren Support.";
 "wc_alert_unknown_error_title" = "Wir haben einen unbekannten Fehler festgestellt.";
-"wc_alert_unsupported_dapps_description" = "Tangem Wallet unterstützt derzeit nicht %s";
+"wc_alert_unsupported_dapps_description" = "Tangem Wallet unterstützt derzeit nicht %@";
 "wc_alert_unsupported_dapps_title" = "Nicht unterstützte dApp";
 "wc_alert_unsupported_method_description" = "Fehlercode: 8 005. Wenn das Problem weiterhin besteht, wende Dich bitte an unseren Support.";
 "wc_alert_unsupported_method_title" = "Wir haben einen unbekannten Fehler festgestellt.";
