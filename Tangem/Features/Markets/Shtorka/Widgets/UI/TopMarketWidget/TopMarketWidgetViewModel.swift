@@ -62,26 +62,6 @@ final class TopMarketWidgetViewModel: ObservableObject {
     deinit {
         AppLogger.debug("TopMarketWidgetViewModel deinit")
     }
-
-    /// Handles `SwiftUI.View.onAppear(perform:)`.
-    func onViewAppear() {
-        isViewVisible = true
-    }
-
-    /// Handles `SwiftUI.View.onDisappear(perform:)`.
-    func onViewDisappear() {
-        isViewVisible = false
-    }
-
-    func onTryLoadList() {
-        tokenListLoadingState = .loading
-        fetch(with: currentSearchValue, by: filterProvider.currentFilterValue)
-    }
-
-    func closeStakingNotification() {
-        Analytics.log(.marketsStakingPromoClosed)
-        AppSettings.shared.startWalletUsageDate = .distantFuture
-    }
 }
 
 // MARK: - Private Implementation
@@ -103,23 +83,6 @@ private extension TopMarketWidgetViewModel {
             .store(in: &bag)
     }
 
-    func requestMiniCharts(forRange range: ClosedRange<Int>, interval: MarketsPriceIntervalType) {
-        let items = tokenViewModels
-        let itemsToFetch: Array<TopMarketTokenViewModel>.SubSequence
-        if items.isEmpty || items.count <= range.lowerBound {
-            // If items array was cleared or previous visible range was sent we can skip mini-charts loading step
-            return
-        }
-
-        if items.count <= range.upperBound {
-            itemsToFetch = items[range.lowerBound...]
-        } else {
-            itemsToFetch = items[range]
-        }
-        let idsToFetch = Array(itemsToFetch).map { $0.tokenId }
-        chartsHistoryProvider.fetch(for: idsToFetch, with: interval)
-    }
-
     func dataProviderBind() {
         let dataProviderEventPipeline = dataProvider.$lastEvent
             .removeDuplicates()
@@ -132,17 +95,11 @@ private extension TopMarketWidgetViewModel {
             .sink { viewModel, events in
                 let (oldEvent, newEvent) = events
                 switch newEvent {
-                case .loading:
+                case .loading, .failedToFetchData:
                     if case .failedToFetchData = oldEvent { return }
                     viewModel.tokenListLoadingState = .loading
                 case .idle:
                     break
-                case .failedToFetchData:
-                    if viewModel.dataProvider.items.isEmpty {
-                        viewModel.quotesUpdatesScheduler.cancelUpdates()
-                    }
-
-                    viewModel.tokenListLoadingState = .loading
                 case .startInitialFetch, .cleared:
                     viewModel.tokenListLoadingState = .loading
                     viewModel.tokenViewModels.removeAll()
@@ -219,16 +176,6 @@ private extension TopMarketWidgetViewModel {
 
     func onAppearPrepareImageCache() {
         imageCache.memoryStorage.config.countLimit = 250
-    }
-}
-
-private extension MarketsListDataProvider.Event {
-    var isAppendedItems: Bool {
-        if case .appendedItems = self {
-            return true
-        }
-
-        return false
     }
 }
 

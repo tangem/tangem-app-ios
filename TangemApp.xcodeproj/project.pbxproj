@@ -10459,26 +10459,17 @@
 			isa = PBXGroup;
 			children = (
 				2D6298612ED74276003C8F9E /* Widgets */,
-				2D8B960E2ED73B6900AA79AF /* UIComponents */,
 			);
 			path = Shtorka;
 			sourceTree = "<group>";
 		};
-		2D8B96092ED739AE00AA79AF /* MarketWidget */ = {
+		2D8B96092ED739AE00AA79AF /* MarketTokenItem */ = {
 			isa = PBXGroup;
 			children = (
 				2D8B960A2ED739FD00AA79AF /* MarketTokenItemView.swift */,
 				2D8B960C2ED73A2400AA79AF /* MarketTokenItemViewModel.swift */,
 			);
-			path = MarketWidget;
-			sourceTree = "<group>";
-		};
-		2D8B960E2ED73B6900AA79AF /* UIComponents */ = {
-			isa = PBXGroup;
-			children = (
-				2D8B96092ED739AE00AA79AF /* MarketWidget */,
-			);
-			path = UIComponents;
+			path = MarketTokenItem;
 			sourceTree = "<group>";
 		};
 		2D8F9E732CF9B280007434A4 /* Clore */ = {
@@ -10886,13 +10877,14 @@
 			isa = PBXGroup;
 			children = (
 				30B4274B2EA67FA800BBFB4D /* MarketsActionRowView.swift */,
-				2DB6487B2C35877000DA100D /* MarketsWalletSelectorView */,
-				B600F4DC2C50F781008E53FE /* LineChartView */,
 				2D57CA872C3D0BA30070D477 /* MarketsGeneratedAddressView.swift */,
 				2DB6487D2C35877000DA100D /* MarketsPickerView.swift */,
 				2DB6487E2C35877000DA100D /* MarketsRaitingHeaderView.swift */,
 				2DB6487F2C35877000DA100D /* MarketsRatingHeaderViewModel.swift */,
 				2DB648802C35877000DA100D /* MarketsSkeletonItemView.swift */,
+				B600F4DC2C50F781008E53FE /* LineChartView */,
+				2DB6487B2C35877000DA100D /* MarketsWalletSelectorView */,
+				2D8B96092ED739AE00AA79AF /* MarketTokenItem */,
 			);
 			path = UIComponents;
 			sourceTree = "<group>";
