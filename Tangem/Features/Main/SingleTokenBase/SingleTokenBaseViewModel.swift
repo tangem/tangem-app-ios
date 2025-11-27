@@ -37,10 +37,9 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     )
 
-    let notificationManager: NotificationManager
-    let userWalletModel: UserWalletModel
+    let userWalletInfo: UserWalletInfo
     let walletModel: any WalletModel
-
+    let notificationManager: NotificationManager
     var availableActions: [TokenActionType] = []
 
     private let tokenRouter: SingleTokenRoutable
@@ -51,7 +50,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
-    private var priceChangeFormatter = PriceChangeFormatter()
+    private let priceChangeUtility = PriceChangeUtility()
     private var transactionHistoryBag: AnyCancellable?
     private var updateTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
@@ -65,12 +64,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     var priceChangeState: TokenPriceChangeView.State {
-        guard let change = walletModel.quote?.priceChange24h else {
-            return .noData
-        }
-
-        let result = priceChangeFormatter.formatPercentValue(change, option: .priceChange)
-        return .loaded(signType: result.signType, text: result.formattedText)
+        priceChangeUtility.convertToPriceChangeState(changePercent: walletModel.quote?.priceChange24h)
     }
 
     var blockchain: Blockchain { blockchainNetwork.blockchain }
@@ -90,19 +84,19 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let miniChartPriceIntervalType = MarketsPriceIntervalType.day
 
     init(
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
         notificationManager: NotificationManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         tokenRouter: SingleTokenRoutable
     ) {
-        self.userWalletModel = userWalletModel
+        self.userWalletInfo = userWalletInfo
         self.walletModel = walletModel
+        self.notificationManager = notificationManager
         tokenActionAvailabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletModel.config,
+            userWalletConfig: userWalletInfo.config,
             walletModel: walletModel
         )
-        self.notificationManager = notificationManager
         self.pendingExpressTransactionsManager = pendingExpressTransactionsManager
         self.tokenRouter = tokenRouter
 
@@ -225,7 +219,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private func fulfillRequirementsPublisher() -> AnyPublisher<AlertBinder?, Never> {
         walletModel
-            .fulfillRequirements(signer: userWalletModel.signer)
+            .fulfillRequirements(signer: userWalletInfo.signer)
             .materialize()
             .failures()
             .withWeakCaptureOf(self)
@@ -373,7 +367,7 @@ extension SingleTokenBaseViewModel {
                     // Don't show onramp's transaction with this statuses for SingleWallet and TokenDetails
                     switch transaction.type {
                     case .onramp:
-                        return ![.created, .canceled, .paused].contains(transaction.transactionStatus)
+                        return ![.created, .expired, .paused].contains(transaction.transactionStatus)
                     case .swap:
                         return true
                     }
@@ -446,7 +440,8 @@ extension SingleTokenBaseViewModel {
                 action: { [weak self] in
                     self?.action(for: type)?()
                 },
-                longPressAction: longTapAction(for: type)
+                longPressAction: longTapAction(for: type),
+                accessibilityIdentifier: type.accessibilityIdentifier
             )
         }
 

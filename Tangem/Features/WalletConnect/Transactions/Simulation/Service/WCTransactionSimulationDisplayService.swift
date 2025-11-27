@@ -14,7 +14,7 @@ struct WCTransactionSimulationDisplayService {
     func createDisplayModel(
         from simulationState: TransactionSimulationState,
         originalTransaction: WCSendableTransaction?,
-        userWalletModel: UserWalletModel,
+        walletModels: [any WalletModel],
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?
     ) -> WCTransactionSimulationDisplayModel? {
         switch simulationState {
@@ -37,7 +37,7 @@ struct WCTransactionSimulationDisplayService {
             createSuccessDisplayModel(
                 from: result,
                 originalTransaction: originalTransaction,
-                userWalletModel: userWalletModel,
+                walletModels: walletModels,
                 onApprovalEdit: onApprovalEdit
             )
         }
@@ -46,7 +46,7 @@ struct WCTransactionSimulationDisplayService {
     private func createSuccessDisplayModel(
         from result: BlockaidChainScanResult,
         originalTransaction: WCSendableTransaction?,
-        userWalletModel: UserWalletModel,
+        walletModels: [any WalletModel],
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?
     ) -> WCTransactionSimulationDisplayModel {
         let cardTitle = result.approvals?.isEmpty == false ? Localization.wcAllowToSpend : Localization.wcEstimatedWalletChanges
@@ -54,7 +54,7 @@ struct WCTransactionSimulationDisplayService {
         let sections = createSections(
             from: result,
             originalTransaction: originalTransaction,
-            userWalletModel: userWalletModel,
+            walletModels: walletModels,
             onApprovalEdit: onApprovalEdit
         )
 
@@ -71,7 +71,7 @@ struct WCTransactionSimulationDisplayService {
     private func createSections(
         from result: BlockaidChainScanResult,
         originalTransaction: WCSendableTransaction?,
-        userWalletModel: UserWalletModel,
+        walletModels: [any WalletModel],
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?
     ) -> [WCTransactionSimulationDisplayModel.Section] {
         if let diff = result.assetsDiff, diff.in.isNotEmpty || diff.out.isNotEmpty {
@@ -82,7 +82,7 @@ struct WCTransactionSimulationDisplayService {
             return [.approvals(createApprovalsSection(
                 from: approvals,
                 originalTransaction: originalTransaction,
-                userWalletModel: userWalletModel,
+                walletModels: walletModels,
                 onApprovalEdit: onApprovalEdit,
                 simulationResult: result
             ))]
@@ -123,7 +123,7 @@ struct WCTransactionSimulationDisplayService {
     private func createApprovalsSection(
         from approvals: [BlockaidChainScanResult.Asset],
         originalTransaction: WCSendableTransaction?,
-        userWalletModel: UserWalletModel,
+        walletModels: [any WalletModel],
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?,
         simulationResult: BlockaidChainScanResult
     ) -> WCTransactionSimulationDisplayModel.ApprovalsSection {
@@ -131,7 +131,7 @@ struct WCTransactionSimulationDisplayService {
             createApprovalItem(
                 from: asset,
                 originalTransaction: originalTransaction,
-                userWalletModel: userWalletModel,
+                walletModels: walletModels,
                 onApprovalEdit: onApprovalEdit,
                 simulationResult: simulationResult
             )
@@ -143,7 +143,7 @@ struct WCTransactionSimulationDisplayService {
     private func createApprovalItem(
         from asset: BlockaidChainScanResult.Asset,
         originalTransaction: WCSendableTransaction?,
-        userWalletModel: UserWalletModel,
+        walletModels: [any WalletModel],
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?,
         simulationResult: BlockaidChainScanResult?
     ) -> WCTransactionSimulationDisplayModel.ApprovalItem {
@@ -160,7 +160,7 @@ struct WCTransactionSimulationDisplayService {
             let formattedAmount = formatApprovalAmount(
                 approvalInfo,
                 asset: asset,
-                userWalletModel: userWalletModel,
+                walletModels: walletModels,
                 simulationResult: simulationResult,
                 originalTransaction: originalTransaction
             )
@@ -196,7 +196,7 @@ struct WCTransactionSimulationDisplayService {
     private func formatApprovalAmount(
         _ approvalInfo: ApprovalInfo,
         asset: BlockaidChainScanResult.Asset,
-        userWalletModel: UserWalletModel,
+        walletModels: [any WalletModel],
         simulationResult: BlockaidChainScanResult?,
         originalTransaction: WCSendableTransaction?
     ) -> String {
@@ -209,7 +209,7 @@ struct WCTransactionSimulationDisplayService {
                 let tokenInfo = WCApprovalHelpers.determineTokenInfo(
                     contractAddress: contractAddress,
                     amount: approvalInfo.amount,
-                    userWalletModel: userWalletModel,
+                    walletModels: walletModels,
                     simulationResult: simulationResult
                 )
             else {

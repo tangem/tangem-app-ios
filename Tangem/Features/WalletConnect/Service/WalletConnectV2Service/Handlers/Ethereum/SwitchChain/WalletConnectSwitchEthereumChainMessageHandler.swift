@@ -22,6 +22,10 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
         try process(blockchain: blockchain, connectedDApp: connectedDApp)
     }
 
+    func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        .empty
+    }
+
     func handle() async throws -> JSONRPC.RPCResult {
         assertionFailure("Should never be called. Must be refactored after wiping out old WalletConnect implementation.")
         return JSONRPC.RPCResult.error(.internalError)
@@ -66,19 +70,31 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
             throw WalletConnectTransactionRequestProcessingError.blockchainToAddDuplicate(blockchain)
         }
 
-        guard
-            let userWallet = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == connectedDApp.userWalletID }),
-            !userWallet.isUserWalletLocked
-        else {
+        let userWallet: any UserWalletModel
+
+        if let userWalletID = connectedDApp.userWalletID, let model = userWalletRepository.models.first(where: {
+            $0.userWalletId.stringValue == userWalletID
+        }) {
+            userWallet = model
+        } else if let accountId = connectedDApp.accountId, let model = userWalletRepository.models.first(where: {
+            $0.accountModelsManager.accountModels.contains {
+                $0.firstAvailableStandard().id.walletConnectIdentifierString == accountId
+            }
+        }) {
+            userWallet = model
+        } else {
             throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
         }
 
-        guard userWallet
-            .userTokenListManager
-            .userTokensList
-            .entries
-            .contains(where: { $0.blockchainNetwork.blockchain.networkId == blockchain.networkId })
-        else {
+        guard !userWallet.isUserWalletLocked else {
+            throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
+        }
+
+        let walletModels = try WCWalletModelsResolver.resolveWalletModels(
+            for: connectedDApp.accountId ?? "", userWalletModel: userWallet
+        )
+
+        guard walletModels.contains(where: { $0.tokenItem.networkId == blockchain.networkId }) else {
             throw WalletConnectTransactionRequestProcessingError.blockchainToAddIsMissingFromUserWallet(blockchain)
         }
 
