@@ -134,6 +134,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayShowAddToApplePayGuide)
     var tangemPayShowAddToApplePayGuide: Bool = true
 
+    @AppStorageCompat(StorageType.tangemPayIsPaeraCustomer)
+    var tangemPayIsPaeraCustomer: [String: Bool] = [:]
+
     static let shared: AppSettings = .init()
 
     private init() {}
