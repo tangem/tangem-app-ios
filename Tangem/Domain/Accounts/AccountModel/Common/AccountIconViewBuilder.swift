@@ -9,8 +9,8 @@
 import SwiftUI
 import TangemAccounts
 
-struct AccountIconViewBuilder {
-    func makeAccountIconViewData(accountModel: any BaseAccountModel) -> AccountIconView.ViewData {
+enum AccountIconViewBuilder {
+    static func makeAccountIconViewData(accountModel: any BaseAccountModel) -> AccountIconView.ViewData {
         let nameMode = AccountModelUtils.UI.nameMode(
             from: accountModel.icon.name,
             accountName: accountModel.name

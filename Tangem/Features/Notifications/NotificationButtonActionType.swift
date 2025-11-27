@@ -53,12 +53,12 @@ enum NotificationButtonActionType: Identifiable {
     case seedSupport2Yes
     case seedSupport2No
     case unlock
-    case openReferralProgram
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
     case openBuyCrypto(walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
     case tangemPayCreateAccountAndIssueCard
     case tangemPayViewKYCStatus
+    case tangemPaySync
     case allowPushPermissionRequest
     case postponePushPermissionRequest
     case activate
@@ -92,12 +92,12 @@ enum NotificationButtonActionType: Identifiable {
         case .seedSupport2Yes: "seedSupport2Yes".hashValue
         case .seedSupport2No: "seedSupport2No".hashValue
         case .unlock: "unlock".hashValue
-        case .openReferralProgram: "openReferralProgram".hashValue
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
         case .openBuyCrypto(let walletModel, let parameters): "openBuyCrypto\(walletModel.id)\(parameters.hashValue)".hashValue
         case .tangemPayCreateAccountAndIssueCard: "tangemPayCreateAccountAndIssueCard".hashValue
         case .tangemPayViewKYCStatus: "tangemPayViewKYCStatus".hashValue
+        case .tangemPaySync: "tangemPaySync".hashValue
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
         case .activate: "activate".hashValue
@@ -157,8 +157,6 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.seedWarningNo
         case .unlock:
             return Localization.visaUnlockNotificationButton
-        case .openReferralProgram:
-            return Localization.referralButtonParticipate
         case .addTokenTrustline:
             return Localization.warningTokenTrustlineButtonTitle
         case .openMobileFinishActivation:
@@ -170,8 +168,9 @@ enum NotificationButtonActionType: Identifiable {
         case .tangemPayCreateAccountAndIssueCard:
             return Localization.commonContinue
         case .tangemPayViewKYCStatus:
-            // [REDACTED_TODO_COMMENT]
-            return "View Status"
+            return Localization.tangempayKycInProgressNotificationButton
+        case .tangemPaySync:
+            return Localization.homeButtonScan
         case .allowPushPermissionRequest:
             return Localization.commonEnable
         case .postponePushPermissionRequest:
@@ -187,7 +186,8 @@ enum NotificationButtonActionType: Identifiable {
         switch self {
         case .generateAddresses,
              .retryKaspaTokenTransaction,
-             .unlock:
+             .unlock,
+             .tangemPaySync:
             return .trailing(Assets.tangemIcon)
         case .swap:
             return .leading(Assets.exchangeMini)
@@ -212,7 +212,6 @@ enum NotificationButtonActionType: Identifiable {
              .seedSupportNo,
              .seedSupport2Yes,
              .seedSupport2No,
-             .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
@@ -235,7 +234,8 @@ enum NotificationButtonActionType: Identifiable {
              .unlock,
              .openMobileUpgrade,
              .allowPushPermissionRequest,
-             .activate:
+             .activate,
+             .tangemPaySync:
             return .primary
         case .backupCard,
              .buyCrypto,
@@ -257,7 +257,6 @@ enum NotificationButtonActionType: Identifiable {
              .seedSupportYes,
              .seedSupport2Yes,
              .seedSupport2No,
-             .openReferralProgram,
              .addTokenTrustline,
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
