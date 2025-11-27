@@ -55,7 +55,7 @@ class BaseTestCase: XCTestCase {
 
         arguments.append(contentsOf: ["-api_express", expressApiType?.rawValue ?? ExpressAPI.production.rawValue])
 
-        arguments.append(contentsOf: ["-staking_api_type", stakingApiType?.rawValue ?? StakingAPI.prod.rawValue])
+        arguments.append(contentsOf: ["-stake_kit_api_type", stakingApiType?.rawValue ?? StakingAPI.prod.rawValue])
 
         if skipToS {
             arguments.append("-uitest-skip-tos")
