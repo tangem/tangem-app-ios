@@ -26,7 +26,7 @@ final class MobileUpgradeViewModel: ObservableObject {
     lazy var info = makeInfo()
 
     let buyButtonTitle = Localization.detailsBuyWallet
-    let scanButtonTitle = Localization.hwUpgradeScanDevice
+    let upgradeButtonTitle = Localization.hwUpgradeStartAction
 
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.safariManager) private var safariManager: SafariManager
@@ -35,6 +35,9 @@ final class MobileUpgradeViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private let context: MobileWalletContext
     private weak var coordinator: MobileUpgradeRoutable?
+
+    private var resetCardSetUtil: ResetToFactoryUtil?
+    private var resetCardSetSubscription: AnyCancellable?
 
     init(
         userWalletModel: UserWalletModel,
@@ -50,7 +53,7 @@ final class MobileUpgradeViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension MobileUpgradeViewModel {
-    func onScanTap() {
+    func onUpgradeTap() {
         scanCard()
     }
 
@@ -73,10 +76,10 @@ extension MobileUpgradeViewModel {
             subtitle: Localization.hwUpgradeKeyMigrationDescription
         )
 
-        let fundsTrait = TraitItem(
+        let backupTrait = TraitItem(
             icon: Assets.Visa.securityCheck,
-            title: Localization.hwUpgradeFundsAccessTitle,
-            subtitle: Localization.hwUpgradeFundsAccessDescription
+            title: Localization.hwUpgradeBackupTitle,
+            subtitle: Localization.hwUpgradeBackupDescription
         )
 
         let securityTrait = TraitItem(
@@ -88,7 +91,7 @@ extension MobileUpgradeViewModel {
         return InfoItem(
             icon: Assets.tangemIconMedium,
             title: Localization.hwUpgradeTitle,
-            traits: [keyTrait, fundsTrait, securityTrait]
+            traits: [keyTrait, backupTrait, securityTrait]
         )
     }
 
@@ -168,7 +171,12 @@ private extension MobileUpgradeViewModel {
                 await runOnMain {
                     viewModel.incomingActionManager.discardIncomingAction()
                     viewModel.isScanning = false
-                    viewModel.handleScan(cardInfo: cardInfo)
+
+                    if viewModel.needResetCardSet(cardInfo: cardInfo) {
+                        viewModel.alert = viewModel.makeResetCardSetAlert(cardInfo: cardInfo)
+                    } else {
+                        viewModel.handleScan(cardInfo: cardInfo)
+                    }
                 }
 
             case .scanTroubleshooting:
@@ -180,14 +188,23 @@ private extension MobileUpgradeViewModel {
                     viewModel.openTroubleshooting()
                 }
 
-            case .success:
+            case .success(let cardInfo):
                 await runOnMain {
                     viewModel.isScanning = false
                     viewModel.incomingActionManager.discardIncomingAction()
-                    viewModel.alert = UpgradeError.cardAlreadyHasWallet.alertBinder
+
+                    if viewModel.needResetCardSet(cardInfo: cardInfo) {
+                        viewModel.alert = viewModel.makeResetCardSetAlert(cardInfo: cardInfo)
+                    } else {
+                        viewModel.alert = UpgradeError.cardAlreadyHasWallet.alertBinder
+                    }
                 }
             }
         }
+    }
+
+    func needResetCardSet(cardInfo: CardInfo) -> Bool {
+        UserWalletId(cardInfo: cardInfo) == userWalletModel.userWalletId
     }
 
     func handleScan(cardInfo: CardInfo) {
@@ -214,6 +231,47 @@ private extension MobileUpgradeViewModel {
             throw UpgradeError.cardDoesNotAllowKeyImport
         }
     }
+}
+
+// MARK: - Reset card set
+
+private extension MobileUpgradeViewModel {
+    func makeResetCardSetAlert(cardInfo: CardInfo) -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: Localization.resetCardsDialogFirstTitle,
+            message: Localization.resetCardsDialogFirstDescription,
+            primaryButton: .destructive(
+                Text(Localization.commonReset),
+                action: { [weak self] in
+                    self?.resetCardSet(cardInfo: cardInfo)
+                }
+            ),
+            secondaryButton: .default(Text(Localization.commonCancel))
+        )
+    }
+
+    func resetCardSet(cardInfo: CardInfo) {
+        let cardInteractor = FactorySettingsResettingCardInteractor(with: cardInfo)
+        let backupCardsCount = cardInfo.card.backupStatus?.backupCardsCount ?? 0
+
+        let resetUtil = ResetToFactoryUtilBuilder().build(
+            backupCardsCount: backupCardsCount,
+            cardInteractor: cardInteractor
+        )
+
+        resetCardSetSubscription = resetUtil.alertPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, alert in
+                viewModel.alert = alert
+            }
+
+        resetUtil.resetToFactory(onDidFinish: weakify(self, forFunction: MobileUpgradeViewModel.onDidFinishResetCardSet))
+
+        resetCardSetUtil = resetUtil
+    }
+
+    func onDidFinishResetCardSet() {}
 }
 
 // MARK: - Navigation

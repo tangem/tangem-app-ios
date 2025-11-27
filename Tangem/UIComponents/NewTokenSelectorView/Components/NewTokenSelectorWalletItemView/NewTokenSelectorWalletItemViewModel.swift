@@ -7,10 +7,16 @@
 //
 
 import Combine
+import TangemAccounts
 
 final class NewTokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
     @Published var isOpen: Bool = true
     @Published private(set) var viewType: ViewType?
+    @Published private(set) var visibleItemsCount: Int?
+
+    var contentVisibility: NewTokenSelectorViewModel.ContentVisibility {
+        visibleItemsCount == .zero ? .empty : .visible
+    }
 
     private let wallet: NewTokenSelectorWallet
     private let mapper: any NewTokenSelectorItemViewModelMapper
@@ -30,6 +36,24 @@ final class NewTokenSelectorWalletItemViewModel: ObservableObject, Identifiable 
             .withWeakCaptureOf(self)
             .map { $0.mapToViewType(accountType: $1) }
             .assign(to: &$viewType)
+
+        $viewType
+            // 1. Collect empty state from each section (wallet, account)
+            .map { viewType -> [AnyPublisher<Int, Never>] in
+                switch viewType {
+                case .none:
+                    return [.empty]
+                case .wallet(let wallet):
+                    return [wallet.$items.compactMap { $0?.count }.eraseToAnyPublisher()]
+                case .accounts(_, let accounts):
+                    return accounts.map {
+                        $0.$items.compactMap { $0?.count }.eraseToAnyPublisher()
+                    }
+                }
+            }
+            // 2. Sum items from each section
+            .flatMapLatest { $0.combineLatest().map { $0.sum() } }
+            .assign(to: &$visibleItemsCount)
     }
 
     private func mapToViewType(accountType: NewTokenSelectorWallet.AccountType) -> ViewType {
@@ -43,9 +67,10 @@ final class NewTokenSelectorWalletItemViewModel: ObservableObject, Identifiable 
 
         case .multiple(let accounts):
             let accounts = accounts.map { account in
+                let icon = AccountIconViewBuilder.makeAccountIconViewData(accountModel: account.cryptoAccount)
                 let header = NewTokenSelectorAccountViewModel.HeaderType.account(
-                    icon: account.account.icon,
-                    name: account.account.name
+                    icon: icon,
+                    name: account.cryptoAccount.name
                 )
 
                 return mapper.mapToNewTokenSelectorAccountViewModel(header: header, account: account)
