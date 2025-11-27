@@ -11,9 +11,6 @@ import TangemLocalization
 import TangemAssets
 
 final class YieldModulePromoViewModel {
-    @Injected(\.safariManager)
-    private var safariManager: SafariManager
-
     // MARK: - Dependencies
 
     private let walletModel: any WalletModel
@@ -65,7 +62,11 @@ final class YieldModulePromoViewModel {
     }
 
     func onHowItWorksTap() {
-        safariManager.openURL(howIrWorksUrl)
+        coordinator?.openUrl(url: howIrWorksUrl)
+    }
+
+    func openUrl(_ url: URL) {
+        coordinator?.openUrl(url: url)
     }
 
     func makeTosAndPrivacyString() -> AttributedString {

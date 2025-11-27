@@ -14,15 +14,17 @@ import TangemFoundation
 
 protocol UserWalletModel:
     MainHeaderSupplementInfoProvider,
-    TotalBalanceProviding,
+    TotalBalanceProvider,
     MultiWalletMainHeaderSubtitleDataSource,
     AnalyticsContextDataProvider,
     MainHeaderUserWalletStateInfoProvider,
     EmailDataProvider,
     WCUserWalletInfoProvider,
     KeysDerivingProvider,
+    TangemPayAuthorizingProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
+    TangemPayAccountProvider,
     AnyObject {
     var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
@@ -45,23 +47,20 @@ protocol UserWalletModel:
 
     // MARK: - Properties and methods to be deleted after migration to Accounts is complete
 
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'walletModelsManager' instead")
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'walletModelsManager' instead and remove this property ([REDACTED_INFO])")
     var walletModelsManager: WalletModelsManager { get }
 
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokensManager' instead")
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokensManager' instead and remove this property ([REDACTED_INFO])")
     var userTokensManager: UserTokensManager { get }
-
-    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokenListManager' instead")
-    var userTokenListManager: UserTokenListManager { get }
 }
 
 enum UpdateRequest {
-    case backupStarted(card: Card)
-    case backupCompleted
+    case backupCompleted(card: Card, associatedCardIds: Set<String>)
     case newName(_ name: String)
     case mnemonicBackupCompleted
     case iCloudBackupCompleted
     case accessCodeDidSet
+    case accessCodeDidSkip
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
