@@ -71,10 +71,9 @@ private extension CreateWalletSelectorView {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 8)
 
-            FlowLayout(
+            HorizontalFlowLayout(
                 items: viewModel.chipItems,
-                horizontalAlignment: .center,
-                verticalAlignment: .center,
+                alignment: .center,
                 horizontalSpacing: 20,
                 verticalSpacing: 8,
                 itemContent: chip
@@ -169,7 +168,7 @@ private extension CreateWalletSelectorView {
     }
 
     func chip(item: ViewModel.ChipItem) -> some View {
-        HStack(spacing: 6) {
+        HStack(alignment: .top, spacing: 6) {
             item.icon.image
                 .renderingMode(.template)
                 .resizable()
@@ -179,6 +178,7 @@ private extension CreateWalletSelectorView {
 
             Text(item.title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
+                .multilineTextAlignment(.center)
         }
     }
 }
