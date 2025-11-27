@@ -173,7 +173,7 @@ extension SuiWalletManager: TransactionSender {
 
             manager.wallet.addPendingTransaction(record)
 
-            return TransactionSendResult(hash: tx.digest)
+            return TransactionSendResult(hash: tx.digest, currentProviderHost: manager.currentHost)
         }
         .mapSendTxError()
         .eraseToAnyPublisher()

@@ -92,6 +92,21 @@ extension View {
         let value = VectorArithmeticBox(wrapped: value ? 1.0 : 0.0)
         modifier(AnimationProgressObserverModifier(observedValue: value, action: completion))
     }
+
+    @ViewBuilder
+    func onAnimationTargetProgress<Value: VectorArithmetic>(
+        for value: Value,
+        targetValue: Value,
+        comparator: @escaping (_ lhs: Value, _ rhs: Value) -> Bool,
+        completion: @escaping () -> Void
+    ) -> some View {
+        modifier(AnimationProgressObserverModifier(
+            observedValue: value,
+            targetValue: targetValue,
+            valueComparator: comparator,
+            action: completion
+        ))
+    }
 }
 
 // MARK: - Private implementation
