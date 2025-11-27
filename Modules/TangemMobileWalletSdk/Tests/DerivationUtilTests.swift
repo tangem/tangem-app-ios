@@ -14,7 +14,6 @@ import Foundation
 let entropy = Data(hexString: "E269A10D56F58A93611FB45EB11959C2")
 
 struct DerivationUtilTests {
-
     @Test(
         arguments: [
             EllipticCurve.secp256k1,
