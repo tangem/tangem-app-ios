@@ -39,7 +39,7 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .learnToEarn: return .unspecified
-        case .visa: return .unspecified
+        case .visa: return .version("5.31")
         case .logs: return .version("5.25")
         case .mobileWallet: return .unspecified
         case .wcSolanaALT: return .version("5.28")
