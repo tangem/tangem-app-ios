@@ -217,7 +217,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
 
         // [REDACTED_TODO_COMMENT]
         case .sendTransfer:
-            throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
+            return try 
 
         case .getAccountAddresses:
             throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
