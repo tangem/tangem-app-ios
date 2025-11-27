@@ -18,10 +18,11 @@ final class TangemPayMainViewModel: ObservableObject {
     let mainHeaderViewModel: MainHeaderViewModel
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
-        _ = await (
-            tangemPayAccount.loadBalance().value,
-            transactionHistoryService.reloadHistory().value
-        )
+
+        async let balanceUpdate: Void = tangemPayAccount.loadBalance().value
+        async let transactionsUpdate: Void = transactionHistoryService.reloadHistory().value
+
+        _ = await (balanceUpdate, transactionsUpdate)
     }
 
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
@@ -33,6 +34,7 @@ final class TangemPayMainViewModel: ObservableObject {
     private weak var coordinator: TangemPayMainRoutable?
 
     private let transactionHistoryService: TangemPayTransactionHistoryService
+    private let cardDetailsRepository: TangemPayCardDetailsRepository
 
     private var bag = Set<AnyCancellable>()
 
@@ -45,6 +47,10 @@ final class TangemPayMainViewModel: ObservableObject {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
+        cardDetailsRepository = .init(
+            lastFourDigits: cardNumberEnd,
+            customerService: tangemPayAccount.customerInfoManagementService
+        )
 
         mainHeaderViewModel = MainHeaderViewModel(
             isUserWalletLocked: false,
@@ -59,8 +65,8 @@ final class TangemPayMainViewModel: ObservableObject {
         )
 
         tangemPayCardDetailsViewModel = TangemPayCardDetailsViewModel(
-            lastFourDigits: cardNumberEnd,
-            customerInfoManagementService: tangemPayAccount.customerInfoManagementService
+            mode: .interactive,
+            repository: cardDetailsRepository
         )
 
         bind()
@@ -115,7 +121,9 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func openAddToApplePayGuide() {
-        coordinator?.openAddToApplePayGuide(viewModel: tangemPayCardDetailsViewModel)
+        coordinator?.openAddToApplePayGuide(
+            viewModel: .init(mode: .detailedOnly, repository: cardDetailsRepository)
+        )
     }
 
     func dismissAddToApplePayGuideBanner() {
@@ -149,6 +157,10 @@ final class TangemPayMainViewModel: ObservableObject {
 
     func setPin() {
         coordinator?.openTangemPayPin(tangemPayAccount: tangemPayAccount)
+    }
+
+    func termsAndLimits() {
+        coordinator?.openTermsAndLimits()
     }
 
     private func freeze() {
