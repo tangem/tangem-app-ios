@@ -50,10 +50,9 @@ private extension MobileBackupTypesView {
                 .padding(.top, 8)
                 .padding(.horizontal, 24)
 
-            FlowLayout(
+            HorizontalFlowLayout(
                 items: item.chips,
-                horizontalAlignment: .center,
-                verticalAlignment: .center,
+                alignment: .center,
                 horizontalSpacing: 16,
                 verticalSpacing: 8,
                 itemContent: infoChip
@@ -144,7 +143,7 @@ private extension MobileBackupTypesView {
     }
 
     func infoChip(item: ViewModel.InfoChipItem) -> some View {
-        HStack(spacing: 6) {
+        HStack(alignment: .top, spacing: 6) {
             item.icon.image
                 .renderingMode(.template)
                 .resizable()
@@ -154,6 +153,7 @@ private extension MobileBackupTypesView {
 
             Text(item.title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
+                .multilineTextAlignment(.center)
         }
     }
 }
