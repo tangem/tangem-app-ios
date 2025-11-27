@@ -81,7 +81,7 @@ private extension TangemPayStatus {
         case .readyToIssueOrIssuing:
             .createAccountAndIssueCard
 
-        case .active:
+        case .active, .blocked:
             nil
         }
     }

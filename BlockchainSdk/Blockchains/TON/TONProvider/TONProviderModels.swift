@@ -44,6 +44,30 @@ enum TONModels {
         }
     }
 
+    /// Info state model
+    struct AddressInfo: Codable {
+        /// Balance in string value
+        let balance: String
+
+        /// State of wallet
+        let state: AccountState
+
+        init(from decoder: Decoder) throws {
+            let container: KeyedDecodingContainer<TONModels.AddressInfo.CodingKeys> = try decoder.container(keyedBy: TONModels.AddressInfo.CodingKeys.self)
+            balance = try Self.mapBalance(from: decoder)
+            state = try container.decode(TONModels.AccountState.self, forKey: TONModels.AddressInfo.CodingKeys.state)
+        }
+
+        // MARK: - Info Private Implementation
+
+        private static func mapBalance(from decoder: Decoder) throws -> String {
+            let container: KeyedDecodingContainer<TONModels.AddressInfo.CodingKeys> = try decoder.container(keyedBy: TONModels.AddressInfo.CodingKeys.self)
+            let strValue = try? container.decode(String.self, forKey: TONModels.AddressInfo.CodingKeys.balance)
+            let intValue = try? container.decode(Int.self, forKey: TONModels.AddressInfo.CodingKeys.balance)
+            return strValue ?? String(intValue ?? 0)
+        }
+    }
+
     /// Fee agregate model
     struct Fee: Codable {
         /// Fees model

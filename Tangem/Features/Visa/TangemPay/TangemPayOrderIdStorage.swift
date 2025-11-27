@@ -10,7 +10,10 @@ import Combine
 import Foundation
 
 struct TangemPayOrderIdStorage {
-    let savedOrderIdPublisher: AnyPublisher<String?, Never>
+    let cardIssuingOrderIdPublisher: AnyPublisher<String?, Never>
+    var cardIssuingOrderId: String? {
+        appSettings.tangemPayCardIssuingOrderIdForCustomerWalletAddress[customerWalletAddress]
+    }
 
     private let appSettings: AppSettings
     private let customerWalletAddress: String
@@ -19,16 +22,16 @@ struct TangemPayOrderIdStorage {
         self.customerWalletAddress = customerWalletAddress
         self.appSettings = appSettings
 
-        savedOrderIdPublisher = appSettings.$tangemPayOrderIdForCustomerWalletAddress
+        cardIssuingOrderIdPublisher = appSettings.$tangemPayCardIssuingOrderIdForCustomerWalletAddress
             .map { $0[customerWalletAddress] }
             .eraseToAnyPublisher()
     }
 
-    func saveOrderId(_ orderId: String) {
-        appSettings.tangemPayOrderIdForCustomerWalletAddress[customerWalletAddress] = orderId
+    func saveCardIssuingOrderId(_ orderId: String) {
+        appSettings.tangemPayCardIssuingOrderIdForCustomerWalletAddress[customerWalletAddress] = orderId
     }
 
-    func deleteSavedOrderId() {
-        appSettings.tangemPayOrderIdForCustomerWalletAddress[customerWalletAddress] = nil
+    func deleteCardIssuingOrderId() {
+        appSettings.tangemPayCardIssuingOrderIdForCustomerWalletAddress[customerWalletAddress] = nil
     }
 }
