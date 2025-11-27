@@ -80,6 +80,7 @@ struct SendView: View {
         case .closeButton:
             CircleButton.close(action: viewModel.dismiss)
                 .disabled(viewModel.closeButtonDisabled)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.closeButton)
 
         case .qrCodeButton(let action):
             Button(action: action) {
