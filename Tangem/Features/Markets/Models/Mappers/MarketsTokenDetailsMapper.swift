@@ -41,7 +41,7 @@ struct MarketsTokenDetailsMapper {
             shortDescription: response.shortDescription,
             fullDescription: response.fullDescription,
             numberOfExchangesListedOn: response.exchangesAmount,
-            priceChangePercentage: try mapPriceChangePercentage(response: response),
+            priceChangePercentage: mapPriceChangePercentage(response: response),
             insights: .init(dto: response.insights),
             metrics: response.metrics,
             securityScore: mapSecurityScore(response: response),
@@ -53,15 +53,13 @@ struct MarketsTokenDetailsMapper {
 
     // MARK: - Private Implementation
 
-    private func mapPriceChangePercentage(response: MarketsDTO.Coins.Response) throws -> [String: Decimal] {
-        // We need to specify that our target type is Decimal, otherwise it will be Decimal?
-        guard let allTimeValue = response.priceChangePercentage[MarketsPriceIntervalType.all.rawValue] as? Decimal else {
-            throw MapperError.missingAllTimePriceChangeValue
-        }
+    private func mapPriceChangePercentage(response: MarketsDTO.Coins.Response) -> [String: Decimal] {
+        // We need to specify that our target type is Decimal, otherwise it will be Decimal??
+        let allTimeValue = response.priceChangePercentage[MarketsPriceIntervalType.all.rawValue] as? Decimal
 
         return MarketsPriceIntervalType.allCases.reduce(into: [:]) {
             let key = $1.rawValue
-            // We need to specify that our target type is Decimal, otherwise it will be Decimal?
+            // We need to specify that our target type is Decimal, otherwise it will be Decimal??
             $0[key] = (response.priceChangePercentage[key] as? Decimal) ?? allTimeValue
         }
     }
@@ -97,19 +95,5 @@ struct MarketsTokenDetailsMapper {
                 )
             }
         )
-    }
-}
-
-extension MarketsTokenDetailsMapper {
-    enum MapperError: LocalizedError {
-        case missingAllTimePriceChangeValue
-
-        var errorDescription: String? {
-            let description = switch self {
-            case .missingAllTimePriceChangeValue:
-                "Missing all time price change value"
-            }
-            return "MapperError: " + description
-        }
     }
 }
