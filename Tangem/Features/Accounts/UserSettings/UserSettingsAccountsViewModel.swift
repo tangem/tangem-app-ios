@@ -17,7 +17,7 @@ import TangemAccounts
 final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - Published State
 
-    @Published var accountRowViewModels: [UserSettingsAccountRowViewModel] = []
+    @Published var accountRowViewModels: [AccountRowButtonViewModel] = []
     @Published private(set) var addNewAccountButton: AddListItemButton.ViewData?
     @Published private(set) var archivedAccountsButton: ArchivedAccountsButtonViewData?
 
@@ -27,7 +27,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     private let userWalletConfig: UserWalletConfig
     private weak var coordinator: UserSettingsAccountsRoutable?
 
-    private var cachedViewModels: [AnyHashable: UserSettingsAccountRowViewModel] = [:]
+    private var cachedViewModels: [AnyHashable: AccountRowButtonViewModel] = [:]
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -53,18 +53,18 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - Binding
 
     private func bind() {
-        bindAccountRowViewModels()
+        bindAccountRowButtonViewModels()
         bindArchivedAccountsButton()
         bindAddNewAccountButton()
     }
 
-    private func bindAccountRowViewModels() {
+    private func bindAccountRowButtonViewModels() {
         accountModelsManager.accountModelsPublisher
             .map { Self.extractVisibleAccounts(from: $0) }
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, accounts in
-                viewModel.updateAccountRowViewModels(from: accounts)
+                viewModel.updateAccountRowButtonViewModels(from: accounts)
             }
             .store(in: &bag)
     }
@@ -142,7 +142,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
 
     // MARK: - Utilities
 
-    private func updateAccountRowViewModels(from accounts: [any BaseAccountModel]) {
+    private func updateAccountRowButtonViewModels(from accounts: [any BaseAccountModel]) {
         accountRowViewModels = accounts.map { account in
             let id = account.id.toAnyHashable()
 
@@ -150,7 +150,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
                 return cached
             }
 
-            let newVM = UserSettingsAccountRowViewModel(accountModel: account) { [weak self] in
+            let newVM = AccountRowButtonViewModel(accountModel: account) { [weak self] in
                 self?.onTapAccount(account: account)
             }
             cachedViewModels[id] = newVM

@@ -1,5 +1,5 @@
 //
-//  UserSettingsAccountRowViewModel.swift
+//  AccountRowButtonViewModel.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,7 +13,7 @@ import TangemAccounts
 import TangemFoundation
 import TangemLocalization
 
-final class UserSettingsAccountRowViewModel: Identifiable, ObservableObject {
+final class AccountRowButtonViewModel: Identifiable, ObservableObject {
     // MARK: - View State
 
     let id: AnyHashable
@@ -21,6 +21,8 @@ final class UserSettingsAccountRowViewModel: Identifiable, ObservableObject {
     @Published private(set) var name: String
     @Published private(set) var iconData: AccountIconView.ViewData
     @Published private(set) var subtitleState: SubtitleState = .none
+
+    let availability: AccountAvailability
 
     // MARK: - Private Properties
 
@@ -31,8 +33,13 @@ final class UserSettingsAccountRowViewModel: Identifiable, ObservableObject {
 
     // MARK: - Init
 
-    init(accountModel: any BaseAccountModel, onTap: @escaping () -> Void) {
+    init(
+        accountModel: any BaseAccountModel,
+        availability: AccountAvailability = .available,
+        onTap: @escaping () -> Void
+    ) {
         self.accountModel = accountModel
+        self.availability = availability
         self.onTap = onTap
 
         id = accountModel.id.toAnyHashable()
@@ -44,7 +51,7 @@ final class UserSettingsAccountRowViewModel: Identifiable, ObservableObject {
 
     // MARK: - Public
 
-    func tap() {
+    func onSelect() {
         onTap()
     }
 
@@ -99,8 +106,8 @@ final class UserSettingsAccountRowViewModel: Identifiable, ObservableObject {
 
 // MARK: - SubtitleState
 
-extension UserSettingsAccountRowViewModel {
-    enum SubtitleState {
+extension AccountRowButtonViewModel {
+    enum SubtitleState: Equatable {
         case descriptionOnly(String)
         case descriptionWithBalance(String, LoadableTokenBalanceView.State)
         case balanceOnly(LoadableTokenBalanceView.State)
