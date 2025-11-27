@@ -229,7 +229,6 @@ enum NotificationButtonActionType: Identifiable {
     var style: MainButton.Style {
         switch self {
         case .generateAddresses,
-             .openLink,
              .openAppStoreReview,
              .empty,
              .unlock,
@@ -248,6 +247,7 @@ enum NotificationButtonActionType: Identifiable {
              .addHederaTokenAssociation,
              .retryKaspaTokenTransaction,
              .leaveAmount,
+             .openLink,
              .support,
              .stake,
              .openFeedbackMail,
