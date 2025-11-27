@@ -717,7 +717,6 @@ extension ExpressViewModel: NotificationTapDelegate {
             openApproveView()
         case .generateAddresses,
              .backupCard,
-             .buyCrypto,
              .refreshFee,
              .goToProvider,
              .addHederaTokenAssociation,
@@ -737,7 +736,6 @@ extension ExpressViewModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
              .tangemPayViewKYCStatus,
              .tangemPaySync,
