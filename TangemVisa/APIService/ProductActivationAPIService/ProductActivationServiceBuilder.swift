@@ -27,7 +27,7 @@ struct ProductActivationServiceBuilder {
             apiService: .init(
                 provider: TangemPayProviderBuilder().buildProvider(
                     configuration: urlSessionConfiguration,
-                    authorizationTokensHandler: authorizationTokensHandler
+                    authorizationTokensHandler: nil
                 ),
                 decoder: JSONDecoder()
             )

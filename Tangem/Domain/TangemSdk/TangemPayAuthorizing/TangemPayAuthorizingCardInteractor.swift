@@ -21,7 +21,7 @@ final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
 
     func authorize(
         customerWalletId: String,
-        authorizationService: VisaAuthorizationService
+        authorizationService: TangemPayAuthorizationService
     ) async throws -> TangemPayAuthorizingResponse {
         let task = CustomerWalletAuthorizationTask(
             customerWalletId: customerWalletId,
