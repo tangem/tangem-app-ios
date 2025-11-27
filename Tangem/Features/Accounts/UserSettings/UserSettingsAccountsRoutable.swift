@@ -13,9 +13,11 @@ protocol UserSettingsAccountsRoutable: AnyObject {
 
     func openAccountDetails(
         account: any BaseAccountModel,
-        accountModelsManager: AccountModelsManager,
+        accountModelsManager: any AccountModelsManager,
         userWalletConfig: UserWalletConfig
     )
 
-    func openArchivedAccounts(accountModelsManager: AccountModelsManager)
+    func openArchivedAccounts(accountModelsManager: any AccountModelsManager)
+
+    func handleAccountsLimitReached()
 }

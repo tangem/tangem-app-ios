@@ -11,7 +11,6 @@ import Moya
 
 public protocol VisaCardActivationStatusService {
     func getCardActivationStatus(
-        authorizationTokens: VisaAuthorizationTokens,
         cardId: String,
         cardPublicKey: String
     ) async throws -> VisaCardActivationStatus
@@ -31,7 +30,6 @@ struct CommonCardActivationStatusService {
 
 extension CommonCardActivationStatusService: VisaCardActivationStatusService {
     func getCardActivationStatus(
-        authorizationTokens: VisaAuthorizationTokens,
         cardId: String,
         cardPublicKey: String
     ) async throws -> VisaCardActivationStatus {
@@ -40,11 +38,8 @@ extension CommonCardActivationStatusService: VisaCardActivationStatusService {
             cardPublicKey: cardPublicKey
         )
 
-        let tokensUtility = AuthorizationTokensUtility()
-        let authorizationToken = try tokensUtility.getAuthorizationHeader(from: authorizationTokens)
         return try await apiService.request(.init(
             target: .activationStatus(request: request),
-            authorizationToken: authorizationToken,
             apiType: apiType
         ))
     }

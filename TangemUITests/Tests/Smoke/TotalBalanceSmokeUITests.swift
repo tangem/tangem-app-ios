@@ -9,18 +9,6 @@
 import XCTest
 
 final class TotalBalanceSmokeUITests: BaseTestCase {
-    func testLongPressWalletHeader_NoRenameAndDeleteButtons() {
-        setAllureId(3965)
-        launchApp(tangemApiType: .mock)
-
-        let mainScreen = StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .longPressWalletHeader()
-
-        mainScreen.waitForNoRenameButton()
-        mainScreen.waitForDeleteButtonExists()
-    }
-
     func testTotalBalanceDisplayed_BeforeAndAfterPullToRefresh() {
         setAllureId(150)
         launchApp(tangemApiType: .mock)
@@ -284,6 +272,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
     }
 
     func testHidePolygonToken_TotalBalanceDecreases() {
+        let token = "Polygon"
         setAllureId(4002)
         launchApp(tangemApiType: .mock)
 
@@ -293,9 +282,9 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
 
         let initialBalance = mainScreen.getTotalBalanceNumericValue()
 
-        let tokenScreen = mainScreen.longPressToken("Polygon")
+        let tokenScreen = mainScreen.longPressToken(token)
         tokenScreen
-            .tapHideFromContextMenu()
+            .tapHideToken(tokenName: token)
             .verifyTotalBalanceDecreased(from: initialBalance)
     }
 
@@ -392,5 +381,17 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
                 }
             }
         }
+    }
+
+    func testLongPressWalletHeader_NoRenameAndDeleteButtons() {
+        setAllureId(3965)
+        launchApp(tangemApiType: .mock)
+
+        let mainScreen = StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .longPressWalletHeader()
+
+        mainScreen.waitForNoRenameButton()
+        mainScreen.waitForNoDeleteButton()
     }
 }
