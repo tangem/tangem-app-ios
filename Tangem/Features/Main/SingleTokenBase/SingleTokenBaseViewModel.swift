@@ -193,8 +193,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     /// implementation from extensions can't be overridden
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
-        case .buyCrypto:
-            openBuyCrypto()
         case .addHederaTokenAssociation, .addTokenTrustline:
             fulfillAssetRequirements(with: .buttonAddTokenTrustline)
         case .retryKaspaTokenTransaction:
