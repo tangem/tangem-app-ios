@@ -21,6 +21,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var maxButton = button(.maxButton)
     private lazy var feeBlock = otherElement(.networkFeeBlock)
     private lazy var invalidAmountBanner = staticText(.invalidAmountBanner)
+    private lazy var totalExceedsBalanceBanner = staticText(.totalExceedsBalanceBanner)
     private lazy var remainingAmountIsLessThanRentExemptionBanner = staticText(.remainingAmountIsLessThanRentExemptionBanner)
     private lazy var insufficientAmountToReserveAtDestinationBanner = staticText(.insufficientAmountToReserveAtDestinationBanner)
     private lazy var amountExceedMaximumUTXOBanner = otherElement(.amountExceedMaximumUTXOBanner)
@@ -42,6 +43,8 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var myWalletsBlock = staticText(.myWalletsBlock)
     private lazy var pasteButton = button(.addressPasteButton)
     private lazy var networkWarningLabel = staticText(.addressNetworkWarning)
+    private lazy var resolvedAddressLabel = staticText(.addressResolvedAddress)
+    private lazy var closeButton = button(.closeButton)
 
     @discardableResult
     func waitForDisplay() -> Self {
@@ -143,6 +146,14 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 
     @discardableResult
+    func tapCloseButton() -> TokenScreen {
+        XCTContext.runActivity(named: "Tap Close button on Send screen") { _ in
+            closeButton.waitAndTap()
+        }
+        return TokenScreen(app)
+    }
+
+    @discardableResult
     func tapFeeBlock() -> SendFeeSelectorScreen {
         XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
             let predicate = NSPredicate(format: NSPredicateFormat.labelBeginsWith.rawValue, "Network fee")
@@ -173,6 +184,22 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func waitForInvalidAmountBannerNotExists() -> Self {
         XCTContext.runActivity(named: "Validate invalid amount banner does not exist") { _ in
             XCTAssertTrue(invalidAmountBanner.waitForNonExistence(timeout: .robustUIUpdate), "Invalid amount banner should not be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForTotalExceedsBalanceBanner() -> Self {
+        XCTContext.runActivity(named: "Validate 'Total exceeds balance' banner exists") { _ in
+            waitAndAssertTrue(totalExceedsBalanceBanner, "'Total exceeds balance' banner should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForTotalExceedsBalanceBannerNotExists() -> Self {
+        XCTContext.runActivity(named: "Validate 'Total exceeds balance' banner does not exist") { _ in
+            XCTAssertTrue(totalExceedsBalanceBanner.waitForNonExistence(timeout: .robustUIUpdate), "'Total exceeds balance' banner should not be displayed")
         }
         return self
     }
@@ -403,6 +430,33 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 
     @discardableResult
+    func waitForAmountValue(_ expectedAmount: String) -> Self {
+        XCTContext.runActivity(named: "Validate amount value is '\(expectedAmount)'") { _ in
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
+            let actualAmount = amountTextField.getValue()
+            XCTAssertEqual(
+                actualAmount,
+                expectedAmount,
+                "Amount should be '\(expectedAmount)' but was '\(actualAmount)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForAmountIsNotEmpty() -> Self {
+        XCTContext.runActivity(named: "Validate amount field is not empty") { _ in
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
+            let amount = amountTextField.getValue()
+            XCTAssertFalse(
+                amount.isEmpty,
+                "Amount field should not be empty"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
     func validateCurrencySymbol(_ expectedSymbol: String) -> Self {
         XCTContext.runActivity(named: "Validate currency symbol: \(expectedSymbol)") { _ in
             let currencySymbolElement = app.staticTexts[SendAccessibilityIdentifiers.currencySymbol]
@@ -595,7 +649,70 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         return self
     }
 
+    @discardableResult
+    func waitForInvalidAddressText() -> Self {
+        XCTContext.runActivity(named: "Validate 'Not a valid address' error is displayed") { _ in
+            waitAndAssertTrue(addressFieldTitle, "Not a valid address")
+        }
+        return self
+    }
+
+    // MARK: - ENS Address Methods
+
+    @discardableResult
+    func waitForResolvedAddressDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate resolved address is displayed under ENS domain") { _ in
+            waitAndAssertTrue(resolvedAddressLabel, "Resolved address should be displayed under ENS domain")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForResolvedAddressNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate resolved address is not displayed") { _ in
+            XCTAssertTrue(
+                resolvedAddressLabel.waitForNonExistence(timeout: .robustUIUpdate),
+                "Resolved address should not be displayed"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForResolvedAddressContains(_ address: String) -> Self {
+        XCTContext.runActivity(named: "Validate resolved address contains '\(address)'") { _ in
+            waitAndAssertTrue(resolvedAddressLabel, "Resolved address label should exist")
+            XCTAssertTrue(
+                resolvedAddressLabel.label.contains(address),
+                "Resolved address should contain '\(address)' but was '\(resolvedAddressLabel.label)'"
+            )
+        }
+        return self
+    }
+
     // MARK: - Destination Field Methods
+
+    @discardableResult
+    func pasteDestination(_ address: String) -> Self {
+        XCTContext.runActivity(named: "Paste address '\(address)' via Paste button") { _ in
+            UIPasteboard.general.string = address
+            pasteButton.waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForInvalidAddressErrorNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate 'Not a valid address' error is not displayed") { _ in
+            let predicate = NSPredicate(format: "label CONTAINS[cd] %@", "Not a valid address")
+            let errorText = app.staticTexts.matching(predicate).firstMatch
+            XCTAssertTrue(
+                errorText.waitForNonExistence(timeout: .robustUIUpdate),
+                "'Not a valid address' error should not be displayed"
+            )
+        }
+        return self
+    }
 
     func getDestinationValue() -> String {
         XCTContext.runActivity(named: "Get destination address value") { _ in
@@ -940,6 +1057,7 @@ enum SendScreenElement: String, UIElement {
     case maxButton
     case networkFeeBlock
     case invalidAmountBanner
+    case totalExceedsBalanceBanner
     case remainingAmountIsLessThanRentExemptionBanner
     case insufficientAmountToReserveAtDestinationBanner
     case amountExceedMaximumUTXOBanner
@@ -961,6 +1079,8 @@ enum SendScreenElement: String, UIElement {
     case myWalletsBlock
     case addressPasteButton
     case addressNetworkWarning
+    case addressResolvedAddress
+    case closeButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -984,6 +1104,8 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.networkFeeBlock
         case .invalidAmountBanner:
             return SendAccessibilityIdentifiers.invalidAmountBanner
+        case .totalExceedsBalanceBanner:
+            return SendAccessibilityIdentifiers.totalExceedsBalanceBanner
         case .remainingAmountIsLessThanRentExemptionBanner:
             return SendAccessibilityIdentifiers.remainingAmountIsLessThanRentExemptionBanner
         case .insufficientAmountToReserveAtDestinationBanner:
@@ -1026,6 +1148,10 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.addressPasteButton
         case .addressNetworkWarning:
             return SendAccessibilityIdentifiers.addressNetworkWarning
+        case .addressResolvedAddress:
+            return SendAccessibilityIdentifiers.addressResolvedAddress
+        case .closeButton:
+            return CommonUIAccessibilityIdentifiers.closeButton
         }
     }
 }
