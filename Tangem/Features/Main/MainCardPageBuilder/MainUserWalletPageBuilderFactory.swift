@@ -108,12 +108,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                     return nil
                 }
 
-                // accounts_fixes_needed_notifications
-                return BannerNotificationManager(
-                    userWalletInfo: model.userWalletInfo,
-                    walletModelsManager: model.walletModelsManager,
-                    placement: .main
-                )
+                return BannerNotificationManager(userWalletInfo: model.userWalletInfo, placement: .main)
             }()
 
             let sectionsProvider = makeMultiWalletMainContentViewSectionsProvider(userWalletModel: model)
