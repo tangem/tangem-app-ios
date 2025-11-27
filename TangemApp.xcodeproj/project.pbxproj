@@ -954,6 +954,9 @@
 		798508AE2DF1AF9100388668 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = 798508AD2DF1AF9100388668 /* TangemModules */; };
 		9345E59CCF194B22F38F4A45 /* AccountOperationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9345E59CCF194B22F38F4A46 /* AccountOperationResult.swift */; };
 		99AAEEC4800C458A897C37DD /* FloatingSheetNavigationBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E69B531B7D974A48A77CBE89 /* FloatingSheetNavigationBarView.swift */; };
+		A792FCB02ED740BA000DE695 /* WalletConnectSendTransferHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A792FCAF2ED740BA000DE695 /* WalletConnectSendTransferHandler.swift */; };
+		A792FCB22ED74169000DE695 /* WCBtcTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A792FCB12ED74169000DE695 /* WCBtcTransactionBuilder.swift */; };
+		A792FCB42ED84EA5000DE695 /* WalletConnectBtcTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A792FCB32ED84EA5000DE695 /* WalletConnectBtcTransaction.swift */; };
 		A7CD56912ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */; };
 		B00142BD2D79954A00923B6D /* WalletModelId.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00142BC2D79954A00923B6D /* WalletModelId.swift */; };
 		B0017EA52D3E76480057F164 /* VisaOnboardingSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */; };
@@ -5651,6 +5654,9 @@
 		7982B02D2DE7259500C41EA5 /* MainScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainScreen.swift; sourceTree = "<group>"; };
 		7985089E2DE99FE800388668 /* ToSScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToSScreen.swift; sourceTree = "<group>"; };
 		9345E59CCF194B22F38F4A46 /* AccountOperationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOperationResult.swift; sourceTree = "<group>"; };
+		A792FCAF2ED740BA000DE695 /* WalletConnectSendTransferHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSendTransferHandler.swift; sourceTree = "<group>"; };
+		A792FCB12ED74169000DE695 /* WCBtcTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCBtcTransactionBuilder.swift; sourceTree = "<group>"; };
+		A792FCB32ED84EA5000DE695 /* WalletConnectBtcTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectBtcTransaction.swift; sourceTree = "<group>"; };
 		A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlasmaExternalLinkProvider.swift; sourceTree = "<group>"; };
 		B00142BC2D79954A00923B6D /* WalletModelId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelId.swift; sourceTree = "<group>"; };
 		B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingSuccessView.swift; sourceTree = "<group>"; };
@@ -12281,6 +12287,22 @@
 				D852F81C2E5C86AB00C71B7F /* Smoke */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		A792FCAD2ED74003000DE695 /* Bitcoin */ = {
+			isa = PBXGroup;
+			children = (
+				A792FCAE2ED7404E000DE695 /* SendTransferHandler */,
+			);
+			path = Bitcoin;
+			sourceTree = "<group>";
+		};
+		A792FCAE2ED7404E000DE695 /* SendTransferHandler */ = {
+			isa = PBXGroup;
+			children = (
+				A792FCAF2ED740BA000DE695 /* WalletConnectSendTransferHandler.swift */,
+			);
+			path = SendTransferHandler;
 			sourceTree = "<group>";
 		};
 		B0017EA32D3E762C0057F164 /* Success */ = {
@@ -18996,6 +19018,7 @@
 				DC0002A62DC2090600305FB6 /* WalletConnectURLParser.swift */,
 				DC0002A72DC2090600305FB6 /* WalletConnectWalletModelProvider.swift */,
 				DC8139D12E41EE6700F7A1E4 /* WCEthTransactionBuilder.swift */,
+				A792FCB12ED74169000DE695 /* WCBtcTransactionBuilder.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -19094,6 +19117,7 @@
 		DC0002C82DC2090600305FB6 /* Handlers */ = {
 			isa = PBXGroup;
 			children = (
+				A792FCAD2ED74003000DE695 /* Bitcoin */,
 				DC0002B92DC2090600305FB6 /* Ethereum */,
 				DC0002BB2DC2090600305FB6 /* Factory */,
 				DC0002C72DC2090600305FB6 /* Solana */,
@@ -19105,6 +19129,7 @@
 			isa = PBXGroup;
 			children = (
 				DC0002C92DC2090600305FB6 /* WalletConnectEthTransaction.swift */,
+				A792FCB32ED84EA5000DE695 /* WalletConnectBtcTransaction.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -26237,6 +26262,7 @@
 				5D6784E425EBC94B00149995 /* Blockchain+.swift in Sources */,
 				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
 				B6EE59432C8B2FE2003A0696 /* CALayerSnapshotOptions.swift in Sources */,
+				A792FCB42ED84EA5000DE695 /* WalletConnectBtcTransaction.swift in Sources */,
 				EF46D3D72E73158700F546C3 /* OnrampOfferViewModel.swift in Sources */,
 				B63B63BD2A44013E00A7CECF /* OrganizeTokensListFooter.swift in Sources */,
 				EFAD02402A7D17BB00E9B959 /* CommonTransactionHistoryService.swift in Sources */,
@@ -27586,6 +27612,7 @@
 				2D42AA592C6379DC006A2FD4 /* Analytics+Markets.swift in Sources */,
 				0FE942862ED992310080CA53 /* Analytics+BuyWalletSource.swift in Sources */,
 				C274DFCC2DDE37D800B1D97B /* ReownWalletConnectDAppProposalApprovalService.swift in Sources */,
+				A792FCB02ED740BA000DE695 /* WalletConnectSendTransferHandler.swift in Sources */,
 				EFC7AD5D2DD4F44000AE78E1 /* SendAmountStep.swift in Sources */,
 				DA81B0F12AB0A74000FA86D3 /* ChangeSignType.swift in Sources */,
 				EF842DEC2AFA58C5006E472E /* ExpressTokensListRoutable.swift in Sources */,
@@ -27843,6 +27870,7 @@
 				2D245E372E97EB56006AD2DC /* MarketsHistoryChartYAxisValueFormatter.swift in Sources */,
 				2D245E382E97EB56006AD2DC /* MarketsTokenDetailsInsightsView.swift in Sources */,
 				2D245E392E97EB56006AD2DC /* MarketsTokenDetailsLinkChipsView.swift in Sources */,
+				A792FCB22ED74169000DE695 /* WCBtcTransactionBuilder.swift in Sources */,
 				2D245E3A2E97EB56006AD2DC /* MarketsTokenDetailsDateFormatterRepository.swift in Sources */,
 				DF4793C32EE94E030024ADE3 /* TangemPayPinCheckView.swift in Sources */,
 				2D245E3B2E97EB56006AD2DC /* MarketsTokenDetailsExchangeItemView.swift in Sources */,
