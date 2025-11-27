@@ -24,6 +24,7 @@ protocol UserWalletModel:
     TangemPayAuthorizingProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
+    TangemPayAccountProvider,
     AnyObject {
     var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
@@ -39,11 +40,6 @@ protocol UserWalletModel:
     var accountModelsManager: AccountModelsManager { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
     var name: String { get }
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { get }
-    var tangemPayAccount: TangemPayAccount? { get }
 
     func validate() -> Bool
     func update(type: UpdateRequest)
