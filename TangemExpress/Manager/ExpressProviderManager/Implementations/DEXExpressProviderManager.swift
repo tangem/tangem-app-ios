@@ -114,9 +114,11 @@ private extension DEXExpressProviderManager {
         // Check Permission
         if let spender = quote.allowanceContract {
             do {
-                let allowanceState = try await request.pair.source.allowanceProvider.allowanceState(request: request, spender: spender)
+                let allowanceState = try await request.pair.source.allowanceProvider?.allowanceState(request: request, spender: spender)
 
                 switch allowanceState {
+                case .none:
+                    throw ExpressProviderError.allowanceProviderNotFound
                 case .enoughAllowance:
                     break
                 case .permissionRequired(let approveData):
@@ -140,7 +142,7 @@ private extension DEXExpressProviderManager {
             return .restriction(estimateFee, quote: quote)
         }
 
-        guard transactionValidator.validateTransactionSize(data: data.txData) else {
+        if let txData = data.txData, !transactionValidator.validateTransactionSize(data: txData) {
             throw ExpressProviderError.transactionSizeNotSupported
         }
 
