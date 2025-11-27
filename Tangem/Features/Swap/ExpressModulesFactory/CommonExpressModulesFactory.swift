@@ -12,23 +12,51 @@ import TangemExpress
 import BlockchainSdk
 
 class CommonExpressModulesFactory {
-    @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
+    @Injected(\.expressPendingTransactionsRepository)
+    private var pendingTransactionRepository: ExpressPendingTransactionRepository
 
-    private let userWalletModel: UserWalletModel
-    private let initialWalletModel: any WalletModel
-    private let destinationWalletModel: (any WalletModel)?
-    private let expressAPIProviderFactory = ExpressAPIProviderFactory()
+    @Injected(\.expressPairsRepository)
+    private var expressPairsRepository: ExpressPairsRepository
+
+    private let userWalletInfo: UserWalletInfo
+    private let initialTokenItem: TokenItem
+    private let expressDependenciesFactory: ExpressDependenciesFactory
 
     // MARK: - Internal
 
-    private lazy var expressInteractor = makeExpressInteractor()
-    private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var expressRepository = makeExpressRepository()
+    private let priceChangeFormatter: PriceChangeFormatter = .init()
+    private let balanceConverter: BalanceConverter = .init()
+    private let balanceFormatter: BalanceFormatter = .init()
 
-    init(inputModel: InputModel) {
-        userWalletModel = inputModel.userWalletModel
-        initialWalletModel = inputModel.initialWalletModel
-        destinationWalletModel = inputModel.destinationWalletModel
+    private lazy var feeFormatter: FeeFormatter = CommonFeeFormatter(
+        balanceFormatter: balanceFormatter,
+        balanceConverter: balanceConverter
+    )
+
+    private lazy var expressProviderFormatter = ExpressProviderFormatter(
+        balanceFormatter: balanceFormatter
+    )
+
+    init(input: ExpressDependenciesInput) {
+        userWalletInfo = input.userWalletInfo
+        initialTokenItem = input.source.tokenItem
+
+        expressDependenciesFactory = CommonExpressDependenciesFactory(
+            input: input,
+            supportedProviderTypes: .swap,
+            operationType: .swap
+        )
+    }
+
+    init(input: ExpressDependenciesDestinationInput) {
+        userWalletInfo = input.userWalletInfo
+        initialTokenItem = input.destination.tokenItem
+
+        expressDependenciesFactory = CommonExpressDependenciesFactory(
+            input: input,
+            supportedProviderTypes: .swap,
+            operationType: .swap
+        )
     }
 }
 
@@ -36,16 +64,20 @@ class CommonExpressModulesFactory {
 
 extension CommonExpressModulesFactory: ExpressModulesFactory {
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
-        let notificationManager = notificationManager
+        let notificationManager = ExpressNotificationManager(
+            userWalletId: userWalletInfo.id,
+            expressInteractor: expressDependenciesFactory.expressInteractor
+        )
+
         let model = ExpressViewModel(
-            initialWallet: initialWalletModel,
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletInfo,
+            initialTokenItem: initialTokenItem,
             feeFormatter: feeFormatter,
             balanceFormatter: balanceFormatter,
             expressProviderFormatter: expressProviderFormatter,
             notificationManager: notificationManager,
-            expressRepository: expressRepository,
-            interactor: expressInteractor,
+            expressRepository: expressDependenciesFactory.expressRepository,
+            interactor: expressDependenciesFactory.expressInteractor,
             coordinator: coordinator
         )
         notificationManager.setupManager(with: model)
@@ -58,39 +90,53 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     ) -> ExpressTokensListViewModel {
         ExpressTokensListViewModel(
             swapDirection: swapDirection,
-            expressTokensListAdapter: expressTokensListAdapter,
-            expressRepository: expressRepository,
-            expressInteractor: expressInteractor,
+            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletInfo.id),
+            expressPairsRepository: expressPairsRepository,
+            expressInteractor: expressDependenciesFactory.expressInteractor,
             coordinator: coordinator,
-            userWalletModelConfig: userWalletModel.config
+            userWalletInfo: userWalletInfo
+        )
+    }
+
+    func makeSwapTokenSelectorViewModel(
+        swapDirection: SwapTokenSelectorViewModel.SwapDirection,
+        coordinator: any SwapTokenSelectorRoutable
+    ) -> SwapTokenSelectorViewModel {
+        SwapTokenSelectorViewModel(
+            swapDirection: swapDirection,
+            expressPairsRepository: expressPairsRepository,
+            expressInteractor: expressDependenciesFactory.expressInteractor,
+            coordinator: coordinator
         )
     }
 
     func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel {
         ExpressFeeSelectorViewModel(
             feeFormatter: feeFormatter,
-            expressInteractor: expressInteractor,
+            expressInteractor: expressDependenciesFactory.expressInteractor,
             coordinator: coordinator
         )
     }
 
     func makeExpressApproveViewModel(
+        source: any ExpressInteractorSourceWallet,
         providerName: String,
         selectedPolicy: BSDKApprovePolicy,
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
-        let tokenItem = expressInteractor.getSender().tokenItem
+        let tokenItem = source.tokenItem
+        let feeTokenItem = source.feeTokenItem
 
         return ExpressApproveViewModel(
             settings: .init(
                 subtitle: Localization.givePermissionSwapSubtitle(providerName, tokenItem.currencySymbol),
                 feeFooterText: Localization.swapGivePermissionFeeFooter,
                 tokenItem: tokenItem,
-                feeTokenItem: expressInteractor.getSender().feeTokenItem,
+                feeTokenItem: feeTokenItem,
                 selectedPolicy: selectedPolicy
             ),
             feeFormatter: feeFormatter,
-            approveViewModelInput: expressInteractor,
+            approveViewModelInput: expressDependenciesFactory.expressInteractor,
             coordinator: coordinator
         )
     }
@@ -101,8 +147,8 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         ExpressProvidersSelectorViewModel(
             priceChangeFormatter: priceChangeFormatter,
             expressProviderFormatter: expressProviderFormatter,
-            expressRepository: expressRepository,
-            expressInteractor: expressInteractor,
+            expressRepository: expressDependenciesFactory.expressRepository,
+            expressInteractor: expressDependenciesFactory.expressInteractor,
             coordinator: coordinator
         )
     }
@@ -110,41 +156,12 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     func makeExpressSuccessSentViewModel(data: SentExpressTransactionData, coordinator: ExpressSuccessSentRoutable) -> ExpressSuccessSentViewModel {
         ExpressSuccessSentViewModel(
             data: data,
-            initialWallet: initialWalletModel,
+            initialTokenItem: initialTokenItem,
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
-            providerFormatter: providerFormatter,
+            providerFormatter: ExpressProviderFormatter(balanceFormatter: balanceFormatter),
             feeFormatter: feeFormatter,
             coordinator: coordinator
-        )
-    }
-
-    func makePendingExpressTransactionsManager() -> any PendingExpressTransactionsManager {
-        let tokenFinder = CommonTokenFinder(supportedBlockchains: userWalletModel.config.supportedBlockchains)
-
-        let expressRefundedTokenHandler = CommonExpressRefundedTokenHandler(
-            userTokensManager: userWalletModel.userTokensManager,
-            tokenFinder: tokenFinder
-        )
-
-        let expressAPIProvider = makeExpressAPIProvider()
-
-        let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
-            userWalletId: userWalletModel.userWalletId.stringValue,
-            walletModel: initialWalletModel,
-            expressAPIProvider: expressAPIProvider,
-            expressRefundedTokenHandler: expressRefundedTokenHandler
-        )
-
-        let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
-            userWalletId: userWalletModel.userWalletId.stringValue,
-            walletModel: initialWalletModel,
-            expressAPIProvider: expressAPIProvider
-        )
-
-        return CompoundPendingTransactionsManager(
-            first: pendingExpressTransactionsManager,
-            second: pendingOnrampTransactionsManager
         )
     }
 }
@@ -152,109 +169,9 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 // MARK: Dependencies
 
 private extension CommonExpressModulesFactory {
-    var feeFormatter: FeeFormatter {
-        CommonFeeFormatter(
-            balanceFormatter: balanceFormatter,
-            balanceConverter: balanceConverter
-        )
-    }
-
-    var expressProviderFormatter: ExpressProviderFormatter {
-        ExpressProviderFormatter(balanceFormatter: balanceFormatter)
-    }
-
-    var notificationManager: NotificationManager {
-        ExpressNotificationManager(
-            userWalletId: userWalletModel.userWalletId,
-            expressInteractor: expressInteractor
-        )
-    }
-
-    var priceChangeFormatter: PriceChangeFormatter { .init() }
-    var balanceConverter: BalanceConverter { .init() }
-    var balanceFormatter: BalanceFormatter { .init() }
-    var providerFormatter: ExpressProviderFormatter { .init(balanceFormatter: balanceFormatter) }
-    var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
-    var userWalletId: String { userWalletModel.userWalletId.stringValue }
-    var signer: TangemSigner { userWalletModel.signer }
-
     /// Be careful to use tokenItem in CommonExpressAnalyticsLogger
     /// Becase there will be inly initial tokenItem without updating
-    var analyticsLogger: ExpressAnalyticsLogger { CommonExpressAnalyticsLogger(tokenItem: initialWalletModel.tokenItem) }
-
-    var expressTokensListAdapter: ExpressTokensListAdapter {
-        CommonExpressTokensListAdapter(userWalletModel: userWalletModel)
-    }
-
-    var expressDestinationService: ExpressDestinationService {
-        CommonExpressDestinationService(
-            walletModelsManager: walletModelsManager,
-            expressRepository: expressRepository
-        )
-    }
-
-    // MARK: - Methods
-
-    func makeExpressRepository() -> ExpressRepository {
-        CommonExpressRepository(
-            walletModelsManager: walletModelsManager,
-            expressAPIProvider: expressAPIProvider
-        )
-    }
-
-    func makeExpressAPIProvider() -> ExpressAPIProvider {
-        expressAPIProviderFactory.makeExpressAPIProvider(
-            userWalletId: userWalletModel.userWalletId,
-            refcode: userWalletModel.refcodeProvider?.getRefcode()
-        )
-    }
-
-    func makeExpressInteractor() -> ExpressInteractor {
-        let transactionValidator = CommonExpressProviderTransactionValidator(
-            tokenItem: initialWalletModel.tokenItem,
-            requiresTransactionSizeValidation: userWalletModel.config.hasFeature(.isHardwareLimited)
-        )
-
-        let expressManager = TangemExpressFactory().makeExpressManager(
-            expressAPIProvider: expressAPIProvider,
-            expressRepository: expressRepository,
-            analyticsLogger: analyticsLogger,
-            supportedProviderTypes: .swap,
-            operationType: .swap,
-            transactionValidator: transactionValidator
-        )
-
-        let interactor = ExpressInteractor(
-            userWalletId: userWalletId,
-            initialWallet: initialWalletModel.asExpressInteractorWallet,
-            destinationWallet: destinationWalletModel.map { .success($0.asExpressInteractorWallet) } ?? .loading,
-            expressManager: expressManager,
-            expressRepository: expressRepository,
-            expressPendingTransactionRepository: pendingTransactionRepository,
-            expressDestinationService: expressDestinationService,
-            expressAnalyticsLogger: analyticsLogger,
-            expressAPIProvider: expressAPIProvider,
-            signer: signer
-        )
-
-        return interactor
-    }
-}
-
-extension CommonExpressModulesFactory {
-    struct InputModel {
-        let userWalletModel: UserWalletModel
-        let initialWalletModel: any WalletModel
-        let destinationWalletModel: (any WalletModel)?
-
-        init(
-            userWalletModel: UserWalletModel,
-            initialWalletModel: any WalletModel,
-            destinationWalletModel: (any WalletModel)? = nil
-        ) {
-            self.userWalletModel = userWalletModel
-            self.initialWalletModel = initialWalletModel
-            self.destinationWalletModel = destinationWalletModel
-        }
+    var analyticsLogger: ExpressAnalyticsLogger {
+        CommonExpressAnalyticsLogger(tokenItem: initialTokenItem)
     }
 }
