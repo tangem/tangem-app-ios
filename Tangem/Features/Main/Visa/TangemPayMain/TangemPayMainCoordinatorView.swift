@@ -55,5 +55,8 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.tangemPayPinViewModel) {
                 TangemPayPinView(viewModel: $0)
             }
+            .sheet(item: $coordinator.termsAndLimitsViewModel) {
+                WebViewContainer(viewModel: $0)
+            }
     }
 }

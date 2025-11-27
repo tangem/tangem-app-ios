@@ -149,8 +149,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                                 return nil
                             }
                             return TangemPayAccountViewModel(
-                                card: cardDetails.card,
-                                balance: cardDetails.balance,
+                                state: .normal(
+                                    card: cardDetails.card,
+                                    balance: cardDetails.balance
+                                ),
                                 tapAction: {
                                     viewModel.openTangemPayMainView(
                                         tangemPayAccount: tangemPayAccount,
@@ -435,31 +437,44 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         if let yieldManager = walletModel.yieldModuleManager,
            let factory = makeYieldModuleFlowFactory(walletModel: walletModel, manager: yieldManager) {
             return { [weak self] _ in
-                self?.handleYieldApyBadgeTapped(walletModel: walletModel, yieldManager: yieldManager, yieldModuleFactory: factory)
+                self?.handleYieldApyBadgeTapped(walletModel: walletModel, factory: factory, yieldManager: yieldManager)
             }
         }
 
         return nil
     }
 
-    private func handleYieldApyBadgeTapped(
-        walletModel: any WalletModel,
-        yieldManager: YieldModuleManager,
-        yieldModuleFactory: YieldModuleFlowFactory
-    ) {
+    private func handleYieldApyBadgeTapped(walletModel: any WalletModel, factory: YieldModuleFlowFactory, yieldManager: YieldModuleManager) {
         let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+
+        func openActiveYield() {
+            logger.logEarningApyClicked(state: .enabled)
+            coordinator?.openYieldModuleActiveInfo(factory: factory)
+        }
+
+        func openPromoYield() {
+            if let apy = yieldManager.state?.marketInfo?.apy {
+                coordinator?.openYieldModulePromoView(apy: apy, factory: factory)
+                logger.logEarningApyClicked(state: .disabled)
+            }
+        }
 
         switch yieldManager.state?.state {
         case .active:
-            logger.logEarningApyClicked(state: .enabled)
-            coordinator?.openYieldModuleActiveInfo(factory: yieldModuleFactory)
+            openActiveYield()
+        case .failedToLoad(_, let cached?):
+            switch cached {
+            case .active:
+                openActiveYield()
+            case .notActive:
+                openPromoYield()
+            default:
+                break
+            }
         case .processing:
             coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
         case .notActive:
-            if let apy = yieldManager.state?.marketInfo?.apy {
-                logger.logEarningApyClicked(state: .disabled)
-                coordinator?.openYieldModulePromoView(apy: apy, factory: yieldModuleFactory)
-            }
+            openPromoYield()
         case .disabled, .failedToLoad, .loading, .none:
             break
         }
