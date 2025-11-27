@@ -84,7 +84,7 @@ struct TangemPayCardDetailsView: View {
 
             Spacer()
 
-            HStack {
+            HStack(alignment: .center, spacing: 6) {
                 Text("*" + viewModel.lastFourDigits)
                     .style(
                         Fonts.Regular.body,
