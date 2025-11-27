@@ -47,6 +47,12 @@ struct TONProviderTarget: TargetType {
                 method: .getWalletInformation,
                 params: ["address": address]
             )
+        case .getAddressInformation(let address):
+            jrpcRequest = TONProviderRequest(
+                id: UUID().uuidString,
+                method: .getAddressInformation,
+                params: ["address": address]
+            )
         case .getBalance(let address):
             jrpcRequest = TONProviderRequest(
                 id: UUID().uuidString,
@@ -99,6 +105,7 @@ struct TONProviderTarget: TargetType {
 extension TONProviderTarget {
     enum TargetType {
         case getInfo(address: String)
+        case getAddressInformation(address: String)
         case estimateFee(address: String, body: String?)
         case getBalance(address: String)
         case sendBoc(message: String)
@@ -112,6 +119,8 @@ extension TONProviderTarget: TargetTypeLogConvertible {
         switch targetType {
         case .getInfo:
             "getInfo"
+        case .getAddressInformation:
+            "getAddressInformation"
         case .estimateFee:
             "estimateFee"
         case .getBalance:
