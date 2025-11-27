@@ -29,20 +29,14 @@ final class TangemPayAccount {
             .eraseToAnyPublisher()
     }
 
-    var tangemPayCardDetailsPublisher: AnyPublisher<TangemPayCardDetails?, Never> {
-        Publishers
-            .CombineLatest(customerInfoSubject, balanceSubject)
-            .map { customerInfo, balance in
-                guard let card = customerInfo?.card,
-                      let balance = balance.value,
-                      let productInstance = customerInfo?.productInstance,
-                      [.active, .blocked].contains(productInstance.status)
-                else {
-                    return nil
-                }
+    var tangemPayCard: VisaCustomerInfoResponse.Card? {
+        mapToCard(visaCustomerInfoResponse: customerInfoSubject.value)
+    }
 
-                return .init(card: card, balance: balance)
-            }
+    var tangemPayCardPublisher: AnyPublisher<VisaCustomerInfoResponse.Card?, Never> {
+        customerInfoSubject
+            .withWeakCaptureOf(self)
+            .map { $0.mapToCard(visaCustomerInfoResponse: $1) }
             .eraseToAnyPublisher()
     }
 
@@ -58,6 +52,8 @@ final class TangemPayAccount {
     // MARK: - Balances
 
     lazy var tangemPayTokenBalanceProvider: TokenBalanceProvider = TangemPayTokenBalanceProvider(
+        walletModelId: .init(tokenItem: TangemPayUtilities.usdcTokenItem),
+        tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject
     )
 
@@ -79,12 +75,17 @@ final class TangemPayAccount {
         customerInfoSubject.value?.productInstance?.cardId
     }
 
+    var cardNumberEnd: String? {
+        customerInfoSubject.value?.card?.cardNumberEnd
+    }
+
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
     private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     private let authorizer: TangemPayAuthorizer
     private let walletAddress: String
+    private let tokenBalancesRepository: TokenBalancesRepository
     private let orderIdStorage: TangemPayOrderIdStorage
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
@@ -93,9 +94,15 @@ final class TangemPayAccount {
     private let didTapIssueOrderSubject = PassthroughSubject<Void, Never>()
     private var orderStatusPollingTask: Task<Void, Never>?
 
-    init(authorizer: TangemPayAuthorizer, walletAddress: String, tokens: TangemPayAuthorizationTokens) {
+    init(
+        authorizer: TangemPayAuthorizer,
+        walletAddress: String,
+        tokens: TangemPayAuthorizationTokens,
+        tokenBalancesRepository: TokenBalancesRepository,
+    ) {
         self.authorizer = authorizer
         self.walletAddress = walletAddress
+        self.tokenBalancesRepository = tokenBalancesRepository
 
         authorizationTokensHandler = TangemPayAuthorizationTokensHandlerBuilder()
             .buildTangemPayAuthorizationTokensHandler(
@@ -146,7 +153,14 @@ final class TangemPayAccount {
             keysRepository: userWalletModel.keysRepository
         )
 
-        self.init(authorizer: authorizer, walletAddress: walletAddress, tokens: tokens)
+        let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletModel.userWalletId)
+
+        self.init(
+            authorizer: authorizer,
+            walletAddress: walletAddress,
+            tokens: tokens,
+            tokenBalancesRepository: tokenBalancesRepository
+        )
     }
 
     func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
@@ -175,12 +189,12 @@ final class TangemPayAccount {
     func loadCustomerInfo() -> Task<Void, Never> {
         runTask(in: self) { tangemPayAccount in
             do {
-                async let customerInfo = tangemPayAccount.customerInfoManagementService.loadCustomerInfo()
-                async let _ = tangemPayAccount.setupBalance()
+                let customerInfo = try await tangemPayAccount.customerInfoManagementService.loadCustomerInfo()
+                tangemPayAccount.customerInfoSubject.send(customerInfo)
 
-                try await tangemPayAccount.customerInfoSubject.send(customerInfo)
-                if try await customerInfo.tangemPayStatus.isActive {
+                if customerInfo.tangemPayStatus.isActive {
                     tangemPayAccount.orderIdStorage.deleteCardIssuingOrderId()
+                    await tangemPayAccount.setupBalance()
                 }
             } catch {
                 VisaLogger.error("Failed to load customer info", error: error)
@@ -248,6 +262,16 @@ final class TangemPayAccount {
         } catch {
             balanceSubject.send(.failure(error))
         }
+    }
+
+    private func mapToCard(visaCustomerInfoResponse: VisaCustomerInfoResponse?) -> VisaCustomerInfoResponse.Card? {
+        guard let card = customerInfoSubject.value?.card,
+              let productInstance = customerInfoSubject.value?.productInstance,
+              [.active, .blocked].contains(productInstance.status) else {
+            return nil
+        }
+
+        return card
     }
 
     deinit {
