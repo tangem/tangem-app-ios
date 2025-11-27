@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct TokenDetailsHeaderView: View {
     let viewModel: TokenDetailsHeaderViewModel
@@ -21,6 +22,7 @@ struct TokenDetailsHeaderView: View {
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.leading)
                     .style(Fonts.Bold.largeTitle, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(TokenAccessibilityIdentifiers.tokenNameLabel)
 
                 HStack(spacing: 6) {
                     Text(viewModel.networkPrefix)
