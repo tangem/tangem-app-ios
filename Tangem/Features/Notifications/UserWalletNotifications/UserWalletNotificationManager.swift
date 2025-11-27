@@ -29,10 +29,6 @@ final class UserWalletNotificationManager {
     private weak var delegate: NotificationTapDelegate?
     private var bag = Set<AnyCancellable>()
 
-    private var showReferralNotification = false
-
-    private let referralNotificationController: ReferralNotificationController
-
     private var numberOfPendingDerivations: Int = 0
 
     private var showAppRateNotification = false
@@ -43,12 +39,10 @@ final class UserWalletNotificationManager {
 
     init(
         userWalletModel: UserWalletModel,
-        rateAppController: RateAppNotificationController,
-        referralNotificationController: ReferralNotificationController
+        rateAppController: RateAppNotificationController
     ) {
         self.userWalletModel = userWalletModel
         self.rateAppController = rateAppController
-        self.referralNotificationController = referralNotificationController
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletModel.userWalletId)
 
         bind()
@@ -110,17 +104,6 @@ final class UserWalletNotificationManager {
             inputs.append(
                 factory.buildNotificationInput(
                     for: .missingBackup,
-                    action: action,
-                    buttonAction: buttonAction,
-                    dismissAction: dismissAction
-                )
-            )
-        }
-
-        if showReferralNotification == true {
-            inputs.append(
-                factory.buildNotificationInput(
-                    for: .referralProgram,
                     action: action,
                     buttonAction: buttonAction,
                     dismissAction: dismissAction
@@ -210,7 +193,7 @@ final class UserWalletNotificationManager {
     private func showMobileActivationNotificationIfNeeded() {
         let config = userWalletModel.config
         let needBackup = config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
-        let needAccessCode = config.hasFeature(.userWalletAccessCode) && !MobileAccessCodeSkipHelper.has(userWalletId: userWalletModel.userWalletId)
+        let needAccessCode = config.hasFeature(.userWalletAccessCode) && config.userWalletAccessCodeStatus == .none
 
         guard needBackup || needAccessCode else {
             return
@@ -226,7 +209,9 @@ final class UserWalletNotificationManager {
 
         let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
 
-        let hasPositiveBalance = userWalletModel.totalBalance.hasPositiveBalance
+        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
+        let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
 
         Analytics.log(
             .noticeFinishActivation,
@@ -294,8 +279,7 @@ final class UserWalletNotificationManager {
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.createNotifications))
             .store(in: &bag)
 
-        userWalletModel.userTokensManager.derivationManager?
-            .pendingDerivationsCount
+        makePendingDerivationsCountPublisher()?
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.addMissingDerivationWarningIfNeeded(pendingDerivationsCount:)))
@@ -310,11 +294,14 @@ final class UserWalletNotificationManager {
             })
             .store(in: &bag)
 
-        userWalletModel
-            .totalBalancePublisher
-            .map(\.hasPositiveBalance)
+        AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
+            .map { walletModels in
+                let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
+                let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
+                return hasPositiveBalance
+            }
             .removeDuplicates()
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink(receiveValue: { manager, _ in
                 manager.createNotifications()
@@ -337,6 +324,28 @@ final class UserWalletNotificationManager {
 
     private func recordDeprecationNotificationDismissal() {
         deprecationService.didDismissSystemDeprecationWarning()
+    }
+
+    private func makePendingDerivationsCountPublisher() -> AnyPublisher<Int, Never>? {
+        guard FeatureProvider.isAvailable(.accounts) else {
+            // accounts_fixes_needed_none
+            return userWalletModel
+                .userTokensManager
+                .derivationManager?
+                .pendingDerivationsCount
+        }
+
+        return userWalletModel
+            .accountModelsManager
+            .cryptoAccountModelsPublisher
+            .map { $0.compactMap(\.userTokensManager.derivationManager) }
+            .flatMapLatest { derivationManagers in
+                return derivationManagers
+                    .compactMap(\.pendingDerivationsCount)
+                    .combineLatest()
+                    .map { $0.reduce(0, +) }
+            }
+            .eraseToAnyPublisher()
     }
 
     private func makeSupportSeedNotificationsManager() -> SupportSeedNotificationManager {
@@ -365,7 +374,6 @@ extension UserWalletNotificationManager: NotificationManager {
         self.delegate = delegate
 
         createNotifications()
-        referralNotificationController.checkReferralStatus()
     }
 
     func dismissNotification(with id: NotificationViewId) {
@@ -381,8 +389,6 @@ extension UserWalletNotificationManager: NotificationManager {
                 recordUserWalletHashesCountValidation()
             case .rateApp:
                 rateAppController.dismissAppRate()
-            case .referralProgram:
-                referralNotificationController.dismissReferralNotification()
             case .mobileUpgrade:
                 dismissedNotifications.add(userWalletId: userWalletModel.userWalletId, notification: .mobileUpgradeFromMain)
             default:

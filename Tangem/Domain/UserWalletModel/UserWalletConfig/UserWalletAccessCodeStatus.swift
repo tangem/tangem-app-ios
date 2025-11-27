@@ -1,0 +1,19 @@
+//
+//  UserWalletAccessCodeStatus.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+enum UserWalletAccessCodeStatus: Codable {
+    case none
+    case set
+    case skipped
+
+    var hasAccessCode: Bool {
+        self == .set
+    }
+}
