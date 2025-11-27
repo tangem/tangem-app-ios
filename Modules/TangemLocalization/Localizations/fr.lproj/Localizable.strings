@@ -54,7 +54,7 @@
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
 "account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
 "account_unsaved_dialog_title" = "Unsaved Changes";
-"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$s” to “%2$s” as their derivation belongs to that account.";
+"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
 "accounts_migration_alert_title" = "Some custom tokens were moved";
 "action_buttons_buy_empty_search_message" = "Jeton non trouvé dans votre portefeuille ? Consultez les marchés pour le trouver et l'ajouter à l'achat";
 "action_buttons_buy_navigation_bar_title" = "Acheter";
@@ -98,7 +98,7 @@
 "app_settings_biometrics_footer" = "Use %1$@ to unlock your wallet and approve sensitive actions, like signing transactions. For hardware wallets, a card or ring is still required to sign.";
 "app_settings_default_fee_footer" = "Activez les frais par défaut pour définir automatiquement les frais de transaction et ignorer la page Frais lors de l'envoi de fonds. Vous pouvez toujours revenir sur cette page si nécessaire.";
 "app_settings_default_fee" = "Frais par défaut";
-"app_settings_off_biometrics_alert_message" = "Disabling %1$s will require you to enter your passcode to unlock the app and to interact with your wallet.";
+"app_settings_off_biometrics_alert_message" = "Disabling %1$@ will require you to enter your passcode to unlock the app and to interact with your wallet.";
 "app_settings_off_require_access_code_alert_message" = "You’ll be asked for your wallet’s access code later so we can securely store it for future use";
 "app_settings_off_saved_access_code_alert_message" = "Cela supprimera tous les codes d'accès des portefeuilles enregistrés. Toute opération ultérieure avec le portefeuille nécessitera la soumission du code d'accès.";
 "app_settings_off_saved_wallet_alert_message" = "La suppression de la carte enregistrée supprime de l'application tous les portefeuilles enregistrés et leurs codes d'accès.";
@@ -363,7 +363,7 @@
 "currency_subtitle_expanded" = "Réseaux disponibles";
 "custom_token_another_account_dialog_description" = "Derivation of your token matches the derivation of %1$@. Your token will be added to this account.";
 "custom_token_another_account_dialog_title" = "Derivation belongs to another account.";
-"custom_token_another_account_snackbar_text" = "Token added to %1$s account";
+"custom_token_another_account_snackbar_text" = "Token added to %1$@ account";
 "custom_token_contract_address_input_title" = "Adresse du contrat";
 "custom_token_creation_error_empty_fields" = "Veuillez remplir tous les champs";
 "custom_token_creation_error_invalid_contract_address" = "L'adresse du contrat n'est pas valide";
@@ -794,8 +794,8 @@
 "no_account_polkadot" = "Le compte de destination est inactif. Envoyez %@ ou plus pour activer le compte.";
 "no_account_send_to_create" = "Pour créer un compte, envoyez des fonds à cette adresse";
 "no_trustline_xlm_asset" = "Le compte destinataire n'a pas de Trustline pour l'actif envoyé qu'il tente d'envoyer.";
-"notification_black_friday_text" = "Plus rewards in BTC per set.\nHurry up!";
-"notification_black_friday_title" = "Black Friday: up to 25%% OFF";
+"notification_black_friday_text" = "Get $10 in BTC with every wallet\nHurry!";
+"notification_black_friday_title" = "Black Friday: up to 30%% OFF";
 "notification_referral_promo_button" = "Rejoignez maintenant";
 "notification_referral_promo_text" = "Partagez votre code et gagnez 5 USDT par vente. Votre ami bénéficie de 10 %% de réduction.";
 "notification_referral_promo_title" = "Recevez des RÉCOMPENSES pour chaque ami !";
@@ -940,7 +940,7 @@
 "organize_tokens_sort_by_balance" = "Par solde";
 "organize_tokens_title" = "Organiser les jetons";
 "organize_tokens_ungroup" = "Dégrouper";
-"provider_name_support" = "Assistance %s";
+"provider_name_support" = "Assistance %@";
 "push_notifications_more_info" = "Plus d'infos";
 "push_notifications_permission_alert_description" = "Vous pouvez activer les notifications pour Tangem dans les paramètres.";
 "push_notifications_permission_alert_negative_button" = "Activer plus tard";
@@ -1132,7 +1132,7 @@
 "staking_amount_requirement_error" = "Le montant à staker doit être au moins %@";
 "staking_amount_tron_integer_error_unstaking" = "Le montant d'annulation du staking sera arrondi à %1$@ TRX en raison des règles du réseau.";
 "staking_amount_tron_integer_error" = "Le montant du staking sera arrondi à %1$@ TRX en raison des règles du réseau.";
-"staking_apr_earn_badge" = "APR %1$s%%";
+"staking_apr_earn_badge" = "APR %1$@%%";
 "staking_claim_unstaked" = "Réclamation déstakée";
 "staking_details_account_fee_info" = "Un compte de staking est un compte spécial où sont stockés les jetons SOL stakés. Il est créé lorsque vous déléguez vos jetons à un validateur pour participer à la validation des transactions et gagner des récompenses. Des frais minimes sont facturés pour la création du compte de staking, qui sont restitués une fois le staking terminé.";
 "staking_details_account_fee" = "Frais de staking du compte";
@@ -1715,7 +1715,7 @@
 "wc_alert_unknown_error_description_no_error_code" = "Si le problème persiste, n’hésitez pas à contacter notre support.";
 "wc_alert_unknown_error_description" = "Code d'erreur : %@. Si le problème persiste, n'hésitez pas à contacter notre service d'assistance.";
 "wc_alert_unknown_error_title" = "Nous avons rencontré une erreur inconnue.";
-"wc_alert_unsupported_dapps_description" = "Le portefeuille Tangem ne prend actuellement pas en charge %ss";
+"wc_alert_unsupported_dapps_description" = "Le portefeuille Tangem ne prend actuellement pas en charge %@";
 "wc_alert_unsupported_dapps_title" = "dApp non prise en charge";
 "wc_alert_unsupported_method_description" = "Code d'erreur : 8 005. Si le problème persiste, n'hésitez pas à contacter notre support.";
 "wc_alert_unsupported_method_title" = "Nous avons rencontré une erreur inconnue";
