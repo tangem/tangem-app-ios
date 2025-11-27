@@ -14,6 +14,7 @@ import TangemLocalization
 public struct AccountFormHeaderView: View {
     @Binding var accountName: String
     @State private var originalTextFieldHeight: CGFloat = 0
+    @FocusState.Binding private var isFocused: Bool
 
     private let maxCharacters: Int
     private let placeholderText: String
@@ -23,9 +24,11 @@ public struct AccountFormHeaderView: View {
         accountName: Binding<String>,
         maxCharacters: Int,
         placeholderText: String,
-        accountIconViewData: AccountIconView.ViewData
+        accountIconViewData: AccountIconView.ViewData,
+        isFocused: FocusState<Bool>.Binding
     ) {
         _accountName = accountName
+        _isFocused = isFocused
         self.maxCharacters = maxCharacters
         self.placeholderText = placeholderText
         self.accountIconViewData = accountIconViewData
@@ -58,6 +61,7 @@ public struct AccountFormHeaderView: View {
             .tint(Colors.Text.primary1)
             .multilineTextAlignment(.center)
             .minimumScaleFactor(0.5)
+            .focused($isFocused)
             .background(
                 GeometryReader { proxy in
                     Color.clear
@@ -80,6 +84,7 @@ public struct AccountFormHeaderView: View {
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @State var accountName = ""
+    @Previewable @FocusState var isFocused: Bool
 
     ZStack {
         Color.gray
@@ -91,7 +96,8 @@ public struct AccountFormHeaderView: View {
                 accountIconViewData: AccountIconView.ViewData(
                     backgroundColor: Colors.Accounts.vitalGreen,
                     nameMode: .letter("N")
-                )
+                ),
+                isFocused: $isFocused
             )
 
             AccountFormHeaderView(
@@ -101,7 +107,8 @@ public struct AccountFormHeaderView: View {
                 accountIconViewData: AccountIconView.ViewData(
                     backgroundColor: Colors.Accounts.ufoGreen,
                     nameMode: .imageType(Assets.Accounts.airplane)
-                )
+                ),
+                isFocused: $isFocused
             )
         }
         .padding(.horizontal, 16)

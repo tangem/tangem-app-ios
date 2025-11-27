@@ -12,7 +12,7 @@ import BlockchainSdk
 public protocol ExpressSourceWallet: ExpressDestinationWallet {
     var feeCurrency: ExpressWalletCurrency { get }
     var feeProvider: FeeProvider { get }
-    var allowanceProvider: AllowanceProvider { get }
+    var allowanceProvider: AllowanceProvider? { get }
     var balanceProvider: BalanceProvider { get }
 
     var supportedProviders: [ExpressProviderType] { get }

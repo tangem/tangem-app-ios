@@ -16,17 +16,13 @@ import TangemStaking
 import TangemUIUtils
 import TangemFoundation
 
-class SendCoordinator: CoordinatorObject {
-    enum DismissOptions {
-        case openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem)
-        case closeButtonTap
-    }
-
+final class SendCoordinator: CoordinatorObject {
     let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Dependencies
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
@@ -37,13 +33,11 @@ class SendCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var qrScanViewCoordinator: QRScanViewCoordinator?
-    @Published var onrampProvidersCoordinator: OnrampProvidersCoordinator?
     @Published var onrampCountryDetectionCoordinator: OnrampCountryDetectionCoordinator?
     @Published var sendReceiveTokenCoordinator: SendReceiveTokenCoordinator?
 
     // MARK: - Child view models
 
-    @Published var mailViewModel: MailViewModel?
     @Published var expressApproveViewModel: ExpressApproveViewModel?
 
     @Published var onrampSettingsViewModel: OnrampSettingsViewModel?
@@ -84,16 +78,6 @@ extension SendCoordinator {
         let input: SendInput
         let type: SendType
         let source: Source
-
-        init(
-            input: SendDependenciesBuilder.Input,
-            type: SendType,
-            source: Source
-        ) {
-            self.input = input
-            self.type = type
-            self.source = source
-        }
     }
 
     enum Source {
@@ -116,6 +100,11 @@ extension SendCoordinator {
             case .onboarding: .onboarding
             }
         }
+    }
+
+    enum DismissOptions {
+        case openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption)
+        case closeButtonTap
     }
 }
 
@@ -150,7 +139,11 @@ extension SendCoordinator: SendRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToSendTx)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToSendTx)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 
     func openExplorer(url: URL) {
@@ -161,8 +154,8 @@ extension SendCoordinator: SendRoutable {
         AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
     }
 
-    func openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem) {
-        dismiss(with: .openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem))
+    func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {
+        dismiss(with: .openFeeCurrency(feeCurrency: feeCurrency))
     }
 
     func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {
@@ -217,11 +210,17 @@ extension SendCoordinator: SendRoutable {
 // MARK: - OnrampRoutable
 
 extension SendCoordinator: OnrampRoutable {
-    func openOnrampCountryDetection(country: OnrampCountry, repository: OnrampRepository, dataRepository: OnrampDataRepository) {
+    func openOnrampCountryDetection(
+        country: OnrampCountry,
+        repository: OnrampRepository,
+        dataRepository: OnrampDataRepository,
+        onCountrySelected: @escaping () -> Void
+    ) {
         let coordinator = OnrampCountryDetectionCoordinator(dismissAction: { [weak self] option in
             switch option {
             case .none:
                 self?.onrampCountryDetectionCoordinator = nil
+                onCountrySelected()
             case .closeOnramp:
                 if #available(iOS 16, *) {
                     self?.dismiss(with: nil)
@@ -267,19 +266,6 @@ extension SendCoordinator: OnrampRoutable {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
-    }
-
-    func openOnrampProviders(providersBuilder: OnrampProvidersBuilder, paymentMethodsBuilder: OnrampPaymentMethodsBuilder) {
-        let coordinator = OnrampProvidersCoordinator(
-            onrampProvidersBuilder: providersBuilder,
-            onrampPaymentMethodsBuilder: paymentMethodsBuilder,
-            dismissAction: { [weak self] in
-                self?.onrampProvidersCoordinator = nil
-            }, popToRootAction: popToRootAction
-        )
-
-        coordinator.start(with: .default)
-        onrampProvidersCoordinator = coordinator
     }
 
     func openOnrampRedirecting(onrampRedirectingBuilder: OnrampRedirectingBuilder) {
@@ -331,14 +317,6 @@ extension SendCoordinator: OnrampSettingsRoutable {
 extension SendCoordinator: OnrampCurrencySelectorRoutable {
     func dismissCurrencySelector() {
         onrampCurrencySelectorViewModel = nil
-    }
-}
-
-// MARK: - OnrampAmountRoutable
-
-extension SendCoordinator: OnrampAmountRoutable {
-    func openOnrampCurrencySelector() {
-        rootViewModel?.openOnrampCurrencySelectorView()
     }
 }
 

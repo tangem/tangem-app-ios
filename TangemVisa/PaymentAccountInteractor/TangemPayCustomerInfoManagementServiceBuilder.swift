@@ -1,0 +1,38 @@
+//
+//  TangemPayCustomerInfoManagementServiceBuilder.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import TangemNetworkUtils
+
+public struct TangemPayCustomerInfoManagementServiceBuilder {
+    private let apiType: VisaAPIType
+
+    public init(apiType: VisaAPIType) {
+        self.apiType = apiType
+    }
+}
+
+public extension TangemPayCustomerInfoManagementServiceBuilder {
+    func buildCustomerInfoManagementService(
+        authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
+        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration,
+        authorizeWithCustomerWallet: @escaping () async throws -> TangemPayAuthorizationTokens
+    ) -> CustomerInfoManagementService {
+        CommonCustomerInfoManagementService(
+            apiType: apiType,
+            authorizationTokenHandler: authorizationTokensHandler,
+            apiService: .init(
+                provider: TangemPayProviderBuilder().buildProvider(
+                    configuration: urlSessionConfiguration,
+                    authorizationTokensHandler: authorizationTokensHandler
+                ),
+                decoder: JSONDecoderFactory().makeCIMDecoder()
+            ),
+            authorizeWithCustomerWallet: authorizeWithCustomerWallet
+        )
+    }
+}

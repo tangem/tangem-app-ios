@@ -11,6 +11,7 @@ import TangemSdk
 import TangemFoundation
 import BlockchainSdk
 
+// [REDACTED_TODO_COMMENT]
 struct AccountDerivationPathHelper {
     private let blockchain: Blockchain
 
@@ -44,24 +45,30 @@ struct AccountDerivationPathHelper {
     }
 
     private func accountDerivationNodeIndex(for derivationPath: DerivationPath) -> Int {
-        let nodes = derivationPath.nodes
+        let nodesCount = derivationPath.nodes.count
+        let nodeIndex: Int
 
-        switch nodes.count {
-        case 5 where blockchain.isUTXO:
-            return Constants.utxoDerivationNodeIndex
-        case 3 where !blockchain.isUTXO,
-             5 where !blockchain.isUTXO:
-            // For non-UTXO blockchains we use the last node as account node (either 3rd or 5th)
-            return nodes.count - 1
-        case 4 where blockchain.isTezos:
-            // Some non-UTXO blockchains (like Tezos) have 4 nodes in the derivation path
-            return Constants.nonUTXONonStandardDerivationNodeIndex
+        switch blockchain {
+        case .quai,
+             .tezos:
+            // Some non-UTXO and non-EVM blockchains (like Tezos, Quai and so on) require special handling
+            nodeIndex = Constants.accountNodeIndex
+        case _ where blockchain.isEvm:
+            nodeIndex = Constants.addressIndexNodeIndex
         default:
-            // Currently, there are no blockchains with other derivation path nodes count
-            // Such blockchains should be handled here explicitly
-            assertionFailure("Unexpected derivation path nodes count: \(nodes.count) for blockchain: \(blockchain.displayName)")
-            return max(0, nodes.count - 1)
+            nodeIndex = Constants.accountNodeIndex
         }
+
+        guard nodesCount > nodeIndex else {
+            let message = "Unexpected derivation path nodes count: \(nodesCount) for blockchain: \(blockchain.displayName)"
+
+            AppLogger.warning(message)
+            assertionFailure(message)
+
+            return max(0, nodesCount - 1)
+        }
+
+        return nodeIndex
     }
 
     func areAccountsAvailableForBlockchain() -> Bool {
@@ -154,11 +161,42 @@ struct AccountDerivationPathHelper {
              .vanar,
              .zkLinkNova,
              .pepecoin,
-             .hyperliquidEVM:
+             .hyperliquidEVM,
+             .quai,
+             .scroll,
+             .linea,
+             .arbitrumNova,
+             .plasma:
             return true
-        case .chia, .quai:
+        case .chia:
             return false
         }
+    }
+}
+
+// MARK: - Static Helpers
+
+extension AccountDerivationPathHelper {
+    /// Filters a set of blockchains to include only those that support multiple accounts.
+    /// Some blockchains don't support custom derivation paths and multiple accounts.
+    /// - Parameter blockchains: The set of blockchains to filter
+    /// - Returns: A set of blockchains that support multiple accounts
+    static func filterBlockchainsSupportingAccounts(_ blockchains: Set<Blockchain>) -> Set<Blockchain> {
+        blockchains.filter { blockchain in
+            AccountDerivationPathHelper(blockchain: blockchain).areAccountsAvailableForBlockchain()
+        }
+    }
+
+    /// Checks if a blockchain with the given networkId supports multiple accounts.
+    /// - Parameters:
+    ///   - networkId: The network identifier
+    ///   - supportedBlockchains: The set of supported blockchains to search in
+    /// - Returns: `true` if the blockchain exists and supports accounts, `false` otherwise
+    static func supportsAccounts(networkId: String, in supportedBlockchains: Set<Blockchain>) -> Bool {
+        guard let blockchain = supportedBlockchains[networkId] else {
+            return false
+        }
+        return AccountDerivationPathHelper(blockchain: blockchain).areAccountsAvailableForBlockchain()
     }
 }
 
@@ -166,20 +204,9 @@ struct AccountDerivationPathHelper {
 
 private extension AccountDerivationPathHelper {
     enum Constants {
-        /// 3rd node for UTXO blockchains (m / purpose' / coin_type' / account' / change / address_index)
-        static let utxoDerivationNodeIndex = 2
-        /// 3rd node for some non-UTXO blockchains (like Tezos) which have 4 nodes (m / purpose' / coin_type' / account' / unspecified)
-        static let nonUTXONonStandardDerivationNodeIndex = 2
-    }
-}
-
-// MARK: - Convenience extensions
-
-private extension Blockchain {
-    var isTezos: Bool {
-        if case .tezos = self {
-            return true
-        }
-        return false
+        /// 3rd node `account` (m / purpose' / coin_type' / account' / change / address_index)
+        static let accountNodeIndex = 2
+        /// 5th node `address_index` (m / purpose' / coin_type' / account' / change / address_index)
+        static let addressIndexNodeIndex = 4
     }
 }

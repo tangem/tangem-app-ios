@@ -39,6 +39,8 @@ struct ExpressAPITarget: Moya.TargetType {
             return URL(string: "https://express.tangem.org/v1/")!
         case .develop2:
             return URL(string: "https://express2.tests-d.com/v1/")!
+        case .develop3:
+            return URL(string: "https://express3.tests-d.com/v1/")!
         case .production:
             return URL(string: "https://express.tangem.com/v1/")!
         case .stage:
