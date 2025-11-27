@@ -77,12 +77,14 @@ extension LegacyConfig: UserWalletConfig {
         }
     }
 
-    var defaultBlockchains: [StorageEntry] {
+    var defaultBlockchains: [TokenItem] {
         if let defaultBlockchain = defaultBlockchain {
             let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
-            let tokens = defaultToken.map { [$0] } ?? []
-            let entry = StorageEntry(blockchainNetwork: network, tokens: tokens)
-            return [entry]
+            if let defaultToken {
+                return [TokenItem.token(defaultToken, network)]
+            }
+
+            return [TokenItem.blockchain(network)]
         } else {
             guard isMultiwallet else { return [] }
 
@@ -93,27 +95,28 @@ extension LegacyConfig: UserWalletConfig {
             ]
 
             return blockchains.map {
-                StorageEntry(blockchainNetwork: .init($0, derivationPath: nil), token: nil)
+                let network = BlockchainNetwork($0, derivationPath: nil)
+                return TokenItem.blockchain(network)
             }
         }
     }
 
-    var persistentBlockchains: [StorageEntry]? {
+    var persistentBlockchains: [TokenItem] {
         if isMultiwallet {
-            return nil
+            return []
         }
 
         return defaultBlockchains
     }
 
-    var embeddedBlockchain: StorageEntry? {
+    var embeddedBlockchain: TokenItem? {
         return defaultBlockchains.first
     }
 
     var generalNotificationEvents: [GeneralNotificationEvent] {
         var notifications = GeneralNotificationEventsFactory().makeNotifications(for: card)
 
-        if !hasFeature(.send) {
+        if !hasFeature(.signing) {
             notifications.append(.oldCard)
         }
 
@@ -163,7 +166,7 @@ extension LegacyConfig: UserWalletConfig {
             return .disabled()
         case .longTap:
             return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
-        case .send:
+        case .signing:
             if card.firmwareVersion.doubleValue >= 2.28
                 || card.settings.securityDelay <= 15000 {
                 return .available
@@ -172,12 +175,6 @@ extension LegacyConfig: UserWalletConfig {
             return .disabled()
         case .longHashes:
             return .hidden
-        case .signedHashesCounter:
-            if card.firmwareVersion.type != .release {
-                return .hidden
-            } else {
-                return .available
-            }
         case .backup:
             return .hidden
         case .twinning:
@@ -196,18 +193,11 @@ extension LegacyConfig: UserWalletConfig {
             }
 
             return .available
-        case .receive:
-            return .available
-        case .withdrawal:
-            return .available
         case .hdWallets:
             return .hidden
         case .staking:
             return .available
-        case .topup:
-            return .available
-        case .tokenSynchronization,
-             .swapping,
+        case .swapping,
              .nft:
             return isMultiwallet ? .available : .hidden
         case .referralProgram:
@@ -217,8 +207,6 @@ extension LegacyConfig: UserWalletConfig {
         case .transactionHistory:
             return .hidden
         case .accessCodeRecoverySettings:
-            return .hidden
-        case .promotion:
             return .hidden
         case .iCloudBackup:
             return .hidden
@@ -234,7 +222,9 @@ extension LegacyConfig: UserWalletConfig {
             return .hidden
         case .cardSettings:
             return .available
-        case .isHardwareLimited:
+        case .nfcInteraction:
+            return .available
+        case .transactionPayloadLimit:
             return .available
         }
     }
