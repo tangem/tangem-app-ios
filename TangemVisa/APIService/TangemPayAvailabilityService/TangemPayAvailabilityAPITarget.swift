@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 import Moya
 
 struct TangemPayAvailabilityAPITarget: TargetType {
@@ -14,7 +15,7 @@ struct TangemPayAvailabilityAPITarget: TargetType {
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.baseURL
+        apiType.bffBaseURL
     }
 
     var path: String {
@@ -23,12 +24,14 @@ struct TangemPayAvailabilityAPITarget: TargetType {
             return "customer/eligibility"
         case .validateDeeplink:
             return "deeplink/validate"
+        case .isPaeraCustomer(let customerWalletId):
+            return "customer/wallets/\(customerWalletId)"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .getEligibility:
+        case .getEligibility, .isPaeraCustomer:
             return .get
         case .validateDeeplink:
             return .post
@@ -37,7 +40,7 @@ struct TangemPayAvailabilityAPITarget: TargetType {
 
     var task: Moya.Task {
         switch target {
-        case .getEligibility:
+        case .getEligibility, .isPaeraCustomer:
             return .requestPlain
         case .validateDeeplink(let deeplinkString):
             let requestData = ValidateDeeplinkRequest(link: deeplinkString)
@@ -55,5 +58,16 @@ extension TangemPayAvailabilityAPITarget {
         /// Checks Tangem Pay offer availability for user
         case getEligibility
         case validateDeeplink(deeplinkString: String)
+        case isPaeraCustomer(customerWalletId: String)
+    }
+}
+
+extension TangemPayAvailabilityAPITarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        path
+    }
+
+    var shouldLogResponseBody: Bool {
+        return false
     }
 }
