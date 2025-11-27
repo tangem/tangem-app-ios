@@ -54,7 +54,7 @@
 "account_unsaved_dialog_message_create" = "新しいアカウントを破棄してもよろしいですか？";
 "account_unsaved_dialog_message_edit" = "編集内容を破棄してもよろしいですか？";
 "account_unsaved_dialog_title" = "保存されていない変更";
-"accounts_migration_alert_message" = "一部のカスタムトークンは、その派生がそのアカウントに属しているため、「 %1$s 」から「 %2$s 」に移動されました。";
+"accounts_migration_alert_message" = "一部のカスタムトークンは、その派生がそのアカウントに属しているため、「 %1$@ 」から「 %2$@ 」に移動されました。";
 "accounts_migration_alert_title" = "一部のカスタムトークンが移動されました";
 "action_buttons_buy_empty_search_message" = "トークンが見つかりませんか？メインページのマーケットセクションに移動し、ポートフォリオに追加して買付できるようにします。";
 "action_buttons_buy_navigation_bar_title" = "買付";
@@ -98,7 +98,7 @@
 "app_settings_biometrics_footer" = "%1$@を使用してウォレットのロックを解除し、取引の署名などの機密性の高い操作を承認してください。ハードウェアウォレットの場合は、署名にカードまたはリングが必要です。";
 "app_settings_default_fee_footer" = "デフォルト手数料を有効にすると、取引手数料が自動的に設定され、送金時に手数料ページを表示する必要がなくなります。必要に応じて、いつでもこのページに戻ることができます。";
 "app_settings_default_fee" = "デフォルト手数料";
-"app_settings_off_biometrics_alert_message" = "%1$sが無効になると、アプリのロックを解除してウォレットを操作するために、パスコードを入力する必要があります。";
+"app_settings_off_biometrics_alert_message" = "%1$@が無効になると、アプリのロックを解除してウォレットを操作するために、パスコードを入力する必要があります。";
 "app_settings_off_require_access_code_alert_message" = "後でウォレットのアクセスコードを入力してもらいます。それを安全に保存し、今後の利用に備えるためです。";
 "app_settings_off_saved_access_code_alert_message" = "これにより、保存されているウォレットアクセスコードがすべて削除されます。ウォレットでの今後の操作には、アクセスコードの送信が必要になります。";
 "app_settings_off_saved_wallet_alert_message" = "保存したデバイスを削除すると、保存されているすべてのウォレットとそのアクセスコードがアプリから削除されます。";
@@ -363,7 +363,7 @@
 "currency_subtitle_expanded" = "利用可能なネットワーク";
 "custom_token_another_account_dialog_description" = "このトークンの導出パスが%1$@の導出パスと一致しています。トークンはこのアカウントに追加されます。";
 "custom_token_another_account_dialog_title" = "導出パスは別のアカウントに属します。";
-"custom_token_another_account_snackbar_text" = "トークンが%1$sアカウントに追加されました";
+"custom_token_another_account_snackbar_text" = "トークンが%1$@アカウントに追加されました";
 "custom_token_contract_address_input_title" = "コントラクトアドレス";
 "custom_token_creation_error_empty_fields" = "すべての欄にご記入ください";
 "custom_token_creation_error_invalid_contract_address" = "コントラクトアドレスが無効です";
@@ -794,6 +794,8 @@
 "no_account_polkadot" = "送信先アカウントが有効ではありません。%@ 以上を送信してアカウントを有効にしてください。";
 "no_account_send_to_create" = "アカウントを作成するには、このアドレスに資金を送金してください";
 "no_trustline_xlm_asset" = "送信先アカウントには、送金されるアセットのトラストラインがありません。";
+"notification_black_friday_text" = "Get $10 in BTC with every wallet\nHurry!";
+"notification_black_friday_title" = "Black Friday: up to 30%% OFF";
 "notification_referral_promo_button" = "今すぐ参加";
 "notification_referral_promo_text" = "コードを共有すると、販売ごとに5 USDTを獲得できます。お友達は10%%割引になります。";
 "notification_referral_promo_title" = "友達への紹介で報酬を獲得しよう！";
@@ -938,7 +940,7 @@
 "organize_tokens_sort_by_balance" = "残高順";
 "organize_tokens_title" = "トークンを整理する";
 "organize_tokens_ungroup" = "グループ解除";
-"provider_name_support" = "%sサポート";
+"provider_name_support" = "%@サポート";
 "push_notifications_more_info" = "詳細はこちら";
 "push_notifications_permission_alert_description" = "Tangemの通知は設定で有効にできます。";
 "push_notifications_permission_alert_negative_button" = "後で有効にする";
@@ -1130,7 +1132,7 @@
 "staking_amount_requirement_error" = "ステーキング金額は %@ 以上である必要があります";
 "staking_amount_tron_integer_error_unstaking" = "ネットワークルールにより、ステーキング解除の量は%1$@ TRX に切り上げられます。";
 "staking_amount_tron_integer_error" = "ネットワークルールにより、ステーキング金額は%1$@ TRX に切り上げられます。";
-"staking_apr_earn_badge" = "APR %1$s%";
+"staking_apr_earn_badge" = "APR %1$@%%";
 "staking_claim_unstaked" = "ステーキング解除分を請求する";
 "staking_details_account_fee_info" = "ステーキングアカウントとは、ステーキングされたSOLが保管される特別なアカウントです。トークンをバリデーターに委任し、取引の検証に参加して報酬を受け取る際に作成されます。ステーキングアカウントの作成には少額の手数料がかかりますが、ステーキング完了後に返金されます。";
 "staking_details_account_fee" = "ステーキングアカウント手数料";
@@ -1713,7 +1715,7 @@
 "wc_alert_unknown_error_description_no_error_code" = "問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
 "wc_alert_unknown_error_description" = "エラーコード: %@ 。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
 "wc_alert_unknown_error_title" = "不明なエラーが発生しました";
-"wc_alert_unsupported_dapps_description" = "Tangemウォレットは、現在%sをサポートしていません。";
+"wc_alert_unsupported_dapps_description" = "Tangemウォレットは、現在%@をサポートしていません。";
 "wc_alert_unsupported_dapps_title" = "サポートされていないdApp";
 "wc_alert_unsupported_method_description" = "エラーコード: 8 005。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
 "wc_alert_unsupported_method_title" = "不明なエラーが発生しました";
@@ -1852,7 +1854,7 @@
 "yield_module_fee_policy_sheet_fee_note" = "今後の追加入金ごとにおおよそのネットワーク手数料%1$@ ( %2$@ ) が差し引かれ、 %3$@ ( %4$@ ) の制限を超えることはありません。";
 "yield_module_fee_policy_sheet_max_fee_note" = "ネットワーク手数料が上限を超えた場合、手数料が下がるまで取引は成立しません。この制限は後で変更できます。";
 "yield_module_fee_policy_sheet_max_fee_title" = "最大手数料";
-"yield_module_fee_policy_sheet_min_amount_note" = "最小金額は現在のネットワーク手数料に基づいて計算され、入金額の4% 、つまり最小の%1$@ ( %2$@ ) を超えないようにします。";
+"yield_module_fee_policy_sheet_min_amount_note" = "最小金額は現在のネットワーク手数料に基づいて計算され、入金額の4%% 、つまり最小の%1$@ ( %2$@ ) を超えないようにします。";
 "yield_module_fee_policy_sheet_min_amount_title" = "最低入金額";
 "yield_module_fee_policy_sheet_title" = "入金手数料ポリシー";
 "yield_module_fee_policy_tangem_service_fee_title" = "Tangemは、生成された利息に対して15%%サービス手数料も徴収します。";
