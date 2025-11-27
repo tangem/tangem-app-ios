@@ -70,12 +70,17 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func bindArchivedAccountsButton() {
-        accountModelsManager.hasArchivedCryptoAccountsPublisher
+        accountModelsManager
+            .hasArchivedCryptoAccountsPublisher
             .withWeakCaptureOf(self)
             .map { viewModel, hasArchivedAccounts in
-                hasArchivedAccounts
-                    ? ArchivedAccountsButtonViewData(text: Localization.accountArchivedAccounts, action: viewModel.onTapArchivedAccounts)
-                    : nil
+                guard hasArchivedAccounts else {
+                    return nil
+                }
+
+                return ArchivedAccountsButtonViewData(text: Localization.accountArchivedAccounts) { [weak viewModel] in
+                    viewModel?.onTapArchivedAccounts()
+                }
             }
             .receiveOnMain()
             .assign(to: \.archivedAccountsButton, on: self, ownership: .weak)
@@ -83,12 +88,14 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func bindAddNewAccountButton() {
-        accountModelsManager.accountModelsPublisher
+        accountModelsManager
+            .accountModelsPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .map { viewModel, accountModels in
                 viewModel.makeAddNewAccountButtonViewData(from: accountModels)
             }
+            .receiveOnMain()
             .assign(to: \.addNewAccountButton, on: self, ownership: .weak)
             .store(in: &bag)
     }

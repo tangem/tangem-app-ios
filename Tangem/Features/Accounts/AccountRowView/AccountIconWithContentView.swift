@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAccounts
+import TangemAssets
 
 struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
     let iconData: AccountIconView.ViewData
@@ -60,6 +61,6 @@ extension AccountIconWithContentView where Trailing == EmptyView {
         self.iconData = iconData
         self.name = name
         self.subtitle = subtitle()
-        self.trailing = EmptyView()
+        trailing = EmptyView()
     }
 }
