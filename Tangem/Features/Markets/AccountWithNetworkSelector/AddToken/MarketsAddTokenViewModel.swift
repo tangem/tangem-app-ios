@@ -157,22 +157,10 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
         let userTokensManager = account.userTokensManager
 
         do {
-            try await withThrowingTaskGroup(of: Void.self) { [weak self] group in
-                group.addTask {
-                    try await self?.waitForWalletModelCreation()
-                }
-
-                group.addTask {
-                    try await self?.performTokenUpdate(
-                        tokenItem: tokenItem,
-                        userTokensManager: userTokensManager
-                    )
-                }
-
-                // group.waitForAll() is not used to abort all tasks if one fails
-                // otherwise, group will wait for all tasks to complete even if one has already thrown an error
-                while let _ = try await group.next() {}
-            }
+            try await performTokenUpdate(
+                tokenItem: tokenItem,
+                userTokensManager: userTokensManager
+            )
 
             handleAddTokenSuccess()
         } catch {
@@ -189,21 +177,6 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
                 continuation.resume(with: result)
             }
         }
-    }
-
-    private func waitForWalletModelCreation() async throws {
-        _ = try await account.walletModelsManager.walletModelsPublisher
-            .setFailureType(to: WalletModelCreationError.self)
-            .withWeakCaptureOf(self)
-            .first { viewModel, walletModels in
-                walletModels.contains(where: { $0.tokenItem == viewModel.tokenItem })
-            }
-            .timeout(
-                .seconds(3),
-                scheduler: DispatchQueue.main,
-                customError: { WalletModelCreationError.timeout }
-            )
-            .async()
     }
 
     private func handleAddTokenSuccess() {
