@@ -123,49 +123,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         sectionsProvider.configure(with: self)
 
         bind()
-
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-        if FeatureProvider.isAvailable(.visa) {
-            userWalletModel.tangemPayAccountPublisher
-                .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
-                .receiveOnMain()
-                .assign(to: \.tangemPayNotificationInputs, on: self, ownership: .weak)
-                .store(in: &bag)
-
-            userWalletModel.tangemPayAccountPublisher
-                .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
-                .receiveOnMain()
-                .assign(to: \.tangemPayCardIssuingInProgress, on: self, ownership: .weak)
-                .store(in: &bag)
-
-            userWalletModel.tangemPayAccountPublisher
-                .withWeakCaptureOf(self)
-                .flatMapLatest { viewModel, tangemPayAccount in
-                    tangemPayAccount.tangemPayCardDetailsPublisher
-                        .withWeakCaptureOf(viewModel)
-                        .map { viewModel, cardDetails in
-                            guard let cardDetails = cardDetails else {
-                                return nil
-                            }
-                            return TangemPayAccountViewModel(
-                                state: .normal(
-                                    card: cardDetails.card,
-                                    balance: cardDetails.balance
-                                ),
-                                tapAction: {
-                                    viewModel.openTangemPayMainView(
-                                        tangemPayAccount: tangemPayAccount,
-                                        cardNumberEnd: cardDetails.card.cardNumberEnd
-                                    )
-                                }
-                            )
-                        }
-                }
-                .receiveOnMain()
-                .assign(to: \.tangemPayAccountViewModel, on: self, ownership: .weak)
-                .store(in: &bag)
-        }
+        setupTangemPayIfNeeded()
     }
 
     deinit {
@@ -326,6 +284,32 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .store(in: &bag)
 
         nftFeatureLifecycleHandler.startObserving()
+    }
+
+    private func setupTangemPayIfNeeded() {
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
+        guard FeatureProvider.isAvailable(.visa) else {
+            return
+        }
+
+        userWalletModel.tangemPayAccountPublisher
+            .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
+            .receiveOnMain()
+            .assign(to: &$tangemPayNotificationInputs)
+
+        userWalletModel.tangemPayAccountPublisher
+            .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
+            .receiveOnMain()
+            .assign(to: &$tangemPayCardIssuingInProgress)
+
+        userWalletModel.tangemPayAccountPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, tangemPayAccount in
+                TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
+            }
+            .receiveOnMain()
+            .assign(to: &$tangemPayAccountViewModel)
     }
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
@@ -517,14 +501,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
 
-    private func openTangemPayMainView(tangemPayAccount: TangemPayAccount, cardNumberEnd: String) {
-        coordinator?.openTangemPayMainView(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            tangemPayAccount: tangemPayAccount,
-            cardNumberEnd: cardNumberEnd
-        )
-    }
-
     private func makeYieldModuleFlowFactory(walletModel: any WalletModel, manager: YieldModuleManager) -> YieldModuleFlowFactory? {
         guard let dispatcher = TransactionDispatcherFactory(
             walletModel: walletModel, signer: userWalletModel.signer
@@ -639,6 +615,17 @@ extension MultiWalletMainContentViewModel {
                 }
             }
         }
+    }
+}
+
+// MARK: - TangemPayAccountRoutable
+
+extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
+    func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
+        coordinator?.openTangemPayMainView(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            tangemPayAccount: tangemPayAccount,
+        )
     }
 }
 
