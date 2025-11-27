@@ -66,11 +66,13 @@ final class TangemPayOfferViewModel: ObservableObject {
         }
 
         let walletAddress = try TangemPayUtilities.makeAddress(using: walletPublicKey)
+        let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletModel.userWalletId)
 
         return TangemPayAccount(
             authorizer: tangemPayAuthorizer,
             walletAddress: walletAddress,
-            tokens: tokens
+            tokens: tokens,
+            tokenBalancesRepository: tokenBalancesRepository
         )
     }
 }
