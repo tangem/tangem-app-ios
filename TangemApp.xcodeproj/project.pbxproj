@@ -2685,6 +2685,7 @@
 		D8216C762E1FA192002CCA15 /* OrganizeTokensScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8216C752E1FA192002CCA15 /* OrganizeTokensScreen.swift */; };
 		D82234432ED483790053A574 /* SendAddressQRCodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82234422ED483790053A574 /* SendAddressQRCodeUITests.swift */; };
 		D82234452ED483A60053A574 /* SendQRScannerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82234442ED483A60053A574 /* SendQRScannerScreen.swift */; };
+		D82234472ED60B140053A574 /* SendAmountUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82234462ED60B140053A574 /* SendAmountUITests.swift */; };
 		D826F6C22EAA430C00CA6353 /* SendAzeroNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826F6C12EAA430C00CA6353 /* SendAzeroNotificationUITests.swift */; };
 		D826F6C42EAA58D900CA6353 /* SendKusamaNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826F6C32EAA58D900CA6353 /* SendKusamaNotificationUITests.swift */; };
 		D82DA8DE2E7AFB7000DFF7AF /* wallet2Imported.json in Resources */ = {isa = PBXBuildFile; fileRef = D82DA8DD2E7AFB7000DFF7AF /* wallet2Imported.json */; };
@@ -7234,6 +7235,7 @@
 		D8216C752E1FA192002CCA15 /* OrganizeTokensScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensScreen.swift; sourceTree = "<group>"; };
 		D82234422ED483790053A574 /* SendAddressQRCodeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAddressQRCodeUITests.swift; sourceTree = "<group>"; };
 		D82234442ED483A60053A574 /* SendQRScannerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendQRScannerScreen.swift; sourceTree = "<group>"; };
+		D82234462ED60B140053A574 /* SendAmountUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountUITests.swift; sourceTree = "<group>"; };
 		D826F6C12EAA430C00CA6353 /* SendAzeroNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAzeroNotificationUITests.swift; sourceTree = "<group>"; };
 		D826F6C32EAA58D900CA6353 /* SendKusamaNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendKusamaNotificationUITests.swift; sourceTree = "<group>"; };
 		D82DA8DD2E7AFB7000DFF7AF /* wallet2Imported.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = wallet2Imported.json; sourceTree = "<group>"; };
@@ -17740,6 +17742,7 @@
 		D892E6BE2E95114000D29113 /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				D82234462ED60B140053A574 /* SendAmountUITests.swift */,
 				D80A115B2ED0A4E000DCD516 /* Address */,
 				D8B80B612EC4B6860002B6A5 /* SendConfirmationUITests.swift */,
 				D826F6C32EAA58D900CA6353 /* SendKusamaNotificationUITests.swift */,
@@ -27868,6 +27871,7 @@
 				7985089F2DE99FE900388668 /* ToSScreen.swift in Sources */,
 				7982B00A2DE70E0100C41EA5 /* ScrollParameters.swift in Sources */,
 				D8EDA0DA2E5F46C700422CA7 /* TroubleShootSheet.swift in Sources */,
+				D82234472ED60B140053A574 /* SendAmountUITests.swift in Sources */,
 				7982B0202DE70E1900C41EA5 /* XCTestCase+Extensions.swift in Sources */,
 				D86C96C32EB4C34500132ED9 /* MainActionButtonsUITests.swift in Sources */,
 				D863E7532E65CEBB00912D52 /* ScanCardSettingsScreen.swift in Sources */,
