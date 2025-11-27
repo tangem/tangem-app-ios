@@ -24,5 +24,5 @@ struct ExpressAnalyticsLoggerMock: ExpressAnalyticsLogger {
 
     func logApproveTransactionAnalyticsEvent(policy: ApprovePolicy, destination: String?) {}
 
-    func logApproveTransactionSentAnalyticsEvent(policy: ApprovePolicy, signerType: String) {}
+    func logApproveTransactionSentAnalyticsEvent(policy: ApprovePolicy, signerType: String, currentProviderHost: String) {}
 }
