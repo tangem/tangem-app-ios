@@ -6,35 +6,69 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-enum TangemPayCardDetailsState {
-    case hidden
-    case loading
-    case loaded(TangemPayCardDetailsData)
-
-    var isHidden: Bool {
-        switch self {
-        case .hidden:
-            true
-        case .loading, .loaded:
-            false
-        }
-    }
-
-    var isLoading: Bool {
-        switch self {
-        case .loading:
-            true
-        case .hidden, .loaded:
-            false
-        }
-    }
+enum TangemPayCardDetailsState: Equatable {
+    case hidden(isFrozen: Bool)
+    case loading(isFrozen: Bool)
+    case loaded(LoadedState)
 
     var isLoaded: Bool {
         switch self {
+        case .loaded(.revealed):
+            true
+        case .hidden, .loading, .loaded(.unrevealed):
+            false
+        }
+    }
+
+    var isFrozen: Bool {
+        switch self {
+        case .loaded:
+            false
+        case .hidden(let isFrozen), .loading(let isFrozen):
+            isFrozen
+        }
+    }
+
+    var showDetailsButtonVisible: Bool {
+        switch self {
+        case .hidden(isFrozen: false), .loaded(.unrevealed):
+            true
+        default:
+            false
+        }
+    }
+
+    var details: TangemPayCardDetailsData? {
+        switch self {
+        case .loaded(.revealed(let data)), .loaded(.unrevealed(let data, _)):
+            return data
+        case .loading, .hidden:
+            return nil
+        }
+    }
+
+    var isFlipped: Bool {
+        switch self {
         case .loaded:
             true
-        case .hidden, .loading:
+        default:
             false
+        }
+    }
+}
+
+extension TangemPayCardDetailsState {
+    enum LoadedState: Equatable {
+        case unrevealed(details: TangemPayCardDetailsData, isLoading: Bool)
+        case revealed(TangemPayCardDetailsData)
+
+        var isRevealed: Bool {
+            switch self {
+            case .revealed:
+                true
+            case .unrevealed:
+                false
+            }
         }
     }
 }
