@@ -11,10 +11,18 @@ import TangemVisa
 import TangemFoundation
 
 struct TangemPayTokenBalanceProvider {
+    private let walletModelId: WalletModelId
+    private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>
     private let balanceFormatter = BalanceFormatter()
 
-    init(balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>) {
+    init(
+        walletModelId: WalletModelId,
+        tokenBalancesRepository: TokenBalancesRepository,
+        balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>
+    ) {
+        self.walletModelId = walletModelId
+        self.tokenBalancesRepository = tokenBalancesRepository
         self.balanceSubject = balanceSubject
     }
 }
@@ -33,12 +41,12 @@ extension TangemPayTokenBalanceProvider: TokenBalanceProvider {
     }
 
     var formattedBalanceType: FormattedTokenBalanceType {
-        mapToFormattedTokenBalanceType(balance: balanceSubject.value)
+        mapToFormattedTokenBalanceType(type: balanceType)
     }
 
     var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
-        balanceSubject
-            .map { mapToFormattedTokenBalanceType(balance: $0) }
+        balanceTypePublisher
+            .map { mapToFormattedTokenBalanceType(type: $0) }
             .eraseToAnyPublisher()
     }
 }
@@ -46,21 +54,36 @@ extension TangemPayTokenBalanceProvider: TokenBalanceProvider {
 // MARK: - Private
 
 private extension TangemPayTokenBalanceProvider {
+    func storeBalance(balance: Decimal) {
+        let balance = CachedBalance(balance: balance, date: .now)
+        tokenBalancesRepository.store(balance: balance, for: walletModelId, type: .available)
+    }
+
+    func cachedBalance() -> TokenBalanceType.Cached? {
+        tokenBalancesRepository
+            .balance(walletModelId: walletModelId, type: .available)
+            .map { .init(balance: $0.balance, date: $0.date) }
+    }
+
     func mapToTokenBalanceType(balance: LoadingResult<TangemPayBalance, Error>) -> TokenBalanceType {
         switch balance {
-        case .loading: .loading(.none)
-        case .failure: .failure(.none)
-        case .success(let balance): .loaded(balance.fiat.availableBalance)
+        case .loading:
+            return .loading(cachedBalance())
+        case .failure:
+            return .failure(cachedBalance())
+        case .success(let balance):
+            storeBalance(balance: balance.fiat.availableBalance)
+            return .loaded(balance.fiat.availableBalance)
         }
     }
 
-    func mapToFormattedTokenBalanceType(balance: LoadingResult<TangemPayBalance, Error>) -> FormattedTokenBalanceType {
-        switch balance {
-        case .loading: .loading(.empty(BalanceFormatter.defaultEmptyBalanceString))
-        case .failure: .failure(.empty(BalanceFormatter.defaultEmptyBalanceString))
-        case .success(let balance): .loaded(
-                balanceFormatter.formatFiatBalance(balance.fiat.availableBalance, currencyCode: balance.fiat.currency)
-            )
-        }
+    func mapToFormattedTokenBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
+        // We assume that TangemPay has only `USD` currency code
+        let currencyCode = AppConstants.usdCurrencyCode
+        let builder = FormattedTokenBalanceTypeBuilder(format: { [balanceFormatter] value in
+            balanceFormatter.formatFiatBalance(value, currencyCode: currencyCode)
+        })
+
+        return builder.mapToFormattedTokenBalanceType(type: type)
     }
 }
