@@ -10,13 +10,14 @@ import TangemVisa
 class TangemPayAuthorizingMock: TangemPayAuthorizing {
     func authorize(
         customerWalletId: String,
-        authorizationService: VisaAuthorizationService
+        authorizationService: TangemPayAuthorizationService
     ) async throws -> TangemPayAuthorizingResponse {
-        return TangemPayAuthorizingResponse(
-            tokens: VisaAuthorizationTokens(
-                accessToken: nil,
+        TangemPayAuthorizingResponse(
+            tokens: TangemPayAuthorizationTokens(
+                accessToken: "",
                 refreshToken: "",
-                authorizationType: .customerWallet
+                expiresAt: .distantFuture,
+                refreshExpiresAt: .distantFuture
             ),
             derivationResult: [:]
         )

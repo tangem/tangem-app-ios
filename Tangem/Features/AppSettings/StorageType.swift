@@ -51,4 +51,5 @@ enum StorageType: String {
     case settingsVersion = "settings_version"
     case tangemPayCardIssuingOrderIdForCustomerWalletAddress = "tangem_pay_card_issuing_order_id_for_customer_wallet_address"
     case tangemPayShowAddToApplePayGuide = "tangem_pay_show_add_to_apple_pay_guide"
+    case tangemPayIsPaeraCustomer = "tangem_pay_is_paera_customer"
 }
