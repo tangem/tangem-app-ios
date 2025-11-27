@@ -30,7 +30,6 @@ struct BannerNotificationEvent: NotificationEvent {
 extension PromotionProgramName {
     var title: String {
         switch self {
-        case .sepa: Localization.notificationSepaTitle
         case .visaWaitlist: Localization.notificationVisaWaitlistPromoTitle
         case .blackFriday: Localization.notificationBlackFridayTitle
         }
@@ -38,7 +37,6 @@ extension PromotionProgramName {
 
     var description: String? {
         switch self {
-        case .sepa: Localization.notificationSepaText
         case .visaWaitlist: Localization.notificationVisaWaitlistPromoText
         case .blackFriday: Localization.notificationBlackFridayText
         }
@@ -46,11 +44,6 @@ extension PromotionProgramName {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .sepa:
-            .init(
-                iconType: .image(Assets.sepaBannerImage.image),
-                size: .init(bothDimensions: 54)
-            )
         case .visaWaitlist:
             .init(
                 iconType: .image(Assets.promotionVisaWaitlist.image),
@@ -66,7 +59,6 @@ extension PromotionProgramName {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .sepa: .primary
         case .visaWaitlist: .primary
         case .blackFriday: .tertiary
         }

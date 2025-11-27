@@ -141,7 +141,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             openExchange()
         case .generateAddresses,
              .backupCard,
-             .buyCrypto,
              .refresh,
              .refreshFee,
              .goToProvider,
@@ -163,7 +162,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
              .tangemPayViewKYCStatus,
              .tangemPaySync,
