@@ -79,7 +79,6 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
 
     private let asset: NFTAsset
     private let collection: NFTCollection
-    private let navigationContext: NFTNavigationContext
     private let nftChainNameProvider: NFTChainNameProviding
     private let priceFormatter: NFTPriceFormatting
     private let analytics: NFTAnalytics.Details
@@ -92,13 +91,11 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
     public init(
         asset: NFTAsset,
         collection: NFTCollection,
-        navigationContext: NFTNavigationContext,
         dependencies: NFTAssetDetailsDependencies,
         coordinator: NFTAssetDetailsRoutable?
     ) {
         self.asset = asset
         self.collection = collection
-        self.navigationContext = navigationContext
         nftChainNameProvider = dependencies.nftChainNameProvider
         priceFormatter = dependencies.priceFormatter
         analytics = dependencies.analytics
@@ -116,7 +113,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
     }
 
     func onSendButtonTap() {
-        coordinator?.openSend(for: asset, in: collection, navigationContext: navigationContext)
+        coordinator?.openSend(for: asset, in: collection)
         analytics.logSendTapped()
     }
 
