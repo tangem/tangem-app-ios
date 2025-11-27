@@ -1,5 +1,5 @@
 //
-//  FlowLayout.swift
+//  LegacyFlowLayout.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 
 /// Flexible flow layout that arranges items in multiple rows,
 /// wrapping to the next line when there is not enough horizontal space.
-public struct FlowLayout<Item: Hashable, ItemContent: View>: View {
+public struct LegacyFlowLayout<Item: Hashable, ItemContent: View>: View {
     private let items: [Item]
     private let horizontalAlignment: HorizontalAlignment
     private let verticalAlignment: VerticalAlignment
@@ -51,7 +51,7 @@ public struct FlowLayout<Item: Hashable, ItemContent: View>: View {
             containerBoundsAnchorReader
             rowsContent
         }
-        .backgroundPreferenceValue(FlowLayoutPreference.self) { anchors in
+        .backgroundPreferenceValue(LegacyFlowLayoutPreference.self) { anchors in
             GeometryReader { proxy in
                 Color.clear
                     .onAppear {
@@ -95,14 +95,14 @@ public struct FlowLayout<Item: Hashable, ItemContent: View>: View {
 
 // MARK: - Subviews
 
-private extension FlowLayout {
+private extension LegacyFlowLayout {
     var containerBoundsAnchorReader: some View {
         Color.clear
             .frame(height: 0)
             .anchorPreference(
-                key: FlowLayoutPreference.self,
+                key: LegacyFlowLayoutPreference.self,
                 value: .bounds,
-                transform: { [FlowLayoutAnchor(anchorType: .container, anchorRect: $0)] }
+                transform: { [LegacyFlowLayoutAnchor(anchorType: .container, anchorRect: $0)] }
             )
     }
 
@@ -120,15 +120,15 @@ private extension FlowLayout {
                 itemContent(item)
                     .fixedSize()
                     .anchorPreference(
-                        key: FlowLayoutPreference.self,
+                        key: LegacyFlowLayoutPreference.self,
                         value: .bounds,
-                        transform: { [FlowLayoutAnchor(anchorType: .cell, anchorRect: $0)] }
+                        transform: { [LegacyFlowLayoutAnchor(anchorType: .cell, anchorRect: $0)] }
                     )
             }
         }
     }
 
-    func update(anchors: [FlowLayoutAnchor], proxy: GeometryProxy) {
+    func update(anchors: [LegacyFlowLayoutAnchor], proxy: GeometryProxy) {
         if let containerAnchor = anchors.first(where: { $0.anchorType == .container }) {
             containerWidth = proxy[containerAnchor.anchorRect].width
         }
@@ -139,8 +139,8 @@ private extension FlowLayout {
     }
 }
 
-private struct FlowLayoutPreference: PreferenceKey {
-    typealias Value = [FlowLayoutAnchor]
+private struct LegacyFlowLayoutPreference: PreferenceKey {
+    typealias Value = [LegacyFlowLayoutAnchor]
 
     static var defaultValue: Value = []
 
@@ -149,7 +149,7 @@ private struct FlowLayoutPreference: PreferenceKey {
     }
 }
 
-private struct FlowLayoutAnchor: Hashable {
+private struct LegacyFlowLayoutAnchor: Hashable {
     let anchorType: AnchorType
     let anchorRect: Anchor<CGRect>
 
@@ -169,7 +169,7 @@ private struct FlowLayoutAnchor: Hashable {
         .map { "Item \($0) " + (Bool.random() ? "\n" : "") + String(repeating: "x", count: Int.random(in: 0 ... 10)) }
         .map(Item.init)
 
-    return FlowLayout(
+    return LegacyFlowLayout(
         items: items,
         horizontalAlignment: .leading,
         verticalAlignment: .center,
