@@ -10,7 +10,6 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemAccounts
-import Combine
 
 struct AccountRowView<Trailing: View>: View {
     @StateObject private var viewModel: AccountRowViewModel
@@ -56,16 +55,18 @@ struct AccountRowView<Trailing: View>: View {
 
     @ViewBuilder
     private var balanceSubtitle: some View {
-        if let balanceState = viewModel.balanceState {
+        HStack(spacing: 4) {
             Text(viewModel.subtitle)
 
-            Text(AppConstants.dotSign)
+            if viewModel.balanceState != .empty {
+                Text(AppConstants.dotSign)
 
-            LoadableTokenBalanceView(
-                state: balanceState,
-                style: .init(font: Constants.subtitleFont, textColor: Constants.subtitleColor),
-                loader: .init(size: CGSize(width: 40, height: 12))
-            )
+                LoadableTokenBalanceView(
+                    state: viewModel.balanceState,
+                    style: .init(font: Constants.subtitleFont, textColor: Constants.subtitleColor),
+                    loader: .init(size: CGSize(width: 40, height: 12))
+                )
+            }
         }
     }
 }

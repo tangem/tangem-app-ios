@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemAccounts
-import SwiftUI
+import CombineExt
 
 @MainActor
 final class AccountRowViewModel: ObservableObject {
@@ -20,7 +20,7 @@ final class AccountRowViewModel: ObservableObject {
     let name: String
     let subtitle: String
     let availability: AccountAvailability
-    @Published private(set) var balanceState: LoadableTokenBalanceView.State?
+    @Published private(set) var balanceState: LoadableTokenBalanceView.State
 
     // MARK: Private Properties
 
@@ -31,7 +31,7 @@ final class AccountRowViewModel: ObservableObject {
         name = input.name
         subtitle = input.subtitle
         availability = input.availability
-        balanceState = nil
+        balanceState = .empty
 
         bind(balancePublisher: input.balancePublisher)
     }
@@ -43,10 +43,7 @@ final class AccountRowViewModel: ObservableObject {
 
         balancePublisher
             .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, balanceState in
-                viewModel.balanceState = balanceState == .empty ? nil : balanceState
-            }
+            .assign(to: \.balanceState, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }

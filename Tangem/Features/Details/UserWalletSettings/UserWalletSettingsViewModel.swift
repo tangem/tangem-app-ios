@@ -143,26 +143,24 @@ private extension UserWalletSettingsViewModel {
 
         let accountModelsManager = userWalletModel.accountModelsManager
         if FeatureProvider.isAvailable(.accounts), accountModelsManager.canAddCryptoAccounts {
-            accountModelsManager
-                .accountModelsPublisher
+            let accountsViewModel = UserSettingsAccountsViewModel(
+                accountModelsManager: accountModelsManager,
+                userWalletConfig: userWalletModel.config,
+                coordinator: coordinator
+            )
+
+            // We should not display mangeTokens row if we have visible accounts
+            // because if they are visible, token management is performed from
+            // their respective details screens
+            accountsViewModel.$accountRowViewModels
+                .map { [weak self] in
+                    $0.isNotEmpty ? nil : self?.makeManageTokensRowViewModel()
+                }
                 .receiveOnMain()
-                .withWeakCaptureOf(self)
-                .map { viewModel, accounts in
-                    UserSettingsAccountsViewModel(
-                        accountModels: accounts,
-                        accountModelsManager: viewModel.userWalletModel.accountModelsManager,
-                        userWalletConfig: viewModel.userWalletModel.config,
-                        coordinator: viewModel.coordinator
-                    )
-                }
-                .withWeakCaptureOf(self)
-                .sink { viewModel, accountsViewModel in
-                    if accountsViewModel.accountRows.isNotEmpty {
-                        viewModel.manageTokensViewModel = nil
-                    }
-                    viewModel.accountsViewModel = accountsViewModel
-                }
+                .assign(to: \.manageTokensViewModel, on: self, ownership: .weak)
                 .store(in: &bag)
+
+            self.accountsViewModel = accountsViewModel
         }
     }
 
@@ -193,10 +191,7 @@ private extension UserWalletSettingsViewModel {
         }
 
         if userWalletModel.config.hasFeature(.multiCurrency) {
-            manageTokensViewModel = .init(
-                title: Localization.mainManageTokens,
-                action: weakify(self, forFunction: UserWalletSettingsViewModel.openManageTokens)
-            )
+            manageTokensViewModel = makeManageTokensRowViewModel()
         }
 
         if userWalletModel.config.hasFeature(.cardSettings) {
@@ -382,6 +377,13 @@ private extension UserWalletSettingsViewModel {
 
     func showErrorAlert(error: Error) {
         alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)
+    }
+
+    func makeManageTokensRowViewModel() -> DefaultRowViewModel {
+        DefaultRowViewModel(
+            title: Localization.mainManageTokens,
+            action: weakify(self, forFunction: UserWalletSettingsViewModel.openManageTokens)
+        )
     }
 
     func displayEnablePushSettingsAlert() {
