@@ -256,6 +256,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func waitForNoDeleteButton() -> Self {
+        XCTContext.runActivity(named: "Wait for delete button exists") { _ in
+            let deleteButton = app.buttons["Delete"]
+            XCTAssertFalse(deleteButton.exists, "Delete button should not exist in context menu")
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForDeleteButtonExists() -> Self {
         XCTContext.runActivity(named: "Wait for delete button exists") { _ in
             let deleteButton = app.buttons["Delete"]

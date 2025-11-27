@@ -149,6 +149,7 @@ struct SendAmountView: View {
                 Text(string)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.warning)
                     .padding(.vertical, 8)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.totalExceedsBalanceBanner)
             case .none:
                 Text(" ") // Hold empty space
                     .style(Fonts.Regular.subheadline, color: Colors.Text.warning)
