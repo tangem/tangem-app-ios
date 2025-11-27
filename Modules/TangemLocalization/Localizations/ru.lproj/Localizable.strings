@@ -54,7 +54,7 @@
 "account_unsaved_dialog_message_create" = "Вы уверены, что хотите создание нового аккаунта?";
 "account_unsaved_dialog_message_edit" = "Вы уверены, что хотите отменить изменения?";
 "account_unsaved_dialog_title" = "Несохраненные изменения";
-"accounts_migration_alert_message" = "Некоторые пользовательские токены были перемещены из «%1$s» в «%2$s», поскольку их путь деривации относится к этой учётной записи.";
+"accounts_migration_alert_message" = "Некоторые пользовательские токены были перемещены из «%1$@» в «%2$@», поскольку их путь деривации относится к этой учётной записи.";
 "accounts_migration_alert_title" = "Некоторые пользовательские токены были перемещены";
 "action_buttons_buy_empty_search_message" = "Не нашли свой токен? Перейдите в раздел «Рынок» на главной странице и добавьте его в свой портфель для покупки.";
 "action_buttons_buy_navigation_bar_title" = "Купить";
@@ -98,7 +98,7 @@
 "app_settings_biometrics_footer" = "Используйте %1$@, чтобы быстро и безопасно разблокировать кошелёк и выполнять чувствительные действия, например, подписывать транзакции. Для аппаратных кошельков всё ещё требуется карта или кольцо для подписи.";
 "app_settings_default_fee_footer" = "Подключите функцию комиссии по умолчанию и при формировании транзакции на отправку средств комиссия будет выставлена автоматически, а экран комиссии пропущен. Вы всегда сможете на него вернуться.";
 "app_settings_default_fee" = "Комиссия по-умолчанию";
-"app_settings_off_biometrics_alert_message" = "Отключение %1$s потребует ввода вашего кода доступа для разблокировки приложения и работы с кошельком.";
+"app_settings_off_biometrics_alert_message" = "Отключение %1$@ потребует ввода вашего кода доступа для разблокировки приложения и работы с кошельком.";
 "app_settings_off_require_access_code_alert_message" = "You’ll be asked for your wallet’s access code later so we can securely store it for future use";
 "app_settings_off_saved_access_code_alert_message" = "Все сохраненные коды доступа будут удалены. Вам потребуется вводить код доступа при работе с кошельком.";
 "app_settings_off_saved_wallet_alert_message" = "При отключении функции сохранения кошелька все ранее сохраненные кошельки будут удалены из приложения.";
@@ -363,7 +363,7 @@
 "currency_subtitle_expanded" = "Доступные сети";
 "custom_token_another_account_dialog_description" = "Деривация вашего токена совпадает с деривацией %1$@. Токен будет добавлен к этой учётной записи.";
 "custom_token_another_account_dialog_title" = "Derivation belongs to another account.";
-"custom_token_another_account_snackbar_text" = "Токен добавлен в аккаунт %1$s";
+"custom_token_another_account_snackbar_text" = "Токен добавлен в аккаунт %1$@";
 "custom_token_contract_address_input_title" = "Адрес контракта";
 "custom_token_creation_error_empty_fields" = "Пожалуйста, заполните все поля";
 "custom_token_creation_error_invalid_contract_address" = "Адрес контракта некорректен";
@@ -794,8 +794,8 @@
 "no_account_polkadot" = "Аккаунт получателя не активирован. Отправьте %@ или более для активации аккаунта.";
 "no_account_send_to_create" = "Для создания аккаунта отправьте средства на этот адрес";
 "no_trustline_xlm_asset" = "Аккаунт получателя не содержит трастлайна для отправляемого актива.";
-"notification_black_friday_text" = "Plus rewards in BTC per set.\nHurry up!";
-"notification_black_friday_title" = "Black Friday: up to 25%% OFF";
+"notification_black_friday_text" = "Получите $10 в BTC за каждый кошелёк\nПоторопитесь!";
+"notification_black_friday_title" = "Чёрная пятница: скидки до 30%%";
 "notification_referral_promo_button" = "Присоединиться";
 "notification_referral_promo_text" = "Поделись промокодом — заработай 5 USDT с каждой покупки. Твои друзья получат скидку 10%% на карту Tangem!";
 "notification_referral_promo_title" = "Получай бонусы за каждого друга!";
@@ -940,7 +940,7 @@
 "organize_tokens_sort_by_balance" = "По балансу";
 "organize_tokens_title" = "Упорядочить токены";
 "organize_tokens_ungroup" = "Список";
-"provider_name_support" = "Поддержка %s";
+"provider_name_support" = "Поддержка %@";
 "push_notifications_more_info" = "Подробнее";
 "push_notifications_permission_alert_description" = "Вы можете включить нотификации в настройках";
 "push_notifications_permission_alert_negative_button" = "Включить позже";
@@ -1132,7 +1132,7 @@
 "staking_amount_requirement_error" = "Сумма для стейкинга должна быть не менее %@";
 "staking_amount_tron_integer_error_unstaking" = "Сумма для вывода из стейкинга будет округлена до %1$@ TRX ввиду особенностей сети.";
 "staking_amount_tron_integer_error" = "Согласно правилам сети, сумма стейкинга будет округлена до %1$@TRX.";
-"staking_apr_earn_badge" = "APR %1$s%%";
+"staking_apr_earn_badge" = "APR %1$@%%";
 "staking_claim_unstaked" = "Забрать средства";
 "staking_details_account_fee_info" = "Стейкинг аккаунт — это специальный счет, на котором хранятся застейканные токены SOL. Он создается при делегировании ваших токенов валидатору для участия в подтверждении транзакций и получении наград. За создание стейкинг аккаунта взимается небольшая комиссия, которая возвращается после завершения стейкинга.";
 "staking_details_account_fee" = "Комиссия за стейкинг аккаунт";
@@ -1715,7 +1715,7 @@
 "wc_alert_unknown_error_description_no_error_code" = "Если проблема сохраняется, обратитесь в нашу службу поддержки";
 "wc_alert_unknown_error_description" = "Код ошибки: %@. Если проблема сохраняется, обратитесь в нашу службу поддержки.";
 "wc_alert_unknown_error_title" = "Мы обнаружили неизвестную ошибку";
-"wc_alert_unsupported_dapps_description" = "Кошелек Tangem в настоящий момент не поддерживает %s";
+"wc_alert_unsupported_dapps_description" = "Кошелек Tangem в настоящий момент не поддерживает %@";
 "wc_alert_unsupported_dapps_title" = "Неподдерживаемый dApp";
 "wc_alert_unsupported_method_description" = "Error code: 8 005. If the problem persists — feel free to contact our support.";
 "wc_alert_unsupported_method_title" = "Мы обнаружили неизвестную ошибку";
