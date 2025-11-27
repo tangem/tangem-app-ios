@@ -53,6 +53,7 @@ struct ConfigUtils {
                 chiaTangemApiKeys: .init(mainnetApiKey: keys.chiaTangemApiKey),
                 quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
                 quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
+                quickNodePlasmaCredentials: .init(apiKey: keys.quiknodePlasmaApiKey, subdomain: keys.quiknodePlasmaSubdomain),
                 bittensorDwellirKey: keys.bittensorDwellirKey,
                 bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
                 tangemAlephiumApiKey: keys.alephiumTangemApiKey,
@@ -77,6 +78,7 @@ struct ConfigUtils {
                 chiaTangemApiKeys: .init(mainnetApiKey: ""),
                 quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
                 quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
+                quickNodePlasmaCredentials: .init(apiKey: "", subdomain: ""),
                 bittensorDwellirKey: "",
                 bittensorOnfinalityKey: "",
                 tangemAlephiumApiKey: "",
@@ -201,6 +203,8 @@ struct Keys: Decodable {
     let hederaArkhiaKey: String
     let quiknodeApiKey: String
     let quiknodeSubdomain: String
+    let quiknodePlasmaApiKey: String
+    let quiknodePlasmaSubdomain: String
     let bscQuiknodeApiKey: String
     let bscQuiknodeSubdomain: String
     let etherscanApiKey: String
