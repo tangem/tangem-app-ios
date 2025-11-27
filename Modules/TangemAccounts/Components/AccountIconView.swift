@@ -12,18 +12,32 @@ import TangemAssets
 
 public struct AccountIconView: View {
     private let data: ViewData
-    private var settings = Settings.defaultSized
+    private let settings: Settings
+    /// [REDACTED_USERNAME] is needed for SwiftUI to adapt numbers to DynamicType properly
+    @ScaledMetric
+    private var scaledWidth: CGFloat
+    @ScaledMetric
+    private var scaledHeight: CGFloat
+    @ScaledMetric
+    private var scaledPadding: CGFloat
+    @ScaledMetric
+    private var scaledCornerRadius: CGFloat
 
-    public init(data: ViewData) {
+    public init(data: ViewData, settings: Settings = .defaultSized) {
         self.data = data
+        self.settings = settings
+        _scaledWidth = ScaledMetric(wrappedValue: settings.size.width)
+        _scaledHeight = ScaledMetric(wrappedValue: settings.size.height)
+        _scaledPadding = ScaledMetric(wrappedValue: settings.padding)
+        _scaledCornerRadius = ScaledMetric(wrappedValue: settings.cornerRadius)
     }
 
     public var body: some View {
         label
-            .frame(size: settings.size)
-            .padding(settings.padding)
+            .frame(width: scaledWidth, height: scaledHeight)
+            .padding(scaledPadding)
             .background(
-                RoundedRectangle(cornerRadius: settings.cornerRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: scaledCornerRadius, style: .continuous)
                     .fill(data.backgroundColor)
             )
             .animation(.default, value: data.nameMode)
@@ -88,7 +102,7 @@ public extension AccountIconView {
         public static let defaultSized: Self = .init(
             padding: 8,
             cornerRadius: 10,
-            size: CGSize(bothDimensions: 16),
+            size: CGSize(bothDimensions: 20),
             letterFontStyle: Fonts.Bold.title3
         )
 
@@ -133,7 +147,7 @@ public extension AccountIconView.NameMode {
 
 extension AccountIconView: Setupable {
     public func settings(_ settings: Settings) -> Self {
-        map { $0.settings = settings }
+        AccountIconView(data: data, settings: settings)
     }
 }
 
