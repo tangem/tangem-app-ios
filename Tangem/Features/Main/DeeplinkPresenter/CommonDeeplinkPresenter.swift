@@ -187,7 +187,7 @@ private extension CommonDeeplinkPresenter {
             with: .default(
                 options: .init(
                     userWalletModel: userWalletModel,
-                    expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+                    expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
                     tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
                 )
             )
@@ -215,7 +215,7 @@ private extension CommonDeeplinkPresenter {
     private func constructSwapViewController(userWalletModel: UserWalletModel) -> UIViewController {
         let coordinator = coordinatorFactory.makeSwapCoordinator(
             userWalletModel: userWalletModel,
-            dismissAction: { UIApplication.dismissTop() }
+            dismissAction: { _ in UIApplication.dismissTop() }
         )
 
         coordinator.start(with: .default)

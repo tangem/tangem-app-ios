@@ -6,7 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-#if ALPHA || BETA || DEBUG
 import Combine
 import SwiftUI
 import TangemAssets
@@ -129,4 +128,3 @@ public extension KYCService {
         case alreadyPresent
     }
 }
-#endif // ALPHA || BETA || DEBUG

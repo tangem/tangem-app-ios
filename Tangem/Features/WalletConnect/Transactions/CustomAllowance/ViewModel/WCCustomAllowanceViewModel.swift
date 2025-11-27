@@ -69,11 +69,11 @@ final class WCCustomAllowanceViewModel: ObservableObject, Identifiable {
             .map { [weak self] amountText, isUnlimited in
                 self?.validateAmount(amountText: amountText, isUnlimited: isUnlimited) ?? false
             }
-            .assign(to: \.isValidAmount, on: self)
+            .assign(to: \.isValidAmount, on: self, ownership: .weak)
             .store(in: &bag)
 
         $isValidAmount
-            .assign(to: \.canSubmit, on: self)
+            .assign(to: \.canSubmit, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
