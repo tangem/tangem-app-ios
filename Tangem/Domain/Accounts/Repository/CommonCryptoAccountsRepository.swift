@@ -342,7 +342,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     func addNewCryptoAccount(withConfig config: CryptoAccountPersistentConfig, remoteState: CryptoAccountsRemoteState) async throws {
         let newCryptoAccount = StoredCryptoAccount(config: config)
         let existingCryptoAccounts = remoteState.accounts
-        let merger = StoredCryptoAccountsMerger(preserveTokens: false)
+        let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: false)
         let (editedItems, isDirty) = merger.merge(oldAccounts: existingCryptoAccounts, newAccounts: [newCryptoAccount])
 
         if isDirty {
@@ -353,7 +353,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     func updateExistingCryptoAccount(withConfig config: CryptoAccountPersistentConfig) {
         let updatedCryptoAccount = StoredCryptoAccount(config: config)
         let existingCryptoAccounts = persistentStorage.getList()
-        let merger = StoredCryptoAccountsMerger(preserveTokens: true)
+        let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: true)
         let (editedItems, isDirty) = merger.merge(oldAccounts: existingCryptoAccounts, newAccounts: [updatedCryptoAccount])
 
         if isDirty {
@@ -408,8 +408,13 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
         for update in updates {
             switch update {
             case .append(let tokenItems):
-                let updatedTokens = cryptoAccount.tokens + tokenItems.map { $0.toStoredToken() }
-                let updatedAccount = cryptoAccount.withTokens(updatedTokens)
+                let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: false)
+                let (updatedAccount, isDirty) = merger.merge(newTokenItems: tokenItems, to: cryptoAccount)
+
+                guard isDirty else {
+                    continue
+                }
+
                 innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
             case .remove(let tokenItem):
                 let updatedTokens = cryptoAccount.tokens.filter { $0 != tokenItem.toStoredToken() }
