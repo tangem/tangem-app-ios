@@ -801,7 +801,6 @@ extension SendModel: NotificationTapDelegate {
             swapManager.update()
         case .generateAddresses,
              .backupCard,
-             .buyCrypto,
              .goToProvider,
              .addHederaTokenAssociation,
              .retryKaspaTokenTransaction,
@@ -821,7 +820,6 @@ extension SendModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
              .tangemPayViewKYCStatus,
              .tangemPaySync,
