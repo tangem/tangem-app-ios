@@ -20,6 +20,7 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
     let action: RestakingModel.Action
     var actionType: StakingAction.ActionType { action.displayType }
 
+    let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let walletModelBalancesProvider: WalletModelBalancesProvider
@@ -39,6 +40,7 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
         self.manager = manager
         self.action = action
 
+        tokenHeaderProvider = UnstakingTokenHeaderProvider()
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
@@ -67,15 +69,13 @@ extension UnstakingFlowFactory {
     ) -> UnstakingModel {
         UnstakingModel(
             stakingManager: stakingManager,
+            sendSourceToken: makeSourceToken(),
             transactionDispatcher: makeStakingTransactionDispatcher(
                 stakingManger: stakingManager,
                 analyticsLogger: analyticsLogger
             ),
-            transactionValidator: walletModelDependenciesProvider.transactionValidator,
             analyticsLogger: analyticsLogger,
             action: action,
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem
         )
     }
 }
@@ -89,25 +89,6 @@ extension UnstakingFlowFactory {
         }
         return .init(type: .typical(crypto: action.amount, fiat: fiat))
     }
-
-    func maxAmount() -> Decimal {
-        amount.crypto ?? 0
-    }
-
-    func walletHeaderText() -> String {
-        Localization.stakingStakedAmount
-    }
-
-    func formattedBalance() -> String {
-        let formatter = BalanceFormatter()
-        let cryptoFormatted = formatter.formatCryptoBalance(
-            amount.crypto,
-            currencyCode: tokenItem.currencySymbol
-        )
-
-        let fiatFormatted = formatter.formatFiatBalance(amount.fiat)
-        return Localization.commonCryptoFiatFormat(cryptoFormatted, fiatFormatted)
-    }
 }
 
 // MARK: - SendGenericFlowFactory
@@ -117,10 +98,14 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
         let isPartialUnstakeAllowed = unstakingModel.isPartialUnstakeAllowed
 
         let amount = makeSendAmountStep()
-        amount.interactor.externalUpdate(amount: action.amount)
+        amount.amountUpdater.externalUpdate(amount: action.amount)
 
-        let sendFeeCompactViewModel = SendFeeCompactViewModel(
-            input: unstakingModel,
+        let sendFeeCompactViewModel = SendNewFeeCompactViewModel(
+            feeTokenItem: feeTokenItem,
+            isFeeApproximate: isFeeApproximate()
+        )
+
+        let sendFeeFinishViewModel = SendFeeFinishViewModel(
             feeTokenItem: feeTokenItem,
             isFeeApproximate: isFeeApproximate()
         )
@@ -131,13 +116,14 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
         )
 
         let finish = makeSendFinishStep(
-            sendAmountCompactViewModel: amount.compact,
-            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            sendAmountFinishViewModel: amount.finish,
+            sendFeeFinishViewModel: sendFeeFinishViewModel,
             router: router
         )
 
         // Steps
         sendFeeCompactViewModel.bind(input: unstakingModel)
+        sendFeeFinishViewModel.bind(input: unstakingModel)
 
         // Notifications setup
         notificationManager.setup(provider: unstakingModel, input: unstakingModel)
@@ -148,7 +134,7 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
 
         let stepsManager = CommonUnstakingStepsManager(
             amountStep: amount.step,
-            summaryStep: summary.step,
+            summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider(),
             action: action,
@@ -157,7 +143,7 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
 
-        summary.step.set(router: stepsManager)
+        summary.set(router: stepsManager)
         unstakingModel.router = viewModel
 
         if !isPartialUnstakeAllowed {
@@ -189,28 +175,21 @@ extension UnstakingFlowFactory: SendBaseBuildable {
 
 extension UnstakingFlowFactory: SendAmountStepBuildable {
     var amountIO: SendAmountStepBuilder.IO {
-        SendAmountStepBuilder.IO(input: unstakingModel, output: unstakingModel)
-    }
-
-    var amountTypes: SendAmountStepBuilder.Types {
-        SendAmountStepBuilder.Types(
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            maxAmount: maxAmount(),
-            settings: makeSendAmountViewModelSettings()
+        SendAmountStepBuilder.IO(
+            sourceIO: (input: unstakingModel, output: unstakingModel),
+            sourceAmountIO: (input: unstakingModel, output: unstakingModel)
         )
     }
 
     var amountDependencies: SendAmountStepBuilder.Dependencies {
         SendAmountStepBuilder.Dependencies(
-            sendFeeProvider: unstakingModel,
-            sendQRCodeService: .none,
             sendAmountValidator: UnstakingAmountValidator(
                 tokenItem: tokenItem,
                 stakedAmount: action.amount,
                 stakingManagerStatePublisher: manager.statePublisher
             ),
             amountModifier: .none,
+            notificationService: .none,
             analyticsLogger: analyticsLogger
         )
     }
@@ -226,10 +205,8 @@ extension UnstakingFlowFactory: SendSummaryStepBuildable {
     var summaryTypes: SendSummaryStepBuilder.Types {
         SendSummaryStepBuilder.Types(
             settings: .init(
-                tokenItem: tokenItem,
                 destinationEditableType: unstakingModel.isPartialUnstakeAllowed ? .editable : .noEditable,
                 amountEditableType: unstakingModel.isPartialUnstakeAllowed ? .editable : .noEditable,
-                actionType: sendFlowActionType()
             )
         )
     }
@@ -240,6 +217,7 @@ extension UnstakingFlowFactory: SendSummaryStepBuildable {
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
+            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
             stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder()
         )
     }
@@ -257,8 +235,6 @@ extension UnstakingFlowFactory: SendFinishStepBuildable {
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
-        SendFinishStepBuilder.Dependencies(
-            analyticsLogger: analyticsLogger,
-        )
+        SendFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
     }
 }
