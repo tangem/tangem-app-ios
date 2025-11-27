@@ -10,5 +10,4 @@ import Foundation
 
 public protocol StakingAnalyticsLogger {
     func logError(_ error: any Error, currencySymbol: String)
-    func logStakingApyClicked(state: StakingAnalyticsState, tokenName: String, blockchainName: String)
 }
