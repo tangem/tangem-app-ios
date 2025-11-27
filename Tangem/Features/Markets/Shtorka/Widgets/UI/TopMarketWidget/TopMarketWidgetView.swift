@@ -24,19 +24,11 @@ struct TopMarketWidgetView: View {
 
     var body: some View {
         rootView
-            .onAppear(perform: viewModel.onViewAppear)
-            .onDisappear(perform: viewModel.onViewDisappear)
     }
 
     @ViewBuilder
     private var rootView: some View {
         list
-    }
-
-    private var loadingSkeletons: some View {
-        ForEach(0 ..< 5) { _ in
-            MarketsSkeletonItemView()
-        }
     }
 
     @ViewBuilder
@@ -50,6 +42,12 @@ struct TopMarketWidgetView: View {
             if case .loading = viewModel.tokenListLoadingState {
                 loadingSkeletons
             }
+        }
+    }
+
+    private var loadingSkeletons: some View {
+        ForEach(0 ..< 5) { _ in
+            MarketsSkeletonItemView()
         }
     }
 }
