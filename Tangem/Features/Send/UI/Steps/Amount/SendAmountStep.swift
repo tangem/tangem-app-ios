@@ -1,32 +1,39 @@
 //
 //  SendAmountStep.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import TangemLocalization
 import Combine
-import SwiftUI
 
 class SendAmountStep {
     private let viewModel: SendAmountViewModel
     private let interactor: SendAmountInteractor
-    private let sendFeeProvider: SendFeeProvider
+    private let interactorSaver: SendAmountInteractorSaver
     private let analyticsLogger: SendAmountAnalyticsLogger
 
     init(
         viewModel: SendAmountViewModel,
         interactor: SendAmountInteractor,
-        sendFeeProvider: any SendFeeProvider,
-        analyticsLogger: SendAmountAnalyticsLogger
+        interactorSaver: SendAmountInteractorSaver,
+        analyticsLogger: SendAmountAnalyticsLogger,
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
-        self.sendFeeProvider = sendFeeProvider
+        self.interactorSaver = interactorSaver
         self.analyticsLogger = analyticsLogger
+    }
+
+    func set(router: SendAmountRoutable) {
+        viewModel.router = router
+    }
+
+    func cancelChanges() {
+        interactorSaver.cancelChanges()
     }
 }
 
@@ -34,10 +41,9 @@ class SendAmountStep {
 
 extension SendAmountStep: SendStep {
     var type: SendStepType { .amount(viewModel) }
-    var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
-        interactor.isValidPublisher.eraseToAnyPublisher()
+        interactor.isValidPublisher
     }
 
     func initialAppear() {
@@ -46,14 +52,7 @@ extension SendAmountStep: SendStep {
 
     func willAppear(previous step: any SendStep) {
         step.type.isSummary ? analyticsLogger.logAmountStepReopened() : analyticsLogger.logAmountStepOpened()
-    }
-
-    func willDisappear(next step: SendStep) {
-        guard step.type.isSummary else {
-            return
-        }
-
-        sendFeeProvider.updateFees()
+        interactorSaver.captureValue()
     }
 }
 
