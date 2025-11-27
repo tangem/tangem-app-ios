@@ -36,19 +36,19 @@ public extension CustomerInfoManagementService {
 
 actor CommonCustomerInfoManagementService {
     typealias CIMAPIService = APIService<CustomerInfoManagementAPITarget>
-    private let authorizationTokenHandler: VisaAuthorizationTokensHandler
+    private let authorizationTokenHandler: TangemPayAuthorizationTokensHandler
     private let apiService: CIMAPIService
 
     private let apiType: VisaAPIType
-    private let authorizeWithCustomerWallet: () async throws -> VisaAuthorizationTokens
+    private let authorizeWithCustomerWallet: () async throws -> TangemPayAuthorizationTokens
 
     private var tokenPreparingTask: _Concurrency.Task<Void, Error>?
 
     init(
         apiType: VisaAPIType,
-        authorizationTokenHandler: VisaAuthorizationTokensHandler,
+        authorizationTokenHandler: TangemPayAuthorizationTokensHandler,
         apiService: CIMAPIService,
-        authorizeWithCustomerWallet: @escaping () async throws -> VisaAuthorizationTokens
+        authorizeWithCustomerWallet: @escaping () async throws -> TangemPayAuthorizationTokens
     ) {
         self.apiType = apiType
         self.authorizationTokenHandler = authorizationTokenHandler
@@ -70,38 +70,35 @@ actor CommonCustomerInfoManagementService {
             return try await tokenPreparingTask.value
         }
 
-        defer {
-            tokenPreparingTask = nil
-        }
-
         tokenPreparingTask = runTask(in: self) { service in
             try await service.refreshTokenIfNeeded()
         }
 
         try await tokenPreparingTask?.value
+        tokenPreparingTask = nil
     }
 
     private func refreshTokenIfNeeded() async throws {
         if authorizationTokenHandler.refreshTokenExpired {
             let tokens = try await authorizeWithCustomerWallet()
-            try await authorizationTokenHandler.setupTokens(tokens)
+            try authorizationTokenHandler.saveTokens(tokens: tokens)
         }
 
         if authorizationTokenHandler.accessTokenExpired {
             do {
-                try await authorizationTokenHandler.forceRefreshToken()
+                try await authorizationTokenHandler.refreshTokens()
 
                 // Either:
                 // 1. Maximum allowed refresh token reuse exceeded
                 // 2. Session doesn't have required client
-            } catch where error.universalErrorCode == 104110202 {
+            } catch let error as TangemPayAPIErrorResponse where error.code == "invalid_token" {
                 // Call of `forceRefreshToken` func could fail if same refresh becomes invalid (not expired, but invalid)
                 // That could happen if:
                 // 1. Token refresh called twice on the same device (could happen in there is a race condition somewhere)
                 // 2. User have one TangemPay account linked to more than one device
                 // (i.e. calling token refresh on one device automatically makes refresh token on second device invalid)
                 let tokens = try await authorizeWithCustomerWallet()
-                try await authorizationTokenHandler.setupTokens(tokens)
+                try authorizationTokenHandler.saveTokens(tokens: tokens)
             }
         }
     }

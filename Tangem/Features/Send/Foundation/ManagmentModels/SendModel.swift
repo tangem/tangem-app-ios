@@ -824,6 +824,7 @@ extension SendModel: NotificationTapDelegate {
              .openBuyCrypto,
              .tangemPayCreateAccountAndIssueCard,
              .tangemPayViewKYCStatus,
+             .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
