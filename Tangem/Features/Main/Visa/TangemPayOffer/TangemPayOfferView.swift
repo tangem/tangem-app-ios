@@ -36,6 +36,7 @@ struct TangemPayOfferView: View {
                         .padding(.horizontal, 44)
                 }
             }
+            .padding(.bottom, 12)
 
             getCardButton
                 .padding(.horizontal, 16)
@@ -45,31 +46,29 @@ struct TangemPayOfferView: View {
     }
 
     private var titleSection: some View {
-        // [REDACTED_TODO_COMMENT]
-        Text("Get your free Crypto Card in minutes")
+        Text(Localization.tangempayOnboardingTitle)
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
             .multilineTextAlignment(.center)
     }
 
-    // [REDACTED_TODO_COMMENT]
     private var featuresSection: some View {
         VStack(alignment: .leading, spacing: 24) {
             featureRow(
                 icon: Assets.Visa.securityCheck,
-                title: "Built-in security",
-                description: "Your card details are protected — full control in the app."
+                title: Localization.tangempayOnboardingSecurityTitle,
+                description: Localization.tangempayOnboardingSecurityDescription
             )
 
             featureRow(
                 icon: Assets.Visa.shoppingBasket01,
-                title: "Everyday purchases",
-                description: "Use your USDC balance to pay for everyday purchases seamlessly."
+                title: Localization.tangempayOnboardingPurchasesTitle,
+                description: Localization.tangempayOnboardingPurchasesDescription
             )
 
             featureRow(
                 icon: Assets.Visa.analyticsUp,
-                title: "Apple Pay & Google Pay",
-                description: "Add to your wallet and pay with your phone anywhere."
+                title: Localization.tangempayOnboardingPayTitle,
+                description: Localization.tangempayOnboardingPayDescription
             )
         }
     }
@@ -100,9 +99,8 @@ struct TangemPayOfferView: View {
     }
 
     private var getCardButton: some View {
-        // [REDACTED_TODO_COMMENT]
         MainButton(
-            title: "Get card",
+            title: Localization.tangempayOnboardingGetCardButtonText,
             icon: .trailing(Assets.tangemIcon),
             style: .primary,
             action: viewModel.getCard

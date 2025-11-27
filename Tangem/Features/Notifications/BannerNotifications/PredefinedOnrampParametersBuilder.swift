@@ -28,7 +28,7 @@ class PredefinedOnrampParametersBuilder {
         onrampRepository: onrampRepository,
         dataRepository: onrampDataRepository,
         analyticsLogger: MockExpressAnalyticsLogger(),
-        providerItemSorter: .init(sortType: .byPaymentMethodPriority),
+        providerItemSorter: ProviderItemSorterByPaymentMethodPriority(),
         preferredValues: .init(paymentMethodType: .sepa)
     )
 
@@ -176,7 +176,7 @@ struct MockExpressAnalyticsLogger: ExpressAnalyticsLogger {
 
     func logApproveTransactionAnalyticsEvent(policy: BlockchainSdk.ApprovePolicy, destination: String?) {}
 
-    func logApproveTransactionSentAnalyticsEvent(policy: BlockchainSdk.ApprovePolicy, signerType: String) {}
+    func logApproveTransactionSentAnalyticsEvent(policy: BlockchainSdk.ApprovePolicy, signerType: String, currentProviderHost: String) {}
 
     func logAppError(_ error: any Error, provider: TangemExpress.ExpressProvider) {}
 

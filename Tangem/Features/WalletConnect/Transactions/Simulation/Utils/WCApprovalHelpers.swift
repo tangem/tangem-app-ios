@@ -14,10 +14,10 @@ enum WCApprovalHelpers {
     static func determineTokenInfo(
         contractAddress: String,
         amount: BigUInt,
-        userWalletModel: UserWalletModel?,
+        walletModels: [any WalletModel],
         simulationResult: BlockaidChainScanResult?
     ) -> TokenInfo? {
-        if let walletInfo = extractFromWallet(contractAddress: contractAddress, userWalletModel: userWalletModel) {
+        if let walletInfo = extractFromWallet(contractAddress: contractAddress, walletModels: walletModels) {
             return walletInfo
         }
 
@@ -62,14 +62,12 @@ extension WCApprovalHelpers {
 private extension WCApprovalHelpers {
     static func extractFromWallet(
         contractAddress: String,
-        userWalletModel: UserWalletModel?
+        walletModels: [any WalletModel]
     ) -> TokenInfo? {
-        guard let userWalletModel = userWalletModel else { return nil }
+        guard walletModels.isNotEmpty else { return nil }
 
-        let allWalletModels = userWalletModel.walletModelsManager.walletModels
-
-        for model in allWalletModels {
-            if let token = model.tokenItem.token,
+        for walletModel in walletModels {
+            if let token = walletModel.tokenItem.token,
                token.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame {
                 return TokenInfo(
                     symbol: token.symbol,

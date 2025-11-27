@@ -10,10 +10,11 @@ enum TangemPayStatus {
     case kycRequired
     case readyToIssueOrIssuing
     case active
+    case blocked
 
     var isActive: Bool {
         switch self {
-        case .kycRequired, .readyToIssueOrIssuing:
+        case .kycRequired, .readyToIssueOrIssuing, .blocked:
             false
         case .active:
             true

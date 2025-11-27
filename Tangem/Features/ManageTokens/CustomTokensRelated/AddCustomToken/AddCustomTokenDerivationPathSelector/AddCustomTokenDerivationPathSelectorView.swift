@@ -31,6 +31,7 @@ struct AddCustomTokenDerivationPathSelectorView: View {
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationTitle(Text(Localization.customTokenDerivationPath))
         .navigationBarTitleDisplayMode(.inline)
+        .bindAlert($viewModel.alert)
     }
 
     @ViewBuilder
@@ -59,7 +60,12 @@ struct AddCustomTokenDerivationPathSelectorView_Preview: PreviewProvider {
                 name: $0.displayName,
                 derivationPath: $0.derivationPath(for: .v1) ?? (try! DerivationPath(rawPath: "m/44’/0’/0’/0’/0’"))
             )
-        }
+        },
+        context: LegacyManageTokensContext(
+            userTokensManager: UserTokensManagerMock(),
+            walletModelsManager: WalletModelsManagerMock()
+        ),
+        blockchain: .ethereum(testnet: false)
     )
 
     static var previews: some View {

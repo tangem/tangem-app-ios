@@ -114,10 +114,21 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
     var simulationDisplayModel: WCTransactionSimulationDisplayModel? {
         guard let viewModel = viewModel else { return nil }
 
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+            return nil
+        }
+
         return simulationManager.createDisplayModel(
             from: viewModel.simulationState,
             originalTransaction: viewModel.sendableTransaction,
-            userWalletModel: transactionData.userWalletModel,
+            walletModels: walletModels,
             onApprovalEdit: { [weak viewModel] approvalInfo, asset in
                 viewModel?.handleViewAction(.editApproval(approvalInfo, asset))
             }

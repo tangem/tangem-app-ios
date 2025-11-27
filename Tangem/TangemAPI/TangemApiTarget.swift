@@ -41,7 +41,9 @@ struct TangemApiTarget: TargetType {
             return "/geo"
         case .features:
             return "/features"
-        case .getUserWalletTokens(let key), .saveUserWalletTokens(let key, _):
+        case .getUserWalletTokens(let key),
+             .saveUserWalletTokensLegacy(let key, _),
+             .saveUserWalletTokens(let key, _):
             return "/user-tokens/\(key)"
         case .loadReferralProgramInfo(let userWalletId, _):
             return "/referral/\(userWalletId)"
@@ -146,7 +148,8 @@ struct TangemApiTarget: TargetType {
              .getUserWallets,
              .getUserWallet:
             return .get
-        case .saveUserWalletTokens,
+        case .saveUserWalletTokensLegacy,
+             .saveUserWalletTokens,
              .saveUserAccounts,
              .seedNotifySetStatus,
              .seedNotifySetStatusConfirmed:
@@ -179,6 +182,8 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(pageModel)
         case .currencies, .geo, .features, .getUserWalletTokens:
             return .requestPlain
+        case .saveUserWalletTokensLegacy(_, let list):
+            return .requestJSONEncodable(list)
         case .saveUserWalletTokens(_, let list):
             return .requestJSONEncodable(list)
         case .loadReferralProgramInfo(_, let expectedAwardsLimit):
@@ -298,6 +303,7 @@ struct TangemApiTarget: TargetType {
              .geo,
              .features,
              .getUserWalletTokens,
+             .saveUserWalletTokensLegacy,
              .saveUserWalletTokens,
              .loadReferralProgramInfo,
              .participateInReferralProgram,
@@ -347,7 +353,9 @@ extension TangemApiTarget {
         case geo
         case features
         case getUserWalletTokens(key: String)
-        case saveUserWalletTokens(key: String, list: UserTokenList)
+        @available(iOS, deprecated: 100000.0, message: "Superseded by '.saveUserWalletTokens(key:list:)', will be removed in the future ([REDACTED_INFO])")
+        case saveUserWalletTokensLegacy(key: String, list: UserTokenList)
+        case saveUserWalletTokens(key: String, list: AccountsDTO.Request.UserTokens)
         case loadReferralProgramInfo(userWalletId: String, expectedAwardsLimit: Int)
         case participateInReferralProgram(userInfo: ReferralParticipationRequestBody)
         case createAccount(_ parameters: BlockchainAccountCreateParameters)
@@ -445,6 +453,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
         case .geo,
              .features,
              .getUserWalletTokens,
+             .saveUserWalletTokensLegacy,
              .saveUserWalletTokens,
              .loadReferralProgramInfo,
              .participateInReferralProgram,

@@ -34,20 +34,21 @@ class ManageTokensCoordinator: CoordinatorObject {
         Analytics.log(event: .manageTokensScreenOpened, params: analyticsParams)
 
         let config = options.userWalletConfig
+        let context = options.context
+
         let adapter = ManageTokensAdapter(
             settings: .init(
-                longHashesSupported: config.hasFeature(.longHashes),
                 existingCurves: config.existingCurves,
                 supportedBlockchains: Set(config.supportedBlockchains),
-                userTokensManager: options.userTokensManager,
-                analyticsSourceRawValue: analyticsSourceRawValue
+                hardwareLimitationUtil: HardwareLimitationsUtil(config: config),
+                analyticsSourceRawValue: analyticsSourceRawValue,
+                context: context
             )
         )
 
         rootViewModel = .init(
             adapter: adapter,
-            userTokensManager: options.userTokensManager,
-            walletModelsManager: options.walletModelsManager,
+            context: context,
             coordinator: self
         )
     }
@@ -55,8 +56,7 @@ class ManageTokensCoordinator: CoordinatorObject {
 
 extension ManageTokensCoordinator {
     struct Options {
-        let walletModelsManager: WalletModelsManager
-        let userTokensManager: UserTokensManager
+        let context: ManageTokensContext
         let userWalletConfig: UserWalletConfig
     }
 }
@@ -78,8 +78,8 @@ extension ManageTokensCoordinator: ManageTokensRoutable {
         addCustomTokenCoordinator.start(
             with: .init(
                 userWalletConfig: options.userWalletConfig,
-                userTokensManager: options.userTokensManager,
-                analyticsSourceRawValue: analyticsSourceRawValue
+                analyticsSourceRawValue: analyticsSourceRawValue,
+                context: options.context
             )
         )
 

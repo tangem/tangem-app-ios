@@ -6,8 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
-
 protocol SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO { get }
     var summaryTypes: SendSummaryStepBuilder.Types { get }
@@ -16,15 +14,19 @@ protocol SendSummaryStepBuildable {
 
 extension SendSummaryStepBuildable {
     func makeSendSummaryStep(
-        stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel? = nil,
+        sendDestinationCompactViewModel: SendDestinationCompactViewModel? = nil,
         sendAmountCompactViewModel: SendAmountCompactViewModel? = nil,
-        sendFeeCompactViewModel: SendFeeCompactViewModel? = nil
+        nftAssetCompactViewModel: NFTAssetCompactViewModel? = nil,
+        stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel? = nil,
+        sendFeeCompactViewModel: SendNewFeeCompactViewModel? = nil
     ) -> SendSummaryStepBuilder.ReturnValue {
         SendSummaryStepBuilder.make(
             io: summaryIO,
             types: summaryTypes,
             dependencies: summaryDependencies,
+            sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
+            nftAssetCompactViewModel: nftAssetCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
         )
@@ -35,6 +37,17 @@ enum SendSummaryStepBuilder {
     struct IO {
         let input: SendSummaryInput
         let output: SendSummaryOutput
+        let receiveTokenAmountInput: SendReceiveTokenAmountInput?
+
+        init(
+            input: SendSummaryInput,
+            output: SendSummaryOutput,
+            receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil
+        ) {
+            self.input = input
+            self.output = output
+            self.receiveTokenAmountInput = receiveTokenAmountInput
+        }
     }
 
     struct Types {
@@ -46,42 +59,50 @@ enum SendSummaryStepBuilder {
         let notificationManager: any NotificationManager
         let analyticsLogger: any SendSummaryAnalyticsLogger
         let sendDescriptionBuilder: any SendTransactionSummaryDescriptionBuilder
+        let swapDescriptionBuilder: any SwapTransactionSummaryDescriptionBuilder
         let stakingDescriptionBuilder: any StakingTransactionSummaryDescriptionBuilder
     }
 
-    typealias ReturnValue = (step: SendSummaryStep, interactor: SendSummaryInteractor)
+    typealias ReturnValue = SendSummaryStep
 
     static func make(
         io: IO,
         types: Types,
         dependencies: Dependencies,
+        sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
+        nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?,
+        sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) -> ReturnValue {
         let interactor = CommonSendSummaryInteractor(
             input: io.input,
             output: io.output,
+            receiveTokenAmountInput: io.receiveTokenAmountInput,
             sendDescriptionBuilder: dependencies.sendDescriptionBuilder,
-            stakingDescriptionBuilder: dependencies.stakingDescriptionBuilder
+            swapDescriptionBuilder: dependencies.swapDescriptionBuilder,
+            stakingDescriptionBuilder: dependencies.stakingDescriptionBuilder,
         )
 
         let viewModel = SendSummaryViewModel(
-            settings: types.settings,
             interactor: interactor,
+            settings: types.settings,
             notificationManager: dependencies.notificationManager,
             analyticsLogger: dependencies.analyticsLogger,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
+            nftAssetCompactViewModel: nftAssetCompactViewModel,
+            sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            sendFeeCompactViewModel: sendFeeCompactViewModel
         )
 
         let step = SendSummaryStep(
             viewModel: viewModel,
-            input: io.input,
-            analyticsLogger: dependencies.analyticsLogger
+            interactor: interactor,
+            analyticsLogger: dependencies.analyticsLogger,
+            sendFeeProvider: dependencies.sendFeeProvider
         )
 
-        return (step: step, interactor: interactor)
+        return step
     }
 }
