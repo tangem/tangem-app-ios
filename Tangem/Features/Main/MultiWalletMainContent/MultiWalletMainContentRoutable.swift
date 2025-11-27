@@ -19,9 +19,5 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openMobileBackupOnboarding(userWalletModel: UserWalletModel)
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory)
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory)
-    func openTangemPayMainView(
-        userWalletInfo: UserWalletInfo,
-        tangemPayAccount: TangemPayAccount,
-        cardNumberEnd: String
-    )
+    func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount)
 }
