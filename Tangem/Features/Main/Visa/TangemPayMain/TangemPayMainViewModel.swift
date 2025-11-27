@@ -41,14 +41,14 @@ final class TangemPayMainViewModel: ObservableObject {
     init(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
-        cardNumberEnd: String,
         coordinator: TangemPayMainRoutable
     ) {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
+
         cardDetailsRepository = .init(
-            lastFourDigits: cardNumberEnd,
+            lastFourDigits: tangemPayAccount.cardNumberEnd ?? "",
             customerService: tangemPayAccount.customerInfoManagementService
         )
 
