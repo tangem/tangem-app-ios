@@ -43,7 +43,6 @@ class TangemPayMainCoordinator: CoordinatorObject {
         rootViewModel = .init(
             userWalletInfo: options.userWalletInfo,
             tangemPayAccount: options.tangemPayAccount,
-            cardNumberEnd: options.cardNumberEnd,
             coordinator: self
         )
     }
@@ -55,7 +54,6 @@ extension TangemPayMainCoordinator {
     struct Options {
         let userWalletInfo: UserWalletInfo
         let tangemPayAccount: TangemPayAccount
-        let cardNumberEnd: String
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
