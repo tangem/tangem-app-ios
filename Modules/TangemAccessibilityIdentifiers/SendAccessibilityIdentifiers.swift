@@ -45,6 +45,7 @@ public enum SendAccessibilityIdentifiers {
     public static let addressFieldTitle = "sendAddressFieldTitle"
     public static let addressPasteButton = "sendAddressPasteButton"
     public static let addressNetworkWarning = "sendAddressNetworkWarning"
+    public static let addressResolvedAddress = "sendAddressResolvedAddress"
 
     /// AdditionalField (Memo/DestinationTag)
     public static let additionalFieldTextField = "sendAdditionalFieldTextField"
@@ -68,6 +69,7 @@ public enum SendAccessibilityIdentifiers {
 
     /// Notification banners
     public static let invalidAmountBanner = "sendInvalidAmountBanner"
+    public static let totalExceedsBalanceBanner = "sendTotalExceedsBalanceBanner"
     public static let insufficientAmountToReserveAtDestinationBanner = "sendInsufficientAmountToReserveAtDestinationBanner"
     public static let amountExceedMaximumUTXOBanner = "sendAmountExceedMaximumUTXOBanner"
     public static let customFeeTooLowBanner = "sendCustomFeeTooLowBanner"
