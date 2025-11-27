@@ -93,10 +93,14 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
             popToRootAction: popToRootAction
         )
 
+        let context = AccountsAwareManageTokensContext(
+            accountModelsManager: options.accountModelsManager,
+            currentAccount: cryptoAccount
+        )
+
         coordinator.start(
             with: ManageTokensCoordinator.Options(
-                walletModelsManager: cryptoAccount.walletModelsManager,
-                userTokensManager: cryptoAccount.userTokensManager,
+                context: context,
                 userWalletConfig: options.userWalletConfig
             )
         )
