@@ -29,10 +29,8 @@ extension SupportedBlockchains {
     }
 
     /// Blockchains which don't include in supported blockchains by default
-    static var testableIDs: Set<String> {
-        // [REDACTED_TODO_COMMENT]
-        // Here version isn't important because we take only coinId
-        return Set(SupportedBlockchains(version: .v1).testableBlockchains().map { $0.networkId })
+    static func testableBlockchains(version: Version) -> Set<Blockchain> {
+        return Set(SupportedBlockchains(version: version).testableBlockchains())
     }
 }
 
