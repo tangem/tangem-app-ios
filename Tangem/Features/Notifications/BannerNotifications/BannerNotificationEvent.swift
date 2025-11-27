@@ -32,6 +32,7 @@ extension PromotionProgramName {
         switch self {
         case .sepa: Localization.notificationSepaTitle
         case .visaWaitlist: Localization.notificationVisaWaitlistPromoTitle
+        case .blackFriday: Localization.notificationBlackFridayTitle
         }
     }
 
@@ -39,6 +40,7 @@ extension PromotionProgramName {
         switch self {
         case .sepa: Localization.notificationSepaText
         case .visaWaitlist: Localization.notificationVisaWaitlistPromoText
+        case .blackFriday: Localization.notificationBlackFridayText
         }
     }
 
@@ -54,6 +56,11 @@ extension PromotionProgramName {
                 iconType: .image(Assets.promotionVisaWaitlist.image),
                 size: .init(bothDimensions: 54)
             )
+        case .blackFriday:
+            .init(
+                iconType: .image(Assets.blackFridayBannerImage.image),
+                size: .init(bothDimensions: 54)
+            )
         }
     }
 
@@ -61,6 +68,7 @@ extension PromotionProgramName {
         switch self {
         case .sepa: .primary
         case .visaWaitlist: .primary
+        case .blackFriday: .tertiary
         }
     }
 }
