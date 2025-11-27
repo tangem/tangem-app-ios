@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemVisa
 
 extension MainCoordinator {
     final class MainNavigationActionHandler {
@@ -228,10 +229,16 @@ extension MainCoordinator {
                 return false
             }
 
+            // accounts_fixes_needed_none
+            let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
+                .accounts(userWalletModel.accountModelsManager) :
+                .plainUserTokensManager(userWalletModel.userTokensManager)
+
             let input = ReferralInputModel(
                 userWalletId: userWalletModel.userWalletId.value,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
-                userTokensManager: userWalletModel.userTokensManager
+                workMode: workMode,
+                tokenIconInfoBuilder: TokenIconInfoBuilder()
             )
 
             coordinator.openDeepLink(.referral(input: input))
@@ -253,12 +260,8 @@ extension MainCoordinator {
                 return false
             }
 
-            let options = StakingDetailsCoordinator.Options(
-                userWalletModel: userWalletModel,
-                walletModel: walletModel,
-                manager: stakingManager
-            )
-
+            let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+            let options = StakingDetailsCoordinator.Options(sendInput: input, manager: stakingManager)
             coordinator.openDeepLink(.staking(options: options))
             return true
         }
@@ -269,9 +272,12 @@ extension MainCoordinator {
         ) -> Bool {
             guard FeatureProvider.isAvailable(.visa),
                   let coordinator,
-                  let userWalletModel = userWalletRepository.models.first,
+                  let userWalletModel = userWalletRepository.selectedModel,
                   // If it's not nil - user already received and accepted Tangem Pay offer
-                  TangemPayAccount(userWalletModel: userWalletModel) == nil
+                  TangemPayUtilities.getWalletAddressAndAuthorizationTokens(
+                      customerWalletId: userWalletModel.userWalletId.stringValue,
+                      keysRepository: userWalletModel.keysRepository
+                  ) == nil
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
@@ -314,6 +320,7 @@ extension MainCoordinator.MainNavigationActionHandler {
         networkId: String,
         derivation: String?
     ) -> (any WalletModel)? {
+        // accounts_fixes_needed_main
         let models = userWalletModel.walletModelsManager.walletModels
         if let derivation, derivation.isNotEmpty {
             return models.first { isMatch($0, tokenId: tokenId, networkId: networkId, derivationPath: derivation) }

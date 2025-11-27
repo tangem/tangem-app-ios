@@ -15,7 +15,7 @@ struct PendingOnrampTransactionFactory {
     private let refundingStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .refunding, .buying, .sendingToUser]
     private let refundedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .refunded, .buying, .sendingToUser]
     private let verifyingStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .verificationRequired, .sendingToUser]
-    private let canceledStatusesList: [PendingExpressTransactionStatus] = [.canceled]
+    private let canceledStatusesList: [PendingExpressTransactionStatus] = [.expired]
     private let awaitingHashStatusesList: [PendingExpressTransactionStatus] = [.awaitingHash]
     private let unknownHashStatusesList: [PendingExpressTransactionStatus] = [.unknown]
     private let pausedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .paused]
@@ -38,7 +38,7 @@ struct PendingOnrampTransactionFactory {
         case .sending, .paid:
             currentStatus = .buying
         case .finished:
-            currentStatus = .done
+            currentStatus = .finished
         case .failed:
             currentStatus = .failed
             statusesList = failedStatusesList
@@ -52,7 +52,7 @@ struct PendingOnrampTransactionFactory {
             currentStatus = .verificationRequired
             statusesList = verifyingStatusesList
         case .expired:
-            currentStatus = .canceled
+            currentStatus = .expired
             statusesList = canceledStatusesList
         case .paused:
             currentStatus = .paused
@@ -78,9 +78,9 @@ struct PendingOnrampTransactionFactory {
     func buildPendingOnrampTransaction(for transactionRecord: OnrampPendingTransactionRecord) -> PendingOnrampTransaction {
         let statusesList: [PendingExpressTransactionStatus] = {
             switch transactionRecord.transactionStatus {
-            case .created, .awaitingDeposit, .confirming, .exchanging, .buying, .sendingToUser, .done:
+            case .created, .awaitingDeposit, .confirming, .exchanging, .buying, .sendingToUser, .finished:
                 return defaultStatusesList
-            case .canceled:
+            case .expired:
                 return canceledStatusesList
             case .failed, .txFailed:
                 return failedStatusesList
