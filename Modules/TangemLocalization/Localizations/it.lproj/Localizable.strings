@@ -54,7 +54,7 @@
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
 "account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
 "account_unsaved_dialog_title" = "Unsaved Changes";
-"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$s” to “%2$s” as their derivation belongs to that account.";
+"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
 "accounts_migration_alert_title" = "Some custom tokens were moved";
 "action_buttons_buy_empty_search_message" = "Can’t find your token? Go to the Market section on the main page and add it to your portfolio for purchase";
 "action_buttons_buy_navigation_bar_title" = "Buy";
@@ -98,7 +98,7 @@
 "app_settings_biometrics_footer" = "Use %1$@ to unlock your wallet and approve sensitive actions, like signing transactions. For hardware wallets, a card or ring is still required to sign.";
 "app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
 "app_settings_default_fee" = "Default Fee";
-"app_settings_off_biometrics_alert_message" = "Disabling %1$s will require you to enter your passcode to unlock the app and to interact with your wallet.";
+"app_settings_off_biometrics_alert_message" = "Disabling %1$@ will require you to enter your passcode to unlock the app and to interact with your wallet.";
 "app_settings_off_require_access_code_alert_message" = "You’ll be asked for your wallet’s access code later so we can securely store it for future use";
 "app_settings_off_saved_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further operation with the wallet will require submitting the access code.";
 "app_settings_off_saved_wallet_alert_message" = "Removing the saved devices deletes all the saved wallets and their access codes from the app.";
@@ -363,7 +363,7 @@
 "currency_subtitle_expanded" = "Available networks";
 "custom_token_another_account_dialog_description" = "Derivation of your token matches the derivation of %1$@. Your token will be added to this account.";
 "custom_token_another_account_dialog_title" = "Derivation belongs to another account.";
-"custom_token_another_account_snackbar_text" = "Token added to %1$s account";
+"custom_token_another_account_snackbar_text" = "Token added to %1$@ account";
 "custom_token_contract_address_input_title" = "Contract address";
 "custom_token_creation_error_empty_fields" = "Please fill in all the fields";
 "custom_token_creation_error_invalid_contract_address" = "Contract address is invalid";
@@ -794,8 +794,8 @@
 "no_account_polkadot" = "Destination account is not active. Send %@ or more to activate the account.";
 "no_account_send_to_create" = "Per creare un account, invia fondi a questo indirizzo";
 "no_trustline_xlm_asset" = "The destination account does not have a trustline for the asset being sent.";
-"notification_black_friday_text" = "Plus rewards in BTC per set.\nHurry up!";
-"notification_black_friday_title" = "Black Friday: up to 25%% OFF";
+"notification_black_friday_text" = "Get $10 in BTC with every wallet\nHurry!";
+"notification_black_friday_title" = "Black Friday: up to 30%% OFF";
 "notification_referral_promo_button" = "Join Now";
 "notification_referral_promo_text" = "Share your code - earn 5 USDT per sale. Your friend gets 10%% OFF.";
 "notification_referral_promo_title" = "Get REWARDS for every friend!";
@@ -940,7 +940,7 @@
 "organize_tokens_sort_by_balance" = "By balance";
 "organize_tokens_title" = "Organize tokens";
 "organize_tokens_ungroup" = "Ungroup";
-"provider_name_support" = "%s support";
+"provider_name_support" = "%@ support";
 "push_notifications_more_info" = "More info";
 "push_notifications_permission_alert_description" = "You can enable Notifications for Tangem in Settings.";
 "push_notifications_permission_alert_negative_button" = "Enable Later";
@@ -1132,7 +1132,7 @@
 "staking_amount_requirement_error" = "The amount to stake must be at least %@";
 "staking_amount_tron_integer_error_unstaking" = "Unstaking amount will be rounded to %1$@ TRX due to network rules.";
 "staking_amount_tron_integer_error" = "Staking amount will be rounded to %1$@ TRX due to network rules.";
-"staking_apr_earn_badge" = "APR %1$s%%";
+"staking_apr_earn_badge" = "APR %1$@%%";
 "staking_claim_unstaked" = "Claim unstaked";
 "staking_details_account_fee_info" = "A staking account is a special account where staked SOL tokens are stored. It is created when you delegate your tokens to a validator to participate in transaction validation and receive rewards. A small fee is charged for creating the staking account, which is returned after the staking is completed.";
 "staking_details_account_fee" = "Stake account fee";
@@ -1715,7 +1715,7 @@
 "wc_alert_unknown_error_description_no_error_code" = "If the problem persists — feel free to contact our support.";
 "wc_alert_unknown_error_description" = "Error code: %@. If the problem persists — feel free to contact our support.";
 "wc_alert_unknown_error_title" = "We've encountered unknown error";
-"wc_alert_unsupported_dapps_description" = "Tangem Wallet currently doesn’t support %s.";
+"wc_alert_unsupported_dapps_description" = "Tangem Wallet currently doesn’t support %@.";
 "wc_alert_unsupported_dapps_title" = "Unsupported dApp";
 "wc_alert_unsupported_method_description" = "Error code: 8 005. If the problem persists — feel free to contact our support.";
 "wc_alert_unsupported_method_title" = "We've encountered unknown error";
