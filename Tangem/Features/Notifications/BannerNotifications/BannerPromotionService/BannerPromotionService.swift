@@ -46,13 +46,11 @@ enum BannerPromotionPlacement {
 }
 
 enum PromotionProgramName: String, Hashable, CaseIterable {
-    case sepa
     case visaWaitlist = "visa-waitlist"
     case blackFriday = "black-friday"
 
     var analyticsEvent: Analytics.Event? {
         switch self {
-        case .sepa: Analytics.Event.promotionBannerAppeared
         case .blackFriday: Analytics.Event.promotionBannerAppeared
         case .visaWaitlist: Analytics.Event.promotionVisaWaitlist
         }
@@ -60,8 +58,6 @@ enum PromotionProgramName: String, Hashable, CaseIterable {
 
     var analyticsValue: Analytics.ParameterValue {
         switch self {
-        case .sepa:
-            return Analytics.ParameterValue.sepa
         case .blackFriday:
             return Analytics.ParameterValue.blackFriday
         case .visaWaitlist:
