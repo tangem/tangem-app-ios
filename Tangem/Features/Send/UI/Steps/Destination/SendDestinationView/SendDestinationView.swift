@@ -26,6 +26,7 @@ struct SendDestinationView: View {
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                         .lineLimit(1)
                         .truncationMode(.middle)
+                        .accessibilityIdentifier(SendAccessibilityIdentifiers.addressResolvedAddress)
                 }
             } footer: {
                 DefaultFooterView(Localization.sendRecipientAddressFooter(viewModel.networkName))
