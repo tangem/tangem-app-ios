@@ -24,10 +24,18 @@ struct MultiWalletMainContentView: View {
             }
 
             ForEach(viewModel.tangemPayNotificationInputs) { input in
-                NotificationView(input: input)
-                    .if(input.id == TangemPayNotificationEvent.createAccountAndIssueCard.id) {
-                        $0.setButtonsLoadingState(to: viewModel.tangemPayCardIssuingInProgress)
-                    }
+                switch input.id {
+                case TangemPayNotificationEvent.createAccountAndIssueCard.id:
+                    NotificationView(input: input)
+                        .setButtonsLoadingState(to: viewModel.tangemPayCardIssuingInProgress)
+
+                case TangemPayNotificationEvent.syncNeeded.id:
+                    NotificationView(input: input)
+                        .setButtonsLoadingState(to: viewModel.tangemPaySyncInProgress)
+
+                default:
+                    NotificationView(input: input)
+                }
             }
 
             ForEach(viewModel.bannerNotificationInputs) { input in
