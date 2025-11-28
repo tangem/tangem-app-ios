@@ -248,7 +248,11 @@ private extension TangemPayMainViewModel {
             tokenItem: TangemPayUtilities.usdcTokenItem,
             feeTokenItem: TangemPayUtilities.usdcTokenItem,
             defaultAddressString: depositAddress,
-            availableBalanceProvider: tangemPayAccount.tangemPayTokenBalanceProvider
+            availableBalanceProvider: tangemPayAccount.tangemPayTokenBalanceProvider,
+            cexTransactionProcessor: tangemPayAccount.tangemPayExpressCEXTransactionProcessor,
+            transactionValidator: TangemPayExpressTransactionValidator(
+                availableBalanceProvider: tangemPayAccount.tangemPayTokenBalanceProvider
+            )
         )
 
         return tangemPayWalletWrapper
