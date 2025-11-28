@@ -32,6 +32,7 @@
 "account_details_archive" = "Archivar cuenta";
 "account_details_archiving" = "Archiving...";
 "account_details_title" = "Cuenta";
+"account_edit_failure_dialog_title" = "Can’t edit the account";
 "account_edit_success_message" = "Account saved";
 "account_for_rewards" = "Account for rewards";
 "account_form_account_index" = "Account #%@ — used for address derivation.";
@@ -1372,11 +1373,21 @@
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
 "tangempay_card_details_title" = "Card details";
 "tangempay_card_details_unfreeze_card" = "Unfreeze Card";
+"tangempay_card_details_withdraw_error_title" = "Withdraw unavailable now";
+"tangempay_card_details_withdraw" = "Withdraw";
+"tangempay_failed_to_issue_card_retry_description" = "A technical error has occurred, please try again by clicking the button below.";
+"tangempay_failed_to_issue_card_support_description" = "A technical error has occurred, please contact support.";
+"tangempay_failed_to_issue_card" = "Failed to issue card";
 "tangempay_issue_card_notification_description" = "It usually takes up to 15 minutes";
 "tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
+"tangempay_issuing_your_card_description" = "We’re getting your card ready. This may take a little time.";
+"tangempay_issuing_your_card" = "Issuing your card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
+"tangempay_kyc_failed_description" = "We could not verify your profile. If you have any questions, please contact support.";
+"tangempay_kyc_failed_title" = "Unfortunately, we couldn't verify your identity ";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
 "tangempay_kyc_in_progress_notification_title" = "KYC in progress for Tangem Pay";
+"tangempay_kyc_in_progress" = "KYC in progress";
 "tangempay_onboarding_get_card_button_text" = "Get card";
 "tangempay_onboarding_pay_description" = "With digital card that works with Apple Pay and Google Pay";
 "tangempay_onboarding_pay_title" = "Spend your assets anywhere";
@@ -1390,6 +1401,7 @@
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_service_unreachable_try_later" = "The service is currently unreachable. Please try again later.";
+"tangempay_sync_needed" = "Sync needed";
 "tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Use your card or ring to restore access to your payment account";
