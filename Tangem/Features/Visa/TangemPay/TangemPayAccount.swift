@@ -19,6 +19,7 @@ final class TangemPayAccount {
     var tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never> {
         customerInfoSubject
             .compactMap(\.self?.tangemPayStatus)
+            .merge(with: orderCancelledSignalSubject.mapToValue(.failedToIssue))
             .eraseToAnyPublisher()
     }
 
@@ -33,7 +34,6 @@ final class TangemPayAccount {
                 TangemPayOrderIdStorage.cardIssuingOrderIdPublisher(customerWalletAddress: customerWalletAddress)
             }
             .map { $0 != nil }
-            .merge(with: didTapIssueOrderSubject.mapToValue(true))
             .eraseToAnyPublisher()
     }
 
@@ -53,7 +53,6 @@ final class TangemPayAccount {
     }
 
     lazy var tangemPayNotificationManager: TangemPayNotificationManager = .init(
-        tangemPayStatusPublisher: tangemPayStatusPublisher,
         tangemPayAccountStatePublisher: authorizer.statePublisher
     )
 
@@ -111,7 +110,7 @@ final class TangemPayAccount {
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
     private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>(.loading)
 
-    private let didTapIssueOrderSubject = PassthroughSubject<Void, Never>()
+    private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
     private let syncInProgressSubject = CurrentValueSubject<Bool, Never>(false)
 
     private var orderStatusPollingTask: Task<Void, Never>?
@@ -275,8 +274,16 @@ final class TangemPayAccount {
             for await result in polling {
                 switch result {
                 case .success(let order):
-                    if order.status == .completed {
+                    switch order.status {
+                    case .new, .processing:
+                        break
+
+                    case .completed:
                         tangemPayAccount.loadCustomerInfo()
+                        return
+
+                    case .canceled:
+                        tangemPayAccount.orderCancelledSignalSubject.send(())
                         return
                     }
 
@@ -342,23 +349,6 @@ extension TangemPayAccount: TangemPayAuthorizationTokensSaver {
 extension TangemPayAccount: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
-        case .tangemPayViewKYCStatus:
-            runTask(in: self) { tangemPayAccount in
-                do {
-                    try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.loadCustomerInfo()
-                    }
-                } catch {
-                    VisaLogger.error("Failed to launch KYC", error: error)
-                }
-            }
-
-        case .tangemPayCreateAccountAndIssueCard:
-            didTapIssueOrderSubject.send(())
-            runTask(in: self) { tangemPayAccount in
-                await tangemPayAccount.createOrder()
-            }
-
         case .tangemPaySync:
             runTask { [self] in
                 syncInProgressSubject.value = true
@@ -380,7 +370,6 @@ extension TangemPayAccount: NotificationTapDelegate {
 
 extension TangemPayAccount: TangemPayIssuingManagerDelegate {
     func createAccountAndIssueCard() {
-        didTapIssueOrderSubject.send(())
         runTask(in: self) { tangemPayAccount in
             await tangemPayAccount.createOrder()
         }

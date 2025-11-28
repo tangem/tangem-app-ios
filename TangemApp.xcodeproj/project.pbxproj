@@ -2999,6 +2999,12 @@
 		DAF59CC62ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CC02ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift */; };
 		DAF59CC82ACC4E37004FCA86 /* AlertFieldValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CC72ACC4E37004FCA86 /* AlertFieldValidator.swift */; };
 		DAF97FC92BAAF2CC006D9A44 /* Locale+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF97FC82BAAF2CC006D9A44 /* Locale+.swift */; };
+		DAFD69382ED9D93E007FAF9B /* TangemPayYourCardIsIssuingSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFD69372ED9D93E007FAF9B /* TangemPayYourCardIsIssuingSheetViewModel.swift */; };
+		DAFD693A2ED9D958007FAF9B /* TangemPayYourCardIsIssuingRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFD69392ED9D958007FAF9B /* TangemPayYourCardIsIssuingRoutable.swift */; };
+		DAFD693D2ED9D96A007FAF9B /* TangemPayFailedToIssueCardRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFD693C2ED9D96A007FAF9B /* TangemPayFailedToIssueCardRoutable.swift */; };
+		DAFD693F2ED9D977007FAF9B /* TangemPayFailedToIssueCardSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFD693E2ED9D977007FAF9B /* TangemPayFailedToIssueCardSheetViewModel.swift */; };
+		DAFD69412ED9D990007FAF9B /* TangemPayYourCardIsIssuingSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFD69402ED9D990007FAF9B /* TangemPayYourCardIsIssuingSheetView.swift */; };
+		DAFD69432ED9D9B6007FAF9B /* TangemPayFailedToIssueCardSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFD69422ED9D9B6007FAF9B /* TangemPayFailedToIssueCardSheetView.swift */; };
 		DC0002F32DC2090600305FB6 /* WalletConnectSessionsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002B02DC2090600305FB6 /* WalletConnectSessionsStorage.swift */; };
 		DC0002F72DC2090600305FB6 /* WCSolanaSignAllTransactionsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002BE2DC2090600305FB6 /* WCSolanaSignAllTransactionsDTO.swift */; };
 		DC0002F82DC2090600305FB6 /* CommonBlockaidAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002712DC2090600305FB6 /* CommonBlockaidAPIService.swift */; };
@@ -7553,6 +7559,12 @@
 		DAF59CC02ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorItemView.swift; sourceTree = "<group>"; };
 		DAF59CC72ACC4E37004FCA86 /* AlertFieldValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertFieldValidator.swift; sourceTree = "<group>"; };
 		DAF97FC82BAAF2CC006D9A44 /* Locale+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Locale+.swift"; sourceTree = "<group>"; };
+		DAFD69372ED9D93E007FAF9B /* TangemPayYourCardIsIssuingSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayYourCardIsIssuingSheetViewModel.swift; sourceTree = "<group>"; };
+		DAFD69392ED9D958007FAF9B /* TangemPayYourCardIsIssuingRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayYourCardIsIssuingRoutable.swift; sourceTree = "<group>"; };
+		DAFD693C2ED9D96A007FAF9B /* TangemPayFailedToIssueCardRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayFailedToIssueCardRoutable.swift; sourceTree = "<group>"; };
+		DAFD693E2ED9D977007FAF9B /* TangemPayFailedToIssueCardSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayFailedToIssueCardSheetViewModel.swift; sourceTree = "<group>"; };
+		DAFD69402ED9D990007FAF9B /* TangemPayYourCardIsIssuingSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayYourCardIsIssuingSheetView.swift; sourceTree = "<group>"; };
+		DAFD69422ED9D9B6007FAF9B /* TangemPayFailedToIssueCardSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayFailedToIssueCardSheetView.swift; sourceTree = "<group>"; };
 		DC0002632DC2090600305FB6 /* BlockaidChainScanResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidChainScanResult.swift; sourceTree = "<group>"; };
 		DC0002662DC2090600305FB6 /* BlockaidDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidDTO.swift; sourceTree = "<group>"; };
 		DC0002672DC2090600305FB6 /* Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chain.swift; sourceTree = "<group>"; };
@@ -12217,6 +12229,8 @@
 		B036625C2B6384670064E073 /* Visa */ = {
 			isa = PBXGroup;
 			children = (
+				DAFD693B2ED9D966007FAF9B /* TangemPayFailedToIssueCard */,
+				DAFD69362ED9D934007FAF9B /* TangemPayYourCardIsIssuing */,
 				DADA1CE32EC4A492009329A9 /* TangemPayPin */,
 				EFF9CB792EC3613000A7C44C /* TangemPayTransactionDetails */,
 				0A0DEF4B2EBC885E006007FA /* TangemPayAddToAppPayGuide */,
@@ -18437,6 +18451,26 @@
 				EF665E3D2CBD238600F79B87 /* UI */,
 			);
 			path = Send;
+			sourceTree = "<group>";
+		};
+		DAFD69362ED9D934007FAF9B /* TangemPayYourCardIsIssuing */ = {
+			isa = PBXGroup;
+			children = (
+				DAFD69392ED9D958007FAF9B /* TangemPayYourCardIsIssuingRoutable.swift */,
+				DAFD69372ED9D93E007FAF9B /* TangemPayYourCardIsIssuingSheetViewModel.swift */,
+				DAFD69402ED9D990007FAF9B /* TangemPayYourCardIsIssuingSheetView.swift */,
+			);
+			path = TangemPayYourCardIsIssuing;
+			sourceTree = "<group>";
+		};
+		DAFD693B2ED9D966007FAF9B /* TangemPayFailedToIssueCard */ = {
+			isa = PBXGroup;
+			children = (
+				DAFD693C2ED9D96A007FAF9B /* TangemPayFailedToIssueCardRoutable.swift */,
+				DAFD693E2ED9D977007FAF9B /* TangemPayFailedToIssueCardSheetViewModel.swift */,
+				DAFD69422ED9D9B6007FAF9B /* TangemPayFailedToIssueCardSheetView.swift */,
+			);
+			path = TangemPayFailedToIssueCard;
 			sourceTree = "<group>";
 		};
 		DC0002652DC2090600305FB6 /* Domain */ = {
@@ -25539,6 +25573,7 @@
 				DC8F7BDF2E0CBC3F00B3F5DB /* WCCustomAllowanceView.swift in Sources */,
 				2D22765D2C0F0A4F006BB6A1 /* MarketsListOrderBottomSheetViewModel.swift in Sources */,
 				B0CE1E492A309F9E00D297F8 /* FakeCryptoBalanceProvider.swift in Sources */,
+				DAFD69412ED9D990007FAF9B /* TangemPayYourCardIsIssuingSheetView.swift in Sources */,
 				0A0DEF4F2EBC8990006007FA /* TangemPayAddToAppPayGuideViewModel.swift in Sources */,
 				DC9A4A302AB4AE320031C7C2 /* UserCodeRecoveringCardInteractor.swift in Sources */,
 				B6ACD0102AD69B50005A6CA3 /* OrganizeTokensDragAndDropMarkView.swift in Sources */,
@@ -27231,6 +27266,7 @@
 				2D245E3C2E97EB56006AD2DC /* MarketsTokenDetailsExchangesListView.swift in Sources */,
 				2D245E3D2E97EB56006AD2DC /* MarketsTokenDetailsSecurityScoreView.swift in Sources */,
 				2D245E3E2E97EB56006AD2DC /* MarketsTokenDetailsExchangesListViewModel.swift in Sources */,
+				DAFD693F2ED9D977007FAF9B /* TangemPayFailedToIssueCardSheetViewModel.swift in Sources */,
 				2D245E3F2E97EB56006AD2DC /* MarketsHistoryChartView.swift in Sources */,
 				2D245E402E97EB56006AD2DC /* MarketsTokenDetailsSecurityScoreRatingViewData.swift in Sources */,
 				2D245E412E97EB56006AD2DC /* MarketsTokenDetailsSecurityScoreDetailsView.swift in Sources */,
@@ -27291,6 +27327,7 @@
 				C2DB41942DCA2A640028E6B0 /* WalletConnectErrorViewModel.swift in Sources */,
 				B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */,
 				30DEC76A2E9FDF6C007B033D /* MarketsAccountsAwarePortfolioContainerViewState.swift in Sources */,
+				DAFD693D2ED9D96A007FAF9B /* TangemPayFailedToIssueCardRoutable.swift in Sources */,
 				C2075F002DE6241A009AD2F7 /* WalletConnectSessionProposalMapper.swift in Sources */,
 				DC7796032E17CBB3000E3213 /* WCTransactionSecurityAlertViewModel.swift in Sources */,
 				0F2786592E2D6F9200742D0F /* MobileOnboardingFlowProgressBar.swift in Sources */,
@@ -27525,6 +27562,7 @@
 				EFF466EA2ACD928800ACC3EA /* PendingTransactionRecordMapper.swift in Sources */,
 				EF9CA6122D424065009549E2 /* LogRowView.swift in Sources */,
 				EF175D852E8D36F200B69415 /* NewTokenSelectorAccountViewModel.swift in Sources */,
+				DAFD69382ED9D93E007FAF9B /* TangemPayYourCardIsIssuingSheetViewModel.swift in Sources */,
 				DC261CB4292CF6B700875E64 /* UncompletedBackupCoordinatorView.swift in Sources */,
 				2D5DCC302C3309F1000EE379 /* MarketsTokensNetworkSelectorView.swift in Sources */,
 				EF39A6582AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift in Sources */,
@@ -27620,6 +27658,7 @@
 				DAA5E31628D213A4003C0E80 /* CardDTOv4.swift in Sources */,
 				EF9F907F299CFCC7006F638F /* WebViewContainerViewModel.swift in Sources */,
 				EF5D83D92B0B7A2B00516B5F /* ExpressSuccessSentView.swift in Sources */,
+				DAFD69432ED9D9B6007FAF9B /* TangemPayFailedToIssueCardSheetView.swift in Sources */,
 				EF339E4F2C21FC9500B5CDC9 /* SendFee.swift in Sources */,
 				0ABCFCEB2DCA35F400C9F901 /* MarketsStakingNotificationView.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
@@ -27728,6 +27767,7 @@
 				0AD13F952C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift in Sources */,
 				DA559C392B0261F400F59584 /* SendViewModel.swift in Sources */,
 				B66655712C6EC901001E2C68 /* UIView.AnimationCurve+.swift in Sources */,
+				DAFD693A2ED9D958007FAF9B /* TangemPayYourCardIsIssuingRoutable.swift in Sources */,
 				EF9E2A4E2B56A54400418559 /* ExpressModulesFactoryMock.swift in Sources */,
 				EF56B3D22A03AFDB002CCE27 /* DefaultMenuRowView.swift in Sources */,
 				EF95442D2C3C52A400041FCD /* SendStepsManagerInputOutput.swift in Sources */,
