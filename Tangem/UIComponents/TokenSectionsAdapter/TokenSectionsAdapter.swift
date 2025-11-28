@@ -294,6 +294,12 @@ extension TokenSectionsAdapter.SectionItem {
     }
 }
 
+extension TokenSectionsAdapter.Section {
+    var walletModels: [any WalletModel] {
+        return items.compactMap(\.walletModel)
+    }
+}
+
 private extension TokenSectionsAdapter.SectionItem {
     var blockchainNetwork: BlockchainNetwork {
         switch self {

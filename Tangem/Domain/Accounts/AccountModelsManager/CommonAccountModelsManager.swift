@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 import TangemFoundation
-import TangemNFT
 
 actor CommonAccountModelsManager {
     private typealias AccountId = CommonCryptoAccountModel.AccountId
