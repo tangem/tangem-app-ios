@@ -9,19 +9,26 @@
 public struct TangemPayAuthorizationTokensHandlerBuilder {
     private let apiServiceBuilder: TangemPayAPIServiceBuilder
 
-    public init(apiType: VisaAPIType) {
-        apiServiceBuilder = TangemPayAPIServiceBuilder(apiType: apiType)
+    public init(apiType: VisaAPIType, bffStaticToken: String) {
+        apiServiceBuilder = TangemPayAPIServiceBuilder(
+            apiType: apiType,
+            bffStaticToken: bffStaticToken
+        )
     }
 }
 
 public extension TangemPayAuthorizationTokensHandlerBuilder {
     func buildTangemPayAuthorizationTokensHandler(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService
+        authorizationService: TangemPayAuthorizationService,
+        setSyncNeeded: @escaping () -> Void,
+        setUnavailable: @escaping () -> Void
     ) -> TangemPayAuthorizationTokensHandler {
         CommonTangemPayAuthorizationTokensHandler(
             customerWalletId: customerWalletId,
-            authorizationService: apiServiceBuilder.buildTangemPayAuthorizationService()
+            authorizationService: apiServiceBuilder.buildTangemPayAuthorizationService(),
+            setSyncNeeded: setSyncNeeded,
+            setUnavailable: setUnavailable
         )
     }
 }

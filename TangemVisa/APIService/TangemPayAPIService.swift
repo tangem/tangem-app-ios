@@ -35,15 +35,13 @@ struct TangemPayAPIService<Target: TargetType> {
     }
 }
 
-struct TangemPayAPIErrorResponse: Error, Decodable {
-    let code: String
-    let correlationId: String
-
-    // Available only for dev
-    let type: String?
-    let title: String?
-    let status: Int?
-    let detail: String?
-    let instance: String?
-    let timestamp: String?
+public struct TangemPayAPIErrorResponse: Error, Decodable {
+    public let code: String?
+    public let correlationId: String?
+    public let type: String?
+    public let title: String?
+    public let status: Int?
+    public let detail: String?
+    public let instance: String?
+    public let timestamp: String?
 }

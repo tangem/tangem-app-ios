@@ -17,6 +17,7 @@ protocol TangemPayAuthorizing: AnyObject {
 }
 
 struct TangemPayAuthorizingResponse {
+    public let customerWalletAddress: String
     public let tokens: TangemPayAuthorizationTokens
     public let derivationResult: [Data: DerivedKeys]
 }
