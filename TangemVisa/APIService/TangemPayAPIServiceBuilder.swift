@@ -10,9 +10,11 @@ import TangemNetworkUtils
 
 public struct TangemPayAPIServiceBuilder {
     private let apiType: VisaAPIType
+    private let bffStaticToken: String
 
-    public init(apiType: VisaAPIType) {
+    public init(apiType: VisaAPIType, bffStaticToken: String) {
         self.apiType = apiType
+        self.bffStaticToken = bffStaticToken
     }
 }
 
@@ -20,15 +22,17 @@ public extension TangemPayAPIServiceBuilder {
     func buildTangemPayAvailabilityService(
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> TangemPayAvailabilityService {
-        CommonTangemPayAvailabilityService(
+        let decoder = JSONDecoder()
+        let provider: TangemProvider<TangemPayAvailabilityAPITarget> = TangemPayProviderBuilder().buildProvider(
+            configuration: urlSessionConfiguration,
+            authorizationTokensHandler: nil
+        )
+
+        return CommonTangemPayAvailabilityService(
             apiType: apiType,
-            apiService: .init(
-                provider: TangemPayProviderBuilder().buildProvider(
-                    configuration: urlSessionConfiguration,
-                    authorizationTokensHandler: nil
-                ),
-                decoder: JSONDecoder()
-            )
+            apiService: APIService(provider: provider, decoder: decoder),
+            tangemPayAPIService: TangemPayAPIService(provider: provider, decoder: decoder),
+            bffStaticToken: bffStaticToken
         )
     }
 
