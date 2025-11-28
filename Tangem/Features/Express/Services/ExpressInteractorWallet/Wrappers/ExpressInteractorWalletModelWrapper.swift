@@ -13,6 +13,7 @@ struct ExpressInteractorWalletModelWrapper {
     let id: WalletModelId
     let isCustom: Bool
     let isMainToken: Bool
+    let isExemptFee: Bool = false
 
     let tokenHeader: ExpressInteractorTokenHeader?
     let tokenItem: TokenItem
@@ -20,7 +21,7 @@ struct ExpressInteractorWalletModelWrapper {
     let defaultAddressString: String
 
     let availableBalanceProvider: any TokenBalanceProvider
-    let transactionValidator: any TransactionValidator
+    let transactionValidator: any ExpressTransactionValidator
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)?
 
     private let walletModel: any WalletModel
@@ -46,7 +47,7 @@ struct ExpressInteractorWalletModelWrapper {
         defaultAddressString = walletModel.defaultAddressString
 
         availableBalanceProvider = walletModel.availableBalanceProvider
-        transactionValidator = walletModel.transactionValidator
+        transactionValidator = BSDKExpressTransactionValidator(transactionValidator: walletModel.transactionValidator)
         withdrawalNotificationProvider = walletModel.withdrawalNotificationProvider
 
         let transactionDispatcher = TransactionDispatcherFactory(
@@ -111,10 +112,6 @@ extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
 
     func dexTransactionProcessor() throws -> any ExpressDEXTransactionProcessor {
         return try transactionProcessorFactory.makeDEXTransactionProcessor()
-    }
-
-    func exploreTransactionURL(for hash: String) -> URL? {
-        walletModel.exploreTransactionURL(for: hash)
     }
 }
 
