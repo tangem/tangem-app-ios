@@ -14,6 +14,9 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var isCustom: Bool { get }
     var isMainToken: Bool { get }
 
+    /// Applicable only for `TangemPay` because there is no fee for withdraw
+    var isExemptFee: Bool { get }
+
     var tokenHeader: ExpressInteractorTokenHeader? { get }
     var tokenItem: TokenItem { get }
     var feeTokenItem: TokenItem { get }
@@ -24,13 +27,11 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
 
     var allowanceService: (any AllowanceService)? { get }
     var availableBalanceProvider: TokenBalanceProvider { get }
-    var transactionValidator: any TransactionValidator { get }
+    var transactionValidator: any ExpressTransactionValidator { get }
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { get }
 
     func dexTransactionProcessor() throws -> ExpressDEXTransactionProcessor
     func cexTransactionProcessor() throws -> ExpressCEXTransactionProcessor
-
-    func exploreTransactionURL(for hash: String) -> URL?
 }
 
 // MARK: ExpressSourceWallet + ExpressInteractorSourceWallet
