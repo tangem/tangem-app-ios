@@ -259,6 +259,10 @@ extension Analytics {
         case `import` = "Import"
         case create = "Create Wallet"
         case importWallet = "Import Wallet"
+        case walletSettings = "Wallet Settings"
+        case upgrade = "Upgrade"
+        case remove = "Remove"
+        case hardwareWallet = "Hardware Wallet"
 
         case set = "Set"
         case changing = "Changing"
@@ -288,6 +292,10 @@ extension Analytics {
 
         static func successOrFailed(for boolean: Bool) -> ParameterValue {
             return boolean ? .success : .failed
+        }
+
+        static func enabledOrDisabled(for boolean: Bool) -> ParameterValue {
+            return boolean ? .enabled : .disabled
         }
     }
 }
