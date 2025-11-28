@@ -28,6 +28,7 @@ final class TangemPayAccountViewModel: ObservableObject {
         self.router = router
 
         state = TangemPayAccountViewModel.mapToState(
+            state: tangemPayAccount.state,
             card: tangemPayAccount.tangemPayCard,
             balanceType: tangemPayAccount.tangemPayTokenBalanceProvider.formattedBalanceType
         )
@@ -44,19 +45,30 @@ final class TangemPayAccountViewModel: ObservableObject {
 
 private extension TangemPayAccountViewModel {
     func bind() {
-        Publishers.CombineLatest(
+        Publishers.CombineLatest3(
+            tangemPayAccount
+                .tangemPayAccountStatePublisher,
             tangemPayAccount
                 .tangemPayCardPublisher,
             tangemPayAccount
                 .tangemPayTokenBalanceProvider
                 .formattedBalanceTypePublisher
         )
-        .map { TangemPayAccountViewModel.mapToState(card: $0, balanceType: $1) }
+        .map(TangemPayAccountViewModel.mapToState)
         .receiveOnMain()
         .assign(to: &$state)
     }
 
-    static func mapToState(card: VisaCustomerInfoResponse.Card?, balanceType: FormattedTokenBalanceType) -> ViewState {
+    static func mapToState(state: TangemPayAuthorizer.State, card: VisaCustomerInfoResponse.Card?, balanceType: FormattedTokenBalanceType) -> ViewState {
+        switch state {
+        case .authorized:
+            break
+        case .syncNeeded:
+            return .syncNeeded
+        case .unavailable:
+            return .unavailable
+        }
+
         switch card {
         case .none:
             return .unavailable
