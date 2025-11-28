@@ -33,7 +33,8 @@ struct BalancesView<ViewModel: BalancesViewModel>: View {
                 size: .init(width: 102, height: 24),
                 padding: .init(top: 5, leading: 0, bottom: 5, trailing: 0),
                 cornerRadius: 6
-            )
+            ),
+            animationConfig: .init(isAnimationAllowed: true, isAnimationActive: !viewModel.isRefreshing)
         )
         .accessibilityIdentifier(viewModel.balanceAccessibilityIdentifier)
     }
