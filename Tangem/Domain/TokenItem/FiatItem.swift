@@ -18,4 +18,14 @@ struct FiatItem: Hashable {
         self.currencyCode = currencyCode
         self.fractionDigits = fractionDigits
     }
+
+    public func convertToCents(value: Decimal) -> Decimal {
+        let decimalValue = pow(10, fractionDigits)
+        return value * decimalValue
+    }
+
+    public func convertFromCents(value: Decimal) -> Decimal {
+        let decimalValue = pow(10, fractionDigits)
+        return value / decimalValue
+    }
 }
