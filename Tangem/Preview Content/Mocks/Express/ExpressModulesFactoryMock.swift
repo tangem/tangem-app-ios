@@ -103,7 +103,6 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         ExpressProvidersSelectorViewModel(
             priceChangeFormatter: priceChangeFormatter,
             expressProviderFormatter: expressProviderFormatter,
-            expressRepository: expressRepository,
             expressInteractor: expressInteractor
         )
     }
