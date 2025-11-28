@@ -50,10 +50,9 @@ private extension MobileBackupTypesView {
                 .padding(.top, 8)
                 .padding(.horizontal, 24)
 
-            FlowLayout(
+            HorizontalFlowLayout(
                 items: item.chips,
-                horizontalAlignment: .center,
-                verticalAlignment: .center,
+                alignment: .center,
                 horizontalSpacing: 16,
                 verticalSpacing: 8,
                 itemContent: infoChip
@@ -105,18 +104,18 @@ private extension MobileBackupTypesView {
 
     func sectionItem(model: ViewModel.SectionItem) -> some View {
         Button(action: model.action) {
-            HStack(spacing: 0) {
+            HStack(spacing: 4) {
                 sectionInfoItem(model: model)
 
                 if model.isEnabled {
-                    Assets.chevronRight.image
+                    Assets.chevronRightWithOffset24.image
                         .renderingMode(.template)
                         .resizable()
                         .foregroundStyle(Colors.Text.tertiary)
-                        .frame(width: 20, height: 20)
+                        .frame(width: 24, height: 24)
                 }
             }
-            .padding(EdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 8))
+            .padding(14)
             .background(Colors.Background.primary)
             .cornerRadius(14, corners: .allCorners)
         }
@@ -136,7 +135,7 @@ private extension MobileBackupTypesView {
             }
 
             Text(model.description)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -144,7 +143,7 @@ private extension MobileBackupTypesView {
     }
 
     func infoChip(item: ViewModel.InfoChipItem) -> some View {
-        HStack(spacing: 6) {
+        HStack(alignment: .top, spacing: 6) {
             item.icon.image
                 .renderingMode(.template)
                 .resizable()
@@ -154,6 +153,7 @@ private extension MobileBackupTypesView {
 
             Text(item.title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
+                .multilineTextAlignment(.center)
         }
     }
 }
