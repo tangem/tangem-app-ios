@@ -20,6 +20,7 @@ struct MobileBackupTypesView: View {
             .padding(.horizontal, 16)
             .background(Colors.Background.secondary.ignoresSafeArea())
             .navigationTitle(viewModel.navTitle)
+            .onFirstAppear(perform: viewModel.onFirstAppear)
             .alert(item: $viewModel.alert) { $0.alert }
     }
 }
