@@ -40,7 +40,7 @@ final class HardwareCreateWalletCoordinator: CoordinatorObject {
 
 extension HardwareCreateWalletCoordinator {
     func start(with options: InputOptions) {
-        rootViewModel = HardwareCreateWalletViewModel(coordinator: self)
+        rootViewModel = HardwareCreateWalletViewModel(userWalletModel: options.userWalletModel, coordinator: self)
     }
 
     func onDismissalAttempt() {
@@ -95,7 +95,9 @@ private extension HardwareCreateWalletCoordinator {
 // MARK: - Options
 
 extension HardwareCreateWalletCoordinator {
-    struct InputOptions {}
+    struct InputOptions {
+        let userWalletModel: UserWalletModel?
+    }
 
     enum OutputOptions {
         case main(userWalletModel: UserWalletModel)

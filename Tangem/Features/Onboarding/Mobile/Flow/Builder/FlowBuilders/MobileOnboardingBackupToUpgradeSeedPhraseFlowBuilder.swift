@@ -14,11 +14,12 @@ final class MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder: MobileOnboardi
 
     init(
         userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
         coordinator: MobileOnboardingFlowRoutable,
         onContinue: @escaping () -> Void
     ) {
         self.onContinue = onContinue
-        super.init(userWalletModel: userWalletModel, coordinator: coordinator)
+        super.init(userWalletModel: userWalletModel, source: source, coordinator: coordinator)
     }
 
     override func completeStep() -> Step {
@@ -32,7 +33,9 @@ private extension MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder {
     func makeContinueStep() -> Step {
         let step = MobileOnboardingSuccessStep(
             type: .seedPhaseBackupContinue,
-            onAppear: {},
+            onAppear: { [weak self] in
+                self?.logBackupCompletedScreenOpenedAnalytics()
+            },
             onComplete: weakify(self, forFunction: MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder.didContinue)
         )
         step.configureNavBar(title: Localization.commonBackup)
