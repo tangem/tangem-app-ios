@@ -820,8 +820,6 @@ extension SendModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus,
              .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
