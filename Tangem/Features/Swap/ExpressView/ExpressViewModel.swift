@@ -469,6 +469,9 @@ private extension ExpressViewModel {
             updateExpressFeeRowViewModel(fees: .loading)
         case .restriction(.notEnoughAmountForFee(let state), _):
             updateExpressFeeRowViewModel(fees: .success(state.fees))
+        case .previewCEX(let state, _) where state.isExemptFee:
+            // Don't show fee row if transaction has fee exemption
+            expressFeeRowViewModel = nil
         case .previewCEX(let state, _):
             updateExpressFeeRowViewModel(fees: .success(state.fees))
         case .readyToSwap(let state, _):
