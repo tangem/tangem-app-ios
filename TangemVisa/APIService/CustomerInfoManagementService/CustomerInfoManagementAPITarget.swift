@@ -13,6 +13,7 @@ import Moya
 struct CustomerInfoManagementAPITarget: TargetType {
     let target: Target
     let apiType: VisaAPIType
+    let encoder: JSONEncoder
 
     var baseURL: URL {
         apiType.bffBaseURL
@@ -36,6 +37,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/pin"
         case .getTransactionHistory:
             "customer/transactions"
+        case .getWithdrawSignableData:
+            "customer/card/withdraw/data"
+        case .sendWithdrawTransaction:
+            "customer/card/withdraw"
         case .placeOrder:
             "order"
         case .getOrder(let orderId):
@@ -55,7 +60,9 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .placeOrder,
              .getCardDetails,
              .freeze,
-             .unfreeze:
+             .unfreeze,
+             .getWithdrawSignableData,
+             .sendWithdrawTransaction:
             .post
 
         case .setPin:
@@ -88,6 +95,12 @@ struct CustomerInfoManagementAPITarget: TargetType {
             }
             return .requestParameters(parameters: requestParams, encoding: URLEncoding.default)
 
+        case .getWithdrawSignableData(let request):
+            return .requestCustomJSONEncodable(request, encoder: encoder)
+
+        case .sendWithdrawTransaction(let request):
+            return .requestCustomJSONEncodable(request, encoder: encoder)
+
         case .getCardDetails(let sessionId):
             let requestData = TangemPayCardDetailsRequest(sessionId: sessionId)
             return .requestJSONEncodable(requestData)
@@ -119,6 +132,9 @@ extension CustomerInfoManagementAPITarget {
         case setPin(pin: String, sessionId: String, iv: String)
 
         case getTransactionHistory(limit: Int, cursor: String?)
+
+        case getWithdrawSignableData(TangemPayWithdraw.SignableData.Request)
+        case sendWithdrawTransaction(TangemPayWithdraw.Transaction.Request)
 
         case placeOrder(customerWalletAddress: String)
         case getOrder(orderId: String)
