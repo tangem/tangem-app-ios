@@ -30,6 +30,7 @@ struct OnboardingSeedPhraseImportView: View {
 
                         SeedPhraseTextView(
                             inputProcessor: viewModel.inputProcessor,
+                            handleKeyboard: false,
                             isResponder: isResponder
                         )
                         .screenCaptureProtection()
@@ -119,7 +120,7 @@ struct OnboardingSeedPhraseImportView: View {
                 text: $viewModel.passphrase,
                 isResponder: $viewModel.isPassphraseInputResponder,
                 actionButtonTapped: .constant(true),
-                handleKeyboard: true,
+                handleKeyboard: false,
                 keyboard: .asciiCapable,
                 clearButtonMode: .whileEditing,
                 placeholder: Localization.sendOptionalField

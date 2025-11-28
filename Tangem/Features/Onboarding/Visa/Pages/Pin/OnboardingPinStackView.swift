@@ -10,6 +10,7 @@ import TangemAssets
 
 struct OnboardingPinStackView: View {
     let maxDigits: Int
+    var handleKeyboard: Bool = true
     let isDisabled: Bool
 
     @Binding var pinText: String
@@ -55,7 +56,7 @@ struct OnboardingPinStackView: View {
             text: $pinText,
             isResponder: $isResponder,
             actionButtonTapped: Binding.constant(false),
-            handleKeyboard: true,
+            handleKeyboard: handleKeyboard,
             keyboard: .numberPad,
             placeholder: "",
             maxCount: maxDigits
