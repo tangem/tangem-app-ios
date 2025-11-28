@@ -24,6 +24,7 @@ struct MobileOnboardingAccessCodeView: View {
                 view.flowNavBar(trailingItem: item.view)
             }
             .background(Color.clear.alert(item: $viewModel.alert) { $0.alert })
+            .onFirstAppear(perform: viewModel.onFirstAppear)
             .animation(.default, value: viewModel.state)
     }
 }

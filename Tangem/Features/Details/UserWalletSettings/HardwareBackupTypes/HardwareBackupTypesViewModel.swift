@@ -28,6 +28,10 @@ final class HardwareBackupTypesViewModel: ObservableObject {
         userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
     }
 
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
     private let userWalletModel: UserWalletModel
     private weak var coordinator: HardwareBackupTypesRoutable?
 
@@ -40,8 +44,9 @@ final class HardwareBackupTypesViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension HardwareBackupTypesViewModel {
-    func onAppear() {
+    func onFirstAppear() {
         scheduleBuyAvailability()
+        logScreenOpenedAnalytics()
     }
 }
 
@@ -67,12 +72,16 @@ private extension HardwareBackupTypesViewModel {
     }
 
     func onCreateWalletTap() {
+        logCreateNewWalletTapAnalytics()
+
         runTask(in: self) { viewModel in
             await viewModel.openCreateHardwareWallet()
         }
     }
 
     func onUpgradeWalletTap() {
+        logUpgradeCurrentWalletTapAnalytics()
+
         runTask(in: self) { viewModel in
             if viewModel.isBackupNeeded {
                 await viewModel.openMobileBackupNeeded()
@@ -165,10 +174,11 @@ private extension HardwareBackupTypesViewModel {
 @MainActor
 private extension HardwareBackupTypesViewModel {
     func openCreateHardwareWallet() {
-        coordinator?.openCreateHardwareWallet()
+        coordinator?.openCreateHardwareWallet(userWalletModel: userWalletModel)
     }
 
     func openMobileBackupNeeded() {
+        logBackupToUpgradeNeededAnalytics()
         coordinator?.openMobileBackupToUpgradeNeeded(
             onBackupRequested: weakify(self, forFunction: HardwareBackupTypesViewModel.openBackupMobileWallet)
         )
@@ -177,6 +187,7 @@ private extension HardwareBackupTypesViewModel {
     func openBackupMobileWallet() {
         let input = MobileOnboardingInput(flow: .seedPhraseBackupToUpgrade(
             userWalletModel: userWalletModel,
+            source: .hardwareWallet(action: .upgrade),
             onContinue: weakify(self, forFunction: HardwareBackupTypesViewModel.onBackupToUpgradeComplete)
         ))
         coordinator?.openMobileOnboarding(input: input)
@@ -187,12 +198,43 @@ private extension HardwareBackupTypesViewModel {
     }
 
     func openBuyHardwareWallet() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .backup])
+        logBuyHardwareWalletAnalytics()
         safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
     }
 
     func closeOnboarding() {
         coordinator?.closeOnboarding()
+    }
+}
+
+// MARK: - Analytics
+
+private extension HardwareBackupTypesViewModel {
+    func logScreenOpenedAnalytics() {
+        Analytics.log(.walletSettingsHardwareBackupScreenOpened, contextParams: analyticsContextParams)
+    }
+
+    func logBuyHardwareWalletAnalytics() {
+        Analytics.log(.onboardingButtonBuy, params: [.source: .backup], contextParams: analyticsContextParams)
+    }
+
+    func logCreateNewWalletTapAnalytics() {
+        Analytics.log(.walletSettingsButtonCreateNewWallet, contextParams: analyticsContextParams)
+    }
+
+    func logUpgradeCurrentWalletTapAnalytics() {
+        Analytics.log(.walletSettingsButtonUpgradeCurrent, contextParams: analyticsContextParams)
+    }
+
+    func logBackupToUpgradeNeededAnalytics() {
+        Analytics.log(
+            .walletSettingsNoticeBackupFirst,
+            params: [
+                .source: .hardwareWallet,
+                .action: .upgrade,
+            ],
+            contextParams: analyticsContextParams
+        )
     }
 }
 
