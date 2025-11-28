@@ -42,6 +42,7 @@ final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
         }
 
         return TangemPayAuthorizingResponse(
+            customerWalletAddress: response.customerWalletAddress,
             tokens: response.tokens,
             derivationResult: response.derivationResult
         )
