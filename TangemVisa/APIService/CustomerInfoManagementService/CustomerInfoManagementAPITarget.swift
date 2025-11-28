@@ -92,8 +92,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             let requestData = TangemPayCardDetailsRequest(sessionId: sessionId)
             return .requestJSONEncodable(requestData)
 
-        case .placeOrder(let walletAddress):
-            let requestData = TangemPayPlaceOrderRequest(walletAddress: walletAddress)
+        case .placeOrder(let customerWalletAddress):
+            let requestData = TangemPayPlaceOrderRequest(customerWalletAddress: customerWalletAddress)
             return .requestJSONEncodable(requestData)
         }
     }
@@ -120,7 +120,7 @@ extension CustomerInfoManagementAPITarget {
 
         case getTransactionHistory(limit: Int, cursor: String?)
 
-        case placeOrder(walletAddress: String)
+        case placeOrder(customerWalletAddress: String)
         case getOrder(orderId: String)
     }
 }
@@ -131,6 +131,6 @@ extension CustomerInfoManagementAPITarget: TargetTypeLogConvertible {
     }
 
     var shouldLogResponseBody: Bool {
-        return false
+        false
     }
 }
