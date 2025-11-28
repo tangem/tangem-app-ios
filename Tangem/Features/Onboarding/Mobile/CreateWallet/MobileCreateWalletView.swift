@@ -50,7 +50,6 @@ private extension MobileCreateWalletView {
                 Text(viewModel.title)
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
                     .padding(.top, 20)
 
                 VStack(spacing: 28) {
@@ -61,6 +60,7 @@ private extension MobileCreateWalletView {
                 .padding(.top, 32)
             }
             .padding(.top, 64)
+            .padding(.horizontal, 24)
         }
         .safeAreaInset(edge: .bottom, spacing: 16) {
             actionButtons
@@ -87,7 +87,6 @@ private extension MobileCreateWalletView {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading, 32)
     }
 
     var actionButtons: some View {
