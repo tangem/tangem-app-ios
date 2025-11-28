@@ -24,7 +24,7 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
     }
 
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
-        .just(output: 0)
+        .just(output: accountModels.count)
     }
 
     var accountModels: [AccountModel] {
@@ -32,7 +32,7 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
     }
 
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
-        AnyPublisher.just(output: [])
+        AnyPublisher.just(output: accountModels)
     }
 
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
