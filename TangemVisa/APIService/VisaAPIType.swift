@@ -33,4 +33,8 @@ public enum VisaAPIType: String, CaseIterable, Codable {
     var bffBaseURL: URL {
         baseURL.appendingPathComponent("bff/v1")
     }
+
+    var bffAPIBaseURL: URL {
+        baseURL.appendingPathComponent("bff/api/v1")
+    }
 }

@@ -13,6 +13,7 @@ class TangemPayAuthorizingMock: TangemPayAuthorizing {
         authorizationService: TangemPayAuthorizationService
     ) async throws -> TangemPayAuthorizingResponse {
         TangemPayAuthorizingResponse(
+            customerWalletAddress: "",
             tokens: TangemPayAuthorizationTokens(
                 accessToken: "",
                 refreshToken: "",

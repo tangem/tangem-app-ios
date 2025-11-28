@@ -130,6 +130,10 @@ extension CommonKeysManager: KeysManager {
     var p2pApiKeys: P2PAPIKeys {
         keys.p2pApiKey
     }
+
+    var bffStaticToken: String {
+        keys.bffStaticToken
+    }
 }
 
 extension CommonKeysManager {
@@ -177,5 +181,6 @@ extension CommonKeysManager {
         let yieldModuleApiKey: String
         let yieldModuleApiKeyDev: String
         let p2pApiKey: P2PAPIKeys
+        let bffStaticToken: String
     }
 }
