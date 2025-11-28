@@ -16,10 +16,14 @@ final class TangemPayNotificationManager {
 
     init(tangemPayAccountStatePublisher: AnyPublisher<TangemPayAuthorizer.State, Never>) {
         cancellable = tangemPayAccountStatePublisher
-            .compactMap(\.notificationEvent)
+            .map(\.notificationEvent)
             .withWeakCaptureOf(self)
             .map { manager, event in
-                [manager.makeNotificationViewInput(event: event)]
+                if let event {
+                    [manager.makeNotificationViewInput(event: event)]
+                } else {
+                    []
+                }
             }
             .sink(receiveValue: notificationInputsSubject.send)
     }
