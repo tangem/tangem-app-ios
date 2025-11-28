@@ -323,6 +323,20 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
+    func openTangemPayIssuingYourCardPopup() {
+        let viewModel = TangemPayYourCardIsIssuingSheetViewModel(coordinator: self)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel) {
+        let viewModel = TangemPayFailedToIssueCardSheetViewModel(userWalletModel: userWalletModel, coordinator: self)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount) {
         mainBottomSheetUIManager.hide()
 
@@ -514,6 +528,31 @@ extension MainCoordinator: VisaWalletRoutable {
 }
 
 extension MainCoordinator: VisaTransactionDetailsRouter {}
+
+extension MainCoordinator: TangemPayYourCardIsIssuingRoutable {
+    func closeYourCardIsIssuingSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+extension MainCoordinator: TangemPayFailedToIssueCardRoutable {
+    func closeFailedToIssueCardSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openMail(with dataCollector: any EmailDataCollector, recipient: String, emailType: EmailType) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+}
 
 // MARK: - RateAppRoutable protocol conformance
 

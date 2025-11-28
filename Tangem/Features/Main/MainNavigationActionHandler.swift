@@ -272,12 +272,7 @@ extension MainCoordinator {
         ) -> Bool {
             guard FeatureProvider.isAvailable(.visa),
                   let coordinator,
-                  let userWalletModel = userWalletRepository.selectedModel,
-                  // If it's not nil - user already received and accepted Tangem Pay offer
-                  TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
-                      customerWalletId: userWalletModel.userWalletId.stringValue,
-                      keysRepository: userWalletModel.keysRepository
-                  ) == nil
+                  let userWalletModel = userWalletRepository.selectedModel
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
