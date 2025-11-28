@@ -55,7 +55,7 @@ extension HardwareBackupTypesCoordinator {
 // MARK: - HardwareBackupTypesRoutable
 
 extension HardwareBackupTypesCoordinator: HardwareBackupTypesRoutable {
-    func openCreateHardwareWallet() {
+    func openCreateHardwareWallet(userWalletModel: UserWalletModel) {
         let dismissAction: Action<HardwareCreateWalletCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main(let userWalletModel):
@@ -64,7 +64,7 @@ extension HardwareBackupTypesCoordinator: HardwareBackupTypesRoutable {
         }
 
         let coordinator = HardwareCreateWalletCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: HardwareCreateWalletCoordinator.InputOptions())
+        coordinator.start(with: HardwareCreateWalletCoordinator.InputOptions(userWalletModel: userWalletModel))
         hardwareCreateWalletCoordinator = coordinator
     }
 
