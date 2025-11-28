@@ -87,22 +87,6 @@ extension CommonTokenQuotesRepository: TokenQuotesRepositoryUpdater {
 
 private extension CommonTokenQuotesRepository {
     func bind() {
-        AppSettings.shared.$selectedCurrencyCode
-            // Ignore already the selected code
-            .dropFirst()
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
-            // Ignore if the selected code is equal
-            .removeDuplicates()
-            .withLatestFrom(_quotes)
-            .withWeakCaptureOf(self)
-            // Reload existing quotes for a new currency code
-            .flatMapLatest { repository, quotes in
-                let currencyIds = Array(quotes.keys)
-                return repository.loadQuotes(currencyIds: currencyIds)
-            }
-            .sink()
-            .store(in: &bag)
-
         loadingQueue
             .collect(debouncedTime: 0.3, scheduler: DispatchQueue.global())
             .withWeakCaptureOf(self)

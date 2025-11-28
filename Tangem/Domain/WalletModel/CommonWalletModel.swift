@@ -120,6 +120,23 @@ class CommonWalletModel {
     }
 
     private func bind() {
+        AppSettings.shared.$selectedCurrencyCode
+            // Ignore already the selected code
+            .dropFirst()
+            // Ignore if the selected code is equal
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { [weak self] _ in
+                // Invoke immediate fiat update when currency changes (e.g. offline case)
+                self?._rate.send(.loading(cached: nil))
+            })
+            .withWeakCaptureOf(self)
+            // Reload existing quotes for a new currency code
+            .flatMap { model, _ in
+                model.loadQuotes()
+            }
+            .sink { _ in }
+            .store(in: &bag)
+
         quotesRepository
             .quotesPublisher
             .dropFirst() // we need to drop first value because it's an empty dictionary
