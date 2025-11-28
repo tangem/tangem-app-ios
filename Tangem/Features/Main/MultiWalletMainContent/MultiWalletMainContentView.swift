@@ -25,10 +25,6 @@ struct MultiWalletMainContentView: View {
 
             ForEach(viewModel.tangemPayNotificationInputs) { input in
                 switch input.id {
-                case TangemPayNotificationEvent.createAccountAndIssueCard.id:
-                    NotificationView(input: input)
-                        .setButtonsLoadingState(to: viewModel.tangemPayCardIssuingInProgress)
-
                 case TangemPayNotificationEvent.syncNeeded.id:
                     NotificationView(input: input)
                         .setButtonsLoadingState(to: viewModel.tangemPaySyncInProgress)
