@@ -83,10 +83,10 @@ class CommonUserWalletModel {
         // [REDACTED_INFO]
         if FeatureProvider.isAvailable(.visa) {
             runTask { [self] in
-                let tangemPayAccount = await TangemPayAccount(
-                    userWalletId: userWalletId,
-                    keysRepository: keysRepository,
-                    tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor
+                let builder = TangemPayAccountBuilder()
+                let tangemPayAccount = try? await builder.makeTangemPayAccount(
+                    authorizerType: .availabilityService,
+                    userWalletModel: self
                 )
 
                 if let tangemPayAccount {

@@ -63,24 +63,12 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     private func makeTangemPayAccount() async throws -> TangemPayAccount {
-        let customerWalletId = userWalletModel.userWalletId.stringValue
-        let tangemPayAuthorizer = TangemPayAuthorizer(
-            customerWalletId: customerWalletId,
-            interactor: userWalletModel.tangemPayAuthorizingInteractor,
-            keysRepository: userWalletModel.keysRepository,
-            state: .unavailable
+        let builder = TangemPayAccountBuilder()
+        let tangemPayAccount = try await builder.makeTangemPayAccount(
+            authorizerType: .plain,
+            userWalletModel: userWalletModel
         )
-
-        try await tangemPayAuthorizer.authorizeWithCustomerWallet()
-
-        await MainActor.run {
-            AppSettings.shared.tangemPayIsPaeraCustomer[customerWalletId] = true
-        }
-
-        return TangemPayAccount(
-            authorizer: tangemPayAuthorizer,
-            tokenBalancesRepository: CommonTokenBalancesRepository(userWalletId: userWalletModel.userWalletId)
-        )
+        return tangemPayAccount
     }
 }
 
