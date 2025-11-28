@@ -52,18 +52,18 @@ extension TangemPayUtilities {
             }
     }
 
-    static func getWalletAddressAndAuthorizationTokens(
+    static func getCustomerWalletAddressAndAuthorizationTokens(
         customerWalletId: String,
         keysRepository: KeysRepository
     ) -> (walletAddress: String, tokens: TangemPayAuthorizationTokens)? {
         guard let walletPublicKey = TangemPayUtilities.getKey(from: keysRepository),
-              let walletAddress = try? TangemPayUtilities.makeAddress(using: walletPublicKey),
+              let customerWalletAddress = try? TangemPayUtilities.makeAddress(using: walletPublicKey),
               // If there was no refreshToken saved - means user never got tangem pay offer
               let tokens = tangemPayAuthorizationTokensRepository.getToken(forCustomerWalletId: customerWalletId)
         else {
             return nil
         }
 
-        return (walletAddress, tokens)
+        return (customerWalletAddress, tokens)
     }
 }
